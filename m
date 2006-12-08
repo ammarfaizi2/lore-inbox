@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759383AbWLHDAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164363AbWLHBPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759383AbWLHDAe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 22:00:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759495AbWLHDAe
+	id S1164363AbWLHBPH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:15:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164346AbWLHBOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 22:00:34 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:46511 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759383AbWLHDAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 22:00:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hVPo+8oXUMVufyfSycYy3gpMwmLaenV61pUDwD1AjRmuABEO2zLYpAzw8zk/kWvn88/zQxtETedoLEmU4E9p1WoFdrW2xMP8vSlBQ38F7N7ai2JC85ArGO3EfzhwQlmKli/NPzau1b6IrUrAd/8jb1GJXDAIXnaWfg3+Y2LK0CQ=
-Message-ID: <6dc076840612071900r657e78dag1377312d86042c67@mail.gmail.com>
-Date: Fri, 8 Dec 2006 12:00:31 +0900
-From: "Takashi Iwai" <takashi.iwai@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [git patch] improve INTx toggle for PCI MSI
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Takashi Iwai" <tiwai@suse.de>,
-       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       gregkh@suse.de, barkalow@iabervon.org
-In-Reply-To: <Pine.LNX.4.64.0612071504570.3615@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061207225812.GA13917@havoc.gtf.org>
-	 <Pine.LNX.4.64.0612071504570.3615@woody.osdl.org>
+	Thu, 7 Dec 2006 20:14:49 -0500
+Received: from ns2.suse.de ([195.135.220.15]:47309 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164325AbWLHBOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:14:38 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:14:51 +1100
+Message-Id: <1061208011451.30761@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 017 of 18] knfsd: Don't ignore kstrdup failure in rpc caches.
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/12/8, Linus Torvalds <torvalds@osdl.org>:
->
->
-> On Thu, 7 Dec 2006, Jeff Garzik wrote:
-> >
-> > "it boots" on ICH7 at least.
->
-> Ok. Pulled, pushed out.
->
-> There was some noise saying that this may actually fix the problems with
-> the NVidia "Intel HDA" sound situation? Can people who saw that issue try
-> it out whether this just makes MSI works for them?
->
-> Takashi added to the To: field, because he hopefully remembers and has a
-> clue about the proper identities in question.. Iirc, you needed to have
-> not only a NVidia chipset, but also have the legacy interrupt shared with
-> some other device to see the problem.
-
-Well, I'm on vacation now, so cannot answer much, too :)
-
-IIRC, the problem was with HD-audio and network devices on Nvidia.
-The explicit call of pci_intx() (currently implemented in hd-audio
-driver locally) helped avoiding the orphan irq problem, but doesn't
-fix the MSI problem itself.  (Some might have been fixed indeed,
-but I don't have reports in hands.)
 
 
-Takashi
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./net/sunrpc/svcauth_unix.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
+--- .prev/net/sunrpc/svcauth_unix.c	2006-12-08 12:08:37.000000000 +1100
++++ ./net/sunrpc/svcauth_unix.c	2006-12-08 12:09:31.000000000 +1100
+@@ -53,6 +53,10 @@ struct auth_domain *unix_domain_find(cha
+ 			return NULL;
+ 		kref_init(&new->h.ref);
+ 		new->h.name = kstrdup(name, GFP_KERNEL);
++		if (new->h.name == NULL) {
++			kfree(new);
++			return NULL;
++		}
+ 		new->h.flavour = &svcauth_unix;
+ 		new->addr_changes = 0;
+ 		rv = auth_domain_lookup(name, &new->h);

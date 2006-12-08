@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760739AbWLHOUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1424626AbWLHObP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760739AbWLHOUW (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 09:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760741AbWLHOUW
+	id S1424626AbWLHObP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 09:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425521AbWLHObP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 09:20:22 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:41878 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760739AbWLHOUV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 09:20:21 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Fri, 8 Dec 2006 09:15:45 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] cpufreq : Change logical compare to bitwise compare.
-Message-ID: <Pine.LNX.4.64.0612080449220.30237@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Fri, 8 Dec 2006 09:31:15 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:40441 "EHLO e4.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1424626AbWLHObO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 09:31:14 -0500
+Subject: Re: [PATCH] freezer.h uses task_struct fields
+From: Dave Kleikamp <shaggy@ltc.vnet.ibm.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20061207221343.82271a53.randy.dunlap@oracle.com>
+References: <20061207221343.82271a53.randy.dunlap@oracle.com>
+Content-Type: text/plain
+Date: Fri, 08 Dec 2006 08:31:11 -0600
+Message-Id: <1165588271.8686.8.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-12-07 at 22:13 -0800, Randy Dunlap wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> freezer.h uses task_struct fields so it should include sched.h.
+> 
+>   CC [M]  fs/jfs/jfs_txnmgr.o
+> In file included from fs/jfs/jfs_txnmgr.c:49:
+> include/linux/freezer.h: In function 'frozen':
+> include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:9: error: 'PF_FROZEN' undeclared (first use in this function)
+> include/linux/freezer.h:9: error: (Each undeclared identifier is reported only once
+> include/linux/freezer.h:9: error: for each function it appears in.)
+> include/linux/freezer.h: In function 'freezing':
+> include/linux/freezer.h:17: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:17: error: 'PF_FREEZE' undeclared (first use in this function)
+> include/linux/freezer.h: In function 'freeze':
+> include/linux/freezer.h:26: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:26: error: 'PF_FREEZE' undeclared (first use in this function)
+> include/linux/freezer.h: In function 'do_not_freeze':
+> include/linux/freezer.h:34: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:34: error: 'PF_FREEZE' undeclared (first use in this function)
+> include/linux/freezer.h: In function 'thaw_process':
+> include/linux/freezer.h:43: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:43: error: 'PF_FROZEN' undeclared (first use in this function)
+> include/linux/freezer.h:44: warning: implicit declaration of function 'wake_up_process'
+> include/linux/freezer.h: In function 'frozen_process':
+> include/linux/freezer.h:55: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:55: error: dereferencing pointer to incomplete type
+> include/linux/freezer.h:55: error: 'PF_FREEZE' undeclared (first use in this function)
+> include/linux/freezer.h:55: error: 'PF_FROZEN' undeclared (first use in this function)
+> fs/jfs/jfs_txnmgr.c: In function 'freezing':
+> include/linux/freezer.h:18: warning: control reaches end of non-void function
+> make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
 
-  Change a logical comparison to the proper bitwise comparison.
+Defining CONFIG_SMP or CONFIG_PREEMPT masks this problem (at least in
+jfs), since smp_lock.h will include sched.h when CONFIG_LOCK_KERNEL is
+defined, and smp_lock.h happens to be included by jfs_txngmr.c before
+freezer.h.
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 
----
+Acked-by: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
 
-diff --git a/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c b/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
-index 92afa3b..0b9cc8a 100644
---- a/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
-+++ b/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
-@@ -473,7 +473,7 @@ static int __init cpufreq_gx_init(void)
- 	pci_read_config_byte(params->cs55x0, PCI_MODON, &(params->on_duration));
- 	pci_read_config_byte(params->cs55x0, PCI_MODOFF, &(params->off_duration));
-         pci_read_config_dword(params->cs55x0, PCI_CLASS_REVISION, &class_rev);
--	params->pci_rev = class_rev && 0xff;
-+	params->pci_rev = class_rev & 0xff;
+> ---
+>  include/linux/freezer.h |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> --- linux-2.6.19-git11.orig/include/linux/freezer.h
+> +++ linux-2.6.19-git11/include/linux/freezer.h
+> @@ -1,5 +1,7 @@
+>  /* Freezer declarations */
+> 
+> +#include <linux/sched.h>
+> +
+>  #ifdef CONFIG_PM
+>  /*
+>   * Check if a process has been frozen
+> 
+> 
 
- 	if ((ret = cpufreq_register_driver(&gx_suspmod_driver))) {
- 		kfree(params);
 

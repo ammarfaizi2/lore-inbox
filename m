@@ -1,106 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760822AbWLHS2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760800AbWLHSbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760822AbWLHS2g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 13:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760821AbWLHS21
+	id S1760800AbWLHSbW (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 13:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760817AbWLHSbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 13:28:27 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:46225 "EHLO smtp.osdl.org"
+	Fri, 8 Dec 2006 13:31:21 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:36093 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760816AbWLHS2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 13:28:05 -0500
-Message-Id: <20061208182500.478856000@osdl.org>
-References: <20061208182241.786324000@osdl.org>
-User-Agent: quilt/0.46-1
-Date: Fri, 08 Dec 2006 10:22:43 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/6] e1000: use pcix_set_mmrbc
-Content-Disposition: inline; filename=e1000-mmrbc
+	id S1760800AbWLHSbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 13:31:21 -0500
+Message-ID: <4579AFA5.90003@us.ibm.com>
+Date: Fri, 08 Dec 2006 12:32:05 -0600
+From: Steve French <smfltc@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Shirish S Pargaonkar <shirishp@us.ibm.com>, simo <simo@samba.org>,
+       Jeremy Allison <jra@samba.org>, linux-cifs-client@lists.samba.org
+Subject: Re: -mm merge plans for 2.6.20
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use new pcix_set_mmrbc interface, this prevents possible data
-corruption on broken PCI-X chipsets.
+akpm wrote:
+>deprecate-smbfs-in-favour-of-cifs.patch
+>deprecate-smbfs-in-favour-of-cifs-docs.patch
+>
+> Am still waiting to hear from sfrench on the appropriateness of this.
 
-The E1000 PCI hardware wrappers are a nuisance.
-Untested on real hardware.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+smbfs deprecation is ok but there are a few things to consider:
+1) Secure mounts:  although more secure mounts are possible now to
+Windows (not just Samba) with the most recent NTLMv2 patch in the cifs
+tree, implementation of Kerberized mounts are stuck in debates about the
+right upcall mechanisms (gssapi/spnego blobs can be almost 64K in size,
+and userspace turned out to need to keep state across a sequence of two 
+to three
+upcalls before discarding its state which complicates things).   smbfs 
+can handle
+kerberos mounts in some cases so this is critical, even though in 
+practice ntlmv2
+is often good enough.
 
----
- drivers/net/e1000/e1000_hw.c   |   23 ++---------------------
- drivers/net/e1000/e1000_hw.h   |    1 +
- drivers/net/e1000/e1000_main.c |    8 ++++++++
- 3 files changed, 11 insertions(+), 21 deletions(-)
+2) minor holes in backlevel server (OS/2 and Windows 9x/WindowsME) support
+cifs is better in many cases than smbfs for this now, but cifs does
+not handle utimes() remotely to them  yet  ie setting date/time the old 
+style
+DOS or OS/2 way (cifs can of course query the time fine).   This may not 
+matter
+for most cases and would be pretty easy to finish up
 
---- pci-x.orig/drivers/net/e1000/e1000_hw.c
-+++ pci-x/drivers/net/e1000/e1000_hw.c
-@@ -846,10 +846,6 @@ e1000_init_hw(struct e1000_hw *hw)
-     uint32_t ctrl;
-     uint32_t i;
-     int32_t ret_val;
--    uint16_t pcix_cmd_word;
--    uint16_t pcix_stat_hi_word;
--    uint16_t cmd_mmrbc;
--    uint16_t stat_mmrbc;
-     uint32_t mta_size;
-     uint32_t reg_data;
-     uint32_t ctrl_ext;
-@@ -939,23 +935,8 @@ e1000_init_hw(struct e1000_hw *hw)
-         break;
-     default:
-         /* Workaround for PCI-X problem when BIOS sets MMRBC incorrectly. */
--        if (hw->bus_type == e1000_bus_type_pcix) {
--            e1000_read_pci_cfg(hw, PCIX_COMMAND_REGISTER, &pcix_cmd_word);
--            e1000_read_pci_cfg(hw, PCIX_STATUS_REGISTER_HI,
--                &pcix_stat_hi_word);
--            cmd_mmrbc = (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
--                PCIX_COMMAND_MMRBC_SHIFT;
--            stat_mmrbc = (pcix_stat_hi_word & PCIX_STATUS_HI_MMRBC_MASK) >>
--                PCIX_STATUS_HI_MMRBC_SHIFT;
--            if (stat_mmrbc == PCIX_STATUS_HI_MMRBC_4K)
--                stat_mmrbc = PCIX_STATUS_HI_MMRBC_2K;
--            if (cmd_mmrbc > stat_mmrbc) {
--                pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
--                pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
--                e1000_write_pci_cfg(hw, PCIX_COMMAND_REGISTER,
--                    &pcix_cmd_word);
--            }
--        }
-+        if (hw->bus_type == e1000_bus_type_pcix)
-+		e1000_pcix_set_mmrbc(hw, 2048);
-         break;
-     }
- 
---- pci-x.orig/drivers/net/e1000/e1000_main.c
-+++ pci-x/drivers/net/e1000/e1000_main.c
-@@ -4770,6 +4770,14 @@ e1000_read_pci_cfg(struct e1000_hw *hw, 
- }
- 
- void
-+e1000_pcix_set_mmrbc(struct e1000_hw *hw, int mmrbc)
-+{
-+	struct e1000_adapter *adapter = hw->back;
-+
-+	pcix_set_mmrbc(adapter->pdev, mmrbc);
-+}
-+
-+void
- e1000_write_pci_cfg(struct e1000_hw *hw, uint32_t reg, uint16_t *value)
- {
- 	struct e1000_adapter *adapter = hw->back;
---- pci-x.orig/drivers/net/e1000/e1000_hw.h
-+++ pci-x/drivers/net/e1000/e1000_hw.h
-@@ -421,6 +421,7 @@ void e1000_tbi_adjust_stats(struct e1000
- void e1000_get_bus_info(struct e1000_hw *hw);
- void e1000_pci_set_mwi(struct e1000_hw *hw);
- void e1000_pci_clear_mwi(struct e1000_hw *hw);
-+void e1000_pcix_set_mmrbc(struct e1000_hw *hw, int mmbrc);
- void e1000_read_pci_cfg(struct e1000_hw *hw, uint32_t reg, uint16_t * value);
- void e1000_write_pci_cfg(struct e1000_hw *hw, uint32_t reg, uint16_t * value);
- int32_t e1000_read_pcie_cap_reg(struct e1000_hw *hw, uint32_t reg, uint16_t *value);
+3) Documentation - minor cifs vs. smbfs differences in 
+syntax/behavior.   I have
+added some of this to the cifs documentation .odt file but have not 
+posted the
+pdf yet nor updated the shorter fs/cifs/README with some of this
+helpful information (differences in syntax to help users migrating from 
+smbfs).
+I will post that to the cifs project site as PDF and .ODT this weekend.
 
--- 
+4) Hot bugs ... For most users we should be ok here, but there is one major
+unresolved bug that worries me: the cache_reap bug ("sleeping function
+called from invalid context" in list_del+0x9/0x6c)
+    https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=214622
+Not sure whose bug that will turn out to be and ACPI settings seem to
+affect it but it obviously affects some 2.6.19 users.
 
+Running simple tests on smbfs, I run into so many problems now though, it
+is probably time to mark it as deprecated as Fedora etc. apparently 
+already have.

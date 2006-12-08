@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164248AbWLHAwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425471AbWLHMEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164248AbWLHAwX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 19:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164249AbWLHAwX
+	id S1425471AbWLHMEn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425464AbWLHMEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 19:52:23 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:35337 "EHLO
-	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1164248AbWLHAwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 19:52:22 -0500
-Date: Fri, 8 Dec 2006 00:52:14 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove useless wmb() memory barrier
-Message-ID: <20061208005214.GA18015@linux-mips.org>
+	Fri, 8 Dec 2006 07:04:36 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:5874 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425454AbWLHME0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:04:26 -0500
+Date: Fri, 8 Dec 2006 13:05:23 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Avantika Mathur <mathur@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cfq performance gap
+Message-ID: <20061208120522.GN23887@kernel.dk>
+References: <1165536200.25180.1.camel@dyn9047017105.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <1165536200.25180.1.camel@dyn9047017105.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wake_up's implementation does an implicit memory barrier and I think
-that's the only sane semantics as the caller shouldn't have to worry.
-So this write memory barrier is useless.
+On Thu, Dec 07 2006, Avantika Mathur wrote:
+> Hi Jens, 
 
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+(you probably noticed now, but the axboe@suse.de email is no longer
+valid)
 
-diff --git a/fs/xfs/linux-2.6/xfs_super.c b/fs/xfs/linux-2.6/xfs_super.c
-index b93265b..33800c7 100644
---- a/fs/xfs/linux-2.6/xfs_super.c
-+++ b/fs/xfs/linux-2.6/xfs_super.c
-@@ -553,7 +553,6 @@ vfs_sync_worker(
- 		error = bhv_vfs_sync(vfsp, SYNC_FSDATA | SYNC_BDFLUSH | \
- 					SYNC_ATTR | SYNC_REFCACHE, NULL);
- 	vfsp->vfs_sync_seq++;
--	wmb();
- 	wake_up(&vfsp->vfs_wait_single_sync_task);
- }
- 
+> I've noticed a performance gap between the cfq scheduler and other io
+> schedulers when running the rawio benchmark. 
+> Results from rawio on 2.6.19, cfq and noop schedulers: 
+> 
+> CFQ: 
+> 
+> procs           device    num read   KB/sec     I/O Ops/sec 
+> -----  ---------------  ----------  -------  -------------- 
+>   16         /dev/sda       16412     8338            2084 
+> -----  ---------------  ----------  -------  -------------- 
+>   16                        16412     8338            2084 
+> 
+> Total run time 0.492072 seconds 
+> 
+> 
+> NOOP: 
+> 
+> procs           device    num read   KB/sec     I/O Ops/sec 
+> -----  ---------------  ----------  -------  -------------- 
+>   16         /dev/sda       16399    29224            7306 
+> -----  ---------------  ----------  -------  -------------- 
+>   16                        16399    29224            7306 
+> 
+> Total run time 0.140284 seconds 
+> 
+> The benchmark workload is 16 processes running 4k random reads. 
+> 
+> Is this performance gap a known issue? 
+
+CFQ could be a little slower at this benchmark, but your results are
+much worse than I would expect. What is the queueing depth of sda? How
+are you invoking rawio?
+
+Your runtime is very low, how does it look if you allow the test to run
+for much longer? 30MiB/sec random read bandwidth seems very high, I'm
+wondering what exactly is being tested here.
+
+-- 
+Jens Axboe
+

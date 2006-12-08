@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760416AbWLJNQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760421AbWLJNQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760416AbWLJNQs (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 08:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760423AbWLJNQs
+	id S1760421AbWLJNQu (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 08:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760449AbWLJNQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 08:16:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2574 "EHLO spitz.ucw.cz"
+	Sun, 10 Dec 2006 08:16:50 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2575 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1760416AbWLJNQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 08:16:47 -0500
-Date: Fri, 8 Dec 2006 21:17:23 +0000
+	id S1760421AbWLJNQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 08:16:49 -0500
+Date: Fri, 8 Dec 2006 21:16:23 +0000
 From: Pavel Machek <pavel@ucw.cz>
 To: Paul Clements <paul.clements@steeleye.com>
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, wouter@grep.be
 Subject: Re: [PATCH] nbd: show nbd client pid in sysfs
-Message-ID: <20061208211723.GC4924@ucw.cz>
+Message-ID: <20061208211622.GB4924@ucw.cz>
 References: <45762745.7010202@steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -31,10 +31,9 @@ Hi!
 > for tracking connection status of a device and for 
 > determining which nbd devices are currently in use.
 
-Actually is it needed at all? Perhaps nbd clients should be modified
-to put nbdX in their process nam?
+Should get a line or two in Documentation/ ?
+						Pavel
 
-> 
 > Tested against 2.6.19.
 > 
 > Thanks,

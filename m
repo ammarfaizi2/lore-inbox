@@ -1,111 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163461AbWLGVxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425334AbWLHK0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163461AbWLGVxY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163472AbWLGVxX
+	id S1425334AbWLHK0A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 05:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425333AbWLHK0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:53:23 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:54912 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163468AbWLGVxV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:53:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=lkSDShfzwrDk/iDT8x4xaOmF8YciSGs68OqGMP8nmnNDILyyJST38UV2xIUmoegN8Nh6kUa0ZyBrjSCoOfKxHarxpvTiddd9DoITQjv5AWrxLPpEJ2o89dXUNp38vuUdfmk/9lGpFziaCMjZVlnguLbfNOEniOw9+DbTZDFYYhY=
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Date: Thu, 7 Dec 2006 22:53:13 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "John Linville" <linville@tuxdriver.com>, "Jiri Benc" <jbenc@suse.cz>,
-       "Lennart Poettering" <lennart@poettering.net>,
-       "Johannes Berg" <johannes@sipsolutions.net>,
-       "Larry Finger" <Larry.Finger@lwfinger.net>
-References: <200612031936.34343.IvDoorn@gmail.com> <200612062241.58476.IvDoorn@gmail.com> <d120d5000612061404x3f6e18e7qd3601c3b450a5f91@mail.gmail.com>
-In-Reply-To: <d120d5000612061404x3f6e18e7qd3601c3b450a5f91@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 8 Dec 2006 05:26:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35635 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425334AbWLHKZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 05:25:59 -0500
+Subject: Re: [Cluster-devel] Re: [GFS2] Don't flush everything on fdatasync
+	[70/70]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Wendy Cheng <wcheng@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, cluster-devel@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <457865DC.3020608@redhat.com>
+References: <1164889448.3752.449.camel@quoit.chygwyn.com>
+	 <20061130230158.174e995c.akpm@osdl.org>
+	 <1164970738.3752.508.camel@quoit.chygwyn.com>
+	 <20061201110927.ec6ee073.akpm@osdl.org>
+	 <1165482686.3752.816.camel@quoit.chygwyn.com> <457865DC.3020608@redhat.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 08 Dec 2006 10:29:27 +0000
+Message-Id: <1165573767.3752.927.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612072253.14492.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-> > > >  2 - Hardware key that does not control the hardware radio and does not report anything to userspace
-> > >
-> > > Kind of uninteresting button ;)
+On Thu, 2006-12-07 at 14:05 -0500, Wendy Cheng wrote:
+> Steven Whitehouse wrote:
+> > Hi,
 > >
-> > And this is the button that rfkill was originally designed for.
-> > Laptops with integrated WiFi cards from Ralink have a hardware button that don't send anything to
-> > userspace (unless the ACPI event is read) and does not directly control the radio itself.
+> > On Fri, 2006-12-01 at 11:09 -0800, Andrew Morton wrote:
+> >   
+> >>> I was taking my cue here from ext3 which does something similar. The
+> >>> filemap_fdatawrite() is done by the VFS before this is called with a
+> >>> filemap_fdatawait() afterwards. This was intended to flush the metadata
+> >>> via (eventually) ->write_inode() although I guess I should be calling
+> >>> write_inode_now() instead?
+> >>>       
+> >> oh I see, you're jsut trying to write the inode itself, not the pages.
+> >>
+> >> write_inode_now() will write the pages, which you seem to not want to do.
+> >> Whatever.  The APIs here are a bit awkward.
+> >>     
 > >
+> > I've added a comment to explain whats going on here, and also the
+> > following patch. I know it could be better, but its still an improvement
+> > on what was there before,
+> >
+> >
+> >   
+> Steve,
 > 
-> So what does such a button do? I am confused here...
-
-Without a handler like rfkill, it does nothing besides toggling a bit in a register.
-The Ralink chipsets have a couple of registers that represent the state of that key.
-Besides that, there are no notifications to the userspace nor does it directly control the
-radio.
-That is where rfkill came in with the toggle handler that will listen to the register
-to check if the key has been pressed and properly process the key event.
-
-> > And this event should be reported by a generic approach right? So it should
-> > be similar as with your point 2 below. But this would mean that the driver
-> > should create the input device. Or can a driver send the KEY_WIFI event
-> > over a main layer without the need of a personal input device?
-> > I am not that familiar with the input device layer in the kernel, and this is
-> > my first attempt on creating something for it, so I might have missed something. ;)
+> I'm in the middle of something else and don't have upstream kernel 
+> source handy at this moment. But I read akpm's comment as 
+> "write_inode_now" would do writepage and that is *not* what you want (?) 
+> (since vfs has done that before this call is invoked). I vaguely 
+> recalled I did try write_inode_now() on GFS1 once but had to replace it 
+> with "sync_inode" on RHEL4 (for the reason that I can't remember at this 
+> moment). I suggest you keep "sync_inode" (at least for a while until we 
+> can prove other call can do better). This "sync_inode" has been well 
+> tested out (with GFS1's fsync call).
 > 
-> Yes, I think the driver should just create an input device. You may
-> provide a generic implementation for a polled button and have driver
-> instantiate it but I do not think that a single RFkill button device
-> is needed - you won't have too many of them in a single system anyway
-> (I think you will normally have 1, 2 at the most).
+Ok. Its gone upstream now, but I'm happy to revert that change if it
+turns out to be a problem. My tests show identical performance between
+the two calls, but maybe there is a corner case I missed?
 
-Ok, this is something that can be added as notice in the rfkill description
-to make sure drivers which supports keys that handle the radio event themselves
-should handle everything themselves and just use the KEY_RFKILL event for the
-input device.
+Both calls do writepage() but since the VFS has already done it for us,
+the chances of there being any more dirty pages to write is fairly
+small, so its unlikely to be much of a problem I think, but I'm willing
+to be proved wrong if there is a good reason.
 
-> > > 3. A device without transmitter but with a button - just register with
-> > > input core. Userspace will have to manage state of other devices with
-> > > transmitters in response to button presses.
-> >
-> > This is clear too. Rfkill is only intended for drivers that control a device with
-> > a transmitter (WiFi, Bluetooth, IRDA) that have a button that is intended to
-> > do something with the radio/transmitter.
-> >
-> > > Does this make sense?
-> >
-> > Yes, this was what I intended to do with rfkill, so at that point we have
-> > the same goal.
-> >
+> There is another issue. It is a gray area. Note that you don't grab any 
+> glock here ... so if someone *has* written something in other nodes, 
+> this sync could miss it (?). This depends on how people expects a 
+> fsync/fdatasync should behave in a cluster filesystem. GFS1 asks for a 
+> shared lock here so it will force other node to flush the data (I 
+> personally think this is a more correct behavior). Your call though.
 > 
-> I think it is almost the same. I also want support RF devices that can
-> control radio state but lack a button. This is covered by mixing 2)
-> and 3) in kernel and for userspace looks exactly like 2) with a
-> button.
-
-Ok, this means making the change in rfkill to instead support 1) and 2)
-and change it into 2) and 3) that would be possible and would make it possible
-again to change the radio state to something different then the key indicates.
-That was previously removed because of support for 1) devices.
-
-> ...
-> > >
-> > > I don't think a config option is a good idea unless by config option
-> > > you mean a sysfs attribute.
-> >
-> > I indeed meant a sysfs attribute. I should have been more clear on this. :)
-> >
+> -- Wendy
 > 
-> OK :)
-> 
+Its a tricky one to deal with. I would expect that the chances of an
+application relying on an fsync on one node to cause a cross-cluster
+flush is relatively unlikely. It would mean that there would have to be
+another communication channel between the processes on the different
+nodes through which the node that was writing data could request a flush
+and then receive notification that it has finished, otherwise it would
+not seem to make any sense. It would seem an odd way to write an
+application, but maybe one does exist which does this somewhere.
 
-Ivo
+Delving back into the history it looks like this is a change (with
+respect to gfs1) made by Ken rather than myself. I don't mind adding
+this feature though, but even so what we have now is still a marked
+improvement on what was there previously I think,
+
+Steve.
+
+

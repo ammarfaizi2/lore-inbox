@@ -1,76 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425207AbWLHIxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935689AbWLHKwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425207AbWLHIxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 03:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425213AbWLHIxZ
+	id S935689AbWLHKwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 05:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935711AbWLHKwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 03:53:25 -0500
-Received: from fmmailgate03.web.de ([217.72.192.234]:37658 "EHLO
-	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425207AbWLHIxY (ORCPT
+	Fri, 8 Dec 2006 05:52:51 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:44606 "EHLO
+	amsfep12-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S935689AbWLHKwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 03:53:24 -0500
-Message-ID: <0c1101c71aa6$8e4aab60$eeeea8c0@aldipc>
-From: "roland" <devzero@web.de>
-To: "Fengguang Wu" <fengguang.wu@gmail.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jay Lan" <jlan@engr.sgi.com>,
-       <linux-kernel@vger.kernel.org>, <lserinol@gmail.com>
-References: <20060928151409.f0a9bda7.akpm@osdl.org> <0bb201c71a5d$1125a930$eeeea8c0@aldipc> <365540925.17780@ustc.edu.cn>
-Subject: Re: I/O statistics per process
-Date: Fri, 8 Dec 2006 09:55:04 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Fri, 8 Dec 2006 05:52:50 -0500
+Subject: Re: [PATCH] uml: fix net_kern workqueue abuse
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: torvalds <torvalds@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <1165573234.32332.15.camel@twins>
+References: <1165573234.32332.15.camel@twins>
+Content-Type: text/plain
+Date: Fri, 08 Dec 2006 11:45:08 +0100
+Message-Id: <1165574708.32332.16.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is really great news!
+Garh, it seems I forgot to finish the subject.
 
-thank you!
-
-
------ Original Message ----- 
-From: "Fengguang Wu" <fengguang.wu@gmail.com>
-To: "roland" <devzero@web.de>
-Cc: "Andrew Morton" <akpm@osdl.org>; "Jay Lan" <jlan@engr.sgi.com>; 
-<linux-kernel@vger.kernel.org>; <lserinol@gmail.com>
-Sent: Friday, December 08, 2006 2:22 AM
-Subject: Re: I/O statistics per process
-
-
-> Hi,
->
-> On Fri, Dec 08, 2006 at 01:09:01AM +0100, roland wrote:
->>
->> didn`t discover that there is anything new about this (andrew? jay?) or 
->> if
->> some other person sent a patch , but i`d like to report that i came 
->> across
->> a really nice tool which would immediately benefit from per-process i/o
->> statistics feature.
->
-> Andrew has added kernel support to it in -mm tree.
-> Check this commit log:
-> http://www.mail-archive.com/mm-commits@vger.kernel.org/msg02975.html
->
-> io-accounting-core-statistics.patch
-> io-accounting-write-accounting.patch
-> io-accounting-write-cancel-accounting.patch
-> io-accounting-read-accounting-2.patch
-> io-accounting-read-accounting-nfs-fix.patch
-> io-accounting-read-accounting-cifs-fix.patch
-> io-accounting-direct-io.patch
-> io-accounting-report-in-procfs.patch
-> io-accounting-via-taskstats.patch
-> io-accounting-add-to-getdelays.patch
->
-> Regards,
-> Fengguang Wu 
+On Fri, 2006-12-08 at 11:20 +0100, Peter Zijlstra wrote:
+> fixup the work on stack and exit scope trouble by placing the work_struct in
+> the uml_net_private data.
+> 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> ---
+>  arch/um/drivers/net_kern.c |   15 +++++++++------
+>  arch/um/include/net_kern.h |    2 ++
+>  2 files changed, 11 insertions(+), 6 deletions(-)
+> 
+> Index: linux-2.6-git/arch/um/drivers/net_kern.c
+> ===================================================================
+> --- linux-2.6-git.orig/arch/um/drivers/net_kern.c	2006-12-08 10:32:56.000000000 +0100
+> +++ linux-2.6-git/arch/um/drivers/net_kern.c	2006-12-08 11:14:28.000000000 +0100
+> @@ -72,9 +72,11 @@ static int uml_net_rx(struct net_device 
+>  	return pkt_len;
+>  }
+>  
+> -static void uml_dev_close(void* dev)
+> +static void uml_dev_close(struct work_struct *work)
+>  {
+> -	dev_close( (struct net_device *) dev);
+> +	struct uml_net_private *lp =
+> +		container_of(work, struct uml_net_private, work);
+> +	dev_close(lp->dev);
+>  }
+>  
+>  irqreturn_t uml_net_interrupt(int irq, void *dev_id)
+> @@ -89,7 +91,6 @@ irqreturn_t uml_net_interrupt(int irq, v
+>  	spin_lock(&lp->lock);
+>  	while((err = uml_net_rx(dev)) > 0) ;
+>  	if(err < 0) {
+> -		DECLARE_WORK(close_work, uml_dev_close, dev);
+>  		printk(KERN_ERR 
+>  		       "Device '%s' read returned %d, shutting it down\n", 
+>  		       dev->name, err);
+> @@ -97,9 +98,10 @@ irqreturn_t uml_net_interrupt(int irq, v
+>  		 * again lp->lock.
+>  		 * And dev_close() can be safely called multiple times on the
+>  		 * same device, since it tests for (dev->flags & IFF_UP). So
+> -		 * there's no harm in delaying the device shutdown. */
+> -		schedule_work(&close_work);
+> -#error this is not permitted - close_work will go out of scope
+> +		 * there's no harm in delaying the device shutdown.
+> +		 * Furthermore, the workqueue will not re-enqueue an already
+> +		 * enqueued work item. */
+> +		schedule_work(&lp->work);
+>  		goto out;
+>  	}
+>  	reactivate_fd(lp->fd, UM_ETH_IRQ);
+> @@ -366,6 +368,7 @@ static int eth_configure(int n, void *in
+>  	/* This points to the transport private data. It's still clear, but we
+>  	 * must memset it to 0 *now*. Let's help the drivers. */
+>  	memset(lp, 0, size);
+> +	INIT_WORK(&lp->work, uml_dev_close);
+>  
+>  	/* sysfs register */
+>  	if (!driver_registered) {
+> Index: linux-2.6-git/arch/um/include/net_kern.h
+> ===================================================================
+> --- linux-2.6-git.orig/arch/um/include/net_kern.h	2006-12-08 10:55:25.000000000 +0100
+> +++ linux-2.6-git/arch/um/include/net_kern.h	2006-12-08 11:00:26.000000000 +0100
+> @@ -11,6 +11,7 @@
+>  #include <linux/skbuff.h>
+>  #include <linux/socket.h>
+>  #include <linux/list.h>
+> +#include <linux/workqueue.h>
+>  
+>  struct uml_net {
+>  	struct list_head list;
+> @@ -26,6 +27,7 @@ struct uml_net_private {
+>  	struct net_device *dev;
+>  	struct timer_list tl;
+>  	struct net_device_stats stats;
+> +	struct work_struct work;
+>  	int fd;
+>  	unsigned char mac[ETH_ALEN];
+>  	unsigned short (*protocol)(struct sk_buff *);
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

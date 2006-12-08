@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1426241AbWLHUCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1426249AbWLHUC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1426241AbWLHUCn (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 15:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426244AbWLHUCn
+	id S1426249AbWLHUC5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 15:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426254AbWLHUC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 15:02:43 -0500
-Received: from wx-out-0506.google.com ([66.249.82.225]:37666 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1426241AbWLHUCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 15:02:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CDSv+l9E9EzjmWU2zrsmv1Q6/pjqs0noQkFfaeLwtWVUbohMRw2XXOqJ6NrApAHQTDv7lJeARwl9/aTGakWMROjGBXhybudvSoh1oUIj4VPaoYKqvsIM9mxH8XHiibxlAeJe16OBtTd4xKxPdrd2tu+mXbNBoZJqGranDKeVnLI=
-Message-ID: <9a8748490612081202n752529c1x84afacb07547e767@mail.gmail.com>
-Date: Fri, 8 Dec 2006 21:02:40 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: NFS related BUGs at shutdown - do_exit() + lock held at task exit time - 2.6.17.8
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       nfs@lists.sourceforge.net, "Neil Brown" <neilb@suse.de>
-In-Reply-To: <1165601022.5676.22.camel@lade.trondhjem.org>
+	Fri, 8 Dec 2006 15:02:57 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:57079 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1426250AbWLHUCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 15:02:55 -0500
+Date: Fri, 8 Dec 2006 12:01:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061208193116.GI31068@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612081154060.3516@woody.osdl.org>
+References: <20061206195820.GA15281@flint.arm.linux.org.uk>
+ <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk>
+ <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk>
+ <4595.1165597017@redhat.com> <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com>
+ <20061208171816.GG31068@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612080919220.16029@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0612081101280.3516@woody.osdl.org> <20061208193116.GI31068@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9a8748490612080341j4f0fa7b5l2f7272df0df55073@mail.gmail.com>
-	 <1165601022.5676.22.camel@lade.trondhjem.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/12/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Fri, 2006-12-08 at 12:41 +0100, Jesper Juhl wrote:
-> > Greetings,
-> >
-> > I just got a kernel crash when shutting down a webserver. Nothing made
-> > it to the logs, but I managed to get a photo of the dump on screen :
-> > http://www.kernel.org/pub/linux/kernel/people/juhl/images/2.6.17.8-kernel-crash.jpg
->
-> It is hard to see what is going on there. AFAICS, the more interesting
-> stuff to do with the Oops itself has scrolled off the screen. Any chance
-> it may have been syslogged?
->
-Unfortunately no - I checked. All I have is that photo :-(
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+On Fri, 8 Dec 2006, Russell King wrote:
+> 
+> No such restriction on ARM.
+> 
+> Also not true.  The architectural implementation is:
+
+I checked the ARM manuals, and quite fankly, they don't back you up.
+
+They do not claim that the physical address tag is byte-granular, and in 
+fact they make it pretty clear that the same tag is used for all the 
+sizes, which implies that the tag granularity is NOT byte granular, but 
+likely something else. 
+
+Both the manuals I checked also say: "Other events might cause the tag to 
+be cleared", without going into particular details other than saying that 
+a region that is marked non-shared might still clear the tag on access by 
+other CPU's - but they leave it open whether that's by design or not.
+
+In other words, if there actually is an architectural guarantee that 
+ldrex/strex are really as strong as you imply, it's not in the standard 
+architecture manuals from ARM at least for the ARM11562 or the ARM1136.
+
+So I suspect you're wrong, and that the ldrex/strex tags actually are not 
+all that different from other archtiectures which tend to have cacheline 
+granularities or more (I _think_ the original alpha granularity was the 
+whole address space, and any cache traffic would clear it. That's _really_ 
+pathetically weak, but hey, I might remember wrong, and it was the very 
+first implementation. I doubt ARM is _that_ weak, but I doubt it's as 
+strong as you claim).
+
+			Linus

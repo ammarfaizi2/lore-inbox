@@ -1,258 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163488AbWLGWJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425439AbWLHMCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163488AbWLGWJF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163489AbWLGWJE
+	id S1425439AbWLHMCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425455AbWLHMCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:09:04 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:3792 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163488AbWLGWJD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:09:03 -0500
-Message-ID: <45789124.1070207@mvista.com>
-Date: Thu, 07 Dec 2006 14:09:40 -0800
-From: David Singleton <dsingleton@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 8 Dec 2006 07:02:46 -0500
+Received: from cantor.suse.de ([195.135.220.2]:40854 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425443AbWLHMCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:02:41 -0500
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: new procfs memory analysis feature
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Fri, 8 Dec 2006 23:02:53 +1100
+Message-Id: <1061208120253.18269@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 012 of 13] knfsd: SUNRPC: support IPv6 addresses in RPC server's UDP receive path
+References: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew,
+From: Chuck Lever <chuck.lever@oracle.com>
 
-    this implements a feature for memory analysis tools to go along with 
-smaps.
-It shows reference counts for individual pages instead of aggregate 
-totals for a given VMA.
-It helps memory analysis tools determine how well pages are being 
-shared, or not,
-in a shared libraries, etc.
+Add support for IPv6 addresses in the RPC server's UDP receive path.
 
-   The per page information is presented in /proc/<pid>/pagemaps.
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Signed-off-by: David SIngleton <dsingleton@mvista.com>
-Signed-off-by: Joe Green <jgreen@mvista.com>
+### Diffstat output
+ ./net/sunrpc/svcsock.c |   51 +++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 43 insertions(+), 8 deletions(-)
 
- Documentation/filesystems/proc.txt |    3 -
- fs/proc/base.c                     |   15 +++++
- fs/proc/internal.h                 |    5 -
- fs/proc/task_mmu.c                 |  110 
-+++++++++++++++++++++++++++++++++++++ 4 files changed, 128 
-insertions(+), 5 deletions(-)
-
-Index: linux-2.6.18/Documentation/filesystems/proc.txt
-===================================================================
---- linux-2.6.18.orig/Documentation/filesystems/proc.txt
-+++ linux-2.6.18/Documentation/filesystems/proc.txt
-@@ -128,12 +128,13 @@ Table 1-1: Process specific entries in /
-  fd      Directory, which contains all file descriptors
-  maps   Memory maps to executables and library files           (2.4)
-  mem     Memory held by this process
-+ pagemaps Based on maps, presents page ref counts for each mapped file
-  root   Link to the root directory of this process
-+ smaps  Extension based on maps, presenting the rss size for each 
-mapped file
-  stat    Process status
-  statm   Process memory status information
-  status  Process status in human readable form
-  wchan   If CONFIG_KALLSYMS is set, a pre-decoded wchan
-- smaps  Extension based on maps, presenting the rss size for each 
-mapped file
- ..............................................................................
-
- For example, to get the status information of a process, all you have 
-to do is
-Index: linux-2.6.18/fs/proc/base.c
-===================================================================
---- linux-2.6.18.orig/fs/proc/base.c
-+++ linux-2.6.18/fs/proc/base.c
-@@ -182,6 +182,11 @@ enum pid_directory_inos {
-        PROC_TID_OOM_SCORE,
-        PROC_TID_OOM_ADJUST,
-
-+#ifdef CONFIG_MMU
-+       PROC_TGID_PAGEMAPS,
-+       PROC_TID_PAGEMAPS,
-+#endif
-+
-        /* Add new entries before this */
-        PROC_TID_FD_DIR = 0x8000,       /* 0x8000-0xffff */
- };
-@@ -240,6 +245,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_AUDITSYSCALL
-        E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_MMU
-+       E(PROC_TGID_PAGEMAPS,  "pagemaps", S_IFREG|S_IRUGO),
-+#endif
-        {0,0,NULL,0}
- };
- static struct pid_entry tid_base_stuff[] = {
-@@ -282,6 +290,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_AUDITSYSCALL
-        E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_MMU
-+       E(PROC_TID_PAGEMAPS,   "pagemaps", S_IFREG|S_IRUGO),
-+#endif
-        {0,0,NULL,0}
- };
-
-@@ -1769,6 +1780,10 @@ static struct dentry *proc_pident_lookup
-                case PROC_TGID_SMAPS:
-                        inode->i_fop = &proc_smaps_operations;
-                        break;
-+               case PROC_TID_PAGEMAPS:
-+               case PROC_TGID_PAGEMAPS:
-+                       inode->i_fop = &proc_pagemaps_operations;
-+                       break;
- #endif
-                case PROC_TID_MOUNTSTATS:
-                case PROC_TGID_MOUNTSTATS:
-Index: linux-2.6.18/fs/proc/internal.h
-===================================================================
---- linux-2.6.18.orig/fs/proc/internal.h
-+++ linux-2.6.18/fs/proc/internal.h
-@@ -40,10 +40,7 @@ extern int proc_pid_statm(struct task_st
- extern struct file_operations proc_maps_operations;
- extern struct file_operations proc_numa_maps_operations;
- extern struct file_operations proc_smaps_operations;
--
--extern struct file_operations proc_maps_operations;
--extern struct file_operations proc_numa_maps_operations;
--extern struct file_operations proc_smaps_operations;
-+extern struct file_operations proc_pagemaps_operations;
-
-
- void free_proc_entry(struct proc_dir_entry *de);
-Index: linux-2.6.18/fs/proc/task_mmu.c
-===================================================================
---- linux-2.6.18.orig/fs/proc/task_mmu.c
-+++ linux-2.6.18/fs/proc/task_mmu.c
-@@ -436,6 +436,116 @@ static int do_maps_open(struct inode *in
-        return ret;
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-12-08 13:59:06.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-08 13:59:22.000000000 +1100
+@@ -717,13 +717,53 @@ svc_write_space(struct sock *sk)
+ 	}
  }
-
-+static void pagemaps_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
-+                               unsigned long addr, unsigned long end,
-+                               struct seq_file *m)
+ 
++static void svc_udp_get_sender_address(struct svc_rqst *rqstp,
++					struct sk_buff *skb)
 +{
-+       pte_t *pte, ptent;
-+       spinlock_t *ptl;
-+       struct page *page;
-+       int mapcount = 0;
++	switch (rqstp->rq_sock->sk_sk->sk_family) {
++	case AF_INET:
++		/* this seems to come from net/ipv4/udp.c:udp_recvmsg */
++		do {
++			struct sockaddr_in *sin =
++				(struct sockaddr_in *) &rqstp->rq_addr;
 +
-+       pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
-+       do {
-+               ptent = *pte;
-+               if (pte_present(ptent)) {
-+                       page = vm_normal_page(vma, addr, ptent);
-+                       if (page) {
-+                               if (pte_dirty(ptent))
-+                                       mapcount = -page_mapcount(page);
-+                               else
-+                                       mapcount = page_mapcount(page);
-+                       } else {
-+                               mapcount = 1;
-+                       }
-+               }
-+               seq_printf(m, " %d", mapcount);
++			sin->sin_family = AF_INET;
++			sin->sin_port = skb->h.uh->source;
++			sin->sin_addr.s_addr = skb->nh.iph->saddr;
++			rqstp->rq_daddr.addr.s_addr = skb->nh.iph->daddr;
++		} while (0);
++		break;
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++	case AF_INET6:
++		/* this is derived from net/ipv6/udp.c:udpv6_recvmesg */
++		do {
++			struct sockaddr_in6 *sin6 =
++				(struct sockaddr_in6 *) &rqstp->rq_addr;
 +
-+       } while (pte++, addr += PAGE_SIZE, addr != end);
-+       seq_putc(m, '\n');
-+
-+       pte_unmap_unlock(pte - 1, ptl);
-+       cond_resched();
-+
++			sin6->sin6_family = AF_INET6;
++			sin6->sin6_port = skb->h.uh->source;
++			sin6->sin6_flowinfo = 0;
++			sin6->sin6_scope_id = 0;
++			if (ipv6_addr_type(&sin6->sin6_addr) &
++							IPV6_ADDR_LINKLOCAL)
++				sin6->sin6_scope_id = IP6CB(skb)->iif;
++			ipv6_addr_copy(&sin6->sin6_addr,
++							&skb->nh.ipv6h->saddr);
++			ipv6_addr_copy(&rqstp->rq_daddr.addr6,
++							&skb->nh.ipv6h->saddr);
++		} while (0);
++		break;
++#endif
++	}
++	return;
 +}
 +
-+static inline void pagemaps_pmd_range(struct vm_area_struct *vma, pud_t 
-*pud,
-+                               unsigned long addr, unsigned long end,
-+                               struct seq_file *m)
-+{
-+       pmd_t *pmd;
-+       unsigned long next;
-+
-+       pmd = pmd_offset(pud, addr);
-+       do {
-+               next = pmd_addr_end(addr, end);
-+               if (pmd_none_or_clear_bad(pmd))
-+                       continue;
-+               pagemaps_pte_range(vma, pmd, addr, next, m);
-+       } while (pmd++, addr = next, addr != end);
-+}
-+
-+static inline void pagemaps_pud_range(struct vm_area_struct *vma, pgd_t 
-*pgd,
-+                               unsigned long addr, unsigned long end,
-+                               struct seq_file *m)
-+{
-+       pud_t *pud;
-+       unsigned long next;
-+
-+       pud = pud_offset(pgd, addr);
-+       do {
-+               next = pud_addr_end(addr, end);
-+               if (pud_none_or_clear_bad(pud))
-+                       continue;
-+               pagemaps_pmd_range(vma, pud, addr, next, m);
-+       } while (pud++, addr = next, addr != end);
-+}
-+
-+static inline void pagemaps_pgd_range(struct vm_area_struct *vma,
-+                               unsigned long addr, unsigned long end,
-+                               struct seq_file *m)
-+{
-+       pgd_t *pgd;
-+       unsigned long next;
-+
-+       pgd = pgd_offset(vma->vm_mm, addr);
-+       do {
-+               next = pgd_addr_end(addr, end);
-+               if (pgd_none_or_clear_bad(pgd))
-+                       continue;
-+               pagemaps_pud_range(vma, pgd, addr, next, m);
-+       } while (pgd++, addr = next, addr != end);
-+}
-+
-+static int show_pagemap(struct seq_file *m, void *v)
-+{
-+       struct vm_area_struct *vma = v;
-+
-+       show_map_internal(m, v, NULL);
-+       if (vma->vm_mm && !is_vm_hugetlb_page(vma))
-+               pagemaps_pgd_range(vma, vma->vm_start, vma->vm_end, m);
-+       return 0;
-+}
-+
-+static struct seq_operations proc_pid_pagemaps_op = {
-+       .start  = m_start,
-+       .next   = m_next,
-+       .stop   = m_stop,
-+       .show   = show_pagemap
-+};
-+
-+static int pagemaps_open(struct inode *inode, struct file *file)
-+{
-+       return do_maps_open(inode, file, &proc_pid_pagemaps_op);
-+}
-+
-+struct file_operations proc_pagemaps_operations = {
-+       .open           = pagemaps_open,
-+       .read           = seq_read,
-+       .llseek         = seq_lseek,
-+       .release        = seq_release_private,
-+};
-+
- static int maps_open(struct inode *inode, struct file *file)
+ /*
+  * Receive a datagram from a UDP socket.
+  */
+ static int
+ svc_udp_recvfrom(struct svc_rqst *rqstp)
  {
-        return do_maps_open(inode, file, &proc_pid_maps_op);
-
+-	struct sockaddr_in *sin = (struct sockaddr_in *) &rqstp->rq_addr;
+ 	struct svc_sock	*svsk = rqstp->rq_sock;
+ 	struct svc_serv	*serv = svsk->sk_server;
+ 	struct sk_buff	*skb;
+@@ -775,14 +815,9 @@ svc_udp_recvfrom(struct svc_rqst *rqstp)
+ 
+ 	len  = skb->len - sizeof(struct udphdr);
+ 	rqstp->rq_arg.len = len;
++	rqstp->rq_prot = IPPROTO_UDP;
+ 
+-	rqstp->rq_prot        = IPPROTO_UDP;
+-
+-	/* Get sender address */
+-	sin->sin_family = AF_INET;
+-	sin->sin_port = skb->h.uh->source;
+-	sin->sin_addr.s_addr = skb->nh.iph->saddr;
+-	rqstp->rq_daddr.addr.s_addr = skb->nh.iph->daddr;
++	svc_udp_get_sender_address(rqstp, skb);
+ 
+ 	if (skb_is_nonlinear(skb)) {
+ 		/* we have to copy */

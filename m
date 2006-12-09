@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947757AbWLIBpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1948041AbWLIBvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947757AbWLIBpo (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 20:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947749AbWLIBpo
+	id S1948041AbWLIBvl (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 20:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1948043AbWLIBvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 20:45:44 -0500
-Received: from www.nabble.com ([72.21.53.35]:56569 "EHLO talk.nabble.com"
+	Fri, 8 Dec 2006 20:51:41 -0500
+Received: from www.nabble.com ([72.21.53.35]:57858 "EHLO talk.nabble.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947757AbWLIBpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 20:45:42 -0500
-Message-ID: <7768447.post@talk.nabble.com>
-Date: Fri, 8 Dec 2006 17:45:41 -0800 (PST)
+	id S1948041AbWLIBvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 20:51:41 -0500
+Message-ID: <7768448.post@talk.nabble.com>
+Date: Fri, 8 Dec 2006 17:51:40 -0800 (PST)
 From: Vasco <vvisser@science.uva.nl>
 To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 0/4] atl1: Revised Attansic L1 ethernet driver
@@ -76,6 +76,6 @@ Jay Cliburn wrote:
 > 
 
 -- 
-View this message in context: http://www.nabble.com/-PATCH-0-4--atl1%3A-Revised-Attansic-L1-ethernet-driver-tf2665327.html#a7768447
+View this message in context: http://www.nabble.com/-PATCH-0-4--atl1%3A-Revised-Attansic-L1-ethernet-driver-tf2665327.html#a7768448
 Sent from the linux-kernel mailing list archive at Nabble.com.
 

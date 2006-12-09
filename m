@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761860AbWLITho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759157AbWLITmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761860AbWLITho (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761861AbWLITho
+	id S1759157AbWLITmi (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759315AbWLITmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:37:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2546 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1761860AbWLIThn (ORCPT
+	Sat, 9 Dec 2006 14:42:38 -0500
+Received: from mail.tmr.com ([64.65.253.246]:50442 "EHLO gaimboi.tmr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759157AbWLITmh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:37:43 -0500
-Date: Sat, 9 Dec 2006 20:37:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.36-rc1
-Message-ID: <20061209193752.GB6090@stusta.de>
+	Sat, 9 Dec 2006 14:42:37 -0500
+Message-ID: <457B12A2.7090104@tmr.com>
+Date: Sat, 09 Dec 2006 14:46:42 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+CC: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: VCD not readable under 2.6.18
+References: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
+In-Reply-To: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-3; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+Rakhesh Sasidharan wrote:
+> Infact, just inserting a CD is enough. No need for a media player to try and access the files. :)
+> 
+> The backend must be polling and trying to mount the disc upon insertion. Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't and give error messages. Which explains why downgrading the kernel solves the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't downgrading the kernel *not* help?) Just thinking aloud ... 
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+I believe the problem is not that the kernel is providing an error, but 
+that it is providing an error which is taken as "DIDN'T WORK THIS TIME, 
+BUT TRY AGAIN" rather than a permanent error. Asking every 
+media-consious application to be rewritten is perhaps not the best 
+solution, either return another error, or return what application expect 
+(non-error but no data??)
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.35:
-
-Adrian Bunk (2):
-      revert the quirk_via_irq changes
-      Linux 2.6.16.36-rc1
-
-Bjorn Helgaas (1):
-      PCI: quirk to disable e100 interrupt if RESET failed to
-
-Brice Goglin (1):
-      PCI: nVidia quirk to make AER PCI-E extended capability visible
-
-Chuck Ebbert (1):
-      binfmt_elf: fix checks for bad address
-
-Daniel Ritz (2):
-      PCI: fix ICH6 quirks
-      PCI: add ICH7/8 ACPI/GPIO io resource quirks
-
-David S. Miller (1):
-      [IPSEC]: Fix inetpeer leak in ipv4 xfrm dst entries.
-
-Jean Delvare (1):
-      PCI: Unhide the SMBus on Asus PU-DLS
-
-John W. Linville (1):
-      pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
-
-Linus Torvalds (1):
-      Add PIIX4 APCI quirk for the 440MX chipset too
-
-Patrick McHardy (1):
-      [XFRM]: Use output device disable_xfrm for forwarded packets
-
-Ralf Baechle (1):
-      Fix mempolicy.h build error
+Changes which break a large number of applications are probably ill-advised.
+> 
+> ----- Original Message ----
+> From: S.Ça»lar Onur <caglar@pardus.org.tr>
+> To: Ismail Donmez <ismail@pardus.org.tr>
+> Cc: Alan <alan@lxorguk.ukuu.org.uk>; Rakhesh Sasidharan <rakhesh@rakhesh.com>; rakheshster@yahoo.com; linux-kernel@vger.kernel.org
+> Sent: Saturday, December 9, 2006 8:09:05 PM
+> Subject: Re: VCD not readable under 2.6.18
+> 
+> 09 Ara 2006 Cts 16:15 tarihinde, Ismail Donmez ºunlar¹ yazm¹ºt¹: 
+>> Well my bet is xine-lib is buggy somehow as I can reproduce this bug with
+>> kaffeine ( KDE media player ).
+> 
+> Same symptoms occur with mplayer also, dmesg flooded with warnings, what about 
+> hal or KDE's cdpolling backend?
+> 
+> Cheers
 
 
- Makefile                  |    2 
- drivers/pci/quirks.c      |  101 ++++++++++++++++++++++++++++++++++----
- fs/binfmt_elf.c           |   15 ++---
- include/linux/mempolicy.h |    1 
- include/linux/pci_ids.h   |    5 +
- net/ipv4/route.c          |    2 
- net/ipv4/xfrm4_policy.c   |    2 
- 7 files changed, 109 insertions(+), 19 deletions(-)

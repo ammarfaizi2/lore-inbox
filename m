@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936337AbWLIIov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935957AbWLIIsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936337AbWLIIov (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 03:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936396AbWLIIov
+	id S935957AbWLIIsm (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 03:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936225AbWLIIsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 03:44:51 -0500
-Received: from psmtp13.wxs.nl ([195.121.247.25]:54276 "EHLO psmtp13.wxs.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936337AbWLIIov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 03:44:51 -0500
-Date: Sat, 09 Dec 2006 09:44:41 +0100
-From: jos poortvliet <jos@mijnkamer.nl>
-X-Face: $0>4o"Xx2u2q(Tx!D+6~yPc{ZhEfnQnu:/nthh%Kr%f$aiATk$xjx^X4admsd*)=?utf-8?q?IZz=3A=5FkT=0A=09=7CurITP!=2E?=)L`*)Vw@4\@6>#r;3xSPW`,~C9vb`W/s]}Gq]b!o_/+(lJ:b)=?utf-8?q?T0=26KCLMGvG=7CS=5E=0A=09z=7B=5C=2E7EtehxhFQE=27eYSsir/=7CtQ?=
- =?utf-8?q?j=23rWQe4o?=>WC>_R<vO,d]czmqWYkq[v~iB.e_GuxB'")
- =?utf-8?q?p3=0A=09jGdrhlY4=5E!vd=3F=3AegW?=)xn&fP4!FV<.
-Subject: Re: [ck] 2.6.19-ck2
-In-reply-to: <200612091614.30096.kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Message-id: <200612090944.46358.jos@mijnkamer.nl>
-MIME-version: 1.0
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary=nextPart19110056.X3gvFUCPnT
-Content-transfer-encoding: 7bit
-User-Agent: KMail/1.9.5 + Features
-References: <200612091614.30096.kernel@kolivas.org>
+	Sat, 9 Dec 2006 03:48:41 -0500
+Received: from web57804.mail.re3.yahoo.com ([68.142.236.82]:32994 "HELO
+	web57804.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S935957AbWLIIsl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 03:48:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=AiB6Btc9VLEyb1vGlSyzWEiySLLkdE9OBiWefT91Ry3uocChjUwYdFxQw9tTiRjQFiPkrYtW6CWoncFKpHMy9wJ7P2KbCR7RFeo2x2nu54m1A+NzEFy0bU4y/4DqIGWiNHkjcnCOQV9duYi2EWHG5yfy5WTTcM8MihSD3XUW8/k=  ;
+Message-ID: <20061209084840.37921.qmail@web57804.mail.re3.yahoo.com>
+Date: Sat, 9 Dec 2006 00:48:40 -0800 (PST)
+From: Rakhesh Sasidharan <rakheshster@yahoo.com>
+Reply-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Subject: Re: VCD not readable under 2.6.18
+To: Ismail Donmez <ismail@pardus.org.tr>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-3
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart19110056.X3gvFUCPnT
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Thanks. Found that after I posted to the list; have put my comments too there. 
 
-Op Sat Dec 9 2006, schreef Con Kolivas:
-(cut)
+----- Original Message ----
+From: Ismail Donmez <ismail@pardus.org.tr>
+To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Cc: linux-kernel@vger.kernel.org
+Sent: Saturday, December 9, 2006 12:14:28 PM
+Subject: Re: VCD not readable under 2.6.18
 
-> Changes (first significant changes since :
-> Added:
-> +sched-fix_iso_starvation.patch
-> A bug first introduced into 2.6.18-ck1/cks1 meant that SCHED_ISO tasks we=
-re
-> not being throttled when above their cpu limit. This presents a security
-> risk to any machine with user logins and upgrading for this issue should =
-be
-> considered a high priority.
+09 Ara 2006 Cts 08:06 tarihinde, Rakhesh Sasidharan ºunlar¹ yazm¹ºt¹: 
+> Hi,
 >
->  +sched-make_softirqd_batch.patch
-> Instead of 'nice'ing ksoftirqd we can use the policy hint of SCHED_BATCH
-> which specifies it as not requiring low latency. This increases the cpu u=
-se
-> possible under very heavy softirq traffic (such as network loads) and
-> decreases the latency that might otherwise be seen (such as keyboard input
-> under heavy cpu load on slow machines).
+> I am having problems reading VCDs under various Linux distros (Fedora Core
+> 6, openSUSE 10.2, Slackware 11 with the 2.6 kernel), and while searching
+> Google for a solution I found that this problem has been mentioned on the
+> LKML list too. (http://lkml.org/lkml/2006/10/29/95)
 
-nice, con, nice! good to see you're back! how are things progressing in the=
-=20
-japanese area?
+See http://bugme.osdl.org/show_bug.cgi?id=7460
 
-grtz
-Jos
+/ismail
 
 
 
-=2D-=20
-Disclaimer:
 
-Alles wat ik doe denk en zeg is gebaseerd op het wereldbeeld wat ik nu heb.=
-=20
-Ik ben niet verantwoordelijk voor wijzigingen van de wereld, of het beeld w=
-at=20
-ik daarvan heb, noch voor de daaruit voortvloeiende gedragingen van mezelf.=
-=20
-Alles wat ik zeg is aardig bedoeld, tenzij expliciet vermeld.
 
---nextPart19110056.X3gvFUCPnT
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBFend++wgQ1AD35iwRAk8TAKDKMn11UK7LSZGuQQTnM+YPQmq4WQCgurU9
-GhuGNEDY2SapALOsQYrHKyk=
-=KUMT
------END PGP SIGNATURE-----
-
---nextPart19110056.X3gvFUCPnT--
+ 
+____________________________________________________________________________________
+Yahoo! Music Unlimited
+Access over 1 million songs.
+http://music.yahoo.com/unlimited

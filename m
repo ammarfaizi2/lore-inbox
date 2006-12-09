@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758849AbWLIWeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759118AbWLIWus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758849AbWLIWeU (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 17:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758875AbWLIWeU
+	id S1759118AbWLIWus (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 17:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759119AbWLIWus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 17:34:20 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2068 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758849AbWLIWeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 17:34:20 -0500
-Date: Sat, 9 Dec 2006 23:34:19 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix sysfs_create_bin_file warnings)
-Message-ID: <20061209223418.GA76069@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jean Delvare <khali@linux-fr.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20061209165606.2f026a6c.khali@linux-fr.org> <1165694351.1103.133.camel@localhost.localdomain> <20061209123817.f0117ad6.akpm@osdl.org> <20061209214453.GA69320@dspnet.fr.eu.org> <20061209135829.86038f32.akpm@osdl.org>
+	Sat, 9 Dec 2006 17:50:48 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:2071 "EHLO
+	arnor.apana.org.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759074AbWLIWus (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 17:50:48 -0500
+Date: Sun, 10 Dec 2006 09:50:36 +1100
+To: Rene Herman <rene.herman@gmail.com>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [patch 08/32] cryptoloop: Select CRYPTO_CBC
+Message-ID: <20061209225035.GA12802@gondor.apana.org.au>
+References: <20061208235751.890503000@sous-sol.org> <20061208235942.464993000@sous-sol.org> <457A5862.1020006@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061209135829.86038f32.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <457A5862.1020006@gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2006 at 01:58:29PM -0800, Andrew Morton wrote:
-> On Sat, 9 Dec 2006 22:44:53 +0100
-> Olivier Galibert <galibert@pobox.com> wrote:
-> > Hmmm, I don't understand.  Which is the bug, having a sysfs file
-> > creation fail or going on if it happens?
+On Sat, Dec 09, 2006 at 07:32:02AM +0100, Rene Herman wrote:
 > 
-> Probably the former, probably the latter.
-> 
-> There may be situations in which we want do to "create this sysfs file if
-> it doesn't already exist", but I'm not aware of any such.
-> 
-> Generally speaking, if sysfs file creation went wrong, it's due to a bug. 
-> The result is that the driver isn't working as intended: tunables or
-> instrumentation which it is designed to make available are not present.  We
-> want to know about that bug asap so we can get it fixed.
+> dm-crypt needs CBC in the same manner -- normal (via howto) use of 
+> cryptsetup doesn't work otherwise, same as with cryptoloop.
 
-Hmmm, then why don't you just drop the return value from the creation
-function and BUG() in there is something went wrong.  That would allow
-for better error messages too.
+Good point.  Here's the patch for 2.6.19 and 2.6.20.
 
-  OG.
+[CRYPTO] dm-crypt: Select CRYPTO_CBC
 
+As CBC is the default chaining method for cryptoloop, we should select
+it from cryptoloop to ease the transition.  Spotted by Rene Herman.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+7cd650c7e042e3c201fb3c401780c909d44b0e5d
+diff --git a/drivers/md/Kconfig b/drivers/md/Kconfig
+index c92c152..4540ade 100644
+--- a/drivers/md/Kconfig
++++ b/drivers/md/Kconfig
+@@ -215,6 +215,7 @@ config DM_CRYPT
+ 	tristate "Crypt target support"
+ 	depends on BLK_DEV_DM && EXPERIMENTAL
+ 	select CRYPTO
++	select CRYPTO_CBC
+ 	---help---
+ 	  This device-mapper target allows you to create a device that
+ 	  transparently encrypts the data on it. You'll need to activate

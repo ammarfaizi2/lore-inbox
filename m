@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761779AbWLIOHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761788AbWLIONV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761779AbWLIOHO (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 09:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761781AbWLIOHO
+	id S1761788AbWLIONV (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 09:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761789AbWLIONV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 09:07:14 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:42740 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761779AbWLIOHM (ORCPT
+	Sat, 9 Dec 2006 09:13:21 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:42981 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761786AbWLIONU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 09:07:12 -0500
-X-Originating-Ip: 74.102.209.62
-Date: Sat, 9 Dec 2006 09:03:27 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [PATCH] kcalloc: Re-order the first two out-of-order args
- to kcalloc().
-In-Reply-To: <84144f020612090554o571f142bt7f59db2c0dfa782f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0612090901180.14206@localhost.localdomain>
-References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain> 
- <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
- <84144f020612090554o571f142bt7f59db2c0dfa782f@mail.gmail.com>
+	Sat, 9 Dec 2006 09:13:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=hSIyBhh2vSq/6TFhBMm1OLEJqpVWIGLyWu9DOM6Mh7n6Pj+YccKe2xjMz+T50lkwJFYnGPpJuDShOq/IZODOPqoOy0JAVblCPBoNS5xMplaJDRqS/7YLcWjOosGjf4ZG05BwOBdnHxsQpWtx84eUsFvLSUGU1uFIbrzQgWcFLrA=
+Message-ID: <84144f020612090613s28aeb485ua7c652393cff3f90@mail.gmail.com>
+Date: Sat, 9 Dec 2006 16:13:16 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Subject: Re: Re: [PATCH] kcalloc: Re-order the first two out-of-order args to kcalloc().
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain>
+	 <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
+	 <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain>
+X-Google-Sender-Auth: 532dd8e17075aa92
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006, Pekka Enberg wrote:
+On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> argh, in that i've already mentioned that, following the guidelines in
+> "SubmittingPatches", i prefer that each of my patches have one logical
+> purpose.  once the order of the kcalloc() args is corrected, that
+> would be followed by a single subsequent patch that did the
+> kcalloc->kzalloc transformation all at once.
 
-> On 12/9/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > You really ought to send these cleanups to akpm@osdl.org with LKML
-> > cc'd to get them merged.
->
-> ...or even better, the relevant maintainer.
-
-normally what i would do but, in the case of that patch, there are
-five files affected, *all* of which are in totally different
-subsystems (macintosh, net, scsi, usb, sunrpc).  are you suggesting
-that up to 5 different people be CC'ed?
-
-and what about source-wide aesthetic changes that might touch dozens
-or hundreds of files?
-
-rday
+...and what would that buy us? Nothing. It *really* wants to use
+kzalloc and the transformation is equivalent, so please make it one
+patch.

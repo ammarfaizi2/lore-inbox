@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937657AbWLIUig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S966223AbWLIUjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937657AbWLIUig (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 15:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937666AbWLIUig
+	id S966223AbWLIUjc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 15:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966246AbWLIUjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 15:38:36 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:48030 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937657AbWLIUif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 15:38:35 -0500
-Date: Sat, 9 Dec 2006 12:38:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix
- sysfs_create_bin_file warnings)
-Message-Id: <20061209123817.f0117ad6.akpm@osdl.org>
-In-Reply-To: <1165694351.1103.133.camel@localhost.localdomain>
-References: <20061209165606.2f026a6c.khali@linux-fr.org>
-	<1165694351.1103.133.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 9 Dec 2006 15:39:32 -0500
+Received: from alnrmhc12.comcast.net ([206.18.177.52]:51202 "EHLO
+	alnrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966223AbWLIUjb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 15:39:31 -0500
+Message-ID: <457B1F02.7030409@comcast.net>
+Date: Sat, 09 Dec 2006 15:39:30 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PAE/NX without performance drain?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2006 06:59:10 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sat, 2006-12-09 at 16:56 +0100, Jean Delvare wrote:
-> 
-> > Check for error on radeonfb device sysfs files creation. This fixes the
-> > following warnings:
-> 
-> (Moving to LKML as I think that's a generic issue)
-> 
-> As usual with most of that crap about return values from
-> sysfs_create_file, I disagree. strongly.
+Apparently (as I've been told today) using a hardware NX bit in a 32-bit
+x86 kernel requires PAE mode.  PAE mode is enabled with HIGHMEM64, which
+is (apparently) extremely slow.
 
-Actually, wrongly.
-
-> Why would I prevent the framebuffer from initializing (and thus a
-> console to be displayed at all on many machines) just because for some
-> reason, I couldn't create a pair of EDID files in sysfs that are not
-> even very useful anymore ?
-
-Because there's a bug in your kernel.  We don't hide and work around bugs.
-
-> I have _plenty_ of cases where the failure to create sysfs files, while
-> annoying and maybe deserving a warning, certainly doesn't imply
-> completely preventing the driver from initializing.
-
-Why does it matter?  Just fix the bugs and the issue won't arise.  If you
-hide them and work around them in this manner, they won't get fixed.
-
-> However, all the
-> patches I've seen so far to fix the new warnings do just that (make the
-> driver fail)
-> 
-> I'd really like to have some kind of macro or attribute or whatever I
-> can put on a function call to say that I'm purposefully ignoring the
-> error. Is there some gcc magic that can do that ?
-
-#define HIDE_AND_WORK_AROUND_A_BUG(expr) (void)(expr)
-
-but it might meet some resistance.
+Is it possible to give some other way to get the hardware NX bit working
+in 32-bit mode, without the apparently massive performance penalty of
+HIGHMEM64?
 
 
-Just fix the bugs, for heck's sake.
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iQIVAwUBRXsfAAs1xW0HCTEFAQIb3xAAhuVgOGGff6N3BQFUjej6PozDDcc56C2P
+pS+6JOdUaFWNfBbBg9FWbeGkW8thwNOfRRaTgE3TXar44djwd8rmjfFx9siWenue
+sYbdn61LYWsTRsRuS3noD49Dn3vj/sOv8pPEiz6ZPYd3kgkuipQHNVWUUjR7mne/
+9o5P4ajae4gcml7z3CcQVO8CkCFpCqQUPwXz2yVBPGEi4DEJHrNIlr8mbP2uBPkD
+nXcMY5KmHovDyueihoaVInzBdIhNGUSFEc6mfZS0bluCLaNUudWJCZDjEwunHS7M
+ngySKIQC2U3I0tgdok00Szum2NRlwclDNpoQP4x9577v/rCTVKfOxv+CioK+DXG2
+QnYBPuicI31f2++itubnidLgCiBtjbuwHaz0OMMg9Ix7xws4WX2BLykuenRAxN9f
+F+TZuJJq8sD1CfTveomZq7UP8mpBECXB+HRTMNdpIy+QJ19Eg8p4N/l2pep1hvDv
+UA6tafSopIXEzcQKQ6Yi1MI8Du79O1zpTWzS+Hwgl+t3XfkI2e04wq7D4aN2ZMlw
+b3S3h6Lp4I9EgqPLBnu+s2/AkRa/AxZc3eGbgf8Fz75sbDYvRnuhXzSxAmmJru5D
+d51uB0GuHbiser+axWIj886pAOLPa2KGYpAjm7gtmVWFBNhzx5gnQRJkrxIcg4ew
+JOb4VR4yfB8=
+=QCVY
+-----END PGP SIGNATURE-----

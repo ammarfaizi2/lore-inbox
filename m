@@ -1,137 +1,101 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757365AbWLIDJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758779AbWLIDQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757365AbWLIDJ4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 22:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758332AbWLIDJ4
+	id S1758779AbWLIDQf (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 22:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758359AbWLIDQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 22:09:56 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:36354 "HELO
-	mailer2-1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1757365AbWLIDJz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 22:09:55 -0500
-Message-ID: <457A28FF.4030508@scientia.net>
-Date: Sat, 09 Dec 2006 04:09:51 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
-MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CD/DVD drive errors and lost ticks
-References: <120320061552.9126.4572F2AD0001D571000023A622058844849D0E050B9A9D0E99@comcast.net>
-In-Reply-To: <120320061552.9126.4572F2AD0001D571000023A622058844849D0E050B9A9D0E99@comcast.net>
-Content-Type: multipart/mixed;
- boundary="------------070900040404010704000005"
+	Fri, 8 Dec 2006 22:16:34 -0500
+Received: from mga09.intel.com ([134.134.136.24]:20689 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757216AbWLIDQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 22:16:33 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,516,1157353200"; 
+   d="scan'208"; a="24992822:sNHT23987826"
+Date: Fri, 8 Dec 2006 19:15:14 -0800
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mark.fasheh@oracle.com, steve@chygwyn.com, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, Karel Zak <kzak@redhat.com>
+Subject: Re: Relative atime (was Re: What's in ocfs2.git)
+Message-ID: <20061209031513.GB8515@goober>
+References: <20061203203149.GC19617@ca-server1.us.oracle.com> <1165229693.3752.629.camel@quoit.chygwyn.com> <20061205001007.GF19617@ca-server1.us.oracle.com> <20061205003619.GC8482@goober> <20061205205802.92b91ce1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061205205802.92b91ce1.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070900040404010704000005
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Tue, Dec 05, 2006 at 08:58:02PM -0800, Andrew Morton wrote:
+> That's the easy part.   How are we going to get mount(8) patched?
 
-Hi.
+Karel, interested in taking a look at the following patch?  The kernel
+bits are in -mm currently.
 
+-VAL
 
-Sorry for my late reply,.. but I've been very busy this week (dozens of
-new Sun Fires that hat to be installed, etc.) ;-)
+Add the "relatime" (relative atime) option support to mount.  Relative
+atime only updates the atime if the previous atime is older than the
+mtime or ctime.  Like noatime, but useful for applications like mutt
+that need to know when a file has been read since it was last
+modified.
 
+Cc: Adrian Bunk <bunk@stusta.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Karel Zak <kzak@redhat.com>
 
-Parag Warudkar wrote:
-> It seems that your kernel is using IDE for your CDROM and libata for your other drives.
-Yes it does.
+Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
 
-> I recall having a similar problem with my laptop (DMA Disabled) when I had both IDE and SATA/PATA support enabled. I had to disable IDE altogether and let SATA/PATA drivers handle all my drives in order to get DMA on the CDROM.
->   
-While this is a good idea in general,.. I doubt that it will solve my
-problem,...
-First of all,.. if this was a driver related issue it wouldn't happen
-under windows (which I booted solely for testing reasons ;) ), too,
-would it?
-Secondly,... it seems that the drive isn't even able to read the CD
-in,.. I mean I think that this is a drive internal issue and the drive
-simply tells the kernel "wait,.. haven't read in yet" or so.
-I've also hat some errors like this:
-hdb: irq timeout: status=0xd0 { Busy }
-ide: failed opcode was: unknown
-hdb: DMA disabled
-hdb: ATAPI reset complete
-hdb: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdb: ATAPI reset complete
-hdb: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdb: cdrom_read_intr: data underrun (4 blocks)
-end_request: I/O error, dev hdb, sector 7831400
-Buffer I/O error on device hdb, logical block 1957850
-hdb: tray open
-end_request: I/O error, dev hdb, sector 7831404
-Buffer I/O error on device hdb, logical block 1957851
-Buffer I/O error on device hdb, logical block 1957852
-Buffer I/O error on device hdb, logical block 1957853
-Buffer I/O error on device hdb, logical block 1957854
-Buffer I/O error on device hdb, logical block 1957855
-Buffer I/O error on device hdb, logical block 1957856
-Buffer I/O error on device hdb, logical block 1957857
-Buffer I/O error on device hdb, logical block 1957858
-Buffer I/O error on device hdb, logical block 1957859
-hdb: tray open
-end_request: I/O error, dev hdb, sector 7831656
-hdb: tray open
-end_request: I/O error, dev hdb, sector 7831400
-hdb: tray open
-end_request: I/O error, dev hdb, sector 7831400
-hdb: tray open
-end_request: I/O error, dev hdb, sector 7831400
-hdb: tray open
-and so on and so on.
+---
+ mount/mount.8           |    7 +++++++
+ mount/mount.c           |    6 ++++++
+ mount/mount_constants.h |    4 ++++
+ 3 files changed, 17 insertions(+)
 
-That happened on a DVD (successfully read in and played by the drive),..
-but when I pushed the eject button (while xine sill was playing) I got
-those errors,..
-I assume that xine continued to read data but the DVD was already
-ejected and thus the request errors....
-But I think there shouldn't be a request error but more something like
-"no medium found" or the eject button should have been disabled at
-all,... so I think something goes really wrong with that drive ;)
-
-
-> Try and pass ide=noprobe option to the kernel boot command line  and see if that makes a difference first - may be that will allow the SATA/PATA drivers to claim the CDROM before IDE sees it.
->
-> If that won't work try and disable ATA/ATAPI/MFM/RLL support in your config and enable Serial ATA (prod) and Parallel ATA (experimental drivers) and select the right SATA drivers as built ins or modules (I think in your case it is going to be NVIDIA SATA support and/or AMD/Nvidia PATA support but I may be wrong). Then rebuild the kernel and see if your DVD drive has DMA and you can watch DVDs.
->   
-I'll do that,.. but I've already contacted my seller,.. and asked for a
-new device :-) But in the meantime I can test for this stuff.
-
-
-
-Does anyone have some answers about the following:
-I had some problems with my system the last months,.. first of all the
-powersupply died,.. and then I've found some data corruption problems
-(see my posts here on lkml).
-I think the powersupply was simply damaged,.. and I assume (correct me
-if it may be likely) that nothing else was damaged when the powersupply
-broke.
-The data corruption error is quite sure not a hardware defect of my
-system but more likely a issue that all nvidia chipset boards (or at
-least many of them) have.... (see my threads here at lkml)
-But the DVD/CD defect makes me nervous,...
-Is it likely that something in my system is defect and the damage
-propagates to other components and makes them defect too?
-
-
-
-Best wishes,
-Chris,
-
---------------070900040404010704000005
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
-
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------070900040404010704000005--
+--- util-linux-2.13-pre7.orig/mount/mount.8
++++ util-linux-2.13-pre7/mount/mount.8
+@@ -586,6 +586,13 @@ access on the news spool to speed up new
+ .B nodiratime
+ Do not update directory inode access times on this filesystem.
+ .TP
++.B relatime
++Update inode access times relative to modify or change time.  Access
++time is only updated if the previous access time was earlier than the
++current modify or change time. (Similar to noatime, but doesn't break
++mutt or other applications that need to know if a file has been read
++since the last time it was modified.)
++.TP
+ .B noauto
+ Can only be mounted explicitly (i.e., the
+ .B \-a
+--- util-linux-2.13-pre7.orig/mount/mount.c
++++ util-linux-2.13-pre7/mount/mount.c
+@@ -164,6 +164,12 @@ static const struct opt_map opt_map[] = 
+   { "diratime",	0, 1, MS_NODIRATIME },	/* Update dir access times */
+   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
+ #endif
++#ifdef MS_RELATIME
++  { "relatime", 0, 0, MS_RELATIME },	/* Update access times relative to
++					   mtime/ctime */
++  { "norelatime", 0, 1, MS_RELATIME },	/* Update access time without regard
++					   to mtime/ctime */
++#endif
+   { NULL,	0, 0, 0		}
+ };
+ 
+--- util-linux-2.13-pre7.orig/mount/mount_constants.h
++++ util-linux-2.13-pre7/mount/mount_constants.h
+@@ -57,6 +57,10 @@ if we have a stack or plain mount - moun
+ #ifndef MS_VERBOSE
+ #define MS_VERBOSE	0x8000	/* 32768 */
+ #endif
++#ifndef MS_RELATIME
++#define MS_RELATIME   0x200000	/* 200000: Update access times relative
++				   to mtime/ctime */
++#endif
+ /*
+  * Magic mount flag number. Had to be or-ed to the flag values.
+  */

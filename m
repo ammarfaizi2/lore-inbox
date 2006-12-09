@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761788AbWLIONV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936250AbWLIONY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761788AbWLIONV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 09:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761789AbWLIONV
+	id S936250AbWLIONY (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 09:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936275AbWLIONY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 09:13:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:42981 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761786AbWLIONU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 09:13:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=hSIyBhh2vSq/6TFhBMm1OLEJqpVWIGLyWu9DOM6Mh7n6Pj+YccKe2xjMz+T50lkwJFYnGPpJuDShOq/IZODOPqoOy0JAVblCPBoNS5xMplaJDRqS/7YLcWjOosGjf4ZG05BwOBdnHxsQpWtx84eUsFvLSUGU1uFIbrzQgWcFLrA=
-Message-ID: <84144f020612090613s28aeb485ua7c652393cff3f90@mail.gmail.com>
-Date: Sat, 9 Dec 2006 16:13:16 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Subject: Re: Re: [PATCH] kcalloc: Re-order the first two out-of-order args to kcalloc().
-Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain>
+	Sat, 9 Dec 2006 09:13:24 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:39409 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936250AbWLIONX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 09:13:23 -0500
+Date: Sat, 9 Dec 2006 15:11:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Ian E. Morgan" <penguin.wrangler@gmail.com>
+cc: LKML <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org
+Subject: Re: Loud POP from sound system during module init w/ 2.6.19
+In-Reply-To: <2a6e8c0d0612090517j5afe2161p591203c70ddfc890@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612091511111.8055@yvahk01.tjqt.qr>
+References: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com> 
+ <Pine.LNX.4.61.0612091020450.8055@yvahk01.tjqt.qr>
+ <2a6e8c0d0612090517j5afe2161p591203c70ddfc890@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain>
-	 <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
-	 <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain>
-X-Google-Sender-Auth: 532dd8e17075aa92
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
-> argh, in that i've already mentioned that, following the guidelines in
-> "SubmittingPatches", i prefer that each of my patches have one logical
-> purpose.  once the order of the kcalloc() args is corrected, that
-> would be followed by a single subsequent patch that did the
-> kcalloc->kzalloc transformation all at once.
 
-...and what would that buy us? Nothing. It *really* wants to use
-kzalloc and the transformation is equivalent, so please make it one
-patch.
+On Dec 9 2006 08:17, Ian E. Morgan wrote:
+>
+> Previous kernel was 2.6.18.3, which did not exhibit the problem. I was
+> aware of udev setting the mixer at module load time, but I disabled
+> that and the problem still exists.
+
+Another reason might be that the sound driver sets the initial volume 
+(even before udev can act) to 100%. That's probably Not So Good.
+I'd suggest to take a diff between 2.6.18.3's sound tree and the 2.6.19 
+one, and see if the driver for your card changed.
+
+
+	-`J'
+-- 

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758161AbWLID1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758292AbWLID3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758161AbWLID1Q (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 22:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758255AbWLID1Q
+	id S1758292AbWLID3V (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 22:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758599AbWLID3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 22:27:16 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33474 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758161AbWLID1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 22:27:16 -0500
-Date: Fri, 8 Dec 2006 19:26:18 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: art@usfltd.com
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: 2.6.19-git libusual: modprobe for usb-storage succeeded, but
- module is not present
-Message-Id: <20061208192618.3959fda8.zaitcev@redhat.com>
-In-Reply-To: <20061208190829.rvzeyaq4pxj40gko@69.222.0.225>
-References: <20061208190829.rvzeyaq4pxj40gko@69.222.0.225>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
+	Fri, 8 Dec 2006 22:29:21 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50599 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758292AbWLID3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 22:29:20 -0500
+Date: Fri, 8 Dec 2006 19:31:34 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] [patch 00/32] -stable review
+Message-ID: <20061209033134.GT1397@sequoia.sous-sol.org>
+References: <200612082220_MC3-1-D468-A6F0@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612082220_MC3-1-D468-A6F0@compuserve.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Dec 2006 19:08:29 -0600, art@usfltd.com wrote:
+* Chuck Ebbert (76306.1226@compuserve.com) wrote:
+> In-Reply-To: <20061209003810.GP1397@sequoia.sous-sol.org>
+> 
+> On Fri, 8 Dec 2006 16:38:10 -0800, Chris Wright wrote:
+> 
+> > And a roll-up is available at:
+> > 
+> >       http://www.kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.{gz,bz2}
+> 
+> Would it be possible to make this available as a quilt patchset, like this:
 
-> usb 2-2: new high speed USB device using ehci_hcd and address 3
-> usb 2-2: configuration #1 chosen from 1 choice
-> libusual: modprobe for usb-storage succeeded, but module is not present
-> usb 2-4: new high speed USB device using ehci_hcd and address 5
-> usb 2-4: configuration #1 chosen from 1 choice
-> libusual: modprobe for usb-storage succeeded, but module is not present
-> usb 2-5: new high speed USB device using ehci_hcd and address 6
-> usb 2-5: configuration #1 chosen from 1 choice
-> libusual: modprobe for usb-storage succeeded, but module is not present
+Well, that's how we keep it in stable-queue.  For example, there's a quilt series
+in k.o/pub/scm/linux/kernel/git/stable/stable-queue/review-2.6.19
+Can you pull from that?
 
-I don't know what you've done to accomplish it, but either your
-modules got separated (e.g. libusual built statically while usb-storage
-is dynamic), or your modprobe is toast, or 100 other reasons.
-
-Just deconfigure CONFIG_BLK_DEV_UB and CONFIG_USB_LIBUSUAL
-and forget about it all.
-
-I know, I have to think of a workaround for this, but nothing is
-readily apparent.
-
--- Pete
+thanks,
+-chris

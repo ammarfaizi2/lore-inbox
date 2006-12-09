@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936642AbWLIJuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936778AbWLIJvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936642AbWLIJuS (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936649AbWLIJuS
+	id S936778AbWLIJvJ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936751AbWLIJvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:50:18 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:57856 "EHLO
-	astra.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936642AbWLIJuQ (ORCPT
+	Sat, 9 Dec 2006 04:51:09 -0500
+Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:59349 "EHLO
+	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936649AbWLIJvF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:50:16 -0500
-Date: Sat, 9 Dec 2006 10:50:15 +0100 (CET)
+	Sat, 9 Dec 2006 04:51:05 -0500
+Date: Sat, 9 Dec 2006 10:51:03 +0100 (CET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+Cc: linux-net@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Kars de Jong <jongk@linux-m68k.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] m68k: EXPORT_SYMBOL(cache_{clear,push}) bogus comment
-Message-ID: <Pine.LNX.4.64.0612091049360.17694@anakin>
+Subject: [PATCH] Amiga PCMCIA NE2000 Ethernet dev->irq init
+Message-ID: <Pine.LNX.4.64.0612091050280.17743@anakin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove bogus comments about unexporting cache_{push,clear}(), as inline
-dma_cache_maintenance() (used by at least bionet and pamsnet) calls them.
+From: Kars de Jong <jongk@linux-m68k.org>
 
+Amiga PCMCIA NE2000 Ethernet: Add missing initialization of dev->irq
+
+Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 ---
- arch/m68k/mm/memory.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/apne.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-m68k-2.6.19.orig/arch/m68k/mm/memory.c
-+++ linux-m68k-2.6.19/arch/m68k/mm/memory.c
-@@ -238,7 +238,7 @@ void cache_clear (unsigned long paddr, i
- 	mach_l2_flush(0);
+--- linux-m68k-2.6.19.orig/drivers/net/apne.c
++++ linux-m68k-2.6.19/drivers/net/apne.c
+@@ -311,9 +311,10 @@ static int __init apne_probe1(struct net
  #endif
- }
--EXPORT_SYMBOL(cache_clear);	/* probably can be unexported */
-+EXPORT_SYMBOL(cache_clear);
  
+     dev->base_addr = ioaddr;
++    dev->irq = IRQ_AMIGA_PORTS;
  
- /*
-@@ -291,5 +291,5 @@ void cache_push (unsigned long paddr, in
- 	mach_l2_flush(1);
- #endif
- }
--EXPORT_SYMBOL(cache_push);	/* probably can be unexported */
-+EXPORT_SYMBOL(cache_push);
+     /* Install the Interrupt handler */
+-    i = request_irq(IRQ_AMIGA_PORTS, apne_interrupt, IRQF_SHARED, DRV_NAME, dev);
++    i = request_irq(dev->irq, apne_interrupt, IRQF_SHARED, DRV_NAME, dev);
+     if (i) return i;
  
+     for(i = 0; i < ETHER_ADDR_LEN; i++) {
 
 Gr{oetje,eeting}s,
 

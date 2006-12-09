@@ -1,85 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947626AbWLIBd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947623AbWLIBem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947626AbWLIBd7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 20:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947632AbWLIBd6
+	id S1947623AbWLIBem (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 20:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947634AbWLIBem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 20:33:58 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:43017 "EHLO
-	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947626AbWLIBd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 20:33:58 -0500
-Date: Fri, 8 Dec 2006 17:36:09 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
-       davem@davemloft.net
-Subject: [patch 33/32] NETLINK: Put {IFA,IFLA}_{RTA,PAYLOAD} macros back for userspace.
-Message-ID: <20061209013609.GR1397@sequoia.sous-sol.org>
-References: <20061208235751.890503000@sous-sol.org>
+	Fri, 8 Dec 2006 20:34:42 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:3873 "EHLO dspnet.fr.eu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1947632AbWLIBel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 20:34:41 -0500
+Date: Sat, 9 Dec 2006 02:33:32 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: koan <koan00@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: warning at drivers/scsi/ahci.c:859/ahci_host_intr() [ 2.6.17.14 ]
+Message-ID: <20061209013332.GA15222@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Alan <alan@lxorguk.ukuu.org.uk>, koan <koan00@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <64d833020612081705p29c92e85i25f045ad87cb879e@mail.gmail.com> <20061209011830.14d99a20@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061208235751.890503000@sous-sol.org>
+In-Reply-To: <20061209011830.14d99a20@localhost.localdomain>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Sat, Dec 09, 2006 at 01:18:30AM +0000, Alan wrote:
+> On Fri, 8 Dec 2006 20:05:07 -0500
+> koan <koan00@gmail.com> wrote:
+> 
+> > ata4: status=0x50 { DriveReady SeekComplete }
+> > ata4: error=0x01 { AddrMarkNotFound }
+> 
+> That looks like a genuine drive problem.
 
-From: David Miller <davem@davemloft.net>
+Is a disk driver supposed to BUG() on a drive missing sector though?
 
-NETLINK: Put {IFA,IFLA}_{RTA,PAYLOAD} macros back for userspace.
-
-GLIBC uses them etc.
-
-They are guarded by ifndef __KERNEL__ so nobody will start
-accidently using them in the kernel again, it's just for
-userspace.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
-commit c0279128f20aa3580b0b43aaa49f351f6bad5f30
-Author: David S. Miller <davem@sunset.davemloft.net>
-Date:   Fri Dec 8 17:05:13 2006 -0800
-
- include/linux/if_addr.h |    6 ++++++
- include/linux/if_link.h |    6 ++++++
- 2 files changed, 12 insertions(+)
-
---- linux-2.6.19.orig/include/linux/if_addr.h
-+++ linux-2.6.19/include/linux/if_addr.h
-@@ -52,4 +52,10 @@ struct ifa_cacheinfo
- 	__u32	tstamp; /* updated timestamp, hundredths of seconds */
- };
- 
-+/* backwards compatibility for userspace */
-+#ifndef __KERNEL__
-+#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
-+#define IFA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifaddrmsg))
-+#endif
-+
- #endif
---- linux-2.6.19.orig/include/linux/if_link.h
-+++ linux-2.6.19/include/linux/if_link.h
-@@ -82,6 +82,12 @@ enum
- 
- #define IFLA_MAX (__IFLA_MAX - 1)
- 
-+/* backwards compatibility for userspace */
-+#ifndef __KERNEL__
-+#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
-+#define IFLA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifinfomsg))
-+#endif
-+
- /* ifi_flags.
- 
-    IFF_* flags.
+  OG.

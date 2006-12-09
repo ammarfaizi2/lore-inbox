@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933840AbWLIKQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936553AbWLIKSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933840AbWLIKQO (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 05:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936774AbWLIKQO
+	id S936553AbWLIKSe (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 05:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936782AbWLIKSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 05:16:14 -0500
-Received: from customer-domains.icp-qv1-irony12.iinet.net.au ([203.59.1.157]:35155
-	"EHLO customer-domains.icp-qv1-irony12.iinet.net.au"
+	Sat, 9 Dec 2006 05:18:33 -0500
+Received: from hempcity.net ([81.171.100.190]:33998 "EHLO hempcity.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936595AbWLIKQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 05:16:13 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AgAAAOobekXKoQMBdGdsb2JhbAANjTEB
-X-IronPort-AV: i="4.09,517,1157299200"; 
-   d="scan'208"; a="76187297:sNHT30696759"
-Message-ID: <457A8CEB.4080904@iinet.net.au>
-Date: Sat, 09 Dec 2006 21:16:11 +1100
-From: Ben Nizette <ben.nizette@iinet.net.au>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	id S936595AbWLIKSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 05:18:32 -0500
+Message-ID: <13634.62.194.65.8.1165659510.squirrel@webmail.coolzero.info>
+Date: Sat, 9 Dec 2006 11:18:30 +0100 (CET)
+Subject: Ext3 Errors...
+From: "Jim van Wel" <jim@coolzero.info>
+To: linux-kernel@vger.kernel.org
+Reply-To: jim@coolzero.info
+User-Agent: SquirrelMail/1.4.8-2.el4
 MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-CC: Matthias Schniedermeyer <ms@citd.de>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       DervishD <lkml@dervishd.net>
-Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
-References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <200612081201.36789.oliver@neukum.org> <457A5384.9070806@iinet.net.au> <200612090918.26508.oliver@neukum.org>
-In-Reply-To: <200612090918.26508.oliver@neukum.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> Am Samstag, 9. Dezember 2006 07:11 schrieb Ben Nizette:
->>>>> Also, you mentioned that the corruption occurs systematically on certain
->>>>> byte patterns. Therefore it's certainly not related to the cables.
->>>> It'd guess that too, but who can that say for sure. :-|
->>> You may have a bit pattern that stresses the controllers and suddenly
->>> a marginal cable may matter.
->> The errors occur in strings of 0xFFs.  From the USB standard:
->>
->> a “1” is represented by no change in level and a “0” is represented by a 
->> change in level
-> 
-> Yes, plus added stuffing bits.
-> 
->> so this error-infested bytes are effectively long, quiet times on the 
->> wire.  I would have thought this would be the _least_ stressful time for 
->> the controllers but maybe they are also more susceptible to noise during 
->> this period.
-> 
-> The longer you don't change the voltage the likelier are reciever and
-> transmitter to get out of sync.
+Hi all,
 
-Yes, hence the bit-stuffing, you're right :).  And hence this period 
-isn't really too stressful for the controller as the stuffed bits come 
-relatively often.
+I have something really strange while running kernel 2.6.19.
 
-We're hoping that any wire-errors get picked up by the CRC anyway so a 
-marginal cable under any circumstances shouldn't silently corrupt data. 
-  I love that word 'shouldn't' ;)
+See the following lines:
 
-Regards,
-	Ben.
+Dec  5 23:50:49 kernel: do_get_write_access: OOM for frozen_buffer
+Dec  5 23:50:49 kernel: ext3_free_blocks_sb: aborting transaction: Out of
+memory in __ext3_journal_get_undo_access
+Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in ext3_free_blocks_sb:
+Out of memory
+Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
+ext3_reserve_inode_write: Readonly filesystem
+Dec  5 23:50:50 kernel: EXT3-fs error (device md1) in ext3_truncate: Out
+of memory
+Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+ext3_reserve_inode_write: Readonly filesystem
+Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in ext3_orphan_del:
+Readonly filesystem
+Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+ext3_reserve_inode_write: Readonly filesystem
+Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in ext3_delete_inode:
+Out of memory
+
+And three days later the same:
+
+Dec  8 08:24:29 kernel: do_get_write_access: OOM for frozen_buffer
+Dec  8 08:24:29 kernel: ext3_reserve_inode_write: aborting transaction:
+Out of memory in __ext3_journal_get_write_access
+Dec  8 08:24:29 kernel: EXT3-fs error (device md1) in
+ext3_reserve_inode_write: Out of memory
+Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_dirty_inode:
+Out of memory
+Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_new_blocks:
+Readonly filesystem
+Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+ext3_reserve_inode_write: Readonly filesystem
+Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_dirty_inode:
+Out of memory
+Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_prepare_write:
+Out of memory
+
+Now the funny thing is, with kernel 2.6.18.3 I did not had these errors.
+Could it be my memory that is just going nuts, or something else? I have
+seen some other topics about the EXT3 corruption problems. Maybe this is
+also the same thing?
+
+Thanks for reading.

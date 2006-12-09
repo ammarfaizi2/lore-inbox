@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S966995AbWLIJvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933840AbWLIKQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966995AbWLIJvb (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967211AbWLIJvb
+	id S933840AbWLIKQO (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 05:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936774AbWLIKQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:51:31 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:16219 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966995AbWLIJv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:51:29 -0500
-Date: Sat, 9 Dec 2006 01:51:31 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org,
-       rusty@rustcorp.com.au, jeremy@goop.org, zach@vmware.com
-Subject: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
-Message-Id: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sat, 9 Dec 2006 05:16:14 -0500
+Received: from customer-domains.icp-qv1-irony12.iinet.net.au ([203.59.1.157]:35155
+	"EHLO customer-domains.icp-qv1-irony12.iinet.net.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936595AbWLIKQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 05:16:13 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AgAAAOobekXKoQMBdGdsb2JhbAANjTEB
+X-IronPort-AV: i="4.09,517,1157299200"; 
+   d="scan'208"; a="76187297:sNHT30696759"
+Message-ID: <457A8CEB.4080904@iinet.net.au>
+Date: Sat, 09 Dec 2006 21:16:11 +1100
+From: Ben Nizette <ben.nizette@iinet.net.au>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+CC: Matthias Schniedermeyer <ms@citd.de>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       DervishD <lkml@dervishd.net>
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <200612081201.36789.oliver@neukum.org> <457A5384.9070806@iinet.net.au> <200612090918.26508.oliver@neukum.org>
+In-Reply-To: <200612090918.26508.oliver@neukum.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+Oliver Neukum wrote:
+> Am Samstag, 9. Dezember 2006 07:11 schrieb Ben Nizette:
+>>>>> Also, you mentioned that the corruption occurs systematically on certain
+>>>>> byte patterns. Therefore it's certainly not related to the cables.
+>>>> It'd guess that too, but who can that say for sure. :-|
+>>> You may have a bit pattern that stresses the controllers and suddenly
+>>> a marginal cable may matter.
+>> The errors occur in strings of 0xFFs.  From the USB standard:
+>>
+>> a “1” is represented by no change in level and a “0” is represented by a 
+>> change in level
+> 
+> Yes, plus added stuffing bits.
+> 
+>> so this error-infested bytes are effectively long, quiet times on the 
+>> wire.  I would have thought this would be the _least_ stressful time for 
+>> the controllers but maybe they are also more susceptible to noise during 
+>> this period.
+> 
+> The longer you don't change the voltage the likelier are reciever and
+> transmitter to get out of sync.
 
-Since Voyager and Visual WS already define ARCH_SETUP,
-it looks like PARAVIRT shouldn't be offered for them.
+Yes, hence the bit-stuffing, you're right :).  And hence this period 
+isn't really too stressful for the controller as the stuffed bits come 
+relatively often.
 
-In file included from arch/i386/kernel/setup.c:63:
-include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-In file included from include/asm/msr.h:5,
-                 from include/asm/processor.h:17,
-                 from include/asm/thread_info.h:16,
-                 from include/linux/thread_info.h:21,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/i386/kernel/setup.c:26:
-include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
-In file included from arch/i386/kernel/setup.c:63:
-include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-In file included from include/asm/msr.h:5,
-                 from include/asm/processor.h:17,
-                 from include/asm/thread_info.h:16,
-                 from include/linux/thread_info.h:21,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/i386/kernel/setup.c:26:
-include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+We're hoping that any wire-errors get picked up by the CRC anyway so a 
+marginal cable under any circumstances shouldn't silently corrupt data. 
+  I love that word 'shouldn't' ;)
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- arch/i386/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-2.6.19-git13.orig/arch/i386/Kconfig
-+++ linux-2.6.19-git13/arch/i386/Kconfig
-@@ -190,6 +190,7 @@ endchoice
- config PARAVIRT
- 	bool "Paravirtualization support (EXPERIMENTAL)"
- 	depends on EXPERIMENTAL
-+	depends on !(X86_VISWS || X86_VOYAGER)
- 	help
- 	  Paravirtualization is a way of running multiple instances of
- 	  Linux on the same machine, under a hypervisor.  This option
-
-
----
+Regards,
+	Ben.

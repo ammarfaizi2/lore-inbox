@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761625AbWLIOC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761701AbWLIOEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761625AbWLIOC4 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 09:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761626AbWLIOC4
+	id S1761701AbWLIOEX (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 09:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761702AbWLIOEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 09:02:56 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:6476 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761625AbWLIOCz (ORCPT
+	Sat, 9 Dec 2006 09:04:23 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:42196 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761700AbWLIOEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 09:02:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=INQ9STJHUjsUrM5A6aUiJWajb2onJu4mnYPhG3M4UGnb+Yvy2WByPQcGoQGO40YUW4H3Oj4xFyaxCHRUy6TbdGWkNEFoC+7FZE03c558B+Mpby4bMRGJ0vo5m9yCqRL+vx/bbxJrS7BjU9dtUom7BCIEfMqmPRZtL/J6I1LBpAo=
-Message-ID: <84144f020612090602w5c7f3f9ay8e771763ea8843cf@mail.gmail.com>
-Date: Sat, 9 Dec 2006 16:02:53 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [RFC] Cleanup slab headers / API to allow easy addition of new slab allocators
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>, akpm@osdl.org, mpm@selenic.com,
-       "Manfred Spraul" <manfred@colorfullife.com>
-In-Reply-To: <Pine.LNX.4.64.0612081106320.16873@schroedinger.engr.sgi.com>
+	Sat, 9 Dec 2006 09:04:22 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Sat, 9 Dec 2006 09:00:33 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kcalloc: Re-order the first two out-of-order args to
+ kcalloc().
+In-Reply-To: <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain>
+References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain>
+ <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0612081106320.16873@schroedinger.engr.sgi.com>
-X-Google-Sender-Auth: 497308aa227eeee0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+On Sat, 9 Dec 2006, Pekka Enberg wrote:
 
-On 12/8/06, Christoph Lameter <clameter@sgi.com> wrote:
-> +#define        SLAB_POISON             0x00000800UL    /* DEBUG: Poison objects */
-> +#define        SLAB_HWCACHE_ALIGN      0x00002000UL    /* Align objs on cache lines */
-> +#define SLAB_CACHE_DMA         0x00004000UL    /* Use GFP_DMA memory */
-> +#define SLAB_MUST_HWCACHE_ALIGN        0x00008000UL    /* Force alignment even if debuggin is active */
+> On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> > @@ -705,7 +705,7 @@ static int uss720_probe(struct usb_inter
+> >         /*
+> >          * Allocate parport interface
+> >          */
+> > -       if (!(priv = kcalloc(sizeof(struct parport_uss720_private), 1,
+> > GFP_KERNEL))) {
+> > +       if (!(priv = kcalloc(1, sizeof(struct parport_uss720_private),
+> > GFP_KERNEL))) {
+>
+> This one should be kzalloc
+>
+> You really ought to send these cleanups to akpm@osdl.org with LKML
+> cc'd to get them merged.
 
-Please fix formatting while you're at it.
+good point, and argh.  good point in that any further patches that are
+primarily stylistic and/or aesthetic like the above will be sent to
+akpm, and CC'ed to list.
 
-> +#ifdef CONFIG_SLAB
-> +#include <linux/slab_def.h>
-> +#else
-> +
-> +/*
-> + * Fallback definitions for an allocator not wanting to provide
-> + * its own optimized kmalloc definitions (like SLOB).
-> + */
-> +
-> +#if defined(CONFIG_NUMA) || defined(CONFIG_DEBUG_SLAB)
-> +#error "SLAB fallback definitions not usable for NUMA or Slab debug"
+argh, in that i've already mentioned that, following the guidelines in
+"SubmittingPatches", i prefer that each of my patches have one logical
+purpose.  once the order of the kcalloc() args is corrected, that
+would be followed by a single subsequent patch that did the
+kcalloc->kzalloc transformation all at once.
 
-Do we need this? Shouldn't we just make sure no one can enable
-CONFIG_NUMA and CONFIG_DEBUG_SLAB for non-compatible allocators?
+if that's *not* the way folks on this list wish to see patches, then
+that advice should be removed from "SubmittingPatches."
 
-> -static inline void *kmalloc(size_t size, gfp_t flags)
-> +void *kmalloc(size_t size, gfp_t flags)
+as captain hollister once said to dave lister, "choose."
 
-static inline?
-
-> +void *kzalloc(size_t size, gfp_t flags)
-> +{
-> +       return __kzalloc(size, flags);
-> +}
-
-same here.
+rday

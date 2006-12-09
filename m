@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936577AbWLITve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936916AbWLITxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936577AbWLITve (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936531AbWLITve
+	id S936916AbWLITxm (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937171AbWLITxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:51:34 -0500
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:14921 "EHLO
-	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933278AbWLITvd (ORCPT
+	Sat, 9 Dec 2006 14:53:42 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:27916 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936916AbWLITxm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:51:33 -0500
-Subject: Re: [PATCH] WorkStruct: Fix S390 driver workstruct usage
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux390@de.ibm.com, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <20061208173342.GT4587@ftp.linux.org.uk>
-References: <20061208145940.21411.77769.stgit@warthog.cambridge.redhat.com>
-	 <20061208173342.GT4587@ftp.linux.org.uk>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Sat, 09 Dec 2006 20:51:09 +0100
-Message-Id: <1165693869.17186.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Sat, 9 Dec 2006 14:53:42 -0500
+Message-ID: <457B1380.7060807@oracle.com>
+Date: Sat, 09 Dec 2006 11:50:24 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Michael Halcrow <mhalcrow@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       trevor.highland@gmail.com, tyhicks@ou.edu
+Subject: Re: [PATCH 1/2] eCryptfs: Public key; transport mechanism
+References: <20061206230638.GA9358@us.ibm.com>	<20061206215555.85d584ca.akpm@osdl.org>	<20061209110416.670170eb.randy.dunlap@oracle.com> <20061209112130.f3ba7f22.akpm@osdl.org>
+In-Reply-To: <20061209112130.f3ba7f22.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-08 at 17:33 +0000, Al Viro wrote:
-> I don't think it's a real fix.
+Andrew Morton wrote:
+> On Sat, 9 Dec 2006 11:04:16 -0800
+> Randy Dunlap <randy.dunlap@oracle.com> wrote:
 > 
-> a) what protects tty from disappearing?
+>>> ecryptfs now has a dependency upon netlink.  There's no CONFIG_NETLINK.  If
+>>> CONFIG_NET=n && CONFIG_ECRYPTFS=y is possible, it won't build.
+>> Then shouldn't ECRYPTFS depend on CONFIG_NET ?
+> 
+> yup, that's what I meant..
 
-Nothing..
-
-> b) why the hell do we need that schedule_work() at all?  handle_sysrq() is
-> supposed to be safe to use from irq handler; when needed it does arrange for
-> delayed execution itself.
-
-Fritz probably did that because earlier versions of handle_sysrq() could
-not be called in interrupt context. ctrlchar.c is rather old, the first
-checkin I can see is from 2001/01/18. 
-
-> So how about we simply call handle_sysrq() there and be done with that?
-> Martin?
-
-If it works that is fine with me. Another simplification. I take a look
-at it next week.
+That's easy enough to fix, but I was hoping that driver or filesystem
+maintainers would eventually use & heed Documentation/SubmitChecklist.  :(
 
 -- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+~Randy

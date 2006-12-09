@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759157AbWLITmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933059AbWLITow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759157AbWLITmi (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759315AbWLITmi
+	id S933059AbWLITow (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935199AbWLITow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:42:38 -0500
-Received: from mail.tmr.com ([64.65.253.246]:50442 "EHLO gaimboi.tmr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759157AbWLITmh convert rfc822-to-8bit (ORCPT
+	Sat, 9 Dec 2006 14:44:52 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:50904 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933059AbWLITov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:42:37 -0500
-Message-ID: <457B12A2.7090104@tmr.com>
-Date: Sat, 09 Dec 2006 14:46:42 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	Sat, 9 Dec 2006 14:44:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=cnnOdpMXd3oHr3b2GSmAEb48h37ePNv4/avq/J4NvRlrcDVRzmnpB/WmUjm+Y9SmVvPtlDCeI1G+HUHMR2Pbfvm5OHfOASuIEhBI901ddEK7M156HBdfxXNBiIyEF2lCxWNbnm6PG9QRWGAWNyAkIm9Dmo6ZyWpxlTeI6ODqW6A=
+Message-ID: <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com>
+Date: Sat, 9 Dec 2006 14:44:49 -0500
+From: "=?UTF-8?Q?Kristian_H=C3=B8gsberg?=" <krh@bitplanet.net>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+Cc: linux1394-devel@lists.sourceforge.net,
+       "Kristian H?gsberg" <krh@redhat.com>,
+       "Erik Mouw" <erik@harddisk-recovery.com>,
+       "Marcel Holtmann" <marcel@holtmann.org>, "Pavel Machek" <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <45798022.2090104@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
-CC: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: VCD not readable under 2.6.18
-References: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
-In-Reply-To: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-3; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+	 <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com>
+	 <20061205160530.GB6043@harddisk-recovery.com>
+	 <20060712145650.GA4403@ucw.cz> <45798022.2090104@s5r6.in-berlin.de>
+X-Google-Sender-Auth: bdf893a8aa64a596
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rakhesh Sasidharan wrote:
-> Infact, just inserting a CD is enough. No need for a media player to try and access the files. :)
-> 
-> The backend must be polling and trying to mount the disc upon insertion. Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't and give error messages. Which explains why downgrading the kernel solves the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't downgrading the kernel *not* help?) Just thinking aloud ... 
+On 12/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> Pavel Machek wrote at linux-kernel:
+> > On Tue 05-12-06 17:05:30, Erik Mouw wrote:
+> >> On Tue, Dec 05, 2006 at 10:13:55AM -0500, Kristian H?gsberg wrote:
+> >> > Marcel Holtmann wrote:
+> >> > >can you please use drivers/firewire/ if you want to start clean or
+> >> > >aiming at replacing drivers/ieee1394/. Using "fw" as an abbreviation in
+> >> > >the directory path is not really helpful.
+> >> >
+> >> > Yes, that's probably a better idea.  Do you see a problem with using fw_*
+> >> > as a prefix in the code though?  I don't see anybody using that prefix, but
+> >> > Stefan pointed out to me that it's often used to abbreviate firmware too.
+> >>
+> >> So what about fiwi_*? If that's too close to wifi_*, try frwr_.
+> >
+> > Ugly, but fwire could be acceptable.
+>
+> How about this:
+> Let's let Kristian continue to work with his chosen fw_ prefix until his
+> drivers are ready to be pulled in (into the linux1394 repo and -mm),
+> then make a decision about prefixes. It's mostly a matter of running sed
+> over the files.
 
-I believe the problem is not that the kernel is providing an error, but 
-that it is providing an error which is taken as "DIDN'T WORK THIS TIME, 
-BUT TRY AGAIN" rather than a permanent error. Asking every 
-media-consious application to be rewritten is perhaps not the best 
-solution, either return another error, or return what application expect 
-(non-error but no data??)
+Yeah, I'm not changing it just yet, but I'm not too attached to fw_
+and I think that ieee1394_ will work better.  The modutil tools
+already use ieee1394 for device_id tables.
 
-Changes which break a large number of applications are probably ill-advised.
-> 
-> ----- Original Message ----
-> From: S.Ça»lar Onur <caglar@pardus.org.tr>
-> To: Ismail Donmez <ismail@pardus.org.tr>
-> Cc: Alan <alan@lxorguk.ukuu.org.uk>; Rakhesh Sasidharan <rakhesh@rakhesh.com>; rakheshster@yahoo.com; linux-kernel@vger.kernel.org
-> Sent: Saturday, December 9, 2006 8:09:05 PM
-> Subject: Re: VCD not readable under 2.6.18
-> 
-> 09 Ara 2006 Cts 16:15 tarihinde, Ismail Donmez ºunlar¹ yazm¹ºt¹: 
->> Well my bet is xine-lib is buggy somehow as I can reproduce this bug with
->> kaffeine ( KDE media player ).
-> 
-> Same symptoms occur with mplayer also, dmesg flooded with warnings, what about 
-> hal or KDE's cdpolling backend?
-> 
-> Cheers
+> Regarding the directory name, I favor to stick everything into
+> drivers/ieee1394 even if it could get crowded during a transition period.
 
+Yeah, if we're going with the ieee1394 prefix, it'd make the most
+sense if the files live in drivers/ieee1394.
 
+Kristian

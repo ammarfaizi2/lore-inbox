@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761258AbWLINsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761292AbWLINui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761258AbWLINsK (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 08:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761260AbWLINsK
+	id S1761292AbWLINui (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 08:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761264AbWLINui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 08:48:10 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:55682 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761258AbWLINsI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 08:48:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=AbMh8mlqWUVfDDj94BP8syzu4+z2kDqNO3m1duIjkLla0GI37vTOorwM2VjI9e9XRdk/KOGaEl2hFxE47foLiUMYK3o4De/2UxoFA31GyM0tgJI0nI6b8SXi3JBxngU1pWdY9Y5Y+T63cvVYlRFkjJJ0jHQ0U9HrvGrXOK0e0qM=
-Message-ID: <84144f020612090548r50a8ffaflb35ebbcd3e944e6a@mail.gmail.com>
-Date: Sat, 9 Dec 2006 15:48:06 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Subject: Re: why are some of my patches being credited to other "authors"?
-Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain>
-MIME-Version: 1.0
+	Sat, 9 Dec 2006 08:50:38 -0500
+Received: from main.gmane.org ([80.91.229.2]:48830 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761292AbWLINuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 08:50:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Thomas Backlund <tmb@mandriva.org>
+Subject: Re: [patch 24/32] add bottom_half.h
+Date: Sat, 09 Dec 2006 15:50:02 +0200
+Message-ID: <457ABF0A.8020809@mandriva.org>
+References: <20061208235751.890503000@sous-sol.org> <20061209000207.057219000@sous-sol.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain>
-X-Google-Sender-Auth: 742b87987e9db105
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mingo@elte.hu, ak@suse.de
+X-Gmane-NNTP-Posting-Host: ndn243.bob.fi
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+In-Reply-To: <20061209000207.057219000@sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
->   perhaps i'm just being clueless about the authorship protocol here,
-> but i'm a bit hacked off by noticing that at least one submitted patch
-> of mine was apparently re-submitted (albeit slightly modified) a few
-> days later by another poster and applied under that poster's name.
->
->   on sun, dec 3, i submitted to the list:
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116516635728664&w=2
+Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> With CONFIG_SMP=n:
+> 
+> drivers/input/ff-memless.c:384: warning: implicit declaration of function 'local_bh_disable'
+> drivers/input/ff-memless.c:393: warning: implicit declaration of function 'local_bh_enable'
+> 
+> Really linux/spinlock.h should include linux/interrupt.h.  But interrupt.h
+> includes sched.h which will need spinlock.h.
+> 
+> So the patch breaks the _bh declarations out into a separate header and
+> includes it in bothj interrupt.h and spinlock.h.
+> 
+> Cc: "Randy.Dunlap" <rdunlap@xenotime.net>
+> Cc: Andi Kleen <ak@suse.de>
+> Cc: <stable@kernel.org>
+> Cc: Ingo Molnar <mingo@elte.hu>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> ---
+> 
+>  include/linux/bottom_half.h |    5 +++++
 
-It really seems to be Burman Yan's patch from November 22. Notice how
-your patch still has the redundant cast whereas the applied one
-doesn't.
+This file is missing in patch-2.6.19.1-rc[1,2].bz2
+
+--
+Thomas
+

@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758292AbWLIVo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758366AbWLIVt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758292AbWLIVo5 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 16:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758281AbWLIVo5
+	id S1758366AbWLIVt2 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 16:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758397AbWLIVt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 16:44:57 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:3875 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758272AbWLIVo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 16:44:57 -0500
-Date: Sat, 9 Dec 2006 22:44:53 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix sysfs_create_bin_file warnings)
-Message-ID: <20061209214453.GA69320@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jean Delvare <khali@linux-fr.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20061209165606.2f026a6c.khali@linux-fr.org> <1165694351.1103.133.camel@localhost.localdomain> <20061209123817.f0117ad6.akpm@osdl.org>
+	Sat, 9 Dec 2006 16:49:28 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:59584
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1758366AbWLIVt1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 16:49:27 -0500
+Date: Sat, 09 Dec 2006 13:49:28 -0800 (PST)
+Message-Id: <20061209.134928.78719042.davem@davemloft.net>
+To: tgraf@suug.ch
+Cc: stefan@loplof.de, drow@false.org, dwmw2@infradead.org,
+       joseph@codesourcery.com, netdev@vger.kernel.org,
+       libc-alpha@sourceware.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [NETLINK]: Schedule removal of old macros exported to userspace
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061209125533.GO8693@postel.suug.ch>
+References: <20061209103953.GN8693@postel.suug.ch>
+	<200612091249.39302.stefan@loplof.de>
+	<20061209125533.GO8693@postel.suug.ch>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061209123817.f0117ad6.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2006 at 12:38:17PM -0800, Andrew Morton wrote:
-> On Sun, 10 Dec 2006 06:59:10 +1100
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > Why would I prevent the framebuffer from initializing (and thus a
-> > console to be displayed at all on many machines) just because for some
-> > reason, I couldn't create a pair of EDID files in sysfs that are not
-> > even very useful anymore ?
-> 
-> Because there's a bug in your kernel.  We don't hide and work around bugs.
+From: Thomas Graf <tgraf@suug.ch>
+Date: Sat, 9 Dec 2006 13:55:33 +0100
 
-Hmmm, I don't understand.  Which is the bug, having a sysfs file
-creation fail or going on if it happens?
+> The point is to stop new applications from using the interface which has
+> resulted in buggy code in the past.
 
-  OG.
+You don't get people to use new interface by breaking the
+build on them in userspace.
 
+You get them to do it by making suggestions and informing them, not
+by forcing them.
+
+That's why 1) you can't get rid of these macros, ever, but 2) you can
+warn them by using inline functions and depcrecated attribute tags.

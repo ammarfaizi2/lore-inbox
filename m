@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933059AbWLITow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936471AbWLITrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933059AbWLITow (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935199AbWLITow
+	id S936471AbWLITrr (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936476AbWLITrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:44:52 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:50904 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933059AbWLITov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:44:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=cnnOdpMXd3oHr3b2GSmAEb48h37ePNv4/avq/J4NvRlrcDVRzmnpB/WmUjm+Y9SmVvPtlDCeI1G+HUHMR2Pbfvm5OHfOASuIEhBI901ddEK7M156HBdfxXNBiIyEF2lCxWNbnm6PG9QRWGAWNyAkIm9Dmo6ZyWpxlTeI6ODqW6A=
-Message-ID: <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com>
-Date: Sat, 9 Dec 2006 14:44:49 -0500
-From: "=?UTF-8?Q?Kristian_H=C3=B8gsberg?=" <krh@bitplanet.net>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: [PATCH 0/3] New firewire stack
-Cc: linux1394-devel@lists.sourceforge.net,
-       "Kristian H?gsberg" <krh@redhat.com>,
-       "Erik Mouw" <erik@harddisk-recovery.com>,
-       "Marcel Holtmann" <marcel@holtmann.org>, "Pavel Machek" <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45798022.2090104@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sat, 9 Dec 2006 14:47:47 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44054 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936471AbWLITrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 14:47:46 -0500
+Date: Sat, 9 Dec 2006 11:47:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: vatsa@in.ibm.com, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
+       Jens Axboe <axboe@kernel.dk>, Dipankar <dipankar@in.ibm.com>,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: workqueue deadlock
+Message-Id: <20061209114723.138b6e89.akpm@osdl.org>
+In-Reply-To: <20061209102652.GA16607@elte.hu>
+References: <200612061726.14587.bjorn.helgaas@hp.com>
+	<20061207105148.20410b83.akpm@osdl.org>
+	<20061207113700.dc925068.akpm@osdl.org>
+	<20061208025301.GA11663@in.ibm.com>
+	<20061207205407.b4e356aa.akpm@osdl.org>
+	<20061209102652.GA16607@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
-	 <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com>
-	 <20061205160530.GB6043@harddisk-recovery.com>
-	 <20060712145650.GA4403@ucw.cz> <45798022.2090104@s5r6.in-berlin.de>
-X-Google-Sender-Auth: bdf893a8aa64a596
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> Pavel Machek wrote at linux-kernel:
-> > On Tue 05-12-06 17:05:30, Erik Mouw wrote:
-> >> On Tue, Dec 05, 2006 at 10:13:55AM -0500, Kristian H?gsberg wrote:
-> >> > Marcel Holtmann wrote:
-> >> > >can you please use drivers/firewire/ if you want to start clean or
-> >> > >aiming at replacing drivers/ieee1394/. Using "fw" as an abbreviation in
-> >> > >the directory path is not really helpful.
-> >> >
-> >> > Yes, that's probably a better idea.  Do you see a problem with using fw_*
-> >> > as a prefix in the code though?  I don't see anybody using that prefix, but
-> >> > Stefan pointed out to me that it's often used to abbreviate firmware too.
-> >>
-> >> So what about fiwi_*? If that's too close to wifi_*, try frwr_.
-> >
-> > Ugly, but fwire could be acceptable.
->
-> How about this:
-> Let's let Kristian continue to work with his chosen fw_ prefix until his
-> drivers are ready to be pulled in (into the linux1394 repo and -mm),
-> then make a decision about prefixes. It's mostly a matter of running sed
-> over the files.
+On Sat, 9 Dec 2006 11:26:52 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Yeah, I'm not changing it just yet, but I'm not too attached to fw_
-and I think that ieee1394_ will work better.  The modutil tools
-already use ieee1394 for device_id tables.
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > > +		if (cpu != -1)
+> > > > +			mutex_lock(&workqueue_mutex);
+> > > 
+> > > events/4 thread itself wanting the same mutex above?
+> > 
+> > Could do, not sure.  I'm planning on converting all the locking around 
+> > here to preempt_disable() though.
+> 
+> please at least use an owner-recursive per-CPU lock,
 
-> Regarding the directory name, I favor to stick everything into
-> drivers/ieee1394 even if it could get crowded during a transition period.
+a wot?
 
-Yeah, if we're going with the ieee1394 prefix, it'd make the most
-sense if the files live in drivers/ieee1394.
+> not a naked 
+> preempt_disable()! The concurrency rules for data structures changed via 
+> preempt_disable() are quite hard to sort out after the fact. 
+> (preempt_disable() is too opaque,
 
-Kristian
+preempt_disable() is the preferred way of holding off cpu hotplug.
+
+> it doesnt attach data structure to 
+> critical section, like normal locks do.)
+
+the data structure is the CPU, and its per-cpu data.  And cpu_online_map.

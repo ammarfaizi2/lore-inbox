@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760836AbWLINSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760839AbWLINSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760836AbWLINSK (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 08:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760847AbWLINSK
+	id S1760839AbWLINSI (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 08:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761161AbWLINSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 08:18:10 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:47636 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760836AbWLINSH (ORCPT
+	Sat, 9 Dec 2006 08:18:08 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41983 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1760839AbWLINSE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 08:18:07 -0500
-Date: Sat, 9 Dec 2006 22:17:00 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, clameter@engr.sgi.com, apw@shadowen.org,
-       akpm@osdl.org
-Subject: Re: [RFC] [PATCH] virtual memmap on sparsemem v3 [2/4] generic
- virtual mem_map on sparsemem
-Message-Id: <20061209221700.6feb2e5d.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061209120547.GB10380@osiris.ibm.com>
-References: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
-	<20061208160454.33fedd3f.kamezawa.hiroyu@jp.fujitsu.com>
-	<20061209120547.GB10380@osiris.ibm.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Sat, 9 Dec 2006 08:18:04 -0500
+Date: Sat, 9 Dec 2006 13:25:42 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Christoph Anton Mitterer <calestyo@scientia.net>
+Cc: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: CD/DVD drive errors and lost ticks
+Message-ID: <20061209132542.6bcfc864@localhost.localdomain>
+In-Reply-To: <457A28FF.4030508@scientia.net>
+References: <120320061552.9126.4572F2AD0001D571000023A622058844849D0E050B9A9D0E99@comcast.net>
+	<457A28FF.4030508@scientia.net>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006 13:05:47 +0100
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> I've also hat some errors like this:
+> hdb: irq timeout: status=0xd0 { Busy }
+> ide: failed opcode was: unknown
+> hdb: DMA disabled
 
-> > +#ifdef CONFIG_SPARSEMEM_VMEMMAP
-> > +#if (((BITS_PER_LONG/4) * PAGES_PER_SECTION) % PAGE_SIZE) != 0
-> > +#error "PAGE_SIZE/SECTION_SIZE relationship is not suitable for vmem_map"
-> > +#endif
-> 
-> Why the BITS_PER_LONG/4? Or to put in other words: why not simply
-> PAGES_PER_SECTION % PAGE_SIZE != 0 ?
-> 
-sorry, my mistake. What I wanted to do was
+The drive went away and stopped talking
 
-32bits arch --
-4 * PAGES_PER_SECTION % PAGE_SIZE
-64bits arch --
-8 * PAGES_PER_SECTION % PAGE_SIZE
+> hdb: ATAPI reset complete
+> hdb: irq timeout: status=0x80 { Busy }
+> ide: failed opcode was: unknown
+> hdb: ATAPI reset complete
+> hdb: irq timeout: status=0x80 { Busy }
+> ide: failed opcode was: unknown
+> hdb: cdrom_read_intr: data underrun (4 blocks)
+> end_request: I/O error, dev hdb, sector 7831400
+> Buffer I/O error on device hdb, logical block 1957850
 
-I'll renew this in the next week.
+And eventually got back to sanity
 
--Kame
+> That happened on a DVD (successfully read in and played by the drive),..
+> but when I pushed the eject button (while xine sill was playing) I got
+> those errors,..
+> I assume that xine continued to read data but the DVD was already
+> ejected and thus the request errors....
+> But I think there shouldn't be a request error but more something like
+> "no medium found" or the eject button should have been disabled at
+> all,... so I think something goes really wrong with that drive ;)
 
+The requests were outstanding so the behaviour is expected. As to the
+eject button - Xine chooses not to lock the drive. I don't know why it
+prefers to work that way but it's an application choice on the whole.

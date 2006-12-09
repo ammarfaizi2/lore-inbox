@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161493AbWLIQaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757734AbWLIRXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161493AbWLIQaQ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 11:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161722AbWLIQaP
+	id S1757734AbWLIRXe (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 12:23:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758267AbWLIRXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 11:30:15 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:38915 "EHLO
-	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161493AbWLIQaN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 11:30:13 -0500
-Date: Sat, 9 Dec 2006 15:49:45 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [MIPS] Don't build some broken ISDN drivers on big endian MIPS
-Message-ID: <20061209154945.GA8497@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Sat, 9 Dec 2006 12:23:33 -0500
+Received: from web57808.mail.re3.yahoo.com ([68.142.236.86]:29684 "HELO
+	web57808.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1757734AbWLIRXd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 12:23:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=s3BLS9/YW+bBYMHAvlET8a09M6j9i8kfRD72RhB1fqWTgzLXRhC6IlTTPA/IdIyBRBWb5jtgjHxn7FfXxf7z15ewLN63ovTYb1/qAHXjnIfxw/2fB5iibK6/6nIFFj+XXmT8tDqYRJ4lkq7xcVPbwQDQroGHnjirRwCL7SQAaXg=  ;
+Message-ID: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
+Date: Sat, 9 Dec 2006 09:23:32 -0800 (PST)
+From: Rakhesh Sasidharan <rakheshster@yahoo.com>
+Reply-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Subject: Re: VCD not readable under 2.6.18
+To: caglar@pardus.org.tr, Ismail Donmez <ismail@pardus.org.tr>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-3
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Infact, just inserting a CD is enough. No need for a media player to try and access the files. :)
 
-diff --git a/drivers/isdn/hisax/Kconfig b/drivers/isdn/hisax/Kconfig
-index 6fa12cc..34ab5f7 100644
---- a/drivers/isdn/hisax/Kconfig
-+++ b/drivers/isdn/hisax/Kconfig
-@@ -110,7 +110,7 @@ config HISAX_16_3
+The backend must be polling and trying to mount the disc upon insertion. Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't and give error messages. Which explains why downgrading the kernel solves the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't downgrading the kernel *not* help?) Just thinking aloud ... 
+
+----- Original Message ----
+From: S.Ça»lar Onur <caglar@pardus.org.tr>
+To: Ismail Donmez <ismail@pardus.org.tr>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>; Rakhesh Sasidharan <rakhesh@rakhesh.com>; rakheshster@yahoo.com; linux-kernel@vger.kernel.org
+Sent: Saturday, December 9, 2006 8:09:05 PM
+Subject: Re: VCD not readable under 2.6.18
+
+09 Ara 2006 Cts 16:15 tarihinde, Ismail Donmez ºunlar¹ yazm¹ºt¹: 
+> Well my bet is xine-lib is buggy somehow as I can reproduce this bug with
+> kaffeine ( KDE media player ).
+
+Same symptoms occur with mplayer also, dmesg flooded with warnings, what about 
+hal or KDE's cdpolling backend?
+
+Cheers
+-- 
+S.Ça»lar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in house!
+
+
+
+
+
  
- config HISAX_TELESPCI
- 	bool "Teles PCI"
--	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV))
- 	help
- 	  This enables HiSax support for the Teles PCI.
- 	  See <file:Documentation/isdn/README.HiSax> on how to configure it.
-@@ -238,7 +238,7 @@ config HISAX_MIC
- 
- config HISAX_NETJET
- 	bool "NETjet card"
--	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV))
- 	help
- 	  This enables HiSax support for the NetJet from Traverse
- 	  Technologies.
-@@ -249,7 +249,7 @@ config HISAX_NETJET
- 
- config HISAX_NETJET_U
- 	bool "NETspider U card"
--	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV))
- 	help
- 	  This enables HiSax support for the Netspider U interface ISDN card
- 	  from Traverse Technologies.
-@@ -317,7 +317,7 @@ config HISAX_GAZEL
- 
- config HISAX_HFC_PCI
- 	bool "HFC PCI-Bus cards"
--	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+	depends on PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV))
- 	help
- 	  This enables HiSax support for the HFC-S PCI 2BDS0 based cards.
- 
-@@ -344,7 +344,7 @@ #      bool '  TESTEMULATOR (EXPERIMENTA
- 
- config HISAX_ENTERNOW_PCI
- 	bool "Formula-n enter:now PCI card"
--	depends on HISAX_NETJET && PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || FRV))
-+	depends on HISAX_NETJET && PCI && (BROKEN || !(SPARC || PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV))
- 	help
- 	  This enables HiSax support for the Formula-n enter:now PCI
- 	  ISDN card.
+____________________________________________________________________________________
+Do you Yahoo!?
+Everyone is raving about the all-new Yahoo! Mail beta.
+http://new.mail.yahoo.com

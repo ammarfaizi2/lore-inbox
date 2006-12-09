@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758505AbWLIV6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758591AbWLIV67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758505AbWLIV6F (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 16:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758519AbWLIV6E
+	id S1758591AbWLIV67 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 16:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758303AbWLIV66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 16:58:04 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:60572 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758505AbWLIV6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 16:58:02 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <457B315B.5030004@s5r6.in-berlin.de>
-Date: Sat, 09 Dec 2006 22:57:47 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kcalloc: Re-order the first two out-of-order args to
- kcalloc().
-References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain>  <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>  <Pine.LNX.4.64.0612090855590.14206@localhost.localdomain> <84144f020612090613s28aeb485ua7c652393cff3f90@mail.gmail.com> <Pine.LNX.4.64.0612090913210.14456@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0612090913210.14456@localhost.localdomain>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 9 Dec 2006 16:58:58 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53408 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758591AbWLIV65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 16:58:57 -0500
+Date: Sat, 9 Dec 2006 13:58:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix
+ sysfs_create_bin_file warnings)
+Message-Id: <20061209135829.86038f32.akpm@osdl.org>
+In-Reply-To: <20061209214453.GA69320@dspnet.fr.eu.org>
+References: <20061209165606.2f026a6c.khali@linux-fr.org>
+	<1165694351.1103.133.camel@localhost.localdomain>
+	<20061209123817.f0117ad6.akpm@osdl.org>
+	<20061209214453.GA69320@dspnet.fr.eu.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day wrote:
-> On Sat, 9 Dec 2006, Pekka Enberg wrote:
->> On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
->>> once the order of the kcalloc() args is corrected, that
->>> would be followed by a single subsequent patch that did the
->>> kcalloc->kzalloc transformation all at once.
->> ...and what would that buy us? Nothing. It *really* wants to use
->> kzalloc and the transformation is equivalent, so please make it one
->> patch.
-> 
-> no.  those two submissions represent two logically different "fixes"
-> and i have no intention of combining them.
+On Sat, 9 Dec 2006 22:44:53 +0100
+Olivier Galibert <galibert@pobox.com> wrote:
 
-They are both *alloc() related cleanups without change in functionality.
--- 
-Stefan Richter
--=====-=-==- ==-- -=--=
-http://arcgraph.de/sr/
+> On Sat, Dec 09, 2006 at 12:38:17PM -0800, Andrew Morton wrote:
+> > On Sun, 10 Dec 2006 06:59:10 +1100
+> > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > > Why would I prevent the framebuffer from initializing (and thus a
+> > > console to be displayed at all on many machines) just because for some
+> > > reason, I couldn't create a pair of EDID files in sysfs that are not
+> > > even very useful anymore ?
+> > 
+> > Because there's a bug in your kernel.  We don't hide and work around bugs.
+> 
+> Hmmm, I don't understand.  Which is the bug, having a sysfs file
+> creation fail or going on if it happens?
+
+Probably the former, probably the latter.
+
+There may be situations in which we want do to "create this sysfs file if
+it doesn't already exist", but I'm not aware of any such.
+
+Generally speaking, if sysfs file creation went wrong, it's due to a bug. 
+The result is that the driver isn't working as intended: tunables or
+instrumentation which it is designed to make available are not present.  We
+want to know about that bug asap so we can get it fixed.
+

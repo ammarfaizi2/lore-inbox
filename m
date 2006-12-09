@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759146AbWLIWyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759722AbWLIXIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759146AbWLIWyp (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 17:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759148AbWLIWyp
+	id S1759722AbWLIXIK (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 18:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759725AbWLIXIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 17:54:45 -0500
-Received: from nz-out-0506.google.com ([64.233.162.228]:39024 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1759146AbWLIWyo (ORCPT
+	Sat, 9 Dec 2006 18:08:10 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:34291 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759722AbWLIXIJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 17:54:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=J8EZ2730BAQuaER+M8/d4AAwogY3rrKiwdk+LrdcW7b0fTjKbuYz58c/0aTC/fiGXP6QFT12xVfKBheZV5Q0Y/xFu8gPUNCwnVubsDGWnQYk9cjEicdCDJ02uLgXpr5KcP+TPjr0JwWMm+RScpjXUDqeMwxbIpc5zsfGzWHsuvw=
-Message-ID: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
-Date: Sat, 9 Dec 2006 22:54:43 +0000
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Possible memory leak in ata_piix.c
+	Sat, 9 Dec 2006 18:08:09 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <457B41CB.8080604@s5r6.in-berlin.de>
+Date: Sun, 10 Dec 2006 00:07:55 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] Fix numerous kcalloc() calls, convert to kzalloc().
+References: <Pine.LNX.4.64.0612090950580.14897@localhost.localdomain> <457B3346.2020008@s5r6.in-berlin.de> <Pine.LNX.4.64.0612091710250.8007@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612091710250.8007@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Robert P. J. Day wrote:
+> drop me a note when the grown-ups are back in charge.
 
-Kmemleak found a possible memory leak in piix_init_one() in
-drivers/ata/ata_piix.c. This only appeared after 2.6.19, maybe caused
-by the recent patches to this area. Kmemleak cannot find any track of
-the kzalloc'ed piix_host_priv structure allocated in the above
-function and reports it. The allocation stack trace is below:
+(You could have also explained where I erred. If I was in charge in
+the first place, that is.)
 
-unreferenced object 0xde9bca60 (size 4):
-  [<c018d85d>] __kmalloc_track_caller
-  [<c0179249>] __kzalloc
-  [<c02cf33f>] piix_init_one
-  [<c023dc2d>] pci_call_probe
-  [<c023dc81>] __pci_device_probe
-  [<c023dcb9>] pci_device_probe
-  [<c029b5fc>] really_probe
-  [<c029b728>] driver_probe_device
-  [<c029b8c1>] __driver_attach
-  [<c029a879>] bus_for_each_dev
-  [<c029b8e9>] driver_attach
-  [<c029ae9c>] bus_add_driver
-  [<c029bd27>] driver_register
-  [<c023e035>] __pci_register_driver
-  [<c02cf4ef>] piix_init
-
-Thanks.
-
+Sure enough, this *alloc() stuff is easier to work with than e.g. the
+recent workqueue changes.
 -- 
-Catalin
+Stefan Richter
+-=====-=-==- ==-- -=--=
+http://arcgraph.de/sr/

@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936275AbWLIOPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936277AbWLIOSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936275AbWLIOPa (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 09:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936277AbWLIOPa
+	id S936277AbWLIOSK (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 09:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWLIOSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 09:15:30 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:46952 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S936275AbWLIOP3 convert rfc822-to-8bit (ORCPT
+	Sat, 9 Dec 2006 09:18:09 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:47300 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936277AbWLIOSG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 09:15:29 -0500
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VCD not readable under 2.6.18
-Date: Sat, 9 Dec 2006 16:15:21 +0200
-User-Agent: KMail/1.9.5
-Cc: Rakhesh Sasidharan <rakhesh@rakhesh.com>, rakheshster@yahoo.com,
-       linux-kernel@vger.kernel.org
-References: <20061209060602.98025.qmail@web57812.mail.re3.yahoo.com> <20061209132120.7af3ce66@localhost.localdomain>
-In-Reply-To: <20061209132120.7af3ce66@localhost.localdomain>
+	Sat, 9 Dec 2006 09:18:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=RB0dNK6tkAkVeAQIhfrwdkhbdIDvSg6xX5oJwIjJBSS+f/mtO5WRtNQ//bx2H+537iQTRu/fAwHYiDbXNJONHE+bobRhu0Oy5UQyzADPWcCDg2DZ7bZdMpaYvHuAXtX3lcV1Kpep8ohVMPyQfds1bJupbPLZg/jOsf7/8ebI3To=
+Message-ID: <84144f020612090618g27ac861ka4ad693a0dee1928@mail.gmail.com>
+Date: Sat, 9 Dec 2006 16:18:02 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Subject: Re: Re: Re: [PATCH] kcalloc: Re-order the first two out-of-order args to kcalloc().
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0612090901180.14206@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612091615.22435.ismail@pardus.org.tr>
+References: <Pine.LNX.4.64.0612081837020.6610@localhost.localdomain>
+	 <84144f020612090553n7fe309b7u54dd7f58424c4008@mail.gmail.com>
+	 <84144f020612090554o571f142bt7f59db2c0dfa782f@mail.gmail.com>
+	 <Pine.LNX.4.64.0612090901180.14206@localhost.localdomain>
+X-Google-Sender-Auth: 3bcbeb42fc35b878
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-09 Ara 2006 Cts 15:21 tarihinde, Alan şunları yazmıştı: 
-> > I didn't see any responses after the post linked to above, so I'd like to
-> > add that I too get this problem and that I've tried with various VCDs and
-> > players. In previous versions of these distros I could just mount the VCD
-> > and copy the *.DAT files across; but in the current versions I can't even
-> > mount! dmesg gets flooded with errors such as the below:
-> >
-> >
-> >
-> > hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> > hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-> > ide: failed opcode was: unknown
-> > ATAPI device hdc:
-> >   Error: Illegal request -- (Sense key=0x05)
-> >   Illegal mode for this track or incompatible medium -- (asc=0x64,
-> > ascq=0x00) The failed "Read 10" packet command was:
-> >   "28 00 00 00 73 f2 00 00 01 00 00 00 00 00 00 00 "
+On 12/9/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> normally what i would do but, in the case of that patch, there are
+> five files affected, *all* of which are in totally different
+> subsystems (macintosh, net, scsi, usb, sunrpc).  are you suggesting
+> that up to 5 different people be CC'ed?
 >
-> Your system tried to read a Video data block. The usual cure for this
-> problem is to remove Gnome, or at least kill all the Gnome stuff and flip
-> to init level 3 then mount the cd from the command line.
+> and what about source-wide aesthetic changes that might touch dozens
+> or hundreds of files?
 
-Well my bet is xine-lib is buggy somehow as I can reproduce this bug with 
-kaffeine ( KDE media player ).
-
-Regards,
-ismail
+Well, it depends. There are no fixed rules in the art of patch
+feeding. FWIW, I probably would send this patch just to akpm too.

@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937668AbWLIUld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937669AbWLIUos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937668AbWLIUld (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 15:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937669AbWLIUlc
+	id S937669AbWLIUos (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 15:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937672AbWLIUos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 15:41:32 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:51003 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937668AbWLIUlc (ORCPT
+	Sat, 9 Dec 2006 15:44:48 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:38540 "HELO
+	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S937669AbWLIUor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 15:41:32 -0500
-Date: Sat, 9 Dec 2006 12:41:08 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, khc@pm.waw.pl, davem@davemloft.net
-Subject: [PATCH] fix WAN routers kconfig dependency
-Message-Id: <20061209124108.a25bb375.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 9 Dec 2006 15:44:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=uv4vvvkmwtsDWFQZ2SMqKzQ+ellxhWIwXvKWFwmMTiRKqJ/j+K1kw7sXsw7hV89tO0+yBrui3Qt3yXFxbLISyI6rvm6hs94GQAoqEmn3j+rwd8hrD9ygMgIdaeW5fiyEBlj64Zf5sXs09qVGpSczRw/wP7zOah1rNa829oASZuA=  ;
+X-YMail-OSG: 3gkz5PIVM1kjoPVGSiyrp819V6Au1TTeDdNEHyqDU6kGkA38M8rNhjaM1qXCNunO15X3yCJtBHWiJtOAGtrSBPU_jp6zd2nq_aIFpv.Jj3bSKONbbntE4.RyuWUNUqEgl18TSP0cPM90W.Q-
+Date: Sat, 09 Dec 2006 12:44:37 -0800
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 2.6.19-git] another build fix, header rearrangements (OSK)
+Cc: tony@atomide.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Message-Id: <20061209204437.21B3E1B4A6D@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+Some of the header file rearrangements broke the build for board-osk.
 
-Currently WAN router drivers can be built in-kernel while the
-register/unregister_wan_device interfaces are built as modules.
-This causes:
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-drivers/built-in.o: In function `cycx_init':
-cycx_main.c:(.init.text+0x5c4b): undefined reference to `register_wan_device'
-drivers/built-in.o: In function `cycx_exit':
-cycx_main.c:(.exit.text+0x560): undefined reference to `unregister_wan_device'
-make: *** [.tmp_vmlinux1] Error 1
-
-The problem is caused by tristate -> bool conversion (y or m => y),
-so convert WAN_ROUTER_DRIVERS to a tristate so that the correct
-dependency is preserved.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/net/wan/Kconfig |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.19-git13.orig/drivers/net/wan/Kconfig
-+++ linux-2.6.19-git13/drivers/net/wan/Kconfig
-@@ -382,7 +382,7 @@ config SDLA
+--- osk.orig/arch/arm/mach-omap1/board-osk.c	2006-12-07 23:56:36.000000000 -0800
++++ osk/arch/arm/mach-omap1/board-osk.c	2006-12-08 03:04:01.000000000 -0800
+@@ -30,6 +30,7 @@
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/irq.h>
++#include <linux/interrupt.h>
  
- # Wan router core.
- config WAN_ROUTER_DRIVERS
--	bool "WAN router drivers"
-+	tristate "WAN router drivers"
- 	depends on WAN && WAN_ROUTER
- 	---help---
- 	  Connect LAN to WAN via Linux box.
-@@ -393,7 +393,8 @@ config WAN_ROUTER_DRIVERS
- 	  <file:Documentation/networking/wan-router.txt>.
- 
- 	  Note that the answer to this question won't directly affect the
--	  kernel: saying N will just cause the configurator to skip all
-+	  kernel except for how subordinate drivers may be built:
-+	  saying N will just cause the configurator to skip all
- 	  the questions about WAN router drivers.
- 
- 	  If unsure, say N.
-
-
----
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>

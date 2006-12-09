@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757289AbWLIWCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758606AbWLIWCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757289AbWLIWCG (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 17:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757265AbWLIWCG
+	id S1758606AbWLIWCl (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 17:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758738AbWLIWCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 17:02:06 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:59016
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1757289AbWLIWCE (ORCPT
+	Sat, 9 Dec 2006 17:02:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52965 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758606AbWLIWCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 17:02:04 -0500
-Date: Sat, 09 Dec 2006 14:02:05 -0800 (PST)
-Message-Id: <20061209.140205.126778911.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: akpm@osdl.org, mingo@elte.hu, alan@lxorguk.ukuu.org.uk, lenb@kernel.org,
-       linux-kernel@vger.kernel.org, ak@suse.de, torvalds@osdl.org
-Subject: Re: [patch] net: dev_watchdog() locking fix
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061208235952.GA4693@gondor.apana.org.au>
-References: <20061207210657.GA23229@gondor.apana.org.au>
-	<20061208151902.4c8bb012.akpm@osdl.org>
-	<20061208235952.GA4693@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 9 Dec 2006 17:02:40 -0500
+Subject: Re: [NETLINK]: Schedule removal of old macros exported to userspace
+From: David Woodhouse <dwmw2@infradead.org>
+To: Stefan Rompf <stefan@loplof.de>
+Cc: Thomas Graf <tgraf@suug.ch>, David Miller <davem@davemloft.net>,
+       drow@false.org, joseph@codesourcery.com, netdev@vger.kernel.org,
+       libc-alpha@sourceware.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200612091559.05232.stefan@loplof.de>
+References: <20061208.134752.131916271.davem@davemloft.net>
+	 <200612091249.39302.stefan@loplof.de>
+	 <20061209125533.GO8693@postel.suug.ch>
+	 <200612091559.05232.stefan@loplof.de>
+Content-Type: text/plain
+Date: Sat, 09 Dec 2006 22:02:55 +0000
+Message-Id: <1165701775.27042.9.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 9 Dec 2006 10:59:52 +1100
+On Sat, 2006-12-09 at 15:58 +0100, Stefan Rompf wrote:
+> But when even glibc needs internal compat headers to compile with the second 
+> kernel version that provides userspace headers, what is the long-term - even 
+> mid-term - perspective of make headers_install then?
 
-> On Fri, Dec 08, 2006 at 03:19:02PM -0800, Andrew Morton wrote:
-> > 
-> > Like this?
-> > 
-> > 	/* don't get messages out of order, and no recursion */
-> > 	if (skb_queue_len(&npinfo->txq) == 0 &&
-> > 		    npinfo->poll_owner != smp_processor_id()) {
-> > 		local_bh_disable();	/* Where's netif_tx_trylock_bh()? */
-> > 		if (netif_tx_trylock(dev)) {
-> > 			/* try until next clock tick */
-> > 			for (tries = jiffies_to_usecs(1)/USEC_PER_POLL;
-> > 					tries > 0; --tries) {
-> > 				if (!netif_queue_stopped(dev))
-> > 					status = dev->hard_start_xmit(skb, dev);
-> > 
-> > 				if (status == NETDEV_TX_OK)
-> > 					break;
-> > 
-> > 				/* tickle device maybe there is some cleanup */
-> > 				netpoll_poll(np);
-> > 
-> > 				udelay(USEC_PER_POLL);
-> > 			}
-> > 			netif_tx_unlock(dev);
-> > 		}
-> > 		local_bh_enable();
-> > 	}
-> 
-> Looks good to me.  Thanks Andrew!
+We've only _just_ started paying attention to what we export. I tried to
+keep the initial cut of headers_install very simple and uncontentious --
+sticking to implementation, and not policy. So I didn't do a
+particularly thorough cull of stuff that we shouldn't be exposing --
+it's expected that we may lose _some_ more stuff.
 
-I've applied this patch, thanks a lot.
+But breaking userspace like _this_ isn't acceptable, and we're not doing
+it.
+
+-- 
+dwmw2
+

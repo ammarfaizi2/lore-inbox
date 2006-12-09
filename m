@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936250AbWLIONY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936275AbWLIOPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936250AbWLIONY (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 09:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936275AbWLIONY
+	id S936275AbWLIOPa (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 09:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936277AbWLIOPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 09:13:24 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:39409 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936250AbWLIONX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 09:13:23 -0500
-Date: Sat, 9 Dec 2006 15:11:50 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Ian E. Morgan" <penguin.wrangler@gmail.com>
-cc: LKML <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org
-Subject: Re: Loud POP from sound system during module init w/ 2.6.19
-In-Reply-To: <2a6e8c0d0612090517j5afe2161p591203c70ddfc890@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0612091511111.8055@yvahk01.tjqt.qr>
-References: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com> 
- <Pine.LNX.4.61.0612091020450.8055@yvahk01.tjqt.qr>
- <2a6e8c0d0612090517j5afe2161p591203c70ddfc890@mail.gmail.com>
+	Sat, 9 Dec 2006 09:15:30 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:46952 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S936275AbWLIOP3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 09:15:29 -0500
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VCD not readable under 2.6.18
+Date: Sat, 9 Dec 2006 16:15:21 +0200
+User-Agent: KMail/1.9.5
+Cc: Rakhesh Sasidharan <rakhesh@rakhesh.com>, rakheshster@yahoo.com,
+       linux-kernel@vger.kernel.org
+References: <20061209060602.98025.qmail@web57812.mail.re3.yahoo.com> <20061209132120.7af3ce66@localhost.localdomain>
+In-Reply-To: <20061209132120.7af3ce66@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612091615.22435.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Dec 9 2006 08:17, Ian E. Morgan wrote:
+09 Ara 2006 Cts 15:21 tarihinde, Alan şunları yazmıştı: 
+> > I didn't see any responses after the post linked to above, so I'd like to
+> > add that I too get this problem and that I've tried with various VCDs and
+> > players. In previous versions of these distros I could just mount the VCD
+> > and copy the *.DAT files across; but in the current versions I can't even
+> > mount! dmesg gets flooded with errors such as the below:
+> >
+> >
+> >
+> > hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+> > hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
+> > ide: failed opcode was: unknown
+> > ATAPI device hdc:
+> >   Error: Illegal request -- (Sense key=0x05)
+> >   Illegal mode for this track or incompatible medium -- (asc=0x64,
+> > ascq=0x00) The failed "Read 10" packet command was:
+> >   "28 00 00 00 73 f2 00 00 01 00 00 00 00 00 00 00 "
 >
-> Previous kernel was 2.6.18.3, which did not exhibit the problem. I was
-> aware of udev setting the mixer at module load time, but I disabled
-> that and the problem still exists.
+> Your system tried to read a Video data block. The usual cure for this
+> problem is to remove Gnome, or at least kill all the Gnome stuff and flip
+> to init level 3 then mount the cd from the command line.
 
-Another reason might be that the sound driver sets the initial volume 
-(even before udev can act) to 100%. That's probably Not So Good.
-I'd suggest to take a diff between 2.6.18.3's sound tree and the 2.6.19 
-one, and see if the driver for your card changed.
+Well my bet is xine-lib is buggy somehow as I can reproduce this bug with 
+kaffeine ( KDE media player ).
 
-
-	-`J'
--- 
+Regards,
+ismail

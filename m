@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759743AbWLIXQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759760AbWLIXTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759743AbWLIXQI (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 18:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759747AbWLIXQI
+	id S1759760AbWLIXTT (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 18:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759761AbWLIXTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 18:16:08 -0500
-Received: from py-out-1112.google.com ([64.233.166.176]:47059 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759675AbWLIXQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 18:16:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lm5O0svpAxlIijre5IlQIak8k7KtW4jdAhr730zPYaKbaCeNkUt1QPCxf6H7QTAflFnc40XTm0e1yBN/q7rnPLhxUeKak8+wgMDNiFLiawyoUEABcgOBC6JcOkoqMbEkOiwCcov+qPtc1MbaCZNAgfSC7VA31IRHfG93N6wRV1A=
-Message-ID: <b0943d9e0612091516s600d2c5bp327ce5008a57381e@mail.gmail.com>
-Date: Sat, 9 Dec 2006 23:16:04 +0000
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Possible memory leak in block/ll_rw_blk.c
-Cc: "Mike Christie" <michaelc@cs.wisc.edu>
+	Sat, 9 Dec 2006 18:19:19 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:58686 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1759747AbWLIXTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 18:19:18 -0500
+From: "=?iso-8859-3?q?S=2E=C7a=BBlar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Subject: Re: VCD not readable under 2.6.18
+Date: Sun, 10 Dec 2006 01:19:14 +0200
+User-Agent: KMail/1.9.5
+Cc: Ismail Donmez <ismail@pardus.org.tr>, Alan <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+References: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
+In-Reply-To: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2070809.qdZNKm2ilB";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200612100119.15498.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart2070809.qdZNKm2ilB
+Content-Type: text/plain;
+  charset="iso-8859-3"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-After 2.6.19, kmemleak reports several (few tens) orphan blocks
-allocated in bio_alloc_bioset() via __blk_rq_map_user() in
-block/ll_rq_blk.c. I think these came with commit
-0e75f9063f5c55fb0b0b546a7c356f8ec186825e (support larger block pc
-requests). The allocation backtrace for the "bio" structure is:
+09 Ara 2006 Cts 19:23 tarihinde, Rakhesh Sasidharan =BAunlar=B9 yazm=B9=BAt=
+=B9:=20
+> Infact, just inserting a CD is enough. No need for a media player to try
+> and access the files. :)
+>
+> The backend must be polling and trying to mount the disc upon insertion.
+> Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't
+> and give error messages. Which explains why downgrading the kernel solves
+> the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't
+> downgrading the kernel *not* help?) Just thinking aloud ...
 
-unreferenced object 0xdd9162b0 (size 64):
-  [<c018d46f>] kmem_cache_alloc
-  [<c0170b2e>] mempool_alloc_slab
-  [<c01709cb>] mempool_alloc
-  [<c01b7baa>] bio_alloc_bioset
-  [<c01b7d0e>] bio_alloc
-  [<c01b83f8>] bio_copy_user
-  [<c021a380>] __blk_rq_map_user
-  [<c021a4ff>] blk_rq_map_user
-  [<c021e687>] sg_io
-  [<c021ed3e>] scsi_cmd_ioctl
-  [<c02bcc13>] sd_ioctl
-  [<c021ca65>] blkdev_driver_ioctl
-  [<c021cc27>] blkdev_ioctl
-  [<c01ba72b>] block_ioctl
-  [<c019ea36>] do_ioctl
+But i cannot reproduce the problem that way, in my case dmesg flooded as so=
+on=20
+as somebody trying to _access_ to VCD. I disabled hal and closed KDE to tes=
+t=20
+and that problem no longer reproducible for me. So its really seems a=20
+userspace problem and i think all of them (KDE's cdpolling backend, hal,=20
+mplayer and xine-lib) has problems with kernels >=3D 2.6.17=20
 
-Because the above objects cannot be tracked, kmemleak also reports the
-bio_map_data structures allocated in bio_alloc_map_data (called from
-bio_copy_user via the above backtrace).
+=2D-=20
+S.=C7a=BBlar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-Thanks.
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
--- 
-Catalin
+--nextPart2070809.qdZNKm2ilB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.1 (GNU/Linux)
+
+iD8DBQBFe0Rzy7E6i0LKo6YRAi7eAJ46bPmACoHotSs7iY0KxW4WgxL29QCeMiFQ
+I98BRnHpjb7+qzCm6fLhMjU=
+=rbOE
+-----END PGP SIGNATURE-----
+
+--nextPart2070809.qdZNKm2ilB--

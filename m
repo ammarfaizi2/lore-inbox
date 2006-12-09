@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030681AbWLIMTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030720AbWLIM1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030681AbWLIMTm (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 07:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030715AbWLIMTm
+	id S1030720AbWLIM1t (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 07:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030820AbWLIM1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 07:19:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59861 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030646AbWLIMTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 07:19:41 -0500
-Message-ID: <457AA9D7.7050509@redhat.com>
-Date: Sat, 09 Dec 2006 07:19:35 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 3/3] ensure unique i_ino in filesystems without permanent
- inode numbers (pipefs)
-References: <457891F8.9090607@redhat.com>
-In-Reply-To: <457891F8.9090607@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Dec 2006 07:27:48 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:16652 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030720AbWLIM1s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 07:27:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=pdkp/toEXsR1XxnJvy8On5ofRwlDvohioQohHBIUJuN2Ly3H90rBtJ3s50MZxKQpYr9vkyr2QQ5HU6klPNCcFApUzPnMMbrLUE48ZjQzh8+to8ZAoLwSA5LQCxbTcyBniFVucq/vCMU93zupvgvMj9enFj5JkdhhyPutzQPXUTs=
+Date: Sat, 9 Dec 2006 13:27:42 +0100
+From: Alejandro Riveira =?UTF-8?B?RmVybsOhbmRleg==?= 
+	<ariveira@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Norbert Kiesel <nkiesel@tbdnetworks.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
+Message-ID: <20061209132742.7a25dcb5@localhost.localdomain>
+In-Reply-To: <20061206131003.GF24140@stusta.de>
+References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
+	<1165406299.3233.436.camel@laptopd505.fenrus.org>
+	<1165407548.5954.224.camel@titan.tbdnetworks.com>
+	<20061206131003.GF24140@stusta.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Layton wrote:
- > pipefs is a rather busy filesystem and so is a good place to start to make
- > sure we flush out any performance problems
- >
+El Wed, 6 Dec 2006 14:10:03 +0100
+Adrian Bunk <bunk@stusta.de> escribió:
 
-This patch changes the earlier patch to use the new_registered_inode wrapper
-and that simplifies things a bit. It also goes ahead and changes over sockfs
-in the same way.
+> On Wed, Dec 06, 2006 at 01:19:08PM +0100, Norbert Kiesel wrote:
+> > On Wed, 2006-12-06 at 12:58 +0100, Arjan van de Ven wrote:
+> > > On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
+> > > > Hi,
+> > > > 
+> > > > I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
+> > > > be optimal for a machine with exactly 1GB memory (like my current
+> > > > desktop). Why is that option only prompted for after selecting EMBEDDED
+> > > > (which I normally don't select for desktop machines
+> > > 
+> > > because it changes the userspace ABI and has some other caveats.... this
+> > > is not something you should muck with lightly 
+> > > 
+> > 
+> > Hmm, but it's also marked EXPERIMENTAL. Would that not be the
+> > sufficient?  Assuming I don't use any external/binary drivers and a
+> > self-compiled kernel w//o any additional patches: is there really any
+> > downside?
+> 
+> - Wine doesn't work (I'm not sure about VMSPLIT_3G_OPT, but
+>                      VMSPLIT_2G definitely breaks Wine)
 
-Signed-off-by: Jeff Layton <jlayton@redhat.com>
+ I use VMSPLIT_3G_OPT=y and wine works just fine (only tested with one
+ program). Edgy + 2.6.19-rc1
 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index f8b6bdc..4d30f49 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -846,7 +846,7 @@ static struct dentry_operations pipefs_d
 
-  static struct inode * get_pipe_inode(void)
-  {
--	struct inode *inode = new_inode(pipe_mnt->mnt_sb);
-+	struct inode *inode = new_registered_inode(pipe_mnt->mnt_sb, 0);
-  	struct pipe_inode_info *pipe;
 
-  	if (!inode)
-diff --git a/net/socket.c b/net/socket.c
-index 4e39631..ec63a96 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -486,7 +486,7 @@ static struct socket *sock_alloc(void)
-  	struct inode *inode;
-  	struct socket *sock;
-
--	inode = new_inode(sock_mnt->mnt_sb);
-+	inode = new_registered_inode(sock_mnt->mnt_sb, 0);
-  	if (!inode)
-  		return NULL;
-
+> - AFAIR some people reported problems with some Java programs
+>   after fiddling with the vmsplit options
+> 
+> EMBEDDED isn't exactly the right way to hide it, but the vmsplit options 
+> aren't something you can safely change.
+> 
+> > </nk>
+> 
+> cu
+> Adrian
+> 

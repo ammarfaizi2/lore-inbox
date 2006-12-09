@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947612AbWLIB0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947626AbWLIBd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947612AbWLIB0P (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 20:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947619AbWLIB0P
+	id S1947626AbWLIBd7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 20:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947632AbWLIBd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 20:26:15 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:52248 "EHLO
-	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947612AbWLIB0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 20:26:14 -0500
-Date: Sat, 9 Dec 2006 01:25:52 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] PCI legacy resource fix
-Message-ID: <20061209012552.GA15216@linux-mips.org>
-References: <20061206134143.GA6772@linux-mips.org> <1165625178.7443.334.camel@gullible>
+	Fri, 8 Dec 2006 20:33:58 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:43017 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1947626AbWLIBd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 20:33:58 -0500
+Date: Fri, 8 Dec 2006 17:36:09 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
+       davem@davemloft.net
+Subject: [patch 33/32] NETLINK: Put {IFA,IFLA}_{RTA,PAYLOAD} macros back for userspace.
+Message-ID: <20061209013609.GR1397@sequoia.sous-sol.org>
+References: <20061208235751.890503000@sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1165625178.7443.334.camel@gullible>
+In-Reply-To: <20061208235751.890503000@sous-sol.org>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 07:46:18PM -0500, Ben Collins wrote:
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-> On Wed, 2006-12-06 at 13:41 +0000, Ralf Baechle wrote:
-> > Since commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f the kernel will try
-> > to update the non-writeable BAR registers 0..3 of PIIX4 IDE adapters if
-> > pci_assign_unassigned_resources() is used to do full resource assignment
-> > of the bus.  This fails because in the PIIX4 these BAR registers have
-> > implicitly assumed values and read back as zero; it used to work because
-> > the kernel used to just write zero to that register the read back value
-> > did match what was written.
-> > 
-> > The fix is a new resource flag IORESOURCE_PCI_FIXED used to mark a
-> > resource as non-movable.  This will also be useful to keep other import
-> > system resources from being moved around - for example system consoles
-> > on PCI busses.
-> 
-> I have a problem where an ich6 (SATA+PATA) is getting its port0 reserved
-> by the pci quirk for libata so that it gets picked up by ata_piix. In
-> current git, ata_piix complains:
-> 
-> [  124.507570] PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> 
-> I bisected to the same commit, 368c73d4f689dae0807d0a2aa74c61fd2b9b075f,
-> however, your patch doesn't fix my problem.
+From: David Miller <davem@davemloft.net>
 
-Looks like a double reservation.  My patch doesn't deal with reservations
-at all.  I thought about resource reservations but decieded that should
-be dealt with elsewhere.
+NETLINK: Put {IFA,IFLA}_{RTA,PAYLOAD} macros back for userspace.
 
-  Ralf
+GLIBC uses them etc.
+
+They are guarded by ifndef __KERNEL__ so nobody will start
+accidently using them in the kernel again, it's just for
+userspace.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+commit c0279128f20aa3580b0b43aaa49f351f6bad5f30
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Fri Dec 8 17:05:13 2006 -0800
+
+ include/linux/if_addr.h |    6 ++++++
+ include/linux/if_link.h |    6 ++++++
+ 2 files changed, 12 insertions(+)
+
+--- linux-2.6.19.orig/include/linux/if_addr.h
++++ linux-2.6.19/include/linux/if_addr.h
+@@ -52,4 +52,10 @@ struct ifa_cacheinfo
+ 	__u32	tstamp; /* updated timestamp, hundredths of seconds */
+ };
+ 
++/* backwards compatibility for userspace */
++#ifndef __KERNEL__
++#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
++#define IFA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifaddrmsg))
++#endif
++
+ #endif
+--- linux-2.6.19.orig/include/linux/if_link.h
++++ linux-2.6.19/include/linux/if_link.h
+@@ -82,6 +82,12 @@ enum
+ 
+ #define IFLA_MAX (__IFLA_MAX - 1)
+ 
++/* backwards compatibility for userspace */
++#ifndef __KERNEL__
++#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
++#define IFLA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifinfomsg))
++#endif
++
+ /* ifi_flags.
+ 
+    IFF_* flags.

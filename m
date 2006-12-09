@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937669AbWLIUos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752809AbWLIUxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937669AbWLIUos (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 15:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937672AbWLIUos
+	id S1752809AbWLIUxi (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 15:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753329AbWLIUxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 15:44:48 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:38540 "HELO
-	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S937669AbWLIUor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 15:44:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=uv4vvvkmwtsDWFQZ2SMqKzQ+ellxhWIwXvKWFwmMTiRKqJ/j+K1kw7sXsw7hV89tO0+yBrui3Qt3yXFxbLISyI6rvm6hs94GQAoqEmn3j+rwd8hrD9ygMgIdaeW5fiyEBlj64Zf5sXs09qVGpSczRw/wP7zOah1rNa829oASZuA=  ;
-X-YMail-OSG: 3gkz5PIVM1kjoPVGSiyrp819V6Au1TTeDdNEHyqDU6kGkA38M8rNhjaM1qXCNunO15X3yCJtBHWiJtOAGtrSBPU_jp6zd2nq_aIFpv.Jj3bSKONbbntE4.RyuWUNUqEgl18TSP0cPM90W.Q-
-Date: Sat, 09 Dec 2006 12:44:37 -0800
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org
-Subject: [patch 2.6.19-git] another build fix, header rearrangements (OSK)
-Cc: tony@atomide.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 9 Dec 2006 15:53:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:40749 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752809AbWLIUxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 15:53:37 -0500
+Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix
+	sysfs_create_bin_file warnings)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061209202244.GH3545@rhun.ibm.com>
+References: <20061209165606.2f026a6c.khali@linux-fr.org>
+	 <1165694351.1103.133.camel@localhost.localdomain>
+	 <20061209202244.GH3545@rhun.ibm.com>
+Content-Type: text/plain
+Date: Sun, 10 Dec 2006 07:53:17 +1100
+Message-Id: <1165697597.1103.148.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <20061209204437.21B3E1B4A6D@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of the header file rearrangements broke the build for board-osk.
+On Sat, 2006-12-09 at 22:22 +0200, Muli Ben-Yehuda wrote:
+> On Sun, Dec 10, 2006 at 06:59:10AM +1100, Benjamin Herrenschmidt wrote:
+> 
+> > I'd really like to have some kind of macro or attribute or whatever I
+> > can put on a function call to say that I'm purposefully ignoring the
+> > error. Is there some gcc magic that can do that ?
+> 
+> (void)bla()?
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Do that actually work to silence the warning ? I though it didn't...I'll
+try again.
 
---- osk.orig/arch/arm/mach-omap1/board-osk.c	2006-12-07 23:56:36.000000000 -0800
-+++ osk/arch/arm/mach-omap1/board-osk.c	2006-12-08 03:04:01.000000000 -0800
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/platform_device.h>
- #include <linux/irq.h>
-+#include <linux/interrupt.h>
- 
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/partitions.h>
+Ben.
+

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757214AbWLIVec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757574AbWLIViQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757214AbWLIVec (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 16:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757265AbWLIVec
+	id S1757574AbWLIViQ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 16:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757289AbWLIViQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 16:34:32 -0500
-Received: from www.osadl.org ([213.239.205.134]:48838 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1757086AbWLIVeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 16:34:31 -0500
-Subject: Re: 2.6.19-rt11 boot failure
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       linux-rt-users@vger.kernel.org
-In-Reply-To: <60535.192.168.1.8.1165699722.squirrel@www.rncbc.org>
-References: <60535.192.168.1.8.1165699722.squirrel@www.rncbc.org>
-Content-Type: text/plain
-Date: Sat, 09 Dec 2006 22:37:55 +0100
-Message-Id: <1165700275.24604.350.camel@localhost.localdomain>
+	Sat, 9 Dec 2006 16:38:16 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52376 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757574AbWLIViP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 16:38:15 -0500
+Date: Sat, 9 Dec 2006 13:42:03 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Stefan Lippers-Hollmann <s.L-H@gmx.de>
+Cc: stable@kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Thomas Backlund <tmb@mandriva.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 00/32] -stable review
+Message-ID: <20061209214203.GV1397@sequoia.sous-sol.org>
+References: <20061208235751.890503000@sous-sol.org> <200612091226.22936.s.L-H@gmx.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612091226.22936.s.L-H@gmx.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-12-09 at 21:28 +0000, Rui Nuno Capela wrote:
-> Hi all,
+* Stefan Lippers-Hollmann (s.L-H@gmx.de) wrote:
+> At least
+> http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.gz
+> and
+> http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc2.gz
+> seem to contain an incompletely applied "[patch 24/32] add bottom_half.h",
+> bottom_half.h itself is missing, while interrupt.h and spinlock.h are changed 
+> to use the missing file:
 > 
-> Sorry for the interrupt, but all my 2.6.19-rt11 builds very fail early on
-> boot. It doesn't matter if its UP or SMP. This is a sample of what I could
-> capture on one case via serial console:
+> $ wget -qO- http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc2.gz | gzip -dc | grep bottom_half
+> +#include <linux/bottom_half.h>
+> +#include <linux/bottom_half.h>
+> $ wget -qO- http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.gz | gzip -dc | grep bottom_half
+> +#include <linux/bottom_half.h>
+> +#include <linux/bottom_half.h>
 
-Can you please disable CONFIG_HPET_TIMER ?
+Sorry about that, I regenerated and made sure I picked up new files.
+I've pushed up an rc3 (mirroring is a bit slow).
 
-	tglx
-
-
-	
-
+thanks,
+-chris

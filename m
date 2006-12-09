@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758591AbWLIV67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758303AbWLIV7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758591AbWLIV67 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 16:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758303AbWLIV66
+	id S1758303AbWLIV7h (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 16:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758738AbWLIV7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 16:58:58 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53408 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758591AbWLIV65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 16:58:57 -0500
-Date: Sat, 9 Dec 2006 13:58:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix
- sysfs_create_bin_file warnings)
-Message-Id: <20061209135829.86038f32.akpm@osdl.org>
-In-Reply-To: <20061209214453.GA69320@dspnet.fr.eu.org>
-References: <20061209165606.2f026a6c.khali@linux-fr.org>
-	<1165694351.1103.133.camel@localhost.localdomain>
-	<20061209123817.f0117ad6.akpm@osdl.org>
-	<20061209214453.GA69320@dspnet.fr.eu.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 9 Dec 2006 16:59:36 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:33714
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1758682AbWLIV7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 16:59:35 -0500
+Date: Sat, 09 Dec 2006 13:59:36 -0800 (PST)
+Message-Id: <20061209.135936.106278973.davem@davemloft.net>
+To: ralf@linux-mips.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] Ignore generated file pca200e_ecd.bin2
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061209162626.GA13788@linux-mips.org>
+References: <20061209162626.GA13788@linux-mips.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006 22:44:53 +0100
-Olivier Galibert <galibert@pobox.com> wrote:
+From: Ralf Baechle <ralf@linux-mips.org>
+Date: Sat, 9 Dec 2006 16:26:26 +0000
 
-> On Sat, Dec 09, 2006 at 12:38:17PM -0800, Andrew Morton wrote:
-> > On Sun, 10 Dec 2006 06:59:10 +1100
-> > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > > Why would I prevent the framebuffer from initializing (and thus a
-> > > console to be displayed at all on many machines) just because for some
-> > > reason, I couldn't create a pair of EDID files in sysfs that are not
-> > > even very useful anymore ?
-> > 
-> > Because there's a bug in your kernel.  We don't hide and work around bugs.
+> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 > 
-> Hmmm, I don't understand.  Which is the bug, having a sysfs file
-> creation fail or going on if it happens?
+> diff --git a/drivers/atm/.gitignore b/drivers/atm/.gitignore
+> index a165b71..fc0ae5e 100644
+> --- a/drivers/atm/.gitignore
+> +++ b/drivers/atm/.gitignore
+> @@ -2,4 +2,4 @@ # Ignore generated files
+>  fore200e_mkfirm
+>  fore200e_pca_fw.c
+>  pca200e.bin
+> -
+> +pca200e_ecd.bin2
 
-Probably the former, probably the latter.
-
-There may be situations in which we want do to "create this sysfs file if
-it doesn't already exist", but I'm not aware of any such.
-
-Generally speaking, if sysfs file creation went wrong, it's due to a bug. 
-The result is that the driver isn't working as intended: tunables or
-instrumentation which it is designed to make available are not present.  We
-want to know about that bug asap so we can get it fixed.
-
+Applied, thanks Ralf.

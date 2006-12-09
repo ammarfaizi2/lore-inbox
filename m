@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761786AbWLITBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761829AbWLITCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761786AbWLITBK (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761822AbWLITBK
+	id S1761829AbWLITCA (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761831AbWLITB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:01:10 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:53370 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761786AbWLITBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:01:09 -0500
-From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Realtime: vanilla 2.6.19 with 2.6.19-rt11 patch doesn't boot
-Date: Sat, 9 Dec 2006 20:01:01 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Dec 2006 14:01:59 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:33783 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761828AbWLITB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 14:01:59 -0500
+Date: Sat, 9 Dec 2006 10:58:56 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Ian Kent <raven@themaw.net>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jkosina@suse.cz
+Subject: Re: [patch 28/32] autofs: fix error code path in autofs_fill_sb()
+Message-ID: <20061209185856.GU1397@sequoia.sous-sol.org>
+References: <20061208235751.890503000@sous-sol.org> <20061209000246.210981000@sous-sol.org> <1165636126.3980.11.camel@raven.themaw.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612092001.01542.o.bock@fh-wolfenbuettel.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
+In-Reply-To: <1165636126.3980.11.camel@raven.themaw.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+* Ian Kent (raven@themaw.net) wrote:
+> On Fri, 2006-12-08 at 15:58 -0800, Chris Wright wrote:
+> > plain text document attachment
+> > (autofs-fix-error-code-path-in-autofs_fill_sb.patch)
+> > -stable review patch.  If anyone has any objections, please let us know.
+> > ------------------
+> 
+> Stable review of what (version)?
 
-I tried to boot a vanilla 2.6.19 kernel with your 2.6.19-rt11 patch but 
-without success. However, the patch applied without a single error and the 
-vanilla kernel (without the patch) works fine so far. As my screen just stays 
-black and as there's no HD activity after selecting the kernel in grub, I 
-suppose that it might be related to the new Areca RAID driver I use (compiled 
-in because all my partitions reside on a RAID volume) in conjunction with 
-your patch...
+This is for 2.6.19
 
-Some system info:
-- Athlon64 (i386)
-- Debian (etch)
-
-Any idea?
-
-
-Thanks in advance,
-Oliver
+thanks,
+-chris

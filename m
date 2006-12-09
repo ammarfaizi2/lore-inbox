@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936698AbWLIJqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936642AbWLIJuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936698AbWLIJqe (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936704AbWLIJqe
+	id S936642AbWLIJuS (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936649AbWLIJuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:46:34 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:55940 "EHLO
+	Sat, 9 Dec 2006 04:50:18 -0500
+Received: from astra.telenet-ops.be ([195.130.132.58]:57856 "EHLO
 	astra.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936698AbWLIJqd (ORCPT
+	with ESMTP id S936642AbWLIJuQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:46:33 -0500
-Date: Sat, 9 Dec 2006 10:46:30 +0100 (CET)
+	Sat, 9 Dec 2006 04:50:16 -0500
+Date: Sat, 9 Dec 2006 10:50:15 +0100 (CET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] m68k/Atari: 2.6.18 Atari IDE interrupt needs SA_SHIRQ
-Message-ID: <Pine.LNX.4.64.0612091045580.15950@anakin>
+Subject: [PATCH] m68k: EXPORT_SYMBOL(cache_{clear,push}) bogus comment
+Message-ID: <Pine.LNX.4.64.0612091049360.17694@anakin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>
+Remove bogus comments about unexporting cache_{push,clear}(), as inline
+dma_cache_maintenance() (used by at least bionet and pamsnet) calls them.
 
-Atari IDE: The interrupt needs SA_SHIRQ now to get registered.
-
-Signed-off-by: Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 ---
- arch/m68k/atari/stdma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/mm/memory.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-m68k-2.6.19.orig/arch/m68k/atari/stdma.c
-+++ linux-m68k-2.6.19/arch/m68k/atari/stdma.c
-@@ -174,7 +174,7 @@ int stdma_islocked(void)
- void __init stdma_init(void)
- {
- 	stdma_isr = NULL;
--	request_irq(IRQ_MFP_FDC, stdma_int, IRQ_TYPE_SLOW,
-+	request_irq(IRQ_MFP_FDC, stdma_int, IRQ_TYPE_SLOW | SA_SHIRQ,
- 	            "ST-DMA: floppy/ACSI/IDE/Falcon-SCSI", stdma_int);
+--- linux-m68k-2.6.19.orig/arch/m68k/mm/memory.c
++++ linux-m68k-2.6.19/arch/m68k/mm/memory.c
+@@ -238,7 +238,7 @@ void cache_clear (unsigned long paddr, i
+ 	mach_l2_flush(0);
+ #endif
  }
+-EXPORT_SYMBOL(cache_clear);	/* probably can be unexported */
++EXPORT_SYMBOL(cache_clear);
+ 
+ 
+ /*
+@@ -291,5 +291,5 @@ void cache_push (unsigned long paddr, in
+ 	mach_l2_flush(1);
+ #endif
+ }
+-EXPORT_SYMBOL(cache_push);	/* probably can be unexported */
++EXPORT_SYMBOL(cache_push);
  
 
 Gr{oetje,eeting}s,

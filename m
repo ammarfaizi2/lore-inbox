@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759760AbWLIXTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759825AbWLIXqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759760AbWLIXTT (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 18:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759761AbWLIXTT
+	id S1759825AbWLIXqI (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 18:46:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759848AbWLIXqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 18:19:19 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:58686 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1759747AbWLIXTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 18:19:18 -0500
-From: "=?iso-8859-3?q?S=2E=C7a=BBlar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
-Subject: Re: VCD not readable under 2.6.18
-Date: Sun, 10 Dec 2006 01:19:14 +0200
-User-Agent: KMail/1.9.5
-Cc: Ismail Donmez <ismail@pardus.org.tr>, Alan <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-References: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
-In-Reply-To: <20061209172332.2915.qmail@web57808.mail.re3.yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2070809.qdZNKm2ilB";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200612100119.15498.caglar@pardus.org.tr>
+	Sat, 9 Dec 2006 18:46:07 -0500
+Received: from mail.gmx.net ([213.165.64.20]:55917 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1759825AbWLIXqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 18:46:05 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Mike Galbraith <efault@gmx.de>
+To: Marc Haber <mh+linux-kernel@zugschlus.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061208164206.GA1125@torres.l21.ma.zugschlus.de>
+References: <20061207155740.GC1434@torres.l21.ma.zugschlus.de>
+	 <4578465D.7030104@cfl.rr.com>
+	 <1165541892.1063.0.camel@sebastian.intellilink.co.jp>
+	 <20061208164206.GA1125@torres.l21.ma.zugschlus.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 10 Dec 2006 00:46:01 +0100
+Message-Id: <1165707961.4926.21.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2070809.qdZNKm2ilB
-Content-Type: text/plain;
-  charset="iso-8859-3"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, 2006-12-08 at 17:42 +0100, Marc Haber wrote:
+> On Fri, Dec 08, 2006 at 10:38:12AM +0900, Fernando Luis Vázquez Cao wrote:
+> > Does the patch below help?
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-ext4&m=116483980823714&w=4
+> 
+> No, pkgcache.bin still getting corrupted within two hours of using
+> 2.6.19.
+> 
+> Greetings
+> Marc, back to 2.6.18.3 for the time being
 
-09 Ara 2006 Cts 19:23 tarihinde, Rakhesh Sasidharan =BAunlar=B9 yazm=B9=BAt=
-=B9:=20
-> Infact, just inserting a CD is enough. No need for a media player to try
-> and access the files. :)
->
-> The backend must be polling and trying to mount the disc upon insertion.
-> Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't
-> and give error messages. Which explains why downgrading the kernel solves
-> the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't
-> downgrading the kernel *not* help?) Just thinking aloud ...
+Hi,
 
-But i cannot reproduce the problem that way, in my case dmesg flooded as so=
-on=20
-as somebody trying to _access_ to VCD. I disabled hal and closed KDE to tes=
-t=20
-and that problem no longer reproducible for me. So its really seems a=20
-userspace problem and i think all of them (KDE's cdpolling backend, hal,=20
-mplayer and xine-lib) has problems with kernels >=3D 2.6.17=20
+I've missed most of this thread, but have cause to be interested.  Do
+you have a generic recipe for reproducing file corruption?  I seem to be
+(read pretty darn sure, modulus hw (wish) vs sw testing methods...)
+experiencing memory corruption problems with 2.6.19, and am interested
+in anything that might be related (trigger!).
 
-=2D-=20
-S.=C7a=BBlar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+	-Mike
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart2070809.qdZNKm2ilB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.1 (GNU/Linux)
-
-iD8DBQBFe0Rzy7E6i0LKo6YRAi7eAJ46bPmACoHotSs7iY0KxW4WgxL29QCeMiFQ
-I98BRnHpjb7+qzCm6fLhMjU=
-=rbOE
------END PGP SIGNATURE-----
-
---nextPart2070809.qdZNKm2ilB--

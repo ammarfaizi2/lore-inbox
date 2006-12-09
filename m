@@ -1,35 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761304AbWLIAfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947605AbWLIAn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761304AbWLIAfz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 19:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761305AbWLIAfz
+	id S1947605AbWLIAn5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 19:43:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761318AbWLIAn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:35:55 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39418 "EHLO
-	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761304AbWLIAfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:35:54 -0500
-Date: Fri, 8 Dec 2006 16:38:10 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] [patch 00/32] -stable review
-Message-ID: <20061209003810.GP1397@sequoia.sous-sol.org>
-References: <20061208235751.890503000@sous-sol.org>
+	Fri, 8 Dec 2006 19:43:57 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:45629 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761317AbWLIAn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 19:43:56 -0500
+Date: Fri, 8 Dec 2006 16:43:46 -0800
+From: Seth Arnold <seth.arnold@suse.de>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH 0/2] file capabilities: two bugfixes
+Message-ID: <20061209004346.GG21627@suse.de>
+Mail-Followup-To: "Serge E. Hallyn" <serue@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Stephen Smalley <sds@epoch.ncsc.mil>
+References: <20061208193657.GB18566@sergelap.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TdkiTnkLhLQllcMS"
 Content-Disposition: inline
-In-Reply-To: <20061208235751.890503000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061208193657.GB18566@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And a roll-up is available at:
 
-	http://www.kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.{gz,bz2}
+--TdkiTnkLhLQllcMS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Dec 08, 2006 at 01:36:57PM -0600, Serge E. Hallyn wrote:
+> The other is that root can lose capabilities by executing files with
+> only some capabilities set.  The next two patches change these
+> behaviors.
+
+I saw this in my code review and thought that this behaviour was
+intentional. :) It seemed like a good idea to me..
+
+--TdkiTnkLhLQllcMS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFFegbC+9nuM9mwoJkRAr9bAJ9Op5FBDLUQ57c8prmQ7roZ8lhyAwCfYdQO
+JnXjy0Y3zs44LuP1kmRXZEU=
+=q8zU
+-----END PGP SIGNATURE-----
+
+--TdkiTnkLhLQllcMS--

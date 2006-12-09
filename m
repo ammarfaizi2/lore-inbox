@@ -1,112 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936677AbWLIJaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S966586AbWLIJaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936677AbWLIJaH (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936649AbWLIJaH
+	id S966586AbWLIJaV (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:30:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966995AbWLIJaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:30:07 -0500
-Received: from adicia.telenet-ops.be ([195.130.132.56]:59562 "EHLO
-	adicia.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936615AbWLIJaD (ORCPT
+	Sat, 9 Dec 2006 04:30:20 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:54212 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966263AbWLIJaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:30:03 -0500
-Date: Sat, 9 Dec 2006 10:29:58 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-net@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] m68k/HP300: HP LANCE updates
-Message-ID: <Pine.LNX.4.64.0612091028520.11192@anakin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Dec 2006 04:30:17 -0500
+Date: Sat, 9 Dec 2006 01:30:55 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm merge plans for 2.6.20
+Message-Id: <20061209013055.51b26226.randy.dunlap@oracle.com>
+In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
+References: <20061204204024.2401148d.akpm@osdl.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+On Mon, 4 Dec 2006 20:40:24 -0800 Andrew Morton wrote:
 
-- 7990: request_irq() should have SA_SHIRQ flag set
-- hplance_init() printed dev->name before register_netdev() had filled it in
+> kconfig-new-function-bool-conf_get_changedvoid.patch
+> kconfig-make-sym_change_count-static-let-it-be-altered-by-2-functions-only.patch
+> kconfig-add-void-conf_set_changed_callbackvoid-fnvoid-use-it-in-qconfcc.patch
+> kconfig-set-gconfs-save-widgets-sensitivity-according-to-configs-changed-state.patch
+> pa-risc-fix-bogus-warnings-from-modpost.patch
+> kconfig-refactoring-for-better-menu-nesting.patch
+> kbuild-fix-rr-is-now-default.patch
+> kbuild-dont-put-temp-files-in-the-source-tree.patch
+> actually-delete-the-as-instr-ld-option-tmp-file.patch
+> 
+>  Sent to Sam, but Sam's presently busy.  I might need to make some kbuild
+>  decisions..
 
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+<groan> /me digs thru 65 KB email.
+
+
+I can/will help on some of these if you want it...
 
 ---
- drivers/net/7990.c    |    2 +-
- drivers/net/hplance.c |   14 ++++++++++----
- 2 files changed, 11 insertions(+), 5 deletions(-)
-
---- linux-m68k-2.6.19.orig/drivers/net/7990.c
-+++ linux-m68k-2.6.19/drivers/net/7990.c
-@@ -500,7 +500,7 @@ int lance_open (struct net_device *dev)
- 	int res;
- 
-         /* Install the Interrupt handler. Or we could shunt this out to specific drivers? */
--        if (request_irq(lp->irq, lance_interrupt, 0, lp->name, dev))
-+        if (request_irq(lp->irq, lance_interrupt, SA_SHIRQ, lp->name, dev))
-                 return -EAGAIN;
- 
-         res = lance_reset(dev);
---- linux-m68k-2.6.19.orig/drivers/net/hplance.c
-+++ linux-m68k-2.6.19/drivers/net/hplance.c
-@@ -77,6 +77,7 @@ static int __devinit hplance_init_one(st
- {
- 	struct net_device *dev;
- 	int err = -ENOMEM;
-+	int i;
- 
- 	dev = alloc_etherdev(sizeof(struct hplance_private));
- 	if (!dev)
-@@ -93,6 +94,15 @@ static int __devinit hplance_init_one(st
- 		goto out_release_mem_region;
- 
- 	dio_set_drvdata(d, dev);
-+
-+	printk(KERN_INFO "%s: %s; select code %d, addr %2.2x", dev->name, d->name, d->scode, dev->dev_addr[0]);
-+
-+	for (i=1; i<6; i++) {
-+		printk(":%2.2x", dev->dev_addr[i]);
-+	}
-+
-+	printk(", irq %d\n", d->ipl);
-+
- 	return 0;
- 
-  out_release_mem_region:
-@@ -119,8 +129,6 @@ static void __init hplance_init(struct n
-         struct hplance_private *lp;
-         int i;
- 
--        printk(KERN_INFO "%s: %s; select code %d, addr", dev->name, d->name, d->scode);
--
-         /* reset the board */
-         out_8(va+DIO_IDOFF, 0xff);
-         udelay(100);                              /* ariba! ariba! udelay! udelay! */
-@@ -143,7 +151,6 @@ static void __init hplance_init(struct n
-                  */
-                 dev->dev_addr[i] = ((in_8(va + HPLANCE_NVRAMOFF + i*4 + 1) & 0xF) << 4)
-                         | (in_8(va + HPLANCE_NVRAMOFF + i*4 + 3) & 0xF);
--                printk("%c%2.2x", i == 0 ? ' ' : ':', dev->dev_addr[i]);
-         }
- 
-         lp = netdev_priv(dev);
-@@ -160,7 +167,6 @@ static void __init hplance_init(struct n
-         lp->lance.lance_log_tx_bufs = LANCE_LOG_TX_BUFFERS;
-         lp->lance.rx_ring_mod_mask = RX_RING_MOD_MASK;
-         lp->lance.tx_ring_mod_mask = TX_RING_MOD_MASK;
--	printk(", irq %d\n", lp->lance.irq);
- }
- 
- /* This is disgusting. We have to check the DIO status register for ack every
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+~Randy

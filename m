@@ -1,96 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761847AbWLITev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761860AbWLITho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761847AbWLITev (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 14:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761851AbWLITev
+	id S1761860AbWLITho (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 14:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761861AbWLITho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 14:34:51 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:60995 "EHLO
-	rwcrmhc14.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761847AbWLITeu (ORCPT
+	Sat, 9 Dec 2006 14:37:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2546 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1761860AbWLIThn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 14:34:50 -0500
-Message-ID: <457B0FD7.2030804@comcast.net>
-Date: Sat, 09 Dec 2006 14:34:47 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
-MIME-Version: 1.0
+	Sat, 9 Dec 2006 14:37:43 -0500
+Date: Sat, 9 Dec 2006 20:37:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: noexec=on doesn't work
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: Linux 2.6.16.36-rc1
+Message-ID: <20061209193752.GB6090@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-I'm running on an Athlon 64 in 32-bit mode, running 32-bit Ubuntu with
-kernel 2.6.19 (Ubuntu version 2.6.19-7-generic for the curious;
-compiled for 586).  Apparently, 'noexec=on' on the kernel command line
-does nothing; the NX bit seems to not work.
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-Chunk of my /proc/cpuinfo:
-
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm
-3dnowext 3dnow up ts fid vid ttp
-
-Attached to the relevant Ubuntu bug is a test program that attempts to
-disable PROT_EXEC for a page of memory containing (I believe) the entry
-point of a function.  It's compiled as such:
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
 
-$ gcc -O2 -shared -fpic test_so.c -o test_so.so
-$ gcc -O2 test.c -o test -ldl
+Changes since 2.6.16.35:
+
+Adrian Bunk (2):
+      revert the quirk_via_irq changes
+      Linux 2.6.16.36-rc1
+
+Bjorn Helgaas (1):
+      PCI: quirk to disable e100 interrupt if RESET failed to
+
+Brice Goglin (1):
+      PCI: nVidia quirk to make AER PCI-E extended capability visible
+
+Chuck Ebbert (1):
+      binfmt_elf: fix checks for bad address
+
+Daniel Ritz (2):
+      PCI: fix ICH6 quirks
+      PCI: add ICH7/8 ACPI/GPIO io resource quirks
+
+David S. Miller (1):
+      [IPSEC]: Fix inetpeer leak in ipv4 xfrm dst entries.
+
+Jean Delvare (1):
+      PCI: Unhide the SMBus on Asus PU-DLS
+
+John W. Linville (1):
+      pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
+
+Linus Torvalds (1):
+      Add PIIX4 APCI quirk for the 440MX chipset too
+
+Patrick McHardy (1):
+      [XFRM]: Use output device disable_xfrm for forwarded packets
+
+Ralf Baechle (1):
+      Fix mempolicy.h build error
 
 
-Running it on AMD64-ubuntu gives the following output:
-
-$ ./test
-Test function run successfully!
-Segmentation fault
-
-This is good; I tried to execute non-executable memory, it segfaulted.
-However, 32-bit Ubuntu on the Athlon64 gives the following:
-
-$ ./test
-Test function run successfully!
-Test function run successfully!
-
-Apparently noexec is not being honored.
-
-I have filed this as a distro bug with Ubuntu; it may be their issue, I
-haven't dug deep enough to find out.  I am posting this here to disperse
-the information breadth-first instead of depth-first, which will shorten
-the bug's life cycle if it turns out to be an upstream bug.
-
-This also appears to happen on 2.6.15.
-
-Ubuntu bug:
-https://bugs.launchpad.net/distros/ubuntu/+source/linux-source-2.6.19/+bug/75157
-
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRXsP1gs1xW0HCTEFAQLAsQ//XUdfVAK6Fp225mUXv+ApLUqnZFyfca4z
-n0e1WFVYGQcplKQpdn+MGxzoEXc4xo4GnC2n0qfbyp6l7GN9uLvZS3myLOB6nfMH
-AFUeDmpc44Q40Nq94UKxrMmMvyfs0lEOBIRjQzvzWonYjNXFQuIAWS8xsFducjaF
-IK7E79cvC9d/mlSOQMgcFSt8hW35MqAI0/Au3iViReE+Qm/qUw2PWw9lUpRTgVZf
-SrKqQq8HNM5SCJDFyu/zVltEwAPqTvn6g0p9BlCMZhugiBIaoaeAvO8ZYhxr+0JG
-DxIEoaA4Ij/AnL7u2LT1lz/oDKhH4RImko+z2NubmFNiBJiODmX6RLsciWy3mgtx
-ulYuESmIRjb1hOwTlFqvpOMNncCyCGjZwCw8/O7SxosDFx4Gvd9IqPFJ6dKoj2fp
-oXESE5uIWbJGtbPyB2jsaz5t3PZ9DGrzX/P9ykPLhGmwiM23Nrc36DW/BH9/+ESZ
-Uv1SbIgIWV8tz2cO+YJgbrrSD+wuvizkzv4Va31tyPyPx3QfkFeLxOm7nxK1Yo6M
-XmckCqXMNOUAMnENMf5N5tnYkIZSnEYrNTTWuIPRS8Xzo37HOfDJL1uyEJPPmxoR
-K3/wH+LkecVIaWaP3+UH9VlieKnrC4+guFj4QdnXFzAqNQ55vEpDQs/sbFvjO0n9
-IKTdKQKnsgs=
-=0wST
------END PGP SIGNATURE-----
+ Makefile                  |    2 
+ drivers/pci/quirks.c      |  101 ++++++++++++++++++++++++++++++++++----
+ fs/binfmt_elf.c           |   15 ++---
+ include/linux/mempolicy.h |    1 
+ include/linux/pci_ids.h   |    5 +
+ net/ipv4/route.c          |    2 
+ net/ipv4/xfrm4_policy.c   |    2 
+ 7 files changed, 109 insertions(+), 19 deletions(-)

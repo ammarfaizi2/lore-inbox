@@ -1,100 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936680AbWLIJj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936687AbWLIJoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936680AbWLIJj6 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:39:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936698AbWLIJj6
+	id S936687AbWLIJoy (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936698AbWLIJoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:39:58 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:42742 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936687AbWLIJj4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:39:56 -0500
-Date: Sat, 09 Dec 2006 18:39:05 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch](memory hotplug) Fix compile error for i386 with NUMA config
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20061209183320.0761.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Sat, 9 Dec 2006 04:44:54 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60582 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936687AbWLIJox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 04:44:53 -0500
+Date: Sat, 9 Dec 2006 01:44:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm merge plans for 2.6.20
+Message-Id: <20061209014445.94322fc2.akpm@osdl.org>
+In-Reply-To: <20061209013055.51b26226.randy.dunlap@oracle.com>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	<20061209013055.51b26226.randy.dunlap@oracle.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.27 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sat, 9 Dec 2006 01:30:55 -0800
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-This patch is to fix compile error when config memory hotplug
-with numa on i386.
+> On Mon, 4 Dec 2006 20:40:24 -0800 Andrew Morton wrote:
+> 
+> > kconfig-new-function-bool-conf_get_changedvoid.patch
+> > kconfig-make-sym_change_count-static-let-it-be-altered-by-2-functions-only.patch
+> > kconfig-add-void-conf_set_changed_callbackvoid-fnvoid-use-it-in-qconfcc.patch
+> > kconfig-set-gconfs-save-widgets-sensitivity-according-to-configs-changed-state.patch
+> > pa-risc-fix-bogus-warnings-from-modpost.patch
+> > kconfig-refactoring-for-better-menu-nesting.patch
+> > kbuild-fix-rr-is-now-default.patch
+> > kbuild-dont-put-temp-files-in-the-source-tree.patch
+> > actually-delete-the-as-instr-ld-option-tmp-file.patch
+> > 
+> >  Sent to Sam, but Sam's presently busy.  I might need to make some kbuild
+> >  decisions..
+> 
+> <groan> /me digs thru 65 KB email.
+> 
+> 
+> I can/will help on some of these if you want it...
+> 
 
-The cause of compile error was missing of arch_add_memory(), remove_memory(),
-and memory_add_physaddr_to_nid() when NUMA config is on.
-
-This is for 2.6.19, and I tested no compile error of it.
-
-Please apply.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
----
- arch/i386/mm/discontig.c |   17 +++++++++++++++++
- arch/i386/mm/init.c      |    4 +---
- 2 files changed, 18 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.19/arch/i386/mm/init.c
-===================================================================
---- linux-2.6.19.orig/arch/i386/mm/init.c	2006-12-04 20:06:32.000000000 +0900
-+++ linux-2.6.19/arch/i386/mm/init.c	2006-12-04 21:09:49.000000000 +0900
-@@ -681,10 +681,9 @@
-  * memory to the highmem for now.
-  */
- #ifdef CONFIG_MEMORY_HOTPLUG
--#ifndef CONFIG_NEED_MULTIPLE_NODES
- int arch_add_memory(int nid, u64 start, u64 size)
- {
--	struct pglist_data *pgdata = &contig_page_data;
-+	struct pglist_data *pgdata = NODE_DATA(nid);
- 	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
-@@ -697,7 +696,6 @@
- 	return -EINVAL;
- }
- #endif
--#endif
- 
- kmem_cache_t *pgd_cache;
- kmem_cache_t *pmd_cache;
-Index: linux-2.6.19/arch/i386/mm/discontig.c
-===================================================================
---- linux-2.6.19.orig/arch/i386/mm/discontig.c	2006-12-04 20:06:32.000000000 +0900
-+++ linux-2.6.19/arch/i386/mm/discontig.c	2006-12-09 17:30:24.000000000 +0900
-@@ -405,3 +405,20 @@
- 	totalram_pages += totalhigh_pages;
- #endif
- }
-+
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+/* This is the case that there is no _PXM on DSDT for added memory */
-+int memory_add_physaddr_to_nid(u64 addr)
-+{
-+	int nid;
-+	unsigned long pfn = addr >> PAGE_SHIFT;
-+
-+	for (nid = 0; nid < MAX_NUMNODES; nid++){
-+		if (node_start_pfn[nid] <= pfn &&
-+		    pfn < node_end_pfn[nid])
-+			return nid;
-+	}
-+
-+	return 0;
-+}
-+#endif
-
--- 
-Yasunori Goto 
-
-
+feel free.  I'm planning on going through the above, see which of then have
+a sufficiently high obviousness*urgency product.

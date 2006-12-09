@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761330AbWLIBKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947618AbWLIBRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761330AbWLIBKp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 20:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761333AbWLIBKp
+	id S1947618AbWLIBRq (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 20:17:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761343AbWLIBRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 20:10:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40179 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1761330AbWLIBKp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 20:10:45 -0500
-Date: Sat, 9 Dec 2006 01:18:30 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: koan <koan00@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at drivers/scsi/ahci.c:859/ahci_host_intr() [
- 2.6.17.14 ]
-Message-ID: <20061209011830.14d99a20@localhost.localdomain>
-In-Reply-To: <64d833020612081705p29c92e85i25f045ad87cb879e@mail.gmail.com>
-References: <64d833020612081705p29c92e85i25f045ad87cb879e@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 20:17:46 -0500
+Received: from cantor.suse.de ([195.135.220.2]:44658 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761341AbWLIBRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 20:17:45 -0500
+Date: Fri, 8 Dec 2006 17:17:24 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Stefan Reinauer <stepan@coresystems.de>,
+       Peter Stuge <stuge-linuxbios@cdy.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 2/2] x86_64: earlyprintk usb debug device support.
+Message-ID: <20061209011723.GC16576@suse.de>
+References: <5986589C150B2F49A46483AC44C7BCA4907299@ssvlexmb2.amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907299@ssvlexmb2.amd.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2006 20:05:07 -0500
-koan <koan00@gmail.com> wrote:
+On Wed, Dec 06, 2006 at 07:20:16PM -0800, Lu, Yinghai wrote:
+> Greg,
+> 
+> I wonder why the netconsole could print all boot log from beginning with
+> buffer. But your usb serial console can not.
 
-> ata4: status=0x50 { DriveReady SeekComplete }
-> ata4: error=0x01 { AddrMarkNotFound }
+Buffer size?  flow control?  the fact that the buffer has already
+overflowed?  Who knows, don't trust usb-serial as a real "console"
+please :)
 
-That looks like a genuine drive problem.
+thanks,
 
-Alan
+greg k-h

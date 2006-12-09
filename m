@@ -1,27 +1,28 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936590AbWLIKSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S967195AbWLIKZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936590AbWLIKSd (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 05:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936774AbWLIKSd
+	id S967195AbWLIKZM (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 05:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967671AbWLIKZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 05:18:33 -0500
-Received: from gw.goop.org ([64.81.55.164]:40905 "EHLO mail.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936590AbWLIKSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 05:18:32 -0500
-Message-ID: <457A8D72.4090909@goop.org>
-Date: Sat, 09 Dec 2006 02:18:26 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sat, 9 Dec 2006 05:25:12 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:57788 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S967195AbWLIKZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 05:25:10 -0500
+Message-ID: <457A8F04.40308@vmware.com>
+Date: Sat, 09 Dec 2006 02:25:08 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
 To: Randy Dunlap <randy.dunlap@oracle.com>
-CC: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org,
+Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org,
        akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au,
-       zach@vmware.com
+       jeremy@goop.org
 Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
 References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -72,9 +73,9 @@ Randy Dunlap wrote:
 >  	help
 >  	  Paravirtualization is a way of running multiple instances of
 >  	  Linux on the same machine, under a hypervisor.  This option
+>
+>
+> ---
+>
 >   
-
-ACK.  At some point paravirt may subsume subarches, but for now it is
-only supported on standard PC-style hardware.
-
-    J
+Acked-by: Zachary Amsden <zach@vmware.com>

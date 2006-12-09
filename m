@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759143AbWLIWxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759146AbWLIWyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759143AbWLIWxX (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 17:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759147AbWLIWxX
+	id S1759146AbWLIWyp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 17:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759148AbWLIWyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 17:53:23 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:56852 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759126AbWLIWxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 17:53:22 -0500
-Date: Sat, 9 Dec 2006 14:53:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jean Delvare <khali@linux-fr.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix
- sysfs_create_bin_file warnings)
-Message-Id: <20061209145303.3d5fe141.akpm@osdl.org>
-In-Reply-To: <20061209223418.GA76069@dspnet.fr.eu.org>
-References: <20061209165606.2f026a6c.khali@linux-fr.org>
-	<1165694351.1103.133.camel@localhost.localdomain>
-	<20061209123817.f0117ad6.akpm@osdl.org>
-	<20061209214453.GA69320@dspnet.fr.eu.org>
-	<20061209135829.86038f32.akpm@osdl.org>
-	<20061209223418.GA76069@dspnet.fr.eu.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 9 Dec 2006 17:54:45 -0500
+Received: from nz-out-0506.google.com ([64.233.162.228]:39024 "EHLO
+	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759146AbWLIWyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 17:54:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=J8EZ2730BAQuaER+M8/d4AAwogY3rrKiwdk+LrdcW7b0fTjKbuYz58c/0aTC/fiGXP6QFT12xVfKBheZV5Q0Y/xFu8gPUNCwnVubsDGWnQYk9cjEicdCDJ02uLgXpr5KcP+TPjr0JwWMm+RScpjXUDqeMwxbIpc5zsfGzWHsuvw=
+Message-ID: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
+Date: Sat, 9 Dec 2006 22:54:43 +0000
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Possible memory leak in ata_piix.c
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006 23:34:19 +0100
-Olivier Galibert <galibert@pobox.com> wrote:
+Hi,
 
-> On Sat, Dec 09, 2006 at 01:58:29PM -0800, Andrew Morton wrote:
-> > On Sat, 9 Dec 2006 22:44:53 +0100
-> > Olivier Galibert <galibert@pobox.com> wrote:
-> > > Hmmm, I don't understand.  Which is the bug, having a sysfs file
-> > > creation fail or going on if it happens?
-> > 
-> > Probably the former, probably the latter.
-> > 
-> > There may be situations in which we want do to "create this sysfs file if
-> > it doesn't already exist", but I'm not aware of any such.
-> > 
-> > Generally speaking, if sysfs file creation went wrong, it's due to a bug. 
-> > The result is that the driver isn't working as intended: tunables or
-> > instrumentation which it is designed to make available are not present.  We
-> > want to know about that bug asap so we can get it fixed.
-> 
-> Hmmm, then why don't you just drop the return value from the creation
-> function and BUG() in there is something went wrong.  That would allow
-> for better error messages too.
+Kmemleak found a possible memory leak in piix_init_one() in
+drivers/ata/ata_piix.c. This only appeared after 2.6.19, maybe caused
+by the recent patches to this area. Kmemleak cannot find any track of
+the kzalloc'ed piix_host_priv structure allocated in the above
+function and reports it. The allocation stack trace is below:
 
-And (ultimately) make the function return void.
+unreferenced object 0xde9bca60 (size 4):
+  [<c018d85d>] __kmalloc_track_caller
+  [<c0179249>] __kzalloc
+  [<c02cf33f>] piix_init_one
+  [<c023dc2d>] pci_call_probe
+  [<c023dc81>] __pci_device_probe
+  [<c023dcb9>] pci_device_probe
+  [<c029b5fc>] really_probe
+  [<c029b728>] driver_probe_device
+  [<c029b8c1>] __driver_attach
+  [<c029a879>] bus_for_each_dev
+  [<c029b8e9>] driver_attach
+  [<c029ae9c>] bus_add_driver
+  [<c029bd27>] driver_register
+  [<c023e035>] __pci_register_driver
+  [<c02cf4ef>] piix_init
 
-Yes, that's probably a valid approach - we've discussed it before but nobody has
-taken it further.
+Thanks.
+
+-- 
+Catalin

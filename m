@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936778AbWLIJvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S966995AbWLIJvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936778AbWLIJvJ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936751AbWLIJvJ
+	id S966995AbWLIJvb (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967211AbWLIJvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:51:09 -0500
-Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:59349 "EHLO
-	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936649AbWLIJvF (ORCPT
+	Sat, 9 Dec 2006 04:51:31 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:16219 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966995AbWLIJv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:51:05 -0500
-Date: Sat, 9 Dec 2006 10:51:03 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-net@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Amiga PCMCIA NE2000 Ethernet dev->irq init
-Message-ID: <Pine.LNX.4.64.0612091050280.17743@anakin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Dec 2006 04:51:29 -0500
+Date: Sat, 9 Dec 2006 01:51:31 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org,
+       rusty@rustcorp.com.au, jeremy@goop.org, zach@vmware.com
+Subject: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
+Message-Id: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Amiga PCMCIA NE2000 Ethernet: Add missing initialization of dev->irq
+Since Voyager and Visual WS already define ARCH_SETUP,
+it looks like PARAVIRT shouldn't be offered for them.
 
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+In file included from arch/i386/kernel/setup.c:63:
+include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+In file included from include/asm/msr.h:5,
+                 from include/asm/processor.h:17,
+                 from include/asm/thread_info.h:16,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/preempt.h:9,
+                 from include/linux/spinlock.h:49,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:46,
+                 from arch/i386/kernel/setup.c:26:
+include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+In file included from arch/i386/kernel/setup.c:63:
+include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+In file included from include/asm/msr.h:5,
+                 from include/asm/processor.h:17,
+                 from include/asm/thread_info.h:16,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/preempt.h:9,
+                 from include/linux/spinlock.h:49,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:46,
+                 from arch/i386/kernel/setup.c:26:
+include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/i386/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-2.6.19-git13.orig/arch/i386/Kconfig
++++ linux-2.6.19-git13/arch/i386/Kconfig
+@@ -190,6 +190,7 @@ endchoice
+ config PARAVIRT
+ 	bool "Paravirtualization support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
++	depends on !(X86_VISWS || X86_VOYAGER)
+ 	help
+ 	  Paravirtualization is a way of running multiple instances of
+ 	  Linux on the same machine, under a hypervisor.  This option
+
 
 ---
- drivers/net/apne.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- linux-m68k-2.6.19.orig/drivers/net/apne.c
-+++ linux-m68k-2.6.19/drivers/net/apne.c
-@@ -311,9 +311,10 @@ static int __init apne_probe1(struct net
- #endif
- 
-     dev->base_addr = ioaddr;
-+    dev->irq = IRQ_AMIGA_PORTS;
- 
-     /* Install the Interrupt handler */
--    i = request_irq(IRQ_AMIGA_PORTS, apne_interrupt, IRQF_SHARED, DRV_NAME, dev);
-+    i = request_irq(dev->irq, apne_interrupt, IRQF_SHARED, DRV_NAME, dev);
-     if (i) return i;
- 
-     for(i = 0; i < ETHER_ADDR_LEN; i++) {
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

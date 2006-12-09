@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936532AbWLIJXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936583AbWLIJYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936532AbWLIJXB (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936581AbWLIJXB
+	id S936583AbWLIJYj (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936589AbWLIJYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:23:01 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:59298 "EHLO mail.dvmed.net"
+	Sat, 9 Dec 2006 04:24:39 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:53484 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936532AbWLIJXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:23:00 -0500
-Message-ID: <457A806F.5000508@garzik.org>
-Date: Sat, 09 Dec 2006 04:22:55 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	id S936583AbWLIJYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 04:24:38 -0500
+Date: Sat, 9 Dec 2006 10:22:03 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Ian E. Morgan" <penguin.wrangler@gmail.com>
+cc: LKML <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org, emu10k1-devel@lists.sourceforge.net
+Subject: Re: Loud POP from sound system during module init w/ 2.6.19
+In-Reply-To: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612091020450.8055@yvahk01.tjqt.qr>
+References: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com>
 MIME-Version: 1.0
-To: Olivier Galibert <galibert@pobox.com>, Alan <alan@lxorguk.ukuu.org.uk>,
-       koan <koan00@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at drivers/scsi/ahci.c:859/ahci_host_intr() [ 2.6.17.14
- ]
-References: <64d833020612081705p29c92e85i25f045ad87cb879e@mail.gmail.com> <20061209011830.14d99a20@localhost.localdomain> <20061209013332.GA15222@dspnet.fr.eu.org>
-In-Reply-To: <20061209013332.GA15222@dspnet.fr.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Galibert wrote:
-> On Sat, Dec 09, 2006 at 01:18:30AM +0000, Alan wrote:
->> On Fri, 8 Dec 2006 20:05:07 -0500
->> koan <koan00@gmail.com> wrote:
->>
->>> ata4: status=0x50 { DriveReady SeekComplete }
->>> ata4: error=0x01 { AddrMarkNotFound }
->> That looks like a genuine drive problem.
-> 
-> Is a disk driver supposed to BUG() on a drive missing sector though?
 
-No, which is why the upstream driver doesn't contain any BUG_ON() or 
-WARN_ON() calls anymore...  Usually those messages signal incomplete 
-areas of the driver.
+On Dec 8 2006 13:53, Ian E. Morgan wrote:
+>Subject: Loud POP from sound system during module init w/ 2.6.19
 
+What kernel did you have before?
 
-	Jeff
+What you see is the same I am experiencing on every boot - when the sound
+module is loaded, udev loads the previous volume settings. The volume settings
+are normal for me, but I guess the instant jump from 0-70% (for Master) and
+0-61% (for PCM) is not taken too heartly by the soundcard.
 
+> Since upgrading to 2.6.19, two of my boxes (one workstation, one
+> notebook) started making a very loud (and scary) POP from the sound
+> system when the alsa modules are loaded. Unloading and reloading the
+> modules will generate another pop.
+>
+> Anybody else seeing this behaviour and know how to stop it?
+>
 
-
+	-`J'
+-- 

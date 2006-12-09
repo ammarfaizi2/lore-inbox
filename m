@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757574AbWLIViQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758067AbWLIVlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757574AbWLIViQ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 16:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757289AbWLIViQ
+	id S1758067AbWLIVlQ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 16:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758219AbWLIVlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 16:38:16 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52376 "EHLO
+	Sat, 9 Dec 2006 16:41:15 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52391 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757574AbWLIViP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 16:38:15 -0500
-Date: Sat, 9 Dec 2006 13:42:03 -0800
+	id S1758067AbWLIVlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 16:41:15 -0500
+Date: Sat, 9 Dec 2006 13:45:18 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: Stefan Lippers-Hollmann <s.L-H@gmx.de>
-Cc: stable@kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Thomas Backlund <tmb@mandriva.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 00/32] -stable review
-Message-ID: <20061209214203.GV1397@sequoia.sous-sol.org>
-References: <20061208235751.890503000@sous-sol.org> <200612091226.22936.s.L-H@gmx.de>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org,
+       akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au,
+       jeremy@goop.org, zach@vmware.com
+Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
+Message-ID: <20061209214518.GW1397@sequoia.sous-sol.org>
+References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612091226.22936.s.L-H@gmx.de>
+In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stefan Lippers-Hollmann (s.L-H@gmx.de) wrote:
-> At least
-> http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.gz
-> and
-> http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc2.gz
-> seem to contain an incompletely applied "[patch 24/32] add bottom_half.h",
-> bottom_half.h itself is missing, while interrupt.h and spinlock.h are changed 
-> to use the missing file:
+* Randy Dunlap (randy.dunlap@oracle.com) wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
 > 
-> $ wget -qO- http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc2.gz | gzip -dc | grep bottom_half
-> +#include <linux/bottom_half.h>
-> +#include <linux/bottom_half.h>
-> $ wget -qO- http://kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.19.1-rc1.gz | gzip -dc | grep bottom_half
-> +#include <linux/bottom_half.h>
-> +#include <linux/bottom_half.h>
+> Since Voyager and Visual WS already define ARCH_SETUP,
+> it looks like PARAVIRT shouldn't be offered for them.
+> 
+> In file included from arch/i386/kernel/setup.c:63:
+> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+> In file included from include/asm/msr.h:5,
+>                  from include/asm/processor.h:17,
+>                  from include/asm/thread_info.h:16,
+>                  from include/linux/thread_info.h:21,
+>                  from include/linux/preempt.h:9,
+>                  from include/linux/spinlock.h:49,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:46,
+>                  from arch/i386/kernel/setup.c:26:
+> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+> In file included from arch/i386/kernel/setup.c:63:
+> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+> In file included from include/asm/msr.h:5,
+>                  from include/asm/processor.h:17,
+>                  from include/asm/thread_info.h:16,
+>                  from include/linux/thread_info.h:21,
+>                  from include/linux/preempt.h:9,
+>                  from include/linux/spinlock.h:49,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:46,
+>                  from arch/i386/kernel/setup.c:26:
+> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 
-Sorry about that, I regenerated and made sure I picked up new files.
-I've pushed up an rc3 (mirroring is a bit slow).
-
-thanks,
--chris
+Acked-by: Chris Wright <chrisw@sous-sol.org>

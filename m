@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936687AbWLIJoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936698AbWLIJqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936687AbWLIJoy (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 04:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936698AbWLIJoy
+	id S936698AbWLIJqe (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 04:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936704AbWLIJqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 04:44:54 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60582 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936687AbWLIJox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 04:44:53 -0500
-Date: Sat, 9 Dec 2006 01:44:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans for 2.6.20
-Message-Id: <20061209014445.94322fc2.akpm@osdl.org>
-In-Reply-To: <20061209013055.51b26226.randy.dunlap@oracle.com>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<20061209013055.51b26226.randy.dunlap@oracle.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Dec 2006 04:46:34 -0500
+Received: from astra.telenet-ops.be ([195.130.132.58]:55940 "EHLO
+	astra.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936698AbWLIJqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 04:46:33 -0500
+Date: Sat, 9 Dec 2006 10:46:30 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] m68k/Atari: 2.6.18 Atari IDE interrupt needs SA_SHIRQ
+Message-ID: <Pine.LNX.4.64.0612091045580.15950@anakin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006 01:30:55 -0800
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
+From: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>
 
-> On Mon, 4 Dec 2006 20:40:24 -0800 Andrew Morton wrote:
-> 
-> > kconfig-new-function-bool-conf_get_changedvoid.patch
-> > kconfig-make-sym_change_count-static-let-it-be-altered-by-2-functions-only.patch
-> > kconfig-add-void-conf_set_changed_callbackvoid-fnvoid-use-it-in-qconfcc.patch
-> > kconfig-set-gconfs-save-widgets-sensitivity-according-to-configs-changed-state.patch
-> > pa-risc-fix-bogus-warnings-from-modpost.patch
-> > kconfig-refactoring-for-better-menu-nesting.patch
-> > kbuild-fix-rr-is-now-default.patch
-> > kbuild-dont-put-temp-files-in-the-source-tree.patch
-> > actually-delete-the-as-instr-ld-option-tmp-file.patch
-> > 
-> >  Sent to Sam, but Sam's presently busy.  I might need to make some kbuild
-> >  decisions..
-> 
-> <groan> /me digs thru 65 KB email.
-> 
-> 
-> I can/will help on some of these if you want it...
-> 
+Atari IDE: The interrupt needs SA_SHIRQ now to get registered.
 
-feel free.  I'm planning on going through the above, see which of then have
-a sufficiently high obviousness*urgency product.
+Signed-off-by: Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+---
+ arch/m68k/atari/stdma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-m68k-2.6.19.orig/arch/m68k/atari/stdma.c
++++ linux-m68k-2.6.19/arch/m68k/atari/stdma.c
+@@ -174,7 +174,7 @@ int stdma_islocked(void)
+ void __init stdma_init(void)
+ {
+ 	stdma_isr = NULL;
+-	request_irq(IRQ_MFP_FDC, stdma_int, IRQ_TYPE_SLOW,
++	request_irq(IRQ_MFP_FDC, stdma_int, IRQ_TYPE_SLOW | SA_SHIRQ,
+ 	            "ST-DMA: floppy/ACSI/IDE/Falcon-SCSI", stdma_int);
+ }
+ 
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

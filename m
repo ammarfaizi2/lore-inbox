@@ -1,149 +1,145 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S967805AbWLILlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758067AbWLILoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967805AbWLILlw (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 06:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967808AbWLILlw
+	id S1758067AbWLILoy (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 06:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759432AbWLILoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 06:41:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:55405 "EHLO mx2.mail.elte.hu"
+	Sat, 9 Dec 2006 06:44:54 -0500
+Received: from hempcity.net ([81.171.100.190]:45989 "EHLO hempcity.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967805AbWLILlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 06:41:51 -0500
-Date: Sat, 9 Dec 2006 12:40:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: [patch] high-res timers: PIT broadcasting fix
-Message-ID: <20061209114041.GA32227@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S1758067AbWLILox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 06:44:53 -0500
+Message-ID: <19683.62.194.65.8.1165664691.squirrel@webmail.coolzero.info>
+In-Reply-To: <20061209113406.GC10261@atrey.karlin.mff.cuni.cz>
+References: <13634.62.194.65.8.1165659510.squirrel@webmail.coolzero.info>
+    <20061209105436.GB10261@atrey.karlin.mff.cuni.cz>
+    <16096.62.194.65.8.1165661845.squirrel@webmail.coolzero.info>
+    <20061209113406.GC10261@atrey.karlin.mff.cuni.cz>
+Date: Sat, 9 Dec 2006 12:44:51 +0100 (CET)
+Subject: Re: Ext3 Errors...
+From: "Jim van Wel" <jim@coolzero.info>
+To: "Jan Kara" <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: jim@coolzero.info
+User-Agent: SquirrelMail/1.4.8-2.el4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] high-res timers: PIT broadcasting fix
-From: Thomas Gleixner <tglx@linutronix.de>
+Hi there,
 
-systems that enter C3 and have to turn off the APIC we
-fall back to the PIT as the clock events source which
-emulates a local events source. Dynticks exposed a bug in
-the broadcast/local-events emulation code: if the PIT
-IRQ came earlier than the next high-res timer on an idle
-CPU would have needed, then the PIT was not reprogrammed
-for followup irqs.
+Well, that's kind of difficult because it looks a little random when he
+does it, and a interval of three days, but also is maybe random.
 
-(also, clean things up a bit by splitting out the broadcast
- reprogramming logic into clockevents_reprogram_broadcast())
+And the most difficult part is it's only for three seconds, and than it's
+gone, so making a crontab script every minute might not even notice it?
 
-this bug can explain certain rare boot-time hangs on C3-capable
-laptops that run with HIGH_RES_TIMERS and NO_HZ enabled.
+Or am I just making a mistake here?
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/time/clockevents.c |   60 ++++++++++++++++++++++++++++++++--------------
- 1 file changed, 42 insertions(+), 18 deletions(-)
+Thanks!
 
-Index: linux/kernel/time/clockevents.c
-===================================================================
---- linux.orig/kernel/time/clockevents.c
-+++ linux/kernel/time/clockevents.c
-@@ -529,6 +529,32 @@ static cpumask_t local_event_broadcast;
- static void (*broadcast_function)(cpumask_t *mask);
- static void (*global_event_handler)(struct pt_regs *regs);
- 
-+/*
-+ * Reprogram the broadcast device:
-+ *
-+ * Called with events_lock held and interrupts disabled.
-+ */
-+static void clockevents_reprogram_broadcast(void)
-+{
-+	struct clock_event_device *glblevt = global_eventdevice.event;
-+	struct local_events *dev;
-+	ktime_t expires = { .tv64 = KTIME_MAX };
-+	int64_t delta;
-+	int cpu;
-+
-+	for (cpu = first_cpu(local_event_broadcast); cpu != NR_CPUS;
-+	     cpu = next_cpu(cpu, local_event_broadcast)) {
-+		dev = &per_cpu(local_eventdevices, cpu);
-+		if (dev->expires_next.tv64 < expires.tv64)
-+			expires = dev->expires_next;
-+	}
-+
-+	if (expires.tv64 != KTIME_MAX) {
-+		delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
-+		do_clockevents_set_next_event(glblevt, delta);
-+	}
-+}
-+
- /**
-  * clockevents_set_broadcast - switch next event device from/to broadcast mode
-  *
-@@ -538,10 +564,7 @@ static void (*global_event_handler)(stru
- void clockevents_set_broadcast(struct clock_event_device *evt, int broadcast)
- {
- 	struct local_events *devices = &__get_cpu_var(local_eventdevices);
--	struct clock_event_device *glblevt = global_eventdevice.event;
- 	int cpu = smp_processor_id();
--	ktime_t expires = { .tv64 = KTIME_MAX };
--	int64_t delta;
- 	unsigned long flags;
- 
- 	if (devices->nextevt != evt)
-@@ -558,19 +581,7 @@ void clockevents_set_broadcast(struct cl
- 		if (devices->expires_next.tv64 != KTIME_MAX)
- 			clockevents_set_next_event(devices->expires_next, 1);
- 	}
--
--	/* Reprogram the broadcast device */
--	for (cpu = first_cpu(local_event_broadcast); cpu != NR_CPUS;
--	     cpu = next_cpu(cpu, local_event_broadcast)) {
--		devices = &per_cpu(local_eventdevices, cpu);
--		if (devices->expires_next.tv64 < expires.tv64)
--			expires = devices->expires_next;
--	}
--
--	if (expires.tv64 != KTIME_MAX) {
--		delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
--		do_clockevents_set_next_event(glblevt, delta);
--	}
-+	clockevents_reprogram_broadcast();
- 
- 	spin_unlock_irqrestore(&events_lock, flags);
- }
-@@ -637,9 +648,22 @@ static void handle_nextevt_broadcast(str
- 			cpu_set(cpu, mask);
- 		}
- 	}
-+	if (!cpus_empty(mask)) {
-+		/*
-+		 * Wakeup the cpus which have an expired event. The
-+		 * global event is reprogrammed in the return from
-+		 * idle code.
-+		 */
-+		broadcast_function(&mask);
-+	} else {
-+		/*
-+		 * The global event did not expire any CPU local
-+		 * events. This happens in dyntick mode, as the
-+		 * maximum PIT delta is quite small.
-+		 */
-+		clockevents_reprogram_broadcast();
-+	}
- 	spin_unlock(&events_lock);
--	/* Wakeup the cpus which have an expired event */
--	broadcast_function(&mask);
- }
- 
- /*
+Jim.
+
+
+>   Hi,
+>
+>> Here is the output of /proc/slabinfo
+>>
+>> slabinfo - version: 2.1
+>> # name            <active_objs> <num_objs> <objsize> <objperslab>
+>> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata
+>> <active_slabs> <num_slabs> <sharedavail>
+>> jbd_4k                 5     10   4096    1    1 : tunables   24   12
+>> 8
+>> : slabdata      5     10      0
+>> ext3_inode_cache   22447  22696    968    4    1 : tunables   54   27
+>> 8
+>> : slabdata   5674   5674      0
+>> journal_head         740   1280     96   40    1 : tunables  120   60
+>> 8
+>> : slabdata     27     32    480
+>> buffer_head        56406  95386    104   37    1 : tunables  120   60
+>> 8
+>> : slabdata   2578   2578    480
+>   <snip>
+>
+>   Thanks for the info. I should have said I'm interested about
+> /proc/slabinfo close to the state when the machine starts complaining
+> about OOM. Your current numbers look quite sensible so it's hard to see
+> if we really leak something or not...
+>
+>> >> I have something really strange while running kernel 2.6.19.
+>> >>
+>> >> See the following lines:
+>> >>
+>> >> Dec  5 23:50:49 kernel: do_get_write_access: OOM for frozen_buffer
+>> >> Dec  5 23:50:49 kernel: ext3_free_blocks_sb: aborting transaction:
+>> Out
+>> >> of
+>> >> memory in __ext3_journal_get_undo_access
+>> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
+>> >> ext3_free_blocks_sb:
+>> >> Out of memory
+>> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
+>> >> ext3_reserve_inode_write: Readonly filesystem
+>> >> Dec  5 23:50:50 kernel: EXT3-fs error (device md1) in ext3_truncate:
+>> Out
+>> >> of memory
+>> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+>> >> ext3_reserve_inode_write: Readonly filesystem
+>> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+>> ext3_orphan_del:
+>> >> Readonly filesystem
+>> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+>> >> ext3_reserve_inode_write: Readonly filesystem
+>> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
+>> ext3_delete_inode:
+>> >> Out of memory
+>> >>
+>> >> And three days later the same:
+>> >>
+>> >> Dec  8 08:24:29 kernel: do_get_write_access: OOM for frozen_buffer
+>> >> Dec  8 08:24:29 kernel: ext3_reserve_inode_write: aborting
+>> transaction:
+>> >> Out of memory in __ext3_journal_get_write_access
+>> >> Dec  8 08:24:29 kernel: EXT3-fs error (device md1) in
+>> >> ext3_reserve_inode_write: Out of memory
+>> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+>> ext3_dirty_inode:
+>> >> Out of memory
+>> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+>> ext3_new_blocks:
+>> >> Readonly filesystem
+>> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+>> >> ext3_reserve_inode_write: Readonly filesystem
+>> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+>> ext3_dirty_inode:
+>> >> Out of memory
+>> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
+>> >> ext3_prepare_write:
+>> >> Out of memory
+>> >>
+>> >> Now the funny thing is, with kernel 2.6.18.3 I did not had these
+>> errors.
+>> >> Could it be my memory that is just going nuts, or something else? I
+>> have
+>> >> seen some other topics about the EXT3 corruption problems. Maybe this
+>> is
+>> >> also the same thing?
+>> >   Probably some error on the kernel's side. Maybe somebody (e.g. my
+>> new
+>> > code in jbd commit) forgets to release some buffers? What does your
+>> > /proc/slabinfo look like? Thanks for report.
+>
+> 								Honza
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

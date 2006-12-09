@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933924AbWLIIOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935686AbWLIIRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933924AbWLIIOi (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 03:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935686AbWLIIOh
+	id S935686AbWLIIRG (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 03:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935728AbWLIIRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 03:14:37 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:40571 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S933924AbWLIIOh convert rfc822-to-8bit (ORCPT
+	Sat, 9 Dec 2006 03:17:05 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:43482 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935686AbWLIIRE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 03:14:37 -0500
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
-Subject: Re: VCD not readable under 2.6.18
-Date: Sat, 9 Dec 2006 10:14:28 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20061209060602.98025.qmail@web57812.mail.re3.yahoo.com>
-In-Reply-To: <20061209060602.98025.qmail@web57812.mail.re3.yahoo.com>
+	Sat, 9 Dec 2006 03:17:04 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Ben Nizette <ben.nizette@iinet.net.au>
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+Date: Sat, 9 Dec 2006 09:18:26 +0100
+User-Agent: KMail/1.8
+Cc: Matthias Schniedermeyer <ms@citd.de>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       DervishD <lkml@dervishd.net>
+References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <200612081201.36789.oliver@neukum.org> <457A5384.9070806@iinet.net.au>
+In-Reply-To: <457A5384.9070806@iinet.net.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="windows-1252"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200612091014.28969.ismail@pardus.org.tr>
+Message-Id: <200612090918.26508.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-09 Ara 2006 Cts 08:06 tarihinde, Rakhesh Sasidharan ÅŸunlarÄ± yazmÄ±ÅŸtÄ±: 
-> Hi,
->
-> I am having problems reading VCDs under various Linux distros (Fedora Core
-> 6, openSUSE 10.2, Slackware 11 with the 2.6 kernel), and while searching
-> Google for a solution I found that this problem has been mentioned on the
-> LKML list too. (http://lkml.org/lkml/2006/10/29/95)
+Am Samstag, 9. Dezember 2006 07:11 schrieb Ben Nizette:
+> >>> Also, you mentioned that the corruption occurs systematically on certain
+> >>> byte patterns. Therefore it's certainly not related to the cables.
+> >> It'd guess that too, but who can that say for sure. :-|
+> > 
+> > You may have a bit pattern that stresses the controllers and suddenly
+> > a marginal cable may matter.
+> 
+> The errors occur in strings of 0xFFs.  From the USB standard:
+> 
+> a “1” is represented by no change in level and a “0” is represented by a 
+> change in level
 
-See http://bugme.osdl.org/show_bug.cgi?id=7460
+Yes, plus added stuffing bits.
 
-/ismail
+> so this error-infested bytes are effectively long, quiet times on the 
+> wire.  I would have thought this would be the _least_ stressful time for 
+> the controllers but maybe they are also more susceptible to noise during 
+> this period.
+
+The longer you don't change the voltage the likelier are reciever and
+transmitter to get out of sync.
+
+	Regards
+		Oliver

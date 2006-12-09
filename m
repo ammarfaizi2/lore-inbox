@@ -1,81 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S967195AbWLIKZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S967681AbWLIK0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967195AbWLIKZM (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 05:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967671AbWLIKZM
+	id S967681AbWLIK0N (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 05:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967636AbWLIK0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 05:25:12 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:57788 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967195AbWLIKZK (ORCPT
+	Sat, 9 Dec 2006 05:26:13 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:56086 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936595AbWLIK0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 05:25:10 -0500
-Message-ID: <457A8F04.40308@vmware.com>
-Date: Sat, 09 Dec 2006 02:25:08 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Sat, 9 Dec 2006 05:26:11 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Sat, 9 Dec 2006 05:22:32 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: why are some of my patches being credited to other "authors"?
+Message-ID: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain>
 MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org,
-       akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au,
-       jeremy@goop.org
-Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
-References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
-In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> From: Randy Dunlap <randy.dunlap@oracle.com>
->
-> Since Voyager and Visual WS already define ARCH_SETUP,
-> it looks like PARAVIRT shouldn't be offered for them.
->
-> In file included from arch/i386/kernel/setup.c:63:
-> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-> In file included from include/asm/msr.h:5,
->                  from include/asm/processor.h:17,
->                  from include/asm/thread_info.h:16,
->                  from include/linux/thread_info.h:21,
->                  from include/linux/preempt.h:9,
->                  from include/linux/spinlock.h:49,
->                  from include/linux/capability.h:45,
->                  from include/linux/sched.h:46,
->                  from arch/i386/kernel/setup.c:26:
-> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
-> In file included from arch/i386/kernel/setup.c:63:
-> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-> In file included from include/asm/msr.h:5,
->                  from include/asm/processor.h:17,
->                  from include/asm/thread_info.h:16,
->                  from include/linux/thread_info.h:21,
->                  from include/linux/preempt.h:9,
->                  from include/linux/spinlock.h:49,
->                  from include/linux/capability.h:45,
->                  from include/linux/sched.h:46,
->                  from arch/i386/kernel/setup.c:26:
-> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
->
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> ---
->  arch/i386/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
->
-> --- linux-2.6.19-git13.orig/arch/i386/Kconfig
-> +++ linux-2.6.19-git13/arch/i386/Kconfig
-> @@ -190,6 +190,7 @@ endchoice
->  config PARAVIRT
->  	bool "Paravirtualization support (EXPERIMENTAL)"
->  	depends on EXPERIMENTAL
-> +	depends on !(X86_VISWS || X86_VOYAGER)
->  	help
->  	  Paravirtualization is a way of running multiple instances of
->  	  Linux on the same machine, under a hypervisor.  This option
->
->
-> ---
->
->   
-Acked-by: Zachary Amsden <zach@vmware.com>
+
+  perhaps i'm just being clueless about the authorship protocol here,
+but i'm a bit hacked off by noticing that at least one submitted patch
+of mine was apparently re-submitted (albeit slightly modified) a few
+days later by another poster and applied under that poster's name.
+
+  on sun, dec 3, i submitted to the list:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116516635728664&w=2
+
+and yet, just by accident this morning, i see the log for that file
+ipc/sem.c contains:
+
+======================================================
+commit 4668edc334ee90cf50c382c3e423cfc510b5a126
+Author: Burman Yan <yan_952@hotmail.com>
+Date:   Wed Dec 6 20:38:51 2006 -0800
+
+    [PATCH] kernel core: replace kmalloc+memset with kzalloc
+
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+diff --git a/ipc/sem.c b/ipc/sem.c
+index 21b3289..d3e12ef 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -1070,14 +1070,13 @@ static struct sem_undo *find_undo(struct
+        ipc_rcu_getref(sma);
+        sem_unlock(sma);
+
+-       new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
++       new = kzalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
+        if (!new) {
+                ipc_lock_by_ptr(&sma->sem_perm);
+                ipc_rcu_putref(sma);
+                sem_unlock(sma);
+                return ERR_PTR(-ENOMEM);
+        }
+-       memset(new, 0, sizeof(struct sem_undo) + sizeof(short)*nsems);
+        new->semadj = (short *) &new[1];
+        new->semid = semid;
+======================================================
+
+  admittedly, mr. yan's patch is technically cleaner since it removes
+the superfluous cast applied to kzalloc().  however, i very
+*deliberately* left that cast in, and i explained why a couple days
+later here in another context:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116553652920469&w=2
+
+  quite simply, as per the guidelines given for creating and
+submitting kernel patches, i'm trying to keep each submission
+well-defined, as i was going to follow up the above with another
+submission to remove *all* superfluous casts in one fell swoop.  but
+it's not just a matter of proper patch attribution.
+
+  i've submitted a number of patches recently and, every time i do a
+"git pull", i check the log to see if any of them have been applied so
+i can delete them from my personal "submitted but not applied"
+directory.  if they've been applied by another author, then naturally
+i'll never notice and i'll keep wondering about the delay.
+
+  so what's the protocol here?  are more senior kernel developers
+allowed to poach on my patch submissions, tidy them up slightly, then
+drop any attribution to me?  enquiring minds *definitely* want this
+cleared up.
+
+rday
+
+p.s.  it's possible that this is all just a wild coincidence, of
+course.  stranger things have happened.

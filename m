@@ -1,89 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947571AbWLIA20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947581AbWLIA3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947571AbWLIA20 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 19:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947574AbWLIA20
+	id S1947581AbWLIA3B (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 19:29:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947586AbWLIA3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:28:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:47606 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1947571AbWLIA2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:28:25 -0500
-Date: Fri, 8 Dec 2006 16:28:14 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       ak@suse.de, clameter@sgi.com
-Subject: Re: [PATCH] cpuset - rework cpuset_zone_allowed api
-Message-Id: <20061208162814.0ea505c8.pj@sgi.com>
-In-Reply-To: <6599ad830612080851q55fe8c95m9f00a2a9a3779dc4@mail.gmail.com>
-References: <20061208112152.12631.67436.sendpatchset@jackhammer.engr.sgi.com>
-	<6599ad830612080851q55fe8c95m9f00a2a9a3779dc4@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Fri, 8 Dec 2006 19:29:01 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:56984 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1947581AbWLIA3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 19:29:00 -0500
+Date: Fri, 8 Dec 2006 16:28:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, clameter@engr.sgi.com, apw@shadowen.org
+Subject: Re: [RFC] [PATCH] virtual memmap on sparsemem v3 [1/4]  map and
+ unmap
+Message-Id: <20061208162819.f809d703.akpm@osdl.org>
+In-Reply-To: <20061208160142.d40cf636.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
+	<20061208160142.d40cf636.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul M wrote:
-> While you're changing this, is there a good reason not to check
-> is_mem_exclusive() *before* taking callback_mutex and calling
-> nearest_exclusive_ancestor()?
+On Fri, 8 Dec 2006 16:01:42 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+
+> When we want to map pages into the kernel space by vmalloc()'s routine,
+> we always need 'struct page' to do that.
 > 
-> something like:
+> There are cases where there is no page struct to use (bootstrap, etc..).
+> This function is designed to help map any memory to anywhere, anytime.
 > 
-> rcu_read_lock();
-> exc = is_mem_exclusive(rcu_dereference(current->cs));
-> rcu_read_unlock();
-> if (exc)
->   return 1;
+> Users should manage their virtual/physical space by themselves.
+> Because it's complex and danger to manage virtual address space by
+> each function's own code, it's better to use fixed address.
+> 
+> Note: My first purpose is supporting virtual mem_map both at boot/hotplug
+>       sharing the same logic.
+> 
 
-Hmmm ...  Interesting suggestion, but I'm not sure this is a good idea.
+A little thing:
 
-For one thing, shouldn't that be "return 0", not "return 1".  If the
-current tasks cpuset is mem_exclusive, and if we've already determined
-that it doesn't allow the node in question, and if we've also just
-determined that it is itself our nearest mem_exclusive ancestor,
-then can't we conclude that the node in question is -not- allowed in
-our nearest mem_exclusive ancestor?
 
-And for another thing, it extends the RCU locking use just a teeny
-bit.  Until now, we just RCU to let us check whether the cpuset
-mems_generation was changed or not, without risking an invalid memory
-reference.  The above proposal makes stronger demands, as follows.
+> +		if (ops->k_pte_alloc) {
+> +			ret = ops->k_pte_alloc(pmd, addr, data);
+> +			if (ret)
+> +				return ret;
+> +		} else {
+> +			pte = pte_alloc_kernel(pmd, addr);
+> +			if (!pte)
+> +				return -ENOMEM;
+> +		}
 
-Say for instance, another task changed our tasks cpuset just as we
-were running this cpuset_zone_allowed() check, from a cpuset whose
--parent- would have allowed the node in question and which parent was
-the nearest enclosing mem_exclusive cpuset, to a different cpuset
-which would itself have allowed the node in question and which was
-marked mem_exclusive.  Either the old or the new cpuset would have
-allowed the node, but if we flip at just the wrong instant, after
-we realize the node isn't allowed in the current cpuset, before we
-check to see if that cpuset is mem_exclusive, we would conclude that
-the node is not allowed.
+> +		if (ops->k_pmd_alloc) {
+> +			ret = ops->k_pmd_alloc(pud, addr, data);
+> +			if (ret)
+> +				return ret;
+> +		} else {
+> +			pmd = pmd_alloc(&init_mm, pud, addr);
+> +			if (!pmd)
+> +				return -ENOMEM;
 
-I can't imagine even a micro benchmark test case that would detect
-the above race failing, not to mention a real world noticable impact.
-But it is a lost race.  Better not to code races, than to learn two
-years later why they might matter.
+> +		if (ops->k_pud_alloc) {
+> +			ret = ops->k_pud_alloc(pgd, addr, data);
+> +			if (ret)
+> +				return ret;
+> +		} else {
+> +			pud = pud_alloc(&init_mm, pgd, addr);
+> +			if (!pud)
+> +				return -ENOMEM;
+> +		}
 
-For a third thing, this adds a little more kernel text, in order
-to optimize the case that the current cpuset is mem_exclusive, at
-the expense of a slightly longer code path for the case that it is
-some ancestor that is the nearest enclosing mem_exclusive cpuset.
+Generally we prefer to simply *require* that the function vector be filled
+in appropriately.  So if the caller has no special needs, the caller will
+set their gen_map_kern_ops.k_pte_alloc to point at pte_alloc_kernel().
 
-I guess it is workload and cpuset config dependent whether or not
-such a tradeoff is an improvement, or a step backward.  Lacking a
-persuasive argument that the case for which this optimizes is
-enough more frequent than the other case to matter, I'm inclined
-to pick the solution with the least code -- what's there now.
+erk, pte_alloc_kernel() is a macro.  As is pmd_alloc(), etc.  Well, let
+that be a lesson to us.  What a mess.
 
-What am I missing?
+I suppose we could go through and convert them all to inlines and then the
+compiler will generate an out-of-line copy for us.  Better would be to turn
+these things into regular, out-of-line C functions.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+What a mess.

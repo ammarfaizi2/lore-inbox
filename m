@@ -1,102 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936945AbWLILeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936971AbWLILeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936945AbWLILeK (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 06:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936942AbWLILeJ
+	id S936971AbWLILeZ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 06:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936958AbWLILeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 06:34:09 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48263 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936954AbWLILeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 06:34:08 -0500
-Date: Sat, 9 Dec 2006 12:34:06 +0100
-From: Jan Kara <jack@suse.cz>
-To: Jim van Wel <jim@coolzero.info>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 Errors...
-Message-ID: <20061209113406.GC10261@atrey.karlin.mff.cuni.cz>
-References: <13634.62.194.65.8.1165659510.squirrel@webmail.coolzero.info> <20061209105436.GB10261@atrey.karlin.mff.cuni.cz> <16096.62.194.65.8.1165661845.squirrel@webmail.coolzero.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16096.62.194.65.8.1165661845.squirrel@webmail.coolzero.info>
-User-Agent: Mutt/1.5.9i
+	Sat, 9 Dec 2006 06:34:24 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:59858 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936931AbWLILeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 06:34:23 -0500
+Message-ID: <457A9F3B.6020009@garzik.org>
+Date: Sat, 09 Dec 2006 06:34:19 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: why are some of my patches being credited to other "authors"?
+References: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
-
-> Here is the output of /proc/slabinfo
+Robert P. J. Day wrote:
+>   i've submitted a number of patches recently and, every time i do a
+> "git pull", i check the log to see if any of them have been applied so
+> i can delete them from my personal "submitted but not applied"
+> directory.  if they've been applied by another author, then naturally
+> i'll never notice and i'll keep wondering about the delay.
 > 
-> slabinfo - version: 2.1
-> # name            <active_objs> <num_objs> <objsize> <objperslab>
-> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata
-> <active_slabs> <num_slabs> <sharedavail>
-> jbd_4k                 5     10   4096    1    1 : tunables   24   12    8
-> : slabdata      5     10      0
-> ext3_inode_cache   22447  22696    968    4    1 : tunables   54   27    8
-> : slabdata   5674   5674      0
-> journal_head         740   1280     96   40    1 : tunables  120   60    8
-> : slabdata     27     32    480
-> buffer_head        56406  95386    104   37    1 : tunables  120   60    8
-> : slabdata   2578   2578    480
-  <snip>
+>   so what's the protocol here?  are more senior kernel developers
+> allowed to poach on my patch submissions, tidy them up slightly, then
+> drop any attribution to me?  enquiring minds *definitely* want this
+> cleared up.
+> 
+> rday
+> 
+> p.s.  it's possible that this is all just a wild coincidence, of
+> course.  stranger things have happened.
 
-  Thanks for the info. I should have said I'm interested about
-/proc/slabinfo close to the state when the machine starts complaining
-about OOM. Your current numbers look quite sensible so it's hard to see
-if we really leak something or not...
 
-> >> I have something really strange while running kernel 2.6.19.
-> >>
-> >> See the following lines:
-> >>
-> >> Dec  5 23:50:49 kernel: do_get_write_access: OOM for frozen_buffer
-> >> Dec  5 23:50:49 kernel: ext3_free_blocks_sb: aborting transaction: Out
-> >> of
-> >> memory in __ext3_journal_get_undo_access
-> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
-> >> ext3_free_blocks_sb:
-> >> Out of memory
-> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
-> >> ext3_reserve_inode_write: Readonly filesystem
-> >> Dec  5 23:50:50 kernel: EXT3-fs error (device md1) in ext3_truncate: Out
-> >> of memory
-> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
-> >> ext3_reserve_inode_write: Readonly filesystem
-> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in ext3_orphan_del:
-> >> Readonly filesystem
-> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
-> >> ext3_reserve_inode_write: Readonly filesystem
-> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in ext3_delete_inode:
-> >> Out of memory
-> >>
-> >> And three days later the same:
-> >>
-> >> Dec  8 08:24:29 kernel: do_get_write_access: OOM for frozen_buffer
-> >> Dec  8 08:24:29 kernel: ext3_reserve_inode_write: aborting transaction:
-> >> Out of memory in __ext3_journal_get_write_access
-> >> Dec  8 08:24:29 kernel: EXT3-fs error (device md1) in
-> >> ext3_reserve_inode_write: Out of memory
-> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_dirty_inode:
-> >> Out of memory
-> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_new_blocks:
-> >> Readonly filesystem
-> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
-> >> ext3_reserve_inode_write: Readonly filesystem
-> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in ext3_dirty_inode:
-> >> Out of memory
-> >> Dec  8 08:24:32 kernel: EXT3-fs error (device md1) in
-> >> ext3_prepare_write:
-> >> Out of memory
-> >>
-> >> Now the funny thing is, with kernel 2.6.18.3 I did not had these errors.
-> >> Could it be my memory that is just going nuts, or something else? I have
-> >> seen some other topics about the EXT3 corruption problems. Maybe this is
-> >> also the same thing?
-> >   Probably some error on the kernel's side. Maybe somebody (e.g. my new
-> > code in jbd commit) forgets to release some buffers? What does your
-> > /proc/slabinfo look like? Thanks for report.
+The protocol is simply to do best to give credit where credit is due. 
+If your patch is taken directly, most likely it is a mistake if 
+attribution was dropped.  If your patch was modified, often that patch 
+will get checked in under the name of the person who last touched the 
+change before commit -- and it is their responsibility to make sure and 
+note that the change originally came from you.
 
-								Honza
+	Jeff
+
+

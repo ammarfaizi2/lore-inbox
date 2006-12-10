@@ -1,111 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759001AbWLJFJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759050AbWLJFKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759001AbWLJFJJ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 00:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759050AbWLJFJJ
+	id S1759050AbWLJFKA (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 00:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759064AbWLJFKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 00:09:09 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:40611 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759001AbWLJFJH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 00:09:07 -0500
-Date: Sat, 9 Dec 2006 21:09:45 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] ucb1400_ts depends SND_AC97_BUS
-Message-Id: <20061209210945.5abe2d89.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0612092212410.2630@xanadu.home>
-References: <20061209003635.e778ff76.randy.dunlap@oracle.com>
-	<200612092150.02940.dtor@insightbb.com>
-	<20061209185737.1768315d.randy.dunlap@oracle.com>
-	<200612092205.19358.dtor@insightbb.com>
-	<Pine.LNX.4.64.0612092212410.2630@xanadu.home>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 10 Dec 2006 00:10:00 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:38940 "EHLO smtp.ocgnet.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759067AbWLJFJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 00:09:59 -0500
+Date: Sun, 10 Dec 2006 14:09:20 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Jeff Garzik <jeff@garzik.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: why are some of my patches being credited to other "authors"?
+Message-ID: <20061210050920.GA19828@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	"Robert P. J. Day" <rpjday@mindspring.com>,
+	Jeff Garzik <jeff@garzik.org>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain> <457A9F3B.6020009@garzik.org> <Pine.LNX.4.64.0612090706500.13654@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612090706500.13654@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 09 Dec 2006 22:17:55 -0500 (EST) Nicolas Pitre wrote:
-
-> On Sat, 9 Dec 2006, Dmitry Torokhov wrote:
+On Sat, Dec 09, 2006 at 07:11:21AM -0500, Robert P. J. Day wrote:
+> i'm far more interested in at least knowing what happens to patches
+> once they enter the system, so i can plan on what kind of cleanup i
+> can work on next.
 > 
-> > On Saturday 09 December 2006 21:57, Randy Dunlap wrote:
-> > > On Sat, 9 Dec 2006 21:50:01 -0500 Dmitry Torokhov wrote:
-> > > 
-> > > > On Saturday 09 December 2006 03:36, Randy Dunlap wrote:
-> > > > > From: Randy Dunlap <randy.dunlap@oracle.com>
-> > > > > 
-> > > > > This driver is an AC97 codec according to its help text.
-> > > > > However, if SOUND is disabled, the "select SND_AC97_BUS"
-> > > > > still inserts that into the .config file:
-> > > > > 
-> > > > > #
-> > > > > # Sound
-> > > > > #
-> > > > > # CONFIG_SOUND is not set
-> > > > > CONFIG_SND_AC97_BUS=m
-> > > > > 
-> > > > 
-> > > > I consider this abug in kconfig - users of "select" should not know
-> > > > full dependency chain for selected symbol.
-> > > 
-> > > Seems that I've heard that somewhere else.
-> > > so I agree with that part.
-> > > 
-> > > > > Even if the config software followed dependency chains on selects,
-> > > > > we should try to limit usage of "select" to library-type
-> > > > > code that is needed (e.g., CRC functions) instead of bus-type
-> > > > > support.
-> > > > >
-> > > > 
-> > > > I do not agree here - the way our directory structure is laid out
-> > > > "sound" comes after "Input device support" menuconfig entry.
-> > > > Your patch makes user go back and forth in menuconfig, which is
-> > > > awkward. I think using select is fine when an option depends on
-> > > > something down the stream. If user already had a chance to select
-> > > > necessary option then using "depends on" is preferred.
-> > > 
-> > > Traversing the menus is not difficult.
-> > > (It's easier in xconfig or gconfig than menuconfig IMO,
-> > > but not a big deal in any of them.)
-> > >
-> > 
-> > I agree but many people use menuconfig and may not even be aware of
-> > a driver if it is hidden because facility it depends on is not
-> > selected. The same with oldconfig - unless you are closely monitor
-> > all changelogs (I for example don't, I just pull from Linus) you
-> > would not even get prompted for UCB1400 if you do not have sound
-> > enabled.
-> >  
-> > > Anyway, are you saying that the only fix for this build error
-> > > is to fix *config to handle select dependencies?
-> > > or could propose another way to handle the build error?
-> > > 
-> > 
-> > Would not adding "select SOUND" fix it? We could use it as a bandaid
-> > until kconfig os fixed.
-> 
-> Please consider what SND_CONFIG_AC97_BUS corresponds to.  It is 
-> sound/pci/ac97/ac97_bus.c and if you look into this file you'll see that 
-> it is perfectly buildable even if sound is entirely configured out, just 
-> like some lib code would be.
+Trivial patches tend not to be a priority for most people, especially
+during a period when people are gearing up for the close of the merge
+window (unless they happen to fix a serious bug, in which case it's
+another matter, and it should also be brought to -stable's attention).
+Timing has a lot to do with expected feedback for these sorts of things.
 
-OK.  Should it (CONFIG_SND_AC97_BUS -> sound/pci/ac97/ac97_bus.c)
-be buildable when sound is disabled?
+trivial@kernel.org exists to handle the rest of the bits, where Adrian
+has a tendency to queue up many trivial and related patches at once, and
+sending out pull requests at a time where it will be less disruptive to
+the rest of development. You might be better off simply CC'ing trivial@
+on these patch submissions and routinely checking the trivial git tree to
+see whether they've been queued or not.
 
-If so, where should it be moved to (since afaik, make won't even
-descend into sound/ if SOUND=n; I don't see that changing
-any time soon).
-
----
-~Randy
+However, if you're changing or reordering functionality that isn't an
+obvious bugfix, you're still going to have to get an ack from the
+maintainer.

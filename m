@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762445AbWLJTSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762521AbWLJTTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762445AbWLJTSy (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 14:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762520AbWLJTSy
+	id S1762521AbWLJTTV (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 14:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762528AbWLJTTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 14:18:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4772 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1762438AbWLJTSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 14:18:54 -0500
-Date: Sun, 10 Dec 2006 20:19:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Paul Mundt <lethal@linux-sh.org>,
-       "Robert P. J. Day" <rpjday@mindspring.com>,
-       Jeff Garzik <jeff@garzik.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: why are some of my patches being credited to other "authors"?
-Message-ID: <20061210191901.GF10351@stusta.de>
-References: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain> <457A9F3B.6020009@garzik.org> <Pine.LNX.4.64.0612090706500.13654@localhost.localdomain> <20061210050920.GA19828@linux-sh.org>
+	Sun, 10 Dec 2006 14:19:21 -0500
+Received: from mail.pxnet.com ([195.227.45.3]:51612 "EHLO lx1.pxnet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762522AbWLJTTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 14:19:19 -0500
+Date: Sun, 10 Dec 2006 20:19:05 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+To: Corey Minyard <cminyard@mvista.com>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial driver
+CC: linux-serial@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061210050920.GA19828@linux-sh.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Message-ID: <20061210201438.tilman@imap.cc>
+In-Reply-To: <4533B8FB.5080108@mvista.com>
+References: <4533B8FB.5080108@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2006 at 02:09:20PM +0900, Paul Mundt wrote:
->...
-> trivial@kernel.org exists to handle the rest of the bits, where Adrian
-> has a tendency to queue up many trivial and related patches at once, and
-> sending out pull requests at a time where it will be less disruptive to
-> the rest of development. You might be better off simply CC'ing trivial@
-> on these patch submissions and routinely checking the trivial git tree to
-> see whether they've been queued or not.
->...
+On Mon, 16 Oct 2006 11:53:15 -0500, Corey Minyard <cminyard@mvista.com> wrote:
+> This is a set of three patches to allow adding another driver on top of
+> the current serial driver without too much change to the serial code.
+> This is more for comments right now, it is probably not ready for real
+> use yet.
+> 
+> The patches are too big to post here, so I'm putting them on
+> http://home.comcast.net/~minyard
+> 
+> The three patches are:
+> 
+>     * serial-remove-tty-struct-from-driver.patch - A general patch to
+>       remove the tty includes from the low-level serial drivers. Only
+>       fixes the 8250 for now.
+> 
+>     * serial-allow-in-kernel-users.patch - The actual patch that adds
+>       the layered driver to the serial core.
+> 
+>     * serial-8250-cleanup.patch - Add support for the layered driver
+>       and poll to the 8250 uart.
 
-Checking the tree won't help since it's only different from Linus' tree 
-in the few hours between me asking Linus to pull and Linus actually 
-pulling.
+Has anything ever come of this? I would be very much interested in it.
+It might make it possible to extend the Siemens Gigaset drivers
+(drivers/isdn/gigaset) to the RS232 attached M101 DECT adapter.
+There is a working driver out of tree which accesses the serial port
+hardware directly (i8250 only), but that kind of thing doesn't seem
+fit for inclusion in the kernel.
 
-Patches to trivial@kernel.org simply go into a mail folder, and I'm 
-going through this during the two week merge window.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thanks
+Tilman
 

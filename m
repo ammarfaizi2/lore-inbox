@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761271AbWLJXSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762396AbWLJXVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761271AbWLJXSG (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 18:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762254AbWLJXSG
+	id S1762396AbWLJXVh (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 18:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762424AbWLJXVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 18:18:06 -0500
-Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:46701 "EHLO
-	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761271AbWLJXSD (ORCPT
+	Sun, 10 Dec 2006 18:21:37 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:48330 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762364AbWLJXVh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 18:18:03 -0500
-Date: Mon, 11 Dec 2006 00:18:01 +0100
-From: Wouter Verhelst <wouter@grep.be>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Paul Clements <paul.clements@steeleye.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd: show nbd client pid in sysfs
-Message-ID: <20061210231801.GD29943@country.grep.be>
-References: <45762745.7010202@steeleye.com> <20061208211723.GC4924@ucw.cz> <20061210180725.GA29943@country.grep.be> <20061210195819.GA32577@elf.ucw.cz>
+	Sun, 10 Dec 2006 18:21:37 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <457C9660.8040504@s5r6.in-berlin.de>
+Date: Mon, 11 Dec 2006 00:21:04 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061210195819.GA32577@elf.ucw.cz>
-X-Speed: Gates' Law: Every 18 months, the speed of software halves.
-Organization: none
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+CC: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>,
+       linux1394-devel@lists.sourceforge.net,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Marcel Holtmann <marcel@holtmann.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>	 <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com>	 <20061205160530.GB6043@harddisk-recovery.com>	 <20060712145650.GA4403@ucw.cz> <45798022.2090104@s5r6.in-berlin.de> <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com> <457C042F.3040903@s5r6.in-berlin.de> <457C8791.9000201@redhat.com>
+In-Reply-To: <457C8791.9000201@redhat.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2006 at 08:58:19PM +0100, Pavel Machek wrote:
-> Hi!
-
-Hi
-
-> > > > This simple patch allows nbd to expose the nbd-client 
-> > > > daemon's PID in /sys/block/nbd<x>/pid. This is helpful 
-> > > > for tracking connection status of a device and for 
-> > > > determining which nbd devices are currently in use.
-> > > 
-> > > Actually is it needed at all? Perhaps nbd clients should be modified
-> > > to put nbdX in their process nam?
-> > 
-> > I don't think that's the right approach; only the kernel can guarantee
-> > that a given process is actually managing a given nbd device (I could
-> > have some rogue process running around announcing that it's managing
-> > nbd2, and then what?)
+Kristian Høgsberg wrote:
+> Stefan Richter wrote:
+>>     as the others. hpsb_ is not just an abbreviation, it is an established
+>>     acronym of the canonical name of the bus.)
 > 
-> I'd say "do not run rogue processes as root" :-).
-> 
-> nbd-client should run as root -- I do not think interface was
-> carefully audited to run it as a user -- so rogue process should not
-> really be a problem.
+> Oh, I don't know... for the longest time I didn't know what hpsb meant,
+> and high performance serial bus is pretty generic sounding... are we
+> talking about usb, sata, ieee1394 or rs232?  Ok, I guess rs232 is
+> neither hp or b.  But seriously, except for the current stack, I've
+> never seen the hpsb abbreviation used much.
 
-IOW, you're suggesting I walk the process list from userspace to find a
-process for which a) it claims it's running for a given nbd device, and
-b) I can verify that it actually has the permissions to do so. That's a
-whole lot of code in comparison to
-
-f=open("/sys/block/nbd2/pid", O_RDONLY);
-read(f,buf,len);
-
-I think I very much prefer the above two lines, not only for simplicity.
-
-Also, your suggestion relies on users /only/ using the official
-nbd-client, and is fragile in cases where that assumption is false
-(i.e., it's susceptible to false negatives). The suggested patch does
-not have that problem.
-
+Sure, by "established" I merely meant "established for and by usage
+in Linux kernel sources", nothing more. Also, High Performance Serial
+Bus is not the only generic sounding name of a bus or architecture.
+How about Small Computer System Interface for example? Universal Serial
+Bus and Serial Advanced Technology Attachment aren't much more colorful
+either. Granted, their acronyms are prettier than HPSB, but not as
+elitist. ;-)
 -- 
-<Lo-lan-do> Home is where you have to wash the dishes.
-  -- #debian-devel, Freenode, 2004-09-22
+Stefan Richter
+-=====-=-==- ==-- -=-==
+http://arcgraph.de/sr/

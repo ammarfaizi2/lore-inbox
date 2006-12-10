@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761183AbWLJPhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761255AbWLJPhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761183AbWLJPhJ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 10:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761248AbWLJPhI
+	id S1761255AbWLJPhi (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 10:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761258AbWLJPhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 10:37:08 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4219 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761180AbWLJPhG (ORCPT
+	Sun, 10 Dec 2006 10:37:38 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:64904 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761255AbWLJPhh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 10:37:06 -0500
-Date: Sun, 10 Dec 2006 12:14:31 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michael Westermann <michael@dvmwest.de>, linux-kernel@vger.kernel.org
-Subject: Re: DTR/DSR handshake in kernelspace third traying
-Message-ID: <20061210121431.GA20456@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Michael Westermann <michael@dvmwest.de>,
-	linux-kernel@vger.kernel.org
-References: <20061207201626.GA10920@dvmwest.dvmwest.de> <20061209225014.0888720b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061209225014.0888720b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 10 Dec 2006 10:37:37 -0500
+Message-ID: <457C29C7.1020009@anagramm.de>
+Date: Sun, 10 Dec 2006 16:37:43 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+References: <20061210084453.13702.qmail@science.horizon.com>
+In-Reply-To: <20061210084453.13702.qmail@science.horizon.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:224ad0fd4f2efe95e6ec4f0a3ca8a73c
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2006 at 10:50:14PM -0800, Andrew Morton wrote:
-> > On Thu, 7 Dec 2006 21:16:27 +0100 Michael Westermann <michael@dvmwest.de> wrote:
-> > Hello,
-> > 
-> > I've send 2 patches for a DTS/DSR handshaking to the list
-> > 
-> > http://lkml.org/lkml/2004/5/7/76  and long long time ago 1998
-> > 
-> > My problem are manufacturers the make printers with
-> > DTR/DSR Handschaking. POS Printers are very sensible for
-> > a buffer overrun!
-> > 
-> > For on or two printers, we can wire a adapter, for 10000...30000
-> > printers is a software option the better way.
-> > 
-> > I've write a patch for 2.2 and published it, 
-> > I've write a patch for 2.4 and published it, but i've see there is no
-> > 
-> > DTR/DSR Handshaking in the kernel 2.6.
-> > 
-> > I'm a litte bit  frusted. Are a few  thousands pos-systems not
-> > enough for upgrading the standard kernel sources?
-> > 
-> > Have I a really chance to commit a patch for kernel 2.6.
-> > 
-> 
-> I'd say so.  Please make sure that such a patch is against the very latest
-> Linus kernel from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
-> Also, the more comprehensive the patch's description the better - why it is
-> needed, what it does, how it works, etc.  Your 2004 description was rather
-> terse.
-> 
-> I seem to recall that the people who understand and work on this code
-> discussed this issue earlier this year, but I forget the conclusion.  Some
-> archive searching might be useful.
+Hi There!
 
-Andrew,
+> Now, I can imagine a USB slave controller so cheap and/or buggy that it
+> doesn't check the CRC, but I'd think that most would.  Checking a CRC
+> is hardly a novel challenge.
 
-My stance on handshaking has always been that it should be something
-controlled via termios, not via some driver specific ioctl() which is
-different for every single driver.
+Do we have any counters in the USB Stack and the drivers which count the
+USB transaction errors?
+According to some datasheets (i.e. NXP ISP1563) there are bits called
+USB Error and USB Error Interrupt" etc.
+Are those should be implemented / counted in the driver stack somewhere?
+Okay, simple question...
 
-I see that this 2.4 patch actually does that, which is great.  A
-couple of points though:
+A quick look into ehci.h tells me that the bit inside of the kernel
+is propably called STS_ERR and is used i.e. in ehci_dbg.c 's 
+and printed through dbg_status_buf() and dbg_intr.buf().
+Maybe it's sufficient to turn on debugging and turn the
+error flag into an error counter just to get an idea if it cumulates?
 
-1. CRTSCTS should select RTS/CTS flow control.  There should be CDTRDSR
-   for DTR/DSR flow, not CHWFLOW plus some additional ioctl.
+Just my five cents,
 
-2. the patch does not adequately handle switching flow control modes.
-   The handling in set_termios is not sufficient - eg, when switching
-   from CRTSCTS with de-asserted CTS to CDTRDSR with asserted DSR will
-   result in the driver believing that the flow control signal is still
-   deasserted.  Incidentally, this also directly affects changing the
-   flow control method via the additional ioctls.
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+http://www.anagramm-technology.com
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

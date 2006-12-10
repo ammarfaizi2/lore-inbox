@@ -1,100 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761233AbWLJPeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761183AbWLJPhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761233AbWLJPeU (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 10:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761248AbWLJPeU
+	id S1761183AbWLJPhJ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 10:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761248AbWLJPhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 10:34:20 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:55249 "EHLO
-	rwcrmhc14.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761233AbWLJPeT (ORCPT
+	Sun, 10 Dec 2006 10:37:08 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4219 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761180AbWLJPhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 10:34:19 -0500
-Message-ID: <457C28F8.4050409@comcast.net>
-Date: Sun, 10 Dec 2006 10:34:16 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PAE/NX without performance drain?
-References: <457B1F02.7030409@comcast.net> <1165743478.27217.187.camel@laptopd505.fenrus.org>
-In-Reply-To: <1165743478.27217.187.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Dec 2006 10:37:06 -0500
+Date: Sun, 10 Dec 2006 12:14:31 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michael Westermann <michael@dvmwest.de>, linux-kernel@vger.kernel.org
+Subject: Re: DTR/DSR handshake in kernelspace third traying
+Message-ID: <20061210121431.GA20456@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Michael Westermann <michael@dvmwest.de>,
+	linux-kernel@vger.kernel.org
+References: <20061207201626.GA10920@dvmwest.dvmwest.de> <20061209225014.0888720b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061209225014.0888720b.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Arjan van de Ven wrote:
-> On Sat, 2006-12-09 at 15:39 -0500, John Richard Moser wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Apparently (as I've been told today) using a hardware NX bit in a 32-bit
->> x86 kernel requires PAE mode.  PAE mode is enabled with HIGHMEM64, which
->> is (apparently) extremely slow.
+On Sat, Dec 09, 2006 at 10:50:14PM -0800, Andrew Morton wrote:
+> > On Thu, 7 Dec 2006 21:16:27 +0100 Michael Westermann <michael@dvmwest.de> wrote:
+> > Hello,
+> > 
+> > I've send 2 patches for a DTS/DSR handshaking to the list
+> > 
+> > http://lkml.org/lkml/2004/5/7/76  and long long time ago 1998
+> > 
+> > My problem are manufacturers the make printers with
+> > DTR/DSR Handschaking. POS Printers are very sensible for
+> > a buffer overrun!
+> > 
+> > For on or two printers, we can wire a adapter, for 10000...30000
+> > printers is a software option the better way.
+> > 
+> > I've write a patch for 2.2 and published it, 
+> > I've write a patch for 2.4 and published it, but i've see there is no
+> > 
+> > DTR/DSR Handshaking in the kernel 2.6.
+> > 
+> > I'm a litte bit  frusted. Are a few  thousands pos-systems not
+> > enough for upgrading the standard kernel sources?
+> > 
+> > Have I a really chance to commit a patch for kernel 2.6.
+> > 
 > 
+> I'd say so.  Please make sure that such a patch is against the very latest
+> Linus kernel from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
+> Also, the more comprehensive the patch's description the better - why it is
+> needed, what it does, how it works, etc.  Your 2004 description was rather
+> terse.
 > 
-> it's not extremely slow. 
-> 
-> there is a minor performance delta, sure, but to be honest that's a
-> benchmark thing more than a real life thing.
-> 
-> What did your measurements show that the slowdown was? And how did you
-> measure this?
+> I seem to recall that the people who understand and work on this code
+> discussed this issue earlier this year, but I forget the conclusion.  Some
+> archive searching might be useful.
 
-I didn't measure, I was told by various people on IRC.  Also Google has
-some misleading facts:
+Andrew,
 
- - Someone mentioned that HIGHMEM64G + 4G split costs 10%-30%.  I
-   immediately took that as "4G split might be friggin' expensive."
+My stance on handshaking has always been that it should be something
+controlled via termios, not via some driver specific ioctl() which is
+different for every single driver.
 
- - In some discussions Ingo mentioned HIGHMEM64G re RT preemption being
-   a huge performance delta; but I haven't found evidence that this
-   isn't a bug in RT.
+I see that this 2.4 patch actually does that, which is great.  A
+couple of points though:
 
-Too bad PAE can't be detected at boot time; someone else mentioned that
-some recent Pentium M laptops (and anything older than PPro) don't boot
-if PAE is on.  Making 2 copies of the functions would be a pain in the
-ass; and using indirect addressing and function pointers would be...
-slow.  In performance critical areas.
+1. CRTSCTS should select RTS/CTS flow control.  There should be CDTRDSR
+   for DTR/DSR flow, not CHWFLOW plus some additional ioctl.
 
-I want my hardware NX bit working in Ubuntu without having to recompile
-my kernel dammit.  How do I swing this one past them?  The performance I
-can argue; breaking 586 and some random laptops (I've been contacted by
-someone who has several of these Pentium-M machines that die on PAE) I
-can't do.
+2. the patch does not adequately handle switching flow control modes.
+   The handling in set_termios is not sufficient - eg, when switching
+   from CRTSCTS with de-asserted CTS to CDTRDSR with asserted DSR will
+   result in the driver believing that the flow control signal is still
+   deasserted.  Incidentally, this also directly affects changing the
+   flow control method via the additional ioctls.
 
-> 
-> 
-> 
-> 
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRXwo9ws1xW0HCTEFAQK7DA/+KOZavRjhhp0N8k+cj2E0YTT5f1HbV0wE
-mi0QqOwhR6VFg/8M+HGU5ytnmdXnNm5TyyTvxHfgEFaWpwMxWhAT0KZgP5twGc/9
-f2uY9s600nvmDXnh9zKFsFBmIgJqdg++01cY9C6O2cl7xfTTvrzVXllZOBMtvKxh
-KmkHr0VVNhs2V4EYlEhKhMh2OAhYFtnUdd2VyV4d3snn4Y/Y/IneMM0GxULjGwg5
-V7ATdJgs+s02iT8cRGFKbbn3H+0DtIxolIhlkvukPy0xfECtx/92HguLkLfq4o6I
-rRyP1n42vkY2wmKFtgnYU9CXBmd+1/GOmiVXk77+lID9xDQpWa5e3j4uB8o/StYv
-6NMfj66Sc5yq/4+9lBB7awPA5gZkgBmYcTl4bvM5+FVxkr1pREUXzD589y9AEAoa
-fCVv0DXTZwDjYZBY9uFRZyRe0UVgPFwyBqq6S5QISXge242spGo6G9QJKj25vsMY
-JYdJb6f0EFzqwcFhYy+pp5s2NAId1lPT6SxhPq9aJ36enI8j4vJHPHSM8yBdVGSP
-g8OzFLb9EYTKvSzdTN1JwAMkGvwGKcfY+tEIEUlTEb0wqwEfA3rClWdb4ikEBl5D
-G2kjPqlGCdOXjIkijSzu8d6w7jPa+/EhdWRnBxuP/H7iKLWJoxaMqOR27nVx7/Fo
-OiJeilQNMMA=
-=+GiD
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

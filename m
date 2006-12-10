@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762401AbWLJTan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762418AbWLJTay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762401AbWLJTan (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 14:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762417AbWLJTan
+	id S1762418AbWLJTay (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 14:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762420AbWLJTay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 14:30:43 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:45174 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762392AbWLJTam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 14:30:42 -0500
-Date: Sun, 10 Dec 2006 20:30:24 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Jiri Slaby <jirislaby@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, mingo@redhat.com, neilb@cse.unsw.edu.au,
-       linux-raid@vger.kernel.org
-Subject: Re: oops on 2.6.19-rc6-mm2: deref of 0x28 at permission+0x7
-In-Reply-To: <457A0F4C.9060601@gmail.com>
-Message-ID: <Pine.LNX.4.64.0612102027350.1665@twin.jikos.cz>
-References: <457A0F4C.9060601@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Dec 2006 14:30:54 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:55326 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762418AbWLJTax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 14:30:53 -0500
+Date: Sun, 10 Dec 2006 19:30:49 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       markus.lidel@shadowconnect.com
+Subject: [PATCH] i2o_exec_exit and i2o_driver_exit should not be __exit.
+Message-ID: <20061210193049.GA32431@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006, Jiri Slaby wrote:
+i2o_exec_exit and i2o_driver_exit were marked as __exit which is a bug
+because both are invoked from __init and __exit functions.
 
-> I got this oops on 2.6.19-rc6-mm2 when starting the system. It happened 
-> only once -- when echo "raidautorun /dev/md0" | nash --quiet was 
-> executed. 
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-Hi,
-
-this nash thing is exactly the command which triggers a bit different oops 
-in my case. On my side, the oops is fully reproducible. If you manage to 
-make your case also reproducible, could you please try to revert 
-md-change-lifetime-rules-for-md-devices.patch? This made the oops vanish 
-in my case. I think Neil is working on it.
-
--- 
-Jiri Kosina
+diff --git a/drivers/message/i2o/core.h b/drivers/message/i2o/core.h
+index dc388a3..cbe384f 100644
+--- a/drivers/message/i2o/core.h
++++ b/drivers/message/i2o/core.h
+@@ -18,7 +18,7 @@ extern struct i2o_driver i2o_exec_driver
+ extern int i2o_exec_lct_get(struct i2o_controller *);
+ 
+ extern int __init i2o_exec_init(void);
+-extern void __exit i2o_exec_exit(void);
++extern void i2o_exec_exit(void);
+ 
+ /* driver */
+ extern struct bus_type i2o_bus_type;
+@@ -26,7 +26,7 @@ extern struct bus_type i2o_bus_type;
+ extern int i2o_driver_dispatch(struct i2o_controller *, u32);
+ 
+ extern int __init i2o_driver_init(void);
+-extern void __exit i2o_driver_exit(void);
++extern void i2o_driver_exit(void);
+ 
+ /* PCI */
+ extern int __init i2o_pci_init(void);
+diff --git a/drivers/message/i2o/driver.c b/drivers/message/i2o/driver.c
+index 9104b65..d3235f2 100644
+--- a/drivers/message/i2o/driver.c
++++ b/drivers/message/i2o/driver.c
+@@ -362,7 +362,7 @@ int __init i2o_driver_init(void)
+  *
+  *	Unregisters the I2O bus and frees driver array.
+  */
+-void __exit i2o_driver_exit(void)
++void i2o_driver_exit(void)
+ {
+ 	bus_unregister(&i2o_bus_type);
+ 	kfree(i2o_drivers);
+diff --git a/drivers/message/i2o/exec-osm.c b/drivers/message/i2o/exec-osm.c
+index 902753b..a539d3b 100644
+--- a/drivers/message/i2o/exec-osm.c
++++ b/drivers/message/i2o/exec-osm.c
+@@ -595,7 +595,7 @@ int __init i2o_exec_init(void)
+  *
+  *	Unregisters the Exec OSM from the I2O core.
+  */
+-void __exit i2o_exec_exit(void)
++void i2o_exec_exit(void)
+ {
+ 	i2o_driver_unregister(&i2o_exec_driver);
+ };

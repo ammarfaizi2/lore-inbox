@@ -1,97 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758738AbWLJXM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761271AbWLJXSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758738AbWLJXM4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 18:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759143AbWLJXM4
+	id S1761271AbWLJXSG (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 18:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762254AbWLJXSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 18:12:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1332 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1758738AbWLJXM4 (ORCPT
+	Sun, 10 Dec 2006 18:18:06 -0500
+Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:46701 "EHLO
+	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761271AbWLJXSD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 18:12:56 -0500
-Date: Mon, 11 Dec 2006 00:13:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: optimalisation for strlcpy (lib/string.c)
-Message-ID: <20061210231305.GG10351@stusta.de>
-References: <20061210212350.GC30197@vanheusden.com>
+	Sun, 10 Dec 2006 18:18:03 -0500
+Date: Mon, 11 Dec 2006 00:18:01 +0100
+From: Wouter Verhelst <wouter@grep.be>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Paul Clements <paul.clements@steeleye.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nbd: show nbd client pid in sysfs
+Message-ID: <20061210231801.GD29943@country.grep.be>
+References: <45762745.7010202@steeleye.com> <20061208211723.GC4924@ucw.cz> <20061210180725.GA29943@country.grep.be> <20061210195819.GA32577@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061210212350.GC30197@vanheusden.com>
+In-Reply-To: <20061210195819.GA32577@elf.ucw.cz>
+X-Speed: Gates' Law: Every 18 months, the speed of software halves.
+Organization: none
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2006 at 10:23:51PM +0100, Folkert van Heusden wrote:
-> Hi,
+On Sun, Dec 10, 2006 at 08:58:19PM +0100, Pavel Machek wrote:
+> Hi!
+
+Hi
+
+> > > > This simple patch allows nbd to expose the nbd-client 
+> > > > daemon's PID in /sys/block/nbd<x>/pid. This is helpful 
+> > > > for tracking connection status of a device and for 
+> > > > determining which nbd devices are currently in use.
+> > > 
+> > > Actually is it needed at all? Perhaps nbd clients should be modified
+> > > to put nbdX in their process nam?
+> > 
+> > I don't think that's the right approach; only the kernel can guarantee
+> > that a given process is actually managing a given nbd device (I could
+> > have some rogue process running around announcing that it's managing
+> > nbd2, and then what?)
 > 
-> Like the other patch (by that other person), I think it is faster to not
-> do a strlen first.
->...
-> --- lib/string.c        2006-11-04 02:33:58.000000000 +0100
-> +++ string-new.c        2006-12-10 22:22:08.000000000 +0100
-> @@ -121,14 +121,24 @@
->   */
->  size_t strlcpy(char *dest, const char *src, size_t size)
->  {
-> -       size_t ret = strlen(src);
-> +        char *tmp = dest;
+> I'd say "do not run rogue processes as root" :-).
 > 
-> -       if (size) {
-> -               size_t len = (ret >= size) ? size - 1 : ret;
-> -               memcpy(dest, src, len);
-> -               dest[len] = '\0';
-> +        for(;;)
-> +        {
-> +                *dest = *src;
-> +                if (!*src)
-> +                        break;
-> +
-> +                if (--size == 0)
-> +                        break;
-> +
-> +                dest++;
-> +                src++;
->         }
-> -       return ret;
-> +
-> +        *dest = 0x00;
-> +
-> +        return dest - tmp;
->...
+> nbd-client should run as root -- I do not think interface was
+> carefully audited to run it as a user -- so rogue process should not
+> really be a problem.
 
-Two bugs in your code:
-- you copy a maximum of size bytes _plus_ \0
-- size == 0 is no longer handled correctly
+IOW, you're suggesting I walk the process list from userspace to find a
+process for which a) it claims it's running for a given nbd device, and
+b) I can verify that it actually has the permissions to do so. That's a
+whole lot of code in comparison to
 
-> I've tested the speed difference with this:
-> http://www.vanheusden.com/misc/kernel-strlcpy-opt-test.c
-> and the speed difference is quite a bit on a P4: 28% faster.
->...
+f=open("/sys/block/nbd2/pid", O_RDONLY);
+read(f,buf,len);
 
-My Athlon says:
-org: 2.400000
-new: 6.710000
+I think I very much prefer the above two lines, not only for simplicity.
 
-IOW, your version is much slower.
-
-But the main question is actually:
-Does the performance of this function matter anywhere inside the kernel?
-Is strlcpy() used in any fast path?
-If not, there's no point in trying to optimize it.
-
-> Folkert van Heusden
-
-cu
-Adrian
+Also, your suggestion relies on users /only/ using the official
+nbd-client, and is fragile in cases where that assumption is false
+(i.e., it's susceptible to false negatives). The suggested patch does
+not have that problem.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+<Lo-lan-do> Home is where you have to wash the dishes.
+  -- #debian-devel, Freenode, 2004-09-22

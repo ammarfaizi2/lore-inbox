@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760661AbWLJLK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760666AbWLJLLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760661AbWLJLK4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 06:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760666AbWLJLK4
+	id S1760666AbWLJLLi (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 06:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760670AbWLJLLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 06:10:56 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:26816 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760663AbWLJLK4 (ORCPT
+	Sun, 10 Dec 2006 06:11:38 -0500
+Received: from livid.absolutedigital.net ([66.92.46.173]:3200 "EHLO
+	mx2.absolutedigital.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760666AbWLJLLh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 06:10:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GaqrA4CBWvEntjXw8jhy8L2/or/et2Yc43yVLwd09e/Oro0WH7ze4l9apH6IFJBjVudWOa9E8tYQx1HZRm+mAPdTijKPQ/mgAh3M6rE4D8KiRp77h4zC7Ue00zJgN3vHOAfwtZ/Mlv/OYOBMwsAUVAgPxjhfR56gaklmpqG1o3k=
-Message-ID: <40f323d00612100310v176ff03es73ceeb520d631e4b@mail.gmail.com>
-Date: Sun, 10 Dec 2006 12:10:54 +0100
-From: "Benoit Boissinot" <bboissin@gmail.com>
-To: "Amit Choudhary" <amit2030@yahoo.com>
-Subject: Re: [PATCH] [DISCUSS] Optimizing linux applications with the help of the kernel.
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <464448.56474.qm@web55602.mail.re4.yahoo.com>
+	Sun, 10 Dec 2006 06:11:37 -0500
+Date: Sun, 10 Dec 2006 06:11:33 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH] add MODULE_* attributes to bit reversal library
+Message-ID: <Pine.LNX.4.64.0612100600110.1396@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <464448.56474.qm@web55602.mail.re4.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/10/06, Amit Choudhary <amit2030@yahoo.com> wrote:
-> Hi All,
->
-> I just had an idea for improving the performance of linux applications with some help from the
-> kernel. Let's say that I have to make a copy of a file. So, I read the input file into a buffer
-> and then write the buffer to the output file.
->
-> In both these cases the same data is coming from kernel_to_user and then from user_to_kernel. If
-> this can be short-circuited, that is, from kernel_to_kernel then the performance can be increased
-> a lot.
->
-> The psuedocode would be:
->
-> fd_inp = open _output_file
-> fd_out = open _input_file
-> instruct_kernel to write next data read from fd_inp to fd_out
-> read fd_out
->
->
-I think you are describing the splice syscall:
+Without a MODULE_LICENSE attrib in lib/bitrev.c we get this yuckiness:
 
-see http://lwn.net/Articles/178199/
+  bitrev: module license 'unspecified' taints kernel.
 
-regards,
 
-Benoit
+From: Cal Peake <cp@absolutedigital.net>
+
+Add MODULE_* attributes to the new bit reversal library. Most notably 
+MODULE_LICENSE which prevents superfluous kernel tainting.
+
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
+
+--- lib/bitrev.c~orig	2006-12-08 18:11:00.000000000 -0500
++++ lib/bitrev.c	2006-12-10 05:56:46.000000000 -0500
+@@ -2,6 +2,10 @@
+ #include <linux/module.h>
+ #include <linux/bitrev.h>
+ 
++MODULE_AUTHOR("Akinobu Mita <akinobu.mita@gmail.com>");
++MODULE_DESCRIPTION("Bit ordering reversal functions");
++MODULE_LICENSE("GPL");
++
+ const u8 byte_rev_table[256] = {
+ 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
+ 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,

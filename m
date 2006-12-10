@@ -1,34 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762549AbWLJUlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762551AbWLJUmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762549AbWLJUlu (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 15:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762551AbWLJUlu
+	id S1762551AbWLJUmh (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 15:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762574AbWLJUmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 15:41:50 -0500
-Received: from ref.nmedia.net ([66.39.177.2]:22001 "EHLO ref.nmedia.net"
+	Sun, 10 Dec 2006 15:42:37 -0500
+Received: from ref.nmedia.net ([66.39.177.2]:13477 "EHLO ref.nmedia.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762533AbWLJUlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 15:41:49 -0500
-Date: Sun, 10 Dec 2006 12:41:47 -0800 (PST)
+	id S1762551AbWLJUmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 15:42:36 -0500
+Date: Sun, 10 Dec 2006 12:42:35 -0800 (PST)
 From: Shaun Q <shaun@capcentrefoods.com>
 X-X-Sender: shaun@ref.nmedia.net
 To: Alan Chandler <alan@chandlerfamily.org.uk>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE support on Intel DG965SS
 In-Reply-To: <200612101558.34005.alan@chandlerfamily.org.uk>
-Message-ID: <Pine.BSO.4.64.0612101240180.1408@ref.nmedia.net>
+Message-ID: <Pine.BSO.4.64.0612101242210.1408@ref.nmedia.net>
 References: <200612101558.34005.alan@chandlerfamily.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same board and had the same problems.  It now seems to work for 
-install from the 10.2 RC1 DVD (and I'd assume 10.2 Final).  the 2.6.19 
-kernel tree has support also, you have to find it under the new libata 
-settings though ("Marvell PATA" controller)
 
-Shaun
 
 On Sun, 10 Dec 2006, Alan Chandler wrote:
 
@@ -97,3 +92,4 @@ On Sun, 10 Dec 2006, Alan Chandler wrote:
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 >
+and sorry about the previous top post :)

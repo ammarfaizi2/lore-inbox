@@ -1,31 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762265AbWLJRI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762261AbWLJRJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762265AbWLJRI5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 12:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762268AbWLJRI4
+	id S1762261AbWLJRJo (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 12:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762268AbWLJRJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 12:08:56 -0500
-Received: from il.qumranet.com ([62.219.232.206]:60868 "EHLO il.qumranet.com"
+	Sun, 10 Dec 2006 12:09:44 -0500
+Received: from il.qumranet.com ([62.219.232.206]:33982 "EHLO il.qumranet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762265AbWLJRI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 12:08:56 -0500
-Message-ID: <457C3F26.2090100@qumranet.com>
-Date: Sun, 10 Dec 2006 19:08:54 +0200
+	id S1762261AbWLJRJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 12:09:43 -0500
+Subject: [PATCH 1/4] KVM: Add missing include
 From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
+Date: Sun, 10 Dec 2006 17:09:42 -0000
 To: kvm-devel@lists.sourceforge.net
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH 0/4] KVM: Minor cleanup patches
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <457C3F26.2090100@qumranet.com>
+In-Reply-To: <457C3F26.2090100@qumranet.com>
+Message-Id: <20061210170942.6AB862500CF@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small kvm patchset fixes a few minor issues, as detailed in the 
-individual changelogs.
+From: Anthony Liguori <anthony@codemonkey.ws>
 
--- 
-error compiling committee.c: too many arguments to function
+load_TR_desc() lives in asm/desc.h, so #include that file.
 
+Signed-off-by: Anthony Liguori <anthony@codemonkey.ws>
+Signed-off-by: Avi Kivity <avi@qumranet.com>
+
+Index: linux-2.6/drivers/kvm/vmx.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/vmx.c
++++ linux-2.6/drivers/kvm/vmx.c
+@@ -22,6 +22,7 @@
+ #include <linux/mm.h>
+ #include <linux/highmem.h>
+ #include <asm/io.h>
++#include <asm/desc.h>
+ 
+ #include "segment_descriptor.h"
+ 

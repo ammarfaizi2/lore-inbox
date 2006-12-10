@@ -1,193 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762257AbWLJRE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762264AbWLJRHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762257AbWLJRE3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 12:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762259AbWLJRE3
+	id S1762264AbWLJRHa (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 12:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762265AbWLJRHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 12:04:29 -0500
-Received: from py-out-1112.google.com ([64.233.166.182]:25892 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762257AbWLJRE2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 12:04:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=O8EX2VggDyzDtvbSYTkxlzpDQnNz4sXEhdGZgIIkKReh1XS2olUGsB343BVLj31xqnp6/XnQh11g1/phGsU8IjJYBKCVVXV9mHJWLKKzG8TFyamL9UXD/zaZ0O8e3oYLgiloWKXWEUggC96bgyMHRGEp8+DJxQD2GIpLmLGJors=
-Message-ID: <457C3E11.8050401@gmail.com>
-Date: Sun, 10 Dec 2006 22:34:17 +0530
-From: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+	Sun, 10 Dec 2006 12:07:30 -0500
+Received: from mail.suse.de ([195.135.220.2]:50440 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762264AbWLJRHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 12:07:30 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Collins <paul@briny.ondioline.org>, linuxppc-dev@ozlabs.org,
+       paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: powerpc: "IRQ probe failed (0x0)" on powerbook
+References: <87lklg9rkz.fsf@briny.internal.ondioline.org>
+	<1165737970.1103.171.camel@localhost.localdomain>
+X-Yow: TAILFINS!!  ...click...
+Date: Sun, 10 Dec 2006 18:07:19 +0100
+In-Reply-To: <1165737970.1103.171.camel@localhost.localdomain> (Benjamin
+	Herrenschmidt's message of "Sun, 10 Dec 2006 19:06:10 +1100")
+Message-ID: <jey7pfvfw8.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-CC: kernelnewbies@nl.linux.org
-Subject: Re: kobject_uevent() question
-References: <20061128161218.43358.qmail@web51813.mail.yahoo.com> <90539.55300.qm@web51815.mail.yahoo.com> <20061128195532.GA13705@kroah.com>
-In-Reply-To: <20061128195532.GA13705@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------080800040501050602070307"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080800040501050602070307
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Greg KH wrote:
-> On Tue, Nov 28, 2006 at 07:38:01PM +0000, Mauricio Lin wrote:
->> Hi Greg,
->>
->> It is working now. The failure was in the kobject_uevent() function. As
->> the kset of my kobject was not set properly, the kobject_uevent()
->> function just returned void.
->>
->> I wonder why the kobjec_uevent() does not return an integer to indicate
->> if the operation was completed with success or not.
-> 
-> Feel free to send patches fixing this issue :)
-> 
-> thanks,
-> 
-> 
+> On Sun, 2006-12-10 at 19:45 +1300, Paul Collins wrote:
+>> On my PowerBook when booting Linus's tree as of commit af1713e0 I get
+>> something like this:
+>> 
+>>   [blah blah]
+>>   ide0: Found Apple UniNorth ATA-6 controller, bus ID 3, irq 0
+>>   Probing IDE interface ide0...
+>>   hda: HTS541080G9AT00, ATA DISK drive
+>>   IRQ probe failed (0x0)
+>>   IRQ probe failed (0x0)
+>>   IRQ probe failed (0x0)
+>>   IRQ probe failed (0x0)
+>> 
+>> And then of course it fails to mount root.  No such problem using a
+>> kernel built from commit 97be852f of December 2nd.
+>
+> I'll investigate tomorrow, looks like irq assignment got broken in a way
+> or another for that IDE controller.
 
-Something like this ?
+Bisection has identified this patch:
 
--aneesh
+commit f90bb153b1493719d18b4529a46ebfe43220ea6c
+Author: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date:   Sat Nov 11 17:24:51 2006 +1100
 
---------------080800040501050602070307
-Content-Type: text/x-patch;
- name="kobject_uevent.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kobject_uevent.diff"
+    [POWERPC] Make pci_read_irq_line the default
+    
+Andreas.
 
-diff --git a/include/linux/kobject.h b/include/linux/kobject.h
-index d1c8d28..fc93c53 100644
---- a/include/linux/kobject.h
-+++ b/include/linux/kobject.h
-@@ -265,8 +265,8 @@ extern int __must_check subsys_create_file(struct subsystem * ,
- 					struct subsys_attribute *);
- 
- #if defined(CONFIG_HOTPLUG)
--void kobject_uevent(struct kobject *kobj, enum kobject_action action);
--void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
-+int kobject_uevent(struct kobject *kobj, enum kobject_action action);
-+int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 			char *envp[]);
- 
- int add_uevent_var(char **envp, int num_envp, int *cur_index,
-@@ -274,8 +274,8 @@ int add_uevent_var(char **envp, int num_envp, int *cur_index,
- 			const char *format, ...)
- 	__attribute__((format (printf, 7, 8)));
- #else
--static inline void kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
--static inline void kobject_uevent_env(struct kobject *kobj,
-+static inline int kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
-+static inline int kobject_uevent_env(struct kobject *kobj,
- 				      enum kobject_action action,
- 				      char *envp[])
- { }
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index a192276..7eaf6f6 100644
---- a/lib/kobject_uevent.c
-+++ b/lib/kobject_uevent.c
-@@ -64,7 +64,7 @@ static char *action_to_string(enum kobject_action action)
-  * @kobj: struct kobject that the action is happening to
-  * @envp_ext: pointer to environmental data
-  */
--void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
-+int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 			char *envp_ext[])
- {
- 	char **envp;
-@@ -79,14 +79,16 @@ void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 	u64 seq;
- 	char *seq_buff;
- 	int i = 0;
--	int retval;
-+	int retval = 0;
- 	int j;
- 
- 	pr_debug("%s\n", __FUNCTION__);
- 
- 	action_string = action_to_string(action);
--	if (!action_string)
--		return;
-+	if (!action_string) {
-+		pr_debug("kobject attempted to send uevent without action_string!\n");
-+		return -EINVAL;
-+	}
- 
- 	/* search the kset we belong to */
- 	top_kobj = kobj;
-@@ -95,31 +97,39 @@ void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 			top_kobj = top_kobj->parent;
- 		} while (!top_kobj->kset && top_kobj->parent);
- 	}
--	if (!top_kobj->kset)
--		return;
-+	if (!top_kobj->kset) {
-+		pr_debug("kobject attempted to send uevent without kset!\n");
-+		return -EINVAL;
-+	}
- 
- 	kset = top_kobj->kset;
- 	uevent_ops = kset->uevent_ops;
- 
- 	/*  skip the event, if the filter returns zero. */
- 	if (uevent_ops && uevent_ops->filter)
--		if (!uevent_ops->filter(kset, kobj))
--			return;
-+		if (!uevent_ops->filter(kset, kobj)) {
-+			pr_debug("kobject filter function caused the event to drop!\n");
-+			return 0;
-+		}
- 
- 	/* environment index */
- 	envp = kzalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
- 	if (!envp)
--		return;
-+		return -ENOMEM;
- 
- 	/* environment values */
- 	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
--	if (!buffer)
-+	if (!buffer) {
-+		retval = -ENOMEM;
- 		goto exit;
-+	}
- 
- 	/* complete object path */
- 	devpath = kobject_get_path(kobj, GFP_KERNEL);
--	if (!devpath)
-+	if (!devpath) {
-+		retval = -ENOENT;
- 		goto exit;
-+	}
- 
- 	/* originating subsystem */
- 	if (uevent_ops && uevent_ops->name)
-@@ -204,7 +214,7 @@ exit:
- 	kfree(devpath);
- 	kfree(buffer);
- 	kfree(envp);
--	return;
-+	return retval;
- }
- 
- EXPORT_SYMBOL_GPL(kobject_uevent_env);
-@@ -215,9 +225,9 @@ EXPORT_SYMBOL_GPL(kobject_uevent_env);
-  * @action: action that is happening (usually KOBJ_ADD and KOBJ_REMOVE)
-  * @kobj: struct kobject that the action is happening to
-  */
--void kobject_uevent(struct kobject *kobj, enum kobject_action action)
-+int kobject_uevent(struct kobject *kobj, enum kobject_action action)
- {
--	kobject_uevent_env(kobj, action, NULL);
-+	return kobject_uevent_env(kobj, action, NULL);
- }
- 
- EXPORT_SYMBOL_GPL(kobject_uevent);
-
---------------080800040501050602070307--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

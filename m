@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761889AbWLJQWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762253AbWLJQar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761889AbWLJQWx (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 11:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762247AbWLJQWx
+	id S1762253AbWLJQar (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 11:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762254AbWLJQar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 11:22:53 -0500
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:52560 "EHLO
-	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761889AbWLJQWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 11:22:52 -0500
-Message-ID: <457C345D.8030305@gentoo.org>
-Date: Sun, 10 Dec 2006 11:22:53 -0500
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
+	Sun, 10 Dec 2006 11:30:47 -0500
+Received: from il.qumranet.com ([62.219.232.206]:34836 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762253AbWLJQaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 11:30:46 -0500
+Message-ID: <457C3635.5030509@argo.co.il>
+Date: Sun, 10 Dec 2006 18:30:45 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, Jean Delvare <khali@linux-fr.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Bauke Jan Douma <bjdouma@xs4all.nl>,
-       Tomasz Koprowski <tomek@koprowski.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       cw@f00f.org
-Subject: Re: RFC: PCI quirks update for 2.6.16
-References: <20061207132430.GF8963@stusta.de> <45782774.8060002@gentoo.org> <1165723779.334.3.camel@localhost.localdomain> <20061210160053.GD10351@stusta.de>
-In-Reply-To: <20061210160053.GD10351@stusta.de>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE support on Intel DG965SS
+References: <200612101558.34005.alan@chandlerfamily.org.uk>
+In-Reply-To: <200612101558.34005.alan@chandlerfamily.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Below is the patch for going back to the 2.6.16.16 status quo that is in 
-> 2.6.16.36-rc1.
-> 
-> Does this cause any serious regression for anyone?
+Alan Chandler wrote:
+> I have been trying to find out if the kernel supports the IDE channel 
+> (with a DVD/CD-R unit attached) on my Intel DG965SS motherboard.
+>
+> Searching the web indicates that for some motherboards based in the 
+> Intel 965 chipset success has been had for 2.6.18 onward by using the 
+> kernel boot parameters 
+>
+> all-generic-ide pci=nommconf
+>
+> Although these were Fedora Core 6.  
+>
+> I normally run Debian Unstable - but I have built 2.6.19 and installed 
+> that (using the Debian .config as the base config) - mainly because to 
+> get graphics to work it needs 2.6.19 to recognise the ids for the 
+> agpgart module.
+>
+> However, despite every thing else working - I can't get the IDE 
+> controller to be recognised - whether or not I use the above kernel 
+> boot parameters. I have been UNABLE to find what all-generic-ide does - 
+> it doesn't seem to be documented anywhere, so I was just blindly 
+> following someones instructions..
+>
+> lspci -v shows the following
+>
+> 02:00.0 IDE interface: Marvell Technology Group Ltd. Unknown device 6101 
+> (rev b1) (prog-if 8f [Master SecP SecO PriP PriO])
+>   
 
-If I remember right, it breaks Chris Wedgwood's box
+I have the same board at home.  I use all-generic-ide (without pci=...)
 
-> cu
-> Adrian
-> 
-> 
-> commit dcb1715778026c4aec20d186dc794245d9a1f5de
-> Author: Adrian Bunk <bunk@stusta.de>
-> Date:   Fri Dec 8 17:00:35 2006 +0100
-> 
->     revert the quirk_via_irq changes
->     
->     This patch reverts the quirk_via_irq changes in 2.6.16.17 that
->     caused regressions for several people.
->     
->     Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-> index a1cdf06..2a66e39 100644
-> --- a/drivers/pci/quirks.c
-> +++ b/drivers/pci/quirks.c
-> @@ -656,13 +656,7 @@ static void quirk_via_irq(struct pci_dev *dev)
->  		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
->  	}
->  }
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
-> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
->  
->  /*
->   * VIA VT82C598 has its device ID settable and many BIOSes
-> 
+Do you have CONFIG_IDE_GENERIC set?
+
+
+-- 
+error compiling committee.c: too many arguments to function
 

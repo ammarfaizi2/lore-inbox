@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762466AbWLJUL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762508AbWLJUVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762466AbWLJUL4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 15:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762468AbWLJUL4
+	id S1762508AbWLJUVk (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 15:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762514AbWLJUVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 15:11:56 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:48665 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762460AbWLJULz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 15:11:55 -0500
-Date: Sun, 10 Dec 2006 12:12:42 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans for 2.6.20
-Message-Id: <20061210121242.25495e63.randy.dunlap@oracle.com>
-In-Reply-To: <20061209014445.94322fc2.akpm@osdl.org>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<20061209013055.51b26226.randy.dunlap@oracle.com>
-	<20061209014445.94322fc2.akpm@osdl.org>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 10 Dec 2006 15:21:40 -0500
+Received: from mail.gmx.net ([213.165.64.20]:48842 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1762508AbWLJUVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 15:21:39 -0500
+X-Authenticated: #20450766
+Date: Sun, 10 Dec 2006 21:21:37 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Tilman Schmidt <tilman@imap.cc>
+cc: Corey Minyard <cminyard@mvista.com>, linux-serial@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial
+ driver
+In-Reply-To: <20061210201438.tilman@imap.cc>
+Message-ID: <Pine.LNX.4.60.0612102117590.9993@poirot.grange>
+References: <4533B8FB.5080108@mvista.com> <20061210201438.tilman@imap.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2006 01:44:45 -0800 Andrew Morton wrote:
+On Sun, 10 Dec 2006, Tilman Schmidt wrote:
 
-> On Sat, 9 Dec 2006 01:30:55 -0800
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> 
-> > On Mon, 4 Dec 2006 20:40:24 -0800 Andrew Morton wrote:
-> > 
-> > > kconfig-new-function-bool-conf_get_changedvoid.patch
-> > > kconfig-make-sym_change_count-static-let-it-be-altered-by-2-functions-only.patch
-> > > kconfig-add-void-conf_set_changed_callbackvoid-fnvoid-use-it-in-qconfcc.patch
-> > > kconfig-set-gconfs-save-widgets-sensitivity-according-to-configs-changed-state.patch
-> > > pa-risc-fix-bogus-warnings-from-modpost.patch
-> > > kconfig-refactoring-for-better-menu-nesting.patch
-> > > kbuild-fix-rr-is-now-default.patch
-> > > kbuild-dont-put-temp-files-in-the-source-tree.patch
-> > > actually-delete-the-as-instr-ld-option-tmp-file.patch
-> > > 
-> > >  Sent to Sam, but Sam's presently busy.  I might need to make some kbuild
-> > >  decisions..
-> > 
-> > <groan> /me digs thru 65 KB email.
-> > 
-> > 
-> > I can/will help on some of these if you want it...
-> > 
-> 
-> feel free.  I'm planning on going through the above, see which of then have
-> a sufficiently high obviousness*urgency product.
+> On Mon, 16 Oct 2006 11:53:15 -0500, Corey Minyard <cminyard@mvista.com> wrote:
+> > This is a set of three patches to allow adding another driver on top of
+> > the current serial driver without too much change to the serial code.
+> > This is more for comments right now, it is probably not ready for real
+> > use yet.
 
-I see that you merged a few (or one?) of these. (obvious ones)
+[snip]
 
-My review didn't come up with much help, I'm afraid.  And you
-already asked for help on the series-of-4 gui-config patches.
+> Has anything ever come of this? I would be very much interested in it.
+> It might make it possible to extend the Siemens Gigaset drivers
+> (drivers/isdn/gigaset) to the RS232 attached M101 DECT adapter.
+> There is a working driver out of tree which accesses the serial port
+> hardware directly (i8250 only), but that kind of thing doesn't seem
+> fit for inclusion in the kernel.
 
+...FWIW I would also gladly remove 
+arch/powerpc/platforms/embedded6xx/ls_uart.c 
+in favour of a standard interface to drivers/serial.
 
-actually-delete-the-as-instr-ld-option-tmp-file.patch
-	I couldn't find this patch.
-
-pa-risc-fix-bogus-warnings-from-modpost.patch
-	looks obvious w/ medium priority
-
-I'm little help on the Makefile changes, sorry.
-
-My -git15 build finds lots of Section mismatch problems with
-.parainstructions.  These could be false reports that need a
-change in modpost (section checker).  I'll look into that
-later today.
-
+Thanks
+Guennadi
 ---
-~Randy
+Guennadi Liakhovetski

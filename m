@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758792AbWLJWOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759126AbWLJWSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758792AbWLJWOr (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 17:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758797AbWLJWOr
+	id S1759126AbWLJWSy (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 17:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759143AbWLJWSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 17:14:47 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:40871 "EHLO smtp.osdl.org"
+	Sun, 10 Dec 2006 17:18:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38666 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758792AbWLJWOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 17:14:46 -0500
-Date: Sun, 10 Dec 2006 14:14:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: Jay Cliburn <jacliburn@bellsouth.net>, linux-kernel@vger.kernel.org,
-       clameter@sgi.com
-Subject: Re: [BUG] commit 3c517a61, slab: better fallback allocation
- behavior
-Message-Id: <20061210141435.afac089d.akpm@osdl.org>
-In-Reply-To: <20061210124907.60c4a0aa.pj@sgi.com>
-References: <457C64C5.9030108@bellsouth.net>
-	<20061210124907.60c4a0aa.pj@sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1759006AbWLJWSy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 17:18:54 -0500
+Message-ID: <457C8791.9000201@redhat.com>
+Date: Sun, 10 Dec 2006 17:17:53 -0500
+From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+CC: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>,
+       linux1394-devel@lists.sourceforge.net,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Marcel Holtmann <marcel@holtmann.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>	 <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com>	 <20061205160530.GB6043@harddisk-recovery.com>	 <20060712145650.GA4403@ucw.cz> <45798022.2090104@s5r6.in-berlin.de> <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com> <457C042F.3040903@s5r6.in-berlin.de>
+In-Reply-To: <457C042F.3040903@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2006 12:49:07 -0800
-Paul Jackson <pj@sgi.com> wrote:
+Stefan Richter wrote:
+> Kristian Høgsberg wrote:
+...
+>> I'm not changing it just yet, but I'm not too attached to fw_
+>> and I think that ieee1394_ will work better.  The modutil tools
+>> already use ieee1394 for device_id tables.
+> [...]
+> 
+> Alas the length of "ieee1394_" gets in the way of readability.
 
-> Good report - thanks.
-> 
-> Christoph - fallback_alloc() can be called with interrupts off.
-> 
-> I fixed the cpuset_zone_allowed() call from fallback_alloc() to avoid
-> sleeping.  Notice the __GFP_HARDWALL added in Linus's version, or the
-> new function cpuset_zone_allowed_hardwall() in Andrew's version, all
-> done in the last week.
-> 
-> But apparently kmem_getpages() can also sleep, as it calls __alloc_pages().
-> 
+It's not too bad and it's only for exported symbols:
 
-This is lame.  Please, always always test all new submissions with all the
-nice kernel debugging options enabled.
+[krh@dinky fw]$ grep EXPORT *.c | wc -l
+27
 
-They are summarised in Documentation/SubmitChecklist, along with a number
-of other useful bug-prevention suggestions.
+and using the same prefix as the device_id struct will be nice.  When I 
+submitted the ieee1394_device_id patch I originally proposed hpsb_device_id, 
+but nobody knew what that meant so we went with the ieee1394_device_id we have 
+now.  Oh, and net/ieee80211 uses ieee80211 as prefix, so it wont be the 
+longest subsytem prefix :).  Plus I want to go throught the list of exported 
+symbols, some of the names can be trimmed a bit.
+
+Having said that, using drivers/firewire and the fw_ prefix, as Marcel 
+suggests, works too.  It's what bluetooth and infiniband does, so there is 
+some precedence there.
+
+...
+> I would therefore prefer "fw_" or "hpsb_" over any of the other suggestions
+> made here:
+>   - ieee1394_ makes sense in linux/mod_devicetable.h but is too long
+>     otherwise.
+>   - fiwi_, frwr_, and fwire_ are artificial abbreviations which come very
+>     unnatural. (fw_ is an artificial abbreviation too but is not as awkward
+>     as the others. hpsb_ is not just an abbreviation, it is an established
+>     acronym of the canonical name of the bus.)
+
+Oh, I don't know... for the longest time I didn't know what hpsb meant, and 
+high performance serial bus is pretty generic sounding... are we talking about 
+usb, sata, ieee1394 or rs232?  Ok, I guess rs232 is neither hp or b.  But 
+seriously, except for the current stack, I've never seen the hpsb abbreviation 
+used much.
+
+Kristian
+
+

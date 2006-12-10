@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760666AbWLJLLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760663AbWLJLNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760666AbWLJLLi (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 06:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760670AbWLJLLi
+	id S1760663AbWLJLNH (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 06:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760670AbWLJLNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 06:11:38 -0500
-Received: from livid.absolutedigital.net ([66.92.46.173]:3200 "EHLO
-	mx2.absolutedigital.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760666AbWLJLLh (ORCPT
+	Sun, 10 Dec 2006 06:13:07 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:43693 "EHLO
+	alpha.logic.tuwien.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760663AbWLJLNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 06:11:37 -0500
-Date: Sun, 10 Dec 2006 06:11:33 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH] add MODULE_* attributes to bit reversal library
-Message-ID: <Pine.LNX.4.64.0612100600110.1396@lancer.cnet.absolutedigital.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Dec 2006 06:13:04 -0500
+Date: Sun, 10 Dec 2006 12:12:54 +0100
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 does not boot, while 2.6.19-rc4 does
+Message-ID: <20061210111254.GI2706@gamma.logic.tuwien.ac.at>
+References: <20061209152859.GA14037@gamma.logic.tuwien.ac.at> <20061209103954.868f818a.randy.dunlap@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061209103954.868f818a.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without a MODULE_LICENSE attrib in lib/bitrev.c we get this yuckiness:
+Hi Randy, hi all!
 
-  bitrev: module license 'unspecified' taints kernel.
+On Sam, 09 Dez 2006, Randy Dunlap wrote:
+> > I copied my old config-2.6.19-rc4 to a clean linux-2.6.19 tree, called
+> > make oldconfig; make, installed the kernel and modules, but the kernel
+> > cannot find the root file system.
 
+Strange enough, another day another run, it worked. I booted 2 times
+with
+	acpi=off
+which worked, and then I recompiled a kernel (with ieee80211 built in)
+and suddenly everything worked, even if I boot without the acpi=off
+hack.
 
-From: Cal Peake <cp@absolutedigital.net>
+Sorry for the noise.
 
-Add MODULE_* attributes to the new bit reversal library. Most notably 
-MODULE_LICENSE which prevents superfluous kernel tainting.
+Best wishes
 
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
+Norbert
 
---- lib/bitrev.c~orig	2006-12-08 18:11:00.000000000 -0500
-+++ lib/bitrev.c	2006-12-10 05:56:46.000000000 -0500
-@@ -2,6 +2,10 @@
- #include <linux/module.h>
- #include <linux/bitrev.h>
- 
-+MODULE_AUTHOR("Akinobu Mita <akinobu.mita@gmail.com>");
-+MODULE_DESCRIPTION("Bit ordering reversal functions");
-+MODULE_LICENSE("GPL");
-+
- const u8 byte_rev_table[256] = {
- 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
- 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining@logic.at>                    Università di Siena
+Debian Developer <preining@debian.org>                         Debian TeX Group
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+Out of memory.
+We wish to hold the whole sky,
+But we never will.
+                       --- Windows Error Haiku

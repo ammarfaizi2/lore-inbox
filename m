@@ -1,59 +1,116 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759126AbWLJMtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759825AbWLJM5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759126AbWLJMtw (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 07:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759143AbWLJMtw
+	id S1759825AbWLJM5i (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 07:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759760AbWLJM5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 07:49:52 -0500
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:33733 "EHLO
-	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759126AbWLJMtv (ORCPT
+	Sun, 10 Dec 2006 07:57:38 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56319 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759747AbWLJM5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 07:49:51 -0500
-X-Sasl-enc: T79ejBFfY5IdL+dD26QXpGz5thoyjjUEx7QaqvJi6M57 1165754990
-Date: Sun, 10 Dec 2006 10:49:46 -0200
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ibm-acpi-devel@lists.sourceforge.net
-Subject: Re: [ibm-acpi-devel] [PATCH] Add Ultrabay support for the T60p Thinkpad
-Message-ID: <20061210124945.GA23625@khazad-dum.debian.net>
-References: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
+	Sun, 10 Dec 2006 07:57:37 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <457C042F.3040903@s5r6.in-berlin.de>
+Date: Sun, 10 Dec 2006 13:57:19 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
+CC: linux1394-devel@lists.sourceforge.net, Kristian H?gsberg <krh@redhat.com>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Marcel Holtmann <marcel@holtmann.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>	 <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com>	 <20061205160530.GB6043@harddisk-recovery.com>	 <20060712145650.GA4403@ucw.cz> <45798022.2090104@s5r6.in-berlin.de> <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com>
+In-Reply-To: <59ad55d30612091144s8356d7dw7c68530238ac79e7@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2006, Theodore Ts'o wrote:
-> Add Ultrabay Support for the T60p Thinkpad
+Kristian Høgsberg wrote:
+> On 12/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+...
+>>>> On Tue, Dec 05, 2006 at 10:13:55AM -0500, Kristian H?gsberg wrote:
+>>>>> Marcel Holtmann wrote:
+>>>>>> can you please use drivers/firewire/ if you want to start clean or
+>>>>>> aiming at replacing drivers/ieee1394/. Using "fw" as an abbreviation in
+>>>>>> the directory path is not really helpful.
+>>>>>
+>>>>> Yes, that's probably a better idea.  Do you see a problem with using fw_*
+>>>>> as a prefix in the code though?  I don't see anybody using that prefix, but
+>>>>> Stefan pointed out to me that it's often used to abbreviate firmware too.
+[...]
+> I'm not changing it just yet, but I'm not too attached to fw_
+> and I think that ieee1394_ will work better.  The modutil tools
+> already use ieee1394 for device_id tables.
+[...]
 
-Thanks, an equivalent patch is alredy merged in acpi-test, and waiting a
-push to linus.
+Alas the length of "ieee1394_" gets in the way of readability.
 
-BTW: this is an ACK if you want to merge this patch ahead of the stuff in
-acpi-test.
 
-> Ultrabay devices for the T60p Thinkpad; my guess is that it probably
-> works on T60 Thinkpads and probably more recent Lenovo latops as well.
+There are currently no exported symbols starting with "fw_":
 
-It works on all *60 and *61 new ThinkPads, yes.
+linux-2.6.19 $ find . -type f -exec grep -e 'EXPORT.*fw_' {} \;
+EXPORT_SYMBOL(iop_fw_load_spu);
+EXPORT_SYMBOL(iop_fw_load_mpu);
+EXPORT_SYMBOL(hostap_check_sta_fw_version);
+EXPORT_SYMBOL(mpt_alloc_fw_memory);
+EXPORT_SYMBOL(mpt_free_fw_memory);
 
-> have the device appear again.  (With the 1.02 BIOS the device does not
-> function when re-inserted, even after a warm boot; a cold reboot is
-> required to store the Ultrabay device's functionality.)
 
-Nice to know that, thanks.
+There are a few names of struct members starting with "fw_" and four
+global variables on the MIPS architecture:
 
-Take a look on the experimental ACPI bay and dock support in acpi-test, it
-is even better than ibm-acpi's builtin support... and in fact, deprecates
-it.
+linux-2.6.19 $ find include/ -type f -exec grep -e '[ ]fw_' {} \;
+        __u64 fw_ver;
+            unsigned char fw_mpx_cap; /* forward multiplexing capability */
+        unsigned long fw_vendor;        /* physical addr of CHAR16 vendor string */
+        u32 fw_revision;
+        int             fw_rev[MAX_BOARD];
+        char fw_version[2];                /* major = [0], minor = [1] */
+        u64 fw_flags;
+extern unsigned long fw_arg0, fw_arg1, fw_arg2, fw_arg3;
+linux-2.6.19 $ find include/ -type f -exec grep -l '[ ]fw_' {} \;
+include/rdma/ib_user_verbs.h
+include/linux/atmsap.h
+include/linux/efi.h
+include/linux/cyclades.h
+include/sound/snd_wavefront.h
+include/asm-alpha/gct.h
+include/asm-mips/bootinfo.h
+
+
+There are a few constants starting with "FW_":
+
+linux-2.6.19 $ find include/ -type f -exec grep -e '[ ]FW_' {} \;|wc -l
+38
+linux-2.6.19 $ find include/ -type f -exec grep -l '[ ]FW_' {} \;
+include/linux/firmware.h
+include/video/radeon.h
+include/asm-powerpc/pmac_feature.h
+include/asm-powerpc/firmware.h
+include/asm-ppc/residual.h
+
+
+Since cross-subsystem drivers like sbp2 (a SCSI driver) and eth1394 (a
+networking driver) live in linux/drivers/ieee1394/, the IEEE 1394 subsystem
+does not need to ship header files in linux/include/, except for the minimum
+stuff in linux/include/linux/mod_devicetable.h. Therefore the only conflicts
+that the IEEE 1394 subsystem code could create would be via its EXPORTs.
+
+I would therefore prefer "fw_" or "hpsb_" over any of the other suggestions
+made here:
+  - ieee1394_ makes sense in linux/mod_devicetable.h but is too long
+    otherwise.
+  - fiwi_, frwr_, and fwire_ are artificial abbreviations which come very
+    unnatural. (fw_ is an artificial abbreviation too but is not as awkward
+    as the others. hpsb_ is not just an abbreviation, it is an established
+    acronym of the canonical name of the bus.)
 
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Stefan Richter
+-=====-=-==- ==-- -=-=-
+http://arcgraph.de/sr/

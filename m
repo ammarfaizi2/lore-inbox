@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762523AbWLJXXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762531AbWLJX3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762523AbWLJXXs (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 18:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762535AbWLJXXs
+	id S1762531AbWLJX3r (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 18:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762538AbWLJX3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 18:23:48 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:39762 "EHLO
-	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762499AbWLJXXp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 18:23:45 -0500
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] hpet: Avoid warning message livelock
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 10 Dec 2006 15:23:43 -0800
-Message-ID: <adau0032v40.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Dec 2006 23:23:44.0153 (UTC) FILETIME=[3C1B5890:01C71CB2]
-Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim3002 verified; ); 
+	Sun, 10 Dec 2006 18:29:47 -0500
+Received: from ns.firmix.at ([62.141.48.66]:49814 "EHLO ns.firmix.at"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762531AbWLJX3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 18:29:46 -0500
+Subject: Re: strncpy optimalisation? (lib/string.c)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>, Willy Tarreau <w@1wt.eu>,
+       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+In-Reply-To: <20061210213925.GE30197@vanheusden.com>
+References: <20061210205230.GB30197@vanheusden.com>
+	 <20061210210614.GD24090@1wt.eu> <20061210214934.GC47959@gaz.sfgoth.com>
+	 <20061210213925.GE30197@vanheusden.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 11 Dec 2006 00:28:45 +0100
+Message-Id: <1165793325.8998.10.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.409 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen my box paralyzed by an endless spew of
+On Sun, 2006-12-10 at 22:39 +0100, Folkert van Heusden wrote:
+> > > Original code completely pads the destination with zeroes,
+> > > while yours only adds the last zero. Your code does what
+> > > strncpy() is said to do, but maybe there's a particular
+> > > reason for it to behave differently in the kernel
+> > No, the kernel's strncpy() behaves the same as the one in libc.  Run
+> > "man strncpy" if you don't believe me.
+> > In the common case where you just want to copy a string and avoid
+> > overflow use strlcpy() instead
+> 
+> Oops you're right! Maybe someone should take a look if the strncpy's
+> should be replaced by strlcpy's then because it is (ought to be) faster.
 
-    rtc: lost some interrupts at 1024Hz.
+The last time some folks did this (quite automatically) ended in newly
+introduced bugs leaking old/stale data from kernel top user space. Alan
+Cox went over it (again) and fixed those broken "optimizations".
 
-messages on the serial console.  What seems to be happening is that
-something real causes an interrupt to be lost and triggers the
-message.  But then printing the message to the serial console (from
-the hpet interrupt handler) takes more than 1/1024th of a second, and
-then some more interrupts are lost, so the message triggers again....
+So whoever wants to do this, look for such issues too.
 
-Fix this by adding a printk_ratelimit() before printing the warning.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
----
-
-diff --git a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
-index 1e4702d..050c6af 100644
---- a/arch/i386/kernel/time_hpet.c
-+++ b/arch/i386/kernel/time_hpet.c
-@@ -367,8 +367,9 @@ static void hpet_rtc_timer_reinit(void)
- 		if (PIE_on)
- 			PIE_count += lost_ints;
- 
--		printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n",
--		       hpet_rtc_int_freq);
-+		if (printk_ratelimit())
-+			printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n",
-+			       hpet_rtc_int_freq);
- 	}
- }
- 
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 9f05bc9..fe13bb5 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -1204,8 +1204,9 @@ static void hpet_rtc_timer_reinit(void)
- 		if (PIE_on)
- 			PIE_count += lost_ints;
- 
--		printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n",
--		       hpet_rtc_int_freq);
-+		if (printk_ratelimit())
-+			printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n",
-+			       hpet_rtc_int_freq);
- 	}
- }
- 

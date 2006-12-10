@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762299AbWLJSHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762360AbWLJS4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762299AbWLJSHb (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 13:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762298AbWLJSHb
+	id S1762360AbWLJS4F (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 13:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762357AbWLJS4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 13:07:31 -0500
-Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:43963 "EHLO
-	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762299AbWLJSHa (ORCPT
+	Sun, 10 Dec 2006 13:56:05 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:41204 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762358AbWLJS4E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 13:07:30 -0500
-Date: Sun, 10 Dec 2006 19:07:25 +0100
-From: Wouter Verhelst <wouter@grep.be>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Paul Clements <paul.clements@steeleye.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd: show nbd client pid in sysfs
-Message-ID: <20061210180725.GA29943@country.grep.be>
-References: <45762745.7010202@steeleye.com> <20061208211723.GC4924@ucw.cz>
+	Sun, 10 Dec 2006 13:56:04 -0500
+Date: Sun, 10 Dec 2006 10:55:49 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: linux-kernel@vger.kernel.org
+Cc: mm-commits@vger.kernel.org, akpm@osdl.org, davem@davemloft.net
+Subject: Re: + git-ocfs2-fixup.patch added to -mm tree
+Message-ID: <20061210185549.GA6831@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <200612100143.kBA1hou8010353@shell0.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061208211723.GC4924@ucw.cz>
-X-Speed: Gates' Law: Every 18 months, the speed of software halves.
-Organization: none
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200612100143.kBA1hou8010353@shell0.pdx.osdl.net>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 09:17:23PM +0000, Pavel Machek wrote:
-> Hi!
+On Sat, Dec 09, 2006 at 05:43:50PM -0800, akpm@osdl.org wrote:
+> Subject: git-ocfs2-fixup
+> From: Andrew Morton <akpm@osdl.org>
 > 
-> > This simple patch allows nbd to expose the nbd-client 
-> > daemon's PID in /sys/block/nbd<x>/pid. This is helpful 
-> > for tracking connection status of a device and for 
-> > determining which nbd devices are currently in use.
-> 
-> Actually is it needed at all? Perhaps nbd clients should be modified
-> to put nbdX in their process nam?
+> bah.  Yet another reason to stop doing our changelogging in the kernel source
+> code.
 
-I don't think that's the right approach; only the kernel can guarantee
-that a given process is actually managing a given nbd device (I could
-have some rogue process running around announcing that it's managing
-nbd2, and then what?)
+Heh, I probably just forgot to save the file before committing that merge.
+Anyway, should be fixed by the next time you pull ALL.
 
--- 
-<Lo-lan-do> Home is where you have to wash the dishes.
-  -- #debian-devel, Freenode, 2004-09-22
+Thanks,
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

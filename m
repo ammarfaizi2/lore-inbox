@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758430AbWLJMfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759126AbWLJMtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758430AbWLJMfI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 07:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759074AbWLJMfH
+	id S1759126AbWLJMtw (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 07:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759143AbWLJMtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 07:35:07 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:49505 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758430AbWLJMfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 07:35:04 -0500
-Date: Sun, 10 Dec 2006 04:34:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: vatsa@in.ibm.com, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
-       Jens Axboe <axboe@kernel.dk>, Dipankar <dipankar@in.ibm.com>,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: workqueue deadlock
-Message-Id: <20061210043446.d7eda6f0.akpm@osdl.org>
-In-Reply-To: <20061210121914.GA20466@elte.hu>
-References: <20061207105148.20410b83.akpm@osdl.org>
-	<20061207113700.dc925068.akpm@osdl.org>
-	<20061208025301.GA11663@in.ibm.com>
-	<20061207205407.b4e356aa.akpm@osdl.org>
-	<20061209102652.GA16607@elte.hu>
-	<20061209114723.138b6e89.akpm@osdl.org>
-	<20061210082616.GB14057@elte.hu>
-	<20061210004318.8e1ef324.akpm@osdl.org>
-	<20061210114943.GA14749@elte.hu>
-	<20061210041600.56306676.akpm@osdl.org>
-	<20061210121914.GA20466@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Dec 2006 07:49:52 -0500
+Received: from out3.smtp.messagingengine.com ([66.111.4.27]:33733 "EHLO
+	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1759126AbWLJMtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 07:49:51 -0500
+X-Sasl-enc: T79ejBFfY5IdL+dD26QXpGz5thoyjjUEx7QaqvJi6M57 1165754990
+Date: Sun, 10 Dec 2006 10:49:46 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ibm-acpi-devel@lists.sourceforge.net
+Subject: Re: [ibm-acpi-devel] [PATCH] Add Ultrabay support for the T60p Thinkpad
+Message-ID: <20061210124945.GA23625@khazad-dum.debian.net>
+References: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2006 13:19:15 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+On Sun, 10 Dec 2006, Theodore Ts'o wrote:
+> Add Ultrabay Support for the T60p Thinkpad
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > This is actually not cpu-hotplug safe ;)  
-> > 
-> > > > > 	{
-> > > > > 		int cpu = raw_smp_processor_id();
-> > > > > 		/*
-> > > > > 		 * Interrupts/softirqs are hotplug-safe:
-> > > > > 		 */
-> > > > > 		if (in_interrupt())
-> > > > > 			return;
-> > > > > 		if (current->hotplug_depth++)
-> > > > > 			return;
-> > 
-> > <preempt, cpu hot-unplug, resume on different CPU>
-> > 
-> > > > > 		current->hotplug_lock = &per_cpu(hotplug_lock, cpu);
-> > 
-> > <use-after-free>
-> > 
-> > > > > 		mutex_lock(current->hotplug_lock);
-> > 
-> > And it sleeps, so we can't use preempt_disable().
-> 
-> i explained it in the other mail - this is the 'read' side. The 'write' 
-> side (code actually wanting to /do/ a CPU hotplug state transition) has 
-> to take /all/ these locks before it can take a CPU down.
+Thanks, an equivalent patch is alredy merged in acpi-test, and waiting a
+push to linus.
 
-Doesn't matter - the race is still there.
+BTW: this is an ACK if you want to merge this patch ahead of the stuff in
+acpi-test.
 
-Well, not really, because we don't free the percpu data of offlined CPUs,
-but we'd like to.
+> Ultrabay devices for the T60p Thinkpad; my guess is that it probably
+> works on T60 Thinkpads and probably more recent Lenovo latops as well.
 
-And it's easily fixable by using a statically-allocated array.  That would
-make life easier for code which wants to take this lock early in boot too.
+It works on all *60 and *61 new ThinkPads, yes.
 
-> so this is still a global CPU hotplug lock, but made scalable.
+> have the device appear again.  (With the 1.02 BIOS the device does not
+> function when re-inserted, even after a warm boot; a cold reboot is
+> required to store the Ultrabay device's functionality.)
 
-Scalability is not the problem.  At present, at least.
+Nice to know that, thanks.
+
+Take a look on the experimental ACPI bay and dock support in acpi-test, it
+is even better than ibm-acpi's builtin support... and in fact, deprecates
+it.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

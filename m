@@ -1,212 +1,134 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760377AbWLJWgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760665AbWLJWgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760377AbWLJWgy (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 17:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760421AbWLJWgx
+	id S1760665AbWLJWgM (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 17:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760663AbWLJWgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 17:36:53 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:47248 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1760377AbWLJWgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 17:36:46 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v3 08/13] Memory Registration
-Date: Sun, 10 Dec 2006 16:36:45 -0600
-To: rdreier@cisco.com
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Message-Id: <20061210223645.27166.44081.stgit@dell3.ogc.int>
-In-Reply-To: <20061210223244.27166.36192.stgit@dell3.ogc.int>
-References: <20061210223244.27166.36192.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Sun, 10 Dec 2006 17:36:11 -0500
+Received: from mail.suse.de ([195.135.220.2]:48264 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760665AbWLJWgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 17:36:10 -0500
+From: Neil Brown <neilb@suse.de>
+To: Olaf Titz <olaf@bigred.inka.de>
+Date: Mon, 11 Dec 2006 09:36:16 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17788.35808.421807.546159@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19: OOPS in cat /proc/fs/nfs/exports
+In-Reply-To: message from Olaf Titz on Sunday December 10
+References: <E1GrJH9-0003Hr-00@bigred.inka.de>
+	<17780.62607.544405.181452@cse.unsw.edu.au>
+	<E1Gripc-0004KC-00@bigred.inka.de>
+	<17783.28848.504885.606906@cse.unsw.edu.au>
+	<E1GtWmU-0007Cu-00@bigred.inka.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday December 10, olaf@bigred.inka.de wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> > What version of nfs-utils are you running?  We haven't been using
+> > nfsservctl(3, ...) on 2.6 kernels for ages - which probably explains
+> > why exp_export() has suffered so much bit-rot.  When I convinced
+> > exportfs to use that nfsservctl I got a very similar oops.
+> >
+> > This patch fixes it for me.  Does it fix it for you too?
+> 
+> The patch fixes the problem; however when I tested it, after some
+> export/unexport cycles, trying to mount gave me this:
+> 
+> Dec 10 21:32:10 glotze kernel: kernel BUG at /usr/opt/src/kernel/linux-2.6.19/mm/slab.c:594!
+> Dec 10 21:32:10 glotze kernel: invalid opcode: 0000 [#1]
 
-Functions to register memory regions.
+Looks like that might be a bug in the patch I sent you, which I fixed
+before I sent it upstream.  Could you try this (against 2.6.19)
+instead and confirm that it fixes all problems? thanks.
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
+> 
+> Might be unrelated (mountd not exportfs), but perhaps this code has
+> got as much bitrot too.
+> 
+> I've replaced exportfs, mountd and nfsd with a newer version and it
+> works now.
 
- drivers/infiniband/hw/cxgb3/iwch_mem.c |  170 ++++++++++++++++++++++++++++++++
- 1 files changed, 170 insertions(+), 0 deletions(-)
+What version were you using?  I would really like to know.
 
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_mem.c b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-new file mode 100644
-index 0000000..774d11e
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-@@ -0,0 +1,170 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include <asm/byteorder.h>
+> 
+> If this nfsservctl functions are not used anymore by the officially
+> supported version of system tools, shouldn't that code be removed
+> altogether? If OTOH it falls under "don't break userspace interface",
+> perhaps there is more left to fix...
+
+Yes, it is a case of "don't break userspace interface" - at least not
+without suitable warning and good reason.  So I want the old nfs-utils
+to still work. (We might deprecate the old interface one day, but not
+yet). 
+
+Thanks,
+NeilBrown
+
+-----------------------------------
+Fix up some bit-rot in exp_export
+
+The nfsservctl systemcall isn't used but recent nfs-utils releases for
+exporting filesystems, and consequently the code that is uses -
+exp_export - has suffered some bitrot.
+
+Particular:
+  - some newly added fields in 'struct svc_export' are being initialised
+    properly.
+  - the return value is now always -ENOMEM ...
+
+This patch fixes both these problems.
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/nfsd/export.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
+--- .prev/fs/nfsd/export.c	2006-12-11 09:35:46.000000000 +1100
++++ ./fs/nfsd/export.c	2006-12-11 09:35:48.000000000 +1100
+@@ -950,6 +950,8 @@ exp_export(struct nfsctl_export *nxp)
+ 
+ 	exp = exp_get_by_name(clp, nd.mnt, nd.dentry, NULL);
+ 
++	memset(&new, 0, sizeof(new));
 +
-+#include <rdma/iw_cm.h>
-+#include <rdma/ib_verbs.h>
-+
-+#include "cxio_hal.h"
-+#include "iwch.h"
-+#include "iwch_provider.h"
-+
-+int iwch_register_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	if (cxio_register_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int iwch_reregister_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list,
-+					int npages)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	/* We could support this... */
-+	if (npages > mhp->attr.pbl_size)
-+		return -ENOMEM;
-+
-+	stag = mhp->attr.stag;
-+	if (cxio_reregister_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int build_phys_page_list(struct ib_phys_buf *buffer_list,
-+					int num_phys_buf,
-+					u64 *iova_start,
-+					u64 *total_size,
-+					int *npages,
-+					int *shift,
-+					__be64 **page_list)
-+{
-+	u64 mask;
-+	int i, j, n;
-+
-+	mask = 0;
-+	*total_size = 0;
-+	for (i = 0; i < num_phys_buf; ++i) {
-+		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
-+			return -EINVAL;
-+		if (i != 0 && i != num_phys_buf - 1 &&
-+		    (buffer_list[i].size & ~PAGE_MASK))
-+			return -EINVAL;
-+		*total_size += buffer_list[i].size;
-+		if (i > 0)
-+			mask |= buffer_list[i].addr;
-+	}
-+
-+	if (*total_size > 0xFFFFFFFFULL)
-+		return -ENOMEM;
-+
-+	/* Find largest page shift we can use to cover buffers */
-+	for (*shift = PAGE_SHIFT; *shift < 27; ++(*shift))
-+		if (num_phys_buf > 1) {
-+			if ((1ULL << *shift) & mask)
-+				break;
-+		} else 
-+			if (1ULL << *shift >=
-+			    buffer_list[0].size +
-+			    (buffer_list[0].addr & ((1ULL << *shift) - 1)))
-+				break;
-+
-+	buffer_list[0].size += buffer_list[0].addr & ((1ULL << *shift) - 1);
-+	buffer_list[0].addr &= ~0ull << *shift;
-+
-+	*npages = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		*npages += (buffer_list[i].size + 
-+			(1ULL << *shift) - 1) >> *shift;
-+
-+	if (!*npages)
-+		return -EINVAL;
-+
-+	*page_list = kmalloc(sizeof(u64) * *npages, GFP_KERNEL);
-+	if (!*page_list)
-+		return -ENOMEM;
-+
-+	n = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		for (j = 0;
-+		     j < (buffer_list[i].size + (1ULL << *shift) - 1) >> *shift;
-+		     ++j) 
-+			(*page_list)[n++] = cpu_to_be64(buffer_list[i].addr +
-+			    ((u64) j << *shift));
-+
-+	PDBG("%s va 0x%llx mask 0x%llx shift %d len %lld pbl_size %d\n",
-+	     __FUNCTION__, *iova_start, mask, *shift, *total_size, *npages);
-+
-+	return 0;
-+
-+}
+ 	/* must make sure there won't be an ex_fsid clash */
+ 	if ((nxp->ex_flags & NFSEXP_FSID) &&
+ 	    (fsid_key = exp_get_fsid_key(clp, nxp->ex_dev)) &&
+@@ -980,6 +982,9 @@ exp_export(struct nfsctl_export *nxp)
+ 
+ 	new.h.expiry_time = NEVER;
+ 	new.h.flags = 0;
++	new.ex_path = kstrdup(nxp->ex_path, GFP_KERNEL);
++	if (! new.ex_path)
++		goto finish;
+ 	new.ex_client = clp;
+ 	new.ex_mnt = nd.mnt;
+ 	new.ex_dentry = nd.dentry;
+@@ -1000,10 +1005,11 @@ exp_export(struct nfsctl_export *nxp)
+ 		/* failed to create at least one index */
+ 		exp_do_unexport(exp);
+ 		cache_flush();
+-		err = -ENOMEM;
+-	}
+-
++	} else
++		err = 0;
+ finish:
++	if (new.ex_path)
++		kfree(new.ex_path);
+ 	if (exp)
+ 		exp_put(exp);
+ 	if (fsid_key && !IS_ERR(fsid_key))

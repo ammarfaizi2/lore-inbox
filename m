@@ -1,52 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761798AbWLJTkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762399AbWLJTlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761798AbWLJTkH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 14:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762403AbWLJTkH
+	id S1762399AbWLJTlx (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 14:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762403AbWLJTlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 14:40:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48640 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761798AbWLJTkF (ORCPT
+	Sun, 10 Dec 2006 14:41:53 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:38874 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762381AbWLJTlw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 14:40:05 -0500
-Subject: Re: PAE/NX without performance drain?
-From: Arjan van de Ven <arjan@infradead.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <457C28F8.4050409@comcast.net>
-References: <457B1F02.7030409@comcast.net>
-	 <1165743478.27217.187.camel@laptopd505.fenrus.org>
-	 <457C28F8.4050409@comcast.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 10 Dec 2006 20:40:03 +0100
-Message-Id: <1165779603.27217.231.camel@laptopd505.fenrus.org>
+	Sun, 10 Dec 2006 14:41:52 -0500
+Date: Sun, 10 Dec 2006 19:41:44 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org, mchehab@infradead.org,
+       luca.risolia@studio.unibo.it
+Subject: [PATCH] Fix namespace conflict between w9968cf.c on MIPS
+Message-ID: <20061210194144.GA423@linux-mips.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Both use __SC.  Since __* is sort of private namespace I've choosen to
+fix this in the driver.  For consistency I decieded to also change
+__UNSC to UNSC.
 
-> 
-> Too bad PAE can't be detected at boot time; someone else mentioned that
-> some recent Pentium M laptops (and anything older than PPro) don't boot
-> if PAE is on.
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-even Windows has 2 kernel binaries for this case btw, it's really really
-really hard.
-
-> I want my hardware NX bit working in Ubuntu without having to recompile
-> my kernel dammit.
-
-other distros ship a PAE enabled kernel, and use that for NX enabled
-machines (all NX capable machines support PAE obviously). I'm surprised
-Ubuntu doesn't, maybe ask them? (Or use a distro that does have this)
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+diff --git a/drivers/media/video/w9968cf.c b/drivers/media/video/w9968cf.c
+index ddce2fb..9f403af 100644
+--- a/drivers/media/video/w9968cf.c
++++ b/drivers/media/video/w9968cf.c
+@@ -1827,8 +1827,8 @@ w9968cf_set_window(struct w9968cf_device
+ 	int err = 0;
+ 
+ 	/* Work around to avoid FP arithmetics */
+-	#define __SC(x) ((x) << 10)
+-	#define __UNSC(x) ((x) >> 10)
++	#define SC(x) ((x) << 10)
++	#define UNSC(x) ((x) >> 10)
+ 
+ 	/* Make sure we are using a supported resolution */
+ 	if ((err = w9968cf_adjust_window_size(cam, (u16*)&win.width,
+@@ -1836,15 +1836,15 @@ w9968cf_set_window(struct w9968cf_device
+ 		goto error;
+ 
+ 	/* Scaling factors */
+-	fw = __SC(win.width) / cam->maxwidth;
+-	fh = __SC(win.height) / cam->maxheight;
++	fw = SC(win.width) / cam->maxwidth;
++	fh = SC(win.height) / cam->maxheight;
+ 
+ 	/* Set up the width and height values used by the chip */
+ 	if ((win.width > cam->maxwidth) || (win.height > cam->maxheight)) {
+ 		cam->vpp_flag |= VPP_UPSCALE;
+ 		/* Calculate largest w,h mantaining the same w/h ratio */
+-		w = (fw >= fh) ? cam->maxwidth : __SC(win.width)/fh;
+-		h = (fw >= fh) ? __SC(win.height)/fw : cam->maxheight;
++		w = (fw >= fh) ? cam->maxwidth : SC(win.width)/fh;
++		h = (fw >= fh) ? SC(win.height)/fw : cam->maxheight;
+ 		if (w < cam->minwidth) /* just in case */
+ 			w = cam->minwidth;
+ 		if (h < cam->minheight) /* just in case */
+@@ -1861,8 +1861,8 @@ w9968cf_set_window(struct w9968cf_device
+ 
+ 	/* Calculate cropped area manteining the right w/h ratio */
+ 	if (cam->largeview && !(cam->vpp_flag & VPP_UPSCALE)) {
+-		cw = (fw >= fh) ? cam->maxwidth : __SC(win.width)/fh;
+-		ch = (fw >= fh) ? __SC(win.height)/fw : cam->maxheight;
++		cw = (fw >= fh) ? cam->maxwidth : SC(win.width)/fh;
++		ch = (fw >= fh) ? SC(win.height)/fw : cam->maxheight;
+ 	} else {
+ 		cw = w;
+ 		ch = h;
+@@ -1901,8 +1901,8 @@ w9968cf_set_window(struct w9968cf_device
+ 	/* We have to scale win.x and win.y offsets */
+ 	if ( (cam->largeview && !(cam->vpp_flag & VPP_UPSCALE))
+ 	     || (cam->vpp_flag & VPP_UPSCALE) ) {
+-		ax = __SC(win.x)/fw;
+-		ay = __SC(win.y)/fh;
++		ax = SC(win.x)/fw;
++		ay = SC(win.y)/fh;
+ 	} else {
+ 		ax = win.x;
+ 		ay = win.y;
+@@ -1917,8 +1917,8 @@ w9968cf_set_window(struct w9968cf_device
+ 	/* Adjust win.x, win.y */
+ 	if ( (cam->largeview && !(cam->vpp_flag & VPP_UPSCALE))
+ 	     || (cam->vpp_flag & VPP_UPSCALE) ) {
+-		win.x = __UNSC(ax*fw);
+-		win.y = __UNSC(ay*fh);
++		win.x = UNSC(ax*fw);
++		win.y = UNSC(ay*fh);
+ 	} else {
+ 		win.x = ax;
+ 		win.y = ay;

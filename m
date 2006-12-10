@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762269AbWLJRfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762299AbWLJSHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762269AbWLJRfD (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 12:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762276AbWLJRfD
+	id S1762299AbWLJSHb (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 13:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762298AbWLJSHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 12:35:03 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:38697 "EHLO e1.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762269AbWLJRfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 12:35:01 -0500
-Subject: Re: [PATCH] include/linux/freezer.h needs PF_FREEZE and PF_FROZEN
-	declarations
-From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612100623560.8221@lancer.cnet.absolutedigital.net>
-References: <Pine.LNX.4.64.0612100623560.8221@lancer.cnet.absolutedigital.net>
-Content-Type: text/plain
-Date: Sun, 10 Dec 2006 11:34:54 -0600
-Message-Id: <1165772094.14669.9.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Dec 2006 13:07:31 -0500
+Received: from hoboe1bl1.telenet-ops.be ([195.130.137.72]:43963 "EHLO
+	hoboe1bl1.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762299AbWLJSHa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 13:07:30 -0500
+Date: Sun, 10 Dec 2006 19:07:25 +0100
+From: Wouter Verhelst <wouter@grep.be>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Paul Clements <paul.clements@steeleye.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nbd: show nbd client pid in sysfs
+Message-ID: <20061210180725.GA29943@country.grep.be>
+References: <45762745.7010202@steeleye.com> <20061208211723.GC4924@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208211723.GC4924@ucw.cz>
+X-Speed: Gates' Law: Every 18 months, the speed of software halves.
+Organization: none
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-10 at 06:37 -0500, Cal Peake wrote:
-> JFS (modular, if it matters) fails to build with this error:
+On Fri, Dec 08, 2006 at 09:17:23PM +0000, Pavel Machek wrote:
+> Hi!
 > 
->   In file included from fs/jfs/jfs_txnmgr.c:49:
->   include/linux/freezer.h: In function `frozen':
->   include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
->   include/linux/freezer.h:9: error: `PF_FROZEN' undeclared (first use in this function)
->   include/linux/freezer.h:9: error: (Each undeclared identifier is reported only once
->   include/linux/freezer.h:9: error: for each function it appears in.)
->   ...
+> > This simple patch allows nbd to expose the nbd-client 
+> > daemon's PID in /sys/block/nbd<x>/pid. This is helpful 
+> > for tracking connection status of a device and for 
+> > determining which nbd devices are currently in use.
 > 
-> 
-> From: Cal Peake <cp@absolutedigital.net>
-> 
-> Include include/linux/sched.h in include/linux/freezer.h for PF_FREEZE and
-> PF_FROZEN declarations.
-> 
-> Signed-off-by: Cal Peake <cp@absolutedigital.net>
+> Actually is it needed at all? Perhaps nbd clients should be modified
+> to put nbdX in their process nam?
 
-Randy Dunlap has already submitted a patch to fix this:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116555878318822&w=2
+I don't think that's the right approach; only the kernel can guarantee
+that a given process is actually managing a given nbd device (I could
+have some rogue process running around announcing that it's managing
+nbd2, and then what?)
 
-> 
-> --- ./include/linux/freezer.h~orig	2006-12-07 22:33:46.000000000 -0500
-> +++ ./include/linux/freezer.h	2006-12-10 06:15:11.000000000 -0500
-> @@ -1,6 +1,9 @@
->  /* Freezer declarations */
-> 
->  #ifdef CONFIG_PM
-> +
-> +#include <linux/sched.h>
-> +
->  /*
->   * Check if a process has been frozen
->   */
-
-Thanks,
-Shaggy
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+<Lo-lan-do> Home is where you have to wash the dishes.
+  -- #debian-devel, Freenode, 2004-09-22

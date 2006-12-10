@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762521AbWLJTTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762519AbWLJTV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762521AbWLJTTV (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 14:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762528AbWLJTTV
+	id S1762519AbWLJTV4 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 14:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762525AbWLJTV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 14:19:21 -0500
-Received: from mail.pxnet.com ([195.227.45.3]:51612 "EHLO lx1.pxnet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762522AbWLJTTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 14:19:19 -0500
-Date: Sun, 10 Dec 2006 20:19:05 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-To: Corey Minyard <cminyard@mvista.com>
-Subject: Re: [PATCH] Add the ability to layer another driver over the serial driver
-CC: linux-serial@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hansjoerg Lipp <hjlipp@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Message-ID: <20061210201438.tilman@imap.cc>
-In-Reply-To: <4533B8FB.5080108@mvista.com>
-References: <4533B8FB.5080108@mvista.com>
+	Sun, 10 Dec 2006 14:21:56 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:56987 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762519AbWLJTVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 14:21:55 -0500
+Date: Sun, 10 Dec 2006 19:21:51 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+Subject: [PATCH] Make lm70_remove a __devexit function
+Message-ID: <20061210192151.GA32262@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 11:53:15 -0500, Corey Minyard <cminyard@mvista.com> wrote:
-> This is a set of three patches to allow adding another driver on top of
-> the current serial driver without too much change to the serial code.
-> This is more for comments right now, it is probably not ready for real
-> use yet.
-> 
-> The patches are too big to post here, so I'm putting them on
-> http://home.comcast.net/~minyard
-> 
-> The three patches are:
-> 
->     * serial-remove-tty-struct-from-driver.patch - A general patch to
->       remove the tty includes from the low-level serial drivers. Only
->       fixes the 8250 for now.
-> 
->     * serial-allow-in-kernel-users.patch - The actual patch that adds
->       the layered driver to the serial core.
-> 
->     * serial-8250-cleanup.patch - Add support for the layered driver
->       and poll to the 8250 uart.
+Saves a few bytes on the module.
 
-Has anything ever come of this? I would be very much interested in it.
-It might make it possible to extend the Siemens Gigaset drivers
-(drivers/isdn/gigaset) to the RS232 attached M101 DECT adapter.
-There is a working driver out of tree which accesses the serial port
-hardware directly (i8250 only), but that kind of thing doesn't seem
-fit for inclusion in the kernel.
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-Thanks
-Tilman
-
+diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
+index 6ba8473..7eaae38 100644
+--- a/drivers/hwmon/lm70.c
++++ b/drivers/hwmon/lm70.c
+@@ -126,7 +126,7 @@ out_dev_reg_failed:
+ 	return status;
+ }
+ 
+-static int __exit lm70_remove(struct spi_device *spi)
++static int __devexit lm70_remove(struct spi_device *spi)
+ {
+ 	struct lm70 *p_lm70 = dev_get_drvdata(&spi->dev);
+ 

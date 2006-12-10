@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761825AbWLJQMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761854AbWLJQRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761825AbWLJQMq (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 11:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761829AbWLJQMp
+	id S1761854AbWLJQRJ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 11:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761856AbWLJQRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 11:12:45 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:6019 "EHLO
-	dwalker1.mvista.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1761825AbWLJQMp (ORCPT
+	Sun, 10 Dec 2006 11:17:09 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:23921 "EHLO
+	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1761854AbWLJQRH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 11:12:45 -0500
-Message-Id: <20061210161159.321405000@mvista.com>
-User-Agent: quilt/0.45-1
-Date: Sun, 10 Dec 2006 08:11:59 -0800
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] drop some kruft
+	Sun, 10 Dec 2006 11:17:07 -0500
+Subject: Re: [PATCH] tty: export get_current_tty
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061210142151.GA28442@osiris.ibm.com>
+References: <20061210142151.GA28442@osiris.ibm.com>
+Content-Type: text/plain
+Date: Sun, 10 Dec 2006 17:08:43 +0100
+Message-Id: <1165766923.32332.30.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some left overs.. Seems like I've made this patch before.
+On Sun, 2006-12-10 at 15:21 +0100, Heiko Carstens wrote:
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> [PATCH] tty: export get_current_tty
+> 
+> 24ec839c431eb79bb8f6abc00c4e1eb3b8c4d517 causes this:
+> 
+> WARNING: "get_current_tty" [drivers/s390/char/fs3270.ko] undefined!
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+Must be another remnant from OOLing it, sure ACK.
 
----
- init/main.c |    6 ------
- 1 files changed, 6 deletions(-)
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+>  drivers/char/tty_io.c |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> Index: linux-2.6/drivers/char/tty_io.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/char/tty_io.c
+> +++ linux-2.6/drivers/char/tty_io.c
+> @@ -3821,6 +3821,7 @@ struct tty_struct *get_current_tty(void)
+>  	barrier();
+>  	return tty;
+>  }
+> +EXPORT_SYMBOL_GPL(get_current_tty);
+>  
+>  /*
+>   * Initialize the console device. This is called *early*, so
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Index: linux-2.6.19/init/main.c
-===================================================================
---- linux-2.6.19.orig/init/main.c
-+++ linux-2.6.19/init/main.c
-@@ -667,12 +667,6 @@ static void __init do_initcalls(void)
- 			msg = "disabled interrupts";
- 			local_irq_enable();
- 		}
--#ifdef CONFIG_PREEMPT_RT
--		if (irqs_disabled()) {
--			msg = "disabled hard interrupts";
--			local_irq_enable();
--		}
--#endif
- 		if (msg) {
- 			printk(KERN_WARNING "initcall at 0x%p", *call);
- 			print_fn_descriptor_symbol(": %s()",
---

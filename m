@@ -1,47 +1,126 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933840AbWLJVsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S934424AbWLJVtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933840AbWLJVsu (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 16:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934424AbWLJVsu
+	id S934424AbWLJVtu (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 16:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934487AbWLJVtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 16:48:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55701 "EHLO mx1.redhat.com"
+	Sun, 10 Dec 2006 16:49:50 -0500
+Received: from customer-domains.icp-qv1-irony14.iinet.net.au ([203.59.1.169]:22049
+	"EHLO customer-domains.icp-qv1-irony14.iinet.net.au"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933840AbWLJVst convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 16:48:49 -0500
-Message-ID: <457C8075.4030000@redhat.com>
-Date: Sun, 10 Dec 2006 16:47:33 -0500
-From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	id S934424AbWLJVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 16:49:49 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CAJsPfEXKoRUQXWdsb2JhbACNRCw
+X-IronPort-AV: i="4.09,518,1157299200"; 
+   d="scan'208"; a="49445289:sNHT24748542"
+Message-ID: <457C80F0.2080902@eyal.emu.id.au>
+Date: Mon, 11 Dec 2006 08:49:36 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20061113)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Import fw-ohci driver.
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205052245.7213.39098.stgit@dinky.boston.redhat.com> <45750A89.7000802@garzik.org> <457A1A93.5090707@redhat.com> <457A663A.5080308@s5r6.in-berlin.de>
-In-Reply-To: <457A663A.5080308@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: optimalisation for strlcpy (lib/string.c)
+References: <20061210212350.GC30197@vanheusden.com>
+In-Reply-To: <20061210212350.GC30197@vanheusden.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> Kristian Høgsberg wrote:
->> Yup, I've done away with the bitfields and switched to a mix of __le16
->> and __le32 struct fields.
+Folkert van Heusden wrote:
+> Hi,
 > 
-> I suppose the struct should get __attribute__((packed)) then.
+> Like the other patch (by that other person), I think it is faster to not
+> do a strlen first.
+> E.g. replace this:
+> ize_t strlcpy(char *dest, const char *src, size_t size)
+> {
+>         size_t ret = strlen(src);
+> 
+>         if (size) {
+>                 size_t len = (ret >= size) ? size - 1 : ret;
+>                 memcpy(dest, src, len);
+>                 dest[len] = '\0';
+>         }
+>         return ret;
+> }
+> by this:
+> size_t strlcpy(char *dest, const char *src, size_t size)
+> {
+>         char *tmp = dest;
+> 
+>         for(;;)
+>         {
+>                 *dest = *src;
+>                 if (!*src)
+>                         break;
+> 
+>                 if (--size == 0)
+>                         break;
+> 
+>                 dest++;
+>                 src++;
+>         }
+> 
+>         *dest = 0x00;
+> 
+>         return dest - tmp;
+> }
+> patch:
+> diff -uNrBbd lib/string.c string-new.c
+> --- lib/string.c        2006-11-04 02:33:58.000000000 +0100
+> +++ string-new.c        2006-12-10 22:22:08.000000000 +0100
+> @@ -121,14 +121,24 @@
+>   */
+>  size_t strlcpy(char *dest, const char *src, size_t size)
+>  {
+> -       size_t ret = strlen(src);
+> +        char *tmp = dest;
+> 
+> -       if (size) {
+> -               size_t len = (ret >= size) ? size - 1 : ret;
+> -               memcpy(dest, src, len);
+> -               dest[len] = '\0';
+> +        for(;;)
+> +        {
+> +                *dest = *src;
+> +                if (!*src)
+> +                        break;
+> +
+> +                if (--size == 0)
+> +                        break;
+> +
+> +                dest++;
+> +                src++;
+>         }
+> -       return ret;
+> +
+> +        *dest = 0x00;
+> +
+> +        return dest - tmp;
+>  }
+>  EXPORT_SYMBOL(strlcpy);
+>  #endif
+> 
+> 
+> I've tested the speed difference with this:
+> http://www.vanheusden.com/misc/kernel-strlcpy-opt-test.c
+> and the speed difference is quite a bit on a P4: 28% faster.
+> 
+> 
+> Signed-off by: Folkert van Heusden <folkert@vanheusden.com>
+> 
+> 
+> Folkert van Heusden
 
-I guess it wouldn't harm, but is it really necessary?  Would gcc ever insert 
-padding here, all the 32 bit fields a 32 bit aligned, and so are the 16 bit 
-fields.
+The two do not do exactly the same. The first one handles 'size == 0'
+(should not happen?) safely while the other does not.
 
-> But is the order of two adjacent __le16 fields (i.e. two halves of a
-> quadlet) independent of host byte order?
-
-Yeah, it works for both be and le cpus.  The layout is le specific, which is 
-how the host controller wants it.
-
-cheers,
-Kristian
-
+-- 
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	attach .zip as .dat

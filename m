@@ -1,107 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762605AbWLJVGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762610AbWLJVLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762605AbWLJVGf (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 16:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762607AbWLJVGf
+	id S1762610AbWLJVLE (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 16:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762616AbWLJVLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 16:06:35 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:43300 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762605AbWLJVGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 16:06:34 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm] PM: Fix freezing of stopped tasks
-Date: Sun, 10 Dec 2006 22:08:48 +0100
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Pavel Machek <pavel@ucw.cz>
+	Sun, 10 Dec 2006 16:11:04 -0500
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:48119 "HELO
+	smtp114.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1762610AbWLJVLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 16:11:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=Qeceq7le231AiKBwqS+FTB7NBLzZ4nxhrCh9PRyC9D+YsoRMUfZsa8sUDprk5VQBE9hv2zna+FleegLwe5Adz69L+mEumqAW5O984uqnVTSLWMCUs2f6GOyjdsXnGZ/40GrCI9/hWNiGYeKs5fNEZZrtlTCo4dLj40FwhWU5/Uc=  ;
+X-YMail-OSG: ArGjoMkVM1ngsvpwfAfQkuQvx.hJ9iTy2GTnyrALDm5eJ6S7v76jeQDCZezD8EoSbUek7uQz5qYkcuA7JOsV0ISqGNaLxvOUuKcwTSVn81gl5Q_eb8LqXdY6pa06YLR_nemw903sHSGnu8oQwFd9oNpn4Kk4B2tpXcwko3VBCQFdj4rDFvWZ9CSCbVYL
+From: David Brownell <david-b@pacbell.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [patch 2.6.19-git] watchdog:  at91_wdt build fix
+Date: Sun, 10 Dec 2006 13:10:50 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Andrew Victor <andrew@sanpeople.com>
+References: <20061208072722.85DCE1EB27F@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061210192348.GA2507@infomag.infomag.iguana.be>
+In-Reply-To: <20061210192348.GA2507@infomag.infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612102208.48903.rjw@sisk.pl>
+Message-Id: <200612101310.51286.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, if a task is stopped (ie. it's in the TASK_STOPPED state), it is
-considered by the freezer as unfreezeable.  However, there may be a race
-between the freezer and the delivery of the continuation signal to the task
-resulting in the task running after we have finished freezing the other tasks.
-This, in turn, may lead to undesirable effects up to and including data
-corruption.
+On Sunday 10 December 2006 11:23 am, Wim Van Sebroeck wrote:
+> Hi David,
+> 
+> > Recent miscdev changes broke various drivers, so they won't build.
+> > This fixes another one.
+> 
+> See also Andrew Victor's patch (dated 04/Dec/2006) in the
+> linux-2.6-watchdog tree. It's indeed the at91rm9200_wdt, the mpcore_wdt
+> and the omap_wdt that are affected by the miscdev changes
 
-To prevent this from happening we first need to make the freezer consider
-stopped tasks as freezeable.  For this purpose we need to make freezeable()
-stop returning 0 for these tasks and we need to force them to enter the
-refrigerator.  However, if there's no continuation signal in the meantime, the
-stopped tasks should remain stopped after all processes have been thawed,
-so we need to send an additional SIGSTOP to each of them before waking
-it up.
+I was just following the "fix brown paper bags ASAP" policy.
+One that seems followed less closely than usual in the current
+kernel tree.  :(
 
-Also, a stopped task that has just been woken up should first check if there's
-a freezing request for it and go to the refrigerator if that's the case.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-Acked-by: Pavel Machek <pavel@ucw.cz>
----
- kernel/power/process.c |   12 ++++++------
- kernel/signal.c        |    4 +++-
- 2 files changed, 9 insertions(+), 7 deletions(-)
+> (See Driver core: change misc class_devices to be real devices
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=94fbcded4ea0dc14cbfb222a5c68372f150d1476 )
 
-Index: linux-2.6.19-rc6-mm2/kernel/power/process.c
-===================================================================
---- linux-2.6.19-rc6-mm2.orig/kernel/power/process.c	2006-12-08 21:15:18.000000000 +0100
-+++ linux-2.6.19-rc6-mm2/kernel/power/process.c	2006-12-08 21:47:23.000000000 +0100
-@@ -28,8 +28,7 @@ static inline int freezeable(struct task
- 	if ((p == current) || 
- 	    (p->flags & PF_NOFREEZE) ||
- 	    (p->exit_state == EXIT_ZOMBIE) ||
--	    (p->exit_state == EXIT_DEAD) ||
--	    (p->state == TASK_STOPPED))
-+	    (p->exit_state == EXIT_DEAD))
- 		return 0;
- 	return 1;
- }
-@@ -61,9 +60,12 @@ static inline void freeze_process(struct
- 	unsigned long flags;
- 
- 	if (!freezing(p)) {
-+		if (p->state == TASK_STOPPED)
-+			force_sig_specific(SIGSTOP, p);
-+
- 		freeze(p);
- 		spin_lock_irqsave(&p->sighand->siglock, flags);
--		signal_wake_up(p, 0);
-+		signal_wake_up(p, p->state == TASK_STOPPED);
- 		spin_unlock_irqrestore(&p->sighand->siglock, flags);
- 	}
- }
-@@ -103,9 +105,7 @@ static unsigned int try_to_freeze_tasks(
- 			if (frozen(p))
- 				continue;
- 
--			if (p->state == TASK_TRACED &&
--			    (frozen(p->parent) ||
--			     p->parent->state == TASK_STOPPED)) {
-+			if (p->state == TASK_TRACED && frozen(p->parent)) {
- 				cancel_freezing(p);
- 				continue;
- 			}
-Index: linux-2.6.19-rc6-mm2/kernel/signal.c
-===================================================================
---- linux-2.6.19-rc6-mm2.orig/kernel/signal.c	2006-12-08 21:15:18.000000000 +0100
-+++ linux-2.6.19-rc6-mm2/kernel/signal.c	2006-12-08 21:15:30.000000000 +0100
-@@ -1829,7 +1829,9 @@ finish_stop(int stop_count)
- 		read_unlock(&tasklist_lock);
- 	}
- 
--	schedule();
-+	do {
-+		schedule();
-+	} while (try_to_freeze());
- 	/*
- 	 * Now we don't run again until continued.
- 	 */
+Hmm, I'm a bit surprised that not all the watchdog drivers have
+this issue.  Is the problem that most of them don't actually
+adhere to the driver model ... that is, most don't have any kind
+of (platform or other) device backing the watchdog?
+
+- Dave

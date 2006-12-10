@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759050AbWLJFKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759125AbWLJFPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759050AbWLJFKA (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 00:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759064AbWLJFKA
+	id S1759125AbWLJFPX (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 00:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759147AbWLJFPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 00:10:00 -0500
-Received: from smtp.ocgnet.org ([64.20.243.3]:38940 "EHLO smtp.ocgnet.org"
+	Sun, 10 Dec 2006 00:15:23 -0500
+Received: from gw.goop.org ([64.81.55.164]:40471 "EHLO mail.goop.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759067AbWLJFJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 00:09:59 -0500
-Date: Sun, 10 Dec 2006 14:09:20 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: why are some of my patches being credited to other "authors"?
-Message-ID: <20061210050920.GA19828@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	"Robert P. J. Day" <rpjday@mindspring.com>,
-	Jeff Garzik <jeff@garzik.org>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0612090515480.12992@localhost.localdomain> <457A9F3B.6020009@garzik.org> <Pine.LNX.4.64.0612090706500.13654@localhost.localdomain>
+	id S1759064AbWLJFPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 00:15:23 -0500
+Message-ID: <457B97EA.3080609@goop.org>
+Date: Sat, 09 Dec 2006 21:15:22 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612090706500.13654@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: xu feng <xu_feng_xu@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: virtual cache, TLB, and OS
+References: <20061210022951.440.qmail@web58306.mail.re3.yahoo.com>
+In-Reply-To: <20061210022951.440.qmail@web58306.mail.re3.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2006 at 07:11:21AM -0500, Robert P. J. Day wrote:
-> i'm far more interested in at least knowing what happens to patches
-> once they enter the system, so i can plan on what kind of cleanup i
-> can work on next.
-> 
-Trivial patches tend not to be a priority for most people, especially
-during a period when people are gearing up for the close of the merge
-window (unless they happen to fix a serious bug, in which case it's
-another matter, and it should also be brought to -stable's attention).
-Timing has a lot to do with expected feedback for these sorts of things.
+xu feng wrote:
+> I am just confused about the author:
+> 1- first point, why the cache has to be bothered by
+> the change in the address logical-physical mapping
+> since it is a virtual cache??
+>   
 
-trivial@kernel.org exists to handle the rest of the bits, where Adrian
-has a tendency to queue up many trivial and related patches at once, and
-sending out pull requests at a time where it will be less disruptive to
-the rest of development. You might be better off simply CC'ing trivial@
-on these patch submissions and routinely checking the trivial git tree to
-see whether they've been queued or not.
+If you:
 
-However, if you're changing or reordering functionality that isn't an
-obvious bugfix, you're still going to have to get an ack from the
-maintainer.
+   1. mmap file A at virtual address X
+   2. use memory at X
+   3. mmap file B at X
+   4. look at X
+
+If its a virtual cache, and it wasn't flushed at step 3, then step 4
+will see A's contents rather than B's.
+
+> 2- could you please give me a situation where two
+> virtual addresses from the same process are mapped to
+> the same physical address? 
+>
+> i can't see this happening since each process page is
+> allocated a dedicated frame. 
+>   
+
+If you mmap a file multiple times, then the kernel will assign multiple
+different virtual addresses for the same page cache page(s).
+
+
+    J

@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762989AbWLKRc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762996AbWLKRhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762989AbWLKRc0 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 12:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762990AbWLKRc0
+	id S1762996AbWLKRhg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 12:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762995AbWLKRhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 12:32:26 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41181 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1762988AbWLKRcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 12:32:25 -0500
-Date: Mon, 11 Dec 2006 17:40:04 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: Corey Minyard <cminyard@mvista.com>,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       linux-serial@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
-Subject: Re: [PATCH] Add the ability to layer another driver over the serial
- driver
-Message-ID: <20061211174004.5605fb47@localhost.localdomain>
-In-Reply-To: <457D8E35.9050706@imap.cc>
-References: <4533B8FB.5080108@mvista.com>
-	<20061210201438.tilman@imap.cc>
-	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>
-	<457CB32A.2060804@mvista.com>
-	<20061211102016.43e76da2@localhost.localdomain>
-	<457D8E35.9050706@imap.cc>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 12:37:36 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45194 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1762997AbWLKRhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 12:37:35 -0500
+Date: Mon, 11 Dec 2006 09:37:23 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] commit 3c517a61, slab: better fallback allocation behavior
+In-Reply-To: <Pine.LNX.4.64.0612110855380.500@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0612110930180.500@schroedinger.engr.sgi.com>
+References: <457C64C5.9030108@bellsouth.net> <20061210124907.60c4a0aa.pj@sgi.com>
+ <20061210141435.afac089d.akpm@osdl.org> <Pine.LNX.4.64.0612110855380.500@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 17:58:29 +0100
-Tilman Schmidt <tilman@imap.cc> wrote:
+Ahh. Fallback_alloc() does not do the check for GFP_WAIT as done in 
+cache_grow(). Thus interrupts are disabled when we call kmem_getpages() 
+which results in the failure.
 
-> On Mon, 11 Dec 2006 10:20:16 +0000, Alan wrote:
-> > This looks wrong. You already have a kernel interface to serial drivers.
-> > It is called a line discipline. We use it for ppp, we use it for slip, we
-> > use it for a few other things such as attaching sync drivers to some
-> > devices.
-> 
-> I was under the impression that line disciplines need a user space
-> process to open the serial device and push them onto it. 
+Duplicate the handling of GFP_WAIT in cache_grow().
 
-Yes that is correct. You need a way for the user to tell you which port
-to use and to the permission and usage management for it anyway (as well
-as load the module and configure settings), so this seems quite
-reasonable.
+Jay could you try this patch?
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6/mm/slab.c
+===================================================================
+--- linux-2.6.orig/mm/slab.c	2006-12-11 09:25:57.000000000 -0800
++++ linux-2.6/mm/slab.c	2006-12-11 09:34:08.000000000 -0800
+@@ -3252,6 +3252,7 @@
+ 	struct zone **z;
+ 	void *obj = NULL;
+ 	int nid;
++	gfp_t local_flags = (flags & GFP_LEVEL_MASK);
+ 
+ retry:
+ 	/*
+@@ -3275,7 +3276,12 @@
+ 		 * We may trigger various forms of reclaim on the allowed
+ 		 * set and go into memory reserves if necessary.
+ 		 */
++		if (local_flags & __GFP_WAIT)
++			local_irq_enable();
++		kmem_flagcheck(cache, flags);
+ 		obj = kmem_getpages(cache, flags, -1);
++		if (local_flags & __GFP_WAIT)
++			local_irq_disable();
+ 		if (obj) {
+ 			/*
+ 			 * Insert into the appropriate per node queues

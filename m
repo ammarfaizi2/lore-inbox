@@ -1,98 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937682AbWLKWXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937693AbWLKWaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937682AbWLKWXJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 17:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937680AbWLKWXJ
+	id S937693AbWLKWaA (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 17:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937691AbWLKWaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 17:23:09 -0500
-Received: from dmgw.movial.fi ([62.236.91.5]:42867 "EHLO dmgw.movial.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937679AbWLKWXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 17:23:06 -0500
-Message-ID: <42003.80.222.56.248.1165875783.squirrel@webmail.movial.fi>
-In-Reply-To: <200612111155.09435.david-b@pacbell.net>
-References: <200612081859.42995.david-b@pacbell.net>
-    <42002.80.222.56.248.1165818454.squirrel@webmail.movial.fi>
-    <200612111155.09435.david-b@pacbell.net>
-Date: Tue, 12 Dec 2006 00:23:03 +0200 (EET)
-Subject: Re: [patch 2.6.19-git] rts-rs5c372 updates:  more chips, alarm,
-      12hr mode, etc
-From: "Voipio Riku" <Riku.Voipio@movial.fi>
-To: "David Brownell" <david-b@pacbell.net>
-Cc: rtc-linux@googlegroups.com,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Alessandro Zummo" <alessandro.zummo@towertech.it>,
-       dan.j.williams@intel.com, dan.j.williams@gmail.com, i2c@lm-sensors.org
-User-Agent: SquirrelMail/1.4.4
+	Mon, 11 Dec 2006 17:30:00 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:57818 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937687AbWLKW37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 17:29:59 -0500
+Date: Mon, 11 Dec 2006 14:26:36 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, kurt.hackel@oracle.com,
+       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [RFC: -mm patch] OCFS2: make code static
+Message-ID: <20061211222636.GC6831@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20061211005807.f220b81c.akpm@osdl.org> <20061211191001.GF28443@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211191001.GF28443@stusta.de>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sunday 10 December 2006 10:27 pm, Voipio Riku wrote:
->> > Update the rtc-rs5c372 driver:
->> > I suspect the
->> > issue wasn't that "mode 1" didn't work on that board; the original
->> > code to fetch the trim was broken.  If "mode 1" really won't work,
->> > that's almost certainly a bug in that board's I2C driver.
+Hi Adrian,
 
->> It was not related to trim fetching. Yes, it very likely that the boards
->> i2c controller (i2c-iop3xx) is has a bug, but I'm not competent enough
->> to
->> find out what it is actually sending out to the wire.
+On Mon, Dec 11, 2006 at 08:10:01PM +0100, Adrian Bunk wrote:
+> On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.19-rc6-mm2:
+> >...
+> >  git-ocfs2.patch
+> >...
+> >  git trees.
+> >...
+> 
+> This patch makes needlessly global code static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> I'd expect that would be the controller _driver_ ... although it would
-> not surprise me to know there were also (unfixed) silicon bugs to cope
-> with, like version-specific differences.  One hopes errata are published
-> for the chip you're using, and that they don't lie.
+I hand-merged the tcp.c change as the patch introducing that variable is
+going upstream soon. Would you mind sending me the dlm/* stuff as a seperate
+patch?
 
-from what I saw, the driver simply passes messages over to the i2c
-controller. It even specifically mentiones that it supports repeated start
-conditions, as needed for read method #1. Comparing to 80219 manual[1], I
-did not spot anything obviously wrong.
+Thanks,
+	--Mark
 
-> Have you asked around for anyone who may have insights about i2c-iop3xx
-> driver bugs?  Maybe the driver maintainers, or arm-linux folk, or on
-> the i2c list.
-
-I was told to contact Dan Williams, I didn't get any response.
-
->> With your patch, the rtc acts like the chip would completely ignore the
->> "address" transfer, and starts reading from the last (default) register
->> anyway. Thus all the regs look shifted by one in the driver.
-
-> That's quite strange.  The docs on the RTC are quite clear about what's
-> supposed to happen with what I2C messages.  And I'd expect them to be
-> right ... especially since they behaved for me, and the original author
-> of that code!  That makes me suspect that your particular I2C controller
-> driver must not be issuing the protocol requests it should be, at least
-> on your hardware and revision.
-
-Well at least I'm happy that there is now someone more experienced working
-on this driver. When I tried to get it working I could not find anyone
-with another board to verify if the original and/or my patch works for
-them..
-
->> > +	/* this implements the first (most portable) reading method
->> > +	 * specified in the datasheet.
->> >  	 */
-
->> Why is this method considered more portable? Howabout making the read
->> method a module parameter?
-
-> Of the three methods, #2 depends on messages that not all I2C masters
-> are necessarily going to be able to issue, and #3 assumes that there's
-> no other I2C master accessing that chip.
-
-Agreed, I wouldn't consider method #2 either.
-
-> Plus, if I understand things correctly, using mode #3 would break when
-> writing
-
-I should not. Writing isn't related to reading methods according the
-datasheet[2]. It provides one addressing method for writing, and writing
-works fine our Thecus/Allnet hardware.
-
-[1] http://www.intel.com/design/iio/manuals/274017.htm
-[2] http://www.ricoh.com/LSI/product_rtc/2wire/5c372/5c372a-e.pdf
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

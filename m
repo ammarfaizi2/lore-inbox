@@ -1,104 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937100AbWLKQmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937065AbWLKQn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937100AbWLKQmg (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 11:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937193AbWLKQmg
+	id S937065AbWLKQn6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 11:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937189AbWLKQn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 11:42:36 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:62698 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937100AbWLKQmf (ORCPT
+	Mon, 11 Dec 2006 11:43:58 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:29918 "HELO
+	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S937072AbWLKQn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 11:42:35 -0500
-From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime: vanilla 2.6.19 with 2.6.19-rt11 patch doesn't boot
-Date: Mon, 11 Dec 2006 17:42:30 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200612092001.01542.o.bock@fh-wolfenbuettel.de> <20061211134354.GB8219@elte.hu>
-In-Reply-To: <20061211134354.GB8219@elte.hu>
+	Mon, 11 Dec 2006 11:43:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=hpwB5ixtJ/lN95gFuLsREvsSgRO5qb1poa54D+7sqIibwd//EKrt8ULQHwsFZiqEHMMPbpRbJup4MC2Pkd8JqfUu+FbyUCBNgZRBvWVdmSdK7kv9rhmwG9609VRLCYKZeIHNltV4+u/62IoZuwc1NAccfAUiTcGLeypCUOmRvKc=  ;
+X-YMail-OSG: IbFN6ycVM1nVZhbLfUBCldxBs66Leilw.6vjoT81As625KGlkaeq22vnGxg2z.sKqF9I0q7vGxxJBFmJMcFqUQJcUQF_VrwDdaSixRdPmG0EjRsmtyPUfEYUKAbEWyslVmalmQr9Hgc3JTA-
+Message-ID: <457D89DA.5010705@yahoo.com.au>
+Date: Tue, 12 Dec 2006 03:39:54 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Steven Whitehouse <steve@chygwyn.com>
+CC: Mark Fasheh <mark.fasheh@oracle.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@google.com>
+Subject: Re: Status of buffered write path (deadlock fixes)
+References: <45751712.80301@yahoo.com.au>	 <20061207195518.GG4497@ca-server1.us.oracle.com>	 <4578DBCA.30604@yahoo.com.au>	 <20061208234852.GI4497@ca-server1.us.oracle.com>	 <457D20AE.6040107@yahoo.com.au>  <457D7EBA.7070005@yahoo.com.au> <1165853552.3752.1015.camel@quoit.chygwyn.com>
+In-Reply-To: <1165853552.3752.1015.camel@quoit.chygwyn.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612111742.30838.o.bock@fh-wolfenbuettel.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Steven Whitehouse wrote:
 
-Thanks for your reply. I tried -rt12 and could successfully boot my system.
-However, now I find the following during boot:
+>>Hmm, doesn't look like we can do this either because at least GFS2
+>>uses BH_New for its own special things.
+>>
+> 
+> What makes you say that? As far as I know we are not doing anything we
+> shouldn't with this flag, and if we are, then I'm quite happy to
+> consider fixing it up so that we don't,
 
-registering clocksource pit
- [<c0134a8f>] clocksource_register+0x2f/0x130
- [<c0252ef4>] sysdev_register+0xf4/0x100
- [<c03a0070>] init_pit_clocksource+0x60/0x70
- [<c01003bf>] init+0x8f/0x310
- [<c010311e>] ret_from_fork+0x6/0x1c
- [<c0100330>] init+0x0/0x310
- [<c0100330>] init+0x0/0x310
- [<c0103d53>] kernel_thread_helper+0x7/0x14
- =======================
-registering clocksource tsc
- [<c0134a8f>] clocksource_register+0x2f/0x130
- [<c0124796>] __mod_timer+0x86/0xb0
- [<c03a032d>] init_tsc_clocksource+0x18d/0x1f0
- [<c01003bf>] init+0x8f/0x310
- [<c010311e>] ret_from_fork+0x6/0x1c
- [<c0100330>] init+0x0/0x310
- [<c0100330>] init+0x0/0x310
- [<c0103d53>] kernel_thread_helper+0x7/0x14
- =======================
-registering clocksource jiffies
- [<c0134a8f>] clocksource_register+0x2f/0x130
- [<c01a635a>] sysfs_create_file+0x3a/0x50
- [<c03aaf7f>] init_jiffies_clocksource+0xf/0x20
- [<c01003bf>] init+0x8f/0x310
- [<c010311e>] ret_from_fork+0x6/0x1c
- [<c0100330>] init+0x0/0x310
- [<c0100330>] init+0x0/0x310
- [<c0103d53>] kernel_thread_helper+0x7/0x14
- =======================
-[...]
-registering clocksource acpi_pm
- [<c0134a8f>] clocksource_register+0x2f/0x130
- [<c03b707a>] init_acpi_pm_clocksource+0xba/0x130
- [<c0255ede>] class_create+0x4e/0x70
- [<c01003bf>] init+0x8f/0x310
- [<c010311e>] ret_from_fork+0x6/0x1c
- [<c0100330>] init+0x0/0x310
- [<c0100330>] init+0x0/0x310
- [<c0103d53>] kernel_thread_helper+0x7/0x14
- =======================
+Bad wording. Many other filesystems seem to only make use of buffer_new
+between prepare and commit_write.
 
+gfs2 seems to at least test it in a lot of places, so it is hard to know
+whether we can change the current semantics or not. I didn't mean that
+gfs2 is doing anything wrong.
 
-This is my .config regarding HPET:
+So can we clear it in commit_write?
 
-CONFIG_HPET_TIMER=y
-CONFIG_HPET=y
-# CONFIG_HPET_RTC_IRQ is not set
-CONFIG_HPET_MMAP=y
-
-
-Oliver
-
-
-On Monday 11 December 2006 14:43, you wrote:
-> * Oliver Bock <o.bock@fh-wolfenbuettel.de> wrote:
-> > Hi Ingo,
-> >
-> > I tried to boot a vanilla 2.6.19 kernel with your 2.6.19-rt11 patch
-> > but without success. However, the patch applied without a single error
-> > and the vanilla kernel (without the patch) works fine so far. As my
-> > screen just stays black and as there's no HD activity after selecting
-> > the kernel in grub, I suppose that it might be related to the new
-> > Areca RAID driver I use (compiled in because all my partitions reside
-> > on a RAID volume) in conjunction with your patch...
->
-> do you have HPET enabled in your .config by any chance?
->
-> 	Ingo
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

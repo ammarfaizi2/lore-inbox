@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937041AbWLKS5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937479AbWLKTB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937041AbWLKS5H (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 13:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763009AbWLKS5G
+	id S937479AbWLKTB3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937515AbWLKTB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 13:57:06 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:35962 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937515AbWLKS5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 13:57:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JqMPXMLCIoAJ393zVOWT9lWOjlOR5tUJk9pdyWNHgfRRT0YXsgsbnaJt6U3fB/BYEaEaaAa3qF6TXfOKWwTrVkslKHQ6exzy2rOx7Y1OHygQyRAkfaIKAmwK2XK1dAjnZ9WdWg4GVVj+EVgBcxHKu4+q7qmJzQZMWGspTIVshXs=
-Message-ID: <a4e6962a0612111057i48993e19j5048ac26b96f4714@mail.gmail.com>
-Date: Mon, 11 Dec 2006 12:57:03 -0600
-From: "Eric Van Hensbergen" <ericvh@gmail.com>
-To: "Eric Van Hensbergen" <ericvh@hera.kernel.org>
-Subject: Re: [RFC][PATCH] dm-cow: copy-on-write stackable target for device-mapper
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com, paurea@gmail.com
-In-Reply-To: <200611271659.kARGx5qb017564@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 14:01:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:50810 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937479AbWLKTB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:01:28 -0500
+Date: Mon, 11 Dec 2006 19:59:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Realtime: vanilla 2.6.19 with 2.6.19-rt11 patch doesn't boot
+Message-ID: <20061211185959.GA26102@elte.hu>
+References: <200612092001.01542.o.bock@fh-wolfenbuettel.de> <20061211134354.GB8219@elte.hu> <200612111742.30838.o.bock@fh-wolfenbuettel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200611271659.kARGx5qb017564@hera.kernel.org>
+In-Reply-To: <200612111742.30838.o.bock@fh-wolfenbuettel.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -0.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-0.4 required=5.9 tests=BAYES_05 autolearn=no SpamAssassin version=3.0.3
+	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
+	[score: 0.0270]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/27/06, Eric Van Hensbergen <ericvh@hera.kernel.org> wrote:
-> Subject: [RFC] [PATCH] dm-cow: copy-on-write stackable target for device-mapper
->
-> This is the first cut of a device-mapper target which allows stacking of
-> multiple block devices and in which the top-layer of the stack is a
-> copy-on-write layer.  It was originally developed in support of a cluster
-> image management solution.
->
 
-The paper describing our motivation for this work including some
-description of this implementation and performance results is now
-available:
+* Oliver Bock <o.bock@fh-wolfenbuettel.de> wrote:
 
-http://domino.research.ibm.com/library/cyberdig.nsf/1e4115aea78b6e7c85256b360066f0d4/801d563d3be022198525723c006fafc1?OpenDocument
+> Hi Ingo,
+> 
+> Thanks for your reply. I tried -rt12 and could successfully boot my system.
+> However, now I find the following during boot:
+> 
+> registering clocksource pit
 
-           -eric
+these messages are fine - they are just for debugging.
+
+	Ingo

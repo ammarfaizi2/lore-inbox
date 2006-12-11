@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763020AbWLKTGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763023AbWLKTHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763020AbWLKTGL (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763010AbWLKTGK
+	id S1763023AbWLKTHF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763018AbWLKTHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:06:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4059 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S937547AbWLKTGJ (ORCPT
+	Mon, 11 Dec 2006 14:07:04 -0500
+Received: from torres.zugschlus.de ([85.10.211.154]:47381 "EHLO
+	torres.zugschlus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937573AbWLKTHC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:06:09 -0500
-Date: Mon, 11 Dec 2006 20:06:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, "Hans J. Koch" <hjk@linutronix.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Benedikt Spranger <b.spranger@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/uio/: make 3 functions static
-Message-ID: <20061211190619.GE28443@stusta.de>
-References: <20061211005807.f220b81c.akpm@osdl.org>
-MIME-Version: 1.0
+	Mon, 11 Dec 2006 14:07:02 -0500
+Date: Mon, 11 Dec 2006 20:07:01 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-ID: <20061211190700.GA15165@torres.l21.ma.zugschlus.de>
+References: <20061207155740.GC1434@torres.l21.ma.zugschlus.de> <4578465D.7030104@cfl.rr.com> <1165541892.1063.0.camel@sebastian.intellilink.co.jp> <20061208164206.GA1125@torres.l21.ma.zugschlus.de> <20061209104758.GA10261@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061209104758.GA10261@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.19-rc6-mm2:
->...
-> +gregkh-driver-uio.patch
-> +gregkh-driver-uio-dummy.patch
->...
->  driver tree updates
->...
+On Sat, Dec 09, 2006 at 11:47:58AM +0100, Jan Kara wrote:
+>   In the mean time
+>   does mounting the filesystem with data=writeback help?
 
-This patch makes three needlessly global functions static.
+I have now nine hours uptime with data=writeback, and the file is
+still OK. Looks good.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+By this posting, I'm going to invoke murphy, so I'll report again
+tomorrow.
 
----
+Greetings
+Marc
 
- drivers/uio/uio.c       |    2 +-
- drivers/uio/uio_dummy.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
---- linux-2.6.19-mm1/drivers/uio/uio.c.old	2006-12-11 18:26:58.000000000 +0100
-+++ linux-2.6.19-mm1/drivers/uio/uio.c	2006-12-11 18:27:14.000000000 +0100
-@@ -602,7 +602,7 @@
- 	return 0;
- }
- 
--void __exit uio_exit(void)
-+static void __exit uio_exit(void)
- {
- }
- 
---- linux-2.6.19-mm1/drivers/uio/uio_dummy.c.old	2006-12-11 18:27:43.000000000 +0100
-+++ linux-2.6.19-mm1/drivers/uio/uio_dummy.c	2006-12-11 18:28:15.000000000 +0100
-@@ -137,7 +137,7 @@
- 
- }
- 
--struct platform_device *uio_dummy_device;
-+static struct platform_device *uio_dummy_device;
- 
- static struct device_driver uio_dummy_driver = {
- 	.name		= "uio_dummy",
-@@ -160,7 +160,7 @@
- 	return driver_register(&uio_dummy_driver);
- }
- 
--void __exit uio_dummy_exit(void)
-+static void __exit uio_dummy_exit(void)
- {
- 	platform_device_unregister(uio_dummy_device);
- 	driver_unregister(&uio_dummy_driver);
-
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835

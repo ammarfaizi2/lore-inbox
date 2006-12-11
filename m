@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762776AbWLKKnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762779AbWLKKqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762776AbWLKKnE (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 05:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762779AbWLKKnE
+	id S1762779AbWLKKqB (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 05:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762780AbWLKKqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 05:43:04 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:37836 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762776AbWLKKnB (ORCPT
+	Mon, 11 Dec 2006 05:46:01 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:54806 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762779AbWLKKqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 05:43:01 -0500
-Date: Mon, 11 Dec 2006 16:13:06 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, <gregkh@suse.com>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
-Message-ID: <20061211104306.GA22628@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20061204130406.GA2314@in.ibm.com> <Pine.LNX.4.44L0.0612041101410.3606-100000@iolanthe.rowland.org>
+	Mon, 11 Dec 2006 05:46:00 -0500
+Date: Mon, 11 Dec 2006 10:45:56 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrew MChuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Linus Torvalds orton <akpm@osdl.org>" <torvalds@osdl.org>
+Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
+Message-ID: <20061211104556.GF4587@ftp.linux.org.uk>
+References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211005557.04643a75.akpm@osdl.org> <20061211011327.f9478117.akpm@osdl.org> <20061211092130.GB4587@ftp.linux.org.uk> <20061211012545.ed945cbd.akpm@osdl.org> <20061211093314.GC4587@ftp.linux.org.uk> <20061211014727.21c4ab25.akpm@osdl.org> <20061211100301.GD4587@ftp.linux.org.uk> <20061211021718.a6954106.akpm@osdl.org> <20061211022746.9ec80c03.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0612041101410.3606-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061211022746.9ec80c03.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 11:06:41AM -0500, Alan Stern wrote:
-> On Mon, 4 Dec 2006, Maneesh Soni wrote:
-> 
-> > hmm, I guess Greg has to say the final word. The question is either to fail
-> > the IO (-ENODEV) or fail the file removal (-EBUSY). If we are not going to
-> > fail the removal then your patch is the way to go.
-> >
-> > Greg?
-> 
-> Oliver is right that we cannot allow device_remove_file() to fail.  In
-> fact we can't even allow it to block until all the existing open file
-> references are closed.
-> 
-> Our major questions have to do with the details of the patch itself.  In
-> particular, we are worried about possible races with the VFS and the
-> handling of the inode's usage count.  Can you examine the patch carefully
-> to see if it is okay?
-> 
+On Mon, Dec 11, 2006 at 02:27:46AM -0800, Andrew Morton wrote:
+> @@ -115,6 +115,11 @@ extern void setup_arch(char **);
+>  #define device_initcall_sync(fn)	__define_initcall("6s",fn,6s)
+>  #define late_initcall(fn)		__define_initcall("7",fn,7)
+>  #define late_initcall_sync(fn)		__define_initcall("7s",fn,7s)
+> +#define populate_rootfs_initcall(fn)	__define_initcall("8",fn,8)
+> +#define populate_rootfs_initcall_sync(fn) __define_initcall("8s",fn,8s)
+> +#define rootfs_neeeded_initcall(fn)	__define_initcall("9",fn,9)
+> +#define rootfs_neeeded_initcall_sync(fn) __define_initcall("9s",fn,9s)
 
-Sorry for late reply.. I reviewed the patch and it looks ok me.
-
-Thanks
-Maneesh
+Ewww....  After module_init()?  Please, don't.  Come on, if it can
+be a module, it _must_ be ready to run late in the game.

@@ -1,108 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760331AbWLKETQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761183AbWLKEbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760331AbWLKETQ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760406AbWLKETQ
+	id S1761183AbWLKEbI (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 23:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759915AbWLKEbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:19:16 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:59241 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760328AbWLKETP (ORCPT
+	Sun, 10 Dec 2006 23:31:08 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:38277 "HELO
+	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1760732AbWLKEbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:19:15 -0500
-Date: Sun, 10 Dec 2006 20:20:00 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
-Cc: <davej@codemonkey.org.uk>, <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-       "Satt, Shai" <shai.satt@intel.com>
-Subject: Re: [PATCH 2.6.19-rc5-git2] EFI: calling efi_get_time during
- suspend
-Message-Id: <20061210202000.674d5b34.randy.dunlap@oracle.com>
-In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
-References: <C1467C8B168BCF40ACEC2324C1A2B07401704459@hasmsx411.ger.corp.intel.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 10 Dec 2006 23:31:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=JpZKIMTboqwIOju3ePaGteq3Ox5yDhzls0djUykg53YCfiomKSWDAtr74AwHs0Tz4U9hTnjhW2vXaxEGhY5+a1EiEIjyCjM99EqlIZcaXyYyukY3blZC4Co/LMjr/hwPTsVux5sfKQYaLgwSJaTxhCUubpYMRQrEU9myHJ4E8lw=  ;
+X-YMail-OSG: L1VbK9AVM1lHB7i8FrXMurVMkngg2rWcvKrWtLxFqAyThCSgKDN8TkJksOGc4Jmxriepxz9950NyswPctgKvnq6Blto0sdcRzMAI01yS9F1JVUAxpIBBUA--
+Message-ID: <457CDEDE.9080804@yahoo.com.au>
+Date: Mon, 11 Dec 2006 15:30:22 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux@horizon.com
+CC: torvalds@osdl.org, linux-arch@vger.kernel.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
+References: <20061211023054.2622.qmail@science.horizon.com>
+In-Reply-To: <20061211023054.2622.qmail@science.horizon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 11:43:45 +0200 Myaskouvskey, Artiom wrote:
+Hi "Linux",
 
-> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+linux@horizon.com wrote:
+>>Even if ARM is able to handle any arbitrary C code between the
+>>"load locked" and store conditional API, other architectures can not
+>>by definition.
 > 
-> Function efi_get_time called not only during init kernel phase but also
-> during suspend (from get_cmos_time). 
-> When it is called from get_cmos_time the corresponding runtime service
-> should be called in virtual and not in physical mode.
 > 
-> Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
-> ---
+> Maybe so, but I think you and Linus are missing the middle ground.
+
+Nobdy argued against adding nice arch specific helpers to do higher
+level operations (for example, atomic_add_unless I added was able to
+reduce the use of cmpxchg in the kernel and can be optimally
+implemented with ll/sc). I implemented it specifically because I
+didn't want to use atomic_cmpxchg directly for lockless pagecache,
+exactly because it is suboptimal on RISCs in that performance
+critical path.
+
+The point is that if somebody wants to implement some fancy lockless
+code, atomic_cmpxchg is a good tool to use that does not require
+writing the assembly for two dozen architectures. If it is performance
+critical then it can absolutely be rewritten in an optimal manner.
+
+> While I agree that LL/SC can't be part of the kernel API for people to
+> get arbitrarily clever with in the device driver du jour, they are *very*
+> nice abstractions for shrinking the arch-specific code size.
 > 
-> diff -uprN linux-2.6.19-rc5-git2.orig/include/linux/efi.h
-> linux-2.6.19-rc5-git2/include/linux/efi.h
-> --- linux-2.6.19-rc5-git2.orig/include/linux/efi.h	2006-11-13
-> 11:15:19.000000000 +0200
-> +++ linux-2.6.19-rc5-git2/include/linux/efi.h	2006-11-13
-> 11:15:38.000000000 +0200
-> @@ -300,7 +300,7 @@ extern int efi_mem_attribute_range (unsi
->  extern int __init efi_uart_console_only (void);
->  extern void efi_initialize_iomem_resources(struct resource
-> *code_resource,
->  					struct resource *data_resource);
-> -extern unsigned long __init efi_get_time(void);
-> +extern unsigned long efi_get_time(void);
->  extern int __init efi_set_rtc_mmss(unsigned long nowtime);
+> The semantics are widely enough shared that it's quite possible in
+> practice to write a good set of atomic primitives in terms of LL/SC
+> and then let most architectures define LL/SC and simply #include the
+> generic atomic op implementations.
+> 
+> If there's a restriction that would pessimize the generic implementation,
+> that function can be implemented specially for that arch.
+> 
+> Then implementing things like backoff on contention can involve writing
+> a whole lot less duplicated code.
+> 
+> 
+> Just like you can write a set of helpers for, say, CPUs with physically
+> addressed caches, even though the "real" API has to be able to handle the
+> virtually addressed ones, you can write a nice set of helpers for machines
+> with sane LL/SC.
 
-Hi--
+So, what would your ll/sc abstraction look like? Let's hear it.
 
-Shouldn't the /__init/ on efi_set_rtc_mmss() also be dropped?
+The one I'm thinking of goes something like this:
 
->  extern struct efi_memory_map memmap;
->  
-> diff -uprN linux-2.6.19-rc5-git2.orig/arch/i386/kernel/efi.c
-> linux-2.6.19-rc5-git2/arch/i386/kernel/efi.c
-> --- linux-2.6.19-rc5-git2.orig/arch/i386/kernel/efi.c	2006-11-13
-> 11:15:17.000000000 +0200
-> +++ linux-2.6.19-rc5-git2/arch/i386/kernel/efi.c	2006-11-13
-> 11:15:38.000000000 +0200
-> @@ -194,17 +194,25 @@ inline int efi_set_rtc_mmss(unsigned lon
->  	return 0;
->  }
->  /*
-> - * This should only be used during kernel init and before runtime
-> - * services have been remapped, therefore, we'll need to call in
-> physical
-> - * mode.  Note, this call isn't used later, so mark it __init.
-> + * This is used during kernel init before runtime
-> + * services have been remapped and also during suspend, therefore, 
-> + * we'll need to call both in physical and virtual modes. 
->   */
-> -inline unsigned long __init efi_get_time(void)
-> +inline unsigned long efi_get_time(void)
->  {
->  	efi_status_t status;
->  	efi_time_t eft;
->  	efi_time_cap_t cap;
->  
-> -	status = phys_efi_get_time(&eft, &cap);
-> +	if (efi.get_time) {
-> +		/* if we are in virtual mode use remapped function */ 
-> + 		status = efi.get_time(&eft, &cap);
-> +        }
-> +        else {
-> +	    /* we are in physical mode */
-> +            status = phys_efi_get_time(&eft, &cap);
-> +        }
-> +
->  	if (status != EFI_SUCCESS)
->  		printk("Oops: efitime: can't read time status:
-> 0x%lx\n",status);
+   atomic_ll() / atomic_sc() with the restriction that they cannot be
+   nested, you cannot write any C code between them, and may only call
+   into some specific set of atomic_llsc_xxx primitives, operating on
+   the address given to ll, and must not have more than a given number
+   of instructions between them. Also, the atomic_sc won't always fail
+   if there were interleaving stores.
 
----
-~Randy
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

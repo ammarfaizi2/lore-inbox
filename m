@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937392AbWLKSB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937425AbWLKSEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937392AbWLKSB7 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 13:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937406AbWLKSB7
+	id S937425AbWLKSEJ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 13:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937426AbWLKSEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 13:01:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44089 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937392AbWLKSB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 13:01:58 -0500
-Message-ID: <457D9D14.5090006@redhat.com>
-Date: Mon, 11 Dec 2006 19:01:56 +0100
-From: Florian Festi <ffesti@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 11 Dec 2006 13:04:09 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:60010 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937425AbWLKSEG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 13:04:06 -0500
+Date: Mon, 11 Dec 2006 19:04:14 +0100
+From: Olaf Hering <olaf@aepfle.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+Message-ID: <20061211180414.GA18833@aepfle.de>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] input: Extend raw mode to work up to keycode 0xFF
-Content-Type: multipart/mixed;
- boundary="------------010505080303060602060604"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010505080303060602060604
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Dec 11, Linus Torvalds wrote:
 
-Hi, [please CC me, as I am not subscribed]
+> +static char __initdata linux_banner[] =
+> +	"Linux version " UTS_RELEASE
+> +	" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
+> +	" (" LINUX_COMPILER ")"
+> +	" " UTS_VERSION "\n";
 
-currently keycodes above 240 are ignored if the tty is in raw mode. To make the key codes from 241 to 255 usable for programs in raw mode (like X11) the still unused scancodes were 
-added into that range. Right know these scancodes are used in arbitrary order due the lack of a better alternative. Comments on a better way of using them are welcome.
+main.o gets linked after misc.o, so this will not work. Having both as
+globals in the same c file in the right order, that will probably fix
+it. Let my try.
 
-This extension is needed for some keycodes I submited in a previous patch.
+strings ../O-maple_defconfig/vmlinux | grep -w Linux
+Starting Linux PPC64 %s
+Linux
+Linux version %s (olaf@g5) (gcc version 4.1.0 (SUSE Linux)) %s
+<6>%s: device enabled (Linux)
+Linux version 2.6.19-g9202f325-dirty (olaf@g5) (gcc version 4.1.0 (SUSE Linux)) #3 SMP Mon Dec 11 18:59:15 CET 2006
+Linux
+Linux
+Linux
 
-Florian
 
---------------010505080303060602060604
-Content-Type: text/x-patch;
- name="rawmodeemulation.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rawmodeemulation.diff"
-
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 7a6c1c0..33a1aef 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1043,7 +1043,8 @@ static const unsigned short x86_keycodes
- 	264,117,271,374,379,265,266, 93, 94, 95, 85,259,375,260, 90,116,
- 	377,109,111,277,278,282,283,295,296,297,299,300,301,293,303,307,
- 	308,310,313,314,315,317,318,319,320,357,322,323,324,325,276,330,
--	332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372 };
-+	332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372,
-+	 96, 97, 98,110,122,124,127,256,273,298,311,366,378,380,382,383 }; 
- 
- #ifdef CONFIG_MAC_EMUMOUSEBTN
- extern int mac_hid_mouse_emulate_buttons(int, int, int);
-
---------------010505080303060602060604--

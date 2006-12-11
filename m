@@ -1,129 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760288AbWLKIWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762648AbWLKIZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760288AbWLKIWj (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 03:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762648AbWLKIWj
+	id S1762648AbWLKIZs (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 03:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762650AbWLKIZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 03:22:39 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:47522 "EHLO
-	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760288AbWLKIWi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 03:22:38 -0500
-Date: Mon, 11 Dec 2006 17:20:52 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [Patch](memory hotplug) Fix compile error for i386 with NUMA config
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64N.0612102351280.9898@attu4.cs.washington.edu>
-References: <20061211115829.AD68.Y-GOTO@jp.fujitsu.com> <Pine.LNX.4.64N.0612102351280.9898@attu4.cs.washington.edu>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20061211171544.AD72.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.27 [ja]
+	Mon, 11 Dec 2006 03:25:48 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:24953 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762648AbWLKIZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 03:25:47 -0500
+Date: Mon, 11 Dec 2006 09:26:58 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Elias Oltmanns <eo@nebensachen.de>
+Cc: Pavel Machek <pavel@ucw.cz>, Christoph Schmid <chris@schlagmichtod.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Message-ID: <20061211082658.GF4576@kernel.dk>
+References: <7ibks-1fg-15@gated-at.bofh.it> <7kpjn-7th-23@gated-at.bofh.it> <7kDFF-8rd-29@gated-at.bofh.it> <87d5783fms.fsf@denkblock.local> <20061130171910.GD1860@elf.ucw.cz> <87k61bpuk4.fsf@denkblock.local> <20061202115709.GC4030@ucw.cz> <87wt50wokd.fsf@denkblock.local> <87psaswnxp.fsf@denkblock.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87psaswnxp.fsf@denkblock.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > No.
-> > Other arch's arch_add_memory() and remove_memory() have been already
-> > used for NUMA case too. But i386 didn't do it because just 
-> > contig_page_data is used. 
-> > Current NODE_DATA() macro is defined both case appropriately.
-> > So, this #ifdef is redundant now.
-> > 
+On Sun, Dec 10 2006, Elias Oltmanns wrote:
+> Hi Jens,
 > 
-> Then I assume the comment directly above this change is also redundant 
-> since it explicitly states that the following code is for the non-NUMA 
-> case.
+> Elias Oltmanns <eo@nebensachen.de> wrote:
+> > So, here is a patch in which your remarks and suggestions have been
+> > incorporated. Additionally, I've added the requested kernel doc file
+> > and another sysfs attribute called protect_method. The usage of this
+> > attribute is described in Documentation/block/disk-protection.txt.
+> 
+> Just forgot to mention that your suggestions haven't been implemented
+> yet. Thats because I'm only gradually beginning to understand the
+> reasoning and how it might work out in the end. It will probably take
+> me another weekend (or more) to come up with something fit for
+> discussion. Bare with me, I'm rather busy at the moment and still new
+> to the block layer (or kernel code, for that matter).
 
-Ahhhhh. Yes indeed.
-
-Here is fixed patch. Thanks for your comment.
-
-Bye.
-
-
--------
-
-This patch is to fix compile error when config memory hotplug
-with numa on i386.
-
-The cause of compile error was missing of arch_add_memory(), remove_memory(),
-and memory_add_physaddr_to_nid().
-
-This is for 2.6.19, and I tested no compile error of it.
-
-Please apply.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
----
- arch/i386/mm/discontig.c |   17 +++++++++++++++++
- arch/i386/mm/init.c      |    9 +--------
- 2 files changed, 18 insertions(+), 8 deletions(-)
-
-Index: linux-2.6.19/arch/i386/mm/init.c
-===================================================================
---- linux-2.6.19.orig/arch/i386/mm/init.c	2006-12-09 17:42:06.000000000 +0900
-+++ linux-2.6.19/arch/i386/mm/init.c	2006-12-11 16:58:49.000000000 +0900
-@@ -675,16 +675,10 @@
- #endif
- }
- 
--/*
-- * this is for the non-NUMA, single node SMP system case.
-- * Specifically, in the case of x86, we will always add
-- * memory to the highmem for now.
-- */
- #ifdef CONFIG_MEMORY_HOTPLUG
--#ifndef CONFIG_NEED_MULTIPLE_NODES
- int arch_add_memory(int nid, u64 start, u64 size)
- {
--	struct pglist_data *pgdata = &contig_page_data;
-+	struct pglist_data *pgdata = NODE_DATA(nid);
- 	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
-@@ -697,7 +691,6 @@
- 	return -EINVAL;
- }
- #endif
--#endif
- 
- kmem_cache_t *pgd_cache;
- kmem_cache_t *pmd_cache;
-Index: linux-2.6.19/arch/i386/mm/discontig.c
-===================================================================
---- linux-2.6.19.orig/arch/i386/mm/discontig.c	2006-12-09 17:42:06.000000000 +0900
-+++ linux-2.6.19/arch/i386/mm/discontig.c	2006-12-09 17:58:32.000000000 +0900
-@@ -405,3 +405,20 @@
- 	totalram_pages += totalhigh_pages;
- #endif
- }
-+
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+/* This is the case that there is no _PXM on DSDT for added memory */
-+int memory_add_physaddr_to_nid(u64 addr)
-+{
-+	int nid;
-+	unsigned long pfn = addr >> PAGE_SHIFT;
-+
-+	for (nid = 0; nid < MAX_NUMNODES; nid++){
-+		if (node_start_pfn[nid] <= pfn &&
-+		    pfn < node_end_pfn[nid])
-+			return nid;
-+	}
-+
-+	return 0;
-+}
-+#endif
+No worries, take your time. The target for the code wont be 2.6.20
+anyways, so you have at least a month to get things designed right and
+solid for a 2.6.21 target.
 
 -- 
-Yasunori Goto 
-
+Jens Axboe
 

@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762682AbWLKJZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760362AbWLKJ1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762682AbWLKJZH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 04:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762680AbWLKJZH
+	id S1760362AbWLKJ1R (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 04:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762672AbWLKJ1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 04:25:07 -0500
-Received: from smtp2.belwue.de ([129.143.2.15]:34128 "EHLO smtp2.belwue.de"
+	Mon, 11 Dec 2006 04:27:17 -0500
+Received: from main.gmane.org ([80.91.229.2]:35875 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762682AbWLKJZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 04:25:05 -0500
-Date: Mon, 11 Dec 2006 10:24:02 +0100 (CET)
-From: Karsten Weiss <K.Weiss@science-computing.de>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
-       Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
- memory hole mapping related bug?!
-In-Reply-To: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
-Message-ID: <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S1760362AbWLKJ1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 04:27:17 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+Subject: Re: Window scaling problem?
+Date: 11 Dec 2006 10:26:58 +0100
+Message-ID: <m33b7mhjfh.fsf@ursa.amorsen.dk>
+References: <Pine.LNX.4.61.0612101001390.9675@yvahk01.tjqt.qr> <Pine.LNX.4.64.0612101507180.23130@lancer.cnet.absolutedigital.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: kbhn-vbrg-sr0-vl209-213-185-8-10.perspektivbredband.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006, Karsten Weiss wrote:
+>>>>> "CP" == Cal Peake <cp@absolutedigital.net> writes:
 
-> On Sat, 2 Dec 2006, Christoph Anton Mitterer wrote:
-> 
-> > I found a severe bug mainly by fortune because it occurs very rarely.
-> > My test looks like the following: I have about 30GB of testing data on
-> 
-> This sounds very familiar! One of the Linux compute clusters I
-> administer at work is a 336 node system consisting of the
-> following components:
-> 
-> * 2x Dual-Core AMD Opteron 275
-> * Tyan S2891 mainboard
-> * Hitachi HDS728080PLA380 harddisk
-> * 4 GB RAM (some nodes have 8 GB) - intensively tested with
->   memtest86+
-> * SUSE 9.3 x86_64 (kernel 2.6.11.4-21.14-smp) - But I've also
->   e.g. tried the latest openSUSE 10.2 RC1+ kernel 2.6.18.2-33 which
->   makes no difference.
-> 
-> We are running LS-Dyna on these machines and discovered a
-> testcase which shows a similar data corruption. So I can
-> confirm that the problem is for real an not a hardware defect
-> of a single machine!
+CP> I saw this with kernels v2.6.16, v2.6.17, and v2.6.18. Windows XP
+CP> however didn't seem to have any problems. So unless Windows
+CP> doesn't have window scaling on by default (or uses a workaround)
+CP> it could be a broken kernel.
 
-Last week we did some more testing with the following result:
+XP doesn't do Window Scaling by default, but Vista will. Hopefully
+that should flush out the old PIX's. Versions old enough to break
+Window Scaling are old enough to be insecure anyway.
 
-We could not reproduce the data corruption anymore if we boot the machines 
-with the kernel parameter "iommu=soft" i.e. if we use software bounce 
-buffering instead of the hw-iommu. (As mentioned before, booting with 
-mem=2g works fine, too, because this disables the iommu altogether.)
 
-I.e. on these systems the data corruption only happens if the hw-iommu 
-(PCI-GART) of the Opteron CPUs is in use.
+/Benny
 
-Christoph, Erik, Chris: I would appreciate if you would test and hopefully 
-confirm this workaround, too.
-
-Best regards,
-Karsten
-
--- 
-__________________________________________creating IT solutions
-Dipl.-Inf. Karsten Weiss               science + computing ag
-phone:    +49 7071 9457 452            Hagellocher Weg 73
-teamline: +49 7071 9457 681            72070 Tuebingen, Germany
-email:    knweiss@science-computing.de www.science-computing.de
 

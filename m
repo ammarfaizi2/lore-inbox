@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760363AbWLKJVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762682AbWLKJZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760363AbWLKJVf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 04:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762680AbWLKJVf
+	id S1762682AbWLKJZH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 04:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762680AbWLKJZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 04:21:35 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:56917 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760363AbWLKJVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 04:21:34 -0500
-Date: Mon, 11 Dec 2006 09:21:30 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrew MChuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds orton <akpm@osdl.org>" <torvalds@osdl.org>
-Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
-Message-ID: <20061211092130.GB4587@ftp.linux.org.uk>
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211005557.04643a75.akpm@osdl.org> <20061211011327.f9478117.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061211011327.f9478117.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 11 Dec 2006 04:25:07 -0500
+Received: from smtp2.belwue.de ([129.143.2.15]:34128 "EHLO smtp2.belwue.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762682AbWLKJZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 04:25:05 -0500
+Date: Mon, 11 Dec 2006 10:24:02 +0100 (CET)
+From: Karsten Weiss <K.Weiss@science-computing.de>
+To: Christoph Anton Mitterer <calestyo@scientia.net>
+Cc: linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
+       Chris Wedgwood <cw@f00f.org>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
+ memory hole mapping related bug?!
+In-Reply-To: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
+Message-ID: <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 01:13:27AM -0800, Andrew Morton wrote:
-> On Mon, 11 Dec 2006 00:55:57 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > I think the bug really is the running of populate_rootfs() before running
-> > the initcalls, in init/main.c:init().  It's just more sensible to start
-> > running userspace after the initcalls have been run.  Statically-linked
-> > drivers which want to load firmware files will lose.  To fix that we'd need
-> > a new callback.  It could be with a new linker section or perhaps simply a
-> > notifier chain.
-> 
-> hm, actually...  Add two new initcall levels, one for populate_rootfs() and
-> one for things which want to come after it (ie: drivers which want to
-> access the filesytem):
+On Sat, 2 Dec 2006, Karsten Weiss wrote:
 
-IMO we should just call pipe (and socket) initialization directly at
-the same level as slab, task, dcache, etc.
+> On Sat, 2 Dec 2006, Christoph Anton Mitterer wrote:
+> 
+> > I found a severe bug mainly by fortune because it occurs very rarely.
+> > My test looks like the following: I have about 30GB of testing data on
+> 
+> This sounds very familiar! One of the Linux compute clusters I
+> administer at work is a 336 node system consisting of the
+> following components:
+> 
+> * 2x Dual-Core AMD Opteron 275
+> * Tyan S2891 mainboard
+> * Hitachi HDS728080PLA380 harddisk
+> * 4 GB RAM (some nodes have 8 GB) - intensively tested with
+>   memtest86+
+> * SUSE 9.3 x86_64 (kernel 2.6.11.4-21.14-smp) - But I've also
+>   e.g. tried the latest openSUSE 10.2 RC1+ kernel 2.6.18.2-33 which
+>   makes no difference.
+> 
+> We are running LS-Dyna on these machines and discovered a
+> testcase which shows a similar data corruption. So I can
+> confirm that the problem is for real an not a hardware defect
+> of a single machine!
 
-This is basic stuff needed to get operational kernel.  We could try
-to put that on an additional initcall level, but then we ought to
-take the rest of basic setup there as well.
+Last week we did some more testing with the following result:
+
+We could not reproduce the data corruption anymore if we boot the machines 
+with the kernel parameter "iommu=soft" i.e. if we use software bounce 
+buffering instead of the hw-iommu. (As mentioned before, booting with 
+mem=2g works fine, too, because this disables the iommu altogether.)
+
+I.e. on these systems the data corruption only happens if the hw-iommu 
+(PCI-GART) of the Opteron CPUs is in use.
+
+Christoph, Erik, Chris: I would appreciate if you would test and hopefully 
+confirm this workaround, too.
+
+Best regards,
+Karsten
+
+-- 
+__________________________________________creating IT solutions
+Dipl.-Inf. Karsten Weiss               science + computing ag
+phone:    +49 7071 9457 452            Hagellocher Weg 73
+teamline: +49 7071 9457 681            72070 Tuebingen, Germany
+email:    knweiss@science-computing.de www.science-computing.de
+

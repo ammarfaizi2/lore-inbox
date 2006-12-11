@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937438AbWLKSW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936966AbWLKSYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937438AbWLKSW2 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 13:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763001AbWLKSW1
+	id S936966AbWLKSYT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 13:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937034AbWLKSYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 13:22:27 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:51302 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1763006AbWLKSW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 13:22:27 -0500
-Date: Mon, 11 Dec 2006 10:19:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-cc: Andy Whitcroft <apw@shadowen.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-In-Reply-To: <20061211175026.GA18628@aepfle.de>
-Message-ID: <Pine.LNX.4.64.0612111019020.12500@woody.osdl.org>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
- <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <20061211175026.GA18628@aepfle.de>
+	Mon, 11 Dec 2006 13:24:19 -0500
+Received: from dxv00.wellsfargo.com ([151.151.5.40]:35870 "EHLO
+	dxv00.wellsfargo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936966AbWLKSYT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 13:24:19 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: RE: Interphase Tachyon drivers missing.
+Date: Mon, 11 Dec 2006 12:22:59 -0600
+Message-ID: <E8C008223DD5F64485DFBDF6D4B7F71D023BAB31@msgswbmnmsp25.wellsfargo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Interphase Tachyon drivers missing.
+Thread-Index: AccdTrFnvzUrB7TpSpqSw/lILFxKugAAe8cw
+From: <Greg.Chandler@wellsfargo.com>
+To: <jeff@garzik.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Dec 2006 18:22:59.0409 (UTC) FILETIME=[6303AC10:01C71D51]
+X-WFMX: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+My guess is that since it's not in there, I might be the only one who
+noticed.  Unfortunatly that looks to be bad news for me...  I have 5
+machines with these cards, and my pockets are not so deep as to be able
+to replace them with something newer.  
 
-On Mon, 11 Dec 2006, Olaf Hering wrote:
-> 
-> SLES7 or SLES11 is not any different than SLES9 in that respect.
-> Suppose I send you some random vmlinux binary. How do you (you as in linus.sh)
-> know what 'uname -r' is inside this binary?
-> There are surely many many ways to pass that info. Having a string like
-> 'Linux version 2.6.19-g9202f325-dirty' somewhere in the binary is the
-> most reliable one. Dont you agree?
-> Just think about it for a minute.
+My goal was to get AOE working over the FC card {rather than ethernet}
+and retire my FC SAN.  {I have my moments for doing stupid things like
+this} {and yes it was a bet....}
 
-YOU just think about it for a minute.
+I took a brief look at the code {I am no developer, let alone a driver
+maintainer} but I think I can get the driver shored up with a current
+kernel {I hope}.  The question is will anyone other than me care,
+because if not, I doubt that the driver will be re-added from what you
+said.
 
-Your basic problem was much earlier:
 
-	"Suppose I send you some random vmlinux binary."
+-----Original Message-----
+From: Jeff Garzik [mailto:jeff@garzik.org] 
+Sent: Monday, December 11, 2006 12:03 PM
+To: Chandler, Greg
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interphase Tachyon drivers missing.
 
-THAT is the problem.
+Greg.Chandler@wellsfargo.com wrote:
+> I went to upgrade my kernel on a couple of boxes yesterday and noticed
 
-		Linus
+> that the Interphase Tachyon chipset Fibre Channel driver was removed 
+> from the kernel.  I think 2.6.1 was the last one it was still in.  Was
+
+> there a reason it was pulled?
+> If not, do I have to volunteer to put it back in or can someone with 
+> more skill re-add it?
+
+It was dropped because it was unmaintained, and quickly falling behind
+mainline.  If it's a maintained driver with an active userbase, we're
+interested...
+
+	Jeff
+
+
+
+
+

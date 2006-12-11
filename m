@@ -1,108 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762663AbWLKKwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762706AbWLKK5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762663AbWLKKwm (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 05:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762697AbWLKKwm
+	id S1762706AbWLKK5p (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 05:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762697AbWLKK5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 05:52:42 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:45113 "EHLO pfx2.jmh.fr"
+	Mon, 11 Dec 2006 05:57:45 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45023 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762663AbWLKKwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 05:52:42 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] get rid of ARCH_HAVE_XTIME_LOCK
-Date: Mon, 11 Dec 2006 11:52:56 +0100
-User-Agent: KMail/1.9.5
-Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211100301.GD4587@ftp.linux.org.uk> <20061211021718.a6954106.akpm@osdl.org>
-In-Reply-To: <20061211021718.a6954106.akpm@osdl.org>
+	id S1762748AbWLKK5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 05:57:44 -0500
+Message-ID: <457D39A2.1070802@garzik.org>
+Date: Mon, 11 Dec 2006 05:57:38 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_IiTfFJH79Q0lCAJ"
-Message-Id: <200612111152.56945.dada1@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: Al Viro <viro@ftp.linux.org.uk>,
+       Andrew MChuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Linus Torvalds orton <akpm@osdl.org>" <torvalds@osdl.org>
+Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
+References: <200612110330_MC3-1-D49B-BC0F@compuserve.com>	<20061211005557.04643a75.akpm@osdl.org>	<20061211011327.f9478117.akpm@osdl.org>	<20061211092130.GB4587@ftp.linux.org.uk>	<20061211012545.ed945cbd.akpm@osdl.org>	<20061211093314.GC4587@ftp.linux.org.uk>	<20061211014727.21c4ab25.akpm@osdl.org>	<20061211100301.GD4587@ftp.linux.org.uk>	<20061211021718.a6954106.akpm@osdl.org>	<20061211102207.GE4587@ftp.linux.org.uk> <20061211023436.258bb3ea.akpm@osdl.org>
+In-Reply-To: <20061211023436.258bb3ea.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_IiTfFJH79Q0lCAJ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Andrew Morton wrote:
+> A heck of a lot of things can trigger an /sbin/hotplug run.  It could well
+> be that Andrew's driver didn't want to run hotplug at all, but the kernel
+> did it anwyay.  But as soon as the script appeared at /sbin/hotplug, and it
+> happened to use foo|bar: boom.
 
-As suggested by Andrew, we can use __attribute__((weak)) to get rid of 
-ARCH_HAVE_XTIME_LOCK
+In fact, <many> things run /sbin/hotplug but don't necessarily need to :/
 
-Please note I compiled, and boot tested on ia32 this patch, and it seems OK.
-I compiled on x86_64 and got same resulting vmlinux image.
+I think bcrl used a counter one time, and saw over 1000 /sbin/hotplug 
+executions during a single boot.
 
-But I suspect some tools might have problems because vmlinux have its 
-first 'weak data symbol' defined. AFAIK __attribute__((weak)) was only used 
-on text symbols.
+	Jeff
 
-# nm vmlinux | grep ' V '
-c03b01c0 V xtime_lock
 
-[PATCH] get rid of ARCH_HAVE_XTIME_LOCK
-
-ARCH_HAVE_XTIME_LOCK is used by x86_64 arch . This arch needs to place a read 
-only copy of xtime_lock into vsyscall page. This read only copy is named 
-__xtime_lock, and xtime_lock is defined in arch/x86_64/kernel/vmlinux.lds.S 
-as an alias. So the declaration of xtime_lock in kernel/timer.c was guarded 
-by ARCH_HAVE_XTIME_LOCK define, defined to true on x86_64.
-
-We can get same result with _attribute__((weak)) in the declaration. linker 
-should do the job.
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
---Boundary-00=_IiTfFJH79Q0lCAJ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="ARCH_HAVE_XTIME_LOCK.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="ARCH_HAVE_XTIME_LOCK.patch"
-
---- linux-2.6.19/kernel/timer.c	2006-12-11 11:25:50.000000000 +0100
-+++ linux-2.6.19-ed/kernel/timer.c	2006-12-11 11:31:30.000000000 +0100
-@@ -1020,11 +1020,9 @@ static inline void calc_load(unsigned lo
-  * This read-write spinlock protects us from races in SMP while
-  * playing with xtime and avenrun.
-  */
--#ifndef ARCH_HAVE_XTIME_LOCK
--__cacheline_aligned_in_smp DEFINE_SEQLOCK(xtime_lock);
-+__attribute__((weak)) __cacheline_aligned_in_smp DEFINE_SEQLOCK(xtime_lock);
- 
- EXPORT_SYMBOL(xtime_lock);
--#endif
- 
- /*
-  * This function runs timers and the timer-tq in bottom half context.
---- linux-2.6.19/include/linux/time.h	2006-12-11 11:34:54.000000000 +0100
-+++ linux-2.6.19-ed/include/linux/time.h	2006-12-11 11:34:54.000000000 +0100
-@@ -90,7 +90,7 @@ static inline struct timespec timespec_s
- 
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
--extern seqlock_t xtime_lock;
-+extern seqlock_t xtime_lock __attribute__((weak));
- 
- void timekeeping_init(void);
- 
---- linux-2.6.19/include/asm-x86_64/vsyscall.h	2006-12-11 11:34:54.000000000 +0100
-+++ linux-2.6.19-ed/include/asm-x86_64/vsyscall.h	2006-12-11 11:34:54.000000000 +0100
-@@ -55,11 +55,6 @@ extern struct vxtime_data vxtime;
- extern int vgetcpu_mode;
- extern struct timezone sys_tz;
- extern int sysctl_vsyscall;
--extern seqlock_t xtime_lock;
--
--extern int sysctl_vsyscall;
--
--#define ARCH_HAVE_XTIME_LOCK 1
- 
- #endif /* __KERNEL__ */
- 
-
---Boundary-00=_IiTfFJH79Q0lCAJ--

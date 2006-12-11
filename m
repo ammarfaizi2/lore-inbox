@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750744AbWLKXlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750748AbWLKXog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWLKXlJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 18:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWLKXlJ
+	id S1750748AbWLKXog (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 18:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWLKXog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 18:41:09 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:50027 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750744AbWLKXlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 18:41:07 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: 2.6.19-mm1 (md/raid1 randomly drops partitions)
-Date: Tue, 12 Dec 2006 00:43:22 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061211005807.f220b81c.akpm@osdl.org> <200612112341.42140.rjw@sisk.pl> <17789.57670.482913.886349@cse.unsw.edu.au>
-In-Reply-To: <17789.57670.482913.886349@cse.unsw.edu.au>
+	Mon, 11 Dec 2006 18:44:36 -0500
+Received: from web32602.mail.mud.yahoo.com ([68.142.207.229]:30062 "HELO
+	web32602.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1750748AbWLKXog (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 18:44:36 -0500
+Message-ID: <20061211234435.37302.qmail@web32602.mail.mud.yahoo.com>
+X-YMail-OSG: lVNAWqcVM1nrZIJ1xUhKGCZ6mfVIoJiI3FFI02GwDYOPvG9Bn.US0rHPJmacUDOluBamo_NnwICKZ3WVePpaov7OVUGez2As6ZtwOoKE4agv5_6II8e8og--
+X-RocketYMMF: knobi.rm
+Date: Mon, 11 Dec 2006 15:44:35 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: [2.6.19] NFS: server error: fileid changed
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, knobi@knobisoft.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1165857788.5721.127.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612120043.22550.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 11 December 2006 23:52, Neil Brown wrote:
-> On Monday December 11, rjw@sisk.pl wrote:
-> > Hi,
+
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+
+> On Mon, 2006-12-11 at 08:09 -0800, Martin Knoblauch wrote:
+> > Hi, [please CC me, as I am not subscribed]
 > > 
-> > On Monday, 11 December 2006 09:58, Andrew Morton wrote:
-> > > 
-> > > Temporarily at
-> > > 
-> > > 	http://userweb.kernel.org/~akpm/2.6.19-mm1/
-> > > 
-> > > Will appear later at
-> > > 
-> > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/
+> >  after updating a RHEL4 box (EM64T based) to a plain 2.6.19 kernel,
+> we
+> > are seeing repeated occurences of the following messages (about
+> every
+> > 45-50 minutes).
 > > 
-> > It caused all of the md RAID1s on my test box to drop one of their partitions,
-> > apparently at random.
+> >  It is always the same server (a NetApp filer, mounted via the
+> > user-space automounter "amd") and the expected/got numbers seem to
+> > repeat.
 > 
-> That's clever....
+> Are you seeing it _without_ amd? The usual reason for the errors you
+> see are bogus replay cache replies. For that reason, the kernel is
+> usually very careful when initialising its value for the
+> XID: we set part of it using the clock value, and part of it
+> using a random number generator.
+> I'm not so sure that other services are as careful.
+>
+
+ So far, we are only seeing it on amd-mounted filesystems, not on
+static NFS mounts. Unfortunatelly, it is difficult to avoid "amd" in
+our environment.
+ 
+> >  Is there a  way to find out which files are involved? Nothing
+> seems to
+> > be obviously breaking, but I do not like to get my logfiles filled
+> up. 
 > 
-> Do you have any kernel logs of this happening?  My guess would be the
-> underlying device driver is returned more errors than before, but we
-> need the logs to be sure.
+> The fileid is the same as the inode number. Just convert those
+> hexadecimal values into ordinary numbers, then search for them using
+> 'ls
+> -i'.
+> 
 
-I've only found lots of messages like this:
+ thanks. will check that out.
 
-md: super_written gets error=-5, uptodate=0
+Cheers
+Martin
 
-I'll try to reproduce it tomorrow and collect some more information.
-
-Greetings,
-Rafael
-
-
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937574AbWLKTHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937573AbWLKTIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937574AbWLKTHe (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937575AbWLKTHe
+	id S937573AbWLKTIG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937566AbWLKTIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:07:34 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50801 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937573AbWLKTHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:07:32 -0500
-Date: Mon, 11 Dec 2006 20:05:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -rt][RESEND] fix preempt hardirqs on OMAP
-Message-ID: <20061211190554.GA26392@elte.hu>
-References: <20061210163545.488430000@mvista.com>
+	Mon, 11 Dec 2006 14:08:06 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37487 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S937577AbWLKTID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:08:03 -0500
+Date: Mon, 11 Dec 2006 19:15:43 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Corey Minyard <cminyard@mvista.com>, Tilman Schmidt <tilman@imap.cc>,
+       linux-serial@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial
+ driver
+Message-ID: <20061211191543.32ce2da8@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.60.0612111954120.4039@poirot.grange>
+References: <4533B8FB.5080108@mvista.com>
+	<20061210201438.tilman@imap.cc>
+	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>
+	<457CB32A.2060804@mvista.com>
+	<20061211102016.43e76da2@localhost.localdomain>
+	<Pine.LNX.4.60.0612111954120.4039@poirot.grange>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061210163545.488430000@mvista.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> there as "protocols" for user-tty interfaces, i.e., you need a user, that 
+> opens a tty, sets a line discipline to it, and does io (read/write) over 
+> it, and NOT to be completely initialised and driven from the kernel.
 
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> +	/*
-> +	 * Some boards will disable an interrupt when it
-> +	 * sets IRQ_PENDING . So we have to remove the flag
-> +	 * and re-enable to handle it.
-> +	 */
-> +	if (desc->status & IRQ_PENDING) {
-> +		desc->status &= ~IRQ_PENDING;
-> +		if (desc->chip)
-> +			desc->chip->enable(irq);
-> +		goto restart;
-> +	}
-
-what if the irq got disabled meanwhile? Also, chip->enable is a 
-compatibility method, not something we should use in a flow handler.
-
-	Ingo
+Take a look at the SLIP driver. User space sets up the port but all the
+actual I/O is to/from the kernel not via user space.

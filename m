@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762914AbWLKNpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762917AbWLKNtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762914AbWLKNpv (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 08:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762917AbWLKNpu
+	id S1762917AbWLKNtx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 08:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762919AbWLKNtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 08:45:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36515 "EHLO mx2.mail.elte.hu"
+	Mon, 11 Dec 2006 08:49:53 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:47520 "EHLO pfx2.jmh.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762914AbWLKNpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 08:45:50 -0500
-Date: Mon, 11 Dec 2006 14:43:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime: vanilla 2.6.19 with 2.6.19-rt11 patch doesn't boot
-Message-ID: <20061211134354.GB8219@elte.hu>
-References: <200612092001.01542.o.bock@fh-wolfenbuettel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612092001.01542.o.bock@fh-wolfenbuettel.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S1762917AbWLKNtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 08:49:53 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Optimize calc_load()
+Date: Mon, 11 Dec 2006 14:50:07 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211021718.a6954106.akpm@osdl.org> <200612111152.56945.dada1@cosmosbay.com>
+In-Reply-To: <200612111152.56945.dada1@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_PIWfFK6VKqIl6p/"
+Message-Id: <200612111450.07722.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_PIWfFK6VKqIl6p/
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-* Oliver Bock <o.bock@fh-wolfenbuettel.de> wrote:
+calc_load() is called by timer interrupt to update avenrun[].
+It currently calls nr_active() at each timer tick (HZ per second), while the 
+update of avenrun[] is done only once every 5 seconds. (LOAD_FREQ=5 Hz)
 
-> Hi Ingo,
-> 
-> I tried to boot a vanilla 2.6.19 kernel with your 2.6.19-rt11 patch 
-> but without success. However, the patch applied without a single error 
-> and the vanilla kernel (without the patch) works fine so far. As my 
-> screen just stays black and as there's no HD activity after selecting 
-> the kernel in grub, I suppose that it might be related to the new 
-> Areca RAID driver I use (compiled in because all my partitions reside 
-> on a RAID volume) in conjunction with your patch...
+nr_active() is quite expensive on SMP machines, since it has to sum up 
+nr_running and nr_uninterruptible of all online CPUS, bringing foreign dirty 
+cache lines.
 
-do you have HPET enabled in your .config by any chance?
+This patch is an optimization of calc_load() so that nr_active() is called 
+only if we need it.
 
-	Ingo
+The use of unlikely() is welcome since the condition is true only once every 
+5*HZ time.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--Boundary-00=_PIWfFK6VKqIl6p/
+Content-Type: text/plain;
+  charset="utf-8";
+  name="calc_load.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="calc_load.patch"
+
+--- linux-2.6.19/kernel/timer.c	2006-12-11 12:27:28.000000000 +0100
++++ linux-2.6.19-ed/kernel/timer.c	2006-12-11 12:29:11.000000000 +0100
+@@ -1008,11 +1008,15 @@ static inline void calc_load(unsigned lo
+ 	unsigned long active_tasks; /* fixed-point */
+ 	static int count = LOAD_FREQ;
+ 
+-	active_tasks = count_active_tasks();
+-	for (count -= ticks; count < 0; count += LOAD_FREQ) {
+-		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
+-		CALC_LOAD(avenrun[1], EXP_5, active_tasks);
+-		CALC_LOAD(avenrun[2], EXP_15, active_tasks);
++	count -= ticks;
++	if (unlikely(count < 0)) {
++		active_tasks = count_active_tasks();
++		do {
++			CALC_LOAD(avenrun[0], EXP_1, active_tasks);
++			CALC_LOAD(avenrun[1], EXP_5, active_tasks);
++			CALC_LOAD(avenrun[2], EXP_15, active_tasks);
++			count += LOAD_FREQ;
++		} while (count < 0);
+ 	}
+ }
+ 
+
+--Boundary-00=_PIWfFK6VKqIl6p/--

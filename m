@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762917AbWLKNtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762905AbWLKNxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762917AbWLKNtx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 08:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762919AbWLKNtx
+	id S1762905AbWLKNxM (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 08:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762912AbWLKNxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 08:49:53 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:47520 "EHLO pfx2.jmh.fr"
+	Mon, 11 Dec 2006 08:53:12 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45893 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762917AbWLKNtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 08:49:53 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Optimize calc_load()
-Date: Mon, 11 Dec 2006 14:50:07 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211021718.a6954106.akpm@osdl.org> <200612111152.56945.dada1@cosmosbay.com>
-In-Reply-To: <200612111152.56945.dada1@cosmosbay.com>
+	id S1762905AbWLKNxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 08:53:10 -0500
+Message-ID: <457D62C1.2030306@garzik.org>
+Date: Mon, 11 Dec 2006 08:53:05 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_PIWfFK6VKqIl6p/"
-Message-Id: <200612111450.07722.dada1@cosmosbay.com>
+To: Andreas Schwab <schwab@suse.de>
+CC: David Howells <dhowells@redhat.com>, Akinobu Mita <akinobu.mita@gmail.com>,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: Mark bitrevX() functions as const
+References: <29447.1165840536@redhat.com> <457D559C.2030702@garzik.org> <je3b7m5zae.fsf@sykes.suse.de>
+In-Reply-To: <je3b7m5zae.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_PIWfFK6VKqIl6p/
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Andreas Schwab wrote:
+> Jeff Garzik <jeff@garzik.org> writes:
+> 
+>> * another annotation to consider is C99 keyword 'restrict'.
+> 
+> This is useless as long as we compile with -fno-strict-aliasing (and I
+> don't think this will ever change).
 
-calc_load() is called by timer interrupt to update avenrun[].
-It currently calls nr_active() at each timer tick (HZ per second), while the 
-update of avenrun[] is done only once every 5 seconds. (LOAD_FREQ=5 Hz)
+Yes, just as useless as __attribute__((bitwise))... :)
 
-nr_active() is quite expensive on SMP machines, since it has to sum up 
-nr_running and nr_uninterruptible of all online CPUS, bringing foreign dirty 
-cache lines.
+	Jeff
 
-This patch is an optimization of calc_load() so that nr_active() is called 
-only if we need it.
 
-The use of unlikely() is welcome since the condition is true only once every 
-5*HZ time.
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
---Boundary-00=_PIWfFK6VKqIl6p/
-Content-Type: text/plain;
-  charset="utf-8";
-  name="calc_load.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="calc_load.patch"
-
---- linux-2.6.19/kernel/timer.c	2006-12-11 12:27:28.000000000 +0100
-+++ linux-2.6.19-ed/kernel/timer.c	2006-12-11 12:29:11.000000000 +0100
-@@ -1008,11 +1008,15 @@ static inline void calc_load(unsigned lo
- 	unsigned long active_tasks; /* fixed-point */
- 	static int count = LOAD_FREQ;
- 
--	active_tasks = count_active_tasks();
--	for (count -= ticks; count < 0; count += LOAD_FREQ) {
--		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
--		CALC_LOAD(avenrun[1], EXP_5, active_tasks);
--		CALC_LOAD(avenrun[2], EXP_15, active_tasks);
-+	count -= ticks;
-+	if (unlikely(count < 0)) {
-+		active_tasks = count_active_tasks();
-+		do {
-+			CALC_LOAD(avenrun[0], EXP_1, active_tasks);
-+			CALC_LOAD(avenrun[1], EXP_5, active_tasks);
-+			CALC_LOAD(avenrun[2], EXP_15, active_tasks);
-+			count += LOAD_FREQ;
-+		} while (count < 0);
- 	}
- }
- 
-
---Boundary-00=_PIWfFK6VKqIl6p/--

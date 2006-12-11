@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759658AbWLKCa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760836AbWLKCsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759658AbWLKCa5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 21:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762278AbWLKCa5
+	id S1760836AbWLKCsP (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 21:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757935AbWLKCsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 21:30:57 -0500
-Received: from science.horizon.com ([192.35.100.1]:15916 "HELO
-	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1762265AbWLKCa4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 21:30:56 -0500
-Date: 10 Dec 2006 21:30:54 -0500
-Message-ID: <20061211023054.2622.qmail@science.horizon.com>
-From: linux@horizon.com
-To: nickpiggin@yahoo.com.au, torvalds@osdl.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
-Cc: linux@horizon.com, linux-arch@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+	Sun, 10 Dec 2006 21:48:15 -0500
+Received: from ozlabs.org ([203.10.76.45]:40335 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760836AbWLKCsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 21:48:14 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17788.50849.140884.507248@cargo.ozlabs.ibm.com>
+Date: Mon, 11 Dec 2006 13:46:57 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jean Delvare <khali@linux-fr.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sysfs file creation result nightmare (WAS radeonfb: Fix sysfs_create_bin_file warnings)
+In-Reply-To: <20061209223418.GA76069@dspnet.fr.eu.org>
+References: <20061209165606.2f026a6c.khali@linux-fr.org>
+	<1165694351.1103.133.camel@localhost.localdomain>
+	<20061209123817.f0117ad6.akpm@osdl.org>
+	<20061209214453.GA69320@dspnet.fr.eu.org>
+	<20061209135829.86038f32.akpm@osdl.org>
+	<20061209223418.GA76069@dspnet.fr.eu.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even if ARM is able to handle any arbitrary C code between the
-> "load locked" and store conditional API, other architectures can not
-> by definition.
+Olivier Galibert writes:
 
-Maybe so, but I think you and Linus are missing the middle ground.
+> Hmmm, then why don't you just drop the return value from the creation
+> function and BUG() in there is something went wrong.  That would allow
+> for better error messages too.
 
-While I agree that LL/SC can't be part of the kernel API for people to
-get arbitrarily clever with in the device driver du jour, they are *very*
-nice abstractions for shrinking the arch-specific code size.
+In this instance, BUG would mean that the console text would not ever
+show up on the screen, and thus the user would never see the message
+nor get any indication what wrong beyond "it failed to boot".
 
-The semantics are widely enough shared that it's quite possible in
-practice to write a good set of atomic primitives in terms of LL/SC
-and then let most architectures define LL/SC and simply #include the
-generic atomic op implementations.
-
-If there's a restriction that would pessimize the generic implementation,
-that function can be implemented specially for that arch.
-
-Then implementing things like backoff on contention can involve writing
-a whole lot less duplicated code.
-
-
-Just like you can write a set of helpers for, say, CPUs with physically
-addressed caches, even though the "real" API has to be able to handle the
-virtually addressed ones, you can write a nice set of helpers for machines
-with sane LL/SC.
+Paul.

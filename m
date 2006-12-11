@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937479AbWLKTB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937548AbWLKTB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937479AbWLKTB3 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937515AbWLKTB3
+	id S937548AbWLKTB5 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937560AbWLKTB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:01:29 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50810 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937479AbWLKTB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:01:28 -0500
-Date: Mon, 11 Dec 2006 19:59:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime: vanilla 2.6.19 with 2.6.19-rt11 patch doesn't boot
-Message-ID: <20061211185959.GA26102@elte.hu>
-References: <200612092001.01542.o.bock@fh-wolfenbuettel.de> <20061211134354.GB8219@elte.hu> <200612111742.30838.o.bock@fh-wolfenbuettel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612111742.30838.o.bock@fh-wolfenbuettel.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -0.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-0.4 required=5.9 tests=BAYES_05 autolearn=no SpamAssassin version=3.0.3
-	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
-	[score: 0.0270]
+	Mon, 11 Dec 2006 14:01:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:58266 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S937548AbWLKTBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:01:55 -0500
+X-Authenticated: #20450766
+Date: Mon, 11 Dec 2006 20:01:10 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+cc: Corey Minyard <cminyard@mvista.com>, Tilman Schmidt <tilman@imap.cc>,
+       linux-serial@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial
+ driver
+In-Reply-To: <20061211102016.43e76da2@localhost.localdomain>
+Message-ID: <Pine.LNX.4.60.0612111954120.4039@poirot.grange>
+References: <4533B8FB.5080108@mvista.com> <20061210201438.tilman@imap.cc>
+ <Pine.LNX.4.60.0612102117590.9993@poirot.grange> <457CB32A.2060804@mvista.com>
+ <20061211102016.43e76da2@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Dec 2006, Alan wrote:
 
-* Oliver Bock <o.bock@fh-wolfenbuettel.de> wrote:
-
-> Hi Ingo,
+> On Sun, 10 Dec 2006 19:23:54 -0600
+> Corey Minyard <cminyard@mvista.com> wrote:
 > 
-> Thanks for your reply. I tried -rt12 and could successfully boot my system.
-> However, now I find the following during boot:
+> > Nothing has come of this yet.  But we have these two requests and a 
+> > request from Russell Doty at Redhat.
+> > 
+> > It would be nice to know if this type of thing was acceptable or not, 
+> > and the problems with the patch.  The patch is at 
+> > http://home.comcast.net/~minyard
 > 
-> registering clocksource pit
+> This looks wrong. You already have a kernel interface to serial drivers.
+> It is called a line discipline. We use it for ppp, we use it for slip, we
+> use it for a few other things such as attaching sync drivers to some
+> devices.
 
-these messages are fine - they are just for debugging.
+Alan, my understanding might be wrong, but, I think, line disciplines are 
+there as "protocols" for user-tty interfaces, i.e., you need a user, that 
+opens a tty, sets a line discipline to it, and does io (read/write) over 
+it, and NOT to be completely initialised and driven from the kernel. 
+Whereas, what some users need is a complete in-kernel interface, when 
+either another driver (like in case with the previous poster), or the 
+platform code (linkstation) know that there's a device attached to this 
+UART, know how and WHEN to operate it, and the user doesn't care about it 
+at all. Think of it as about, say, i2c devices, that have user device 
+interface and in-kernel interface, to which you can connect rtc, USB 
+transceivers, that get controlled completely from the kernel TRANSPARENTLY 
+for the user.
 
-	Ingo
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

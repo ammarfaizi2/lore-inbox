@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937434AbWLKUQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937599AbWLKUQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937434AbWLKUQb (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 15:16:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937532AbWLKUQb
+	id S937599AbWLKUQk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 15:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937623AbWLKUQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 15:16:31 -0500
-Received: from thunk.org ([69.25.196.29]:35926 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937434AbWLKUQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 15:16:30 -0500
-Date: Mon, 11 Dec 2006 15:15:52 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       Olaf Hering <olaf@aepfle.de>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-Message-ID: <20061211201552.GB20960@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Andy Whitcroft <apw@shadowen.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>,
-	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <20061211182908.GC7256@MAIL.13thfloor.at> <Pine.LNX.4.64.0612111040160.12500@woody.osdl.org> <457DAF99.4050106@shadowen.org>
+	Mon, 11 Dec 2006 15:16:39 -0500
+Received: from mail.gmx.net ([213.165.64.20]:47972 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S937599AbWLKUQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 15:16:38 -0500
+X-Authenticated: #20450766
+Date: Mon, 11 Dec 2006 21:16:35 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+cc: Corey Minyard <cminyard@mvista.com>, Tilman Schmidt <tilman@imap.cc>,
+       linux-serial@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial
+ driver
+In-Reply-To: <20061211191543.32ce2da8@localhost.localdomain>
+Message-ID: <Pine.LNX.4.60.0612112100220.4039@poirot.grange>
+References: <4533B8FB.5080108@mvista.com> <20061210201438.tilman@imap.cc>
+ <Pine.LNX.4.60.0612102117590.9993@poirot.grange> <457CB32A.2060804@mvista.com>
+ <20061211102016.43e76da2@localhost.localdomain> <Pine.LNX.4.60.0612111954120.4039@poirot.grange>
+ <20061211191543.32ce2da8@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <457DAF99.4050106@shadowen.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 07:20:57PM +0000, Andy Whitcroft wrote:
-> I am afraid to report that this second version also fails for me, as you 
-> point out CIFS can break us if defined.  In fact we used to get away 
-> with this on my test system due to ordering magic luck, I presume the 
-> move to __initdata has triggered this.  Much as I agree that this is 
-> wrong we are still going to break people with this.
+On Mon, 11 Dec 2006, Alan wrote:
 
-But does your problem go away if you compile CIFS as a module?  If so,
-then we're no worse off than before.  Still, whoever wrote the SLES
-initrd needs to receive 100 lashes with a wet noodle for not proposing
-a more robust solution.  
+> > there as "protocols" for user-tty interfaces, i.e., you need a user, that 
+> > opens a tty, sets a line discipline to it, and does io (read/write) over 
+> > it, and NOT to be completely initialised and driven from the kernel.
+> 
+> Take a look at the SLIP driver. User space sets up the port but all the
+> actual I/O is to/from the kernel not via user space.
 
-As far as whether or not it should be _mandatory_, to be able to pull
-out the version information from an arbitrary bzImage file, can folks
-agree that it would at least be a nice-to-have feature?  Sometimes
-when you're out in the field you don't know what you're faced with,
-especially if you're dealing with a customer who likes to build their
-own kernels, and who might not have, ah, a very well defined release
-process.  Sure, you can _call_ them incompetent, and it might even be
-true, but wouldn't be nice if there was an easy way to look at a
-bzImage file and be able to tell what kernel version it was built
-from?
+Ok, to be specific, linkstation-like mpc8241-based NAS systems have an AVR 
+perform power management functions, and it is connected over a UART. Some 
+of the functions you have to perform:
 
-Clearly, if the goal is to make it easy to pull out, it will be
-architecture specific, since it depends on the layout of the kernel
-image file.  At least for x86 and x86_64, though, there's an obvious
-place for it --- in the first 512 bytes of the image, in what was
-previously the floppy bootstrap code.  Plenty of space there for a
-100-150 bytes worth of version information.
+1) disable the watchdog at startup otherwise it powers the system down in 
+a few minutes. This is done by sending about 20 bytes to it - more than 
+fits in UART's fifo. So, you need interrupts / polling. It is arguable 
+whether this should be done / initialised from the user- or from the 
+kernel-space. Earlier it was done from the user space completely, I put it 
+into the kernel completely to get a runnable system even without 
+user-space hacks.
 
-						- Ted
+2) run-time operation, like fan control, sensors, maybe some other 
+functions. These all should and are currently done completely from a 
+user-space process over a normal tty.
+
+3) reboot / halt. Consists of 2 parts. The actual command, that can be 
+sent earlier from the userspace too, and the final "commit", that actually 
+reboots / powers down the system. That is the last command in platform's 
+reboot / poweroff functions. Currently I do both parts from the kernel so 
+with the current kernel you get a completely functional system with "any" 
+generic distribution.
+
+So, if we decide to put 1) in the user-space too, it becomes almost a 
+normal line discipline with the only need to initiate io from the kernel 
+for 3), which is just sending about 4 bytes over the port anyway, and can 
+be (and is) just done in a tight infinite loop. But I'd prefer to keep 1) 
+and 3) in the kernel and perform it without waiting for any user-space 
+daemons...
+
+What do you think?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

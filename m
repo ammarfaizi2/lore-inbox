@@ -1,102 +1,119 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762976AbWLKRXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762981AbWLKRYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762976AbWLKRXh (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 12:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762977AbWLKRXh
+	id S1762981AbWLKRYN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 12:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762982AbWLKRYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 12:23:37 -0500
-Received: from pat.uio.no ([129.240.10.15]:53344 "EHLO pat.uio.no"
+	Mon, 11 Dec 2006 12:24:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46649 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762976AbWLKRXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 12:23:37 -0500
-Subject: Re: [2.6.19] NFS: server error: fileid changed
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <751508.31195.qm@web32606.mail.mud.yahoo.com>
-References: <751508.31195.qm@web32606.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 11 Dec 2006 12:23:08 -0500
-Message-Id: <1165857788.5721.127.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.174, required 12,
-	autolearn=disabled, AWL 1.69, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	id S1762981AbWLKRYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 12:24:11 -0500
+Date: Mon, 11 Dec 2006 08:52:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olaf@aepfle.de>
+cc: Andy Whitcroft <apw@shadowen.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+In-Reply-To: <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
+ <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-11 at 08:09 -0800, Martin Knoblauch wrote:
-> Hi, [please CC me, as I am not subscribed]
+
+
+On Mon, 11 Dec 2006, Linus Torvalds wrote:
 > 
->  after updating a RHEL4 box (EM64T based) to a plain 2.6.19 kernel, we
-> are seeing repeated occurences of the following messages (about every
-> 45-50 minutes).
-> 
->  It is always the same server (a NetApp filer, mounted via the
-> user-space automounter "amd") and the expected/got numbers seem to
-> repeat.
+> What crud. I'm even slightly inclined to just let SLES9 be broken, just to 
+> let people know how unacceptable it is to look for strings in kernel 
+> binaries. But sadly, I don't think the poor users should be penalized for 
+> some idiotic SLES developers bad taste.
 
-Are you seeing it _without_ amd? The usual reason for the errors you see
-are bogus replay cache replies. For that reason, the kernel is usually
-very careful when initialising its value for the XID: we set part of it
-using the clock value, and part of it using a random number generator.
-I'm not so sure that other services are as careful.
+Does this fix the problem?
 
->  Is there a  way to find out which files are involved? Nothing seems to
-> be obviously breaking, but I do not like to get my logfiles filled up. 
+			Linus
 
-The fileid is the same as the inode number. Just convert those
-hexadecimal values into ordinary numbers, then search for them using 'ls
--i'.
-
-Trond
-
-> [ 9337.747546] NFS: server nvgm022 error: fileid changed
-> [ 9337.747549] fsid 0:25: expected fileid 0x7a6f3d, got 0x65be80
-> [ 9338.020427] NFS: server nvgm022 error: fileid changed
-> [ 9338.020430] fsid 0:25: expected fileid 0x15f5d7c, got 0x9f9900
-> [ 9338.070147] NFS: server nvgm022 error: fileid changed
-> [ 9338.070150] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9338.338896] NFS: server nvgm022 error: fileid changed
-> [ 9338.338899] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9338.370207] NFS: server nvgm022 error: fileid changed
-> [ 9338.370210] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9338.634437] NFS: server nvgm022 error: fileid changed
-> [ 9338.634439] fsid 0:25: expected fileid 0x7a6f3d, got 0x22070e
-> [ 9338.698383] NFS: server nvgm022 error: fileid changed
-> [ 9338.698385] fsid 0:25: expected fileid 0x7a6f3d, got 0x352777
-> [ 9338.949952] NFS: server nvgm022 error: fileid changed
-> [ 9338.949954] fsid 0:25: expected fileid 0x15f5d7c, got 0x5988c4
-> [ 9339.042473] NFS: server nvgm022 error: fileid changed
-> [ 9339.042476] fsid 0:25: expected fileid 0x7a6f3d, got 0x9f9900
-> [ 9339.267338] NFS: server nvgm022 error: fileid changed
-> [ 9339.267341] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9339.309921] NFS: server nvgm022 error: fileid changed
-> [ 9339.309923] fsid 0:25: expected fileid 0x15f5d7c, got 0x65be80
-> [ 9339.405146] NFS: server nvgm022 error: fileid changed
-> [ 9339.405149] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9339.433816] NFS: server nvgm022 error: fileid changed
-> [ 9339.433819] fsid 0:25: expected fileid 0x15f5d7c, got 0x65be80
-> [ 9340.149325] NFS: server nvgm022 error: fileid changed
-> [ 9340.149328] fsid 0:25: expected fileid 0x7a6f3d, got 0x19bc55
-> [ 9340.173278] NFS: server nvgm022 error: fileid changed
-> [ 9340.173281] fsid 0:25: expected fileid 0x15f5d7c, got 0x22070e
-> [ 9340.324517] NFS: server nvgm022 error: fileid changed
-> [ 9340.324520] fsid 0:25: expected fileid 0x15f5d7c, got 0x11c9001
-> 
-> Thanks
-> Martin
-> 
-> 
-> ------------------------------------------------------
-> Martin Knoblauch
-> email: k n o b i AT knobisoft DOT de
-> www:   http://www.knobisoft.de
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+----
+diff --git a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
+index dc3e580..6a56c4f 100644
+--- a/fs/proc/proc_misc.c
++++ b/fs/proc/proc_misc.c
+@@ -47,6 +47,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/crash_dump.h>
+ #include <linux/pid_namespace.h>
++#include <linux/compile.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+@@ -253,7 +254,12 @@ static int version_read_proc(char *page, char **start, off_t off,
+ {
+ 	int len;
+ 
+-	len = sprintf(page, linux_banner,
++	/* FIXED STRING! Don't touch! */
++	len = snprintf(page, PAGE_SIZE,
++		"Linux version %s"
++		" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
++		" (" LINUX_COMPILER ")"
++		" %s\n",
+ 		utsname()->release, utsname()->version);
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index e8bfac3..b0c4a05 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -17,8 +17,6 @@
+ #include <asm/byteorder.h>
+ #include <asm/bug.h>
+ 
+-extern const char linux_banner[];
+-
+ #define INT_MAX		((int)(~0U>>1))
+ #define INT_MIN		(-INT_MAX - 1)
+ #define UINT_MAX	(~0U)
+diff --git a/init/main.c b/init/main.c
+index 036f97c..c783695 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -483,6 +483,12 @@ void __init __attribute__((weak)) smp_setup_processor_id(void)
+ {
+ }
+ 
++static char __initdata linux_banner[] =
++	"Linux version " UTS_RELEASE
++	" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
++	" (" LINUX_COMPILER ")"
++	" " UTS_VERSION "\n";
++
+ asmlinkage void __init start_kernel(void)
+ {
+ 	char * command_line;
+@@ -509,7 +515,7 @@ asmlinkage void __init start_kernel(void)
+ 	boot_cpu_init();
+ 	page_address_init();
+ 	printk(KERN_NOTICE);
+-	printk(linux_banner, UTS_RELEASE, UTS_VERSION);
++	printk(linux_banner);
+ 	setup_arch(&command_line);
+ 	unwind_setup();
+ 	setup_per_cpu_areas();
+diff --git a/init/version.c b/init/version.c
+index 2a5dfcd..9d96d36 100644
+--- a/init/version.c
++++ b/init/version.c
+@@ -33,8 +33,3 @@ struct uts_namespace init_uts_ns = {
+ 	},
+ };
+ EXPORT_SYMBOL_GPL(init_uts_ns);
+-
+-const char linux_banner[] =
+-	"Linux version %s (" LINUX_COMPILE_BY "@"
+-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") %s\n";
+-

@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761865AbWLKBpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761798AbWLKCHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761865AbWLKBpe (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 20:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761780AbWLKBpe
+	id S1761798AbWLKCHY (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 21:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762263AbWLKCHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 20:45:34 -0500
-Received: from gw.goop.org ([64.81.55.164]:58576 "EHLO mail.goop.org"
+	Sun, 10 Dec 2006 21:07:24 -0500
+Received: from main.gmane.org ([80.91.229.2]:52111 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761866AbWLKBpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 20:45:33 -0500
-Message-ID: <457CB83C.5060107@goop.org>
-Date: Sun, 10 Dec 2006 17:45:32 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: walt <w41ter@gmail.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.19-rc6-mm2 hangs when gdb is run on a multithread program
-References: <20061211000724.GA2578@ai.larroy.com> <457CAA37.9040407@goop.org> <457CB4A6.5090807@gmail.com>
-In-Reply-To: <457CB4A6.5090807@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15
+	id S1761798AbWLKCHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 21:07:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kevin Puetz <puetzk@puetzk.org>
+Subject: Re: [2.6.19-rc1][AGP] Regression -  =?utf-8?b?YW1kX2s3X2FncA==?=  no longer detected
+Date: Mon, 11 Dec 2006 02:06:19 +0000 (UTC)
+Message-ID: <loom.20061211T025904-121@post.gmane.org>
+References: <200610060150.20415.shawn.starr@rogers.com> <20061006060803.GB3381@redhat.com> <200610060259.52742.shawn.starr@rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 12.208.253.240 (Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.0.7) Gecko/20060911 Camino/1.0.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-walt wrote:
-> Jeremy Fitzhardinge wrote:
->   
->> Pedro Larroy Tovar wrote:
->>     
->>> Hi
->>>
->>> I can reproduce a crash with 2.6.19-rc6-mm2 triggered when debugging a
->>> program with gdb that uses pthreads. No oops or anything strange seems
->>> to be printed by the kernel, but the box appears to stop doing disk IO.
->>>       
->
->   
->> Hm, I wonder if this is related walt's problem running things under gdb?
->>     
->
-> Jeremy, I redid my git-bisect from scratch and came up with a different
-> commit for the gdb breakage:
->
-> commit f95d47caae5302a63d92be9a0292abc90e2a14e1
-> Author: Jeremy Fitzhardinge <jeremy@goop.org>
-> Date:   Thu Dec 7 02:14:02 2006 +0100
-> [PATCH] i386: Use %gs as the PDA base-segment in the kernel
->
-> This commit is the one which causes gdb to halt with this error
-> no matter what executable I try to run:
-> Warning:
-> Cannot insert breakpoint -2.
-> Error accessing memory address 0xd74b: Input/output error.
->
-> I tried to git-revert just this one commit, but I get merge conflicts
-> I don't how to resolve.
->
-> BTW, I just discovered tons of kernel debugging config options which
-> were turned off -- I just turned several of them on.  Maybe I can give
-> you better info now.
->   
+Shawn Starr <shawn.starr <at> rogers.com> writes:
 
-OK, this is the changeset I'd expect to cause problems.  I'll try to
-repo it here.
+> 
+> On Friday 06 October 2006 2:08 am, Dave Jones wrote:
+> > On Fri, Oct 06, 2006 at 01:50:19AM -0400, Shawn Starr wrote:
+> >  > When loading amd_k7_agp nothing appears from kernel, no information
+> >  > about the AGP chipset/aptreture size etc. Even putting kprints inside
+> >  > the probe() function of the driver does not get called.
+> >
+> > Even as the first thing in agp_amdk7_probe() ?
+> ... (http://thread.gmane.org/gmane.linux.kernel/453869)
 
-    J
+I'm hitting this problem too, and as it's still present in the 2.6.19 final, I'm
+assuming you never got enough information to chase it. I found the following
+note in the debian BTS that seems relevant:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=363682
+
+I can confirm that if I remove the amd76x_edac module and reload amd_k7_agp, it
+detects the aperture. If I then reload radeon.ko and X, I get DRI (and AIGLX).
+So hopefully that's a lead to what might have changed...
 

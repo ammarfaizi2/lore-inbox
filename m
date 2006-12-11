@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936390AbWLKOzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936301AbWLKO5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936390AbWLKOzS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936352AbWLKOzS
+	id S936301AbWLKO5R (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936340AbWLKO5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:55:18 -0500
-Received: from hempcity.net ([81.171.100.190]:52827 "EHLO hempcity.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936390AbWLKOzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:55:11 -0500
-Message-ID: <29793.84.81.1.164.1165848900.squirrel@webmail.coolzero.info>
-In-Reply-To: <20061209114930.GE10261@atrey.karlin.mff.cuni.cz>
-References: <13634.62.194.65.8.1165659510.squirrel@webmail.coolzero.info>
-    <20061209105436.GB10261@atrey.karlin.mff.cuni.cz>
-    <16096.62.194.65.8.1165661845.squirrel@webmail.coolzero.info>
-    <20061209113406.GC10261@atrey.karlin.mff.cuni.cz>
-    <19683.62.194.65.8.1165664691.squirrel@webmail.coolzero.info>
-    <20061209114930.GE10261@atrey.karlin.mff.cuni.cz>
-Date: Mon, 11 Dec 2006 15:55:00 +0100 (CET)
-Subject: Re: Ext3 Errors...
-From: "Jim van Wel" <jim@coolzero.info>
-To: "Jan Kara" <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: jim@coolzero.info
-User-Agent: SquirrelMail/1.4.8-2.el4
+	Mon, 11 Dec 2006 09:57:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3129 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S936335AbWLKO5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 09:57:14 -0500
+Date: Mon, 11 Dec 2006 15:57:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, stephane eranian <eranain@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: 2.6.19-mm1: i386: unused idle notifiers added
+Message-ID: <20061211145722.GM10351@stusta.de>
+References: <20061211005807.f220b81c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.19-rc6-mm2:
+>...
+> +x86_64-mm-i386-add-idle-notifier.patch
+> 
+>  x86 tree update
+>...
 
-Well, after I was getting the error again, I now switched back to kernel
-2.6.18.1, and going to check if I am getting the same errors. I'll keep
-you posted about the progress. If a week have passed and no errors has
-shown, I'll e-mail this again.
+This patch adds code and EXPORT_SYMBOL's that bloat the kernel for 
+everyone but are currently completely unused in the kernel with the sole 
+justification
+  "We use the idle notifier in the context of perfmon."
 
-Thanks!
-Jim.
+The people who whine loudly when I'm sending patches to remove code that 
+is unused within the kernel should consider that they could save some 
+tears when NAK'ing such patches until an actual user gets included in 
+the kernel...
 
->   Hi,
->
->> Well, that's kind of difficult because it looks a little random when he
->> does it, and a interval of three days, but also is maybe random.
->>
->> And the most difficult part is it's only for three seconds, and than
->> it's
->> gone, so making a crontab script every minute might not even notice it?
->   Oh, so the machine does not crash or go totally out of memory when this
-> happens? At least it seems the filesystem is remounted RO?
->
-> <snip>
->> >> >> Dec  5 23:50:49 kernel: do_get_write_access: OOM for frozen_buffer
->> >> >> Dec  5 23:50:49 kernel: ext3_free_blocks_sb: aborting transaction:
->> >> Out
->> >> >> of
->> >> >> memory in __ext3_journal_get_undo_access
->> >> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
->> >> >> ext3_free_blocks_sb:
->> >> >> Out of memory
->> >> >> Dec  5 23:50:49 kernel: EXT3-fs error (device md1) in
->> >> >> ext3_reserve_inode_write: Readonly filesystem
->> >> >> Dec  5 23:50:50 kernel: EXT3-fs error (device md1) in
->> ext3_truncate:
->> >> Out
->> >> >> of memory
->> >> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
->> >> >> ext3_reserve_inode_write: Readonly filesystem
->> >> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
->> >> ext3_orphan_del:
->> >> >> Readonly filesystem
->> >> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
->> >> >> ext3_reserve_inode_write: Readonly filesystem
->> >> >> Dec  5 23:50:51 kernel: EXT3-fs error (device md1) in
->> >> ext3_delete_inode:
->> >> >> Out of memory
->  <snip>
->
-> 								Honza
-> --
-> Jan Kara <jack@suse.cz>
-> SuSE CR Labs
->
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

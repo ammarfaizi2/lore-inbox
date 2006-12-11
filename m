@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762674AbWLKJNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762677AbWLKJTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762674AbWLKJNp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 04:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762675AbWLKJNp
+	id S1762677AbWLKJTU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 04:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762678AbWLKJTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 04:13:45 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33475 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762674AbWLKJNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 04:13:44 -0500
-Date: Mon, 11 Dec 2006 01:13:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrew MChuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds orton <akpm@osdl.org>" <torvalds@osdl.org>
-Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
-Message-Id: <20061211011327.f9478117.akpm@osdl.org>
-In-Reply-To: <20061211005557.04643a75.akpm@osdl.org>
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com>
-	<20061211005557.04643a75.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Dec 2006 04:19:20 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:38918 "HELO
+	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1762677AbWLKJTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 04:19:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=oGqvoVZ+6g/4oOsYYcOXQ0VAcRZ7tx6m9+s9I/jRepwgK7WnT0eXgllXXSjeT+jggIun3mIcNDy+nOZsZnegyp6HVQGtwcLSN9FOLkqTFyJJdzcIAEDaks9MfWGgpwT6RqEwfpemKAXaxkqCWGmpCuZuU6ZZD/c7v8VHBzwsGVU=  ;
+X-YMail-OSG: LhtinV4VM1liv69N0sNGbX_X2QHMNKa6N5a6B6W9jca.8LiPylcSDGdrupdND4bOQz05zrQB2r58y5yWX8rPa6RbJPLf105kvKOZmw0QEvFGMlcH5PAtlQ--
+Message-ID: <457D2265.50109@yahoo.com.au>
+Date: Mon, 11 Dec 2006 20:18:29 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-mm1
+References: <20061211005807.f220b81c.akpm@osdl.org>
+In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 00:55:57 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Andrew Morton wrote:
+> Temporarily at
+> 
+> 	http://userweb.kernel.org/~akpm/2.6.19-mm1/
+> 
+> Will appear later at
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/
+> 
+> 
+> - There's some new runtime debugging in kmap_atomic().  It catches one
+>   buglet in in ata_scsi_rbuf_get() - there may be others.  If it gets too
+>   noisy, please revert kmap_atomic-debugging.patch.
+> 
+> - The reiser4 build is broken by some VFS changes I made.
+> 
+> - New git tree git-ubi.patch (Artem Bityutskiy <dedekind@infradead.org>):
+> 
+>     It is a kind of LVM layer but for flash (MTD) devices which hides
+>     flash devices complexities like bad eraseblocks (on NANDs) and wear.  The
+>     documentation is available at the MTD web site:
+>     http://www.linux-mtd.infradead.org/doc/ubi.html
+>     http://www.linux-mtd.infradead.org/faq/ubi.html
+> 
+> - The x86_64 tree here is a few days old - the server is down.
+> 
+> - Brought back the write()-deadlock-fix-and-writev-speedup patches.
 
-> I think the bug really is the running of populate_rootfs() before running
-> the initcalls, in init/main.c:init().  It's just more sensible to start
-> running userspace after the initcalls have been run.  Statically-linked
-> drivers which want to load firmware files will lose.  To fix that we'd need
-> a new callback.  It could be with a new linker section or perhaps simply a
-> notifier chain.
+Note that these still look like they have a couple of problems (you are
+_very_ unlikely to hit them unless you are running with CONFIG_DEBUG_VM,
+or actually have any useful data).
 
-hm, actually...  Add two new initcall levels, one for populate_rootfs() and
-one for things which want to come after it (ie: drivers which want to
-access the filesytem):
+We're just looking at how to fix them now. Stress testing would be
+appreciated, but not your production database.
 
- #define core_initcall(fn)		__define_initcall("1",fn,1)
- #define core_initcall_sync(fn)		__define_initcall("1s",fn,1s)
- #define postcore_initcall(fn)		__define_initcall("2",fn,2)
- #define postcore_initcall_sync(fn)	__define_initcall("2s",fn,2s)
- #define arch_initcall(fn)		__define_initcall("3",fn,3)
- #define arch_initcall_sync(fn)		__define_initcall("3s",fn,3s)
- #define subsys_initcall(fn)		__define_initcall("4",fn,4)
- #define subsys_initcall_sync(fn)	__define_initcall("4s",fn,4s)
- #define fs_initcall(fn)		__define_initcall("5",fn,5)
- #define fs_initcall_sync(fn)		__define_initcall("5s",fn,5s)
- #define device_initcall(fn)		__define_initcall("6",fn,6)
- #define device_initcall_sync(fn)	__define_initcall("6s",fn,6s)
- #define late_initcall(fn)		__define_initcall("7",fn,7)
- #define late_initcall_sync(fn)		__define_initcall("7s",fn,7s)
-+#define populate_rootfs_initcall ...
-+#define post_populate_rootfs_initcall ...
+Thanks,
+Nick
 
-?
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

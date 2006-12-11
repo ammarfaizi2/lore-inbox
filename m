@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762904AbWLKN0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762906AbWLKN0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762904AbWLKN0k (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 08:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762910AbWLKN0j
+	id S1762906AbWLKN0d (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 08:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762904AbWLKN0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 08:26:39 -0500
-Received: from nz-out-0506.google.com ([64.233.162.229]:8443 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1762907AbWLKN0i (ORCPT
+	Mon, 11 Dec 2006 08:26:33 -0500
+Received: from wx-out-0506.google.com ([66.249.82.236]:45690 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762906AbWLKN0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 08:26:38 -0500
+	Mon, 11 Dec 2006 08:26:32 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=d6T+xbHYPwdS1QkNYfGDDZ1pyWO6z6vkJ2Ajz/lthJOkWhASuDVZLsGqK9WExe58mrbkVQ9x6NV+srHNJLpnuFyhOzS6F5Z2cNoF+m2V5klyV2NYkpXP54IRz5uI98PPE6bXLTPkwXTMJpc0gPiP8KL0jbTrMc+lE4YwGccpyoE=
-Date: Mon, 11 Dec 2006 22:26:25 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ata_piix: use piix_host_stop() in ich_pata_ops
-Message-ID: <20061211132625.GA18947@htj.dyndns.org>
-References: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TQEV0Sxrq5aTlP2YIyUh1+PZGZYKQ+RwcGS0NVT/CVKjSpYyBDTIaVm/rHc0PpncFDTYrFYxfmNHnehrTvI+BGf8EgUIqm3iuNEFOkoYCGJyy9DQ9+IQ59STypOsorVGORo0ayNKUXNUgWgY2Qi4F/hx3LteDAmPccX86jAtx+U=
+Message-ID: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
+Date: Mon, 11 Dec 2006 14:26:30 +0100
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.19-git3 panics on boot - ata_piix/PCI related [still in -git17]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-piix_init_one() allocates host private data which should be freed by
-piix_host_stop().  ich_pata_ops wasn't converted to piix_host_stop()
-while merging, leaking 4 bytes on driver detach.  Fix it.
+On 12/3/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
+> On 12/3/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> > > > ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKB] -> GSI 5 (level, low) -> IRQ5
+> > > > PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
+> > > > ata_piix: probe of 0000:00:1f.2 failed with error -16
+> > > > [snip]
+> > > > mount: could not find filesystem '/dev/root'
+> > >
+> > > Same failure is also in 2.6.19-git4...
+> >
+> > Thats the PCI updates - you need the matching fix to libata-sff where it
+> > tries to reserve stuff it shouldn't.
+>
+> Thanks Alan. Indeed -git1 is where stuff breaks for me.
+> I'll watch out for when libata-sff gets fixed in the -git
+>  snapshots and will then report back.
 
-This was spotted using Kmemleak by Catalin Marinas.
+Alan,
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@gmail.com>
----
-diff --git a/drivers/ata/ata_piix.c b/drivers/ata/ata_piix.c
-index c7de0bb..dfe17e1 100644
---- a/drivers/ata/ata_piix.c
-+++ b/drivers/ata/ata_piix.c
-@@ -330,7 +330,7 @@ static const struct ata_port_operations ich_pata_ops = {
- 
- 	.port_start		= ata_port_start,
- 	.port_stop		= ata_port_stop,
--	.host_stop		= ata_host_stop,
-+	.host_stop		= piix_host_stop,
- };
- 
- static const struct ata_port_operations piix_sata_ops = {
+  I still have this problem in 2.6.19-git17. Is this expected behavior
+  or should it have been fixed by now ?
+
+Thanks,
+
+--alessandro
+
+"...when I get it, I _get_ it"
+
+     (Lara Eidemiller)

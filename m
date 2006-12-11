@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761865AbWLKVR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762369AbWLKVU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761865AbWLKVR0 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 16:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762594AbWLKVR0
+	id S1762369AbWLKVU4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 16:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762594AbWLKVU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 16:17:26 -0500
-Received: from twinlark.arctic.org ([207.29.250.54]:53118 "EHLO
-	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761865AbWLKVRZ (ORCPT
+	Mon, 11 Dec 2006 16:20:56 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:51727 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762369AbWLKVU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 16:17:25 -0500
-Date: Mon, 11 Dec 2006 13:17:25 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: john stultz <johnstul@us.ibm.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>
-Subject: Re: rdtscp vgettimeofday
-In-Reply-To: <20061211003904.GB5366@opteron.random>
-Message-ID: <Pine.LNX.4.64.0612111302440.22490@twinlark.arctic.org>
-References: <20061129025728.15379.50707.sendpatchset@localhost>
- <20061129025752.15379.14257.sendpatchset@localhost> <20061211003904.GB5366@opteron.random>
+	Mon, 11 Dec 2006 16:20:56 -0500
+Message-ID: <457DCAA1.7000705@zytor.com>
+Date: Mon, 11 Dec 2006 13:16:17 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Theodore Tso <tytso@mit.edu>, Andy Whitcroft <apw@shadowen.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <20061211182908.GC7256@MAIL.13thfloor.at> <Pine.LNX.4.64.0612111040160.12500@woody.osdl.org> <457DAF99.4050106@shadowen.org> <20061211201552.GB20960@thunk.org>
+In-Reply-To: <20061211201552.GB20960@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006, Andrea Arcangeli wrote:
+Theodore Tso wrote:
+> 
+> As far as whether or not it should be _mandatory_, to be able to pull
+> out the version information from an arbitrary bzImage file, can folks
+> agree that it would at least be a nice-to-have feature?  Sometimes
+> when you're out in the field you don't know what you're faced with,
+> especially if you're dealing with a customer who likes to build their
+> own kernels, and who might not have, ah, a very well defined release
+> process.  Sure, you can _call_ them incompetent, and it might even be
+> true, but wouldn't be nice if there was an easy way to look at a
+> bzImage file and be able to tell what kernel version it was built
+> from?
+> 
 
-> As far as I can see, many changes happened but nobody has yet added
-> the rdtscp support to x86-64. rdtscp finally solves the problem and it
-> obsoletes hpet for timekeeping and it allows a fully userland
-> gettimeofday running at maximum speed in userland.
+There is a documented procedure for doing exactly that.
 
-rdtscp doesn't solve anything extra which can't already be solved with 
-existing vgetcpu (based on lsl) and rdtsc.  which have the advantage of 
-working on all x86, not just the (currently) rare revF opteron.
+See Documentation/i386/boot.txt for details; there is a pointer in the 
+header which points to a cleartext string, even if the kernel is compressed.
 
-lsl-based vgetcpu is relatively slow (because it is a protected 
-instruction with lots of microcode) -- but there are other options which 
-continue to work on all x86 (see <http://lkml.org/lkml/2006/11/13/401>).
-
-
-> Before rdtscp we could never index the rdtsc offset in a proper index
-> without being in kernel with preemption disabled, so it could never
-> work reliably.
-
-even with rdtscp you have to deal with the definite possibility of being 
-scheduled away in the middle of the computation.  arguably you need to 
-deal with the possibility of being scheduled away *and* back again to the 
-same cpu (so testing cpu# at top and bottom of a loop isn't sufficient).
-
-suleiman proposed a per-cpu scheduling event number to deal with that... 
-not sure what folks think of that idea.
-
--dean
+	-hpa

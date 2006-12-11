@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937577AbWLKTMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937585AbWLKTNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937577AbWLKTMs (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937579AbWLKTMs
+	id S937585AbWLKTNh (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937579AbWLKTNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:12:48 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55508 "EHLO smtp.osdl.org"
+	Mon, 11 Dec 2006 14:13:37 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42953 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937577AbWLKTMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:12:47 -0500
-Date: Mon, 11 Dec 2006 11:11:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-cc: Paul Mackeras <paulus@samba.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       Andy Whitcroft <apw@shadowen.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-In-Reply-To: <20061211185536.GA19338@aepfle.de>
-Message-ID: <Pine.LNX.4.64.0612111106310.12500@woody.osdl.org>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
- <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
- <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de>
- <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org>
- <20061211182908.GC7256@MAIL.13thfloor.at> <Pine.LNX.4.64.0612111040160.12500@woody.osdl.org>
- <20061211185536.GA19338@aepfle.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S937585AbWLKTNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:13:36 -0500
+Date: Mon, 11 Dec 2006 20:12:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] make kernel/printk.c:ignore_loglevel_setup() static
+Message-ID: <20061211191208.GB28340@elte.hu>
+References: <20061211191132.GG28443@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211191132.GG28443@stusta.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0013]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Adrian Bunk <bunk@stusta.de> wrote:
 
-On Mon, 11 Dec 2006, Olaf Hering wrote:
+> This patch makes the needlessly global ignore_loglevel_setup() static.
 > 
-> arch/powerpc/boot/wrapper:156:    version=`${CROSS}strings "$kernel" | grep '^Linux version [-0-9.]' | \
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-This is also obviously broken (and really sad), but actually ends up being 
-better than what get_kernel_version apparently does, by at least adding 
-the requirement that the string "Linux version" be slightly more correct.
+thanks,
 
-However, it's also TOTALLY BROKEN. 
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-For example, if the Linux version string happens to be preceded by a byte 
-that is a valid ASCII character, the grep will fail miserably. So that PoS 
-is actually going to fail for various random kernels too, and depends 
-intimately on just what variable _happened_ to be linked just before the 
-version string.
-
-The fact is, doing strings on the kernel is just not a viable alternative 
-to real versioning.
-
-			Linus
+	Ingo

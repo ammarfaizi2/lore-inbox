@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763021AbWLKTib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763025AbWLKTmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763021AbWLKTib (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763025AbWLKTib
+	id S1763025AbWLKTmE (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763029AbWLKTmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:38:31 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:45683 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1763018AbWLKTia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:38:30 -0500
-Subject: Re: [PATCH -rt][RESEND] fix preempt hardirqs on OMAP
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20061211190554.GA26392@elte.hu>
-References: <20061210163545.488430000@mvista.com>
-	 <20061211190554.GA26392@elte.hu>
-Content-Type: text/plain
-Date: Mon, 11 Dec 2006 11:38:28 -0800
-Message-Id: <1165865908.8103.30.camel@imap.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 14:42:04 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:33867 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1763025AbWLKTmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:42:02 -0500
+Date: Mon, 11 Dec 2006 20:34:54 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Olaf Hering <olaf@aepfle.de>, Andy Whitcroft <apw@shadowen.org>,
+       Herbert Poetzl <herbert@13thfloor.at>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+In-Reply-To: <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+Message-ID: <Pine.LNX.4.61.0612112033030.28981@yvahk01.tjqt.qr>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
+ <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-11 at 20:05 +0100, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
-> 
-> > +	/*
-> > +	 * Some boards will disable an interrupt when it
-> > +	 * sets IRQ_PENDING . So we have to remove the flag
-> > +	 * and re-enable to handle it.
-> > +	 */
-> > +	if (desc->status & IRQ_PENDING) {
-> > +		desc->status &= ~IRQ_PENDING;
-> > +		if (desc->chip)
-> > +			desc->chip->enable(irq);
-> > +		goto restart;
-> > +	}
-> 
-> what if the irq got disabled meanwhile? Also, chip->enable is a 
-> compatibility method, not something we should use in a flow handler.
 
-I don't know how other arches deal with IRQ_PENDING, but ARM (OMAP at
-least) disables the IRQ on IRQ_PENDING. The problem is that by threading
-the IRQ we take some control away from the low level code, which needs
-to be replaced.
-
-I'm open to potentially removing the irq disable()->enable() cycle on
-IRQ_PENDING if it's only done on OMAP. My feeling is that it's in other
-ARM's which would make that change more invasive, but I haven't actually
-researched that.
-
-Daniel
+On Dec 11 2006 08:44, Linus Torvalds wrote:
+>> 
+>> Please revert this change.
+>
+>Well, that "get_kernel_version" is definitely buggered, and should be 
+>fixed. And we do want the new behaviour for /proc/version.
+>
+>So I don't think we should revert it, but we should:
+>
+> - strongly encourage "get_kernel_version" users to just stop using that 
+>   crap. Ask the build system for the version instead or something, don't 
+>   expect to dig it out of the binary (if you create an RPM for any other 
+>   package, you sure as _hell_ don't start doing strings on the binary and 
+>   try to figure out what the kernel is - you do it as part of the build)
+>
+>What crud. I'm even slightly inclined to just let SLES9 be broken, just to 
+>let people know how unacceptable it is to look for strings in kernel 
+>binaries. But sadly, I don't think the poor users should be penalized for 
+>some idiotic SLES developers bad taste.
 
 
+If you fix it now, it will anyhow only be fixed for >= 2.6.20, hence
+you don't break current/older SLES kernel builds.
+
+
+	-`J'
+-- 

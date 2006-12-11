@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763093AbWLKVce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763128AbWLKVco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763093AbWLKVce (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 16:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762949AbWLKVce
+	id S1763128AbWLKVco (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 16:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763120AbWLKVco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 16:32:34 -0500
-Received: from mx1.suse.de ([195.135.220.2]:55280 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1763111AbWLKVcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 16:32:33 -0500
-Date: Mon, 11 Dec 2006 22:32:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: dean gaudet <dean@arctic.org>
-Cc: john stultz <johnstul@us.ibm.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>
-Subject: Re: rdtscp vgettimeofday
-Message-ID: <20061211213235.GN5363@opteron.random>
-References: <20061129025728.15379.50707.sendpatchset@localhost> <20061129025752.15379.14257.sendpatchset@localhost> <20061211003904.GB5366@opteron.random> <Pine.LNX.4.64.0612111302440.22490@twinlark.arctic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612111302440.22490@twinlark.arctic.org>
+	Mon, 11 Dec 2006 16:32:44 -0500
+Received: from victor.provo.novell.com ([137.65.250.26]:34136 "EHLO
+	victor.provo.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1763111AbWLKVcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 16:32:43 -0500
+Message-ID: <457DCE1C.7010908@novell.com>
+Date: Mon, 11 Dec 2006 13:31:08 -0800
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH 0/2] file capabilities: two bugfixes
+References: <20061208193657.GB18566@sergelap.austin.ibm.com> <20061209004346.GG21627@suse.de>
+In-Reply-To: <20061209004346.GG21627@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 01:17:25PM -0800, dean gaudet wrote:
-> rdtscp doesn't solve anything extra [..]
-> [..] lsl-based vgetcpu is relatively slow
+Seth Arnold wrote:
+> On Fri, Dec 08, 2006 at 01:36:57PM -0600, Serge E. Hallyn wrote:
+>   
+>> The other is that root can lose capabilities by executing files with
+>> only some capabilities set.  The next two patches change these
+>> behaviors.
+>>     
+> I saw this in my code review and thought that this behaviour was
+> intentional. :) It seemed like a good idea to me..
+>   
+It really depends on which threat you are trying to defend against.
 
-Well, if you accept to run slow there's nothing to solve in the first
-place indeed.
+Serge is correct that it does not prevent root from copying the file,
+messing with the attributes, and running it anyway. However, I don't see
+file capabilities as being intended to try to confine root.
 
-If nothing else rdtscp should avoid the mess of restarting a
-vsyscalls, which is quite a difficult problem as it heavily depends on
-the compiler/dwarf.
+Rather, it seems like it is intended to make it easier to manage what
+capabilities should usually be present when the program is run. E.g. the
+file has a limited capability set so that root can run it and not have
+to think about overtly dropping privs or su'ing to a non-privileged user
+to be able to run it safely.
 
-> even with rdtscp you have to deal with the definite possibility of being 
-> scheduled away in the middle of the computation.  arguably you need
-> to 
+So I'm with Seth; it sounds like a feature, not a bug.
 
-Isn't rdtscp atomic? all you need is to read atomically the current
-contents of the tsc and the index to use in a per-cpu table exported
-in readonly. This table will contain a per-cpu seqlock as well. Then a
-math logic has to be built with per-cpu threads, so that those per-cpu
-tables are updated by cpufreq and at regular intervals.
+Caveat: I have no clue what the POSIX.1e committee intended. But since
+none of the POSIX-alike implementations are compatible with each other
+anyway, I don't really care :)
 
-If this is all wrong and it's not feasible to implement a safe and
-monothonic vgettimeofday that doesn't access the southbridge and that
-doesn't require restarting the vsyscall manually by patching rip/rsp,
-I've an hard time to see how rdtscp is useful at all. I hope somebody
-thought about those issues before adding a new instruction to a
-popular CPU ;).
+Crispin
+
+-- 
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
+     Hacking is exploiting the gap between "intent" and "implementation"
+

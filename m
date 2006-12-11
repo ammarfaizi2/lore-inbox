@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937554AbWLKTyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937629AbWLKTyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937554AbWLKTyQ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937576AbWLKTyP
+	id S937629AbWLKTyE (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937631AbWLKTyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:54:15 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4261 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937623AbWLKTyN (ORCPT
+	Mon, 11 Dec 2006 14:54:04 -0500
+Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:47232 "EHLO
+	vulpecula.futurs.inria.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937629AbWLKTyB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:54:13 -0500
-Date: Mon, 11 Dec 2006 19:54:01 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -rt][RESEND] fix preempt hardirqs on OMAP
-Message-ID: <20061211195401.GA12440@flint.arm.linux.org.uk>
-Mail-Followup-To: Daniel Walker <dwalker@mvista.com>,
-	Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-	linux-kernel@vger.kernel.org
-References: <20061210163545.488430000@mvista.com> <20061211190554.GA26392@elte.hu> <1165865908.8103.30.camel@imap.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165865908.8103.30.camel@imap.mvista.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 11 Dec 2006 14:54:01 -0500
+Message-ID: <457DB755.1000100@tremplin-utc.net>
+Date: Mon, 11 Dec 2006 20:53:57 +0100
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+MIME-Version: 1.0
+To: Kyle McMartin <kyle@ubuntu.com>
+Cc: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: noexec=on doesn't work
+References: <457B0FD7.2030804@comcast.net> <20061209200323.GA21514@athena.road.mcmartin.ca>
+In-Reply-To: <20061209200323.GA21514@athena.road.mcmartin.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 11:38:28AM -0800, Daniel Walker wrote:
-> On Mon, 2006-12-11 at 20:05 +0100, Ingo Molnar wrote:
-> > * Daniel Walker <dwalker@mvista.com> wrote:
-> > 
-> > > +	/*
-> > > +	 * Some boards will disable an interrupt when it
-> > > +	 * sets IRQ_PENDING . So we have to remove the flag
-> > > +	 * and re-enable to handle it.
-> > > +	 */
-> > > +	if (desc->status & IRQ_PENDING) {
-> > > +		desc->status &= ~IRQ_PENDING;
-> > > +		if (desc->chip)
-> > > +			desc->chip->enable(irq);
-> > > +		goto restart;
-> > > +	}
-> > 
-> > what if the irq got disabled meanwhile? Also, chip->enable is a 
-> > compatibility method, not something we should use in a flow handler.
+12/09/2006 09:03 PM, Kyle McMartin wrote/a écrit:
+> On Sat, Dec 09, 2006 at 02:34:47PM -0500, John Richard Moser wrote:
+>> I have filed this as a distro bug with Ubuntu; it may be their issue, I
+>> haven't dug deep enough to find out.  I am posting this here to disperse
+>> the information breadth-first instead of depth-first, which will shorten
+>> the bug's life cycle if it turns out to be an upstream bug.
+>>
 > 
-> I don't know how other arches deal with IRQ_PENDING, but ARM (OMAP at
-> least) disables the IRQ on IRQ_PENDING.
+> NX requires the 64-bit page table entries (ie, PAE) which requires
+> CONFIG_HIGHMEM64G.
 
-Please point out where it's doing that, and I'll take a look to see
-if it's doing something it shouldn't.
+Somehow there is a problem: a user can explicitly put "noexec=on" and it 
+will be silently ignored if the kernel doesn't have PAE support. I guess 
+that currently no message is written because "noexec=on" is the 
+_default_. Still, it would be fair to the user who added "noexec=on" on 
+its command line that if it is not respected, either because the 
+hardware doesn't support it or because the kernel doesn't support it, we 
+display a warning saying it's hopeless.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+I'll send a patch if it seems meaningful to you,
+c u
+Eric
+
+
+

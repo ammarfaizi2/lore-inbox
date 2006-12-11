@@ -1,236 +1,122 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750728AbWLKXwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750753AbWLKXyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWLKXwu (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 18:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWLKXwu
+	id S1750753AbWLKXyJ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 18:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWLKXyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 18:52:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:46340 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750728AbWLKXwt (ORCPT
+	Mon, 11 Dec 2006 18:54:09 -0500
+Received: from an-out-0708.google.com ([209.85.132.244]:34437 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750753AbWLKXyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 18:52:49 -0500
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Erik Jacobson <erikj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net
-In-Reply-To: <20061207232213.GA29340@sgi.com>
-References: <20061207232213.GA29340@sgi.com>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Mon, 11 Dec 2006 15:52:46 -0800
-Message-Id: <1165881166.24721.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Mon, 11 Dec 2006 18:54:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qc/dniMxPhQIpo7TsHlV+MVTVQHSnmngj4CPxFYHlcFdxO/n7U8w275QZ6AwjnLAAaW4PQKYKnYKKSjhQI5/bnu+jDKlMfi701y46/07ADJd6T/tF5h2r2xR0eiRiOMME3ZlIc20q/PlseYdQRvXjZ2Ol101uD5uQor5FrnWAgo=
+Message-ID: <45a44e480612111554j1450f35ub4d9932e5cd32d4@mail.gmail.com>
+Date: Mon, 11 Dec 2006 18:54:05 -0500
+From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
+To: Franck <vagabon.xyz@gmail.com>
+Subject: Re: [RFC 2.6.19 1/1] fbdev,mm: hecuba/E-Ink fbdev driver v2
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <457D895D.4010500@innova-card.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200612111046.kBBAkV8Y029087@localhost.localdomain>
+	 <457D895D.4010500@innova-card.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-07 at 17:22 -0600, Erik Jacobson wrote:
-> On ia64, the various functions that make up cn_proc.c cause kernel
-> unaligned access errors.
-> 
-> If you are using these, for example, to get notification about
-> all tasks forking and exiting, you get multiple unaligned access errors
-> per process.
-> 
-> Here, we just adjust how the variables are declared and use memcopy to
-> avoid the error messages.
-> 
-> Signed-off-by: Erik Jacobson <erikj@sgi.com>
+On 12/11/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+> jayakumar.lkml@gmail.com wrote:
+> > +     atomic_t ref_count;
+> > +     atomic_t vma_count;
+>
+> what purpose do these counters deserve ?
 
-Acked-by: Matt Helsley <matthltc@us.ibm.com>
+You are right. I can remove them.
 
-> ---
-> 
->  cn_proc.c |   94 +++++++++++++++++++++++++++++++-------------------------------
->  1 file changed, 47 insertions(+), 47 deletions(-)
-> --- linux.orig/drivers/connector/cn_proc.c	2006-11-29 15:57:37.000000000 -0600
-> +++ linux/drivers/connector/cn_proc.c	2006-12-07 16:50:03.195035791 -0600
-> @@ -49,7 +49,7 @@
->  void proc_fork_connector(struct task_struct *task)
->  {
->  	struct cn_msg *msg;
-> -	struct proc_event *ev;
-> +	struct proc_event ev;
->  	__u8 buffer[CN_PROC_MSG_SIZE];
->  	struct timespec ts;
-> 
-> @@ -57,19 +57,19 @@
->  		return;
-> 
->  	msg = (struct cn_msg*)buffer;
-> -	ev = (struct proc_event*)msg->data;
-> -	get_seq(&msg->seq, &ev->cpu);
-> +	get_seq(&msg->seq, &ev.cpu);
->  	ktime_get_ts(&ts); /* get high res monotonic timestamp */
-> -	ev->timestamp_ns = timespec_to_ns(&ts);
-> -	ev->what = PROC_EVENT_FORK;
-> -	ev->event_data.fork.parent_pid = task->real_parent->pid;
-> -	ev->event_data.fork.parent_tgid = task->real_parent->tgid;
-> -	ev->event_data.fork.child_pid = task->pid;
-> -	ev->event_data.fork.child_tgid = task->tgid;
-> +	ev.timestamp_ns = timespec_to_ns(&ts);
-> +	ev.what = PROC_EVENT_FORK;
-> +	ev.event_data.fork.parent_pid = task->real_parent->pid;
-> +	ev.event_data.fork.parent_tgid = task->real_parent->tgid;
-> +	ev.event_data.fork.child_pid = task->pid;
-> +	ev.event_data.fork.child_tgid = task->tgid;
-> 
->  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
->  	msg->ack = 0; /* not used */
-> -	msg->len = sizeof(*ev);
-> +	msg->len = sizeof(ev);
-> +	memcpy(msg->data, &ev, sizeof(ev));
->  	/*  If cn_netlink_send() failed, the data is not sent */
->  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
->  }
-> @@ -77,7 +77,7 @@
->  void proc_exec_connector(struct task_struct *task)
->  {
->  	struct cn_msg *msg;
-> -	struct proc_event *ev;
-> +	struct proc_event ev;
->  	struct timespec ts;
->  	__u8 buffer[CN_PROC_MSG_SIZE];
-> 
-> @@ -85,24 +85,24 @@
->  		return;
-> 
->  	msg = (struct cn_msg*)buffer;
-> -	ev = (struct proc_event*)msg->data;
-> -	get_seq(&msg->seq, &ev->cpu);
-> +	get_seq(&msg->seq, &ev.cpu);
->  	ktime_get_ts(&ts); /* get high res monotonic timestamp */
-> -	ev->timestamp_ns = timespec_to_ns(&ts);
-> -	ev->what = PROC_EVENT_EXEC;
-> -	ev->event_data.exec.process_pid = task->pid;
-> -	ev->event_data.exec.process_tgid = task->tgid;
-> +	ev.timestamp_ns = timespec_to_ns(&ts);
-> +	ev.what = PROC_EVENT_EXEC;
-> +	ev.event_data.exec.process_pid = task->pid;
-> +	ev.event_data.exec.process_tgid = task->tgid;
-> 
->  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
->  	msg->ack = 0; /* not used */
-> -	msg->len = sizeof(*ev);
-> +	msg->len = sizeof(ev);
-> +	memcpy(msg->data, &ev, sizeof(ev));
->  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
->  }
-> 
->  void proc_id_connector(struct task_struct *task, int which_id)
->  {
->  	struct cn_msg *msg;
-> -	struct proc_event *ev;
-> +	struct proc_event ev;
->  	__u8 buffer[CN_PROC_MSG_SIZE];
->  	struct timespec ts;
-> 
-> @@ -110,32 +110,32 @@
->  		return;
-> 
->  	msg = (struct cn_msg*)buffer;
-> -	ev = (struct proc_event*)msg->data;
-> -	ev->what = which_id;
-> -	ev->event_data.id.process_pid = task->pid;
-> -	ev->event_data.id.process_tgid = task->tgid;
-> +	ev.what = which_id;
-> +	ev.event_data.id.process_pid = task->pid;
-> +	ev.event_data.id.process_tgid = task->tgid;
->  	if (which_id == PROC_EVENT_UID) {
-> -	 	ev->event_data.id.r.ruid = task->uid;
-> -	 	ev->event_data.id.e.euid = task->euid;
-> +	 	ev.event_data.id.r.ruid = task->uid;
-> +	 	ev.event_data.id.e.euid = task->euid;
->  	} else if (which_id == PROC_EVENT_GID) {
-> -	   	ev->event_data.id.r.rgid = task->gid;
-> -	   	ev->event_data.id.e.egid = task->egid;
-> +	   	ev.event_data.id.r.rgid = task->gid;
-> +	   	ev.event_data.id.e.egid = task->egid;
->  	} else
->  	     	return;
-> -	get_seq(&msg->seq, &ev->cpu);
-> +	get_seq(&msg->seq, &ev.cpu);
->  	ktime_get_ts(&ts); /* get high res monotonic timestamp */
-> -	ev->timestamp_ns = timespec_to_ns(&ts);
-> +	ev.timestamp_ns = timespec_to_ns(&ts);
-> 
->  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
->  	msg->ack = 0; /* not used */
-> -	msg->len = sizeof(*ev);
-> +	msg->len = sizeof(ev);
-> +	memcpy(msg->data, &ev, sizeof(ev));
->  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
->  }
-> 
->  void proc_exit_connector(struct task_struct *task)
->  {
->  	struct cn_msg *msg;
-> -	struct proc_event *ev;
-> +	struct proc_event ev;
->  	__u8 buffer[CN_PROC_MSG_SIZE];
->  	struct timespec ts;
-> 
-> @@ -143,19 +143,19 @@
->  		return;
-> 
->  	msg = (struct cn_msg*)buffer;
-> -	ev = (struct proc_event*)msg->data;
-> -	get_seq(&msg->seq, &ev->cpu);
-> +	get_seq(&msg->seq, &ev.cpu);
->  	ktime_get_ts(&ts); /* get high res monotonic timestamp */
-> -	ev->timestamp_ns = timespec_to_ns(&ts);
-> -	ev->what = PROC_EVENT_EXIT;
-> -	ev->event_data.exit.process_pid = task->pid;
-> -	ev->event_data.exit.process_tgid = task->tgid;
-> -	ev->event_data.exit.exit_code = task->exit_code;
-> -	ev->event_data.exit.exit_signal = task->exit_signal;
-> +	ev.timestamp_ns = timespec_to_ns(&ts);
-> +	ev.what = PROC_EVENT_EXIT;
-> +	ev.event_data.exit.process_pid = task->pid;
-> +	ev.event_data.exit.process_tgid = task->tgid;
-> +	ev.event_data.exit.exit_code = task->exit_code;
-> +	ev.event_data.exit.exit_signal = task->exit_signal;
-> 
->  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
->  	msg->ack = 0; /* not used */
-> -	msg->len = sizeof(*ev);
-> +	msg->len = sizeof(ev);
-> +	memcpy(msg->data, &ev, sizeof(ev));
->  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
->  }
-> 
-> @@ -170,7 +170,7 @@
->  static void cn_proc_ack(int err, int rcvd_seq, int rcvd_ack)
->  {
->  	struct cn_msg *msg;
-> -	struct proc_event *ev;
-> +	struct proc_event ev;
->  	__u8 buffer[CN_PROC_MSG_SIZE];
->  	struct timespec ts;
-> 
-> @@ -178,16 +178,16 @@
->  		return;
-> 
->  	msg = (struct cn_msg*)buffer;
-> -	ev = (struct proc_event*)msg->data;
->  	msg->seq = rcvd_seq;
->  	ktime_get_ts(&ts); /* get high res monotonic timestamp */
-> -	ev->timestamp_ns = timespec_to_ns(&ts);
-> -	ev->cpu = -1;
-> -	ev->what = PROC_EVENT_NONE;
-> -	ev->event_data.ack.err = err;
-> +	ev.timestamp_ns = timespec_to_ns(&ts);
-> +	ev.cpu = -1;
-> +	ev.what = PROC_EVENT_NONE;
-> +	ev.event_data.ack.err = err;
->  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
->  	msg->ack = rcvd_ack + 1;
-> -	msg->len = sizeof(*ev);
-> +	msg->len = sizeof(ev);
-> +	memcpy(msg->data, &ev, sizeof(ev));
->  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
->  }
-> 
+> > +
+> > +void hcb_wait_for_ack(struct hecubafb_par *par)
+> > +{
+> > +
+> > +     int timeout;
+> > +     unsigned char ctl;
+> > +
+> > +     timeout=500;
+> > +     do {
+> > +             ctl = hcb_get_ctl(par);
+> > +             if ((ctl & HCB_ACK_BIT))
+> > +                     return;
+> > +             udelay(1);
+> > +     } while (timeout--);
+> > +     printk(KERN_ERR "timed out waiting for ack\n");
+> > +}
+>
+> When timeout occur this function does not return any error values.
+> the callers needn't to be warn in this case ?
 
+You are right. I need to figure out what exactly to do. Currently, if
+a timeout is observed it normally means the display controller is
+hung. However, in some cases  the controller does seem to recover
+after some period of time. I guess I should probably return an error
+and terminate pending activity.
+
+> > +
+> > +/* this is to find and return the vmalloc-ed fb pages */
+> > +static struct page* hecubafb_vm_nopage(struct vm_area_struct *vma,
+> > +                                     unsigned long vaddr, int *type)
+> > +{
+> > +     unsigned long offset;
+> > +     struct page *page;
+> > +     struct fb_info *info = vma->vm_private_data;
+> > +
+> > +     offset = (vaddr - vma->vm_start) + (vma->vm_pgoff << PAGE_SHIFT);
+> > +     if (offset >= (DPY_W*DPY_H)/8)
+> > +             return NOPAGE_SIGBUS;
+> > +
+> > +     page = vmalloc_to_page(info->screen_base + offset);
+> > +     if (!page)
+> > +             return NOPAGE_OOM;
+> > +
+> > +     get_page(page);
+> > +     if (type)
+> > +             *type = VM_FAULT_MINOR;
+> > +     return page;
+> > +}
+> > +
+>
+> so page can be accessed by using vma->start virtual address....
+
+The userspace app would be doing:
+
+ioctl(fd, FBIOGET_FSCREENINFO, &finfo);
+ioctl(fd, FBIOGET_VSCREENINFO, &vinfo);
+screensize = ( vinfo.xres * vinfo.yres * vinfo.bits_per_pixel) / 8;
+maddr = mmap(finfo.mmio_start, screensize, PROT_WRITE, MAP_SHARED, fd, 0);
+
+>
+> > +static int hecubafb_page_mkwrite(struct vm_area_struct *vma,
+>
+> [snip]
+>
+> > +
+> > +     if (!(videomemory = vmalloc(videomemorysize)))
+> > +             return retval;
+>
+> and here the kernel access to the same page by using address returned
+> by vmalloc which are different from the previous one. So 2 different
+> addresses map the same physical page. In this case are there any cache
+> aliasing issues specially for x86 arch ?
+
+I think that PTEs set up by vmalloc are marked cacheable and via the
+above nopage end up as cacheable. I'm not doing DMA. So the accesses
+are through the cache so I don't think cache aliasing is an issue for
+this case. Please let me know if I misunderstood.
+
+Thanks,
+jayakumar

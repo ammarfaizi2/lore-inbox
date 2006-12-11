@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758983AbWLKB2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758878AbWLKB3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758983AbWLKB2V (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 20:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758878AbWLKB2V
+	id S1758878AbWLKB3K (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 20:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759747AbWLKB3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 20:28:21 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:57718 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758983AbWLKB2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 20:28:20 -0500
-Date: Sun, 10 Dec 2006 17:23:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Chris Wedgwood <cw@f00f.org>, Daniel Drake <dsd@gentoo.org>,
-       Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, Jean Delvare <khali@linux-fr.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, Brice Goglin <brice@myri.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Bauke Jan Douma <bjdouma@xs4all.nl>,
-       Tomasz Koprowski <tomek@koprowski.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@redhat.com>
-Subject: Re: RFC: PCI quirks update for 2.6.16
-In-Reply-To: <20061210234733.GH10351@stusta.de>
-Message-ID: <Pine.LNX.4.64.0612101721070.12500@woody.osdl.org>
-References: <20061207132430.GF8963@stusta.de> <45782774.8060002@gentoo.org>
- <1165723779.334.3.camel@localhost.localdomain> <20061210160053.GD10351@stusta.de>
- <457C345D.8030305@gentoo.org> <20061210223351.GA22878@tuatara.stupidest.org>
- <Pine.LNX.4.64.0612101438080.12500@woody.osdl.org> <20061210234733.GH10351@stusta.de>
+	Sun, 10 Dec 2006 20:29:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:46738 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758878AbWLKB3I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 20:29:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=J9lC2KU/w/aKrAetlgtMnReUCsVH6lGPwogX0vPLesI8L842EN5Cg5HMlbJgAhb2QW21P3qaRqyVfX3oqfkfV0WbiPkceHXBXADI7RwZqyp747biCqBTCd9im+xdsGGx3CISSt6In6RNFxtA3YN17unUuvbe7Q+dwWk+jDeNzCU=
+Message-ID: <457CB4A6.5090807@gmail.com>
+Date: Sun, 10 Dec 2006 17:30:14 -0800
+From: walt <w41ter@gmail.com>
+Organization: none
+User-Agent: Thunderbird 3.0a1 (X11/20061210)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.19-rc6-mm2 hangs when gdb is run on a multithread program
+References: <20061211000724.GA2578@ai.larroy.com> <457CAA37.9040407@goop.org>
+In-Reply-To: <457CAA37.9040407@goop.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeremy Fitzhardinge wrote:
+> Pedro Larroy Tovar wrote:
+>> Hi
+>>
+>> I can reproduce a crash with 2.6.19-rc6-mm2 triggered when debugging a
+>> program with gdb that uses pthreads. No oops or anything strange seems
+>> to be printed by the kernel, but the box appears to stop doing disk IO.
 
+> Hm, I wonder if this is related walt's problem running things under gdb?
 
-On Mon, 11 Dec 2006, Adrian Bunk wrote:
-> 
-> If life was that easy...  ;-)
+Jeremy, I redid my git-bisect from scratch and came up with a different
+commit for the gdb breakage:
 
-No. Life _is_ that easy.
+commit f95d47caae5302a63d92be9a0292abc90e2a14e1
+Author: Jeremy Fitzhardinge <jeremy@goop.org>
+Date:   Thu Dec 7 02:14:02 2006 +0100
+[PATCH] i386: Use %gs as the PDA base-segment in the kernel
 
-If the 2.6.16 stable tree took a patch that was questionable, and we don't 
-know what the right answer to it is from the _regular_ tree, than the 
-patch violated the stable tree rules in the first place and should just be 
-reverted.
+This commit is the one which causes gdb to halt with this error
+no matter what executable I try to run:
+Warning:
+Cannot insert breakpoint -2.
+Error accessing memory address 0xd74b: Input/output error.
 
-Once people know what the right answer is (and by "know", I mean: "not 
-guess") from the regular tree having been tested with it, and people 
-understanding the problem, then it can be re-instated.
+I tried to git-revert just this one commit, but I get merge conflicts
+I don't how to resolve.
 
-But if you're just guessing, and people don't _know_ the right answer, 
-then just revert the whole questionable area.  The patch shouldn't have 
-been there in the first place.
-
-It really _is_ that simple.
-
-Either it's a stable tree or it isn't. 
-
-		Linus
+BTW, I just discovered tons of kernel debugging config options which
+were turned off -- I just turned several of them on.  Maybe I can give
+you better info now.

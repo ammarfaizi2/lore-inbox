@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750748AbWLKXog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750730AbWLKXwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWLKXog (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 18:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWLKXog
+	id S1750730AbWLKXwx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 18:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWLKXwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 18:44:36 -0500
-Received: from web32602.mail.mud.yahoo.com ([68.142.207.229]:30062 "HELO
-	web32602.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750748AbWLKXog (ORCPT
+	Mon, 11 Dec 2006 18:52:53 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:40897 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750730AbWLKXww (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 18:44:36 -0500
-Message-ID: <20061211234435.37302.qmail@web32602.mail.mud.yahoo.com>
-X-YMail-OSG: lVNAWqcVM1nrZIJ1xUhKGCZ6mfVIoJiI3FFI02GwDYOPvG9Bn.US0rHPJmacUDOluBamo_NnwICKZ3WVePpaov7OVUGez2As6ZtwOoKE4agv5_6II8e8og--
-X-RocketYMMF: knobi.rm
-Date: Mon, 11 Dec 2006 15:44:35 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: [2.6.19] NFS: server error: fileid changed
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1165857788.5721.127.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 11 Dec 2006 18:52:52 -0500
+Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Erik Jacobson <erikj@sgi.com>, guillaume.thouvenin@bull.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061209183409.67b54d01.zaitcev@redhat.com>
+References: <20061207232213.GA29340@sgi.com>
+	 <20061208192027.18a1e708.zaitcev@redhat.com>
+	 <20061209210913.GA15159@sgi.com>
+	 <20061209183409.67b54d01.zaitcev@redhat.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Mon, 11 Dec 2006 15:52:47 -0800
+Message-Id: <1165881167.24721.73.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-
-> On Mon, 2006-12-11 at 08:09 -0800, Martin Knoblauch wrote:
-> > Hi, [please CC me, as I am not subscribed]
-> > 
-> >  after updating a RHEL4 box (EM64T based) to a plain 2.6.19 kernel,
-> we
-> > are seeing repeated occurences of the following messages (about
-> every
-> > 45-50 minutes).
-> > 
-> >  It is always the same server (a NetApp filer, mounted via the
-> > user-space automounter "amd") and the expected/got numbers seem to
-> > repeat.
+On Sat, 2006-12-09 at 18:34 -0800, Pete Zaitcev wrote:
+> On Sat, 9 Dec 2006 15:09:13 -0600, Erik Jacobson <erikj@sgi.com> wrote:
 > 
-> Are you seeing it _without_ amd? The usual reason for the errors you
-> see are bogus replay cache replies. For that reason, the kernel is
-> usually very careful when initialising its value for the
-> XID: we set part of it using the clock value, and part of it
-> using a random number generator.
-> I'm not so sure that other services are as careful.
->
-
- So far, we are only seeing it on amd-mounted filesystems, not on
-static NFS mounts. Unfortunatelly, it is difficult to avoid "amd" in
-our environment.
- 
-> >  Is there a  way to find out which files are involved? Nothing
-> seems to
-> > be obviously breaking, but I do not like to get my logfiles filled
-> up. 
+> > > Please try to declare u64 timestamp_ns, then copy it into the *ev
+> > > instead of copying whole *ev. This ought to fix the problem if
+> > > buffer[] ends aligned to 32 bits or better.
+> >
+> > So I took this suggestion for a spin and met with the same result.
+> > The unaligned access messages are still produced.
 > 
-> The fileid is the same as the inode number. Just convert those
-> hexadecimal values into ordinary numbers, then search for them using
-> 'ls
-> -i'.
+> I see. And I see you went a few steps forward with dignosing it:
 > 
+> > dbg fork after timespec_to_ns call, b4 memcpy
+> > kernel unaligned access to 0xe000003076b6fbe4, ip=0xa0000001004f1480
+> > dbg fork after memcpy, b4 other ev settings...
+> 
+> > a0000001004f1470 <proc_fork_connector+0x1f0> [MMI]       ld8 r40=[r14]
+> > a0000001004f1476 <proc_fork_connector+0x1f6>             ld8 r38=[r38]
+> > a0000001004f147c <proc_fork_connector+0x1fc>             nop.i 0x0;;
+> > a0000001004f1480 <proc_fork_connector+0x200> [MIB]       st8 [r39]=r40
+> > a0000001004f1486 <proc_fork_connector+0x206>             nop.i 0x0
+> > a0000001004f148c <proc_fork_connector+0x20c>             br.call.sptk.many b0=a0000001000a36c0 <printk>;;
 
- thanks. will check that out.
+I'm not very familiar with ia64 asm but it looks like its loading and
+storying 8 bytes at a time for the memcpy().
 
-Cheers
-Martin
+> It seems rather strange that memcpy gets optimized this way. I could
+> not have foreseen it. Still, it was worth a try, even if putting 32
+> extra bytes on stack and running memcpy on them does not seem too
+> onerous, for a fork(). Thanks for doing it, and let's go with your
+> original patch then... if Matt Helsley does not mind.
 
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+OK, I'll ack the original.
+
+> Thank you,
+> -- Pete
+
+	I'm shocked memcpy() introduces 8-byte stores that violate architecture
+alignment rules. Is there any chance this a bug in ia64's memcpy()
+implementation? I've tried to read it but since I'm not familiar with
+ia64 asm I can't make out significant parts of it in
+arch/ia64/lib/memcpy.S.
+
+<snip>
+
+Cheers,
+	-Matt Helsley
+

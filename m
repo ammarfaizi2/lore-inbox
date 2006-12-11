@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937702AbWLKWnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750701AbWLKWwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937702AbWLKWnx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 17:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937694AbWLKWnx
+	id S1750701AbWLKWwt (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 17:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWLKWwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 17:43:53 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:64739 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937702AbWLKWnw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 17:43:52 -0500
-Date: Mon, 11 Dec 2006 14:44:18 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: kvm-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Cc: avi@qumranet.com, akpm <akpm@osdl.org>
-Subject: [PATCH] kvm needs menu structure
-Message-Id: <20061211144418.f10a7f5b.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Dec 2006 17:52:49 -0500
+Received: from cantor.suse.de ([195.135.220.2]:60218 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750701AbWLKWws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 17:52:48 -0500
+From: Neil Brown <neilb@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Date: Tue, 12 Dec 2006 09:52:54 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Message-ID: <17789.57670.482913.886349@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-mm1 (md/raid1 randomly drops partitions)
+In-Reply-To: message from Rafael J. Wysocki on Monday December 11
+References: <20061211005807.f220b81c.akpm@osdl.org>
+	<200612112341.42140.rjw@sisk.pl>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Monday December 11, rjw@sisk.pl wrote:
+> Hi,
+> 
+> On Monday, 11 December 2006 09:58, Andrew Morton wrote:
+> > 
+> > Temporarily at
+> > 
+> > 	http://userweb.kernel.org/~akpm/2.6.19-mm1/
+> > 
+> > Will appear later at
+> > 
+> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/
+> 
+> It caused all of the md RAID1s on my test box to drop one of their partitions,
+> apparently at random.
 
-KVM config items need to be inside a menu structure instead of
-dangling off of Device Drivers.
+That's clever....
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/kvm/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Do you have any kernel logs of this happening?  My guess would be the
+underlying device driver is returned more errors than before, but we
+need the logs to be sure.
 
---- linux-2.6.19-git18.orig/drivers/kvm/Kconfig
-+++ linux-2.6.19-git18/drivers/kvm/Kconfig
-@@ -1,7 +1,7 @@
- #
- # KVM configuration
- #
--config KVM
-+menuconfig KVM
- 	tristate "Kernel-based Virtual Machine (KVM) support"
- 	depends on X86 && EXPERIMENTAL
- 	---help---
-
-
----
+Thanks,
+NeilBrown

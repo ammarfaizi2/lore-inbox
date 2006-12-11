@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937695AbWLKWnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937702AbWLKWnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937695AbWLKWnI (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 17:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937699AbWLKWnI
+	id S937702AbWLKWnx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 17:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937694AbWLKWnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 17:43:08 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:2551 "EHLO
-	hellhawk.shadowen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937695AbWLKWnF (ORCPT
+	Mon, 11 Dec 2006 17:43:53 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:64739 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937702AbWLKWnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 17:43:05 -0500
-Message-ID: <457DDEF2.6030504@shadowen.org>
-Date: Mon, 11 Dec 2006 22:42:58 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Herbert Poetzl <herbert@13thfloor.at>, Olaf Hering <olaf@aepfle.de>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <20061211182908.GC7256@MAIL.13thfloor.at> <Pine.LNX.4.64.0612111040160.12500@woody.osdl.org> <457DAF99.4050106@shadowen.org> <Pine.LNX.4.64.0612111134340.12500@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612111134340.12500@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 11 Dec 2006 17:43:52 -0500
+Date: Mon, 11 Dec 2006 14:44:18 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: kvm-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Cc: avi@qumranet.com, akpm <akpm@osdl.org>
+Subject: [PATCH] kvm needs menu structure
+Message-Id: <20061211144418.f10a7f5b.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 11 Dec 2006, Andy Whitcroft wrote:
->> I am afraid to report that this second version also fails for me, as you point
->> out CIFS can break us if defined.
-> 
-> Olaf, will you admit that the SLES9 code is crap now?
-> 
-> Andy, does just replacing the "__initdata" with "const" fix it for you? 
-> That should hopefully mean that IN PRACTICE the Linux version string will 
-> be the first one to be triggered, if only because init/main.c is linked 
-> reasonably early, and all the other "Linux version" strings will hopefully 
-> be in the same rodata section.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Yes that does make things 'work' again.  This all seems pretty fragile :(.
+KVM config items need to be inside a menu structure instead of
+dangling off of Device Drivers.
 
-> 
-> Sad, sad. We shouldn't need to work around tools that are so _obviously_ 
-> broken like this.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/kvm/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--apw
+--- linux-2.6.19-git18.orig/drivers/kvm/Kconfig
++++ linux-2.6.19-git18/drivers/kvm/Kconfig
+@@ -1,7 +1,7 @@
+ #
+ # KVM configuration
+ #
+-config KVM
++menuconfig KVM
+ 	tristate "Kernel-based Virtual Machine (KVM) support"
+ 	depends on X86 && EXPERIMENTAL
+ 	---help---
+
+
+---

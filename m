@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762687AbWLKJlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762699AbWLKJlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762687AbWLKJlA (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 04:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762699AbWLKJlA
+	id S1762699AbWLKJlG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 04:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762702AbWLKJlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 04:41:00 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:20196 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762687AbWLKJk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 04:40:59 -0500
-Message-ID: <457D27A2.2050309@tls.msk.ru>
-Date: Mon, 11 Dec 2006 12:40:50 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060813)
+	Mon, 11 Dec 2006 04:41:06 -0500
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:44036 "EHLO
+	liaag2af.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1762699AbWLKJlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 04:41:03 -0500
+Date: Mon, 11 Dec 2006 04:33:00 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't
+  mounted
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200612110436_MC3-1-D49E-FE59@compuserve.com>
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211091335.GA4587@ftp.linux.org.uk>
-In-Reply-To: <20061211091335.GA4587@ftp.linux.org.uk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Mon, Dec 11, 2006 at 03:27:37AM -0500, Chuck Ebbert wrote:
->> Prevent oops when an app tries to create a pipe while pipefs
->> is not mounted.
-[]
-> That makes no sense at all.  pipe_mnt is not created by userland
-> mount; it's created by init_pipe_fs() and we'd bloody better
-> have it done before any applications get a chance to run.
+In-Reply-To: <20061211005557.04643a75.akpm@osdl.org>
+
+On Mon, 11 Dec 2006 00:55:57 -0800, Andrew Morton wrote:
+
+> > Prevent oops when an app tries to create a pipe while pipefs
+> > is not mounted.
 > 
-> Please, explain how the hell did you manage to get a perverted
-> config where that is not true.  In the meanwhile the patch is
-> NAKed.
+> That's pretty lame.  It means that pipes just won't work, so people who are
+> using pipes in their initramfs setups will just get mysterious failures
+> running userspace on a crippled kernel.
 
-See for example http://marc.theaimsgroup.com/?t=116510390600001&r=1&w=2
+I know, I just wanted to keep the issue alive. :)
 
-Thanks.
+> I think the bug really is the running of populate_rootfs() before running
+> the initcalls, in init/main.c:init().  It's just more sensible to start
+> running userspace after the initcalls have been run.  Statically-linked
+> drivers which want to load firmware files will lose.  To fix that we'd need
+> a new callback.  It could be with a new linker section or perhaps simply a
+> notifier chain.
 
-/mjt
+Why not create a new initcall category for things that must run before
+early userspace?
+
+-- 
+MBTI: IXTP
+

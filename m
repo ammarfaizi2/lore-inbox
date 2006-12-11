@@ -1,42 +1,119 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937573AbWLKTIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937566AbWLKTJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937573AbWLKTIG (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937566AbWLKTIG
+	id S937566AbWLKTJy (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937575AbWLKTJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:08:06 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37487 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S937577AbWLKTID (ORCPT
+	Mon, 11 Dec 2006 14:09:53 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4072 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S937566AbWLKTJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:08:03 -0500
-Date: Mon, 11 Dec 2006 19:15:43 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Corey Minyard <cminyard@mvista.com>, Tilman Schmidt <tilman@imap.cc>,
-       linux-serial@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
-Subject: Re: [PATCH] Add the ability to layer another driver over the serial
- driver
-Message-ID: <20061211191543.32ce2da8@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.60.0612111954120.4039@poirot.grange>
-References: <4533B8FB.5080108@mvista.com>
-	<20061210201438.tilman@imap.cc>
-	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>
-	<457CB32A.2060804@mvista.com>
-	<20061211102016.43e76da2@localhost.localdomain>
-	<Pine.LNX.4.60.0612111954120.4039@poirot.grange>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 14:09:52 -0500
+Date: Mon, 11 Dec 2006 20:10:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: [RFC: -mm patch] OCFS2: make code static
+Message-ID: <20061211191001.GF28443@stusta.de>
+References: <20061211005807.f220b81c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> there as "protocols" for user-tty interfaces, i.e., you need a user, that 
-> opens a tty, sets a line discipline to it, and does io (read/write) over 
-> it, and NOT to be completely initialised and driven from the kernel.
+On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.19-rc6-mm2:
+>...
+>  git-ocfs2.patch
+>...
+>  git trees.
+>...
 
-Take a look at the SLIP driver. User space sets up the port but all the
-actual I/O is to/from the kernel not via user space.
+This patch makes needlessly global code static.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ fs/ocfs2/cluster/tcp.c   |    2 +-
+ fs/ocfs2/dlm/dlmcommon.h |    6 ------
+ fs/ocfs2/dlm/dlmmaster.c |    8 +++++---
+ fs/ocfs2/dlm/dlmthread.c |    3 ++-
+ 4 files changed, 8 insertions(+), 11 deletions(-)
+
+--- linux-2.6.19-mm1/fs/ocfs2/cluster/tcp.c.old	2006-12-11 18:34:09.000000000 +0100
++++ linux-2.6.19-mm1/fs/ocfs2/cluster/tcp.c	2006-12-11 18:34:19.000000000 +0100
+@@ -380,7 +380,7 @@
+ 		sc_put(sc);
+ }
+ 
+-atomic_t o2net_connected_peers = ATOMIC_INIT(0);
++static atomic_t o2net_connected_peers = ATOMIC_INIT(0);
+ 
+ int o2net_num_connected_peers(void)
+ {
+--- linux-2.6.19-mm1/fs/ocfs2/dlm/dlmcommon.h.old	2006-12-11 18:34:44.000000000 +0100
++++ linux-2.6.19-mm1/fs/ocfs2/dlm/dlmcommon.h	2006-12-11 18:36:22.000000000 +0100
+@@ -739,8 +739,6 @@
+ 			      struct dlm_lock_resource *res);
+ void dlm_lockres_calc_usage(struct dlm_ctxt *dlm,
+ 			    struct dlm_lock_resource *res);
+-int dlm_purge_lockres(struct dlm_ctxt *dlm,
+-		      struct dlm_lock_resource *lockres);
+ static inline void dlm_lockres_get(struct dlm_lock_resource *res)
+ {
+ 	/* This is called on every lookup, so it might be worth
+@@ -864,10 +862,6 @@
+ void dlm_hb_node_down_cb(struct o2nm_node *node, int idx, void *data);
+ void dlm_hb_node_up_cb(struct o2nm_node *node, int idx, void *data);
+ 
+-int dlm_lockres_is_dirty(struct dlm_ctxt *dlm, struct dlm_lock_resource *res);
+-int dlm_migrate_lockres(struct dlm_ctxt *dlm,
+-			struct dlm_lock_resource *res,
+-			u8 target);
+ int dlm_empty_lockres(struct dlm_ctxt *dlm, struct dlm_lock_resource *res);
+ int dlm_finish_migration(struct dlm_ctxt *dlm,
+ 			 struct dlm_lock_resource *res,
+--- linux-2.6.19-mm1/fs/ocfs2/dlm/dlmmaster.c.old	2006-12-11 18:35:13.000000000 +0100
++++ linux-2.6.19-mm1/fs/ocfs2/dlm/dlmmaster.c	2006-12-11 18:37:28.000000000 +0100
+@@ -2327,8 +2327,9 @@
+  */
+ 
+ 
+-int dlm_migrate_lockres(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
+-			u8 target)
++static int dlm_migrate_lockres(struct dlm_ctxt *dlm,
++			       struct dlm_lock_resource *res,
++			       u8 target)
+ {
+ 	struct dlm_master_list_entry *mle = NULL;
+ 	struct dlm_master_list_entry *oldmle = NULL;
+@@ -2676,7 +2677,8 @@
+ 	return can_proceed;
+ }
+ 
+-int dlm_lockres_is_dirty(struct dlm_ctxt *dlm, struct dlm_lock_resource *res)
++static int dlm_lockres_is_dirty(struct dlm_ctxt *dlm,
++				struct dlm_lock_resource *res)
+ {
+ 	int ret;
+ 	spin_lock(&res->spinlock);
+--- linux-2.6.19-mm1/fs/ocfs2/dlm/dlmthread.c.old	2006-12-11 18:36:29.000000000 +0100
++++ linux-2.6.19-mm1/fs/ocfs2/dlm/dlmthread.c	2006-12-11 18:36:41.000000000 +0100
+@@ -154,7 +154,8 @@
+ 	spin_unlock(&dlm->spinlock);
+ }
+ 
+-int dlm_purge_lockres(struct dlm_ctxt *dlm, struct dlm_lock_resource *res)
++static int dlm_purge_lockres(struct dlm_ctxt *dlm,
++			     struct dlm_lock_resource *res)
+ {
+ 	int master;
+ 	int ret = 0;
+

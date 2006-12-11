@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763136AbWLKWAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763129AbWLKWBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763136AbWLKWAs (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 17:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763138AbWLKWAs
+	id S1763129AbWLKWBU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 17:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763148AbWLKWBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 17:00:48 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41063 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1763130AbWLKWAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 17:00:47 -0500
-Date: Mon, 11 Dec 2006 14:00:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] group xtime, xtime_lock, wall_to_monotonic, avenrun,
- calc_load_count fields together in ktimed
-Message-Id: <20061211140034.fabb840f.akpm@osdl.org>
-In-Reply-To: <457DC332.3090805@cosmosbay.com>
-References: <20061206234942.79d6db01.akpm@osdl.org>
-	<457849E2.3080909@garzik.org>
-	<20061207095715.0cafffb9.akpm@osdl.org>
-	<200612081752.09749.dada1@cosmosbay.com>
-	<20061208214625.90e010ae.akpm@osdl.org>
-	<457DC332.3090805@cosmosbay.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 17:01:20 -0500
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:48985 "EHLO
+	rwcrmhc13.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1763129AbWLKWBT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 17:01:19 -0500
+Message-ID: <457DD528.1060006@comcast.net>
+Date: Mon, 11 Dec 2006 17:01:12 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+MIME-Version: 1.0
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+CC: Kyle McMartin <kyle@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: noexec=on doesn't work
+References: <457B0FD7.2030804@comcast.net> <20061209200323.GA21514@athena.road.mcmartin.ca> <457DB755.1000100@tremplin-utc.net>
+In-Reply-To: <457DB755.1000100@tremplin-utc.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 21:44:34 +0100
-Eric Dumazet <dada1@cosmosbay.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Andrew Morton a __crit :
-> > 
-> > hm, the patch seems to transform a mess into a mess.  I guess it's a messy
-> > problem.
-> > 
-> > I agree that aggregating all the time-related things into a struct like
-> > this makes some sense.  As does aggregating them all into a similar-looking
-> > namespace, but that'd probably be too intrusive - too late for that.
+
+
+Eric Piel wrote:
+> 12/09/2006 09:03 PM, Kyle McMartin wrote/a écrit:
+>> On Sat, Dec 09, 2006 at 02:34:47PM -0500, John Richard Moser wrote:
+>>> I have filed this as a distro bug with Ubuntu; it may be their issue, I
+>>> haven't dug deep enough to find out.  I am posting this here to disperse
+>>> the information breadth-first instead of depth-first, which will shorten
+>>> the bug's life cycle if it turns out to be an upstream bug.
+>>>
+>>
+>> NX requires the 64-bit page table entries (ie, PAE) which requires
+>> CONFIG_HIGHMEM64G.
+> 
+> Somehow there is a problem: a user can explicitly put "noexec=on" and it
+> will be silently ignored if the kernel doesn't have PAE support. I guess
+> that currently no message is written because "noexec=on" is the
+> _default_. Still, it would be fair to the user who added "noexec=on" on
+> its command line that if it is not respected, either because the
+> hardware doesn't support it or because the kernel doesn't support it, we
+> display a warning saying it's hopeless.
+> 
+
+Would have saved me and others a lot of trouble if this happened, yes; I
+wouldn't have written a test case and wtf'd at it for 5 days.  :)
+
+> I'll send a patch if it seems meaningful to you,
+
+Telling may be better than letting the user think; then again any
+knowledgeable user should know based on his config (yes I know, by this
+logic I should have known about the HIGHMEM64G thing).
+
+> c u
+> Eric
 > 
 > 
-> Hi Andrew, thanks for your comments.
 > 
-> I sent two patches for the __attribute__((weak)) xtime_lock thing, and 
-> calc_load() optimization, which dont depend on ktimed.
-
-yup, thanks.
-
-> Should I now send patches for aggregating things or is it considered too 
-> intrusive ?
-
-The previous version didn't look too intrusive.  But it would be nice to
-have a plan to get rid of the macros:
-
-#define xtime_lock	ktimed.xtime_lock
-
-and just open-code this everywhere.
-
-> (Sorry if I didnt understand your last sentence)
-
-What I meant was: if we're not going to to aggregate all these globals like
-this:
-
-	ktimed.xtime_lock
-	ktimed.wall_to_monotonic
-
-then it would be nice if they were at least aggregated by naming convention:
-
-	time_management_time_lock
-	time_management_wall_to_monotonic
-	etc
-
-so the reader can see that these things are all part of the same subsystem.
-
-But the proposed ktimed.xtime_lock achieves that, and has runtime benefits
-too.
-
-Can we please not call it ktimed?  That sounds like a kernel thread to me. 
-time_data would be better.
-
-> If yes, should I send separate patches to :
 > 
-> 1) define an empty ktimed (or with a placeholder for jiffies64, not yet used)
-> 2) move xtime into ktimed
-> 3) move xtime_lock into ktimed
-> 4) move wall_to_monotonic into ktimed
-> 5) move calc_load.count into ktimed
-> 6) move avenrun into ktimed.
 
-A single patch there would suffice, I suspect.
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-> 7) patches to use ktimed.jiffies64 on various arches (with the problem of 
-> aliasing jiffies)
-
-That might be a sprinkle of per-arch patches, but I'm not sure what is
-entailed here.
+iQIVAwUBRX3VJgs1xW0HCTEFAQLmaRAAj1e55b6if2lLTEbFNtylIn2aikAuPC87
+wCqzvmdp/NBxUcIgXESdQeCDPxPuNK6OUCT6dtPTNCMu15wn7bfq3QUsXCR6z4za
+lI7nBzIhU1ZH6HaGMm2d2MAuXfOg1I+SFEokOzXwh8db6HXGvH8DjP0mDLtKVxKP
+yYjUXd8ZK3RPwU7eHUPN/V9s1v0ekc/1uFIlBBQHmzA0la/D32NcwhuCVsTEA8Ne
+iix3QqBTn3p3UnD7LhnqaIKfBQEDTKfRnuWeGsf6L764cbyMaoga/6E6S7E8P2Jw
+X+D940tAylrG8uH0CnmCDVzEGEPmozvN8Kk+UmSSwzgiFMQ3RlJaBbYEX9VsvqBZ
+uIC77KVRHsKc+/nRYfYnDWoXRapWJTqVJfC+Ouuj1pm3NNptaHjSgpsgtHde6MuJ
+ZZvvFhjN1iedDSCzRRYP4OLKTvomdiIQ9XrKPdfkqUvSgJZS7/zvCn+q6mZZDlqc
+SthGcf9wCTSplGNwXzeIwMA14DGN6zZabA4ZTHNeyrLMAjzCrzd4/T8DSNGTyT0d
+EotN0paFP5p7rgY37o7D+smm7m2V+zfGMn8iQr64E/xUDlySbEJKuea7VANzTj/1
+FtLSb4rQRgA0yNaeCFuNQkvaCtn0U0/Ot/E7GQM53Hjr43mq2Pienc6+U/1KHFje
+cmZt2/ZbzeM=
+=pgCd
+-----END PGP SIGNATURE-----
 

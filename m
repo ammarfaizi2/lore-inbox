@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763143AbWLKVmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937052AbWLKVp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763143AbWLKVmm (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 16:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937052AbWLKVmm
+	id S937052AbWLKVp5 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 16:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937627AbWLKVp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 16:42:42 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:39539 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1763142AbWLKVml (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 16:42:41 -0500
-Subject: Re: 2.6.19-git3 panics on boot - ata_piix/PCI related [still in
-	-git17]
-From: Steve Wise <swise@opengridcomputing.com>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
-References: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 11 Dec 2006 15:42:42 -0600
-Message-Id: <1165873362.20877.22.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 16:45:57 -0500
+Received: from sp604001mt.neufgp.fr ([84.96.92.60]:64907 "EHLO Smtp.neuf.fr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937052AbWLKVp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 16:45:57 -0500
+Date: Mon, 11 Dec 2006 22:23:44 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: [PATCH] reorder struct pipe_buf_operations
+In-reply-to: <200612112027.kBBKR4nG006298@shell0.pdx.osdl.net>
+To: akpm@osdl.org
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <457DCC60.3050006@cosmosbay.com>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_I7HTPKRCevDe0GDQZgoyJA)"
+References: <200612112027.kBBKR4nG006298@shell0.pdx.osdl.net>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm also hitting this running at commit:
+This is a multi-part message in MIME format.
 
-commit 7bf65382caeecea4ae7206138e92e732b676d6e5
-Author: Andrew Morton <akpm@osdl.org>
-Date:   Fri Dec 8 02:41:14 2006 -0800
+--Boundary_(ID_I7HTPKRCevDe0GDQZgoyJA)
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
 
-I was at 2.6.19, then merged up to Linus's tree Friday 12/8 and now I
-hit this. I have 2 identical systems with one difference, one has a DVD
-ROM device hooked to the ATA controller.  This system displays the same
-problem.  Since the other system without the DVD worked fine with the
-same code, I removed the DVD from the problem system and it boots ok.
-However I need the DVD, so I guess I'll start bisecting to see what
-caused this. There's about 2000 commits from 2.6.19 to my head...
+Fields of struct pipe_buf_operations have not a precise layout (ie not 
+optimized to fit cache lines nor reduce cache line ping pongs)
 
-More to come...
+The bufs[] array is *large* and is placed near the beginning of the structure, 
+so all following fields have a large offset. This is unfortunate because many 
+archs have smaller instructions when using small offsets relative to a base 
+register. On x86 for example, 7 bits offsets have smaller instruction lengths.
 
-Steve.
+Moving bufs[] at the end of pipe_buf_operations permits all fields to have 
+small offsets, and reduce text size, and icache pressure.
+
+# size vmlinux.pre vmlinux
+    text    data     bss     dec     hex filename
+3268989  664356  492196 4425541  438745 vmlinux.pre
+3268765  664356  492196 4425317  438665 vmlinux
+
+So this patch reduces text size by 224 bytes on my x86_64 machine. Similar 
+results on ia32.
 
 
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-On Mon, 2006-12-11 at 14:26 +0100, Alessandro Suardi wrote:
-> On 12/3/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> > On 12/3/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> > > > > ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKB] -> GSI 5 (level, low) -> IRQ5
-> > > > > PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> > > > > ata_piix: probe of 0000:00:1f.2 failed with error -16
-> > > > > [snip]
-> > > > > mount: could not find filesystem '/dev/root'
-> > > >
-> > > > Same failure is also in 2.6.19-git4...
-> > >
-> > > Thats the PCI updates - you need the matching fix to libata-sff where it
-> > > tries to reserve stuff it shouldn't.
-> >
-> > Thanks Alan. Indeed -git1 is where stuff breaks for me.
-> > I'll watch out for when libata-sff gets fixed in the -git
-> >  snapshots and will then report back.
-> 
-> Alan,
-> 
->   I still have this problem in 2.6.19-git17. Is this expected behavior
->   or should it have been fixed by now ?
-> 
-> Thanks,
-> 
-> --alessandro
-> 
-> "...when I get it, I _get_ it"
-> 
->      (Lara Eidemiller)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--Boundary_(ID_I7HTPKRCevDe0GDQZgoyJA)
+Content-type: text/plain; name=reorder_pipe_inode_info.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=reorder_pipe_inode_info.patch
 
+--- linux-2.6.19/include/linux/pipe_fs_i.h	2006-12-11 23:06:57.000000000 +0100
++++ linux-2.6.19-ed/include/linux/pipe_fs_i.h	2006-12-11 22:58:42.000000000 +0100
+@@ -41,7 +41,6 @@ struct pipe_buf_operations {
+ struct pipe_inode_info {
+ 	wait_queue_head_t wait;
+ 	unsigned int nrbufs, curbuf;
+-	struct pipe_buffer bufs[PIPE_BUFFERS];
+ 	struct page *tmp_page;
+ 	unsigned int readers;
+ 	unsigned int writers;
+@@ -51,6 +50,7 @@ struct pipe_inode_info {
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
+ 	struct inode *inode;
++	struct pipe_buffer bufs[PIPE_BUFFERS];
+ };
+ 
+ /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
+
+--Boundary_(ID_I7HTPKRCevDe0GDQZgoyJA)--

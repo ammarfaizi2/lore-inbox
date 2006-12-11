@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762931AbWLKONN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933336AbWLKOTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762931AbWLKONN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762930AbWLKONM
+	id S933336AbWLKOTN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933575AbWLKOTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:13:12 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52024 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1762918AbWLKONL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:13:11 -0500
-Date: Mon, 11 Dec 2006 14:19:56 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Catalin Marinas <catalin.marinas@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ata_piix: use piix_host_stop() in ich_pata_ops
-Message-ID: <20061211141956.5d161c9f@localhost.localdomain>
-In-Reply-To: <20061211132625.GA18947@htj.dyndns.org>
-References: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
-	<20061211132625.GA18947@htj.dyndns.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 09:19:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54398 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933336AbWLKOTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 09:19:12 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <457D5E01.7010307@garzik.org> 
+References: <457D5E01.7010307@garzik.org>  <457D559C.2030702@garzik.org> <29447.1165840536@redhat.com> <15033.1165842882@redhat.com> 
+To: Jeff Garzik <jeff@garzik.org>
+Cc: David Howells <dhowells@redhat.com>, Akinobu Mita <akinobu.mita@gmail.com>,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: Mark bitrevX() functions as const 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 11 Dec 2006 14:18:25 +0000
+Message-ID: <17714.1165846705@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 22:26:25 +0900
-Tejun Heo <htejun@gmail.com> wrote:
+Jeff Garzik <jeff@garzik.org> wrote:
 
-> piix_init_one() allocates host private data which should be freed by
-> piix_host_stop().  ich_pata_ops wasn't converted to piix_host_stop()
-> while merging, leaking 4 bytes on driver detach.  Fix it.
+> > I'm not sure that's a good idea.  You have to be careful not to cause
+> > confusion with ordinary "const".
 > 
-> This was spotted using Kmemleak by Catalin Marinas.
-> 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> Cc: Catalin Marinas <catalin.marinas@gmail.com>
+> It's all in the naming.  You could call it 'purefunc' or somesuch.
 
-Acked-by: Alan Cox <alan@redhat.com>
+No, not "pure".  That's something else.
+
+> __attribute__ is very very ugly, an hinders a quick scan of the function
+> prototype, particularly if it has a boatload of other attributes.
+
+Maybe you should do:
+
+	extern __attibute__((x, y, z))
+	void function_prototype(...);
+
+Then it doesn't hinder it anywhere near as much as, say:
+
+	extern void __fastcall function_prototype(...);
+
+Besides, emacs lights up __attribute__'s in funky colours to make them easier
+to look past:-)
+
+David

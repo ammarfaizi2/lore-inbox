@@ -1,84 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933059AbWLKODH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762903AbWLKOHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933059AbWLKODH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762925AbWLKODH
+	id S1762903AbWLKOHe (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762909AbWLKOHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:03:07 -0500
-Received: from wx-out-0506.google.com ([66.249.82.230]:61113 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762920AbWLKODF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:03:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=PTT2vKmEeEQ3KaJb26KFCfxTXy7f/nGXSuVsvxw+ZcmYy8OV/abLCP7/N1FAsFAkspmuf5ELH/TLDZP5FfKGgmz+HkaVhAhAQgsp+Fdzd7RTDsrm1tM1cS3SGDnKm/91D549nypUase8LxDlnzEAd5S3hNX3oNF48wwoKgigPJE=
-Date: Mon, 11 Dec 2006 23:02:58 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] libata: don't initialize sg in ata_exec_internal() if DMA_NONE
-Message-ID: <20061211140258.GB18947@htj.dyndns.org>
-References: <200612081914.41810.arnd.bergmann@de.ibm.com>
-MIME-Version: 1.0
+	Mon, 11 Dec 2006 09:07:34 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:9486 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762903AbWLKOHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 09:07:33 -0500
+Date: Mon, 11 Dec 2006 15:08:45 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Avantika Mathur <mathur@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cfq performance gap
+Message-ID: <20061211140845.GL4576@kernel.dk>
+References: <1165536200.25180.1.camel@dyn9047017105.beaverton.ibm.com> <20061208120522.GN23887@kernel.dk> <1165615793.9200.11.camel@dyn9047017105.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612081914.41810.arnd.bergmann@de.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1165615793.9200.11.camel@dyn9047017105.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Calling sg_init_one() with NULL buf causes oops on certain
-configurations.  Don't initialize sg in ata_exec_internal() if
-DMA_NONE and make the function complain if @buf is NULL when dma_dir
-isn't DMA_NONE.  While at it, fix comment.
+On Fri, Dec 08 2006, Avantika Mathur wrote:
+> On Fri, 2006-12-08 at 13:05 +0100, Jens Axboe wrote:
+> > On Thu, Dec 07 2006, Avantika Mathur wrote:
+> > > Hi Jens,
+> > 
+> > (you probably noticed now, but the axboe@suse.de email is no longer
+> > valid)
+> 
+> I saw that, thanks!
+> > > I've noticed a performance gap between the cfq scheduler and other io
+> > > schedulers when running the rawio benchmark.
+> > > Results from rawio on 2.6.19, cfq and noop schedulers:
+> > >
+> > > CFQ:
+> > >
+> > > procs           device    num read   KB/sec     I/O Ops/sec
+> > > -----  ---------------  ----------  -------  --------------
+> > >   16         /dev/sda       16412     8338            2084
+> > > -----  ---------------  ----------  -------  --------------
+> > >   16                        16412     8338            2084
+> > >
+> > > Total run time 0.492072 seconds
+> > >
+> > >
+> > > NOOP:
+> > >
+> > > procs           device    num read   KB/sec     I/O Ops/sec
+> > > -----  ---------------  ----------  -------  --------------
+> > >   16         /dev/sda       16399    29224            7306
+> > > -----  ---------------  ----------  -------  --------------
+> > >   16                        16399    29224            7306
+> > >
+> > > Total run time 0.140284 seconds
+> > >
+> > > The benchmark workload is 16 processes running 4k random reads.
+> > >
+> > > Is this performance gap a known issue?
+> > 
+> > CFQ could be a little slower at this benchmark, but your results are
+> > much worse than I would expect. What is the queueing depth of sda? How
+> > are you invoking rawio?
+> 
+> I am running rawio with the following options:
+> rawread -p 16 -m 1 -d 1 -x -z -t 0 -s 4096
+>  
+> The queue depth on sda is 4.
+> 
+> > 
+> > Your runtime is very low, how does it look if you allow the test to run
+> > for much longer? 30MiB/sec random read bandwidth seems very high, I'm
+> > wondering what exactly is being tested here.
+> > 
+> 
+> rawio is actually performing sequential reads, but I don't believe it is
+> purely sequential with the multiple processes.
+> I am currently running the test with longer runtimes and will post
+> results once it is complete. 
+> I've also attached the rawio source.
 
-The problem is discovered and initial patch was submitted by Arnd
-Bergmann.
+It's certainly the slice and idling hurting here. But at the same time,
+I don't really think your test case is very interesting. The test area
+is very small and you have 16 threads trying to read the same thing,
+optimizing for that would be silly as I don't think it has much real
+world relevance.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>
----
+That said, I might add some logic to detect when we can cheaply switch
+queues instead of waiting for a new request from the same queue.
+Averaging slice times over a period of time instead of 1:1 with that
+logic, should help cases like this while still being fair.
 
-Hello, Arnd Bergmann.
+-- 
+Jens Axboe
 
-Thanks for spotting and fixing this but ata_exec_internal_nodma() is
-almost identical to ata_do_simple_cmd() and ata_exec_internal() itself
-needs fixing anyway.  This patch just fixes ata_exec_internal().  I'll
-follow up with conversion to ata_do_simple_cmd().
-
-Thanks.
-
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 011c0a8..70e02e9 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -1332,7 +1332,7 @@ unsigned ata_exec_internal_sg(struct ata_device *dev,
- }
- 
- /**
-- *	ata_exec_internal_sg - execute libata internal command
-+ *	ata_exec_internal - execute libata internal command
-  *	@dev: Device to which the command is sent
-  *	@tf: Taskfile registers for the command and the result
-  *	@cdb: CDB for packet command
-@@ -1354,10 +1354,15 @@ unsigned ata_exec_internal(struct ata_device *dev,
- 			   int dma_dir, void *buf, unsigned int buflen)
- {
- 	struct scatterlist sg;
-+	unsigned int n_elem = 0;
- 
--	sg_init_one(&sg, buf, buflen);
-+	if (dma_dir != DMA_NONE) {
-+		WARN_ON(!buf);
-+		sg_init_one(&sg, buf, buflen);
-+		n_elem++;
-+	}
- 
--	return ata_exec_internal_sg(dev, tf, cdb, dma_dir, &sg, 1);
-+	return ata_exec_internal_sg(dev, tf, cdb, dma_dir, &sg, n_elem);
- }
- 
- /**

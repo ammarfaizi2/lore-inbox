@@ -1,52 +1,32 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936362AbWLKPQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936422AbWLKPXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936362AbWLKPQx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 10:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936397AbWLKPQx
+	id S936422AbWLKPXH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 10:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936424AbWLKPXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 10:16:53 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:46760 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936362AbWLKPQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 10:16:52 -0500
-Message-ID: <457D764E.9040308@garzik.org>
-Date: Mon, 11 Dec 2006 10:16:30 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
-Subject: Re: [take26-resend1 0/8] kevent: Generic event handling mechanism.
-References: <1165848619971@2ka.mipt.ru>
-In-Reply-To: <1165848619971@2ka.mipt.ru>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	Mon, 11 Dec 2006 10:23:07 -0500
+Received: from plusavs02.SBG.AC.AT ([141.201.10.77]:48881 "HELO
+	plusavs02.sbg.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S936422AbWLKPXG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 10:23:06 -0500
+Subject: get device from file struct
+From: Silviu Craciunas <silviu.craciunas@sbg.ac.at>
+Reply-To: silviu.craciunas@sbg.ac.at
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 11 Dec 2006 16:22:28 +0100
+Message-Id: <1165850548.30185.18.camel@ThinkPadCK6>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-OriginalArrivalTime: 11 Dec 2006 15:22:56.0247 (UTC) FILETIME=[3BD3F870:01C71D38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comments:
+quick question for the gurus.. is it possible to determine the hardware
+device from a file struct during read/write system call. For example in
+fs/read_write.c when doing a vfs_read.  
 
-* [oh, everybody will hate me for saying this, but...]  to me, "kevent" 
-implies an internal kernel subsystem.  I would rather call it "uevent" 
-or anything else lacking a 'k' prefix.
-
-* I like the absolute timespec (and use of timespec itself)
-
-* more on naming:  I think kevent_open would be more natural than 
-kevent_init, since it opens a file descriptor.
-
-* why is KEVENT_MAX not equal to KEVENT_POSIX_TIMER?  (perhaps answer 
-this question in a comment, if it is not a mistake)
-
-* Kill all the CONFIG_KEVENT_xxx sub-options, or hide them under 
-CONFIG_EMBEDDED.  Application developers should NOT be left wondering 
-whether or support for KEVENT_INODE was compiled into the kernel.
+thanks
 

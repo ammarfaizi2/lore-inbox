@@ -1,47 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763034AbWLKTrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763040AbWLKTvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763034AbWLKTrF (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763038AbWLKTrF
+	id S1763040AbWLKTvF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763043AbWLKTvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:47:05 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:41772 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1763033AbWLKTrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:47:03 -0500
-Date: Mon, 11 Dec 2006 20:37:42 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Olaf Hering <olaf@aepfle.de>
-cc: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andy Whitcroft <apw@shadowen.org>,
-       Herbert Poetzl <herbert@13thfloor.at>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-In-Reply-To: <20061211181430.GA18963@aepfle.de>
-Message-ID: <Pine.LNX.4.61.0612112037080.28981@yvahk01.tjqt.qr>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
- <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <20061211175026.GA18628@aepfle.de>
- <1165859874.27217.382.camel@laptopd505.fenrus.org> <20061211180049.GA18821@aepfle.de>
- <1165860500.27217.388.camel@laptopd505.fenrus.org> <20061211181430.GA18963@aepfle.de>
+	Mon, 11 Dec 2006 14:51:04 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:27392 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1763042AbWLKTvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:51:03 -0500
+Message-ID: <457DB661.6060102@chelsio.com>
+Date: Mon, 11 Dec 2006 11:49:53 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Divy Le Ray <divy@chelsio.com>
+CC: Steve Wise <swise@opengridcomputing.com>,
+       Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       Felix Marti <felix@chelsio.com>
+Subject: Re: [PATCH  v3 00/13] 2.6.20 Chelsio T3 RDMA Driver
+References: <20061210223244.27166.36192.stgit@dell3.ogc.int>	 <adafybn2i7n.fsf@cisco.com> <1165851389.13419.3.camel@stevo-desktop> <457DB08C.8070709@chelsio.com>
+In-Reply-To: <457DB08C.8070709@chelsio.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Dec 2006 19:49:55.0881 (UTC) FILETIME=[88462190:01C71D5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Dec 11 2006 19:14, Olaf Hering wrote:
+Divy Le Ray wrote:
+> Steve Wise wrote:
+>> On Sun, 2006-12-10 at 20:02 -0800, Roland Dreier wrote:
+>>  
+>>> I haven't seen any evidence of the corresponding ethernet NIC driver
+>>> being merged for 2.6.20 (which is a prerequisite, right).
+>>>
+>>> What's the status of that?
+>>>
+>>>     
+>>
+>> It is on its third or fourth round of review.  The last driver posted on
+>> 12/7, was merged up to linus's latest tree probably as of 12/7.  I know
+>> the comments set it was against 2.6.19, but it was really linus's
+>> latest.
+>>
+>> Divy, can you expand on this?
+>>   
+> Steve, the patch for the Chelsio T3 driver was postered against 
+> Linus'tree indeed.
 >
->> (or in other words, why is SLES the only one with the problem?)
+> -bash-3.00$ cat .git/refs/heads/origin
+> 0215ffb08ce99e2bb59eca114a99499a4d06e704
+I meant
+-bash-3.00$ cat .git/refs/heads/master
+9eba2b0ba067ce9745e575e5ea2e97a5d7d61bef
+
 >
->Everyone has this "problem". Or how do you know what kernelrelease is
->inside a random ELF or bzImage binary?
+> It incorporated Stephen's feedback.
+> The comments I received since then concern minor coding style glitches.
+> I will fix them, the driver functionality should remain unchanged 
+> however.
+>
+> Cheers,
+> Divy
+>
+>
+>>
+>> Steve.
+>>
+>>   
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Why would you even want to know that? (Stirring in the hornets nest,
-just add a new mkinitrd option.)
-
-
-	-`J'
--- 

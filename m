@@ -1,138 +1,144 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763006AbWLKS3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763005AbWLKSdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763006AbWLKS3L (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 13:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763005AbWLKS3L
+	id S1763005AbWLKSdd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 13:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763007AbWLKSdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 13:29:11 -0500
-Received: from MAIL.13thfloor.at ([213.145.232.33]:46314 "EHLO
-	MAIL.13thfloor.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1763007AbWLKS3J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 13:29:09 -0500
-Date: Mon, 11 Dec 2006 19:29:08 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Olaf Hering <olaf@aepfle.de>, Andy Whitcroft <apw@shadowen.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-Message-ID: <20061211182908.GC7256@MAIL.13thfloor.at>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Olaf Hering <olaf@aepfle.de>, Andy Whitcroft <apw@shadowen.org>,
-	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org>
+	Mon, 11 Dec 2006 13:33:33 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:53195 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1763005AbWLKSdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 13:33:32 -0500
+Date: Mon, 11 Dec 2006 10:33:23 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, ak@muc.de
+Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, shai@scalex86.org,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
+       kiran@scalex86.org
+Subject: Re: [stable] [patch 31/32] x86_64: fix boot hang due to nmi watchdog init code
+Message-ID: <20061211183323.GC1397@sequoia.sous-sol.org>
+References: <20061208235751.890503000@sous-sol.org> <20061209000328.188464000@sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061209000328.188464000@sous-sol.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 10:26:13AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Mon, 11 Dec 2006, Olaf Hering wrote:
-> > 
-> > Hmm, even moving this to linux_banner doesnt work, just because
-> > __initdata is in a different section.
-> 
-> Heh. Let's just change the "version_read_proc" string to not trigger.
-> 
-> Something like this instead (which replaces the "Linux" with "%s" in 
-> /proc, and just takes it from "utsname()->sysname" instead. So now you can 
-> lie and call yourself "OS X" in your virtual partition if you want to ;)
+* Chris Wright (chrisw@sous-sol.org) wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 
-cool!
+replaced with upstream version, which is slightly changed by Andi.
+--
 
-should definitely work for all 'known' cases
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
 
-thanks,
-Herbert
+2.6.19  stopped booting (or booted based on build/config) on our x86_64
+systems due to a bug introduced in 2.6.19.  check_nmi_watchdog schedules an
+IPI on all cpus to  busy wait on a flag, but fails to set the busywait
+flag if NMI functionality is disabled.  This causes the secondary cpus
+to spin in an endless loop, causing the kernel bootup to hang.
+Depending upon the build, the  busywait flag got overwritten (stack variable)
+and caused  the kernel to bootup on certain builds.  Following patch fixes
+the bug by setting the busywait flag before returning from check_nmi_watchdog.
+I guess using a stack variable is not good here as the calling function could
+potentially return while the busy wait loop is still spinning on the flag.
 
-> 		Linus
-> 
-> diff --git a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
-> index dc3e580..92ea774 100644
-> --- a/fs/proc/proc_misc.c
-> +++ b/fs/proc/proc_misc.c
-> @@ -47,6 +47,7 @@
->  #include <linux/vmalloc.h>
->  #include <linux/crash_dump.h>
->  #include <linux/pid_namespace.h>
-> +#include <linux/compile.h>
->  #include <asm/uaccess.h>
->  #include <asm/pgtable.h>
->  #include <asm/io.h>
-> @@ -253,8 +254,15 @@ static int version_read_proc(char *page, char **start, off_t off,
->  {
->  	int len;
->  
-> -	len = sprintf(page, linux_banner,
-> -		utsname()->release, utsname()->version);
-> +	/* FIXED STRING! Don't touch! */
-> +	len = snprintf(page, PAGE_SIZE,
-> +		"%s version %s"
-> +		" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
-> +		" (" LINUX_COMPILER ")"
-> +		" %s\n",
-> +		utsname()->sysname,
-> +		utsname()->release,
-> +		utsname()->version);
->  	return proc_calc_metrics(page, start, off, count, eof, len);
->  }
->  
-> diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-> index e8bfac3..b0c4a05 100644
-> --- a/include/linux/kernel.h
-> +++ b/include/linux/kernel.h
-> @@ -17,8 +17,6 @@
->  #include <asm/byteorder.h>
->  #include <asm/bug.h>
->  
-> -extern const char linux_banner[];
-> -
->  #define INT_MAX		((int)(~0U>>1))
->  #define INT_MIN		(-INT_MAX - 1)
->  #define UINT_MAX	(~0U)
-> diff --git a/init/main.c b/init/main.c
-> index 036f97c..c783695 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -483,6 +483,12 @@ void __init __attribute__((weak)) smp_setup_processor_id(void)
->  {
->  }
->  
-> +static char __initdata linux_banner[] =
-> +	"Linux version " UTS_RELEASE
-> +	" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
-> +	" (" LINUX_COMPILER ")"
-> +	" " UTS_VERSION "\n";
-> +
->  asmlinkage void __init start_kernel(void)
->  {
->  	char * command_line;
-> @@ -509,7 +515,7 @@ asmlinkage void __init start_kernel(void)
->  	boot_cpu_init();
->  	page_address_init();
->  	printk(KERN_NOTICE);
-> -	printk(linux_banner, UTS_RELEASE, UTS_VERSION);
-> +	printk(linux_banner);
->  	setup_arch(&command_line);
->  	unwind_setup();
->  	setup_per_cpu_areas();
-> diff --git a/init/version.c b/init/version.c
-> index 2a5dfcd..9d96d36 100644
-> --- a/init/version.c
-> +++ b/init/version.c
-> @@ -33,8 +33,3 @@ struct uts_namespace init_uts_ns = {
->  	},
->  };
->  EXPORT_SYMBOL_GPL(init_uts_ns);
-> -
-> -const char linux_banner[] =
-> -	"Linux version %s (" LINUX_COMPILE_BY "@"
-> -	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") %s\n";
-> -
+AK: I redid the patch significantly to be cleaner
+
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ arch/i386/kernel/nmi.c   |    8 ++++----
+ arch/x86_64/kernel/nmi.c |    9 +++++----
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+--- linux-2.6.19.orig/arch/i386/kernel/nmi.c
++++ linux-2.6.19/arch/i386/kernel/nmi.c
+@@ -192,6 +192,8 @@ static __cpuinit inline int nmi_known_cp
+ 	return 0;
+ }
+ 
++static int endflag __initdata = 0;
++
+ #ifdef CONFIG_SMP
+ /* The performance counters used by NMI_LOCAL_APIC don't trigger when
+  * the CPU is idle. To make sure the NMI watchdog really ticks on all
+@@ -199,7 +201,6 @@ static __cpuinit inline int nmi_known_cp
+  */
+ static __init void nmi_cpu_busy(void *data)
+ {
+-	volatile int *endflag = data;
+ 	local_irq_enable_in_hardirq();
+ 	/* Intentionally don't use cpu_relax here. This is
+ 	   to make sure that the performance counter really ticks,
+@@ -207,14 +208,13 @@ static __init void nmi_cpu_busy(void *da
+ 	   pause instruction. On a real HT machine this is fine because
+ 	   all other CPUs are busy with "useless" delay loops and don't
+ 	   care if they get somewhat less cycles. */
+-	while (*endflag == 0)
+-		barrier();
++	while (endflag == 0)
++		mb();
+ }
+ #endif
+ 
+ static int __init check_nmi_watchdog(void)
+ {
+-	volatile int endflag = 0;
+ 	unsigned int *prev_nmi_count;
+ 	int cpu;
+ 
+--- linux-2.6.19.orig/arch/x86_64/kernel/nmi.c
++++ linux-2.6.19/arch/x86_64/kernel/nmi.c
+@@ -190,6 +190,8 @@ void nmi_watchdog_default(void)
+ 		nmi_watchdog = NMI_IO_APIC;
+ }
+ 
++static int endflag __initdata = 0;
++
+ #ifdef CONFIG_SMP
+ /* The performance counters used by NMI_LOCAL_APIC don't trigger when
+  * the CPU is idle. To make sure the NMI watchdog really ticks on all
+@@ -197,7 +199,6 @@ void nmi_watchdog_default(void)
+  */
+ static __init void nmi_cpu_busy(void *data)
+ {
+-	volatile int *endflag = data;
+ 	local_irq_enable_in_hardirq();
+ 	/* Intentionally don't use cpu_relax here. This is
+ 	   to make sure that the performance counter really ticks,
+@@ -205,14 +206,13 @@ static __init void nmi_cpu_busy(void *da
+ 	   pause instruction. On a real HT machine this is fine because
+ 	   all other CPUs are busy with "useless" delay loops and don't
+ 	   care if they get somewhat less cycles. */
+-	while (*endflag == 0)
+-		barrier();
++	while (endflag == 0)
++		mb();
+ }
+ #endif
+ 
+ int __init check_nmi_watchdog (void)
+ {
+-	volatile int endflag = 0;
+ 	int *counts;
+ 	int cpu;
+ 
+@@ -253,6 +253,7 @@ int __init check_nmi_watchdog (void)
+ 	if (!atomic_read(&nmi_active)) {
+ 		kfree(counts);
+ 		atomic_set(&nmi_active, -1);
++		endflag = 1;
+ 		return -1;
+ 	}
+ 	endflag = 1;

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937461AbWLKSgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763011AbWLKSkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937461AbWLKSgU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 13:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763010AbWLKSgU
+	id S1763011AbWLKSkf (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 13:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763013AbWLKSke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 13:36:20 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:35167 "EHLO
-	buildserver.ru.mvista.com" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1763007AbWLKSgT (ORCPT
+	Mon, 11 Dec 2006 13:40:34 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3919 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1763011AbWLKSke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 13:36:19 -0500
-Date: Mon, 11 Dec 2006 21:36:28 +0300
-From: Vitaly Bordug <vbordug@ru.mvista.com>
-To: Vitaly Bordug <vbordug@ru.mvista.com>
-Cc: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH] [FS_ENET] OF-related update for FEC and SCC MAC's
-Message-ID: <20061211213628.23dcc319@vitb.ru.mvista.com>
-In-Reply-To: <20061211180048.17991.59030.stgit@localhost.localdomain>
-References: <20061211180048.17991.59030.stgit@localhost.localdomain>
-Organization: MontaVista software, Inc.
-X-Mailer: Sylpheed-Claws 2.0.0cvs8 (GTK+ 2.6.10; i686-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 13:40:34 -0500
+Date: Mon, 11 Dec 2006 19:40:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] make sysrq_always_enabled_setup() static
+Message-ID: <20061211184043.GA28443@stusta.de>
+References: <20061211005807.f220b81c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 21:00:49 +0300
-Vitaly Bordug <vbordug@ru.mvista.com> wrote:
+On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.19-rc6-mm2:
+>...
+> +debug-add-sysrq_always_enabled-boot-option.patch
+>...
+>  Misc updates
+>...
 
-> 
-> Updated direct resource pass with ioremap call, make it grant proper IRQ
-> mapping, stuff incompatible with the new approach were respectively put  under 
-> #ifndef CONFIG_PPC_MERGE.
+This patch makes the needlessly global sysrq_always_enabled_setup() 
+static.
+ 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Hrm, Signed-off-by: missed, I'll resend, sorry about that.
--- 
-Sincerely, 
-Vitaly
+--- linux-2.6.19-mm1/drivers/char/sysrq.c.old	2006-12-11 17:46:54.000000000 +0100
++++ linux-2.6.19-mm1/drivers/char/sysrq.c	2006-12-11 17:47:01.000000000 +0100
+@@ -59,7 +59,7 @@
+ 						(__sysrq_enabled & mask);
+ }
+ 
+-int __init sysrq_always_enabled_setup(char *str)
++static int __init sysrq_always_enabled_setup(char *str)
+ {
+ 	sysrq_always_enabled = 1;
+ 	printk(KERN_INFO "debug: sysrq always enabled.\n");
+

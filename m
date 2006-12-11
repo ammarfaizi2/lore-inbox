@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933840AbWLKOXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935217AbWLKO1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933840AbWLKOXq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934264AbWLKOXq
+	id S935217AbWLKO1Q (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935310AbWLKO1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:23:46 -0500
-Received: from nz-out-0506.google.com ([64.233.162.238]:28038 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S934488AbWLKOXo (ORCPT
+	Mon, 11 Dec 2006 09:27:16 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:9441 "EHLO
+	pd2mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935217AbWLKO1P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:23:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=rmCvjA02Wu1wvh/GKMy5YyLWmJ0XkpHAy27dA0/FCmqIQcrki8xtkMxc4O+fcT1cZYEPolUrFrxl0D98ZwSrrfaIuGsJJn6mUEUhqGoV76owaIelpt8Ps/DKyO2kb+EQNeWl9MYwzhWAS3j4qFdT+rNC/y8AtpKVgyPjS1mRugM=
-Message-ID: <457D69E7.9040708@gmail.com>
-Date: Mon, 11 Dec 2006 23:23:35 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata: don't initialize sg in ata_exec_internal() if
- DMA_NONE
-References: <200612081914.41810.arnd.bergmann@de.ibm.com> <20061211140258.GB18947@htj.dyndns.org>
-In-Reply-To: <20061211140258.GB18947@htj.dyndns.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 09:27:15 -0500
+Date: Mon, 11 Dec 2006 08:27:05 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: NULL pointer and EIP errors
+In-reply-to: <1165837291.295148.172750@j72g2000cwa.googlegroups.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: mittglobal@gmail.com
+Message-id: <457D6AB9.1050506@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <1165837291.295148.172750@j72g2000cwa.googlegroups.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> I'll follow up with conversion to ata_do_simple_cmd().
+mittglobal@gmail.com wrote:
+> Hi Guys,
+> 
+> I have a box running Fedora 2.6.5-1.358smp. Recently DNS and SMTP went
+> down on the box and both had to be restarted. I got the following
+> errors in the logs but dont have a clue what they mean.
+> 
+> Any help from you wonderful people would be most appreciated as this is
+> the second time these services have died on the box!!
+> 
+> Does the box need patching or do certain services need updates?
 
-The current situation is...
-
-ata_exec_internal_sg()	: no user except for ata_exec_internal() yet
-ata_exec_internal()	: one data transferring user. other are non-data
-ata_do_simple_cmd()	: three users
-
-So, adding another exec_internal variant doesn't look so hot.  It seems
-we already have enough variants considering the small number of users.
-I think it's best to leave it alone for now.
-
-Thanks.
+That's an ancient kernel, you should update. Also, you'd better reboot 
+as the box is probably in a hosed state now that the kernel has oopsed..
 
 -- 
-tejun
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

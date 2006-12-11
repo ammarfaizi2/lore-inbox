@@ -1,54 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763028AbWLKTaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762933AbWLKThM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1763028AbWLKTaJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763031AbWLKTaJ
+	id S1762933AbWLKThM (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1763021AbWLKThM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:30:09 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:34524 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1763028AbWLKTaG (ORCPT
+	Mon, 11 Dec 2006 14:37:12 -0500
+Received: from MAIL.13thfloor.at ([213.145.232.33]:45746 "EHLO
+	MAIL.13thfloor.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1763018AbWLKThK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:30:06 -0500
-Subject: Re: [PATCH] input/usb: Supporting more keys from the HUT Consumer
-	Page
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Florian Festi <ffesti@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <457D8E59.2000200@redhat.com>
-References: <457D8E59.2000200@redhat.com>
-Content-Type: text/plain
-Date: Mon, 11 Dec 2006 20:30:41 +0100
-Message-Id: <1165865441.20733.12.camel@localhost>
+	Mon, 11 Dec 2006 14:37:10 -0500
+Date: Mon, 11 Dec 2006 20:37:09 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Olaf Hering <olaf@aepfle.de>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+Message-ID: <20061211193709.GD7256@MAIL.13thfloor.at>
+Mail-Followup-To: Andy Whitcroft <apw@shadowen.org>,
+	Linus Torvalds <torvalds@osdl.org>, Olaf Hering <olaf@aepfle.de>,
+	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <20061211182908.GC7256@MAIL.13thfloor.at> <Pine.LNX.4.64.0612111040160.12500@woody.osdl.org> <457DAF99.4050106@shadowen.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <457DAF99.4050106@shadowen.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Florian,
+On Mon, Dec 11, 2006 at 07:20:57PM +0000, Andy Whitcroft wrote:
+> Linus Torvalds wrote:
+> >
+> >On Mon, 11 Dec 2006, Herbert Poetzl wrote:
+> >>cool!
+> >>
+> >>should definitely work for all 'known' cases
+> >
+> >No it doesn't.
 
-> On USB keyboards lots of hot/internet keys are not working. This patch 
-> adds support for a number of keys from the USB HID Usage Table 
-> (http://www.usb.org/developers/devclass_docs/Hut1_12.pdf).
+well, the 'method' not the actual patch, i.e.
+you should be as lucky as before, if the banner
+string is not touched at all, and the version
+entry does duplicate the parts ...
+
+> >Do a
+> >
+> >	git grep '".*Linux version .*"'
+> >
+> >on the kernel, and see just how CRAP that "get_kernel_version" test is, 
+> >and has always been.
+> >
+> >But let's hope that CIFS is never compiled into a SLES kernel. Because 
+> >this isn't worth fixing at that point, and the SLES people should just fix 
+> >their piece of crap initrd script.
+> >
+> >And next time somebody says "random vmlinux binary" to me, I'll blacklist 
+> >their email address. You shouldn't do initrd for "random binaries". Just 
+> >pass the release name somewhere (maybe in the name of the binary, for 
+> >example, and if the name doesn't have a version in it, tough titties).
+> >
+> >		Linus
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> It also adds several new key codes. Most of them are used on real world 
-> keyboards I know. I added some others (KEY_+ EDITOR, GRAPHICSEDITOR, 
-> DATABASE, NEWS, VOICEMAIL, VIDEOPHONE) to avoid "holes".
+> I am afraid to report that this second version also fails for me, as you 
+> point out CIFS can break us if defined.  In fact we used to get away 
+> with this on my test system due to ordering magic luck, I presume the 
+> move to __initdata has triggered this.  Much as I agree that this is 
+> wrong we are still going to break people with this.
+
+maybe it would make sense (in SLES) to have that
+a special elf section, which is carefully added
+to the beginning of the compiled kernel, right
+after what is left of the initialization/boot code?
+
+not sure that is mainline stuff though ...
+
+best,
+Herbert
+
+> Before:
 > 
-> I would be interested in comments to the "zoom" key. For me it looks 
-> like KEY_ZOOM is on a remote control for a DVD player or something 
-> similar. So it toggles between a few zoom levels. The Zoom 100% key 
-> found on keyboards (some Logitech internet keyboards for example) resets 
-> the Zoom to 100%. May be we need another keycode for them. Additionally
-> does the USB HUT define the Zoom entry as "linear control" but the 
-> logitech uses it as Zoom 100% key.
-
-we just split the HID parser from the actual USB transport driver and it
-seems your patch is against an old tree. Please update your patch.
-
-Regards
-
-Marcel
-
-
+> Module list:	sym53c8xx reiserfs
+> Kernel version:	2.6.19-git12-autokern1 (powerpc)
+> Kernel image:	/boot/vmlinuz-autobench
+> Initrd image:	/boot/initrd-autobench.img.new
+> Shared libs:	lib/ld-2.3.3.so lib/libc.so.6 lib/libselinux.so.1
+> Cannot determine dependencies of module sym53c8xx. Is modules.dep up to 
+> date?
+> Modules:	
+> none
+> 5735 blocks
+> 
+> After:
+> 
+> Module list:	sym53c8xx reiserfs
+> Kernel version:	 (powerpc)
+> Kernel image:	/boot/vmlinuz-autobench
+> Initrd image:	/boot/initrd-autobench.img.new
+> No modules found for kernel
+> 
+> -apw

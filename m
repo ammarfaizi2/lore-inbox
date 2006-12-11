@@ -1,136 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762636AbWLKHhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762639AbWLKHqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762636AbWLKHhJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 02:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762640AbWLKHhI
+	id S1762639AbWLKHqe (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 02:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762640AbWLKHqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 02:37:08 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:38975 "HELO
-	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1762636AbWLKHhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 02:37:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=QZR4AHOpWYgNbY5cbtOv2m/h9iAce9vZj4mB3+hZLF9MGRLTCIcGOwCus3pzbj/8na6HJwrtpGxrhFAPDHnjbTXAzUn5aVpVHs6VyBLh5glFPmUfw/GofqCO60Xm4ql9oYVtN3ct4o5e57VosimH9fjo3ED5DSmaaYvcAIIOi3k=  ;
-X-YMail-OSG: 6D1i9tkVM1lYKwlaffOCzfUvFsv0TMv267xc3bZ6LNNL8r0EKZdRGGLg1YvejUrgT39BG2Cn7CP5CZrOQXvvGXNqfHZx7POuEni09lJ6j.rd00LoyBhksB8mQKugid2Iz_I9EJAZn86xd1rftKx3.PkO.A6N5viFa4QTtFJdBjKcJXn2LnC2TagQVq_D
-Message-ID: <457D0A6A.1090806@yahoo.com.au>
-Date: Mon, 11 Dec 2006 18:36:10 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux@horizon.com
-CC: linux-arch@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
-References: <20061211061751.22553.qmail@science.horizon.com>
-In-Reply-To: <20061211061751.22553.qmail@science.horizon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 11 Dec 2006 02:46:34 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55518 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762639AbWLKHqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 02:46:34 -0500
+Date: Sun, 10 Dec 2006 23:45:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       lenb@kernel.org, linux-kernel@vger.kernel.org, ak@suse.de,
+       torvalds@osdl.org
+Subject: Re: [patch] net: dev_watchdog() locking fix
+Message-Id: <20061210234508.cd83a784.akpm@osdl.org>
+In-Reply-To: <20061209.140205.126778911.davem@davemloft.net>
+References: <20061207210657.GA23229@gondor.apana.org.au>
+	<20061208151902.4c8bb012.akpm@osdl.org>
+	<20061208235952.GA4693@gondor.apana.org.au>
+	<20061209.140205.126778911.davem@davemloft.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
->> atomic_ll() / atomic_sc() with the restriction that they cannot be
->> nested, you cannot write any C code between them, and may only call
->> into some specific set of atomic_llsc_xxx primitives, operating on
->> the address given to ll, and must not have more than a given number
->> of instructions between them. Also, the atomic_sc won't always fail
->> if there were interleaving stores.
+On Sat, 09 Dec 2006 14:02:05 -0800 (PST)
+David Miller <davem@davemloft.net> wrote:
+
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Sat, 9 Dec 2006 10:59:52 +1100
 > 
+> > On Fri, Dec 08, 2006 at 03:19:02PM -0800, Andrew Morton wrote:
+> > > 
+> > > Like this?
+> > > 
+> > > 	/* don't get messages out of order, and no recursion */
+> > > 	if (skb_queue_len(&npinfo->txq) == 0 &&
+> > > 		    npinfo->poll_owner != smp_processor_id()) {
+> > > 		local_bh_disable();	/* Where's netif_tx_trylock_bh()? */
+> > > 		if (netif_tx_trylock(dev)) {
+> > > 			/* try until next clock tick */
+> > > 			for (tries = jiffies_to_usecs(1)/USEC_PER_POLL;
+> > > 					tries > 0; --tries) {
+> > > 				if (!netif_queue_stopped(dev))
+> > > 					status = dev->hard_start_xmit(skb, dev);
+> > > 
+> > > 				if (status == NETDEV_TX_OK)
+> > > 					break;
+> > > 
+> > > 				/* tickle device maybe there is some cleanup */
+> > > 				netpoll_poll(np);
+> > > 
+> > > 				udelay(USEC_PER_POLL);
+> > > 			}
+> > > 			netif_tx_unlock(dev);
+> > > 		}
+> > > 		local_bh_enable();
+> > > 	}
+> > 
+> > Looks good to me.  Thanks Andrew!
 > 
-> I'm not entirely sure what you're talking about.  You generally want
+> I've applied this patch, thanks a lot.
 
-I'm talking about what a generic API (which you were proposing) would
-look like.
+It spits a nasty during bringup
 
-> to keep the amount of code between ll and sc to an absolute minimum
-> to avoid interference which causes livelock.  Processor timeouts
-> are generally much longer than any reasonable code sequence.
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+forcedeth.c: Reverse Engineered nForce ethernet driver. Version 0.59.
+netconsole: device eth0 not up yet, forcing it
+e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
+WARNING (!__warned) at kernel/softirq.c:137 local_bh_enable()
 
-"Generally" does not mean you can just ignore it and hope the C compiler
-does the right thing. Nor is it enough for just SOME of the architectures
-to have the properties you require.
+Call Trace:
+ [<ffffffff80235baf>] local_bh_enable+0x41/0xa3
+ [<ffffffff8045ab8e>] netpoll_send_skb+0x116/0x144
+ [<ffffffff8045b1ee>] netpoll_send_udp+0x263/0x271
+ [<ffffffff803d41ec>] write_msg+0x42/0x5e
+ [<ffffffff80230c9b>] __call_console_drivers+0x5f/0x70
+ [<ffffffff80230d19>] _call_console_drivers+0x6d/0x71
+ [<ffffffff802313f0>] release_console_sem+0x148/0x1ec
+ [<ffffffff802316ce>] register_console+0x1b1/0x1ba
+ [<ffffffff803d4178>] init_netconsole+0x54/0x68
+ [<ffffffff802071ae>] init+0x152/0x308
+ [<ffffffff804dac8b>] _spin_unlock_irq+0x14/0x30
+ [<ffffffff8022c15e>] schedule_tail+0x43/0x9f
+ [<ffffffff8020a758>] child_rip+0xa/0x12
+ [<ffffffff8020705c>] init+0x0/0x308
+ [<ffffffff8020a74e>] child_rip+0x0/0x12
 
-> I hear you and Linus say that loads and stores are not allowed.
-> I'm trying to find that documented somewhere.  Let's see... Wikipedia
-> says that LL/SC is implemented on Alpha, MIPS, PowerPC, and ARM.
-
-Ralf tells us that MIPS cannot execute any loads, stores, or sync
-instructions on MIPS. Ivan says no loads, stores, taken branches etc
-on Alpha.
-
-MIPS also has a limit of 2048 bytes between the ll and sc.
-
-So you almost definitely cannot have gcc generated assembly between. I
-think we agree on that much. So what remains is for you to propose your
-API.
-
-> Okay, so Alpha is the special case; write those primitives directly
-> in asm.  It's still possible to get three out of four.
-
-Yes, but the code *between* the time you call atomic_ll and atomic_sc
-has to be performed in arch calls as well. Ie. you cannot write:
-
-    do {
-      val = atomic_ll(&A);
-      if (val == blah) {
-        ...
-    } while (!atomic_sc(&A, newval));
-
-AFAIKS, you cannot even write:
-
-   do {
-     val = atomic_ll(&A);
-     val++;
-   } while(!atomic_sc(&A, val));
-
-Is the do {} while loop itself even safe? I'm not sure, I don't think
-we could guarantee it.
-
-On the other hand, atomic_cmpxchg can be used in arbitrary C code, and
-has no restrictions on use whatsoever.
-
-> In truth, however, realizing that we're only talking about three
-> architectures (wo of which have 32 & 64-bit versions) it's probably not
-> worth it.  If there were five, it would probably be a savings, but 3x
-> code duplication of some small, well-defined primitives is a fair price
-> to pay for avoiding another layer of abstraction (a.k.a. obfuscation).
-> 
-> And it lets you optimize them better.
-> 
-> I apologize for not having counted them before.
-
-I disagree. It wouldn't be another layer of abstraction, it would be
-an abstraction on pretty much the same level as the other atomic
-primitives. What it would be is a bad abstraction if it leaked all
-these architecture specific details into generic C code. But if you
-can get around that...
-
-I also disagree that the architectures don't matter. ARM and PPC are
-pretty important, and I believe Linux on MIPS is growing too.
-
-I also think it is really nice to be able to come up with an optimal
-implementation over a wider range of architectures even if they are
-relatively rare. It often implies that you have come up with a better
-API[*].
-
-One proposal that I could buy is an atomic_ll/sc API, which mapped
-to a cmpxchg emulation even on those llsc architectures which had
-any sort of restriction whatsoever. This could be used in regular C
-code (eg. you indicate powerpc might be able to do this). But it may
-also help cmpxchg architectures optimise their code, because the
-load really wants to be a "load with intent to store" -- and is
-IMO the biggest suboptimal aspect of current atomic_cmpxchg.
-
-[*] Of course you can take this in the wrong direction. For example, the
-2 which implement SMP atomic operations with spinlocks would often prefer
-to use a spinlock in the data structure being modified than hashed off
-the address of the atomic (much better locality of reference). But
-doing this all over the kernel is idiotic.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+because local irqs are disabled.  

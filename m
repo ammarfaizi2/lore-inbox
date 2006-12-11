@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762445AbWLKE6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762448AbWLKFAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762445AbWLKE6F (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762448AbWLKE6F
+	id S1762448AbWLKFAR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 00:00:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762450AbWLKFAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:58:05 -0500
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:58656 "EHLO
-	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762445AbWLKE6D (ORCPT
+	Mon, 11 Dec 2006 00:00:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:40397 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762449AbWLKFAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:58:03 -0500
-Message-ID: <457CE558.8030003@comcast.net>
-Date: Sun, 10 Dec 2006 23:58:00 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PAE/NX without performance drain?
-References: <200612102347_MC3-1-D49B-AB98@compuserve.com>
-In-Reply-To: <200612102347_MC3-1-D49B-AB98@compuserve.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 00:00:15 -0500
+Date: Mon, 11 Dec 2006 10:28:31 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
+       Jens Axboe <axboe@kernel.dk>, Dipankar <dipankar@in.ibm.com>,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: workqueue deadlock
+Message-ID: <20061211045830.GB5339@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200612061726.14587.bjorn.helgaas@hp.com> <20061207105148.20410b83.akpm@osdl.org> <20061207113700.dc925068.akpm@osdl.org> <20061208025301.GA11663@in.ibm.com> <20061207205407.b4e356aa.akpm@osdl.org> <20061209102652.GA16607@elte.hu> <20061209114723.138b6e89.akpm@osdl.org> <20061210082616.GB14057@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061210082616.GB14057@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Dec 10, 2006 at 09:26:16AM +0100, Ingo Molnar wrote:
+> something like the pseudocode further below - when applied to a data
+> structure it has semantics and scalability close to that of
+> preempt_disable(), but it is still preemptible and the lock is specific.
 
+Ingo,
+	The psuedo-code you have provided can still fail to avoid
+the deadlock reported by Bjorn Helgaas earlier in this thread:
 
+	http://lkml.org/lkml/2006/12/6/352
 
-Chuck Ebbert wrote:
-> In-Reply-To: <457B1F02.7030409@comcast.net>
-> 
-> On Sat, 09 Dec 2006 15:39:30 -0500, John Richard Moser wrote:
-> 
->> Is it possible to give some other way to get the hardware NX bit working
->> in 32-bit mode, without the apparently massive performance penalty of
->> HIGHMEM64?
-> 
-> If your hardware can run the x86_64 kernel, try using that with your
-> i386 userspace.  It works here...
-> 
+Thread1->flush_workqueue->mutex_lock(cpu4's hotplug_lock)
 
-I hear that breaks USB printing.  Also I'm interested in getting it
-working for other people, i.e. shipping with working NX.
+Thread2(keventd)->run_workqueue->som_work_fn-> ..
+		flush_workqueue->mutex_lock(cpu4's hotplug_lock)
 
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Both deadlock with each other.
 
-iQIVAwUBRXzlVgs1xW0HCTEFAQKGcQ//Q91/SNOSQQkRdOQLf6KAYfKbKSt5b9qm
-EgpH7TdeJyFq+pZb90BKd0Sr7h245vr2q4+xufuZ51gxMIqc/+UZ6D0bttUbcE10
-Pja/i0s3havWMccEs/60NqnM8xnV82IOUZORBPJKVoBo39pHBOGyRjkBJFjVOjQO
-8baJN67fa1gTPxvnhS1Xb7LqxpJqGLygjCieofFxxLh7UJbvOVNoJLXyphMNA3AE
-uwrut3HDLTPw7XW/klc1y8bFIOVf1RI9YLUiQZJPcyBTaEKntuFOzVbE1X1J5CDj
-/96JE+oqqg+Y3ysyJY1kv7Rwo+zWAr/ARTcK+q9UlJXFabWDSb9WC6mS612YhISM
-gus3P76oFZ27irVHHVlDKM6V9Uk7B2S5fZnjaiLV+yQ9IlxVInQohjn2aPpp+7Oj
-zfWogpjjVMyWNnOdJ1PttvH2OCykNuMmE+YclsXt5GH8HobLlnOCBdfZYnH9hYmm
-N//EoRC7HEX2mDcV0LwIhHiWOQxoPnhB3qDQnG1F/KNK7MYF9mpDtryoptDmu2y/
-568V2sm/bx9JOKb7Dy5p2k8SAApUCnGZKVQ+JRJ7FxoIMpOZd5MVGy1cROroJW/x
-LCuHNjm+tttMBuzn4R9LACp6QdNdW58ygbwzAL9HuHTeOtJjAVwdrvKOLjMCk23Q
-qHv5gZB4NLs=
-=ijVN
------END PGP SIGNATURE-----
+All this mess could easily be avoided if we implement a reference-count
+based cpu_hotplug_lock(), as suggested by Arjan and Linus before and
+implemented by Gautham here:
+
+	http://lkml.org/lkml/2006/10/26/65
+
+-- 
+Regards,
+vatsa

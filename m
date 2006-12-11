@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762713AbWLKKDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762714AbWLKKDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762713AbWLKKDH (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 05:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762711AbWLKKDH
+	id S1762714AbWLKKDr (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 05:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762712AbWLKKDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 05:03:07 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:54623 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762709AbWLKKDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 05:03:06 -0500
-Date: Mon, 11 Dec 2006 10:03:01 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrew MChuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds orton <akpm@osdl.org>" <torvalds@osdl.org>
-Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
-Message-ID: <20061211100301.GD4587@ftp.linux.org.uk>
-References: <200612110330_MC3-1-D49B-BC0F@compuserve.com> <20061211005557.04643a75.akpm@osdl.org> <20061211011327.f9478117.akpm@osdl.org> <20061211092130.GB4587@ftp.linux.org.uk> <20061211012545.ed945cbd.akpm@osdl.org> <20061211093314.GC4587@ftp.linux.org.uk> <20061211014727.21c4ab25.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061211014727.21c4ab25.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 11 Dec 2006 05:03:47 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:49735 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762711AbWLKKDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 05:03:46 -0500
+Date: Mon, 11 Dec 2006 11:03:25 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Benny Amorsen <benny+usenet@amorsen.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Window scaling problem?
+In-Reply-To: <m33b7mhjfh.fsf@ursa.amorsen.dk>
+Message-ID: <Pine.LNX.4.61.0612111102230.11941@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0612101001390.9675@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0612101507180.23130@lancer.cnet.absolutedigital.net>
+ <m33b7mhjfh.fsf@ursa.amorsen.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 01:47:27AM -0800, Andrew Morton wrote:
-> - populate_rootfs() puts stuff into the filesystem
-> 
-> - we then run initcalls.
-> 
-> - an initcall runs /sbin/hotplug.
-> 
-> We're now running userspace before all the initcalls have been executed. 
-> Hence we're trying to run userspace when potentially none of "grep
-> _initcall */*.c" has been executed.  It isn't a kernel yet...
 
-That's... arguable.  We certainly don't need lots and lots of initcalls
-to be able to run userland code.  Which ones are missing in your opinion?
+On Dec 11 2006 10:26, Benny Amorsen wrote:
+>>>>>> "CP" == Cal Peake <cp@absolutedigital.net> writes:
+>
+>CP> I saw this with kernels v2.6.16, v2.6.17, and v2.6.18. Windows XP
+>CP> however didn't seem to have any problems. So unless Windows
+>CP> doesn't have window scaling on by default (or uses a workaround)
+>CP> it could be a broken kernel.
+>
+>XP doesn't do Window Scaling by default, but Vista will. Hopefully
+>that should flush out the old PIX's. Versions old enough to break
+>Window Scaling are old enough to be insecure anyway.
 
-As for that example, I'd love to see specifics - which driver triggers
-hotplug?  Presumably it happens from an initcall, so we also have something
-fishy here...
+Is there some test utility I can run that reliably says if there is a 
+broken window scaler in the path to an arbitrary host?
 
-Said that, I think that pipes should be initialized early.
+
+	-`J'
+-- 

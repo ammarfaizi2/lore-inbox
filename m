@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936859AbWLKQlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937183AbWLKQmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936859AbWLKQlX (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 11:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937049AbWLKQlX
+	id S937183AbWLKQmS (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 11:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937187AbWLKQmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 11:41:23 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42119 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936859AbWLKQlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 11:41:22 -0500
-Date: Mon, 11 Dec 2006 08:40:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>,
-       Andrew MChuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] pipe: Don't oops when pipe filesystem isn't mounted
-In-Reply-To: <20061211161212.GJ4587@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0612110834520.12500@woody.osdl.org>
-References: <20061211011327.f9478117.akpm@osdl.org> <20061211092130.GB4587@ftp.linux.org.uk>
- <20061211012545.ed945cbd.akpm@osdl.org> <20061211093314.GC4587@ftp.linux.org.uk>
- <20061211014727.21c4ab25.akpm@osdl.org> <20061211100301.GD4587@ftp.linux.org.uk>
- <20061211021718.a6954106.akpm@osdl.org> <20061211022746.9ec80c03.akpm@osdl.org>
- <20061211104556.GF4587@ftp.linux.org.uk> <Pine.LNX.4.64.0612110748570.12500@woody.osdl.org>
- <20061211161212.GJ4587@ftp.linux.org.uk>
+	Mon, 11 Dec 2006 11:42:18 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3450 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S937183AbWLKQmQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 11:42:16 -0500
+Date: Mon, 11 Dec 2006 17:42:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Artem Bityutskiy <dedekind@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.19-mm1: missing MTD_UBI* help texts
+Message-ID: <20061211164225.GO10351@stusta.de>
+References: <20061211005807.f220b81c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061211005807.f220b81c.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.19-rc6-mm2:
+>...
+>  git-ubi.patch
+>...
+>  git trees.
+>...
 
+The MTD_UBI and the MTD_UBI_DEBUG_PARANOID_* options lack help texts.
 
-On Mon, 11 Dec 2006, Al Viro wrote:
-> 
-> FWIW, I really think that this sort of bugs ("oh, I call hotplug,
-> rootfs is there but kernel is not ready, woe is me") clearly show
-> that many, _many_ users of hotplug are BS.  The reason is simple -
-> if we have a call of hotplug that early, we have a driver that lives
-> with hotplug failures _and_ with different behaviour in built-in
-> and modular cases.  I would argue that any such driver is broken.
+cu
+Adrian
 
-Now, you are probably right that many of them are unnecessary, but I don't 
-agree in _general_. 
+-- 
 
-It's perfectly normal behaviour to say "I discovered this device".
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-The fact that device discovery happens during early bootup and nobody even 
-_cares_ (because early bootup ends up enumerating all discovered devices 
-on its own) is a separate issue. The fact that many distros don't care 
-during early bootup doesn't mean that they don't care later on.
-
-Another reason for "unnecessary" hotplug events is that generic functions 
-like "I added a bus" happen both for static buses _and_ for "hey, somebody 
-loaded a module that found this bus". Again, the static case may be 
-something that people don't _care_ about, but we should (a) use common 
-code and (b) be consistent, so we do a hotplug event regardless.
-
-That said, I definitely agree that people shouldn't expect hotplug events 
-to be delievered too early. If it's something that runs in a 
-core_initcall, and is compiled in, no way in *hell* should we actually 
-expose that to anything - it's just too early.
-
-So it makes perfect sense to say
-
-   "you won't be getting any notification by anything built-in, until 
-    'device_initcall' (which is the default module_init, of course)".
-
-which in the case of certain drivers obviously _does_ mean that they had 
-better not try to use any early initcalls to load firmware.
-
-		Linus

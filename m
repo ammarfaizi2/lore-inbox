@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762448AbWLKFAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762452AbWLKFC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762448AbWLKFAR (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 00:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762450AbWLKFAQ
+	id S1762452AbWLKFC1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 00:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762453AbWLKFC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 00:00:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:40397 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762449AbWLKFAP (ORCPT
+	Mon, 11 Dec 2006 00:02:27 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:21851 "EHLO
+	sj-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762451AbWLKFCZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 00:00:15 -0500
-Date: Mon, 11 Dec 2006 10:28:31 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
-       Jens Axboe <axboe@kernel.dk>, Dipankar <dipankar@in.ibm.com>,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: workqueue deadlock
-Message-ID: <20061211045830.GB5339@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <200612061726.14587.bjorn.helgaas@hp.com> <20061207105148.20410b83.akpm@osdl.org> <20061207113700.dc925068.akpm@osdl.org> <20061208025301.GA11663@in.ibm.com> <20061207205407.b4e356aa.akpm@osdl.org> <20061209102652.GA16607@elte.hu> <20061209114723.138b6e89.akpm@osdl.org> <20061210082616.GB14057@elte.hu>
-Mime-Version: 1.0
+	Mon, 11 Dec 2006 00:02:25 -0500
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Steve Wise <swise@opengridcomputing.com>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH  v3 13/13] Kconfig/Makefile
+X-Message-Flag: Warning: May contain useful information
+References: <20061210223244.27166.36192.stgit@dell3.ogc.int>
+	<20061210223916.27166.82130.stgit@dell3.ogc.int>
+	<20061210145602.d2a8bb98.randy.dunlap@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 10 Dec 2006 21:02:20 -0800
+Message-ID: <adaac1v2ffn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061210082616.GB14057@elte.hu>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 11 Dec 2006 05:02:20.0802 (UTC) FILETIME=[89C5F620:01C71CE1]
+Authentication-Results: sj-dkim-2; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim2002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2006 at 09:26:16AM +0100, Ingo Molnar wrote:
-> something like the pseudocode further below - when applied to a data
-> structure it has semantics and scalability close to that of
-> preempt_disable(), but it is still preemptible and the lock is specific.
+ > > +++ b/drivers/infiniband/hw/cxgb3/locking.txt
 
-Ingo,
-	The psuedo-code you have provided can still fail to avoid
-the deadlock reported by Bjorn Helgaas earlier in this thread:
+ > Should be in Documentation/infiniband/.
+ > Docs go in the Documentation/ dir, not in drivers/ dir.
 
-	http://lkml.org/lkml/2006/12/6/352
-
-Thread1->flush_workqueue->mutex_lock(cpu4's hotplug_lock)
-
-Thread2(keventd)->run_workqueue->som_work_fn-> ..
-		flush_workqueue->mutex_lock(cpu4's hotplug_lock)
-
-Both deadlock with each other.
-
-All this mess could easily be avoided if we implement a reference-count
-based cpu_hotplug_lock(), as suggested by Arjan and Linus before and
-implemented by Gautham here:
-
-	http://lkml.org/lkml/2006/10/26/65
-
--- 
-Regards,
-vatsa
+Or put it in a comment in the appropriate header, if you want to keep
+it close to the driver source...

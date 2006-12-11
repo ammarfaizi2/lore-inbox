@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S935845AbWLKOdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935964AbWLKOeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935845AbWLKOdt (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935791AbWLKOdt
+	id S935964AbWLKOeG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936072AbWLKOeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:33:49 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:54065 "EHLO twin.jikos.cz"
+	Mon, 11 Dec 2006 09:34:06 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:46212 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935845AbWLKOds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:33:48 -0500
-Date: Mon, 11 Dec 2006 15:33:36 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-mm1
-In-Reply-To: <457D6B10.4010903@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0612111532370.1665@twin.jikos.cz>
-References: <20061211005807.f220b81c.akpm@osdl.org>
- <Pine.LNX.4.64.0612111137360.1665@twin.jikos.cz> <457D6B10.4010903@yahoo.com.au>
+	id S935957AbWLKOeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 09:34:03 -0500
+Message-ID: <457D6C4F.6090303@pobox.com>
+Date: Mon, 11 Dec 2006 09:33:51 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linuxppc-dev@ozlabs.org, Tejun Heo <htejun@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] libata: don't initialize sg in ata_exec_internal() if
+ DMA_NONE
+References: <200612081914.41810.arnd.bergmann@de.ibm.com> <20061211140258.GB18947@htj.dyndns.org> <200612111518.46887.arnd@arndb.de>
+In-Reply-To: <200612111518.46887.arnd@arndb.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2006, Nick Piggin wrote:
+Arnd Bergmann wrote:
+> On Monday 11 December 2006 15:02, Tejun Heo wrote:
+>>  {
+>>         struct scatterlist sg;
+>> +       unsigned int n_elem = 0;
+>>  
+>> -       sg_init_one(&sg, buf, buflen);
+>> +       if (dma_dir != DMA_NONE) {
+>> +               WARN_ON(!buf);
+>> +               sg_init_one(&sg, buf, buflen);
+>> +               n_elem++;
+>> +       }
+>>  
+> Ok, looks good as well. I still think we should have the WARN_ON()
+> in sg_set_buf(), but I can send a separate patch for that to linux-mm.
 
-> > Am I the only one seeing something strange on ext3 with this kernel? 
-> > For example /etc/resolv.conf gets corrupted during the dhclient run. 
-> > It looks like this, after dhclient finishes:
-> Do you have CONFIG_DEBUG_VM turned on? I think we miss clearning BH_New
-> in some places, thus causing an error path to zero the block incorrectly
-> if we hit an error that CONFIG_DEBUG_VM makes much more likely.
+Please CC me and linux-ide on all libata patches (certainly akpm as 
+well).  Andrew picks up most of the libata changes automatically via git 
+from my libata-dev.git#ALL.
 
-Yes, I have. Will retry without it and let you know if the problem goes 
-away.
+	Jeff
 
-Seems quite dangerous, a few minutes with 2.6.19-mm1 corrupted quite a lot 
-of files on my fs.
 
--- 
-Jiri Kosina
+

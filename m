@@ -1,122 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750753AbWLKXyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750761AbWLKXyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWLKXyJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 18:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWLKXyJ
+	id S1750761AbWLKXyx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 18:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWLKXyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 18:54:09 -0500
-Received: from an-out-0708.google.com ([209.85.132.244]:34437 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750753AbWLKXyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 18:54:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qc/dniMxPhQIpo7TsHlV+MVTVQHSnmngj4CPxFYHlcFdxO/n7U8w275QZ6AwjnLAAaW4PQKYKnYKKSjhQI5/bnu+jDKlMfi701y46/07ADJd6T/tF5h2r2xR0eiRiOMME3ZlIc20q/PlseYdQRvXjZ2Ol101uD5uQor5FrnWAgo=
-Message-ID: <45a44e480612111554j1450f35ub4d9932e5cd32d4@mail.gmail.com>
-Date: Mon, 11 Dec 2006 18:54:05 -0500
-From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
-To: Franck <vagabon.xyz@gmail.com>
-Subject: Re: [RFC 2.6.19 1/1] fbdev,mm: hecuba/E-Ink fbdev driver v2
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <457D895D.4010500@innova-card.com>
+	Mon, 11 Dec 2006 18:54:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:35607 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750761AbWLKXyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 18:54:52 -0500
+From: Neil Brown <neilb@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Date: Tue, 12 Dec 2006 10:54:49 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612111046.kBBAkV8Y029087@localhost.localdomain>
-	 <457D895D.4010500@innova-card.com>
+Message-ID: <17789.61385.621098.265840@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-mm1 (md/raid1 randomly drops partitions)
+In-Reply-To: message from Rafael J. Wysocki on Tuesday December 12
+References: <20061211005807.f220b81c.akpm@osdl.org>
+	<200612112341.42140.rjw@sisk.pl>
+	<17789.57670.482913.886349@cse.unsw.edu.au>
+	<200612120043.22550.rjw@sisk.pl>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/11/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
-> jayakumar.lkml@gmail.com wrote:
-> > +     atomic_t ref_count;
-> > +     atomic_t vma_count;
->
-> what purpose do these counters deserve ?
+On Tuesday December 12, rjw@sisk.pl wrote:
+> On Monday, 11 December 2006 23:52, Neil Brown wrote:
+> > On Monday December 11, rjw@sisk.pl wrote:
+> > > Hi,
+> > > 
+> > > On Monday, 11 December 2006 09:58, Andrew Morton wrote:
+> > > > 
+> > > > Temporarily at
+> > > > 
+> > > > 	http://userweb.kernel.org/~akpm/2.6.19-mm1/
+> > > > 
+> > > > Will appear later at
+> > > > 
+> > > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/
+> > > 
+> > > It caused all of the md RAID1s on my test box to drop one of their partitions,
+> > > apparently at random.
+> > 
+> > That's clever....
+> > 
+> > Do you have any kernel logs of this happening?  My guess would be the
+> > underlying device driver is returned more errors than before, but we
+> > need the logs to be sure.
+> 
+> I've only found lots of messages like this:
+> 
+> md: super_written gets error=-5, uptodate=0
 
-You are right. I can remove them.
+So when md writes to write out the superblock, to gets EIO... Odd that
+you aren't getting errors for normal writes.
 
-> > +
-> > +void hcb_wait_for_ack(struct hecubafb_par *par)
-> > +{
-> > +
-> > +     int timeout;
-> > +     unsigned char ctl;
-> > +
-> > +     timeout=500;
-> > +     do {
-> > +             ctl = hcb_get_ctl(par);
-> > +             if ((ctl & HCB_ACK_BIT))
-> > +                     return;
-> > +             udelay(1);
-> > +     } while (timeout--);
-> > +     printk(KERN_ERR "timed out waiting for ack\n");
-> > +}
->
-> When timeout occur this function does not return any error values.
-> the callers needn't to be warn in this case ?
+What devices are the md/raid1 built on?
 
-You are right. I need to figure out what exactly to do. Currently, if
-a timeout is observed it normally means the display controller is
-hung. However, in some cases  the controller does seem to recover
-after some period of time. I guess I should probably return an error
-and terminate pending activity.
+> 
+> I'll try to reproduce it tomorrow and collect some more information.
 
-> > +
-> > +/* this is to find and return the vmalloc-ed fb pages */
-> > +static struct page* hecubafb_vm_nopage(struct vm_area_struct *vma,
-> > +                                     unsigned long vaddr, int *type)
-> > +{
-> > +     unsigned long offset;
-> > +     struct page *page;
-> > +     struct fb_info *info = vma->vm_private_data;
-> > +
-> > +     offset = (vaddr - vma->vm_start) + (vma->vm_pgoff << PAGE_SHIFT);
-> > +     if (offset >= (DPY_W*DPY_H)/8)
-> > +             return NOPAGE_SIGBUS;
-> > +
-> > +     page = vmalloc_to_page(info->screen_base + offset);
-> > +     if (!page)
-> > +             return NOPAGE_OOM;
-> > +
-> > +     get_page(page);
-> > +     if (type)
-> > +             *type = VM_FAULT_MINOR;
-> > +     return page;
-> > +}
-> > +
->
-> so page can be accessed by using vma->start virtual address....
+Thanks.  More information is definitely better than less, so send over
+anything you can find.
 
-The userspace app would be doing:
-
-ioctl(fd, FBIOGET_FSCREENINFO, &finfo);
-ioctl(fd, FBIOGET_VSCREENINFO, &vinfo);
-screensize = ( vinfo.xres * vinfo.yres * vinfo.bits_per_pixel) / 8;
-maddr = mmap(finfo.mmio_start, screensize, PROT_WRITE, MAP_SHARED, fd, 0);
-
->
-> > +static int hecubafb_page_mkwrite(struct vm_area_struct *vma,
->
-> [snip]
->
-> > +
-> > +     if (!(videomemory = vmalloc(videomemorysize)))
-> > +             return retval;
->
-> and here the kernel access to the same page by using address returned
-> by vmalloc which are different from the previous one. So 2 different
-> addresses map the same physical page. In this case are there any cache
-> aliasing issues specially for x86 arch ?
-
-I think that PTEs set up by vmalloc are marked cacheable and via the
-above nopage end up as cacheable. I'm not doing DMA. So the accesses
-are through the cache so I don't think cache aliasing is an issue for
-this case. Please let me know if I misunderstood.
-
-Thanks,
-jayakumar
+NeilBrown

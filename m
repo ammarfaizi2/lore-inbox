@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936337AbWLKPIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936300AbWLKPLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936337AbWLKPIF (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 10:08:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936389AbWLKPIF
+	id S936300AbWLKPLZ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 10:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936456AbWLKPLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 10:08:05 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:40374 "HELO
-	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S936337AbWLKPIC (ORCPT
+	Mon, 11 Dec 2006 10:11:25 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:2134 "EHLO
+	hellhawk.shadowen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936300AbWLKPLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 10:08:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ZHG0OCjYNucabnDyRaKzwWuwphcFlpIw10w4X5RjcF/HtRZ1/K6gFw8ogDgxh6oN4Ut5bkwySl3LNHb5I/g08s6S9Bzy2lrnkdK1jE1KagOZF1X5cYnDAqIKveA/wBFlNbIl/yJoMt6weZrlU6fvBFKfqJSM0Xk2n8caKrVhRR4=  ;
-X-YMail-OSG: PLijtm8VM1kjSbJp_bOAQE0.te2_T77MXHC3naYoaWUg56F9d4oICdT5XGiYsxHdAxVbHUhHHFBmVjJsO202ZFdgECN_eWRurb2WTRSYzsGPdfv4LiaswOD_hWBNo1oTWlBWL1ZEkbFgJ_cDR2t9TW_TUQGvBCVILQ--
-Message-ID: <457D741F.6070108@yahoo.com.au>
-Date: Tue, 12 Dec 2006 02:07:11 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 11 Dec 2006 10:11:24 -0500
+Message-ID: <457D750C.9060807@shadowen.org>
+Date: Mon, 11 Dec 2006 15:11:08 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
 MIME-Version: 1.0
-To: Jiri Kosina <jikos@jikos.cz>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-mm1
-References: <20061211005807.f220b81c.akpm@osdl.org> <Pine.LNX.4.64.0612111137360.1665@twin.jikos.cz> <457D6B10.4010903@yahoo.com.au> <Pine.LNX.4.64.0612111532370.1665@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0612111532370.1665@twin.jikos.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Herbert Poetzl <herbert@13thfloor.at>, Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: 2.6.19-git13: uts banner changes break SLES9 (at least)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Tue, 12 Dec 2006, Nick Piggin wrote:
-> 
-> 
->>>Am I the only one seeing something strange on ext3 with this kernel? 
->>>For example /etc/resolv.conf gets corrupted during the dhclient run. 
->>>It looks like this, after dhclient finishes:
->>
->>Do you have CONFIG_DEBUG_VM turned on? I think we miss clearning BH_New
->>in some places, thus causing an error path to zero the block incorrectly
->>if we hit an error that CONFIG_DEBUG_VM makes much more likely.
-> 
-> 
-> Yes, I have. Will retry without it and let you know if the problem goes 
-> away.
+test.kernel.org testing seems to have shaken out a problem with the 
+kernel banner changing, introduced by this commit:
 
-Thanks.
+	[PATCH] Fix linux banner utsname information
+	commit a2ee8649ba6d71416712e798276bf7c40b64e6e5
 
-> Seems quite dangerous, a few minutes with 2.6.19-mm1 corrupted quite a lot 
-> of files on my fs.
+We first noticed it with 2.6.19-git13 as we use this version string as 
+part of our boot validation process, which started tripping for every 
+job.  Although we have been able to modify our validation, I am 
+concerned that this is a widespread mechanism for finding the version of 
+the kernel from non-running kernels.  It appears that SLES9 and possibly 
+SLES10 is going to be affected too.
 
-Sorry.
+On a SLES9 box here, making an initrd for this kernel fails as below:
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Module list:	sym53c8xx reiserfs
+	Kernel version:	%s (powerpc)
+	Kernel image:	/boot/vmlinuz-autobench
+	Initrd image:	/boot/initrd-autobench.img.new
+	No modules found for kernel %s
+
+If you follow the initrd build process it appears that they look at the 
+compressed kernel and extract the internal version number from it, in 
+order to find the modules.  For this they use the get_kernel_version, 
+which starts returning %s with this change:
+
+	# get_kernel_version /boot/vmlinuz-autobench
+	%s
+
+Obviously this method is dubious at best for finding the kernel version 
+here.  I do wonder if there should be some approved interface for 
+getting this information out of the kernel.  Perhaps something similar 
+to the IKCFG_ST<config>IKCFG_ED bracketing the uname structure or something.
+
+Andi, just a heads up.
+
+-apw

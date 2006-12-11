@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936300AbWLKPLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936499AbWLKPMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936300AbWLKPLZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 10:11:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936456AbWLKPLZ
+	id S936499AbWLKPMF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 10:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936478AbWLKPME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 10:11:25 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:2134 "EHLO
-	hellhawk.shadowen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936300AbWLKPLY (ORCPT
+	Mon, 11 Dec 2006 10:12:04 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38329 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S936456AbWLKPMB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 10:11:24 -0500
-Message-ID: <457D750C.9060807@shadowen.org>
-Date: Mon, 11 Dec 2006 15:11:08 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>, Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
-Subject: 2.6.19-git13: uts banner changes break SLES9 (at least)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 11 Dec 2006 10:12:01 -0500
+Date: Mon, 11 Dec 2006 15:19:43 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       Tilman Schmidt <tilman@imap.cc>, linux-serial@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
+Subject: Re: [PATCH] Add the ability to layer another driver over the serial
+ driver
+Message-ID: <20061211151943.2bbc720e@localhost.localdomain>
+In-Reply-To: <457D70A4.1000000@mvista.com>
+References: <4533B8FB.5080108@mvista.com>
+	<20061210201438.tilman@imap.cc>
+	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>
+	<457CB32A.2060804@mvista.com>
+	<20061211102016.43e76da2@localhost.localdomain>
+	<457D70A4.1000000@mvista.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-test.kernel.org testing seems to have shaken out a problem with the 
-kernel banner changing, introduced by this commit:
+On Mon, 11 Dec 2006 08:52:20 -0600
+Corey Minyard <cminyard@mvista.com> wrote:
+> So here's the start of discussion:
+> 
+> 1) The IPMI driver needs to run at panic time to modify watchdog
+> timers and store panic information in the event log.  So no work
+> queues, no delayed work, and the need for some type of poll
+> operation on the device.
 
-	[PATCH] Fix linux banner utsname information
-	commit a2ee8649ba6d71416712e798276bf7c40b64e6e5
+That would be the existing serial console interface. For things like USB
+serial you are probably out of luck. At the moment we have a single
+"console" attached to a specific serial console interface. The code is
+almost all there for allowing other parties to create new synchronous
+serial logging devices by opening open as the console driver does.
 
-We first noticed it with 2.6.19-git13 as we use this version string as 
-part of our boot validation process, which started tripping for every 
-job.  Although we have been able to modify our validation, I am 
-concerned that this is a widespread mechanism for finding the version of 
-the kernel from non-running kernels.  It appears that SLES9 and possibly 
-SLES10 is going to be affected too.
+> 2) The IPMI driver needs to get messages through even when
+> the system is very busy.  Since a watchdog runs over the driver,
+> it needs to be able to get messages through to avoid a system
+> reset as long as something is pinging the watchdog from userland.
 
-On a SLES9 box here, making an initrd for this kernel fails as below:
+You have a high priority character output function which jumps existing
+data. Not all hardware implements this, and some of the modern hardware
+in particular simply doesn't physically support such behaviour. Also if
+you are the sole user of the port you *know* nobody else will be queuing
+data to it anyway.
 
-	Module list:	sym53c8xx reiserfs
-	Kernel version:	%s (powerpc)
-	Kernel image:	/boot/vmlinuz-autobench
-	Initrd image:	/boot/initrd-autobench.img.new
-	No modules found for kernel %s
+> Currently there are mutexes, lock_kernel() calls, and work queues
+> that cause trouble for these.
+> 
+> There is also a comment that you can't set low_latency and call
+> tty_flip_buffer_push from IRQ context.  This seems to be due to a
+> lack of anything in flush_to_ldisc to handle reentrancy, and perhaps
+> because disc->receive_buf can block, but I couldn't tell easily.
 
-If you follow the initrd build process it appears that they look at the 
-compressed kernel and extract the internal version number from it, in 
-order to find the modules.  For this they use the get_kernel_version, 
-which starts returning %s with this change:
+The entire tty side locking, scheduling and design is based upon the idea
+that input processing is deferred. Otherwise you get long chains of
+recursion from the worst cases.
 
-	# get_kernel_version /boot/vmlinuz-autobench
-	%s
-
-Obviously this method is dubious at best for finding the kernel version 
-here.  I do wonder if there should be some approved interface for 
-getting this information out of the kernel.  Perhaps something similar 
-to the IKCFG_ST<config>IKCFG_ED bracketing the uname structure or something.
-
-Andi, just a heads up.
-
--apw
+Alan

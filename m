@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762906AbWLKN0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760582AbWLKNcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762906AbWLKN0d (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 08:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762904AbWLKN0d
+	id S1760582AbWLKNcx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 08:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762911AbWLKNcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 08:26:33 -0500
-Received: from wx-out-0506.google.com ([66.249.82.236]:45690 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762906AbWLKN0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 08:26:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TQEV0Sxrq5aTlP2YIyUh1+PZGZYKQ+RwcGS0NVT/CVKjSpYyBDTIaVm/rHc0PpncFDTYrFYxfmNHnehrTvI+BGf8EgUIqm3iuNEFOkoYCGJyy9DQ9+IQ59STypOsorVGORo0ayNKUXNUgWgY2Qi4F/hx3LteDAmPccX86jAtx+U=
-Message-ID: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
-Date: Mon, 11 Dec 2006 14:26:30 +0100
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.19-git3 panics on boot - ata_piix/PCI related [still in -git17]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 11 Dec 2006 08:32:53 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45731 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760582AbWLKNcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 08:32:52 -0500
+Message-ID: <457D5E01.7010307@garzik.org>
+Date: Mon, 11 Dec 2006 08:32:49 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: Akinobu Mita <akinobu.mita@gmail.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: Mark bitrevX() functions as const
+References: <457D559C.2030702@garzik.org>  <29447.1165840536@redhat.com> <15033.1165842882@redhat.com>
+In-Reply-To: <15033.1165842882@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/3/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> On 12/3/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> > > > ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKB] -> GSI 5 (level, low) -> IRQ5
-> > > > PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> > > > ata_piix: probe of 0000:00:1f.2 failed with error -16
-> > > > [snip]
-> > > > mount: could not find filesystem '/dev/root'
-> > >
-> > > Same failure is also in 2.6.19-git4...
-> >
-> > Thats the PCI updates - you need the matching fix to libata-sff where it
-> > tries to reserve stuff it shouldn't.
->
-> Thanks Alan. Indeed -git1 is where stuff breaks for me.
-> I'll watch out for when libata-sff gets fixed in the -git
->  snapshots and will then report back.
+David Howells wrote:
+> Jeff Garzik <jeff@garzik.org> wrote:
+>> * naked __attribute__ is ugly.  define something short and memorable in
+>> include/linux/compiler.h.
+> 
+> I'm not sure that's a good idea.  You have to be careful not to cause confusion
+> with ordinary "const".
 
-Alan,
+It's all in the naming.  You could call it 'purefunc' or somesuch.
 
-  I still have this problem in 2.6.19-git17. Is this expected behavior
-  or should it have been fixed by now ?
+__attribute__ is very very ugly, an hinders a quick scan of the function 
+prototype, particularly if it has a boatload of other attributes.
 
-Thanks,
 
---alessandro
+>> * another annotation to consider is C99 keyword 'restrict'.
+> 
+> Indeed, though I presume you don't mean in this particular case...
 
-"...when I get it, I _get_ it"
+Correct.
 
-     (Lara Eidemiller)
+	Jeff
+
+
+

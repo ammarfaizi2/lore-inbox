@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762466AbWLKF0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762515AbWLKFmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762466AbWLKF0w (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 00:26:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762413AbWLKF0w
+	id S1762515AbWLKFmY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 00:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762519AbWLKFmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 00:26:52 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:62345 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762431AbWLKF0v (ORCPT
+	Mon, 11 Dec 2006 00:42:24 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:21682 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762514AbWLKFmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 00:26:51 -0500
-Message-ID: <457CEC0F.2030206@anagramm.de>
-Date: Mon, 11 Dec 2006 06:26:39 +0100
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
-Subject: Re: optimalisation for strlcpy (lib/string.c)
-References: <20061210212350.GC30197@vanheusden.com> <20061210231305.GG10351@stusta.de>
-In-Reply-To: <20061210231305.GG10351@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 11 Dec 2006 00:42:23 -0500
+Date: Sun, 10 Dec 2006 21:43:06 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
+Subject: Re: PAE/NX without performance drain?
+Message-Id: <20061210214306.aa945b80.randy.dunlap@oracle.com>
+In-Reply-To: <457CE558.8030003@comcast.net>
+References: <200612102347_MC3-1-D49B-AB98@compuserve.com>
+	<457CE558.8030003@comcast.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:224ad0fd4f2efe95e6ec4f0a3ca8a73c
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Adrian & Friends!
+On Sun, 10 Dec 2006 23:58:00 -0500 John Richard Moser wrote:
 
->> Like the other patch (by that other person), I think it is faster to not
->> do a strlen first.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> 
+> Chuck Ebbert wrote:
+> > In-Reply-To: <457B1F02.7030409@comcast.net>
+> > 
+> > On Sat, 09 Dec 2006 15:39:30 -0500, John Richard Moser wrote:
+> > 
+> >> Is it possible to give some other way to get the hardware NX bit working
+> >> in 32-bit mode, without the apparently massive performance penalty of
+> >> HIGHMEM64?
+> > 
+> > If your hardware can run the x86_64 kernel, try using that with your
+> > i386 userspace.  It works here...
+> > 
+> 
+> I hear that breaks USB printing.  Also I'm interested in getting it
+> working for other people, i.e. shipping with working NX.
 
-There are PowerPC architectures, where a strlen is a matter of a single
-instruction of the CPU.
+Where's the USB printing bug report?
 
-Quote: "PowerPC 405 and 440 instruction sets offer the powerful
-Determine Left-Most Zero Byte (DLMZB) instruction."
-
-That's propably hard to beat.
-
-So, if we really want to speed up these things, we should write
-code which helps the compiler get that optimized instructions for
-us - by improving the code of strlen() i.e.
-
-Reference:
-http://www-03.ibm.com/chips/power/powerpc/newsletter/sep2003/ppc_process_at_work2.html
-
-Greets,
-
-Clemens Koller
-_______________________________
-R&D Imaging Devices
-Anagramm GmbH
-Rupert-Mayer-Str. 45/1
-81379 Muenchen
-Germany
-
-http://www.anagramm-technology.com
-Phone: +49-89-741518-50
-Fax: +49-89-741518-19
-
+---
+~Randy

@@ -1,165 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936291AbWLKOvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936563AbWLKOx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936291AbWLKOvp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936332AbWLKOvp
+	id S936563AbWLKOx7 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936678AbWLKOx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:51:45 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:34142 "EHLO
-	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S936294AbWLKOvh convert rfc822-to-8bit (ORCPT
+	Mon, 11 Dec 2006 09:53:58 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:55340 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936615AbWLKOxw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:51:37 -0500
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: [take26-resend1 5/8] kevent: Timer notifications.
-In-Reply-To: <1165848619462@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 11 Dec 2006 17:50:19 +0300
-Message-Id: <11658486192690@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Mon, 11 Dec 2006 09:53:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AKrlJycgybiddzKqw/5cgc9UvKo2AWKDlaenw0YSyZBBextl7fhZhe0BMcQSdyf+V4WFxn2EBQB1zMK6w9LmicmFZckGgDugWyu1zVoX3u1JlolQdlkI3wSC5vSS0DV/fMVD/ZuzOUSY7EaSCrnV9AE/p6OOwV4VUTTrapNKj1o=
+Message-ID: <3f250c710612110653l7827c4dcg4bb47adbe7fe08e8@mail.gmail.com>
+Date: Mon, 11 Dec 2006 10:53:50 -0400
+From: "Mauricio Lin" <mauriciolin@gmail.com>
+To: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
+Subject: Re: kobject_uevent() question
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <457C3E11.8050401@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061128161218.43358.qmail@web51813.mail.yahoo.com>
+	 <90539.55300.qm@web51815.mail.yahoo.com>
+	 <20061128195532.GA13705@kroah.com> <457C3E11.8050401@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Aneesh,
 
-Timer notifications.
+I have posted a patch for that as well. You can check it at
+http://lkml.org/lkml/2006/11/30/315.
 
-Timer notifications can be used for fine grained per-process time 
-management, since interval timers are very inconvenient to use, 
-and they are limited.
+BR,
 
-This subsystem uses high-resolution timers.
-id.raw[0] is used as number of seconds
-id.raw[1] is used as number of nanoseconds
+Mauricio Lin.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
-diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
-new file mode 100644
-index 0000000..df93049
---- /dev/null
-+++ b/kernel/kevent/kevent_timer.c
-@@ -0,0 +1,112 @@
-+/*
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/hrtimer.h>
-+#include <linux/jiffies.h>
-+#include <linux/kevent.h>
-+
-+struct kevent_timer
-+{
-+	struct hrtimer		ktimer;
-+	struct kevent_storage	ktimer_storage;
-+	struct kevent		*ktimer_event;
-+};
-+
-+static int kevent_timer_func(struct hrtimer *timer)
-+{
-+	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
-+	struct kevent *k = t->ktimer_event;
-+
-+	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
-+	hrtimer_forward(timer, timer->base->softirq_time,
-+			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
-+	return HRTIMER_RESTART;
-+}
-+
-+static struct lock_class_key kevent_timer_key;
-+
-+static int kevent_timer_enqueue(struct kevent *k)
-+{
-+	int err;
-+	struct kevent_timer *t;
-+
-+	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
-+
-+	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
-+	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
-+	t->ktimer.function = kevent_timer_func;
-+	t->ktimer_event = k;
-+
-+	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
-+	if (err)
-+		goto err_out_free;
-+	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-+
-+	err = kevent_storage_enqueue(&t->ktimer_storage, k);
-+	if (err)
-+		goto err_out_st_fini;
-+
-+	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
-+
-+	return 0;
-+
-+err_out_st_fini:
-+	kevent_storage_fini(&t->ktimer_storage);
-+err_out_free:
-+	kfree(t);
-+
-+	return err;
-+}
-+
-+static int kevent_timer_dequeue(struct kevent *k)
-+{
-+	struct kevent_storage *st = k->st;
-+	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
-+
-+	hrtimer_cancel(&t->ktimer);
-+	kevent_storage_dequeue(st, k);
-+	kfree(t);
-+
-+	return 0;
-+}
-+
-+static int kevent_timer_callback(struct kevent *k)
-+{
-+	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
-+	return 1;
-+}
-+
-+static int __init kevent_init_timer(void)
-+{
-+	struct kevent_callbacks tc = {
-+		.callback = &kevent_timer_callback,
-+		.enqueue = &kevent_timer_enqueue,
-+		.dequeue = &kevent_timer_dequeue};
-+
-+	return kevent_add_callbacks(&tc, KEVENT_TIMER);
-+}
-+module_init(kevent_init_timer);
-+
-
+On 12/10/06, Aneesh Kumar K.V <aneesh.kumar@gmail.com> wrote:
+> Greg KH wrote:
+> > On Tue, Nov 28, 2006 at 07:38:01PM +0000, Mauricio Lin wrote:
+> >> Hi Greg,
+> >>
+> >> It is working now. The failure was in the kobject_uevent() function. As
+> >> the kset of my kobject was not set properly, the kobject_uevent()
+> >> function just returned void.
+> >>
+> >> I wonder why the kobjec_uevent() does not return an integer to indicate
+> >> if the operation was completed with success or not.
+> >
+> > Feel free to send patches fixing this issue :)
+> >
+> > thanks,
+> >
+> >
+>
+> Something like this ?
+>
+> -aneesh
+>
+>
+>

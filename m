@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936499AbWLKPMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S936362AbWLKPQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936499AbWLKPMF (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 10:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936478AbWLKPME
+	id S936362AbWLKPQx (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 10:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936397AbWLKPQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 10:12:04 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38329 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S936456AbWLKPMB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 10:12:01 -0500
-Date: Mon, 11 Dec 2006 15:19:43 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Tilman Schmidt <tilman@imap.cc>, linux-serial@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
-Subject: Re: [PATCH] Add the ability to layer another driver over the serial
- driver
-Message-ID: <20061211151943.2bbc720e@localhost.localdomain>
-In-Reply-To: <457D70A4.1000000@mvista.com>
-References: <4533B8FB.5080108@mvista.com>
-	<20061210201438.tilman@imap.cc>
-	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>
-	<457CB32A.2060804@mvista.com>
-	<20061211102016.43e76da2@localhost.localdomain>
-	<457D70A4.1000000@mvista.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Dec 2006 10:16:53 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:46760 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936362AbWLKPQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 10:16:52 -0500
+Message-ID: <457D764E.9040308@garzik.org>
+Date: Mon, 11 Dec 2006 10:16:30 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Subject: Re: [take26-resend1 0/8] kevent: Generic event handling mechanism.
+References: <1165848619971@2ka.mipt.ru>
+In-Reply-To: <1165848619971@2ka.mipt.ru>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 08:52:20 -0600
-Corey Minyard <cminyard@mvista.com> wrote:
-> So here's the start of discussion:
-> 
-> 1) The IPMI driver needs to run at panic time to modify watchdog
-> timers and store panic information in the event log.  So no work
-> queues, no delayed work, and the need for some type of poll
-> operation on the device.
+Comments:
 
-That would be the existing serial console interface. For things like USB
-serial you are probably out of luck. At the moment we have a single
-"console" attached to a specific serial console interface. The code is
-almost all there for allowing other parties to create new synchronous
-serial logging devices by opening open as the console driver does.
+* [oh, everybody will hate me for saying this, but...]  to me, "kevent" 
+implies an internal kernel subsystem.  I would rather call it "uevent" 
+or anything else lacking a 'k' prefix.
 
-> 2) The IPMI driver needs to get messages through even when
-> the system is very busy.  Since a watchdog runs over the driver,
-> it needs to be able to get messages through to avoid a system
-> reset as long as something is pinging the watchdog from userland.
+* I like the absolute timespec (and use of timespec itself)
 
-You have a high priority character output function which jumps existing
-data. Not all hardware implements this, and some of the modern hardware
-in particular simply doesn't physically support such behaviour. Also if
-you are the sole user of the port you *know* nobody else will be queuing
-data to it anyway.
+* more on naming:  I think kevent_open would be more natural than 
+kevent_init, since it opens a file descriptor.
 
-> Currently there are mutexes, lock_kernel() calls, and work queues
-> that cause trouble for these.
-> 
-> There is also a comment that you can't set low_latency and call
-> tty_flip_buffer_push from IRQ context.  This seems to be due to a
-> lack of anything in flush_to_ldisc to handle reentrancy, and perhaps
-> because disc->receive_buf can block, but I couldn't tell easily.
+* why is KEVENT_MAX not equal to KEVENT_POSIX_TIMER?  (perhaps answer 
+this question in a comment, if it is not a mistake)
 
-The entire tty side locking, scheduling and design is based upon the idea
-that input processing is deferred. Otherwise you get long chains of
-recursion from the worst cases.
+* Kill all the CONFIG_KEVENT_xxx sub-options, or hide them under 
+CONFIG_EMBEDDED.  Application developers should NOT be left wondering 
+whether or support for KEVENT_INODE was compiled into the kernel.
 
-Alan

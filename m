@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762689AbWLKJea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762691AbWLKJeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762689AbWLKJea (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 04:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762691AbWLKJea
+	id S1762691AbWLKJeg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 04:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762693AbWLKJeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 04:34:30 -0500
-Received: from gw-eur4.philips.com ([161.85.125.10]:54724 "EHLO
-	gw-eur4.philips.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762689AbWLKJe3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 04:34:29 -0500
-In-Reply-To: <200612081658.24194.a1426z@gawab.com>
-To: Al Boldi <a1426z@gawab.com>
+	Mon, 11 Dec 2006 04:34:36 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:43188 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1762691AbWLKJef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 04:34:35 -0500
+Date: Mon, 11 Dec 2006 10:33:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: typo in init/initramfs.c
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
-Message-ID: <OF5010A572.F37D95B9-ONC1257241.0033BBE4-C1257241.0034922E@philips.com>
-From: Jean-Paul Saman <jean-paul.saman@nxp.com>
-Date: Mon, 11 Dec 2006 10:34:10 +0100
-X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF805 | August
- 26, 2006) at 11/12/2006 10:34:12,
-	Serialize complete at 11/12/2006 10:34:12
-Content-Type: text/plain; charset="US-ASCII"
+Subject: Re: [PATCH -rt] kernel/latency_trace.c cleanup
+Message-ID: <20061211093311.GA24505@elte.hu>
+References: <20061210160004.373995000@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061210160004.373995000@mvista.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote on 08-12-2006 14:58:24:
 
-> Jean-Paul Saman wrote:
-> > linux-kernel-owner@vger.kernel.org wrote on 06-12-2006 19:17:27:
-> > > Jean-Paul Saman wrote:
-> > > > In populate_rootfs() the printk on line 554. It says "Unpacking
-> > > > initramfs..", which is confusing because if that line is reached 
-the
-> > > > code has already decided that the image is an initrd image.
-> > >
-> > > Are you sure?
-> >
-> > Yes.
+* Daniel Walker <dwalker@mvista.com> wrote:
+
+> No functional changes, just broke up some long lines.
 > 
-> Are you really sure?
+> Although I didn't touch the long lines made up of strings.
 > 
+> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-Not anymore ;-) 
+thanks, applied.
 
-> Maybe you're getting confused with the dual intitrd naming-convention. 
-> InitRD used to mean InitRamDisk only, now it means InitRamFS and 
-InitRamDisk 
-> #ifdef CONFIG_BLK_DEV_RAM, else it means InitRamFS only.
-
-Well, I am confused. Reading drivers/block/Kconfig again and again I came 
-to the conclusion that I've been misinterpreted what it said. The way the 
-code is written is counter-intuitive, using INITRD for initramfs and 
-initrd made my head go spinning.
-
-> But still, it's rather refreshing to see you so convinced.
-
-Thanks for your kind words.
-
-Kind greetings,
-
-Jean-Paul Saman
-
-NXP Semiconductors CTO/RTG DesignIP
-
+	Ingo

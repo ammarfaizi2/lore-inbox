@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762874AbWLKM2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762877AbWLKMfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762874AbWLKM2B (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 07:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762873AbWLKM2B
+	id S1762877AbWLKMfw (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 07:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762878AbWLKMfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 07:28:01 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:27024 "EHLO relay.sw.ru"
+	Mon, 11 Dec 2006 07:35:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43527 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1762874AbWLKM2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 07:28:01 -0500
-Message-ID: <457D512F.3020605@sw.ru>
-Date: Mon, 11 Dec 2006 15:38:07 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>,
-       devel@openvz.org, Monakhov Dmintiy <dmonakhov@sw.ru>
-Subject: Re: [Devel] [PATCH] incorrect error handling inside	generic_file_direct_write
-References: <87k60y1rq4.fsf@sw.ru>
-In-Reply-To: <87k60y1rq4.fsf@sw.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id S1762877AbWLKMfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 07:35:52 -0500
+From: David Howells <dhowells@redhat.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>, torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: Mark bitrevX() functions as const
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 11 Dec 2006 12:35:36 +0000
+Message-ID: <29447.1165840536@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess you forgot to add Andrew on CC.
 
-Thanks,
-Kirill
+Mark the bit reversal functions as being const as they always return the same
+output for any given input.
 
-> OpenVZ team has discovered error inside generic_file_direct_write()
-> If generic_file_direct_IO() has fail (ENOSPC condition) it may have instantiated
-> a few blocks outside i_size. And fsck will complain about wrong i_size
-> (ext2, ext3 and reiserfs interpret i_size and biggest block difference as error),
-> after fsck will fix error i_size will be increased to the biggest block,
-> but this blocks contain gurbage from previous write attempt, this is not 
-> information leak, but its silence file data corruption. 
-> We need truncate any block beyond i_size after write have failed , do in simular
-> generic_file_buffered_write() error path.
-> 
-> Exampe:
-> open("mnt2/FILE3", O_WRONLY|O_CREAT|O_DIRECT, 0666) = 3
-> write(3, "aaaaaa"..., 4096) = -1 ENOSPC (No space left on device)
-> 
-> stat mnt2/FILE3
-> File: `mnt2/FILE3'
-> Size: 0               Blocks: 4          IO Block: 4096   regular empty file
-> 
->>>>>>>>>>>>>>>>>>>>>>>^^^^^^^^^^ file size is less than biggest block idx
-> 
-> Device: 700h/1792d      Inode: 14          Links: 1
-> Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-> 
-> fsck.ext2 -f -n  mnt1/fs_img
-> Pass 1: Checking inodes, blocks, and sizes
-> Inode 14, i_size is 0, should be 2048.  Fix? no
-> 
-> Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
-> ----------
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff --git a/mm/filemap.c b/mm/filemap.c
-> index 7b84dc8..bf7cf6c 100644
-> --- a/mm/filemap.c
-> +++ b/mm/filemap.c
-> @@ -2041,6 +2041,14 @@ generic_file_direct_write(struct kiocb *
->  			mark_inode_dirty(inode);
->  		}
->  		*ppos = end;
-> +	} else if (written < 0) {
-> +		loff_t isize = i_size_read(inode);
-> +		/*
-> +		 * generic_file_direct_IO() may have instantiated a few blocks
-> +		 * outside i_size.  Trim these off again.
-> +		 */
-> +		if (pos + count > isize)
-> +			vmtruncate(inode, isize);
->  	}
->  
->  	/*
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> _______________________________________________
-> Devel mailing list
-> Devel@openvz.org
-> https://openvz.org/mailman/listinfo/devel
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ include/linux/bitrev.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/bitrev.h b/include/linux/bitrev.h
+index 05e540d..032056b 100644
+--- a/include/linux/bitrev.h
++++ b/include/linux/bitrev.h
+@@ -5,11 +5,11 @@ #include <linux/types.h>
+ 
+ extern u8 const byte_rev_table[256];
+ 
+-static inline u8 bitrev8(u8 byte)
++static inline __attribute__((const)) u8 bitrev8(u8 byte)
+ {
+ 	return byte_rev_table[byte];
+ }
+ 
+-extern u32 bitrev32(u32 in);
++extern __attribute__((const)) u32 bitrev32(u32 in);
+ 
+ #endif /* _LINUX_BITREV_H */

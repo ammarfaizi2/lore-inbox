@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762452AbWLKFC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762466AbWLKF0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762452AbWLKFC1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 00:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762453AbWLKFC1
+	id S1762466AbWLKF0w (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 00:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762413AbWLKF0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 00:02:27 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:21851 "EHLO
-	sj-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762451AbWLKFCZ (ORCPT
+	Mon, 11 Dec 2006 00:26:52 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:62345 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762431AbWLKF0v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 00:02:25 -0500
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Steve Wise <swise@opengridcomputing.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v3 13/13] Kconfig/Makefile
-X-Message-Flag: Warning: May contain useful information
-References: <20061210223244.27166.36192.stgit@dell3.ogc.int>
-	<20061210223916.27166.82130.stgit@dell3.ogc.int>
-	<20061210145602.d2a8bb98.randy.dunlap@oracle.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 10 Dec 2006 21:02:20 -0800
-Message-ID: <adaac1v2ffn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Mon, 11 Dec 2006 00:26:51 -0500
+Message-ID: <457CEC0F.2030206@anagramm.de>
+Date: Mon, 11 Dec 2006 06:26:39 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Dec 2006 05:02:20.0802 (UTC) FILETIME=[89C5F620:01C71CE1]
-Authentication-Results: sj-dkim-2; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim2002 verified; ); 
+To: Adrian Bunk <bunk@stusta.de>
+CC: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
+Subject: Re: optimalisation for strlcpy (lib/string.c)
+References: <20061210212350.GC30197@vanheusden.com> <20061210231305.GG10351@stusta.de>
+In-Reply-To: <20061210231305.GG10351@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:224ad0fd4f2efe95e6ec4f0a3ca8a73c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > +++ b/drivers/infiniband/hw/cxgb3/locking.txt
+Hi, Adrian & Friends!
 
- > Should be in Documentation/infiniband/.
- > Docs go in the Documentation/ dir, not in drivers/ dir.
+>> Like the other patch (by that other person), I think it is faster to not
+>> do a strlen first.
 
-Or put it in a comment in the appropriate header, if you want to keep
-it close to the driver source...
+There are PowerPC architectures, where a strlen is a matter of a single
+instruction of the CPU.
+
+Quote: "PowerPC 405 and 440 instruction sets offer the powerful
+Determine Left-Most Zero Byte (DLMZB) instruction."
+
+That's propably hard to beat.
+
+So, if we really want to speed up these things, we should write
+code which helps the compiler get that optimized instructions for
+us - by improving the code of strlen() i.e.
+
+Reference:
+http://www-03.ibm.com/chips/power/powerpc/newsletter/sep2003/ppc_process_at_work2.html
+
+Greets,
+
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
+
+http://www.anagramm-technology.com
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19
+

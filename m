@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937586AbWLKTNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937579AbWLKTOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937586AbWLKTNy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937591AbWLKTNx
+	id S937579AbWLKTOb (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937595AbWLKTOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:13:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43095 "EHLO mx2.mail.elte.hu"
+	Mon, 11 Dec 2006 14:14:31 -0500
+Received: from iona.labri.fr ([147.210.8.143]:32977 "EHLO iona.labri.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937590AbWLKTNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:13:51 -0500
-Date: Mon, 11 Dec 2006 20:11:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] make sysrq_always_enabled_setup() static
-Message-ID: <20061211191144.GA28340@elte.hu>
-References: <20061211005807.f220b81c.akpm@osdl.org> <20061211184043.GA28443@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061211184043.GA28443@stusta.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S937579AbWLKTOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 14:14:30 -0500
+Message-ID: <457DAE07.6090107@ens-lyon.org>
+Date: Mon, 11 Dec 2006 20:14:15 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix typo in 'EXPERIMENTAL' in CC_STACKPROTECTOR on x86_64
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix typo in 'EXPERIMENTAL' in config CC_STACKPROTECTOR in arch/x86_64/Kconfig.
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+Signed-off-by: <brice@myri.com>
+---
+ arch/x86_64/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> On Mon, Dec 11, 2006 at 12:58:07AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-rc6-mm2:
-> >...
-> > +debug-add-sysrq_always_enabled-boot-option.patch
-> >...
-> >  Misc updates
-> >...
-> 
-> This patch makes the needlessly global sysrq_always_enabled_setup() 
-> static.
->  
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Index: linux-2.6.git/arch/x86_64/Kconfig
+===================================================================
+--- linux-2.6.git.orig/arch/x86_64/Kconfig	2006-12-11 20:06:30.000000000 +0100
++++ linux-2.6.git/arch/x86_64/Kconfig	2006-12-11 20:07:06.000000000 +0100
+@@ -584,7 +584,7 @@
+ 	  If unsure, say Y. Only embedded should say N here.
+ 
+ config CC_STACKPROTECTOR
+-	bool "Enable -fstack-protector buffer overflow detection (EXPRIMENTAL)"
++	bool "Enable -fstack-protector buffer overflow detection (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+ 	help
+          This option turns on the -fstack-protector GCC feature. This
 
-thanks for the cleanup,
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

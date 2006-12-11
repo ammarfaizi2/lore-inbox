@@ -1,138 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762394AbWLKEsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762425AbWLKEtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1762394AbWLKEsq (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762415AbWLKEsq
+	id S1762425AbWLKEtO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 23:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762430AbWLKEtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:48:46 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:60339 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762394AbWLKEsp (ORCPT
+	Sun, 10 Dec 2006 23:49:13 -0500
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:36553 "EHLO
+	liaag2aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1762445AbWLKEtK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:48:45 -0500
-Date: Mon, 11 Dec 2006 13:48:00 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [Patch](memory hotplug) Fix compile error for i386 with NUMA config
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64N.0612090318510.11325@attu4.cs.washington.edu>
-References: <20061209183320.0761.Y-GOTO@jp.fujitsu.com> <Pine.LNX.4.64N.0612090318510.11325@attu4.cs.washington.edu>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20061211115829.AD68.Y-GOTO@jp.fujitsu.com>
+	Sun, 10 Dec 2006 23:49:10 -0500
+Date: Sun, 10 Dec 2006 23:46:45 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Linux portability bugs
+To: mariusn <mariusn@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <200612102347_MC3-1-D49B-AB99@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.27 [ja]
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David-san.
+In-Reply-To: <a2705a960612012239j697f2799t27bec643f33c9e12@mail.gmail.com>
 
-> On Sat, 9 Dec 2006, Yasunori Goto wrote:
+On Fri, 1 Dec 2006 22:39:01 -0800, mariusn wrote:
+
+> I am a graduate student at University of Washington, building a tool
+> automatically discover portability bugs in system-level code written
+> in C. My definition of "portability" is at the data layout level,
+> accounting for differences in alignment, padding, and generally layout
+> policies on various platforms. E.g., one might perform a pointer cast
+> that only works as intended when doubles are 4-byte aligned, which is
+> the case with gcc/ia-32 (default options) but not with gcc/sparc (due
+> to sparc's limited support for accessing doubles on non-8-byte
+> boundaries).
 > 
-> > Hello.
-> > 
-> > This patch is to fix compile error when config memory hotplug
-> > with numa on i386.
-> > 
-> > The cause of compile error was missing of arch_add_memory(), remove_memory(),
-> > and memory_add_physaddr_to_nid() when NUMA config is on.
-> > 
-> > This is for 2.6.19, and I tested no compile error of it.
-> > 
-> > Please apply.
-> > 
-> > Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-> > 
-> > ---
-> >  arch/i386/mm/discontig.c |   17 +++++++++++++++++
-> >  arch/i386/mm/init.c      |    4 +---
-> >  2 files changed, 18 insertions(+), 3 deletions(-)
-> > 
-> > Index: linux-2.6.19/arch/i386/mm/init.c
-> > ===================================================================
-> > --- linux-2.6.19.orig/arch/i386/mm/init.c	2006-12-04 20:06:32.000000000 +0900
-> > +++ linux-2.6.19/arch/i386/mm/init.c	2006-12-04 21:09:49.000000000 +0900
-> > @@ -681,10 +681,9 @@
-> >   * memory to the highmem for now.
-> >   */
-> >  #ifdef CONFIG_MEMORY_HOTPLUG
-> > -#ifndef CONFIG_NEED_MULTIPLE_NODES
-> >  int arch_add_memory(int nid, u64 start, u64 size)
-> >  {
-> > -	struct pglist_data *pgdata = &contig_page_data;
-> > +	struct pglist_data *pgdata = NODE_DATA(nid);
-> >  	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
-> >  	unsigned long start_pfn = start >> PAGE_SHIFT;
-> >  	unsigned long nr_pages = size >> PAGE_SHIFT;
-> > @@ -697,7 +696,6 @@
-> >  	return -EINVAL;
-> >  }
-> >  #endif
-> > -#endif
-> >  
-> >  kmem_cache_t *pgd_cache;
-> >  kmem_cache_t *pmd_cache;
-> 
-> The reason for the #ifndef CONFIG_NEED_MULTIPLE_NODES check seems to 
-> solely exist for excluding the NUMA case, so it doesn't appear as though 
-> this is the correct fix since your changelog indicates a compile problem 
-> with a NUMA build.  This hypothesis is supported by the comment which 
-> conveniently appears just before arch_add_memory which _explicitly_ states 
-> that the following is for non-NUMA cases.
+> I am looking for advice on how/where to look for these kinds of bugs
+> in the kernel and related software. This (dated) document
+> (http://netwinder.osuosl.org/users/b/brianbr/public_html/alignment.html
+> ) describes exactly these sorts of issues in the context of Linux/ARM
+> and mentions things like the kernel, binutils, cpio, X11, Orbit, as
+> sources of these sorts of bugs. I am having a bit of a hard time
+> locating change logs and otherwise related information on where these
+> bugs occurred, patches that addressed them, etc.
 
-No.
-Other arch's arch_add_memory() and remove_memory() have been already
-used for NUMA case too. But i386 didn't do it because just 
-contig_page_data is used. 
-Current NODE_DATA() macro is defined both case appropriately.
-So, this #ifdef is redundant now.
+Look for "compat" in the patch title and comments, like this one:
 
-(See: http://marc.theaimsgroup.com/?l=linux-mm&m=116494983531221&w=2)
-
-> 
-> > Index: linux-2.6.19/arch/i386/mm/discontig.c
-> > ===================================================================
-> > --- linux-2.6.19.orig/arch/i386/mm/discontig.c	2006-12-04 20:06:32.000000000 +0900
-> > +++ linux-2.6.19/arch/i386/mm/discontig.c	2006-12-09 17:30:24.000000000 +0900
-> > @@ -405,3 +405,20 @@
-> >  	totalram_pages += totalhigh_pages;
-> >  #endif
-> >  }
-> > +
-> > +#ifdef CONFIG_MEMORY_HOTPLUG
-> > +/* This is the case that there is no _PXM on DSDT for added memory */
-> > +int memory_add_physaddr_to_nid(u64 addr)
-> > +{
-> > +	int nid;
-> > +	unsigned long pfn = addr >> PAGE_SHIFT;
-> > +
-> > +	for (nid = 0; nid < MAX_NUMNODES; nid++){
-> > +		if (node_start_pfn[nid] <= pfn &&
-> > +		    pfn < node_end_pfn[nid])
-> > +			return nid;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +#endif
-> > 
-> 
-> memory_add_physaddr_to_nid is only declared as extern in 
-> include/linux/memory_hotplug.h in the CONFIG_NUMA case so this also 
-> doesn't appear as the correct fix but probably worked for your compile 
-> since you had CONFIG_MEMORY_HOTPLUG enabled.
-
-memory_add_physaddr_to_nid() is used for memory hotplug to 
-find node id for new memory when ACPI's DSDT doesn't define
-_PXM for new memory. So, when CONFIG_MEMORY_HOTPLUG is not set,
-this function is not used.
-
-Bye.
-
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=46c5ea3c9ae7fbc6e52a13c92e59d4fc7f4ca80a
 -- 
-Yasunori Goto 
-
+Chuck
+"Even supernovas have their duller moments."
 

@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S935310AbWLKO1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935336AbWLKO3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935310AbWLKO1U (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 09:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935226AbWLKO1U
+	id S935336AbWLKO3Y (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 09:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935588AbWLKO3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 09:27:20 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:2163 "EHLO
-	jurassic.park.msu.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935310AbWLKO1S (ORCPT
+	Mon, 11 Dec 2006 09:29:24 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:34077 "HELO
+	smtp103.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S935336AbWLKO3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 09:27:18 -0500
-Date: Mon, 11 Dec 2006 17:27:37 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: pci_assign_resource() inconsistency
-Message-ID: <20061211172737.A26031@jurassic.park.msu.ru>
-References: <1165808875.7260.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1165808875.7260.12.camel@localhost.localdomain>; from benh@kernel.crashing.org on Mon, Dec 11, 2006 at 02:47:55PM +1100
+	Mon, 11 Dec 2006 09:29:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=anLO2GojssvVQQtO9XK0sKgopfHcuaf6pVjw45BTR9aXZ3/4DEg3JcjEPN3rtKC6irExgHKi82YEmFtW5NzxNSQ4iWXDZyYYrX403I8a5S7AYBqnUr77RFkUmBOVy7t7lARB3XTtlPIWZJfZyf9Y0DAHnIMoGcpONwl8+kYtkj4=  ;
+X-YMail-OSG: 1a2VYzwVM1miWJg9o1zNqRZR14TPvFXhSeXsbLoTZAn8kbcWXgtl71jZtILvM0hW7G.gqB5SIwzMrBb_t0ZEOavqwsuC_HD8NNuTc2XS70WuhbDTYRtdQXIGIxNE_4x3Ijc_D89k_p9Gd.Sq0wLC4QAR189nuCfFCg--
+Message-ID: <457D6B10.4010903@yahoo.com.au>
+Date: Tue, 12 Dec 2006 01:28:32 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jiri Kosina <jikos@jikos.cz>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-mm1
+References: <20061211005807.f220b81c.akpm@osdl.org> <Pine.LNX.4.64.0612111137360.1665@twin.jikos.cz>
+In-Reply-To: <Pine.LNX.4.64.0612111137360.1665@twin.jikos.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 02:47:55PM +1100, Benjamin Herrenschmidt wrote:
-> So at first, an unassigned resource has the IORESOURCE_UNSET flag set
-> (or is supposed to). pci_assign_resource() itself will clear that flag
-> if it succeeds.
+Jiri Kosina wrote:
+> On Mon, 11 Dec 2006, Andrew Morton wrote:
 > 
-> However, pretty much nothing else checks that flag, so it's mostly
-> useful.
-
-I doubt of the generic usefulness of that flag, as it would be mere
-equivalent of resource->parent == NULL.
-I think the IORESOURCE_UNSET flag came from PnP and PCI subsystem has
-never used it.
-
-> Now, we have drivers/pci/setup-bus.c doing:
 > 
->                 if (pci_assign_resource(list->dev, idx)) {
->                         res->start = 0;
->                         res->end = 0;
->                         res->flags = 0;
->                 }
+>>Temporarily at
+>>	http://userweb.kernel.org/~akpm/2.6.19-mm1/
 > 
-> So it basically destroys the resource content utterly when
-> pci_assign_resource() fails...
-
-Yes, it's ugly. But, IIRC, this was the only way to prevent some drivers
-and arch code from using an unassigned resource...
-
-> There are questions raised here:
 > 
->  - Shouldn't we instead fix things so that instead, we properly
-> test for IORESOURCE_UNSET in pci_request_* & friends and just have
-> pci_assign_resource() continue as it's doing now, that is not clear that
-> flag if the assignment fails ?
+> Am I the only one seeing something strange on ext3 with this kernel?
 > 
->  - setup-bus.c is a bit violent: As soon as it hits a p2p bridge, it
-> will bluntly re-assign everybody, not trying to check wether a resource
-> was already correctly assigned by the firmware or not. However, it never
+> For example /etc/resolv.conf gets corrupted during the dhclient run. It 
+> looks like this, after dhclient finishes:
 
-No - it checks the resource->parent and doesn't touch the resources which
-are already assigned.
+Do you have CONFIG_DEBUG_VM turned on? I think we miss clearning BH_New
+in some places, thus causing an error path to zero the block incorrectly
+if we hit an error that CONFIG_DEBUG_VM makes much more likely.
 
-> sets IORESOURCE_UNSET. Thus if we do the above, we should probably have
-> it always set that bit before calling pci_assign_resource()...
-> 
-> Now the question is, what should I do in pci_32.c ... right now, we
-> unconditionally clear IORESOURCE_UNSET, which isn't very correct, then
-> call pci_assign_resource().
-> 
-> Should I do like the setup-bus.c and just completely wipe the resource
-> if pci_assign_resource() fail ? Or should I just stop clearing
-> IORESOURCE_UNSET (and thus rely on pci_assign_resource() to clear it
-> only if it succeeds, which seems to work) in which case I see no point
-> in making that function much check since there is nothing useful to do
-> when it fails and it does printk already.
-
-Well, as IORESOURCE_UNSET usage seems to be an exclusive PPC32 thing,
-there is no much difference. ;-)
-Though I agree that ignoring the return value of pci_assign_resource()
-is entirely valid in most cases.
-
-Ivan.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

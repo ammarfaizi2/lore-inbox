@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760333AbWLKEDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760326AbWLKESQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760333AbWLKEDp (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760625AbWLKEDo
+	id S1760326AbWLKESQ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 23:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760328AbWLKESQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:03:44 -0500
-Received: from mx2.suse.de ([195.135.220.15]:42097 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760324AbWLKEDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:03:43 -0500
-Date: Mon, 11 Dec 2006 05:03:34 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch][rfc] rwsem: generic rwsem
-Message-ID: <20061211040334.GA11246@wotan.suse.de>
-References: <20061208022259.GB11551@wotan.suse.de> <20061204144634.GA14383@wotan.suse.de> <20061204100607.GA20529@wotan.suse.de> <29183.1165236916@redhat.com> <25001.1165350982@redhat.com> <4548.1165586322@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4548.1165586322@redhat.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 10 Dec 2006 23:18:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:47740 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760324AbWLKESP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Dec 2006 23:18:15 -0500
+Message-ID: <457CDC38.2090907@us.ibm.com>
+Date: Sun, 10 Dec 2006 22:19:04 -0600
+From: Steve French <smfltc@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: akpm@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>,
+       Shirish S Pargaonkar <shirishp@us.ibm.com>, simo <simo@samba.org>,
+       Jeremy Allison <jra@samba.org>, linux-cifs-client@lists.samba.org
+Subject: Re: -mm merge plans for 2.6.20
+References: <200612092220_MC3-1-D483-92AE@compuserve.com>
+In-Reply-To: <200612092220_MC3-1-D483-92AE@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 01:58:42PM +0000, David Howells wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> 
-> > > Look at how the counter works in the XADD-based version.  That's the way
-> > > it is *because* I'm using XADD.  That's quite limiting.
-> > 
-> > Not really. ll/sc architectures "emulate" xadd the same as they would
-> > emulate a spinlock. There is nothing suboptimal about it.
-> 
-> Yes, really.  You've missed the point entirely.  Look at *how* the counter
-> *works*.
-
-OK, I've looked but I can't see how you would make it more optimal on
-an ll/sc architecture. The atomic_add_return variant has no more atomic
-or barrier operations than the spinlock one, and it has less loads and
-branches.
+Chuck Ebbert wrote:
+> In-Reply-To: <4579AFA5.90003@us.ibm.com>
+>
+> On Fri, 08 Dec 2006 12:32:05 -0600, Steve French wrote:
+>
+>   
+>> smbfs deprecation is ok but there are a few things to consider:
+>>     
+>
+> How well-tested is the plaintext password support?
+>
+> By default the /proc/fs/cifs/SecurityFlags setting is 0x7 (MAY_SIGN |
+> MAY_NTLM | MAYNTLMV2). Trying to connect to an old Samba server
+> with that, I got a message that the server requested a plain text
+> password but client support was disabled.
+>
+> After changing the flags to 0x37 (adding MAY_LANMAN | MAY_PLNTXT),
+> I got "invalid password." Looking at the ethereal traces, it seemed
+> that the password was being sent as encrypted Unicode, and the only
+> way to make it connect was to set the flags to 0x30.
+>   
+I don't remember any problems reported with plain text password
+support on current cifs and I have certainly seen it negotiated with no 
+problem,
+but I will double check with your reported flag combination.
+> Also, the client doesn't automatically pick up the domain name from
+> smb.conf like smbfs does.
+>
+>   
+That is true, and is intentional.   cifs sends a domain of null (ie use 
+the server's
+default domain) - but it can be overridden on mount

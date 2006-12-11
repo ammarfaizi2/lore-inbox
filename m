@@ -1,41 +1,138 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760625AbWLKEsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762394AbWLKEsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760625AbWLKEsn (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762394AbWLKEsm
+	id S1762394AbWLKEsq (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 23:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762415AbWLKEsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:48:42 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:44524 "EHLO
-	liaag1ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1760625AbWLKEsm (ORCPT
+	Sun, 10 Dec 2006 23:48:46 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:60339 "EHLO
+	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762394AbWLKEsp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:48:42 -0500
-Date: Sun, 10 Dec 2006 23:46:44 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: PAE/NX without performance drain?
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200612102347_MC3-1-D49B-AB98@compuserve.com>
+	Sun, 10 Dec 2006 23:48:45 -0500
+Date: Mon, 11 Dec 2006 13:48:00 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: David Rientjes <rientjes@cs.washington.edu>
+Subject: Re: [Patch](memory hotplug) Fix compile error for i386 with NUMA config
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>
+In-Reply-To: <Pine.LNX.4.64N.0612090318510.11325@attu4.cs.washington.edu>
+References: <20061209183320.0761.Y-GOTO@jp.fujitsu.com> <Pine.LNX.4.64N.0612090318510.11325@attu4.cs.washington.edu>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20061211115829.AD68.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Becky! ver. 2.27 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <457B1F02.7030409@comcast.net>
+Hi David-san.
 
-On Sat, 09 Dec 2006 15:39:30 -0500, John Richard Moser wrote:
+> On Sat, 9 Dec 2006, Yasunori Goto wrote:
+> 
+> > Hello.
+> > 
+> > This patch is to fix compile error when config memory hotplug
+> > with numa on i386.
+> > 
+> > The cause of compile error was missing of arch_add_memory(), remove_memory(),
+> > and memory_add_physaddr_to_nid() when NUMA config is on.
+> > 
+> > This is for 2.6.19, and I tested no compile error of it.
+> > 
+> > Please apply.
+> > 
+> > Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+> > 
+> > ---
+> >  arch/i386/mm/discontig.c |   17 +++++++++++++++++
+> >  arch/i386/mm/init.c      |    4 +---
+> >  2 files changed, 18 insertions(+), 3 deletions(-)
+> > 
+> > Index: linux-2.6.19/arch/i386/mm/init.c
+> > ===================================================================
+> > --- linux-2.6.19.orig/arch/i386/mm/init.c	2006-12-04 20:06:32.000000000 +0900
+> > +++ linux-2.6.19/arch/i386/mm/init.c	2006-12-04 21:09:49.000000000 +0900
+> > @@ -681,10 +681,9 @@
+> >   * memory to the highmem for now.
+> >   */
+> >  #ifdef CONFIG_MEMORY_HOTPLUG
+> > -#ifndef CONFIG_NEED_MULTIPLE_NODES
+> >  int arch_add_memory(int nid, u64 start, u64 size)
+> >  {
+> > -	struct pglist_data *pgdata = &contig_page_data;
+> > +	struct pglist_data *pgdata = NODE_DATA(nid);
+> >  	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
+> >  	unsigned long start_pfn = start >> PAGE_SHIFT;
+> >  	unsigned long nr_pages = size >> PAGE_SHIFT;
+> > @@ -697,7 +696,6 @@
+> >  	return -EINVAL;
+> >  }
+> >  #endif
+> > -#endif
+> >  
+> >  kmem_cache_t *pgd_cache;
+> >  kmem_cache_t *pmd_cache;
+> 
+> The reason for the #ifndef CONFIG_NEED_MULTIPLE_NODES check seems to 
+> solely exist for excluding the NUMA case, so it doesn't appear as though 
+> this is the correct fix since your changelog indicates a compile problem 
+> with a NUMA build.  This hypothesis is supported by the comment which 
+> conveniently appears just before arch_add_memory which _explicitly_ states 
+> that the following is for non-NUMA cases.
 
-> Is it possible to give some other way to get the hardware NX bit working
-> in 32-bit mode, without the apparently massive performance penalty of
-> HIGHMEM64?
+No.
+Other arch's arch_add_memory() and remove_memory() have been already
+used for NUMA case too. But i386 didn't do it because just 
+contig_page_data is used. 
+Current NODE_DATA() macro is defined both case appropriately.
+So, this #ifdef is redundant now.
 
-If your hardware can run the x86_64 kernel, try using that with your
-i386 userspace.  It works here...
+(See: http://marc.theaimsgroup.com/?l=linux-mm&m=116494983531221&w=2)
+
+> 
+> > Index: linux-2.6.19/arch/i386/mm/discontig.c
+> > ===================================================================
+> > --- linux-2.6.19.orig/arch/i386/mm/discontig.c	2006-12-04 20:06:32.000000000 +0900
+> > +++ linux-2.6.19/arch/i386/mm/discontig.c	2006-12-09 17:30:24.000000000 +0900
+> > @@ -405,3 +405,20 @@
+> >  	totalram_pages += totalhigh_pages;
+> >  #endif
+> >  }
+> > +
+> > +#ifdef CONFIG_MEMORY_HOTPLUG
+> > +/* This is the case that there is no _PXM on DSDT for added memory */
+> > +int memory_add_physaddr_to_nid(u64 addr)
+> > +{
+> > +	int nid;
+> > +	unsigned long pfn = addr >> PAGE_SHIFT;
+> > +
+> > +	for (nid = 0; nid < MAX_NUMNODES; nid++){
+> > +		if (node_start_pfn[nid] <= pfn &&
+> > +		    pfn < node_end_pfn[nid])
+> > +			return nid;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +#endif
+> > 
+> 
+> memory_add_physaddr_to_nid is only declared as extern in 
+> include/linux/memory_hotplug.h in the CONFIG_NUMA case so this also 
+> doesn't appear as the correct fix but probably worked for your compile 
+> since you had CONFIG_MEMORY_HOTPLUG enabled.
+
+memory_add_physaddr_to_nid() is used for memory hotplug to 
+find node id for new memory when ACPI's DSDT doesn't define
+_PXM for new memory. So, when CONFIG_MEMORY_HOTPLUG is not set,
+this function is not used.
+
+Bye.
 
 -- 
-Chuck
-"Even supernovas have their duller moments."
+Yasunori Goto 
+
 

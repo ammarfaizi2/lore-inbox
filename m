@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937609AbWLKT0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937618AbWLKT1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937609AbWLKT0g (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 14:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937618AbWLKT0f
+	id S937618AbWLKT1h (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 14:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937622AbWLKT1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 14:26:35 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:10027 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937609AbWLKT0e (ORCPT
+	Mon, 11 Dec 2006 14:27:36 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:57515 "EHLO
+	laptopd505.fenrus.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S937618AbWLKT1g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 14:26:34 -0500
-Message-ID: <457DB08C.8070709@chelsio.com>
-Date: Mon, 11 Dec 2006 11:25:00 -0800
-From: Divy Le Ray <divy@chelsio.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Steve Wise <swise@opengridcomputing.com>
-CC: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       Felix Marti <felix@chelsio.com>
-Subject: Re: [PATCH  v3 00/13] 2.6.20 Chelsio T3 RDMA Driver
-References: <20061210223244.27166.36192.stgit@dell3.ogc.int>	 <adafybn2i7n.fsf@cisco.com> <1165851389.13419.3.camel@stevo-desktop>
-In-Reply-To: <1165851389.13419.3.camel@stevo-desktop>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 11 Dec 2006 14:27:36 -0500
+Subject: announce: irqbalance 0.55 released
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Dec 2006 19:25:03.0397 (UTC) FILETIME=[0EAF2550:01C71D5A]
+Date: Mon, 11 Dec 2006 20:27:29 +0100
+Message-Id: <1165865249.27217.419.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Wise wrote:
-> On Sun, 2006-12-10 at 20:02 -0800, Roland Dreier wrote:
->   
->> I haven't seen any evidence of the corresponding ethernet NIC driver
->> being merged for 2.6.20 (which is a prerequisite, right).
->>
->> What's the status of that?
->>
->>     
->
-> It is on its third or fourth round of review.  The last driver posted on
-> 12/7, was merged up to linus's latest tree probably as of 12/7.  I know
-> the comments set it was against 2.6.19, but it was really linus's
-> latest.
->
-> Divy, can you expand on this?
->   
-Steve, the patch for the Chelsio T3 driver was postered against 
-Linus'tree indeed.
+Hi,
 
--bash-3.00$ cat .git/refs/heads/origin
-0215ffb08ce99e2bb59eca114a99499a4d06e704
+After a hiatus of 2 years, a new version of irqbalance is now released
+at http://www.irqbalance.org .
 
-It incorporated Stephen's feedback.
-The comments I received since then concern minor coding style glitches.
-I will fix them, the driver functionality should remain unchanged however.
+irqbalance is the tool that maps/distributes the different interrupts in
+your system to the various processors and cores that your computer may
+have.
 
-Cheers,
-Divy
+This new version knows about, and optimizes for, Dual and Quad core, and
+knows about MSI, PCI-Express, NAPI, Cache domains, processor sockets etc
+etc. In addition, the new irqbalance switches to a power-save mode when
+there is little irq load on the system, trying to preserve power by
+avoiding waking up processors more than needed.
 
+A more detailed description of how the new algorithm works can be found
+at http://www.irqbalance.org/documentation.php .
 
->
-> Steve.
->
->   
+At this point only source packages are available, I hope that the linux
+vendors will have packages for the various distributions ready in a few
+days.
 
+irqbalance is released under version 2 of the GNU General Public
+License.
+
+Greetings,
+   Arjan van de Ven

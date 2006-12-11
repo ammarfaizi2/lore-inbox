@@ -1,92 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761183AbWLKEbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762363AbWLKEpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761183AbWLKEbI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 10 Dec 2006 23:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759915AbWLKEbI
+	id S1762363AbWLKEpL (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 10 Dec 2006 23:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762409AbWLKEpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Dec 2006 23:31:08 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:38277 "HELO
-	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1760732AbWLKEbG (ORCPT
+	Sun, 10 Dec 2006 23:45:10 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:55371 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762363AbWLKEpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Dec 2006 23:31:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=JpZKIMTboqwIOju3ePaGteq3Ox5yDhzls0djUykg53YCfiomKSWDAtr74AwHs0Tz4U9hTnjhW2vXaxEGhY5+a1EiEIjyCjM99EqlIZcaXyYyukY3blZC4Co/LMjr/hwPTsVux5sfKQYaLgwSJaTxhCUubpYMRQrEU9myHJ4E8lw=  ;
-X-YMail-OSG: L1VbK9AVM1lHB7i8FrXMurVMkngg2rWcvKrWtLxFqAyThCSgKDN8TkJksOGc4Jmxriepxz9950NyswPctgKvnq6Blto0sdcRzMAI01yS9F1JVUAxpIBBUA--
-Message-ID: <457CDEDE.9080804@yahoo.com.au>
-Date: Mon, 11 Dec 2006 15:30:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux@horizon.com
-CC: torvalds@osdl.org, linux-arch@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
-References: <20061211023054.2622.qmail@science.horizon.com>
-In-Reply-To: <20061211023054.2622.qmail@science.horizon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 10 Dec 2006 23:45:09 -0500
+Date: Sun, 10 Dec 2006 20:45:45 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: Re: [PATCH] ucb1400_ts depends SND_AC97_BUS
+Message-Id: <20061210204545.a68d15cd.randy.dunlap@oracle.com>
+In-Reply-To: <Pine.LNX.4.64.0612102244140.2630@xanadu.home>
+References: <20061209003635.e778ff76.randy.dunlap@oracle.com>
+	<200612092150.02940.dtor@insightbb.com>
+	<20061209185737.1768315d.randy.dunlap@oracle.com>
+	<200612092205.19358.dtor@insightbb.com>
+	<Pine.LNX.4.64.0612092212410.2630@xanadu.home>
+	<20061209210945.5abe2d89.randy.dunlap@oracle.com>
+	<Pine.LNX.4.64.0612102244140.2630@xanadu.home>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi "Linux",
+On Sun, 10 Dec 2006 22:55:25 -0500 (EST) Nicolas Pitre wrote:
 
-linux@horizon.com wrote:
->>Even if ARM is able to handle any arbitrary C code between the
->>"load locked" and store conditional API, other architectures can not
->>by definition.
+> On Sat, 9 Dec 2006, Randy Dunlap wrote:
 > 
+> > On Sat, 09 Dec 2006 22:17:55 -0500 (EST) Nicolas Pitre wrote:
+> > 
+> > > Please consider what SND_CONFIG_AC97_BUS corresponds to.  It is 
+> > > sound/pci/ac97/ac97_bus.c and if you look into this file you'll see that 
+> > > it is perfectly buildable even if sound is entirely configured out, just 
+> > > like some lib code would be.
+> > 
+> > OK.  Should it (CONFIG_SND_AC97_BUS -> sound/pci/ac97/ac97_bus.c)
+> > be buildable when sound is disabled?
 > 
-> Maybe so, but I think you and Linus are missing the middle ground.
-
-Nobdy argued against adding nice arch specific helpers to do higher
-level operations (for example, atomic_add_unless I added was able to
-reduce the use of cmpxchg in the kernel and can be optimally
-implemented with ll/sc). I implemented it specifically because I
-didn't want to use atomic_cmpxchg directly for lockless pagecache,
-exactly because it is suboptimal on RISCs in that performance
-critical path.
-
-The point is that if somebody wants to implement some fancy lockless
-code, atomic_cmpxchg is a good tool to use that does not require
-writing the assembly for two dozen architectures. If it is performance
-critical then it can absolutely be rewritten in an optimal manner.
-
-> While I agree that LL/SC can't be part of the kernel API for people to
-> get arbitrarily clever with in the device driver du jour, they are *very*
-> nice abstractions for shrinking the arch-specific code size.
+> Yes.
 > 
-> The semantics are widely enough shared that it's quite possible in
-> practice to write a good set of atomic primitives in terms of LL/SC
-> and then let most architectures define LL/SC and simply #include the
-> generic atomic op implementations.
+> > If so, where should it be moved to (since afaik, make won't even
+> > descend into sound/ if SOUND=n; I don't see that changing
+> > any time soon).
 > 
-> If there's a restriction that would pessimize the generic implementation,
-> that function can be implemented specially for that arch.
+> What about this patch?
+
+About all I can say is that it builds as expected...
+
+
+> ----- >8
+> Subject: break config ordering/dependency between UCB1400 touchscreen driver and sound subsystem
 > 
-> Then implementing things like backoff on contention can involve writing
-> a whole lot less duplicated code.
+> Commit 2d4ba4a3b9aef95d328d74a17ae84f8d658059e2 introduced a dependency
+> that was never meant to exist when the ac97_bus.c module was created.
+> Move ac97_bus.c up the directory hierarchy to make sure it is built when 
+> selected even if sound is configured out so things work as originally 
+> expected.
 > 
-> 
-> Just like you can write a set of helpers for, say, CPUs with physically
-> addressed caches, even though the "real" API has to be able to handle the
-> virtually addressed ones, you can write a nice set of helpers for machines
-> with sane LL/SC.
+> Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-So, what would your ll/sc abstraction look like? Let's hear it.
 
-The one I'm thinking of goes something like this:
-
-   atomic_ll() / atomic_sc() with the restriction that they cannot be
-   nested, you cannot write any C code between them, and may only call
-   into some specific set of atomic_llsc_xxx primitives, operating on
-   the address given to ll, and must not have more than a given number
-   of instructions between them. Also, the atomic_sc won't always fail
-   if there were interleaving stores.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+---
+~Randy

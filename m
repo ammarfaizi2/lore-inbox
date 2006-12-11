@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760582AbWLKNcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762913AbWLKNeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760582AbWLKNcx (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 08:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762911AbWLKNcx
+	id S1762913AbWLKNeM (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 08:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1762914AbWLKNeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 08:32:53 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:45731 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760582AbWLKNcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 08:32:52 -0500
-Message-ID: <457D5E01.7010307@garzik.org>
-Date: Mon, 11 Dec 2006 08:32:49 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 11 Dec 2006 08:34:11 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:60104 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762911AbWLKNeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 08:34:10 -0500
+Date: Mon, 11 Dec 2006 13:33:53 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+Message-ID: <20061211133352.GA21359@srcf.ucam.org>
+References: <200612102347_MC3-1-D49B-AB98@compuserve.com>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Akinobu Mita <akinobu.mita@gmail.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: Mark bitrevX() functions as const
-References: <457D559C.2030702@garzik.org>  <29447.1165840536@redhat.com> <15033.1165842882@redhat.com>
-In-Reply-To: <15033.1165842882@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612102347_MC3-1-D49B-AB98@compuserve.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Re: PAE/NX without performance drain?
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Jeff Garzik <jeff@garzik.org> wrote:
->> * naked __attribute__ is ugly.  define something short and memorable in
->> include/linux/compiler.h.
-> 
-> I'm not sure that's a good idea.  You have to be careful not to cause confusion
-> with ordinary "const".
+On Sun, Dec 10, 2006 at 11:46:44PM -0500, Chuck Ebbert wrote:
 
-It's all in the naming.  You could call it 'purefunc' or somesuch.
+> If your hardware can run the x86_64 kernel, try using that with your
+> i386 userspace.  It works here...
 
-__attribute__ is very very ugly, an hinders a quick scan of the function 
-prototype, particularly if it has a boatload of other attributes.
+Losing vm86() support can cause problems.
 
-
->> * another annotation to consider is C99 keyword 'restrict'.
-> 
-> Indeed, though I presume you don't mean in this particular case...
-
-Correct.
-
-	Jeff
-
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

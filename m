@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937132AbWLKQeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937119AbWLKQd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937132AbWLKQeZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 11:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937135AbWLKQeZ
+	id S937119AbWLKQd2 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 11:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937135AbWLKQd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 11:34:25 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41515 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937132AbWLKQeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 11:34:23 -0500
-Date: Mon, 11 Dec 2006 08:34:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Akinobu Mita <akinobu.mita@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Mark bitrevX() functions as const 
-In-Reply-To: <29623.1165853572@redhat.com>
-Message-ID: <Pine.LNX.4.64.0612110831010.12500@woody.osdl.org>
-References: <Pine.LNX.4.64.0612110803340.12500@woody.osdl.org> 
- <29447.1165840536@redhat.com>  <29623.1165853572@redhat.com>
+	Mon, 11 Dec 2006 11:33:28 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:45803 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937119AbWLKQd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 11:33:27 -0500
+Date: Mon, 11 Dec 2006 17:33:34 +0100
+From: Olaf Hering <olaf@aepfle.de>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
+Message-ID: <20061211163333.GA17947@aepfle.de>
+References: <457D750C.9060807@shadowen.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <457D750C.9060807@shadowen.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 11, Andy Whitcroft wrote:
 
+> 	# get_kernel_version /boot/vmlinuz-autobench
+> 	%s
 
-On Mon, 11 Dec 2006, David Howells wrote:
-> 
-> Ah.  I thought that was just for supporting old versions of gcc.  I didn't
-> realise it was for handling strange compilers.
+It expects the content from `cat /proc/version`:
 
-I'm not sure how much (if at all) the Intel compiler is actually used, and 
-for all I know it may even support __attribute__((__const__)) these days, 
-but I like the notion of allowing us to support other compilers, so the 
-infrastructure is all set up for that.
+...
+      for (i = 0; i < in; i++)
+        if (buffer[i] == 'L' && buffer[i+1] == 'i' &&
+            buffer[i+2] == 'n' && buffer[i+3] == 'u' &&
+            buffer[i+4] == 'x' && buffer[i+5] == ' ' &&
+            buffer[i+6] == 'v' && buffer[i+7] == 'e' &&
+            buffer[i+8] == 'r' && buffer[i+9] == 's' &&
+            buffer[i+10] == 'i' && buffer[i+11] == 'o' &&
+            buffer[i+12] == 'n' && buffer[i+13] == ' ')
+          { 
+            found = 1;
+            break;
+          } 
+...
 
-The main <linux/compiler.h> thing includes various per-compiler headers, 
-and then defaults some things to be empty if the compiler-specific header 
-doesn't have its own #define for it. So it's actually set up to try to 
-help more than just gcc or the Intel compiler, although nobody has done 
-anything else afaik.
+The change breaks the assumption:
+ const char linux_banner[] =
+-       "Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-       LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
++       "Linux version %s (" LINUX_COMPILE_BY "@"
++       LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") %s\n";
 
-I think all versions of gcc support the __attribute__((const)) thing (and 
-indeed, it's in the "generic" gcc header file, not the per-gcc-version 
-one).
-
-		Linus
+Please revert this change.

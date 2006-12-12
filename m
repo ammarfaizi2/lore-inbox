@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932277AbWLLRe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932286AbWLLRkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWLLRe0 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 12:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWLLReZ
+	id S932286AbWLLRkk (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 12:40:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWLLRkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 12:34:25 -0500
-Received: from nz-out-0506.google.com ([64.233.162.229]:65258 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932277AbWLLReZ (ORCPT
+	Tue, 12 Dec 2006 12:40:40 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:52551 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932286AbWLLRkj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 12:34:25 -0500
+	Tue, 12 Dec 2006 12:40:39 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=oxw7S+XYFn7Bd59+ae1Yxo6X0/+PeBxNsxTSkfmse8jmiB7wRj/RL7IHv9GU/lPoLHNK9t2axsGlWhlH/e0c7JP999UOY08gd/ojMKCAYlWNZzZodK35C4rrLLt+9MH+JvBWQ9wkfzaOaP/UJ/zBz6TMSrmAa8sqm8Vf9n05+lI=
-Message-ID: <84144f020612120934n612f513er606d2653f527eb67@mail.gmail.com>
-Date: Tue, 12 Dec 2006 19:34:23 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Yan Burman" <burman.yan@gmail.com>
-Subject: Re: [PATCH 2.6.19] e1000: replace kmalloc with kzalloc
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org, cramerj@intel.com
-In-Reply-To: <1165942389.5611.4.camel@localhost>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p4JkcEyzUoHNRGrT4Z3hjNXCfvmXXZK0WG5yxLNZI9YfNNMcbzNi36dmokhcKITwPyZtPhqZF34H5YTc0Sf3fnUxfVBkNIveajycE9R0jjMkE+ZY9kHLmnVk0rWEY0odE292NMaHl3g8DNIup7J9a1XW/21gN59cQcE/+koaQ20=
+Message-ID: <d120d5000612120940s16f26b27p4b9e0792038693b6@mail.gmail.com>
+Date: Tue, 12 Dec 2006 12:40:35 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Cal Peake" <cp@absolutedigital.net>, "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: [PATCH] Note subscribers only lists for input subsystem
+Cc: trivial@kernel.org, "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0612121157110.4219@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1165942389.5611.4.camel@localhost>
-X-Google-Sender-Auth: 7579d009d142be2f
+References: <Pine.LNX.4.64.0612121157110.4219@lancer.cnet.absolutedigital.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/12/06, Yan Burman <burman.yan@gmail.com> wrote:
->         size = txdr->count * sizeof(struct e1000_buffer);
-> -       if (!(txdr->buffer_info = kmalloc(size, GFP_KERNEL))) {
-> +       if (!(txdr->buffer_info = kzalloc(size, GFP_KERNEL))) {
->                 ret_val = 1;
->                 goto err_nomem;
->         }
-> -       memset(txdr->buffer_info, 0, size);
+On 12/12/06, Cal Peake <cp@absolutedigital.net> wrote:
+> According to Dmitry in <http://lkml.org/lkml/2006/10/17/280>, the input
+> list is subscribers only. I'm assuming here that both are but a
+> confirmation would be nice... :)
+>
+> From: Cal Peake <cp@absolutedigital.net>
+>
+> Annotate the MAINTAINERS file to reflect the subscribers only nature of
+> the input mailing lists.
+>
 
-No one seems to be using size elsewhere so why not convert to
-kcalloc() and get rid of it? (Seems to apply to other places as well.)
+Actually I'd rather have them open, let's see if Vojtech could change
+that... The main problem is that not only input lists accept posts
+from subscribers only but they silently drop everything else. Maybe
+dropping only HTML posts would be a decent compromise.
+
+-- 
+Dmitry

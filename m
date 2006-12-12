@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751281AbWLLMqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751285AbWLLMth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWLLMqh (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 07:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWLLMqh
+	id S1751285AbWLLMth (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 07:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWLLMth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 07:46:37 -0500
-Received: from smtp21.orange.fr ([80.12.242.46]:20090 "EHLO smtp21.orange.fr"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751281AbWLLMqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 07:46:36 -0500
-X-ME-UUID: 20061212124635543.849BF1C0009F@mwinf2129.orange.fr
-Subject: Re: Nokia E61 and the kernel BUG at mm/slab.c:594
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Thomas Sailer <t.sailer@alumni.ethz.ch>, Joscha Ihl <joscha@grundfarm.de>,
-       linux-kernel@vger.kernel.org, ihl@fh-brandenburg.de,
-       Muli Ben-Yehuda <muli@il.ibm.com>
-In-Reply-To: <200612121216.10902.oliver@neukum.org>
-References: <20061211173506.5c8cb479@localhost>
-	 <20061212094421.GC2818@rhun.haifa.ibm.com>
-	 <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
-	 <200612121216.10902.oliver@neukum.org>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 13:46:28 +0100
-Message-Id: <1165927588.952.22.camel@frg-rhel40-em64t-03>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 07:49:37 -0500
+Received: from hempcity.net ([81.171.100.190]:36683 "EHLO hempcity.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751285AbWLLMtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 07:49:36 -0500
+Message-ID: <35725.84.81.1.164.1165927769.squirrel@webmail.coolzero.info>
+In-Reply-To: <457EA2C2.5060408@tut.fi>
+References: <457EA2C2.5060408@tut.fi>
+Date: Tue, 12 Dec 2006 13:49:29 +0100 (CET)
+Subject: Re: Survey about the Kernel Community
+From: "Jim van Wel" <jim@coolzero.info>
+To: "Timo Aaltonen" <timo.aaltonen@tut.fi>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: jim@coolzero.info
+User-Agent: SquirrelMail/1.4.8-2.el4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-12 at 12:16 +0100, Oliver Neukum wrote:
-> Am Dienstag, 12. Dezember 2006 11:28 schrieben Sie:
-> > On Tue, 2006-12-12 at 11:44 +0200, Muli Ben-Yehuda wrote:
-> > 
-> > > I assume the previous crash was 2.6.19 with SMP? did it work with
-> > > earlier kernels?
-> > 
-> > It happens to me as well, current Fedora 6 update
-> > kernel-2.6.18-1.2849.fc6.i686 UP, with a Nokia E70 in "PC Suite" mode.
-> 
-> What functions does this mode involve?
+Hi,
 
-Something like OBEX-over-USB
+Well, I filled in the survey. Was wondering if you also post the results
+here at the mailing list. That would be nice.
 
-	Xav
+Greetings,
+
+Jim.
+
+> Hi all,
+>
+> We would like to ask you few question about Linux Kernel Community. The
+> survey consists of 31 multiple choice questions and three text boxes.
+> The survey is conducted by Institute of Business Information Management
+> and Institute of Software Systems at Tampere University of Technology.
+>
+> We close the survey at 24th of December. The results of our study will
+> be published  in an international academic conference.
+>
+> Please devote a few minutes to help us in understanding OSS communities.
+> The survey is located at
+> <http://www.surveymonkey.com/s.asp?u=577413001783>.
+>
+> Thanks in advance.
+>
+> --
+> Timo Aaltonen and Maria Antikainen
+> firstname.lastname@tut.fi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

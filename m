@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751431AbWLLPhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751437AbWLLPj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWLLPhg (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 10:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWLLPhg
+	id S1751437AbWLLPj7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 10:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWLLPj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 10:37:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48521 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751431AbWLLPhf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 10:37:35 -0500
-Subject: Re: Support 2.4 modules features in 2.6
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jaswinder Singh <jaswinderrajput@gmail.com>
+	Tue, 12 Dec 2006 10:39:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43468 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751439AbWLLPj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 10:39:58 -0500
+Date: Tue, 12 Dec 2006 10:39:56 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aa5953d60612120711h375eecadpeb20d971853626cc@mail.gmail.com>
-References: <aa5953d60612120606g8c59542seaa440b7b0404ff5@mail.gmail.com>
-	 <1165932674.27217.608.camel@laptopd505.fenrus.org>
-	 <aa5953d60612120711h375eecadpeb20d971853626cc@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 12 Dec 2006 16:37:33 +0100
-Message-Id: <1165937853.27217.625.camel@laptopd505.fenrus.org>
+Subject: Re: Make OLPC camera driver depend on x86.
+Message-ID: <20061212153956.GH8509@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+References: <20061212145258.GA29952@redhat.com> <12591.1165936372@lwn.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12591.1165936372@lwn.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-12 at 20:41 +0530, Jaswinder Singh wrote:
-> On 12/12/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Tue, 2006-12-12 at 19:36 +0530, Jaswinder Singh wrote:
-> > > Hello,
-> > >
-> > > I want to support old 2.4 modules features in 2.6 kernel modules:-
-> > > 1. no kernel source tree is required to build modules.
-> >
-> > this is a 2.6 not a 2.4 feature btw
-> >
-> 
-> Really!! , Please let me know what is the procedure to build the
-> modules after deleting kernel linux-2.6*
+On Tue, Dec 12, 2006 at 08:12:52AM -0700, Jonathan Corbet wrote:
+ > Dave Jones <davej@redhat.com> wrote:
+ > 
+ > > -	depends on I2C && VIDEO_V4L2
+ > > +	depends on I2C && VIDEO_V4L2 && X86_32
+ > 
+ > Any particular reason why?
 
-you only need include/* for this in 2.6
+Just seemed odd to be offered the option when I was building
+an ia64 kernel given its extremely unlikely to ever appear there.
 
-you can't do this at all with 2.4 kernels, it needs the whole lot.
+[gads, an ia64 olpc, what a thought...]
 
-(in both cases the code and headers are needed so that your module can
-use the data structures and compile in the kernel code you select to use
-from inlines)
-> 
-> 
-> > > 2. support modular plugins.
-> >
-> > ?
-> 
-> modular plugins means :-
-
-you can still do that. Just you're better off building them in one go;
-
-
-can you give us a pointer to the source of this 2.4 module you have?
-Maybe some of the mechanisms that you want this for are now very
-outdated and obsoleted by easier functionality.
-
+		Dave
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+http://www.codemonkey.org.uk

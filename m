@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751539AbWLLSed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932209AbWLLSiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751539AbWLLSed (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWLLSec
+	id S932209AbWLLSiJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWLLSiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:34:32 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26448 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751539AbWLLSeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:34:31 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,525,1157353200"; 
-   d="scan'208"; a="173584029:sNHT34525442"
-Message-ID: <457EF632.4060106@intel.com>
-Date: Tue, 12 Dec 2006 10:34:26 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 12 Dec 2006 13:38:09 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:48781 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751578AbWLLSiH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 13:38:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qfSECaDTMD3rBj+eixd8giF894l7G0zqyE2AAFA6ZxS+CsTjTIpCsdTDck1cjtZhAM+WCq2eg8q9tCGngz1r4NN23VDN7iFPmLS+ugwsg7LcpK2laH3fpA3rbATio6Xz/LpdoqBRBQUJqqKCZQx23YureI2fV/GGnD0GIoJpLSg=
+Message-ID: <625fc13d0612121038l22a2b252v3d3773caa8826e41@mail.gmail.com>
+Date: Tue, 12 Dec 2006 12:38:05 -0600
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH/RFC] Delete JFFS (version 1)
+Cc: "Jeff Garzik" <jeff@garzik.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, jffs-dev@axis.com,
+       "David Woodhouse" <dwmw2@infradead.org>
+In-Reply-To: <20061212095359.51483704.akpm@osdl.org>
 MIME-Version: 1.0
-To: Yan Burman <burman.yan@gmail.com>
-CC: linux-kernel@vger.kernel.org, trivial@kernel.org, john.ronciak@intel.com,
-       NetDev <netdev@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.19] e100: replace kmalloc with kcalloc
-References: <1165942531.5611.7.camel@localhost>
-In-Reply-To: <1165942531.5611.7.camel@localhost>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <457EA2FE.3050206@garzik.org>
+	 <20061212095359.51483704.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yan Burman wrote:
-> Replace kmalloc+memset with kcalloc
+On 12/12/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Tue, 12 Dec 2006 07:39:26 -0500
+> Jeff Garzik <jeff@garzik.org> wrote:
+>
+> > I have created the 'kill-jffs' branch of
+> > git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git that
+> > removes fs/jffs.
+> >
+> > I argue that you can count the users (who aren't on 2.4) on one hand,
+> > and developers don't seem to have cared for it in ages.
+> >
+> > People are already talking about jffs2 replacements, so I propose we zap
+> > jffs in 2.6.21.
+>
+> It would be good to provide unignorable notice of this in 2.6.20.  Via a
+> loud printk, or perhaps even CONFIG_BROKEN or CONFIG_EMBEDDED.
 
-ACK, fine with me.
+Something like the below?
 
-> Signed-off-by: Yan Burman <burman.yan@gmail.com>
-> 
-> diff -rubp linux-2.6.19-rc5_orig/drivers/net/e100.c linux-2.6.19-rc5_kzalloc/drivers/net/e100.c
-> --- linux-2.6.19-rc5_orig/drivers/net/e100.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/drivers/net/e100.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -1930,9 +1930,8 @@ static int e100_rx_alloc_list(struct nic
->  	nic->rx_to_use = nic->rx_to_clean = NULL;
->  	nic->ru_running = RU_UNINITIALIZED;
->  
-> -	if(!(nic->rxs = kmalloc(sizeof(struct rx) * count, GFP_ATOMIC)))
-> +	if(!(nic->rxs = kcalloc(count, sizeof(struct rx), GFP_ATOMIC)))
->  		return -ENOMEM;
-> -	memset(nic->rxs, 0, sizeof(struct rx) * count);
->  
->  	for(rx = nic->rxs, i = 0; i < count; rx++, i++) {
->  		rx->next = (i + 1 < count) ? rx + 1 : nic->rxs;
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Make CONFIG_JFFS depend on CONFIG_BROKEN
+
+Signed-off-by: Josh Boyer <jwboyer@gmail.com>
+
+diff --git a/fs/Kconfig b/fs/Kconfig
+index b3b5aa0..4ac367d 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1204,13 +1204,16 @@ config EFS_FS
+
+ config JFFS_FS
+ 	tristate "Journalling Flash File System (JFFS) support"
+-	depends on MTD && BLOCK
++	depends on MTD && BLOCK && BROKEN
+ 	help
+ 	  JFFS is the Journalling Flash File System developed by Axis
+ 	  Communications in Sweden, aimed at providing a crash/powerdown-safe
+ 	  file system for disk-less embedded devices. Further information is
+ 	  available at (<http://developer.axis.com/software/jffs/>).
+
++	  NOTE: This filesystem is deprecated and is scheduled for removal in
++	  2.6.21.  See Documentation/feature-removal-schedule.txt
++
+ config JFFS_FS_VERBOSE
+ 	int "JFFS debugging verbosity (0 = quiet, 3 = noisy)"
+ 	depends on JFFS_FS

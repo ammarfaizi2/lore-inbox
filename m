@@ -1,49 +1,132 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751580AbWLLUL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932236AbWLLUOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751580AbWLLUL0 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 15:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWLLULZ
+	id S932236AbWLLUOf (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 15:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbWLLUOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 15:11:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33830 "EHLO mx1.redhat.com"
+	Tue, 12 Dec 2006 15:14:35 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:42217 "EHLO relay.sw.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751548AbWLLULY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 15:11:24 -0500
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 2/2] WorkStruct: Use bitops-safe direct assignment
-Date: Tue, 12 Dec 2006 20:11:17 +0000
-To: torvalds@osdl.org, akpm@osdl.org, davem@davemloft.com, matthew@wil.cx
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       dhowells@redhat.com
-Message-Id: <20061212201117.29817.23933.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
-References: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	id S932236AbWLLUOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 15:14:34 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dmitriy Monakhov <dmonakhov@openvz.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>, <devel@openvz.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH]  incorrect error handling inside generic_file_direct_write
+References: <87k60y1rq4.fsf@sw.ru> <20061211124052.144e69a0.akpm@osdl.org>
+	<87bqm9tie3.fsf@sw.ru> <20061212015232.eacfbb46.akpm@osdl.org>
+	<87psapz1zr.fsf@sw.ru> <20061212024027.6c2a79d3.akpm@osdl.org>
+From: Dmitriy Monakhov <dmonakhov@openvz.org>
+Date: Wed, 13 Dec 2006 02:14:18 +0300
+In-Reply-To: <20061212024027.6c2a79d3.akpm@osdl.org> (Andrew Morton's message of "Tue, 12 Dec 2006 02:40:27 -0800")
+Message-ID: <87y7pcn1v9.fsf@sw.ru>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace the direct assignment in set_wq_data() with a bitops-proofed wrapper
-(assign_bits()).  This defends against the test_and_set_bit() used to mark a
-work item active.
+--=-=-=
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Andrew Morton <akpm@osdl.org> writes:
 
- kernel/workqueue.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> On Tue, 12 Dec 2006 16:18:32 +0300
+> Dmitriy Monakhov <dmonakhov@sw.ru> wrote:
+>
+>> >> but according to filemaps locking rules: mm/filemap.c:77
+>> >>  ..
+>> >>  *  ->i_mutex			(generic_file_buffered_write)
+>> >>  *    ->mmap_sem		(fault_in_pages_readable->do_page_fault)
+>> >>  ..
+>> >> I'm confused a litle bit, where is the truth? 
+>> >
+>> > xfs_write() calls generic_file_direct_write() without taking i_mutex for
+>> > O_DIRECT writes.
+>> Yes, but my quastion is about __generic_file_aio_write_nolock().
+>> As i understand _nolock sufix means that i_mutex was already locked 
+>> by caller, am i right ?
+>
+> Nope.  It just means that __generic_file_aio_write_nolock() doesn't take
+> the lock.  We don't assume or require that the caller took it.  For example
+> the raw driver calls generic_file_aio_write_nolock() without taking
+> i_mutex.  Raw isn't relevant to the problem (although ocfs2 might be).  But
+> we cannot assume that all callers have taken i_mutex, I think.
+>
+> I guess we can make that a rule (document it, add
+> BUG_ON(!mutex_is_locked(..)) if it isn't a blockdev) if needs be.  After
+> really checking that this matches reality for all callers.
+I've checked generic_file_aio_write_nolock() callers for non blockdev.
+Only ocfs2 call it explicitly, and do it under i_mutex.
+So we need to do: 
+1) Change wrong comments.
+2) Add BUG_ON(!mutex_is_locked(..)) for non blkdev.
+3) Invoke vmtruncate only for non blkdev.
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index db49886..f5e9540 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -97,7 +97,7 @@ static inline void set_wq_data(struct wo
+Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
+-------
+
+--=-=-=
+Content-Disposition: inline; filename=direct-io-fix.patch
+
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 7b84dc8..540ef5e 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2046,8 +2046,8 @@ generic_file_direct_write(struct kiocb *
+ 	/*
+ 	 * Sync the fs metadata but not the minor inode changes and
+ 	 * of course not the data as we did direct DMA for the IO.
+-	 * i_mutex is held, which protects generic_osync_inode() from
+-	 * livelocking.
++	 * i_mutex may not being held, if so some specific locking
++	 * ordering must protect generic_osync_inode() from livelocking.
+ 	 */
+ 	if (written >= 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+ 		int err = generic_osync_inode(inode, mapping, OSYNC_METADATA);
+@@ -2282,6 +2282,17 @@ __generic_file_aio_write_nolock(struct k
  
- 	new = (unsigned long) wq | (1UL << WORK_STRUCT_PENDING);
- 	new |= work->management & WORK_STRUCT_FLAG_MASK;
--	work->management = new;
-+	assign_bits(new, &work->management);
- }
+ 		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
+ 							ppos, count, ocount);
++		/*
++		 * If host is not S_ISBLK generic_file_direct_write() may 
++		 * have instantiated a few blocks outside i_size  files
++		 * Trim these off again.
++		 */
++		if (unlikely(written < 0) && !S_ISBLK(inode->i_mode)) {
++			loff_t isize = i_size_read(inode);
++			if (pos + count > isize)
++				vmtruncate(inode, isize);
++		}
++
+ 		if (written < 0 || written == count)
+ 			goto out;
+ 		/*
+@@ -2344,6 +2355,13 @@ ssize_t generic_file_aio_write_nolock(st
+ 	ssize_t ret;
  
- static inline void *get_wq_data(struct work_struct *work)
+ 	BUG_ON(iocb->ki_pos != pos);
++	/*
++	 *  generic_file_buffered_write() may be called inside 
++	 *  __generic_file_aio_write_nolock() even in case of
++	 *  O_DIRECT for non S_ISBLK files. So i_mutex must be held.
++	 */
++	if (!S_ISBLK(inode->i_mode))
++		BUG_ON(!mutex_is_locked(&inode->i_mutex));
+ 
+ 	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs,
+ 			&iocb->ki_pos);
+@@ -2386,8 +2404,8 @@ ssize_t generic_file_aio_write(struct ki
+ EXPORT_SYMBOL(generic_file_aio_write);
+ 
+ /*
+- * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
+- * went wrong during pagecache shootdown.
++ * May be called without i_mutex for writes to S_ISREG files.
++ * Returns -EIO if something went wrong during pagecache shootdown.
+  */
+ static ssize_t
+ generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+
+--=-=-=--
+

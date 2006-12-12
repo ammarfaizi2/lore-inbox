@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932467AbWLLWFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932478AbWLLWNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWLLWFi (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWLLWFi
+	id S932478AbWLLWNf (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWLLWNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:05:38 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:28095 "EHLO
-	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932467AbWLLWFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:05:37 -0500
-To: linux-kernel@vger.kernel.org
-Cc: ebiederm@xmission.com
-Subject: mapping PCI registers with write combining (and PAT on x86)...
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 12 Dec 2006 14:05:32 -0800
-Message-ID: <adalklcu5w3.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 12 Dec 2006 17:13:35 -0500
+Received: from sirius.lasnet.de ([62.75.240.18]:36370 "EHLO sirius.lasnet.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932445AbWLLWNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:13:34 -0500
+Date: Tue, 12 Dec 2006 23:15:04 +0100
+From: Stefan Schmidt <stefan@datenfreihafen.org>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: Holger Macht <hmacht@suse.de>, len.brown@intel.com,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Brandon Philips <brandon@ifup.org>
+Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
+Message-ID: <20061212221504.GA4104@datenfreihafen.org>
+References: <20061204224037.713257809@localhost.localdomain> <20061204144958.207e58e2.kristen.c.accardi@intel.com> <20061209115957.GA5254@homac2> <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Dec 2006 22:05:32.0779 (UTC) FILETIME=[A4A7FBB0:01C71E39]
-Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim1002 verified; ); 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+In-Reply-To: <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
+X-Mailer: Mutt http://www.mutt.org/
+X-KeyID: 0xDDF51665
+X-Website: http://www.datenfreihafen.org/
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suppose that I would like to map some PIO registers (in a PCI BAR) to
-userspace, and I would like to enable write combining if possible.
 
-I have two problems.  First, there's no generic interface for
-requesting write combining if possible when doing
-io_remap_pfn_range().  Would it make sense to define
-pageprot_writecombine for all architectures (and make it fall back to
-doing non-cached access if write combining is not possible)?  And it
-seems that making pgprot_noncached() universal wouldn't hurt either.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Second, given the extreme shortage of MTRRs, it seems that write
-combining is not really possible in general on x86 without some
-interface to use PATs instead.  What is holding up something like Eric
-Biederman's patches from going in?
+Hello.
 
-Right now we end up with stuff like the absolutely hair-raising code
-in drivers/video/fbmem.c shown below.  I really would like to make
-progress towards having a better interface for doing this stuff, and
-I'm more than willing to work on getting something mergable.
+On Mon, 2006-12-11 at 12:05, Kristen Carlson Accardi wrote:
+> On Sat, 9 Dec 2006 12:59:58 +0100
+> Holger Macht <hmacht@suse.de> wrote:
+>=20
+> > Well, I like to have them ;-)
+>=20
+> Ok - how is this?
+>=20
+> Send a uevent to indicate a device change whenever we dock or
+> undock, so that userspace may now check the dock status via=20
+> sysfs.
 
-	#if defined(__mc68000__)
-	#if defined(CONFIG_SUN3)
-		pgprot_val(vma->vm_page_prot) |= SUN3_PAGE_NOCACHE;
-	#elif defined(CONFIG_MMU)
-		if (CPU_IS_020_OR_030)
-			pgprot_val(vma->vm_page_prot) |= _PAGE_NOCACHE030;
-		if (CPU_IS_040_OR_060) {
-			pgprot_val(vma->vm_page_prot) &= _CACHEMASK040;
-			/* Use no-cache mode, serialized */
-			pgprot_val(vma->vm_page_prot) |= _PAGE_NOCACHE_S;
-		}
-	#endif
-	#elif defined(__powerpc__)
-		vma->vm_page_prot = phys_mem_access_prot(file, off >> PAGE_SHIFT,
-							 vma->vm_end - vma->vm_start,
-							 vma->vm_page_prot);
-	#elif defined(__alpha__)
-		/* Caching is off in the I/O space quadrant by design.  */
-	#elif defined(__i386__) || defined(__x86_64__)
-		if (boot_cpu_data.x86 > 3)
-			pgprot_val(vma->vm_page_prot) |= _PAGE_PCD;
-	#elif defined(__mips__) || defined(__sparc_v9__)
-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-	#elif defined(__hppa__)
-		pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
-	#elif defined(__arm__) || defined(__sh__) || defined(__m32r__)
-		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
-	#elif defined(__ia64__)
-		if (efi_range_is_wc(vma->vm_start, vma->vm_end - vma->vm_start))
-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
-		else
-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-	#else
-	#warning What do we have to do here??
-	#endif
-		if (io_remap_pfn_range(vma, vma->vm_start, off >> PAGE_SHIFT,
-				     vma->vm_end - vma->vm_start, vma->vm_page_prot))
-			return -EAGAIN;
-		return 0;
+I would like to have two different events for dock and undock.
 
-Thanks!
-  Roland
+This way the userspace listener don't need to check the status file in
+sysfs to know if there was a dock or undock after getting the event.
+
+Anyway the status file is still usefull for programs don't react on
+the events, but like to know if the laptop is docked before starting
+for example.
+
+regards
+Stefan Schmidt
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: http://www.datenfreihafen.org/contact.html
+
+iD8DBQFFfynobNSsvd31FmURAiMyAJ4oiRnvaeplmDUxGte7E8Ghs84SkwCgg9QL
+c3TQCSO0kb+FH6C8jzCqNzY=
+=BybV
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--

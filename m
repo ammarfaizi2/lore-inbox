@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932575AbWLMAMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932583AbWLMAMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932575AbWLMAMM (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWLMAMM
+	id S932583AbWLMAMO (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWLMAMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:12:12 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:2570 "EHLO
-	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932575AbWLMAML (ORCPT
+	Tue, 12 Dec 2006 19:12:14 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54700 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932583AbWLMAMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 19:12:11 -0500
-X-Greylist: delayed 601 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 19:12:10 EST
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: mapping PCI registers with write combining (and PAT on x86)...
-X-Message-Flag: Warning: May contain useful information
-References: <adalklcu5w3.fsf@cisco.com>
-	<m1irggrasw.fsf@ebiederm.dsl.xmission.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 12 Dec 2006 16:01:57 -0800
-In-Reply-To: <m1irggrasw.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's message of "Tue, 12 Dec 2006 15:47:43 -0700")
-Message-ID: <adad56ou0i2.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 13 Dec 2006 00:01:58.0833 (UTC) FILETIME=[E8AB3A10:01C71E49]
-Authentication-Results: sj-dkim-8; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim8002 verified; ); 
+	Tue, 12 Dec 2006 19:12:13 -0500
+X-Greylist: delayed 2304 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 19:12:12 EST
+Date: Tue, 12 Dec 2006 23:41:45 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+Message-ID: <20061212234145.557cb035@localhost.localdomain>
+In-Reply-To: <200612130148.34539.sshtylyov@ru.mvista.com>
+References: <200612130148.34539.sshtylyov@ru.mvista.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > So I think we may simplify this but there is pci_mmap_page_range.  That
- > already handles this for the architectures that currently support it.
- > So it is probably the case the fbdev should be changed to use that.
+> + * We work around this by initiating dummy, zero-length DMA transfer on
+> + * a DMA timeout expiration. I found no better way to do this with the current
 
-Thanks... I was not aware of pci_mmap_page_range(), but that doesn't
-seem to be quite the right interface.  It uses vma->vm_pgoff to say
-what to remap.  A typical use for what I have in mind would be for a
-userspace process to open a magic file and do mmap() at some
-well-known offset (like 0), and have the kernel driver map the right
-PCI registers into userspace, without userspace having to know what
-offset to ask for.
+Novel workaround and probably better than resetting the chip as the
+winbong does.
 
-This is especially important when the kernel has to handle picking a
-"context" or "port" to avoid multiple userspace processes stepping on
-each other.
+> +static int tc86c001_busproc(ide_drive_t *drive, int state)
+> +{
 
-And of course arch/i386/pci/i386.c has the following in its
-pci_mmap_page_range() anyway:
+Waste of space having a busproc routine. The maintainer removed all the
+usable hotplug support from old IDE so this might as well be dropped.
 
-	/* Write-combine setting is ignored, it is changed via the mtrr
-	 * interfaces on this platform.
-	 */
+> @@ -1407,6 +1407,24 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
+>  
+> +/*
+> + * Toshiba TC86C001 IDE controller reports the standard 8-byte BAR0 size
+> + * but PIO transfer won't work if BAR0 falls at the odd 8 bytes.
+> + * Re-allocate the region if needed.
+> + */
 
-so the write_combine parameter is ignored...
+NAK. I think this fixup should be testing if the device port 0 is in
+native mode before doing the fixup. In comaptibility mode bar 0 is
+ignored and the correct compatibility values set up in the resource tree
+by the PCI layer as of 2.6.18-mm-mumble. They are also of course on a xx0
+boundary.
 
- > No one had any serious objections to my patches as they were.  The actual
- > problem was that the patches were incomplete.  In particular if you
- > mismatch page protections it is possible to get silent data corruption
- > or processor crashes.  So we need checks to ensure all mappings of
- > a given page are using the same protections.
- > 
- > To a certain extent I think adding those checks really is a strawman
- > and should not stop the merge effort, because we have this feature and
- > those possible bugs on other architectures right now and we don't have
- > those checks.  But I also think in the long term we need them, it just
- > requires several days of going through the mm so we don't leave any
- > path uncovered.
+"Close but no cookie": please fix the PCI quirk to match the current -mm
+behaviour with the ATA resource tree. Otherwise - nice driver.
 
-It does seem somewhat hard to make sure there aren't multiple mappings
-of the same thing, and I'm not sure it's worth trying to avoid it.  If
-a device driver lets me mmap PCI memory with write-combining on, and
-then (as root) I mmap raw PCI resources to get the same memory, whose
-fault is it if things break?
-
-I'm kind of an mm dummy but I don't even see a good way to avoid
-multiple mappings like that.
-
- - R.
+Alan

@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751483AbWLLSN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751546AbWLLSQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWLLSN7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:13:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWLLSN7
+	id S1751546AbWLLSQ4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWLLSQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:13:59 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:55397 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751483AbWLLSN6 (ORCPT
+	Tue, 12 Dec 2006 13:16:56 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:26892 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751546AbWLLSQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:13:58 -0500
-Subject: Re: 2.6.19-git3 panics on boot - ata_piix/PCI related [still in
-	-git17]
-From: Steve Wise <swise@opengridcomputing.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061212173516.1b7dc654@localhost.localdomain>
-References: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
-	 <1165873362.20877.22.camel@stevo-desktop>
-	 <1165941542.24482.5.camel@stevo-desktop>
-	 <20061212173516.1b7dc654@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 12:13:58 -0600
-Message-Id: <1165947238.24482.6.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 13:16:56 -0500
+Date: Tue, 12 Dec 2006 10:16:37 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, ocfs2-devel@oss.oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: [git patches] ocfs2 updates
+Message-ID: <20061212181637.GF6831@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-12 at 17:35 +0000, Alan wrote:
-> On Tue, 12 Dec 2006 10:39:02 -0600
-> Steve Wise <swise@opengridcomputing.com> wrote:
-> 
-> > All,
-> > 
-> > Bisecting reveals that this commit causes the problem:
-> 
-> Yes we know. There is a libata patch missing. As I said - if it is still
-> missing by -rc1 I'll sort out a diff.
-> 
-> Alan
+Hi Linus,
 
-Ah, ok.  Where's the patch?  I'll apply and test it to ensure it fixes
-my problem.
+A few more patches to push upstream before 2.6.20-rc1. This set includes:
+
+* Some patches to make ocfs2 network timeout values user-adjustable. The
+  values are set / read via the configfs interface and are validated against
+  other nodes when they initiate a connection.
+
+* A "local mount" patch which gives ocfs2 the ability to act as a local file
+  system (no cluster configuration needed, no dlm locking, etc).
+
+* Various cleanups - a documentation update, and a sync of ocfs2_fs.h
+  between kernel and user tools.
+
+Please pull from 'upstream-linus' branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git upstream-linus
+
+to receive the following updates:
+
+ Documentation/filesystems/ocfs2.txt |    3 
+ fs/ocfs2/cluster/nodemanager.c      |  192 +++++++++++++++++++++++++++++++++---
+ fs/ocfs2/cluster/nodemanager.h      |   17 +++
+ fs/ocfs2/cluster/tcp.c              |  152 ++++++++++++++++++++++++----
+ fs/ocfs2/cluster/tcp.h              |    8 +
+ fs/ocfs2/cluster/tcp_internal.h     |   15 +-
+ fs/ocfs2/dlmglue.c                  |   79 +++++++++++---
+ fs/ocfs2/heartbeat.c                |    9 +
+ fs/ocfs2/inode.c                    |    3 
+ fs/ocfs2/journal.c                  |   46 ++++++--
+ fs/ocfs2/journal.h                  |    5 
+ fs/ocfs2/mmap.c                     |    6 -
+ fs/ocfs2/namei.c                    |    8 -
+ fs/ocfs2/ocfs2.h                    |    5 
+ fs/ocfs2/ocfs2_fs.h                 |   14 ++
+ fs/ocfs2/super.c                    |   90 ++++++++++++----
+ fs/ocfs2/vote.c                     |    3 
+ 17 files changed, 549 insertions(+), 106 deletions(-)
+
+Andrew Beekhof:
+      [patch 1/3] OCFS2 - Expose struct o2nm_cluster
+      [patch 3/3] OCFS2 Configurable timeouts - Protocol changes
+
+Jeff Mahoney:
+      [patch 2/3] OCFS2 Configurable timeouts
+
+Mark Fasheh:
+      ocfs2: Synchronize feature incompat flags in ocfs2_fs.h
+
+Sunil Mushran:
+      ocfs2: local mounts
+
+Tiger Yang:
+      ocfs2: update mount option documentation
+
 
 Thanks,
+	--Mark
 
-Steve.
-
-
-
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751047AbWLLDJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751051AbWLLDRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWLLDJV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 22:09:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWLLDJU
+	id S1751051AbWLLDRB (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 22:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWLLDRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 22:09:20 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54502 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751046AbWLLDJU (ORCPT
+	Mon, 11 Dec 2006 22:17:01 -0500
+Received: from web32611.mail.mud.yahoo.com ([68.142.207.238]:32163 "HELO
+	web32611.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751051AbWLLDRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 22:09:20 -0500
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-From: Matt Helsley <matthltc@us.ibm.com>
-To: David Miller <davem@davemloft.net>
-Cc: zaitcev@redhat.com, erikj@sgi.com, guillaume.thouvenin@bull.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061211.175050.55478586.davem@davemloft.net>
-References: <20061209183409.67b54d01.zaitcev@redhat.com>
-	 <1165881167.24721.73.camel@localhost.localdomain>
-	 <20061211172907.305473cf.zaitcev@redhat.com>
-	 <20061211.175050.55478586.davem@davemloft.net>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Mon, 11 Dec 2006 19:09:16 -0800
-Message-Id: <1165892956.24721.129.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 22:17:00 -0500
+X-YMail-OSG: ktoo.toVM1me7166b5Znef7rODUEzitrges8.c91KGx2VnNax_RkUdn3fmssAHjZCWXSKla0C0ntUOPEzawC.n0Owfbtiu03rKCp.kHkgEIhFs8xHqJiJw--
+X-RocketYMMF: knobi.rm
+Date: Mon, 11 Dec 2006 19:16:59 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: [2.6.19] NFS: server error: fileid changed
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, knobi@knobisoft.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1165883155.22849.8.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <932927.29357.qm@web32611.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-11 at 17:50 -0800, David Miller wrote:
-> From: Pete Zaitcev <zaitcev@redhat.com>
-> Date: Mon, 11 Dec 2006 17:29:07 -0800
+
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+
+> On Mon, 2006-12-11 at 15:44 -0800, Martin Knoblauch wrote:
+> >  So far, we are only seeing it on amd-mounted filesystems, not on
+> > static NFS mounts. Unfortunatelly, it is difficult to avoid "amd"
+> in
+> > our environment.
 > 
-> > On Mon, 11 Dec 2006 15:52:47 -0800, Matt Helsley <matthltc@us.ibm.com> wrote:
-> >
-> > > 	I'm shocked memcpy() introduces 8-byte stores that violate architecture
-> > > alignment rules. Is there any chance this a bug in ia64's memcpy()
-> > > implementation? I've tried to read it but since I'm not familiar with
-> > > ia64 asm I can't make out significant parts of it in
-> > > arch/ia64/lib/memcpy.S.
-> >
-> > The arch/ia64/lib/memcpy.S is probably fine, it must be gcc doing
-> > an inline substitution of a well-known function.
-> >
-> > A commenter on my blog mentioned seeing the same thing in the past.
-> > (http://zaitcev.livejournal.com/107185.html?thread=128945#t128945)
-> >
-> > It's possible that applying (void *) cast to the first argument of memcpy
-> > would disrupt this optimization. But since we have a well understood
-> > patch by Erik, which only adds a penalty of 32 bytes of stack waste
-> > and 32 bytes of memcpy, I thought it best not to bother with heaping
-> > workarounds.
+> Any chance you could try substituting a recent version of autofs?
+> This
+> sort of problem is more likely to happen on partitions that are
+> unmounted and then remounted often. I'd just like to figure out if
+> this
+> is something that we need to fix in the kernel, or if it is purely an
+> amd problem.
 > 
-> Yes GCC can assume the object is aligned because of the type
-> of the argument to memcpy().
+> Cheers
+>   Trond
+> 
+Hi Trond,
 
-Hmm, that GCC assumption conflicts with the prototypes of memcpy() I've
-seen.
+ unfortunatelly I have no controll over the mounting maps, as they are
+maintained from different people. So the answer is no. Unfortunatelly
+the customer has decided on using am-utils. This has been hurting us
+(and them) for years ...
 
-	Does the code really check the type or just the size argument? If the
-latter then I don't think assuming alignment is correct -- we could be
-copying a non-nul-terminated string that happens to be a power of 2 in
-length.
+ Your are likely correct when you hint towards partitions which are
+frequently remounted.  
 
-Cheers,
-	-Matt Helsley
+ In any case, your help is appreciated.
 
+Cheers
+Martin
+
+
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

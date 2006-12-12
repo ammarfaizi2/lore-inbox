@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964778AbWLLXAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964780AbWLLXE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWLLXAR (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 18:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWLLXAR
+	id S964780AbWLLXE3 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 18:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLLXE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 18:00:17 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:62528 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964778AbWLLXAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 18:00:13 -0500
-Date: Tue, 12 Dec 2006 15:00:52 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Message-Id: <20061212150052.b05b05db.randy.dunlap@oracle.com>
-In-Reply-To: <200612130148.34539.sshtylyov@ru.mvista.com>
-References: <200612130148.34539.sshtylyov@ru.mvista.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 12 Dec 2006 18:04:29 -0500
+Received: from ozlabs.org ([203.10.76.45]:49098 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964780AbWLLXE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 18:04:28 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Message-ID: <17791.13647.329912.557434@cargo.ozlabs.ibm.com>
+Date: Wed, 13 Dec 2006 10:03:43 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       davem@davemloft.com, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/2] WorkStruct: Add assign_bits() to give an atomic-bitops safe assignment
+In-Reply-To: <20061212225443.GA25902@flint.arm.linux.org.uk>
+References: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
+	<20061212225443.GA25902@flint.arm.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006 01:48:34 +0300 Sergei Shtylyov wrote:
+Russell King writes:
 
-> Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
-> completely reworked from the original brain-damaged Toshiba's 2.4 version.
-> 
-> This single channel UltraDMA/66 controller is very simple in programming, yet
-> Toshiba managed to plant many interesting bugs in it.  The particularly nasty
-> "limitation 5" (as they call the errata) caused me to abuse the IDE core in a
-> possibly most interesting way so far.  However, this is still better than the
-> #ifdef mess in drivers/ide/ide-io.c that the original version included (well,
-> it had much more mess)...
-> 
-> Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-> 
->  drivers/ide/Kconfig        |    5 
->  drivers/ide/pci/Makefile   |    1 
->  drivers/ide/pci/tc86c001.c |  304 +++++++++++++++++++++++++++++++++++++++++++++
->  drivers/pci/quirks.c       |   18 ++
->  include/linux/pci_ids.h    |    1 
->  5 files changed, 329 insertions(+)
-> 
-> Index: linux-2.6/drivers/ide/Kconfig
-> ===================================================================
-> --- linux-2.6.orig/drivers/ide/Kconfig
-> +++ linux-2.6/drivers/ide/Kconfig
-> @@ -742,6 +742,11 @@ config BLK_DEV_VIA82CXXX
->  	  This allows the kernel to change PIO, DMA and UDMA speeds and to
->  	  configure the chip to optimum performance.
->  
-> +config BLK_DEV_TC86C001
-> +	tristate "Toshiba TC86C001 support"
+> Why can't we just use atomic_t for this?
 
-Needs something here like lots of other IDE PCI drivers have:
-	depends on PCI && BLK_DEV_IDEPCI
+On 64-bit platforms, atomic_t tends to be 4 bytes, whereas bitops work
+on arrays of unsigned long, i.e. multiples of 8 bytes.  We could
+use atomic_long_t for this, however.
 
-or at least:  depends on PCI
-
-
-> +	help
-> +	This driver adds support for Toshiba TC86C001 GOKU-S chip.
-> +
->  endif
-
----
-~Randy
+Paul.

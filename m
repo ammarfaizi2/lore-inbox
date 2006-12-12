@@ -1,174 +1,427 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932525AbWLLWpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932514AbWLLWrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWLLWpv (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWLLWpu
+	id S932514AbWLLWrF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWLLWrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:45:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44766 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932525AbWLLWpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:45:49 -0500
-Message-ID: <457F311A.2090501@redhat.com>
-Date: Tue, 12 Dec 2006 17:45:46 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 12 Dec 2006 17:47:05 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:6707 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932513AbWLLWrB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:47:01 -0500
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+To: akpm@osdl.org, bzolnier@gmail.com
+Subject: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+Date: Wed, 13 Dec 2006 01:48:34 +0300
+User-Agent: KMail/1.5
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
 MIME-Version: 1.0
-To: Peter Staubach <staubach@redhat.com>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent
-References: <20061212194708.8359.qmail@science.horizon.com> <457F0BB1.4090806@redhat.com> <457F12CA.9050907@redhat.com>
-In-Reply-To: <457F12CA.9050907@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200612130148.34539.sshtylyov@ru.mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Staubach wrote:
- >
- > If iunique_register() fails, does not this create a memory leak
- > because root will need to get iput()'d?
- >
+Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
+completely reworked from the original brain-damaged Toshiba's 2.4 version.
 
-Good point, and now that we have a wrapper for new_inode that handles this
-error transparently, both places are easy to fix. This patch should do it:
+This single channel UltraDMA/66 controller is very simple in programming, yet
+Toshiba managed to plant many interesting bugs in it.  The particularly nasty
+"limitation 5" (as they call the errata) caused me to abuse the IDE core in a
+possibly most interesting way so far.  However, this is still better than the
+#ifdef mess in drivers/ide/ide-io.c that the original version included (well,
+it had much more mess)...
 
-Signed-off-by: Jeff Layton <jlayton@redhat.com>
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
---- linux-2.6/fs/debugfs/inode.c.super
-+++ linux-2.6/fs/debugfs/inode.c
-@@ -107,7 +107,7 @@ static int debug_fill_super(struct super
-  {
-  	static struct tree_descr debug_files[] = {{""}};
+ drivers/ide/Kconfig        |    5 
+ drivers/ide/pci/Makefile   |    1 
+ drivers/ide/pci/tc86c001.c |  304 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/pci/quirks.c       |   18 ++
+ include/linux/pci_ids.h    |    1 
+ 5 files changed, 329 insertions(+)
 
--	return simple_fill_super(sb, DEBUGFS_MAGIC, debug_files);
-+	return registered_fill_super(sb, DEBUGFS_MAGIC, debug_files);
-  }
-
-  static int debug_get_sb(struct file_system_type *fs_type,
---- linux-2.6/fs/fuse/control.c.super
-+++ linux-2.6/fs/fuse/control.c
-@@ -163,7 +163,7 @@ static int fuse_ctl_fill_super(struct su
-  	struct fuse_conn *fc;
-  	int err;
-
--	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
-+	err = registered_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
-  	if (err)
-  		return err;
-
---- linux-2.6/fs/libfs.c.super
-+++ linux-2.6/fs/libfs.c
-@@ -214,7 +214,7 @@ int get_sb_pseudo(struct file_system_typ
-  	s->s_magic = magic;
-  	s->s_op = ops ? ops : &default_ops;
-  	s->s_time_gran = 1;
--	root = new_inode(s);
-+	root = new_registered_inode(s, 0);
-  	if (!root)
-  		goto Enomem;
-  	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
-@@ -356,7 +356,8 @@ int simple_commit_write(struct file *fil
-  	return 0;
-  }
-
--int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
-+int __simple_fill_super(struct super_block *s, int magic,
-+			struct tree_descr *files, bool registered)
-  {
-  	static struct super_operations s_ops = {.statfs = simple_statfs};
-  	struct inode *inode;
-@@ -380,6 +381,12 @@ int simple_fill_super(struct super_block
-  	inode->i_op = &simple_dir_inode_operations;
-  	inode->i_fop = &simple_dir_operations;
-  	inode->i_nlink = 2;
+Index: linux-2.6/drivers/ide/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/ide/Kconfig
++++ linux-2.6/drivers/ide/Kconfig
+@@ -742,6 +742,11 @@ config BLK_DEV_VIA82CXXX
+ 	  This allows the kernel to change PIO, DMA and UDMA speeds and to
+ 	  configure the chip to optimum performance.
+ 
++config BLK_DEV_TC86C001
++	tristate "Toshiba TC86C001 support"
++	help
++	This driver adds support for Toshiba TC86C001 GOKU-S chip.
++
+ endif
+ 
+ config BLK_DEV_IDE_PMAC
+Index: linux-2.6/drivers/ide/pci/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/ide/pci/Makefile
++++ linux-2.6/drivers/ide/pci/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_BLK_DEV_SIIMAGE)		+= siimag
+ obj-$(CONFIG_BLK_DEV_SIS5513)		+= sis5513.o
+ obj-$(CONFIG_BLK_DEV_SL82C105)		+= sl82c105.o
+ obj-$(CONFIG_BLK_DEV_SLC90E66)		+= slc90e66.o
++obj-$(CONFIG_BLK_DEV_TC86C001)		+= tc86c001.o
+ obj-$(CONFIG_BLK_DEV_TRIFLEX)		+= triflex.o
+ obj-$(CONFIG_BLK_DEV_TRM290)		+= trm290.o
+ obj-$(CONFIG_BLK_DEV_VIA82CXXX)		+= via82cxxx.o
+Index: linux-2.6/drivers/ide/pci/tc86c001.c
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/ide/pci/tc86c001.c
+@@ -0,0 +1,304 @@
++/*
++ * drivers/ide/pci/tc86c001.c	Version 1.00	Dec 12, 2006
++ *
++ * Copyright (C) 2002 Toshiba Corporation
++ * Copyright (C) 2005-2006 MontaVista Software, Inc. <source@mvista.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/types.h>
++#include <linux/pci.h>
++#include <linux/ide.h>
++
++static inline u8 tc86c001_ratemask(ide_drive_t *drive)
++{
++	return eighty_ninty_three(drive) ? 2 : 1;
++}
++
++static int tc86c001_tune_chipset(ide_drive_t *drive, u8 speed)
++{
++	ide_hwif_t *hwif	= HWIF(drive);
++	unsigned long scr_port	= hwif->config_data + (drive->dn ? 0x02 : 0x00);
++	u16 mode, scr		= hwif->INW(scr_port);
++
++	speed = ide_rate_filter(tc86c001_ratemask(drive), speed);
++
++	switch (speed) {
++		case XFER_UDMA_4:	mode = 0x00c0; break;
++		case XFER_UDMA_3:	mode = 0x00b0; break;
++		case XFER_UDMA_2:	mode = 0x00a0; break;
++		case XFER_UDMA_1:	mode = 0x0090; break;
++		case XFER_UDMA_0:	mode = 0x0080; break;
++		case XFER_MW_DMA_2:	mode = 0x0070; break;
++		case XFER_MW_DMA_1:	mode = 0x0060; break;
++		case XFER_MW_DMA_0:	mode = 0x0050; break;
++		case XFER_PIO_4:	mode = 0x0400; break;
++		case XFER_PIO_3:	mode = 0x0300; break;
++		case XFER_PIO_2:	mode = 0x0200; break;
++		case XFER_PIO_1:	mode = 0x0100; break;
++		case XFER_PIO_0:
++		default:		mode = 0x0000; break;
++	}
++
++	scr &= (speed < XFER_MW_DMA_0) ? 0xf8ff : 0xff0f;
++	scr |= mode;
++	hwif->OUTW(scr, scr_port);
++
++	return ide_config_drive_speed(drive, speed);
++}
++
++static void tc86c001_tune_drive(ide_drive_t *drive, u8 pio)
++{
++	pio =  ide_get_best_pio_mode(drive, pio, 4, NULL);
++	(void) tc86c001_tune_chipset(drive, XFER_PIO_0 + pio);
++}
++
++/*
++ * HACKITY HACK
++ *
++ * This is a workaround for the limitation 5 of the TC86C001 IDE controller:
++ * if a DMA transfer terminates prematurely, the controller leaves the device's
++ * interrupt request (INTRQ) pending and does not generate a PCI interrupt (or
++ * set the interrupt bit in the DMA status register), thus no PCI interrupt
++ * will occur until a DMA transfer has been successfully completed.
++ *
++ * We work around this by initiating dummy, zero-length DMA transfer on
++ * a DMA timeout expiration. I found no better way to do this with the current
++ * IDE core than to temporarily replace a higher level driver's timer expiry
++ * handler with our own backing up to that handler in case our recovery fails.
++ */
++static int tc86c001_timer_expiry(ide_drive_t *drive)
++{
++	ide_hwif_t *hwif	= HWIF(drive);
++	ide_expiry_t *expiry	= ide_get_hwifdata(hwif);
++	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
++	u8 dma_stat		= hwif->INB(hwif->dma_status);
++
++	/* Restore a higher level driver's expiry handler first. */
++	hwgroup->expiry	= expiry;
++
++	if ((dma_stat & 5) == 1) {	/* DMA active and no interrupt */
++		unsigned long sc_base	= hwif->config_data;
++		unsigned long twcr_port	= sc_base + (drive->dn ? 0x06 : 0x04);
++		u8 dma_cmd		= hwif->INB(hwif->dma_command);
++
++		printk(KERN_WARNING "%s: DMA interrupt possibly stuck, "
++		       "attempting recovery...\n", drive->name);
++
++		/* Stop DMA */
++		hwif->OUTB(dma_cmd & ~0x01, hwif->dma_command);
++
++		/* Setup the dummy DMA transfer */
++		hwif->OUTW(0, sc_base + 0x0a);	/* Sector Count */
++		hwif->OUTW(0, twcr_port);	/* Transfer Word Count 1 or 2 */
++
++		/* Start the dummy DMA transfer */
++		hwif->OUTB(0x00, hwif->dma_command); /* clear R_OR_WCTR for write */
++		hwif->OUTB(0x01, hwif->dma_command); /* set START_STOPBM */
++
++		/*
++		 * If an interrupt was pending, it should come thru shortly.
++		 * If not, higher level driver's expiry code should eventually
++		 * cause some kind of recovery from the DMA stall...
++		 */
++		return WAIT_MIN_SLEEP;
++	}
++
++	/* Chain to the restored expiry handler if DMA wasn't active. */
++	if (likely(expiry != NULL))
++		return expiry(drive);
++
++	/* If there was no handler, "emulate" that for ide_timer_expiry()... */
++	return -1;
++}
++
++static void tc86c001_dma_start(ide_drive_t *drive)
++{
++	ide_hwif_t *hwif	= HWIF(drive);
++	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
++	unsigned long sc_base	= hwif->config_data;
++	unsigned long twcr_port	= sc_base + (drive->dn ? 0x06 : 0x04);
++	unsigned long nsectors	= hwgroup->rq->nr_sectors;
++
 +	/*
-+	 * set this as high as a 32 bit val as possible to avoid collisions.
-+	 * This is also well above the highest value that iunique_register
-+	 * will assign to an inode
++	 * We have to manually load the sector count and size into
++	 * the appropriate system control registers for DMA to work
++	 * with LBA48 and ATAPI devices...
 +	 */
-+	inode->i_ino = 0xffffffff;
-  	root = d_alloc_root(inode);
-  	if (!root) {
-  		iput(inode);
-@@ -391,7 +398,12 @@ int simple_fill_super(struct super_block
-  		dentry = d_alloc_name(root, files->name);
-  		if (!dentry)
-  			goto out;
--		inode = new_inode(s);
-+		if (registered)
-+			inode = new_registered_inode(s, 0);
-+		else {
-+			inode = new_inode(s);
-+			inode->i_ino = i;
-+		}
-  		if (!inode)
-  			goto out;
-  		inode->i_mode = S_IFREG | files->mode;
-@@ -399,7 +411,6 @@ int simple_fill_super(struct super_block
-  		inode->i_blocks = 0;
-  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-  		inode->i_fop = files->ops;
--		inode->i_ino = i;
-  		d_add(dentry, inode);
-  	}
-  	s->s_root = root;
-@@ -618,7 +629,7 @@ EXPORT_SYMBOL(simple_dir_inode_operation
-  EXPORT_SYMBOL(simple_dir_operations);
-  EXPORT_SYMBOL(simple_empty);
-  EXPORT_SYMBOL(d_alloc_name);
--EXPORT_SYMBOL(simple_fill_super);
-+EXPORT_SYMBOL(__simple_fill_super);
-  EXPORT_SYMBOL(simple_getattr);
-  EXPORT_SYMBOL(simple_link);
-  EXPORT_SYMBOL(simple_lookup);
---- linux-2.6/include/linux/fs.h.super
-+++ linux-2.6/include/linux/fs.h
-@@ -1879,10 +1879,35 @@ extern const struct file_operations simp
-  extern struct inode_operations simple_dir_inode_operations;
-  struct tree_descr { char *name; const struct file_operations *ops; int mode; };
-  struct dentry *d_alloc_name(struct dentry *, const char *);
--extern int simple_fill_super(struct super_block *, int, struct tree_descr *);
-+extern int __simple_fill_super(struct super_block *s, int magic,
-+				struct tree_descr *files, bool registered);
-  extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
-  extern void simple_release_fs(struct vfsmount **mount, int *count);
-
-+/*
-+ * Fill a superblock with a standard set of fields, and add the entries in the
-+ * "files" struct. Assign i_ino values to the files sequentially. This function
-+ * is appropriate for filesystems that need a particular i_ino value assigned
-+ * to a particular "files" entry.
-+ */
-+static inline int simple_fill_super(struct super_block *s, int magic,
-+					struct tree_descr *files)
-+{
-+	return __simple_fill_super(s, magic, files, false);
++	hwif->OUTW(nsectors, sc_base + 0x0a);	/* Sector Count */
++	hwif->OUTW(SECTOR_SIZE / 2, twcr_port); /* Transfer Word Count 1/2 */
++
++	/* Install our timeout expiry hook, saving the current handler... */
++	ide_set_hwifdata(hwif, hwgroup->expiry);
++	hwgroup->expiry = &tc86c001_timer_expiry;
++
++	ide_dma_start(drive);
 +}
 +
-+/*
-+ * Just like simple_fill_super, but does an iunique_register on the inodes
-+ * created for "files" entries. This function is appropriate when you don't
-+ * need a particular i_ino value assigned to each files entry, and when the
-+ * filesystem will have other registered inodes.
-+ */
-+static inline int registered_fill_super(struct super_block *s, int magic,
-+						struct tree_descr *files)
++static int tc86c001_busproc(ide_drive_t *drive, int state)
 +{
-+	return __simple_fill_super(s, magic, files, true);
++	ide_hwif_t *hwif	= HWIF(drive);
++	unsigned long sc_base	= hwif->config_data;
++	u16 scr1;
++
++	/* System Control 1 Register bit 11 (ATA Hard Reset) read */
++	scr1 = hwif->INW(sc_base + 0x00);
++
++	switch (state) {
++		case BUSSTATE_ON:
++			if (!(scr1 & 0x0800))
++				return 0;
++			scr1 &= ~0x0800;
++
++			hwif->drives[0].failures = hwif->drives[1].failures = 0;
++			break;
++		case BUSSTATE_OFF:
++			if (scr1 & 0x0800)
++				return 0;
++			scr1 |= 0x0800;
++
++			hwif->drives[0].failures = hwif->drives[0].max_failures + 1;
++			hwif->drives[1].failures = hwif->drives[1].max_failures + 1;
++			break;
++		default:
++			return -EINVAL;
++	}
++
++	/* System Control 1 Register bit 11 (ATA Hard Reset) write */
++	hwif->OUTW(scr1, sc_base + 0x00);
++	return 0;
 +}
 +
-  extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
++static int config_chipset_for_dma(ide_drive_t *drive)
++{
++	u8 speed = ide_dma_speed(drive, tc86c001_ratemask(drive));
++
++	if (!speed)
++		return 0;
++
++	(void) tc86c001_tune_chipset(drive, speed);
++	return ide_dma_enable(drive);
++}
++
++static int tc86c001_config_drive_xfer_rate(ide_drive_t *drive)
++{
++	ide_hwif_t *hwif	= HWIF(drive);
++	struct hd_driveid *id	= drive->id;
++
++	if ((id->capability & 1) && drive->autodma) {
++
++		if (ide_use_dma(drive) && config_chipset_for_dma(drive))
++			return hwif->ide_dma_on(drive);
++
++		goto fast_ata_pio;
++
++	} else if ((id->capability & 8) || (id->field_valid & 2)) {
++fast_ata_pio:
++		tc86c001_tune_drive(drive, 5);
++		return hwif->ide_dma_off_quietly(drive);
++	}
++	/* IORDY not supported */
++	return 0;
++}
++
++void __devinit init_hwif_tc86c001(ide_hwif_t *hwif)
++{
++	unsigned long sc_base	= pci_resource_start(hwif->pci_dev, 5);
++	u16 scr1		= hwif->INW(sc_base + 0x00);;
++
++	/* System Control 1 Register bit 15 (Soft Reset) set */
++	hwif->OUTW(scr1 |  0x8000, sc_base + 0x00);
++
++	/* System Control 1 Register bit 14 (FIFO Reset) set */
++	hwif->OUTW(scr1 |  0x4000, sc_base + 0x00);
++
++	/* System Control 1 Register: reset clear */
++	hwif->OUTW(scr1 & ~0xc000, sc_base + 0x00);
++
++	/* Store the system control register base for convenience... */
++	hwif->config_data = sc_base;
++
++	hwif->tuneproc	= &tc86c001_tune_drive;
++	hwif->speedproc = &tc86c001_tune_chipset;
++	hwif->busproc	= &tc86c001_busproc;
++
++	hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
++
++	if (!hwif->dma_base)
++		return;
++
++	/*
++	 * Sector Count Control Register bits 0 and 1 set:
++	 * software sets Sector Count Register for master and slave device
++	 */
++	hwif->OUTW(0x0003, sc_base + 0x0c);
++
++	/* Sector Count Register limit */
++	hwif->rqsize	 = 0xffff;
++
++	hwif->atapi_dma  = 1;
++	hwif->ultra_mask = 0x1f;
++	hwif->mwdma_mask = 0x07;
++
++	hwif->ide_dma_check	= &tc86c001_config_drive_xfer_rate;
++	hwif->dma_start 	= &tc86c001_dma_start;
++
++	if (!hwif->udma_four) {
++		/*
++		 * System Control  1 Register bit 13 (PDIAGN):
++		 * 0=80-pin cable, 1=40-pin cable
++		 */
++		scr1 = hwif->INW(sc_base + 0x00);
++		hwif->udma_four = (scr1 & 0x2000) ? 0 : 1;
++	}
++
++	if (!noautodma)
++		hwif->autodma = 1;
++	hwif->drives[0].autodma = hwif->drives[1].autodma = hwif->autodma;
++}
++
++static unsigned int init_chipset_tc86c001(struct pci_dev *dev, const char *name)
++{
++	return pci_request_region(dev, 5, "TC86C001");
++}
++
++static ide_pci_device_t tc86c001_chipset __devinitdata = {
++	.name		= "TC86C001",
++	.init_chipset	= init_chipset_tc86c001,
++	.init_hwif	= init_hwif_tc86c001,
++	.channels	= 1,
++	.autodma	= AUTODMA,
++	.bootable	= OFF_BOARD
++};
++
++static int __devinit tc86c001_init_one(struct pci_dev *dev,
++				       const struct pci_device_id *id)
++{
++	return ide_setup_pci_device(dev, &tc86c001_chipset);
++}
++
++static struct pci_device_id tc86c001_pci_tbl[] = {
++	{ PCI_VENDOR_ID_TOSHIBA_2, PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ 0, }
++};
++MODULE_DEVICE_TABLE(pci, tc86c001_pci_tbl);
++
++static struct pci_driver driver = {
++	.name		= "TC86C001",
++	.id_table	= tc86c001_pci_tbl,
++	.probe		= tc86c001_init_one
++};
++
++static int tc86c001_ide_init(void)
++{
++	return ide_pci_register_driver(&driver);
++}
++module_init(tc86c001_ide_init);
++
++MODULE_AUTHOR("MontaVista Software, Inc. <source@mvista.com>");
++MODULE_DESCRIPTION("PCI driver module for TC86C001 IDE");
++MODULE_LICENSE("GPL");
+Index: linux-2.6/drivers/pci/quirks.c
+===================================================================
+--- linux-2.6.orig/drivers/pci/quirks.c
++++ linux-2.6/drivers/pci/quirks.c
+@@ -1407,6 +1407,24 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
+ 
++/*
++ * Toshiba TC86C001 IDE controller reports the standard 8-byte BAR0 size
++ * but PIO transfer won't work if BAR0 falls at the odd 8 bytes.
++ * Re-allocate the region if needed.
++ */
++static void __init quirk_tc86c001_ide(struct pci_dev *dev)
++{
++	struct resource *r = &dev->resource[0];
++
++	if (r->start & 0x8) {
++		r->start = 0;
++		r->end = 0xf;
++	}
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TOSHIBA_2,
++			 PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE,
++			 quirk_tc86c001_ide );
++
+ static void __devinit quirk_netmos(struct pci_dev *dev)
+ {
+ 	unsigned int num_parallel = (dev->subsystem_device & 0xf0) >> 4;
+Index: linux-2.6/include/linux/pci_ids.h
+===================================================================
+--- linux-2.6.orig/include/linux/pci_ids.h
++++ linux-2.6/include/linux/pci_ids.h
+@@ -1444,6 +1444,7 @@
+ 
+ #define PCI_VENDOR_ID_TOSHIBA_2		0x102f
+ #define PCI_DEVICE_ID_TOSHIBA_TC35815CF	0x0030
++#define PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE	0x0105
+ #define PCI_DEVICE_ID_TOSHIBA_TC86C001_MISC	0x0108
+ #define PCI_DEVICE_ID_TOSHIBA_SPIDER_NET 0x01b3
+ 
 
-  #ifdef CONFIG_MIGRATION
---- linux-2.6/security/inode.c.super
-+++ linux-2.6/security/inode.c
-@@ -130,7 +130,7 @@ static int fill_super(struct super_block
-  {
-  	static struct tree_descr files[] = {{""}};
-
--	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
-+	return registered_fill_super(sb, SECURITYFS_MAGIC, files);
-  }
-
-  static int get_sb(struct file_system_type *fs_type,

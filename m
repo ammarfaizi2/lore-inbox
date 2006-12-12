@@ -1,94 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751546AbWLLSQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932324AbWLLSTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751546AbWLLSQ4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWLLSQ4
+	id S932324AbWLLSTz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWLLSTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:16:56 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:26892 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751546AbWLLSQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:16:56 -0500
-Date: Tue, 12 Dec 2006 10:16:37 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, ocfs2-devel@oss.oracle.com,
-       linux-kernel@vger.kernel.org
-Subject: [git patches] ocfs2 updates
-Message-ID: <20061212181637.GF6831@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-MIME-Version: 1.0
+	Tue, 12 Dec 2006 13:19:54 -0500
+Received: from waste.org ([66.93.16.53]:46435 "EHLO waste.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932324AbWLLSTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 13:19:54 -0500
+Date: Tue, 12 Dec 2006 12:10:06 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.19 1/6] cleanup for netconsole
+Message-ID: <20061212181006.GH13687@waste.org>
+References: <457E498C.1050806@bx.jp.nec.com> <457E4C01.1010206@bx.jp.nec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+In-Reply-To: <457E4C01.1010206@bx.jp.nec.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Dec 12, 2006 at 03:28:17PM +0900, Keiichi KII wrote:
+> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+> 
+> This patch contains the following cleanups.
+>  - add __init for initialization functions(option_setup() and init_netconsole()).
+>  - define name of magic number.
+> 
+> Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+> ---
+> --- linux-2.6.19/drivers/net/netconsole.c	2006-12-06 14:37:06.985584500 +0900
+> +++ enhanced-netconsole/drivers/net/netconsole.c.cleanup	2006-12-06
+> 14:34:52.561183500 +0900
+> @@ -50,8 +50,14 @@ MODULE_AUTHOR("Maintainer: Matt Mackall
+>  MODULE_DESCRIPTION("Console driver for network interfaces");
+>  MODULE_LICENSE("GPL");
+> 
+> -static char config[256];
+> -module_param_string(netconsole, config, 256, 0);
+> +enum {
+> +	MAX_PRINT_CHUNK = 1000,
+> +	MAX_CONFIG_LENGTH = 256,
+> +};
 
-A few more patches to push upstream before 2.6.20-rc1. This set includes:
+Converting defines to anonymous enums is generally not considered a net
+improvement around here. It doesn't provide any improvement in type safety.
 
-* Some patches to make ocfs2 network timeout values user-adjustable. The
-  values are set / read via the configfs interface and are validated against
-  other nodes when they initiate a connection.
+> 
+>  static void write_msg(struct console *con, const char *msg, unsigned int len)
+>  {
+> @@ -75,14 +80,12 @@ static void write_msg(struct console *co
+>  		return;
+> 
+>  	local_irq_save(flags);
+> -
+>  	for(left = len; left; ) {
+>  		frag = min(left, MAX_PRINT_CHUNK);
+>  		netpoll_send_udp(&np, msg, frag);
+>  		msg += frag;
+>  		left -= frag;
+>  	}
+> -
+>  	local_irq_restore(flags);
+>  }
 
-* A "local mount" patch which gives ocfs2 the ability to act as a local file
-  system (no cluster configuration needed, no dlm locking, etc).
+It's not a good idea to mix unrelated changes in, especially if
+they're gratuitous formatting changes.
 
-* Various cleanups - a documentation update, and a sync of ocfs2_fs.h
-  between kernel and user tools.
+> +static int __init init_netconsole(void)
+>  {
+>  	if(strlen(config))
+>  		option_setup(config);
 
-Please pull from 'upstream-linus' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git upstream-linus
+I seem to recall there was a reason for not marking that __init. It
+may no longer apply.
 
-to receive the following updates:
-
- Documentation/filesystems/ocfs2.txt |    3 
- fs/ocfs2/cluster/nodemanager.c      |  192 +++++++++++++++++++++++++++++++++---
- fs/ocfs2/cluster/nodemanager.h      |   17 +++
- fs/ocfs2/cluster/tcp.c              |  152 ++++++++++++++++++++++++----
- fs/ocfs2/cluster/tcp.h              |    8 +
- fs/ocfs2/cluster/tcp_internal.h     |   15 +-
- fs/ocfs2/dlmglue.c                  |   79 +++++++++++---
- fs/ocfs2/heartbeat.c                |    9 +
- fs/ocfs2/inode.c                    |    3 
- fs/ocfs2/journal.c                  |   46 ++++++--
- fs/ocfs2/journal.h                  |    5 
- fs/ocfs2/mmap.c                     |    6 -
- fs/ocfs2/namei.c                    |    8 -
- fs/ocfs2/ocfs2.h                    |    5 
- fs/ocfs2/ocfs2_fs.h                 |   14 ++
- fs/ocfs2/super.c                    |   90 ++++++++++++----
- fs/ocfs2/vote.c                     |    3 
- 17 files changed, 549 insertions(+), 106 deletions(-)
-
-Andrew Beekhof:
-      [patch 1/3] OCFS2 - Expose struct o2nm_cluster
-      [patch 3/3] OCFS2 Configurable timeouts - Protocol changes
-
-Jeff Mahoney:
-      [patch 2/3] OCFS2 Configurable timeouts
-
-Mark Fasheh:
-      ocfs2: Synchronize feature incompat flags in ocfs2_fs.h
-
-Sunil Mushran:
-      ocfs2: local mounts
-
-Tiger Yang:
-      ocfs2: update mount option documentation
-
-
-Thanks,
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+-- 
+Mathematics is the supreme nostalgia of our time.

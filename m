@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932339AbWLLTMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932349AbWLLTML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWLLTMF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 14:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWLLTMF
+	id S932349AbWLLTML (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 14:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWLLTML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 14:12:05 -0500
-Received: from nz-out-0506.google.com ([64.233.162.224]:35166 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932339AbWLLTMD (ORCPT
+	Tue, 12 Dec 2006 14:12:11 -0500
+Received: from wr-out-0506.google.com ([64.233.184.231]:51350 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932349AbWLLTMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 14:12:03 -0500
+	Tue, 12 Dec 2006 14:12:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:subject:from:to:cc:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=omzhHwUMIsM5/PBYjK/D6iFLTM7TstjxHMwksIZKbZSuM9lg9Yj2t3ftDtCy+2W3I/PdfSVeUl7nkc/8OYC0h+ScnYHuce1YTg2MnS7vZH5qCw+ofv31QHLxhkGZ0KbGO6zjnQkdhHL6iXCnCYp5NVEfvv4Qc2XQJ0R/942jDPo=
-Subject: [PATCH 2.6.19] tg3: replace kmalloc+memset with kzalloc
+        b=l7479KO+P0FKR5nLVk0T2M/+LxFQD1bHmPq4aGkJgEw96fXPNcRkC/DZMmUzy2ci/3WwUZSih4jyjM/n2tPB0tYgS2H/ejtnLhnoGa/O9LimEnPWESe4maeD0rzCE26/qypUtURGyN6q86kEWdKaq7bciZs/HSjWt1QOWQZkh6k=
+Subject: [PATCH 2.6.19] ppp: replace kmalloc+memset with kzalloc
 From: Yan Burman <burman.yan@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org, mchan@broadcom.com
+Cc: linux-ppp@vger.kernel.org, trivial@kernel.org
 Content-Type: text/plain
-Date: Tue, 12 Dec 2006 21:10:54 +0200
-Message-Id: <1165950654.10231.5.camel@localhost>
+Date: Tue, 12 Dec 2006 21:13:08 +0200
+Message-Id: <1165950788.10231.8.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
@@ -31,33 +31,88 @@ Replace kmalloc+memset with kzalloc
 
 Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-diff -rubp linux-2.6.19-rc5_orig/drivers/net/tg3.c linux-2.6.19-rc5_kzalloc/drivers/net/tg3.c
---- linux-2.6.19-rc5_orig/drivers/net/tg3.c	2006-11-09 12:16:21.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/drivers/net/tg3.c	2006-11-11 22:44:18.000000000 +0200
-@@ -4416,7 +4416,7 @@ static void tg3_free_consistent(struct t
-  */
- static int tg3_alloc_consistent(struct tg3 *tp)
- {
--	tp->rx_std_buffers = kmalloc((sizeof(struct ring_info) *
-+	tp->rx_std_buffers = kzalloc((sizeof(struct ring_info) *
- 				      (TG3_RX_RING_SIZE +
- 				       TG3_RX_JUMBO_RING_SIZE)) +
- 				     (sizeof(struct tx_ring_info) *
-@@ -4425,13 +4425,6 @@ static int tg3_alloc_consistent(struct t
- 	if (!tp->rx_std_buffers)
- 		return -ENOMEM;
+diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_async.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_async.c
+--- linux-2.6.19-rc5_orig/drivers/net/ppp_async.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_async.c	2006-11-11 22:44:04.000000000 +0200
+@@ -159,12 +159,11 @@ ppp_asynctty_open(struct tty_struct *tty
+ 	int err;
  
--	memset(tp->rx_std_buffers, 0,
--	       (sizeof(struct ring_info) *
--		(TG3_RX_RING_SIZE +
--		 TG3_RX_JUMBO_RING_SIZE)) +
--	       (sizeof(struct tx_ring_info) *
--		TG3_TX_RING_SIZE));
+ 	err = -ENOMEM;
+-	ap = kmalloc(sizeof(*ap), GFP_KERNEL);
++	ap = kzalloc(sizeof(*ap), GFP_KERNEL);
+ 	if (ap == 0)
+ 		goto out;
+ 
+ 	/* initialize the asyncppp structure */
+-	memset(ap, 0, sizeof(*ap));
+ 	ap->tty = tty;
+ 	ap->mru = PPP_MRU;
+ 	spin_lock_init(&ap->xmit_lock);
+diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_deflate.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_deflate.c
+--- linux-2.6.19-rc5_orig/drivers/net/ppp_deflate.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_deflate.c	2006-11-11 22:44:04.000000000 +0200
+@@ -121,12 +121,11 @@ static void *z_comp_alloc(unsigned char 
+ 	if (w_size < DEFLATE_MIN_SIZE || w_size > DEFLATE_MAX_SIZE)
+ 		return NULL;
+ 
+-	state = (struct ppp_deflate_state *) kmalloc(sizeof(*state),
+-							GFP_KERNEL);
++	state = kzalloc(sizeof(*state), GFP_KERNEL);
+ 	if (state == NULL)
+ 		return NULL;
+ 
+-	memset (state, 0, sizeof (struct ppp_deflate_state));
+ 	state->strm.next_in   = NULL;
+ 	state->w_size         = w_size;
+ 	state->strm.workspace = vmalloc(zlib_deflate_workspacesize());
+@@ -341,11 +340,10 @@ static void *z_decomp_alloc(unsigned cha
+ 	if (w_size < DEFLATE_MIN_SIZE || w_size > DEFLATE_MAX_SIZE)
+ 		return NULL;
+ 
+-	state = (struct ppp_deflate_state *) kmalloc(sizeof(*state), GFP_KERNEL);
++	state = kzalloc(sizeof(*state), GFP_KERNEL);
+ 	if (state == NULL)
+ 		return NULL;
+ 
+-	memset (state, 0, sizeof (struct ppp_deflate_state));
+ 	state->w_size         = w_size;
+ 	state->strm.next_out  = NULL;
+ 	state->strm.workspace = kmalloc(zlib_inflate_workspacesize(),
+diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_mppe.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_mppe.c
+--- linux-2.6.19-rc5_orig/drivers/net/ppp_mppe.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_mppe.c	2006-11-11 22:44:04.000000000 +0200
+@@ -200,12 +200,10 @@ static void *mppe_alloc(unsigned char *o
+ 	    || options[0] != CI_MPPE || options[1] != CILEN_MPPE)
+ 		goto out;
+ 
+-	state = (struct ppp_mppe_state *) kmalloc(sizeof(*state), GFP_KERNEL);
++	state = kzalloc(sizeof(*state), GFP_KERNEL);
+ 	if (state == NULL)
+ 		goto out;
+ 
+-	memset(state, 0, sizeof(*state));
 -
- 	tp->rx_jumbo_buffers = &tp->rx_std_buffers[TG3_RX_RING_SIZE];
- 	tp->tx_buffers = (struct tx_ring_info *)
- 		&tp->rx_jumbo_buffers[TG3_RX_JUMBO_RING_SIZE];
-
+ 	state->arc4 = crypto_alloc_blkcipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC);
+ 	if (IS_ERR(state->arc4)) {
+ 		state->arc4 = NULL;
+diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_synctty.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_synctty.c
+--- linux-2.6.19-rc5_orig/drivers/net/ppp_synctty.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_synctty.c	2006-11-11 22:44:04.000000000 +0200
+@@ -207,13 +207,12 @@ ppp_sync_open(struct tty_struct *tty)
+ 	struct syncppp *ap;
+ 	int err;
+ 
+-	ap = kmalloc(sizeof(*ap), GFP_KERNEL);
++	ap = kzalloc(sizeof(*ap), GFP_KERNEL);
+ 	err = -ENOMEM;
+ 	if (ap == 0)
+ 		goto out;
+ 
+ 	/* initialize the syncppp structure */
+-	memset(ap, 0, sizeof(*ap));
+ 	ap->tty = tty;
+ 	ap->mru = PPP_MRU;
+ 	spin_lock_init(&ap->xmit_lock);
 
 
 

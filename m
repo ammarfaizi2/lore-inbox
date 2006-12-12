@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751215AbWLLKht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751222AbWLLKlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWLLKht (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 05:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWLLKhs
+	id S1751222AbWLLKlW (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 05:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWLLKlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 05:37:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58800 "EHLO mx1.redhat.com"
+	Tue, 12 Dec 2006 05:41:22 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38462 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751215AbWLLKhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 05:37:47 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061212032456.23036.qmail@science.horizon.com> 
-References: <20061212032456.23036.qmail@science.horizon.com> 
-To: linux@horizon.com
-Cc: nickpiggin@yahoo.com.au, linux-arch@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 12 Dec 2006 10:37:15 +0000
-Message-ID: <13639.1165919835@redhat.com>
+	id S1751220AbWLLKlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 05:41:21 -0500
+Date: Tue, 12 Dec 2006 02:40:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dmitriy Monakhov <dmonakhov@sw.ru>
+Cc: Dmitriy Monakhov <dmonakhov@openvz.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>, <devel@openvz.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH]  incorrect error handling inside
+ generic_file_direct_write
+Message-Id: <20061212024027.6c2a79d3.akpm@osdl.org>
+In-Reply-To: <87psapz1zr.fsf@sw.ru>
+References: <87k60y1rq4.fsf@sw.ru>
+	<20061211124052.144e69a0.akpm@osdl.org>
+	<87bqm9tie3.fsf@sw.ru>
+	<20061212015232.eacfbb46.akpm@osdl.org>
+	<87psapz1zr.fsf@sw.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
+On Tue, 12 Dec 2006 16:18:32 +0300
+Dmitriy Monakhov <dmonakhov@sw.ru> wrote:
 
-> do {
-> 	oldvalue = ll(addr)
-> 	newvalue = ... oldvalue ...
-> } while (!sc(addr, oldvalue, newvalue))
-> 
-> Where sc() could be a cmpxchg.  But, more importantly, if the
-> architecture did implement LL/SC, it could be a "try plain SC; if
-> that fails try CMPXCHG built out of LL/SC; if that fails, loop"
+> >> but according to filemaps locking rules: mm/filemap.c:77
+> >>  ..
+> >>  *  ->i_mutex			(generic_file_buffered_write)
+> >>  *    ->mmap_sem		(fault_in_pages_readable->do_page_fault)
+> >>  ..
+> >> I'm confused a litle bit, where is the truth? 
+> >
+> > xfs_write() calls generic_file_direct_write() without taking i_mutex for
+> > O_DIRECT writes.
+> Yes, but my quastion is about __generic_file_aio_write_nolock().
+> As i understand _nolock sufix means that i_mutex was already locked 
+> by caller, am i right ?
 
-If sc() is implemented with cmpxchg(), then this is a very silly piece of
-code.  cmpxchg() returns the current value if it fails, rendering a repetition
-of ll() pointless.  In some circumstances, you should really do it by putting
-the cmpxchg() up front with what you expect the most likely substitution to
-be, and that then doesn't require the initial load.
+Nope.  It just means that __generic_file_aio_write_nolock() doesn't take
+the lock.  We don't assume or require that the caller took it.  For example
+the raw driver calls generic_file_aio_write_nolock() without taking
+i_mutex.  Raw isn't relevant to the problem (although ocfs2 might be).  But
+we cannot assume that all callers have taken i_mutex, I think.
 
-David
+I guess we can make that a rule (document it, add
+BUG_ON(!mutex_is_locked(..)) if it isn't a blockdev) if needs be.  After
+really checking that this matches reality for all callers.
+
+It's important, too - if we have an unprotected i_size_write() then the
+seqlock can get out of sync due to a race and then i_size_read() locks up
+the kernel.
+

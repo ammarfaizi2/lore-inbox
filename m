@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932197AbWLLLOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932200AbWLLLOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWLLLOF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 06:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWLLLOF
+	id S932200AbWLLLOs (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 06:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWLLLOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 06:14:05 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41300 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932197AbWLLLOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 06:14:03 -0500
-Date: Tue, 12 Dec 2006 03:13:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: linux-mm@kvack.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Lumpy Reclaim V3
-Message-Id: <20061212031312.e4c91778.akpm@osdl.org>
-In-Reply-To: <exportbomb.1165424343@pinky>
-References: <exportbomb.1165424343@pinky>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 12 Dec 2006 06:14:48 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:44704 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932200AbWLLLOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 06:14:47 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Thomas Sailer <t.sailer@alumni.ethz.ch>, Joscha Ihl <joscha@grundfarm.de>,
+       linux-kernel@vger.kernel.org, ihl@fh-brandenburg.de,
+       Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: Nokia E61 and the kernel BUG at mm/slab.c:594
+Date: Tue, 12 Dec 2006 12:16:10 +0100
+User-Agent: KMail/1.8
+References: <20061211173506.5c8cb479@localhost> <20061212094421.GC2818@rhun.haifa.ibm.com> <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
+In-Reply-To: <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612121216.10902.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 16:59:04 +0000
-Andy Whitcroft <apw@shadowen.org> wrote:
+Am Dienstag, 12. Dezember 2006 11:28 schrieben Sie:
+> On Tue, 2006-12-12 at 11:44 +0200, Muli Ben-Yehuda wrote:
+> 
+> > I assume the previous crash was 2.6.19 with SMP? did it work with
+> > earlier kernels?
+> 
+> It happens to me as well, current Fedora 6 update
+> kernel-2.6.18-1.2849.fc6.i686 UP, with a Nokia E70 in "PC Suite" mode.
 
-> This is a repost of the lumpy reclaim patch set.
+What functions does this mode involve?
 
-more...
-
-One concern is that when the code goes to reclaim a lump and fails, we end
-up reclaiming a number of pages which we didn't really want to reclaim. 
-Regardless of the LRU status of those pages.
-
-I think what we should do here is to add the appropriate vmstat counters
-for us to be able to assess the frequency of this occurring, then throw a
-spread of workloads at it.  If that work indicates that there's a problem
-then we should look at being a bit smarter about whether all the pages look
-to be reclaimable and if not, restore them all and give up.
-
-Also, I suspect it would be cleaner and faster to pass the `active' flag
-into isolate_lru_pages(), rather than calculating it on the fly.  And I
-don't think we need to calculate it on every pass through the loop?
-
-
-We really do need those vmstat counters to let us see how effective this
-thing is being.  Basic success/fail stuff.  Per-zone, I guess.
-
+	Regards
+		Oliver

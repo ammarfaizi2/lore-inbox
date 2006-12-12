@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932348AbWLLSza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932347AbWLLSzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWLLSza (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWLLSz1
+	id S932347AbWLLSzE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWLLSzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:55:27 -0500
-Received: from mx0.karneval.cz ([81.27.192.123]:28444 "EHLO av1.karneval.cz"
+	Tue, 12 Dec 2006 13:55:04 -0500
+Received: from mx0.karneval.cz ([81.27.192.123]:28416 "EHLO av1.karneval.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932348AbWLLSzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:55:16 -0500
-Message-id: <1289228942882311384@karneval.cz>
+	id S932347AbWLLSzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 13:55:00 -0500
+Message-id: <806927252142229961@karneval.cz>
 In-reply-to: <5182276292485062@karneval.cz>
-Subject: [PATCH 3/3] Char: sx, fix non-PCI build
+Subject: [PATCH 2/3] Char: mxser_new, fix non-PCI build
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
 Cc: Randy Dunlap <randy.dunlap@oracle.com>
 Cc: Alan <alan@lxorguk.ukuu.org.uk>
-Date: Tue, 12 Dec 2006 19:15:40 +0100 (CET)
+Date: Tue, 12 Dec 2006 19:15:29 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sx, fix non-PCI build
+mxser_new, fix non-PCI build
 
-When CONFIG_PCI is not defined (i.e. PCI bus is disabled), the sx
+When CONFIG_PCI is not defined (i.e. PCI bus is disabled), the mxser_new
 driver fails to link, since some pci functions are not available. Fix this
 behaviour to be able to compile this driver on machines with no PCI bus (but
 with ISA bus support).
@@ -31,67 +31,71 @@ with ISA bus support).
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit af8e1f039e2f0b822c5b96551b3363da7371b0b5
-tree e954ee931dd5bab70494d4ae3a4e0f45a043646c
-parent 1bdc489336b6f2e6909c553f88f8275fafe741c6
-author Jiri Slaby <jirislaby@gmail.com> Tue, 12 Dec 2006 18:57:54 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Tue, 12 Dec 2006 18:57:54 +0100
+commit 1bdc489336b6f2e6909c553f88f8275fafe741c6
+tree 6030266a0852f5c00cc6714246f3ed8bde1dd58a
+parent 1d9d86f80880cefeca436667a7824c9fe81ec6df
+author Jiri Slaby <jirislaby@gmail.com> Tue, 12 Dec 2006 18:56:38 +0100
+committer Jiri Slaby <jirislaby@gmail.com> Tue, 12 Dec 2006 18:56:38 +0100
 
- drivers/char/Kconfig |    2 +-
- drivers/char/sx.c    |    8 ++++++++
+ drivers/char/Kconfig     |    2 +-
+ drivers/char/mxser_new.c |    8 ++++++++
  2 files changed, 9 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index f64f131..c599273 100644
+index d9095ff..f64f131 100644
 --- a/drivers/char/Kconfig
 +++ b/drivers/char/Kconfig
-@@ -312,7 +312,7 @@ config SPECIALIX_RTSCTS
+@@ -203,7 +203,7 @@ config MOXA_SMARTIO
  
- config SX
- 	tristate "Specialix SX (and SI) card support"
+ config MOXA_SMARTIO_NEW
+ 	tristate "Moxa SmartIO support v. 2.0 (EXPERIMENTAL)"
 -	depends on SERIAL_NONSTANDARD
 +	depends on SERIAL_NONSTANDARD && (PCI || EISA || ISA)
  	help
- 	  This is a driver for the SX and SI multiport serial cards.
- 	  Please read the file <file:Documentation/sx.txt> for details.
-diff --git a/drivers/char/sx.c b/drivers/char/sx.c
-index a3008ce..1da92a6 100644
---- a/drivers/char/sx.c
-+++ b/drivers/char/sx.c
-@@ -2498,8 +2498,10 @@ static void __devexit sx_remove_card(struct sx_board *board,
- 		/* It is safe/allowed to del_timer a non-active timer */
- 		del_timer(&board->timer);
- 		if (pdev) {
-+#ifdef CONFIG_PCI
- 			pci_iounmap(pdev, board->base);
- 			pci_release_region(pdev, IS_CF_BOARD(board) ? 3 : 2);
-+#endif
- 		} else {
- 			iounmap(board->base);
- 			release_region(board->hw_base, board->hw_len);
-@@ -2601,6 +2603,7 @@ static struct eisa_driver sx_eisadriver = {
- 
- #endif
+ 	  Say Y here if you have a Moxa SmartIO multiport serial card and/or
+ 	  want to help develop a new version of this driver.
+diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+index efa8076..cd989dc 100644
+--- a/drivers/char/mxser_new.c
++++ b/drivers/char/mxser_new.c
+@@ -315,6 +315,7 @@ static struct mxser_mon_ext mon_data_ext;
+ static int mxser_set_baud_method[MXSER_PORTS + 1];
+ static spinlock_t gm_lock;
  
 +#ifdef CONFIG_PCI
-  /******************************************************** 
-  * Setting bit 17 in the CNTRL register of the PLX 9050  * 
-  * chip forces a retry on writes while a read is pending.*
-@@ -2632,10 +2635,12 @@ static void __devinit fix_sx_pci(struct pci_dev *pdev, struct sx_board *board)
+ static int CheckIsMoxaMust(int io)
+ {
+ 	u8 oldmcr, hwid;
+@@ -337,6 +338,7 @@ static int CheckIsMoxaMust(int io)
  	}
- 	iounmap(rebase);
+ 	return MOXA_OTHER_UART;
  }
 +#endif
  
- static int __devinit sx_pci_probe(struct pci_dev *pdev,
- 				  const struct pci_device_id *ent)
+ static void process_txrx_fifo(struct mxser_port *info)
+ {
+@@ -2380,9 +2382,11 @@ static void mxser_release_res(struct mxser_board *brd, struct pci_dev *pdev,
+ 	if (irq)
+ 		free_irq(brd->irq, brd);
+ 	if (pdev != NULL) {	/* PCI */
++#ifdef CONFIG_PCI
+ 		pci_release_region(pdev, 2);
+ 		pci_release_region(pdev, 3);
+ 		pci_dev_put(pdev);
++#endif
+ 	} else {
+ 		release_region(brd->ports[0].ioaddr, 8 * brd->info->nports);
+ 		release_region(brd->vector, 1);
+@@ -2546,6 +2550,7 @@ static int __init mxser_get_ISA_conf(int cap, struct mxser_board *brd)
+ static int __devinit mxser_probe(struct pci_dev *pdev,
+ 		const struct pci_device_id *ent)
  {
 +#ifdef CONFIG_PCI
- 	struct sx_board *board;
- 	unsigned int i, reg;
- 	int retval = -EIO;
-@@ -2700,6 +2705,9 @@ err_flag:
- 	board->flags &= ~SX_BOARD_PRESENT;
+ 	struct mxser_board *brd;
+ 	unsigned int i, j;
+ 	unsigned long ioaddress;
+@@ -2644,6 +2649,9 @@ err_relio:
+ 	brd->info = NULL;
  err:
  	return retval;
 +#else
@@ -99,4 +103,4 @@ index a3008ce..1da92a6 100644
 +#endif
  }
  
- static void __devexit sx_pci_remove(struct pci_dev *pdev)
+ static void __devexit mxser_remove(struct pci_dev *pdev)

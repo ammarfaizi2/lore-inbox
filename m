@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932365AbWLLV3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933028AbWLLVft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWLLV3R (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 16:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWLLV3R
+	id S933028AbWLLVft (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 16:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933042AbWLLVfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 16:29:17 -0500
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:44226 "EHLO
-	reserv6.univ-lille1.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932365AbWLLV3Q (ORCPT
+	Tue, 12 Dec 2006 16:35:48 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:59035 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932996AbWLLVfr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 16:29:16 -0500
-Message-ID: <457F1F0F.20109@tremplin-utc.net>
-Date: Tue, 12 Dec 2006 22:28:47 +0100
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+	Tue, 12 Dec 2006 16:35:47 -0500
+Date: Tue, 12 Dec 2006 15:35:42 -0600
+To: Greg KH <gregkh@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/2]: Renumber PCI error enums to start at zero
+Message-ID: <20061212213542.GK4329@austin.ibm.com>
+References: <20061212195524.GG4329@austin.ibm.com> <20061212203543.GA4991@suse.de>
 MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: O2micro smartcard reader driver.
-References: <20061127182817.d52dfdf1.l.bigonville@edpnet.be> <456C0BD0.7080606@tremplin-utc.net> <200611281249.45243.oliver@neukum.org>
-In-Reply-To: <200611281249.45243.oliver@neukum.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-2.0.2 (reserv6.univ-lille1.fr [193.49.225.20]); Tue, 12 Dec 2006 22:28:48 +0100 (CET)
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061212203543.GA4991@suse.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-28.11.2006 12:49, Oliver Neukum wrote/a écrit:
->> Latest version I've published is there:
->> http://pieleric.free.fr/o2scr/
+On Tue, Dec 12, 2006 at 12:35:43PM -0800, Greg KH wrote:
+> On Tue, Dec 12, 2006 at 01:55:24PM -0600, Linas Vepstas wrote:
+> > 
+> > Subject: [PATCH 1/2]: Renumber PCI error enums to start at zero
+> > 
+> > Renumber the PCI error enums to start at zero for "normal/online".
+> > This allows un-initialized pci channel state (which defaults to zero)
+> > to be interpreted as "normal".  Add very simple routine to check
+> > state, just in case this ever has to be fiddled with again.
 > 
->         case OZSCR_OPEN: /* Request ICC */
->             dprintk("OZSCR_OPEN\n");
->             ATRLength = ATR_SIZE;
->             pRdrExt->IOBase = (PSCR_REGISTERS *) dev->io_base; //XXX necessary?
->             pRdrExt->membase = dev->am_base; //XXX necessary?
-> 
->             pRdrExt->m_SCard.AvailableProtocol = 0;
->             pRdrExt->m_SCard.RqstProtocol = 0;
->             dprintk("membase:%p\n", pRdrExt->membase);
->             dprintk("ioport:0x%03x\n", (unsigned)pRdrExt->IOBase);
-> 
->             ret = CmdResetReader( pRdrExt, FALSE, ATRBuffer, &ATRLength );
->             apdu.LengthOut = ATRLength;
-> 
-> #ifdef PCMCIA_DEBUG
->             printk(KERN_DEBUG "Open finished, ATR buffer = ");
->             for( ATRLength = 0; ATRLength < apdu.LengthOut; ATRLength++ )
->                 printk(" [%02X] ", ATRBuffer[ATRLength] );
->             printk("\n");
-> #endif
-> 
->             memcpy( apdu.DataOut, ATRBuffer, ATRLength );
->             ret = copy_to_user((struct ozscr_apdu *)arg, &apdu, sizeof(struct ozscr_apdu));
->             break;
-> 
-> 1. This needs locking against concurrent ioctls
-> 2. The interpretation of copy_to_user()'s return code is incorrect
-> 
+> No, as you have a specific type for this state, never test it against
+> "zero".  That just defeats the whole issue of having a special type for
+> this state.
 
-Hi Oliver,
+Yes, well, I guess that was my initial thinking, which is why it got
+coded that way. But "in real life", the value in the struct isn't
+initialized (thus taking a value of zero). Its not initialized 
+in deference to the traditional idea that "just saying bzero() 
+should be enough".  
 
-Thanks a lot for reading my code, I didn't even hope that someone would! 
-I've corrected the copy_to_user (and copy_from_user) code. However I 
-don't know how to do locking for the concurrent ioctls. Indeed, I don't 
-think there is anything preventing two programs to call the driver at 
-the same time. Unfortunately, I've got no idea how to do the locking and 
-surprisingly couldn't find any ioctl code in the kernel doing locking. 
-Maybe I've just not looked at the right place, could you give a me some 
-hint how to do locking for ioctl's ?
+However, that turned the test for error into a dorky double test:
+if(pdev->error_state && pdev->error_state != pci_channel_io_normal)
+which struck me as lame. 
 
-See you,
-Eric
+So, I'll ask: is it better to test for (state!=0 && state!=1) or,
+to initialize pdev->error_state = pci_channel_io_normal; in the driver 
+probe code?
 
+--linas

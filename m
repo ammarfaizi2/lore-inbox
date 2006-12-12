@@ -1,135 +1,167 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932384AbWLLTTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932378AbWLLTUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWLLTTK (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 14:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWLLTTJ
+	id S932378AbWLLTUI (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 14:20:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWLLTUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 14:19:09 -0500
-Received: from waste.org ([66.93.16.53]:54385 "EHLO waste.org"
+	Tue, 12 Dec 2006 14:20:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39657 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932384AbWLLTTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 14:19:08 -0500
-Date: Tue, 12 Dec 2006 13:09:23 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Keiichi KII <k-keiichi@bx.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.19 3/6] add interface for netconsole using sysfs
-Message-ID: <20061212190922.GK13687@waste.org>
-References: <457E498C.1050806@bx.jp.nec.com> <457E4D8E.6020903@bx.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <457E4D8E.6020903@bx.jp.nec.com>
-User-Agent: Mutt/1.5.9i
+	id S932378AbWLLTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 14:20:05 -0500
+Message-ID: <457F00C5.8030304@redhat.com>
+Date: Tue, 12 Dec 2006 14:19:33 -0500
+From: Jeff Layton <jlayton@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: linux@horizon.com
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent
+References: <20061212180201.12051.qmail@science.horizon.com>
+In-Reply-To: <20061212180201.12051.qmail@science.horizon.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 03:34:54PM +0900, Keiichi KII wrote:
-> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-> 
-> This patch contains the following changes.
-> 
-> create a sysfs entry for netconsole in /sys/class/misc.
-> This entry has elements related to netconsole as follows.
-> You can change configuration of netconsole(writable attributes such as IP
-> address, port number and so on) and check current configuration of netconsole.
-> 
-> -+- /sys/class/misc/
->  |-+- netconsole/
->    |-+- port1/
->    | |--- id          [r--r--r--]  unique port id
->    | |--- remove      [-w-------]  if you write something to "remove",
->    | |                             this port is removed.
->    | |--- dev_name    [r--r--r--]  network interface name
->    | |--- local_ip    [rw-r--r--]  source IP to use, writable
->    | |--- local_port  [rw-r--r--]  source port number for UDP packets, writable
->    | |--- local_mac   [r--r--r--]  source MAC address
->    | |--- remote_ip   [rw-r--r--]  port number for logging agent, writable
->    | |--- remote_port [rw-r--r--]  IP address for logging agent, writable
->    | ---- remote_mac  [rw-r--r--]  MAC address for logging agent, writable
->    |--- port2/
->    |--- port3/
->    ...
-> 
-> Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
-> ---
-> --- linux-2.6.19/drivers/net/netconsole.c	2006-12-06 14:37:26.842825500 +0900
-> +++ enhanced-netconsole/drivers/net/netconsole.c.sysfs	2006-12-06
-> 13:32:47.488381000 +0900
-> @@ -45,6 +45,8 @@
->  #include <linux/sysrq.h>
->  #include <linux/smp.h>
->  #include <linux/netpoll.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/inet.h>
-> 
->  MODULE_AUTHOR("Maintainer: Matt Mackall <mpm@selenic.com>");
->  MODULE_DESCRIPTION("Console driver for network interfaces");
-> @@ -53,6 +55,7 @@ MODULE_LICENSE("GPL");
->  enum {
->  	MAX_PRINT_CHUNK = 1000,
->  	MAX_CONFIG_LENGTH = 256,
-> +	MAC_ADDR_DIGIT = 6,
->  };
-> 
->  static char config[MAX_CONFIG_LENGTH];
-> @@ -62,19 +65,214 @@ MODULE_PARM_DESC(netconsole, " netconsol
-> 
->  struct netconsole_device {
->  	struct list_head list;
-> +	struct kobject obj;
->  	spinlock_t netpoll_lock;
->  	int id;
->  	struct netpoll np;
->  };
-> 
-> +struct netcon_dev_attr {
-> +	struct attribute attr;
-> +	ssize_t (*show)(struct netconsole_device*, char*);
-> +	ssize_t (*store)(struct netconsole_device*, const char*,
-> +			 size_t count);
-> +};
-> +
->  static int add_netcon_dev(const char*);
-> +static void setup_netcon_dev_sysfs(struct netconsole_device*);
->  static void cleanup_netconsole(void);
->  static void netcon_dev_cleanup(struct netconsole_device *nd);
-> 
-> +static int netcon_miscdev_configured = 0;
-> +
->  static LIST_HEAD(active_netconsole_dev);
-> 
->  static DEFINE_SPINLOCK(netconsole_dev_list_lock);
-> 
-> +#define SHOW_CLASS_ATTR(field, type, format, ...) \
-> +static ssize_t show_##field(type, char *buf) \
-> +{ \
-> +     return sprintf(buf, format, __VA_ARGS__); \
-> +} \
+linux@horizon.com wrote:
+ >> Good catch on the inlining. I had meant to do that and missed it.
+ >
+ > Er... if you want it to *be* inlined, you have to put it into the .h
+ > file so the compiler knows about it at the call site.  "static inline"
+ > tells gcc not avoid emitting a callable version.
+ >
+ > Something like this the following.  (You'll also need to add
+ > a "#include <stdbool.h>", unless you expand the "bool", "false" and
+ > "true" macros to their values "_Bool", "0" and "1" by hand.)
+ >
 
-I see this sort of thing is pretty common with sysfs stuff.. but yuck.
+Doh! Thanks for explaining that. Here's a respun patch with your suggestion
+incorporated. Seems to build correctly without stdbool.h. In fact, I don't see
+a stdbool.h in Linus' tree as of this morning. Are you sure that it's needed?
 
-> +static ssize_t show_netcon_dev_attr(struct kobject *kobj,
-> +				    struct attribute *attr,
-> +				    char *buffer)
-> +{
-> +	struct netcon_dev_attr *na = container_of(attr, struct netcon_dev_attr,
-> +						  attr);
-> +	struct netconsole_device * nd =
-> +		container_of(kobj, struct netconsole_device, obj);
-> +	if (na->show) {
-> +		return na->show(nd, buffer);
-> +	} else {
-> +		return -EACCES;
-> +	}
+Signed-off-by: Jeff Layton <jlayton@redhat.com>
 
-Kernel style is to skip the braces for single statement clauses.
+--- linux-2.6/fs/debugfs/inode.c.super
++++ linux-2.6/fs/debugfs/inode.c
+@@ -107,7 +107,7 @@ static int debug_fill_super(struct super
+  {
+  	static struct tree_descr debug_files[] = {{""}};
 
-> +	if (misc_register(&netcon_miscdev)) {
-> +		printk(KERN_INFO
-> +		       "netconsole: unable netconsole misc device\n");
+-	return simple_fill_super(sb, DEBUGFS_MAGIC, debug_files);
++	return registered_fill_super(sb, DEBUGFS_MAGIC, debug_files);
+  }
 
-This error message seems to be missing a word or two.
+  static int debug_get_sb(struct file_system_type *fs_type,
+--- linux-2.6/fs/fuse/control.c.super
++++ linux-2.6/fs/fuse/control.c
+@@ -163,7 +163,7 @@ static int fuse_ctl_fill_super(struct su
+  	struct fuse_conn *fc;
+  	int err;
 
--- 
-Mathematics is the supreme nostalgia of our time.
+-	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
++	err = registered_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
+  	if (err)
+  		return err;
+
+--- linux-2.6/fs/libfs.c.super
++++ linux-2.6/fs/libfs.c
+@@ -215,7 +215,7 @@ int get_sb_pseudo(struct file_system_typ
+  	s->s_op = ops ? ops : &default_ops;
+  	s->s_time_gran = 1;
+  	root = new_inode(s);
+-	if (!root)
++	if (!root || iunique_register(root, 0))
+  		goto Enomem;
+  	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+  	root->i_uid = root->i_gid = 0;
+@@ -356,7 +356,8 @@ int simple_commit_write(struct file *fil
+  	return 0;
+  }
+
+-int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
++int __simple_fill_super(struct super_block *s, int magic,
++			struct tree_descr *files, bool registered)
+  {
+  	static struct super_operations s_ops = {.statfs = simple_statfs};
+  	struct inode *inode;
+@@ -380,6 +381,12 @@ int simple_fill_super(struct super_block
+  	inode->i_op = &simple_dir_inode_operations;
+  	inode->i_fop = &simple_dir_operations;
+  	inode->i_nlink = 2;
++	/*
++	 * set this as high as a 32 bit val as possible to avoid collisions.
++	 * This is also well above the highest value that iunique_register
++         * will assign to an inode
++	 */
++	inode->i_ino = 0xffffffff;
+  	root = d_alloc_root(inode);
+  	if (!root) {
+  		iput(inode);
+@@ -394,12 +401,15 @@ int simple_fill_super(struct super_block
+  		inode = new_inode(s);
+  		if (!inode)
+  			goto out;
++		if (!registered)
++			inode->i_ino = i;
++		else if (iunique_register(inode, 0))
++			goto out;
+  		inode->i_mode = S_IFREG | files->mode;
+  		inode->i_uid = inode->i_gid = 0;
+  		inode->i_blocks = 0;
+  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+  		inode->i_fop = files->ops;
+-		inode->i_ino = i;
+  		d_add(dentry, inode);
+  	}
+  	s->s_root = root;
+--- linux-2.6/include/linux/fs.h.super
++++ linux-2.6/include/linux/fs.h
+@@ -1879,10 +1879,35 @@ extern const struct file_operations simp
+  extern struct inode_operations simple_dir_inode_operations;
+  struct tree_descr { char *name; const struct file_operations *ops; int mode; };
+  struct dentry *d_alloc_name(struct dentry *, const char *);
+-extern int simple_fill_super(struct super_block *, int, struct tree_descr *);
++extern int __simple_fill_super(struct super_block *s, int magic,
++				struct tree_descr *files, bool registered);
+  extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
+  extern void simple_release_fs(struct vfsmount **mount, int *count);
+
++/*
++ * Fill a superblock with a standard set of fields, and add the entries in the
++ * "files" struct. Assign i_ino values to the files sequentially. This function
++ * is appropriate for filesystems that need a particular i_ino value assigned
++ * to a particular "files" entry.
++ */
++static inline int simple_fill_super(struct super_block *s, int magic,
++					struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, false);
++}
++
++/*
++ * Just like simple_fill_super, but does an iunique_register on the inodes
++ * created for "files" entries. This function is appropriate when you don't
++ * need a particular i_ino value assigned to each files entry, and when the
++ * filesystem will have other registered inodes.
++ */
++static inline int registered_fill_super(struct super_block *s, int magic,
++						struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, true);
++}
++
+  extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+
+  #ifdef CONFIG_MIGRATION
+--- linux-2.6/security/inode.c.super
++++ linux-2.6/security/inode.c
+@@ -130,7 +130,7 @@ static int fill_super(struct super_block
+  {
+  	static struct tree_descr files[] = {{""}};
+
+-	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
++	return registered_fill_super(sb, SECURITYFS_MAGIC, files);
+  }
+
+  static int get_sb(struct file_system_type *fs_type,

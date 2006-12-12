@@ -1,48 +1,280 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751481AbWLLPyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751486AbWLLQBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWLLPyr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 10:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWLLPyq
+	id S1751486AbWLLQBb (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 11:01:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWLLQBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 10:54:46 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:7428 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751478AbWLLPyn (ORCPT
+	Tue, 12 Dec 2006 11:01:31 -0500
+Received: from mta-1.ms.rz.RWTH-Aachen.DE ([134.130.7.72]:56983 "EHLO
+	mta-1.ms.rz.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751486AbWLLQBa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 10:54:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=H7GDw+6YuQoTLnB43RKOOXM1rc917uBxx817lhNgjgxY7X/19NIiyyzt7jXF5WkdL/kf6NhQ+7AFRkkFy+bHYssIsVUz2Bpo/ovZx/+j1/p/DQxiLcAI3qw5vgbFANYAQOle9Z3Hsp+yXKZt9/XaSPvtLFWTrwP7S/kRz3nOVDs=
-Message-ID: <d120d5000612120754n1cb71fc3m61032fdafd1f24d5@mail.gmail.com>
-Date: Tue, 12 Dec 2006 10:54:42 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Florian Festi" <ffesti@redhat.com>
-Subject: Re: [PATCH] input: Extend raw mode to work up to keycode 0xFF
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <457D9D14.5090006@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <457D9D14.5090006@redhat.com>
+	Tue, 12 Dec 2006 11:01:30 -0500
+Date: Tue, 12 Dec 2006 17:01:35 +0100
+From: markus reichelt <ml@mareichelt.de>
+Subject: 2.6.19.1: kobject_add failed for audio with -EEXIST
+To: linux-kernel@vger.kernel.org
+Mail-followup-to: linux-kernel@vger.kernel.org
+Message-id: <20061212160135.GA3723@tatooine.rebelbase.local>
+Organization: still stuck in reorganization mode
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-15
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-PGP-Key: 0xC2A3FEE4
+X-PGP-Fingerprint: FFB8 E22F D2BC 0488 3D56  F672 2CCC 933B C2A3 FEE4
+X-Request-PGP: http://mareichelt.de/keys/c2a3fee4.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/11/06, Florian Festi <ffesti@redhat.com> wrote:
-> Hi, [please CC me, as I am not subscribed]
->
-> currently keycodes above 240 are ignored if the tty is in raw mode. To make the key codes from 241 to 255 usable for programs in raw mode (like X11) the still unused scancodes were
-> added into that range. Right know these scancodes are used in arbitrary order due the lack of a better alternative. Comments on a better way of using them are welcome.
->
-> This extension is needed for some keycodes I submited in a previous patch.
->
+Hi,
 
-Values equal or greater 0xf0 (240) have special meaning in PS/2
-protocol (aka rawmode) and therefore shall not be used for
-transmitting keycodes. It looksl ike we have 0x1a0 range open
-(although you will have to use evdev driver to get these keycodes,
-which is not a bad thing).
+I'm still having this prob at boot. please advise.
+
+
+Advanced Linux Sound Architecture Driver Version 1.0.13 (Tue Nov 28
+14:07:24 2006 UTC).
+ACPI: PCI Interrupt 0000:02:0a.1[A] -> Link [LNKA] -> GSI 19 (level,
+low) -> IRQ 16
+ACPI: PCI Interrupt Link [LAUI] enabled at IRQ 21
+ACPI: PCI Interrupt 0000:00:06.0[A] -> Link [LAUI] -> GSI 21 (level,
+low) -> IRQ 19
+PCI: Setting latency timer of device 0000:00:06.0 to 64
+intel8x0_measure_ac97_clock: measured 60001 usecs
+intel8x0: clocking to 55385
+kobject_add failed for audio with -EEXIST, don't try to register
+things with the same name in the same directory.
+ [<c02d6895>] kobject_add+0x107/0x110
+ [<c03be831>] class_device_add+0xa3/0x2a9
+ [<c03beac0>] class_device_create+0x79/0x8f
+ [<c04cb6b7>] sound_insert_unit+0xe8/0xfb
+ [<c04cb824>] register_sound_special_device+0x111/0x119
+ [<c04ddead>] snd_register_oss_device+0x107/0x15d
+ [<c04f2339>] register_oss_dsp+0x4d/0x76
+ [<c02d6fc4>] kobject_uevent+0x391/0x399
+ [<c04f238f>] snd_pcm_oss_register_minor+0x2d/0xcc
+ [<c02d9413>] vsnprintf+0x495/0x4d3
+ [<c04df36c>] snd_timer_dev_register+0xbe/0xc3
+ [<c04dd9da>] snd_device_register+0x32/0x53
+ [<c04e92cd>] snd_pcm_timer_init+0xc0/0xf3
+ [<c04d9fb6>] snd_add_device_sysfs_file+0x4b/0x52
+ [<c04e1c93>] snd_pcm_dev_register+0x181/0x199
+ [<c04dda29>] snd_device_register_all+0x2e/0x42
+ [<c04da8ee>] snd_card_register+0x9/0xaa
+ [<c04f855a>] snd_intel8x0_probe+0x170/0x195
+ [<c02e4cc0>] pci_call_probe+0xa/0xc
+ [<c02e4cf0>] __pci_device_probe+0x2e/0x3f
+ [<c02e4d1f>] pci_device_probe+0x1e/0x30
+ [<c03bda46>] really_probe+0x38/0xe0
+ [<c02e4c02>] pci_match_device+0xf/0xc3
+ [<c03bdba6>] driver_probe_device+0xa3/0xaf
+ [<c05a0d10>] klist_next+0x52/0x8e
+ [<c03bdc18>] __driver_attach+0x0/0x75
+ [<c03bdc5c>] __driver_attach+0x44/0x75
+ [<c03bd16c>] bus_for_each_dev+0x35/0x59
+ [<c03bdca1>] driver_attach+0x14/0x16
+ [<c03bdc18>] __driver_attach+0x0/0x75
+ [<c03bd5ef>] bus_add_driver+0x5a/0xe0
+ [<c02e4f31>] __pci_register_driver+0x5d/0x6d
+ [<c07ace04>] alsa_pcm_oss_init+0x6e/0x7c
+ [<c078a761>] do_initcalls+0x58/0xf5
+ [<c018b7da>] proc_mkdir_mode+0x3e/0x51
+ [<c014229a>] register_irq_proc+0x5f/0x6b
+ [<c0180000>] sys_ioprio_get+0x11e/0x182
+ [<c010033d>] init+0x0/0x153
+ [<c0100383>] init+0x46/0x153
+ [<c01037b3>] kernel_thread_helper+0x7/0x10
+ =======================
+PM: Adding info for ac97:0-0:ALC850
+ALSA device list:
+  #0: NVidia CK8S with ALC850 at 0xfebfb000, irq 19
+  #1: Brooktree Bt878 at 0xf57ff000, irq 16
+
+ cat /proc/interrupts
+           CPU0
+  0:      17552   IO-APIC-edge      timer
+  1:        382   IO-APIC-edge      i8042
+  6:          3   IO-APIC-edge      floppy
+  8:          1   IO-APIC-edge      rtc
+  9:          0   IO-APIC-fasteoi   acpi
+ 12:       2847   IO-APIC-edge      i8042
+ 14:      25871   IO-APIC-edge      ide0
+ 15:        878   IO-APIC-edge      ide1
+ 16:       8775   IO-APIC-fasteoi   bttv0, Bt87x audio,
+ mga@pci:0000:03:00.0
+ 17:      19414   IO-APIC-fasteoi   ohci_hcd:usb3, eth0
+ 18:          0   IO-APIC-fasteoi   eth1
+ 19:       5949   IO-APIC-fasteoi   ehci_hcd:usb1, NVidia CK8S
+ 20:          0   IO-APIC-fasteoi   ohci_hcd:usb2
+NMI:          0
+LOC:      17520
+ERR:          1
+MIS:          0
+
+ lspci -v
+00:00.0 Host bridge: nVidia Corporation nForce3 250Gb Host Bridge
+(rev a1)
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [44] HyperTransport: Slave or Primary Interface
+        Capabilities: [c0] AGP version 2.0
+
+00:01.0 ISA bridge: nVidia Corporation nForce3 250Gb LPC Bridge (rev
+a2)
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0
+
+00:01.1 SMBus: nVidia Corporation nForce 250Gb PCI System Management
+(rev a1)
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: 66MHz, fast devsel
+        I/O ports at 5080 [size=32]
+        I/O ports at 5000 [size=64]
+        I/O ports at 5040 [size=64]
+        Capabilities: [44] Power Management version 2
+
+00:02.0 USB Controller: nVidia Corporation CK8S USB Controller (rev
+a1) (prog-if 10 [OHCI])
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 20
+        Memory at febfd000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [44] Power Management version 2
+
+00:02.1 USB Controller: nVidia Corporation CK8S USB Controller (rev
+a1) (prog-if 10 [OHCI])
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 17
+        Memory at febfe000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [44] Power Management version 2
+
+00:02.2 USB Controller: nVidia Corporation nForce3 EHCI USB 2.0
+Controller (rev a2) (prog-if 20 [EHCI])
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 19
+        Memory at febffc00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [44] Debug port
+        Capabilities: [80] Power Management version 2
+
+00:05.0 Bridge: nVidia Corporation CK8S Ethernet Controller (rev a2)
+        Subsystem: ASUSTeK Computer Inc. Unknown device 80a7
+        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 17
+        Memory at febfc000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at ec00 [size=8]
+        Capabilities: [44] Power Management version 2
+
+00:06.0 Multimedia audio controller: nVidia Corporation nForce3 250Gb
+AC'97 Audio Controller (rev a1)
+        Subsystem: ASUSTeK Computer Inc. Unknown device 812a
+        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 19
+        I/O ports at e800 [size=256]
+        I/O ports at e400 [size=128]
+        Memory at febfb000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [44] Power Management version 2
+
+00:08.0 IDE interface: nVidia Corporation CK8S Parallel ATA
+Controller (v2.5) (rev a2) (prog-if 8a [Master SecP PriP])
+        Subsystem: ASUSTeK Computer Inc. Unknown device 813f
+        Flags: bus master, 66MHz, fast devsel, latency 0
+        I/O ports at ffa0 [size=16]
+        Capabilities: [44] Power Management version 2
+
+00:0b.0 PCI bridge: nVidia Corporation nForce3 250Gb AGP Host to PCI
+Bridge (rev a2) (prog-if 00 [Normal decode])
+        Flags: bus master, 66MHz, medium devsel, latency 16
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=10
+
+00:0e.0 PCI bridge: nVidia Corporation nForce3 250Gb PCI-to-PCI
+Bridge (rev a2) (prog-if 00 [Normal decode])
+        Flags: bus master, 66MHz, fast devsel, latency 0
+        Bus: primary=00, secondary=02, subordinate=03,
+        sec-latency=128
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: fd900000-feafffff
+        Prefetchable memory behind bridge: f1700000-f57fffff
+
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] HyperTransport Technology Configuration
+        Flags: fast devsel
+        Capabilities: [80] HyperTransport: Host or Secondary
+        Interface
+
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] Address Map
+        Flags: fast devsel
+
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] DRAM Controller
+        Flags: fast devsel
+
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] Miscellaneous Control
+        Flags: fast devsel
+
+02:06.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge
+(non-transparent mode) (rev 15) (prog-if 00 [Normal decode])
+        Flags: bus master, medium devsel, latency 64
+        Bus: primary=02, secondary=03, subordinate=03, sec-latency=64
+        Memory behind bridge: fd900000-fe9fffff
+        Prefetchable memory behind bridge:
+        00000000f1700000-00000000f5600000
+        Capabilities: [80] Power Management version 2
+        Capabilities: [90] #06 [0000]
+        Capabilities: [a0] Vital Product Data
+
+02:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Flags: bus master, medium devsel, latency 64, IRQ 18
+        I/O ports at d800 [size=256]
+        Memory at feaffc00 (32-bit, non-prefetchable) [size=256]
+        Expansion ROM at feae0000 [disabled] [size=64K]
+        Capabilities: [50] Power Management version 2
+
+02:0a.0 Multimedia video controller: Brooktree Corporation Bt878
+Video Capture (rev 11)
+        Subsystem: Hauppauge computer works Inc. WinTV Series
+        Flags: bus master, medium devsel, latency 64, IRQ 16
+        Memory at f57fe000 (32-bit, prefetchable) [size=4K]
+        Capabilities: [44] Vital Product Data
+        Capabilities: [4c] Power Management version 2
+
+02:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio
+Capture (rev 11)
+        Subsystem: Hauppauge computer works Inc. WinTV Series
+        Flags: bus master, medium devsel, latency 64, IRQ 16
+        Memory at f57ff000 (32-bit, prefetchable) [size=4K]
+        Capabilities: [44] Vital Product Data
+        Capabilities: [4c] Power Management version 2
+
+03:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA
+G400/G450 (rev 85) (prog-if 00 [VGA])
+        Subsystem: Matrox Graphics, Inc. Millennium G450 32Mb Dual
+Head PCI
+        Flags: bus master, medium devsel, latency 64, IRQ 16
+        Memory at f2000000 (32-bit, prefetchable) [size=32M]
+        Memory at fe9fc000 (32-bit, non-prefetchable) [size=16K]
+        Memory at fe000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at fe9c0000 [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [f0] AGP version 2.0
+
+
+uname -ar
+Linux tatooine 2.6.19.1 #1 PREEMPT Tue Dec 12 16:50:26 CET 2006 i686
+athlon-4 i386 GNU/Linux
+
+gcc -v
+Reading specs from /usr/lib/gcc/i486-slackware-linux/3.4.6/specs
+Configured with: ../gcc-3.4.6/configure --prefix=/usr --enable-shared
+--enable-threads=posix --enable-__cxa_atexit --disable-checking
+--with-gnu-ld --verbose --target=i486-slackware-linux
+--host=i486-slackware-linux
+Thread model: posix
+gcc version 3.4.6
+
 
 -- 
-Dmitry
+left blank, right bald
+

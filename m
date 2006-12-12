@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751156AbWLLGS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751192AbWLLGT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWLLGS1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 01:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWLLGS1
+	id S1751192AbWLLGT1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 01:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWLLGT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 01:18:27 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:39352 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751156AbWLLGS0 (ORCPT
+	Tue, 12 Dec 2006 01:19:27 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:55543 "EHLO
+	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751192AbWLLGT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 01:18:26 -0500
-X-YMail-OSG: DSTgBA4VM1nBZ67CqJ_NfSR8j9UsEHRpdDKytRs0Jc.YnGc1RA6XTDIqWIWrHcSqKc5J6MdDBTX21ygObRKc.dYo6FFZrr5a_N3OLyOlKeMWR9kcqQlT46QvgfIac3n9FFvQBJU9b8W3jBs-
-Date: Mon, 11 Dec 2006 22:18:23 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Karsten Weiss <K.Weiss@science-computing.de>, Andi Kleen <ak@suse.de>
-Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>
-Subject: amd64 iommu causing corruption? (was Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!)
-Message-ID: <20061212061823.GA303@tuatara.stupidest.org>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+	Tue, 12 Dec 2006 01:19:26 -0500
+Message-ID: <457E498C.1050806@bx.jp.nec.com>
+Date: Tue, 12 Dec 2006 15:17:48 +0900
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Reply-To: k-keiichi@bx.jp.nec.com
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH 2.6.19 0/6] proposal for dynamic configurable netconsole
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 10:24:02AM +0100, Karsten Weiss wrote:
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
 
-> We could not reproduce the data corruption anymore if we boot the
-> machines with the kernel parameter "iommu=soft" i.e. if we use
-> software bounce buffering instead of the hw-iommu. (As mentioned
-> before, booting with mem=2g works fine, too, because this disables
-> the iommu altogether.)
+The netconsole is a very useful module for collecting kernel message under
+certain circumstances(e.g. disk logging fails, serial port is unavailable).
 
-I can confirm this also seems to be the case for me, I'm still doing
-more testing to confirm this.  But it would seem:
+But current netconsole is not flexible. For example, if you want to change ip
+address for logging agent, in the case of built-in netconsole, you can't change
+config except for changing boot parameter and rebooting your system, or in the
+case of module netconsole, you need to reload netconsole module.
 
-nforce4, transfer of a large mount of data with 4GB+ of RAM I get some
-corruption.  This is present on both the nv SATA and also Sil 3112
-connected drives.
+So, I propose the following extended features for netconsole.
 
-Using iommu=soft so far seems to be working without any corruption.
+1) support for multiple logging agents.
+2) add interface to access each parameter of netconsole
+   using sysfs.
+
+This patch is for linux-2.6.19 and is divided to each function.
+Your comments are very welcome.
+
+Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+---
+-- 
+Keiichi KII
+NEC Corporation OSS Promotion Center
+E-mail: k-keiichi@bx.jp.nec.com
 
 
 
-I still need to do more testing on other machines which have less
-memory (so the IOMMU won't be in use there either) and see if there
-are problems there.
+
+
+
+
+
+

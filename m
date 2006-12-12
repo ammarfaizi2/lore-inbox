@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932077AbWLLGiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932078AbWLLGkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWLLGiq (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 01:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWLLGiq
+	id S932078AbWLLGkL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 01:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWLLGkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 01:38:46 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:65072 "EHLO
-	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932077AbWLLGip (ORCPT
+	Tue, 12 Dec 2006 01:40:11 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55458 "EHLO
+	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932078AbWLLGkJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 01:38:45 -0500
-Message-ID: <457E4E72.9040505@bx.jp.nec.com>
-Date: Tue, 12 Dec 2006 15:38:42 +0900
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 2.6.19 6/6] update modification history
-References: <457E498C.1050806@bx.jp.nec.com>
-In-Reply-To: <457E498C.1050806@bx.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+	Tue, 12 Dec 2006 01:40:09 -0500
+Date: Tue, 12 Dec 2006 15:43:54 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-mm1
+Message-Id: <20061212154354.90b39a7c.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20061211220617.669da2d5.akpm@osdl.org>
+References: <20061211005807.f220b81c.akpm@osdl.org>
+	<20061212145341.a5f335a0.kamezawa.hiroyu@jp.fujitsu.com>
+	<20061211220617.669da2d5.akpm@osdl.org>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+On Mon, 11 Dec 2006 22:06:17 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+> > When I use ftp on 2.6.19-mm1, transfered file is always broken.
+> > like this:
+> > ==
+> > [kamezawa@casares ~]$ file ./linux-2.6.19.tar.bz2 (got on 2.6.19-mm1)
+> > ./linux-2.6.19.tar.bz2: data
+> > (I confirmed original file was not broken.)
+> 
+> Yes, a couple of people have reported things like this.  Strange. 
+> test.kernel.org is showing mostly-green.  There's one fsx-linux failure (for
+> unclear reasons) on one of the x86_64 machines, all the rest are happy.
+> 
+> Which filesystem were you using?
+> 
+using ext3.
+> Can you investigate it a bit further please??  reboot, re-download, work
+> out how the data differs, etc?
+> 
+Hmm, this is summary of broken linux-2.6.19.tar.bz2 file (used od and diff) 
 
-Update modification history.
+offset 000000 -> 000b4f  zero cleared.
+offset 000b50 -> 000fff  not broken
+offset 001000 -> 001c47  zero cleared
+offset 001c48 -> 001fff  not broken
+offset 002000 -> 002d39  zero cleared
+offset 002d40 -> 003fff  not broken.
+offset 004000 -> 004f2f  zero cleared
+offset 004f30 -> 004fff  not broken
+offset 005000 -> 005a79  zero cleared
+offset 005a80 -> 005fff  not broken
+offset 006000 -> 006b7f  zero cleared
+offset 006b80 -> 007fff  not broken
+.......
+ 
+All broken parts are always zero-cleared and start from offset 
+aligned to 0x1000. (note: broken kernel's PAGE_SIZE is 16384)
 
-Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
----
---- linux-2.6.19/drivers/net/netconsole.c	2006-12-12 14:57:45.588967500 +0900
-+++ enhanced-netconsole/drivers/net/netconsole.c.sign	2006-12-12
-14:54:49.541965250 +0900
-@@ -15,6 +15,9 @@
-  *               generic card hooks
-  *               works non-modular
-  * 2003-09-07    rewritten with netpoll api
-+ * 2006-12-12    add extended features for
-+ *               dynamic configurable netconsole
-+ *               by Keiichi KII <k-keiichi@bx.jp.nec.com>
-  */
+I'll do AMAP.
 
- /****************************************************************
+-Kame
 
--- 
-Keiichi KII
-NEC Corporation OSS Promotion Center
-E-mail: k-keiichi@bx.jp.nec.com
+
+
+
+
+
+
+
+

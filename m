@@ -1,38 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964780AbWLLXE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbWLLXFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWLLXE3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 18:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLLXE3
+	id S964786AbWLLXFL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 18:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLLXFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 18:04:29 -0500
-Received: from ozlabs.org ([203.10.76.45]:49098 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964780AbWLLXE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 18:04:28 -0500
+	Tue, 12 Dec 2006 18:05:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4769 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S964788AbWLLXFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 18:05:08 -0500
+Date: Wed, 13 Dec 2006 00:05:18 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.19-git] RTC Kconfig sorted by type
+Message-ID: <20061212230517.GA28443@stusta.de>
+References: <200612061652.45242.david-b@pacbell.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17791.13647.329912.557434@cargo.ozlabs.ibm.com>
-Date: Wed, 13 Dec 2006 10:03:43 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       davem@davemloft.com, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/2] WorkStruct: Add assign_bits() to give an atomic-bitops safe assignment
-In-Reply-To: <20061212225443.GA25902@flint.arm.linux.org.uk>
-References: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
-	<20061212225443.GA25902@flint.arm.linux.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <200612061652.45242.david-b@pacbell.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
+On Wed, Dec 06, 2006 at 04:52:44PM -0800, David Brownell wrote:
+> This reorders the RTC driver menu into separate sections, splitting out
+> the SOC, I2C, and SPI support to help make the menu easier to navigate.
+> (We got some feedback a while ago that it was "a mess" and hard to make
+> sense of...)
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> 
+> ---
+> Assumes the rtc-omap patch has been merged, and no other RTC drivers
+> have been added to this Kconfig menu.
+> 
+> Index: at91/drivers/rtc/Kconfig
+> ===================================================================
+> --- at91.orig/drivers/rtc/Kconfig	2006-12-05 03:25:20.000000000 -0800
+> +++ at91/drivers/rtc/Kconfig	2006-12-05 03:46:53.000000000 -0800
+> @@ -1,4 +1,4 @@
+> -\#
+> +#
+>  # RTC class/drivers configuration
+>  #
+>  
+> @@ -20,6 +20,8 @@ config RTC_CLASS
+>  	  This driver can also be built as a module. If so, the module
+>  	  will be called rtc-class.
+>  
+> +if RTC_CLASS != n
+> +
 
-> Why can't we just use atomic_t for this?
 
-On 64-bit platforms, atomic_t tends to be 4 bytes, whereas bitops work
-on arrays of unsigned long, i.e. multiples of 8 bytes.  We could
-use atomic_long_t for this, however.
+if RTC_CLASS
 
-Paul.
+
+because otherwise
+
+
+>  config RTC_HCTOSYS
+>  	bool "Set system time from RTC on startup"
+>  	depends on RTC_CLASS = y
+> @@ -45,11 +47,10 @@ config RTC_DEBUG
+>  	  and individual RTC drivers.
+>  
+>  comment "RTC interfaces"
+> -	depends on RTC_CLASS
+>  
+>  config RTC_INTF_SYSFS
+>  	tristate "sysfs"
+> -	depends on RTC_CLASS && SYSFS
+> +	depends on SYSFS
+>...
+
+
+RTC_CLASS=m, RTC_INTF_SYSFS=y would be an allowed configuration.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751161AbWLLFMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751174AbWLLFcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWLLFMe (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 00:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWLLFMe
+	id S1751174AbWLLFcb (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 00:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWLLFcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 00:12:34 -0500
-Received: from gateway.insightbb.com ([74.128.0.19]:45257 "EHLO
-	asav00.insightbb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751158AbWLLFMd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 00:12:33 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Ao8CAHbIfUVKhQ0nVWdsb2JhbACNSgEr
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Ivo van Doorn <ivdoorn@gmail.com>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Date: Tue, 12 Dec 2006 00:12:25 -0500
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       John Linville <linville@tuxdriver.com>, Jiri Benc <jbenc@suse.cz>,
-       Lennart Poettering <lennart@poettering.net>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Larry Finger <Larry.Finger@lwfinger.net>
-References: <200612031936.34343.IvDoorn@gmail.com> <d120d5000612061404x3f6e18e7qd3601c3b450a5f91@mail.gmail.com> <200612072253.14492.IvDoorn@gmail.com>
-In-Reply-To: <200612072253.14492.IvDoorn@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 12 Dec 2006 00:32:31 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:53134 "EHLO 2ka.mipt.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751171AbWLLFca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 00:32:30 -0500
+Date: Tue, 12 Dec 2006 08:31:20 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
+       zach.brown@oracle.com, hch@infradead.org, chase.venters@clientec.com,
+       johann.borck@densedata.com, linux-kernel@vger.kernel.org,
+       jeff@garzik.org, aviro@redhat.com
+Subject: Re: Kevent POSIX timers support.
+Message-ID: <20061212053117.GA14420@2ka.mipt.ru>
+References: <20061128091602.GC15083@2ka.mipt.ru> <20061128.111300.105813754.davem@davemloft.net> <20061128192236.GA2051@2ka.mipt.ru> <20061211.173644.130208821.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200612120012.28911.dtor@insightbb.com>
+In-Reply-To: <20061211.173644.130208821.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 12 Dec 2006 08:31:39 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ivo,
-
-On Thursday 07 December 2006 16:53, Ivo van Doorn wrote:
-> Hi,
+On Mon, Dec 11, 2006 at 05:36:44PM -0800, David Miller (davem@davemloft.net) wrote:
+> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> Date: Tue, 28 Nov 2006 22:22:36 +0300
 > 
-> > > > >  2 - Hardware key that does not control the hardware radio and does not report anything to userspace
-> > > >
-> > > > Kind of uninteresting button ;)
-> > >
-> > > And this is the button that rfkill was originally designed for.
-> > > Laptops with integrated WiFi cards from Ralink have a hardware button that don't send anything to
-> > > userspace (unless the ACPI event is read) and does not directly control the radio itself.
-> > >
-> > 
-> > So what does such a button do? I am confused here...
+> > And, btw, last time I checked, aligned_u64 was not exported to
+> > userspace.
 > 
-> Without a handler like rfkill, it does nothing besides toggling a bit in a register.
-> The Ralink chipsets have a couple of registers that represent the state of that key.
-> Besides that, there are no notifications to the userspace nor does it directly control the
-> radio.
-> That is where rfkill came in with the toggle handler that will listen to the register
-> to check if the key has been pressed and properly process the key event.
+> It is in linux/types.h and not protected by __KERNEL__ ifdefs.
+> Perhaps you mean something else?
 
-In this case the driver can make the button state available to userspace so
-thsi is really type 2) driver as far as I can see. The fact that the button
-is not reported to userspace yet should not get into our way of classifying
-it.
+It looks like I checked wrong #ifdef __KERNEL__/#endif pair.
+It is there indeed.
 
 -- 
-Dmitry
+	Evgeniy Polyakov

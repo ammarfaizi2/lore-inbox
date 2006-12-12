@@ -1,97 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751329AbWLLN0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751331AbWLLN2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWLLN0K (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 08:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWLLN0K
+	id S1751331AbWLLN2R (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 08:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWLLN2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 08:26:10 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:40373 "EHLO mx1.mandriva.com"
+	Tue, 12 Dec 2006 08:28:17 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:55503 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751329AbWLLN0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 08:26:08 -0500
-Date: Tue, 12 Dec 2006 02:17:40 -0200
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][SCSI]: Save some bytes in struct scsi_target
-Message-ID: <20061212041740.GD6218@mandriva.com>
-References: <20061212031718.GC6218@mandriva.com> <20061212035221.GF21070@parisc-linux.org>
+	id S1751331AbWLLN2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 08:28:16 -0500
+Message-ID: <457EAE62.8090404@garzik.org>
+Date: Tue, 12 Dec 2006 08:28:02 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20061212035221.GF21070@parisc-linux.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] net, 8139too.c: fix netpoll deadlock
+References: <20061212101656.GA5064@elte.hu> <20061212124935.GA4356@elte.hu>
+In-Reply-To: <20061212124935.GA4356@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 08:52:22PM -0700, Matthew Wilcox wrote:
-> On Tue, Dec 12, 2006 at 01:17:18AM -0200, Arnaldo Carvalho de Melo wrote:
-> > }; /* size: 368, cachelines: 12 */
-> > }; /* size: 364, cachelines: 12 */
+Ingo Molnar wrote:
+> Subject: [patch] net, 8139too.c: fix netpoll deadlock
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> Saving space is always good ;-)
-> 
-> > -	unsigned int		create:1; /* signal that it needs to be added */
-> > +	char			scsi_level;
-> > +	unsigned char		create:1; /* signal that it needs to be added */
-> >  	unsigned int		pdt_1f_for_no_lun;	/* PDT = 0x1f */
-> >  						/* means no lun present */
-> >  
-> > -	char			scsi_level;
-> 
-> However, pdt_1f_for_no_lun is really only one bit, saving another 4 bytes.
-> 
-> >  	struct execute_work	ew;
-> >  	enum scsi_target_state	state;
-> 
-> enums are a bit of a pain.  Even though scsi_target_state uses only two
-> values, it's represented as an int.  Unless you're on arm-eabi, when
-> it'll use less.  And even then, it won't use less than a byte, as it has
-> to be addressable.  I wonder if we can turn scsi_target_state into a
-> bit.  That'll save another 8 bytes total.
+> fix deadlock in the 8139too driver: poll handlers should never forcibly 
+> enable local interrupts, because they might be used by netpoll/printk 
+> from IRQ context.
 
-I guess we could use:
+ACK
 
-	enum scsi_target_state state:1;
+(I'll queue it, if Linus doesn't pick it up; please CC me in the future)
 
-And make the enum entries start with 0 and not 1 as is today, no? With
-that we get down to:
 
-}; /* size: 356, cachelines: 12 */
-   /* last cacheline: 4 bytes */
-
-Anything else to save these 4 bytes and get down to 11 cachelines per
-scsi_target instance? Following patch is on top of the previous one.
-
-Signed-off-by: Arnaldo Carvalho de Melo <acme@mandriva.com>
-
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index ab245fc..772f834 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -157,7 +157,7 @@ #define scmd_printk(prefix, scmd, fmt, a
- 	dev_printk(prefix, &(scmd)->device->sdev_gendev, fmt, ##a)
- 
- enum scsi_target_state {
--	STARGET_RUNNING = 1,
-+	STARGET_RUNNING = 0,
- 	STARGET_DEL,
- };
- 
-@@ -176,12 +176,12 @@ struct scsi_target {
- 	unsigned int		id; /* target id ... replace
- 				     * scsi_device.id eventually */
- 	char			scsi_level;
-+	enum scsi_target_state	state:1;
- 	unsigned char		create:1; /* signal that it needs to be added */
--	unsigned int		pdt_1f_for_no_lun;	/* PDT = 0x1f */
-+	unsigned char		pdt_1f_for_no_lun:1;	/* PDT = 0x1f */
- 						/* means no lun present */
- 
- 	struct execute_work	ew;
--	enum scsi_target_state	state;
- 	void 			*hostdata; /* available to low-level driver */
- 	unsigned long		starget_data[0]; /* for the transport */
- 	/* starget_data must be the last element!!!! */

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932782AbWLLVC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932361AbWLLVGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932782AbWLLVC3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 16:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932845AbWLLVBw
+	id S932361AbWLLVGs (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 16:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWLLVGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 16:01:52 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:3297 "EHLO
-	arnor.apana.org.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932808AbWLLVBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 16:01:51 -0500
-Date: Wed, 13 Dec 2006 08:00:53 +1100
-From: Herbert Xu <herbert.xu@redhat.com>
+	Tue, 12 Dec 2006 16:06:48 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41526 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932363AbWLLVGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 16:06:48 -0500
+Date: Tue, 12 Dec 2006 13:06:43 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] netpoll: fix netpoll lockup
-Message-ID: <20061212210053.GB11713@gondor.apana.org.au>
-References: <20061212101656.GA5064@elte.hu> <Pine.LNX.4.64.0612120811180.6452@woody.osdl.org> <20061212162042.GA18359@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockdep: fix seqlock_init()
+Message-Id: <20061212130644.5251e9f2.akpm@osdl.org>
+In-Reply-To: <20061212205001.GA31445@elte.hu>
+References: <20061212111028.GA13908@elte.hu>
+	<20061212094820.1049a252.akpm@osdl.org>
+	<20061212205001.GA31445@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212162042.GA18359@elte.hu>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 05:20:42PM +0100, Ingo Molnar wrote:
+On Tue, 12 Dec 2006 21:50:01 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
+
 > 
-> the first half of it is still needed - find the delta patch ontop of 
-> current -git below.
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Tue, 12 Dec 2006 12:10:28 +0100
+> > Ingo Molnar <mingo@elte.hu> wrote:
+> > 
+> > > +#define seqlock_init(x)					\
+> > > +	do {						\
+> > > +		(x)->sequence = 0;			\
+> > > +		spin_lock_init(&(x)->lock);		\
+> > > +	} while (0)
+> > 
+> > This does not have to be a macro, does it?
+> 
+> Maybe it could be an __always_inline inline function (it has to be 
+> inlined to get the callsite based lock class key right)
 
-The unlock in the else branch is definitely needed.  However, since
-queue_process is always run from process context we don't need the
-IRQ disabling.
+the compiler darn better inline it, else we'll have an out-of-line copy of
+everything in everywhere.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> - but i'm not 
+> sure about the include file dependencies. Will probably work out fine as 
+> seqlock.h is supposed to be a late one in the order of inclusion - but i 
+> didnt want to make a blind bet.
+
+seqlock.h already includes spinlock.h.

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932200AbWLLLOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932199AbWLLLZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWLLLOs (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 06:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWLLLOs
+	id S932199AbWLLLZP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 06:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWLLLZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 06:14:48 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:44704 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932200AbWLLLOr (ORCPT
+	Tue, 12 Dec 2006 06:25:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36436 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932199AbWLLLZN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 06:14:47 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Thomas Sailer <t.sailer@alumni.ethz.ch>, Joscha Ihl <joscha@grundfarm.de>,
-       linux-kernel@vger.kernel.org, ihl@fh-brandenburg.de,
-       Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: Nokia E61 and the kernel BUG at mm/slab.c:594
-Date: Tue, 12 Dec 2006 12:16:10 +0100
-User-Agent: KMail/1.8
-References: <20061211173506.5c8cb479@localhost> <20061212094421.GC2818@rhun.haifa.ibm.com> <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
-In-Reply-To: <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 12 Dec 2006 06:25:13 -0500
+Subject: Re: [NETLINK]: Schedule removal of old macros exported to userspace
+From: David Woodhouse <dwmw2@infradead.org>
+To: Stefan Rompf <stefan@loplof.de>
+Cc: Thomas Graf <tgraf@suug.ch>, David Miller <davem@davemloft.net>,
+       drow@false.org, joseph@codesourcery.com, netdev@vger.kernel.org,
+       libc-alpha@sourceware.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200612091559.05232.stefan@loplof.de>
+References: <20061208.134752.131916271.davem@davemloft.net>
+	 <200612091249.39302.stefan@loplof.de>
+	 <20061209125533.GO8693@postel.suug.ch>
+	 <200612091559.05232.stefan@loplof.de>
+Content-Type: text/plain
+Date: Tue, 12 Dec 2006 11:23:51 +0000
+Message-Id: <1165922631.5253.623.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612121216.10902.oliver@neukum.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 12. Dezember 2006 11:28 schrieben Sie:
-> On Tue, 2006-12-12 at 11:44 +0200, Muli Ben-Yehuda wrote:
-> 
-> > I assume the previous crash was 2.6.19 with SMP? did it work with
-> > earlier kernels?
-> 
-> It happens to me as well, current Fedora 6 update
-> kernel-2.6.18-1.2849.fc6.i686 UP, with a Nokia E70 in "PC Suite" mode.
+On Sat, 2006-12-09 at 15:58 +0100, Stefan Rompf wrote:
+> But when even glibc needs internal compat headers to compile with the second 
+> kernel version that provides userspace headers, what is the long-term - even 
+> mid-term - perspective of make headers_install then?
 
-What functions does this mode involve?
+Bear in mind that with the first cut of the headers_install I was trying
+to keep it entirely uncontentious and stick to _mechanism_, not policy.
+The _first_ set of exported headers still aren't ideal, and we're still
+cleaning up some parts of them (like properly getting rid of the
+_syscallX() macros, etc.). 
 
-	Regards
-		Oliver
+We've only just started to be sensible about what we export to userspace
+-- it's not entirely set in stone at this point, 
+ 
+-- 
+dwmw2
+

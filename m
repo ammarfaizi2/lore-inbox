@@ -1,75 +1,137 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964787AbWLMARs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964810AbWLMASR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWLMARs (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWLMARs
+	id S964810AbWLMASR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWLMAR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:17:48 -0500
-Received: from mx1.suse.de ([195.135.220.2]:57794 "EHLO mx1.suse.de"
+	Tue, 12 Dec 2006 19:17:56 -0500
+Received: from ns2.suse.de ([195.135.220.15]:52834 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932585AbWLMARr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 19:17:47 -0500
+	id S932588AbWLMARs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 19:17:48 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Wed, 13 Dec 2006 10:58:59 +1100
-Message-Id: <1061212235859.21410@suse.de>
+Date: Wed, 13 Dec 2006 10:59:22 +1100
+Message-Id: <1061212235922.21469@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 005 of 14] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
+Subject: [PATCH 009 of 14] knfsd: SUNRPC: teach svc_sendto() to deal with IPv6 addresses
 References: <20061213105528.21128.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Chuck Lever <chuck.lever@oracle.com>
-Sockaddr_storage will allow us to store arbitrary socket addresses in
-the svc_deferred_req struct.
+CMSG_DATA comes in different sizes, depending on address family.
 
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./include/linux/sunrpc/svc.h |    3 ++-
- ./net/sunrpc/svcsock.c       |    6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
-
-diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
---- .prev/include/linux/sunrpc/svc.h	2006-12-13 10:28:52.000000000 +1100
-+++ ./include/linux/sunrpc/svc.h	2006-12-13 10:29:18.000000000 +1100
-@@ -289,7 +289,8 @@ static inline void svc_free_res_pages(st
- 
- struct svc_deferred_req {
- 	u32			prot;	/* protocol (UDP or TCP) */
--	struct sockaddr_in	addr;
-+	struct sockaddr_storage	addr;
-+	int			addrlen;
- 	struct svc_sock		*svsk;	/* where reply must go */
- 	__be32			daddr;	/* where reply must come from */
- 	struct cache_deferred_req handle;
+ ./net/sunrpc/svcsock.c |   69 ++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 52 insertions(+), 17 deletions(-)
 
 diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-13 10:29:15.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-13 10:29:18.000000000 +1100
-@@ -1713,7 +1713,8 @@ svc_defer(struct cache_req *req)
+--- .prev/net/sunrpc/svcsock.c	2006-12-13 10:31:39.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-13 10:32:15.000000000 +1100
+@@ -36,6 +36,7 @@
+ #include <net/sock.h>
+ #include <net/checksum.h>
+ #include <net/ip.h>
++#include <net/ipv6.h>
+ #include <net/tcp_states.h>
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+@@ -438,6 +439,47 @@ svc_wake_up(struct svc_serv *serv)
+ 	}
+ }
  
- 		dr->handle.owner = rqstp->rq_server;
- 		dr->prot = rqstp->rq_prot;
--		dr->addr = rqstp->rq_addr;
-+		memcpy(&dr->addr, &rqstp->rq_addr, rqstp->rq_addrlen);
-+		dr->addrlen = rqstp->rq_addrlen;
- 		dr->daddr = rqstp->rq_daddr;
- 		dr->argslen = rqstp->rq_arg.len >> 2;
- 		memcpy(dr->args, rqstp->rq_arg.head[0].iov_base-skip, dr->argslen<<2);
-@@ -1737,7 +1738,8 @@ static int svc_deferred_recv(struct svc_
- 	rqstp->rq_arg.page_len = 0;
- 	rqstp->rq_arg.len = dr->argslen<<2;
- 	rqstp->rq_prot        = dr->prot;
--	rqstp->rq_addr        = dr->addr;
-+	memcpy(&rqstp->rq_addr, &dr->addr, dr->addrlen);
-+	rqstp->rq_addrlen     = dr->addrlen;
- 	rqstp->rq_daddr       = dr->daddr;
- 	rqstp->rq_respages    = rqstp->rq_pages;
- 	return dr->argslen<<2;
++union svc_pktinfo_u {
++	struct in_pktinfo pkti;
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++	struct in6_pktinfo pkti6;
++#endif
++};
++
++static void svc_set_cmsg_data(struct svc_rqst *rqstp, struct cmsghdr *cmh)
++{
++	switch (rqstp->rq_sock->sk_sk->sk_family) {
++	case AF_INET:
++		do {
++			struct in_pktinfo *pki =
++					(struct in_pktinfo *) CMSG_DATA(cmh);
++
++			cmh->cmsg_level = SOL_IP;
++			cmh->cmsg_type = IP_PKTINFO;
++			pki->ipi_ifindex = 0;
++			pki->ipi_spec_dst.s_addr = rqstp->rq_daddr.addr.s_addr;
++			cmh->cmsg_len = CMSG_LEN(sizeof(*pki));
++		} while (0);
++		break;
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++	case AF_INET6:
++		do {
++			struct in6_pktinfo *pki =
++					(struct in6_pktinfo *) CMSG_DATA(cmh);
++
++			cmh->cmsg_level = SOL_IPV6;
++			cmh->cmsg_type = IPV6_PKTINFO;
++			pki->ipi6_ifindex = 0;
++			ipv6_addr_copy(&pki->ipi6_addr,
++					&rqstp->rq_daddr.addr6);
++			cmh->cmsg_len = CMSG_LEN(sizeof(*pki));
++		} while (0);
++		break;
++#endif
++	}
++	return;
++}
++
+ /*
+  * Generic sendto routine
+  */
+@@ -447,9 +489,8 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 	struct svc_sock	*svsk = rqstp->rq_sock;
+ 	struct socket	*sock = svsk->sk_sock;
+ 	int		slen;
+-	char 		buffer[CMSG_SPACE(sizeof(struct in_pktinfo))];
++	char 		buffer[CMSG_SPACE(sizeof(union svc_pktinfo_u))];
+ 	struct cmsghdr *cmh = (struct cmsghdr *)buffer;
+-	struct in_pktinfo *pki = (struct in_pktinfo *)CMSG_DATA(cmh);
+ 	int		len = 0;
+ 	int		result;
+ 	int		size;
+@@ -462,21 +503,15 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 	slen = xdr->len;
+ 
+ 	if (rqstp->rq_prot == IPPROTO_UDP) {
+-		/* set the source and destination */
+-		struct msghdr	msg;
+-		msg.msg_name    = &rqstp->rq_addr;
+-		msg.msg_namelen = rqstp->rq_addrlen;
+-		msg.msg_iov     = NULL;
+-		msg.msg_iovlen  = 0;
+-		msg.msg_flags	= MSG_MORE;
+-
+-		msg.msg_control = cmh;
+-		msg.msg_controllen = sizeof(buffer);
+-		cmh->cmsg_len = CMSG_LEN(sizeof(*pki));
+-		cmh->cmsg_level = SOL_IP;
+-		cmh->cmsg_type = IP_PKTINFO;
+-		pki->ipi_ifindex = 0;
+-		pki->ipi_spec_dst.s_addr = rqstp->rq_daddr.addr.s_addr;
++		struct msghdr msg = {
++			.msg_name	= &rqstp->rq_addr,
++			.msg_namelen	= rqstp->rq_addrlen,
++			.msg_control	= cmh,
++			.msg_controllen	= sizeof(buffer),
++			.msg_flags	= MSG_MORE,
++		};
++
++		svc_set_cmsg_data(rqstp, cmh);
+ 
+ 		if (sock_sendmsg(sock, &msg, 0) < 0)
+ 			goto out;

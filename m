@@ -1,118 +1,135 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932349AbWLLTML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932384AbWLLTTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWLLTML (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 14:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWLLTML
+	id S932384AbWLLTTK (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 14:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWLLTTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 14:12:11 -0500
-Received: from wr-out-0506.google.com ([64.233.184.231]:51350 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932349AbWLLTMJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 14:12:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=l7479KO+P0FKR5nLVk0T2M/+LxFQD1bHmPq4aGkJgEw96fXPNcRkC/DZMmUzy2ci/3WwUZSih4jyjM/n2tPB0tYgS2H/ejtnLhnoGa/O9LimEnPWESe4maeD0rzCE26/qypUtURGyN6q86kEWdKaq7bciZs/HSjWt1QOWQZkh6k=
-Subject: [PATCH 2.6.19] ppp: replace kmalloc+memset with kzalloc
-From: Yan Burman <burman.yan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ppp@vger.kernel.org, trivial@kernel.org
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 21:13:08 +0200
-Message-Id: <1165950788.10231.8.camel@localhost>
+	Tue, 12 Dec 2006 14:19:09 -0500
+Received: from waste.org ([66.93.16.53]:54385 "EHLO waste.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932384AbWLLTTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 14:19:08 -0500
+Date: Tue, 12 Dec 2006 13:09:23 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.19 3/6] add interface for netconsole using sysfs
+Message-ID: <20061212190922.GK13687@waste.org>
+References: <457E498C.1050806@bx.jp.nec.com> <457E4D8E.6020903@bx.jp.nec.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <457E4D8E.6020903@bx.jp.nec.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace kmalloc+memset with kzalloc
+On Tue, Dec 12, 2006 at 03:34:54PM +0900, Keiichi KII wrote:
+> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+> 
+> This patch contains the following changes.
+> 
+> create a sysfs entry for netconsole in /sys/class/misc.
+> This entry has elements related to netconsole as follows.
+> You can change configuration of netconsole(writable attributes such as IP
+> address, port number and so on) and check current configuration of netconsole.
+> 
+> -+- /sys/class/misc/
+>  |-+- netconsole/
+>    |-+- port1/
+>    | |--- id          [r--r--r--]  unique port id
+>    | |--- remove      [-w-------]  if you write something to "remove",
+>    | |                             this port is removed.
+>    | |--- dev_name    [r--r--r--]  network interface name
+>    | |--- local_ip    [rw-r--r--]  source IP to use, writable
+>    | |--- local_port  [rw-r--r--]  source port number for UDP packets, writable
+>    | |--- local_mac   [r--r--r--]  source MAC address
+>    | |--- remote_ip   [rw-r--r--]  port number for logging agent, writable
+>    | |--- remote_port [rw-r--r--]  IP address for logging agent, writable
+>    | ---- remote_mac  [rw-r--r--]  MAC address for logging agent, writable
+>    |--- port2/
+>    |--- port3/
+>    ...
+> 
+> Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+> ---
+> --- linux-2.6.19/drivers/net/netconsole.c	2006-12-06 14:37:26.842825500 +0900
+> +++ enhanced-netconsole/drivers/net/netconsole.c.sysfs	2006-12-06
+> 13:32:47.488381000 +0900
+> @@ -45,6 +45,8 @@
+>  #include <linux/sysrq.h>
+>  #include <linux/smp.h>
+>  #include <linux/netpoll.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/inet.h>
+> 
+>  MODULE_AUTHOR("Maintainer: Matt Mackall <mpm@selenic.com>");
+>  MODULE_DESCRIPTION("Console driver for network interfaces");
+> @@ -53,6 +55,7 @@ MODULE_LICENSE("GPL");
+>  enum {
+>  	MAX_PRINT_CHUNK = 1000,
+>  	MAX_CONFIG_LENGTH = 256,
+> +	MAC_ADDR_DIGIT = 6,
+>  };
+> 
+>  static char config[MAX_CONFIG_LENGTH];
+> @@ -62,19 +65,214 @@ MODULE_PARM_DESC(netconsole, " netconsol
+> 
+>  struct netconsole_device {
+>  	struct list_head list;
+> +	struct kobject obj;
+>  	spinlock_t netpoll_lock;
+>  	int id;
+>  	struct netpoll np;
+>  };
+> 
+> +struct netcon_dev_attr {
+> +	struct attribute attr;
+> +	ssize_t (*show)(struct netconsole_device*, char*);
+> +	ssize_t (*store)(struct netconsole_device*, const char*,
+> +			 size_t count);
+> +};
+> +
+>  static int add_netcon_dev(const char*);
+> +static void setup_netcon_dev_sysfs(struct netconsole_device*);
+>  static void cleanup_netconsole(void);
+>  static void netcon_dev_cleanup(struct netconsole_device *nd);
+> 
+> +static int netcon_miscdev_configured = 0;
+> +
+>  static LIST_HEAD(active_netconsole_dev);
+> 
+>  static DEFINE_SPINLOCK(netconsole_dev_list_lock);
+> 
+> +#define SHOW_CLASS_ATTR(field, type, format, ...) \
+> +static ssize_t show_##field(type, char *buf) \
+> +{ \
+> +     return sprintf(buf, format, __VA_ARGS__); \
+> +} \
 
-Signed-off-by: Yan Burman <burman.yan@gmail.com>
+I see this sort of thing is pretty common with sysfs stuff.. but yuck.
 
-diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_async.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_async.c
---- linux-2.6.19-rc5_orig/drivers/net/ppp_async.c	2006-11-09 12:16:21.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_async.c	2006-11-11 22:44:04.000000000 +0200
-@@ -159,12 +159,11 @@ ppp_asynctty_open(struct tty_struct *tty
- 	int err;
- 
- 	err = -ENOMEM;
--	ap = kmalloc(sizeof(*ap), GFP_KERNEL);
-+	ap = kzalloc(sizeof(*ap), GFP_KERNEL);
- 	if (ap == 0)
- 		goto out;
- 
- 	/* initialize the asyncppp structure */
--	memset(ap, 0, sizeof(*ap));
- 	ap->tty = tty;
- 	ap->mru = PPP_MRU;
- 	spin_lock_init(&ap->xmit_lock);
-diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_deflate.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_deflate.c
---- linux-2.6.19-rc5_orig/drivers/net/ppp_deflate.c	2006-11-09 12:16:21.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_deflate.c	2006-11-11 22:44:04.000000000 +0200
-@@ -121,12 +121,11 @@ static void *z_comp_alloc(unsigned char 
- 	if (w_size < DEFLATE_MIN_SIZE || w_size > DEFLATE_MAX_SIZE)
- 		return NULL;
- 
--	state = (struct ppp_deflate_state *) kmalloc(sizeof(*state),
--							GFP_KERNEL);
-+	state = kzalloc(sizeof(*state), GFP_KERNEL);
- 	if (state == NULL)
- 		return NULL;
- 
--	memset (state, 0, sizeof (struct ppp_deflate_state));
- 	state->strm.next_in   = NULL;
- 	state->w_size         = w_size;
- 	state->strm.workspace = vmalloc(zlib_deflate_workspacesize());
-@@ -341,11 +340,10 @@ static void *z_decomp_alloc(unsigned cha
- 	if (w_size < DEFLATE_MIN_SIZE || w_size > DEFLATE_MAX_SIZE)
- 		return NULL;
- 
--	state = (struct ppp_deflate_state *) kmalloc(sizeof(*state), GFP_KERNEL);
-+	state = kzalloc(sizeof(*state), GFP_KERNEL);
- 	if (state == NULL)
- 		return NULL;
- 
--	memset (state, 0, sizeof (struct ppp_deflate_state));
- 	state->w_size         = w_size;
- 	state->strm.next_out  = NULL;
- 	state->strm.workspace = kmalloc(zlib_inflate_workspacesize(),
-diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_mppe.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_mppe.c
---- linux-2.6.19-rc5_orig/drivers/net/ppp_mppe.c	2006-11-09 12:16:21.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_mppe.c	2006-11-11 22:44:04.000000000 +0200
-@@ -200,12 +200,10 @@ static void *mppe_alloc(unsigned char *o
- 	    || options[0] != CI_MPPE || options[1] != CILEN_MPPE)
- 		goto out;
- 
--	state = (struct ppp_mppe_state *) kmalloc(sizeof(*state), GFP_KERNEL);
-+	state = kzalloc(sizeof(*state), GFP_KERNEL);
- 	if (state == NULL)
- 		goto out;
- 
--	memset(state, 0, sizeof(*state));
--
- 	state->arc4 = crypto_alloc_blkcipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC);
- 	if (IS_ERR(state->arc4)) {
- 		state->arc4 = NULL;
-diff -rubp linux-2.6.19-rc5_orig/drivers/net/ppp_synctty.c linux-2.6.19-rc5_kzalloc/drivers/net/ppp_synctty.c
---- linux-2.6.19-rc5_orig/drivers/net/ppp_synctty.c	2006-11-09 12:16:21.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/drivers/net/ppp_synctty.c	2006-11-11 22:44:04.000000000 +0200
-@@ -207,13 +207,12 @@ ppp_sync_open(struct tty_struct *tty)
- 	struct syncppp *ap;
- 	int err;
- 
--	ap = kmalloc(sizeof(*ap), GFP_KERNEL);
-+	ap = kzalloc(sizeof(*ap), GFP_KERNEL);
- 	err = -ENOMEM;
- 	if (ap == 0)
- 		goto out;
- 
- 	/* initialize the syncppp structure */
--	memset(ap, 0, sizeof(*ap));
- 	ap->tty = tty;
- 	ap->mru = PPP_MRU;
- 	spin_lock_init(&ap->xmit_lock);
+> +static ssize_t show_netcon_dev_attr(struct kobject *kobj,
+> +				    struct attribute *attr,
+> +				    char *buffer)
+> +{
+> +	struct netcon_dev_attr *na = container_of(attr, struct netcon_dev_attr,
+> +						  attr);
+> +	struct netconsole_device * nd =
+> +		container_of(kobj, struct netconsole_device, obj);
+> +	if (na->show) {
+> +		return na->show(nd, buffer);
+> +	} else {
+> +		return -EACCES;
+> +	}
 
+Kernel style is to skip the braces for single statement clauses.
 
+> +	if (misc_register(&netcon_miscdev)) {
+> +		printk(KERN_INFO
+> +		       "netconsole: unable netconsole misc device\n");
 
+This error message seems to be missing a word or two.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

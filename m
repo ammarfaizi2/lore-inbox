@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750836AbWLLBgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750837AbWLLBh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWLLBgq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 20:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWLLBgq
+	id S1750837AbWLLBh1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 20:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWLLBh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 20:36:46 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:35984
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1750836AbWLLBgp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 20:36:45 -0500
-Date: Mon, 11 Dec 2006 17:36:44 -0800 (PST)
-Message-Id: <20061211.173644.130208821.davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
-       zach.brown@oracle.com, hch@infradead.org, chase.venters@clientec.com,
-       johann.borck@densedata.com, linux-kernel@vger.kernel.org,
-       jeff@garzik.org, aviro@redhat.com
-Subject: Re: Kevent POSIX timers support.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061128192236.GA2051@2ka.mipt.ru>
-References: <20061128091602.GC15083@2ka.mipt.ru>
-	<20061128.111300.105813754.davem@davemloft.net>
-	<20061128192236.GA2051@2ka.mipt.ru>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 11 Dec 2006 20:37:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58787 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750843AbWLLBh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 20:37:26 -0500
+Date: Mon, 11 Dec 2006 17:29:07 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Erik Jacobson <erikj@sgi.com>, guillaume.thouvenin@bull.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
+Message-Id: <20061211172907.305473cf.zaitcev@redhat.com>
+In-Reply-To: <1165881167.24721.73.camel@localhost.localdomain>
+References: <20061207232213.GA29340@sgi.com>
+	<20061208192027.18a1e708.zaitcev@redhat.com>
+	<20061209210913.GA15159@sgi.com>
+	<20061209183409.67b54d01.zaitcev@redhat.com>
+	<1165881167.24721.73.camel@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Tue, 28 Nov 2006 22:22:36 +0300
+On Mon, 11 Dec 2006 15:52:47 -0800, Matt Helsley <matthltc@us.ibm.com> wrote:
 
-> And, btw, last time I checked, aligned_u64 was not exported to
-> userspace.
+> 	I'm shocked memcpy() introduces 8-byte stores that violate architecture
+> alignment rules. Is there any chance this a bug in ia64's memcpy()
+> implementation? I've tried to read it but since I'm not familiar with
+> ia64 asm I can't make out significant parts of it in
+> arch/ia64/lib/memcpy.S.
 
-It is in linux/types.h and not protected by __KERNEL__ ifdefs.
-Perhaps you mean something else?
+The arch/ia64/lib/memcpy.S is probably fine, it must be gcc doing
+an inline substitution of a well-known function.
+
+A commenter on my blog mentioned seeing the same thing in the past.
+(http://zaitcev.livejournal.com/107185.html?thread=128945#t128945)
+
+It's possible that applying (void *) cast to the first argument of memcpy
+would disrupt this optimization. But since we have a well understood
+patch by Erik, which only adds a penalty of 32 bytes of stack waste
+and 32 bytes of memcpy, I thought it best not to bother with heaping
+workarounds.
+
+-- Pete

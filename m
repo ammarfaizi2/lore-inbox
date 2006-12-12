@@ -1,80 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750794AbWLLApT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750804AbWLLBPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWLLApT (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 19:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWLLApT
+	id S1750804AbWLLBPd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 20:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWLLBPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 19:45:19 -0500
-Received: from web58312.mail.re3.yahoo.com ([68.142.236.165]:37769 "HELO
-	web58312.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750794AbWLLApS (ORCPT
+	Mon, 11 Dec 2006 20:15:33 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:31168 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750804AbWLLBPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 19:45:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=hqr1EupQqPIs3FWO4qpZ15Sog4vYxVzBgTKWRs6wk53CXiYE+SZymyKc78K4eqo/EoMut6z/JCEBj4MJhLIdAOPhOfkgicOWHgtzHk4CNSc1OkBH7PwvomjZThWjW2FLg+kIB6y1OjkN0+LX1cNzvEXADA0Y78pphL3rvAfk1UA=;
-X-YMail-OSG: 8EExvFUVM1kLiumcAq1donLcdayBdigC8qy8redf0XlsOwvKrIlftXkhU74RjkVgaqtzVYbrn.qCuLAT.s3CYIge9e3.wVAgpnRiNCZX0u09USPeRwjaPYkYpV9vY0z1gDlxfGU8YWA.QYy1x7In8awjOHgJb_.1whU-
-Date: Mon, 11 Dec 2006 16:45:17 -0800 (PST)
-From: xu feng <xu_feng_xu@yahoo.com>
-Subject: doubts about disk scheduling
-To: linux-kernel@vger.kernel.org
+	Mon, 11 Dec 2006 20:15:32 -0500
+Message-ID: <457E02B3.3000302@mvista.com>
+Date: Mon, 11 Dec 2006 17:15:31 -0800
+From: Joe Green <jgreen@mvista.com>
+Organization: MontaVista Software, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <430903.22870.qm@web58312.mail.re3.yahoo.com>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       dsingleton@mvista.com
+Subject: Re: new procfs memory analysis feature
+References: <787b0d920612110013w755996f8xf9bea48e900e304@mail.gmail.com>
+In-Reply-To: <787b0d920612110013w755996f8xf9bea48e900e304@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-Please cc your reply to my email. many thanks
+Albert Cahalan wrote:
+> David Singleton writes:
+>
+>> Add variation of /proc/PID/smaps called /proc/PID/pagemaps.
+>> Shows reference counts for individual pages instead of aggregate totals.
+>> Allows more detailed memory usage information for memory analysis tools.
+>> An example of the output shows the shared text VMA for ld.so and
+>> the share depths of the pages in the VMA.
+>>
+>> a7f4b000-a7f65000 r-xp 00000000 00:0d 19185826   /lib/ld-2.5.90.so
+>>  11 11 11 11 11 11 11 11 11 13 13 13 13 13 13 13 8 8 8 13 13 13 13 13 
+>> 13 13
+>
+> Arrrgh! Not another ghastly maps file!
+>
+> Now we have /proc/*/smaps, which should make decent programmers cry.
 
-I would appreciate any help on the following
-questions.
+Yes, that's what we based this implementation on.  :)
 
- I have looked on disk scheduling algorithms 
-<http://www.cs.princeton.edu/courses/archive/fall06/cos318/lectures/disks.pdf>
-and the main thing that striked me is that most of the
-algorithms that i have read in the textbooks (some are
-explained in the previous ) don't take into
-consideration the "priority of the process". Being the
-short seek time first, scan, or c-scan algorithm, all
-are explained through a string of block numbers, but
-no mention is given about the owner of these
-blocks.does it mean all the processes are treated
-equally??  In my opinion a sort of Multi level queue
-like with CPU scheduling algorithm can be used to
-schedule the processes according to their importance.
-any comment?
+> Along the way, nobody bothered to add support for describing the
+> page size (IMHO your format ***severely*** needs this)
 
+Since the map size and an entry for each page is given, it's possible to 
+figure out the page size, assuming each map uses only a single page 
+size.  But adding the page size would be reasonable.
 
-My second question is about the implementation, i.e.
-how the different requests are actually aligned in the
-disk queue?
+> There can be a million pages in a mapping for a 32-bit process.
+> If my guess (since you too failed to document your format) is right,
+> you propose to have one decimal value per page.
 
-if a process submit a disk I/O request, its PCB should
-be linked to the disk queue. My question is, in making
-the system call, and after checking the permission
-rights and identifying the sought data (block) address
-in the disk and the target address in the memory does
-the kernel store this information in the pcb, then
-link this pcb in the disk queue?
+Yes, that's right.  We considered using repeat counts for sequences 
+pages with the same reference count (quite common), but it hasn't been 
+necessary in our application (see below).
 
-By doing so and once the disk controller is free , the
-device driver checks the queue pcbs and read the
-requested blocks and depending on the current location
-of the disk head and the queue pcb block request, the
-driver orders the controller to process a certain
-block request of a certain process. The driver removes
-this request from the pcb content 
+> In other words, the lines of this file can be megabytes long without 
+> even getting
+> to the issue of 64-bit hardware. This is no text file!
+>
+> How about a proper system call?
 
-is that how it is implemented?
+Our use for this is to optimize memory usage on very small embedded 
+systems, so the number of pages hasn't been a problem.
 
-Many thanks
+For the same reason, not needing a special program on the target system 
+to read the data is an advantage, because each extra program needed adds 
+to the footprint problem.
+
+The data is taken off the target and interpreted on another system, 
+which often is of a different architecture, so the portable text format 
+is useful also.
+
+This isn't mean to say your arguments aren't important, I'm just 
+explaining why this implementation is useful for us.
 
 
- 
-____________________________________________________________________________________
-Yahoo! Music Unlimited
-Access over 1 million songs.
-http://music.yahoo.com/unlimited
+-- 
+Joe Green <jgreen@mvista.com>
+MontaVista Software, Inc.
+

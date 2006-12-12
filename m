@@ -1,68 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751051AbWLLDRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751052AbWLLDRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWLLDRB (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 22:17:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWLLDRB
+	id S1751052AbWLLDRU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 22:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWLLDRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 22:17:01 -0500
-Received: from web32611.mail.mud.yahoo.com ([68.142.207.238]:32163 "HELO
-	web32611.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751051AbWLLDRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 22:17:00 -0500
-X-YMail-OSG: ktoo.toVM1me7166b5Znef7rODUEzitrges8.c91KGx2VnNax_RkUdn3fmssAHjZCWXSKla0C0ntUOPEzawC.n0Owfbtiu03rKCp.kHkgEIhFs8xHqJiJw--
-X-RocketYMMF: knobi.rm
-Date: Mon, 11 Dec 2006 19:16:59 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: [2.6.19] NFS: server error: fileid changed
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1165883155.22849.8.camel@lade.trondhjem.org>
+	Mon, 11 Dec 2006 22:17:20 -0500
+Received: from mx1.mandriva.com ([212.85.150.183]:39559 "EHLO mx1.mandriva.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751052AbWLLDRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 22:17:16 -0500
+Date: Tue, 12 Dec 2006 01:17:18 -0200
+From: Arnaldo Carvalho de Melo <acme@mandriva.com>
+To: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH][SCSI]: Save some bytes in struct scsi_target
+Message-ID: <20061212031718.GC6218@mandriva.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <932927.29357.qm@web32611.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Before:
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+[acme@newtoy kpahole-2.6]$ pahole --cacheline 32 /tmp/scsi.o.before scsi_target
+/* include/scsi/scsi_device.h:86 */
+struct scsi_target {
+        struct scsi_device *       starget_sdev_user;    /*     0     4 */
+        struct list_head           siblings;             /*     4     8 */
+        struct list_head           devices;              /*    12     8 */
+        struct device              dev;                  /*    20   300 */
+        /* --- cacheline 10 boundary (320 bytes) --- */
+        unsigned int               reap_ref;             /*   320     4 */
+        unsigned int               channel;              /*   324     4 */
+        unsigned int               id;                   /*   328     4 */
+        unsigned int               create:1;             /*   332     4 */
 
-> On Mon, 2006-12-11 at 15:44 -0800, Martin Knoblauch wrote:
-> >  So far, we are only seeing it on amd-mounted filesystems, not on
-> > static NFS mounts. Unfortunatelly, it is difficult to avoid "amd"
-> in
-> > our environment.
-> 
-> Any chance you could try substituting a recent version of autofs?
-> This
-> sort of problem is more likely to happen on partitions that are
-> unmounted and then remounted often. I'd just like to figure out if
-> this
-> is something that we need to fix in the kernel, or if it is purely an
-> amd problem.
-> 
-> Cheers
->   Trond
-> 
-Hi Trond,
+        /* XXX 31 bits hole, try to pack */
 
- unfortunatelly I have no controll over the mounting maps, as they are
-maintained from different people. So the answer is no. Unfortunatelly
-the customer has decided on using am-utils. This has been hurting us
-(and them) for years ...
+        unsigned int               pdt_1f_for_no_lun;    /*   336     4 */
+        char                       scsi_level;           /*   340     1 */
 
- Your are likely correct when you hint towards partitions which are
-frequently remounted.  
+        /* XXX 3 bytes hole, try to pack */
 
- In any case, your help is appreciated.
+        struct execute_work        ew;                   /*   344    16 */
+        /* --- cacheline 11 boundary (352 bytes) was 8 bytes ago --- */
+        enum scsi_target_state     state;                /*   360     4 */
+        void *                     hostdata;             /*   364     4 */
+        long unsigned int          starget_data[0];      /*   368     0 */
+}; /* size: 368, cachelines: 12 */
+   /* sum members: 365, holes: 1, sum holes: 3 */
+   /* bit holes: 1, sum bit holes: 31 bits */
+   /* last cacheline: 16 bytes */
 
-Cheers
-Martin
+After:
 
+[acme@newtoy kpahole-2.6]$ pahole --cacheline 32 drivers/scsi/scsi.o scsi_target
+/* include/scsi/scsi_device.h:86 */
+struct scsi_target {
+        struct scsi_device *       starget_sdev_user;    /*     0     4 */
+        struct list_head           siblings;             /*     4     8 */
+        struct list_head           devices;              /*    12     8 */
+        struct device              dev;                  /*    20   300 */
+        /* --- cacheline 10 boundary (320 bytes) --- */
+        unsigned int               reap_ref;             /*   320     4 */
+        unsigned int               channel;              /*   324     4 */
+        unsigned int               id;                   /*   328     4 */
+        char                       scsi_level;           /*   332     1 */
+        unsigned char              create:1;             /*   333     1 */
 
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+        /* XXX 7 bits hole, try to pack */
+        /* XXX 2 bytes hole, try to pack */
+
+        unsigned int               pdt_1f_for_no_lun;    /*   336     4 */
+        struct execute_work        ew;                   /*   340    16 */
+        /* --- cacheline 11 boundary (352 bytes) was 4 bytes ago --- */
+        enum scsi_target_state     state;                /*   356     4 */
+        void *                     hostdata;             /*   360     4 */
+        long unsigned int          starget_data[0];      /*   364     0 */
+}; /* size: 364, cachelines: 12 */
+   /* sum members: 362, holes: 1, sum holes: 2 */
+   /* bit holes: 1, sum bit holes: 7 bits */
+   /* last cacheline: 12 bytes */
+
+[acme@newtoy kpahole-2.6]$ codiff -V /tmp/scsi.o.before drivers/scsi/scsi.o
+drivers/scsi/scsi.c:
+  struct scsi_target |   -4
+    create:1;
+     from: unsigned int          /*   332(31)    4(1) */
+     to:   unsigned char         /*   333(7)     1(1) */
+    scsi_level;
+     from: char                  /*   340(0)     1(0) */
+     to:   char                  /*   332(0)     1(0) */
+<SNIP offset changes>
+ 1 struct changed
+
+Signed-off-by: Arnaldo Carvalho de Melo <acme@mandriva.com>
+
+---
+
+ scsi_device.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+index ebf31b1..ab245fc 100644
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -175,11 +175,11 @@ struct scsi_target {
+ 	unsigned int		channel;
+ 	unsigned int		id; /* target id ... replace
+ 				     * scsi_device.id eventually */
+-	unsigned int		create:1; /* signal that it needs to be added */
++	char			scsi_level;
++	unsigned char		create:1; /* signal that it needs to be added */
+ 	unsigned int		pdt_1f_for_no_lun;	/* PDT = 0x1f */
+ 						/* means no lun present */
+ 
+-	char			scsi_level;
+ 	struct execute_work	ew;
+ 	enum scsi_target_state	state;
+ 	void 			*hostdata; /* available to low-level driver */

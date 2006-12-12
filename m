@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932183AbWLLKTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751114AbWLLKaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWLLKTW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 05:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWLLKTW
+	id S1751114AbWLLKaH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 05:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWLLKaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 05:19:22 -0500
-Received: from MAIL1.WPI.EDU ([130.215.36.91]:56580 "EHLO mail1.wpi.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932183AbWLLKTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 05:19:21 -0500
-Message-ID: <49789.130.215.241.149.1165918756.squirrel@webmail.WPI.EDU>
-Date: Tue, 12 Dec 2006 05:19:16 -0500 (EST)
-Subject: [PATCH] asus_acpi: Add support for Asus Z81SP
-From: mcc@WPI.EDU
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 12 Dec 2006 05:30:07 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:46159 "EHLO smtp.hispeed.ch"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751114AbWLLKaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 05:30:05 -0500
+Subject: Re: Nokia E61 and the kernel BUG at mm/slab.c:594
+From: Thomas Sailer <t.sailer@alumni.ethz.ch>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Joscha Ihl <joscha@grundfarm.de>, linux-kernel@vger.kernel.org,
+       ihl@fh-brandenburg.de
+In-Reply-To: <20061212094421.GC2818@rhun.haifa.ibm.com>
+References: <20061211173506.5c8cb479@localhost>
+	 <20061212094421.GC2818@rhun.haifa.ibm.com>
+Content-Type: text/plain
+Organization: e-vision, inc.
+Date: Tue, 12 Dec 2006 11:28:41 +0100
+Message-Id: <1165919321.4066.44.camel@playstation2.hb9jnx.ampr.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 1378;
+	Body=4 Fuz1=4 Fuz2=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matthew C Campbell <calvinmc@gmail.com>
+On Tue, 2006-12-12 at 11:44 +0200, Muli Ben-Yehuda wrote:
 
-Adds support in asus_acpi for the Asus Z81SP laptop. This preserves all
-old functionality when improperly detected as well as enabling Bluetooth
-support.
+> I assume the previous crash was 2.6.19 with SMP? did it work with
+> earlier kernels?
 
-Signed-off-by: Matthew C Campbell <calvinmc@gmail.com>
----
---- linux-source-2.6.19/drivers/acpi/asus_acpi.c.orig   2006-12-12
-05:07:11.000000000 -0500
-+++ linux-source-2.6.19/drivers/acpi/asus_acpi.c        2006-12-12
-04:56:05.000000000 -0500
-@@ -140,6 +140,7 @@ struct asus_hotk {
-                W5A,            //W5A
-                W3V,            //W3030V
-                xxN,            //M2400N, M3700N, M5200N, M6800N, S1300N,
-S5200N
-+               A4S,            //Z81sp
-                //(Centrino)
-                END_MODEL
-        } model;                //Models currently supported
-@@ -396,7 +397,16 @@ static struct model_data model_conf[END_
-         .brightness_set = "SPLV",
-         .brightness_get = "GPLV",
-         .display_set = "SDSP",
--        .display_get = "\\ADVG"}
-+        .display_get = "\\ADVG"},
-+
-+        {
-+                .name              = "A4S",
-+                .brightness_set    = "SPLV",
-+                .brightness_get    = "GPLV",
-+                .mt_bt_switch      = "BLED",
-+                .mt_wled           = "WLED"
-+        }
-+
- };
+It happens to me as well, current Fedora 6 update
+kernel-2.6.18-1.2849.fc6.i686 UP, with a Nokia E70 in "PC Suite" mode.
+It works ok in mass storage mode. Haven't had time to debug this,
+though...
 
- /* procdir we use */
-@@ -1105,6 +1115,8 @@ static int asus_model_match(char *model)
-                return W3V;
-        else if (strncmp(model, "W5A", 3) == 0)
-                return W5A;
-+       else if (strncmp(model, "A4S", 3) == 0)
-+               return A4S;
-        else
-                return END_MODEL;
- }
+Tom
+
 

@@ -1,137 +1,193 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751528AbWLLQjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751545AbWLLQpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbWLLQjF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 11:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWLLQjF
+	id S1751545AbWLLQpi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 11:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWLLQpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 11:39:05 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:53948 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751528AbWLLQjC (ORCPT
+	Tue, 12 Dec 2006 11:45:38 -0500
+Received: from ms-smtp-04.southeast.rr.com ([24.25.9.103]:49065 "EHLO
+	ms-smtp-04.southeast.rr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751542AbWLLQph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 11:39:02 -0500
-Subject: Re: 2.6.19-git3 panics on boot - ata_piix/PCI related [still in
-	-git17]
-From: Steve Wise <swise@opengridcomputing.com>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1165873362.20877.22.camel@stevo-desktop>
-References: <5a4c581d0612110526j26a07b31q26edc075d4981cd8@mail.gmail.com>
-	 <1165873362.20877.22.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 10:39:02 -0600
-Message-Id: <1165941542.24482.5.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Tue, 12 Dec 2006 11:45:37 -0500
+Message-ID: <457EDCC9.3070409@redhat.com>
+Date: Tue, 12 Dec 2006 11:46:01 -0500
+From: Jeff Layton <jlayton@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: linux@horizon.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent
+References: <20061210175652.7537.qmail@science.horizon.com>
+In-Reply-To: <20061210175652.7537.qmail@science.horizon.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+linux@horizon.com wrote:
+ > I'm very fond of <stdbool.h>, since it explicitly documents that there
+ > are exactly two options.  It also allows the compiler a few minor
+ > opportunities for optimization, but that's not as big a deal.
+ >
+ > static int __simple_fill_super(struct super_block *s, int magic,
+ > 				struct tree_descr *files, bool sequential)
+ >
+ > Although "true" and "false" aren't the most meaningful #defines either,
+ > at least they indicate that it's one of two choices, and there is no
+ > option "2" to sorry about.
+ >
+ > Given your wrappr function names, "bool registered" is another option.
+ >
+ > You might want to make simple_fill_super() and registered_fill_super()
+ > inline functions or #defines rather than making them separate functions.
+ > Or is there a particular need for a function pointer?  The code size
+ > is negligible, and it saves stack space.
+ >
 
-Bisecting reveals that this commit causes the problem:
+Good catch on the inlining. I had meant to do that and missed it. The point
+about the naming of the flag is a good one too. How about this patch? I've
+tested it to see that it builds, but don't have good place to test this one
+to see that it works. A similar patch did work on a 2.6.18 derivative kernel.
 
-commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f
-Author: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date:   Wed Oct 4 00:41:26 2006 +0100
+Signed-off-by: Jeff Layton <jlayton@redhat.com>
 
-    PCI: quirks: fix the festering mess that claims to handle IDE quirks
+--- linux-2.6/fs/debugfs/inode.c.super	2006-12-12 08:46:46.000000000 -0500
++++ linux-2.6/fs/debugfs/inode.c	2006-12-12 08:54:14.000000000 -0500
+@@ -107,7 +107,7 @@
+  {
+  	static struct tree_descr debug_files[] = {{""}};
 
-    The number of permutations of crap we do is amazing and almost all of it
-    has the wrong effect in 2.6.
+-	return simple_fill_super(sb, DEBUGFS_MAGIC, debug_files);
++	return registered_fill_super(sb, DEBUGFS_MAGIC, debug_files);
+  }
 
-    At the heart of this is the PCI SFF magic which says that compatibility
-    mode PCI IDE controllers use ISA IRQ routing and hard coded addresses
-    not the BAR values. The old quirks variously clears them, sets them,
-    adjusts them and then IDE ignores the result.
+  static int debug_get_sb(struct file_system_type *fs_type,
+--- linux-2.6/fs/fuse/control.c.super	2006-12-12 08:46:46.000000000 -0500
++++ linux-2.6/fs/fuse/control.c	2006-12-12 08:54:14.000000000 -0500
+@@ -163,7 +163,7 @@
+  	struct fuse_conn *fc;
+  	int err;
 
-    In order to drive all this garbage out and to do it portably we need to
-    handle the SFF rules directly and properly. Because we know the device
-    BAR 0-3 are not used in compatibility mode we load them with the values
-    that are implied (and indeed which many controllers actually
-    thoughtfully put there in this mode anyway).
+-	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
++	err = registered_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
+  	if (err)
+  		return err;
 
-    This removes special cases in the IDE layer and libata which now knows
-    that bar 0/1/2/3 always contain the correct address. It means our
-    resource allocation map is accurate from boot, not "mostly accurate"
-    after ide is loaded, and it shoots lots of code. There is also lots more
-    code and magic constant knowledge to shoot once this is in and settled.
+--- linux-2.6/fs/libfs.c.super	2006-12-12 08:46:46.000000000 -0500
++++ linux-2.6/fs/libfs.c	2006-12-12 11:31:20.000000000 -0500
+@@ -215,7 +215,7 @@
+  	s->s_op = ops ? ops : &default_ops;
+  	s->s_time_gran = 1;
+  	root = new_inode(s);
+-	if (!root)
++	if (!root || iunique_register(root, 0))
+  		goto Enomem;
+  	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+  	root->i_uid = root->i_gid = 0;
+@@ -356,7 +356,8 @@
+  	return 0;
+  }
 
-    Been in my test tree for a while both with drivers/ide and with libata.
-    Wants some -mm shakedown in case I've missed something dumb or there are
-    corner cases lurking.
+-int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
++static int __simple_fill_super(struct super_block *s, int magic,
++				struct tree_descr *files, bool registered)
+  {
+  	static struct super_operations s_ops = {.statfs = simple_statfs};
+  	struct inode *inode;
+@@ -380,6 +381,12 @@
+  	inode->i_op = &simple_dir_inode_operations;
+  	inode->i_fop = &simple_dir_operations;
+  	inode->i_nlink = 2;
++	/*
++	 * set this as high as a 32 bit val as possible to avoid collisions.
++	 * This is also well above the highest value that iunique_register
++         * will assign to an inode
++	 */
++	inode->i_ino = 0xffffffff;
+  	root = d_alloc_root(inode);
+  	if (!root) {
+  		iput(inode);
+@@ -394,12 +401,15 @@
+  		inode = new_inode(s);
+  		if (!inode)
+  			goto out;
++		if (!registered)
++			inode->i_ino = i;
++		else if (iunique_register(inode, 0))
++			goto out;
+  		inode->i_mode = S_IFREG | files->mode;
+  		inode->i_uid = inode->i_gid = 0;
+  		inode->i_blocks = 0;
+  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+  		inode->i_fop = files->ops;
+-		inode->i_ino = i;
+  		d_add(dentry, inode);
+  	}
+  	s->s_root = root;
+@@ -410,6 +420,30 @@
+  	return -ENOMEM;
+  }
 
-    Signed-off-by: Alan Cox <alan@redhat.com>
-    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
++/*
++ * Fill a superblock with a standard set of fields, and add the entries in the
++ * "files" struct. Assign i_ino values to the files sequentially. This function
++ * is appropriate for filesystems that need a particular i_ino value assigned
++ * to a particular "files" entry.
++ */
++inline int simple_fill_super(struct super_block *s, int magic,
++			struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, false);
++}
++
++/*
++ * Just like simple_fill_super, but does an iunique_register on the inodes
++ * created for "files" entries. This function is appropriate when you don't
++ * need a particular i_ino value assigned to each files entry, and when the
++ * filesystem will have other registered inodes.
++ */
++inline int registered_fill_super(struct super_block *s, int magic,
++			struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, true);
++}
++
+  static DEFINE_SPINLOCK(pin_fs_lock);
 
-:040000 040000 137193040dc9d6515f5785dc2f6c9d9e833b56dc 5e55c04e8a951c708417f5b7223219ed9164db40 M      arch
-:040000 040000 eb8ae45ee090cd6210edae71c5104826f71dd298 be8d30db9ce51713e2b8de956cf8373aa8591a87 M      drivers
-swise@dell3:~/git/cxgb3.git>
+  int simple_pin_fs(struct file_system_type *type, struct vfsmount **mount, int *count)
+@@ -619,6 +653,7 @@
+  EXPORT_SYMBOL(simple_empty);
+  EXPORT_SYMBOL(d_alloc_name);
+  EXPORT_SYMBOL(simple_fill_super);
++EXPORT_SYMBOL(registered_fill_super);
+  EXPORT_SYMBOL(simple_getattr);
+  EXPORT_SYMBOL(simple_link);
+  EXPORT_SYMBOL(simple_lookup);
+--- linux-2.6/include/linux/fs.h.super	2006-12-12 08:53:34.000000000 -0500
++++ linux-2.6/include/linux/fs.h	2006-12-12 08:54:14.000000000 -0500
+@@ -1879,7 +1879,10 @@
+  extern struct inode_operations simple_dir_inode_operations;
+  struct tree_descr { char *name; const struct file_operations *ops; int mode; };
+  struct dentry *d_alloc_name(struct dentry *, const char *);
+-extern int simple_fill_super(struct super_block *, int, struct tree_descr *);
++extern int simple_fill_super(struct super_block *s, int magic,
++				struct tree_descr *files);
++extern int registered_fill_super(struct super_block *s, int magic,
++				struct tree_descr *files);
+  extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
+  extern void simple_release_fs(struct vfsmount **mount, int *count);
 
+--- linux-2.6/security/inode.c.super	2006-12-12 08:46:47.000000000 -0500
++++ linux-2.6/security/inode.c	2006-12-12 08:54:14.000000000 -0500
+@@ -130,7 +130,7 @@
+  {
+  	static struct tree_descr files[] = {{""}};
 
+-	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
++	return registered_fill_super(sb, SECURITYFS_MAGIC, files);
+  }
 
+  static int get_sb(struct file_system_type *fs_type,
 
-On Mon, 2006-12-11 at 15:42 -0600, Steve Wise wrote:
-> I'm also hitting this running at commit:
-> 
-> commit 7bf65382caeecea4ae7206138e92e732b676d6e5
-> Author: Andrew Morton <akpm@osdl.org>
-> Date:   Fri Dec 8 02:41:14 2006 -0800
-> 
-> I was at 2.6.19, then merged up to Linus's tree Friday 12/8 and now I
-> hit this. I have 2 identical systems with one difference, one has a DVD
-> ROM device hooked to the ATA controller.  This system displays the same
-> problem.  Since the other system without the DVD worked fine with the
-> same code, I removed the DVD from the problem system and it boots ok.
-> However I need the DVD, so I guess I'll start bisecting to see what
-> caused this. There's about 2000 commits from 2.6.19 to my head...
-> 
-> More to come...
-> 
-> Steve.
-> 
-> 
-> 
-> On Mon, 2006-12-11 at 14:26 +0100, Alessandro Suardi wrote:
-> > On 12/3/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> > > On 12/3/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> > > > > > ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKB] -> GSI 5 (level, low) -> IRQ5
-> > > > > > PCI: Unable to reserve I/O region #1:8@1f0 for device 0000:00:1f.2
-> > > > > > ata_piix: probe of 0000:00:1f.2 failed with error -16
-> > > > > > [snip]
-> > > > > > mount: could not find filesystem '/dev/root'
-> > > > >
-> > > > > Same failure is also in 2.6.19-git4...
-> > > >
-> > > > Thats the PCI updates - you need the matching fix to libata-sff where it
-> > > > tries to reserve stuff it shouldn't.
-> > >
-> > > Thanks Alan. Indeed -git1 is where stuff breaks for me.
-> > > I'll watch out for when libata-sff gets fixed in the -git
-> > >  snapshots and will then report back.
-> > 
-> > Alan,
-> > 
-> >   I still have this problem in 2.6.19-git17. Is this expected behavior
-> >   or should it have been fixed by now ?
-> > 
-> > Thanks,
-> > 
-> > --alessandro
-> > 
-> > "...when I get it, I _get_ it"
-> > 
-> >      (Lara Eidemiller)
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

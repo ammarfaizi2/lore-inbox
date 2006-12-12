@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932196AbWLLLME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932197AbWLLLOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWLLLME (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 06:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWLLLME
+	id S932197AbWLLLOF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 06:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWLLLOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 06:12:04 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40057 "EHLO mx2.mail.elte.hu"
+	Tue, 12 Dec 2006 06:14:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41300 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932196AbWLLLMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 06:12:01 -0500
-Date: Tue, 12 Dec 2006 12:10:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch] lockdep: fix seqlock_init()
-Message-ID: <20061212111028.GA13908@elte.hu>
+	id S932197AbWLLLOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 06:14:03 -0500
+Date: Tue, 12 Dec 2006 03:13:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-mm@kvack.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] Lumpy Reclaim V3
+Message-Id: <20061212031312.e4c91778.akpm@osdl.org>
+In-Reply-To: <exportbomb.1165424343@pinky>
+References: <exportbomb.1165424343@pinky>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] lockdep: fix seqlock_init()
-From: Ingo Molnar <mingo@elte.hu>
+On Wed, 6 Dec 2006 16:59:04 +0000
+Andy Whitcroft <apw@shadowen.org> wrote:
 
-seqlock_init() needs to use spin_lock_init() for dynamic locks, so that 
-lockdep is notified about the presence of a new lock.
+> This is a repost of the lumpy reclaim patch set.
 
-(this is a fallout of the recent networking merge, which started using 
-the so-far unused seqlock_init() API.)
+more...
 
-This fix solves the following lockdep-internal warning on current -git:
+One concern is that when the code goes to reclaim a lump and fails, we end
+up reclaiming a number of pages which we didn't really want to reclaim. 
+Regardless of the LRU status of those pages.
 
- INFO: trying to register non-static key.
- the code is fine but needs lockdep annotation.
- turning off the locking correctness validator.
-  [<c0104fd9>] dump_trace+0x63/0x1e8
-  [<c0105177>] show_trace_log_lvl+0x19/0x2e
-  [<c010557e>] show_trace+0x12/0x14
-  [<c0105594>] dump_stack+0x14/0x16
-  [<c0142992>] __lock_acquire+0x10c/0x9f9
-  [<c0143564>] lock_acquire+0x56/0x72
-  [<c03c514f>] _spin_lock+0x35/0x42
-  [<c0369875>] neigh_destroy+0x9d/0x12e
-  [<c036a1d5>] neigh_periodic_timer+0x10a/0x15c
-  [<c01302a5>] run_timer_softirq+0x126/0x18e
-  [<c012c530>] __do_softirq+0x6b/0xe6
-  [<c0106404>] do_softirq+0x64/0xd2
-  [<c012c249>] ksoftirqd+0x82/0x138
-  [<c01398f1>] kthread+0xb2/0xd7
-  [<c0104c1b>] kernel_thread_helper+0x7/0x10
+I think what we should do here is to add the appropriate vmstat counters
+for us to be able to assess the frequency of this occurring, then throw a
+spread of workloads at it.  If that work indicates that there's a problem
+then we should look at being a bit smarter about whether all the pages look
+to be reclaimable and if not, restore them all and give up.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- include/linux/seqlock.h |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Also, I suspect it would be cleaner and faster to pass the `active' flag
+into isolate_lru_pages(), rather than calculating it on the fly.  And I
+don't think we need to calculate it on every pass through the loop?
 
-Index: linux-hres-timers.q/include/linux/seqlock.h
-===================================================================
---- linux-hres-timers.q.orig/include/linux/seqlock.h
-+++ linux-hres-timers.q/include/linux/seqlock.h
-@@ -44,8 +44,11 @@ typedef struct {
- #define SEQLOCK_UNLOCKED \
- 		 __SEQLOCK_UNLOCKED(old_style_seqlock_init)
- 
--#define seqlock_init(x) \
--		do { *(x) = (seqlock_t) __SEQLOCK_UNLOCKED(x); } while (0)
-+#define seqlock_init(x)					\
-+	do {						\
-+		(x)->sequence = 0;			\
-+		spin_lock_init(&(x)->lock);		\
-+	} while (0)
- 
- #define DEFINE_SEQLOCK(x) \
- 		seqlock_t x = __SEQLOCK_UNLOCKED(x)
+
+We really do need those vmstat counters to let us see how effective this
+thing is being.  Basic success/fail stuff.  Per-zone, I guess.
+

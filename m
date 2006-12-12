@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751395AbWLLOxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751400AbWLLOyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWLLOxH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 09:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWLLOxG
+	id S1751400AbWLLOyA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 09:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWLLOyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 09:53:06 -0500
-Received: from il.qumranet.com ([62.219.232.206]:40521 "EHLO il.qumranet.com"
+	Tue, 12 Dec 2006 09:54:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52215 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751395AbWLLOxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 09:53:05 -0500
-Subject: [PATCH] KVM: Re-fix vmx hardware_enable() on macbooks
-From: Avi Kivity <avi@qumranet.com>
-Date: Tue, 12 Dec 2006 14:52:48 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Message-Id: <20061212145248.332AE2500B4@il.qumranet.com>
+	id S1751400AbWLLOx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 09:53:59 -0500
+Date: Tue, 12 Dec 2006 09:53:57 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: corbet@lwn.net
+Subject: Jon needs a new shift key.
+Message-ID: <20061212145357.GA32217@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, corbet@lwn.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This incremental patch fixes the macbook issue for real.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
-Tested-by: Alex Larsson (sometimes testing helps)
-
-------------------------------------------------------------------------
-Index: linux-2.6/drivers/kvm/vmx.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/vmx.c
-+++ linux-2.6/drivers/kvm/vmx.c
-@@ -534,7 +534,7 @@ static __init void hardware_enable(void 
- 	u64 old;
+--- linux-2.6.19.noarch/drivers/media/video/ov7670.c~	2006-12-12 09:53:10.000000000 -0500
++++ linux-2.6.19.noarch/drivers/media/video/ov7670.c	2006-12-12 09:53:18.000000000 -0500
+@@ -18,7 +18,7 @@
+ #include <linux/i2c.h>
  
- 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
--	if ((old & 4) == 0)
-+	if ((old & 5) != 5)
- 		/* enable and lock */
- 		wrmsrl(MSR_IA32_FEATURE_CONTROL, old | 5);
- 	write_cr4(read_cr4() | CR4_VMXE); /* FIXME: not cpu hotplug safe */
+ 
+-MODULE_AUTHOR("Jonathan Corbet <corbet@lwn.net.");
++MODULE_AUTHOR("Jonathan Corbet <corbet@lwn.net>");
+ MODULE_DESCRIPTION("A low-level driver for OmniVision ov7670 sensors");
+ MODULE_LICENSE("GPL");
+ 
+-- 
+http://www.codemonkey.org.uk

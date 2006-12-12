@@ -1,76 +1,180 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932549AbWLLWr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932544AbWLLWug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbWLLWr6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWLLWr6
+	id S932544AbWLLWug (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWLLWug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:47:58 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39798 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932549AbWLLWr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:47:57 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: mapping PCI registers with write combining (and PAT on x86)...
-References: <adalklcu5w3.fsf@cisco.com>
-Date: Tue, 12 Dec 2006 15:47:43 -0700
-In-Reply-To: <adalklcu5w3.fsf@cisco.com> (Roland Dreier's message of "Tue, 12
-	Dec 2006 14:05:32 -0800")
-Message-ID: <m1irggrasw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Tue, 12 Dec 2006 17:50:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47409 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932517AbWLLWue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:50:34 -0500
+Message-ID: <457F3234.3050100@redhat.com>
+Date: Tue, 12 Dec 2006 17:50:28 -0500
+From: Jeff Layton <jlayton@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Peter Staubach <staubach@redhat.com>
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent
+References: <20061212194708.8359.qmail@science.horizon.com> <457F0BB1.4090806@redhat.com> <457F12CA.9050907@redhat.com> <457F311A.2090501@redhat.com>
+In-Reply-To: <457F311A.2090501@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <rdreier@cisco.com> writes:
+Jeff Layton wrote:
+ > Peter Staubach wrote:
+ >  >
+ >  > If iunique_register() fails, does not this create a memory leak
+ >  > because root will need to get iput()'d?
+ >  >
+ >
+ > Good point, and now that we have a wrapper for new_inode that handles this
+ > error transparently, both places are easy to fix. This patch should do it:
 
-> Suppose that I would like to map some PIO registers (in a PCI BAR) to
-> userspace, and I would like to enable write combining if possible.
->
-> I have two problems.  First, there's no generic interface for
-> requesting write combining if possible when doing
-> io_remap_pfn_range().  Would it make sense to define
-> pageprot_writecombine for all architectures (and make it fall back to
-> doing non-cached access if write combining is not possible)?  And it
-> seems that making pgprot_noncached() universal wouldn't hurt either.
+I really need to proofread better before sending. That patch would crash if
+new_inode returned NULL. This should be correct:
 
-So I think we may simplify this but there is pci_mmap_page_range.  That
-already handles this for the architectures that currently support it.
-So it is probably the case the fbdev should be changed to use that.
+Signed-off-by: Jeff Layton <jlayton@redhat.com>
 
-I am certainly in favor of simpler infrastructure like making
-pgprot_writecombine and pgprot_uncached universal but I would like to
-start with what works today.
+--- linux-2.6/fs/debugfs/inode.c.super
++++ linux-2.6/fs/debugfs/inode.c
+@@ -107,7 +107,7 @@ static int debug_fill_super(struct super
+  {
+  	static struct tree_descr debug_files[] = {{""}};
 
-Then we can go reexamine things like the ia64 slavishly trusting the
-BIOS to know which page protections are good.
+-	return simple_fill_super(sb, DEBUGFS_MAGIC, debug_files);
++	return registered_fill_super(sb, DEBUGFS_MAGIC, debug_files);
+  }
 
-> Second, given the extreme shortage of MTRRs, it seems that write
-> combining is not really possible in general on x86 without some
-> interface to use PATs instead.  What is holding up something like Eric
-> Biederman's patches from going in?
+  static int debug_get_sb(struct file_system_type *fs_type,
+--- linux-2.6/fs/fuse/control.c.super
++++ linux-2.6/fs/fuse/control.c
+@@ -163,7 +163,7 @@ static int fuse_ctl_fill_super(struct su
+  	struct fuse_conn *fc;
+  	int err;
 
-No one had any serious objections to my patches as they were.  The actual
-problem was that the patches were incomplete.  In particular if you
-mismatch page protections it is possible to get silent data corruption
-or processor crashes.  So we need checks to ensure all mappings of
-a given page are using the same protections.
+-	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
++	err = registered_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
+  	if (err)
+  		return err;
 
-To a certain extent I think adding those checks really is a strawman
-and should not stop the merge effort, because we have this feature and
-those possible bugs on other architectures right now and we don't have
-those checks.  But I also think in the long term we need them, it just
-requires several days of going through the mm so we don't leave any
-path uncovered.
+--- linux-2.6/fs/libfs.c.super
++++ linux-2.6/fs/libfs.c
+@@ -214,7 +214,7 @@ int get_sb_pseudo(struct file_system_typ
+  	s->s_magic = magic;
+  	s->s_op = ops ? ops : &default_ops;
+  	s->s_time_gran = 1;
+-	root = new_inode(s);
++	root = new_registered_inode(s, 0);
+  	if (!root)
+  		goto Enomem;
+  	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+@@ -356,7 +356,8 @@ int simple_commit_write(struct file *fil
+  	return 0;
+  }
 
-> Right now we end up with stuff like the absolutely hair-raising code
-> in drivers/video/fbmem.c shown below.  I really would like to make
-> progress towards having a better interface for doing this stuff, and
-> I'm more than willing to work on getting something mergable.
+-int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
++int __simple_fill_super(struct super_block *s, int magic,
++			struct tree_descr *files, bool registered)
+  {
+  	static struct super_operations s_ops = {.statfs = simple_statfs};
+  	struct inode *inode;
+@@ -380,6 +381,12 @@ int simple_fill_super(struct super_block
+  	inode->i_op = &simple_dir_inode_operations;
+  	inode->i_fop = &simple_dir_operations;
+  	inode->i_nlink = 2;
++	/*
++	 * set this as high as a 32 bit val as possible to avoid collisions.
++	 * This is also well above the highest value that iunique_register
++	 * will assign to an inode
++	 */
++	inode->i_ino = 0xffffffff;
+  	root = d_alloc_root(inode);
+  	if (!root) {
+  		iput(inode);
+@@ -391,15 +398,21 @@ int simple_fill_super(struct super_block
+  		dentry = d_alloc_name(root, files->name);
+  		if (!dentry)
+  			goto out;
+-		inode = new_inode(s);
++		if (registered)
++			inode = new_registered_inode(s, 0);
++		else
++			inode = new_inode(s);
++
+  		if (!inode)
+  			goto out;
++
++		if (!registered)
++			inode->i_ino = i;	
+  		inode->i_mode = S_IFREG | files->mode;
+  		inode->i_uid = inode->i_gid = 0;
+  		inode->i_blocks = 0;
+  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+  		inode->i_fop = files->ops;
+-		inode->i_ino = i;
+  		d_add(dentry, inode);
+  	}
+  	s->s_root = root;
+@@ -618,7 +631,7 @@ EXPORT_SYMBOL(simple_dir_inode_operation
+  EXPORT_SYMBOL(simple_dir_operations);
+  EXPORT_SYMBOL(simple_empty);
+  EXPORT_SYMBOL(d_alloc_name);
+-EXPORT_SYMBOL(simple_fill_super);
++EXPORT_SYMBOL(__simple_fill_super);
+  EXPORT_SYMBOL(simple_getattr);
+  EXPORT_SYMBOL(simple_link);
+  EXPORT_SYMBOL(simple_lookup);
+--- linux-2.6/include/linux/fs.h.super
++++ linux-2.6/include/linux/fs.h
+@@ -1879,10 +1879,35 @@ extern const struct file_operations simp
+  extern struct inode_operations simple_dir_inode_operations;
+  struct tree_descr { char *name; const struct file_operations *ops; int mode; };
+  struct dentry *d_alloc_name(struct dentry *, const char *);
+-extern int simple_fill_super(struct super_block *, int, struct tree_descr *);
++extern int __simple_fill_super(struct super_block *s, int magic,
++				struct tree_descr *files, bool registered);
+  extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
+  extern void simple_release_fs(struct vfsmount **mount, int *count);
 
-I hope my comments help.
++/*
++ * Fill a superblock with a standard set of fields, and add the entries in the
++ * "files" struct. Assign i_ino values to the files sequentially. This function
++ * is appropriate for filesystems that need a particular i_ino value assigned
++ * to a particular "files" entry.
++ */
++static inline int simple_fill_super(struct super_block *s, int magic,
++					struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, false);
++}
++
++/*
++ * Just like simple_fill_super, but does an iunique_register on the inodes
++ * created for "files" entries. This function is appropriate when you don't
++ * need a particular i_ino value assigned to each files entry, and when the
++ * filesystem will have other registered inodes.
++ */
++static inline int registered_fill_super(struct super_block *s, int magic,
++						struct tree_descr *files)
++{
++	return __simple_fill_super(s, magic, files, true);
++}
++
+  extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
 
-Eric
+  #ifdef CONFIG_MIGRATION
+--- linux-2.6/security/inode.c.super
++++ linux-2.6/security/inode.c
+@@ -130,7 +130,7 @@ static int fill_super(struct super_block
+  {
+  	static struct tree_descr files[] = {{""}};
+
+-	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
++	return registered_fill_super(sb, SECURITYFS_MAGIC, files);
+  }
+
+  static int get_sb(struct file_system_type *fs_type,

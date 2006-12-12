@@ -1,48 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932463AbWLLWE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932467AbWLLWFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWLLWE2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWLLWE2
+	id S932467AbWLLWFi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWLLWFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:04:28 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:60925 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932463AbWLLWE1 (ORCPT
+	Tue, 12 Dec 2006 17:05:38 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:28095 "EHLO
+	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932467AbWLLWFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:04:27 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Subject: Re: O2micro smartcard reader driver.
-Date: Tue, 12 Dec 2006 23:05:53 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <20061127182817.d52dfdf1.l.bigonville@edpnet.be> <200611281249.45243.oliver@neukum.org> <457F1F0F.20109@tremplin-utc.net>
-In-Reply-To: <457F1F0F.20109@tremplin-utc.net>
+	Tue, 12 Dec 2006 17:05:37 -0500
+To: linux-kernel@vger.kernel.org
+Cc: ebiederm@xmission.com
+Subject: mapping PCI registers with write combining (and PAT on x86)...
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 12 Dec 2006 14:05:32 -0800
+Message-ID: <adalklcu5w3.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612122305.53767.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 12 Dec 2006 22:05:32.0779 (UTC) FILETIME=[A4A7FBB0:01C71E39]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 12. Dezember 2006 22:28 schrieb Eric Piel:
+Suppose that I would like to map some PIO registers (in a PCI BAR) to
+userspace, and I would like to enable write combining if possible.
 
-Hi
+I have two problems.  First, there's no generic interface for
+requesting write combining if possible when doing
+io_remap_pfn_range().  Would it make sense to define
+pageprot_writecombine for all architectures (and make it fall back to
+doing non-cached access if write combining is not possible)?  And it
+seems that making pgprot_noncached() universal wouldn't hurt either.
 
-> Thanks a lot for reading my code, I didn't even hope that someone would! 
-> I've corrected the copy_to_user (and copy_from_user) code. However I 
-> don't know how to do locking for the concurrent ioctls. Indeed, I don't 
-> think there is anything preventing two programs to call the driver at 
-> the same time. Unfortunately, I've got no idea how to do the locking and 
-> surprisingly couldn't find any ioctl code in the kernel doing locking. 
-> Maybe I've just not looked at the right place, could you give a me some 
-> hint how to do locking for ioctl's ?
+Second, given the extreme shortage of MTRRs, it seems that write
+combining is not really possible in general on x86 without some
+interface to use PATs instead.  What is holding up something like Eric
+Biederman's patches from going in?
 
-I take it back. Reading your code again, it seems to me that it'll
-never sleep. In this case you are protected by BKL. If not, you need
-to use mutexes, just like eg. in drivers/usb/class/usblp.c
+Right now we end up with stuff like the absolutely hair-raising code
+in drivers/video/fbmem.c shown below.  I really would like to make
+progress towards having a better interface for doing this stuff, and
+I'm more than willing to work on getting something mergable.
 
-	HTH
-		Oliver
+	#if defined(__mc68000__)
+	#if defined(CONFIG_SUN3)
+		pgprot_val(vma->vm_page_prot) |= SUN3_PAGE_NOCACHE;
+	#elif defined(CONFIG_MMU)
+		if (CPU_IS_020_OR_030)
+			pgprot_val(vma->vm_page_prot) |= _PAGE_NOCACHE030;
+		if (CPU_IS_040_OR_060) {
+			pgprot_val(vma->vm_page_prot) &= _CACHEMASK040;
+			/* Use no-cache mode, serialized */
+			pgprot_val(vma->vm_page_prot) |= _PAGE_NOCACHE_S;
+		}
+	#endif
+	#elif defined(__powerpc__)
+		vma->vm_page_prot = phys_mem_access_prot(file, off >> PAGE_SHIFT,
+							 vma->vm_end - vma->vm_start,
+							 vma->vm_page_prot);
+	#elif defined(__alpha__)
+		/* Caching is off in the I/O space quadrant by design.  */
+	#elif defined(__i386__) || defined(__x86_64__)
+		if (boot_cpu_data.x86 > 3)
+			pgprot_val(vma->vm_page_prot) |= _PAGE_PCD;
+	#elif defined(__mips__) || defined(__sparc_v9__)
+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+	#elif defined(__hppa__)
+		pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
+	#elif defined(__arm__) || defined(__sh__) || defined(__m32r__)
+		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+	#elif defined(__ia64__)
+		if (efi_range_is_wc(vma->vm_start, vma->vm_end - vma->vm_start))
+			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+		else
+			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+	#else
+	#warning What do we have to do here??
+	#endif
+		if (io_remap_pfn_range(vma, vma->vm_start, off >> PAGE_SHIFT,
+				     vma->vm_end - vma->vm_start, vma->vm_page_prot))
+			return -EAGAIN;
+		return 0;
+
+Thanks!
+  Roland

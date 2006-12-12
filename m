@@ -1,83 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932324AbWLLSTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932323AbWLLSUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWLLSTz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWLLSTy
+	id S932323AbWLLSUe (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWLLSUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:19:54 -0500
-Received: from waste.org ([66.93.16.53]:46435 "EHLO waste.org"
+	Tue, 12 Dec 2006 13:20:34 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53168 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932324AbWLLSTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:19:54 -0500
-Date: Tue, 12 Dec 2006 12:10:06 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Keiichi KII <k-keiichi@bx.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.19 1/6] cleanup for netconsole
-Message-ID: <20061212181006.GH13687@waste.org>
-References: <457E498C.1050806@bx.jp.nec.com> <457E4C01.1010206@bx.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <457E4C01.1010206@bx.jp.nec.com>
-User-Agent: Mutt/1.5.9i
+	id S932323AbWLLSUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 13:20:33 -0500
+Date: Tue, 12 Dec 2006 10:20:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: LKML Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Mach-O binary format support and Darwin syscall personality
+ [Was: uts banner changes]
+In-Reply-To: <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
+Message-ID: <Pine.LNX.4.64.0612121008490.3535@woody.osdl.org>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de>
+ <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+ <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de>
+ <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org>
+ <320BD259-74D6-411F-82A4-4BF3CB15012F@mac.com> <Pine.LNX.4.64.0612120815550.6452@woody.osdl.org>
+ <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 03:28:17PM +0900, Keiichi KII wrote:
-> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+
+
+On Tue, 12 Dec 2006, Kyle Moffett wrote:
 > 
-> This patch contains the following cleanups.
->  - add __init for initialization functions(option_setup() and init_netconsole()).
->  - define name of magic number.
-> 
-> Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
-> ---
-> --- linux-2.6.19/drivers/net/netconsole.c	2006-12-06 14:37:06.985584500 +0900
-> +++ enhanced-netconsole/drivers/net/netconsole.c.cleanup	2006-12-06
-> 14:34:52.561183500 +0900
-> @@ -50,8 +50,14 @@ MODULE_AUTHOR("Maintainer: Matt Mackall
->  MODULE_DESCRIPTION("Console driver for network interfaces");
->  MODULE_LICENSE("GPL");
-> 
-> -static char config[256];
-> -module_param_string(netconsole, config, 256, 0);
-> +enum {
-> +	MAX_PRINT_CHUNK = 1000,
-> +	MAX_CONFIG_LENGTH = 256,
-> +};
+> Virtually all of my easily accessible computers right now are PowerPC and all
+> of my assembly experience is PPC and MIPS, so as far as the x86-syscall
+> support I have no clue whatsoever.
 
-Converting defines to anonymous enums is generally not considered a net
-improvement around here. It doesn't provide any improvement in type safety.
+Ok. On ppc, the issues are perhaps a bit more straightforward, because 
+there is really just one way to do system calls: "sc".
 
-> 
->  static void write_msg(struct console *con, const char *msg, unsigned int len)
->  {
-> @@ -75,14 +80,12 @@ static void write_msg(struct console *co
->  		return;
-> 
->  	local_irq_save(flags);
-> -
->  	for(left = len; left; ) {
->  		frag = min(left, MAX_PRINT_CHUNK);
->  		netpoll_send_udp(&np, msg, frag);
->  		msg += frag;
->  		left -= frag;
->  	}
-> -
->  	local_irq_restore(flags);
->  }
+That said, powerpc simply doesn't historically do any system call 
+translation, so you'll just have to implement the same kind of translation 
+layer that sparc has done, for example.
 
-It's not a good idea to mix unrelated changes in, especially if
-they're gratuitous formatting changes.
+See: DoSyscall in arch/powerpc/kernel/entry_32.S. Right now it just does
 
-> +static int __init init_netconsole(void)
->  {
->  	if(strlen(config))
->  		option_setup(config);
+		...
+		cmplwi  0,r0,NR_syscalls
+	        lis     r10,sys_call_table@h
+	        ori     r10,r10,sys_call_table@l
+	        slwi    r0,r0,2
+	        bge-    66f
+	        lwzx    r10,r10,r0      /* Fetch system call handler [ptr] */
+	        mtlr    r10
+	        addi    r9,r1,STACK_FRAME_OVERHEAD
+	        PPC440EP_ERR42
+	        blrl                    /* Call handler */
+	        .globl  ret_from_syscall
+	ret_from_syscall:
+		...
 
-I seem to recall there was a reason for not marking that __init. It
-may no longer apply.
+ie it uses one global table ("sys_call_table" and "NR_syscalls") for 
+everything, and you'd need to make it use different tables (and table 
+sizes) conditionally on the "Apple binary flag"
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Alternatively, you could perhaps fit it in the exception table itself 
+(arch/powerpc/kernel/entry.S), but that gets just nastier and more 
+low-level, so I doubt it's all that great an idea.
+
+> So I guess all I have to do is:
+>  (A)  Write a bunch of new syscall handlers taking arguments of the same types
+> as the Darwin syscall handlers,
+
+Yes. The big issue tends to be to translate all the errno's and the fcntl 
+structure pointers etc. THAT can be quite painful indeed. You might ask 
+David Miller and company about their SunOS stuff, and look at things like
+
+	arch/sparc/kernel/{sys_sunos.c,sunos_ioctl.c}
+
+for some sorry examples.
+
+>  (B)  Figure out how to switch tables depending on the "syscall personality"
+> of "current"
+
+See above. "DoSyscall" is where you enter.
+
+		Linus

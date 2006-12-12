@@ -1,66 +1,240 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932482AbWLLWeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932504AbWLLWej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWLLWeW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWLLWeW
+	id S932504AbWLLWej (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWLLWej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:34:22 -0500
-Received: from smtpout.mac.com ([17.250.248.177]:58365 "EHLO smtpout.mac.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932482AbWLLWeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:34:21 -0500
-In-Reply-To: <Pine.LNX.4.64.0612121008490.3535@woody.osdl.org>
-References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <320BD259-74D6-411F-82A4-4BF3CB15012F@mac.com> <Pine.LNX.4.64.0612120815550.6452@woody.osdl.org> <D571C4CB-3D52-446C-802E-024C4C333562@mac.com> <Pine.LNX.4.64.0612121008490.3535@woody.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0B8F288E-4FCD-409E-9BA2-C524CF31E9A3@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Mach-O binary format support and Darwin syscall personality [Was: uts banner changes]
-Date: Tue, 12 Dec 2006 17:34:11 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
-X-Proofpoint-Virus-Version: vendor=fsecure engine=4.65.5446:2.3.11,1.2.37,4.0.164 definitions=2006-12-12_05:2006-12-12,2006-12-12,2006-12-12 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 ipscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx engine=3.1.0-0612050001 definitions=main-0612120027
+	Tue, 12 Dec 2006 17:34:39 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:1224 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932504AbWLLWeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:34:37 -0500
+Date: Tue, 12 Dec 2006 14:34:28 -0800
+Message-Id: <200612122234.kBCMYSgh023315@zach-dev.vmware.com>
+Subject: [PATCH 1/5] Paravirt page alloc.patch
+From: Zachary Amsden <zach@vmware.com>
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>
+X-OriginalArrivalTime: 12 Dec 2006 22:34:35.0887 (UTC) FILETIME=[B3A127F0:01C71E3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 12, 2006, at 13:20:19, Linus Torvalds wrote:
-> That said, powerpc simply doesn't historically do any system call  
-> translation, so you'll just have to implement the same kind of  
-> translation layer that sparc has done, for example.
+The VMI backend uses explicit page type notification to track shadow
+page tables.  The allocation of page table roots is especially tricky.
+We want to clone the root for non-PAE mode while it is protected under
+the pgd lock.
 
-Thanks a lot for all your help.  I've got two last questions:  From  
-the code in entry_32.s I can dig up "current" from ((struct  
-paca_struct *)r13)->__current to read a personality flag from it,  
-right?  Digging up offsets in assembly can't be very fun :-\   
-Secondly, is there a preferred existing field into which I should  
-stick said flag or just stuff it somewhere?
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-This part seems like the easiest so far; no icky binary format  
-parsing, no confusing memory maps.  Thanks once again!
-
->> So I guess all I have to do is:
->>  (A)  Write a bunch of new syscall handlers taking arguments of  
->> the same types
->> as the Darwin syscall handlers,
->
-> Yes. The big issue tends to be to translate all the errno's and the  
-> fcntl structure pointers etc. THAT can be quite painful indeed. You  
-> might ask David Miller and company about their SunOS stuff, and  
-> look at things like
->
-> 	arch/sparc/kernel/{sys_sunos.c,sunos_ioctl.c}
->
-> for some sorry examples.
-
-Ok, I figured it was going to be ugly; maybe not quite _that_ ugly  
-but my hopes weren't high enough for you to dash to any real degree :-D.
-
-Cheers,
-Kyle Moffett
-
+===================================================================
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -545,6 +545,12 @@ struct paravirt_ops paravirt_ops = {
+ 	.flush_tlb_kernel = native_flush_tlb_global,
+ 	.flush_tlb_single = native_flush_tlb_single,
+ 
++	.alloc_pt = (void *)native_nop,
++	.alloc_pd = (void *)native_nop,
++	.alloc_pd_clone = (void *)native_nop,
++	.release_pt = (void *)native_nop,
++	.release_pd = (void *)native_nop,
++
+ 	.set_pte = native_set_pte,
+ 	.set_pte_at = native_set_pte_at,
+ 	.set_pmd = native_set_pmd,
+===================================================================
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -62,6 +62,7 @@ static pmd_t * __init one_md_table_init(
+ 		
+ #ifdef CONFIG_X86_PAE
+ 	pmd_table = (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
+ 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+ 	pud = pud_offset(pgd, 0);
+ 	if (pmd_table != pmd_offset(pud, 0)) 
+@@ -82,6 +83,7 @@ static pte_t * __init one_page_table_ini
+ {
+ 	if (pmd_none(*pmd)) {
+ 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+ 		if (page_table != pte_offset_kernel(pmd, 0))
+ 			BUG();	
+@@ -347,6 +349,8 @@ static void __init pagetable_init (void)
+ 	/* Init entries of the first-level page table to the zero page */
+ 	for (i = 0; i < PTRS_PER_PGD; i++)
+ 		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++#else
++	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
+ #endif
+ 
+ 	/* Enable PSE if available */
+===================================================================
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -60,6 +60,7 @@ static struct page *split_large_page(uns
+ 	address = __pa(address);
+ 	addr = address & LARGE_PAGE_MASK; 
+ 	pbase = (pte_t *)page_address(base);
++	paravirt_alloc_pt(page_to_pfn(base));
+ 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
+                set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+                                           addr == address ? prot : ref_prot));
+@@ -166,6 +167,7 @@ __change_page_attr(struct page *page, pg
+ 	if (!PageReserved(kpte_page)) {
+ 		if (cpu_has_pse && (page_private(kpte_page) == 0)) {
+ 			ClearPagePrivate(kpte_page);
++			paravirt_release_pt(page_to_pfn(kpte_page));
+ 			list_add(&kpte_page->lru, &df_list);
+ 			revert_page(kpte_page, address);
+ 		}
+===================================================================
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -245,8 +245,14 @@ void pgd_ctor(void *pgd, kmem_cache_t *c
+ 	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
+ 			swapper_pg_dir + USER_PTRS_PER_PGD,
+ 			KERNEL_PGD_PTRS);
++
+ 	if (PTRS_PER_PMD > 1)
+ 		return;
++
++	/* must happen under lock */
++	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
++			__pa(swapper_pg_dir) >> PAGE_SHIFT,
++			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
+ 
+ 	pgd_list_add(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+@@ -257,6 +263,7 @@ void pgd_dtor(void *pgd, kmem_cache_t *c
+ {
+ 	unsigned long flags; /* can be called from interrupt context */
+ 
++	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
+ 	spin_lock_irqsave(&pgd_lock, flags);
+ 	pgd_list_del(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+@@ -274,13 +281,18 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 		pmd_t *pmd = kmem_cache_alloc(pmd_cache, GFP_KERNEL);
+ 		if (!pmd)
+ 			goto out_oom;
++		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
+ 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
+ 	}
+ 	return pgd;
+ 
+ out_oom:
+-	for (i--; i >= 0; i--)
+-		kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++	for (i--; i >= 0; i--) {
++		pgd_t pgdent = pgd[i];
++		void* pmd = (void *)__va(pgd_val(pgdent)-1);
++		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
++		kmem_cache_free(pmd_cache, pmd);
++	}
+ 	kmem_cache_free(pgd_cache, pgd);
+ 	return NULL;
+ }
+@@ -291,8 +303,12 @@ void pgd_free(pgd_t *pgd)
+ 
+ 	/* in the PAE case user pgd entries are overwritten before usage */
+ 	if (PTRS_PER_PMD > 1)
+-		for (i = 0; i < USER_PTRS_PER_PGD; ++i)
+-			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++		for (i = 0; i < USER_PTRS_PER_PGD; ++i) {
++			pgd_t pgdent = pgd[i];
++			void* pmd = (void *)__va(pgd_val(pgdent)-1);
++			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
++			kmem_cache_free(pmd_cache, pmd);
++		}
+ 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
+ 	kmem_cache_free(pgd_cache, pgd);
+ }
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -126,6 +126,12 @@ struct paravirt_ops
+ 	void (fastcall *flush_tlb_user)(void);
+ 	void (fastcall *flush_tlb_kernel)(void);
+ 	void (fastcall *flush_tlb_single)(u32 addr);
++
++	void (fastcall *alloc_pt)(u32 pfn);
++	void (fastcall *alloc_pd)(u32 pfn);
++	void (fastcall *alloc_pd_clone)(u32 pfn, u32 clonepfn, u32 start, u32 count);
++	void (fastcall *release_pt)(u32 pfn);
++	void (fastcall *release_pd)(u32 pfn);
+ 
+ 	void (fastcall *set_pte)(pte_t *ptep, pte_t pteval);
+ 	void (fastcall *set_pte_at)(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval);
+@@ -325,6 +331,14 @@ static __inline unsigned long apic_read(
+ #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
+ #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
+ 
++#define paravirt_alloc_pt(pfn) paravirt_ops.alloc_pt(pfn)
++#define paravirt_release_pt(pfn) paravirt_ops.release_pt(pfn)
++
++#define paravirt_alloc_pd(pfn) paravirt_ops.alloc_pd(pfn)
++#define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) \
++	paravirt_ops.alloc_pd_clone(pfn, clonepfn, start, count)
++#define paravirt_release_pd(pfn) paravirt_ops.release_pd(pfn)
++
+ static inline void set_pte(pte_t *ptep, pte_t pteval)
+ {
+ 	paravirt_ops.set_pte(ptep, pteval);
+===================================================================
+--- a/include/asm-i386/pgalloc.h
++++ b/include/asm-i386/pgalloc.h
+@@ -5,13 +5,31 @@
+ #include <linux/threads.h>
+ #include <linux/mm.h>		/* for struct page */
+ 
+-#define pmd_populate_kernel(mm, pmd, pte) \
+-		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
++#define paravirt_alloc_pt(pfn) do { } while (0)
++#define paravirt_alloc_pd(pfn) do { } while (0)
++#define paravirt_alloc_pd(pfn) do { } while (0)
++#define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) do { } while (0)
++#define paravirt_release_pt(pfn) do { } while (0)
++#define paravirt_release_pd(pfn) do { } while (0)
++#endif
++
++#define pmd_populate_kernel(mm, pmd, pte)			\
++do {								\
++	paravirt_alloc_pt(__pa(pte) >> PAGE_SHIFT);		\
++	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)));		\
++} while (0)
+ 
+ #define pmd_populate(mm, pmd, pte) 				\
++do {								\
++	paravirt_alloc_pt(page_to_pfn(pte));			\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE +			\
+ 		((unsigned long long)page_to_pfn(pte) <<	\
+-			(unsigned long long) PAGE_SHIFT)))
++			(unsigned long long) PAGE_SHIFT)));	\
++} while (0)
++
+ /*
+  * Allocate and free page tables.
+  */
+@@ -32,7 +50,11 @@ static inline void pte_free(struct page 
+ }
+ 
+ 
+-#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define __pte_free_tlb(tlb,pte) 					\
++do {									\
++	paravirt_release_pt(page_to_pfn(pte));				\
++	tlb_remove_page((tlb),(pte));					\
++} while (0)
+ 
+ #ifdef CONFIG_X86_PAE
+ /*

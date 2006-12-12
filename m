@@ -1,94 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932136AbWLLHkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932138AbWLLHqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWLLHkS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 02:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWLLHkS
+	id S932138AbWLLHqd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 02:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWLLHqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 02:40:18 -0500
-Received: from web36002.mail.mud.yahoo.com ([66.163.179.201]:33341 "HELO
-	web36002.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932136AbWLLHkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 02:40:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=rDPbpvuWXcmDf40TPzLZsLZzPEBTtcQIzI1OpjSLG+ja0WWYyP8yn3DGWwbuHxRGBq2lnIVpd1eSX6rmddHih1FRuJj+Lolwwvl4WbIwRYMxJGBNdPYCfxizHS4wKvThkkY1Ge4yhloQsPpbsfMSDX2gtWgwFABsUPCd3tUAv3Y=;
-X-YMail-OSG: _dfceWEVM1nfsl17ZgRl9E8F.dIJAb16P7.fsMwv.S5cMxmonNx2lyTGuI41LFP_ptdnLJaCF.pc2gQv2NlT0HPd4Fzyy5eokUk_VhVpx9K8Un_z0UN6vLomc13QV417_cKMvYOFqmE6DkY-
-Date: Mon, 11 Dec 2006 23:40:16 -0800 (PST)
-From: linuxer linuxer <tangzt@yahoo.com>
-Subject: hi, should these code is a problem in nfs system clnt.c?
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com
+	Tue, 12 Dec 2006 02:46:33 -0500
+Received: from il.qumranet.com ([62.219.232.206]:58753 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932138AbWLLHqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 02:46:32 -0500
+Message-ID: <457E5E56.3060308@qumranet.com>
+Date: Tue, 12 Dec 2006 09:46:30 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <319714.29242.qm@web36002.mail.mud.yahoo.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+CC: kvm-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: Re: [PATCH] kvm needs menu structure
+References: <20061211144418.f10a7f5b.randy.dunlap@oracle.com>
+In-Reply-To: <20061211144418.f10a7f5b.randy.dunlap@oracle.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, everyone: 
-    I am a newbie, if my question waste your time, I
-am sorry for that. 
+Randy Dunlap wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+>
+> KVM config items need to be inside a menu structure instead of
+> dangling off of Device Drivers.
+>
+>   
 
-    In clnt.c file ,call_timeout function:    
-    I suggest the code that judge whether the network
-link status is down should be added, won't they? 
-    I tested it with one Ethernet netcard.
+A similar patch (kvm-put-kvm-in-a-new-virtualization-menu.patch) is 
+already queued in -mm.
 
-static void
-call_timeout(struct rpc_task *task)
-{
-	struct rpc_clnt	*clnt = task->tk_client;
+Andrew, Randy's patch shouldn't be applied, unless there's strong 
+feeling for a doubly-nested menu.
 
-+       struct netdev * dev;
-+       if ((dev = __dev_get_by_name("eth0")) == 
-+        NULL){
-+		rpc_exit(task, -ENOTCONN);
-+		return;
-+    	}
-+	else{
-+   		 if (!netif_carrier_ok(dev)){
-+  			rpc_exit(task, -ENOTCONN);
-+			return;
-+  		 }
-+     	}
+-- 
+error compiling committee.c: too many arguments to function
 
-	if (xprt_adjust_timeout(task->tk_rqstp) == 0) {
-		dprintk("RPC: %4d call_timeout (minor)\n",
-task->tk_pid);
-		goto retry;
-	}
-
-	dprintk("RPC: %4d call_timeout (major)\n",
-task->tk_pid);
-	task->tk_timeouts++;
-
-	if (RPC_IS_SOFT(task)) {
-		printk(KERN_NOTICE "%s: server %s not responding,
-timed out\n",
-				clnt->cl_protname, clnt->cl_server);
-		rpc_exit(task, -EIO);
-		return;
-	}
-
-	if (!(task->tk_flags & RPC_CALL_MAJORSEEN)) {
-		task->tk_flags |= RPC_CALL_MAJORSEEN;
-		printk(KERN_NOTICE "%s: server %s not responding,
-still trying\n",
-			clnt->cl_protname, clnt->cl_server);
-	}
-	rpc_force_rebind(clnt);
-
-retry:
-	clnt->cl_stats->rpcretrans++;
-	task->tk_action = call_bind;
-	task->tk_status = 0;
-}
-
-
-
- 
-____________________________________________________________________________________
-Yahoo! Music Unlimited
-Access over 1 million songs.
-http://music.yahoo.com/unlimited

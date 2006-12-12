@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964775AbWLLWze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932540AbWLLW4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWLLWze (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWLLWzd
+	id S932540AbWLLW4K (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWLLW4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:55:33 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.155]:6765 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932555AbWLLWzc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:55:32 -0500
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-To: akpm@osdl.org, bzolnier@gmail.com
-Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Date: Wed, 13 Dec 2006 01:57:02 +0300
-User-Agent: KMail/1.5
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-References: <200612130148.34539.sshtylyov@ru.mvista.com>
-In-Reply-To: <200612130148.34539.sshtylyov@ru.mvista.com>
+	Tue, 12 Dec 2006 17:56:10 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:41302 "EHLO e1.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932540AbWLLW4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:56:08 -0500
+Date: Tue, 12 Dec 2006 16:55:59 -0600
+To: gregkh@suse.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Revised [PATCH 1/2]: define inline for test of channel error state
+Message-ID: <20061212225559.GL4329@austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612130157.02249.sshtylyov@ru.mvista.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Greg,
 
-On Wednesday 13 December 2006 01:48, Sergei Shtylyov wrote:
-> Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
-> completely reworked from the original brain-damaged Toshiba's 2.4 version.
+Per discussion, a revised patch. Silly me, the value was already
+initialized in drivers/pci/probe.c and I'd been dragging along
+a prehistoric version of the if checks.
 
-   Shoot, the patch is actually against the most recent Linus' tree, so
-it's 2.6.20-rc1...
+--linas
 
-   Andrew, 2.6.19-rc6-mm2 series keeps failing to completely apply to 
-2.6.19-rc6 head in my git repo -- don't know why, maybe that's my git...
-Hence the patch was againt Linus' tree.
+[PATCH 1/2]: define inline for test of pci channel error state
 
-WBR, Sergei
+Add very simple routine to indicate the pci channel error state.
 
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+
+----
+ include/linux/pci.h |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+Index: linux-2.6.19-git7/include/linux/pci.h
+===================================================================
+--- linux-2.6.19-git7.orig/include/linux/pci.h	2006-12-06 15:53:30.000000000 -0600
++++ linux-2.6.19-git7/include/linux/pci.h	2006-12-12 15:48:04.000000000 -0600
+@@ -181,6 +181,11 @@ struct pci_dev {
+ #define	to_pci_dev(n) container_of(n, struct pci_dev, dev)
+ #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+ 
++static inline int pci_channel_offline(struct pci_dev *pdev)
++{
++	return (pdev->error_state != pci_channel_io_normal);
++}
++
+ static inline struct pci_cap_saved_state *pci_find_saved_cap(
+ 	struct pci_dev *pci_dev,char cap)
+ {

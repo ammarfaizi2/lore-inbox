@@ -1,114 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932499AbWLLWbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932493AbWLLWbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWLLWbY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWLLWbY
+	id S932493AbWLLWbp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWLLWbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:31:24 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:51557 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932499AbWLLWbX (ORCPT
+	Tue, 12 Dec 2006 17:31:44 -0500
+Received: from outbound-mail-32.bluehost.com ([69.89.18.152]:35692 "HELO
+	outbound-mail-32.bluehost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932493AbWLLWbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:31:23 -0500
-Date: Tue, 12 Dec 2006 14:31:09 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@google.com>
-Subject: Re: Status of buffered write path (deadlock fixes)
-Message-ID: <20061212223109.GG6831@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <45751712.80301@yahoo.com.au> <20061207195518.GG4497@ca-server1.us.oracle.com> <4578DBCA.30604@yahoo.com.au> <20061208234852.GI4497@ca-server1.us.oracle.com> <457D20AE.6040107@yahoo.com.au> <457D7EBA.7070005@yahoo.com.au>
+	Tue, 12 Dec 2006 17:31:43 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
+Date: Tue, 12 Dec 2006 14:31:10 -0800
+User-Agent: KMail/1.9.5
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Holger Macht <hmacht@suse.de>, len.brown@intel.com,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Brandon Philips <brandon@ifup.org>, Kay Sievers <kay.sievers@vrfy.org>
+References: <20061204224037.713257809@localhost.localdomain> <20061211120508.2f2704ac.kristen.c.accardi@intel.com> <20061212221504.GA4104@datenfreihafen.org>
+In-Reply-To: <20061212221504.GA4104@datenfreihafen.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <457D7EBA.7070005@yahoo.com.au>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Message-Id: <200612121431.11919.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 02:52:26AM +1100, Nick Piggin wrote:
-> Nick Piggin wrote:
-> >Mark Fasheh wrote:
-> 
-> >>->commit_write() would probably do fine. Currently, block_prepare_write()
-> >>uses it to know which buffers were newly allocated (the file system 
-> >>specific
-> >>get_block_t sets the bit after allocation). I think we could safely move
-> >>the clearing of that bit to block_commit_write(), thus still allowing 
-> >>us to
-> >>detect and zero those blocks in generic_file_buffered_write()
+On Tuesday, December 12, 2006 2:15 pm, Stefan Schmidt wrote:
+> Hello.
+>
+> On Mon, 2006-12-11 at 12:05, Kristen Carlson Accardi wrote:
+> > On Sat, 9 Dec 2006 12:59:58 +0100
 > >
+> > Holger Macht <hmacht@suse.de> wrote:
+> > > Well, I like to have them ;-)
 > >
-> >OK, great, I'll make a few patches and see how they look. What did you
-> >think of those other uninitialised buffer problems in my first email?
-> 
-> Hmm, doesn't look like we can do this either because at least GFS2
-> uses BH_New for its own special things.
-> 
-> Also, I don't know if the trick of only walking over BH_New buffers
-> will work anyway, since we may still need to release resources on
-> other buffers as well.
+> > Ok - how is this?
+> >
+> > Send a uevent to indicate a device change whenever we dock or
+> > undock, so that userspace may now check the dock status via
+> > sysfs.
+>
+> I would like to have two different events for dock and undock.
+>
+> This way the userspace listener don't need to check the status file
+> in sysfs to know if there was a dock or undock after getting the
+> event.
+>
+> Anyway the status file is still usefull for programs don't react on
+> the events, but like to know if the laptop is docked before starting
+> for example.
 
-Oh, my idea was that only the range passed to ->commit() would be walked,
-but any BH_New buffers (regardless of where they are in the page) would be
-passed to the journal as well. So the logic would be:
+FWIW, Kay and Neil recently went back and forth regarding what sorts of 
+events to generate for MD online/offline events.  In concept md 
+online/offline and dock/undock seem similar enough that the 'change' 
+events Kay requested for md probably make sense in the dock/undock 
+context as well, but I've Cc'd him just in case.
 
-for all the buffers in the page:
-  If the buffer is new, or it is within the range passed to commit, pass to
-  the journal.
-
-Is there anything I'm still missing here?
-
-
-> As you say, filesystems are simply not set up to expect this, which is a
-> problem.
-> 
-> Maybe it isn't realistic to change the API this way, no matter how
-> bad it is presently.
-
-We definitely agree. It's not intuitive that the range should change
-between ->prepare_write() and ->commit_write() and IMHO, all the issues
-we've found are good evidence that this particular approach will be
-problematic.
-
-
-> What if we tackle the problem a different way?
-> 
-> 1. In the case of no page in the pagecache (or an otherwise
-> !uptodate page), if the operation is a full-page write then we
-> first copy all the user data *then* lock the page *then* insert it
-> into pagecache and go on to call into the filesystem.
-
-Silly question - what's preventing a reader from filling the !uptodate page with disk
-data while the writer is copying the user buffer into it?
-
-
-> 2. In the case of a !uptodate page and a partial-page write, then
-> we can first bring the page uptodate, then continue (goto 3).
-> 
-> 3. In the case of an uptodate page, we could perform a full-length
-> commit_write so long as we didn't expand i_size further than was
-> copied, and were sure to trim off blocks allocated past that
-> point.
-> 
-> This scheme IMO is not as "nice" as the partial commit patches,
-> but in practical terms it may be much more realistic.
-
-It seems more realistic in that it makes sure the write is properly setup
-before calling into the file system. What do you think is not as nice about
-it?
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Jesse

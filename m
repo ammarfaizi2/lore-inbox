@@ -1,23 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751514AbWLLQXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751508AbWLLQYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWLLQXX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 11:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWLLQXE
+	id S1751508AbWLLQYZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 11:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWLLQYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 11:23:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3373 "HELO
+	Tue, 12 Dec 2006 11:24:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3399 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751501AbWLLQWZ (ORCPT
+	with SMTP id S1751528AbWLLQYG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 11:22:25 -0500
-Date: Tue, 12 Dec 2006 17:22:35 +0100
+	Tue, 12 Dec 2006 11:24:06 -0500
+Date: Tue, 12 Dec 2006 17:24:16 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       ibm-acpi@hmh.eng.br, len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: [2.6 patch] proper prototype for drivers/base/init.c:driver_init()
-Message-ID: <20061212162235.GQ28443@stusta.de>
+To: kkeil@suse.de, kai.germaschewski@gmx.de
+Cc: isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/isdn/pcbit/: proper prototypes
+Message-ID: <20061212162416.GV28443@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,71 +23,117 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a prototype for driver_init() in include/linux/device.h.
-
-It also removes a static function of the same name in 
-drivers/acpi/ibm_acpi.c to ibm_acpi_driver_init() to fix the namespace 
-collision.
+This patch adds correct prototypes in header files for global functions 
+and variables.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
 ---
 
- drivers/acpi/ibm_acpi.c |    4 ++--
- include/linux/device.h  |    2 ++
- init/main.c             |    2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/isdn/pcbit/drv.c    |    4 ----
+ drivers/isdn/pcbit/edss1.c  |    6 ------
+ drivers/isdn/pcbit/edss1.h  |    7 +++++--
+ drivers/isdn/pcbit/layer2.c |   16 ----------------
+ drivers/isdn/pcbit/module.c |    3 ---
+ drivers/isdn/pcbit/pcbit.h  |    8 +++++++-
+ 6 files changed, 12 insertions(+), 32 deletions(-)
 
---- linux-2.6.19-rc6-mm1/include/linux/device.h.old	2006-11-25 00:03:22.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/include/linux/device.h	2006-11-25 00:04:06.000000000 +0100
-@@ -432,6 +432,8 @@
- 	return dev->is_registered;
- }
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/edss1.h.old	2006-12-12 15:00:56.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/edss1.h	2006-12-12 15:09:07.000000000 +0100
+@@ -90,9 +90,12 @@
+ 	unsigned long timeout;          /* in seconds */
+ };
  
-+void driver_init(void);
++extern char * isdn_state_table[];
 +
- /*
-  * High level routines for use by the bus drivers
-  */
---- linux-2.6.19-rc6-mm1/init/main.c.old	2006-11-25 00:05:03.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/init/main.c	2006-11-25 00:05:58.000000000 +0100
-@@ -52,8 +52,9 @@
- #include <linux/debug_locks.h>
- #include <linux/lockdep.h>
- #include <linux/utsrelease.h>
- #include <linux/pid_namespace.h>
- #include <linux/compile.h>
-+#include <linux/device.h>
++void pcbit_fsm_event(struct pcbit_dev *, struct pcbit_chan *,
++		     unsigned short event, struct callb_data *);
++char * strisdnevent(ushort ev);
  
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -90,7 +91,6 @@
- extern void radix_tree_init(void);
- extern void free_initmem(void);
- extern void populate_rootfs(void);
--extern void driver_init(void);
- extern void prepare_namespace(void);
- #ifdef	CONFIG_ACPI
- extern void acpi_early_init(void);
---- linux-2.6.19-rc6-mm1/drivers/acpi/ibm_acpi.c.old	2006-11-25 00:06:12.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/drivers/acpi/ibm_acpi.c	2006-11-25 00:06:37.000000000 +0100
-@@ -355,7 +355,7 @@
- 	return start;
+-extern void pcbit_fsm_event(struct pcbit_dev *, struct pcbit_chan *,
+-			    unsigned short event, struct callb_data *);
+ #endif
+ 
+ 
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/pcbit.h.old	2006-12-12 15:03:03.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/pcbit.h	2006-12-12 15:07:40.000000000 +0100
+@@ -166,6 +166,12 @@
+ #define L2_RUNNING  5
+ #define L2_ERROR    6
+ 
+-extern void pcbit_deliver(struct work_struct *work);
++void pcbit_deliver(struct work_struct *work);
++int pcbit_init_dev(int board, int mem_base, int irq);
++void pcbit_terminate(int board);
++void pcbit_l3_receive(struct pcbit_dev * dev, ulong msg, struct sk_buff * skb,
++		      ushort hdr_len, ushort refnum);
++void pcbit_state_change(struct pcbit_dev * dev, struct pcbit_chan * chan, 
++			unsigned short i, unsigned short ev, unsigned short f);
+ 
+ #endif
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/drv.c.old	2006-12-12 15:01:38.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/drv.c	2006-12-12 15:01:53.000000000 +0100
+@@ -774,10 +774,6 @@
+ 	dev->dev_if->statcallb(&ictl);
  }
- 
--static int driver_init(void)
-+static int ibm_acpi_driver_init(void)
+ 	
+-extern char * isdn_state_table[];
+-extern char * strisdnevent(unsigned short);
+-
+-
+ void pcbit_state_change(struct pcbit_dev * dev, struct pcbit_chan * chan, 
+ 			unsigned short i, unsigned short ev, unsigned short f)
  {
- 	printk(IBM_INFO "%s v%s\n", IBM_DESC, IBM_VERSION);
- 	printk(IBM_INFO "%s\n", IBM_URL);
-@@ -1634,7 +1634,7 @@
- static struct ibm_struct ibms[] = {
- 	{
- 	 .name = "driver",
--	 .init = driver_init,
-+	 .init = ibm_acpi_driver_init,
- 	 .read = driver_read,
- 	 },
- 	{
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/module.c.old	2006-12-12 15:03:34.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/module.c	2006-12-12 15:03:45.000000000 +0100
+@@ -32,9 +32,6 @@
+ static int num_boards;
+ struct pcbit_dev * dev_pcbit[MAX_PCBIT_CARDS];
+ 
+-extern void pcbit_terminate(int board);
+-extern int pcbit_init_dev(int board, int mem_base, int irq);
+-
+ static int __init pcbit_init(void)
+ {
+ 	int board;
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/layer2.c.old	2006-12-12 15:06:48.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/layer2.c	2006-12-12 15:07:01.000000000 +0100
+@@ -47,22 +47,6 @@
+ #undef DEBUG_FRAG
+ 
+ 
+-
+-/*
+- *  task queue struct
+- */
+-
+-
+-
+-/*
+- *  Layer 3 packet demultiplexer
+- *  drv.c
+- */
+-
+-extern void pcbit_l3_receive(struct pcbit_dev *dev, ulong msg,
+-			     struct sk_buff *skb,
+-			     ushort hdr_len, ushort refnum);
+-
+ /*
+  *  Prototypes
+  */
+--- linux-2.6.19-mm1/drivers/isdn/pcbit/edss1.c.old	2006-12-12 15:07:50.000000000 +0100
++++ linux-2.6.19-mm1/drivers/isdn/pcbit/edss1.c	2006-12-12 15:07:59.000000000 +0100
+@@ -35,12 +35,6 @@
+ #include "callbacks.h"
+ 
+ 
+-extern void pcbit_state_change(struct pcbit_dev *, struct pcbit_chan *, 
+-                               unsigned short i, unsigned short ev, 
+-                               unsigned short f);
+-
+-extern struct pcbit_dev * dev_pcbit[MAX_PCBIT_CARDS];
+-
+ char * isdn_state_table[] = {
+   "Closed",
+   "Call initiated",
 

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932251AbWLLRCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932247AbWLLRHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWLLRCz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 12:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWLLRCz
+	id S932247AbWLLRHK (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 12:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWLLRHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 12:02:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57809 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932236AbWLLRCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 12:02:53 -0500
-Date: Tue, 12 Dec 2006 12:01:25 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Josh Boyer <jwboyer@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH/RFC] Delete JFFS (version 1)
-Message-ID: <20061212170125.GA19592@nostromo.devel.redhat.com>
-Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
-	Josh Boyer <jwboyer@gmail.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
-References: <457EA2FE.3050206@garzik.org> <625fc13d0612120456p1d74663fp21e40ee84a8819bc@mail.gmail.com> <457EA86B.5010407@garzik.org>
+	Tue, 12 Dec 2006 12:07:10 -0500
+Received: from livid.absolutedigital.net ([66.92.46.173]:1249 "EHLO
+	mx2.absolutedigital.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932247AbWLLRHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 12:07:08 -0500
+Date: Tue, 12 Dec 2006 12:06:33 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: trivial@kernel.org
+cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Note subscribers only lists for input subsystem
+Message-ID: <Pine.LNX.4.64.0612121157110.4219@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <457EA86B.5010407@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik (jeff@garzik.org) said: 
-> It's always been the case that we remove Linux kernel code when the 
-> number of users (and more importantly, developers) drops to near-nil.
+According to Dmitry in <http://lkml.org/lkml/2006/10/17/280>, the input 
+list is subscribers only. I'm assuming here that both are but a 
+confirmation would be nice... :)
 
-So, drivers/net/3c501.c?
+From: Cal Peake <cp@absolutedigital.net>
 
-Bill
+Annotate the MAINTAINERS file to reflect the subscribers only nature of 
+the input mailing lists.
+
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
+
+--- ./MAINTAINERS~orig	2006-12-10 14:58:32.000000000 -0500
++++ ./MAINTAINERS	2006-12-12 11:56:01.000000000 -0500
+@@ -1498,8 +1498,8 @@ INPUT (KEYBOARD, MOUSE, JOYSTICK) DRIVER
+ P:	Dmitry Torokhov
+ M:	dmitry.torokhov@gmail.com
+ M:	dtor@mail.ru
+-L:	linux-input@atrey.karlin.mff.cuni.cz
+-L:	linux-joystick@atrey.karlin.mff.cuni.cz
++L:	linux-input@atrey.karlin.mff.cuni.cz (subscribers-only)
++L:	linux-joystick@atrey.karlin.mff.cuni.cz (subscribers-only)
+ T:	git kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+ S:	Maintained
+ 

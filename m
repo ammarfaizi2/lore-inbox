@@ -1,88 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964830AbWLMASV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964787AbWLMARs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWLMASV (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbWLMASA
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:18:00 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:52833 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932591AbWLMARs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964787AbWLMARs (ORCPT <rfc822;w@1wt.eu>);
 	Tue, 12 Dec 2006 19:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWLMARs
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 12 Dec 2006 19:17:48 -0500
+Received: from mx1.suse.de ([195.135.220.2]:57794 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932585AbWLMARr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 19:17:47 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Wed, 13 Dec 2006 10:58:50 +1100
-Message-Id: <1061212235850.21380@suse.de>
+Date: Wed, 13 Dec 2006 10:58:59 +1100
+Message-Id: <1061212235859.21410@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 003 of 14] knfsd: SUNRPC: Cache remote peer's address in svc_sock.
+Subject: [PATCH 005 of 14] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
 References: <20061213105528.21128.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Chuck Lever <chuck.lever@oracle.com>
-The remote peer's address won't change after the socket has been
-accepted.  We don't need to call ->getname on every incoming request.
+Sockaddr_storage will allow us to store arbitrary socket addresses in
+the svc_deferred_req struct.
 
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./include/linux/sunrpc/svcsock.h |    3 +++
- ./net/sunrpc/svcsock.c           |   11 +++++------
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ ./include/linux/sunrpc/svc.h |    3 ++-
+ ./net/sunrpc/svcsock.c       |    6 ++++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
---- .prev/include/linux/sunrpc/svcsock.h	2006-12-13 10:29:09.000000000 +1100
-+++ ./include/linux/sunrpc/svcsock.h	2006-12-13 10:29:13.000000000 +1100
-@@ -57,6 +57,9 @@ struct svc_sock {
+diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
+--- .prev/include/linux/sunrpc/svc.h	2006-12-13 10:28:52.000000000 +1100
++++ ./include/linux/sunrpc/svc.h	2006-12-13 10:29:18.000000000 +1100
+@@ -289,7 +289,8 @@ static inline void svc_free_res_pages(st
  
- 	/* cache of various info for TCP sockets */
- 	void			*sk_info_authunix;
-+
-+	struct sockaddr_storage	sk_remote;	/* remote peer's address */
-+	int			sk_remotelen;	/* length of address */
- };
- 
- /*
+ struct svc_deferred_req {
+ 	u32			prot;	/* protocol (UDP or TCP) */
+-	struct sockaddr_in	addr;
++	struct sockaddr_storage	addr;
++	int			addrlen;
+ 	struct svc_sock		*svsk;	/* where reply must go */
+ 	__be32			daddr;	/* where reply must come from */
+ 	struct cache_deferred_req handle;
 
 diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-13 10:29:09.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-13 10:29:13.000000000 +1100
-@@ -577,11 +577,9 @@ svc_recvfrom(struct svc_rqst *rqstp, str
- 	len = kernel_recvmsg(sock, &msg, iov, nr, buflen, MSG_DONTWAIT);
+--- .prev/net/sunrpc/svcsock.c	2006-12-13 10:29:15.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-13 10:29:18.000000000 +1100
+@@ -1713,7 +1713,8 @@ svc_defer(struct cache_req *req)
  
- 	/* sock_recvmsg doesn't fill in the name/namelen, so we must..
--	 * possibly we should cache this in the svc_sock structure
--	 * at accept time. FIXME
- 	 */
--	alen = sizeof(rqstp->rq_addr);
--	kernel_getpeername(sock, (struct sockaddr *)&rqstp->rq_addr, &alen);
-+	memcpy(&rqstp->rq_addr, &svsk->sk_remote, svsk->sk_remotelen);
-+	rqstp->rq_addrlen = svsk->sk_remotelen;
- 
- 	dprintk("svc: socket %p recvfrom(%p, %Zu) = %d\n",
- 		rqstp->rq_sock, iov[0].iov_base, iov[0].iov_len, len);
-@@ -873,7 +871,7 @@ svc_tcp_accept(struct svc_sock *svsk)
- 	struct socket	*sock = svsk->sk_sock;
- 	struct socket	*newsock;
- 	struct svc_sock	*newsvsk;
--	int		err, slen;
-+	int		err, slen = 0;
- 
- 	dprintk("svc: tcp_accept %p sock %p\n", svsk, sock);
- 	if (!sock)
-@@ -925,7 +923,8 @@ svc_tcp_accept(struct svc_sock *svsk)
- 	if (!(newsvsk = svc_setup_socket(serv, newsock, &err,
- 				 (SVC_SOCK_ANONYMOUS | SVC_SOCK_TEMPORARY))))
- 		goto failed;
--
-+	memcpy(&newsvsk->sk_remote, &sin, slen);
-+	newsvsk->sk_remotelen = slen;
- 
- 	/* make sure that we don't have too many active connections.
- 	 * If we have, something must be dropped.
+ 		dr->handle.owner = rqstp->rq_server;
+ 		dr->prot = rqstp->rq_prot;
+-		dr->addr = rqstp->rq_addr;
++		memcpy(&dr->addr, &rqstp->rq_addr, rqstp->rq_addrlen);
++		dr->addrlen = rqstp->rq_addrlen;
+ 		dr->daddr = rqstp->rq_daddr;
+ 		dr->argslen = rqstp->rq_arg.len >> 2;
+ 		memcpy(dr->args, rqstp->rq_arg.head[0].iov_base-skip, dr->argslen<<2);
+@@ -1737,7 +1738,8 @@ static int svc_deferred_recv(struct svc_
+ 	rqstp->rq_arg.page_len = 0;
+ 	rqstp->rq_arg.len = dr->argslen<<2;
+ 	rqstp->rq_prot        = dr->prot;
+-	rqstp->rq_addr        = dr->addr;
++	memcpy(&rqstp->rq_addr, &dr->addr, dr->addrlen);
++	rqstp->rq_addrlen     = dr->addrlen;
+ 	rqstp->rq_daddr       = dr->daddr;
+ 	rqstp->rq_respages    = rqstp->rq_pages;
+ 	return dr->argslen<<2;

@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932374AbWLLV14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932365AbWLLV3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWLLV14 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 16:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWLLV14
+	id S932365AbWLLV3R (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 16:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWLLV3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 16:27:56 -0500
-Received: from mga02.intel.com ([134.134.136.20]:17476 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932374AbWLLV1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 16:27:55 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,526,1157353200"; 
-   d="scan'208"; a="173632171:sNHT46938563"
-Message-ID: <457F1EBF.2020901@intel.com>
-Date: Tue, 12 Dec 2006 13:27:27 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 12 Dec 2006 16:29:17 -0500
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:44226 "EHLO
+	reserv6.univ-lille1.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932365AbWLLV3Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 16:29:16 -0500
+Message-ID: <457F1F0F.20109@tremplin-utc.net>
+Date: Tue, 12 Dec 2006 22:28:47 +0100
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: gregkh@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, jesse.brandeburg@intel.com
-Subject: Re: [PATCH 2/2]: Use newly defined PCI channel offline routine
-References: <20061212195524.GG4329@austin.ibm.com> <20061212200151.GH4329@austin.ibm.com>
-In-Reply-To: <20061212200151.GH4329@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Oliver Neukum <oliver@neukum.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: O2micro smartcard reader driver.
+References: <20061127182817.d52dfdf1.l.bigonville@edpnet.be> <456C0BD0.7080606@tremplin-utc.net> <200611281249.45243.oliver@neukum.org>
+In-Reply-To: <200611281249.45243.oliver@neukum.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-2.0.2 (reserv6.univ-lille1.fr [193.49.225.20]); Tue, 12 Dec 2006 22:28:48 +0100 (CET)
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
-> Use newly minted routine to access the PCI channel state.
+28.11.2006 12:49, Oliver Neukum wrote/a écrit:
+>> Latest version I've published is there:
+>> http://pieleric.free.fr/o2scr/
 > 
-> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-ACK, thanks Linas.
-
-If it doesn't get picked up I can stack it on my queue for netdev later.
-
-Auke
-
-
+>         case OZSCR_OPEN: /* Request ICC */
+>             dprintk("OZSCR_OPEN\n");
+>             ATRLength = ATR_SIZE;
+>             pRdrExt->IOBase = (PSCR_REGISTERS *) dev->io_base; //XXX necessary?
+>             pRdrExt->membase = dev->am_base; //XXX necessary?
 > 
-> ----
->  drivers/net/e1000/e1000_main.c |    2 +-
->  drivers/net/ixgb/ixgb_main.c   |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>             pRdrExt->m_SCard.AvailableProtocol = 0;
+>             pRdrExt->m_SCard.RqstProtocol = 0;
+>             dprintk("membase:%p\n", pRdrExt->membase);
+>             dprintk("ioport:0x%03x\n", (unsigned)pRdrExt->IOBase);
 > 
-> Index: linux-2.6.19-git7/drivers/net/e1000/e1000_main.c
-> ===================================================================
-> --- linux-2.6.19-git7.orig/drivers/net/e1000/e1000_main.c	2006-12-05 17:11:01.000000000 -0600
-> +++ linux-2.6.19-git7/drivers/net/e1000/e1000_main.c	2006-12-05 17:13:31.000000000 -0600
-> @@ -3449,7 +3449,7 @@ e1000_update_stats(struct e1000_adapter 
->  	 */
->  	if (adapter->link_speed == 0)
->  		return;
-> -	if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
-> +	if (pci_channel_offline(pdev))
->  		return;
->  
->  	spin_lock_irqsave(&adapter->stats_lock, flags);
-> Index: linux-2.6.19-git7/drivers/net/ixgb/ixgb_main.c
-> ===================================================================
-> --- linux-2.6.19-git7.orig/drivers/net/ixgb/ixgb_main.c	2006-12-05 17:11:01.000000000 -0600
-> +++ linux-2.6.19-git7/drivers/net/ixgb/ixgb_main.c	2006-12-05 17:13:31.000000000 -0600
-> @@ -1564,7 +1564,7 @@ ixgb_update_stats(struct ixgb_adapter *a
->  	struct pci_dev *pdev = adapter->pdev;
->  
->  	/* Prevent stats update while adapter is being reset */
-> -	if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
-> +	if (pci_channel_offline(pdev))
->  		return;
->  
->  	if((netdev->flags & IFF_PROMISC) || (netdev->flags & IFF_ALLMULTI) ||
+>             ret = CmdResetReader( pRdrExt, FALSE, ATRBuffer, &ATRLength );
+>             apdu.LengthOut = ATRLength;
+> 
+> #ifdef PCMCIA_DEBUG
+>             printk(KERN_DEBUG "Open finished, ATR buffer = ");
+>             for( ATRLength = 0; ATRLength < apdu.LengthOut; ATRLength++ )
+>                 printk(" [%02X] ", ATRBuffer[ATRLength] );
+>             printk("\n");
+> #endif
+> 
+>             memcpy( apdu.DataOut, ATRBuffer, ATRLength );
+>             ret = copy_to_user((struct ozscr_apdu *)arg, &apdu, sizeof(struct ozscr_apdu));
+>             break;
+> 
+> 1. This needs locking against concurrent ioctls
+> 2. The interpretation of copy_to_user()'s return code is incorrect
+> 
+
+Hi Oliver,
+
+Thanks a lot for reading my code, I didn't even hope that someone would! 
+I've corrected the copy_to_user (and copy_from_user) code. However I 
+don't know how to do locking for the concurrent ioctls. Indeed, I don't 
+think there is anything preventing two programs to call the driver at 
+the same time. Unfortunately, I've got no idea how to do the locking and 
+surprisingly couldn't find any ioctl code in the kernel doing locking. 
+Maybe I've just not looked at the right place, could you give a me some 
+hint how to do locking for ioctl's ?
+
+See you,
+Eric
+

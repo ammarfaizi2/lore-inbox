@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932394AbWLLT1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932399AbWLLTcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWLLT1x (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 14:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWLLT1x
+	id S932399AbWLLTcV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 14:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWLLTcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 14:27:53 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:59098 "EHLO iradimed.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932394AbWLLT1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 14:27:52 -0500
-Message-ID: <457F02D3.5010004@cfl.rr.com>
-Date: Tue, 12 Dec 2006 14:28:19 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Tue, 12 Dec 2006 14:32:21 -0500
+Received: from mx4.cs.washington.edu ([128.208.4.190]:59860 "EHLO
+	mx4.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932399AbWLLTcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 14:32:21 -0500
+Date: Tue, 12 Dec 2006 11:32:16 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Yan Burman <burman.yan@gmail.com>
+cc: linux-kernel@vger.kernel.org, auke-jan.h.kok@intel.com
+Subject: Re: [PATCH 2.6.19] e1000: Replace kmalloc+memset with kcalloc +
+ remove now unused size variable
+In-Reply-To: <1165950539.10231.3.camel@localhost>
+Message-ID: <Pine.LNX.4.64N.0612121128250.13648@attu4.cs.washington.edu>
+References: <1165950539.10231.3.camel@localhost>
 MIME-Version: 1.0
-To: Andrew Robinson <andrew.rw.robinson@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS corruption with 2.6.19 (Was 2.6.19 is not stable with
- SATA and should not be used by any meansis not stable with SATA and should
- not be used by any means)
-References: <bc36a6210612121044vf259b34u4ec3cac4df56e43c@mail.gmail.com>
-In-Reply-To: <bc36a6210612121044vf259b34u4ec3cac4df56e43c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Dec 2006 19:28:04.0708 (UTC) FILETIME=[A52AC240:01C71E23]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14868.003
-X-TM-AS-Result: No--11.376600-5.000000-31
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Robinson wrote:
-> Now I am confused on what may be the cause of the corruption. Could it
-> have been just a ReiserFS problem (I will be using Ext3 or JSF on my
-> next rebuild I think after reading some reviews on the ReiserFS and
-> this recent experience).
+On Tue, 12 Dec 2006, Yan Burman wrote:
 
-I have been running reiser on  my home machine and a server at work for 
-a year now without incident.  There were some bugs a few years back but 
-it seems to be in good working order these days.
+> diff -rubp linux-2.6.19_orig/drivers/net/e1000/e1000_ethtool.c linux-2.6.19/drivers/net/e1000/e1000_ethtool.c
+> --- linux-2.6.19_orig/drivers/net/e1000/e1000_ethtool.c	2006-11-30 21:28:21.000000000 +0200
+> +++ linux-2.6.19/drivers/net/e1000/e1000_ethtool.c	2006-12-12 20:54:31.000000000 +0200
+> @@ -1045,19 +1045,18 @@ e1000_setup_desc_rings(struct e1000_adap
+>  	struct e1000_rx_ring *rxdr = &adapter->test_rx_ring;
+>  	struct pci_dev *pdev = adapter->pdev;
+>  	uint32_t rctl;
+> -	int size, i, ret_val;
+> +	int i, ret_val;
+>  
+>  	/* Setup Tx descriptor ring and Tx buffers */
+>  
+>  	if (!txdr->count)
+>  		txdr->count = E1000_DEFAULT_TXD;
+>  
+> -	size = txdr->count * sizeof(struct e1000_buffer);
+> -	if (!(txdr->buffer_info = kmalloc(size, GFP_KERNEL))) {
+> +	if (!(txdr->buffer_info = kcalloc(size, sizeof(struct e1000_buffer),
+> +					GFP_KERNEL))) {
 
-> I'm not sure if it could be a SATA_NV driver problem, a hibernate
-> problem, or a ReiserFS problem or a combination of the above. For
-> hibernation, I had the resume2 kernel boot option set as /dev/sda1 (my
-> swap partition). I do not have suspend2 installed though, I have been
-> relying on its fallback settings to ususpend or sysfs (not sure which
-> one is actually executed).
+This wasn't compile-tested; you already removed the 'size' auto variable.
 
-Sounds like your hibernation corrupted the disk, but without more 
-specifics, this is just educated guesswork.
-
-
+Needs to be
+	kcalloc(txdr->count, sizeof(struct e1000_buffer), GFP_KERNEL)

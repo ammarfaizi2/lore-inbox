@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932478AbWLLWNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932479AbWLLWVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWLLWNf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWLLWNf
+	id S932479AbWLLWVn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWLLWVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:13:35 -0500
-Received: from sirius.lasnet.de ([62.75.240.18]:36370 "EHLO sirius.lasnet.de"
+	Tue, 12 Dec 2006 17:21:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42426 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932445AbWLLWNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:13:34 -0500
-Date: Tue, 12 Dec 2006 23:15:04 +0100
-From: Stefan Schmidt <stefan@datenfreihafen.org>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Cc: Holger Macht <hmacht@suse.de>, len.brown@intel.com,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       Brandon Philips <brandon@ifup.org>
-Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
-Message-ID: <20061212221504.GA4104@datenfreihafen.org>
-References: <20061204224037.713257809@localhost.localdomain> <20061204144958.207e58e2.kristen.c.accardi@intel.com> <20061209115957.GA5254@homac2> <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
-In-Reply-To: <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
-X-Mailer: Mutt http://www.mutt.org/
-X-KeyID: 0xDDF51665
-X-Website: http://www.datenfreihafen.org/
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	id S932479AbWLLWVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:21:42 -0500
+Subject: Re: Mach-O binary format support and Darwin syscall personality
+	[Was: uts banner changes]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
+References: <457D750C.9060807@shadowen.org>
+	 <20061211163333.GA17947@aepfle.de>
+	 <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org>
+	 <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org>
+	 <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de>
+	 <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org>
+	 <320BD259-74D6-411F-82A4-4BF3CB15012F@mac.com>
+	 <Pine.LNX.4.64.0612120815550.6452@woody.osdl.org>
+	 <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 09:21:23 +1100
+Message-Id: <1165962083.11914.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The PPC syscall stuff on the other hand is fairly straightforward.   
+> The code loads the argument registers (which I _think_ follow the  
+> same syscall ABI on Linux and Darwin due to somebody having a flash  
+> of inspiration and putting that recommendation in the PPC spec  
+> documents) 
 
-Hello.
+I wouldn't bet on that ... they might look the same but it's likely that
+there will be subtle differences. There are definitely differences
+between the PEF ABI used on MacOS < X (and useable in OS X with a
+special loader) and the SysV ABI we use in Linux. The differences
+generally are around those areas:
 
-On Mon, 2006-12-11 at 12:05, Kristen Carlson Accardi wrote:
-> On Sat, 9 Dec 2006 12:59:58 +0100
-> Holger Macht <hmacht@suse.de> wrote:
->=20
-> > Well, I like to have them ;-)
->=20
-> Ok - how is this?
->=20
-> Send a uevent to indicate a device change whenever we dock or
-> undock, so that userspace may now check the dock status via=20
-> sysfs.
+ - stack frame format (hopefully should be irrelevant for syscalls,
+well, I hope so ...)
+ - va_args format (same)
+ - passing or returning function arguments larger than the native int
+size (passing 64 bits values, passing structures by values)  (r3/r4 vs.
+stack for example).
+ - TOC/TLS/whatever is in r2, r12 and r13 ...
 
-I would like to have two different events for dock and undock.
+I would expect most of these but not all to be irrelevant for syscalls.
 
-This way the userspace listener don't need to check the status file in
-sysfs to know if there was a dock or undock after getting the event.
+Now, I don't know precisely what the mach-o ABI looks like, we might be
+lucky and it may be similar to ours. PEF is not, but then, PEF isn't
+native in OS-X, they use a special loader/wrapper for it.
 
-Anyway the status file is still usefull for programs don't react on
-the events, but like to know if the laptop is docked before starting
-for example.
+Also, beware that there are two different ABIs (both in linux and in
+mach-o) for 32 and 64 bits binaries.
 
-regards
-Stefan Schmidt
+Ben.
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: http://www.datenfreihafen.org/contact.html
-
-iD8DBQFFfynobNSsvd31FmURAiMyAJ4oiRnvaeplmDUxGte7E8Ghs84SkwCgg9QL
-c3TQCSO0kb+FH6C8jzCqNzY=
-=BybV
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--

@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbWLLXFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964790AbWLLXFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWLLXFL (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 18:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLLXFL
+	id S964790AbWLLXFy (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 18:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWLLXFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 18:05:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4769 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964788AbWLLXFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 18:05:08 -0500
-Date: Wed, 13 Dec 2006 00:05:18 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.19-git] RTC Kconfig sorted by type
-Message-ID: <20061212230517.GA28443@stusta.de>
-References: <200612061652.45242.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612061652.45242.david-b@pacbell.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 12 Dec 2006 18:05:54 -0500
+Received: from mga02.intel.com ([134.134.136.20]:26414 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964787AbWLLXFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 18:05:52 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,526,1157353200"; 
+   d="scan'208"; a="173678160:sNHT45705198"
+Date: Tue, 12 Dec 2006 15:00:33 -0800
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Stefan Schmidt <stefan@datenfreihafen.org>, Holger Macht <hmacht@suse.de>,
+       len.brown@intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, Brandon Philips <brandon@ifup.org>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
+Message-Id: <20061212150033.e3c7612f.kristen.c.accardi@intel.com>
+In-Reply-To: <200612121431.11919.jbarnes@virtuousgeek.org>
+References: <20061204224037.713257809@localhost.localdomain>
+	<20061211120508.2f2704ac.kristen.c.accardi@intel.com>
+	<20061212221504.GA4104@datenfreihafen.org>
+	<200612121431.11919.jbarnes@virtuousgeek.org>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2006 at 04:52:44PM -0800, David Brownell wrote:
-> This reorders the RTC driver menu into separate sections, splitting out
-> the SOC, I2C, and SPI support to help make the menu easier to navigate.
-> (We got some feedback a while ago that it was "a mess" and hard to make
-> sense of...)
+On Tue, 12 Dec 2006 14:31:10 -0800
+Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
+
+> On Tuesday, December 12, 2006 2:15 pm, Stefan Schmidt wrote:
+> > Hello.
+> >
+> > On Mon, 2006-12-11 at 12:05, Kristen Carlson Accardi wrote:
+> > > On Sat, 9 Dec 2006 12:59:58 +0100
+> > >
+> > > Holger Macht <hmacht@suse.de> wrote:
+> > > > Well, I like to have them ;-)
+> > >
+> > > Ok - how is this?
+> > >
+> > > Send a uevent to indicate a device change whenever we dock or
+> > > undock, so that userspace may now check the dock status via
+> > > sysfs.
+> >
+> > I would like to have two different events for dock and undock.
+> >
+> > This way the userspace listener don't need to check the status file
+> > in sysfs to know if there was a dock or undock after getting the
+> > event.
+> >
+> > Anyway the status file is still usefull for programs don't react on
+> > the events, but like to know if the laptop is docked before starting
+> > for example.
 > 
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> FWIW, Kay and Neil recently went back and forth regarding what sorts of 
+> events to generate for MD online/offline events.  In concept md 
+> online/offline and dock/undock seem similar enough that the 'change' 
+> events Kay requested for md probably make sense in the dock/undock 
+> context as well, but I've Cc'd him just in case.
 > 
-> ---
-> Assumes the rtc-omap patch has been merged, and no other RTC drivers
-> have been added to this Kconfig menu.
+> Jesse
 > 
-> Index: at91/drivers/rtc/Kconfig
-> ===================================================================
-> --- at91.orig/drivers/rtc/Kconfig	2006-12-05 03:25:20.000000000 -0800
-> +++ at91/drivers/rtc/Kconfig	2006-12-05 03:46:53.000000000 -0800
-> @@ -1,4 +1,4 @@
-> -\#
-> +#
->  # RTC class/drivers configuration
->  #
->  
-> @@ -20,6 +20,8 @@ config RTC_CLASS
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rtc-class.
->  
-> +if RTC_CLASS != n
-> +
 
-
-if RTC_CLASS
-
-
-because otherwise
-
-
->  config RTC_HCTOSYS
->  	bool "Set system time from RTC on startup"
->  	depends on RTC_CLASS = y
-> @@ -45,11 +47,10 @@ config RTC_DEBUG
->  	  and individual RTC drivers.
->  
->  comment "RTC interfaces"
-> -	depends on RTC_CLASS
->  
->  config RTC_INTF_SYSFS
->  	tristate "sysfs"
-> -	depends on RTC_CLASS && SYSFS
-> +	depends on SYSFS
->...
-
-
-RTC_CLASS=m, RTC_INTF_SYSFS=y would be an allowed configuration.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+I did have different dock/undock events a few months ago - but
+after some discussion we scrapped them because Kay wants to avoid driver
+specific events.  The "change" event is the only thing that makes sense,
+given the set of uevents available right now, and userspace should be 
+able to handle checking a file to get driver specific details (i.e. dock 
+and undock status).  If you have a specific reason why this won't work,
+let me know.

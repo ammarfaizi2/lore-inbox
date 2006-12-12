@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751269AbWLLNOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750964AbWLLNU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWLLNOo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 08:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWLLNOo
+	id S1750964AbWLLNU1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 08:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWLLNU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 08:14:44 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:3038 "EHLO
-	hellhawk.shadowen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751269AbWLLNOn (ORCPT
+	Tue, 12 Dec 2006 08:20:27 -0500
+Received: from ranger.systems.pipex.net ([62.241.162.32]:47194 "EHLO
+	ranger.systems.pipex.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750964AbWLLNU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 08:14:43 -0500
-Message-ID: <457EAB38.2020506@shadowen.org>
-Date: Tue, 12 Dec 2006 13:14:32 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
+	Tue, 12 Dec 2006 08:20:26 -0500
+Date: Tue, 12 Dec 2006 13:20:10 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@ginsburg.homenet
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-mm@kvack.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Lumpy Reclaim V3
-References: <exportbomb.1165424343@pinky> <20061212031312.e4c91778.akpm@osdl.org>
-In-Reply-To: <20061212031312.e4c91778.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+Subject: [patch-2.6.19.1] remaining fixes for my email address.
+Message-ID: <Pine.LNX.4.61.0612121316050.435@ginsburg.homenet>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810303-204198964-1165929610=:435"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 6 Dec 2006 16:59:04 +0000
-> Andy Whitcroft <apw@shadowen.org> wrote:
-> 
->> This is a repost of the lumpy reclaim patch set.
-> 
-> more...
-> 
-> One concern is that when the code goes to reclaim a lump and fails, we end
-> up reclaiming a number of pages which we didn't really want to reclaim. 
-> Regardless of the LRU status of those pages.
-> 
-> I think what we should do here is to add the appropriate vmstat counters
-> for us to be able to assess the frequency of this occurring, then throw a
-> spread of workloads at it.  If that work indicates that there's a problem
-> then we should look at being a bit smarter about whether all the pages look
-> to be reclaimable and if not, restore them all and give up.
-> 
-> Also, I suspect it would be cleaner and faster to pass the `active' flag
-> into isolate_lru_pages(), rather than calculating it on the fly.  And I
-> don't think we need to calculate it on every pass through the loop?
-> 
-> 
-> We really do need those vmstat counters to let us see how effective this
-> thing is being.  Basic success/fail stuff.  Per-zone, I guess.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
+---1463810303-204198964-1165929610=:435
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-Sounds like a cue ... I'll go do that.
+Hi Andrew,
 
--apw
+As Adrian pointed out recently, there were still a couple of places where 
+I should have fixed my email address. The patch is attached (as attachment 
+so as to not let pine corrupt it).
 
+The patch is against 2.6.19.1.
 
+Kind regards
+Tigran
+---1463810303-204198964-1165929610=:435
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0612121320100.435@ginsburg.homenet>
+Content-Description: patch.diff
+Content-Disposition: attachment; filename=patch
+
+LS0tIGFyY2gvaTM4Ni9rZXJuZWwvbWljcm9jb2RlLmMuMAkyMDA2LTEyLTEy
+IDEzOjA5OjU2LjY3OTc4MjAwMCArMDAwMA0KKysrIGFyY2gvaTM4Ni9rZXJu
+ZWwvbWljcm9jb2RlLmMJMjAwNi0xMi0xMiAxMzoxMToxNC4yNTk3ODIwMDAg
+KzAwMDANCkBAIC0xLDcgKzEsNyBAQA0KIC8qDQogICoJSW50ZWwgQ1BVIE1p
+Y3JvY29kZSBVcGRhdGUgRHJpdmVyIGZvciBMaW51eA0KICAqDQotICoJQ29w
+eXJpZ2h0IChDKSAyMDAwLTIwMDQgVGlncmFuIEFpdmF6aWFuDQorICoJQ29w
+eXJpZ2h0IChDKSAyMDAwLTIwMDYgVGlncmFuIEFpdmF6aWFuIDx0aWdyYW5A
+YWl2YXppYW4uZnNuZXQuY28udWs+DQogICoJCSAgICAgIDIwMDYJU2hhb2h1
+YSBMaSA8c2hhb2h1YS5saUBpbnRlbC5jb20+DQogICoNCiAgKglUaGlzIGRy
+aXZlciBhbGxvd3MgdG8gdXBncmFkZSBtaWNyb2NvZGUgb24gSW50ZWwgcHJv
+Y2Vzc29ycw0KQEAgLTkyLDcgKzkyLDcgQEANCiAjaW5jbHVkZSA8YXNtL3By
+b2Nlc3Nvci5oPg0KIA0KIE1PRFVMRV9ERVNDUklQVElPTigiSW50ZWwgQ1BV
+IChJQS0zMikgTWljcm9jb2RlIFVwZGF0ZSBEcml2ZXIiKTsNCi1NT0RVTEVf
+QVVUSE9SKCJUaWdyYW4gQWl2YXppYW4gPHRpZ3JhbkB2ZXJpdGFzLmNvbT4i
+KTsNCitNT0RVTEVfQVVUSE9SKCJUaWdyYW4gQWl2YXppYW4gPHRpZ3JhbkBh
+aXZhemlhbi5mc25ldC5jby51az4iKTsNCiBNT0RVTEVfTElDRU5TRSgiR1BM
+Iik7DQogDQogI2RlZmluZSBNSUNST0NPREVfVkVSU0lPTiAJIjEuMTRhIg0K
+QEAgLTc1NCw3ICs3NTQsNyBAQA0KIAlyZWdpc3Rlcl9ob3RjcHVfbm90aWZp
+ZXIoJm1jX2NwdV9ub3RpZmllcik7DQogDQogCXByaW50ayhLRVJOX0lORk8g
+DQotCQkiSUEtMzIgTWljcm9jb2RlIFVwZGF0ZSBEcml2ZXI6IHYiIE1JQ1JP
+Q09ERV9WRVJTSU9OICIgPHRpZ3JhbkB2ZXJpdGFzLmNvbT5cbiIpOw0KKwkJ
+IklBLTMyIE1pY3JvY29kZSBVcGRhdGUgRHJpdmVyOiB2IiBNSUNST0NPREVf
+VkVSU0lPTiAiIDx0aWdyYW5AYWl2YXppYW4uZnNuZXQuY28udWs+XG4iKTsN
+CiAJcmV0dXJuIDA7DQogfQ0KIA0KLS0tIGZzL2Jmcy9pbm9kZS5jLjAJMjAw
+Ni0xMi0xMiAxMzoxMTo0MC43OTk3ODIwMDAgKzAwMDANCisrKyBmcy9iZnMv
+aW5vZGUuYwkyMDA2LTEyLTEyIDEzOjEyOjE0Ljk0OTc4MjAwMCArMDAwMA0K
+QEAgLTEsNyArMSw3IEBADQogLyoNCiAgKglmcy9iZnMvaW5vZGUuYw0KICAq
+CUJGUyBzdXBlcmJsb2NrIGFuZCBpbm9kZSBvcGVyYXRpb25zLg0KLSAqCUNv
+cHlyaWdodCAoQykgMTk5OSwyMDAwIFRpZ3JhbiBBaXZhemlhbiA8dGlncmFu
+QHZlcml0YXMuY29tPg0KKyAqCUNvcHlyaWdodCAoQykgMTk5OS0yMDA2IFRp
+Z3JhbiBBaXZhemlhbiA8dGlncmFuQGFpdmF6aWFuLmZzbmV0LmNvLnVrPg0K
+ICAqCUZyb20gZnMvbWluaXgsIENvcHlyaWdodCAoQykgMTk5MSwgMTk5MiBM
+aW51cyBUb3J2YWxkcy4NCiAgKg0KICAqICAgICAgTWFkZSBlbmRpYW5uZXNz
+LWNsZWFuIGJ5IEFuZHJldyBTdHJpYmJsZWhpbGwgPGFkc0B3b21wb20ub3Jn
+PiwgMjAwNS4NCkBAIC0xOCw3ICsxOCw3IEBADQogI2luY2x1ZGUgPGFzbS91
+YWNjZXNzLmg+DQogI2luY2x1ZGUgImJmcy5oIg0KIA0KLU1PRFVMRV9BVVRI
+T1IoIlRpZ3JhbiBBLiBBaXZhemlhbiA8dGlncmFuQHZlcml0YXMuY29tPiIp
+Ow0KK01PRFVMRV9BVVRIT1IoIlRpZ3JhbiBBaXZhemlhbiA8dGlncmFuQGFp
+dmF6aWFuLmZzbmV0LmNvLnVrPiIpOw0KIE1PRFVMRV9ERVNDUklQVElPTigi
+U0NPIFVuaXhXYXJlIEJGUyBmaWxlc3lzdGVtIGZvciBMaW51eCIpOw0KIE1P
+RFVMRV9MSUNFTlNFKCJHUEwiKTsNCiANCi0tLSBEb2N1bWVudGF0aW9uL2Zp
+bGVzeXN0ZW1zL2Jmcy50eHQuMAkyMDA2LTEyLTEyIDEzOjE0OjU2LjE2OTc4
+MjAwMCArMDAwMA0KKysrIERvY3VtZW50YXRpb24vZmlsZXN5c3RlbXMvYmZz
+LnR4dAkyMDA2LTEyLTEyIDEzOjE1OjEwLjAwOTc4MjAwMCArMDAwMA0KQEAg
+LTU0LDQgKzU0LDQgQEANCiBJZiB5b3UgaGF2ZSBhbnkgcGF0Y2hlcywgcXVl
+c3Rpb25zIG9yIHN1Z2dlc3Rpb25zIHJlZ2FyZGluZyB0aGlzIEJGUw0KIGlt
+cGxlbWVudGF0aW9uIHBsZWFzZSBjb250YWN0IHRoZSBhdXRob3I6DQogDQot
+VGlncmFuIEEuIEFpdmF6aWFuIDx0aWdyYW5AdmVyaXRhcy5jb20+DQorVGln
+cmFuIEFpdmF6aWFuIDx0aWdyYW5AYWl2YXppYW4uZnNuZXQuY28udWs+DQo=
+
+---1463810303-204198964-1165929610=:435--

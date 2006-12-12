@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751222AbWLLKlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751223AbWLLKqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWLLKlW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 05:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWLLKlW
+	id S1751223AbWLLKqH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 05:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWLLKqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 05:41:22 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:38462 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751220AbWLLKlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 05:41:21 -0500
-Date: Tue, 12 Dec 2006 02:40:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitriy Monakhov <dmonakhov@sw.ru>
-Cc: Dmitriy Monakhov <dmonakhov@openvz.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>, <devel@openvz.org>,
-       xfs@oss.sgi.com
-Subject: Re: [PATCH]  incorrect error handling inside
- generic_file_direct_write
-Message-Id: <20061212024027.6c2a79d3.akpm@osdl.org>
-In-Reply-To: <87psapz1zr.fsf@sw.ru>
-References: <87k60y1rq4.fsf@sw.ru>
-	<20061211124052.144e69a0.akpm@osdl.org>
-	<87bqm9tie3.fsf@sw.ru>
-	<20061212015232.eacfbb46.akpm@osdl.org>
-	<87psapz1zr.fsf@sw.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 05:46:07 -0500
+Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:63289 "EHLO
+	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751223AbWLLKqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 05:46:04 -0500
+Date: Tue, 12 Dec 2006 12:46:01 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 2.6.19 + highmem = BUG at do_wp_page
+Message-ID: <20061212104601.GA21258@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20061205172512.GA5518@m.safari.iki.fi> <20061205223945.8c81ea91.akpm@osdl.org> <20061206094138.GA15365@m.safari.iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061206094138.GA15365@m.safari.iki.fi>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2006 16:18:32 +0300
-Dmitriy Monakhov <dmonakhov@sw.ru> wrote:
+On Wed, Dec 06, 2006 at 11:41:38 +0200, Sami Farin wrote:
+> On Tue, Dec 05, 2006 at 22:39:45 -0800, Andrew Morton wrote:
+> > On Tue, 5 Dec 2006 19:25:13 +0200
+> > Sami Farin <7atbggg02@sneakemail.com> wrote:
+> > 
+> > > [1.] PROBLEM: 2.6.19 + highmem = BUG at do_wp_page 
+> > 
+> > Can you send the .config please?
+> 
+> I happened to modify configuration a bit,
+> CONFIG_HIGHMEM4G to CONFIG_HIGHMEM64G
+> and added CONFIG_X86_MCE_P4THERMAL=y.
+> Otherwise this should be pretty close.
+> I haven't tried to boot with CONFIG_HIGHMEM64G yet.
 
-> >> but according to filemaps locking rules: mm/filemap.c:77
-> >>  ..
-> >>  *  ->i_mutex			(generic_file_buffered_write)
-> >>  *    ->mmap_sem		(fault_in_pages_readable->do_page_fault)
-> >>  ..
-> >> I'm confused a litle bit, where is the truth? 
-> >
-> > xfs_write() calls generic_file_direct_write() without taking i_mutex for
-> > O_DIRECT writes.
-> Yes, but my quastion is about __generic_file_aio_write_nolock().
-> As i understand _nolock sufix means that i_mutex was already locked 
-> by caller, am i right ?
+CONFIG_HIGHMEM64G=y doesn't work, either, in case someone cares.
 
-Nope.  It just means that __generic_file_aio_write_nolock() doesn't take
-the lock.  We don't assume or require that the caller took it.  For example
-the raw driver calls generic_file_aio_write_nolock() without taking
-i_mutex.  Raw isn't relevant to the problem (although ocfs2 might be).  But
-we cannot assume that all callers have taken i_mutex, I think.
+With mem=896M highmem-enabled kernels work OK.
 
-I guess we can make that a rule (document it, add
-BUG_ON(!mutex_is_locked(..)) if it isn't a blockdev) if needs be.  After
-really checking that this matches reality for all callers.
-
-It's important, too - if we have an unprotected i_size_write() then the
-seqlock can get out of sync due to a race and then i_size_read() locks up
-the kernel.
-
+-- 

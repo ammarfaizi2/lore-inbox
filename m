@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750837AbWLLBh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750848AbWLLBi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWLLBh1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 20:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWLLBh1
+	id S1750848AbWLLBi3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 20:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWLLBi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 20:37:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58787 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750843AbWLLBh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 20:37:26 -0500
-Date: Mon, 11 Dec 2006 17:29:07 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Erik Jacobson <erikj@sgi.com>, guillaume.thouvenin@bull.net,
-       linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-Message-Id: <20061211172907.305473cf.zaitcev@redhat.com>
-In-Reply-To: <1165881167.24721.73.camel@localhost.localdomain>
-References: <20061207232213.GA29340@sgi.com>
-	<20061208192027.18a1e708.zaitcev@redhat.com>
-	<20061209210913.GA15159@sgi.com>
-	<20061209183409.67b54d01.zaitcev@redhat.com>
-	<1165881167.24721.73.camel@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Dec 2006 20:38:29 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:7384 "EHLO
+	sj-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750825AbWLLBi2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 20:38:28 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/6] MTHCA driver (infiniband) use new pci interfaces
+X-Message-Flag: Warning: May contain useful information
+References: <20061208182241.786324000@osdl.org>
+	<20061208182500.611327000@osdl.org>
+	<1165809339.7260.19.camel@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 11 Dec 2006 17:38:24 -0800
+In-Reply-To: <1165809339.7260.19.camel@localhost.localdomain> (Benjamin Herrenschmidt's message of "Mon, 11 Dec 2006 14:55:39 +1100")
+Message-ID: <adafyblzyen.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 12 Dec 2006 01:38:24.0924 (UTC) FILETIME=[3708E5C0:01C71D8E]
+Authentication-Results: sj-dkim-7; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim7002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 15:52:47 -0800, Matt Helsley <matthltc@us.ibm.com> wrote:
+ > I'm worried by this... At no point do you check the host bridge
+ > capabilities, and thus will happily set the max read req size to some
+ > value larger than the max the host bridge can cope...
 
-> 	I'm shocked memcpy() introduces 8-byte stores that violate architecture
-> alignment rules. Is there any chance this a bug in ia64's memcpy()
-> implementation? I've tried to read it but since I'm not familiar with
-> ia64 asm I can't make out significant parts of it in
-> arch/ia64/lib/memcpy.S.
+Well, it's disabled by default... the option is there as a quick way
+to fix "why is my bandwidth so low" when a broken BIOS sets these to
+minimum values.  Maybe we should just strip out that code and point
+people who want to tweak this at setpci instead.
 
-The arch/ia64/lib/memcpy.S is probably fine, it must be gcc doing
-an inline substitution of a well-known function.
+ > So for PCI-X, if we want tat, we need a pcibios hook for the platform
+ > to validate the size requested. For PCI-E, we can use standard code to
+ > look for the root complex (and bridges on the path to it) and get the
+ > proper max value.
 
-A commenter on my blog mentioned seeing the same thing in the past.
-(http://zaitcev.livejournal.com/107185.html?thread=128945#t128945)
+Actually even PCIe might not be that easy.  For example with current
+kernels on PowerPC 440SPe (SoC with PCIe), I just get:
 
-It's possible that applying (void *) cast to the first argument of memcpy
-would disrupt this optimization. But since we have a well understood
-patch by Erik, which only adds a penalty of 32 bytes of stack waste
-and 32 bytes of memcpy, I thought it best not to bother with heaping
-workarounds.
+    # lspci
+    00:01.0 InfiniBand: Mellanox Technology: Unknown device 6274 (rev a0)
 
--- Pete
+ie no host bridge / root complex.
+
+ - R.

@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932186AbWLLKyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932190AbWLLK5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWLLKyp (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 05:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWLLKyp
+	id S932190AbWLLK5v (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 05:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWLLK5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 05:54:45 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:40502 "EHLO
-	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932186AbWLLKyo (ORCPT
+	Tue, 12 Dec 2006 05:57:51 -0500
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:55325 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932190AbWLLK5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 05:54:44 -0500
-Subject: [PATCH] Vmscan.c: Account for memory already freed in seeking to
-	free more.
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 21:54:41 +1100
-Message-Id: <1165920881.7318.2.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 12 Dec 2006 05:57:51 -0500
+From: Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 2.6.19] Do not always end the stack trace with ULONG_MAX
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>
+Date: Tue, 12 Dec 2006 10:57:44 +0000
+Message-ID: <20061212105744.18657.76136.stgit@localhost.localdomain>
+User-Agent: StGIT/0.11
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Dec 2006 10:58:06.0703 (UTC) FILETIME=[6755B7F0:01C71DDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current versions of shrink_all_zones and shrink_all_memory don't
-take account of memory already freed when making multiple calls to seek
-to free memory. As a result, we can end up freeing far more memory than
-was asked for. This can in turn result in more (unnecessary) paging
-if/when the data is later needed.
+It makes more sense to end the stack trace with ULONG_MAX only if
+nr_entries < max_entries. Otherwise, we lose one entry in the long
+stack traces and cannot know whether the trace was complete or not.
 
-These modifications seek to alleviate this situation by modifying
-swap_cluster_max by the number of pages freed by shrink_inactive_list in
-shrink_all_zones before proceeding to the next zone, and in
-shrink_all_memory before shrinking slab and going to the next priority.
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+---
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net> 
+ arch/x86_64/kernel/stacktrace.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff -ruNp 930-vmscan.patch-old/mm/vmscan.c 930-vmscan.patch-new/mm/vmscan.c
-@@ -1469,9 +1469,12 @@ static unsigned long shrink_all_zones(un
+diff --git a/arch/x86_64/kernel/stacktrace.c b/arch/x86_64/kernel/stacktrace.c
+index 6026b31..65ac2c6 100644
+--- a/arch/x86_64/kernel/stacktrace.c
++++ b/arch/x86_64/kernel/stacktrace.c
+@@ -32,7 +32,7 @@ static void save_stack_address(void *data, unsigned long addr)
+ 		trace->skip--;
+ 		return;
+ 	}
+-	if (trace->nr_entries < trace->max_entries - 1)
++	if (trace->nr_entries < trace->max_entries)
+ 		trace->entries[trace->nr_entries++] = addr;
+ }
  
- 		zone->nr_scan_inactive += (zone->nr_inactive >> prio) + 1;
- 		if (zone->nr_scan_inactive >= nr_pages || pass > 3) {
-+			int freed;
- 			zone->nr_scan_inactive = 0;
- 			nr_to_scan = min(nr_pages, zone->nr_inactive);
--			ret += shrink_inactive_list(nr_to_scan, zone, sc);
-+			freed = shrink_inactive_list(nr_to_scan, zone, sc);
-+			ret += freed;
-+			sc->swap_cluster_max -= freed;
- 			if (ret >= nr_pages)
- 				return ret;
- 		}
-@@ -1550,9 +1553,14 @@ unsigned long shrink_all_memory(unsigned
+@@ -49,7 +49,8 @@ static struct stacktrace_ops save_stack_ops = {
+ void save_stack_trace(struct stack_trace *trace, struct task_struct *task)
+ {
+ 	dump_trace(task, NULL, NULL, &save_stack_ops, trace);
+-	trace->entries[trace->nr_entries++] = ULONG_MAX;
++	if (trace->nr_entries < trace->max_entries)
++		trace->entries[trace->nr_entries++] = ULONG_MAX;
+ }
+ EXPORT_SYMBOL(save_stack_trace);
  
- 		for (prio = DEF_PRIORITY; prio >= 0; prio--) {
- 			unsigned long nr_to_scan = nr_pages - ret;
-+			int freed;
- 
- 			sc.nr_scanned = 0;
--			ret += shrink_all_zones(nr_to_scan, prio, pass, &sc);
-+			sc.swap_cluster_max = nr_pages - ret;
-+			freed = shrink_all_zones(nr_to_scan, prio, pass, &sc);
-+			ret += freed;
-+			lru_pages =- freed;
-+			nr_to_scan = nr_pages - ret;
- 			if (ret >= nr_pages)
- 				goto out;
- 
-
-

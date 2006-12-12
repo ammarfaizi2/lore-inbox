@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751056AbWLLGG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751156AbWLLGS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWLLGG2 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 01:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWLLGG2
+	id S1751156AbWLLGS1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 01:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWLLGS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 01:06:28 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:47773 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751056AbWLLGG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 01:06:28 -0500
-Date: Mon, 11 Dec 2006 22:06:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-mm1
-Message-Id: <20061211220617.669da2d5.akpm@osdl.org>
-In-Reply-To: <20061212145341.a5f335a0.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20061211005807.f220b81c.akpm@osdl.org>
-	<20061212145341.a5f335a0.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 01:18:27 -0500
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:39352 "HELO
+	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751156AbWLLGS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 01:18:26 -0500
+X-YMail-OSG: DSTgBA4VM1nBZ67CqJ_NfSR8j9UsEHRpdDKytRs0Jc.YnGc1RA6XTDIqWIWrHcSqKc5J6MdDBTX21ygObRKc.dYo6FFZrr5a_N3OLyOlKeMWR9kcqQlT46QvgfIac3n9FFvQBJU9b8W3jBs-
+Date: Mon, 11 Dec 2006 22:18:23 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Karsten Weiss <K.Weiss@science-computing.de>, Andi Kleen <ak@suse.de>
+Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>
+Subject: amd64 iommu causing corruption? (was Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!)
+Message-ID: <20061212061823.GA303@tuatara.stupidest.org>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2006 14:53:41 +0900
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+On Mon, Dec 11, 2006 at 10:24:02AM +0100, Karsten Weiss wrote:
 
-> 
-> On Mon, 11 Dec 2006 00:58:07 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > Temporarily at
-> > 
-> > 	http://userweb.kernel.org/~akpm/2.6.19-mm1/
-> > 
-> > Will appear later at
-> > 
-> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/
-> > 
-> 
-> When I use ftp on 2.6.19-mm1, transfered file is always broken.
-> like this:
-> ==
-> [kamezawa@casares ~]$ file ./linux-2.6.19.tar.bz2 (got on 2.6.19-mm1)
-> ./linux-2.6.19.tar.bz2: data
-> (I confirmed original file was not broken.)
+> We could not reproduce the data corruption anymore if we boot the
+> machines with the kernel parameter "iommu=soft" i.e. if we use
+> software bounce buffering instead of the hw-iommu. (As mentioned
+> before, booting with mem=2g works fine, too, because this disables
+> the iommu altogether.)
 
-Yes, a couple of people have reported things like this.  Strange. 
-test.kernel.org is showing mostly-green.  There's one fsx-linux failure (for
-unclear reasons) on one of the x86_64 machines, all the rest are happy.
+I can confirm this also seems to be the case for me, I'm still doing
+more testing to confirm this.  But it would seem:
 
-Which filesystem were you using?
+nforce4, transfer of a large mount of data with 4GB+ of RAM I get some
+corruption.  This is present on both the nv SATA and also Sil 3112
+connected drives.
 
-Can you investigate it a bit further please??  reboot, re-download, work
-out how the data differs, etc?
+Using iommu=soft so far seems to be working without any corruption.
+
+
+
+I still need to do more testing on other machines which have less
+memory (so the IOMMU won't be in use there either) and see if there
+are problems there.

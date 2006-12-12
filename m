@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932448AbWLLVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932456AbWLLVxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWLLVtK (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 16:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWLLVtK
+	id S932456AbWLLVxT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 16:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWLLVxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 16:49:10 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:58547 "EHLO
-	mail.clusterfs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932448AbWLLVtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 16:49:07 -0500
-Date: Tue, 12 Dec 2006 14:49:04 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Josh Boyer <jwboyer@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, jffs-dev@axis.com,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH/RFC] Delete JFFS (version 1)
-Message-ID: <20061212214904.GR5937@schatzie.adilger.int>
-Mail-Followup-To: Josh Boyer <jwboyer@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org, jffs-dev@axis.com,
-	David Woodhouse <dwmw2@infradead.org>
-References: <457EA2FE.3050206@garzik.org> <20061212095359.51483704.akpm@osdl.org> <625fc13d0612121038l22a2b252v3d3773caa8826e41@mail.gmail.com>
+	Tue, 12 Dec 2006 16:53:19 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44943 "EHLO
+	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932456AbWLLVxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 16:53:18 -0500
+Date: Tue, 12 Dec 2006 22:49:39 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] net, 8139too.c: fix netpoll deadlock
+Message-ID: <20061212214939.GA470@electric-eye.fr.zoreil.com>
+References: <20061212101656.GA5064@elte.hu> <20061212124935.GA4356@elte.hu> <457EAE62.8090404@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <625fc13d0612121038l22a2b252v3d3773caa8826e41@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <457EAE62.8090404@garzik.org>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 12, 2006  12:38 -0600, Josh Boyer wrote:
-> On 12/12/06, Andrew Morton <akpm@osdl.org> wrote:
-> >It would be good to provide unignorable notice of this in 2.6.20.  Via a
-> >loud printk, or perhaps even CONFIG_BROKEN or CONFIG_EMBEDDED.
+Jeff Garzik <jeff@garzik.org> :
+> Ingo Molnar wrote:
+[...]
+> >fix deadlock in the 8139too driver: poll handlers should never forcibly 
+> >enable local interrupts, because they might be used by netpoll/printk 
+> >from IRQ context.
 > 
-> Something like the below?
+> ACK
 > 
-> Make CONFIG_JFFS depend on CONFIG_BROKEN
-> 
-> Signed-off-by: Josh Boyer <jwboyer@gmail.com>
-> 
-> diff --git a/fs/Kconfig b/fs/Kconfig
-> index b3b5aa0..4ac367d 100644
-> --- a/fs/Kconfig
-> +++ b/fs/Kconfig
-> @@ -1204,13 +1204,16 @@ config EFS_FS
-> 
-> config JFFS_FS
-> 	tristate "Journalling Flash File System (JFFS) support"
-> -	depends on MTD && BLOCK
-> +	depends on MTD && BLOCK && BROKEN
-> 	help
-> 	  JFFS is the Journalling Flash File System developed by Axis
-> 	  Communications in Sweden, aimed at providing a crash/powerdown-safe
-> 	  file system for disk-less embedded devices. Further information is
-> 	  available at (<http://developer.axis.com/software/jffs/>).
-> 
-> +	  NOTE: This filesystem is deprecated and is scheduled for removal in
-> +	  2.6.21.  See Documentation/feature-removal-schedule.txt
-> +
+> (I'll queue it, if Linus doesn't pick it up; please CC me in the future)
 
-It would be better to have a printk in the module init, since users with
-upstream builds won't see the config help.
+I have lived with the "NAPI ->poll() handler runs in BH irq enabled context"
+rule for years. Is it definitely false/dead ?
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+If so at least 8139cp needs the same fix.
 
+-- 
+Ueimor

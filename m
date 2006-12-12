@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932279AbWLLRaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932275AbWLLRcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWLLRaN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 12:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWLLRaN
+	id S932275AbWLLRcz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 12:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWLLRcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 12:30:13 -0500
-Received: from smtpauth02.prod.mesa1.secureserver.net ([64.202.165.182]:53948
-	"HELO smtpauth02.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932275AbWLLRaL (ORCPT
+	Tue, 12 Dec 2006 12:32:55 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43361 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932275AbWLLRcy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 12:30:11 -0500
-Message-ID: <457EE721.2090509@seclark.us>
-Date: Tue, 12 Dec 2006 12:30:09 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata and sata?
-References: <457ED87A.5@comcast.net>
-In-Reply-To: <457ED87A.5@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Dec 2006 12:32:54 -0500
+Date: Tue, 12 Dec 2006 17:40:55 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: Make OLPC camera driver depend on x86.
+Message-ID: <20061212174055.6b60c134@localhost.localdomain>
+In-Reply-To: <20061212153956.GH8509@redhat.com>
+References: <20061212145258.GA29952@redhat.com>
+	<12591.1165936372@lwn.net>
+	<20061212153956.GH8509@redhat.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
+On Tue, 12 Dec 2006 10:39:56 -0500
+Dave Jones <davej@redhat.com> wrote:
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->A while back my distro moved to libata for sata_via.  I was since
->confused; my disk seemed a lot slower, and it looked like DMA was off.
->I'm not sure how SATA works; is it even possible to enable/disable
->32-bit IO and DMA?  Or are those just on?
->
->sata_via               11524  4
->libata                112660  3 ata_generic,pata_via,sata_via
->
->~$ sudo hdparm -d1 -c1 -u1 /dev/sda
->
->/dev/sda:
-> setting 32-bit IO_support flag to 1
-> HDIO_SET_32BIT failed: Invalid argument
-> setting unmaskirq to 1 (on)
-> HDIO_SET_UNMASKINTR failed: Inappropriate ioctl for device
-> setting using_dma to 1 (on)
-> HDIO_SET_DMA failed: Inappropriate ioctl for device
-> IO_support   =  0 (default 16-bit)
->
->I no longer have two kernels to test through; I can't tell if the speed
->is back or not.  Nothing in dmesg tells me if SATA is using DMA or
->32-bit IO support though, so I don't know... lack of knowledge over here
->is killing me for troubleshooting this on my own.
->
->  
->
-<snip>
+> On Tue, Dec 12, 2006 at 08:12:52AM -0700, Jonathan Corbet wrote:
+>  > Dave Jones <davej@redhat.com> wrote:
+>  > 
+>  > > -	depends on I2C && VIDEO_V4L2
+>  > > +	depends on I2C && VIDEO_V4L2 && X86_32
+>  > 
+>  > Any particular reason why?
+> 
+> Just seemed odd to be offered the option when I was building
+> an ia64 kernel given its extremely unlikely to ever appear there.
 
-Hi John,
+It means we catch portability bugs early and people changing core code
+catch problems even if their platform is not X86_32. The practice for
+almost all out drivers is thus not to put in arch dependancies unless
+they genuinely do not build on arbitary platforms.
 
-This happened to me with my ICH7 intel chipset which supports sata and ata - my drive was an ide and the performance was like 1.2mb/sec. Someone said boot with combined_mode=libata and it fixed the problem.
-Now I get 44mb/sec.
-
-HTH,
-Steve
--- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+NAK

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751211AbWLLKhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751215AbWLLKht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWLLKhY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 05:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWLLKhY
+	id S1751215AbWLLKht (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 05:37:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWLLKhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 05:37:24 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:47387 "EHLO
-	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211AbWLLKhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 05:37:23 -0500
-Subject: [PATCH] Fix swapped parameters in mm/vmscan.c.
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 21:37:18 +1100
-Message-Id: <1165919838.31777.49.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 05:37:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58800 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751215AbWLLKhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 05:37:47 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061212032456.23036.qmail@science.horizon.com> 
+References: <20061212032456.23036.qmail@science.horizon.com> 
+To: linux@horizon.com
+Cc: nickpiggin@yahoo.com.au, linux-arch@vger.kernel.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 12 Dec 2006 10:37:15 +0000
+Message-ID: <13639.1165919835@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The version of mm/vmscan.c in Linus' current tree has swapped parameters
-in the shrink_all_zones declaration and call, used by the various
-suspend-to-disk implementations. This doesn't seem to have any great
-adverse effect, but it's clearly wrong.
+linux@horizon.com wrote:
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> do {
+> 	oldvalue = ll(addr)
+> 	newvalue = ... oldvalue ...
+> } while (!sc(addr, oldvalue, newvalue))
+> 
+> Where sc() could be a cmpxchg.  But, more importantly, if the
+> architecture did implement LL/SC, it could be a "try plain SC; if
+> that fails try CMPXCHG built out of LL/SC; if that fails, loop"
 
-diff -ruNp 930-vmscan.patch-old/mm/vmscan.c 930-vmscan.patch-new/mm/vmscan.c
---- 930-vmscan.patch-old/mm/vmscan.c	2006-12-12 12:24:05.000000000 +1100
-+++ 930-vmscan.patch-new/mm/vmscan.c	2006-12-12 12:23:52.000000000 +1100
-@@ -1443,8 +1443,8 @@ void wakeup_kswapd(struct zone *zone, in
-  *
-  * For pass > 3 we also try to shrink the LRU lists that contain a few pages
-  */
--static unsigned long shrink_all_zones(unsigned long nr_pages, int pass,
--				      int prio, struct scan_control *sc)
-+static unsigned long shrink_all_zones(unsigned long nr_pages, int prio,
-+				      int pass, struct scan_control *sc)
- {
- 	struct zone *zone;
- 	unsigned long nr_to_scan, ret = 0;
+If sc() is implemented with cmpxchg(), then this is a very silly piece of
+code.  cmpxchg() returns the current value if it fails, rendering a repetition
+of ll() pointless.  In some circumstances, you should really do it by putting
+the cmpxchg() up front with what you expect the most likely substitution to
+be, and that then doesn't require the initial load.
 
-
+David

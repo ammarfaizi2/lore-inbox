@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932286AbWLLRkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932232AbWLLRmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWLLRkk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 12:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWLLRkk
+	id S932232AbWLLRmV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 12:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWLLRmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 12:40:40 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:52551 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932286AbWLLRkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 12:40:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p4JkcEyzUoHNRGrT4Z3hjNXCfvmXXZK0WG5yxLNZI9YfNNMcbzNi36dmokhcKITwPyZtPhqZF34H5YTc0Sf3fnUxfVBkNIveajycE9R0jjMkE+ZY9kHLmnVk0rWEY0odE292NMaHl3g8DNIup7J9a1XW/21gN59cQcE/+koaQ20=
-Message-ID: <d120d5000612120940s16f26b27p4b9e0792038693b6@mail.gmail.com>
-Date: Tue, 12 Dec 2006 12:40:35 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Cal Peake" <cp@absolutedigital.net>, "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: [PATCH] Note subscribers only lists for input subsystem
-Cc: trivial@kernel.org, "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612121157110.4219@lancer.cnet.absolutedigital.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 12:42:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50367 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932232AbWLLRmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 12:42:19 -0500
+Date: Tue, 12 Dec 2006 12:42:10 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: Make OLPC camera driver depend on x86.
+Message-ID: <20061212174210.GC2140@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan <alan@lxorguk.ukuu.org.uk>, Jonathan Corbet <corbet@lwn.net>,
+	linux-kernel@vger.kernel.org
+References: <20061212145258.GA29952@redhat.com> <12591.1165936372@lwn.net> <20061212153956.GH8509@redhat.com> <20061212174055.6b60c134@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0612121157110.4219@lancer.cnet.absolutedigital.net>
+In-Reply-To: <20061212174055.6b60c134@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/12/06, Cal Peake <cp@absolutedigital.net> wrote:
-> According to Dmitry in <http://lkml.org/lkml/2006/10/17/280>, the input
-> list is subscribers only. I'm assuming here that both are but a
-> confirmation would be nice... :)
->
-> From: Cal Peake <cp@absolutedigital.net>
->
-> Annotate the MAINTAINERS file to reflect the subscribers only nature of
-> the input mailing lists.
->
+On Tue, Dec 12, 2006 at 05:40:55PM +0000, Alan Cox wrote:
+ > >  > > -	depends on I2C && VIDEO_V4L2
+ > >  > > +	depends on I2C && VIDEO_V4L2 && X86_32
+ > >  > 
+ > >  > Any particular reason why?
+ > > 
+ > > Just seemed odd to be offered the option when I was building
+ > > an ia64 kernel given its extremely unlikely to ever appear there.
+ > 
+ > It means we catch portability bugs early and people changing core code
+ > catch problems even if their platform is not X86_32. The practice for
+ > almost all out drivers is thus not to put in arch dependancies unless
+ > they genuinely do not build on arbitary platforms.
+ > 
+ > NAK
 
-Actually I'd rather have them open, let's see if Vojtech could change
-that... The main problem is that not only input lists accept posts
-from subscribers only but they silently drop everything else. Maybe
-dropping only HTML posts would be a decent compromise.
+Given this could in theory turn up in USB form one day, and some
+lunatic may actually plug one into an ia64, I see your point.
+Unlikely, but feasible.
+
+		Dave
 
 -- 
-Dmitry
+http://www.codemonkey.org.uk

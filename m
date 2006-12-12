@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932078AbWLLGkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932080AbWLLGsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWLLGkL (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 01:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWLLGkL
+	id S932080AbWLLGsz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 01:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWLLGsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 01:40:11 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55458 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078AbWLLGkJ (ORCPT
+	Tue, 12 Dec 2006 01:48:55 -0500
+Received: from mail.bencastricum.nl ([213.84.203.196]:57849 "EHLO
+	bencastricum.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932080AbWLLGsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 01:40:09 -0500
-Date: Tue, 12 Dec 2006 15:43:54 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-mm1
-Message-Id: <20061212154354.90b39a7c.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061211220617.669da2d5.akpm@osdl.org>
-References: <20061211005807.f220b81c.akpm@osdl.org>
-	<20061212145341.a5f335a0.kamezawa.hiroyu@jp.fujitsu.com>
-	<20061211220617.669da2d5.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 01:48:54 -0500
+Date: Tue, 12 Dec 2006 07:48:51 +0100 (CET)
+From: Ben Castricum <mail0612@bencastricum.nl>
+X-X-Sender: benc@gateway.bencastricum.nl
+To: linux-kernel@vger.kernel.org
+Subject: BUG: unable to handle kernel paging request in 2.6.19-git
+Message-ID: <Pine.LNX.4.58.0612120737130.26641@gateway.bencastricum.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2006 22:06:17 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-> > When I use ftp on 2.6.19-mm1, transfered file is always broken.
-> > like this:
-> > ==
-> > [kamezawa@casares ~]$ file ./linux-2.6.19.tar.bz2 (got on 2.6.19-mm1)
-> > ./linux-2.6.19.tar.bz2: data
-> > (I confirmed original file was not broken.)
-> 
-> Yes, a couple of people have reported things like this.  Strange. 
-> test.kernel.org is showing mostly-green.  There's one fsx-linux failure (for
-> unclear reasons) on one of the x86_64 machines, all the rest are happy.
-> 
-> Which filesystem were you using?
-> 
-using ext3.
-> Can you investigate it a bit further please??  reboot, re-download, work
-> out how the data differs, etc?
-> 
-Hmm, this is summary of broken linux-2.6.19.tar.bz2 file (used od and diff) 
 
-offset 000000 -> 000b4f  zero cleared.
-offset 000b50 -> 000fff  not broken
-offset 001000 -> 001c47  zero cleared
-offset 001c48 -> 001fff  not broken
-offset 002000 -> 002d39  zero cleared
-offset 002d40 -> 003fff  not broken.
-offset 004000 -> 004f2f  zero cleared
-offset 004f30 -> 004fff  not broken
-offset 005000 -> 005a79  zero cleared
-offset 005a80 -> 005fff  not broken
-offset 006000 -> 006b7f  zero cleared
-offset 006b80 -> 007fff  not broken
-.......
- 
-All broken parts are always zero-cleared and start from offset 
-aligned to 0x1000. (note: broken kernel's PAGE_SIZE is 16384)
+This bug started to show up after the release of 2.6.19 (iirc plain 2.6.19
+was still working fine).
 
-I'll do AMAP.
+The full dmesg is at
+http://www.bencastricum.nl/lk/bootmessages-2.6.19-g9202f325.log,
+and the .config http://www.bencastricum.nl/lk/config-g9202f325.log
 
--Kame
+I haven't tried disabling CONFIG_PCI_MULTITHREAD_PROBE. But if this
+might help in someway I'll give it a shot.
 
+Thanks,
+Ben
 
-
-
-
-
-
-
-
+e100: Intel(R) PRO/100 Network Driver, 3.5.17-k2-NAPI
+e100: Copyright(c) 1999-2006 Intel Corporation
+BUG: unable to handle kernel paging request at virtual address d880a000
+ printing eip:
+d880a000
+*pde = 01382067
+*pte = 00000000
+Oops: 0000 [#1]
+Modules linked in: e100 mii ext2 unix
+CPU:    0
+EIP:    0060:[<d880a000>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.19-g9202f325 #15)
+EIP is at 0xd880a000
+eax: c13c9000   ebx: d8876fe0   ecx: d8876470   edx: d8876470
+esi: d8876fe0   edi: ffffffed   ebp: d8877014   esp: d7a15f7c
+ds: 007b   es: 007b   ss: 0068
+Process probe-0000:00:0 (pid: 72, ti=d7a14000 task=d7828560
+task.ti=d7a14000)
+Stack: c01b009a c13c9000 c01b00ec d8876fe0 c13c9000 00000000 c01b0126
+c13c9048
+       d7821560 c0205b27 d7821560 00001fcc 6ab5e081 00004ada d7acded0
+d7821560
+       c0205aa0 fffffffc c0128186 00000001 ffffffff ffffffff c01280d0
+00000000
+Call Trace:
+ [<c01b009a>] pci_call_probe+0xa/0x10
+ [<c01b00ec>] __pci_device_probe+0x4c/0x60
+ [<c01b0126>] pci_device_probe+0x26/0x50
+ [<c0205b27>] really_probe+0x87/0x100
+ [<c0205aa0>] really_probe+0x0/0x100
+ [<c0128186>] kthread+0xb6/0xc0
+ [<c01280d0>] kthread+0x0/0xc0
+ [<c0103963>] kernel_thread_helper+0x7/0x14
+ =======================
+Code:  Bad EIP value.
+EIP: [<d880a000>] 0xd880a000 SS:ESP 0068:d7a15f7c

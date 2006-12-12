@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932158AbWLLJKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750992AbWLLJNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWLLJKw (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 04:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWLLJKw
+	id S1750992AbWLLJNK (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 04:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWLLJNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 04:10:52 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:49754 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932158AbWLLJKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 04:10:51 -0500
-Message-ID: <457E7215.3010707@suse.de>
-Date: Tue, 12 Dec 2006 10:10:45 +0100
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.8 (X11/20060911)
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-Cc: paulus@samba.org, torvalds@osdl.org, olaf@aepfle.de, herbert@13thfloor.at,
-       apw@shadowen.org, ak@suse.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, drfickle@us.ibm.com,
-       linuxppc-dev@ozlabs.org
-Subject: Re: 2.6.19-git13: uts banner changes break SLES9 (at least)
-References: <20061211185536.GA19338@aepfle.de>	<Pine.LNX.4.64.0612111106310.12500@woody.osdl.org>	<17789.54777.283849.950002@cargo.ozlabs.ibm.com> <20061211.160541.111202759.davem@davemloft.net>
-In-Reply-To: <20061211.160541.111202759.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Dec 2006 04:13:10 -0500
+Received: from mx2.go2.pl ([193.17.41.42]:34359 "EHLO poczta.o2.pl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750992AbWLLJNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 04:13:08 -0500
+Date: Tue, 12 Dec 2006 10:20:14 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: "Jeffrey V\. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recursive spinlocks for Network Recursion Bugs in 2.6.18
+Message-ID: <20061212092014.GA1922@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	"Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <457A6637.3060101@wolfmountaingroup.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On 09-12-2006 08:31, Jeffrey V. Merkey wrote:
+> 
+> 
+> This code segment in /net/core/dev.c is a prime example of the need for 
+> recursive spin locks.
+...
+> Recursive spinlocks perform the logic
+...
+> LONG rspin_lock(rlock_t *rlock)
+...
+> LONG rspin_unlock(rlock_t *rlock)
+...
 
-> That only gives you the version, not the whole version string, but you
-> could put the whole string in such a location when adding such a
-> facility to powerpc if you wanted to.
+Could you give some hint how this code from dev.c
+should be changed to gain by this?
 
-Hmm, as we have those fancy ELFNOTE macros now, can't we just the
-version string into one?
-
-cheers,
-
-  Gerd
-
--- 
-Gerd Hoffmann <kraxel@suse.de>
+Jarek P. 

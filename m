@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932553AbWLLWyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964775AbWLLWze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbWLLWyy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWLLWyy
+	id S964775AbWLLWze (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWLLWzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:54:54 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2491 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932553AbWLLWyx (ORCPT
+	Tue, 12 Dec 2006 17:55:33 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:6765 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932555AbWLLWzc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:54:53 -0500
-Date: Tue, 12 Dec 2006 22:54:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, davem@davemloft.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/2] WorkStruct: Add assign_bits() to give an atomic-bitops safe assignment
-Message-ID: <20061212225443.GA25902@flint.arm.linux.org.uk>
-Mail-Followup-To: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	akpm@osdl.org, davem@davemloft.com, matthew@wil.cx,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Dec 2006 17:55:32 -0500
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+To: akpm@osdl.org, bzolnier@gmail.com
+Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+Date: Wed, 13 Dec 2006 01:57:02 +0300
+User-Agent: KMail/1.5
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+References: <200612130148.34539.sshtylyov@ru.mvista.com>
+In-Reply-To: <200612130148.34539.sshtylyov@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200612130157.02249.sshtylyov@ru.mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 08:11:12PM +0000, David Howells wrote:
-> diff --git a/include/asm-arm/bitops.h b/include/asm-arm/bitops.h
-> index b41831b..5932134 100644
-> --- a/include/asm-arm/bitops.h
-> +++ b/include/asm-arm/bitops.h
-> @@ -117,6 +117,32 @@ ____atomic_test_and_change_bit(unsigned 
->  	return res & mask;
->  }
->  
-> +#if __LINUX_ARM_ARCH__ >= 6 && defined(CONFIG_CPU_32v6K)
-> +static inline void assign_bits(unsigned long v, unsigned long *addr)
-> +{
-> +	unsigned long tmp;
-> +
-> +	__asm__ __volatile__("@ atomic_set\n"
-> +"1:	ldrex	%0, [%1]\n"
-> +"	strex	%0, %2, [%1]\n"
-> +"	teq	%0, #0\n"
-> +"	bne	1b"
-> +	: "=&r" (tmp)
-> +	: "r" (addr), "r" (v)
-> +	: "cc");
-> +}
+Hello.
 
-This seems to be a very silly question (and I'm bound to be utterly
-wrong as proven in my last round) but why are we implementing a new
-set of atomic primitives which effectively do the same thing as our
-existing set?
+On Wednesday 13 December 2006 01:48, Sergei Shtylyov wrote:
+> Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
+> completely reworked from the original brain-damaged Toshiba's 2.4 version.
 
-Why can't we just use atomic_t for this?
+   Shoot, the patch is actually against the most recent Linus' tree, so
+it's 2.6.20-rc1...
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+   Andrew, 2.6.19-rc6-mm2 series keeps failing to completely apply to 
+2.6.19-rc6 head in my git repo -- don't know why, maybe that's my git...
+Hence the patch was againt Linus' tree.
+
+WBR, Sergei
+

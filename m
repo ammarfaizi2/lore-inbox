@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750795AbWLLAmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750794AbWLLApT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWLLAmY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 19:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWLLAmY
+	id S1750794AbWLLApT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 19:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWLLApT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 19:42:24 -0500
-Received: from ns1.suse.de ([195.135.220.2]:38600 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750792AbWLLAmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 19:42:23 -0500
-From: Neil Brown <neilb@suse.de>
-To: Jiri Kosina <jikos@jikos.cz>
-Date: Tue, 12 Dec 2006 11:42:24 +1100
+	Mon, 11 Dec 2006 19:45:19 -0500
+Received: from web58312.mail.re3.yahoo.com ([68.142.236.165]:37769 "HELO
+	web58312.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1750794AbWLLApS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 19:45:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=hqr1EupQqPIs3FWO4qpZ15Sog4vYxVzBgTKWRs6wk53CXiYE+SZymyKc78K4eqo/EoMut6z/JCEBj4MJhLIdAOPhOfkgicOWHgtzHk4CNSc1OkBH7PwvomjZThWjW2FLg+kIB6y1OjkN0+LX1cNzvEXADA0Y78pphL3rvAfk1UA=;
+X-YMail-OSG: 8EExvFUVM1kLiumcAq1donLcdayBdigC8qy8redf0XlsOwvKrIlftXkhU74RjkVgaqtzVYbrn.qCuLAT.s3CYIge9e3.wVAgpnRiNCZX0u09USPeRwjaPYkYpV9vY0z1gDlxfGU8YWA.QYy1x7In8awjOHgJb_.1whU-
+Date: Mon, 11 Dec 2006 16:45:17 -0800 (PST)
+From: xu feng <xu_feng_xu@yahoo.com>
+Subject: doubts about disk scheduling
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17789.64240.879603.161637@cse.unsw.edu.au>
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-       linux-raid@vger.kernel.org
-Subject: Re: oops on 2.6.19-rc6-mm2: deref of 0x28 at permission+0x7
-In-Reply-To: message from Jiri Kosina on Monday December 11
-References: <457A0F4C.9060601@gmail.com>
-	<Pine.LNX.4.64.0612102027350.1665@twin.jikos.cz>
-	<17788.48732.53210.631230@cse.unsw.edu.au>
-	<Pine.LNX.4.64.0612111034480.1665@twin.jikos.cz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <430903.22870.qm@web58312.mail.re3.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday December 11, jikos@jikos.cz wrote:
-> On Mon, 11 Dec 2006, Neil Brown wrote:
-> 
-> > > this nash thing is exactly the command which triggers a bit different 
-> > > oops in my case. On my side, the oops is fully reproducible. If you 
-> > > manage to make your case also reproducible, could you please try to 
-> > > revert md-change-lifetime-rules-for-md-devices.patch? This made the 
-> > > oops vanish in my case. I think Neil is working on it.
-> > Trying to work on it - not making a lot of progress.  I find it hard to 
-> > see how anything in md can cause the inode for a block-device file to 
-> > disappear... It is a bit of a long-shot, but this patch might change 
-> > things.  It changes the order in which things are de-allocated. Jiri and 
-> > Jiri: would either of both of you see if you can reproduce the bug with 
-> > this patch on 2.6.19-rc6-mm2 ???
-> 
-> Hi Neil,
-> 
-> sorry to say that, but it's still there after applying your patch.
+Hi, 
+Please cc your reply to my email. many thanks
 
-Not a big surprise, but thanks a lot for testing.  I think I'm going
-to have to try harder to duplicate it myself.
+I would appreciate any help on the following
+questions.
 
-If I remember rightly you are using FC - which version exactly?  (I've
-never installed FC before so this is going to be learning experience).
+ I have looked on disk scheduling algorithms 
+<http://www.cs.princeton.edu/courses/archive/fall06/cos318/lectures/disks.pdf>
+and the main thing that striked me is that most of the
+algorithms that i have read in the textbooks (some are
+explained in the previous ) don't take into
+consideration the "priority of the process". Being the
+short seek time first, scan, or c-scan algorithm, all
+are explained through a string of block numbers, but
+no mention is given about the owner of these
+blocks.does it mean all the processes are treated
+equally??  In my opinion a sort of Multi level queue
+like with CPU scheduling algorithm can be used to
+schedule the processes according to their importance.
+any comment?
 
-And you have no MD arrays at all - is that correct?
 
-And you compile your own kernel.  Is it monolithic, or are you using
-modules?  Do you boot with an initrd or just the kernel?
+My second question is about the implementation, i.e.
+how the different requests are actually aligned in the
+disk queue?
 
-I'd like to duplicate your installation as closely as possible, so any
-relevant details or recipes would be greatly appreciated.
+if a process submit a disk I/O request, its PCB should
+be linked to the disk queue. My question is, in making
+the system call, and after checking the permission
+rights and identifying the sought data (block) address
+in the disk and the target address in the memory does
+the kernel store this information in the pcb, then
+link this pcb in the disk queue?
 
-Thanks,
+By doing so and once the disk controller is free , the
+device driver checks the queue pcbs and read the
+requested blocks and depending on the current location
+of the disk head and the queue pcb block request, the
+driver orders the controller to process a certain
+block request of a certain process. The driver removes
+this request from the pcb content 
 
-NeilBrown
+is that how it is implemented?
+
+Many thanks
+
+
+ 
+____________________________________________________________________________________
+Yahoo! Music Unlimited
+Access over 1 million songs.
+http://music.yahoo.com/unlimited

@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964790AbWLLXFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964789AbWLLXFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWLLXFy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 18:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWLLXFy
+	id S964789AbWLLXFl (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 18:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWLLXFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 18:05:54 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26414 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964787AbWLLXFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 18:05:52 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,526,1157353200"; 
-   d="scan'208"; a="173678160:sNHT45705198"
-Date: Tue, 12 Dec 2006 15:00:33 -0800
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Stefan Schmidt <stefan@datenfreihafen.org>, Holger Macht <hmacht@suse.de>,
-       len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Brandon Philips <brandon@ifup.org>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
-Message-Id: <20061212150033.e3c7612f.kristen.c.accardi@intel.com>
-In-Reply-To: <200612121431.11919.jbarnes@virtuousgeek.org>
-References: <20061204224037.713257809@localhost.localdomain>
-	<20061211120508.2f2704ac.kristen.c.accardi@intel.com>
-	<20061212221504.GA4104@datenfreihafen.org>
-	<200612121431.11919.jbarnes@virtuousgeek.org>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 12 Dec 2006 18:05:41 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:6834 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964785AbWLLXFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 18:05:39 -0500
+Message-ID: <457F3621.9030804@ru.mvista.com>
+Date: Wed, 13 Dec 2006 02:07:13 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+References: <200612130148.34539.sshtylyov@ru.mvista.com> <20061212150052.b05b05db.randy.dunlap@oracle.com>
+In-Reply-To: <20061212150052.b05b05db.randy.dunlap@oracle.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2006 14:31:10 -0800
-Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
+Hello.
 
-> On Tuesday, December 12, 2006 2:15 pm, Stefan Schmidt wrote:
-> > Hello.
-> >
-> > On Mon, 2006-12-11 at 12:05, Kristen Carlson Accardi wrote:
-> > > On Sat, 9 Dec 2006 12:59:58 +0100
-> > >
-> > > Holger Macht <hmacht@suse.de> wrote:
-> > > > Well, I like to have them ;-)
-> > >
-> > > Ok - how is this?
-> > >
-> > > Send a uevent to indicate a device change whenever we dock or
-> > > undock, so that userspace may now check the dock status via
-> > > sysfs.
-> >
-> > I would like to have two different events for dock and undock.
-> >
-> > This way the userspace listener don't need to check the status file
-> > in sysfs to know if there was a dock or undock after getting the
-> > event.
-> >
-> > Anyway the status file is still usefull for programs don't react on
-> > the events, but like to know if the laptop is docked before starting
-> > for example.
-> 
-> FWIW, Kay and Neil recently went back and forth regarding what sorts of 
-> events to generate for MD online/offline events.  In concept md 
-> online/offline and dock/undock seem similar enough that the 'change' 
-> events Kay requested for md probably make sense in the dock/undock 
-> context as well, but I've Cc'd him just in case.
-> 
-> Jesse
-> 
+Randy Dunlap wrote:
 
-I did have different dock/undock events a few months ago - but
-after some discussion we scrapped them because Kay wants to avoid driver
-specific events.  The "change" event is the only thing that makes sense,
-given the set of uevents available right now, and userspace should be 
-able to handle checking a file to get driver specific details (i.e. dock 
-and undock status).  If you have a specific reason why this won't work,
-let me know.
+>>Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
+>>completely reworked from the original brain-damaged Toshiba's 2.4 version.
+>>
+>>This single channel UltraDMA/66 controller is very simple in programming, yet
+>>Toshiba managed to plant many interesting bugs in it.  The particularly nasty
+>>"limitation 5" (as they call the errata) caused me to abuse the IDE core in a
+>>possibly most interesting way so far.  However, this is still better than the
+>>#ifdef mess in drivers/ide/ide-io.c that the original version included (well,
+>>it had much more mess)...
+
+>>Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+
+>> drivers/ide/Kconfig        |    5 
+>> drivers/ide/pci/Makefile   |    1 
+>> drivers/ide/pci/tc86c001.c |  304 +++++++++++++++++++++++++++++++++++++++++++++
+>> drivers/pci/quirks.c       |   18 ++
+>> include/linux/pci_ids.h    |    1 
+>> 5 files changed, 329 insertions(+)
+>>
+>>Index: linux-2.6/drivers/ide/Kconfig
+>>===================================================================
+>>--- linux-2.6.orig/drivers/ide/Kconfig
+>>+++ linux-2.6/drivers/ide/Kconfig
+>>@@ -742,6 +742,11 @@ config BLK_DEV_VIA82CXXX
+>> 	  This allows the kernel to change PIO, DMA and UDMA speeds and to
+>> 	  configure the chip to optimum performance.
+>> 
+>>+config BLK_DEV_TC86C001
+>>+	tristate "Toshiba TC86C001 support"
+
+> Needs something here like lots of other IDE PCI drivers have:
+> 	depends on PCI && BLK_DEV_IDEPCI
+
+> or at least:  depends on PCI
+
+    No, it's already under if BLK_DEV_IDEPCI. And if you really look into 
+Kconfig you'll see hwo it's done there...
+
+>>+	help
+>>+	This driver adds support for Toshiba TC86C001 GOKU-S chip.
+>>+
+>> endif
+
+    Here's that endif.
+
+WBR, Sergei

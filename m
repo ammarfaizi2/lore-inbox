@@ -1,114 +1,193 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932171AbWLLJWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932164AbWLLJ3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWLLJWs (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 04:22:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWLLJWs
+	id S932164AbWLLJ3I (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 04:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWLLJ3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 04:22:48 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:49355 "EHLO
-	laptopd505.fenrus.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932169AbWLLJWr (ORCPT
+	Tue, 12 Dec 2006 04:29:07 -0500
+Received: from nz-out-0506.google.com ([64.233.162.239]:31526 "EHLO
+	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932164AbWLLJ3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 04:22:47 -0500
-Subject: Re: [PATCH] Whinge in paging_init if noexec is on with a non-PAE
-	kernel
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Kyle McMartin <kyle@ubuntu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061212023805.GE4044@athena.road.mcmartin.ca>
-References: <20061212000359.GB4044@athena.road.mcmartin.ca>
-	 <20061212023805.GE4044@athena.road.mcmartin.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Dec 2006 10:22:14 +0100
-Message-Id: <1165915334.27217.565.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Tue, 12 Dec 2006 04:29:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type;
+        b=jJILS1YlqDIQvtM5SNI1VVubWcr9v94Ti9mC1aRRRpdegZ/MtAF9RCHwr5HSyVDuu3Bf+KdCX8sbi0wBJspQgBaeeh4U9Cq8nWqOKQ4DsS1H7XdLVuaz7zotuHV8Ll7+Yytp8bprcAWi0/6ENqawDlU1dDBSNlZsP/EYIIF8zPo=
+Message-ID: <457E764D.8000805@gmail.com>
+Date: Tue, 12 Dec 2006 14:58:45 +0530
+From: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] kobject: kobject_uevent() returns manageable value
+Content-Type: multipart/mixed;
+ boundary="------------020208030802010903030703"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-11 at 21:38 -0500, Kyle McMartin wrote:
-> On second thought, this is probably better since most people will
-> presumably be booting non-PAE kernels, generating this message when
-> they've not tried to force the issue seems silly.
-> 
-> This way, the user will only see a warning if they actually go
-> out and specify "noexec=on" on the command line.
+This is a multi-part message in MIME format.
+--------------020208030802010903030703
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-how about this instead? 
+--------------020208030802010903030703
+Content-Type: text/plain;
+ name*0="0001-kobject-kobject_uevent-returns-manageable-value.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="0001-kobject-kobject_uevent-returns-manageable-value.txt"
 
+Since kobject_uevent() function does not return an integer value to
+indicate if its operation was completed with success or not, it is
+worth changing it in order to report a proper status (success or
+error) instead of returning void.
 
-noexec=on as kernel option makes no sense, nx is enabled by default
-since a really long time. What it does achieve is that it gives certain
-people the impression that it makes the impossible possible: using NX in
-situations where either the CPU or the kernel configuration make it not
-possible.
-
-This patch just removes the option and all the code for it, it's bloat.
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-
+CC: Mauricio Lin <mauriciolin@gmail.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@gmail.com>
 ---
- Documentation/kernel-parameters.txt |    1 -
- arch/i386/mm/init.c                 |   10 ++--------
- arch/x86_64/kernel/setup64.c        |    5 +----
- 3 files changed, 3 insertions(+), 13 deletions(-)
+ include/linux/kobject.h |    8 ++++----
+ lib/kobject_uevent.c    |   44 ++++++++++++++++++++++++++++++--------------
+ 2 files changed, 34 insertions(+), 18 deletions(-)
 
-Index: linux-2.6/Documentation/kernel-parameters.txt
-===================================================================
---- linux-2.6.orig/Documentation/kernel-parameters.txt
-+++ linux-2.6/Documentation/kernel-parameters.txt
-@@ -1032,7 +1032,6 @@ and is between 256 and 4096 characters. 
- 	noexec		[IA-64]
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index d1c8d28..fc93c53 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -265,8 +265,8 @@ extern int __must_check subsys_create_file(struct subsystem * ,
+ 					struct subsys_attribute *);
  
- 	noexec		[IA-32,X86-64]
--			noexec=on: enable non-executable mappings (default)
- 			noexec=off: disable nn-executable mappings
+ #if defined(CONFIG_HOTPLUG)
+-void kobject_uevent(struct kobject *kobj, enum kobject_action action);
+-void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
++int kobject_uevent(struct kobject *kobj, enum kobject_action action);
++int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 			char *envp[]);
  
- 	nofxsr		[BUGS=IA-32] Disables x86 floating point extended
-Index: linux-2.6/arch/x86_64/kernel/setup64.c
-===================================================================
---- linux-2.6.orig/arch/x86_64/kernel/setup64.c
-+++ linux-2.6/arch/x86_64/kernel/setup64.c
-@@ -50,10 +50,7 @@ static int __init nonx_setup(char *str)
- {
- 	if (!str)
- 		return -EINVAL;
--	if (!strncmp(str, "on", 2)) {
--                __supported_pte_mask |= _PAGE_NX; 
-- 		do_not_nx = 0; 
--	} else if (!strncmp(str, "off", 3)) {
-+	if (!strncmp(str, "off", 3)) {
- 		do_not_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
-         }
-Index: linux-2.6/arch/i386/mm/init.c
-===================================================================
---- linux-2.6.orig/arch/i386/mm/init.c
-+++ linux-2.6/arch/i386/mm/init.c
-@@ -428,21 +428,15 @@ static int disable_nx __initdata = 0;
- u64 __supported_pte_mask __read_mostly = ~_PAGE_NX;
- 
- /*
-- * noexec = on|off
-+ * noexec = off
-  *
-  * Control non executable mappings.
-  *
-- * on      Enable
-  * off     Disable
+ int add_uevent_var(char **envp, int num_envp, int *cur_index,
+@@ -274,8 +274,8 @@ int add_uevent_var(char **envp, int num_envp, int *cur_index,
+ 			const char *format, ...)
+ 	__attribute__((format (printf, 7, 8)));
+ #else
+-static inline void kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
+-static inline void kobject_uevent_env(struct kobject *kobj,
++static inline int kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
++static inline int kobject_uevent_env(struct kobject *kobj,
+ 				      enum kobject_action action,
+ 				      char *envp[])
+ { }
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index a192276..84272ed 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -63,8 +63,11 @@ static char *action_to_string(enum kobject_action action)
+  * @action: action that is happening (usually KOBJ_MOVE)
+  * @kobj: struct kobject that the action is happening to
+  * @envp_ext: pointer to environmental data
++ *
++ * Returns 0 if kobject_uevent() is completed with success or the
++ * corresponding error when it fails.
   */
- static int __init noexec_setup(char *str)
+-void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
++int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 			char *envp_ext[])
  {
--	if (!str || !strcmp(str, "on")) {
--		if (cpu_has_nx) {
--			__supported_pte_mask |= _PAGE_NX;
--			disable_nx = 0;
--		}
--	} else if (!strcmp(str,"off")) {
-+	if (!strcmp(str,"off")) {
- 		disable_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
- 	} else
+ 	char **envp;
+@@ -79,14 +82,16 @@ void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 	u64 seq;
+ 	char *seq_buff;
+ 	int i = 0;
+-	int retval;
++	int retval = 0;
+ 	int j;
+ 
+ 	pr_debug("%s\n", __FUNCTION__);
+ 
+ 	action_string = action_to_string(action);
+-	if (!action_string)
+-		return;
++	if (!action_string) {
++		pr_debug("kobject attempted to send uevent without action_string!\n");
++		return -EINVAL;
++	}
+ 
+ 	/* search the kset we belong to */
+ 	top_kobj = kobj;
+@@ -95,31 +100,39 @@ void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 			top_kobj = top_kobj->parent;
+ 		} while (!top_kobj->kset && top_kobj->parent);
+ 	}
+-	if (!top_kobj->kset)
+-		return;
++	if (!top_kobj->kset) {
++		pr_debug("kobject attempted to send uevent without kset!\n");
++		return -EINVAL;
++	}
+ 
+ 	kset = top_kobj->kset;
+ 	uevent_ops = kset->uevent_ops;
+ 
+ 	/*  skip the event, if the filter returns zero. */
+ 	if (uevent_ops && uevent_ops->filter)
+-		if (!uevent_ops->filter(kset, kobj))
+-			return;
++		if (!uevent_ops->filter(kset, kobj)) {
++			pr_debug("kobject filter function caused the event to drop!\n");
++			return 0;
++		}
+ 
+ 	/* environment index */
+ 	envp = kzalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
+ 	if (!envp)
+-		return;
++		return -ENOMEM;
+ 
+ 	/* environment values */
+ 	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
+-	if (!buffer)
++	if (!buffer) {
++		retval = -ENOMEM;
+ 		goto exit;
++	}
+ 
+ 	/* complete object path */
+ 	devpath = kobject_get_path(kobj, GFP_KERNEL);
+-	if (!devpath)
++	if (!devpath) {
++		retval = -ENOENT;
+ 		goto exit;
++	}
+ 
+ 	/* originating subsystem */
+ 	if (uevent_ops && uevent_ops->name)
+@@ -204,7 +217,7 @@ exit:
+ 	kfree(devpath);
+ 	kfree(buffer);
+ 	kfree(envp);
+-	return;
++	return retval;
+ }
+ 
+ EXPORT_SYMBOL_GPL(kobject_uevent_env);
+@@ -214,10 +227,13 @@ EXPORT_SYMBOL_GPL(kobject_uevent_env);
+  *
+  * @action: action that is happening (usually KOBJ_ADD and KOBJ_REMOVE)
+  * @kobj: struct kobject that the action is happening to
++ *
++ * Returns 0 if kobject_uevent() is completed with success or the
++ * corresponding error when it fails.
+  */
+-void kobject_uevent(struct kobject *kobj, enum kobject_action action)
++int kobject_uevent(struct kobject *kobj, enum kobject_action action)
+ {
+-	kobject_uevent_env(kobj, action, NULL);
++	return kobject_uevent_env(kobj, action, NULL);
+ }
+ 
+ EXPORT_SYMBOL_GPL(kobject_uevent);
+-- 
+1.4.4.2.gdb98-dirty
 
+
+--------------020208030802010903030703--

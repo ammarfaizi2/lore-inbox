@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751265AbWLLMi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751266AbWLLMja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWLLMi3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 07:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWLLMi3
+	id S1751266AbWLLMja (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 07:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWLLMja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 07:38:29 -0500
-Received: from mail.cs.tut.fi ([130.230.4.42]:51493 "EHLO mail.cs.tut.fi"
+	Tue, 12 Dec 2006 07:39:30 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:55066 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751265AbWLLMi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 07:38:28 -0500
-Message-ID: <457EA2C2.5060408@tut.fi>
-Date: Tue, 12 Dec 2006 14:38:26 +0200
-From: Timo Aaltonen <timo.aaltonen@tut.fi>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+	id S1751266AbWLLMj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 07:39:29 -0500
+Message-ID: <457EA2FE.3050206@garzik.org>
+Date: Tue, 12 Dec 2006 07:39:26 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Survey about the Kernel Community
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, jffs-dev@axis.com,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: [PATCH/RFC] Delete JFFS (version 1)
+Content-Type: multipart/mixed;
+ boundary="------------020204040401010400040001"
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This is a multi-part message in MIME format.
+--------------020204040401010400040001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We would like to ask you few question about Linux Kernel Community. The
-survey consists of 31 multiple choice questions and three text boxes.
-The survey is conducted by Institute of Business Information Management
-and Institute of Software Systems at Tampere University of Technology.
+I have created the 'kill-jffs' branch of 
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git that 
+removes fs/jffs.
 
-We close the survey at 24th of December. The results of our study will
-be published  in an international academic conference.
+I argue that you can count the users (who aren't on 2.4) on one hand, 
+and developers don't seem to have cared for it in ages.
 
-Please devote a few minutes to help us in understanding OSS communities.
-The survey is located at <http://www.surveymonkey.com/s.asp?u=577413001783>.
+People are already talking about jffs2 replacements, so I propose we zap 
+jffs in 2.6.21.
 
-Thanks in advance.
+	Jeff
 
--- 
-Timo Aaltonen and Maria Antikainen
-firstname.lastname@tut.fi
+
+
+
+--------------020204040401010400040001
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index 46f2a55..c008303 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -270,3 +270,10 @@ Why:	The new layer 3 independant connection tracking replaces the old
+ Who:	Patrick McHardy <kaber@trash.net>
+ 
+ ---------------------------
++
++What:	JFFS (version 1) filesystem
++When:	2.6.21
++Why:	No users or developers
++Who:	Jeff Garzik <jeff@garzik.org>
++
++---------------------------
+
+--------------020204040401010400040001--

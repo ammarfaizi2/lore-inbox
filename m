@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751520AbWLLQX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751506AbWLLQWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWLLQX7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 11:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWLLQXz
+	id S1751506AbWLLQWy (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 11:22:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWLLQWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 11:23:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3396 "HELO
+	Tue, 12 Dec 2006 11:22:53 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3389 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751516AbWLLQXl (ORCPT
+	with SMTP id S1751506AbWLLQWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 11:23:41 -0500
-Date: Tue, 12 Dec 2006 17:23:51 +0100
+	Tue, 12 Dec 2006 11:22:40 -0500
+Date: Tue, 12 Dec 2006 17:22:49 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove include/linux/byteorder/pdp_endian.h
-Message-ID: <20061212162351.GU28443@stusta.de>
+Cc: funaho@jurai.org, geert@linux-m68k.org, zippel@linux-m68k.org,
+       linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove the broken BLK_DEV_SWIM_IOP driver
+Message-ID: <20061212162249.GT28443@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,118 +24,859 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/byteorder/pdp_endian.h is completely unused, and the
-comment in the file itself states that it's both untested and only a
-proof-of-concept.
+The BLK_DEV_SWIM_IOP driver has:
+- already been marked as BROKEN in 2.6.0 three years ago and
+- is still marked as BROKEN.
+
+Drivers that had been marked as BROKEN for such a long time seem to be
+unlikely to be revived in the forseeable future.
+
+But if anyone wants to ever revive this driver, the code is still
+present in the older kernel releases.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 28 Nov 2006
+- 25 Nov 2006
+- 20 Nov 2006
 
- include/linux/byteorder/Kbuild       |    1 
- include/linux/byteorder/pdp_endian.h |   88 ---------------------------
- 2 files changed, 89 deletions(-)
+ drivers/block/Kconfig       |    7 
+ drivers/block/Makefile      |    1 
+ drivers/block/swim_iop.c    |  578 ------------------------------------
+ include/asm-m68k/swim_iop.h |  221 -------------
+ 4 files changed, 807 deletions(-)
 
---- a/include/linux/byteorder/pdp_endian.h
-+++ /dev/null
-@@ -1,88 +0,0 @@
--#ifndef _LINUX_BYTEORDER_PDP_ENDIAN_H
--#define _LINUX_BYTEORDER_PDP_ENDIAN_H
+--- linux-2.6.19-rc5-mm2/drivers/block/Kconfig.old	2006-11-20 21:18:14.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/block/Kconfig	2006-11-20 21:18:21.000000000 +0100
+@@ -28,13 +28,6 @@
+ 	tristate "Atari floppy support"
+ 	depends on ATARI
+ 
+-config BLK_DEV_SWIM_IOP
+-	bool "Macintosh IIfx/Quadra 900/Quadra 950 floppy support (EXPERIMENTAL)"
+-	depends on MAC && EXPERIMENTAL && BROKEN
+-	help
+-	  Say Y here to support the SWIM (Super Woz Integrated Machine) IOP
+-	  floppy controller on the Macintosh IIfx and Quadra 900/950.
 -
+ config MAC_FLOPPY
+ 	tristate "Support for PowerMac floppy"
+ 	depends on PPC_PMAC && !PPC_PMAC64
+--- linux-2.6.19-rc5-mm2/drivers/block/Makefile.old	2006-11-20 21:18:29.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/block/Makefile	2006-11-20 21:20:10.000000000 +0100
+@@ -9,7 +9,6 @@
+ obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
+ obj-$(CONFIG_AMIGA_FLOPPY)	+= amiflop.o
+ obj-$(CONFIG_ATARI_FLOPPY)	+= ataflop.o
+-obj-$(CONFIG_BLK_DEV_SWIM_IOP)	+= swim_iop.o
+ obj-$(CONFIG_ATARI_ACSI)	+= acsi.o
+ obj-$(CONFIG_ATARI_SLM)		+= acsi_slm.o
+ obj-$(CONFIG_AMIGA_Z2RAM)	+= z2ram.o
+--- linux-2.6.19-rc5-mm2/include/asm-m68k/swim_iop.h	2006-09-20 05:42:06.000000000 +0200
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,221 +0,0 @@
 -/*
-- * Could have been named NUXI-endian, but we use the same name as in glibc.
-- * hopefully only the PDP and its evolutions (old VAXen in compatibility mode)
-- * should ever use this braindead byteorder.
-- * This file *should* work, but has not been tested.
-- *
-- * little-endian is 1234; big-endian is 4321; nuxi/pdp-endian is 3412
-- *
-- * I thought vaxen were NUXI-endian, but was told they were correct-endian
-- * (little-endian), though indeed there existed NUXI-endian machines
-- * (DEC PDP-11 and old VAXen in compatibility mode).
-- * This makes this file a bit useless, but as a proof-of-concept.
-- *
-- * But what does a __u64 look like: is it 34127856 or 78563412 ???
-- * I don't dare imagine! Hence, no 64-bit byteorder support yet.
-- * Hopefully, there 64-bit pdp-endian support shouldn't ever be required.
-- *
+- * SWIM access through the IOP
+- * Written by Joshua M. Thompson
 - */
 -
--#ifndef __PDP_ENDIAN
--#define __PDP_ENDIAN 3412
+-/* IOP number and channel number for the SWIM */
+-
+-#define SWIM_IOP	IOP_NUM_ISM
+-#define SWIM_CHAN	1
+-
+-/* Command code: */
+-
+-#define CMD_INIT		0x01	/* Initialize                  */
+-#define CMD_SHUTDOWN		0x02	/* Shutdown                    */
+-#define CMD_START_POLL		0x03	/* Start insert/eject polling  */
+-#define CMD_STOP_POLL		0x04	/* Stop insert/eject polling   */
+-#define CMD_SETHFSTAG		0x05	/* Set HFS tag buffer address  */
+-#define CMD_STATUS		0x06	/* Status                      */
+-#define CMD_EJECT		0x07	/* Eject                       */
+-#define CMD_FORMAT		0x08	/* Format                      */
+-#define CMD_FORMAT_VERIFY	0x09	/* Format and Verify           */
+-#define CMD_WRITE		0x0A	/* Write                       */
+-#define CMD_READ		0x0B	/* Read                        */
+-#define CMD_READ_VERIFY		0x0C	/* Read and Verify             */
+-#define CMD_CACHE_CTRL		0x0D	/* Cache control               */
+-#define CMD_TAGBUFF_CTRL	0x0E	/* Tag buffer control          */
+-#define CMD_GET_ICON		0x0F	/* Get Icon                    */
+-
+-/* Drive types: */
+-
+-/* note: apple sez DRV_FDHD is 4, but I get back a type */
+-/*       of 5 when I do a drive status check on my FDHD */
+-
+-#define	DRV_NONE	0	/* No drive             */
+-#define	DRV_UNKNOWN	1	/* Unspecified drive    */
+-#define	DRV_400K	2	/* 400K                 */
+-#define	DRV_800K	3	/* 400K/800K            */
+-#define	DRV_FDHD	5	/* 400K/800K/720K/1440K */
+-#define	DRV_HD20	7	/* Apple HD20           */
+-
+-/* Format types: */
+-
+-#define	FMT_HD20	0x0001	/*  Apple HD20 */
+-#define	FMT_400K	0x0002	/*  400K (GCR) */
+-#define	FMT_800K	0x0004	/*  800K (GCR) */
+-#define	FMT_720K	0x0008	/*  720K (MFM) */
+-#define	FMT_1440K	0x0010	/* 1.44M (MFM) */
+-
+-#define	FMD_KIND_400K	1
+-#define	FMD_KIND_800K	2
+-#define	FMD_KIND_720K	3
+-#define	FMD_KIND_1440K	1
+-
+-/* Icon Flags: */
+-
+-#define	ICON_MEDIA	0x01	/* Have IOP supply media icon */
+-#define	ICON_DRIVE	0x01	/* Have IOP supply drive icon */
+-
+-/* Error codes: */
+-
+-#define	gcrOnMFMErr	-400	/* GCR (400/800K) on HD media */
+-#define	verErr		-84	/* verify failed */
+-#define	fmt2Err		-83	/* can't get enough sync during format */
+-#define	fmt1Err		-82	/* can't find sector 0 after track format */
+-#define	sectNFErr	-81	/* can't find sector */
+-#define	seekErr		-80	/* drive error during seek */
+-#define	spdAdjErr	-79	/* can't set drive speed */
+-#define	twoSideErr	-78	/* drive is single-sided */
+-#define	initIWMErr	-77	/* error during initialization */
+-#define	tk0badErr	-76	/* track zero is bad */
+-#define	cantStepErr	-75	/* drive error during step */
+-#define	wrUnderrun	-74	/* write underrun occurred */
+-#define	badDBtSlp	-73	/* bad data bitslip marks */
+-#define	badDCksum	-72	/* bad data checksum */
+-#define	noDtaMkErr	-71	/* can't find data mark */
+-#define	badBtSlpErr	-70	/* bad address bitslip marks */
+-#define	badCksmErr	-69	/* bad address-mark checksum */
+-#define	dataVerErr	-68	/* read-verify failed */
+-#define	noAdrMkErr	-67	/* can't find an address mark */
+-#define	noNybErr	-66	/* no nybbles? disk is probably degaussed */
+-#define	offLinErr	-65	/* no disk in drive */
+-#define	noDriveErr	-64	/* drive isn't connected */
+-#define	nsDrvErr	-56	/* no such drive */
+-#define	paramErr	-50	/* bad positioning information */
+-#define	wPrErr		-44	/* write protected */
+-#define	openErr		-23	/* already initialized */
+-
+-#ifndef __ASSEMBLY__
+-
+-struct swim_drvstatus {
+-	__u16	curr_track;	/* Current track number                   */
+-	__u8	write_prot;	/* 0x80 if disk is write protected        */
+-	__u8	disk_in_drive;	/* 0x01 or 0x02 if a disk is in the drive */
+-	__u8	installed;	/* 0x01 if drive installed, 0xFF if not   */
+-	__u8	num_sides;	/* 0x80 if two-sided format supported     */
+-	__u8	two_sided;	/* 0xff if two-sided format diskette      */
+-	__u8	new_interface;	/* 0x00 if old 400K drive, 0xFF if newer  */
+-	__u16	errors;		/* Disk error count                       */
+-	struct {		/* 32 bits */
+-		__u16	reserved;
+-		__u16	:4;
+-		__u16	external:1;	/* Drive is external        */
+-		__u16	scsi:1;		/* Drive is a SCSI drive    */
+-		__u16	fixed:1;	/* Drive has fixed media    */
+-		__u16	secondary:1;	/* Drive is secondary drive */
+-		__u8	type;		/* Drive type               */
+-	} info;
+-	__u8	mfm_drive;	/* 0xFF if this is an FDHD drive    */
+-	__u8	mfm_disk;	/* 0xFF if 720K/1440K (MFM) disk    */
+-	__u8	mfm_format;	/* 0x00 if 720K, 0xFF if 1440K      */
+-	__u8	ctlr_type;	/* 0x00 if IWM, 0xFF if SWIM        */
+-	__u16	curr_format;	/* Current format type              */
+-	__u16	allowed_fmt;	/* Allowed format types             */
+-	__u32	num_blocks;	/* Number of blocks on disk         */
+-	__u8	icon_flags;	/* Icon flags                       */
+-	__u8	unusued;
+-};
+-
+-/* Commands issued from the host to the IOP: */
+-
+-struct swimcmd_init {
+-	__u8	code;		/* CMD_INIT */
+-	__u8	unusued;
+-	__u16	error;
+-	__u8	drives[28];	/* drive type list */
+-};
+-
+-struct swimcmd_startpoll {
+-	__u8	code;		/* CMD_START_POLL */
+-	__u8	unusued;
+-	__u16	error;
+-};
+-
+-struct swimcmd_sethfstag {
+-	__u8	code;		/* CMD_SETHFSTAG */
+-	__u8	unusued;
+-	__u16	error;
+-	caddr_t	tagbuf;		/* HFS tag buffer address */
+-};
+-
+-struct swimcmd_status {
+-	__u8	code;		/* CMD_STATUS */
+-	__u8	drive_num;
+-	__u16	error;
+-	struct swim_drvstatus status;
+-};
+-
+-struct swimcmd_eject {
+-	__u8	code;		/* CMD_EJECT */
+-	__u8	drive_num;
+-	__u16	error;
+-	struct swim_drvstatus status;
+-};
+-
+-struct swimcmd_format {
+-	__u8	code;		/* CMD_FORMAT */
+-	__u8	drive_num;
+-	__u16	error;
+-	union {
+-		struct {
+-			__u16 fmt;	   /* format kind                  */
+-			__u8  hdrbyte;	   /* fmt byte for hdr (0=default) */
+-			__u8  interleave;  /* interleave (0 = default)     */
+-			caddr_t	databuf;   /* sector data buff (0=default  */
+-			caddr_t	tagbuf;	   /* tag data buffer (0=default)  */
+-		} f;
+-		struct swim_drvstatus status;
+-	} p;
+-};
+-
+-struct swimcmd_fmtverify {
+-	__u8	code;		/* CMD_FORMAT_VERIFY */
+-	__u8	drive_num;
+-	__u16	error;
+-};
+-
+-struct swimcmd_rw {
+-	__u8	code;		/* CMD_READ, CMD_WRITE or CMD_READ_VERIFY */
+-	__u8	drive_num;
+-	__u16	error;
+-	caddr_t	buffer;		/* R/W buffer address */
+-	__u32	first_block;	/* Starting block     */
+-	__u32	num_blocks;	/* Number of blocks   */
+-	__u8	tag[12];	/* tag data           */
+-};
+-
+-struct swimcmd_cachectl {
+-	__u8	code;		/* CMD_CACHE_CTRL */
+-	__u8	unused;
+-	__u16	error;
+-	__u8	enable;		/* Nonzero to enable cache                */
+-	__u8	install;	/* +1 = install, -1 = remove, 0 = neither */
+-};
+-
+-struct swimcmd_tagbufctl {
+-	__u8	code;		/* CMD_TAGBUFF_CTRL */
+-	__u8	unused;
+-	__u16	error;
+-	caddr_t	buf;		/* buffer address or 0 to disable */
+-};
+-
+-struct swimcmd_geticon {
+-	__u8	code;		/* CMD_GET_ICON */
+-	__u8	drive_num;
+-	__u16	error;
+-	caddr_t	buffer;		/* Nuffer address */
+-	__u16	kind;		/* 0 = media icon, 1 = drive icon */
+-	__u16	unused;
+-	__u16	max_bytes;	/* maximum  byte count */
+-};
+-
+-/* Messages from the SWIM IOP to the host CPU: */
+-
+-struct swimmsg_status {
+-	__u8	code;		/* 1 = insert, 2 = eject, 3 = status changed */
+-	__u8	drive_num;
+-	__u16	error;
+-	struct swim_drvstatus status;
+-};
+-
+-#endif /* __ASSEMBLY__ */
+--- linux-2.6.19-rc5-mm2/drivers/block/swim_iop.c	2006-11-14 18:33:12.000000000 +0100
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,578 +0,0 @@
+-/*
+- * Driver for the SWIM (Super Woz Integrated Machine) IOP
+- * floppy controller on the Macintosh IIfx and Quadra 900/950
+- *
+- * Written by Joshua M. Thompson (funaho@jurai.org)
+- * based on the SWIM3 driver (c) 1996 by Paul Mackerras.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- *
+- * 1999-06-12 (jmt) - Initial implementation.
+- */
+-
+-/*
+- * -------------------
+- * Theory of Operation
+- * -------------------
+- *
+- * Since the SWIM IOP is message-driven we implement a simple request queue
+- * system.  One outstanding request may be queued at any given time (this is
+- * an IOP limitation); only when that request has completed can a new request
+- * be sent.
+- */
+-
+-#include <linux/stddef.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/timer.h>
+-#include <linux/delay.h>
+-#include <linux/fd.h>
+-#include <linux/ioctl.h>
+-#include <linux/blkdev.h>
+-#include <asm/io.h>
+-#include <asm/uaccess.h>
+-#include <asm/mac_iop.h>
+-#include <asm/swim_iop.h>
+-
+-#define DRIVER_VERSION "Version 0.1 (1999-06-12)"
+-
+-#define MAX_FLOPPIES	4
+-
+-enum swim_state {
+-	idle,
+-	available,
+-	revalidating,
+-	transferring,
+-	ejecting
+-};
+-
+-struct floppy_state {
+-	enum swim_state state;
+-	int	drive_num;	/* device number */
+-	int	secpercyl;	/* disk geometry information */
+-	int	secpertrack;
+-	int	total_secs;
+-	int	write_prot;	/* 1 if write-protected, 0 if not, -1 dunno */
+-	int	ref_count;
+-	struct timer_list timeout;
+-	int	ejected;
+-	struct wait_queue *wait;
+-	int	wanted;
+-	int	timeout_pending;
+-};
+-
+-struct swim_iop_req {
+-	int	sent;
+-	int	complete;
+-	__u8	command[32];
+-	struct floppy_state *fs;
+-	void	(*done)(struct swim_iop_req *);
+-};
+-
+-static struct swim_iop_req *current_req;
+-static int floppy_count;
+-
+-static struct floppy_state floppy_states[MAX_FLOPPIES];
+-static DEFINE_SPINLOCK(swim_iop_lock);
+-
+-#define CURRENT elv_next_request(swim_queue)
+-
+-static char *drive_names[7] = {
+-	"not installed",	/* DRV_NONE    */
+-	"unknown (1)",		/* DRV_UNKNOWN */
+-	"a 400K drive",		/* DRV_400K    */
+-	"an 800K drive"		/* DRV_800K    */
+-	"unknown (4)",		/* ????        */
+-	"an FDHD",		/* DRV_FDHD    */
+-	"unknown (6)",		/* ????        */
+-	"an Apple HD20"		/* DRV_HD20    */
+-};
+-
+-int swimiop_init(void);
+-static void swimiop_init_request(struct swim_iop_req *);
+-static int swimiop_send_request(struct swim_iop_req *);
+-static void swimiop_receive(struct iop_msg *);
+-static void swimiop_status_update(int, struct swim_drvstatus *);
+-static int swimiop_eject(struct floppy_state *fs);
+-
+-static int floppy_ioctl(struct inode *inode, struct file *filp,
+-			unsigned int cmd, unsigned long param);
+-static int floppy_open(struct inode *inode, struct file *filp);
+-static int floppy_release(struct inode *inode, struct file *filp);
+-static int floppy_check_change(struct gendisk *disk);
+-static int floppy_revalidate(struct gendisk *disk);
+-static int grab_drive(struct floppy_state *fs, enum swim_state state,
+-		      int interruptible);
+-static void release_drive(struct floppy_state *fs);
+-static void set_timeout(struct floppy_state *fs, int nticks,
+-			void (*proc)(unsigned long));
+-static void fd_request_timeout(unsigned long);
+-static void do_fd_request(request_queue_t * q);
+-static void start_request(struct floppy_state *fs);
+-
+-static struct block_device_operations floppy_fops = {
+-	.open		= floppy_open,
+-	.release	= floppy_release,
+-	.ioctl		= floppy_ioctl,
+-	.media_changed	= floppy_check_change,
+-	.revalidate_disk= floppy_revalidate,
+-};
+-
+-static struct request_queue *swim_queue;
+-/*
+- * SWIM IOP initialization
+- */
+-
+-int swimiop_init(void)
+-{
+-	volatile struct swim_iop_req req;
+-	struct swimcmd_status *cmd = (struct swimcmd_status *) &req.command[0];
+-	struct swim_drvstatus *ds = &cmd->status;
+-	struct floppy_state *fs;
+-	int i;
+-
+-	current_req = NULL;
+-	floppy_count = 0;
+-
+-	if (!iop_ism_present)
+-		return -ENODEV;
+-
+-	if (register_blkdev(FLOPPY_MAJOR, "fd"))
+-		return -EBUSY;
+-
+-	swim_queue = blk_init_queue(do_fd_request, &swim_iop_lock);
+-	if (!swim_queue) {
+-		unregister_blkdev(FLOPPY_MAJOR, "fd");
+-		return -ENOMEM;
+-	}
+-
+-	printk("SWIM-IOP: %s by Joshua M. Thompson (funaho@jurai.org)\n",
+-		DRIVER_VERSION);
+-
+-	if (iop_listen(SWIM_IOP, SWIM_CHAN, swimiop_receive, "SWIM") != 0) {
+-		printk(KERN_ERR "SWIM-IOP: IOP channel already in use; can't initialize.\n");
+-		unregister_blkdev(FLOPPY_MAJOR, "fd");
+-		blk_cleanup_queue(swim_queue);
+-		return -EBUSY;
+-	}
+-
+-	printk(KERN_ERR "SWIM_IOP: probing for installed drives.\n");
+-
+-	for (i = 0 ; i < MAX_FLOPPIES ; i++) {
+-		memset(&floppy_states[i], 0, sizeof(struct floppy_state));
+-		fs = &floppy_states[floppy_count];
+-
+-		swimiop_init_request(&req);
+-		cmd->code = CMD_STATUS;
+-		cmd->drive_num = i + 1;
+-		if (swimiop_send_request(&req) != 0) continue;
+-		while (!req.complete);
+-		if (cmd->error != 0) {
+-			printk(KERN_ERR "SWIM-IOP: probe on drive %d returned error %d\n", i, (uint) cmd->error);
+-			continue;
+-		}
+-		if (ds->installed != 0x01) continue;
+-		printk("SWIM-IOP: drive %d is %s (%s, %s, %s, %s)\n", i,
+-			drive_names[ds->info.type],
+-			ds->info.external? "ext" : "int",
+-			ds->info.scsi? "scsi" : "floppy",
+-			ds->info.fixed? "fixed" : "removable",
+-			ds->info.secondary? "secondary" : "primary");
+-		swimiop_status_update(floppy_count, ds);
+-		fs->state = idle;
+-
+-		init_timer(&fs->timeout);
+-		floppy_count++;
+-	}
+-	printk("SWIM-IOP: detected %d installed drives.\n", floppy_count);
+-
+-	for (i = 0; i < floppy_count; i++) {
+-		struct gendisk *disk = alloc_disk(1);
+-		if (!disk)
+-			continue;
+-		disk->major = FLOPPY_MAJOR;
+-		disk->first_minor = i;
+-		disk->fops = &floppy_fops;
+-		sprintf(disk->disk_name, "fd%d", i);
+-		disk->private_data = &floppy_states[i];
+-		disk->queue = swim_queue;
+-		set_capacity(disk, 2880 * 2);
+-		add_disk(disk);
+-	}
+-
+-	return 0;
+-}
+-
+-static void swimiop_init_request(struct swim_iop_req *req)
+-{
+-	req->sent = 0;
+-	req->complete = 0;
+-	req->done = NULL;
+-}
+-
+-static int swimiop_send_request(struct swim_iop_req *req)
+-{
+-	unsigned long flags;
+-	int err;
+-
+-	/* It's doubtful an interrupt routine would try to send */
+-	/* a SWIM request, but I'd rather play it safe here.    */
+-
+-	local_irq_save(flags);
+-
+-	if (current_req != NULL) {
+-		local_irq_restore(flags);
+-		return -ENOMEM;
+-	}
+-
+-	current_req = req;
+-
+-	/* Interrupts should be back on for iop_send_message() */
+-
+-	local_irq_restore(flags);
+-
+-	err = iop_send_message(SWIM_IOP, SWIM_CHAN, (void *) req,
+-				sizeof(req->command), (__u8 *) &req->command[0],
+-				swimiop_receive);
+-
+-	/* No race condition here; we own current_req at this point */
+-
+-	if (err) {
+-		current_req = NULL;
+-	} else {
+-		req->sent = 1;
+-	}
+-	return err;
+-}
+-
+-/*
+- * Receive a SWIM message from the IOP.
+- *
+- * This will be called in two cases:
+- *
+- * 1. A message has been successfully sent to the IOP.
+- * 2. An unsolicited message was received from the IOP.
+- */
+-
+-void swimiop_receive(struct iop_msg *msg)
+-{
+-	struct swim_iop_req *req;
+-	struct swimmsg_status *sm;
+-	struct swim_drvstatus *ds;
+-
+-	req = current_req;
+-
+-	switch(msg->status) {
+-		case IOP_MSGSTATUS_COMPLETE:
+-			memcpy(&req->command[0], &msg->reply[0], sizeof(req->command));
+-			req->complete = 1;
+-			if (req->done) (*req->done)(req);
+-			current_req = NULL;
+-			break;
+-		case IOP_MSGSTATUS_UNSOL:
+-			sm = (struct swimmsg_status *) &msg->message[0];
+-			ds = &sm->status;
+-			swimiop_status_update(sm->drive_num, ds);
+-			iop_complete_message(msg);
+-			break;
+-	}
+-}
+-
+-static void swimiop_status_update(int drive_num, struct swim_drvstatus *ds)
+-{
+-	struct floppy_state *fs = &floppy_states[drive_num];
+-
+-	fs->write_prot = (ds->write_prot == 0x80);
+-	if ((ds->disk_in_drive != 0x01) && (ds->disk_in_drive != 0x02)) {
+-		fs->ejected = 1;
+-	} else {
+-		fs->ejected = 0;
+-	}
+-	switch(ds->info.type) {
+-		case DRV_400K:
+-			fs->secpercyl = 10;
+-			fs->secpertrack = 10;
+-			fs->total_secs = 800;
+-			break;
+-		case DRV_800K:
+-			fs->secpercyl = 20;
+-			fs->secpertrack = 10;
+-			fs->total_secs = 1600;
+-			break;
+-		case DRV_FDHD:
+-			fs->secpercyl = 36;
+-			fs->secpertrack = 18;
+-			fs->total_secs = 2880;
+-			break;
+-		default:
+-			fs->secpercyl = 0;
+-			fs->secpertrack = 0;
+-			fs->total_secs = 0;
+-			break;
+-	}
+-}
+-
+-static int swimiop_eject(struct floppy_state *fs)
+-{
+-	int err, n;
+-	struct swim_iop_req req;
+-	struct swimcmd_eject *cmd = (struct swimcmd_eject *) &req.command[0];
+-
+-	err = grab_drive(fs, ejecting, 1);
+-	if (err) return err;
+-
+-	swimiop_init_request(&req);
+-	cmd->code = CMD_EJECT;
+-	cmd->drive_num = fs->drive_num;
+-	err = swimiop_send_request(&req);
+-	if (err) {
+-		release_drive(fs);
+-		return err;
+-	}
+-	for (n = 2*HZ; n > 0; --n) {
+-		if (req.complete) break;
+-		if (signal_pending(current)) {
+-			err = -EINTR;
+-			break;
+-		}
+-		schedule_timeout_interruptible(1);
+-	}
+-	release_drive(fs);
+-	return cmd->error;
+-}
+-
+-static struct floppy_struct floppy_type =
+-	{ 2880,18,2,80,0,0x1B,0x00,0xCF,0x6C,NULL };	/*  7 1.44MB 3.5"   */
+-
+-static int floppy_ioctl(struct inode *inode, struct file *filp,
+-			unsigned int cmd, unsigned long param)
+-{
+-	struct floppy_state *fs = inode->i_bdev->bd_disk->private_data;
+-	int err;
+-
+-	if ((cmd & 0x80) && !capable(CAP_SYS_ADMIN))
+-		return -EPERM;
+-
+-	switch (cmd) {
+-	case FDEJECT:
+-		if (fs->ref_count != 1)
+-			return -EBUSY;
+-		err = swimiop_eject(fs);
+-		return err;
+-	case FDGETPRM:
+-	        if (copy_to_user((void *) param, (void *) &floppy_type,
+-				 sizeof(struct floppy_struct)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	return -ENOTTY;
+-}
+-
+-static int floppy_open(struct inode *inode, struct file *filp)
+-{
+-	struct floppy_state *fs = inode->i_bdev->bd_disk->private_data;
+-
+-	if (fs->ref_count == -1 || filp->f_flags & O_EXCL)
+-		return -EBUSY;
+-
+-	if ((filp->f_flags & O_NDELAY) == 0 && (filp->f_mode & 3)) {
+-		check_disk_change(inode->i_bdev);
+-		if (fs->ejected)
+-			return -ENXIO;
+-	}
+-
+-	if ((filp->f_mode & 2) && fs->write_prot)
+-		return -EROFS;
+-
+-	if (filp->f_flags & O_EXCL)
+-		fs->ref_count = -1;
+-	else
+-		++fs->ref_count;
+-
+-	return 0;
+-}
+-
+-static int floppy_release(struct inode *inode, struct file *filp)
+-{
+-	struct floppy_state *fs = inode->i_bdev->bd_disk->private_data;
+-	if (fs->ref_count > 0)
+-		fs->ref_count--;
+-	return 0;
+-}
+-
+-static int floppy_check_change(struct gendisk *disk)
+-{
+-	struct floppy_state *fs = disk->private_data;
+-	return fs->ejected;
+-}
+-
+-static int floppy_revalidate(struct gendisk *disk)
+-{
+-	struct floppy_state *fs = disk->private_data;
+-	grab_drive(fs, revalidating, 0);
+-	/* yadda, yadda */
+-	release_drive(fs);
+-	return 0;
+-}
+-
+-static void floppy_off(unsigned int nr)
+-{
+-}
+-
+-static int grab_drive(struct floppy_state *fs, enum swim_state state,
+-		      int interruptible)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	if (fs->state != idle) {
+-		++fs->wanted;
+-		while (fs->state != available) {
+-			if (interruptible && signal_pending(current)) {
+-				--fs->wanted;
+-				local_irq_restore(flags);
+-				return -EINTR;
+-			}
+-			interruptible_sleep_on(&fs->wait);
+-		}
+-		--fs->wanted;
+-	}
+-	fs->state = state;
+-	local_irq_restore(flags);
+-	return 0;
+-}
+-
+-static void release_drive(struct floppy_state *fs)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	fs->state = idle;
+-	start_request(fs);
+-	local_irq_restore(flags);
+-}
+-
+-static void set_timeout(struct floppy_state *fs, int nticks,
+-			void (*proc)(unsigned long))
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	if (fs->timeout_pending)
+-		del_timer(&fs->timeout);
+-	init_timer(&fs->timeout);
+-	fs->timeout.expires = jiffies + nticks;
+-	fs->timeout.function = proc;
+-	fs->timeout.data = (unsigned long) fs;
+-	add_timer(&fs->timeout);
+-	fs->timeout_pending = 1;
+-	local_irq_restore(flags);
+-}
+-
+-static void do_fd_request(request_queue_t * q)
+-{
+-	int i;
+-
+-	for (i = 0 ; i < floppy_count ; i++) {
+-		start_request(&floppy_states[i]);
+-	}
+-}
+-
+-static void fd_request_complete(struct swim_iop_req *req)
+-{
+-	struct floppy_state *fs = req->fs;
+-	struct swimcmd_rw *cmd = (struct swimcmd_rw *) &req->command[0];
+-
+-	del_timer(&fs->timeout);
+-	fs->timeout_pending = 0;
+-	fs->state = idle;
+-	if (cmd->error) {
+-		printk(KERN_ERR "SWIM-IOP: error %d on read/write request.\n", cmd->error);
+-		end_request(CURRENT, 0);
+-	} else {
+-		CURRENT->sector += cmd->num_blocks;
+-		CURRENT->current_nr_sectors -= cmd->num_blocks;
+-		if (CURRENT->current_nr_sectors <= 0) {
+-			end_request(CURRENT, 1);
+-			return;
+-		}
+-	}
+-	start_request(fs);
+-}
+-
+-static void fd_request_timeout(unsigned long data)
+-{
+-	struct floppy_state *fs = (struct floppy_state *) data;
+-
+-	fs->timeout_pending = 0;
+-	end_request(CURRENT, 0);
+-	fs->state = idle;
+-}
+-
+-static void start_request(struct floppy_state *fs)
+-{
+-	volatile struct swim_iop_req req;
+-	struct swimcmd_rw *cmd = (struct swimcmd_rw *) &req.command[0];
+-
+-	if (fs->state == idle && fs->wanted) {
+-		fs->state = available;
+-		wake_up(&fs->wait);
+-		return;
+-	}
+-	while (CURRENT && fs->state == idle) {
+-		if (CURRENT->bh && !buffer_locked(CURRENT->bh))
+-			panic("floppy: block not locked");
+-#if 0
+-		printk("do_fd_req: dev=%s cmd=%d sec=%ld nr_sec=%ld buf=%p\n",
+-		       CURRENT->rq_disk->disk_name, CURRENT->cmd,
+-		       CURRENT->sector, CURRENT->nr_sectors, CURRENT->buffer);
+-		printk("           errors=%d current_nr_sectors=%ld\n",
+-		      CURRENT->errors, CURRENT->current_nr_sectors);
 -#endif
--#ifndef __PDP_ENDIAN_BITFIELD
--#define __PDP_ENDIAN_BITFIELD
--#endif
 -
--#include <linux/byteorder/swab.h>
--#include <linux/byteorder/swabb.h>
+-		if (CURRENT->sector < 0 || CURRENT->sector >= fs->total_secs) {
+-			end_request(CURRENT, 0);
+-			continue;
+-		}
+-		if (CURRENT->current_nr_sectors == 0) {
+-			end_request(CURRENT, 1);
+-			continue;
+-		}
+-		if (fs->ejected) {
+-			end_request(CURRENT, 0);
+-			continue;
+-		}
 -
--#define __constant_htonl(x) ___constant_swahb32((x))
--#define __constant_ntohl(x) ___constant_swahb32((x))
--#define __constant_htons(x) ___constant_swab16((x))
--#define __constant_ntohs(x) ___constant_swab16((x))
--#define __constant_cpu_to_le64(x) I DON'T KNOW
--#define __constant_le64_to_cpu(x) I DON'T KNOW
--#define __constant_cpu_to_le32(x) ___constant_swahw32((x))
--#define __constant_le32_to_cpu(x) ___constant_swahw32((x))
--#define __constant_cpu_to_le16(x) ((__u16)(x)
--#define __constant_le16_to_cpu(x) ((__u16)(x)
--#define __constant_cpu_to_be64(x) I DON'T KNOW
--#define __constant_be64_to_cpu(x) I DON'T KNOW
--#define __constant_cpu_to_be32(x) ___constant_swahb32((x))
--#define __constant_be32_to_cpu(x) ___constant_swahb32((x))
--#define __constant_cpu_to_be16(x) ___constant_swab16((x))
--#define __constant_be16_to_cpu(x) ___constant_swab16((x))
--#define __cpu_to_le64(x) I DON'T KNOW
--#define __le64_to_cpu(x) I DON'T KNOW
--#define __cpu_to_le32(x) ___swahw32((x))
--#define __le32_to_cpu(x) ___swahw32((x))
--#define __cpu_to_le16(x) ((__u16)(x)
--#define __le16_to_cpu(x) ((__u16)(x)
--#define __cpu_to_be64(x) I DON'T KNOW
--#define __be64_to_cpu(x) I DON'T KNOW
--#define __cpu_to_be32(x) __swahb32((x))
--#define __be32_to_cpu(x) __swahb32((x))
--#define __cpu_to_be16(x) __swab16((x))
--#define __be16_to_cpu(x) __swab16((x))
--#define __cpu_to_le64p(x) I DON'T KNOW
--#define __le64_to_cpup(x) I DON'T KNOW
--#define __cpu_to_le32p(x) ___swahw32p((x))
--#define __le32_to_cpup(x) ___swahw32p((x))
--#define __cpu_to_le16p(x) (*(__u16*)(x))
--#define __le16_to_cpup(x) (*(__u16*)(x))
--#define __cpu_to_be64p(x) I DON'T KNOW
--#define __be64_to_cpup(x) I DON'T KNOW
--#define __cpu_to_be32p(x) __swahb32p((x))
--#define __be32_to_cpup(x) __swahb32p((x))
--#define __cpu_to_be16p(x) __swab16p((x))
--#define __be16_to_cpup(x) __swab16p((x))
--#define __cpu_to_le64s(x) I DON'T KNOW
--#define __le64_to_cpus(x) I DON'T KNOW
--#define __cpu_to_le32s(x) ___swahw32s((x))
--#define __le32_to_cpus(x) ___swahw32s((x))
--#define __cpu_to_le16s(x) do {} while (0)
--#define __le16_to_cpus(x) do {} while (0)
--#define __cpu_to_be64s(x) I DON'T KNOW
--#define __be64_to_cpus(x) I DON'T KNOW
--#define __cpu_to_be32s(x) __swahb32s((x))
--#define __be32_to_cpus(x) __swahb32s((x))
--#define __cpu_to_be16s(x) __swab16s((x))
--#define __be16_to_cpus(x) __swab16s((x))
+-		swimiop_init_request(&req);
+-		req.fs = fs;
+-		req.done = fd_request_complete;
 -
--#include <linux/byteorder/generic.h>
+-		if (CURRENT->cmd == WRITE) {
+-			if (fs->write_prot) {
+-				end_request(CURRENT, 0);
+-				continue;
+-			}
+-			cmd->code = CMD_WRITE;
+-		} else {
+-			cmd->code = CMD_READ;
 -
--#endif /* _LINUX_BYTEORDER_PDP_ENDIAN_H */
---- linux-2.6.19-rc6-mm1/include/linux/byteorder/Kbuild.old	2006-11-28 04:54:32.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/include/linux/byteorder/Kbuild	2006-11-28 04:54:47.000000000 +0100
-@@ -1,6 +1,5 @@
- header-y += big_endian.h
- header-y += little_endian.h
--header-y += pdp_endian.h
- 
- unifdef-y += generic.h
- unifdef-y += swabb.h
+-		}
+-		cmd->drive_num = fs->drive_num;
+-		cmd->buffer = CURRENT->buffer;
+-		cmd->first_block = CURRENT->sector;
+-		cmd->num_blocks = CURRENT->current_nr_sectors;
+-
+-		if (swimiop_send_request(&req)) {
+-			end_request(CURRENT, 0);
+-			continue;
+-		}
+-
+-		set_timeout(fs, HZ*CURRENT->current_nr_sectors,
+-				fd_request_timeout);
+-
+-		fs->state = transferring;
+-	}
+-}
+

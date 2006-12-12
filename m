@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932569AbWLLX6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932567AbWLMAAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbWLLX6K (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 18:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWLLX6K
+	id S932567AbWLMAAN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWLMAAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 18:58:10 -0500
-Received: from z2.cat.iki.fi ([212.16.98.133]:59953 "EHLO z2.cat.iki.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932569AbWLLX6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 18:58:09 -0500
-X-Greylist: delayed 432 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 18:58:09 EST
-Date: Wed, 13 Dec 2006 01:50:56 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Postgrey experiment at VGER
-Message-ID: <20061212235056.GP10054@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Dec 2006 19:00:13 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:44724 "EHLO
+	liaag2ag.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932567AbWLMAAM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 19:00:12 -0500
+X-Greylist: delayed 360 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 19:00:12 EST
+Date: Tue, 12 Dec 2006 18:49:58 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Make OLPC camera driver depend on x86.
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Message-ID: <200612121853_MC3-1-D4D2-191B@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In-Reply-To: <20061212153956.GH8509@redhat.com>
 
-  I am running an experiment with Postgrey to delay (for 300 seconds
-minimum) incoming emails.   If the clients don't retry after this
-delay, then the messages don't usually get in.
+On Tue, 12 Dec 2006 10:39:56 -0500, Dave Jones wrote:
 
-The "postgrey" in question is the very same thing that exists for
-the Postfix MTA with various automatic whitelistings of repeatedly
-successfull senders, etc.
+> [gads, an ia64 olpc, what a thought...]
 
-I do already see spammers smart enough to retry addresses from
-the zombie machine, but that share is now below 10% of all emails.
-My prediction for next 200 days is that most spammers get the clue,
-but it gives us perhaps 3 months of less leaked junk.
+Teacher in front of a classroom full of students, all madly
+pedaling away on stationary bicycles: "Okay, class, just another
+hour of this and we can use the computers for a few minutes."
 
-  /Matti Aarnio -- one of  <postmaster at vger.kernel.org>
+-- 
+MBTI: IXTP
+

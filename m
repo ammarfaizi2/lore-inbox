@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932319AbWLLScx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751542AbWLLScQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWLLScx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 13:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWLLScx
+	id S1751542AbWLLScQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 13:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWLLScP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 13:32:53 -0500
-Received: from mga02.intel.com ([134.134.136.20]:7210 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932319AbWLLScv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 13:32:51 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,525,1157353200"; 
-   d="scan'208"; a="173583716:sNHT17476893"
-Message-ID: <457EF5CE.2030404@intel.com>
-Date: Tue, 12 Dec 2006 10:32:46 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 12 Dec 2006 13:32:15 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:62870 "EHLO
+	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751542AbWLLScO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 13:32:14 -0500
+Message-ID: <457EF59E.8050001@lwfinger.net>
+Date: Tue, 12 Dec 2006 12:31:58 -0600
+From: Larry Finger <larry.finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: Yan Burman <burman.yan@gmail.com>, linux-kernel@vger.kernel.org,
-       trivial@kernel.org
-Subject: Re: [PATCH 2.6.19] e1000: replace kmalloc with kzalloc
-References: <1165942389.5611.4.camel@localhost> <84144f020612120934n612f513er606d2653f527eb67@mail.gmail.com>
-In-Reply-To: <84144f020612120934n612f513er606d2653f527eb67@mail.gmail.com>
+To: Ray Lee <ray-lk@madrabbit.org>
+CC: Michael Buesch <mb@bu3sch.de>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Bcm43xx-dev@lists.berlios.de
+Subject: Re: ieee80211 sleeping in invalid context
+References: <455B63EC.8070704@madrabbit.org> <455F58AC.3030801@lwfinger.net> <457E2AE2.1020108@madrabbit.org> <200612121014.30309.mb@bu3sch.de> <457EEC1E.9000806@madrabbit.org>
+In-Reply-To: <457EEC1E.9000806@madrabbit.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> On 12/12/06, Yan Burman <burman.yan@gmail.com> wrote:
->>         size = txdr->count * sizeof(struct e1000_buffer);
->> -       if (!(txdr->buffer_info = kmalloc(size, GFP_KERNEL))) {
->> +       if (!(txdr->buffer_info = kzalloc(size, GFP_KERNEL))) {
->>                 ret_val = 1;
->>                 goto err_nomem;
->>         }
->> -       memset(txdr->buffer_info, 0, size);
+Ray Lee wrote:
+> Michael Buesch wrote:
+>> Congratulations to your decision ;)
 > 
-> No one seems to be using size elsewhere so why not convert to
-> kcalloc() and get rid of it? (Seems to apply to other places as well.)
+> Sometimes making decisions via Brownian motion has its advantages.
+> 
+>> Which kernel are you using?
+> 
+> Hmm, I'm using the mercurial repository, let me see if I can translate that to a git
+> head... Looks like git tree c2bb88baa52429b6b76e3ba4272cb2b29713c5a8 . (Which is from
+> less than 24 hours ago.)
+> 
+>> There is some locking breakage in latest kernels with softmac.
+>> I attached the fixes for the known bugs.
+> 
+> Okay, I'll apply to my local copy, rebuild, and try again. I'll let you know what
+> happens.
 
-I'll put it on my todo list.
+Please note that the 3rd hunk of the second patch that Michael sent is already in Linus's 
+2.6.19-gitXX tree. You may get that part rejected by patch.
 
-Auke
+Larry

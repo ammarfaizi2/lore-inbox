@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932456AbWLLVxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932463AbWLLWE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWLLVxT (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 16:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWLLVxT
+	id S932463AbWLLWE2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWLLWE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 16:53:19 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44943 "EHLO
-	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932456AbWLLVxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 16:53:18 -0500
-Date: Tue, 12 Dec 2006 22:49:39 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] net, 8139too.c: fix netpoll deadlock
-Message-ID: <20061212214939.GA470@electric-eye.fr.zoreil.com>
-References: <20061212101656.GA5064@elte.hu> <20061212124935.GA4356@elte.hu> <457EAE62.8090404@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Dec 2006 17:04:28 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:60925 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932463AbWLLWE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 17:04:27 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+Subject: Re: O2micro smartcard reader driver.
+Date: Tue, 12 Dec 2006 23:05:53 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <20061127182817.d52dfdf1.l.bigonville@edpnet.be> <200611281249.45243.oliver@neukum.org> <457F1F0F.20109@tremplin-utc.net>
+In-Reply-To: <457F1F0F.20109@tremplin-utc.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <457EAE62.8090404@garzik.org>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+Message-Id: <200612122305.53767.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jeff@garzik.org> :
-> Ingo Molnar wrote:
-[...]
-> >fix deadlock in the 8139too driver: poll handlers should never forcibly 
-> >enable local interrupts, because they might be used by netpoll/printk 
-> >from IRQ context.
-> 
-> ACK
-> 
-> (I'll queue it, if Linus doesn't pick it up; please CC me in the future)
+Am Dienstag, 12. Dezember 2006 22:28 schrieb Eric Piel:
 
-I have lived with the "NAPI ->poll() handler runs in BH irq enabled context"
-rule for years. Is it definitely false/dead ?
+Hi
 
-If so at least 8139cp needs the same fix.
+> Thanks a lot for reading my code, I didn't even hope that someone would! 
+> I've corrected the copy_to_user (and copy_from_user) code. However I 
+> don't know how to do locking for the concurrent ioctls. Indeed, I don't 
+> think there is anything preventing two programs to call the driver at 
+> the same time. Unfortunately, I've got no idea how to do the locking and 
+> surprisingly couldn't find any ioctl code in the kernel doing locking. 
+> Maybe I've just not looked at the right place, could you give a me some 
+> hint how to do locking for ioctl's ?
 
--- 
-Ueimor
+I take it back. Reading your code again, it seems to me that it'll
+never sleep. In this case you are protected by BKL. If not, you need
+to use mutexes, just like eg. in drivers/usb/class/usblp.c
+
+	HTH
+		Oliver

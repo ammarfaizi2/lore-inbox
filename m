@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751174AbWLLFcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751178AbWLLFgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWLLFcb (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 00:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWLLFcb
+	id S1751178AbWLLFgj (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 00:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWLLFgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 00:32:31 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:53134 "EHLO 2ka.mipt.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751171AbWLLFca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 00:32:30 -0500
-Date: Tue, 12 Dec 2006 08:31:20 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: David Miller <davem@davemloft.net>
-Cc: drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
-       zach.brown@oracle.com, hch@infradead.org, chase.venters@clientec.com,
-       johann.borck@densedata.com, linux-kernel@vger.kernel.org,
-       jeff@garzik.org, aviro@redhat.com
-Subject: Re: Kevent POSIX timers support.
-Message-ID: <20061212053117.GA14420@2ka.mipt.ru>
-References: <20061128091602.GC15083@2ka.mipt.ru> <20061128.111300.105813754.davem@davemloft.net> <20061128192236.GA2051@2ka.mipt.ru> <20061211.173644.130208821.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061211.173644.130208821.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 12 Dec 2006 08:31:39 +0300 (MSK)
+	Tue, 12 Dec 2006 00:36:38 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18417 "EHLO
+	pd5mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751178AbWLLFgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 00:36:36 -0500
+Date: Mon, 11 Dec 2006 23:34:34 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: [PATCH -mm] sata_nv: fix kfree ordering in remove
+In-reply-to: <457D86F0.4020408@garzik.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Message-id: <457E3F6A.809@shaw.ca>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary=------------030707030608070609040709
+References: <456E3ED5.3090201@shaw.ca> <457D86F0.4020408@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2006 at 05:36:44PM -0800, David Miller (davem@davemloft.net) wrote:
-> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> Date: Tue, 28 Nov 2006 22:22:36 +0300
-> 
-> > And, btw, last time I checked, aligned_u64 was not exported to
-> > userspace.
-> 
-> It is in linux/types.h and not protected by __KERNEL__ ifdefs.
-> Perhaps you mean something else?
+This is a multi-part message in MIME format.
+--------------030707030608070609040709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It looks like I checked wrong #ifdef __KERNEL__/#endif pair.
-It is there indeed.
+Jeff Garzik wrote:
+> It is unwise to free the struct before the ports are even detached.
 
--- 
-	Evgeniy Polyakov
+Right, theoretically something bad could happen here (though not 
+likely). Here's a fix. Sorry for attaching with something so trivial, 
+but Thunderbird isn't very cooperative..
+
+---
+
+The suspend/resume change for sata_nv introduced a potential bug where 
+the hpriv structure could be used after it was freed in nv_remove_one. 
+Fix that.
+
+Signed-off-by: Robert Hancock <hancockr@shaw.ca>
+
+---
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+
+--------------030707030608070609040709
+Content-Type: text/plain;
+ name="sata_nv-fix-kfree-order-on-remove.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sata_nv-fix-kfree-order-on-remove.patch"
+
+--- linux-2.6.19-rc6-mm2/drivers/ata/sata_nv.c	2006-12-11 22:13:26.000000000 -0600
++++ linux-2.6.19-rc6-mm2admafix/drivers/ata/sata_nv.c	2006-12-11 22:15:58.000000000 -0600
+@@ -1555,8 +1555,8 @@ static void nv_remove_one (struct pci_de
+ 	struct ata_host *host = dev_get_drvdata(&pdev->dev);
+ 	struct nv_host_priv *hpriv = host->private_data;
+ 	
+-	kfree(hpriv);
+ 	ata_pci_remove_one(pdev);
++	kfree(hpriv);
+ }	
+ 
+ static int nv_pci_device_resume(struct pci_dev *pdev)
+
+--------------030707030608070609040709--
+

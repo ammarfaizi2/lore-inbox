@@ -1,122 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751484AbWLLQOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751485AbWLLQPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWLLQOu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 11:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWLLQOu
+	id S1751485AbWLLQPZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 11:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWLLQPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 11:14:50 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:18821 "EHLO relay.sw.ru"
+	Tue, 12 Dec 2006 11:15:25 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:40872 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751484AbWLLQOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 11:14:50 -0500
-Date: Tue, 12 Dec 2006 19:20:23 +0300
-From: Alexey Dobriyan <adobriyan@openvz.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: [PATCH] sysctl_{,ms_}jiffies: fix oldlen semantics
-Message-ID: <20061212162023.GA10962@localhost.sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	id S1751485AbWLLQPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 11:15:23 -0500
+Date: Tue, 12 Dec 2006 08:13:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] netpoll: fix netpoll lockups
+In-Reply-To: <20061212101656.GA5064@elte.hu>
+Message-ID: <Pine.LNX.4.64.0612120811180.6452@woody.osdl.org>
+References: <20061212101656.GA5064@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-currently it's
-1) if *oldlenp == 0,
-	don't writeback anything
 
-2) if *oldlenp >= table->maxlen,
-	don't writeback more than table->maxlen bytes and rewrite *oldlenp
-	don't look at underlying type granularity
 
-3) if 0 < *oldlenp < table->maxlen,
-		*cough*
-	string sysctls don't writeback more than *oldlenp bytes.
-	OK, that's because sizeof(char) == 1
+On Tue, 12 Dec 2006, Ingo Molnar wrote:
+> 
+> current -git doesnt boot on my laptop due to the following netpoll 
+> breakages:
+> 
+>  - unlock the tx lock in the else branch too ...
+>  - use irq-safe locking instead of bh-safe locking, netpoll is
+>    often called from irq context.
 
-	int sysctls writeback anything in (0, table->maxlen] range
-	Though accept integers divisible by sizeof(int) for writing.
+This one doesn't apply for me any more, probably because David checked in 
+the patch from Andrew that fixed at least _part_ of the problem.
 
-sysctl_jiffies and sysctl_ms_jiffies don't writeback anything but
-sizeof(int), which violates 1) and 2).
+Davem, Ingo, Herbert, can you verify whether the fixes in the current -git 
+tree replace this patch from Ingo, or whether Ingo's patch is still needed 
+and just needs to be refreshed.
 
-So, make sysctl_jiffies and sysctl_ms_jiffies accept
-a) *oldlenp == 0, not doing writeback
-b) *oldlenp >= sizeof(int), writing one integer.
-
--EINVAL still returned for *oldlenp == 1, 2, 3.
-
-Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
----
-
- kernel/sysctl.c |   44 ++++++++++++++++++++++++++++----------------
- 1 file changed, 28 insertions(+), 16 deletions(-)
-
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -2752,17 +2752,23 @@ int sysctl_jiffies(ctl_table *table, int
- 		void __user *oldval, size_t __user *oldlenp,
- 		void __user *newval, size_t newlen, void **context)
- {
--	if (oldval) {
-+	if (oldval && oldlenp) {
- 		size_t olen;
--		if (oldlenp) { 
--			if (get_user(olen, oldlenp))
-+
-+		if (get_user(olen, oldlenp))
-+			return -EFAULT;
-+		if (olen) {
-+			int val;
-+
-+			if (olen < sizeof(int))
-+				return -EINVAL;
-+
-+			val = *(int *)(table->data) / HZ;
-+			if (put_user(val, (int __user *)oldval))
-+				return -EFAULT;
-+			if (put_user(sizeof(int), oldlenp))
- 				return -EFAULT;
--			if (olen!=sizeof(int))
--				return -EINVAL; 
- 		}
--		if (put_user(*(int *)(table->data)/HZ, (int __user *)oldval) ||
--		    (oldlenp && put_user(sizeof(int),oldlenp)))
--			return -EFAULT;
- 	}
- 	if (newval && newlen) { 
- 		int new;
-@@ -2780,17 +2786,23 @@ int sysctl_ms_jiffies(ctl_table *table, 
- 		void __user *oldval, size_t __user *oldlenp,
- 		void __user *newval, size_t newlen, void **context)
- {
--	if (oldval) {
-+	if (oldval && oldlenp) {
- 		size_t olen;
--		if (oldlenp) { 
--			if (get_user(olen, oldlenp))
-+
-+		if (get_user(olen, oldlenp))
-+			return -EFAULT;
-+		if (olen) {
-+			int val;
-+
-+			if (olen < sizeof(int))
-+				return -EINVAL;
-+
-+			val = jiffies_to_msecs(*(int *)(table->data));
-+			if (put_user(val, (int __user *)oldval))
-+				return -EFAULT;
-+			if (put_user(sizeof(int), oldlenp))
- 				return -EFAULT;
--			if (olen!=sizeof(int))
--				return -EINVAL; 
- 		}
--		if (put_user(jiffies_to_msecs(*(int *)(table->data)), (int __user *)oldval) ||
--		    (oldlenp && put_user(sizeof(int),oldlenp)))
--			return -EFAULT;
- 	}
- 	if (newval && newlen) { 
- 		int new;
-
+		Linus

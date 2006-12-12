@@ -1,101 +1,176 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751363AbWLLOMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751376AbWLLOcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWLLOMK (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 09:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWLLOMK
+	id S1751376AbWLLOcn (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 09:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWLLOcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 09:12:10 -0500
-Received: from smtp.nokia.com ([131.228.20.171]:60969 "EHLO
-	mgw-ext12.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751363AbWLLOMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 09:12:08 -0500
-Message-ID: <457EB996.5040505@indt.org.br>
-Date: Tue, 12 Dec 2006 10:15:50 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Tue, 12 Dec 2006 09:32:42 -0500
+Received: from lucidpixels.com ([66.45.37.187]:47749 "EHLO lucidpixels.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751376AbWLLOcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 09:32:42 -0500
+Date: Tue, 12 Dec 2006 09:32:38 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: xfslogd-spinlock bug?
+In-Reply-To: <003701c71d78$33ed28d0$0400a8c0@dcccs>
+Message-ID: <Pine.LNX.4.64.0612120932220.19050@p34.internal.lan>
+References: <003701c71d78$33ed28d0$0400a8c0@dcccs>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       Tony Lindgren <tony@atomide.com>,
-       ext David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH 0/4] Add MMC Password Protection (lock/unlock) support
- V8
-References: <457479B4.9090501@indt.org.br>
-In-Reply-To: <457479B4.9090501@indt.org.br>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Dec 2006 14:11:11.0383 (UTC) FILETIME=[60579A70:01C71DF7]
-X-Nokia-AV: Clean
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463747160-1853555891-1165933958=:19050"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Someone has comments for these patches?
+---1463747160-1853555891-1165933958=:19050
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Best regards,
+I'm not sure what is causing this problem but I was curious is this on a=20
+32bit or 64bit platform?
 
-Anderson Briglia
+Justin.
 
-Anderson Briglia wrote:
-> Hi all,
-> 
-> New in this version:
-> 
-> - mmc_sysfs.c: "change" and "assign" code merged to avoid code
-> duplication.
-> - OMAP specific patch not include on this series.
-> - mmc_lock_unlock function: now, the host is claimed before
-> mmc_lock_unlock is called.
-> - Version according the latest mainline git repository.
-> 
-> This series of patches add support for MultiMediaCard (MMC) password
-> protection, as described in the MMC Specification v4.1. This feature is
-> supported by all compliant MMC cards, and used by some devices such as
-> Symbian OS cell phones to optionally protect MMC cards with a password.
-> 
-> By default, a MMC card with no password assigned is always in "unlocked"
-> state. After password assignment, in the next power cycle the card
-> switches to a "locked" state where only the "basic" and "lock card"
-> command classes are accepted by the card. Only after unlocking it with
-> the correct password the card can be normally used for operations like
-> block I/O.
-> 
-> Password management and caching is done through the "Kernel Key
-> Retention Service" mechanism and the sysfs filesystem. A new sysfs
-> attribute was added to the MMC driver for unlocking the card, assigning
-> a password to an unlocked card, change a card's password, remove the
-> password and check locked/unlocked status.
-> 
-> A sample text-mode reference UI written in shell script (using the
-> keyctl command from the keyutils package), can be found at:
-> 
-> http://www.indt.org.br/10le/mmc_pwd/mmc_reference_ui-20060130.tar.bz2
-> 
-> 
-> TODO:
-> 
-> - Ongoing: Extend the MMC PWD Scheme to SD Cards.
-> 
-> - Password caching: when inserting a locked card, the driver should try
->   to unlock it with the currently stored password (if any), and if it
->   fails, revoke the key containing it and fallback to the normal "no
->   password present" situation.
-> 
-> Known Issue:
-> 
-> - Some cards have an incorrect behaviour (hardware bug?) regarding
->   password acceptance: if an affected card has password <pwd>, it
->   accepts <pwd><xxx> as the correct password too, where <xxx> is any
->   sequence of characters, of any length. In other words, on these cards
->   only the first <password length> bytes need to match the correct
->   password.
-> 
-> 
-> Comments and suggestions are always welcome.
-> 
+On Tue, 12 Dec 2006, Haar J=C3=A1nos wrote:
 
+> Hello, list,
+>=20
+> I am the "big red button men" with the one big 14TB xfs, if somebody can
+> remember me. :-)
+>=20
+> Now i found something in the 2.6.16.18, and try the 2.6.18.4, and the
+> 2.6.19, but the bug still exists:
+>=20
+> Dec 11 22:47:21 dy-base BUG: spinlock bad magic on CPU#3, xfslogd/3/317
+> Dec 11 22:47:21 dy-base general protection fault: 0000 [1]
+> Dec 11 22:47:21 dy-base SMP
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base CPU 3
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base Modules linked in:
+> Dec 11 22:47:21 dy-base  nbd
+> Dec 11 22:47:21 dy-base  rd
+> Dec 11 22:47:21 dy-base  netconsole
+> Dec 11 22:47:21 dy-base  e1000
+> Dec 11 22:47:21 dy-base  video
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base Pid: 317, comm: xfslogd/3 Not tainted 2.6.19 #1
+> Dec 11 22:47:21 dy-base RIP: 0010:[<ffffffff803f3aba>]
+> Dec 11 22:47:21 dy-base  [<ffffffff803f3aba>] spin_bug+0x69/0xdf
+> Dec 11 22:47:21 dy-base RSP: 0018:ffff81011fb89bc0  EFLAGS: 00010002
+> Dec 11 22:47:21 dy-base RAX: 0000000000000033 RBX: 6b6b6b6b6b6b6b6b RCX:
+> 0000000000000000
+> Dec 11 22:47:21 dy-base RDX: ffffffff808137a0 RSI: 0000000000000082 RDI:
+> 0000000100000000
+> Dec 11 22:47:21 dy-base RBP: ffff81011fb89be0 R08: 0000000000026a70 R09:
+> 000000006b6b6b6b
+> Dec 11 22:47:21 dy-base R10: 0000000000000082 R11: ffff81000584d380 R12:
+> ffff8100db92ad80
+> Dec 11 22:47:21 dy-base R13: ffffffff80642dc6 R14: 0000000000000000 R15:
+> 0000000000000003
+> Dec 11 22:47:21 dy-base FS:  0000000000000000(0000)
+> GS:ffff81011fc76b90(0000) knlGS:0000000000000000
+> Dec 11 22:47:21 dy-base CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> Dec 11 22:47:21 dy-base CR2: 00002ba007700000 CR3: 0000000108c05000 CR4:
+> 00000000000006e0
+> Dec 11 22:47:21 dy-base Process xfslogd/3 (pid: 317, threadinfo
+> ffff81011fb88000, task ffff81011fa7f830)
+> Dec 11 22:47:21 dy-base Stack:
+> Dec 11 22:47:21 dy-base  ffff81011fb89be0
+> Dec 11 22:47:21 dy-base  ffff8100db92ad80
+> Dec 11 22:47:21 dy-base  0000000000000000
+> Dec 11 22:47:21 dy-base  0000000000000000
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base  ffff81011fb89c10
+> Dec 11 22:47:21 dy-base  ffffffff803f3bdc
+> Dec 11 22:47:21 dy-base  0000000000000282
+> Dec 11 22:47:21 dy-base  0000000000000000
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base  0000000000000000
+> Dec 11 22:47:21 dy-base  0000000000000000
+> Dec 11 22:47:21 dy-base  ffff81011fb89c30
+> Dec 11 22:47:21 dy-base  ffffffff805e7f2b
+> Dec 11 22:47:21 dy-base
+> Dec 11 22:47:21 dy-base Call Trace:
+> Dec 11 22:47:21 dy-base  [<ffffffff803f3bdc>] _raw_spin_lock+0x23/0xf1
+> Dec 11 22:47:21 dy-base  [<ffffffff805e7f2b>] _spin_lock_irqsave+0x11/0x1=
+8
+> Dec 11 22:47:21 dy-base  [<ffffffff80222aab>] __wake_up+0x22/0x50
+> Dec 11 22:47:21 dy-base  [<ffffffff803c97f9>] xfs_buf_unpin+0x21/0x23
+> Dec 11 22:47:21 dy-base  [<ffffffff803970a4>] xfs_buf_item_unpin+0x2e/0xa=
+6
+> Dec 11 22:47:21 dy-base  [<ffffffff803bc460>]
+> xfs_trans_chunk_committed+0xc3/0xf7
+> Dec 11 22:47:21 dy-base  [<ffffffff803bc4dd>] xfs_trans_committed+0x49/0x=
+de
+> Dec 11 22:47:21 dy-base  [<ffffffff803b1bde>]
+> xlog_state_do_callback+0x185/0x33f
+> Dec 11 22:47:21 dy-base  [<ffffffff803b1e9c>] xlog_iodone+0x104/0x131
+> Dec 11 22:47:22 dy-base  [<ffffffff803c9dae>] xfs_buf_iodone_work+0x1a/0x=
+3e
+> Dec 11 22:47:22 dy-base  [<ffffffff802399d8>] worker_thread+0x0/0x134
+> Dec 11 22:47:22 dy-base  [<ffffffff8023937e>] run_workqueue+0xa8/0xf8
+> Dec 11 22:47:22 dy-base  [<ffffffff803c9d94>] xfs_buf_iodone_work+0x0/0x3=
+e
+> Dec 11 22:47:22 dy-base  [<ffffffff802399d8>] worker_thread+0x0/0x134
+> Dec 11 22:47:22 dy-base  [<ffffffff80239ad3>] worker_thread+0xfb/0x134
+> Dec 11 22:47:22 dy-base  [<ffffffff80223f6c>] default_wake_function+0x0/0=
+xf
+> Dec 11 22:47:22 dy-base  [<ffffffff802399d8>] worker_thread+0x0/0x134
+> Dec 11 22:47:22 dy-base  [<ffffffff8023c6e5>] kthread+0xd8/0x10b
+> Dec 11 22:47:22 dy-base  [<ffffffff802256ac>] schedule_tail+0x45/0xa6
+> Dec 11 22:47:22 dy-base  [<ffffffff8020a6a8>] child_rip+0xa/0x12
+> Dec 11 22:47:22 dy-base  [<ffffffff802399d8>] worker_thread+0x0/0x134
+> Dec 11 22:47:22 dy-base  [<ffffffff8023c60d>] kthread+0x0/0x10b
+> Dec 11 22:47:22 dy-base  [<ffffffff8020a69e>] child_rip+0x0/0x12
+> Dec 11 22:47:22 dy-base
+> Dec 11 22:47:22 dy-base
+> Dec 11 22:47:22 dy-base Code:
+> Dec 11 22:47:22 dy-base 8b
+> Dec 11 22:47:22 dy-base 83
+> Dec 11 22:47:22 dy-base 0c
+> Dec 11 22:47:22 dy-base 01
+> Dec 11 22:47:22 dy-base 00
+> Dec 11 22:47:22 dy-base 00
+> Dec 11 22:47:22 dy-base 48
+> Dec 11 22:47:22 dy-base 8d
+> Dec 11 22:47:22 dy-base 8b
+> Dec 11 22:47:22 dy-base 98
+> Dec 11 22:47:22 dy-base 02
+> Dec 11 22:47:22 dy-base 00
+> Dec 11 22:47:22 dy-base 00
+> Dec 11 22:47:22 dy-base 41
+> Dec 11 22:47:22 dy-base 8b
+> Dec 11 22:47:22 dy-base 54
+> Dec 11 22:47:22 dy-base 24
+> Dec 11 22:47:22 dy-base 04
+> Dec 11 22:47:22 dy-base 41
+> Dec 11 22:47:22 dy-base 89
+> Dec 11 22:47:22 dy-base
+> Dec 11 22:47:22 dy-base RIP
+> Dec 11 22:47:22 dy-base  [<ffffffff803f3aba>] spin_bug+0x69/0xdf
+> Dec 11 22:47:22 dy-base  RSP <ffff81011fb89bc0>
+> Dec 11 22:47:22 dy-base
+> Dec 11 22:47:22 dy-base Kernel panic - not syncing: Fatal exception
+> Dec 11 22:47:22 dy-base
+> Dec 11 22:47:22 dy-base Rebooting in 5 seconds..
+>=20
+> After this, sometimes the server reboots normally, but sometimes hangs, n=
+o
+> console, no sysreq, no nothing.
+>=20
+> This is a "simple" crash, no "too much" data lost, or else.
+>=20
+> Can somebody help me to tracking down the problem?
+>=20
+> Thanks,
+> Janos Haar
+>=20
+>=20
+>=20
+>=20
+---1463747160-1853555891-1165933958=:19050--

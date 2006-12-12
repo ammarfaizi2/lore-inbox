@@ -1,427 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932514AbWLLWrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932549AbWLLWr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWLLWrF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 17:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWLLWrF
+	id S932549AbWLLWr6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 17:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWLLWr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 17:47:05 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.155]:6707 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932513AbWLLWrB (ORCPT
+	Tue, 12 Dec 2006 17:47:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39798 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932549AbWLLWr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 17:47:01 -0500
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-To: akpm@osdl.org, bzolnier@gmail.com
-Subject: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Date: Wed, 13 Dec 2006 01:48:34 +0300
-User-Agent: KMail/1.5
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
+	Tue, 12 Dec 2006 17:47:57 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: mapping PCI registers with write combining (and PAT on x86)...
+References: <adalklcu5w3.fsf@cisco.com>
+Date: Tue, 12 Dec 2006 15:47:43 -0700
+In-Reply-To: <adalklcu5w3.fsf@cisco.com> (Roland Dreier's message of "Tue, 12
+	Dec 2006 14:05:32 -0800")
+Message-ID: <m1irggrasw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200612130148.34539.sshtylyov@ru.mvista.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
-completely reworked from the original brain-damaged Toshiba's 2.4 version.
+Roland Dreier <rdreier@cisco.com> writes:
 
-This single channel UltraDMA/66 controller is very simple in programming, yet
-Toshiba managed to plant many interesting bugs in it.  The particularly nasty
-"limitation 5" (as they call the errata) caused me to abuse the IDE core in a
-possibly most interesting way so far.  However, this is still better than the
-#ifdef mess in drivers/ide/ide-io.c that the original version included (well,
-it had much more mess)...
+> Suppose that I would like to map some PIO registers (in a PCI BAR) to
+> userspace, and I would like to enable write combining if possible.
+>
+> I have two problems.  First, there's no generic interface for
+> requesting write combining if possible when doing
+> io_remap_pfn_range().  Would it make sense to define
+> pageprot_writecombine for all architectures (and make it fall back to
+> doing non-cached access if write combining is not possible)?  And it
+> seems that making pgprot_noncached() universal wouldn't hurt either.
 
-Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+So I think we may simplify this but there is pci_mmap_page_range.  That
+already handles this for the architectures that currently support it.
+So it is probably the case the fbdev should be changed to use that.
 
- drivers/ide/Kconfig        |    5 
- drivers/ide/pci/Makefile   |    1 
- drivers/ide/pci/tc86c001.c |  304 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/pci/quirks.c       |   18 ++
- include/linux/pci_ids.h    |    1 
- 5 files changed, 329 insertions(+)
+I am certainly in favor of simpler infrastructure like making
+pgprot_writecombine and pgprot_uncached universal but I would like to
+start with what works today.
 
-Index: linux-2.6/drivers/ide/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/ide/Kconfig
-+++ linux-2.6/drivers/ide/Kconfig
-@@ -742,6 +742,11 @@ config BLK_DEV_VIA82CXXX
- 	  This allows the kernel to change PIO, DMA and UDMA speeds and to
- 	  configure the chip to optimum performance.
- 
-+config BLK_DEV_TC86C001
-+	tristate "Toshiba TC86C001 support"
-+	help
-+	This driver adds support for Toshiba TC86C001 GOKU-S chip.
-+
- endif
- 
- config BLK_DEV_IDE_PMAC
-Index: linux-2.6/drivers/ide/pci/Makefile
-===================================================================
---- linux-2.6.orig/drivers/ide/pci/Makefile
-+++ linux-2.6/drivers/ide/pci/Makefile
-@@ -26,6 +26,7 @@ obj-$(CONFIG_BLK_DEV_SIIMAGE)		+= siimag
- obj-$(CONFIG_BLK_DEV_SIS5513)		+= sis5513.o
- obj-$(CONFIG_BLK_DEV_SL82C105)		+= sl82c105.o
- obj-$(CONFIG_BLK_DEV_SLC90E66)		+= slc90e66.o
-+obj-$(CONFIG_BLK_DEV_TC86C001)		+= tc86c001.o
- obj-$(CONFIG_BLK_DEV_TRIFLEX)		+= triflex.o
- obj-$(CONFIG_BLK_DEV_TRM290)		+= trm290.o
- obj-$(CONFIG_BLK_DEV_VIA82CXXX)		+= via82cxxx.o
-Index: linux-2.6/drivers/ide/pci/tc86c001.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/ide/pci/tc86c001.c
-@@ -0,0 +1,304 @@
-+/*
-+ * drivers/ide/pci/tc86c001.c	Version 1.00	Dec 12, 2006
-+ *
-+ * Copyright (C) 2002 Toshiba Corporation
-+ * Copyright (C) 2005-2006 MontaVista Software, Inc. <source@mvista.com>
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2.  This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/pci.h>
-+#include <linux/ide.h>
-+
-+static inline u8 tc86c001_ratemask(ide_drive_t *drive)
-+{
-+	return eighty_ninty_three(drive) ? 2 : 1;
-+}
-+
-+static int tc86c001_tune_chipset(ide_drive_t *drive, u8 speed)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	unsigned long scr_port	= hwif->config_data + (drive->dn ? 0x02 : 0x00);
-+	u16 mode, scr		= hwif->INW(scr_port);
-+
-+	speed = ide_rate_filter(tc86c001_ratemask(drive), speed);
-+
-+	switch (speed) {
-+		case XFER_UDMA_4:	mode = 0x00c0; break;
-+		case XFER_UDMA_3:	mode = 0x00b0; break;
-+		case XFER_UDMA_2:	mode = 0x00a0; break;
-+		case XFER_UDMA_1:	mode = 0x0090; break;
-+		case XFER_UDMA_0:	mode = 0x0080; break;
-+		case XFER_MW_DMA_2:	mode = 0x0070; break;
-+		case XFER_MW_DMA_1:	mode = 0x0060; break;
-+		case XFER_MW_DMA_0:	mode = 0x0050; break;
-+		case XFER_PIO_4:	mode = 0x0400; break;
-+		case XFER_PIO_3:	mode = 0x0300; break;
-+		case XFER_PIO_2:	mode = 0x0200; break;
-+		case XFER_PIO_1:	mode = 0x0100; break;
-+		case XFER_PIO_0:
-+		default:		mode = 0x0000; break;
-+	}
-+
-+	scr &= (speed < XFER_MW_DMA_0) ? 0xf8ff : 0xff0f;
-+	scr |= mode;
-+	hwif->OUTW(scr, scr_port);
-+
-+	return ide_config_drive_speed(drive, speed);
-+}
-+
-+static void tc86c001_tune_drive(ide_drive_t *drive, u8 pio)
-+{
-+	pio =  ide_get_best_pio_mode(drive, pio, 4, NULL);
-+	(void) tc86c001_tune_chipset(drive, XFER_PIO_0 + pio);
-+}
-+
-+/*
-+ * HACKITY HACK
-+ *
-+ * This is a workaround for the limitation 5 of the TC86C001 IDE controller:
-+ * if a DMA transfer terminates prematurely, the controller leaves the device's
-+ * interrupt request (INTRQ) pending and does not generate a PCI interrupt (or
-+ * set the interrupt bit in the DMA status register), thus no PCI interrupt
-+ * will occur until a DMA transfer has been successfully completed.
-+ *
-+ * We work around this by initiating dummy, zero-length DMA transfer on
-+ * a DMA timeout expiration. I found no better way to do this with the current
-+ * IDE core than to temporarily replace a higher level driver's timer expiry
-+ * handler with our own backing up to that handler in case our recovery fails.
-+ */
-+static int tc86c001_timer_expiry(ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	ide_expiry_t *expiry	= ide_get_hwifdata(hwif);
-+	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
-+	u8 dma_stat		= hwif->INB(hwif->dma_status);
-+
-+	/* Restore a higher level driver's expiry handler first. */
-+	hwgroup->expiry	= expiry;
-+
-+	if ((dma_stat & 5) == 1) {	/* DMA active and no interrupt */
-+		unsigned long sc_base	= hwif->config_data;
-+		unsigned long twcr_port	= sc_base + (drive->dn ? 0x06 : 0x04);
-+		u8 dma_cmd		= hwif->INB(hwif->dma_command);
-+
-+		printk(KERN_WARNING "%s: DMA interrupt possibly stuck, "
-+		       "attempting recovery...\n", drive->name);
-+
-+		/* Stop DMA */
-+		hwif->OUTB(dma_cmd & ~0x01, hwif->dma_command);
-+
-+		/* Setup the dummy DMA transfer */
-+		hwif->OUTW(0, sc_base + 0x0a);	/* Sector Count */
-+		hwif->OUTW(0, twcr_port);	/* Transfer Word Count 1 or 2 */
-+
-+		/* Start the dummy DMA transfer */
-+		hwif->OUTB(0x00, hwif->dma_command); /* clear R_OR_WCTR for write */
-+		hwif->OUTB(0x01, hwif->dma_command); /* set START_STOPBM */
-+
-+		/*
-+		 * If an interrupt was pending, it should come thru shortly.
-+		 * If not, higher level driver's expiry code should eventually
-+		 * cause some kind of recovery from the DMA stall...
-+		 */
-+		return WAIT_MIN_SLEEP;
-+	}
-+
-+	/* Chain to the restored expiry handler if DMA wasn't active. */
-+	if (likely(expiry != NULL))
-+		return expiry(drive);
-+
-+	/* If there was no handler, "emulate" that for ide_timer_expiry()... */
-+	return -1;
-+}
-+
-+static void tc86c001_dma_start(ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
-+	unsigned long sc_base	= hwif->config_data;
-+	unsigned long twcr_port	= sc_base + (drive->dn ? 0x06 : 0x04);
-+	unsigned long nsectors	= hwgroup->rq->nr_sectors;
-+
-+	/*
-+	 * We have to manually load the sector count and size into
-+	 * the appropriate system control registers for DMA to work
-+	 * with LBA48 and ATAPI devices...
-+	 */
-+	hwif->OUTW(nsectors, sc_base + 0x0a);	/* Sector Count */
-+	hwif->OUTW(SECTOR_SIZE / 2, twcr_port); /* Transfer Word Count 1/2 */
-+
-+	/* Install our timeout expiry hook, saving the current handler... */
-+	ide_set_hwifdata(hwif, hwgroup->expiry);
-+	hwgroup->expiry = &tc86c001_timer_expiry;
-+
-+	ide_dma_start(drive);
-+}
-+
-+static int tc86c001_busproc(ide_drive_t *drive, int state)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	unsigned long sc_base	= hwif->config_data;
-+	u16 scr1;
-+
-+	/* System Control 1 Register bit 11 (ATA Hard Reset) read */
-+	scr1 = hwif->INW(sc_base + 0x00);
-+
-+	switch (state) {
-+		case BUSSTATE_ON:
-+			if (!(scr1 & 0x0800))
-+				return 0;
-+			scr1 &= ~0x0800;
-+
-+			hwif->drives[0].failures = hwif->drives[1].failures = 0;
-+			break;
-+		case BUSSTATE_OFF:
-+			if (scr1 & 0x0800)
-+				return 0;
-+			scr1 |= 0x0800;
-+
-+			hwif->drives[0].failures = hwif->drives[0].max_failures + 1;
-+			hwif->drives[1].failures = hwif->drives[1].max_failures + 1;
-+			break;
-+		default:
-+			return -EINVAL;
-+	}
-+
-+	/* System Control 1 Register bit 11 (ATA Hard Reset) write */
-+	hwif->OUTW(scr1, sc_base + 0x00);
-+	return 0;
-+}
-+
-+static int config_chipset_for_dma(ide_drive_t *drive)
-+{
-+	u8 speed = ide_dma_speed(drive, tc86c001_ratemask(drive));
-+
-+	if (!speed)
-+		return 0;
-+
-+	(void) tc86c001_tune_chipset(drive, speed);
-+	return ide_dma_enable(drive);
-+}
-+
-+static int tc86c001_config_drive_xfer_rate(ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct hd_driveid *id	= drive->id;
-+
-+	if ((id->capability & 1) && drive->autodma) {
-+
-+		if (ide_use_dma(drive) && config_chipset_for_dma(drive))
-+			return hwif->ide_dma_on(drive);
-+
-+		goto fast_ata_pio;
-+
-+	} else if ((id->capability & 8) || (id->field_valid & 2)) {
-+fast_ata_pio:
-+		tc86c001_tune_drive(drive, 5);
-+		return hwif->ide_dma_off_quietly(drive);
-+	}
-+	/* IORDY not supported */
-+	return 0;
-+}
-+
-+void __devinit init_hwif_tc86c001(ide_hwif_t *hwif)
-+{
-+	unsigned long sc_base	= pci_resource_start(hwif->pci_dev, 5);
-+	u16 scr1		= hwif->INW(sc_base + 0x00);;
-+
-+	/* System Control 1 Register bit 15 (Soft Reset) set */
-+	hwif->OUTW(scr1 |  0x8000, sc_base + 0x00);
-+
-+	/* System Control 1 Register bit 14 (FIFO Reset) set */
-+	hwif->OUTW(scr1 |  0x4000, sc_base + 0x00);
-+
-+	/* System Control 1 Register: reset clear */
-+	hwif->OUTW(scr1 & ~0xc000, sc_base + 0x00);
-+
-+	/* Store the system control register base for convenience... */
-+	hwif->config_data = sc_base;
-+
-+	hwif->tuneproc	= &tc86c001_tune_drive;
-+	hwif->speedproc = &tc86c001_tune_chipset;
-+	hwif->busproc	= &tc86c001_busproc;
-+
-+	hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
-+
-+	if (!hwif->dma_base)
-+		return;
-+
-+	/*
-+	 * Sector Count Control Register bits 0 and 1 set:
-+	 * software sets Sector Count Register for master and slave device
-+	 */
-+	hwif->OUTW(0x0003, sc_base + 0x0c);
-+
-+	/* Sector Count Register limit */
-+	hwif->rqsize	 = 0xffff;
-+
-+	hwif->atapi_dma  = 1;
-+	hwif->ultra_mask = 0x1f;
-+	hwif->mwdma_mask = 0x07;
-+
-+	hwif->ide_dma_check	= &tc86c001_config_drive_xfer_rate;
-+	hwif->dma_start 	= &tc86c001_dma_start;
-+
-+	if (!hwif->udma_four) {
-+		/*
-+		 * System Control  1 Register bit 13 (PDIAGN):
-+		 * 0=80-pin cable, 1=40-pin cable
-+		 */
-+		scr1 = hwif->INW(sc_base + 0x00);
-+		hwif->udma_four = (scr1 & 0x2000) ? 0 : 1;
-+	}
-+
-+	if (!noautodma)
-+		hwif->autodma = 1;
-+	hwif->drives[0].autodma = hwif->drives[1].autodma = hwif->autodma;
-+}
-+
-+static unsigned int init_chipset_tc86c001(struct pci_dev *dev, const char *name)
-+{
-+	return pci_request_region(dev, 5, "TC86C001");
-+}
-+
-+static ide_pci_device_t tc86c001_chipset __devinitdata = {
-+	.name		= "TC86C001",
-+	.init_chipset	= init_chipset_tc86c001,
-+	.init_hwif	= init_hwif_tc86c001,
-+	.channels	= 1,
-+	.autodma	= AUTODMA,
-+	.bootable	= OFF_BOARD
-+};
-+
-+static int __devinit tc86c001_init_one(struct pci_dev *dev,
-+				       const struct pci_device_id *id)
-+{
-+	return ide_setup_pci_device(dev, &tc86c001_chipset);
-+}
-+
-+static struct pci_device_id tc86c001_pci_tbl[] = {
-+	{ PCI_VENDOR_ID_TOSHIBA_2, PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-+	{ 0, }
-+};
-+MODULE_DEVICE_TABLE(pci, tc86c001_pci_tbl);
-+
-+static struct pci_driver driver = {
-+	.name		= "TC86C001",
-+	.id_table	= tc86c001_pci_tbl,
-+	.probe		= tc86c001_init_one
-+};
-+
-+static int tc86c001_ide_init(void)
-+{
-+	return ide_pci_register_driver(&driver);
-+}
-+module_init(tc86c001_ide_init);
-+
-+MODULE_AUTHOR("MontaVista Software, Inc. <source@mvista.com>");
-+MODULE_DESCRIPTION("PCI driver module for TC86C001 IDE");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6/drivers/pci/quirks.c
-===================================================================
---- linux-2.6.orig/drivers/pci/quirks.c
-+++ linux-2.6/drivers/pci/quirks.c
-@@ -1407,6 +1407,24 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
- 
-+/*
-+ * Toshiba TC86C001 IDE controller reports the standard 8-byte BAR0 size
-+ * but PIO transfer won't work if BAR0 falls at the odd 8 bytes.
-+ * Re-allocate the region if needed.
-+ */
-+static void __init quirk_tc86c001_ide(struct pci_dev *dev)
-+{
-+	struct resource *r = &dev->resource[0];
-+
-+	if (r->start & 0x8) {
-+		r->start = 0;
-+		r->end = 0xf;
-+	}
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TOSHIBA_2,
-+			 PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE,
-+			 quirk_tc86c001_ide );
-+
- static void __devinit quirk_netmos(struct pci_dev *dev)
- {
- 	unsigned int num_parallel = (dev->subsystem_device & 0xf0) >> 4;
-Index: linux-2.6/include/linux/pci_ids.h
-===================================================================
---- linux-2.6.orig/include/linux/pci_ids.h
-+++ linux-2.6/include/linux/pci_ids.h
-@@ -1444,6 +1444,7 @@
- 
- #define PCI_VENDOR_ID_TOSHIBA_2		0x102f
- #define PCI_DEVICE_ID_TOSHIBA_TC35815CF	0x0030
-+#define PCI_DEVICE_ID_TOSHIBA_TC86C001_IDE	0x0105
- #define PCI_DEVICE_ID_TOSHIBA_TC86C001_MISC	0x0108
- #define PCI_DEVICE_ID_TOSHIBA_SPIDER_NET 0x01b3
- 
+Then we can go reexamine things like the ia64 slavishly trusting the
+BIOS to know which page protections are good.
 
+> Second, given the extreme shortage of MTRRs, it seems that write
+> combining is not really possible in general on x86 without some
+> interface to use PATs instead.  What is holding up something like Eric
+> Biederman's patches from going in?
+
+No one had any serious objections to my patches as they were.  The actual
+problem was that the patches were incomplete.  In particular if you
+mismatch page protections it is possible to get silent data corruption
+or processor crashes.  So we need checks to ensure all mappings of
+a given page are using the same protections.
+
+To a certain extent I think adding those checks really is a strawman
+and should not stop the merge effort, because we have this feature and
+those possible bugs on other architectures right now and we don't have
+those checks.  But I also think in the long term we need them, it just
+requires several days of going through the mm so we don't leave any
+path uncovered.
+
+> Right now we end up with stuff like the absolutely hair-raising code
+> in drivers/video/fbmem.c shown below.  I really would like to make
+> progress towards having a better interface for doing this stuff, and
+> I'm more than willing to work on getting something mergable.
+
+I hope my comments help.
+
+Eric

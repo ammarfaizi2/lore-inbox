@@ -1,167 +1,149 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932378AbWLLTUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932389AbWLLTVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWLLTUI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 14:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWLLTUI
+	id S932389AbWLLTVz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 14:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWLLTVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 14:20:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39657 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932378AbWLLTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 14:20:05 -0500
-Message-ID: <457F00C5.8030304@redhat.com>
-Date: Tue, 12 Dec 2006 14:19:33 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 12 Dec 2006 14:21:55 -0500
+Received: from web57810.mail.re3.yahoo.com ([68.142.236.88]:42389 "HELO
+	web57810.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932389AbWLLTVy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 14:21:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=6Ly24IImkEeWvsFUhHKsBpTrvtYlsN1wUDEX2l38FWU0qqjv7QjzILkniyX+Ma8Ul9m+SSvmoyL5ln8dzqMUILSCzHw4BZ6X+Igz0wHbKoED7AAUJ6a6XuSxkdKwu8/9vhtmootyMbsat15tPemVakqlz7Ah6p9n0E9HThZVKHU=  ;
+Message-ID: <20061212192153.69121.qmail@web57810.mail.re3.yahoo.com>
+Date: Tue, 12 Dec 2006 11:21:53 -0800 (PST)
+From: Rakhesh Sasidharan <rakheshster@yahoo.com>
+Reply-To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Subject: Re: VCD not readable under 2.6.18
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: caglar@pardus.org.tr, Ismail Donmez <ismail@pardus.org.tr>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux@horizon.com
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent
-References: <20061212180201.12051.qmail@science.horizon.com>
-In-Reply-To: <20061212180201.12051.qmail@science.horizon.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
- >> Good catch on the inlining. I had meant to do that and missed it.
- >
- > Er... if you want it to *be* inlined, you have to put it into the .h
- > file so the compiler knows about it at the call site.  "static inline"
- > tells gcc not avoid emitting a callable version.
- >
- > Something like this the following.  (You'll also need to add
- > a "#include <stdbool.h>", unless you expand the "bool", "false" and
- > "true" macros to their values "_Bool", "0" and "1" by hand.)
- >
+Hi again!
 
-Doh! Thanks for explaining that. Here's a respun patch with your suggestion
-incorporated. Seems to build correctly without stdbool.h. In fact, I don't see
-a stdbool.h in Linus' tree as of this morning. Are you sure that it's needed?
+I realize what I am going to post below is OT to this list, but I thought I'd mention it here anyways just in case some other user is having a similar problem and happens to follow this thread in the hope of finding a solution. I've tested this on Fedora Core 6 and openSUSE 10.2, both running GNOME, and it works. 
 
-Signed-off-by: Jeff Layton <jlayton@redhat.com>
+As I mentioned in my previous mail, this VCDs not readable problem is not a kernel one. The newer kernels are more vocal about the errors, and refuse to mount the VCDs, but the problem is one of HAL-kernel interaction. To verify that, boot into single user mode, and its possible to mount VCDs without any problems. 
 
---- linux-2.6/fs/debugfs/inode.c.super
-+++ linux-2.6/fs/debugfs/inode.c
-@@ -107,7 +107,7 @@ static int debug_fill_super(struct super
-  {
-  	static struct tree_descr debug_files[] = {{""}};
+As a temporary work-around for those who wish to watch VCDs and are unable to coz of this problem, all one needs to do is disable HAL from polling the CD/ DVD drive. I stumbled upon this idea by doing a "ps ax |grep hald" and noticing that there's an entry for "hald-addon-storage: polling /dev/hdc". I killed this process, and bingo! I could mount VCDs perfectly fine! Ofcourse, killing this process has the side effect that none of your CDs are automatically mounted any more (till the next reboot that is). 
 
--	return simple_fill_super(sb, DEBUGFS_MAGIC, debug_files);
-+	return registered_fill_super(sb, DEBUGFS_MAGIC, debug_files);
-  }
+If you wish to permanently stop polling of the CD/ DVD drive, then you have to edit the HAL policy file for storage devices (located at "/usr/share/hal/fdi/policy/10osvendor/20-storage-methods.fdi" in the distros I mentioned above). In my case, this is how the first few lines of that file looked like: 
 
-  static int debug_get_sb(struct file_system_type *fs_type,
---- linux-2.6/fs/fuse/control.c.super
-+++ linux-2.6/fs/fuse/control.c
-@@ -163,7 +163,7 @@ static int fuse_ctl_fill_super(struct su
-  	struct fuse_conn *fc;
-  	int err;
+<?xml version="1.0" encoding="UTF-8"?>
 
--	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
-+	err = registered_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
-  	if (err)
-  		return err;
+<deviceinfo version="0.2">
+  <device>
+    <match key="info.udi" string="/org/freedesktop/Hal/devices/computer">
+      <append key="info.callouts.add" type="strlist">hal-storage-cleanup-all-mo$
+    </match>
 
---- linux-2.6/fs/libfs.c.super
-+++ linux-2.6/fs/libfs.c
-@@ -215,7 +215,7 @@ int get_sb_pseudo(struct file_system_typ
-  	s->s_op = ops ? ops : &default_ops;
-  	s->s_time_gran = 1;
-  	root = new_inode(s);
--	if (!root)
-+	if (!root || iunique_register(root, 0))
-  		goto Enomem;
-  	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
-  	root->i_uid = root->i_gid = 0;
-@@ -356,7 +356,8 @@ int simple_commit_write(struct file *fil
-  	return 0;
-  }
+    <match key="storage.media_check_enabled" bool="true">
+      <append key="info.addons" type="strlist">hald-addon-storage</append>
+    </match>
 
--int simple_fill_super(struct super_block *s, int magic, struct tree_descr *files)
-+int __simple_fill_super(struct super_block *s, int magic,
-+			struct tree_descr *files, bool registered)
-  {
-  	static struct super_operations s_ops = {.statfs = simple_statfs};
-  	struct inode *inode;
-@@ -380,6 +381,12 @@ int simple_fill_super(struct super_block
-  	inode->i_op = &simple_dir_inode_operations;
-  	inode->i_fop = &simple_dir_operations;
-  	inode->i_nlink = 2;
-+	/*
-+	 * set this as high as a 32 bit val as possible to avoid collisions.
-+	 * This is also well above the highest value that iunique_register
-+         * will assign to an inode
-+	 */
-+	inode->i_ino = 0xffffffff;
-  	root = d_alloc_root(inode);
-  	if (!root) {
-  		iput(inode);
-@@ -394,12 +401,15 @@ int simple_fill_super(struct super_block
-  		inode = new_inode(s);
-  		if (!inode)
-  			goto out;
-+		if (!registered)
-+			inode->i_ino = i;
-+		else if (iunique_register(inode, 0))
-+			goto out;
-  		inode->i_mode = S_IFREG | files->mode;
-  		inode->i_uid = inode->i_gid = 0;
-  		inode->i_blocks = 0;
-  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-  		inode->i_fop = files->ops;
--		inode->i_ino = i;
-  		d_add(dentry, inode);
-  	}
-  	s->s_root = root;
---- linux-2.6/include/linux/fs.h.super
-+++ linux-2.6/include/linux/fs.h
-@@ -1879,10 +1879,35 @@ extern const struct file_operations simp
-  extern struct inode_operations simple_dir_inode_operations;
-  struct tree_descr { char *name; const struct file_operations *ops; int mode; };
-  struct dentry *d_alloc_name(struct dentry *, const char *);
--extern int simple_fill_super(struct super_block *, int, struct tree_descr *);
-+extern int __simple_fill_super(struct super_block *s, int magic,
-+				struct tree_descr *files, bool registered);
-  extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
-  extern void simple_release_fs(struct vfsmount **mount, int *count);
+The key here is the part that goes as 'key="storage.media_check_enabled" bool="true"'. This is what tells HAL to keep polling the drives. What we want to do now is disable polling for CD/DVD drives, and so we add something like this *before* the above stuff: 
 
-+/*
-+ * Fill a superblock with a standard set of fields, and add the entries in the
-+ * "files" struct. Assign i_ino values to the files sequentially. This function
-+ * is appropriate for filesystems that need a particular i_ino value assigned
-+ * to a particular "files" entry.
-+ */
-+static inline int simple_fill_super(struct super_block *s, int magic,
-+					struct tree_descr *files)
-+{
-+	return __simple_fill_super(s, magic, files, false);
-+}
-+
-+/*
-+ * Just like simple_fill_super, but does an iunique_register on the inodes
-+ * created for "files" entries. This function is appropriate when you don't
-+ * need a particular i_ino value assigned to each files entry, and when the
-+ * filesystem will have other registered inodes.
-+ */
-+static inline int registered_fill_super(struct super_block *s, int magic,
-+						struct tree_descr *files)
-+{
-+	return __simple_fill_super(s, magic, files, true);
-+}
-+
-  extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+  <!-- Temporary hack to solve my VCD problem -->
+  <device>
+    <match key="storage.bus" string="ide">
+      <!-- <match key="storage.model" string="TSSTcorpCD/DVDW TS-L532M"> -->
+        <match key="block.device" string="/dev/hdc">
+          <merge key="storage.media_check_enabled" type="bool">false</merge>
+        </match>
+      <!-- </match> -->
+    </match>
+  </device>
 
-  #ifdef CONFIG_MIGRATION
---- linux-2.6/security/inode.c.super
-+++ linux-2.6/security/inode.c
-@@ -130,7 +130,7 @@ static int fill_super(struct super_block
-  {
-  	static struct tree_descr files[] = {{""}};
+In my case, the CD/ DVD drive is /dev/hdc. Which is why I am matching on that and changing its polling to false. Its also possible to match based on the model etc etc (in my case I've commented that out with <!-- to -->). 
 
--	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
-+	return registered_fill_super(sb, SECURITYFS_MAGIC, files);
-  }
+This is how the first few lines of the storage policies file looks, after the changes: 
 
-  static int get_sb(struct file_system_type *fs_type,
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<deviceinfo version="0.2">
+
+  <!-- Temporary hack to solve my VCD problem -->
+
+  <device>
+
+    <match key="storage.bus" string="ide">
+
+      <!-- <match key="storage.model" string="TSSTcorpCD/DVDW TS-L532M"> -->
+
+        <match key="block.device" string="/dev/hdc">
+
+          <merge key="storage.media_check_enabled" type="bool">false</merge>
+
+        </match>
+
+      <!-- </match> -->
+
+    </match>
+
+  </device>
+
+  <device>
+
+    <match key="info.udi" string="/org/freedesktop/Hal/devices/computer">
+
+      <append key="info.callouts.add" type="strlist">hal-storage-cleanup-all-mo$
+
+    </match>
+
+
+
+    <match key="storage.media_check_enabled" bool="true">
+
+      <append key="info.addons" type="strlist">hald-addon-storage</append>
+
+    </match>
+
+
+After making the changes, restart HAL, and the problem is solved! :) 
+
+I figure readers of the LKML probably know all this stuff well; but I didn't, and it took me a bit of effort to figure what to do, and that's why I am posting it all here. A special mention to this link -- http://ubuntuforums.org/archive/index.php/t-64388.html -- from where I got an idea of where the policy files are located and what I could do. 
+
+Guess that's all for now. 
+
+Thanks,
+Rakhesh
+
+ps. Any replies, please cc me. I am not subscribed to this list.
+
+----- Original Message ----
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Rakhesh Sasidharan <rakhesh@rakhesh.com>
+Cc: rakheshster@yahoo.com; caglar@pardus.org.tr; Ismail Donmez <ismail@pardus.org.tr>; linux-kernel@vger.kernel.org
+Sent: Sunday, December 10, 2006 4:44:42 AM
+Subject: Re: VCD not readable under 2.6.18
+
+On Sat, 9 Dec 2006 09:23:32 -0800 (PST)
+Rakhesh Sasidharan <rakheshster@yahoo.com> wrote:
+
+> Infact, just inserting a CD is enough. No need for a media player to try and access the files. :)
+> 
+> The backend must be polling and trying to mount the disc upon insertion. Kernel 2.6.16 and before did that fine, but kernel 2.6.17 and above don't and give error messages. Which explains why downgrading the kernel solves the problem. (If it were a HAL or KDE/ GNOME problem then shouldn't downgrading the kernel *not* help?) Just thinking aloud ... 
+
+The old kernel erroneously failed to report errors in some cases so the
+answer to that bit is a definite  - no -. That side is a desktop problem.
+The fact people are saying that in addition vcd players are breaking is a
+bit more mysterious.
+
+
+
+
+
+ 
+____________________________________________________________________________________
+Any questions? Get answers on any topic at www.Answers.yahoo.com.  Try it now.

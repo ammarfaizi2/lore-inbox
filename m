@@ -1,124 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751052AbWLLDRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751011AbWLLDZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWLLDRU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 11 Dec 2006 22:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWLLDRU
+	id S1751011AbWLLDZE (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 11 Dec 2006 22:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWLLDZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Dec 2006 22:17:20 -0500
-Received: from mx1.mandriva.com ([212.85.150.183]:39559 "EHLO mx1.mandriva.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751052AbWLLDRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Dec 2006 22:17:16 -0500
-Date: Tue, 12 Dec 2006 01:17:18 -0200
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH][SCSI]: Save some bytes in struct scsi_target
-Message-ID: <20061212031718.GC6218@mandriva.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 11 Dec 2006 22:25:04 -0500
+Received: from science.horizon.com ([192.35.100.1]:17910 "HELO
+	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751036AbWLLDZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Dec 2006 22:25:01 -0500
+Date: 11 Dec 2006 22:24:56 -0500
+Message-ID: <20061212032456.23036.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux@horizon.com, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
+Cc: linux-arch@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <457D0A6A.1090806@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before:
+>> to keep the amount of code between ll and sc to an absolute minimum
+>> to avoid interference which causes livelock.  Processor timeouts
+>> are generally much longer than any reasonable code sequence.
 
-[acme@newtoy kpahole-2.6]$ pahole --cacheline 32 /tmp/scsi.o.before scsi_target
-/* include/scsi/scsi_device.h:86 */
-struct scsi_target {
-        struct scsi_device *       starget_sdev_user;    /*     0     4 */
-        struct list_head           siblings;             /*     4     8 */
-        struct list_head           devices;              /*    12     8 */
-        struct device              dev;                  /*    20   300 */
-        /* --- cacheline 10 boundary (320 bytes) --- */
-        unsigned int               reap_ref;             /*   320     4 */
-        unsigned int               channel;              /*   324     4 */
-        unsigned int               id;                   /*   328     4 */
-        unsigned int               create:1;             /*   332     4 */
+> "Generally" does not mean you can just ignore it and hope the C compiler
+> does the right thing. Nor is it enough for just SOME of the architectures
+> to have the properties you require.
 
-        /* XXX 31 bits hole, try to pack */
+If it's an order of magnitude larger than the common case, then yes
+you can.  Do we worry about writing functions so big that they
+exceed branch displacement limits?
 
-        unsigned int               pdt_1f_for_no_lun;    /*   336     4 */
-        char                       scsi_level;           /*   340     1 */
+That's detected at compile time, but LL/SC pair distance is
+in principle straightforward to measure, too.
 
-        /* XXX 3 bytes hole, try to pack */
+> Ralf tells us that MIPS cannot execute any loads, stores, or sync
+> instructions on MIPS. Ivan says no loads, stores, taken branches etc
+> on Alpha.
+>
+> MIPS also has a limit of 2048 bytes between the ll and sc.
 
-        struct execute_work        ew;                   /*   344    16 */
-        /* --- cacheline 11 boundary (352 bytes) was 8 bytes ago --- */
-        enum scsi_target_state     state;                /*   360     4 */
-        void *                     hostdata;             /*   364     4 */
-        long unsigned int          starget_data[0];      /*   368     0 */
-}; /* size: 368, cachelines: 12 */
-   /* sum members: 365, holes: 1, sum holes: 3 */
-   /* bit holes: 1, sum bit holes: 31 bits */
-   /* last cacheline: 16 bytes */
+I agree with you about the Alpha, and that will have to be directly
+coded.  But on MIPS, the R4000 manual (2nd ed, covering the R4400
+as well) says
 
-After:
+> The link is broken in the following circumstances:
+>    ·   if any external request (invalidate, snoop, or intervention)
+>        changes the state of the line containing the lock variable to
+>        invalid
+>    ·   upon completion of an ERET (return from exception)
+>        instruction
+>    ·   an external update to the cache line containing the lock
+>        variable
 
-[acme@newtoy kpahole-2.6]$ pahole --cacheline 32 drivers/scsi/scsi.o scsi_target
-/* include/scsi/scsi_device.h:86 */
-struct scsi_target {
-        struct scsi_device *       starget_sdev_user;    /*     0     4 */
-        struct list_head           siblings;             /*     4     8 */
-        struct list_head           devices;              /*    12     8 */
-        struct device              dev;                  /*    20   300 */
-        /* --- cacheline 10 boundary (320 bytes) --- */
-        unsigned int               reap_ref;             /*   320     4 */
-        unsigned int               channel;              /*   324     4 */
-        unsigned int               id;                   /*   328     4 */
-        char                       scsi_level;           /*   332     1 */
-        unsigned char              create:1;             /*   333     1 */
+Are you absolutely sure of what you are reporting about MIPS?
+Have you got a source?  I've been checking the most authoritative
+references I can find and can't find mention of such a restriction.
+(The R8000 User's Manual doesn't appear to mention LL/SC at all, sigh.)
 
-        /* XXX 7 bits hole, try to pack */
-        /* XXX 2 bytes hole, try to pack */
+One thing I DID find is the "R4000MC Errata, Processor Revision 2.2 and
+3.0", which documents several LL/SC bugs (Numbers 10, 12, 13) and #12
+in particular requires extremely careful coding in the workaround.
 
-        unsigned int               pdt_1f_for_no_lun;    /*   336     4 */
-        struct execute_work        ew;                   /*   340    16 */
-        /* --- cacheline 11 boundary (352 bytes) was 4 bytes ago --- */
-        enum scsi_target_state     state;                /*   356     4 */
-        void *                     hostdata;             /*   360     4 */
-        long unsigned int          starget_data[0];      /*   364     0 */
-}; /* size: 364, cachelines: 12 */
-   /* sum members: 362, holes: 1, sum holes: 2 */
-   /* bit holes: 1, sum bit holes: 7 bits */
-   /* last cacheline: 12 bytes */
+That may completely scuttle the idea of using generic LL/SC functions.
 
-[acme@newtoy kpahole-2.6]$ codiff -V /tmp/scsi.o.before drivers/scsi/scsi.o
-drivers/scsi/scsi.c:
-  struct scsi_target |   -4
-    create:1;
-     from: unsigned int          /*   332(31)    4(1) */
-     to:   unsigned char         /*   333(7)     1(1) */
-    scsi_level;
-     from: char                  /*   340(0)     1(0) */
-     to:   char                  /*   332(0)     1(0) */
-<SNIP offset changes>
- 1 struct changed
+> So you almost definitely cannot have gcc generated assembly between. I
+> think we agree on that much.
 
-Signed-off-by: Arnaldo Carvalho de Melo <acme@mandriva.com>
+We don't.  I think that if that restriction applies, it's worthless,
+because you can't achieve a net reduction in arch-dependent code.
 
----
+GCC specifically says that if you want a 100% guarantee of no reloads
+between asm instructions, place them in a single asm() statement.
 
- scsi_device.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> In truth, however, realizing that we're only talking about three
+> architectures (wo of which have 32 & 64-bit versions) it's probably not
+> worth it.  If there were five, it would probably be a savings, but 3x
+> code duplication of some small, well-defined primitives is a fair price
+> to pay for avoiding another layer of abstraction (a.k.a. obfuscation).
+> 
+> And it lets you optimize them better.
+> 
+> I apologize for not having counted them before.
 
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index ebf31b1..ab245fc 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -175,11 +175,11 @@ struct scsi_target {
- 	unsigned int		channel;
- 	unsigned int		id; /* target id ... replace
- 				     * scsi_device.id eventually */
--	unsigned int		create:1; /* signal that it needs to be added */
-+	char			scsi_level;
-+	unsigned char		create:1; /* signal that it needs to be added */
- 	unsigned int		pdt_1f_for_no_lun;	/* PDT = 0x1f */
- 						/* means no lun present */
- 
--	char			scsi_level;
- 	struct execute_work	ew;
- 	enum scsi_target_state	state;
- 	void 			*hostdata; /* available to low-level driver */
+> I also disagree that the architectures don't matter. ARM and PPC are
+> pretty important, and I believe Linux on MIPS is growing too.
+
+Er... I definitely don't see where I said, and I don't even see where
+I implied - or even hinted - that MIPS, ARM and PPC "don't matter."
+I use Linux on ARM daily.
+
+I just thought that writing a nearly-optimal generic primitive is about
+3x harder than writing a single-architecture one, so even for primitives
+yet to be written, its just as easy to do it fully arch-specific.
+
+Plus you have corner cases like the R5900 that don't have LL/SC at all.
+(Can it be used multiprocessor?)
+
+> One proposal that I could buy is an atomic_ll/sc API, which mapped
+> to a cmpxchg emulation even on those llsc architectures which had
+> any sort of restriction whatsoever. This could be used in regular C
+> code (eg. you indicate powerpc might be able to do this). But it may
+> also help cmpxchg architectures optimise their code, because the
+> load really wants to be a "load with intent to store" -- and is
+> IMO the biggest suboptimal aspect of current atomic_cmpxchg.
+
+Or, possibly, an interface like
+
+do {
+	oldvalue = ll(addr)
+	newvalue = ... oldvalue ...
+} while (!sc(addr, oldvalue, newvalue))
+
+Where sc() could be a cmpxchg.  But, more importantly, if the
+architecture did implement LL/SC, it could be a "try plain SC; if
+that fails try CMPXCHG built out of LL/SC; if that fails, loop"
+
+Actually, I'd want something a bit more integrated, that could
+have the option of fetching the new oldvalue as part of the sc()
+implementation if that failed.  Something like
+
+	DO_ATOMIC(addr, oldvalue) {
+		... code ...
+	} UNTIL_ATOMIC(addr, oldvalue, newvalue);
+
+or perhaps, to encourage short code sections,
+	DO_ATOMIC(addr, oldvalue, code, newvalue);
+
+The problem is, that's already not optimal for spinlocks, where
+you want to use a non-linked load while spinning.

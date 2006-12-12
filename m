@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964837AbWLMAcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964825AbWLMAcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWLMAcb (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWLMAcb
+	id S964825AbWLMAcd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWLMAcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:32:31 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:34977 "EHLO lxorguk.ukuu.org.uk"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964831AbWLMAca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 19:32:32 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:29402 "EHLO
+	pd4mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964825AbWLMAca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Dec 2006 19:32:30 -0500
-Date: Wed, 13 Dec 2006 00:40:30 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Message-ID: <20061213004030.599907a2@localhost.localdomain>
-In-Reply-To: <200612130148.34539.sshtylyov@ru.mvista.com>
-References: <200612130148.34539.sshtylyov@ru.mvista.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Dec 2006 17:31:08 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Support 2.4 modules features in 2.6
+In-reply-to: <fa.eHbXg8xrK/U8MrbcE6JMfwHCb1k@ifi.uio.no>
+To: Jaswinder Singh <jaswinderrajput@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Message-id: <457F3BBC.6020301@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.49G5lweS8py4hisexsfl1zRqB3Y@ifi.uio.no>
+ <fa.o58YYFf0KmJCYaGfzWFQYvWvWqw@ifi.uio.no>
+ <fa.LL4m3y1d6ywMNgGlDl6zW5gCaRA@ifi.uio.no>
+ <fa.uN/dXUaQFfxu97P18c1QPZodm1A@ifi.uio.no>
+ <fa.eHbXg8xrK/U8MrbcE6JMfwHCb1k@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006 01:48:34 +0300
-Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
+Jaswinder Singh wrote:
+>> you only need include/* for this in 2.6
+>>
+>> you can't do this at all with 2.4 kernels, it needs the whole lot.
+>>
+>> (in both cases the code and headers are needed so that your module can
+>> use the data structures and compile in the kernel code you select to use
+>> from inlines)
+>> >
+>> >
+> 
+> Really!!
+> 
+> This is my Makefile :-
+> obj-m += hello-1.o
+> 
+> all:
+>     make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+> 
+> clean:
+>     make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+> 
+> 
+> Now do one thing:-
+> # mv /lib/modules/$(uname -r)/build /lib/modules/$(uname -r)/build0
+> 
+> now make it.
 
-> Behold!  This is the driver for the Toshiba TC86C001 GOKU-S IDE controller,
-> completely reworked from the original brain-damaged Toshiba's 2.4 version.
+Of course you can't, there are no kernel header files left.
 
-Actually un-nack the PCI quirk. While it is true the native mode is
-relevant because of the way the BAR values work we know legacy bar values
-are never "& 8" so the test is sufficient [but should be commented about
-the assumption]
+> 
+> If you want point to your header files in /usr/include and then try to 
+> build.
 
-Alan
+Those are userspace header files, not for building modules. They may 
+have worked in certain setups for doing this in the past but this was 
+never recommended. Current distributions no longer include any 
+kernel-internal headers in /usr/include anymore.
+
+You do need at least a partial kernel source tree to build modules against.
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

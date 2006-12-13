@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932518AbWLMC6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932538AbWLMDpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWLMC6x (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 21:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWLMC6x
+	id S932538AbWLMDpv (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 22:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWLMDpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 21:58:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60737 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932518AbWLMC6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 21:58:52 -0500
-X-Greylist: delayed 1628 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 21:58:52 EST
-Date: Tue, 12 Dec 2006 20:31:32 -0600
-From: Erik Jacobson <erikj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Erik Jacobson <erikj@sgi.com>, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net, matthltc@us.ibm.com
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-Message-ID: <20061213023132.GA29897@sgi.com>
-References: <20061207232213.GA29340@sgi.com> <1165881166.24721.71.camel@localhost.localdomain> <20061212175411.GA20407@sgi.com> <20061212164504.d6f8a3cb.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 12 Dec 2006 22:45:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:24149 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932538AbWLMDpu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 22:45:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=gI/Tlhr6lArSA168Uj6H+Us6L/gfC64mJsXcQAxRJ0M/H5VNrSbjWq2XF9iiZIKYMsVR029lDjgnj2Li2LMPTNI1gMWy8qfS3jxnzKDLvdEGXhDnU7iZspiwmiECeN1y7EZW6tbUfrGUrcR3vDdPihTuSSqCHIwOf8C2ilykpPc=
+Date: Wed, 13 Dec 2006 09:15:38 +0530
+From: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
+To: Jay.Estabrook@hp.com, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Alpha increase PERCPU_ENOUGH_ROOM
+Message-ID: <20061213034538.GA6434@kvaneesh-laptop.asiapacific.hpqcorp.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061212164504.d6f8a3cb.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But it's rather a lot of churn for such a thing.  Did you consider simply using
-> put_unaligned() against the specific offending field(s)?
+Sending it again marking Jay Estabrook
 
-Hi.  This was not considered.
+-aneesh 
 
-I wanted to give you some quick feedback, so I tried your suggestion in the
-fork path.  It seemed to fix the problem as well.
+Module loading on Alpha was failing with error
+"Could not allocate 8 bytes percpu data".
 
-put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
+Looking at dmesg we have the below error
+"No per-cpu room for modules."
 
-Is what I tried.
+Increase the PERCPU_ENOUGH_ROOM in a similar way as x86_64
 
-I'm on vacation tomorrow but on Thursday, if you like, I can whip up
-a patch that does this and test it more thoroughly.  Is this the
-direction you prefer?  What I did just now was really quick and dirty
-to see if it has a shot or not but it looks like put_unaligned will
-fix it too.
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@gmail.com>
+---
+ include/asm-alpha/percpu.h |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
+diff --git a/include/asm-alpha/percpu.h b/include/asm-alpha/percpu.h
+index 48348fe..651ebb1 100644
+--- a/include/asm-alpha/percpu.h
++++ b/include/asm-alpha/percpu.h
+@@ -1,6 +1,20 @@
+ #ifndef __ALPHA_PERCPU_H
+ #define __ALPHA_PERCPU_H
+ 
++/*
++ * Increase the per cpu area for Alpha so that
++ * modules using percpu area can load.
++ */
++#ifdef CONFIG_MODULES
++# define PERCPU_MODULE_RESERVE 8192
++#else
++# define PERCPU_MODULE_RESERVE 0
++#endif
++
++#define PERCPU_ENOUGH_ROOM \
++	(ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES) + \
++	 PERCPU_MODULE_RESERVE)
++
+ #include <asm-generic/percpu.h>
+ 
+ #endif /* __ALPHA_PERCPU_H */
 -- 
-Erik Jacobson - Linux System Software - SGI - Eagan, Minnesota
+1.4.4.2.gdb98-dirty
+

@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964980AbWLMN4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964977AbWLMN6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbWLMN4P (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 08:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWLMN4P
+	id S964977AbWLMN6p (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 08:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWLMN6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 08:56:15 -0500
-Received: from pat.uio.no ([129.240.10.15]:46685 "EHLO pat.uio.no"
+	Wed, 13 Dec 2006 08:58:45 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:39801 "EHLO scrub.xs4all.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964975AbWLMN4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 08:56:14 -0500
-Subject: Re: Status of buffered write path (deadlock fixes)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Staubach <staubach@redhat.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@google.com>
-In-Reply-To: <458004D6.7050406@redhat.com>
-References: <45751712.80301@yahoo.com.au>
-	 <20061207195518.GG4497@ca-server1.us.oracle.com>
-	 <4578DBCA.30604@yahoo.com.au>
-	 <20061208234852.GI4497@ca-server1.us.oracle.com>
-	 <457D20AE.6040107@yahoo.com.au> <457D7EBA.7070005@yahoo.com.au>
-	 <20061212223109.GG6831@ca-server1.us.oracle.com>
-	 <457F4EEE.9000601@yahoo.com.au>
-	 <1165974458.5695.17.camel@lade.trondhjem.org>
-	 <457F5DD8.3090909@yahoo.com.au>
-	 <1165977064.5695.38.camel@lade.trondhjem.org> <458004D6.7050406@redhat.com>
-Content-Type: text/plain
-Date: Wed, 13 Dec 2006 08:55:08 -0500
-Message-Id: <1166018108.5695.39.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.383, required 12,
-	autolearn=disabled, AWL 1.48, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	id S964977AbWLMN6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 08:58:44 -0500
+Date: Wed, 13 Dec 2006 14:47:52 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] HZ free ntp
+In-Reply-To: <1165956021.20229.10.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612131338420.1867@scrub.home>
+References: <20061204204024.2401148d.akpm@osdl.org> 
+ <Pine.LNX.4.64.0612060348150.1868@scrub.home>  <20061205203013.7073cb38.akpm@osdl.org>
+  <1165393929.24604.222.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0612061334230.1867@scrub.home>  <20061206131155.GA8558@elte.hu>
+  <Pine.LNX.4.64.0612061422190.1867@scrub.home> <1165956021.20229.10.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 08:49 -0500, Peter Staubach wrote:
-> Trond Myklebust wrote:
-> > On Wed, 2006-12-13 at 12:56 +1100, Nick Piggin wrote:
-> >   
-> >> Note that these pages should be *really* rare. Definitely even for normal
-> >> filesystems I think RMW would use too much bandwidth if it were required
-> >> for any significant number of writes.
-> >>     
-> >
-> > If file "foo" exists on the server, and contains data, then something
-> > like
-> >
-> > fd = open("foo", O_WRONLY);
-> > write(fd, "1", 1);
-> >
-> > should never need to trigger a read. That's a fairly common workload
-> > when you think about it (happens all the time in apps that do random
-> > write).
-> 
-> I have to admit that I've only been paying attention with one eye, but
-> why doesn't this require a read?  If "foo" is non-zero in size, then
-> how does the client determine how much data in the buffer to write to
-> the server?
+Hi,
 
-That is what the 'struct nfs_page' does. Whenever possible (i.e.
-whenever the VM uses prepare_write()/commit_write()), we use that to
-track the exact area of the page that was dirtied. That means that we
-don't need to care what is on the rest of the page, or whether or not
-the page was originally uptodate since we will only flush out the area
-of the page that contains data.
+On Tue, 12 Dec 2006, john stultz wrote:
 
-> Isn't RMW required for any i/o which is either not buffer aligned or
-> a multiple of the buffer size?
+> Basically INTERVAL_LENGTH_NSEC defines the NTP interval length that the
+> time code will use to accumulate with. In this patch I've pushed it out
+> to a full second, but it could be set via config (NSEC_PER_SEC/HZ for
+> regular systems, something larger for systems using dynticks).
 
-Nope.
+Why do you want to use such an interval? This makes everything only more 
+complicated.
+The largest possible interval is freq cycles (or 1 second without 
+adjustments). That is the base interval and without redesigning NTP we 
+can't change that. This base interval can be subdivided into smaller
+intervals for incremental updates.
+You cannot choose arbitrary intervals otherwise you get other problems, 
+e.g. with your patch time_offset handling is broken.
 
-Cheers,
-  Trond
+> +	/* calculate the length of one NTP adjusted second */
+> +	second_length = (u64)(tick_usec * NSEC_PER_USEC * USER_HZ);
+> +	second_length += (s64)CLOCK_TICK_ADJUST;
+> +	adj_length = (s64)time_freq;
+> +
+> +	/* calculate tick length @ HZ*/
+> +	tick_length = (second_length << TICK_LENGTH_SHIFT)
+> +			+ (adj_length << (TICK_LENGTH_SHIFT - SHIFT_NSEC));
+> +	do_div(tick_length, HZ);
+> +	tick_nsec = tick_length >> TICK_LENGTH_SHIFT;
+> +
+> +
+> +	/* calculate interval_length_base */
+> +	/* XXX - this is broken up to avoid 64bit overlfows */
+> +	interval_length_base = second_length * INTERVAL_LENGTH_NSEC;
+> +	interval_length_base <<= 2;
+> +	do_div(interval_length_base, NSEC_PER_SEC);
+> +	interval_length_base <<= TICK_LENGTH_SHIFT-2;
 
+You don't have to introduce anything new, it's tick_length that changes 
+and HZ that becomes a variable in this function.
+
+bye, Roman

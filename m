@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751716AbWLMWsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751782AbWLMWw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751716AbWLMWsW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 17:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWLMWsW
+	id S1751782AbWLMWw7 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 17:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWLMWw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 17:48:22 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:37291 "EHLO
+	Wed, 13 Dec 2006 17:52:59 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:46014 "EHLO
 	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751716AbWLMWsV (ORCPT
+	with ESMTP id S1751782AbWLMWw6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 17:48:21 -0500
-Message-ID: <4580827F.8080703@zytor.com>
-Date: Wed, 13 Dec 2006 14:45:19 -0800
+	Wed, 13 Dec 2006 17:52:58 -0500
+Message-ID: <45807846.3010705@zytor.com>
+Date: Wed, 13 Dec 2006 14:01:42 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Rudolf Marek <r.marek@assembler.cz>, norsk5@xmission.com,
-       lkml <linux-kernel@vger.kernel.org>,
+To: Rudolf Marek <r.marek@assembler.cz>
+CC: norsk5@xmission.com, lkml <linux-kernel@vger.kernel.org>,
        LM Sensors <lm-sensors@lm-sensors.org>,
        bluesmoke-devel@lists.sourceforge.net
 Subject: Re: [RFC] new MSR r/w functions per CPU
-References: <45807469.6040609@assembler.cz> <20061213221026.GF2418@redhat.com> <45807C88.6060807@zytor.com> <20061213222616.GJ2418@redhat.com>
-In-Reply-To: <20061213222616.GJ2418@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <45807469.6040609@assembler.cz>
+In-Reply-To: <45807469.6040609@assembler.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Rudolf Marek wrote:
+> Hello all,
 > 
-> Can you explain this a little further? I'm fairly certain
-> there are places in the kernel already doing this (or similar).
-> In fact, I cut-n-pasted most of the above from similar code in the
-> powernow-k8 driver.  What exactly can we deadlock on?
+> For my new coretemp driver[1], I need to execute the rdmsr on particular 
+> processor.  There is no such "global" function for that in the kernel so 
+> far.
+> 
+> The per CPU msr_read and msr_write are used in following drivers:
+> 
+> msr.c (it is static there now)
+> k8-edac.c  (duplicated right now -> driver in -mm)
+> coretemp.c (my new Core temperature sensor -> driver [1])
+> 
+> Question is how make an access to that functions. Enclosed patch does 
+> simple EXPORT_SYMBOL_GPL for them, but then both drivers (k8-edac.c and 
+> coretemp.c) would depend on the MSR driver. The ultimate solution would 
+> be to move this type
+> of function to separate module, but perhaps this is just bit overkill?
+> 
+> Any ideas what would be the best solution?
 > 
 
-I wanted to change the MSR driver to do the above, and Alan Cox objected 
-that with realtime priority routines and/or user set affinity, that code 
-might never be executed, so I retained the IPI-based code (which 
-executes at the target processor at interrupt priority.)
+For now I think you could just export these and allow the dependency. 
+I've been meaning to rewrite the MSR and CPUID drivers to use a common 
+core, which would also allow invoking nnostandard CPUID and msrs which 
+need the entire register file to be set; that should probably be 
+included in that.
+
+In fact, I've made that change something like four times (it seems to be 
+an airplane project that I never get around to submitting), so I should 
+actually get it finished and sent in.
 
 	-hpa

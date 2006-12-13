@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965088AbWLMUGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965142AbWLMUHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbWLMUGf (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLMUGf
+	id S965142AbWLMUHM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:07:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbWLMUHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:06:35 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52425 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965088AbWLMUGe (ORCPT
+	Wed, 13 Dec 2006 15:07:11 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:50106 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965136AbWLMUHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:06:34 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add allowed_affinity to the irq_desc to make it possible to have restricted irqs
-References: <1166018020.27217.805.camel@laptopd505.fenrus.org>
-	<m1lklbport.fsf@ebiederm.dsl.xmission.com>
-	<20061213194332.GA29185@elte.hu>
-Date: Wed, 13 Dec 2006 13:06:12 -0700
-In-Reply-To: <20061213194332.GA29185@elte.hu> (Ingo Molnar's message of "Wed,
-	13 Dec 2006 20:43:32 +0100")
-Message-ID: <m1ejr3pnm3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Wed, 13 Dec 2006 15:07:07 -0500
+Message-ID: <45805D54.3070809@us.ibm.com>
+Date: Wed, 13 Dec 2006 12:06:44 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Patrick Mansfield <patmans@us.ibm.com>
+CC: Jeff Garzik <jeff@garzik.org>, linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
+References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>	<4574B004.6030606@us.ibm.com> <20061213185627.GA21535@us.ibm.com>
+In-Reply-To: <20061213185627.GA21535@us.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Patrick Mansfield wrote:
+> On Mon, Dec 04, 2006 at 03:32:20PM -0800, Darrick J. Wong wrote:
+>> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
+>> response to a REPORT LUNS packet.  If this happens to an ATAPI device
+>> that is attached to a SAS controller (this is the case with sas_ata),
+>> the device does not load because SCSI won't touch a "SCSI device"
+>> that won't report its LUNs.  Since most ATAPI devices don't support
+>> multiple LUNs anyway, we might as well fake a response like we do for
+>> ATA devices.
+> 
+> If the REPORT LUNS fails, we should fall back to a sequential scan.
+> 
+> Is (or why isn't) the error propagated back to scsi?
 
-> * Eric W. Biederman <ebiederm@xmission.com> wrote:
->
->> In addition the cases I can think of allowed_affinity is the wrong 
->> name.  suggested_affinity sounds like what you are trying to implement 
->> and when it is merely a suggestion and not a hard limit it doesn't 
->> make sense to export like this.
->
-> well, there are interrupts that must be tied to a single CPU and must 
-> never be moved away. For example per-CPU clock-events-source interrupts 
-> are such. So allowed_affinity very much exists.
+I believe the error is reported back to SCSI, which attempts to follow
+up with TEST UNIT READY.  Unfortunately, for some reason the device then
+gets dropped.  libata normally calls __scsi_add_device with lun=0, but
+SAS calls scsi_scan_target with lun=SCAN_WILD_CARD, which is why SCSI
+sends REPORT LUNs in the first place.
 
-Although in that case since it is a single cpu there is a much
-more elegant implementation.  We don't need a full cpumask_t to
-describe it.
+As an alternative I suppose we could detect ATA devices in sas_rphy_add
+and change that SCAN_WILD_CARD to "0".
 
-> also there might be hardware that can only route a given IRQ to a subset 
-> of CPUs. While setting set_affinity allows the irqbalance-daemon to 
-> 'probe' this mask, it's a far from optimal API.
-
-I agree, I am just arguing that adding another awkward interface to
-the current situation does not really make the situation better, and
-it increases our support burden.
-
-For a bunch of this it is arguable that the way to go is simply to
-parse the irq type in /proc/interrupts.  All of the really weird cases
-will have a distinct type there.  This certainly captures the MSI-X
-case.  There is still a question of how to handle the NUMA case but...
-
-Eric
+--D

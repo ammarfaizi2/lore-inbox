@@ -1,96 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932533AbWLMR4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964896AbWLMR4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWLMR4Z (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 12:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWLMR4Z
+	id S964896AbWLMR4b (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWLMR4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 12:56:25 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46123 "EHLO mx2.mail.elte.hu"
+	Wed, 13 Dec 2006 12:56:31 -0500
+Received: from sbcs.sunysb.edu ([130.245.1.15]:56785 "EHLO sbcs.cs.sunysb.edu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932533AbWLMR4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 12:56:24 -0500
-Date: Wed, 13 Dec 2006 18:54:05 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>,
-       Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH 2.6.19-rt12][RFC] - futex_requeue_pi implementation (requeue from futex1 to PI-futex2)
-Message-ID: <20061213175405.GB32441@elte.hu>
-References: <45801FA4.8040403@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45801FA4.8040403@bull.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S964896AbWLMR4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 12:56:30 -0500
+X-Greylist: delayed 524 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 12:56:30 EST
+Date: Wed, 13 Dec 2006 12:47:42 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+cc: unionfs@filer.fsl.cs.sunysb.edu, fistgen@filer.fsl.cs.sunysb.edu
+Subject: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+Message-ID: <Pine.GSO.4.53.0612122217360.22195@compserv1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We have designed a new stackable file system that we called RAIF:
+Redundant Array of Independent Filesystems.
 
-* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
+many different disk-based, memory, network, and distributed file systems.
+RAIF can use the stable and maintained code of the other file systems and
+thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
+data or store it with parity on any subset of the lower file systems.  RAIF
+has three main advantages over traditional driver-level RAID systems:
 
-> With the introduction of the PI-futex (used for the PI-pthread_mutex 
-> in the glibc), the current futex_requeue optimization (*) can not be 
-> used any more if the pthread_mutex used with the pthread-condvar is a 
-> PI-mutex.
-> 
-> (*) this optimization is used in pthread_cond_broadcast.
-> 
-> To use this optimization with PI-mutex, we need a function that
-> re-queues some threads from a normal futex  to a PI-futex (see why in
-> this discussion:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=115020355126851&w=2 )
-> 
-> Here is a proposal of an implementation of futex_requeue_pi.
-> (Only the 32-bits version has been implemented for now)
+1. RAIF can be mounted over any set of file systems.  This allows users to
+   create many more useful configurations.  For example, it is possible to
+   replicate the data on the local and remote disks, and stripe the data on
+   the local hard drives and keep the parity (or even ECC to tolerate
+   multiple failures) on the remote server(s).  In the latter case, all the
+   read requests will be satisfied from the fast local disks and no local
+   disk space will be spent on parity.
 
-the kernel patch looks straightforward and desirable to me. (modulo some 
-minor style-nitpicking observations below.) I'd suggest to implement the 
-64-bit and compat versions too, unless Jakub can see a hole in the 
-concept or in the implementation.
+2. RAIF is a file system and thus has access to the meta-data.  This allows
+   it to store different files differently.  For example, RAIF can replicate
+   important files (*.c, *.doc, etc) on all the lower file systems and
+   stripe the multimedia files with parity at the same time.
 
-> -#define FUTEX_TID_MASK		0x3fffffff
-> +#define FUTEX_TID_MASK		0x1fffffff
+3. It is sometimes more convenient to work with file systems than devices as
+   the lower storage.  For example, it is possible to mount RAIF over a
+   directory on an existing file system.  The data is represented as files
+   on the lower file systems.  Therefore, any lower file system is an exact
+   replica of the RAIF file system in the case of replication.  It also
+   makes it easy to backup the data on the lower file systems using existing
+   tools.
 
-ABI change but tthis should be fine i think ... right now we dont let 
-PIDs go above 0xffff anyway. It might make sense to lower it to 
-0x0fffffff, to have one more bit in that word ... just in case.
+We have performed some benchmarking on a 3GHz PC with 2GB of RAM and U320
+SCSI disks.  Compared to the Linux RAID driver, RAIF has overheads of about
+20-25% under the Postmark v1.5 benchmark in case of striping and
+replication.  In case of RAID4 and RAID5-like configurations, RAIF performed
+about two times *better* than software RAID and even better than an Adaptec
+2120S RAID5 controller.  This is because RAIF is located above file system
+caches and can cache parity as normal data when needed.  We have more
+performance details in a technical report, if anyone is interested.
 
-> +	/* This waiter is used in case of requeue from a
-> +	   normal futex to a PI-futex */
+We started the project in April 2004.  Right now I am using it as my
+/home/kolya file system at home.  We believe that at this stage RAIF is
+mature enough for others to try it out.  The code is available at:
 
-please use proper comment style.
+	<ftp://ftp.fsl.cs.sunysb.edu/pub/raif/>
 
-> +	if (key->both.offset & 1)
-> +		/* shared mapping */
-> +		uaddr = (void*)((key->shared.pgoff << PAGE_SHIFT)
-> +				+ key->shared.offset - 1);
-> +	else
-> +		/* private mapping */
-> +		uaddr = (void*)(key->private.address + key->private.offset);
+The code requires no kernel patches and compiles for a wide range of kernels
+as a module.  The latest kernel we used it for is 2.6.13 and we are in the
+process of porting it to 2.6.19.
 
-such multi-line branches need curly braces.
+We will be happy to hear your back.
 
-> +static inline int lookup_pi_state_for_requeue(u32 __user *uaddr,
-> +					      struct futex_hash_bucket *hb,
-> +					      union futex_key *key,
-> +					      struct futex_pi_state 
-> **pi_state)
-
-patch line wrap problem? Also, if the function name is so long, you can 
-do:
-
-static inline int
-lookup_pi_state_for_requeue(u32 __user *uaddr, struct futex_hash_bucket *hb,
-
-	Ingo
+Nikolai Joukov on behalf of the RAIF team.
+----------------------------------
+Filesystems and Storage Laboratory
+Stony Brook University

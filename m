@@ -1,91 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932631AbWLMJYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932628AbWLMJdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbWLMJYG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 04:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLMJYG
+	id S932628AbWLMJdR (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 04:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWLMJdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 04:24:06 -0500
-Received: from zone4.gcu.info ([217.195.17.234]:51211 "EHLO
-	zone4.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932635AbWLMJYF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 04:24:05 -0500
-Date: Wed, 13 Dec 2006 09:53:32 +0100 (CET)
-To: torvalds@osdl.org
-Subject: Re: [GIT PULL] i2c updates for 2.6.20
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <UtoUGJup.1166000012.4391950.khali@localhost>
-In-Reply-To: <Pine.LNX.4.64.0612120959110.3535@woody.osdl.org>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "LKML" <linux-kernel@vger.kernel.org>
+	Wed, 13 Dec 2006 04:33:17 -0500
+Received: from mail.gmx.net ([213.165.64.20]:33137 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S932628AbWLMJdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 04:33:16 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 04:33:15 EST
+X-Authenticated: #222744
+From: "Dieter Ferdinand" <dieter.ferdinand@gmx.de>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 13 Dec 2006 10:26:38 +1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: server don't accept ip-connections from linux
+Reply-to: Dieter.Ferdinand@gmx.de
+Message-ID: <457FD55E.13765.202391D@dieter.ferdinand.gmx.de>
+X-mailer: Pegasus Mail for Windows (4.31, DE v4.31 R1)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
+i have a big problem: some servers send a rst-packet or don't answer if i 
+want to open a connection with them.
 
-Linus,
+this happens with the web-server with ip 15.200.6.123 and my smc-
+barricade router/printserver.
 
-On 12/12/2006, Linus Torvalds wrote:
-> On Tue, 12 Dec 2006, Jean Delvare wrote:
-> > Please pull the i2c subsystem updates for Linux 2.6.20 from branch
-> > i2c-for-linus of repository git://jdelvare.pck.nerim.net/jdelvare-2.6
-> >
-> > There are 3 new i2c bus drivers, one old broken bus driver deleted, and a
-> > few cleanups and fixes in the i2c core and individual drivers.
-> >
-> > I'm not yet comfortable with git so please let me know if I did anything
-> > wrong.
->
-> Looks fine. Your "please pull" message hass some slight stylistic
-> problems, but the pull looks good, and matches what you claimed for it.
->
-> The stylistic problems are:
->
->  - please write the git repo address and branch name on alone the same
->    line so that I can't even by mistake pull from the wrong branch, and
->    so that a triple-click just selects the whole thing.
->
->    So the proper format is something along the lines of:
->
-> 	"Please pull from
->
-> 		git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
->
-> 	 to get these changes:"
->
->    so that I don't have to hunt-and-peck for the address and inevitably
->    get it wrong (actually, I've only gotten it wrong a few times, and
->    checking against the diffstat tells me when I get it wrong, but I'm
->    just a lot more comfortable when I don't have to "look for" the right
->    thing to pull, and double-check that I have the right branch-name)
+if i make a connection from windows or linux with kernel 2.2, it works, with 
+kernel 2.4, i get a rst or no answer and the connection is closed.
 
-OK, should be easy enough to fix :)
+i don't know, what is the difference of the tcp-packets from windows/kernel 
+2.2 and linux with kernel 2.4. but with kernel 2.4 i have trouble with some 
+servers.
 
->  - your diffstat was fine, but was line-wrapped for some reason, which
->    just makes it harder for me to line up and compare against what I
->    actually got when pulling (ie I just have two xterms open, one with
->    the mail-reader, one with my shell command line, and I visually compare
->    what I get with what I _should_ get, and then something as silly as
->    incorrectly wrapped lines just makes the thing look visually different,
->    which again just throws me for all the wrong reasons).
+i check the packets with an analyser and make some test. if i disable ecn 
+with "echo 0x0 > /proc/sys/net/ipv4/tcp_ecn" it works, with ecn enabled, it 
+don't work.
 
-Sorry about that, I'm currently working from a remote location so I have
-to rely on a webmail to post, and that webmail doesn't give me as much
-control as I'd like on formatting. I tried to shorten the long bars and
-hoped it wouldn't wrap, but it seems it did still. This should not
-happen otherwise (when I'm at home.) In the meantime, I will instruct
-diffstat to produce a 72-column output so that no wrapping can occur.
+goodby
 
-> But everything looks fine apart from those trivial details. Pulled and
-> pushed out,
+Schau auch einmal auf meine Homepage (http://go.to/dieter-ferdinand).
+Dort findest du Information zu Linux, Novell, Win95, WinNT, ...
 
-Great, thanks :) hwmon is coming next.
-
---
-Jean Delvare

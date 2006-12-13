@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964841AbWLMAhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964853AbWLMAtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWLMAhs (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWLMAhs
+	id S964853AbWLMAtA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWLMAtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:37:48 -0500
-Received: from cantor.suse.de ([195.135.220.2]:59478 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964841AbWLMAhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 19:37:47 -0500
-X-Greylist: delayed 3033 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 19:37:47 EST
-Date: Tue, 12 Dec 2006 15:46:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: gregkh@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: Revised [PATCH 1/2]: define inline for test of channel error state
-Message-ID: <20061212234655.GA28204@kroah.com>
-References: <20061212225559.GL4329@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212225559.GL4329@austin.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 12 Dec 2006 19:49:00 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:34404 "HELO mx0.towertech.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S964853AbWLMAs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 19:48:59 -0500
+Date: Wed, 13 Dec 2006 01:42:11 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [patch 2.6.19-git] rtc framework:  rtc_wkalrm.enabled reporting
+ updates
+Message-ID: <20061213014211.23bff424@inspiron>
+In-Reply-To: <200612121149.13913.david-b@pacbell.net>
+References: <200612121149.13913.david-b@pacbell.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 04:55:59PM -0600, Linas Vepstas wrote:
-> Greg,
-> 
-> Per discussion, a revised patch. Silly me, the value was already
-> initialized in drivers/pci/probe.c and I'd been dragging along
-> a prehistoric version of the if checks.
-> 
-> --linas
-> 
-> [PATCH 1/2]: define inline for test of pci channel error state
+On Tue, 12 Dec 2006 11:49:13 -0800
+David Brownell <david-b@pacbell.net> wrote:
 
-care to resend 2/2 also?  It's best to resend entire series, otherwise I
-have to go dig for it, and it will take me a while to remember to do
-that...
+> Fix a glitch in the procfs dumping of whether the alarm IRQ is enabled:
+> use the traditional name (from drivers/char/rtc.c and many other places)
+> of "alarm_IRQ", not "alrm_wakeup" (which didn't even match the efirtc
+> code, which originated that reporting API).
+> 
+> Also, update a few of the RTC drivers to stop providing that duplicate
+> status, and/or to expose it properly when reporting the alarm state.
+> We really don't want every RTC driver doing their own thing here...
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-thanks,
+ Acked-by: Alessandro Zummo <a.zummo@towertech.it>
 
-greg "my inbox looks like hell" k-h
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

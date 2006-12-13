@@ -1,73 +1,205 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751207AbWLMVxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751202AbWLMVye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWLMVxI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 16:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWLMVxH
+	id S1751202AbWLMVye (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 16:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWLMVye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 16:53:07 -0500
-Received: from dvhart.com ([64.146.134.43]:48355 "EHLO dvhart.com"
+	Wed, 13 Dec 2006 16:54:34 -0500
+Received: from ms.trustica.cz ([82.208.32.68]:47150 "EHLO ms.trustica.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751207AbWLMVxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 16:53:07 -0500
-X-Greylist: delayed 1214 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 16:53:06 EST
-Message-ID: <45807182.1060408@mbligh.org>
-Date: Wed, 13 Dec 2006 13:32:50 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	id S1751202AbWLMVyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 16:54:33 -0500
+X-Greylist: delayed 547 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 16:54:33 EST
+Message-ID: <45807469.6040609@assembler.cz>
+Date: Wed, 13 Dec 2006 22:45:13 +0100
+From: Rudolf Marek <r.marek@assembler.cz>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-Cc: "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org> <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com> <20061213210219.GA9410@suse.de>
-In-Reply-To: <20061213210219.GA9410@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: hpa@zytor.com, norsk5@xmission.com
+CC: lkml <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>,
+       bluesmoke-devel@lists.sourceforge.net
+Subject: [RFC] new MSR r/w functions per CPU
+Content-Type: multipart/mixed;
+ boundary="------------000601050702070101080303"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Dec 13, 2006 at 12:38:05PM -0800, Michael K. Edwards wrote:
->> Seriously, though, please please pretty please do not allow a facility
->> for "going through a simple interface to get accesses to irqs and
->> memory regions" into the mainline kernel, with or without toy ISA
->> examples.
-> 
-> Why?  X does it today :)
+This is a multi-part message in MIME format.
+--------------000601050702070101080303
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Umm ... and you're trying to use the current X model for a positive
-example of what we should be doing? that's ... interesting.
+Hello all,
 
->> Embedded systems integrators have enough trouble with chip vendors who
->> think that exposing the device registers to userspace constitutes a
->> "driver".
-> 
-> Yes, and because of this, they create binary only drivers today.  Lots
-> of them.  All over the place.  Doing crazy stupid crap in kernelspace.
+For my new coretemp driver[1], I need to execute the rdmsr on particular 
+processor.  There is no such "global" function for that in the kernel so far.
 
-So let's come out and ban binary modules, rather than pussyfooting
-around, if that's what we actually want to do.
+The per CPU msr_read and msr_write are used in following drivers:
 
-It comes down to a question of whether we have enough leverage to push
-them into doing what we want, or not - are we prepared to call their
-bluff?
+msr.c (it is static there now)
+k8-edac.c  (duplicated right now -> driver in -mm)
+coretemp.c (my new Core temperature sensor -> driver [1])
 
-The current half-assed solution of chipping slowly away at things by
-making them EXPORT_SYMBOL_GPL one by one makes little sense - would
-be better if we actually made an affirmative decision one way or the
-other. And yes, I know which side of that argument you'd fall on ;-)
+Question is how make an access to that functions. Enclosed patch does simple 
+EXPORT_SYMBOL_GPL for them, but then both drivers (k8-edac.c and coretemp.c) 
+would depend on the MSR driver. The ultimate solution would be to move this type
+of function to separate module, but perhaps this is just bit overkill?
 
-> Again, X does this today, and does does lots of other applications.
-> This is a way to do it in a sane manner, to keep people who want to do
-> floating point out of the kernel, and to make some embedded people much
-> happier to use Linux, gets them from being so mad at Linux because we
-> keep changing the internal apis, and makes me happier as they stop
-> violating my copyright by creating closed drivers in the kernel.
+Any ideas what would be the best solution?
 
-I don't see how this really any different than letting them create
-GPL shims to export data to binary modules (aside from all the legal
-wanking over minutae details, which really isn't that interesting).
+I would like to make sure that module refcounting is done in module.c, so I 
+don't need to handle this in my patch.
 
-M.
+Thanks,
+Rudolf
 
+Please CC me, I'm not on all lists.
+
+[1] http://lists.lm-sensors.org/pipermail/lm-sensors/2006-December/018420.html
+
+--------------000601050702070101080303
+Content-Type: text/x-patch;
+ name="merge-msr-funcs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="merge-msr-funcs.patch"
+
+Index: linux-2.6.19-rc2/arch/i386/kernel/msr.c
+===================================================================
+--- linux-2.6.19-rc2.orig/arch/i386/kernel/msr.c	2006-10-17 23:10:39.470361250 +0200
++++ linux-2.6.19-rc2/arch/i386/kernel/msr.c	2006-10-17 23:15:54.470047500 +0200
+@@ -90,7 +90,7 @@
+ 		cmd->err = rdmsr_eio(cmd->reg, &cmd->data[0], &cmd->data[1]);
+ }
+ 
+-static inline int do_wrmsr(int cpu, u32 reg, u32 eax, u32 edx)
++int msr_write(int cpu, u32 reg, u32 eax, u32 edx)
+ {
+ 	struct msr_command cmd;
+ 	int ret;
+@@ -111,7 +111,7 @@
+ 	return ret;
+ }
+ 
+-static inline int do_rdmsr(int cpu, u32 reg, u32 * eax, u32 * edx)
++int msr_read(int cpu, u32 reg, u32 * eax, u32 * edx)
+ {
+ 	struct msr_command cmd;
+ 	int ret;
+@@ -136,19 +136,22 @@
+ 
+ #else				/* ! CONFIG_SMP */
+ 
+-static inline int do_wrmsr(int cpu, u32 reg, u32 eax, u32 edx)
++int msr_write(int cpu, u32 reg, u32 eax, u32 edx)
+ {
+ 	return wrmsr_eio(reg, eax, edx);
+ }
+ 
+-static inline int do_rdmsr(int cpu, u32 reg, u32 *eax, u32 *edx)
++int msr_read(int cpu, u32 reg, u32 *eax, u32 *edx)
+ {
+ 	return rdmsr_eio(reg, eax, edx);
+ }
+ 
+ #endif				/* ! CONFIG_SMP */
+ 
+-static loff_t msr_seek(struct file *file, loff_t offset, int orig)
++EXPORT_SYMBOL_GPL(msr_write);
++EXPORT_SYMBOL_GPL(msr_read);
++
++static loff_t msr_fseek(struct file *file, loff_t offset, int orig)
+ {
+ 	loff_t ret = -EINVAL;
+ 
+@@ -166,7 +169,7 @@
+ 	return ret;
+ }
+ 
+-static ssize_t msr_read(struct file *file, char __user * buf,
++static ssize_t msr_fread(struct file *file, char __user * buf,
+ 			size_t count, loff_t * ppos)
+ {
+ 	u32 __user *tmp = (u32 __user *) buf;
+@@ -179,7 +182,7 @@
+ 		return -EINVAL;	/* Invalid chunk size */
+ 
+ 	for (; count; count -= 8) {
+-		err = do_rdmsr(cpu, reg, &data[0], &data[1]);
++		err = msr_read(cpu, reg, &data[0], &data[1]);
+ 		if (err)
+ 			return err;
+ 		if (copy_to_user(tmp, &data, 8))
+@@ -190,7 +193,7 @@
+ 	return ((char __user *)tmp) - buf;
+ }
+ 
+-static ssize_t msr_write(struct file *file, const char __user *buf,
++static ssize_t msr_fwrite(struct file *file, const char __user *buf,
+ 			 size_t count, loff_t *ppos)
+ {
+ 	const u32 __user *tmp = (const u32 __user *)buf;
+@@ -206,7 +209,7 @@
+ 	for (rv = 0; count; count -= 8) {
+ 		if (copy_from_user(&data, tmp, 8))
+ 			return -EFAULT;
+-		err = do_wrmsr(cpu, reg, data[0], data[1]);
++		err = msr_write(cpu, reg, data[0], data[1]);
+ 		if (err)
+ 			return err;
+ 		tmp += 2;
+@@ -215,7 +218,7 @@
+ 	return ((char __user *)tmp) - buf;
+ }
+ 
+-static int msr_open(struct inode *inode, struct file *file)
++static int msr_fopen(struct inode *inode, struct file *file)
+ {
+ 	unsigned int cpu = iminor(file->f_dentry->d_inode);
+ 	struct cpuinfo_x86 *c = &(cpu_data)[cpu];
+@@ -233,10 +236,10 @@
+  */
+ static struct file_operations msr_fops = {
+ 	.owner = THIS_MODULE,
+-	.llseek = msr_seek,
+-	.read = msr_read,
+-	.write = msr_write,
+-	.open = msr_open,
++	.llseek = msr_fseek,
++	.read = msr_fread,
++	.write = msr_fwrite,
++	.open = msr_fopen,
+ };
+ 
+ static int msr_class_device_create(int i)
+Index: linux-2.6.19-rc2/include/asm-i386/msr.h
+===================================================================
+--- linux-2.6.19-rc2.orig/include/asm-i386/msr.h	2006-10-17 23:10:39.446359750 +0200
++++ linux-2.6.19-rc2/include/asm-i386/msr.h	2006-10-17 23:10:52.211157500 +0200
+@@ -78,6 +78,9 @@
+ 			  : "=a" (low), "=d" (high) \
+ 			  : "c" (counter))
+ 
++int msr_write(int cpu, u32 reg, u32 eax, u32 edx);
++int msr_read(int cpu, u32 reg, u32 *eax, u32 *edx);
++
+ /* symbolic names for some interesting MSRs */
+ /* Intel defined MSRs. */
+ #define MSR_IA32_P5_MC_ADDR		0
+Index: linux-2.6.19-rc2/include/asm-x86_64/msr.h
+===================================================================
+--- linux-2.6.19-rc2.orig/include/asm-x86_64/msr.h	2006-10-17 23:10:39.382355750 +0200
++++ linux-2.6.19-rc2/include/asm-x86_64/msr.h	2006-10-17 23:18:29.347726750 +0200
+@@ -160,7 +160,8 @@
+ #define MSR_IA32_UCODE_WRITE		0x79
+ #define MSR_IA32_UCODE_REV		0x8b
+ 
+-
++int msr_write(int cpu, u32 reg, u32 eax, u32 edx);
++int msr_read(int cpu, u32 reg, u32 *eax, u32 *edx);
+ #endif
+ 
+ /* AMD/K8 specific MSRs */ 
+
+--------------000601050702070101080303--

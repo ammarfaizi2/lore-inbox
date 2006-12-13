@@ -1,124 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965057AbWLMRxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932533AbWLMR4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbWLMRxM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 12:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWLMRxM
+	id S932533AbWLMR4Z (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWLMR4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 12:53:12 -0500
-Received: from 87-194-8-8.bethere.co.uk ([87.194.8.8]:58332 "EHLO
-	aeryn.fluff.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965057AbWLMRxL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 12:53:11 -0500
-Date: Wed, 13 Dec 2006 17:51:43 +0000
-From: Ben Dooks <ben-fbdev@fluff.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ben Dooks <ben-fbdev@fluff.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: SM501: core (mfd) driver
-Message-ID: <20061213175143.GA11394@home.fluff.org>
-References: <20061213155134.GA10097@home.fluff.org> <1166030491.27217.844.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Wed, 13 Dec 2006 12:56:25 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46123 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932533AbWLMR4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 12:56:24 -0500
+Date: Wed, 13 Dec 2006 18:54:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>,
+       Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH 2.6.19-rt12][RFC] - futex_requeue_pi implementation (requeue from futex1 to PI-futex2)
+Message-ID: <20061213175405.GB32441@elte.hu>
+References: <45801FA4.8040403@bull.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1166030491.27217.844.camel@laptopd505.fenrus.org>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45801FA4.8040403@bull.net>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 06:21:31PM +0100, Arjan van de Ven wrote:
-> Hi,
+
+* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+
+> With the introduction of the PI-futex (used for the PI-pthread_mutex 
+> in the glibc), the current futex_requeue optimization (*) can not be 
+> used any more if the pthread_mutex used with the pthread-condvar is a 
+> PI-mutex.
 > 
-> some review comments below
-> > +
-> > +struct sm501_devdata {
-> > +	spinlock_t			 reg_lock;
-> > +	struct semaphore		 clock_lock;
+> (*) this optimization is used in pthread_cond_broadcast.
 > 
-> can't this be a mutex instead ?
-
-I wasn't sure what context the callers would be when I originally
-wrote this code. I will have a careful think of what this will be
-used in, and then have a look at changing it.
-
-> > +#ifdef CONFIG_DEBUG
-> > +static unsigned int misc_div[] = {
-> > +	[0]		= 1,
-> > +	[1]		= 2,
+> To use this optimization with PI-mutex, we need a function that
+> re-queues some threads from a normal futex  to a PI-futex (see why in
+> this discussion:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=115020355126851&w=2 )
 > 
-> can this be const ?
+> Here is a proposal of an implementation of futex_requeue_pi.
+> (Only the 32-bits version has been implemented for now)
 
-Yes, will change.
- 
-> > +
-> > +int sm501_unit_power(struct device *dev, unsigned int unit, unsigned int to)
-> > +{
-> > +	struct sm501_devdata *sm = dev_get_drvdata(dev);
-> > +	unsigned long mode = readl(sm->regs + SM501_POWER_MODE_CONTROL);
-> > +	unsigned long gate = readl(sm->regs + SM501_CURRENT_GATE);
-> > +	unsigned long clock = readl(sm->regs + SM501_CURRENT_CLOCK);
-> > +
-> > +	mode &= 3;		/* get current power mode */
-> > +
-> > +	down(&sm->clock_lock);
-> 
-> eh shouldn't you do the readl()'s inside the semaphore (or mutex) area?
+the kernel patch looks straightforward and desirable to me. (modulo some 
+minor style-nitpicking observations below.) I'd suggest to implement the 
+64-bit and compat versions too, unless Jakub can see a hole in the 
+concept or in the implementation.
 
-Thanks, mistake when fitting locking in, fixed for next release.
+> -#define FUTEX_TID_MASK		0x3fffffff
+> +#define FUTEX_TID_MASK		0x1fffffff
 
-> > +
-> > +	writel(mode, sm->regs + SM501_POWER_MODE_CONTROL);
-> > +
-> > +	dev_dbg(sm->dev, "gate %08lx, clock %08lx, mode %08lx\n",
-> > +		gate, clock, mode);
-> > +
-> > +	msleep(16);
-> 
-> you're missing a PCI posting flush here
-> (if you don't know what this is please ask)
+ABI change but tthis should be fine i think ... right now we dont let 
+PIDs go above 0xffff anyway. It might make sense to lower it to 
+0x0fffffff, to have one more bit in that word ... just in case.
 
-Is this a read from an device register to cause the PCI writes
-to happen? Would reading SM501_POWER_MODE_CONTROL be ok, or does
-it require a different register?
- 
-> > +	sm->dev = &dev->dev;
-> > +	sm->irq = dev->irq;
-> 
-> you shouldn't look at dev->irq ...
-> 
-> > +
-> > +	/* set a hopefully unique id for our child platform devices */
-> > +	sm->pdev_id = 32 + dev->devfn;
-> > +
-> > +	pci_set_drvdata(dev, sm);
-> > +
-> > +	err = pci_enable_device(dev);
-> 
-> .. before calling pci_enable_device() since pci_enable_device() may be
-> the one that sets the dev->irq value to it's final value in the first
-> place
+> +	/* This waiter is used in case of requeue from a
+> +	   normal futex to a PI-futex */
 
-Ok, fixed.
+please use proper comment style.
 
-> > +	sm->io_res = &dev->resource[1];
-> > +	sm->mem_res = &dev->resource[0];
-> > +
-> > +	sm->regs = ioremap(pci_resource_start(dev, 1),
-> > +			   pci_resource_len(dev, 1));
-> 
-> you know how to use pci_resource_start() and co.. why not use them 3
-> lines higher ? ;)
+> +	if (key->both.offset & 1)
+> +		/* shared mapping */
+> +		uaddr = (void*)((key->shared.pgoff << PAGE_SHIFT)
+> +				+ key->shared.offset - 1);
+> +	else
+> +		/* private mapping */
+> +		uaddr = (void*)(key->private.address + key->private.offset);
 
-These pointers where meant to be kept for setting new resources'
-parent pointers, will check what happened.
+such multi-line branches need curly braces.
 
-> 
-> the driver looks quite clean otherwise btw, great work!
+> +static inline int lookup_pi_state_for_requeue(u32 __user *uaddr,
+> +					      struct futex_hash_bucket *hb,
+> +					      union futex_key *key,
+> +					      struct futex_pi_state 
+> **pi_state)
 
-Thanks for the prompt and useful reply.
+patch line wrap problem? Also, if the function name is so long, you can 
+do:
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+static inline int
+lookup_pi_state_for_requeue(u32 __user *uaddr, struct futex_hash_bucket *hb,
 
-  'a smiley only costs 4 bytes'
+	Ingo

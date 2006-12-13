@@ -1,65 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964937AbWLMFEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964939AbWLMF0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWLMFEZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 00:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWLMFEY
+	id S964939AbWLMF0K (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 00:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWLMF0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 00:04:24 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46331 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964937AbWLMFEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 00:04:24 -0500
-X-Greylist: delayed 1575 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 00:04:23 EST
-Subject: VM_RESERVED vs vm_normal_page()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Memory Management <linux-mm@kvack.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 13 Dec 2006 15:37:57 +1100
-Message-Id: <1165984677.11914.159.camel@localhost.localdomain>
+	Wed, 13 Dec 2006 00:26:10 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:32624 "EHLO
+	exch01smtp09.hdi.tvcabo" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964939AbWLMF0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 00:26:08 -0500
+X-Greylist: delayed 549 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 00:26:08 EST
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CANYbf0VThFhodGdsb2JhbACNUwE
+X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.36):SA:0(-1.4/5.0):. Processed in 4.259227 secs Process 14408)
+Subject: BUG# 6419, via-rhine II could be the problem
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Adam Majer <adamm@zombino.com>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-+TexyPvq8/Tj1xWegx/o"
+Date: Wed, 13 Dec 2006 05:16:53 +0000
+Message-Id: <1165987013.3437.24.camel@monteirov>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+X-OriginalArrivalTime: 13 Dec 2006 05:16:58.0092 (UTC) FILETIME=[E9814AC0:01C71E75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks !
 
-What is the logic regarding VM_RESERVED, and more specifically, why is
-vm_normal_page() nor returning NULL for these ?
+--=-+TexyPvq8/Tj1xWegx/o
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I have struct pages that are a bit special for things like SPE mappings
-on Cell and I'd like to avoid a lot of the stuff the VM tries to do on
-them, like rmap accounting, etc... In fact, for almost everything, the
-semantics I want are vm_normal_page() to return NULL... I have struct
-pages because for now I need do_no_page() to work, but I must absolutely
-avoid things like getting swapped out etc...
+My bug http://bugzilla.kernel.org/show_bug.cgi?id=3D6419
 
-Thus I looked at the logic in vm_normal_page() and it really sucks...
-this is pretty much a "heuristic" to differenciate remap_page_range from
-copy_on_write stuff ... gack.
+Today I found that my computer hang problem could be just a problem with
+via-rhine II.
 
-What is VM_RESERVED for then ? Could I just use that ? I currently only
-have VM_IO set on my SPE VMAs but I could add it. The current
-implementation of vm_normal_page() doesn't test for it though, maybe it
-should ?
+I got exactly the same problem describe on=20
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D245398;msg=3D107
 
-I have still a problem though, in the case vm_normal_page() is made to
-return NULL...
+I had transfer by eth0 (via-rhine II), about 3500 files, about 15 Giga
+bytes and when rsync over ssh stops transfer (eth0 has got problems), I
+could press ctrl-c , abort rsync restart network , and continue the
+rsync.
+Or just restart network which remove via-rhine modules and reinsert it.
+But if I left the computer with rsync stopped after some minutes
+computer hangs.
 
-In that case, unmapping of pages will still cause them to be released
-(tlb_* -> free_pages_and_swap_cache -> release_pages ->
-put_page_testzero) but if you fork(), copy_one_pte() will not call an
-additional get_page() when vm_normal_page() returns NULL... thus I fear
-the page count will become bocus accross forks...
+netstat -i also give me some 2 or 3 TX-ERR s=20
+=20
+Any ideas to test this ? =20
 
-In the long run, I want to stop using struct page's for the SPU
-registers and local store, once Nick's new stuff gets in, though I might
-have a go at hacking something together before... but in the meantime,
-I'd like to figure out what is the _safe_ way of having a VMA containing
-PTEs mapping to struct pages that are _not_ normal memory and thus
-aren't to be swapped out, freed, or anything like that.
+Thanks,
+--=20
+S=E9rgio M.B.
 
-Cheers,
-Ben. 
+--=-+TexyPvq8/Tj1xWegx/o
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
 
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjEyMTMwNTE2NTNaMCMGCSqGSIb3DQEJBDEWBBQmONuiYlKuoFMK+zol3PEh
+h39pnDANBgkqhkiG9w0BAQEFAASCAQAPNapaoTvXEHOiBMJfLr1fzxHF+re/haJDhwRX8V5a+C8+
++Di5rMmt8HsMuvb5/LZkmw7nmABN7vxLAucRODzPfexXK7hOS6FQeofNmXXBIpNqnu882vjeid4o
+Y9i2O3hPPzehrR1wVCc7mhNIX5hBG3WOuCroj60viHr/buHLFiq9kfdJF+Hl4/vetCDfB6OwqK5h
+FocSaX7Xy3Akt9wsH+ej0pN/sLKVNXdpjAeUYmNj125Lh7kHU3K0TYeIy1u4yjq0fKF3s46w/QnT
+X2fQTwlprNonSLDMa0DSR0AIWHOSl/WmJsw7Xcy5jW+K6T//s20Xw3qs7/20OAzAtJn3AAAAAAAA
+
+
+
+--=-+TexyPvq8/Tj1xWegx/o--

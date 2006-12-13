@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750736AbWLMUbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750753AbWLMUcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWLMUbf (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWLMUbf
+	id S1750753AbWLMUcO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWLMUcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:31:35 -0500
-Received: from ns1.suse.de ([195.135.220.2]:48720 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750736AbWLMUbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:31:34 -0500
-Date: Wed, 13 Dec 2006 12:31:13 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Message-ID: <20061213203113.GA9026@suse.de>
-References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+	Wed, 13 Dec 2006 15:32:13 -0500
+Received: from mail1.key-systems.net ([81.3.43.211]:41578 "HELO
+	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750748AbWLMUcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:32:12 -0500
+Message-ID: <45806349.70707@scientia.net>
+Date: Wed, 13 Dec 2006 21:32:09 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: andersen@codepoet.org, Karsten Weiss <K.Weiss@science-computing.de>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
+ hole mapping related bug?!
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org>
+In-Reply-To: <20061213202925.GA3909@codepoet.org>
+Content-Type: multipart/mixed;
+ boundary="------------000409030605090802070302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 12:12:04PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 13 Dec 2006, Greg KH wrote:
-> >
-> > 	- userspace io driver interface added.  This allows the ability
-> > 	  to write userspace drivers for some types of hardware much
-> > 	  easier than before, going through a simple interface to get
-> > 	  accesses to irqs and memory regions.  A small kernel portion
-> > 	  is still needed to handle the irq properly, but that is it.
-> 
-> Ok, what kind of ass-hat idiotic thing is this?
-> 
-> 	irqreturn_t uio_irq_handler(int irq, void *dev_id)
-> 	{
-> 	        return IRQ_HANDLED;
-> 	}
-> 
-> exactly what is the point here? No way will I pull this kind of crap. You 
-> just seem to have guaranteed a dead machine if the irq is level-triggered, 
-> since it will keep on happening forever.
+This is a multi-part message in MIME format.
+--------------000409030605090802070302
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-It's a stupid test module for the uio core for isa devices.  It's not
-the main code, or core.
+Erik Andersen wrote:
+> I just realized that booting with "iommu=soft" makes my pcHDTV
+> HD5500 DVB cards not work.  Time to go back to disabling the
+> memhole and losing 1 GB.  :-(
+Crazy,...
+I have a Hauppauge Nova-T 500 DualDVB-T card,... I'll check it later if
+I have the same problem and will inform you (please remember me if I
+forget ;) )
 
-> Please remove.
-> 
-> YOU CANNOT DO IRQ'S BY LETTING USER SPACE SORT IT OUT!
 
-I agree, that's why this code doesn't let userspace sort it out.  You
-have to have a kernel driver to handle the irq.
+Chris.
 
-> It's really that easy. The irq handler has to be _entirely_ in kernel 
-> space. No user-space ass-hattery here.
+--------------000409030605090802070302
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
 
-Agreed.
-
-> And I don't care one whit if it happens to work on parport with an old 
-> legacy ISA interrupt that is edge-triggered. That's not even the 
-> interesting case. Never will be.
-
-I agree.  But that's all that this test module did.  It handled an isa
-interrupt that was edge triggered.
-
-> NAK NAK NAK NAK.
-
-Ok, I can pull this example module out if you want, but people seem to
-want examples these days.  If I do that, any objection to the rest?
-
-thanks,
-
-greg k-h
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------000409030605090802070302--

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751603AbWLMOI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751601AbWLMOKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751603AbWLMOI3 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 09:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWLMOI2
+	id S1751601AbWLMOKg (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 09:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWLMOKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 09:08:28 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49907 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751596AbWLMOI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 09:08:28 -0500
-Date: Wed, 13 Dec 2006 14:16:28 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-Cc: "Sergei Shtylyov" <sshtylyov@ru.mvista.com>, akpm@osdl.org,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Message-ID: <20061213141628.25bd7bd0@localhost.localdomain>
-In-Reply-To: <58cb370e0612130601w72c4cf73m45f26c74103f2231@mail.gmail.com>
-References: <200612130148.34539.sshtylyov@ru.mvista.com>
-	<20061212234145.557cb035@localhost.localdomain>
-	<58cb370e0612121709x41270fb2p20280cc1edc9c533@mail.gmail.com>
-	<20061213113248.06372806@localhost.localdomain>
-	<58cb370e0612130601w72c4cf73m45f26c74103f2231@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Dec 2006 09:10:36 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:3002 "EHLO ore.jhcloos.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751600AbWLMOKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 09:10:35 -0500
+X-Greylist: delayed 1409 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 09:10:35 EST
+X-Hashcash: 1:23:061213:linux-kernel@vger.kernel.org::KCaH8Yrea9whQtXx:0000000000000000000000000000000009Em5
+From: James Cloos <cloos@jhcloos.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: drivers/video/aty/radeon_backlight.c
+Copyright: Copyright 2006 James Cloos
+X-Hashcash: 1:23:061213:linux-fbdev-devel@lists.sourceforge.net::MKWWmCgMj608GlBX:0000000000000000000002KbG+
+Date: Wed, 13 Dec 2006 08:46:24 -0500
+Message-ID: <m3irgflxh4.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/23.0.0 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately it seems that not everybody has moved on.  It is not
-> about your not accepted patches but about "the maintainer removed
-> all the usable hotplug support from old IDE" false accusations which
-> are unproven and untrue.
+Are there any dependencies in $subject which would preclude changing
+drivers/video/Kconfig with:
 
-I invite anyone who cares to study the archive.
+ config FB_RADEON_BACKLIGHT
+         bool "Support for backlight control"
+-        depends on FB_RADEON && PMAC_BACKLIGHT
++        depends on FB_RADEON
+         select FB_BACKLIGHT
+         default y
+         help
+           Say Y here if you want to control the backlight of your display.
 
-Welcome back to my killfile.
+or is radeon_backlight.c only functional when -DCONFIG_PMAC_BACKLIGHT,
+even though the pmac routines are all ifdef'ed?
+
+-JimC
+-- 
+James Cloos <cloos@jhcloos.com>         OpenPGP: 1024D/ED7DAEA6

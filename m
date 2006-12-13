@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932480AbWLMOQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932521AbWLMOTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWLMOQM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 09:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWLMOQM
+	id S932521AbWLMOTy (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 09:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWLMOTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 09:16:12 -0500
-Received: from [212.33.161.160] ([212.33.161.160]:33016 "EHLO raad.intranet"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932480AbWLMOQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 09:16:11 -0500
-X-Greylist: delayed 342 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 09:16:09 EST
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Postgrey experiment at VGER
-Date: Wed, 13 Dec 2006 17:11:28 +0300
-User-Agent: KMail/1.5
+	Wed, 13 Dec 2006 09:19:54 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:52776 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932513AbWLMOTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 09:19:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J9atNs/4kLpR5o2WWfWfeKJ4stXTxuhRMVv/tSCx53epEr/vsrlO/zs7mqChdzE2/it0X/LI/nReoN5RfWagbRKjPgdg+TjevCZiYtp8DcoBraxeD52wYAE0Htq0Fcmv8gTNw8v1kkhJM42a7grG2AtPmDo/XP+OCKxPPlu7hkc=
+Message-ID: <58cb370e0612130619g4b0f1aa4vbbd877c9ccd44236@mail.gmail.com>
+Date: Wed, 13 Dec 2006 15:19:51 +0100
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+Cc: "Sergei Shtylyov" <sshtylyov@ru.mvista.com>, akpm@osdl.org,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061213141628.25bd7bd0@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612131711.28292.a1426z@gawab.com>
+References: <200612130148.34539.sshtylyov@ru.mvista.com>
+	 <20061212234145.557cb035@localhost.localdomain>
+	 <58cb370e0612121709x41270fb2p20280cc1edc9c533@mail.gmail.com>
+	 <20061213113248.06372806@localhost.localdomain>
+	 <58cb370e0612130601w72c4cf73m45f26c74103f2231@mail.gmail.com>
+	 <20061213141628.25bd7bd0@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Wed, 2006-12-13 at 11:25 +0200, Dumitru Ciobarcianu wrote:
-> > On Wed, 2006-12-13 at 01:50 +0200, Matti Aarnio wrote:
-> > > I do already see spammers smart enough to retry addresses from
-> > > the zombie machine, but that share is now below 10% of all emails.
-> > > My prediction for next 200 days is that most spammers get the clue,
-> > > but it gives us perhaps 3 months of less leaked junk.
+On 12/13/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> > Unfortunately it seems that not everybody has moved on.  It is not
+> > about your not accepted patches but about "the maintainer removed
+> > all the usable hotplug support from old IDE" false accusations which
+> > are unproven and untrue.
 
-Great!
+Moreover I could be just bypassed (which happened quite a few times in the
+past) and you could get your patches accepted anyway.  And this indeed did
+happened for some of your IDE patches but not for "working" hotplug support.
+Strange, isn't?  So accept the damn fact that your hotplug support was far
+from being acceptable and move on finally...
 
-> > IMHO this is only an step in an "arms race".
-> > What you will do in three months, remove this check because it will
-> > prove useless since the spammers will also retry ? If yes, why install
-> > it in the first place ?
->
-> Why ever do anything? You're going to die eventually anyway...
+> I invite anyone who cares to study the archive.
 
-Right!  The problem here is that it may do more harm than good.
+I also invite anyone to study the archive.
 
-May I suggest a smarter way to filter these spammers, by just whitelisting 
-email addresses of valid posters, after sending a confirmation for the first 
-post.  Now if these spammers get smart, and start using personal email 
-addresses, I would certainly expect some real action by abused email address 
-owners.
+> Welcome back to my killfile.
 
+A novel way to prove your statements...
 
-Thanks!
-
---
-Al
-
+Bart

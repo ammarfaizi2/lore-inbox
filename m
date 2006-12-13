@@ -1,109 +1,332 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751134AbWLMVcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751181AbWLMVk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWLMVcl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 16:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWLMVcl
+	id S1751181AbWLMVk5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 16:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWLMVk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 16:32:41 -0500
-Received: from www.osadl.org ([213.239.205.134]:32780 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751134AbWLMVck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 16:32:40 -0500
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org>
-References: <20061213195226.GA6736@kroah.com>
-	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
-	 <20061213203113.GA9026@suse.de>
-	 <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org>
-Content-Type: text/plain
-Date: Wed, 13 Dec 2006 22:36:21 +0100
-Message-Id: <1166045781.29505.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Dec 2006 16:40:57 -0500
+Received: from fed1rmmtai15.cox.net ([68.230.241.44]:42684 "EHLO
+	fed1rmmtai15.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751156AbWLMVk4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 16:40:56 -0500
+X-Greylist: delayed 345 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 16:40:56 EST
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git (stable)
+cc: linux-kernel@vger.kernel.org
+X-maint-at: 155bd0ce23144e5c7067965a22646523f1a38b51
+X-master-at: 1d77043b005921cf7fcebfe680777df23ad10119
+Date: Wed, 13 Dec 2006 13:35:08 -0800
+Message-ID: <7v4przfpir.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 12:58 -0800, Linus Torvalds wrote:
-> In other words, I'd like to see code that uses this that is actually 
-> _better_ than an in-kernel driver in some way.
-> 
-> For USB, the user-mode thing made sense. You have tons of random devices, 
-> and the abstraction level is higher to begin with. Quite frankly, I simply 
-> don't even see the same being true for something like this.
+We have a handful fixes on 'maint'; I will be cutting v1.4.4.3 by
+the end of the week.
 
-We started to work on this for industrial I/O devices. Many of them are
-dual port memory based, others are dedicated chips for motion control or
-field busses.
+On the 'master' front, this round has many topics (most of which
+have been cooking in the 'next' branch) merged since the last
+announcement.
 
-The design requires to have an in kernel stub driver with interrupt
-handler which is capable to handle shared interrupts. User space
-_cannot_ override an irq_disable(), it just has access to the chip
-registers of the device, which is possible right now as well.
+ - Johannes Schindelin's built-in shortlog is in.
 
-The risk, that such a driver stalls the kernel is exactly the same as
-the risk you have with any other badly written driver.
+ - Johannes Schindelin's built-in 'RCS merge replacement' is
+   in.  Hopefully this would make merge-recursive more portable
+   and faster.
 
-This is a real world example of such a drivers interrupt handler:
+ - Shawn Pearce and Johannes Schindelin spotted and fixed a few
+   corner cases in merge-recursive.
 
-/*
- * The chip specific portion of the interrupt handler. The framework code
- * takes care of userspace notification when we return IRQ_HANDLED
- */
-static irqreturn_t sercos_handler(int irq, void *dev_id, struct pt_regs *reg)
-{
-        /* Check, if this interrupt is originated from the SERCOS chip */
-        if (!(sercos_read(IRQ_STATUS) & SERCOS_INTERRUPT_MASK))
-                return IRQ_NONE;
+ - Updates to gitk from Paul Mackerras to fix longstanding menu
+   issues on Mac OS X.
 
-        /* Acknowledge the chip interrupts */
-        sercos_write(IRQ_ACK1, SERCOS_INTERRUPT_ACK1);
-        sercos_write(IRQ_ACK2, SERCOS_INTERRUPT_ACK2);
+ - Eric Wong fixed use of rerere in many places.
 
-        return IRQ_HANDLED;
-}
+ - Eric also has quite a few fixes to git-svn.
 
-With a full kernel driver we need:
+ - Nico updated 'git-add' to really mean 'add contents', not
+   'add to the set of tracked paths'.  Also updated was the
+   documentation for 'git commit' to make it easier to teach new
+   people after a long discussion.
 
-1. Interrupt handler
-	check interrupt
-	acknowledge interrupt
-	copy data from/to chip into a kernel buffer
-	wakeup user space task
-2. read data from driver, which goes through copy to user
-3. do calculations
-4. write data to driver, which goes through copy from user
+ - Lars Hjemli taught 'git-branch' to rename branches.
 
-After changing the driver concept we have only:
-1. Interrupt handler
-	check interrupt
-	acknowledge interrupt
-	wakeup user space task
-2. User space task handles the mmaped chip directly
+ - Andy Parkins taught 'git-branch' to be colorful.
 
-The change gave a serious performance gain in the range of 20% after the
-application was optimized for dealing with the chip directly.
+ - Robin Rosenberg improved cvsexportcommit for unusual
+   pathnames.
 
-There are tons of such exotic hardware devices out there, which now have
-either a closed source driver or an out of tree patch with an horrible
-amount of individual ioctl functions to get to the same point with less
-performance.
+ - 'git push $URL :refs/tags/that' (notice the colon) can be
+   used to delete 'that' tag from the remote repository; this
+   needs the latest git on both ends.
 
-> Btw: there's one driver we _know_ we want to support in user space, and 
-> that's the X kind of direct-rendering thing. So if you can show that this 
-> driver infrastructure actually makes sense as a replacement for the DRI 
-> layer, then _that_ would be a hell of a convincing argument.
+ - branch."master".{remote,merge} configuration items are set up
+   by 'git-clone', thanks to Andy Parkins.
 
-I did not look closely into that, but I think that it is a valid usage
-candidate. The interface of graphic cards is user space mappable and it
-probably needs some interrupt handling + notification mechanism as well
-as the devices mentioned above.
+ - 'git-commit' gives 'diff --summary' output to remind mode
+   changes and added/deleted files.
 
-	tglx
+ - 'git-diff --numstat' matches 'git-apply --numstat' when
+   talking about binary changes.
+
+ - 'git-merge' is now a first class UI, not just a mere driver
+   for strategies.
+
+I am hoping that we can start a stabilization cycle for v1.5.0
+based on what we have in 'master'.  The theme is "usability and
+teachability".
+
+Things that need to be done to complete what have been merged to
+'master' are:
+
+ - 'git-rm' needs to be fixed up as Linus outlined; remove
+   working tree file and index entry but have a sanity check to
+   make sure the working tree file match the index and HEAD.
+
+ - 'git-branch' may need to be taught about renaming the
+   matching per-branch configuration at the same time.
+
+ - 'git-merge-file' needs to be documented and linked from
+   git.txt.
+
+ - 'git-clone' probably should be updated to use wild-card in
+   remote.origin.fetch, instead of listing all the branches it
+   found when the clone was made.
+
+ - tutorials and other Porcelain documentation pages need to be
+   updated to match the updated 'git-add' and 'git-rm' (to be
+   updated), and their description should be made much less
+   about implementation; they should talk in terms of end-user
+   workflows.  I will send a draft for 'git diff' out later, but
+   somebody needs a full sweep on Porcelain-ish documentation.
+
+ - 'git diff --index' patch should be reverted (already done in
+   'next'), although we may have to come up with a better
+   wording for --cached.
+
+----------------------------------------------------------------
+* The 'maint' branch has these fixes since v1.4.4.2.
+
+   Alex Riesen (1):
+      Clarify fetch error for missing objects.
+
+   Brian Gernhardt (1):
+      Move Fink and Ports check to after config file
+
+   Chris Wright (1):
+      no need to install manpages as executable
+
+   Eric Wong (2):
+      git-svn: exit with status 1 for test failures
+      git-svn: correctly display fatal() error messages
+
+   Jim Meyering (1):
+      Don't use memcpy when source and dest. buffers may overlap
+
+   Martin Langhoff (1):
+      cvsserver: Avoid miscounting bytes in Perl v5.8.x
+
+   Shawn O. Pearce (1):
+      Make sure the empty tree exists when needed in merge-recursive.
+
+
+* The 'master' branch has these since the last announcement.
+
+   Alex Riesen (3):
+      git-blame: fix rev parameter handling.
+      Make perl/ build procedure ActiveState friendly.
+      Clarify fetch error for missing objects.
+
+   Andreas Ericsson (2):
+      ls-files: Give hints when errors happen.
+      git-diff: Introduce --index and deprecate --cached.
+
+   Andy Parkins (6):
+      Use .git/config for storing "origin" shortcut repository
+      Document git-repo-config --bool/--int options.
+      De-emphasise the symbolic link documentation.
+      Explicitly add the default "git pull" behaviour to .git/config on clone
+      Colourise git-branch output
+      Allow subcommand.color and color.subcommand color configuration
+
+   Brian Gernhardt (1):
+      Move Fink and Ports check to after config file
+
+   Chris Wright (1):
+      no need to install manpages as executable
+
+   David Miller (1):
+      Pass -M to diff in request-pull
+
+   Eric Wong (21):
+      git-svn: use ~/.subversion config files when using SVN:: libraries
+      git-svn: enable delta transfers during fetches when using SVN:: libs
+      git-svn: update tests for recent changes
+      git-svn: error out when the SVN connection fails during a fetch
+      git-svn: fix output reporting from the delta fetcher
+      git-svn: color support for the log command
+      git-svn: documentation updates
+      git-svn: fix multi-init
+      git-svn: avoid fetching files twice in the same revision
+      git-svn: avoid network timeouts for long-running fetches
+      git-svn: extra error check to ensure we open a file correctly
+      git-svn: use do_switch for --follow-parent if the SVN library supports it
+      rerere: add clear, diff, and status commands
+      rerere: record (or avoid misrecording) resolved, skipped or aborted rebase/am
+      git-svn: enable logging of information not supported by git
+      git-svn: allow dcommit to take an alternate head
+      git-svn: correctly display fatal() error messages
+      git-svn: correctly handle packed-refs in refs/remotes/
+      git-svn: exit with status 1 for test failures
+      git-svn: correctly display fatal() error messages
+      git-svn: correctly handle "(no author)" when using an authors file
+
+   Han-Wen Nienhuys (1):
+      ident.c: Trim hint printed when gecos is empty.
+
+   J. Bruce Fields (4):
+      cvs-migration: improved section titles, better push/commit explanation
+      Documentation: reorganize cvs-migration.txt
+      Documentation: update git-clone man page with new behavior
+      Documentation: simpler shared repository creation
+
+   Jakub Narebski (4):
+      gitweb: Fix Atom feed <logo>: it is $logo, not $logo_url
+      git-clone: Rename --use-immingled-remote option to --no-separate-remote
+      Document git-diff whitespace flags -b and -w
+      gitweb: Allow PNG, GIF, JPEG images to be displayed in "blob" view
+
+   Jeff King (1):
+      shortlog: fix segfault on empty authorname
+
+   Jim Meyering (2):
+      Set permissions of each new file before "cvs add"ing it.
+      Don't use memcpy when source and dest. buffers may overlap
+
+   Johannes Schindelin (18):
+      Build in shortlog
+      shortlog: do not crash on parsing "[PATCH"
+      shortlog: read mailmap from ./.mailmap again
+      shortlog: handle email addresses case-insensitively
+      shortlog: fix "-n"
+      shortlog: use pager
+      sha1_object_info(): be consistent with read_sha1_file()
+      xdiff: add xdl_merge()
+      xdl_merge(): fix an off-by-one bug
+      xdl_merge(): fix thinko
+      git-mv: search more precisely for source directory in index
+      diff -b: ignore whitespace at end of line
+      xdl_merge(): fix and simplify conflict handling
+      cvs-migration document: make the need for "push" more obvious
+      Add builtin merge-file, a minimal replacement for RCS merge
+      merge-file: support -p and -q; fix compile warnings
+      Get rid of the dependency on RCS' merge program
+      merge-recursive: add/add really is modify/modify with an empty base
+
+   Josef Weidendorfer (1):
+      Add branch.*.merge warning and documentation update
+
+   Junio C Hamano (45):
+      Store peeled refs in packed-refs file.
+      remove merge-recursive-old
+      git-merge: make it usable as the first class UI
+      merge: allow merging into a yet-to-be-born branch.
+      Store peeled refs in packed-refs (take 2).
+      git-fetch: reuse ls-remote result.
+      git-fetch: fix dumb protocol transport to fetch from pack-pruned ref
+      git-fetch: allow glob pattern in refspec
+      Allow git push to delete remote ref.
+      git-shortlog: fix common repository prefix abbreviation.
+      git-shortlog: make common repository prefix configurable with .mailmap
+      git-commit: show --summary after successful commit.
+      git-fetch: allow forcing glob pattern in refspec
+      fetch-pack: do not barf when duplicate re patterns are given
+      git-merge: tighten error checking.
+      git-merge: do not leak rev-parse output used for checking internally.
+      cvsimport: style fixup.
+      git blame -C: fix output format tweaks when crossing file boundary.
+      tutorial: talk about user.name early and don't start with commit -a
+      git-merge: fix confusion between tag and branch
+      xmerge: make return value from xdl_merge() more usable.
+      merge-recursive: use xdl_merge().
+      receive-pack: do not insist on fast-forward outside refs/heads/
+      unpack-trees: make sure "df_conflict_entry.name" is NUL terminated.
+      read-tree: further loosen "working file will be lost" check.
+      Loosen "working file will be lost" check in Porcelain-ish
+      read-tree: document --exclude-per-directory
+      git-reset to remove "$GIT_DIR/MERGE_MSG"
+      git-merge: squelch needless error message.
+      git-merge: fix "fix confusion between tag and branch" for real
+      Fix perl/ build.
+      git-rerere: add 'gc' command.
+      Documentation/git-commit: rewrite to make it more end-user friendly.
+      git-commit: allow --only to lose what was staged earlier.
+      shortlog: remove "[PATCH]" prefix from shortlog output
+      shortlog: fix segfault on empty authorname
+      diff --numstat: show binary with '-' to match "apply --numstat"
+      add test case for recursive merge
+      git-push: document removal of remote ref with :<dst> pathspec
+      git merge: reword failure message.
+      spurious .sp in manpages
+      git-push: accept tag <tag> as advertised.
+      send-pack: tighten checks for remote names
+      branch --color: change default color selection.
+      config documentation: group color items together.
+
+   Lars Hjemli (3):
+      git-branch: add options and tests for branch renaming
+      rename_ref: use lstat(2) when testing for symlink
+      git-branch: let caller specify logmsg
+
+   Martin Langhoff (1):
+      cvsserver: Avoid miscounting bytes in Perl v5.8.x
+
+   Michael Loeffler (1):
+      git-fetch: ignore dereferenced tags in expand_refs_wildcard
+
+   Nicolas Pitre (4):
+      builtin git-shortlog is broken
+      pack-objects: remove redundent status information
+      make 'git add' a first class user friendly interface to the index
+      change the unpack limit treshold to a saner value
+
+   Paul Mackerras (1):
+      gitk: Fix enabling/disabling of menu items on Mac OS X
+
+   René Scharfe (1):
+      shortlog: remove range check
+
+   Robin Rosenberg (1):
+      Make cvsexportcommit work with filenames with spaces and non-ascii characters.
+
+   Sean Estabrooks (1):
+      Update documentation to remove incorrect GIT_DIFF_OPTS example.
+
+   Shawn O. Pearce (17):
+      Teach git-completion.bash how to complete git-merge.
+      Hide plumbing/transport commands from bash completion.
+      Teach bash how to complete options for git-name-rev.
+      Add current branch in PS1 support to git-completion.bash.
+      Teach bash how to complete git-format-patch.
+      Teach bash how to complete git-cherry-pick.
+      Teach bash how to complete git-rebase.
+      Teach bash about git log/show/whatchanged options.
+      Support bash completion of refs/remote.
+      Teach bash about git-repo-config.
+      Support --strategy=x completion in addition to --strategy x.
+      Cache the list of merge strategies and available commands during load.
+      Teach bash about git-am/git-apply and their whitespace options.
+      Teach bash how to complete long options for git-commit.
+      Fix broken bash completion of local refs.
+      Make sure the empty tree exists when needed in merge-recursive.
+      Remove uncontested renamed files during merge.
+
+   Uwe Zeisberger (1):
+      Fix documentation copy&paste typo
+
 
 

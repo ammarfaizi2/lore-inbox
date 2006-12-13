@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964847AbWLMLFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932661AbWLMLL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWLMLFG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 06:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWLMLFF
+	id S932661AbWLMLL7 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 06:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWLMLL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 06:05:05 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60973 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932662AbWLMLFE (ORCPT
+	Wed, 13 Dec 2006 06:11:59 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45425 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932661AbWLMLL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 06:05:04 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/12] tty layer and misc struct pid conversions
-CC: Linux Containers <containers@lists.osdl.org>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Date: Wed, 13 Dec 2006 04:03:39 -0700
-Message-ID: <m1y7pcoy5w.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Dec 2006 06:11:58 -0500
+Date: Wed, 13 Dec 2006 11:20:04 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "David Shirley" <tephra@gmail.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: SATA DMA problem (sata_uli)
+Message-ID: <20061213112004.59cb186c@localhost.localdomain>
+In-Reply-To: <f0e65c090612122102o327ac693u2f24a74a9ba973ef@mail.gmail.com>
+References: <f0e65c090612122102o327ac693u2f24a74a9ba973ef@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I tracked it down to one of the drives being forced into PIO4 mode
+> rather than UDMA mode; dmesg bits:
+> ata4.00: ATA-7, max UDMA/133, 586072368 sectors: LBA48 NCQ (depth 0/32)
+> ata4.00: ata4: dev 0 multi count 16
+> ata4.00: simplex DMA is claimed by other device, disabling DMA
 
-The aim of this patch set is to start wrapping up the struct pid
-conversions.  As such this patchset culminates with the removal
-of kill_pg, kill_pg_info, __kill_pg_info, do_each_task_pid, and
-while_each_task_pid.
+Your ULi controller is reporting that it supports UDMA upon only one
+channel at a time. The kernel is honouring this information. The older
+ULi (was ALi) PATA devices report simplex but let you turn it off so see 
+if the following does the trick. Test carefully as always with disk driver
+changes.
 
-kill_proc, daemonize, and kernel_thread are still in my sights but
-there is still work to get to them.
+(Jeff probably best to check the docs before merging this but I believe
+it is sane)
 
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-The first three are basic cleanups around disassociate_ctty,
-while working on converting it I found several issues.  tty_old_pgrp
-can be a tricky concept to wrap your head around.
-
- 1 tty: Make __proc_set_tty static.
- 2 tty: Clarify disassociate_ctty
- 3 tty: Fix the locking for signal->session in disassociate_ctty
-
-These just stop using the old helper functions.
-
- 4 signal: Use kill_pgrp not kill_pg in the sunos compatibility code.
- 5 signal: Rewrite kill_something_info so it uses newer helpers.
-
-Then the grind to convert the tty layer and all of it's helper
-functions to struct pid.
-
- 6 pid: Make session_of_pgrp use struct pid instead of pid_t.
- 7 pid: Use struct pid for talking about process groups in exit.c
- 8 pid: Replace is_orphaned_pgrp with is_current_pgrp_orphaned
- 9 tty: Update the tty layer to work with struct pid.
-
-A final helper function update.
-
-10 pid: Replace do/while_each_task_pid with do/while_each_pid_task
-
-And the removal of the functions that are now unused.
-11 pid: Remove now unused do_each_task_pid and while_each_task_pid
-12 pid: Remove the now unused kill_pg kill_pg_info and __kill_pg_info
-
-All of these should be fairly simple and to the point.
-
-Eric
+--- drivers/ata/sata_uli.c~	2006-12-13 10:53:58.848881256 +0000
++++ drivers/ata/sata_uli.c	2006-12-13 10:53:58.848881256 +0000
+@@ -211,6 +211,8 @@
+ 	if (rc)
+ 		goto err_out_regions;
+ 
++	ata_pci_clear_simplex(pdev);
++
+ 	ppi[0] = ppi[1] = &uli_port_info;
+ 	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
+ 	if (!probe_ent) {

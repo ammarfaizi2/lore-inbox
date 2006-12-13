@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750764AbWLMUiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750748AbWLMUml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWLMUiH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWLMUiH
+	id S1750748AbWLMUml (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWLMUml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:38:07 -0500
-Received: from wx-out-0506.google.com ([66.249.82.228]:29316 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750764AbWLMUiG (ORCPT
+	Wed, 13 Dec 2006 15:42:41 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:41972 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750748AbWLMUmk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:38:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OprqMmlW3YhnLubhgiXZ2adGX4IN/48S2Ee7Uj8MPN4v+eQXPI1x6SHX/VUipRfeL5bk0VqlJuLhK3c9iQYEEuOhPuSFrD7/3rjSbHf+q62/5402qY29CmB6JNZG0VUZ7+ZgDDXYRfBN/SN+AzJPS/0nhs56Lo3D2xZjBHRmnFo=
-Message-ID: <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>
-Date: Wed, 13 Dec 2006 12:38:05 -0800
-From: "Michael K. Edwards" <medwards.linux@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Cc: "Greg KH" <gregkh@suse.de>, "Andrew Morton" <akpm@osdl.org>,
+	Wed, 13 Dec 2006 15:42:40 -0500
+X-Greylist: delayed 1818 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:42:40 EST
+Date: Wed, 13 Dec 2006 20:12:14 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Miller <davem@davemloft.net>
+Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
+Message-ID: <20061213201213.GK4587@ftp.linux.org.uk>
+References: <20061212162435.GW28443@stusta.de> <20061212.171756.85408589.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061213195226.GA6736@kroah.com>
-	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+In-Reply-To: <20061212.171756.85408589.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> Ok, what kind of ass-hat idiotic thing is this?
+On Tue, Dec 12, 2006 at 05:17:56PM -0800, David Miller wrote:
+> From: Adrian Bunk <bunk@stusta.de>
+> Date: Tue, 12 Dec 2006 17:24:35 +0100
+> 
+> > This patch converts drivers/net/loopback.c to using module_init().
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> I'm not %100 sure of this one, let's look at the comment you
+> are deleting:
+> 
+> > -/*
+> > - *	The loopback device is global so it can be directly referenced
+> > - *	by the network code. Also, it must be first on device list.
+> > - */
+> > -extern int loopback_init(void);
+> > -
+> 
+> in particular notice the part that says "it must be first on the
+> device list".
+> 
+> I'm not sure whether that is important any longer.  It probably isn't,
+> but we should verify it before applying such a patch.
 
-C'mon, Linus, tell us how you _really_ feel.
-
-Seriously, though, please please pretty please do not allow a facility
-for "going through a simple interface to get accesses to irqs and
-memory regions" into the mainline kernel, with or without toy ISA
-examples.  Embedded systems integrators have enough trouble with chip
-vendors who think that exposing the device registers to userspace
-constitutes a "driver".  The correct description is more like "porting
-shim for MMU-less RTOS tasks"; and if the BSP vendors of the world can
-make a nickel supplying them, more power to them.  Just not in
-mainline, please.
-
-Cheers,
-- Michael
+There might be practical considerations along the lines of "we want
+lookups for loopback to be fast"...

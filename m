@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932611AbWLMIFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932617AbWLMIey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbWLMIFl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 03:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWLMIFl
+	id S932617AbWLMIey (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 03:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWLMIex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 03:05:41 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:52843 "EHLO
-	pfepb.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932611AbWLMIFk (ORCPT
+	Wed, 13 Dec 2006 03:34:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54488 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932617AbWLMIex (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 03:05:40 -0500
-X-Greylist: delayed 12353 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 03:05:40 EST
-Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ak@muc.de, vojtech@suse.cz
-In-Reply-To: <200612130253_MC3-1-D4E3-471@compuserve.com>
-References: <200612130253_MC3-1-D4E3-471@compuserve.com>
+	Wed, 13 Dec 2006 03:34:53 -0500
+X-Greylist: delayed 1944 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 03:34:53 EST
+Subject: Re: Support 2.4 modules features in 2.6
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jaswinder Singh <jaswinderrajput@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <aa5953d60612120848y47ad5365x5e5acf9d1839a7d@mail.gmail.com>
+References: <aa5953d60612120606g8c59542seaa440b7b0404ff5@mail.gmail.com>
+	 <1165932674.27217.608.camel@laptopd505.fenrus.org>
+	 <aa5953d60612120711h375eecadpeb20d971853626cc@mail.gmail.com>
+	 <1165937853.27217.625.camel@laptopd505.fenrus.org>
+	 <aa5953d60612120848y47ad5365x5e5acf9d1839a7d@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 13 Dec 2006 09:05:20 +0100
-Message-Id: <1165997121.23819.15.camel@localhost>
+Organization: Intel International BV
+Date: Wed, 13 Dec 2006 09:06:37 +0100
+Message-Id: <1165997197.27217.728.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 02:50 -0500, Chuck Ebbert wrote:
-> In-Reply-To: <1165984783.23819.7.camel@localhost>
-> 
-> On Wed, 13 Dec 2006 05:39:43 +0100, Kasper Sandberg wrote:
-> 
-> > do you think it may be a bug in the kernel? the stuff with wine that
-> > gets thrown in the kernel messages?
-> 
-> Let's just say the behavior has changed.  It now returns
-> -EINVAL instead of -ENOTTY when the msdos IOCTLs fail.
-> 
-> > im 100% positive wine does NOT have
-> > access to any fat32, cause i entirely removed the only disk having such
-> > a filesystem, and it still likes to give this
-> 
-> That's when this happens: running certain programs that try
-> msdos-type IOCTLs on native Linux filesystems.
-ohhh :) well wine may do that :)
-> 
-> > however the last few
-> > times i havent observed the app going nuts
-> 
-> If there aren't any other problems you can just turn off the logging.
-> 
-> Did you change something else?
-i did upgrade from rc5 to final
 
+> > > Really!! , Please let me know what is the procedure to build the
+> > > modules after deleting kernel linux-2.6*
+> >
+> > you only need include/* for this in 2.6
+> >
+> > you can't do this at all with 2.4 kernels, it needs the whole lot.
+> >
+> > (in both cases the code and headers are needed so that your module can
+> > use the data structures and compile in the kernel code you select to use
+> > from inlines)
+> > >
+> > >
 > 
-> Anyway, here is a much simpler patch that restores the previous
-> behavior (but leaves the message.)  However if you aren't having
-> any problems now other than the messages maybe there's no real
-> problem after all?
-
-well the hardlock problem still occurs, however that, (as i believe has
-veen the semi-conclusion in this thread) arent related?
-
+> Really!!
 > 
-> --- 2.6.19.1-64smp.orig/fs/compat.c
-> +++ 2.6.19.1-64smp/fs/compat.c
-> @@ -444,7 +444,11 @@ asmlinkage long compat_sys_ioctl(unsigne
->  
->  		if (++count <= 50)
->  			compat_ioctl_error(filp, fd, cmd, arg);
-> -		error = -EINVAL;
-> +
-> +		if (cmd == 0x82187201)
-> +			error = -ENOTTY;
-> +		else
-> +			error = -EINVAL;
->  	}
->  
->  	goto out_fput;
+> This is my Makefile :-
+> obj-m += hello-1.o
+> 
+> all:
+> 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+> 
+> clean:
+> 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+> 
+> 
+> Now do one thing:-
+> # mv /lib/modules/$(uname -r)/build /lib/modules/$(uname -r)/build0
+> 
+> now make it.
+> 
+> If you want point to your header files in /usr/include and then try to build.
+
+so you first copy a big chunk of your 2.4 source tree, delete the
+original and then say "look it can compile without". Please be real and
+honest :)
+
+anyway I suggest that you answer the question on where the code is so
+that we can help you....
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750707AbWLMU0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750744AbWLMU0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWLMU0T (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWLMU0T
+	id S1750744AbWLMU0f (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWLMU0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:26:19 -0500
-Received: from smtp2.belwue.de ([129.143.2.15]:41808 "EHLO smtp2.belwue.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750707AbWLMU0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:26:18 -0500
-X-Greylist: delayed 1529 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:26:18 EST
-Date: Wed, 13 Dec 2006 20:59:55 +0100 (CET)
-From: Karsten Weiss <K.Weiss@science-computing.de>
-To: Erik Andersen <andersen@codepoet.org>
-Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
- memory hole mapping related bug?!
-In-Reply-To: <20061213195305.GA3358@codepoet.org>
-Message-ID: <Pine.LNX.4.61.0612132056380.6688@palpatine.science-computing.de>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
- <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
- <20061213195305.GA3358@codepoet.org>
+	Wed, 13 Dec 2006 15:26:35 -0500
+Received: from an-out-0708.google.com ([209.85.132.244]:40195 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736AbWLMU0e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:26:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gAuOvE4tsJBFj1C+hhva2v0ZR9n6rhzbqLhsoLMkIZPvyJgoH9PlsMZGR0CqN1PJy2VSS8pzU9HoRR328i8YMpqCITzLaJqu4sy3ZOFEYSVHeujsC9faAETJwr/axoVzv1o7tQrxyd5j9m7DV9GAek4BVx4qLEBUUZGODHPN4kg=
+Message-ID: <76bd70e30612131226v2bb04437v8eb00705d85419bc@mail.gmail.com>
+Date: Wed, 13 Dec 2006 15:26:31 -0500
+From: "Chuck Lever" <chucklever@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [NFS] [PATCH 010 of 14] knfsd: SUNRPC: add a "generic" function to see if the peer uses a secure port
+Cc: NeilBrown <neilb@suse.de>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061212174207.6180df0f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061213105528.21128.patches@notabene>
+	 <1061212235927.21484@suse.de> <20061212174207.6180df0f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006, Erik Andersen wrote:
+On 12/12/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, 13 Dec 2006 10:59:27 +1100
+> NeilBrown <neilb@suse.de> wrote:
+>
+> > From: Chuck Lever <chuck.lever@oracle.com>
+> > The only reason svcsock.c looks at a sockaddr's port is to check whether
+> > the remote peer is connecting from a privileged port.  Refactor this check
+> > to hide processing that is specific to address format.
+> >
+> > Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+> > Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+> > Signed-off-by: Neil Brown <neilb@suse.de>
+> >
+> > ### Diffstat output
+> >  ./net/sunrpc/svcsock.c |   20 +++++++++++++++++---
+> >  1 file changed, 17 insertions(+), 3 deletions(-)
+> >
+> > diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+> > --- .prev/net/sunrpc/svcsock.c        2006-12-13 10:32:15.000000000 +1100
+> > +++ ./net/sunrpc/svcsock.c    2006-12-13 10:32:17.000000000 +1100
+> > @@ -926,6 +926,20 @@ svc_tcp_data_ready(struct sock *sk, int
+> >               wake_up_interruptible(sk->sk_sleep);
+> >  }
+> >
+> > +static inline int svc_port_is_privileged(struct sockaddr *sin)
+> > +{
+> > +     switch (sin->sa_family) {
+> > +     case AF_INET:
+> > +             return ntohs(((struct sockaddr_in *)sin)->sin_port) < 1024;
+> > +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+> > +     case AF_INET6:
+> > +             return ntohs(((struct sockaddr_in6 *)sin)->sin6_port) < 1024;
+> > +#endif
+> > +     default:
+> > +             return 0;
+> > +     }
+> > +}
+>
+> I'm a bit surprised to see this test implemented in sunrpc - it's the sort
+> of thing which core networking should implement?
 
-> On Mon Dec 11, 2006 at 10:24:02AM +0100, Karsten Weiss wrote:
-> > Last week we did some more testing with the following result:
-> > 
-> > We could not reproduce the data corruption anymore if we boot the machines 
-> > with the kernel parameter "iommu=soft" i.e. if we use software bounce 
-> > buffering instead of the hw-iommu. (As mentioned before, booting with 
-> > mem=2g works fine, too, because this disables the iommu altogether.)
-> > 
-> > I.e. on these systems the data corruption only happens if the hw-iommu 
-> > (PCI-GART) of the Opteron CPUs is in use.
-> > 
-> > Christoph, Erik, Chris: I would appreciate if you would test and hopefully 
-> > confirm this workaround, too.
-> 
-> What did you set the BIOS to when testing this setting?
-> Memory Hole enabled?  IOMMU enabled?
+The check is open-coded in each socket type's bind callout, and
+includes a capability check which I believe the NFS server doesn't
+require.
 
-"Memory hole mapping" was set to "hardware". With "disabled" we only
-see 3 of our 4 GB memory.
+> And should that "1024" be PROT_SOCK?
 
-Best regards,
-Karsten
+All I can say is.... "Doh!"  I'll send Neil a replacement with this fixed.
 
 -- 
-__________________________________________creating IT solutions
-Dipl.-Inf. Karsten Weiss               science + computing ag
-phone:    +49 7071 9457 452            Hagellocher Weg 73
-teamline: +49 7071 9457 681            72070 Tuebingen, Germany
-email:    knweiss@science-computing.de www.science-computing.de
-
+"We who cut mere stones must always be envisioning cathedrals"
+   -- Quarry worker's creed

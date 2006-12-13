@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750949AbWLMVDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750961AbWLMVGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWLMVDd (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 16:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWLMVDd
+	id S1750961AbWLMVGj (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 16:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWLMVGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 16:03:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41443 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750932AbWLMVDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 16:03:32 -0500
-Date: Wed, 13 Dec 2006 13:03:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Michael K. Edwards" <medwards.linux@gmail.com>
-cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+	Wed, 13 Dec 2006 16:06:38 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53309 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750960AbWLMVGh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 16:06:37 -0500
+Date: Wed, 13 Dec 2006 21:14:36 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-In-Reply-To: <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0612131259260.5718@woody.osdl.org>
-References: <20061213195226.GA6736@kroah.com>  <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
- <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH 2.6.20-rc1] Toshiba TC86C001 IDE driver (take 2)
+Message-ID: <20061213211436.50917a26@localhost.localdomain>
+In-Reply-To: <200612132319.33588.sshtylyov@ru.mvista.com>
+References: <200612132319.33588.sshtylyov@ru.mvista.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Dec 2006 23:19:33 +0300
+Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
 
-
-On Wed, 13 Dec 2006, Michael K. Edwards wrote:
->
-> On 12/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> > Ok, what kind of ass-hat idiotic thing is this?
+> Behold!  This is the driver for the Toshiba TC86C001 GOKU-S PCI IDE controller,
+> completely reworked from the original brain-damaged Toshiba's 2.4 version.
 > 
-> C'mon, Linus, tell us how you _really_ feel.
+> This single channel UltraDMA/66 controller is very simple in programming, yet
+> Toshiba managed to plant many interesting bugs in it.  The particularly nasty
+> "limitation 5" (as they call the errata) caused me to abuse the IDE core in a
+> possibly most interesting way so far.  However, this is still better than the
+> #ifdef mess in drivers/ide/ide-io.c that the original version included  (well,
+> it had much more mess)...
+> 
+> Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
-I'll try to be less subtle next time ;)
-
-> Seriously, though, please please pretty please do not allow a facility
-> for "going through a simple interface to get accesses to irqs and
-> memory regions" into the mainline kernel, with or without toy ISA
-> examples.
-
-I do agree.
-
-I'm not violently opposed to something like this in practice (we've 
-already allowed it for USB devices), but there definitely needs to be a 
-real reason that helps _us_, not just some ass-hat vendor that looks for a 
-way to avoid open-sourcing their driver.
-
-If there are real and valid uses (and as mentioned, I actually think that 
-the whole graphics-3D-engine-thing is such a use) where a kernel driver 
-simply doesn't work out well, or where there are serious tecnical reasons 
-why it wants to be in user space (and "stability" is not one such thing: 
-if you access hardware directly in user space, and your driver is buggy, 
-the machine is equally deal, and a hell of a lot harder to control to 
-boot).
-
-Microkernel people have their heads up their arses, none of their 
-arguments have actually ever made any real logical sense. So look 
-elsewhere for real reasons to do it in user space.
-
-		Linus
+Acked-by: Alan Cox <alan@redhat.com>

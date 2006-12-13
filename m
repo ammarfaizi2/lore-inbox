@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750761AbWLMUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750764AbWLMUiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWLMUel (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWLMUek
+	id S1750764AbWLMUiH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWLMUiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:34:40 -0500
-Received: from smtp2.belwue.de ([129.143.2.15]:43581 "EHLO smtp2.belwue.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750761AbWLMUek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:34:40 -0500
-Date: Wed, 13 Dec 2006 21:34:16 +0100 (CET)
-From: Karsten Weiss <K.Weiss@science-computing.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
- memory hole mapping related bug?!
-In-Reply-To: <20061213195345.GA16112@tuatara.stupidest.org>
-Message-ID: <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
- <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
- <458051FD.1060900@scientia.net> <20061213195345.GA16112@tuatara.stupidest.org>
+	Wed, 13 Dec 2006 15:38:07 -0500
+Received: from wx-out-0506.google.com ([66.249.82.228]:29316 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750764AbWLMUiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:38:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OprqMmlW3YhnLubhgiXZ2adGX4IN/48S2Ee7Uj8MPN4v+eQXPI1x6SHX/VUipRfeL5bk0VqlJuLhK3c9iQYEEuOhPuSFrD7/3rjSbHf+q62/5402qY29CmB6JNZG0VUZ7+ZgDDXYRfBN/SN+AzJPS/0nhs56Lo3D2xZjBHRmnFo=
+Message-ID: <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>
+Date: Wed, 13 Dec 2006 12:38:05 -0800
+From: "Michael K. Edwards" <medwards.linux@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+Cc: "Greg KH" <gregkh@suse.de>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061213195226.GA6736@kroah.com>
+	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006, Chris Wedgwood wrote:
+On 12/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> Ok, what kind of ass-hat idiotic thing is this?
 
-> > Any ideas why iommu=disabled in the bios does not solve the issue?
-> 
-> The kernel will still use the IOMMU if the BIOS doesn't set it up if
-> it can, check your dmesg for IOMMU strings, there might be something
-> printed to this effect.
+C'mon, Linus, tell us how you _really_ feel.
 
-FWIW: As far as I understand the linux kernel code (I am no kernel 
-developer so please correct me if I am wrong) the PCI dma mapping code is 
-abstracted by struct dma_mapping_ops. I.e. there are currently four 
-possible implementations for x86_64 (see linux-2.6/arch/x86_64/kernel/)
+Seriously, though, please please pretty please do not allow a facility
+for "going through a simple interface to get accesses to irqs and
+memory regions" into the mainline kernel, with or without toy ISA
+examples.  Embedded systems integrators have enough trouble with chip
+vendors who think that exposing the device registers to userspace
+constitutes a "driver".  The correct description is more like "porting
+shim for MMU-less RTOS tasks"; and if the BSP vendors of the world can
+make a nickel supplying them, more power to them.  Just not in
+mainline, please.
 
-1. pci-nommu.c : no IOMMU at all (e.g. because you have < 4 GB memory)
-   Kernel boot message: "PCI-DMA: Disabling IOMMU."
-
-2. pci-gart.c : (AMD) Hardware-IOMMU.
-   Kernel boot message: "PCI-DMA: using GART IOMMU" (this message
-   first appeared in 2.6.16)
-
-3. pci-swiotlb.c : Software-IOMMU (used e.g. if there is no hw iommu)
-   Kernel boot message: "PCI-DMA: Using software bounce buffering 
-   for IO (SWIOTLB)"
-
-4. pci-calgary.c : Calgary HW-IOMMU from IBM; used in pSeries servers. 
-   This HW-IOMMU supports dma address mapping with memory proctection,
-   etc.
-   Kernel boot message: "PCI-DMA: Using Calgary IOMMU" (since 2.6.18!)
-
-What all this means is that you can use "dmesg|grep ^PCI-DMA:" to see 
-which implementation your kernel is currently using.
-
-As far as our problem machines are concerned the "PCI-DMA: using GART 
-IOMMU" case is broken (data corruption). But both "PCI-DMA: Disabling 
-IOMMU" (trigged with mem=2g) and "PCI-DMA: Using software bounce buffering 
-for IO (SWIOTLB)" (triggered with iommu=soft) are stable.
-
-BTW: It would be really great if this area of the kernel would get some 
-more and better documentation. The information at 
-linux-2.6/Documentation/x86_64/boot_options.txt is very terse. I had to 
-read the code to get a *rough* idea what all the "iommu=" options 
-actually do and how they interact.
- 
-> > 1) And does this now mean that there's an error in the hardware
-> > (chipset or CPU/memcontroller)?
-> 
-> My guess is it's a kernel bug, I don't know for certain.  Perhaps we
-> shaould start making a more comprehensive list of affected kernels &
-> CPUs?
-
-BTW: Did someone already open an official bug at 
-http://bugzilla.kernel.org ?
-
-Best regards,
-Karsten
-
--- 
-__________________________________________creating IT solutions
-Dipl.-Inf. Karsten Weiss               science + computing ag
-phone:    +49 7071 9457 452            Hagellocher Weg 73
-teamline: +49 7071 9457 681            72070 Tuebingen, Germany
-email:    knweiss@science-computing.de www.science-computing.de
-
+Cheers,
+- Michael

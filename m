@@ -1,147 +1,111 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964893AbWLMLWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964860AbWLMLWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWLMLWV (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 06:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWLMLWI
+	id S964860AbWLMLWG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 06:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWLMLTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 06:22:08 -0500
+	Wed, 13 Dec 2006 06:19:45 -0500
 Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57332 "EHLO
 	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964867AbWLMLTo (ORCPT
+	with ESMTP id S964858AbWLMLTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 06:19:44 -0500
+	Wed, 13 Dec 2006 06:19:38 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: "<Andrew Morton" <akpm@osdl.org>
 Cc: <containers@lists.osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 7/12] pid: Use struct pid for talking about process groups in exit.c
-Date: Wed, 13 Dec 2006 04:07:51 -0700
-Message-Id: <1166008078895-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 12/12] pid: Remove the now unused kill_pg kill_pg_info and __kill_pg_info
+Date: Wed, 13 Dec 2006 04:07:56 -0700
+Message-Id: <11660080801734-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.g3cd4f
 In-Reply-To: <m1y7pcoy5w.fsf@ebiederm.dsl.xmission.com>
 References: <m1y7pcoy5w.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Modify has_stopped_jobs and will_become_orphan_pgrp
-to use struct pid based process groups.    This reduces
-the number of hash tables looks ups and paves the way
-for multiple pid spaces.
+Now that I have changed all of the in-tree users remove the old
+version of these  functions.  This should make it clear to any
+out of tree users that they should be using kill_pgrp kill_pgrp_info
+or __kill_pgrp_info instead.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- kernel/exit.c |   42 ++++++++++++++++++++++--------------------
- 1 files changed, 22 insertions(+), 20 deletions(-)
+ include/linux/sched.h |    3 ---
+ kernel/signal.c       |   27 ---------------------------
+ 2 files changed, 0 insertions(+), 30 deletions(-)
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 97117e7..5f8455e 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -210,22 +210,22 @@ struct pid *session_of_pgrp(struct pid *pgrp)
-  *
-  * "I ask you, have you ever known what it is to be an orphan?"
-  */
--static int will_become_orphaned_pgrp(int pgrp, struct task_struct *ignored_task)
-+static int will_become_orphaned_pgrp(struct pid *pgrp, struct task_struct *ignored_task)
- {
- 	struct task_struct *p;
- 	int ret = 1;
- 
--	do_each_task_pid(pgrp, PIDTYPE_PGID, p) {
-+	do_each_pid_task(pgrp, PIDTYPE_PGID, p) {
- 		if (p == ignored_task
- 				|| p->exit_state
- 				|| is_init(p->real_parent))
- 			continue;
--		if (process_group(p->real_parent) != pgrp &&
--		    process_session(p->real_parent) == process_session(p)) {
-+		if (task_pgrp(p->real_parent) != pgrp &&
-+		    task_session(p->real_parent) == task_session(p)) {
- 			ret = 0;
- 			break;
- 		}
--	} while_each_task_pid(pgrp, PIDTYPE_PGID, p);
-+	} while_each_pid_task(pgrp, PIDTYPE_PGID, p);
- 	return ret;	/* (sighing) "Often!" */
- }
- 
-@@ -234,23 +234,23 @@ int is_orphaned_pgrp(int pgrp)
- 	int retval;
- 
- 	read_lock(&tasklist_lock);
--	retval = will_become_orphaned_pgrp(pgrp, NULL);
-+	retval = will_become_orphaned_pgrp(find_pid(pgrp), NULL);
- 	read_unlock(&tasklist_lock);
- 
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index ef0d6fe..f455f02 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1328,14 +1328,11 @@ extern int kill_pid_info(int sig, struct siginfo *info, struct pid *pid);
+ extern int kill_pid_info_as_uid(int, struct siginfo *, struct pid *, uid_t, uid_t, u32);
+ extern int kill_pgrp(struct pid *pid, int sig, int priv);
+ extern int kill_pid(struct pid *pid, int sig, int priv);
+-extern int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp);
+-extern int kill_pg_info(int, struct siginfo *, pid_t);
+ extern void do_notify_parent(struct task_struct *, int);
+ extern void force_sig(int, struct task_struct *);
+ extern void force_sig_specific(int, struct task_struct *);
+ extern int send_sig(int, struct task_struct *, int);
+ extern void zap_other_threads(struct task_struct *p);
+-extern int kill_pg(pid_t, int, int);
+ extern int kill_proc(pid_t, int, int);
+ extern struct sigqueue *sigqueue_alloc(void);
+ extern void sigqueue_free(struct sigqueue *);
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 91caafa..2b29e95 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1096,26 +1096,6 @@ int kill_pgrp_info(int sig, struct siginfo *info, struct pid *pgrp)
  	return retval;
  }
  
--static int has_stopped_jobs(int pgrp)
-+static int has_stopped_jobs(struct pid *pgrp)
+-int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp)
+-{
+-	if (pgrp <= 0)
+-		return -EINVAL;
+-
+-	return __kill_pgrp_info(sig, info, find_pid(pgrp));
+-}
+-
+-int
+-kill_pg_info(int sig, struct siginfo *info, pid_t pgrp)
+-{
+-	int retval;
+-
+-	read_lock(&tasklist_lock);
+-	retval = __kill_pg_info(sig, info, pgrp);
+-	read_unlock(&tasklist_lock);
+-
+-	return retval;
+-}
+-
+ int kill_pid_info(int sig, struct siginfo *info, struct pid *pid)
  {
- 	int retval = 0;
- 	struct task_struct *p;
+ 	int error;
+@@ -1316,12 +1296,6 @@ int kill_pid(struct pid *pid, int sig, int priv)
+ EXPORT_SYMBOL(kill_pid);
  
--	do_each_task_pid(pgrp, PIDTYPE_PGID, p) {
-+	do_each_pid_task(pgrp, PIDTYPE_PGID, p) {
- 		if (p->state != TASK_STOPPED)
- 			continue;
- 		retval = 1;
- 		break;
--	} while_each_task_pid(pgrp, PIDTYPE_PGID, p);
-+	} while_each_pid_task(pgrp, PIDTYPE_PGID, p);
- 	return retval;
- }
- 
-@@ -640,14 +640,14 @@ reparent_thread(struct task_struct *p, struct task_struct *father, int traced)
- 	 * than we are, and it was the only connection
- 	 * outside, so the child pgrp is now orphaned.
- 	 */
--	if ((process_group(p) != process_group(father)) &&
--	    (process_session(p) == process_session(father))) {
--		int pgrp = process_group(p);
-+	if ((task_pgrp(p) != task_pgrp(father)) &&
-+	    (task_session(p) == task_session(father))) {
-+		struct pid *pgrp = task_pgrp(p);
- 
- 		if (will_become_orphaned_pgrp(pgrp, NULL) &&
- 		    has_stopped_jobs(pgrp)) {
--			__kill_pg_info(SIGHUP, SEND_SIG_PRIV, pgrp);
--			__kill_pg_info(SIGCONT, SEND_SIG_PRIV, pgrp);
-+			__kill_pgrp_info(SIGHUP, SEND_SIG_PRIV, pgrp);
-+			__kill_pgrp_info(SIGCONT, SEND_SIG_PRIV, pgrp);
- 		}
- 	}
- }
-@@ -727,6 +727,7 @@ static void exit_notify(struct task_struct *tsk)
- 	int state;
- 	struct task_struct *t;
- 	struct list_head ptrace_dead, *_p, *_n;
-+	struct pid *pgrp;
- 
- 	if (signal_pending(tsk) && !(tsk->signal->flags & SIGNAL_GROUP_EXIT)
- 	    && !thread_group_empty(tsk)) {
-@@ -779,12 +780,13 @@ static void exit_notify(struct task_struct *tsk)
- 	 
- 	t = tsk->real_parent;
- 	
--	if ((process_group(t) != process_group(tsk)) &&
--	    (process_session(t) == process_session(tsk)) &&
--	    will_become_orphaned_pgrp(process_group(tsk), tsk) &&
--	    has_stopped_jobs(process_group(tsk))) {
--		__kill_pg_info(SIGHUP, SEND_SIG_PRIV, process_group(tsk));
--		__kill_pg_info(SIGCONT, SEND_SIG_PRIV, process_group(tsk));
-+	pgrp = task_pgrp(tsk);
-+	if ((task_pgrp(t) != pgrp) &&
-+	    (task_session(t) != task_session(tsk)) &&
-+	    will_become_orphaned_pgrp(pgrp, tsk) &&
-+	    has_stopped_jobs(pgrp)) {
-+		__kill_pgrp_info(SIGHUP, SEND_SIG_PRIV, pgrp);
-+		__kill_pgrp_info(SIGCONT, SEND_SIG_PRIV, pgrp);
- 	}
- 
- 	/* Let father know we died 
+ int
+-kill_pg(pid_t pgrp, int sig, int priv)
+-{
+-	return kill_pg_info(sig, __si_special(priv), pgrp);
+-}
+-
+-int
+ kill_proc(pid_t pid, int sig, int priv)
+ {
+ 	return kill_proc_info(sig, __si_special(priv), pid);
+@@ -1958,7 +1932,6 @@ EXPORT_SYMBOL(recalc_sigpending);
+ EXPORT_SYMBOL_GPL(dequeue_signal);
+ EXPORT_SYMBOL(flush_signals);
+ EXPORT_SYMBOL(force_sig);
+-EXPORT_SYMBOL(kill_pg);
+ EXPORT_SYMBOL(kill_proc);
+ EXPORT_SYMBOL(ptrace_notify);
+ EXPORT_SYMBOL(send_sig);
 -- 
 1.4.4.1.g278f
 

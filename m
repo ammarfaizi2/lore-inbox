@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964976AbWLMNP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964969AbWLMNOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWLMNP2 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 08:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWLMNPT
+	id S964969AbWLMNOk (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 08:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWLMNOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 08:15:19 -0500
-Received: from smtp.nokia.com ([131.228.20.172]:60764 "EHLO
-	mgw-ext13.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964973AbWLMNPP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 08:15:15 -0500
-Subject: Re: 2.6.19-mm1: missing MTD_UBI* help texts
-From: Artem Bityutskiy <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20061211164225.GO10351@stusta.de>
-References: <20061211005807.f220b81c.akpm@osdl.org>
-	 <20061211164225.GO10351@stusta.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 13 Dec 2006 14:37:56 +0200
-Message-Id: <1166013476.16396.17.camel@sauron>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 13 Dec 2006 12:37:57.0054 (UTC) FILETIME=[84467DE0:01C71EB3]
-X-Nokia-AV: Clean
+	Wed, 13 Dec 2006 08:14:18 -0500
+Received: from il.qumranet.com ([62.219.232.206]:47433 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964960AbWLMNOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 08:14:14 -0500
+Subject: [PATCH 3/3] KVM: AMD SVM: Save and restore the floating point unit
+	state
+From: Avi Kivity <avi@qumranet.com>
+Date: Wed, 13 Dec 2006 12:45:57 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <457FF542.6050602@qumranet.com>
+In-Reply-To: <457FF542.6050602@qumranet.com>
+Message-Id: <20061213124557.102AB2502E4@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-11 at 17:42 +0100, Adrian Bunk wrote:
-> The MTD_UBI and the MTD_UBI_DEBUG_PARANOID_* options lack help texts.
+Fixes sf bug 1614113 (segfaults in nbench).
 
-thanks, fixed in our GIT tree.
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
--- 
-Best regards,
-Artem Bityutskiy (Битюцкий Артём)
-
+Index: linux-2.6/drivers/kvm/svm.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/svm.c
++++ linux-2.6/drivers/kvm/svm.c
+@@ -575,6 +575,8 @@ static int svm_create_vcpu(struct kvm_vc
+ 	memset(vcpu->svm->db_regs, 0, sizeof(vcpu->svm->db_regs));
+ 	init_vmcb(vcpu->svm->vmcb);
+ 
++	fx_init(vcpu);
++
+ 	return 0;
+ 
+ out2:
+@@ -1387,6 +1389,10 @@ again:
+ 		save_db_regs(vcpu->svm->host_db_regs);
+ 		load_db_regs(vcpu->svm->db_regs);
+ 	}
++
++	fx_save(vcpu->host_fx_image);
++	fx_restore(vcpu->guest_fx_image);
++
+ 	asm volatile (
+ #ifdef CONFIG_X86_64
+ 		"push %%rbx; push %%rcx; push %%rdx;"
+@@ -1496,6 +1502,9 @@ again:
+ #endif
+ 		: "cc", "memory" );
+ 
++	fx_save(vcpu->guest_fx_image);
++	fx_restore(vcpu->host_fx_image);
++
+ 	if ((vcpu->svm->vmcb->save.dr7 & 0xff))
+ 		load_db_regs(vcpu->svm->host_db_regs);
+ 

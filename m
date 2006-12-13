@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750769AbWLMUoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750833AbWLMUoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWLMUoP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWLMUoP
+	id S1750833AbWLMUoy (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWLMUoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:44:15 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:40646 "EHLO scrub.xs4all.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750769AbWLMUoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:44:14 -0500
-Date: Wed, 13 Dec 2006 21:40:34 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HZ free ntp
-In-Reply-To: <1166037549.6425.21.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0612132125450.1867@scrub.home>
-References: <20061204204024.2401148d.akpm@osdl.org> 
- <Pine.LNX.4.64.0612060348150.1868@scrub.home>  <20061205203013.7073cb38.akpm@osdl.org>
-  <1165393929.24604.222.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0612061334230.1867@scrub.home>  <20061206131155.GA8558@elte.hu>
-  <Pine.LNX.4.64.0612061422190.1867@scrub.home>  <1165956021.20229.10.camel@localhost>
-  <Pine.LNX.4.64.0612131338420.1867@scrub.home> <1166037549.6425.21.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Dec 2006 15:44:54 -0500
+Received: from [198.186.3.68] ([198.186.3.68]:41557 "EHLO mx.pathscale.com"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1750838AbWLMUox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:44:53 -0500
+X-Greylist: delayed 2005 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:44:53 EST
+Subject: Re: IB: Add DMA mapping functions to allow device drivers to
+	interpose
+From: Ralph Campbell <ralph.campbell@qlogic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Roland Dreier <rolandd@cisco.com>
+In-Reply-To: <20061212234720.700f3cea.akpm@osdl.org>
+References: <200612130359.kBD3xjWp028210@hera.kernel.org>
+	 <20061212234720.700f3cea.akpm@osdl.org>
+Content-Type: text/plain
+Organization: QLogic
+Date: Wed, 13 Dec 2006 12:11:27 -0800
+Message-Id: <1166040687.14800.384.camel@brick.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 13 Dec 2006, john stultz wrote:
-
-> > The largest possible interval is freq cycles (or 1 second without
-> > adjustments). That is the base interval and without redesigning NTP we
-> > can't change that. This base interval can be subdivided into smaller
-> > intervals for incremental updates.
+On Tue, 2006-12-12 at 23:47 -0800, Andrew Morton wrote:
+> On Wed, 13 Dec 2006 03:59:45 GMT
+> Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
 > 
-> Indeed, larger then 1 second intervals would require the second_overflow
-> code to be reworked too.
-
-There isn't much to rework without a complete redesign.
-
-> > You cannot choose arbitrary intervals otherwise you get other problems,
-> > e.g. with your patch time_offset handling is broken.
+> >     IB: Add DMA mapping functions to allow device drivers to interpose
+> >     
+> >     The QLogic InfiniPath HCAs use programmed I/O instead of HW DMA.
+> >     This patch allows a verbs device driver to interpose on DMA mapping
+> >     function calls in order to avoid relying on bus_to_virt() and
+> >     phys_to_virt() to undo the mappings created by dma_map_single(),
+> >     dma_map_sg(), etc.
+> >     
+> >     Signed-off-by: Ralph Campbell <ralph.campbell@qlogic.com>
+> >     Signed-off-by: Roland Dreier <rolandd@cisco.com>
 > 
-> I'm not seeing this yet. Any more details? 
-
-time_offset is scaled to HZ in do_adjtimex, which needs to be changed as 
-well.
-
-> > You don't have to introduce anything new, it's tick_length that changes
-> > and HZ that becomes a variable in this function.
+> include/rdma/ib_verbs.h: In function 'ib_dma_alloc_coherent':
+> include/rdma/ib_verbs.h:1635: warning: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type
+> In file included from drivers/infiniband/hw/mthca/mthca_provider.h:41,
+>                  from drivers/infiniband/hw/mthca/mthca_dev.h:53,
+>                  from drivers/infiniband/hw/mthca/mthca_main.c:44:
+> include/rdma/ib_verbs.h: In function 'ib_dma_alloc_coherent':
+> include/rdma/ib_verbs.h:1635: warning: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type
 > 
-> So, forgive me for rehashing this, but it seems we're cross talking
-> again. The context here is the dynticks code. Where HZ doesn't change,
-> but we get interrupts at much reduced rates.
+> 
+> That u64 needs to become a dma_addr_t.  That means that
+> ib_dma_mapping_ops.alloc_coherent() and ib_dma_mapping_ops.free_coherent() are
+> wrong as well.
+> 
+> > +struct ib_dma_mapping_ops {
+> > ...
+> > +	void		*(*alloc_coherent)(struct ib_device *dev,
+> > +					   size_t size,
+> > +					   u64 *dma_handle,
+> > +					   gfp_t flag);
+> > +	void		(*free_coherent)(struct ib_device *dev,
+> > +					 size_t size, void *cpu_addr,
+> > +					 u64 dma_handle);
+> > +};
+> 
+> I'd have picked this up if it had been in git-infiniband for even a couple
+> of days.  I'm assuming this all got slammed into mainline because of the
+> merge window thing.
+> 
+> I cannot find these patches on the kernel mailing list.  I cannot find the
+> pull request anywhere.
+> 
+> > +static inline u64 ib_dma_map_single(struct ib_device *dev,
+> > +				    void *cpu_addr, size_t size,
+> > +				    enum dma_data_direction direction)
+> 
+> no, dma_map_single() returns a dma_addr_t.
 
-I know and all you have to change in the ntp and some related code is to 
-replace HZ there with a variable, thus make it changable, so you can 
-increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
+ib_dma_map_single() allows the ib_ipath device driver to interpose
+on IOMMU allocations and not do them by returning the kernel
+virtual address as the "DMA address".  I started with dma_addr_t
+but it was pointed out to me that sparc64 defines dma_addr_t
+as u32. This would cause addresses to be truncated.
+Also, I chose u64 because the return value from ib_dma_*() is
+stored in the ib_sge.addr field which is u64.
 
-> However, in doing so we have to
-> work w/ the ntp.c code which (as Ingo earlier mentioned) has a number of
-> HZ based assumptions.
+My preference would be to change the offending uses of dma_addr_t
+to u64.  Do you have a better solution?
 
-Repeating Ingo's nonsense doesn't make it any more true. :-(
-
-bye, Roman

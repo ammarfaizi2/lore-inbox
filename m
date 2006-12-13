@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965077AbWLMTEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965079AbWLMTIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbWLMTEM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWLMTEM
+	id S965079AbWLMTIB (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:08:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWLMTIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:04:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37734 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965077AbWLMTEL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 14:04:11 -0500
-Subject: Re: SM501: core (mfd) driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ben Dooks <ben-fbdev@fluff.org>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <20061213175143.GA11394@home.fluff.org>
-References: <20061213155134.GA10097@home.fluff.org>
-	 <1166030491.27217.844.camel@laptopd505.fenrus.org>
-	 <20061213175143.GA11394@home.fluff.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 13 Dec 2006 20:04:06 +0100
-Message-Id: <1166036646.27217.870.camel@laptopd505.fenrus.org>
+	Wed, 13 Dec 2006 14:08:01 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59502 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965079AbWLMTIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:08:00 -0500
+Date: Wed, 13 Dec 2006 11:07:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
+       balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+Subject: Re: [patch 03/13] io-accounting: write accounting
+Message-Id: <20061213110701.37300a1e.akpm@osdl.org>
+In-Reply-To: <457FDDCE.7010303@FreeBSD.org>
+References: <200612081152.kB8BqQvb019756@shell0.pdx.osdl.net>
+	<457FBDBE.10102@FreeBSD.org>
+	<20061213005954.e2d32446.akpm@osdl.org>
+	<457FD777.9040703@FreeBSD.org>
+	<457FDDCE.7010303@FreeBSD.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 17:51 +0000, Ben Dooks wrote:
-> > > +
-> > > +	writel(mode, sm->regs + SM501_POWER_MODE_CONTROL);
-> > > +
-> > > +	dev_dbg(sm->dev, "gate %08lx, clock %08lx, mode %08lx\n",
-> > > +		gate, clock, mode);
-> > > +
-> > > +	msleep(16);
-> > 
-> > you're missing a PCI posting flush here
-> > (if you don't know what this is please ask)
-> 
-> Is this a read from an device register to cause the PCI writes
-> to happen?
+On Wed, 13 Dec 2006 03:02:38 -0800
+Suleiman Souhlal <ssouhlal@FreeBSD.org> wrote:
 
-yup
+> The only I/O non-shared VMAs might cause is from swapping, and I'm not
+> sure if the io accounting patches actually care about that.
 
->  Would reading SM501_POWER_MODE_CONTROL be ok, or does
-> it require a different register?
+Yes, the patches do attempt to correctly account for swap IO.  swapin is
+accounted in submit_bio() and swapout is, err, not accounted at all.  Drat,
+I forgot to retest that.
 
-any register is ok, you can read the same one just fine.
-
-
-greetings,
-   Arjan van de Ven
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

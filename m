@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964981AbWLMOqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964989AbWLMPDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWLMOqI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 09:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWLMOqI
+	id S964989AbWLMPDN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 10:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWLMPDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 09:46:08 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47503 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964981AbWLMOqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 09:46:07 -0500
-Date: Wed, 13 Dec 2006 14:53:25 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
-Message-ID: <20061213145325.41fc4300@localhost.localdomain>
-In-Reply-To: <45800B4D.8000906@ru.mvista.com>
-References: <200612130148.34539.sshtylyov@ru.mvista.com>
-	<20061212234145.557cb035@localhost.localdomain>
-	<45800B4D.8000906@ru.mvista.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Dec 2006 10:03:13 -0500
+Received: from uhweb15152.united-hoster.com ([85.88.15.152]:60391 "EHLO
+	uhweb15152.united-hoster.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964989AbWLMPDM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 10:03:12 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 10:03:12 EST
+Message-ID: <20061213155531.1kpbmi3pk40kkoos@webmail.kernalert.de>
+Date: Wed, 13 Dec 2006 15:55:31 +0100
+From: Frank Seidel <frank@kernalert.de>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       Tony Lindgren <tony@atomide.com>,
+       ext David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 2/4] Add MMC Password Protection (lock/unlock) support
+	V8: mmc_key_retention.diff
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>+static int tc86c001_busproc(ide_drive_t *drive, int state)
-> >>+{
-> 
-> > Waste of space having a busproc routine. The maintainer removed all the
-> > usable hotplug support from old IDE so this might as well be dropped.
-> 
->     Don't know what you mean, ioctl is still there...
+Quoting Anderson Briglia <anderson.briglia@indt.org.br>:
+> [...]
+Hi,
+thats really cool stuff you're providing with your patches. :)
+I have some feedback or questions some parts here.
+But as i just started trying to get into kernelhacking you probably
+better don't take my notes to serious, please.
 
-You can turn the bus on and off but there is no ability to actually swap
-drives except in RHEL4 and 2.4.x-ac kernels. Hence "waste of space"
+> Index: linux-linus-2.6/drivers/mmc/mmc_sysfs.c
+> ===================================================================
+> --- linux-linus-2.6.orig/drivers/mmc/mmc_sysfs.c        2006-12-04 [...]
+> +static int mmc_key_instantiate(struct key *key, const void *data,   
+> size_t datalen)
+> +{
+> +        struct mmc_key_payload *mpayload, *zap;
+> +        int ret;
+> +
+> +        zap = NULL;
+What is zap here for? future use?
+And wouldn't it be good to also initialize mplayload here?
 
-> > "Close but no cookie": please fix the PCI quirk to match the current -mm
-> > behaviour with the ATA resource tree. Otherwise - nice driver.
-> 
->     Ugh, I should've expected some backstab from -mm tree...
+> +        ret = -EINVAL;
+Is there a special reason why you already assign the errors to the
+return value variable before its clear that the assignment is needed?
 
-If it is native only then there are no problems with the quirk 
 
-Acked-by: Alan Cox <alan@redhat.com>
+> +        if (datalen <= 0 || datalen > MMC_KEYLEN_MAXBYTES || !data) {
+Isn't the last "|| !data" redundant as you already tested if datalen ==0?
+
+> +                pr_debug("Invalid data\n");
+> +                goto error;
+> +        }
+> +
+> +        ret = key_payload_reserve(key, datalen);
+> +        if (ret < 0) {
+> +                pr_debug("ret = %d\n", ret);
+> +                goto error;
+> +        }
+> +
+> +        ret = -ENOMEM;
+Same as above: Why do you in any case want to assign it here?
+
+> +        mpayload = kmalloc(sizeof(*mpayload) + datalen, GFP_KERNEL);
+I may be totally wrong, but is dereferencing a not initialized pointer
+(even just for using sizeof) really ok? Wouldn't it be safer to use
+a sizeof(struct mmc_key_payload) here?
+
+Thanks,
+Frank
+
+

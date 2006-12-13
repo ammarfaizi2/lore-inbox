@@ -1,118 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932627AbWLMJO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932632AbWLMJRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932627AbWLMJO6 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 04:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWLMJO6
+	id S932632AbWLMJRr (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 04:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWLMJRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 04:14:58 -0500
-Received: from zone4.gcu.info ([217.195.17.234]:51768 "EHLO
-	zone4.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932627AbWLMJO4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 04:14:56 -0500
-X-Greylist: delayed 724 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 04:14:56 EST
-Date: Wed, 13 Dec 2006 10:05:50 +0100 (CET)
-To: torvalds@osdl.org
-Subject: [GIT PULL] hwmon updates for 2.6.20
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <nCthjst9.1166000750.6131770.khali@localhost>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: LKML <linux-kernel@vger.kernel.org>
+	Wed, 13 Dec 2006 04:17:47 -0500
+Received: from elvis.mu.org ([192.203.228.196]:50883 "EHLO elvis.mu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932629AbWLMJRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 04:17:46 -0500
+X-Greylist: delayed 1875 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 04:17:46 EST
+Message-ID: <457FBDBE.10102@FreeBSD.org>
+Date: Wed, 13 Dec 2006 00:45:50 -0800
+From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, balbir@in.ibm.com, csturtiv@sgi.com,
+       daw@sgi.com, guillaume.thouvenin@bull.net, jlan@sgi.com,
+       nagar@watson.ibm.com, tee@sgi.com
+Subject: Re: [patch 03/13] io-accounting: write accounting
+References: <200612081152.kB8BqQvb019756@shell0.pdx.osdl.net>
+In-Reply-To: <200612081152.kB8BqQvb019756@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+akpm@osdl.org wrote:
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> Accounting writes is fairly simple: whenever a process flips a page from clean
+> to dirty, we accuse it of having caused a write to underlying storage of
+> PAGE_CACHE_SIZE bytes.
 
-Linus,
+On architectures where dirtying a page doesn't cause a page fault (like i386), couldn't you end up billing the wrong process (in fact, I think that even on other archituctures set_page_dirty() doesn't get called immediately in the page fault handler)? 
 
-Please pull the hwmon subsystem updates for Linux 2.6.20 from:
+AFAICS, set_page_dirty() is mostly called when trying to unmap a page when trying to shrink LRU lists, and there is no guarantee that this happens under the process that dirtied it (in fact, the set_page_dirty() is often done by kswapd).
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 hwmon-for-linus
-
-There are two new hardware monitoring drivers (for the Winbond W83793 and
-the Nat. Semi. PC87427), many improvements to the f71805f driver
-(including support for the F71872F/FG and for fan speed control) and a
-few fixes in individual drivers.
-
- Documentation/feature-removal-schedule.txt |    9
- Documentation/hwmon/f71805f                |   56
- Documentation/hwmon/it87                   |   15
- Documentation/hwmon/k8temp                 |    2
- Documentation/hwmon/pc87427                |   38
- Documentation/hwmon/sysfs-interface        |    4
- Documentation/hwmon/w83627ehf              |    2
- Documentation/hwmon/w83791d                |    2
- Documentation/hwmon/w83793                 |  110 +
- MAINTAINERS                                |   15
- drivers/hwmon/Kconfig                      |   56
- drivers/hwmon/Makefile                     |    3
- drivers/hwmon/ams/Makefile                 |    8
- drivers/hwmon/ams/ams-core.c               |  265 +++
- drivers/hwmon/ams/ams-i2c.c                |  299 +++
- drivers/hwmon/ams/ams-input.c              |  160 ++
- drivers/hwmon/ams/ams-pmu.c                |  207 ++
- drivers/hwmon/ams/ams.h                    |   72
- drivers/hwmon/f71805f.c                    |  569 ++++++-
- drivers/hwmon/hdaps.c                      |   68
- drivers/hwmon/hwmon-vid.c                  |    4
- drivers/hwmon/it87.c                       |  202 --
- drivers/hwmon/k8temp.c                     |    4
- drivers/hwmon/pc87360.c                    |    2
- drivers/hwmon/pc87427.c                    |  627 ++++++++
- drivers/hwmon/w83627ehf.c                  |    2
- drivers/hwmon/w83792d.c                    |    2
- drivers/hwmon/w83793.c                     | 1609 +++++++++++++++++++++
- drivers/i2c/busses/i2c-ali1563.c           |    2
- include/linux/i2c-id.h                     |    1
- 30 files changed, 4115 insertions(+), 300 deletions(-)
- create mode 100644 Documentation/hwmon/pc87427
- create mode 100644 Documentation/hwmon/w83793
- create mode 100644 drivers/hwmon/ams/Makefile
- create mode 100644 drivers/hwmon/ams/ams-core.c
- create mode 100644 drivers/hwmon/ams/ams-i2c.c
- create mode 100644 drivers/hwmon/ams/ams-input.c
- create mode 100644 drivers/hwmon/ams/ams-pmu.c
- create mode 100644 drivers/hwmon/ams/ams.h
- create mode 100644 drivers/hwmon/pc87427.c
- create mode 100644 drivers/hwmon/w83793.c
-
----------------
-
-Jean Delvare:
-      hwmon/f71805f: Store the fan control registers
-      hwmon/f71805f: Add manual fan speed control
-      hwmon/f71805f: Let the user adjust the PWM base frequency
-      hwmon/f71805f: Support DC fan speed control mode
-      hwmon/f71805f: Add support for "speed mode" fan speed control
-      hwmon/f71805f: Document the fan control features
-      hwmon/hdaps: Move the DMI detection data to .data
-      hwmon/it87: Remove the SMBus interface support
-      hwmon: New PC87427 hardware monitoring driver
-      hwmon/f71805f: Add support for the Fintek F71872F/FG chip
-      hwmon/f71805f: Always create all fan inputs
-      hwmon/f71805f: Fix the device address decoding
-      hwmon: Update Rudolf Marek's e-mail address
-
-Jim Cromie:
-      hwmon/pc87360: Autodetect the VRM version
-
-Rudolf Marek:
-      hwmon: New Winbond W83793 hardware monitoring driver
-      hwmon/w83793: Add documentation and maintainer
-
-Stelian Pop:
-      hwmon: New AMS hardware monitoring driver
-      hwmon: Add MAINTAINERS entry for new ams driver
-
-Stephan Berberig:
-      hwmon/hdaps: Update the list of supported devices
-
-Thanks,
---
-Jean Delvare
+-- Suleiman

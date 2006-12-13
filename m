@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932677AbWLMTgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964900AbWLMTgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbWLMTgQ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbWLMTgP
+	id S964900AbWLMTgd (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWLMTgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:36:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1917 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932672AbWLMTgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 14:36:14 -0500
-Date: Wed, 13 Dec 2006 20:36:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: David Miller <davem@davemloft.net>, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
-Message-ID: <20061213193623.GA3629@stusta.de>
-References: <20061212162435.GW28443@stusta.de> <20061212.171756.85408589.davem@davemloft.net> <20061213110801.1dd849ec@dxpl.pdx.osdl.net>
+	Wed, 13 Dec 2006 14:36:32 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:41267 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964900AbWLMTga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:36:30 -0500
+Date: Wed, 13 Dec 2006 20:33:49 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Nikolai Joukov <kolya@cs.sunysb.edu>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       unionfs@filer.fsl.cs.sunysb.edu, fistgen@filer.fsl.cs.sunysb.edu
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+In-Reply-To: <Pine.GSO.4.53.0612122217360.22195@compserv1>
+Message-ID: <Pine.LNX.4.61.0612132031220.32433@yvahk01.tjqt.qr>
+References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061213110801.1dd849ec@dxpl.pdx.osdl.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 11:08:01AM -0800, Stephen Hemminger wrote:
-> On Tue, 12 Dec 2006 17:17:56 -0800 (PST)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > From: Adrian Bunk <bunk@stusta.de>
-> > Date: Tue, 12 Dec 2006 17:24:35 +0100
-> > 
-> > > This patch converts drivers/net/loopback.c to using module_init().
-> > > 
-> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > I'm not %100 sure of this one, let's look at the comment you
-> > are deleting:
-> > 
-> > > -/*
-> > > - *	The loopback device is global so it can be directly referenced
-> > > - *	by the network code. Also, it must be first on device list.
-> > > - */
-> > > -extern int loopback_init(void);
-> > > -
-> > 
-> > in particular notice the part that says "it must be first on the
-> > device list".
-> > 
-> > I'm not sure whether that is important any longer.  It probably isn't,
-> > but we should verify it before applying such a patch.
-> > 
-> > Since module_init() effectively == device_initcall() for statically
-> > built objects, which loopback always is, the Makefile ordering does
-> > not seem to indicate to me that there is anything guarenteeing
-> > this "first on the list" invariant.  At least not via object
-> > file ordering.
-> > 
-> > So this gives some support to the idea that loopback_dev's position
-> > on the device list no longer matters.
-> 
-> The dst code makes assumptions that loopback is ifindex 1 as well.
->...
 
-But that assumption is already false for drivers not handled by Space.c:
+>We have designed a new stackable file system that we called RAIF:
+>Redundant Array of Independent Filesystems.
+>
+>Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
+>many different disk-based, memory, network, and distributed file systems.
+>RAIF can use the stable and maintained code of the other file systems and
+>thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
+>data or store it with parity on any subset of the lower file systems.  RAIF
+>has three main advantages over traditional driver-level RAID systems:
+>
+>1. RAIF can be mounted over any set of file systems.  This allows users to
+>   create many more useful configurations.  For example, it is possible to
+>   replicate the data on the local and remote disks, and stripe the data on
+>   the local hard drives and keep the parity (or even ECC to tolerate
+>   multiple failures) on the remote server(s).  In the latter case, all the
+>   read requests will be satisfied from the fast local disks and no local
+>   disk space will be spent on parity.
 
-E.g. on my computer [1], eth0 [2] has ifindex 1 and lo has ifindex 2.
+As for striping on a simplistic level, look at the Equal File 
+Distribution patch for unionfs :-)
 
-cu
-Adrian
+http://www.mail-archive.com/unionfs@mail.fsl.cs.sunysb.edu/msg01936.html
 
-[1] plain 2.6.16.36
-[2] built-in e100 driver
+Files are stored normally so that after the union is unmounted, the 
+files appear in one piece (unlike real RAID0 over two block devices).
 
+
+	-`J'
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-

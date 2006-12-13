@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964876AbWLMMFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964880AbWLMMIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWLMMFp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 07:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWLMMFp
+	id S964880AbWLMMIF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 07:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWLMMIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 07:05:45 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:10771 "EHLO kernel.dk"
+	Wed, 13 Dec 2006 07:08:05 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:39621 "EHLO scrub.xs4all.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964876AbWLMMFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 07:05:44 -0500
-Date: Wed, 13 Dec 2006 13:07:04 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 2/2] cciss: remove calls to pci_disable_device
-Message-ID: <20061213120703.GN4576@kernel.dk>
-References: <20061212195458.GB2471@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212195458.GB2471@beardog.cca.cpqcorp.net>
+	id S964880AbWLMMIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 07:08:04 -0500
+X-Greylist: delayed 1799 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 07:08:04 EST
+Date: Wed, 13 Dec 2006 12:37:56 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: jbaron@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Weird code in scripts/kconfig/Makefile
+In-Reply-To: <20061212180924.c998f9a8.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.64.0612131235530.1867@scrub.home>
+References: <20061212180924.c998f9a8.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12 2006, Mike Miller (OS Dev) wrote:
-> PATCH 2/2
+Hi,
+
+On Tue, 12 Dec 2006, Pete Zaitcev wrote:
+
+> In 2.6.19 (and Linus' curent tree), I found the following:
 > 
-> This patch removes calls to pci_disable_device except in
-> fail_all_cmds. The pci_disable_device function does something nasty to
-> Smart Array controllers that pci_enable_device does not undo. So if
-> the driver is unloaded it cannot be reloaded.  Also, customers can
-> disable any pci device via the ROM Based Setup Utility (RBSU). If the
-> customer has disabled the controller we should not try to blindly
-> enable the card from the driver.  Please consider this for inclusion.
+>           libpath=$$dir/lib; lib=qt; osdir=""; \
+>           $(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+>             osdir=x$$($(HOSTCXX) -print-multi-os-directory); \
+>           test -d $$libpath/$$osdir && libpath=$$libpath/$$osdir; \
+> 
+> What does the little 'x' do in front of $$(foo)? It looks suspiciously
+> like a typo to me.
 
-Applied 1+2 for inclusion.
+Indeed, it looks like it. It's the fallback path nowadays, so I guess it 
+wasn't noticed so far.
 
--- 
-Jens Axboe
-
+bye, Roman

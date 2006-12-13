@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751156AbWLMVmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751178AbWLMVqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWLMVmF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 16:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWLMVmF
+	id S1751178AbWLMVqS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 16:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWLMVqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 16:42:05 -0500
-Received: from straum.hexapodia.org ([64.81.70.185]:34658 "EHLO
-	straum.hexapodia.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751156AbWLMVmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 16:42:04 -0500
-X-Greylist: delayed 1514 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 16:42:04 EST
-Date: Wed, 13 Dec 2006 13:16:49 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Keiichi KII <k-keiichi@bx.jp.nec.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.19 2/6] support multiple logging agents
-Message-ID: <20061213211649.GA6307@hexapodia.org>
-References: <457E498C.1050806@bx.jp.nec.com> <457E4C65.6030802@bx.jp.nec.com> <20061212184250.GJ13687@waste.org>
+	Wed, 13 Dec 2006 16:46:18 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42212 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751178AbWLMVqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 16:46:17 -0500
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de
+In-Reply-To: <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org>
+References: <20061213195226.GA6736@kroah.com>
+	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+	 <20061213203113.GA9026@suse.de>
+	 <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 08:46:01 +1100
+Message-Id: <1166046361.11914.198.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212184250.GJ13687@waste.org>
-User-Agent: Mutt/1.4.2.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 12:42:50PM -0600, Matt Mackall wrote:
-> > +	new_dev = (struct netconsole_device*)kmalloc(
-> > +		sizeof(struct netconsole_device), GFP_ATOMIC);
-> 
-> Cast of void * is unnecessary.
+> Btw: there's one driver we _know_ we want to support in user space, and 
+> that's the X kind of direct-rendering thing. So if you can show that this 
+> driver infrastructure actually makes sense as a replacement for the DRI 
+> layer, then _that_ would be a hell of a convincing argument.
 
-Also,
-1. use kzalloc rather than kmalloc+memset
-2. use p = kzalloc(sizeof(*p) rather than p = kzalloc(sizeof(struct foo)
-3. use goto to common error exit code rather than local return
+And even X is trying to move away from that at least partially... With
+the DRI driver handling IRQs and processing command buffers... except
+for cards with multiple hardware contexts, but then, we are in a case
+similar to Infiniband where the HW is -designed- to have specific areas
+mapped into user space, and there is still a kernel driver to arbitrate,
+decide who gets what, establish those mappings, etc...
 
-> > +	if (!new_dev) {
-> > +		printk(KERN_INFO "netconsole: kmalloc() failed!\n");
-> > +		kfree(netcon_dev_config);
-> > +		return -ENOMEM;
-> > +	}
-> > +	memset(new_dev, 0, sizeof(struct netconsole_device));
+Thus X isn't even a good example :-)
 
--andy
+Ben.
+
+

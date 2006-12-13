@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932673AbWLMTca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932677AbWLMTgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932673AbWLMTca (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWLMTca
+	id S932677AbWLMTgQ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbWLMTgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:32:30 -0500
-Received: from sbcs.sunysb.edu ([130.245.1.15]:59679 "EHLO sbcs.cs.sunysb.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932667AbWLMTc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 14:32:29 -0500
-Date: Wed, 13 Dec 2006 14:32:17 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <Pine.GSO.4.53.0612131404510.5969@compserv1>
-Message-ID: <Pine.GSO.4.53.0612131422490.5969@compserv1>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1> <45804E3C.9020105@cfl.rr.com>
- <Pine.GSO.4.53.0612131404510.5969@compserv1>
+	Wed, 13 Dec 2006 14:36:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1917 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932672AbWLMTgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:36:14 -0500
+Date: Wed, 13 Dec 2006 20:36:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: David Miller <davem@davemloft.net>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
+Message-ID: <20061213193623.GA3629@stusta.de>
+References: <20061212162435.GW28443@stusta.de> <20061212.171756.85408589.davem@davemloft.net> <20061213110801.1dd849ec@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061213110801.1dd849ec@dxpl.pdx.osdl.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Nikolai Joukov wrote:
-> > > replication.  In case of RAID4 and RAID5-like configurations, RAIF performed
-> > > about two times *better* than software RAID and even better than an Adaptec
-> > > 2120S RAID5 controller.  This is because RAIF is located above file system
-> > > caches and can cache parity as normal data when needed.  We have more
-> > > performance details in a technical report, if anyone is interested.
-> >
-> > This doesn't make sense to me.  You do not want to cache the parity
-> > data.  It only needs to be used to validate the data blocks when the
-> > stripe is read, and after that, you only want to cache the data, and
-> > throw out the parity.  Caching the parity as well will pollute the cache
-> > and thus, should lower performance due to more important data being
-> > thrown out.
->
-> This happens automatically: unused parity pages are treated as unused
-> pages and get reused to cache something else.  Also, the parity
-> never gets cached if you do not write the data (or recover the data).
-> However, if you use the same parity page over and over you do not need to
-> fetch it from the disk again.
+On Wed, Dec 13, 2006 at 11:08:01AM -0800, Stephen Hemminger wrote:
+> On Tue, 12 Dec 2006 17:17:56 -0800 (PST)
+> David Miller <davem@davemloft.net> wrote:
+> 
+> > From: Adrian Bunk <bunk@stusta.de>
+> > Date: Tue, 12 Dec 2006 17:24:35 +0100
+> > 
+> > > This patch converts drivers/net/loopback.c to using module_init().
+> > > 
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > I'm not %100 sure of this one, let's look at the comment you
+> > are deleting:
+> > 
+> > > -/*
+> > > - *	The loopback device is global so it can be directly referenced
+> > > - *	by the network code. Also, it must be first on device list.
+> > > - */
+> > > -extern int loopback_init(void);
+> > > -
+> > 
+> > in particular notice the part that says "it must be first on the
+> > device list".
+> > 
+> > I'm not sure whether that is important any longer.  It probably isn't,
+> > but we should verify it before applying such a patch.
+> > 
+> > Since module_init() effectively == device_initcall() for statically
+> > built objects, which loopback always is, the Makefile ordering does
+> > not seem to indicate to me that there is anything guarenteeing
+> > this "first on the list" invariant.  At least not via object
+> > file ordering.
+> > 
+> > So this gives some support to the idea that loopback_dev's position
+> > on the device list no longer matters.
+> 
+> The dst code makes assumptions that loopback is ifindex 1 as well.
+>...
 
-To avoid confusion here: data recovery is not the only situation when it
-is necessary to read the parity.  Existing parity is also necessary for
-writes that are smaller than the page size.
+But that assumption is already false for drivers not handled by Space.c:
 
-Nikolai.
----------------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+E.g. on my computer [1], eth0 [2] has ifindex 1 and lo has ifindex 2.
+
+cu
+Adrian
+
+[1] plain 2.6.16.36
+[2] built-in e100 driver
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

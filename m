@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965138AbWLMT52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965123AbWLMT4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbWLMT52 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLMT51
+	id S965123AbWLMT4z (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWLMT43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:57:27 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:60152 "EHLO
-	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965127AbWLMT5Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 14:57:25 -0500
-Date: Wed, 13 Dec 2006 14:57:16 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <Pine.LNX.4.61.0612132031220.32433@yvahk01.tjqt.qr>
-Message-ID: <Pine.GSO.4.53.0612131443180.5969@compserv1>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
- <Pine.LNX.4.61.0612132031220.32433@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Dec 2006 14:56:29 -0500
+Received: from mx1.suse.de ([195.135.220.2]:45515 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965115AbWLMTyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:54:14 -0500
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: David Brownell <david-b@pacbell.net>,
+       David Brownell <dbrownell@users.sourceforge.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 14/14] Driver core: deprecate PM_LEGACY, default it to N
+Date: Wed, 13 Dec 2006 11:53:05 -0800
+Message-Id: <11660396331364-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.4.2
+In-Reply-To: <11660396303225-git-send-email-greg@kroah.com>
+References: <20061213195226.GA6736@kroah.com> <1166039585152-git-send-email-greg@kroah.com> <11660395913232-git-send-email-greg@kroah.com> <11660395951158-git-send-email-greg@kroah.com> <11660395998-git-send-email-greg@kroah.com> <11660396032350-git-send-email-greg@kroah.com> <1166039606191-git-send-email-greg@kroah.com> <11660396091326-git-send-email-greg@kroah.com> <11660396133624-git-send-email-greg@kroah.com> <11660396163757-git-send-email-greg@kroah.com> <11660396202644-git-send-email-greg@kroah.com> <11660396233517-git-send-email-greg@kroah.com> <11660396273898-git-send-email-greg@kroah.com> <11660396303225-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >We have designed a new stackable file system that we called RAIF:
-> >Redundant Array of Independent Filesystems.
-> >
-> >Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
-> >many different disk-based, memory, network, and distributed file systems.
-> >RAIF can use the stable and maintained code of the other file systems and
-> >thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
-> >data or store it with parity on any subset of the lower file systems.  RAIF
-> >has three main advantages over traditional driver-level RAID systems:
-> >
-> >1. RAIF can be mounted over any set of file systems.  This allows users to
-> >   create many more useful configurations.  For example, it is possible to
-> >   replicate the data on the local and remote disks, and stripe the data on
-> >   the local hard drives and keep the parity (or even ECC to tolerate
-> >   multiple failures) on the remote server(s).  In the latter case, all the
-> >   read requests will be satisfied from the fast local disks and no local
-> >   disk space will be spent on parity.
->
-> As for striping on a simplistic level, look at the Equal File
-> Distribution patch for unionfs :-)
->
-> http://www.mail-archive.com/unionfs@mail.fsl.cs.sunysb.edu/msg01936.html
->
-> Files are stored normally so that after the union is unmounted, the
-> files appear in one piece (unlike real RAID0 over two block devices).
+From: David Brownell <david-b@pacbell.net>
 
-RAIF supports rules that describe how to store particular files or groups
-of files.  A rule with RAIF level 0 (which is similar to RAID level 0) and
-a special striping unit size = '-1' will do the same (distribute the
-files on the lower file systems) for files that match any given file name
-pattern.  A rule with level 4 and striping unit size = '-1' will
-distribute files on several file systems and store an extra copy of the
-files on a dedicated file system (e.g., an NFS mount with lots of space).
-Now guess what RAIF's level 6 will do with a special striping unit
-size = '-1' :-)
+Deprecate the old "legacy" PM API, and more importantly default it to "n".
+Virtually nothing in-tree uses it any more.
 
-Nikolai.
-----------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ kernel/power/Kconfig |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
+index 710ed08..ed29622 100644
+--- a/kernel/power/Kconfig
++++ b/kernel/power/Kconfig
+@@ -20,13 +20,14 @@ config PM
+ 	  sending the processor to sleep and saving power.
+ 
+ config PM_LEGACY
+-	bool "Legacy Power Management API"
++	bool "Legacy Power Management API (DEPRECATED)"
+ 	depends on PM
+-	default y
++	default n
+ 	---help---
+-	   Support for pm_register() and friends.
++	   Support for pm_register() and friends.  This old API is obsoleted
++	   by the driver model.
+ 
+-	   If unsure, say Y.
++	   If unsure, say N.
+ 
+ config PM_DEBUG
+ 	bool "Power Management Debug Support"
+-- 
+1.4.4.2
+

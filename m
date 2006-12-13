@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750753AbWLMUcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750761AbWLMUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWLMUcO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWLMUcN
+	id S1750761AbWLMUel (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWLMUek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:32:13 -0500
-Received: from mail1.key-systems.net ([81.3.43.211]:41578 "HELO
-	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750748AbWLMUcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:32:12 -0500
-Message-ID: <45806349.70707@scientia.net>
-Date: Wed, 13 Dec 2006 21:32:09 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
+	Wed, 13 Dec 2006 15:34:40 -0500
+Received: from smtp2.belwue.de ([129.143.2.15]:43581 "EHLO smtp2.belwue.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750761AbWLMUek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:34:40 -0500
+Date: Wed, 13 Dec 2006 21:34:16 +0100 (CET)
+From: Karsten Weiss <K.Weiss@science-computing.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
+ memory hole mapping related bug?!
+In-Reply-To: <20061213195345.GA16112@tuatara.stupidest.org>
+Message-ID: <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
+ <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+ <458051FD.1060900@scientia.net> <20061213195345.GA16112@tuatara.stupidest.org>
 MIME-Version: 1.0
-To: andersen@codepoet.org, Karsten Weiss <K.Weiss@science-computing.de>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org>
-In-Reply-To: <20061213202925.GA3909@codepoet.org>
-Content-Type: multipart/mixed;
- boundary="------------000409030605090802070302"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000409030605090802070302
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Wed, 13 Dec 2006, Chris Wedgwood wrote:
 
-Erik Andersen wrote:
-> I just realized that booting with "iommu=soft" makes my pcHDTV
-> HD5500 DVB cards not work.  Time to go back to disabling the
-> memhole and losing 1 GB.  :-(
-Crazy,...
-I have a Hauppauge Nova-T 500 DualDVB-T card,... I'll check it later if
-I have the same problem and will inform you (please remember me if I
-forget ;) )
+> > Any ideas why iommu=disabled in the bios does not solve the issue?
+> 
+> The kernel will still use the IOMMU if the BIOS doesn't set it up if
+> it can, check your dmesg for IOMMU strings, there might be something
+> printed to this effect.
 
+FWIW: As far as I understand the linux kernel code (I am no kernel 
+developer so please correct me if I am wrong) the PCI dma mapping code is 
+abstracted by struct dma_mapping_ops. I.e. there are currently four 
+possible implementations for x86_64 (see linux-2.6/arch/x86_64/kernel/)
 
-Chris.
+1. pci-nommu.c : no IOMMU at all (e.g. because you have < 4 GB memory)
+   Kernel boot message: "PCI-DMA: Disabling IOMMU."
 
---------------000409030605090802070302
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+2. pci-gart.c : (AMD) Hardware-IOMMU.
+   Kernel boot message: "PCI-DMA: using GART IOMMU" (this message
+   first appeared in 2.6.16)
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------000409030605090802070302--
+3. pci-swiotlb.c : Software-IOMMU (used e.g. if there is no hw iommu)
+   Kernel boot message: "PCI-DMA: Using software bounce buffering 
+   for IO (SWIOTLB)"
+
+4. pci-calgary.c : Calgary HW-IOMMU from IBM; used in pSeries servers. 
+   This HW-IOMMU supports dma address mapping with memory proctection,
+   etc.
+   Kernel boot message: "PCI-DMA: Using Calgary IOMMU" (since 2.6.18!)
+
+What all this means is that you can use "dmesg|grep ^PCI-DMA:" to see 
+which implementation your kernel is currently using.
+
+As far as our problem machines are concerned the "PCI-DMA: using GART 
+IOMMU" case is broken (data corruption). But both "PCI-DMA: Disabling 
+IOMMU" (trigged with mem=2g) and "PCI-DMA: Using software bounce buffering 
+for IO (SWIOTLB)" (triggered with iommu=soft) are stable.
+
+BTW: It would be really great if this area of the kernel would get some 
+more and better documentation. The information at 
+linux-2.6/Documentation/x86_64/boot_options.txt is very terse. I had to 
+read the code to get a *rough* idea what all the "iommu=" options 
+actually do and how they interact.
+ 
+> > 1) And does this now mean that there's an error in the hardware
+> > (chipset or CPU/memcontroller)?
+> 
+> My guess is it's a kernel bug, I don't know for certain.  Perhaps we
+> shaould start making a more comprehensive list of affected kernels &
+> CPUs?
+
+BTW: Did someone already open an official bug at 
+http://bugzilla.kernel.org ?
+
+Best regards,
+Karsten
+
+-- 
+__________________________________________creating IT solutions
+Dipl.-Inf. Karsten Weiss               science + computing ag
+phone:    +49 7071 9457 452            Hagellocher Weg 73
+teamline: +49 7071 9457 681            72070 Tuebingen, Germany
+email:    knweiss@science-computing.de www.science-computing.de
+

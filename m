@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750701AbWLMUX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750707AbWLMU0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWLMUX0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWLMUX0
+	id S1750707AbWLMU0T (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWLMU0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:23:26 -0500
-Received: from mga07.intel.com ([143.182.124.22]:48629 "EHLO
-	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750701AbWLMUX0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:23:26 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,164,1165219200"; 
-   d="scan'208"; a="157855397:sNHT20256950"
-Message-ID: <45806137.4020403@linux.intel.com>
-Date: Wed, 13 Dec 2006 21:23:19 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 13 Dec 2006 15:26:19 -0500
+Received: from smtp2.belwue.de ([129.143.2.15]:41808 "EHLO smtp2.belwue.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750707AbWLMU0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:26:18 -0500
+X-Greylist: delayed 1529 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:26:18 EST
+Date: Wed, 13 Dec 2006 20:59:55 +0100 (CET)
+From: Karsten Weiss <K.Weiss@science-computing.de>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
+ memory hole mapping related bug?!
+In-Reply-To: <20061213195305.GA3358@codepoet.org>
+Message-ID: <Pine.LNX.4.61.0612132056380.6688@palpatine.science-computing.de>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
+ <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+ <20061213195305.GA3358@codepoet.org>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add allowed_affinity to the irq_desc to make it possible
- to have restricted irqs
-References: <1166018020.27217.805.camel@laptopd505.fenrus.org>	<m1lklbport.fsf@ebiederm.dsl.xmission.com>	<20061213194332.GA29185@elte.hu> <m1ejr3pnm3.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ejr3pnm3.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Wed, 13 Dec 2006, Erik Andersen wrote:
 
-> There is still a question of how to handle the NUMA case but...
->
+> On Mon Dec 11, 2006 at 10:24:02AM +0100, Karsten Weiss wrote:
+> > Last week we did some more testing with the following result:
+> > 
+> > We could not reproduce the data corruption anymore if we boot the machines 
+> > with the kernel parameter "iommu=soft" i.e. if we use software bounce 
+> > buffering instead of the hw-iommu. (As mentioned before, booting with 
+> > mem=2g works fine, too, because this disables the iommu altogether.)
+> > 
+> > I.e. on these systems the data corruption only happens if the hw-iommu 
+> > (PCI-GART) of the Opteron CPUs is in use.
+> > 
+> > Christoph, Erik, Chris: I would appreciate if you would test and hopefully 
+> > confirm this workaround, too.
+> 
+> What did you set the BIOS to when testing this setting?
+> Memory Hole enabled?  IOMMU enabled?
 
-the numa case is already handled; the needed info for that is exposed 
-already enough... at least for irqbalance
+"Memory hole mapping" was set to "hardware". With "disabled" we only
+see 3 of our 4 GB memory.
+
+Best regards,
+Karsten
+
+-- 
+__________________________________________creating IT solutions
+Dipl.-Inf. Karsten Weiss               science + computing ag
+phone:    +49 7071 9457 452            Hagellocher Weg 73
+teamline: +49 7071 9457 681            72070 Tuebingen, Germany
+email:    knweiss@science-computing.de www.science-computing.de
+

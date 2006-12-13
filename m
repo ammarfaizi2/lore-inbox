@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932613AbWLMHsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932605AbWLMHz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932613AbWLMHsM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 02:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbWLMHsM
+	id S932605AbWLMHz1 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 02:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWLMHz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 02:48:12 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33053 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932613AbWLMHsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 02:48:11 -0500
-Date: Tue, 12 Dec 2006 23:47:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Ralph Campbell <ralph.campbell@qlogic.com>,
-       Roland Dreier <rolandd@cisco.com>
-Subject: Re: IB: Add DMA mapping functions to allow device drivers to
- interpose
-Message-Id: <20061212234720.700f3cea.akpm@osdl.org>
-In-Reply-To: <200612130359.kBD3xjWp028210@hera.kernel.org>
-References: <200612130359.kBD3xjWp028210@hera.kernel.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Dec 2006 02:55:27 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:58355 "EHLO
+	liaag2ag.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932605AbWLMHz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 02:55:26 -0500
+Date: Wed, 13 Dec 2006 02:50:01 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ak@muc.de, vojtech@suse.cz
+Message-ID: <200612130253_MC3-1-D4E3-471@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006 03:59:45 GMT
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+In-Reply-To: <1165984783.23819.7.camel@localhost>
 
->     IB: Add DMA mapping functions to allow device drivers to interpose
->     
->     The QLogic InfiniPath HCAs use programmed I/O instead of HW DMA.
->     This patch allows a verbs device driver to interpose on DMA mapping
->     function calls in order to avoid relying on bus_to_virt() and
->     phys_to_virt() to undo the mappings created by dma_map_single(),
->     dma_map_sg(), etc.
->     
->     Signed-off-by: Ralph Campbell <ralph.campbell@qlogic.com>
->     Signed-off-by: Roland Dreier <rolandd@cisco.com>
+On Wed, 13 Dec 2006 05:39:43 +0100, Kasper Sandberg wrote:
 
-include/rdma/ib_verbs.h: In function 'ib_dma_alloc_coherent':
-include/rdma/ib_verbs.h:1635: warning: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type
-In file included from drivers/infiniband/hw/mthca/mthca_provider.h:41,
-                 from drivers/infiniband/hw/mthca/mthca_dev.h:53,
-                 from drivers/infiniband/hw/mthca/mthca_main.c:44:
-include/rdma/ib_verbs.h: In function 'ib_dma_alloc_coherent':
-include/rdma/ib_verbs.h:1635: warning: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type
+> do you think it may be a bug in the kernel? the stuff with wine that
+> gets thrown in the kernel messages?
 
+Let's just say the behavior has changed.  It now returns
+-EINVAL instead of -ENOTTY when the msdos IOCTLs fail.
 
-That u64 needs to become a dma_addr_t.  That means that
-ib_dma_mapping_ops.alloc_coherent() and ib_dma_mapping_ops.free_coherent() are
-wrong as well.
+> im 100% positive wine does NOT have
+> access to any fat32, cause i entirely removed the only disk having such
+> a filesystem, and it still likes to give this
 
-> +struct ib_dma_mapping_ops {
-> ...
-> +	void		*(*alloc_coherent)(struct ib_device *dev,
-> +					   size_t size,
-> +					   u64 *dma_handle,
-> +					   gfp_t flag);
-> +	void		(*free_coherent)(struct ib_device *dev,
-> +					 size_t size, void *cpu_addr,
-> +					 u64 dma_handle);
-> +};
+That's when this happens: running certain programs that try
+msdos-type IOCTLs on native Linux filesystems.
 
-I'd have picked this up if it had been in git-infiniband for even a couple
-of days.  I'm assuming this all got slammed into mainline because of the
-merge window thing.
+> however the last few
+> times i havent observed the app going nuts
 
-I cannot find these patches on the kernel mailing list.  I cannot find the
-pull request anywhere.
+If there aren't any other problems you can just turn off the logging.
 
-> +static inline u64 ib_dma_map_single(struct ib_device *dev,
-> +				    void *cpu_addr, size_t size,
-> +				    enum dma_data_direction direction)
+Did you change something else?
 
-no, dma_map_single() returns a dma_addr_t.
+Anyway, here is a much simpler patch that restores the previous
+behavior (but leaves the message.)  However if you aren't having
+any problems now other than the messages maybe there's no real
+problem after all?
 
-
+--- 2.6.19.1-64smp.orig/fs/compat.c
++++ 2.6.19.1-64smp/fs/compat.c
+@@ -444,7 +444,11 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 
+ 		if (++count <= 50)
+ 			compat_ioctl_error(filp, fd, cmd, arg);
+-		error = -EINVAL;
++
++		if (cmd == 0x82187201)
++			error = -ENOTTY;
++		else
++			error = -EINVAL;
+ 	}
+ 
+ 	goto out_fput;
+-- 
+MBTI: IXTP

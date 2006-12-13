@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751071AbWLMVYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751083AbWLMV0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWLMVYT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 16:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWLMVYT
+	id S1751083AbWLMV0k (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 16:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWLMV0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 16:24:19 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:43579 "EHLO smtp.osdl.org"
+	Wed, 13 Dec 2006 16:26:40 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43832 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751071AbWLMVYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 16:24:17 -0500
-Date: Wed, 13 Dec 2006 13:23:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Kawai, Hidehiro" <hidehiro.kawai.ez@hitachi.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, james.bottomley@steeleye.com,
-       Satoshi OSHIMA <soshima@redhat.com>,
-       "Hideo AOKI@redhat" <haoki@redhat.com>,
-       sugita <yumiko.sugita.yf@hitachi.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] binfmt_elf: core dump masking support
-Message-Id: <20061213132358.ddcaaaf4.akpm@osdl.org>
-In-Reply-To: <457FA840.5000107@hitachi.com>
-References: <457FA840.5000107@hitachi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1751083AbWLMV0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 16:26:39 -0500
+Date: Wed, 13 Dec 2006 13:26:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+In-Reply-To: <1166044471.11914.195.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
+References: <20061213195226.GA6736@kroah.com>  <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+ <1166044471.11914.195.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006 16:14:08 +0900
-"Kawai, Hidehiro" <hidehiro.kawai.ez@hitachi.com> wrote:
 
-> This patch provides a feature which enables you to specify the memory
-> segment types you don't want to dump into a core file. You can specify
-> them per process via /proc/<pid>/coremask file. This file represents
-> the bitmask of memory segment types which are not written out when the
-> <pid> process is dumped. Currently, bit 0 is only available. This
-> means anonymous shared memory, which includes IPC shared memory and
-> some of mmap(2)'ed memory.
+
+On Thu, 14 Dec 2006, Benjamin Herrenschmidt wrote:
+>
+> Actually, you can... but wether you want is a different story :-)
 > 
-> This patch can be applied against 2.6.19-rc6-mm2, and tested on i386,
-> x86_64, and ia64 platforms.
-> 
-> Here is the background. Some software programs share huge memory among
-> hundreds of processes. If a failure occurs on one of these processes,
-> they can be signaled by a monitoring process to generate core files
-> and restart the service. However, it can develop into a system-wide
-> failure such as system slow down for a long time and disk space
-> shortage because the total size of the core files is very huge!
-> 
-> To avoid the above situation we can limit the core file size by
-> setrlimit(2) or ulimit(1). But this method can lose important data
-> such as stack because core dumping is done from lower address to
-> higher address and terminated halfway.
-> So I suggest keeping shared memory segments from being dumped for
-> particular processes. Because the shared memory attached to processes
-> is common in them, we don't need to dump the shared memory every time.
-> 
-> If you don't want to dump all shared memory segments attached to
-> pid 1234, set the bit 0 of the process's coremask to 1:
-> 
->   $ echo 1 > /proc/1234/coremask
-> 
-> Additionally, you can check its hexadecimal value by reading the file:
-> 
->   $ cat /proc/1234/coremask
->   00000001
-> 
-> When a new process is created, the process inherits the coremask
-> setting from its parent. It is useful to set the coremask before
-> the program runs. For example:
-> 
->   $ echo 1 > /proc/self/coremask
->   $ ./some_program
+> You can simply mask it, have it handled by userspace and re-enable it
+> when that's done.
 
-The requirement makes sense, I guess.
+Nope. Again, this whole mentality is WRONG.
 
-Regarding the implementation: if we add
+It DOES NOT WORK. No architecture does per-device interrupts portably, 
+which means that you'll always see sharing. 
 
-	unsigned char coredump_omit_anon_memory:1;
+And once you see sharing, you have small "details" like the harddisk 
+interrupt or network interrupt that the user-land driver will depend on.
 
-into the mm_struct right next to `dumpable' then we avoid increasing the
-size of the mm_struct, and the code gets neater.
+Oops. Instant deadlock.
 
+> I don't mean I -like- the approach... I just say it can be made to
+> sort-of work. But I don't see the point.
 
-Modification of this field is racy, and we don't have a suitable lock in
-mm_struct to fix that.  I don't think we care about that a lot, but it'd be
-best to find some way of fixing it.
+No. The point really is that it fundamentally _cannot_ work. Not in the 
+real world.
 
+It can only work in some alternate reality where you can always disable 
+interrupts per-device, and even in that alternate reality it would be 
+wrong to use that quoted interrupt handler: not only do you need to 
+disable the irq, you need to have an "acknowledge" phase too
 
-Really we should convert binfmt_aout.c and any other coredumpers too.
+So you'd actually have to fix things _architecturally_, not just add some 
+code to the irq handler.
 
-
-Does this feature have any security implications?  For example, there might
-be system administration programs which force a coredump on a "bad"
-process, and leave the core somewhere for the administrator to look at. 
-With this change, we permit hiding of that corefile's anon memory from the
-administrator.  OK, lame example, but perhaps there are better ones.
+		Linus

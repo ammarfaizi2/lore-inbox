@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964869AbWLMOgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964987AbWLMOky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWLMOgO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 09:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWLMOgO
+	id S964987AbWLMOky (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 09:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWLMOky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 09:36:14 -0500
-Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:7426 "EHLO
-	hansmi.home.forkbomb.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964973AbWLMOgN (ORCPT
+	Wed, 13 Dec 2006 09:40:54 -0500
+Received: from homer.mvista.com ([63.81.120.155]:13832 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964974AbWLMOkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 09:36:13 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 09:36:13 EST
-Date: Wed, 13 Dec 2006 15:29:30 +0100
-From: Michael Hanselmann <linux-kernel@hansmi.ch>
-To: James Cloos <cloos@jhcloos.com>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: drivers/video/aty/radeon_backlight.c
-Message-ID: <20061213142930.GA12686@hansmi.ch>
-References: <m3irgflxh4.fsf@lugabout.jhcloos.org>
+	Wed, 13 Dec 2006 09:40:53 -0500
+X-Greylist: delayed 1541 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 09:40:52 EST
+Message-ID: <45800B4D.8000906@ru.mvista.com>
+Date: Wed, 13 Dec 2006 17:16:45 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3irgflxh4.fsf@lugabout.jhcloos.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1] Toshiba TC86C001 IDE driver
+References: <200612130148.34539.sshtylyov@ru.mvista.com> <20061212234145.557cb035@localhost.localdomain>
+In-Reply-To: <20061212234145.557cb035@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 08:46:24AM -0500, James Cloos wrote:
-> Are there any dependencies in $subject which would preclude changing
-> drivers/video/Kconfig with:
+Hello.
 
-Yes.
+Alan wrote:
 
-> or is radeon_backlight.c only functional when -DCONFIG_PMAC_BACKLIGHT,
-> even though the pmac routines are all ifdef'ed?
+>>+ * We work around this by initiating dummy, zero-length DMA transfer on
+>>+ * a DMA timeout expiration. I found no better way to do this with the current
 
-Did you actually test wether it works? As far as I know, only Apple
-(PowerPC) hardware uses these registers yet and have no use anywhere
-else.
+> Novel workaround and probably better than resetting the chip as the
+> winbong does.
 
-Greets,
-Michael
+    I didn't try resetting however the datasheet suggests it just won't do.
 
--- 
-Gentoo Linux developer, http://hansmi.ch/, http://forkbomb.ch/
+>>+static int tc86c001_busproc(ide_drive_t *drive, int state)
+>>+{
+
+> Waste of space having a busproc routine. The maintainer removed all the
+> usable hotplug support from old IDE so this might as well be dropped.
+
+    Don't know what you mean, ioctl is still there...
+
+>>@@ -1407,6 +1407,24 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+>> DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
+>> DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
+
+>>+/*
+>>+ * Toshiba TC86C001 IDE controller reports the standard 8-byte BAR0 size
+>>+ * but PIO transfer won't work if BAR0 falls at the odd 8 bytes.
+>>+ * Re-allocate the region if needed.
+>>+ */
+
+> NAK. I think this fixup should be testing if the device port 0 is in
+> native mode before doing the fixup. In comaptibility mode bar 0 is
+
+    The chip is native mode only.
+
+> "Close but no cookie": please fix the PCI quirk to match the current -mm
+> behaviour with the ATA resource tree. Otherwise - nice driver.
+
+    Ugh, I should've expected some backstab from -mm tree...
+
+> Alan
+
+WBR, Sergei

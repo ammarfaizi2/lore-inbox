@@ -1,90 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964915AbWLMNHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964957AbWLMNOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbWLMNHk (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 08:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWLMNHk
+	id S964957AbWLMNOP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 08:14:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWLMNOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 08:07:40 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2439 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964915AbWLMNHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 08:07:38 -0500
-Date: Wed, 13 Dec 2006 14:07:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [-mm patch] cleanup linux/byteorder/swabb.h
-Message-ID: <20061213130746.GH3851@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 13 Dec 2006 08:14:15 -0500
+Received: from il.qumranet.com ([62.219.232.206]:47434 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964957AbWLMNOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 08:14:14 -0500
+X-Greylist: delayed 1889 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 08:14:13 EST
+Subject: [PATCH 2/3] KVM: AMD SVM: handle MSR_STAR in 32-bit mode
+From: Avi Kivity <avi@qumranet.com>
+Date: Wed, 13 Dec 2006 12:44:56 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <457FF542.6050602@qumranet.com>
+In-Reply-To: <457FF542.6050602@qumranet.com>
+Message-Id: <20061213124456.C85AA2502E1@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- no longer a userspace header
-- add #include <linux/types.h> for in-kernel compilation
+This is necessary for linux guests.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
----
-
- include/linux/byteorder/Kbuild  |    1 -
- include/linux/byteorder/swabb.h |   13 ++++---------
- 2 files changed, 4 insertions(+), 10 deletions(-)
-
---- a/include/linux/byteorder/swabb.h
-+++ b/include/linux/byteorder/swabb.h
-@@ -25,6 +25,8 @@ #define _LINUX_BYTEORDER_SWABB_H
-  *
-  */
- 
-+#include <linux/types.h>
-+
- #define ___swahw32(x) \
- ({ \
- 	__u32 __x = (x); \
-@@ -77,19 +79,14 @@ #endif
- /*
-  * Allow constant folding
-  */
--#if defined(__GNUC__) && defined(__OPTIMIZE__)
--#  define __swahw32(x) \
-+#define __swahw32(x) \
- (__builtin_constant_p((__u32)(x)) ? \
-  ___swahw32((x)) : \
-  __fswahw32((x)))
--#  define __swahb32(x) \
-+#define __swahb32(x) \
- (__builtin_constant_p((__u32)(x)) ? \
-  ___swahb32((x)) : \
-  __fswahb32((x)))
--#else
--#  define __swahw32(x) __fswahw32(x)
--#  define __swahb32(x) __fswahb32(x)
--#endif /* OPTIMIZE */
- 
- 
- static inline __u32 __fswahw32(__u32 x)
-@@ -128,13 +125,11 @@ #ifdef __BYTEORDER_HAS_U64__
-  */
- #endif /* __BYTEORDER_HAS_U64__ */
- 
--#if defined(__KERNEL__)
- #define swahw32 __swahw32
- #define swahb32 __swahb32
- #define swahw32p __swahw32p
- #define swahb32p __swahb32p
- #define swahw32s __swahw32s
- #define swahb32s __swahb32s
--#endif
- 
- #endif /* _LINUX_BYTEORDER_SWABB_H */
---- linux-2.6.19-mm1/include/linux/byteorder/Kbuild.old	2006-12-13 02:33:41.000000000 +0100
-+++ linux-2.6.19-mm1/include/linux/byteorder/Kbuild	2006-12-13 02:33:46.000000000 +0100
-@@ -2,5 +2,4 @@
- header-y += little_endian.h
- 
- unifdef-y += generic.h
--unifdef-y += swabb.h
- unifdef-y += swab.h
+Index: linux-2.6/drivers/kvm/svm.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/svm.c
++++ linux-2.6/drivers/kvm/svm.c
+@@ -402,11 +402,11 @@ static __init int svm_hardware_setup(voi
+ 	set_msr_interception(msrpm_va, MSR_GS_BASE, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_FS_BASE, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_KERNEL_GS_BASE, 1, 1);
+-	set_msr_interception(msrpm_va, MSR_STAR, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_LSTAR, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_CSTAR, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_SYSCALL_MASK, 1, 1);
+ #endif
++	set_msr_interception(msrpm_va, MSR_K6_STAR, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_IA32_SYSENTER_CS, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_IA32_SYSENTER_ESP, 1, 1);
+ 	set_msr_interception(msrpm_va, MSR_IA32_SYSENTER_EIP, 1, 1);
+@@ -1098,10 +1098,10 @@ static int svm_get_msr(struct kvm_vcpu *
+ 	case MSR_IA32_APICBASE:
+ 		*data = vcpu->apic_base;
+ 		break;
+-#ifdef CONFIG_X86_64
+-	case MSR_STAR:
++	case MSR_K6_STAR:
+ 		*data = vcpu->svm->vmcb->save.star;
+ 		break;
++#ifdef CONFIG_X86_64
+ 	case MSR_LSTAR:
+ 		*data = vcpu->svm->vmcb->save.lstar;
+ 		break;
+@@ -1173,10 +1173,10 @@ static int svm_set_msr(struct kvm_vcpu *
+ 	case MSR_IA32_APICBASE:
+ 		vcpu->apic_base = data;
+ 		break;
+-#ifdef CONFIG_X86_64_
+-	case MSR_STAR:
++	case MSR_K6_STAR:
+ 		vcpu->svm->vmcb->save.star = data;
+ 		break;
++#ifdef CONFIG_X86_64_
+ 	case MSR_LSTAR:
+ 		vcpu->svm->vmcb->save.lstar = data;
+ 		break;

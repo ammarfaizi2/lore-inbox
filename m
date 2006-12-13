@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbWLMKlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964842AbWLMKlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbWLMKlN (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 05:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWLMKlN
+	id S964842AbWLMKlS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 05:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932664AbWLMKlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 05:41:13 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:18270 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932653AbWLMKlM (ORCPT
+	Wed, 13 Dec 2006 05:41:17 -0500
+Received: from nz-out-0506.google.com ([64.233.162.225]:3425 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932661AbWLMKlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 05:41:12 -0500
+	Wed, 13 Dec 2006 05:41:16 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=NmnQqk7f/JB9EH6n/ELevunDG6HXg6c5To9vv9/R32cPAp9eKhoSa6GdmWnR42FPJx98XyKnZwN4wr2oyQdIkc2r+Ht+WYqlThLlVnv+3gyebrf/htqACiwITvoWvAPApkK/YArwdRMQi105Zkf4ThaBO0frZCMdj/bZ3CoEH6E=
-Message-ID: <86802c440612130241i21a0cf25k14aaf2a145c094c6@mail.gmail.com>
-Date: Wed, 13 Dec 2006 02:41:10 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-Cc: "Greg KH" <gregkh@suse.de>, "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
-       "David Brownell" <david-b@pacbell.net>
-In-Reply-To: <86802c440612130209r5fab0de7q5dcda00c6c01cd13@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RL9HHOk+afpRDUDZMDGY0JCc/CZ5rY3kiqiIRKbRLjCOaxQFhrWyd/vj7FvBg4j64djJmu5uIpGbfnmKjVeHtzyM8I6c2lA3Kb+GHS5FD7wo0nKk6cLHwzSyKHfoxRiJL5O8Z5w1X0wD6v7ZKuHxZVPC+VkoVctY4YkjPGY2oFI=
+Message-ID: <b0943d9e0612130241k3363a2c9kd464d33122e6147f@mail.gmail.com>
+Date: Wed, 13 Dec 2006 10:41:15 +0000
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Tejun Heo" <htejun@gmail.com>
+Subject: Re: [PATCH] ata_piix: use piix_host_stop() in ich_pata_ops
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061211132625.GA18947@htj.dyndns.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-	 <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
-	 <86802c440612080053s13e5318eq7ae83aff4c7eb21c@mail.gmail.com>
-	 <m1zm9y3gd2.fsf@ebiederm.dsl.xmission.com>
-	 <86802c440612122300k36e84f96x85ef25ebbf27077d@mail.gmail.com>
-	 <m164cgqmmq.fsf@ebiederm.dsl.xmission.com>
-	 <86802c440612130209r5fab0de7q5dcda00c6c01cd13@mail.gmail.com>
-X-Google-Sender-Auth: 70ed50b266790c0c
+References: <b0943d9e0612091454j6df1fb0ej2fa006c3fa33abae@mail.gmail.com>
+	 <20061211132625.GA18947@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wakeup_level4_pgt need to be updated in addtion to boot_level4_pgt?
+Tejun,
 
-also comment could be updated for good unstanding too.
+On 11/12/06, Tejun Heo <htejun@gmail.com> wrote:
+> piix_init_one() allocates host private data which should be freed by
+> piix_host_stop().  ich_pata_ops wasn't converted to piix_host_stop()
+> while merging, leaking 4 bytes on driver detach.  Fix it.
 
-YH
+I tried your patch last night but the leak is still reported. I need
+to investigate further and put some printk's in the piix_host_stop
+function to check whether the freeing really takes place.
+
+What I can't follow is where the ata_port_info.private_data
+(port_info[] or ppinfo[]) in piix_init_one gets transfered to
+ata_host.private_data (the "host" argument) that piix_host_stop tries
+to free.
+
+-- 
+Catalin

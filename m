@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965147AbWLMUC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965150AbWLMUDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbWLMUC4 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLMUC4
+	id S965150AbWLMUDP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWLMUDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:02:56 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:50859 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965147AbWLMUCz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:02:55 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Wed, 13 Dec 2006 14:58:33 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: lots of code could be simplified by using ARRAY_SIZE()
-Message-ID: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+	Wed, 13 Dec 2006 15:03:15 -0500
+Received: from mail.gmx.net ([213.165.64.20]:41268 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S965143AbWLMUDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:03:12 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:03:11 EST
+X-Authenticated: #3612999
+Date: Wed, 13 Dec 2006 20:56:18 +0100 (CET)
+From: Karsten Weiss <knweiss@gmx.de>
+To: Christoph Anton Mitterer <calestyo@scientia.net>
+cc: linux-kernel@vger.kernel.org, ak@suse.de, andersen@codepoet.org,
+       cw@f00f.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
+ memory hole mapping related bug?!
+In-Reply-To: <45804C0B.4030109@scientia.net>
+Message-ID: <Pine.LNX.4.64.0612132014340.2963@addx.localnet>
+References: <4570CF26.8070800@scientia.net> <Pine.LNX.4.64.0612021048200.2981@addx.localnet>
+ <45804C0B.4030109@scientia.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Dec 2006, Christoph Anton Mitterer wrote:
 
-  there are numerous places throughout the source tree that apparently
-calculate the size of an array using the construct
-"sizeof(fubar)/sizeof(fubar[0])". see for yourself:
+>> Christoph, I will carefully re-read your entire posting and the
+>> included links on Monday and will also try the memory hole
+>> setting.
+>>
+> And did you get out anything new?
 
-  $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+As I already mentioned the kernel parameter "iommu=soft" fixes
+the data corruption for me. We saw no more data corruption
+during a test on 48 machines over the last week-end. Chris
+Wedgewood already confirmed that this setting fixed the data
+corruption for him, too.
 
-but we already have, from "include/linux/kernel.h":
+Of course, the big question "Why does the hardware iommu *not*
+work on those machines?" still remains.
 
-  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+I have also tried setting "memory hole mapping" to "disabled"
+instead of "hardware" on some of the machines and this *seems*
+to work stable, too. However, I did only test it on about a
+dozen machines because this bios setting costs us 1 GB memory
+(and iommu=soft does not).
 
-a simple script to make the appropriate cleanup, given the directory
-name as an argument:
+BTW: Maybe I should also mention that other machines types
+(e.g. the HP xw9300 dual opteron workstations) which also use a
+NVIDIA chipset and Opterons never had this problem as far as I
+know.
 
-================== cut ================
-#!/bin/sh
+Best regards,
+Karsten
 
-DIR=$1
-
-for f in $(grep -Erl "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}) ;
-do
-  echo "Fixing $f ..."
-  perl -pi -e "s|sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)|ARRAY_SIZE\(\1\)|" $f
-done
-=======================================
-
-  of course, the file must (eventually) include linux/kernel.h but one
-would think that applies to the majority of the source tree, no?
-
-  just a thought.
-
-rday
+-- 
+Dipl.-Inf. Karsten Weiss - http://www.machineroom.de/knweiss

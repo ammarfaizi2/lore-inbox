@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932420AbWLMCmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750752AbWLMCs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWLMCmu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 21:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWLMCmu
+	id S1750752AbWLMCs6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 21:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWLMCs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 21:42:50 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42881 "EHLO smtp.osdl.org"
+	Tue, 12 Dec 2006 21:48:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35205 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932420AbWLMCmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 21:42:49 -0500
-Date: Tue, 12 Dec 2006 18:38:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Erik Jacobson <erikj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
-       matthltc@us.ibm.com
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-Message-Id: <20061212183826.6edb3a3f.akpm@osdl.org>
-In-Reply-To: <20061213023132.GA29897@sgi.com>
-References: <20061207232213.GA29340@sgi.com>
-	<1165881166.24721.71.camel@localhost.localdomain>
-	<20061212175411.GA20407@sgi.com>
-	<20061212164504.d6f8a3cb.akpm@osdl.org>
-	<20061213023132.GA29897@sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1750752AbWLMCs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 21:48:57 -0500
+X-Greylist: delayed 1124 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 21:48:57 EST
+Date: Tue, 12 Dec 2006 21:28:51 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-20.boston.redhat.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Weird code in scripts/kconfig/Makefile
+In-Reply-To: <20061212180924.c998f9a8.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.64.0612122112220.11690@dhcp83-20.boston.redhat.com>
+References: <20061212180924.c998f9a8.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2006 20:31:32 -0600
-Erik Jacobson <erikj@sgi.com> wrote:
 
-> > But it's rather a lot of churn for such a thing.  Did you consider simply using
-> > put_unaligned() against the specific offending field(s)?
-> 
-> Hi.  This was not considered.
-> 
-> I wanted to give you some quick feedback, so I tried your suggestion in the
-> fork path.  It seemed to fix the problem as well.
+On Tue, 12 Dec 2006, Pete Zaitcev wrote:
 
-OK.
-
-> put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
+> Hi, Roman & All:
 > 
-> Is what I tried.
+> In 2.6.19 (and Linus' curent tree), I found the following:
 > 
-> I'm on vacation tomorrow but on Thursday, if you like, I can whip up
-> a patch that does this and test it more thoroughly.  Is this the
-> direction you prefer?  What I did just now was really quick and dirty
-> to see if it has a shot or not but it looks like put_unaligned will
-> fix it too.
+>           libpath=$$dir/lib; lib=qt; osdir=""; \
+>           $(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+>             osdir=x$$($(HOSTCXX) -print-multi-os-directory); \
+>           test -d $$libpath/$$osdir && libpath=$$libpath/$$osdir; \
+> 
+> What does the little 'x' do in front of $$(foo)? It looks suspiciously
+> like a typo to me.
+> 
+> I think Jason caught it, but I didn't see a correction sent out.
 > 
 
-Well it's a one-liner and it makes it very clear what's going on.  So
-unless there's some undiscovered downside, yes, I think it's a good way to
-go.  It'll be an easier patch for the -stable guys to swallow too.
-
-There's no particular hurry on it.
+yes. looks like an error to me too...i left it out of an internal patch to 
+this code. Since we are testing for the existence of the directory, it has 
+probably gone unnoticed.

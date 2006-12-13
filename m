@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965112AbWLMTyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965124AbWLMTyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965112AbWLMTyv (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWLMTyY
+	id S965124AbWLMTyW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWLMTyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:54:24 -0500
-Received: from ns.suse.de ([195.135.220.2]:45526 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965112AbWLMTyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 13 Dec 2006 14:54:20 -0500
+Received: from ns.suse.de ([195.135.220.2]:45465 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965106AbWLMTxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:53:54 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Scott Wood <scottwood@freescale.com>, Andrew Morton <akpm@osdl.org>,
+Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 13/14] Driver core: Make platform_device_add_data accept a const pointer
-Date: Wed, 13 Dec 2006 11:53:04 -0800
-Message-Id: <11660396303225-git-send-email-greg@kroah.com>
+Subject: [PATCH 8/14] DebugFS : coding style fixes
+Date: Wed, 13 Dec 2006 11:52:59 -0800
+Message-Id: <11660396133624-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.4.2
-In-Reply-To: <11660396273898-git-send-email-greg@kroah.com>
-References: <20061213195226.GA6736@kroah.com> <1166039585152-git-send-email-greg@kroah.com> <11660395913232-git-send-email-greg@kroah.com> <11660395951158-git-send-email-greg@kroah.com> <11660395998-git-send-email-greg@kroah.com> <11660396032350-git-send-email-greg@kroah.com> <1166039606191-git-send-email-greg@kroah.com> <11660396091326-git-send-email-greg@kroah.com> <11660396133624-git-send-email-greg@kroah.com> <11660396163757-git-send-email-greg@kroah.com> <11660396202644-git-send-email-greg@kroah.com> <11660396233517-git-send-email-greg@kroah.com> <11660396273898-git-send-email-greg@kroah.com>
+In-Reply-To: <11660396091326-git-send-email-greg@kroah.com>
+References: <20061213195226.GA6736@kroah.com> <1166039585152-git-send-email-greg@kroah.com> <11660395913232-git-send-email-greg@kroah.com> <11660395951158-git-send-email-greg@kroah.com> <11660395998-git-send-email-greg@kroah.com> <11660396032350-git-send-email-greg@kroah.com> <1166039606191-git-send-email-greg@kroah.com> <11660396091326-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Scott Wood <scottwood@freescale.com>
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
 
-platform_device_add_data() makes a copy of the data that is given to it,
-and thus the parameter can be const.  This removes a warning when data
-from get_property() on powerpc is handed to platform_device_add_data(),
-as get_property() returns a const pointer.
+Minor coding style fixes along the way : 80 cols and a white space.
 
-Signed-off-by: Scott Wood <scottwood@freescale.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/platform.c         |    2 +-
- include/linux/platform_device.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/debugfs/inode.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 0338289..f9c903b 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -212,7 +212,7 @@ EXPORT_SYMBOL_GPL(platform_device_add_resources);
-  *	pointer.  The memory associated with the platform data will be freed
-  *	when the platform device is released.
-  */
--int platform_device_add_data(struct platform_device *pdev, void *data, size_t size)
-+int platform_device_add_data(struct platform_device *pdev, const void *data, size_t size)
- {
- 	void *d;
+diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
+index 020da4c..05d1a9c 100644
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -55,7 +55,8 @@ static struct inode *debugfs_get_inode(struct super_block *sb, int mode, dev_t d
+ 			inode->i_op = &simple_dir_inode_operations;
+ 			inode->i_fop = &simple_dir_operations;
  
-diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
-index 20f47b8..8bbd459 100644
---- a/include/linux/platform_device.h
-+++ b/include/linux/platform_device.h
-@@ -39,7 +39,7 @@ extern struct platform_device *platform_device_register_simple(char *, unsigned
- 
- extern struct platform_device *platform_device_alloc(const char *name, unsigned int id);
- extern int platform_device_add_resources(struct platform_device *pdev, struct resource *res, unsigned int num);
--extern int platform_device_add_data(struct platform_device *pdev, void *data, size_t size);
-+extern int platform_device_add_data(struct platform_device *pdev, const void *data, size_t size);
- extern int platform_device_add(struct platform_device *pdev);
- extern void platform_device_del(struct platform_device *pdev);
- extern void platform_device_put(struct platform_device *pdev);
+-			/* directory inodes start off with i_nlink == 2 (for "." entry) */
++			/* directory inodes start off with i_nlink == 2
++			 * (for "." entry) */
+ 			inc_nlink(inode);
+ 			break;
+ 		}
+@@ -143,7 +144,7 @@ static int debugfs_create_by_name(const char *name, mode_t mode,
+ 	 * block. A pointer to that is in the struct vfsmount that we
+ 	 * have around.
+ 	 */
+-	if (!parent ) {
++	if (!parent) {
+ 		if (debugfs_mount && debugfs_mount->mnt_sb) {
+ 			parent = debugfs_mount->mnt_sb->s_root;
+ 		}
 -- 
 1.4.4.2
 

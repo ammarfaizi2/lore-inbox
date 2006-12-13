@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932580AbWLMAIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932575AbWLMAMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbWLMAIx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 19:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWLMAIx
+	id S932575AbWLMAMM (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 19:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWLMAMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 19:08:53 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4968 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932580AbWLMAIx (ORCPT
+	Tue, 12 Dec 2006 19:12:12 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:2570 "EHLO
+	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932575AbWLMAML (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 19:08:53 -0500
-Date: Wed, 13 Dec 2006 01:09:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the broken SCSI_SEAGATE driver
-Message-ID: <20061213000902.GD28443@stusta.de>
-References: <20061212162238.GR28443@stusta.de> <1165966274.5903.56.camel@mulgrave.il.steeleye.com>
+	Tue, 12 Dec 2006 19:12:11 -0500
+X-Greylist: delayed 601 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 19:12:10 EST
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: mapping PCI registers with write combining (and PAT on x86)...
+X-Message-Flag: Warning: May contain useful information
+References: <adalklcu5w3.fsf@cisco.com>
+	<m1irggrasw.fsf@ebiederm.dsl.xmission.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 12 Dec 2006 16:01:57 -0800
+In-Reply-To: <m1irggrasw.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's message of "Tue, 12 Dec 2006 15:47:43 -0700")
+Message-ID: <adad56ou0i2.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165966274.5903.56.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-OriginalArrivalTime: 13 Dec 2006 00:01:58.0833 (UTC) FILETIME=[E8AB3A10:01C71E49]
+Authentication-Results: sj-dkim-8; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim8002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 05:31:14PM -0600, James Bottomley wrote:
-> On Tue, 2006-12-12 at 17:22 +0100, Adrian Bunk wrote:
-> > The SCSI_SEAGATE driver has:
-> > - already been marked as BROKEN in 2.6.0 three years ago and
-> > - is still marked as BROKEN.
-> > 
-> > Drivers that had been marked as BROKEN for such a long time seem to be
-> > unlikely to be revived in the forseeable future.
-> > 
-> > But if anyone wants to ever revive this driver, the code is still
-> > present in the older kernel releases.
-> 
-> Would you care to explain the rationale for this, please.  If the driver
-> had been riddled with errors and compilation problems, I might have
-> acquiesced, but now I come to look it over, it seems structurally
-> reasonably OK (we certainly have non-BROKEN worse ones) plus it compiles
-> fine.  So I'm wondering why it's marked broken in the first place.
-> 
-> Since it was your original patch:
-> 
-> Author: Adrian Bunk <bunk@fs.tum.de>
-> Date:   Mon Sep 1 19:22:52 2003 -0700
-> 
->     [PATCH] Mark more drivers BROKEN{,ON_SMP}
->     
->     - let more drivers that don't compile depend on BROKEN
->     - MTD_BLKMTD is fixed, remove the dependency on BROKEN
->     - let all drivers that don't compile on SMP (due to cli/sti usage)
->       depend on a BROKEN_ON_SMP that is only defined if !SMP || BROKEN
->     - #include interrupt.h for dummy cli/sti/... in two files to fix the
->       UP compilation of these files
->     
->     I marked only drivers that are broken for a long time and where I don't
->     know about existing fixes with BROKEN or BROKEN_ON_SMP.
-> 
-> I'd like to know why it was marked BROKEN in the first place.
+ > So I think we may simplify this but there is pci_mmap_page_range.  That
+ > already handles this for the architectures that currently support it.
+ > So it is probably the case the fbdev should be changed to use that.
 
+Thanks... I was not aware of pci_mmap_page_range(), but that doesn't
+seem to be quite the right interface.  It uses vma->vm_pgoff to say
+what to remap.  A typical use for what I have in mind would be for a
+userspace process to open a magic file and do mmap() at some
+well-known offset (like 0), and have the kernel driver map the right
+PCI registers into userspace, without userspace having to know what
+offset to ask for.
 
-There must have been a compile error that has since been fixed, but I 
-don't remember the details of this specific driver and I don't have 
-such old compile logs anymore.
+This is especially important when the kernel has to handle picking a
+"context" or "port" to avoid multiple userspace processes stepping on
+each other.
 
+And of course arch/i386/pci/i386.c has the following in its
+pci_mmap_page_range() anyway:
 
-> Thanks,
-> 
-> James
+	/* Write-combine setting is ignored, it is changed via the mtrr
+	 * interfaces on this platform.
+	 */
 
-cu
-Adrian
+so the write_combine parameter is ignored...
 
--- 
+ > No one had any serious objections to my patches as they were.  The actual
+ > problem was that the patches were incomplete.  In particular if you
+ > mismatch page protections it is possible to get silent data corruption
+ > or processor crashes.  So we need checks to ensure all mappings of
+ > a given page are using the same protections.
+ > 
+ > To a certain extent I think adding those checks really is a strawman
+ > and should not stop the merge effort, because we have this feature and
+ > those possible bugs on other architectures right now and we don't have
+ > those checks.  But I also think in the long term we need them, it just
+ > requires several days of going through the mm so we don't leave any
+ > path uncovered.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+It does seem somewhat hard to make sure there aren't multiple mappings
+of the same thing, and I'm not sure it's worth trying to avoid it.  If
+a device driver lets me mmap PCI memory with write-combining on, and
+then (as root) I mmap raw PCI resources to get the same memory, whose
+fault is it if things break?
 
+I'm kind of an mm dummy but I don't even see a good way to avoid
+multiple mappings like that.
+
+ - R.

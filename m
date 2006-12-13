@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965019AbWLMQlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965021AbWLMQmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWLMQlj (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 11:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWLMQlj
+	id S965021AbWLMQmp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 11:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWLMQmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 11:41:39 -0500
-Received: from smtp-vbr7.xs4all.nl ([194.109.24.27]:1256 "EHLO
-	smtp-vbr7.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965014AbWLMQli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 11:41:38 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: cfq performance gap
-References: <457fce6a$0$334$e4fe514c@news.xs4all.nl> <000001c71ed2$a90019b0$2e81030a@amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-Date: 13 Dec 2006 16:41:30 GMT
-Message-ID: <45802d3a$0$325$e4fe514c@news.xs4all.nl>
-X-Trace: 1166028090 news.xs4all.nl 325 [::ffff:194.109.0.112]:39433
-X-Complaints-To: abuse@xs4all.nl
-In-Reply-To: <000001c71ed2$a90019b0$2e81030a@amr.corp.intel.com>
-To: linux-kernel@vger.kernel.org
+	Wed, 13 Dec 2006 11:42:44 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:37616 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965021AbWLMQmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 11:42:43 -0500
+Message-ID: <45802D80.60200@garzik.org>
+Date: Wed, 13 Dec 2006 11:42:40 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] move SYS_HYPERVISOR inside the Generic Driver menu
+References: <200610281859.k9SIxJu8024288@hera.kernel.org>
+In-Reply-To: <200610281859.k9SIxJu8024288@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <000001c71ed2$a90019b0$2e81030a@amr.corp.intel.com>,
-Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
->Miquel van Smoorenburg wrote on Wednesday, December 13, 2006 1:57 AM
->> Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
->> >This rawio test plows through sequential I/O and modulo each small record
->> >over number of threads.  So each thread appears to be non-contiguous within
->> >its own process context, overall request hitting the device are sequential.
->> >I can't see how any application does that kind of I/O pattern.
->> 
->> A NNTP server that has many incoming connections, handled by
->> multiple threads, that stores the data in cylic buffers ?
->
->Then whichever the thread that dumps the buffer content to the storage
->will do one large contiguous I/O.
+Linux Kernel Mailing List wrote:
+> commit eba6cd671427df295c10b54ee69cd5de419d38fe
+> tree c92e5b59d5261a029a9e24b72b31eac70150cca1
+> parent d7c3f5f231c60d7e6ada5770b536df2b3ec1bd08
+> author Randy Dunlap <randy.dunlap@oracle.com> 1162057135 -0700
+> committer Linus Torvalds <torvalds@g5.osdl.org> 1162060255 -0700
+> 
+> [PATCH] move SYS_HYPERVISOR inside the Generic Driver menu
+> 
+> Put SYS_HYPERVISOR inside the Generic Driver Config menu where it should
+> be.  Otherwise xconfig displays it as a dangling (lost) menu item under
+> Device Drivers, all by itself (when all options are displayed).
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc: <holzheu@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  drivers/base/Kconfig |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
+> index 0b4e224..1429f3a 100644
+> --- a/drivers/base/Kconfig
+> +++ b/drivers/base/Kconfig
+> @@ -37,8 +37,8 @@ config DEBUG_DRIVER
+>  
+>  	  If you are unsure about this, say N here.
+>  
+> -endmenu
+> -
+>  config SYS_HYPERVISOR
+>  	bool
+>  	default n
+> +
+> +endmenu
 
-In this context, "cyclic buffer" means "large fixed-size file" or
-"disk partition", and when the end of that file/partition is reached,
-writing resumes at the start (wraps around, starts the next cycle).
+I missed this when it went in.
 
-Each thread writes an article to disk, which can differ in size
-from 1K to 1M. The writes all together are sequential, but the writes
-from one thread are definitely not.
+The entire sum of code under this config option is so tiny, why not just 
+make it unconditional?  Or depend on CONFIG_EMBEDDED.
 
-This is a real-world example - I have written software that does
-exactly this, multithreaded versions of INN exist that with CNFS
-storage does exactly this, and Diablo does something comparable
-(only it uses processes instead of threads).
+	Jeff
 
-Mike.
+

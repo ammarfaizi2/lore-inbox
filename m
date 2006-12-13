@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751626AbWLMXf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751752AbWLMXgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751626AbWLMXf5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 18:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbWLMXf5
+	id S1751752AbWLMXgu (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 18:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWLMXgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 18:35:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49317 "EHLO mx2.mail.elte.hu"
+	Wed, 13 Dec 2006 18:36:50 -0500
+Received: from gate.crashing.org ([63.228.1.57]:43438 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751626AbWLMXf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 18:35:56 -0500
-Date: Thu, 14 Dec 2006 00:34:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, suresh.b.siddha@intel.com,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] sched: remove __cpuinitdata anotation to cpu_isolated_map
-Message-ID: <20061213233408.GA21604@elte.hu>
-References: <1166048278.6772.20.camel@localhost.localdomain>
+	id S1751752AbWLMXgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 18:36:49 -0500
+Subject: Re: Bug: early_pfn_in_nid() called when not early
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, cbe-oss-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-mm@kvack.org,
+       Andy Whitcroft <apw@shadowen.org>,
+       Michael Kravetz <mkravetz@us.ibm.com>, hch@infradead.org,
+       Jeremy Kerr <jk@ozlabs.org>, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061213231717.GC10708@monkey.ibm.com>
+References: <200612131920.59270.arnd@arndb.de>
+	 <20061213231717.GC10708@monkey.ibm.com>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 10:21:46 +1100
+Message-Id: <1166052107.11914.230.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166048278.6772.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0005]
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Tim Chen <tim.c.chen@linux.intel.com> wrote:
+> Thanks for the debug work!  Just curious if you really need
+> CONFIG_NODES_SPAN_OTHER_NODES defined for your platform?  Can you get
+> those types of memory layouts?  If not, an easy/immediate fix for you
+> might be to simply turn off the option.
 
-> The structure cpu_isolated_map is used not only during initialization. 
-> Multi-core scheduler configuration changes and exclusive cpusets use 
-> this during run time.  During setting of sched_mc_power_savings
->  policy, this structure is accessed to update sched_domains.
-> 
-> Thanks.
-> 
-> Tim Chen
-> 
-> Signed-off-by: Tim Chen <tim.c.chen@intel.com>
-> Acked-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Yes, we need that for some pSeries boxes.
 
-good catch. -stable candidate as well i guess.
+Ben.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
 
-	Ingo

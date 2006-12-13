@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751782AbWLMWw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750896AbWLMXAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751782AbWLMWw7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 17:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWLMWw7
+	id S1750896AbWLMXAG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 18:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWLMXAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 17:52:59 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:46014 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751782AbWLMWw6 (ORCPT
+	Wed, 13 Dec 2006 18:00:06 -0500
+Received: from twinlark.arctic.org ([207.29.250.54]:50965 "EHLO
+	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750896AbWLMXAE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 17:52:58 -0500
-Message-ID: <45807846.3010705@zytor.com>
-Date: Wed, 13 Dec 2006 14:01:42 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 13 Dec 2006 18:00:04 -0500
+Date: Wed, 13 Dec 2006 15:00:03 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Chris Wright <chrisw@sous-sol.org>
+cc: Jan Beulich <jbeulich@novell.com>, Dave Jones <davej@redhat.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Michael Buesch <mb@bu3sch.de>,
+       Metathronius Galabant <m.galabant@googlemail.com>, stable@kernel.org,
+       Michael Krufky <mkrufky@linuxtv.org>,
+       Justin Forbes <jmforbes@linuxtx.org>, alan@lxorguk.ukuu.org.uk,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       torvalds@osdl.org, Chuck Wolber <chuckw@quantumlinux.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
+In-Reply-To: <20061213203325.GL10475@sequoia.sous-sol.org>
+Message-ID: <Pine.LNX.4.64.0612131458510.16018@twinlark.arctic.org>
+References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org>
+ <20061120234535.GD17736@redhat.com> <20061121022109.GF1397@sequoia.sous-sol.org>
+ <4562D5DA.76E4.0078.0@novell.com> <20061122015046.GI1397@sequoia.sous-sol.org>
+ <45640FF4.76E4.0078.0@novell.com> <20061124202729.GC29264@redhat.com>
+ <456D56E7.76E4.0078.0@novell.com> <Pine.LNX.4.64.0612131145460.14936@twinlark.arctic.org>
+ <20061213203325.GL10475@sequoia.sous-sol.org>
 MIME-Version: 1.0
-To: Rudolf Marek <r.marek@assembler.cz>
-CC: norsk5@xmission.com, lkml <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>,
-       bluesmoke-devel@lists.sourceforge.net
-Subject: Re: [RFC] new MSR r/w functions per CPU
-References: <45807469.6040609@assembler.cz>
-In-Reply-To: <45807469.6040609@assembler.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudolf Marek wrote:
-> Hello all,
-> 
-> For my new coretemp driver[1], I need to execute the rdmsr on particular 
-> processor.  There is no such "global" function for that in the kernel so 
-> far.
-> 
-> The per CPU msr_read and msr_write are used in following drivers:
-> 
-> msr.c (it is static there now)
-> k8-edac.c  (duplicated right now -> driver in -mm)
-> coretemp.c (my new Core temperature sensor -> driver [1])
-> 
-> Question is how make an access to that functions. Enclosed patch does 
-> simple EXPORT_SYMBOL_GPL for them, but then both drivers (k8-edac.c and 
-> coretemp.c) would depend on the MSR driver. The ultimate solution would 
-> be to move this type
-> of function to separate module, but perhaps this is just bit overkill?
-> 
-> Any ideas what would be the best solution?
-> 
+On Wed, 13 Dec 2006, Chris Wright wrote:
 
-For now I think you could just export these and allow the dependency. 
-I've been meaning to rewrite the MSR and CPUID drivers to use a common 
-core, which would also allow invoking nnostandard CPUID and msrs which 
-need the entire register file to be set; that should probably be 
-included in that.
+> * dean gaudet (dean@arctic.org) wrote:
+> > just for the public record (i already communicated with Jan in private 
+> > mail on this one)... i have a box which hangs hard starting at 2.6.18.2 
+> > and 2.6.19 -- hangs hard during the intel hw rng tests (no sysrq 
+> > response).  and the hang occurs prior to the printk so it took some 
+> > digging to figure out which module was taking out the system.
+> > 
+> > Jan's patch gets the box past the hang... it seems like this should be in 
+> > at least the next 2.6.19.x stable (and if there's going to be another 
+> > 2.6.18.x stable then it should be included there as well).
+> 
+> Thanks for the data point.  I wonder if you get SMI and never come back.
+> Do you boot with no_fwh_detect=1 or -1?
 
-In fact, I've made that change something like four times (it seems to be 
-an airplane project that I never get around to submitting), so I should 
-actually get it finished and sent in.
+with the patch it boots perfectly without any command-line args.
 
-	-hpa
+without the patch it crashes after the "4" and before the "5" in this 
+hacked up segment of the code:
+
+        if (!(fwh_dec_en1_val & FWH_F8_EN_MASK))
+                pci_write_config_byte(dev,
+                                      fwh_dec_en1_off,
+                                      fwh_dec_en1_val | FWH_F8_EN_MASK);
+        if (!(bios_cntl_val &
+              (BIOS_CNTL_LOCK_ENABLE_MASK|BIOS_CNTL_WRITE_ENABLE_MASK)))
+                pci_write_config_byte(dev,
+                                      bios_cntl_off,
+                                      bios_cntl_val | BIOS_CNTL_WRITE_ENABLE_MASK);
+
+        printk(KERN_INFO "intel-rng: 4\n");
+        writeb(INTEL_FWH_RESET_CMD, mem);
+        printk(KERN_INFO "intel-rng: 5\n");
+
+-dean

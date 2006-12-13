@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964962AbWLMNTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964960AbWLMNVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWLMNTI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 08:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWLMNTH
+	id S964960AbWLMNVW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 08:21:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWLMNVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 08:19:07 -0500
-Received: from an-out-0708.google.com ([209.85.132.244]:7427 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964963AbWLMNTG (ORCPT
+	Wed, 13 Dec 2006 08:21:22 -0500
+Received: from krak.alatek.krakow.pl ([217.96.2.229]:5940 "EHLO
+	krak.alatek.krakow.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964960AbWLMNVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 08:19:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=czP8lO8934otUYhbGMPjwbwUN8Pp0unvr2JJNjLpfW/56ka+D5kAxBubXdVv/nhPxggyw+bNvlbnUZKAQvV+kUvFcl4+dWtEo2q62Q3oLNWPyGRExD1/M9YV9rEaFSv2D2OtxDkCjywSCbVofsL/Q9ibtJLz7z/hB3sAaA1TD5E=
-Message-ID: <61ec494a0612130519s29047b0fy4c44095a571dd1f8@mail.gmail.com>
-Date: Wed, 13 Dec 2006 10:19:04 -0300
-From: "Juan Erbes" <jerbes@gmail.com>
-To: license-violation@fsf.org
-Subject: Meyer Sound GPL Violations
-Cc: linux-kernel@vger.kernel.org, "David Turner" <novalis@fsf.org>
+	Wed, 13 Dec 2006 08:21:21 -0500
+X-Greylist: delayed 1307 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 08:21:21 EST
+Message-ID: <457FF939.6080504@agmk.net>
+Date: Wed, 13 Dec 2006 13:59:37 +0100
+From: =?UTF-8?B?UGF3ZcWCIFNpa29yYQ==?= <pluto@agmk.net>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: V4L2: __ucmpdi2 undefined on ppc
+References: <Pine.SOC.4.61.0612131359430.10721@math.ut.ee>
+In-Reply-To: <Pine.SOC.4.61.0612131359430.10721@math.ut.ee>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday I was in an audio seminar from Meyer Sound and the AES, and
-discovered an audio analizer that uses Linux OS, and I mean that it
-uses the fftw open source libraries. In the details of the product,
-not appear any word about gpl and linux.
-Please, investigate this case:
-http://www.meyersound.com/products/sim/sim3/
-In the case, that I viewed the system was installed in the hard disk
-of a laptop.
+Meelis Roos napisał(a):
+>   MODPOST 618 modules
+> WARNING: "__ucmpdi2" [drivers/media/video/v4l2-common.ko] undefined!
+> 
+> This 32-bit ppc architecture, using gcc version 4.1.2 20061115 
+> (prerelease) (Debian 4.1.1-21). .config below if important.
+> 
+> __ucmpdi2 seems to be 64-bit comparision. gcc seems to use it for switch 
+> statements on 64-bit values.
+> 
+> drivers/media/video/v4l2-common.c::v4l2_norm_to_name seems to be one 
+> such switch statement - type of id is v4l2_std_id which is 64-bit.
+> 
+> Should ppc have __ucmpdi2 defined in arch-specific lib? Some other 
+> architectures seem to implement it (arm, arm26, frv, h8300).
 
-Regards
+maybe it's new gcc bug.
+
+[ already fixed ]
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21237
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25724
+

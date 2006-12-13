@@ -1,90 +1,164 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965025AbWLMQr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965040AbWLMRLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWLMQr3 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 11:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWLMQr3
+	id S965040AbWLMRLA (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:11:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWLMRLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 11:47:29 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:27323 "EHLO
-	vms044pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965025AbWLMQr2 (ORCPT
+	Wed, 13 Dec 2006 12:11:00 -0500
+Received: from amsfep15-int.chello.nl ([62.179.120.10]:55014 "EHLO
+	amsfep15-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S965040AbWLMRK7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 11:47:28 -0500
-X-Greylist: delayed 4028 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 11:47:28 EST
-Date: Wed, 13 Dec 2006 10:37:12 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Postgrey experiment at VGER
-In-reply-to: <200612131711.28292.a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Cc: Al Boldi <a1426z@gawab.com>
-Message-id: <200612131037.12592.gene.heskett@verizon.net>
-Organization: Not detectable
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200612131711.28292.a1426z@gawab.com>
-User-Agent: KMail/1.9.5
+	Wed, 13 Dec 2006 12:10:59 -0500
+Subject: Re: [PATCH] nfs: fix NR_FILE_DIRTY underflow
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <1166012781.5695.18.camel@lade.trondhjem.org>
+References: <1166011958.32332.97.camel@twins>
+	 <1166012781.5695.18.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 16:01:22 +0100
+Message-Id: <1166022082.32332.126.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 December 2006 09:11, Al Boldi wrote:
->Trond Myklebust wrote:
->> On Wed, 2006-12-13 at 11:25 +0200, Dumitru Ciobarcianu wrote:
->> > On Wed, 2006-12-13 at 01:50 +0200, Matti Aarnio wrote:
->> > > I do already see spammers smart enough to retry addresses from
->> > > the zombie machine, but that share is now below 10% of all emails.
->> > > My prediction for next 200 days is that most spammers get the
->> > > clue, but it gives us perhaps 3 months of less leaked junk.
->
->Great!
->
->> > IMHO this is only an step in an "arms race".
->> > What you will do in three months, remove this check because it will
->> > prove useless since the spammers will also retry ? If yes, why
->> > install it in the first place ?
->>
->> Why ever do anything? You're going to die eventually anyway...
->
-Some of sooner than others, since we're well on the way anyway. :)
+On Wed, 2006-12-13 at 07:26 -0500, Trond Myklebust wrote:
+> On Wed, 2006-12-13 at 13:12 +0100, Peter Zijlstra wrote:
+> > Still testing this patch, but it looks good so far.
+> > 
+> > ---
+> > Just setting PG_dirty can cause NR_FILE_DIRTY to underflow
+> > which is bad (TM).
+> > 
+> > Use set_page_dirty() which will do the right thing.
+> 
+> Actually, I'd prefer to have it do the right thing by getting rid of
+> that call to test_clear_page_dirty() inside
+> invalidate_inode_pages2_range(). That is causing loss of data integrity,
+> and is what is causing us to have to hack NFS in the first place.
 
->Right!  The problem here is that it may do more harm than good.
->
->May I suggest a smarter way to filter these spammers, by just
-> whitelisting email addresses of valid posters, after sending a
-> confirmation for the first post.  Now if these spammers get smart, and
-> start using personal email addresses, I would certainly expect some
-> real action by abused email address owners.
+Ah, I think I see what your problem is there.
+How about this totally untested patch:
 
-This one I second wholeheartedly.  Because its entirely possible that my 
-isp's server will not retry, but will probably spend the next 3 days 
-emailing me failure notices every 3 hours or so.  They also have their 
-own blacklist for incoming that I've had to bitch about, at length 
-because the only way to get around it is to change my email address to a 
-special one they maintain.   Theres only one fly in that solution that 
-makes the soup unpalatable, I can't send using that address in my headers 
-as its an unknown user error to their outgoing.verizon.net servers .  I'm 
-on vz, go figure.
+---
+Delay clearing the dirty page state till after removing it from the
+mapping in invalidate_inode_pages2_range(). This will give
+try_to_release_pages() a shot to flush dirty data.
 
-My first reply since, so this is a test of sorts.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ fs/nfs/file.c              |    2 --
+ include/linux/page-flags.h |    2 ++
+ mm/page-writeback.c        |   17 +++++++++++------
+ mm/truncate.c              |   11 +++--------
+ 4 files changed, 16 insertions(+), 16 deletions(-)
 
->
->Thanks!
->
->--
->Al
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Index: linux-2.6-git/fs/nfs/file.c
+===================================================================
+--- linux-2.6-git.orig/fs/nfs/file.c	2006-12-13 15:31:26.000000000 +0100
++++ linux-2.6-git/fs/nfs/file.c	2006-12-13 15:39:33.000000000 +0100
+@@ -320,8 +320,6 @@ static int nfs_release_page(struct page 
+ 	 */
+ 	if (!(gfp & __GFP_FS))
+ 		return 0;
+-	/* Hack... Force nfs_wb_page() to write out the page */
+-	SetPageDirty(page);
+ 	return !nfs_wb_page(page_file_mapping(page)->host, page);
+ }
+ 
+Index: linux-2.6-git/include/linux/page-flags.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/page-flags.h	2006-12-13 15:35:50.000000000 +0100
++++ linux-2.6-git/include/linux/page-flags.h	2006-12-13 15:36:14.000000000 +0100
+@@ -252,7 +252,9 @@ static inline void SetPageUptodate(struc
+ #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
+ 
+ struct page;	/* forward declaration */
++struct address_space;
+ 
++int __test_clear_page_dirty(struct address_space *mapping, struct page *page);
+ int test_clear_page_dirty(struct page *page);
+ int test_clear_page_writeback(struct page *page);
+ int test_set_page_writeback(struct page *page);
+Index: linux-2.6-git/mm/page-writeback.c
+===================================================================
+--- linux-2.6-git.orig/mm/page-writeback.c	2006-12-13 15:34:15.000000000 +0100
++++ linux-2.6-git/mm/page-writeback.c	2006-12-13 15:39:41.000000000 +0100
+@@ -850,13 +850,8 @@ int set_page_dirty_lock(struct page *pag
+ }
+ EXPORT_SYMBOL(set_page_dirty_lock);
+ 
+-/*
+- * Clear a page's dirty flag, while caring for dirty memory accounting. 
+- * Returns true if the page was previously dirty.
+- */
+-int test_clear_page_dirty(struct page *page)
++int __test_clear_page_dirty(struct address_space *mapping, struct page *page)
+ {
+-	struct address_space *mapping = page_mapping(page);
+ 	unsigned long flags;
+ 
+ 	if (!mapping)
+@@ -880,6 +875,16 @@ int test_clear_page_dirty(struct page *p
+ 	write_unlock_irqrestore(&mapping->tree_lock, flags);
+ 	return 0;
+ }
++
++/*
++ * Clear a page's dirty flag, while caring for dirty memory accounting.
++ * Returns true if the page was previously dirty.
++ */
++int test_clear_page_dirty(struct page *page)
++{
++	struct address_space *mapping = page_mapping(page);
++	return __test_clear_page_dirty(mapping, page);
++}
+ EXPORT_SYMBOL(test_clear_page_dirty);
+ 
+ /*
+Index: linux-2.6-git/mm/truncate.c
+===================================================================
+--- linux-2.6-git.orig/mm/truncate.c	2006-12-13 15:36:38.000000000 +0100
++++ linux-2.6-git/mm/truncate.c	2006-12-13 15:44:01.000000000 +0100
+@@ -307,18 +307,12 @@ invalidate_complete_page2(struct address
+ 		return 0;
+ 
+ 	write_lock_irq(&mapping->tree_lock);
+-	if (PageDirty(page))
+-		goto failed;
+-
+ 	BUG_ON(PagePrivate(page));
+ 	__remove_from_page_cache(page);
+ 	write_unlock_irq(&mapping->tree_lock);
+ 	ClearPageUptodate(page);
+ 	page_cache_release(page);	/* pagecache ref */
+ 	return 1;
+-failed:
+-	write_unlock_irq(&mapping->tree_lock);
+-	return 0;
+ }
+ 
+ /**
+@@ -386,12 +380,13 @@ int invalidate_inode_pages2_range(struct
+ 					  PAGE_CACHE_SIZE, 0);
+ 				}
+ 			}
+-			was_dirty = test_clear_page_dirty(page);
++			was_dirty = PageDirty(page);
+ 			if (!invalidate_complete_page2(mapping, page)) {
+ 				if (was_dirty)
+ 					set_page_dirty(page);
+ 				ret = -EIO;
+-			}
++			} else
++				__test_clear_page_dirty(mapping, page);
+ 			unlock_page(page);
+ 		}
+ 		pagevec_release(&pvec);
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+

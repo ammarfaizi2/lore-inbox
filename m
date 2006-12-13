@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751630AbWLMWYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751637AbWLMW1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbWLMWYn (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 17:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWLMWYn
+	id S1751637AbWLMW1N (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 17:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWLMW1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 17:24:43 -0500
-Received: from mga02.intel.com ([134.134.136.20]:8992 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751630AbWLMWYm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 17:24:42 -0500
-X-Greylist: delayed 580 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 17:24:42 EST
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,164,1165219200"; 
-   d="scan'208"; a="174140335:sNHT29576610"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: sg_dma_address and sg_dma_len
-Date: Wed, 13 Dec 2006 14:14:56 -0800
-Message-ID: <617E1C2C70743745A92448908E030B2AEA3F7C@scsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: sg_dma_address and sg_dma_len
-Thread-Index: Acce+QcWVEnoTjEmQLuAjMihmqwNLwACqd+Q
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Ralph Campbell" <ralph.campbell@qlogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Dec 2006 22:14:57.0640 (UTC) FILETIME=[1FC0AE80:01C71F04]
+	Wed, 13 Dec 2006 17:27:13 -0500
+Received: from www.osadl.org ([213.239.205.134]:51952 "EHLO mail.tglx.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751636AbWLMW1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 17:27:12 -0500
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1166048081.11914.208.camel@localhost.localdomain>
+References: <20061213195226.GA6736@kroah.com>
+	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+	 <1166044471.11914.195.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
+	 <1166048081.11914.208.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 23:30:55 +0100
+Message-Id: <1166049055.29505.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since pci.h includes <asm/scatterlist.h> it seems like the fix would be
-> to move the two lines:
->	#define sg_dma_len(sg)          ((sg)->dma_length)
->	#define sg_dma_address(sg)      ((sg)->dma_address)
-> to include/asm-ia64/scatterlist.h
+On Thu, 2006-12-14 at 09:14 +1100, Benjamin Herrenschmidt wrote:
+> the edge flow is easy. the level one is:
+> 
+>  - IRQ happens
+>  - kernel handler masks it and queue a msg for userland
+>  - later on, userland gets the message, talks to the device,
+>    (MMAP'ed mmio, acks the interrupt on the device itself) and
+>    does an ioctl/syscall/write/whatever to tell kernel it's done
+>  - kernel unmasks it.
 
-Sounds like a good plan ... a test build with this change fixed all the
-infiniband build issues, and didn't introduce any new ones.  I've applied
-this to my ia64 tree and asked Linus to pull it.
+That's simply not true.
 
-Thanks.
+- IRQ happens
+- kernel handler runs and masks the chip irq, which removes the IRQ
+request
+- user space message get queued or waiting reader woken
+- kernel handler returns IRQ_HANDLED, which reenables the irq in the PIC
+- user space handles the device
+- user space reenables the device irq
 
--Tony
+No need for an ioctl. Neither for edge nor for level irqs.
+
+	tglx
+
+

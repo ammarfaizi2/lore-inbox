@@ -1,81 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932666AbWLMScK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932668AbWLMSgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbWLMScK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 13:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWLMScK
+	id S932668AbWLMSgX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 13:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWLMSgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 13:32:10 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:55878 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932666AbWLMScI (ORCPT
+	Wed, 13 Dec 2006 13:36:22 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:45873 "EHLO
+	ms-smtp-04.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932671AbWLMSgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 13:32:08 -0500
-X-Greylist: delayed 429 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 13:32:07 EST
-From: Arnd Bergmann <arnd@arndb.de>
-To: cbe-oss-dev@ozlabs.org
-Subject: Bug: early_pfn_in_nid() called when not early
-Date: Wed, 13 Dec 2006 19:20:57 +0100
-User-Agent: KMail/1.9.5
-Cc: linuxppc-dev@ozlabs.org, linux-mm@kvack.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andy Whitcroft <apw@shadowen.org>, mkravetz@us.ibm.com,
-       hch@infradead.org, Jeremy Kerr <jk@ozlabs.org>,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 13 Dec 2006 13:36:22 -0500
+Subject: Re: realtime-preempt and arm
+From: Steven Rostedt <rostedt@goodmis.org>
+To: tike64 <tike64@yahoo.com>
+Cc: junjiec@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <304269.38734.qm@web59207.mail.re1.yahoo.com>
+References: <304269.38734.qm@web59207.mail.re1.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 13:36:00 -0500
+Message-Id: <1166034960.1785.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612131920.59270.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a lot of debugging in spufs, I found that a crash that we encountered
-on Cell actually was caused by a change in the memory management.
+For -rt issues, please CC Ingo Molnar, and for High Res issues, please
+CC Thomas Gleixner.
 
-The patch that caused it is archived in http://lkml.org/lkml/2006/11/1/43,
-and this one has been discussed back and forth, but I fear that the current
-version may be broken for all setups that do memory hotplug with sparsemen
-and NUMA, at least on powerpc.
 
-What happens exactly is that the spufs code tries to register the memory
-area owned by the SPU as hotplug memory in order to get page structs (we
-probably shouldn't do it that way, but that's a separate discussion).
+On Fri, 2006-12-01 at 01:07 -0800, tike64 wrote:
+> > Hi,
+> > 
+> > Without the support of High Resolution Timer
+> > supported, the timer resolution wouldn't change.
+> 
+> Ok, I understand that. I was not expecting more
+> resolution. I expected only that I would get more
+> precise 10ms delays. What confuses me is that the
+> delays roughly doubled.
+> 
+> > With high-resolution-timer supported, our
+> > arm926-based board could get resolution like
+> 40~50us.
+> > There are codes you can reference ,may be you should
+> > just try to implement it.
+> 
+> It is good to know that the problem is not the arm
+> architecture itself. Thanks to you for that.
+> 
+> The problem must be in the lh7a40x specific code or my
+> configuration. I am not yet convinced enough that high
+> resolution timer implementation would solve the
+> problem. I don't need timing resolution finer than
+> 10ms providing that FB doesn't blow it up to 60ms.
+> 
+> Could you or someone please give a hint where to look
+> next or give an explanation why the lack of high
+> resolution timer would behave like that.
 
-memmap_init_zone now calls early_pfn_valid() and early_pfn_in_nid()
-in order to determine if the page struct should be initialized. This
-is wrong for two reasons:
+Also, have you tried this with a nanosleep instead of a select.
+Select's timeout is just that, a timeout. It's not suppose to be
+accurate, as long as it doesn't expire early.  The reason I state this,
+is that select uses a different mechanism than nanosleep, and that can
+indeed affect the jitter.
 
-- early_pfn_in_nid checks the early_node_map variable to determine
-  to which node the hot plugged memory belongs. However, the new
-  memory never was part of the early_node_map to start with, so
-  it incorrectly returns node zero, and then fails to initialize
-  the page struct if we were trying to add it to a nonzero node.
-  This is probably not a problem for pseries, but it is for cell.
+Although without the high res enabled, you can't get better than jiffy
+resolution, you shouldn't get a large jitter either.  BTW, using high
+res won't help the select anyway. The select uses a normal
+schedule_timeout, which means that it's not really expected to timeout,
+but something should wake it up before hand. Which means that the good
+old timer wheel (non-hrtimer) is going to do the waking of the process.
+This means that you need to wait for the timer softirq to be scheduled
+before your process wakes up. If there's a process with a higher
+priority than the timer softirq running, then you need to wait.
 
-- both early_pfn_{in,to}_nid and early_node_map are in the __init
-  section and may already have been freed at the time we are calling
-  memmap_init_zone().
+Using nansleep uses the hrtimer code (available with out the high
+resolutions).  The hrtimer uses its own timer softirq (softirq-hrtimer),
+and it is special.  It inherits the priority of the task that created
+the timer when the timer goes off.  Also, something like nanosleep,
+won't even use the softirq, and will bypass the softirq all together,
+and wake your process up from the interrupt.
 
-The patch below is not a suggested fix that I want to get into mainline
-(checking slab_is_available is the wrong here), but it is a quick fix
-that you should apply if you want to run a recent (post-2.6.18) kernel
-on the IBM QS20 blade. I'm sorry for not having reported this earlier,
-but we were always trying to find the problem in my own code...
+So basically, don't use select for timing.
 
-	Arnd <><
+-- Steve
 
---- linux-2.6.orig/mm/page_alloc.c
-+++ linux-2.6/mm/page_alloc.c
-@@ -1962,7 +1962,8 @@ void __meminit memmap_init_zone(unsigned
- 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
- 		if (!early_pfn_valid(pfn))
- 			continue;
--		if (!early_pfn_in_nid(pfn, nid))
-+		if (!slab_is_available() &&
-+		    !early_pfn_in_nid(pfn, nid))
- 			continue;
- 		page = pfn_to_page(pfn);
- 		set_page_links(page, zone, nid, pfn);
+

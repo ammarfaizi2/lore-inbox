@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932486AbWLMBiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964881AbWLMBmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbWLMBiW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 20:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWLMBiW
+	id S964881AbWLMBmR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 20:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWLMBmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 20:38:22 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:35534 "HELO
-	smtp111.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932420AbWLMBiV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 20:38:21 -0500
-X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 20:38:21 EST
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Xc2X931ffcpVb9ZnDcixQ7/zjobw+smG/4kO/9ujegvTRDXcBwGktzxv5jBm58Vrl6HpR6vZCtilXcfJ/yNRM+TRvXqOaWl0Cg2FSez9gvC4sKTV5SxW4KD0lxsjnhI/pqlLEPYqGvJ+r2VJvW+a2D5d9qIrmHpq09W+AvF7sfM=  ;
-X-YMail-OSG: fmgQznAVM1kWYbIcGSbQyXR48SOS_uEPr2tuO1dWpQ3BRIgtD_BvGMHMGPn3ODON.YTu9TevMWp5v11p43uAxqk0Z4hyCjDj_HevnEmkGnde009_Pc2JtSUDUlK7c5glqObQD5flsaZdJg--
-From: David Brownell <david-b@pacbell.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch 2.6.19-git] RTC Kconfig sorted by type
-Date: Tue, 12 Dec 2006 17:31:39 -0800
-User-Agent: KMail/1.7.1
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200612061652.45242.david-b@pacbell.net> <20061212230517.GA28443@stusta.de>
-In-Reply-To: <20061212230517.GA28443@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 12 Dec 2006 20:42:17 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38899 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964881AbWLMBmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 20:42:16 -0500
+Date: Tue, 12 Dec 2006 17:42:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: NeilBrown <neilb@suse.de>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 010 of 14] knfsd: SUNRPC: add a "generic" function to
+ see if the peer uses a secure port
+Message-Id: <20061212174207.6180df0f.akpm@osdl.org>
+In-Reply-To: <1061212235927.21484@suse.de>
+References: <20061213105528.21128.patches@notabene>
+	<1061212235927.21484@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612121731.40463.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Dec 2006 10:59:27 +1100
+NeilBrown <neilb@suse.de> wrote:
 
-> > +if RTC_CLASS != n
-> > +
+> From: Chuck Lever <chuck.lever@oracle.com>
+> The only reason svcsock.c looks at a sockaddr's port is to check whether
+> the remote peer is connecting from a privileged port.  Refactor this check
+> to hide processing that is specific to address format.
 > 
+> Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+> Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+> Signed-off-by: Neil Brown <neilb@suse.de>
 > 
-> if RTC_CLASS
+> ### Diffstat output
+>  ./net/sunrpc/svcsock.c |   20 +++++++++++++++++---
+>  1 file changed, 17 insertions(+), 3 deletions(-)
 > 
-> 
-> because otherwise
+> diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+> --- .prev/net/sunrpc/svcsock.c	2006-12-13 10:32:15.000000000 +1100
+> +++ ./net/sunrpc/svcsock.c	2006-12-13 10:32:17.000000000 +1100
+> @@ -926,6 +926,20 @@ svc_tcp_data_ready(struct sock *sk, int 
+>  		wake_up_interruptible(sk->sk_sleep);
+>  }
+>  
+> +static inline int svc_port_is_privileged(struct sockaddr *sin)
+> +{
+> +	switch (sin->sa_family) {
+> +	case AF_INET:
+> +		return ntohs(((struct sockaddr_in *)sin)->sin_port) < 1024;
+> +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+> +	case AF_INET6:
+> +		return ntohs(((struct sockaddr_in6 *)sin)->sin6_port) < 1024;
+> +#endif
+> +	default:
+> +		return 0;
+> +	}
+> +}
 
-Thanks for the clarification.  I think Alessandro was going to
-redo this one soon, since the Kconfig changed so much the patch
-would no longer apply.  I trust he'll remember your comments!
+I'm a bit surprised to see this test implemented in sunrpc - it's the sort
+of thing which core networking should implement?
 
-- Dave
+And should that "1024" be PROT_SOCK?

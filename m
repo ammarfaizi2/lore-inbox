@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751766AbWLMXwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751776AbWLNACH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751766AbWLMXwV (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 18:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWLMXwV
+	id S1751776AbWLNACH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 19:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWLNACH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 18:52:21 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35168 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751766AbWLMXwU (ORCPT
+	Wed, 13 Dec 2006 19:02:07 -0500
+Received: from mga06.intel.com ([134.134.136.21]:6122 "EHLO
+	orsmga101.jf.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751776AbWLNACG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 18:52:20 -0500
-Date: Thu, 14 Dec 2006 00:00:31 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: tglx@linutronix.de
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Message-ID: <20061214000031.134f32a2@localhost.localdomain>
-In-Reply-To: <1166051517.29505.66.camel@localhost.localdomain>
-References: <20061213195226.GA6736@kroah.com>
-	<Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
-	<1166044471.11914.195.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
-	<1166048081.11914.208.camel@localhost.localdomain>
-	<1166049055.29505.47.camel@localhost.localdomain>
-	<1166049549.11914.218.camel@localhost.localdomain>
-	<1166051517.29505.66.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Wed, 13 Dec 2006 19:02:06 -0500
+X-Greylist: delayed 584 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 19:02:05 EST
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,164,1165219200"; 
+   d="scan'208"; a="174180876:sNHT13969586365"
+Date: Wed, 13 Dec 2006 15:19:27 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
+       vatsa@in.ibm.com, clameter@sgi.com, tglx@linutronix.de,
+       arjan@linux.intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch: dynticks: idle load balancing
+Message-ID: <20061213151926.C12795@unix-os.sc.intel.com>
+References: <20061211155304.A31760@unix-os.sc.intel.com> <20061213224317.GA2986@elte.hu> <20061213231316.GA13849@elte.hu> <20061213150314.B12795@unix-os.sc.intel.com> <20061213233157.GA20470@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061213233157.GA20470@elte.hu>; from mingo@elte.hu on Thu, Dec 14, 2006 at 12:31:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see why the necessarity of a kernel stub driver is a killer
-> argument. The chip internals, which companies might want to protect are
-> certainly not in the interrupt registers.
+On Thu, Dec 14, 2006 at 12:31:57AM +0100, Ingo Molnar wrote:
+> 
+> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+> 
+> > On Thu, Dec 14, 2006 at 12:13:16AM +0100, Ingo Molnar wrote:
+> > > there's another bug as well: in schedule() resched_cpu() is called with 
+> > > the current runqueue held in two places, which is deadlock potential. 
+> > 
+> > resched_cpu() was getting called after prepare_task_switch() which 
+> > releases the current runqueue lock. Isn't it?
+> 
+> no, it doesnt release it. The finish stage is what releases it.
 
-So they can go off and write themselves a driver. Without putting junk in
-the kernel "just in case", and if the driver and the user space code
-using it are closely interdependant I'd suggest they look up the *legal*
-definition of derivative work.
+I see.
 
+> the other problem is load_balance(): there this_rq is locked and you 
+> call resched_cpu() unconditionally.
+
+But here resched_cpu() was called after double_rq_unlock().
+
+thanks,
+suresh

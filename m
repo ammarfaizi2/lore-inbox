@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751694AbWLMXMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751697AbWLMXMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWLMXMM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 18:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWLMXMM
+	id S1751697AbWLMXMS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 18:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbWLMXMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 18:12:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2518 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751694AbWLMXML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 18:12:11 -0500
-Date: Thu, 14 Dec 2006 00:12:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Thomas Graf <tgraf@suug.ch>, Al Viro <viro@ftp.linux.org.uk>,
-       David Miller <davem@davemloft.net>, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
-Message-ID: <20061213231217.GB3629@stusta.de>
-References: <20061212162435.GW28443@stusta.de> <20061212.171756.85408589.davem@davemloft.net> <20061213201213.GK4587@ftp.linux.org.uk> <20061213204933.GW8693@postel.suug.ch> <20061213150143.2672e0b1@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061213150143.2672e0b1@dxpl.pdx.osdl.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 13 Dec 2006 18:12:18 -0500
+Received: from www.osadl.org ([213.239.205.134]:59337 "EHLO mail.tglx.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751697AbWLMXMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 18:12:15 -0500
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1166049901.11914.220.camel@localhost.localdomain>
+References: <20061213195226.GA6736@kroah.com>
+	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+	 <1166044471.11914.195.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
+	 <1166048081.11914.208.camel@localhost.localdomain>
+	 <1166049656.29505.49.camel@localhost.localdomain>
+	 <1166049901.11914.220.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 00:15:58 +0100
+Message-Id: <1166051758.29505.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 03:01:43PM -0800, Stephen Hemminger wrote:
-> On Wed, 13 Dec 2006 21:49:33 +0100
-> Thomas Graf <tgraf@suug.ch> wrote:
-> 
-> > * Al Viro <viro@ftp.linux.org.uk> 2006-12-13 20:12
-> > > On Tue, Dec 12, 2006 at 05:17:56PM -0800, David Miller wrote:
-> > > > I'm not sure whether that is important any longer.  It probably isn't,
-> > > > but we should verify it before applying such a patch.
-> > > 
-> > > There might be practical considerations along the lines of "we want
-> > > lookups for loopback to be fast"...
+On Thu, 2006-12-14 at 09:45 +1100, Benjamin Herrenschmidt wrote:
+> On Wed, 2006-12-13 at 23:40 +0100, Thomas Gleixner wrote:
+> > On Thu, 2006-12-14 at 09:14 +1100, Benjamin Herrenschmidt wrote:
+> > > Oh, it works well enough for non shared iqs if you are really anal about
 > > 
-> > What is this discussion actually about? Since we started registering
-> > devices directly hooked into the init process before device_initcall()
-> > the order is random. Even the bonding device is registered before the
-> > loopback.
+> > It works well for shared irqs. Thats the whole reason why you need an in
+> > kernel part.
 > 
-> Loopback should be there before protocols are started. It makes sense
-> to have a standard startup order.
+> As soon as you have an in-kernel part that is chip specific, yes, of
+> course it works, because essentially, what you have done is a kernel
+> driver for your chip and the whole discussion is moot :-) And I agree,
+> that's the right thing to do btw.
 
-This actually becomes easier after my patch:
+Still the framework has a benefit, as it removes the bunch of
+incompatible out of tree attempts to achieve the same result.
 
-Now that it's untangled from net_olddevs_init(), you can simply change 
-the module_init(loopback_init) to a different initcall level.
+	tglx
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

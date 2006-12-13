@@ -1,78 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964892AbWLMB5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964889AbWLMCIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWLMB5Y (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 20:57:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWLMB5Y
+	id S964889AbWLMCIX (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 21:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWLMCIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 20:57:24 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:45649 "HELO
-	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S964892AbWLMB5X (ORCPT
+	Tue, 12 Dec 2006 21:08:22 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:28014 "HELO
+	smtp109.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964889AbWLMCIW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 20:57:23 -0500
+	Tue, 12 Dec 2006 21:08:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=agQ9PY9UusKrrULKEC5i0PQDDQrMcWbYYWHlBX+bdjbmOxGWlj0ElWmWEuiGFDW5HuDYjVZDCObGD/oVQdxzzoP71WGBOdWeKJoryh1xDHFmUNd9ZtfF5Y3y5w9oDEx/2zDIU7aP3ja5Gg7KhlXsojCRyG27CvZQlZTlbKBCi/0=  ;
-X-YMail-OSG: HR2VXTIVM1nCItxYcLUOtsEZbWoooL1js1j_rYJD9gBE9a5eWi.CI0ahfef_mn2WI9PirdPeBlrGRLPrV2_iKWx3LM.0AaZfQ8pPMOoKmZpxjcsfJPbwa38uJe9n.Se14mL28JLMs9OMaaU-
-Message-ID: <457F5DD8.3090909@yahoo.com.au>
-Date: Wed, 13 Dec 2006 12:56:40 +1100
+  b=Jl+mnjZZhISOCJ2js5MYTf50hJLDjw6GDIiLZvPUhljqL9XZte9FvQkH2facvdNV7iUBBVmQ0VAPZEgUIsb9gfX2+cfg8Fk3g16J3dk5U+FIzNeIYRJHw7Es2TRo5mhhORgnJnWH5Vv4TNrrBmCwBmUv/Qnf2L7Ragp70jkTyCY=  ;
+X-YMail-OSG: 8PJ1SKwVM1lKUs3B8sVIn5tfEF9J1HPq9BSQUcwITqBqx7rL.g8uhBrxpN.qehs0b.VNP4.GjGRoQLx62tlkQmUroYw3p67JIp0OrrS0dc3iH0TWd3Y_ZA--
+Message-ID: <457F606B.70805@yahoo.com.au>
+Date: Wed, 13 Dec 2006 13:07:39 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Mark Fasheh <mark.fasheh@oracle.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@google.com>
-Subject: Re: Status of buffered write path (deadlock fixes)
-References: <45751712.80301@yahoo.com.au>	 <20061207195518.GG4497@ca-server1.us.oracle.com>	 <4578DBCA.30604@yahoo.com.au>	 <20061208234852.GI4497@ca-server1.us.oracle.com>	 <457D20AE.6040107@yahoo.com.au> <457D7EBA.7070005@yahoo.com.au>	 <20061212223109.GG6831@ca-server1.us.oracle.com>	 <457F4EEE.9000601@yahoo.com.au> <1165974458.5695.17.camel@lade.trondhjem.org>
-In-Reply-To: <1165974458.5695.17.camel@lade.trondhjem.org>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Howells <dhowells@redhat.com>, akpm@osdl.org, davem@davemloft.com,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/2] WorkStruct: Add assign_bits() to give an atomic-bitops
+ safe assignment
+References: <20061212201112.29817.22041.stgit@warthog.cambridge.redhat.com> <20061212225443.GA25902@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612121726150.3535@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612121726150.3535@woody.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Wed, 2006-12-13 at 11:53 +1100, Nick Piggin wrote:
+Linus Torvalds wrote:
 > 
+> On Tue, 12 Dec 2006, Russell King wrote:
 > 
->>Not silly -- I guess that is the main sticking point. Luckily *most*
->>!uptodate pages will be ones that we have newly allocated so will
->>not be in pagecache yet.
+>>This seems to be a very silly question (and I'm bound to be utterly
+>>wrong as proven in my last round) but why are we implementing a new
+>>set of atomic primitives which effectively do the same thing as our
+>>existing set?
 >>
->>If it is in pagecache, we could do one of a number of things: either
->>remove it or try to bring it uptodate ourselves. I'm not yet sure if
->>either of these actions will cause other problems, though :P
->>
->>If both of those are really going to cause problems, then we could
->>solve this in a more brute force way (assuming that !uptodate, locked
->>pages, in pagecache at this point are very rare -- AFAIKS these will
->>only be caused by IO errors?). We could allocate another, temporary
->>page and copy the contents into there first, then into the target
->>page after the prepare_write.
+>>Why can't we just use atomic_t for this?
 > 
 > 
-> We are NOT going to mandate read-modify-write behaviour on
-> prepare_write()/commit_write(). That would be a completely unnecessary
-> slowdown for write-only workloads on NFS.
+> Well, others have answered that ("wrong sizes"), but I'm wavering on using 
+> atomic_long_t. I have to admit that I'd rather not add a new accessor 
+> function, when it _should_ be easier to use the current ones.
 
-Note that these pages should be *really* rare. Definitely even for normal
-filesystems I think RMW would use too much bandwidth if it were required
-for any significant number of writes.
+I agree.
 
-I don't want to mandate anything just yet, so I'm just going through our
-options. The first two options (remove, and RMW) are probably trickier
-than they need to be, given the 3rd option available (temp buffer). Given
-your input, I'm increasingly thinking that the best course of action would
-be to fix this with the temp buffer and look at improving that later if it
-causes a noticable slowdown.
+> That does depend on every arch maintainer saying they're ok with mixing 
+> bitops and "atomic*_t"s. It would also require us to at least add some 
+> _minimal_ function to get at the actual value, and turn the pointer into a 
+> "unsigned long *" for the bitop functions.
+> 
+> I would _hope_ that people hopefully already use the same locking for 
+> atomic_t and for bitops, and that arch maintainers could just say "sure, 
+> that works for me". Obvously, anybody with LL/SC or otherwise just 
+> basically atomic bitops (which covers a fair part of the spectrum) should 
+> be ok, but sparc and the usual cast of suspects would have to say that 
+> it's ok.
 
-Thanks,
-Nick
+parisc seems to, but sparc uses its own open coded spinlock for bitops, and
+the array of regular spinlocks for atomic ops. OTOH, consolidating them
+might give more scalable code *and* a smaller cacheline footprint?
+
+> Should we also just make the rule be that the architecture _must_ allow 
+> the silly
+> 
+> 	(atomic_long_t *) -> (unsigned long *)
+> 
+> casting (so that we can make _one_ generic inline function that takes an 
+> atomic_long_t and returns the same pointer as an "unsigned long *" to make 
+> bitop functions happy), or would this have to be another arch-specific 
+> function?
+> 
+> Comments? 
+
+AFAIK no architecture does anything special, so maybe a generic converter
+would be best, until one comes along that does. (the only thing of note
+really is that half of the atomics use volatile types and half don't, is
+that a problem?).
 
 -- 
 SUSE Labs, Novell Inc.

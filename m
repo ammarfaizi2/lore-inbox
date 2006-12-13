@@ -1,112 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965086AbWLMTTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965091AbWLMTTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbWLMTTR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 14:19:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWLMTTR
+	id S965091AbWLMTTo (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 14:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWLMTTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 14:19:17 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:60945 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965086AbWLMTTQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 14:19:16 -0500
-Subject: Re: [RFC] HZ free ntp
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612131338420.1867@scrub.home>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	 <Pine.LNX.4.64.0612060348150.1868@scrub.home>
-	 <20061205203013.7073cb38.akpm@osdl.org>
-	 <1165393929.24604.222.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0612061334230.1867@scrub.home>
-	 <20061206131155.GA8558@elte.hu>
-	 <Pine.LNX.4.64.0612061422190.1867@scrub.home>
-	 <1165956021.20229.10.camel@localhost>
-	 <Pine.LNX.4.64.0612131338420.1867@scrub.home>
-Content-Type: text/plain
-Date: Wed, 13 Dec 2006 11:19:09 -0800
-Message-Id: <1166037549.6425.21.camel@localhost.localdomain>
+	Wed, 13 Dec 2006 14:19:44 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60815 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965091AbWLMTTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 14:19:43 -0500
+X-Greylist: delayed 501 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 14:19:42 EST
+Date: Wed, 13 Dec 2006 11:08:01 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
+Message-ID: <20061213110801.1dd849ec@dxpl.pdx.osdl.net>
+In-Reply-To: <20061212.171756.85408589.davem@davemloft.net>
+References: <20061212162435.GW28443@stusta.de>
+	<20061212.171756.85408589.davem@davemloft.net>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 14:47 +0100, Roman Zippel wrote:
-> Hi,
+On Tue, 12 Dec 2006 17:17:56 -0800 (PST)
+David Miller <davem@davemloft.net> wrote:
+
+> From: Adrian Bunk <bunk@stusta.de>
+> Date: Tue, 12 Dec 2006 17:24:35 +0100
 > 
-> On Tue, 12 Dec 2006, john stultz wrote:
+> > This patch converts drivers/net/loopback.c to using module_init().
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> > Basically INTERVAL_LENGTH_NSEC defines the NTP interval length that the
-> > time code will use to accumulate with. In this patch I've pushed it out
-> > to a full second, but it could be set via config (NSEC_PER_SEC/HZ for
-> > regular systems, something larger for systems using dynticks).
+> I'm not %100 sure of this one, let's look at the comment you
+> are deleting:
 > 
-> Why do you want to use such an interval? This makes everything only more
-> complicated.
-> The largest possible interval is freq cycles (or 1 second without
-> adjustments). That is the base interval and without redesigning NTP we
-> can't change that. This base interval can be subdivided into smaller
-> intervals for incremental updates.
-
-Indeed, larger then 1 second intervals would require the second_overflow
-code to be reworked too. However, I'm not proposing larger then 1 second
-intervals at this point. I'm just allowing for non-HZ intervals.
-
-> You cannot choose arbitrary intervals otherwise you get other problems,
-> e.g. with your patch time_offset handling is broken.
-
-I'm not seeing this yet. Any more details? 
-
-
-> > +	/* calculate the length of one NTP adjusted second */
-> > +	second_length = (u64)(tick_usec * NSEC_PER_USEC * USER_HZ);
-> > +	second_length += (s64)CLOCK_TICK_ADJUST;
-> > +	adj_length = (s64)time_freq;
-> > +
-> > +	/* calculate tick length @ HZ*/
-> > +	tick_length = (second_length << TICK_LENGTH_SHIFT)
-> > +			+ (adj_length << (TICK_LENGTH_SHIFT - SHIFT_NSEC));
-> > +	do_div(tick_length, HZ);
-> > +	tick_nsec = tick_length >> TICK_LENGTH_SHIFT;
-> > +
-> > +
-> > +	/* calculate interval_length_base */
-> > +	/* XXX - this is broken up to avoid 64bit overlfows */
-> > +	interval_length_base = second_length * INTERVAL_LENGTH_NSEC;
-> > +	interval_length_base <<= 2;
-> > +	do_div(interval_length_base, NSEC_PER_SEC);
-> > +	interval_length_base <<= TICK_LENGTH_SHIFT-2;
+> > -/*
+> > - *	The loopback device is global so it can be directly referenced
+> > - *	by the network code. Also, it must be first on device list.
+> > - */
+> > -extern int loopback_init(void);
+> > -
 > 
-> You don't have to introduce anything new, it's tick_length that changes
-> and HZ that becomes a variable in this function.
+> in particular notice the part that says "it must be first on the
+> device list".
+> 
+> I'm not sure whether that is important any longer.  It probably isn't,
+> but we should verify it before applying such a patch.
+> 
+> Since module_init() effectively == device_initcall() for statically
+> built objects, which loopback always is, the Makefile ordering does
+> not seem to indicate to me that there is anything guarenteeing
+> this "first on the list" invariant.  At least not via object
+> file ordering.
+> 
+> So this gives some support to the idea that loopback_dev's position
+> on the device list no longer matters.
 
-So, forgive me for rehashing this, but it seems we're cross talking
-again. The context here is the dynticks code. Where HZ doesn't change,
-but we get interrupts at much reduced rates. The problem is, if the
-interrupts slow to ~1 per second frequencies, we end up spending a ton
-of time in the main update_wall_time loop, processing that 1 second in
-1/HZ chunks. The current code is correct, but just wastes a lot of time.
-
-So I'm trying to come up w/ an approach (the earlier, and broken,
-exponential accumulation patch had the same intention), that allows us
-to accumulate time in larger chunks. However, in doing so we have to
-work w/ the ntp.c code which (as Ingo earlier mentioned) has a number of
-HZ based assumptions.
-
-This last patch tries to give NTP and the timekeeping an agreed upon
-chunk (I chose "interval" as the term, since "tick" is somewhat
-connected to HZ) of time upon which accumulation is done, so we can have
-courser second updates, or finer grained updates, depending on config
-settings.
-
-In fairness, the patch probably going about this in a less then perfect
-way, but that's why I'm asking for your feedback and suggestions. What
-are your thoughts for reducing the time spent in the update_wall_time
-loop in the context of dynticks?
-
-thanks
--john
-
+The dst code makes assumptions that loopback is ifindex 1 as well.
+NAK on Adrian's change, it doesn't buy anything

@@ -1,107 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932351AbWLMRVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751605AbWLMRjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWLMRVe (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 12:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWLMRVe
+	id S1751605AbWLMRjH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWLMRjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 12:21:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39285 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932351AbWLMRVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 12:21:33 -0500
-Subject: Re: SM501: core (mfd) driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ben Dooks <ben-fbdev@fluff.org>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <20061213155134.GA10097@home.fluff.org>
-References: <20061213155134.GA10097@home.fluff.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 13 Dec 2006 18:21:31 +0100
-Message-Id: <1166030491.27217.844.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Wed, 13 Dec 2006 12:39:07 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:38034 "EHLO e5.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751604AbWLMRjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 12:39:05 -0500
+Message-ID: <45803AA0.8020203@us.ibm.com>
+Date: Wed, 13 Dec 2006 09:38:40 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Jeff Garzik <jeff@garzik.org>, linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Douglas Gilbert <dougg@torque.net>
+Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
+References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>	<4574B004.6030606@us.ibm.com>  <457D8637.5070707@garzik.org>	<1165855489.2791.7.camel@mulgrave.il.steeleye.com>	<457F2C1C.1030503@us.ibm.com> <1166026240.2790.27.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <1166026240.2790.27.camel@mulgrave.il.steeleye.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Bottomley wrote:
 
-some review comments below
-> +
-> +struct sm501_devdata {
-> +	spinlock_t			 reg_lock;
-> +	struct semaphore		 clock_lock;
+> Er, if it's really a CD-ROM, doesn't it need a blacklist entry with
+> BLIST_ROM then?  Regardless, MMC is the only standard that seems to be
+> inconsistent in this regard.  Anything claiming to conform to SBC will
+> need to be explicitly blacklisted if it claims SCSI-3 or higher and
+> doesn't support REPORT LUNS.
 
-can't this be a mutex instead ?
-> +#ifdef CONFIG_DEBUG
-> +static unsigned int misc_div[] = {
-> +	[0]		= 1,
-> +	[1]		= 2,
+Sorry, I should have clarified this earlier--the Quantum GoVault is a
+removable disk drive, not a CD-ROM.  The device is reminiscent of Zip
+disks, but the cartridge is a sealed unit and contains a 2.5" SATA disk
+inside; hence it's not a CD-ROM.  So the patch below won't work for me,
+because sdev->type == TYPE_DISK.
 
-can this be const ?
+I wonder if the same sort of REPORT LUNS screw-up might apply to other
+ATAPI devices too, such as tape drives.  Since we've seen that
+manufacturers of CD-ROMs and removable disks don't implement it, it
+would not surprise me if the other ATAPI devices don't either.  But,
+that's speculation on my part.
 
-> +
-> +int sm501_unit_power(struct device *dev, unsigned int unit, unsigned int to)
-> +{
-> +	struct sm501_devdata *sm = dev_get_drvdata(dev);
-> +	unsigned long mode = readl(sm->regs + SM501_POWER_MODE_CONTROL);
-> +	unsigned long gate = readl(sm->regs + SM501_CURRENT_GATE);
-> +	unsigned long clock = readl(sm->regs + SM501_CURRENT_CLOCK);
-> +
-> +	mode &= 3;		/* get current power mode */
-> +
-> +	down(&sm->clock_lock);
-
-eh shouldn't you do the readl()'s inside the semaphore (or mutex) area?
-
-> +
-> +	writel(mode, sm->regs + SM501_POWER_MODE_CONTROL);
-> +
-> +	dev_dbg(sm->dev, "gate %08lx, clock %08lx, mode %08lx\n",
-> +		gate, clock, mode);
-> +
-> +	msleep(16);
-
-you're missing a PCI posting flush here
-(if you don't know what this is please ask)
-
-> +	sm->dev = &dev->dev;
-> +	sm->irq = dev->irq;
-
-you shouldn't look at dev->irq ...
-
-> +
-> +	/* set a hopefully unique id for our child platform devices */
-> +	sm->pdev_id = 32 + dev->devfn;
-> +
-> +	pci_set_drvdata(dev, sm);
-> +
-> +	err = pci_enable_device(dev);
-
-.. before calling pci_enable_device() since pci_enable_device() may be
-the one that sets the dev->irq value to it's final value in the first
-place
-
-
-
-> +	sm->io_res = &dev->resource[1];
-> +	sm->mem_res = &dev->resource[0];
-> +
-> +	sm->regs = ioremap(pci_resource_start(dev, 1),
-> +			   pci_resource_len(dev, 1));
-
-you know how to use pci_resource_start() and co.. why not use them 3
-lines higher ? ;)
-
-
-the driver looks quite clean otherwise btw, great work!
-
-
-- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+--D

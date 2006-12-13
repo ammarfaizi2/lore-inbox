@@ -1,81 +1,115 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964943AbWLMGOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964948AbWLMGR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWLMGOp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 01:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWLMGOp
+	id S964948AbWLMGR5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 01:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWLMGR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 01:14:45 -0500
-Received: from web27404.mail.ukl.yahoo.com ([217.146.177.180]:30760 "HELO
-	web27404.mail.ukl.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S964943AbWLMGOo (ORCPT
+	Wed, 13 Dec 2006 01:17:57 -0500
+Received: from gateway.insightbb.com ([74.128.0.19]:36958 "EHLO
+	asav04.insightbb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964945AbWLMGR4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 01:14:44 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 01:14:44 EST
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.uk;
-  h=Message-ID:X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=AL03oRoWiGie2HO2/d6oRUNuzmbgo+IMfY9UfI8HwOWUPFIOPEObFaV3L4jFS+2t16Vh2/BrbYTNvH++lpXjLW2uybMrKcK/KTVCm8spRU4xfDyf9Pp/NbtiU9k4LTELCkwDX5dXq7QGe5udp7vAqTjFMKnDqjwc7NE696hLKuU=  ;
-Message-ID: <20061213060802.78275.qmail@web27404.mail.ukl.yahoo.com>
-X-YMail-OSG: bLfFNI4VM1k8ACYrV1TXe5XqfkRnuxn8zMAsy6MgCGXuFtLPgG5APO42b6Q0CDc6Lxf0D4aLc.wogbtR8p6EWN5rAPgDWfXLbJ.WnZa0jr89jVP6jKA-
-Date: Wed, 13 Dec 2006 06:08:02 +0000 (GMT)
-From: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Subject: writing to performance monitoring register
-To: linux-kernel@vger.kernel.org
+	Wed, 13 Dec 2006 01:17:56 -0500
+X-Greylist: delayed 574 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 01:17:56 EST
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CABYnf0VKhQ0nVWdsb2JhbACNSQEr
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Andres Salomon <dilinger@debian.org>
+Subject: Re: [PATCH] psmouse split
+Date: Wed, 13 Dec 2006 01:08:17 -0500
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, warp@aehallh.com
+References: <457F822E.4040404@debian.org>
+In-Reply-To: <457F822E.4040404@debian.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612130108.19447.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I want to measure number of last level cache
-misses in Pentium 4 processor. In IA-32 programmers
-manuals it was given that there are (architectural=
-same across all IA-32 processors)perfomance monitoring
-counters starting at address   0c1H and
-performance_event_select registers starting at address
-186H. 
+Hi Andres,
 
-1) When I tried to run a kernel module to write some
-value in performance event select register (with
-address 186H) by wrmsr instruction, the system is
-hanging.Why?
-The program is :
-#include <linux/module.h> /* Needed by all modules */
-#include <linux/kernel.h> /* Needed for KERN_INFO */
-//#include<xmmintrin.h>
-int i,j,k=0;
-unsigned int xx,yy,xx1,yy1,xx2,yy2;
-unsigned int t1,t2,t3,t4,BIG=0xffffffff;
-int init_module(void)
-{
+On Tuesday 12 December 2006 23:31, Andres Salomon wrote:
+> Hi,
+> 
+> When Zephaniah Hull sent in a patch for the OLPC touchpad [0], it was
+> suggested that the psmouse driver be split out into separate components.
+>  What's currently there is way too fat, and people are not happy about
+> adding even more code to the driver.
+> 
+> I've taken a stab at doing just that.  The attached patch splits the
+> various protocol extensions into their own modules, defines a protocol
+> registration layer, and allows modules to define their own psmouse
+> protocols.  Psmouse-base now only registers a few extensions, and then
+> scans the ps/2 ports.  Other modules (ie, psmouse-alps) register their
+> extension, and force a rescan of all serio ports that the psmouse driver
+> happens to be using.  The max_proto stuff has been removed, with the
+> intention that people should be loading (or unloading) only the modules
+> they need, rather than playing around w/ module arguments.  Rather than
+> playing games w/ extension detection ordering, I opted to just reset the
+> port before every scan.
+> 
 
-asm volatile (" movl $0x186, %%ecx;"
-	      " movl $0x0,   %%edx;"
-	      " movl $0x0009412E, %%eax;"
-	      " wrmsr;"
-		:
-		:
-		:"%eax","%edx","%ecx"); 
+Unfortunately I do not think this is going to work well in in default case:
 
+1. PS/2 probing order is important. You need to probe for intellimouse
+   explorer last otherwise you might miss that mouse supports extended
+   protocol.
 
-printk(KERN_INFO " Initially %u=t1 %u=t2 %u=t3 %u=t4
-\n",t1,t2,t3,t4);
- return 0;
-}
+2. Synaptics hardware has to be probed even if synaptics protocol is not
+   used, otherwise intellimouse probe will case trackpoint on passthrough
+   port not working.
 
+3. Doing full reset after every protocol probe will cause long delays in
+   mouse detection. 
 
-void cleanup_module(void)
-{
-printk(KERN_INFO "Goodbye world \n");
-}
--------------------------------------------------------
- 2) Why I am getting compilation errors when I tried
-to include <xmmintrin.h> or <stdio.h> ....files?
+4. Maxproto is still needed - psmouse base still contains several protocols
+   and sometimes users need to force "standard" protocols (Intellimouse/
+   Explorer), for example when using a KVM switch.
 
-Thanks in advane.
+Also, splitting psmouse into several modules as opposed to having monolitic
+psmouse with an option to exclude some protocols via Kconfig does not really
+buy us anything - because protocol autoload is not possible (we do not know
+what protocols port uses until we actually do the probe) distributions will
+have to compile and load everything anyway. Custom kernel users will just
+have to compile protocols they need into psmouse.
 
+And some comments for the patch itself:
 
-		
-___________________________________________________________ 
-All New Yahoo! Mail � Tired of Vi@gr@! come-ons? Let our SpamGuard protect you. http://uk.docs.yahoo.com/nowyoucan.html
+> +               if (proto->detect(psmouse, set_properties) == 0) {
+> +                       if (proto->type == PSMOUSE_SYNAPTICS)
+> +                               synaptics_hardware = 1;
+> +                       if (!set_properties) {
+> +                               if (proto->init && proto->init(psmouse) != 0)
+> +                                       continue; 
+
+I think you wanted if (set_properties)...
+
+> +static void psmouse_rescan(struct serio *serio, void *data)
+> +{
+> +       if (serio->drv->driver.name == "psmouse")
+> +               serio_rescan(serio);
+> +}
+
+This is going to crash if you encounter unconnected port
+(serio->drv == NULL).
+
+> +MODULE_AUTHOR("C. Scott Ananian <cananian@alumni.priceton.edu>");
+> +MODULE_DESCRIPTION("Synaptics TouchPad PS/2 mouse driver");
+> +MODULE_LICENSE("GPL");
+
+You need to be careful with code attribution - for example Synaptics driver
+was written by Peter Osterlund. He took some code from tpconfig utility,
+that's why there is C. Scott Ananian copyright notice but _module_ author
+is still Peter.
+
+> +       psmouse_protocol_register(&genius_proto, 0);
+> +       psmouse_protocol_register(&imps_proto), 0;
+
+Hmm, does this compile?
+
+-- 
+Dmitry

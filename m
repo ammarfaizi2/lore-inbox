@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964867AbWLMMJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964908AbWLMMNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWLMMJT (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 07:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWLMMJT
+	id S964908AbWLMMNF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 07:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWLMMNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 07:09:19 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:57451 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964867AbWLMMJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 07:09:18 -0500
-X-Greylist: delayed 1200 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 07:09:18 EST
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: 2.6.19-mm1 (md/raid1 randomly drops partitions - possible sata_uli problem)
-Date: Wed, 13 Dec 2006 12:51:19 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061211005807.f220b81c.akpm@osdl.org> <200612122155.42213.rjw@sisk.pl> <17791.20220.200213.305946@cse.unsw.edu.au>
-In-Reply-To: <17791.20220.200213.305946@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 13 Dec 2006 07:13:04 -0500
+Received: from amsfep19-int.chello.nl ([213.46.243.16]:65114 "EHLO
+	amsfep11-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S964885AbWLMMND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 07:13:03 -0500
+Subject: [PATCH] nfs: fix NR_FILE_DIRTY underflow
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 13:12:38 +0100
+Message-Id: <1166011958.32332.97.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612131251.20256.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 13 December 2006 01:53, Neil Brown wrote:
-> On Tuesday December 12, rjw@sisk.pl wrote:
-> > > 
-> > > So when md writes to write out the superblock, to gets EIO... Odd that
-> > > you aren't getting errors for normal writes.
-> > > 
-> > > What devices are the md/raid1 built on?
-> > 
-> > Sata drives, on sata_uli.
-> > 
-> > > > 
-> > > > I'll try to reproduce it tomorrow and collect some more information.
-> > > 
-> > > Thanks.  More information is definitely better than less, so send over
-> > > anything you can find.
-> > 
-> > Okay, seems to be readily reproducible, dmesg output from the failing kernel
-> > attached.
-> 
-> Weird.  You are getting silent write errors...
-> 
-> Can you write to these drives are all? e.g.
-> 
->   dd if=/dev/sdb3 of=/tmp/tmp count=1
->   dd if=/tmp/tmp of=/dev/sdb3 oflag=direct
-> 
-> (hopefully 'direct' will cause write errors to be passed up).
+Still testing this patch, but it looks good so far.
 
-Unfortunately I have no access to the machine right now.
+---
+Just setting PG_dirty can cause NR_FILE_DIRTY to underflow
+which is bad (TM).
 
-> I really think this looks like a sata problem, not an md problem.
+Use set_page_dirty() which will do the right thing.
 
-That's possible, but everything except for the md RAID seems to work.  Strange.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ fs/nfs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I think I'll wait until the next -mm is out and check if the problem goes away. ;-)
-
-Greetings,
-Rafael
+Index: linux-2.6-git2/fs/nfs/file.c
+===================================================================
+--- linux-2.6-git2.orig/fs/nfs/file.c	2006-12-13 12:54:55.000000000 +0100
++++ linux-2.6-git2/fs/nfs/file.c	2006-12-13 12:55:12.000000000 +0100
+@@ -321,7 +321,7 @@ static int nfs_release_page(struct page 
+ 	if (!(gfp & __GFP_FS))
+ 		return 0;
+ 	/* Hack... Force nfs_wb_page() to write out the page */
+-	SetPageDirty(page);
++	set_page_dirty(page);
+ 	return !nfs_wb_page(page->mapping->host, page);
+ }
+ 
 
 
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King

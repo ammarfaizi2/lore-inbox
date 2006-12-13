@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751587AbWLMB4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964892AbWLMB5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751587AbWLMB4A (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 12 Dec 2006 20:56:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWLMB4A
+	id S964892AbWLMB5Y (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 12 Dec 2006 20:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWLMB5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Dec 2006 20:56:00 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:33309 "EHLO koto.vergenet.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751382AbWLMBz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Dec 2006 20:55:59 -0500
-X-Greylist: delayed 1248 seconds by postgrey-1.27 at vger.kernel.org; Tue, 12 Dec 2006 20:55:59 EST
-Date: Wed, 13 Dec 2006 10:35:08 +0900
-From: Horms <horms@verge.net.au>
-To: Michael Neuling <mikey@neuling.org>
-Cc: Haren Myneni <haren@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>, Al Viro <viro@ftp.linux.org.uk>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] free initrds boot option
-Message-ID: <20061213013506.GB22902@verge.net.au>
-References: <4410.1165450723@neuling.org> <20061206163021.f434f09b.akpm@osdl.org> <4577624A.6010008@zytor.com> <13639.1165462578@neuling.org> <20061207164756.GA13873@in.ibm.com> <45788A56.9010706@us.ibm.com> <30054.1165534335@neuling.org>
+	Tue, 12 Dec 2006 20:57:24 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:45649 "HELO
+	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964892AbWLMB5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Dec 2006 20:57:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=agQ9PY9UusKrrULKEC5i0PQDDQrMcWbYYWHlBX+bdjbmOxGWlj0ElWmWEuiGFDW5HuDYjVZDCObGD/oVQdxzzoP71WGBOdWeKJoryh1xDHFmUNd9ZtfF5Y3y5w9oDEx/2zDIU7aP3ja5Gg7KhlXsojCRyG27CvZQlZTlbKBCi/0=  ;
+X-YMail-OSG: HR2VXTIVM1nCItxYcLUOtsEZbWoooL1js1j_rYJD9gBE9a5eWi.CI0ahfef_mn2WI9PirdPeBlrGRLPrV2_iKWx3LM.0AaZfQ8pPMOoKmZpxjcsfJPbwa38uJe9n.Se14mL28JLMs9OMaaU-
+Message-ID: <457F5DD8.3090909@yahoo.com.au>
+Date: Wed, 13 Dec 2006 12:56:40 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <30054.1165534335@neuling.org>
-User-Agent: mutt-ng/devel-r804 (Debian)
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Mark Fasheh <mark.fasheh@oracle.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@google.com>
+Subject: Re: Status of buffered write path (deadlock fixes)
+References: <45751712.80301@yahoo.com.au>	 <20061207195518.GG4497@ca-server1.us.oracle.com>	 <4578DBCA.30604@yahoo.com.au>	 <20061208234852.GI4497@ca-server1.us.oracle.com>	 <457D20AE.6040107@yahoo.com.au> <457D7EBA.7070005@yahoo.com.au>	 <20061212223109.GG6831@ca-server1.us.oracle.com>	 <457F4EEE.9000601@yahoo.com.au> <1165974458.5695.17.camel@lade.trondhjem.org>
+In-Reply-To: <1165974458.5695.17.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 10:32:15AM +1100, Michael Neuling wrote:
-> > >Is there a kexec-tools patch too? How does second kernel know about
-> > >the location of the first kernel's initrd to be reused?
-> > >  
-> > >
-> > kexec-tools has to be modified to pass the first kernel initrd. On 
-> > powerpc, initrd locations are exported using device-tree. At present, 
-> > kexec-tool ignores the first kernel initrd property values and creates 
-> > new initrd properties if the user passes '--initrd' option to the kexec 
-> > command. So, will be an issue unless first kernel device-tree is passed 
-> > as buffer.
+Trond Myklebust wrote:
+> On Wed, 2006-12-13 at 11:53 +1100, Nick Piggin wrote:
 > 
-> We've been using the --devicetreeblob kexec-tools option available for
-> POWERPC.  This enables you to setup the device tree (and hence, the
-> initrd points) as you like.
 > 
-> I'm happy to put together a patch for kexec-tools. 
-
-Please do. And please cc me on a copy that applies against kexec-tools-testing.
-
-> Unfortunately this
-> is arch specific.  A quick look through the x86, ia64, s390 and ppc64
-> code shows the --initrd option for all these just reads the specified
-> initrd file, pushes it out to memory and uses the base and size pointers
-> to setup the next boot.  We'd obviously just skip to the last stage.
+>>Not silly -- I guess that is the main sticking point. Luckily *most*
+>>!uptodate pages will be ones that we have newly allocated so will
+>>not be in pagecache yet.
+>>
+>>If it is in pagecache, we could do one of a number of things: either
+>>remove it or try to bring it uptodate ourselves. I'm not yet sure if
+>>either of these actions will cause other problems, though :P
+>>
+>>If both of those are really going to cause problems, then we could
+>>solve this in a more brute force way (assuming that !uptodate, locked
+>>pages, in pagecache at this point are very rare -- AFAIKS these will
+>>only be caused by IO errors?). We could allocate another, temporary
+>>page and copy the contents into there first, then into the target
+>>page after the prepare_write.
 > 
-> So what's the kexec-tools option called?  --initrd-location <base> <size>?
+> 
+> We are NOT going to mandate read-modify-write behaviour on
+> prepare_write()/commit_write(). That would be a completely unnecessary
+> slowdown for write-only workloads on NFS.
 
-That sounds fine to me. I think its ok to make it arch specific for
-starters and then move it out to generic code later. That said, if
-you're feeling particularly entergetic, feel free to do the generic
-stuff now and just add null stubs for the other architectures (does
-that makes sense?).
+Note that these pages should be *really* rare. Definitely even for normal
+filesystems I think RMW would use too much bandwidth if it were required
+for any significant number of writes.
+
+I don't want to mandate anything just yet, so I'm just going through our
+options. The first two options (remove, and RMW) are probably trickier
+than they need to be, given the 3rd option available (temp buffer). Given
+your input, I'm increasingly thinking that the best course of action would
+be to fix this with the temp buffer and look at improving that later if it
+causes a noticable slowdown.
+
+Thanks,
+Nick
 
 -- 
-Horms
-  H: http://www.vergenet.net/~horms/
-  W: http://www.valinux.co.jp/en/
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

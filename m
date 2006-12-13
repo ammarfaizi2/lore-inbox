@@ -1,83 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751673AbWLMXPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751713AbWLMXQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751673AbWLMXPP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 18:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWLMXPP
+	id S1751713AbWLMXQd (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 18:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWLMXQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 18:15:15 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50260 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751673AbWLMXPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 18:15:13 -0500
-Date: Thu, 14 Dec 2006 00:13:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: nickpiggin@yahoo.com.au, vatsa@in.ibm.com, clameter@sgi.com,
-       tglx@linutronix.de, arjan@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch: dynticks: idle load balancing
-Message-ID: <20061213231316.GA13849@elte.hu>
-References: <20061211155304.A31760@unix-os.sc.intel.com> <20061213224317.GA2986@elte.hu>
+	Wed, 13 Dec 2006 18:16:33 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:36855 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751714AbWLMXQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 18:16:32 -0500
+X-Greylist: delayed 2207 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 18:16:32 EST
+Date: Wed, 13 Dec 2006 17:39:44 -0500
+To: Christoph Anton Mitterer <calestyo@scientia.net>
+Cc: Chris Wedgwood <cw@f00f.org>, Karsten Weiss <K.Weiss@science-computing.de>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
+Message-ID: <20061213223944.GA8591@csclub.uwaterloo.ca>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <4580529B.70202@scientia.net> <20061213195420.GB16112@tuatara.stupidest.org> <45805B23.9000901@scientia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061213224317.GA2986@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <45805B23.9000901@scientia.net>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 13, 2006 at 08:57:23PM +0100, Christoph Anton Mitterer wrote:
+> Don't understand me wrong,.. I don't use Windows (expect for upgrading
+> my Plextor firmware and EAC ;) )... but I ask because the more
+> information we get (even if it's not Linux specific) the more steps we
+> can take ;)
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I upgrade my plextor firmware using linux.  pxupdate for most devices,
+and pxfw for new drivers (like the PX760).  Works perfectly for me.  It
+is one of the reasons I buy plextors.
 
-> > Appended patch attempts to fix the process idle load balancing in 
-> > the presence of dynticks. cpus for which ticks are stopped will 
-> > sleep till the next event wakes it up. Potentially these sleeps can 
-> > be for large durations and during which today, there is no idle load 
-> > balancing being done. There was some discussion happened(last year) 
-> > on this topic on lkml, where two main approaches were gettting 
-> > debated. One is to back off the idle load balancing for bigger 
-> > intervals and the second is a watchdog mechanism where the busy cpu 
-> > will trigger the load balance on an idle cpu.  Both of these 
-> > mechanisms have its drawbacks.
-> 
-> nice work! I have added your patch to -rt. Btw., it needs the patch 
-> below to work on 64-bit.
-
-there's another bug as well: in schedule() resched_cpu() is called with 
-the current runqueue held in two places, which is deadlock potential. 
-The easiest fix for this is to use trylock - find the patch for that. 
-This is a hint only anyway - and if a CPU is idle its runqueue will be 
-lockable. (fixing it via double-locking is easy in the first call site, 
-but the second one looks harder)
-
-	Ingo
-
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -1167,12 +1167,14 @@ static void resched_task(struct task_str
- 	if (!tsk_is_polling(p))
- 		smp_send_reschedule(cpu);
- }
-+
- static void resched_cpu(int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
--	unsigned int flags;
-+	unsigned long flags;
- 
--	spin_lock_irqsave(&rq->lock, flags);
-+	if (!spin_trylock_irqsave(&rq->lock, flags))
-+		return;
- 	resched_task(cpu_curr(cpu));
- 	spin_unlock_irqrestore(&rq->lock, flags);
- }
+--
+Len Sorensen

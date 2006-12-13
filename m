@@ -1,64 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932643AbWLMJyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932646AbWLMJzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932643AbWLMJyJ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 04:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbWLMJyJ
+	id S932646AbWLMJzf (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 04:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWLMJzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 04:54:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:39652 "EHLO mx2.mail.elte.hu"
+	Wed, 13 Dec 2006 04:55:35 -0500
+Received: from sirius.lasnet.de ([62.75.240.18]:33897 "EHLO sirius.lasnet.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932643AbWLMJyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 04:54:07 -0500
-Date: Wed, 13 Dec 2006 10:51:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HZ free ntp
-Message-ID: <20061213095132.GA22280@elte.hu>
-References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612060348150.1868@scrub.home> <20061205203013.7073cb38.akpm@osdl.org> <1165393929.24604.222.camel@localhost.localdomain> <Pine.LNX.4.64.0612061334230.1867@scrub.home> <20061206131155.GA8558@elte.hu> <Pine.LNX.4.64.0612061422190.1867@scrub.home> <1165956021.20229.10.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S932645AbWLMJze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 04:55:34 -0500
+Date: Wed, 13 Dec 2006 10:56:56 +0100
+From: Stefan Schmidt <stefan@datenfreihafen.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>, Holger Macht <hmacht@suse.de>,
+       len.brown@intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, Brandon Philips <brandon@ifup.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
+Message-ID: <20061213095656.GC4104@datenfreihafen.org>
+References: <20061204224037.713257809@localhost.localdomain> <20061211120508.2f2704ac.kristen.c.accardi@intel.com> <20061212221504.GA4104@datenfreihafen.org> <200612121431.11919.jbarnes@virtuousgeek.org> <20061212150033.e3c7612f.kristen.c.accardi@intel.com> <20061212232638.GB4104@datenfreihafen.org> <1166001255.5631.33.camel@pim.off.vrfy.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
 Content-Disposition: inline
-In-Reply-To: <1165956021.20229.10.camel@localhost>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <1166001255.5631.33.camel@pim.off.vrfy.org>
+X-Mailer: Mutt http://www.mutt.org/
+X-KeyID: 0xDDF51665
+X-Website: http://www.datenfreihafen.org/
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* john stultz <johnstul@us.ibm.com> wrote:
+--V88s5gaDVPzZ0KCq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On Wed, 2006-12-06 at 15:33 +0100, Roman Zippel wrote:
-> > On Wed, 6 Dec 2006, Ingo Molnar wrote:
-> > > i disagree with you and it's pretty low-impact anyway. There's still
-> > > quite many HZ/tick assumptions all around the time code (NTP being one
-> > > example), we'll deal with those via other patches.
-> > 
-> > Why do you pick on the NTP code? That's actually one of the places where
-> > assumptions about HZ are largely gone. NTP state is updated incrementally
-> > and this won't change, but the update frequency can now be easily
-> > disconnected from HZ.
-> 
-> Hey Roman,
-> 	Here's my rough first attempt at doing so. I'd not call it easy, but
-> maybe you have some suggestions for a simpler way?
-> 
-> Basically INTERVAL_LENGTH_NSEC defines the NTP interval length that 
-> the time code will use to accumulate with. In this patch I've pushed 
-> it out to a full second, but it could be set via config 
-> (NSEC_PER_SEC/HZ for regular systems, something larger for systems 
-> using dynticks).
+Hello.
 
-cool! I'll give this one a go in -rt, combined with the exponential 
-second-overflow patch. (that one is now algorithmically safe, right?)
+On Wed, 2006-12-13 at 10:14, Kay Sievers wrote:
+> On Wed, 2006-12-13 at 00:26 +0100, Stefan Schmidt wrote:
+> > On Tue, 2006-12-12 at 15:00, Kristen Carlson Accardi wrote:
+> > >=20
+> > > I did have different dock/undock events a few months ago - but
+> > > after some discussion we scrapped them because Kay wants to avoid dri=
+ver
+> > > specific events.  The "change" event is the only thing that makes sen=
+se,
+> > > given the set of uevents available right now, and userspace should be=
+=20
+> > > able to handle checking a file to get driver specific details (i.e. d=
+ock=20
+> > > and undock status).  If you have a specific reason why this won't wor=
+k,
+> > > let me know.
+> >=20
+> > It's fine with me. I just find two different events more handy.
+> > Checking the file after the event in userspace should not be aproblem.
+>=20
+> The thing is that we try to avoid driver-core "features" that are
+> specific to a single subsystem or driver.
+>=20
+> You can easily add additional environment variables today, while sending
+> a "change"-event with kobject_uevent_env(), like
+> ACPI_DOCK=3D{lock,unlock,insert,remove,...}. Just pass any driver-specific
+> string you like along with the event, and it will be available just like
+> the "action" string.
 
-	Ingo
+Thanks for the explanation. I can live with both solutions. It's up to
+Kristen.
+
+> This should fit all requirements, without the need to introduce all
+> sorts of new generic action-strings, that can almost never be changed
+> later for compatibility reasons. That way, if "drivers" later find out,
+> that they need to send different actions/flags, they can just add as
+> many new strings as they like on top of the event. :)
+
+Fair enough.
+
+regards
+Stefan Schmidt
+
+--V88s5gaDVPzZ0KCq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: http://www.datenfreihafen.org/contact.html
+
+iD8DBQFFf85obNSsvd31FmURAty3AJ4y+2YD/69MncNKmcoMp6suQTVnvACg1YtD
+wz9WnrpeX/zuUtfF5WfJ8GM=
+=787S
+-----END PGP SIGNATURE-----
+
+--V88s5gaDVPzZ0KCq--

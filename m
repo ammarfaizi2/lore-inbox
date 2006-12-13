@@ -1,104 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964949AbWLMGS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751594AbWLMGcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbWLMGS1 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 01:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWLMGS1
+	id S1751594AbWLMGcM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 01:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWLMGcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 01:18:27 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:49203 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964950AbWLMGS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 01:18:26 -0500
-X-Greylist: delayed 571 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 01:18:24 EST
-Date: Wed, 13 Dec 2006 00:08:29 -0600
-From: Erik Jacobson <erikj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Erik Jacobson <erikj@sgi.com>, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net, matthltc@us.ibm.com
-Subject: Re: [PATCH] connector: Some fixes for ia64 unaligned access errors
-Message-ID: <20061213060829.GA1409@sgi.com>
-References: <20061207232213.GA29340@sgi.com> <1165881166.24721.71.camel@localhost.localdomain> <20061212175411.GA20407@sgi.com> <20061212164504.d6f8a3cb.akpm@osdl.org> <20061213023132.GA29897@sgi.com> <20061212183826.6edb3a3f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212183826.6edb3a3f.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Wed, 13 Dec 2006 01:32:12 -0500
+Received: from mail.cs.tut.fi ([130.230.4.42]:45930 "EHLO mail.cs.tut.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751594AbWLMGcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 01:32:11 -0500
+X-Greylist: delayed 1486 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 01:32:11 EST
+Message-ID: <457F989B.5030004@tut.fi>
+Date: Wed, 13 Dec 2006 08:07:23 +0200
+From: Timo Aaltonen <timo.aaltonen@tut.fi>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+MIME-Version: 1.0
+To: jim@coolzero.info
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Survey about the Kernel Community
+References: <457EA2C2.5060408@tut.fi> <35725.84.81.1.164.1165927769.squirrel@webmail.coolzero.info>
+In-Reply-To: <35725.84.81.1.164.1165927769.squirrel@webmail.coolzero.info>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I didn't want to leave this hanging and it stayed in my head so I
-thought I'd better just finish it and test it.
+Hi,
 
-I tried out this patch and it got rid of all three unaligned acces errors
-I was seeing with process connectors and the patch is indeed much smaller.
+Sure, we will post the results to the mailing list after analyzing them.
+Moreover, we post a link to the proceedings of the conference where the
+results are published.
 
-I ran our container daemon program in debug mode to be sure the forks
-and exits still worked right when the patch was applied and all seemed
-well.
+-- 
+Timo
 
-I applied this patch to x86_64 as well as a sanity check and it seems
-working fine.
 
-Things look good to me.  I'm ok if you prefer this patch, or the one
-already in -mm.
+> Hi,
+> 
+> Well, I filled in the survey. Was wondering if you also post the results
+> here at the mailing list. That would be nice.
+> 
+> Greetings,
+> 
+> Jim.
+> 
+>> Hi all,
+>>
+>> We would like to ask you few question about Linux Kernel Community. The
+>> survey consists of 31 multiple choice questions and three text boxes.
+>> The survey is conducted by Institute of Business Information Management
+>> and Institute of Software Systems at Tampere University of Technology.
+>>
+>> We close the survey at 24th of December. The results of our study will
+>> be published  in an international academic conference.
+>>
+>> Please devote a few minutes to help us in understanding OSS communities.
+>> The survey is located at
+>> <http://www.surveymonkey.com/s.asp?u=577413001783>.
+>>
+>> Thanks in advance.
+>>
+>> --
+>> Timo Aaltonen and Maria Antikainen
+>> firstname.lastname@tut.fi
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
 
-Signed-off-by: Erik Jacobson <erikj@sgi.com>
----
-
- cn_proc.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
---- linux.orig/drivers/connector/cn_proc.c	2006-12-12 23:03:31.000000000 -0600
-+++ linux/drivers/connector/cn_proc.c	2006-12-12 23:06:34.243535000 -0600
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/connector.h>
- #include <asm/atomic.h>
-+#include <asm/unaligned.h>
- 
- #include <linux/cn_proc.h>
- 
-@@ -60,7 +61,7 @@
- 	ev = (struct proc_event*)msg->data;
- 	get_seq(&msg->seq, &ev->cpu);
- 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
--	ev->timestamp_ns = timespec_to_ns(&ts);
-+	put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
- 	ev->what = PROC_EVENT_FORK;
- 	ev->event_data.fork.parent_pid = task->real_parent->pid;
- 	ev->event_data.fork.parent_tgid = task->real_parent->tgid;
-@@ -88,7 +89,7 @@
- 	ev = (struct proc_event*)msg->data;
- 	get_seq(&msg->seq, &ev->cpu);
- 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
--	ev->timestamp_ns = timespec_to_ns(&ts);
-+	put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
- 	ev->what = PROC_EVENT_EXEC;
- 	ev->event_data.exec.process_pid = task->pid;
- 	ev->event_data.exec.process_tgid = task->tgid;
-@@ -124,7 +125,7 @@
- 	     	return;
- 	get_seq(&msg->seq, &ev->cpu);
- 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
--	ev->timestamp_ns = timespec_to_ns(&ts);
-+	put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
- 
- 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
- 	msg->ack = 0; /* not used */
-@@ -146,7 +147,7 @@
- 	ev = (struct proc_event*)msg->data;
- 	get_seq(&msg->seq, &ev->cpu);
- 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
--	ev->timestamp_ns = timespec_to_ns(&ts);
-+	put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
- 	ev->what = PROC_EVENT_EXIT;
- 	ev->event_data.exit.process_pid = task->pid;
- 	ev->event_data.exit.process_tgid = task->tgid;
-@@ -181,7 +182,7 @@
- 	ev = (struct proc_event*)msg->data;
- 	msg->seq = rcvd_seq;
- 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
--	ev->timestamp_ns = timespec_to_ns(&ts);
-+	put_unaligned(timespec_to_ns(&ts), (__u64 *) &ev->timestamp_ns);
- 	ev->cpu = -1;
- 	ev->what = PROC_EVENT_NONE;
- 	ev->event_data.ack.err = err;

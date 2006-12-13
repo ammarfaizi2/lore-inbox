@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965150AbWLMUDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965071AbWLMUGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWLMUDP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 15:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWLMUDP
+	id S965071AbWLMUGS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 15:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWLMUGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 15:03:15 -0500
-Received: from mail.gmx.net ([213.165.64.20]:41268 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S965143AbWLMUDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 15:03:12 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 15:03:11 EST
-X-Authenticated: #3612999
-Date: Wed, 13 Dec 2006 20:56:18 +0100 (CET)
-From: Karsten Weiss <knweiss@gmx.de>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-cc: linux-kernel@vger.kernel.org, ak@suse.de, andersen@codepoet.org,
-       cw@f00f.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
- memory hole mapping related bug?!
-In-Reply-To: <45804C0B.4030109@scientia.net>
-Message-ID: <Pine.LNX.4.64.0612132014340.2963@addx.localnet>
-References: <4570CF26.8070800@scientia.net> <Pine.LNX.4.64.0612021048200.2981@addx.localnet>
- <45804C0B.4030109@scientia.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Y-GMX-Trusted: 0
+	Wed, 13 Dec 2006 15:06:18 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51969 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965071AbWLMUGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 15:06:17 -0500
+Date: Wed, 13 Dec 2006 21:04:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jim.houston@ccur.com,
+       sunil.mushran@oracle.com
+Subject: Re: [PATCH] Conditionally check expected_preempt_count in __resched_legal()
+Message-ID: <20061213200422.GA992@elte.hu>
+References: <20061213195537.GH6831@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061213195537.GH6831@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006, Christoph Anton Mitterer wrote:
 
->> Christoph, I will carefully re-read your entire posting and the
->> included links on Monday and will also try the memory hole
->> setting.
->>
-> And did you get out anything new?
+* Mark Fasheh <mark.fasheh@oracle.com> wrote:
 
-As I already mentioned the kernel parameter "iommu=soft" fixes
-the data corruption for me. We saw no more data corruption
-during a test on 48 machines over the last week-end. Chris
-Wedgewood already confirmed that this setting fixed the data
-corruption for him, too.
+> Commit 2d7d253548cffdce80f4e03664686e9ccb1b0ed7 ("fix cond_resched() fix")
+> introduced an 'expected_preempt_count' parameter to __resched_legal() to fix
+> a bug where it was returning a false negative when called from
+> cond_resched_lock() and preemption was enabled.
+> 
+> Unfortunately this broke things for when preemption is disabled.
+> preempt_count() will always return zero, thus failing the check against
+> any value of expected_preempt_count not equal to zero. cond_resched_lock()
+> for example, passes an expected_preempt_count value of 1.
+> 
+> So fix the fix for the cond_resched() fix by skipping the check of
+> preempt_count() against expected_preempt_count when preemption is disabled.
+> 
+> Credit should go to Sunil Mushran for spotting the bug during testing.
+> 
+> Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
 
-Of course, the big question "Why does the hardware iommu *not*
-work on those machines?" still remains.
+well spotted. I'm wondering whether this piece of code has the highest 
+amount of fixes per line of code ratio in the whole kernel ...
 
-I have also tried setting "memory hole mapping" to "disabled"
-instead of "hardware" on some of the machines and this *seems*
-to work stable, too. However, I did only test it on about a
-dozen machines because this bios setting costs us 1 GB memory
-(and iommu=soft does not).
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-BTW: Maybe I should also mention that other machines types
-(e.g. the HP xw9300 dual opteron workstations) which also use a
-NVIDIA chipset and Opterons never had this problem as far as I
-know.
-
-Best regards,
-Karsten
-
--- 
-Dipl.-Inf. Karsten Weiss - http://www.machineroom.de/knweiss
+	Ingo

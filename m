@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964896AbWLMR4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965047AbWLMR6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWLMR4b (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 12:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWLMR4b
+	id S965047AbWLMR6u (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWLMR6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 12:56:31 -0500
-Received: from sbcs.sunysb.edu ([130.245.1.15]:56785 "EHLO sbcs.cs.sunysb.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964896AbWLMR4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 12:56:30 -0500
-X-Greylist: delayed 524 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 12:56:30 EST
-Date: Wed, 13 Dec 2006 12:47:42 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-cc: unionfs@filer.fsl.cs.sunysb.edu, fistgen@filer.fsl.cs.sunysb.edu
-Subject: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-Message-ID: <Pine.GSO.4.53.0612122217360.22195@compserv1>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Dec 2006 12:58:50 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:46474 "EHLO
+	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S965047AbWLMR6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 12:58:48 -0500
+Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Douglas Gilbert <dougg@torque.net>
+In-Reply-To: <45803AA0.8020203@us.ibm.com>
+References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>
+	 <4574B004.6030606@us.ibm.com>  <457D8637.5070707@garzik.org>
+	 <1165855489.2791.7.camel@mulgrave.il.steeleye.com>
+	 <457F2C1C.1030503@us.ibm.com>
+	 <1166026240.2790.27.camel@mulgrave.il.steeleye.com>
+	 <45803AA0.8020203@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 13 Dec 2006 11:57:25 -0600
+Message-Id: <1166032646.2790.39.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have designed a new stackable file system that we called RAIF:
-Redundant Array of Independent Filesystems.
+On Wed, 2006-12-13 at 09:38 -0800, Darrick J. Wong wrote:
+> Sorry, I should have clarified this earlier--the Quantum GoVault is a
+> removable disk drive, not a CD-ROM.  The device is reminiscent of Zip
+> disks, but the cartridge is a sealed unit and contains a 2.5" SATA disk
+> inside; hence it's not a CD-ROM.  So the patch below won't work for me,
+> because sdev->type == TYPE_DISK.
 
-Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
-many different disk-based, memory, network, and distributed file systems.
-RAIF can use the stable and maintained code of the other file systems and
-thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
-data or store it with parity on any subset of the lower file systems.  RAIF
-has three main advantages over traditional driver-level RAID systems:
+So it's a SATAPI device of type 0 ... that's fun ... but it still needs
+a blacklist; it's governed by SBC which isn't ambiguous about the need
+to support REPORT LUNS.  Now, if it supported RBC instead of SBC, that's
+different; RBC also makes REPORT LUNS optional.  However, it is required
+to indicate RBC support by being type 0xe.
 
-1. RAIF can be mounted over any set of file systems.  This allows users to
-   create many more useful configurations.  For example, it is possible to
-   replicate the data on the local and remote disks, and stripe the data on
-   the local hard drives and keep the parity (or even ECC to tolerate
-   multiple failures) on the remote server(s).  In the latter case, all the
-   read requests will be satisfied from the fast local disks and no local
-   disk space will be spent on parity.
+> I wonder if the same sort of REPORT LUNS screw-up might apply to other
+> ATAPI devices too, such as tape drives.  Since we've seen that
+> manufacturers of CD-ROMs and removable disks don't implement it, it
+> would not surprise me if the other ATAPI devices don't either.  But,
+> that's speculation on my part.
 
-2. RAIF is a file system and thus has access to the meta-data.  This allows
-   it to store different files differently.  For example, RAIF can replicate
-   important files (*.c, *.doc, etc) on all the lower file systems and
-   stripe the multimedia files with parity at the same time.
+James
 
-3. It is sometimes more convenient to work with file systems than devices as
-   the lower storage.  For example, it is possible to mount RAIF over a
-   directory on an existing file system.  The data is represented as files
-   on the lower file systems.  Therefore, any lower file system is an exact
-   replica of the RAIF file system in the case of replication.  It also
-   makes it easy to backup the data on the lower file systems using existing
-   tools.
 
-We have performed some benchmarking on a 3GHz PC with 2GB of RAM and U320
-SCSI disks.  Compared to the Linux RAID driver, RAIF has overheads of about
-20-25% under the Postmark v1.5 benchmark in case of striping and
-replication.  In case of RAID4 and RAID5-like configurations, RAIF performed
-about two times *better* than software RAID and even better than an Adaptec
-2120S RAID5 controller.  This is because RAIF is located above file system
-caches and can cache parity as normal data when needed.  We have more
-performance details in a technical report, if anyone is interested.
-
-We started the project in April 2004.  Right now I am using it as my
-/home/kolya file system at home.  We believe that at this stage RAIF is
-mature enough for others to try it out.  The code is available at:
-
-	<ftp://ftp.fsl.cs.sunysb.edu/pub/raif/>
-
-The code requires no kernel patches and compiles for a wide range of kernels
-as a module.  The latest kernel we used it for is 2.6.13 and we are in the
-process of porting it to 2.6.19.
-
-We will be happy to hear your back.
-
-Nikolai Joukov on behalf of the RAIF team.
-----------------------------------
-Filesystems and Storage Laboratory
-Stony Brook University

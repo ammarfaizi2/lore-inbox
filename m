@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751744AbWLMX3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751738AbWLMXbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWLMX3A (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 18:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbWLMX3A
+	id S1751738AbWLMXbF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 18:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWLMXbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 18:29:00 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:56511 "EHLO smtp.osdl.org"
+	Wed, 13 Dec 2006 18:31:04 -0500
+Received: from elch.in-berlin.de ([192.109.42.5]:55355 "EHLO elch.in-berlin.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751743AbWLMX27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 18:28:59 -0500
-Date: Wed, 13 Dec 2006 15:28:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-In-Reply-To: <Pine.LNX.4.61.0612132219480.32433@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0612131522310.5718@woody.osdl.org>
-References: <20061213195226.GA6736@kroah.com>  <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
- <1166044471.11914.195.camel@localhost.localdomain>
- <Pine.LNX.4.61.0612132219480.32433@yvahk01.tjqt.qr>
+	id S1751738AbWLMXbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 18:31:03 -0500
+X-Greylist: delayed 902 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 18:31:03 EST
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <458089A4.9060102@s5r6.in-berlin.de>
+Date: Thu, 14 Dec 2006 00:15:48 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Crocombe <rcrocomb@gmail.com>
+CC: Keith Curtis <Keith.Curtis@digeo.com>,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: isochronous receives?
+References: <AccTUZEOi7v6J84+R+eLGKj8lA2txQAz+0pA>	<DD2010E58E069B40886650EE617FCC0CBA8EC9@digeo-mail1.digeo.com> <e6babb600612130630y341aaadehb0436ade65ea6f7d@mail.gmail.com> <45804615.3060004@s5r6.in-berlin.de>
+In-Reply-To: <45804615.3060004@s5r6.in-berlin.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wrote:
+> /* can be used for tag = 0...3 and ORed together for multiple tags */
+> #define RAW1394_IR_MATCH_TAG(tag)   (1<<((tag)&3))
 
+PS: or  ((tag)>>2 ? 0 : 1<<(tag))  or just  (1<<(tag))
 
-On Wed, 13 Dec 2006, Jan Engelhardt wrote:
-> 
-> For the sharing case, some sort of softirq should be created. That is, when a
-> hard interrupt is generated and the irq handler is executed, set a flag that at
-> some other point in time, the irq is delivered to userspace. Like you do with
-> signals in userspace:
+> #define RAW1394_IR_MATCH_ALL_TAGS   -1
 
-NO.
-
-The whole point is, YOU CANNOT DO THIS.
-
-You need to shut the device up. Otherwise it keeps screaming.
-
-Please, people, don't confuse the issue any further. A hardware driver
-
-	ABSOLUTELY POSITIVELY HAS TO
-
-have an in-kernel irq handler that knows how to turn the irq off.
-
-End of story. No ifs, buts, maybes about it.
-
-You cannot have a generic kernel driver that doesn't know about the 
-low-level hardware (not with current hardware - you could make the "shut 
-the f*ck up" a generic thing if you designed hardware properly, but that 
-simply does not exist in general right now).
-
-In short: a user-space device driver has exactly TWO choices:
-
- - don't use interrupts at all, just polling
-
- - have an in-kernel irq handler that at a minimum knows how to test 
-   whether the irq came from that device and knows how to shut it up.
-
-This means NOT A GENERIC DRIVER. That simply isn't an option on the 
-table, no matter how much people would like it to be.
-
-			Linus
+-- 
+Stefan Richter
+-=====-=-==- ==-- -===-
+http://arcgraph.de/sr/

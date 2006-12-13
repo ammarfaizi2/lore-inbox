@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965015AbWLMQeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965013AbWLMQjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbWLMQeb (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 11:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWLMQea
+	id S965013AbWLMQjb (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 11:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWLMQjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 11:34:30 -0500
-Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:50316 "EHLO
-	outgoing1.smtp.agnat.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965026AbWLMQe3 convert rfc822-to-8bit (ORCPT
+	Wed, 13 Dec 2006 11:39:31 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3105 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S965013AbWLMQjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 11:34:29 -0500
-X-Greylist: delayed 984 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 11:34:29 EST
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: announce: irqbalance 0.55 released
-Date: Wed, 13 Dec 2006 17:17:48 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <1165865249.27217.419.camel@laptopd505.fenrus.org>
-In-Reply-To: <1165865249.27217.419.camel@laptopd505.fenrus.org>
+	Wed, 13 Dec 2006 11:39:31 -0500
+Date: Wed, 13 Dec 2006 17:39:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CodingStyle:  "kzalloc()" versus "kcalloc(1,...)"
+Message-ID: <20061213163939.GJ3851@stusta.de>
+References: <Pine.LNX.4.64.0612071912030.22957@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612131717.48857.arekm@maven.pl>
-X-Authenticated-Id: arekm
+In-Reply-To: <Pine.LNX.4.64.0612071912030.22957@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 December 2006 20:27, Arjan van de Ven wrote:
+On Thu, Dec 07, 2006 at 07:16:15PM -0500, Robert P. J. Day wrote:
+> 
+>   i just noticed that there are numerous invocations of kcalloc()
+> where the hard-coded first arg of # elements is "1", which seems like
+> an inappropriate use of kcalloc().
+> 
+>   the only rationale i can see is that kcalloc() guarantees that the
+> memory will be set to zero, so i'm guessing that this form of
+> kcalloc() was used before kzalloc() existed, or was used by folks who
+> didn't know that kzalloc() existed.
+> 
+>   if a (zero-filled) single struct is being allocated, is it worth
+> codifying that that allocation should use kzalloc() and not
+> kcalloc(1,...)?
 
-> At this point only source packages are available, I hope that the linux
-> vendors will have packages for the various distributions ready in a few
-> days.
-Manual page disappeared (no big problem, wasn't even complete). X Window tools 
-are required to build it (gccmakedep). Uh.
+kcalloc() calls kzalloc(), so it doesn't matter at all which to use.
 
-Looks like parameters also have changed and are incompatible with previous 
-irqbalance (--option vs option now).
+> rday
 
-Long standing typo:
-        "eepro100",
-        "orinico_cs",
-      ^^^^^^^^^^^^^^^
-        "wvlan_cs",
-
-> Greetings,
->    Arjan van de Ven
+cu
+Adrian
 
 -- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

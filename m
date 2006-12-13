@@ -1,164 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965040AbWLMRLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932351AbWLMRVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbWLMRLA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 12:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWLMRLA
+	id S932351AbWLMRVe (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 12:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWLMRVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 12:11:00 -0500
-Received: from amsfep15-int.chello.nl ([62.179.120.10]:55014 "EHLO
-	amsfep15-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S965040AbWLMRK7 (ORCPT
+	Wed, 13 Dec 2006 12:21:34 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39285 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932351AbWLMRVd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 12:10:59 -0500
-Subject: Re: [PATCH] nfs: fix NR_FILE_DIRTY underflow
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <1166012781.5695.18.camel@lade.trondhjem.org>
-References: <1166011958.32332.97.camel@twins>
-	 <1166012781.5695.18.camel@lade.trondhjem.org>
+	Wed, 13 Dec 2006 12:21:33 -0500
+Subject: Re: SM501: core (mfd) driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ben Dooks <ben-fbdev@fluff.org>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <20061213155134.GA10097@home.fluff.org>
+References: <20061213155134.GA10097@home.fluff.org>
 Content-Type: text/plain
-Date: Wed, 13 Dec 2006 16:01:22 +0100
-Message-Id: <1166022082.32332.126.camel@twins>
+Organization: Intel International BV
+Date: Wed, 13 Dec 2006 18:21:31 +0100
+Message-Id: <1166030491.27217.844.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 07:26 -0500, Trond Myklebust wrote:
-> On Wed, 2006-12-13 at 13:12 +0100, Peter Zijlstra wrote:
-> > Still testing this patch, but it looks good so far.
-> > 
-> > ---
-> > Just setting PG_dirty can cause NR_FILE_DIRTY to underflow
-> > which is bad (TM).
-> > 
-> > Use set_page_dirty() which will do the right thing.
-> 
-> Actually, I'd prefer to have it do the right thing by getting rid of
-> that call to test_clear_page_dirty() inside
-> invalidate_inode_pages2_range(). That is causing loss of data integrity,
-> and is what is causing us to have to hack NFS in the first place.
+Hi,
 
-Ah, I think I see what your problem is there.
-How about this totally untested patch:
+some review comments below
+> +
+> +struct sm501_devdata {
+> +	spinlock_t			 reg_lock;
+> +	struct semaphore		 clock_lock;
 
----
-Delay clearing the dirty page state till after removing it from the
-mapping in invalidate_inode_pages2_range(). This will give
-try_to_release_pages() a shot to flush dirty data.
+can't this be a mutex instead ?
+> +#ifdef CONFIG_DEBUG
+> +static unsigned int misc_div[] = {
+> +	[0]		= 1,
+> +	[1]		= 2,
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- fs/nfs/file.c              |    2 --
- include/linux/page-flags.h |    2 ++
- mm/page-writeback.c        |   17 +++++++++++------
- mm/truncate.c              |   11 +++--------
- 4 files changed, 16 insertions(+), 16 deletions(-)
+can this be const ?
 
-Index: linux-2.6-git/fs/nfs/file.c
-===================================================================
---- linux-2.6-git.orig/fs/nfs/file.c	2006-12-13 15:31:26.000000000 +0100
-+++ linux-2.6-git/fs/nfs/file.c	2006-12-13 15:39:33.000000000 +0100
-@@ -320,8 +320,6 @@ static int nfs_release_page(struct page 
- 	 */
- 	if (!(gfp & __GFP_FS))
- 		return 0;
--	/* Hack... Force nfs_wb_page() to write out the page */
--	SetPageDirty(page);
- 	return !nfs_wb_page(page_file_mapping(page)->host, page);
- }
- 
-Index: linux-2.6-git/include/linux/page-flags.h
-===================================================================
---- linux-2.6-git.orig/include/linux/page-flags.h	2006-12-13 15:35:50.000000000 +0100
-+++ linux-2.6-git/include/linux/page-flags.h	2006-12-13 15:36:14.000000000 +0100
-@@ -252,7 +252,9 @@ static inline void SetPageUptodate(struc
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
- 
- struct page;	/* forward declaration */
-+struct address_space;
- 
-+int __test_clear_page_dirty(struct address_space *mapping, struct page *page);
- int test_clear_page_dirty(struct page *page);
- int test_clear_page_writeback(struct page *page);
- int test_set_page_writeback(struct page *page);
-Index: linux-2.6-git/mm/page-writeback.c
-===================================================================
---- linux-2.6-git.orig/mm/page-writeback.c	2006-12-13 15:34:15.000000000 +0100
-+++ linux-2.6-git/mm/page-writeback.c	2006-12-13 15:39:41.000000000 +0100
-@@ -850,13 +850,8 @@ int set_page_dirty_lock(struct page *pag
- }
- EXPORT_SYMBOL(set_page_dirty_lock);
- 
--/*
-- * Clear a page's dirty flag, while caring for dirty memory accounting. 
-- * Returns true if the page was previously dirty.
-- */
--int test_clear_page_dirty(struct page *page)
-+int __test_clear_page_dirty(struct address_space *mapping, struct page *page)
- {
--	struct address_space *mapping = page_mapping(page);
- 	unsigned long flags;
- 
- 	if (!mapping)
-@@ -880,6 +875,16 @@ int test_clear_page_dirty(struct page *p
- 	write_unlock_irqrestore(&mapping->tree_lock, flags);
- 	return 0;
- }
-+
-+/*
-+ * Clear a page's dirty flag, while caring for dirty memory accounting.
-+ * Returns true if the page was previously dirty.
-+ */
-+int test_clear_page_dirty(struct page *page)
-+{
-+	struct address_space *mapping = page_mapping(page);
-+	return __test_clear_page_dirty(mapping, page);
-+}
- EXPORT_SYMBOL(test_clear_page_dirty);
- 
- /*
-Index: linux-2.6-git/mm/truncate.c
-===================================================================
---- linux-2.6-git.orig/mm/truncate.c	2006-12-13 15:36:38.000000000 +0100
-+++ linux-2.6-git/mm/truncate.c	2006-12-13 15:44:01.000000000 +0100
-@@ -307,18 +307,12 @@ invalidate_complete_page2(struct address
- 		return 0;
- 
- 	write_lock_irq(&mapping->tree_lock);
--	if (PageDirty(page))
--		goto failed;
--
- 	BUG_ON(PagePrivate(page));
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
- 	page_cache_release(page);	/* pagecache ref */
- 	return 1;
--failed:
--	write_unlock_irq(&mapping->tree_lock);
--	return 0;
- }
- 
- /**
-@@ -386,12 +380,13 @@ int invalidate_inode_pages2_range(struct
- 					  PAGE_CACHE_SIZE, 0);
- 				}
- 			}
--			was_dirty = test_clear_page_dirty(page);
-+			was_dirty = PageDirty(page);
- 			if (!invalidate_complete_page2(mapping, page)) {
- 				if (was_dirty)
- 					set_page_dirty(page);
- 				ret = -EIO;
--			}
-+			} else
-+				__test_clear_page_dirty(mapping, page);
- 			unlock_page(page);
- 		}
- 		pagevec_release(&pvec);
+> +
+> +int sm501_unit_power(struct device *dev, unsigned int unit, unsigned int to)
+> +{
+> +	struct sm501_devdata *sm = dev_get_drvdata(dev);
+> +	unsigned long mode = readl(sm->regs + SM501_POWER_MODE_CONTROL);
+> +	unsigned long gate = readl(sm->regs + SM501_CURRENT_GATE);
+> +	unsigned long clock = readl(sm->regs + SM501_CURRENT_CLOCK);
+> +
+> +	mode &= 3;		/* get current power mode */
+> +
+> +	down(&sm->clock_lock);
 
+eh shouldn't you do the readl()'s inside the semaphore (or mutex) area?
+
+> +
+> +	writel(mode, sm->regs + SM501_POWER_MODE_CONTROL);
+> +
+> +	dev_dbg(sm->dev, "gate %08lx, clock %08lx, mode %08lx\n",
+> +		gate, clock, mode);
+> +
+> +	msleep(16);
+
+you're missing a PCI posting flush here
+(if you don't know what this is please ask)
+
+> +	sm->dev = &dev->dev;
+> +	sm->irq = dev->irq;
+
+you shouldn't look at dev->irq ...
+
+> +
+> +	/* set a hopefully unique id for our child platform devices */
+> +	sm->pdev_id = 32 + dev->devfn;
+> +
+> +	pci_set_drvdata(dev, sm);
+> +
+> +	err = pci_enable_device(dev);
+
+.. before calling pci_enable_device() since pci_enable_device() may be
+the one that sets the dev->irq value to it's final value in the first
+place
+
+
+
+> +	sm->io_res = &dev->resource[1];
+> +	sm->mem_res = &dev->resource[0];
+> +
+> +	sm->regs = ioremap(pci_resource_start(dev, 1),
+> +			   pci_resource_len(dev, 1));
+
+you know how to use pci_resource_start() and co.. why not use them 3
+lines higher ? ;)
+
+
+the driver looks quite clean otherwise btw, great work!
+
+
+- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

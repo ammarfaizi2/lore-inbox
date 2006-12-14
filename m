@@ -1,212 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932748AbWLNOTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932794AbWLNOXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932748AbWLNOTf (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbWLNOTe
+	id S932794AbWLNOXw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLNOXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:19:34 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46393 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932751AbWLNOT1 (ORCPT
+	Thu, 14 Dec 2006 09:23:52 -0500
+Received: from web59212.mail.re1.yahoo.com ([66.196.101.38]:42114 "HELO
+	web59212.mail.re1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932794AbWLNOXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:19:27 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v4 08/13] Memory Registration
-Date: Thu, 14 Dec 2006 07:56:37 -0600
-To: rdreier@cisco.com
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Message-Id: <20061214135636.21159.34359.stgit@dell3.ogc.int>
-In-Reply-To: <20061214135233.21159.78613.stgit@dell3.ogc.int>
-References: <20061214135233.21159.78613.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 14 Dec 2006 09:23:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=CvZ4nP9BsUbuILflr2qM3kM/Lelz2EVJ2wE/a3QDWDJ7gEFR88QmcKrzW7FO1O7Hrn05vzHbRuXsRWjys632JaCgNLhCl7Yu+BfqgOjgWXdXAs3osl27kocGzB1XM8f9dBEGWJT2e7d+szAIr93ocmAHO0PaY6i8Y81M4stAjrw=;
+X-YMail-OSG: 2yCS._cVM1lEPhGQaIE.q1WWI1yhI5etQRk3O0bx
+Date: Thu, 14 Dec 2006 06:23:43 -0800 (PST)
+From: tike64 <tike64@yahoo.com>
+Subject: Re: realtime-preempt and arm
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <Pine.LNX.4.58.0612140740480.17165@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <813680.16966.qm@web59212.mail.re1.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt <rostedt@goodmis.org> wrote:
+> ...
+> it's ok for the timer to be a little over, but it must never be a
+> little under.
+> ...
+> So we make sure the timer goes off in (n+1) ms, and not just (n).
 
-Functions to register memory regions.
+Ok, this makes sense - thanks.
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
+What confuses / confused me is that I have 4 combinations:
+without-rt/with-rt X select/nanosleep; I first tried the
+without-rt/select combination and right after that with-rt combinations
+skipping the without-rt/nanosleep case. The first one was the one (the
+only one) which gives me the 10ms average delay. And after your
+explanations that fact bugs me even more.
 
- drivers/infiniband/hw/cxgb3/iwch_mem.c |  170 ++++++++++++++++++++++++++++++++
- 1 files changed, 170 insertions(+), 0 deletions(-)
+But that is a side issue. The real problem is now: how do I get rid of
+the multi-ms jitter?
 
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_mem.c b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-new file mode 100644
-index 0000000..774d11e
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-@@ -0,0 +1,170 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include <asm/byteorder.h>
-+
-+#include <rdma/iw_cm.h>
-+#include <rdma/ib_verbs.h>
-+
-+#include "cxio_hal.h"
-+#include "iwch.h"
-+#include "iwch_provider.h"
-+
-+int iwch_register_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	if (cxio_register_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int iwch_reregister_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list,
-+					int npages)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	/* We could support this... */
-+	if (npages > mhp->attr.pbl_size)
-+		return -ENOMEM;
-+
-+	stag = mhp->attr.stag;
-+	if (cxio_reregister_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int build_phys_page_list(struct ib_phys_buf *buffer_list,
-+					int num_phys_buf,
-+					u64 *iova_start,
-+					u64 *total_size,
-+					int *npages,
-+					int *shift,
-+					__be64 **page_list)
-+{
-+	u64 mask;
-+	int i, j, n;
-+
-+	mask = 0;
-+	*total_size = 0;
-+	for (i = 0; i < num_phys_buf; ++i) {
-+		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
-+			return -EINVAL;
-+		if (i != 0 && i != num_phys_buf - 1 &&
-+		    (buffer_list[i].size & ~PAGE_MASK))
-+			return -EINVAL;
-+		*total_size += buffer_list[i].size;
-+		if (i > 0)
-+			mask |= buffer_list[i].addr;
-+	}
-+
-+	if (*total_size > 0xFFFFFFFFULL)
-+		return -ENOMEM;
-+
-+	/* Find largest page shift we can use to cover buffers */
-+	for (*shift = PAGE_SHIFT; *shift < 27; ++(*shift))
-+		if (num_phys_buf > 1) {
-+			if ((1ULL << *shift) & mask)
-+				break;
-+		} else 
-+			if (1ULL << *shift >=
-+			    buffer_list[0].size +
-+			    (buffer_list[0].addr & ((1ULL << *shift) - 1)))
-+				break;
-+
-+	buffer_list[0].size += buffer_list[0].addr & ((1ULL << *shift) - 1);
-+	buffer_list[0].addr &= ~0ull << *shift;
-+
-+	*npages = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		*npages += (buffer_list[i].size + 
-+			(1ULL << *shift) - 1) >> *shift;
-+
-+	if (!*npages)
-+		return -EINVAL;
-+
-+	*page_list = kmalloc(sizeof(u64) * *npages, GFP_KERNEL);
-+	if (!*page_list)
-+		return -ENOMEM;
-+
-+	n = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		for (j = 0;
-+		     j < (buffer_list[i].size + (1ULL << *shift) - 1) >> *shift;
-+		     ++j) 
-+			(*page_list)[n++] = cpu_to_be64(buffer_list[i].addr +
-+			    ((u64) j << *shift));
-+
-+	PDBG("%s va 0x%llx mask 0x%llx shift %d len %lld pbl_size %d\n",
-+	     __FUNCTION__, *iova_start, mask, *shift, *total_size, *npages);
-+
-+	return 0;
-+
-+}
+--
+
+tike
+
+
+
+ 
+____________________________________________________________________________________
+Do you Yahoo!?
+Everyone is raving about the all-new Yahoo! Mail beta.
+http://new.mail.yahoo.com

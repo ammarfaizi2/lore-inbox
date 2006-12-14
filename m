@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751831AbWLNIep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751832AbWLNIes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751831AbWLNIep (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 03:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWLNIep
+	id S1751832AbWLNIes (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 03:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWLNIes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 03:34:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37329 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751831AbWLNIep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 03:34:45 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add allowed_affinity to the irq_desc to make it possible to have restricted irqs
-References: <1166018020.27217.805.camel@laptopd505.fenrus.org>
-	<m1lklbport.fsf@ebiederm.dsl.xmission.com>
-	<20061213194332.GA29185@elte.hu>
-	<m1ejr3pnm3.fsf@ebiederm.dsl.xmission.com>
-	<45806137.4020403@linux.intel.com>
-	<m11wn3p0zk.fsf@ebiederm.dsl.xmission.com>
-	<45810383.2060708@linux.intel.com>
-	<m1psamopjj.fsf@ebiederm.dsl.xmission.com>
-	<458109FA.3060304@linux.intel.com>
-Date: Thu, 14 Dec 2006 01:34:26 -0700
-In-Reply-To: <458109FA.3060304@linux.intel.com> (Arjan van de Ven's message of
-	"Thu, 14 Dec 2006 09:23:22 +0100")
-Message-ID: <m1lklaooz1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Thu, 14 Dec 2006 03:34:48 -0500
+Received: from jdi.jdi-ict.nl ([82.94.239.5]:48163 "EHLO jdi.jdi-ict.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751832AbWLNIer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 03:34:47 -0500
+X-Greylist: delayed 1101 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 03:34:47 EST
+Date: Thu, 14 Dec 2006 09:15:39 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+X-X-Sender: igmar@jdi.jdi-ict.nl
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
+Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
+In-Reply-To: <Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
+Message-ID: <Pine.LNX.4.58.0612140912010.30202@jdi.jdi-ict.nl>
+References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
+ <20061130212248.1b49bd32.akpm@osdl.org> <Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl> <20061206074008.2f308b2b.akpm@osdl.org>
+ <Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 14 Dec 2006 09:15:41 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@linux.intel.com> writes:
 
-> Eric W. Biederman wrote:
->>> 1) is very real today
->>> 2) is partially real on some of the bigger numa stuff already.
->>
->> You have said you the NUMA cases is handled in another way already?
->
-> the numa case of "I prefer that cpu" is handled. Not the "I cannot work on
-> those".
+> > I'll put a .config and a dmesg of the machine booting at 
+> > http://www.jdi-ict.nl/plain/ for those who want to look at it.
+> 
+> dmesg : http://www.jdi-ict.nl/plain/lnx01.dmesg
+> Kernel config : http://www.jdi-ict.nl/plain/lnx01.config
 
-How is the NUMA case of I prefer that cpu handled?
+Hmm.. Switching CONFIG_HZ from 1000 to 250 seems to 'fix' the problem. 
+I haven't seen the issue in nearly a week now. This makes Andrew's theory 
+about missing interrupts very likely.
 
-Eric
+Andrew / others : Is there a way to find out if it *is* missing 
+interrupts ?
+
+
+Regards,
+
+
+	Igmar

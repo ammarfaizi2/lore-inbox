@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751926AbWLNBIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751927AbWLNBIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWLNBIJ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 20:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWLNBII
+	id S1751927AbWLNBIN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 20:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751928AbWLNBIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 20:08:08 -0500
-Received: from vena.lwn.net ([206.168.112.25]:54584 "EHLO vena.lwn.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751926AbWLNBIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 20:08:07 -0500
-X-Greylist: delayed 1478 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 20:08:07 EST
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19] 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Wed, 13 Dec 2006 16:32:46 PST."
-             <20061214003246.GA12162@suse.de> 
-Date: Wed, 13 Dec 2006 17:43:29 -0700
-Message-ID: <22299.1166057009@lwn.net>
+	Wed, 13 Dec 2006 20:08:13 -0500
+Received: from wx-out-0506.google.com ([66.249.82.230]:1365 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751927AbWLNBIL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 20:08:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LSySqBDwUEXPfiD2FHdJXoGbpp0TMSnCLAyNpTqUZ0jowxI5ZxVwSInL+zolqDdFGXFHd716NfiyjhfS3g+t1+/mkyqw6DV6flopoAZUXXKFN9Z7Fr4bdZl7noy+tklzEorb/PkmK9y7VNWOsdS1VqM867fc0G62U5QlCDC0WmU=
+Message-ID: <f2b55d220612131708j78627b7hf6f0a5b37c89555f@mail.gmail.com>
+Date: Wed, 13 Dec 2006 17:08:09 -0800
+From: "Michael K. Edwards" <medwards.linux@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Cc: "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
+       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0612131659580.5718@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
+	 <20061214005532.GA12790@suse.de>
+	 <Pine.LNX.4.64.0612131659580.5718@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg's patch:
+fish for birds alone?
+no, teach suits how to leave more
+fish to go around
 
-> +			printk(KERN_WARNING "%s: This module will not be able "
-> +				"to be loaded after January 1, 2008 due to its "
-> +				"license.\n", mod->name);
-
-If you're going to go ahead with this, shouldn't the message say that
-the module will not be loadable into *kernels released* after January 1,
-2008?  I bet a lot of people would read the above to say that their
-system will just drop dead of a New Year's hangover, and they'll freak.
-I wouldn't want to be the one getting all the email at that point...
-
-jon
-
+Cheers,
+- Michael

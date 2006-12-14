@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751880AbWLNAhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751882AbWLNAhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751880AbWLNAhR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 19:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWLNAhR
+	id S1751882AbWLNAhX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 19:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWLNAhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 19:37:17 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:37140
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1751876AbWLNAhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 19:37:15 -0500
-Date: Wed, 13 Dec 2006 16:37:14 -0800 (PST)
-Message-Id: <20061213.163714.35660848.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/loopback.c: convert to module_init()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061213201213.GK4587@ftp.linux.org.uk>
-References: <20061212162435.GW28443@stusta.de>
-	<20061212.171756.85408589.davem@davemloft.net>
-	<20061213201213.GK4587@ftp.linux.org.uk>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 13 Dec 2006 19:37:23 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48398 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751883AbWLNAhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 19:37:21 -0500
+Date: Thu, 14 Dec 2006 01:34:56 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: nickpiggin@yahoo.com.au, vatsa@in.ibm.com, clameter@sgi.com,
+       tglx@linutronix.de, arjan@linux.intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch: dynticks: idle load balancing
+Message-ID: <20061214003456.GA2064@elte.hu>
+References: <20061211155304.A31760@unix-os.sc.intel.com> <20061213224317.GA2986@elte.hu> <20061213231316.GA13849@elte.hu> <20061213150314.B12795@unix-os.sc.intel.com> <20061213233157.GA20470@elte.hu> <20061213151926.C12795@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061213151926.C12795@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 13 Dec 2006 20:12:14 +0000
 
-> There might be practical considerations along the lines of "we want
-> lookups for loopback to be fast"...
+* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
 
-We have that taken care of, it's called "&loopback_dev".
+> > the other problem is load_balance(): there this_rq is locked and you 
+> > call resched_cpu() unconditionally.
+> 
+> But here resched_cpu() was called after double_rq_unlock().
 
-None of the performance-caring paths do dev_get_by_name("lo")
+yeah, you are right - the schedule() one is/was the only problem.
 
+	Ingo

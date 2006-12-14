@@ -1,172 +1,242 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932644AbWLNLjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932672AbWLNLjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932644AbWLNLjd (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 06:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbWLNLjd
+	id S932672AbWLNLjt (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 06:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWLNLjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 06:39:33 -0500
-Received: from mail.gmx.net ([213.165.64.20]:52034 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932644AbWLNLjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 06:39:32 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.19.1-rt14-smp circular locking dependency
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, davej@codemonkey.org.uk
-In-Reply-To: <20061214095926.GA19549@elte.hu>
-References: <1166090243.7147.10.camel@Homer.simpson.net>
-	 <20061214095926.GA19549@elte.hu>
-Content-Type: text/plain
-Date: Thu, 14 Dec 2006 12:39:26 +0100
-Message-Id: <1166096366.6560.3.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 14 Dec 2006 06:39:49 -0500
+Received: from smtp1.belwue.de ([129.143.2.12]:39084 "EHLO smtp1.belwue.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932674AbWLNLjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 06:39:47 -0500
+Date: Thu, 14 Dec 2006 12:38:08 +0100 (CET)
+From: Karsten Weiss <K.Weiss@science-computing.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
+       Andi Kleen <ak@suse.de>
+Subject: [PATCH] Re: data corruption with nvidia chipsets and IDE/SATA drives
+ // memory hole mapping related bug?!
+In-Reply-To: <20061214092208.GB6674@rhun.haifa.ibm.com>
+Message-ID: <Pine.LNX.4.61.0612141215590.17792@palpatine.science-computing.de>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet>
+ <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de>
+ <458051FD.1060900@scientia.net> <20061213195345.GA16112@tuatara.stupidest.org>
+ <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de>
+ <20061214092208.GB6674@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-14 at 10:59 +0100, Ingo Molnar wrote: 
-> * Mike Galbraith <efault@gmx.de> wrote:
+On Thu, 14 Dec 2006, Muli Ben-Yehuda wrote:
+
+> On Wed, Dec 13, 2006 at 09:34:16PM +0100, Karsten Weiss wrote:
 > 
-> > Greetings,
-> > 
-> > Lockdep doesn't approve of cpufreq, and seemingly with cause... I had 
-> > to poke SysRq-O.
+> > BTW: It would be really great if this area of the kernel would get some 
+> > more and better documentation. The information at 
+> > linux-2.6/Documentation/x86_64/boot_options.txt is very terse. I had to 
+> > read the code to get a *rough* idea what all the "iommu=" options 
+> > actually do and how they interact.
 > 
-> hm ... this must be an upstream problem too, right? -rt shouldnt change 
-> anything in this area (in theory).
+> Patches happily accepted :-)
 
-Yeah, it is.  It didn't seize up, but lockdep griped.  Trace from
-2.6.19.1 below, cc added.
+Well, you asked for it. :-) So here's my little contribution. Please 
+*double* *check*!
 
-[  129.309689] Disabling non-boot CPUs ...
-[  129.335627] 
-[  129.335631] =======================================================
-[  129.343584] [ INFO: possible circular locking dependency detected ]
-[  129.350028] 2.6.19.1-smp #77
-[  129.352973] -------------------------------------------------------
-[  129.359379] s2ram/6178 is trying to acquire lock:
-[  129.364178]  (cpu_bitmask_lock){--..}, at: [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.371298] 
-[  129.371300] but task is already holding lock:
-[  129.377274]  (workqueue_mutex){--..}, at: [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.384277] 
-[  129.384279] which lock already depends on the new lock.
-[  129.384281] 
-[  129.392647] 
-[  129.392649] the existing dependency chain (in reverse order) is:
-[  129.400294] 
-[  129.400296] -> #3 (workqueue_mutex){--..}:
-[  129.406083]        [<c103dd54>] add_lock_to_list+0x3b/0x87
-[  129.411895]        [<c1040420>] __lock_acquire+0xb75/0xc1a
-[  129.417697]        [<c10407f1>] lock_acquire+0x5d/0x79
-[  129.423135]        [<c13e21ad>] __mutex_lock_slowpath+0x6e/0x296
-[  129.429470]        [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.434562]        [<c1035815>] __create_workqueue+0x5f/0x16c
-[  129.440615]        [<c1312a83>] cpufreq_governor_dbs+0x2d6/0x32c
-[  129.446943]        [<c131073e>] __cpufreq_governor+0x22/0x166
-[  129.453009]        [<c13112d9>] __cpufreq_set_policy+0xe6/0x132
-[  129.459267]        [<c131153a>] store_scaling_governor+0xa8/0x1e8
-[  129.465676]        [<c1310dbc>] store+0x37/0x4a
-[  129.470517]        [<c10b743c>] sysfs_write_file+0x8a/0xcb
-[  129.476301]        [<c1077bb8>] vfs_write+0xa6/0x170
-[  129.481584]        [<c107826c>] sys_write+0x3d/0x64
-[  129.486761]        [<c1003173>] syscall_call+0x7/0xb
-[  129.492018]        [<b7bece0e>] 0xb7bece0e
-[  129.496389]        [<ffffffff>] 0xffffffff
-[  129.500789] 
-[  129.500791] -> #2 (dbs_mutex){--..}:
-[  129.508253]        [<c103dd54>] add_lock_to_list+0x3b/0x87
-[  129.516360]        [<c1040420>] __lock_acquire+0xb75/0xc1a
-[  129.524405]        [<c10407f1>] lock_acquire+0x5d/0x79
-[  129.532057]        [<c13e21ad>] __mutex_lock_slowpath+0x6e/0x296
-[  129.540608]        [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.547856]        [<c13128bc>] cpufreq_governor_dbs+0x10f/0x32c
-[  129.556348]        [<c131073e>] __cpufreq_governor+0x22/0x166
-[  129.564548]        [<c13112d9>] __cpufreq_set_policy+0xe6/0x132
-[  129.572865]        [<c131153a>] store_scaling_governor+0xa8/0x1e8
-[  129.581379]        [<c1310dbc>] store+0x37/0x4a
-[  129.588249]        [<c10b743c>] sysfs_write_file+0x8a/0xcb
-[  129.596053]        [<c1077bb8>] vfs_write+0xa6/0x170
-[  129.603290]        [<c107826c>] sys_write+0x3d/0x64
-[  129.610398]        [<c1003173>] syscall_call+0x7/0xb
-[  129.617624]        [<b7bece0e>] 0xb7bece0e
-[  129.623954]        [<ffffffff>] 0xffffffff
-[  129.630230] 
-[  129.630232] -> #1 (&policy->lock){--..}:
-[  129.639563]        [<c103dd54>] add_lock_to_list+0x3b/0x87
-[  129.647225]        [<c1040420>] __lock_acquire+0xb75/0xc1a
-[  129.654928]        [<c10407f1>] lock_acquire+0x5d/0x79
-[  129.662217]        [<c13e21ad>] __mutex_lock_slowpath+0x6e/0x296
-[  129.670439]        [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.677387]        [<c131144e>] cpufreq_set_policy+0x35/0x79
-[  129.685230]        [<c1311a79>] cpufreq_add_dev+0x2b8/0x461
-[  129.692970]        [<c1264128>] sysdev_driver_register+0x63/0xaa
-[  129.701152]        [<c1311d58>] cpufreq_register_driver+0x68/0xfd
-[  129.709430]        [<c1610cf9>] cpufreq_p4_init+0x3a/0x51
-[  129.717006]        [<c100049b>] init+0x112/0x311
-[  129.723784]        [<c1003dff>] kernel_thread_helper+0x7/0x18
-[  129.731709]        [<ffffffff>] 0xffffffff
-[  129.738040] 
-[  129.738042] -> #0 (cpu_bitmask_lock){--..}:
-[  129.747694]        [<c103f875>] print_circular_bug_tail+0x30/0x66
-[  129.756036]        [<c1040231>] __lock_acquire+0x986/0xc1a
-[  129.763786]        [<c10407f1>] lock_acquire+0x5d/0x79
-[  129.771202]        [<c13e21ad>] __mutex_lock_slowpath+0x6e/0x296
-[  129.779450]        [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.786496]        [<c1044326>] lock_cpu_hotplug+0x22/0x82
-[  129.794243]        [<c131110b>] cpufreq_driver_target+0x27/0x5d
-[  129.802449]        [<c1311c69>] cpufreq_cpu_callback+0x47/0x6c
-[  129.810548]        [<c1032316>] notifier_call_chain+0x2c/0x39
-[  129.818555]        [<c103233f>] raw_notifier_call_chain+0x8/0xa
-[  129.826752]        [<c10440a9>] _cpu_down+0x4c/0x219
-[  129.833942]        [<c1044483>] disable_nonboot_cpus+0x92/0x14b
-[  129.842105]        [<c1049e2a>] enter_state+0x7e/0x1bc
-[  129.849530]        [<c104a00b>] state_store+0xa3/0xac
-[  129.856813]        [<c10b7110>] subsys_attr_store+0x20/0x25
-[  129.864627]        [<c10b743c>] sysfs_write_file+0x8a/0xcb
-[  129.872403]        [<c1077bb8>] vfs_write+0xa6/0x170
-[  129.879661]        [<c107826c>] sys_write+0x3d/0x64
-[  129.886801]        [<c1003173>] syscall_call+0x7/0xb
-[  129.894041]        [<b7e63e0e>] 0xb7e63e0e
-[  129.900412]        [<ffffffff>] 0xffffffff
-[  129.906765] 
-[  129.906766] other info that might help us debug this:
-[  129.906768] 
-[  129.920864] 2 locks held by s2ram/6178:
-[  129.926703]  #0:  (cpu_add_remove_lock){--..}, at: [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.936543]  #1:  (workqueue_mutex){--..}, at: [<c13e23dd>] mutex_lock+0x8/0xa
-[  129.946078] 
-[  129.946080] stack backtrace:
-[  129.954729]  [<c10041e3>] dump_trace+0x1c1/0x1f0
-[  129.961574]  [<c100422c>] show_trace_log_lvl+0x1a/0x30
-[  129.968917]  [<c1004967>] show_trace+0x12/0x14
-[  129.975548]  [<c1004a88>] dump_stack+0x19/0x1b
-[  129.982177]  [<c103f8a2>] print_circular_bug_tail+0x5d/0x66
-[  129.989940]  [<c1040231>] __lock_acquire+0x986/0xc1a
-[  129.997109]  [<c10407f1>] lock_acquire+0x5d/0x79
-[  130.003939]  [<c13e21ad>] __mutex_lock_slowpath+0x6e/0x296
-[  130.011630]  [<c13e23dd>] mutex_lock+0x8/0xa
-[  130.018086]  [<c1044326>] lock_cpu_hotplug+0x22/0x82
-[  130.025259]  [<c131110b>] cpufreq_driver_target+0x27/0x5d
-[  130.032885]  [<c1311c69>] cpufreq_cpu_callback+0x47/0x6c
-[  130.040410]  [<c1032316>] notifier_call_chain+0x2c/0x39
-[  130.047832]  [<c103233f>] raw_notifier_call_chain+0x8/0xa
-[  130.055434]  [<c10440a9>] _cpu_down+0x4c/0x219
-[  130.062068]  [<c1044483>] disable_nonboot_cpus+0x92/0x14b
-[  130.069682]  [<c1049e2a>] enter_state+0x7e/0x1bc
-[  130.076490]  [<c104a00b>] state_store+0xa3/0xac
-[  130.083188]  [<c10b7110>] subsys_attr_store+0x20/0x25
-[  130.090443]  [<c10b743c>] sysfs_write_file+0x8a/0xcb
-[  130.097596]  [<c1077bb8>] vfs_write+0xa6/0x170
-[  130.104259]  [<c107826c>] sys_write+0x3d/0x64
-[  130.110772]  [<c1003173>] syscall_call+0x7/0xb
-[  130.117385]  [<b7e63e0e>] 0xb7e63e0e
-[  130.123129]  =======================
-[  130.191611] CPU 1 is now offline
-[  130.200482] lockdep: not fixing up alternatives.
-[  130.407367] CPU1 is down
+(BTW: I would like to know what "DAC" and "SAC" means in this context)
 
+===
+
+From: Karsten Weiss <K.Weiss@science-computing.de>
+
+Patch summary:
+
+- Better explanation of some of the iommu kernel parameter options.
+- "32MB<<order" instead of "32MB^order".
+- Mention the default "order".
+- SWIOTLB config help text
+- removed the duplication of the iommu kernel parameter documentation.
+- mention Documentation/x86_64/boot-options.txt in 
+  Documentation/kernel-parameters.txt
+- list the four existing PCI DMA mapping implementations of arch x86_64
+
+Signed-off-by: Karsten Weiss <knweiss@science-computing.de>
+
+---
+
+--- linux-2.6.19/arch/x86_64/kernel/pci-dma.c.original	2006-12-14 11:15:38.348598021 +0100
++++ linux-2.6.19/arch/x86_64/kernel/pci-dma.c	2006-12-14 12:14:48.176967312 +0100
+@@ -223,30 +223,10 @@
+ }
+ EXPORT_SYMBOL(dma_set_mask);
+ 
+-/* iommu=[size][,noagp][,off][,force][,noforce][,leak][,memaper[=order]][,merge]
+-         [,forcesac][,fullflush][,nomerge][,biomerge]
+-   size  set size of iommu (in bytes)
+-   noagp don't initialize the AGP driver and use full aperture.
+-   off   don't use the IOMMU
+-   leak  turn on simple iommu leak tracing (only when CONFIG_IOMMU_LEAK is on)
+-   memaper[=order] allocate an own aperture over RAM with size 32MB^order.
+-   noforce don't force IOMMU usage. Default.
+-   force  Force IOMMU.
+-   merge  Do lazy merging. This may improve performance on some block devices.
+-          Implies force (experimental)
+-   biomerge Do merging at the BIO layer. This is more efficient than merge,
+-            but should be only done with very big IOMMUs. Implies merge,force.
+-   nomerge Don't do SG merging.
+-   forcesac For SAC mode for masks <40bits  (experimental)
+-   fullflush Flush IOMMU on each allocation (default)
+-   nofullflush Don't use IOMMU fullflush
+-   allowed  overwrite iommu off workarounds for specific chipsets.
+-   soft	 Use software bounce buffering (default for Intel machines)
+-   noaperture Don't touch the aperture for AGP.
+-   allowdac Allow DMA >4GB
+-   nodac    Forbid DMA >4GB
+-   panic    Force panic when IOMMU overflows
+-*/
++/*
++ * See <Documentation/x86_64/boot-options.txt> for the iommu kernel parameter
++ * documentation.
++ */
+ __init int iommu_setup(char *p)
+ {
+ 	iommu_merge = 1;
+--- linux-2.6.19/arch/x86_64/Kconfig.original	2006-12-14 11:37:35.832142506 +0100
++++ linux-2.6.19/arch/x86_64/Kconfig	2006-12-14 11:47:24.346056710 +0100
+@@ -431,8 +431,8 @@
+ 	  on systems with more than 3GB. This is usually needed for USB,
+ 	  sound, many IDE/SATA chipsets and some other devices.
+ 	  Provides a driver for the AMD Athlon64/Opteron/Turion/Sempron GART
+-	  based IOMMU and a software bounce buffer based IOMMU used on Intel
+-	  systems and as fallback.
++	  based hardware IOMMU and a software bounce buffer based IOMMU used
++	  on Intel systems and as fallback.
+ 	  The code is only active when needed (enough memory and limited
+ 	  device) unless CONFIG_IOMMU_DEBUG or iommu=force is specified
+ 	  too.
+@@ -458,6 +458,11 @@
+ # need this always selected by IOMMU for the VIA workaround
+ config SWIOTLB
+ 	bool
++	help
++	  Support for a software bounce buffer based IOMMU used on Intel
++	  systems which don't have a hardware IOMMU. Using this code
++	  PCI devices with 32bit memory access only are able to be
++	  used on systems with more than 3 GB.
+ 
+ config X86_MCE
+ 	bool "Machine check support" if EMBEDDED
+--- linux-2.6.19/Documentation/x86_64/boot-options.txt.original	2006-12-14 11:11:32.099300994 +0100
++++ linux-2.6.19/Documentation/x86_64/boot-options.txt	2006-12-14 12:10:24.028009890 +0100
+@@ -180,35 +180,66 @@
+   pci=lastbus=NUMBER	       Scan upto NUMBER busses, no matter what the mptable says.
+   pci=noacpi		Don't use ACPI to set up PCI interrupt routing.
+ 
+-IOMMU
++IOMMU (input/output memory management unit)
++
++ Currently four x86_64 PCI DMA mapping implementations exist:
++
++   1. <arch/x86_64/kernel/pci-nommu.c>: use no hardware/software IOMMU at all
++      (e.g. because you have < 3 GB memory).
++      Kernel boot message: "PCI-DMA: Disabling IOMMU"
++
++   2. <arch/x86_64/kernel/pci-gart.c>: AMD GART based hardware IOMMU.
++      Kernel boot message: "PCI-DMA: using GART IOMMU"
++
++   3. <arch/x86_64/kernel/pci-swiotlb.c> : Software IOMMU implementation. Used
++      e.g. if there is no hardware IOMMU in the system and it is need because
++      you have >3GB memory or told the kernel to us it (iommu=soft))
++      Kernel boot message: "PCI-DMA: Using software bounce buffering
++      for IO (SWIOTLB)"
++
++   4. <arch/x86_64/pci-calgary.c> : IBM Calgary hardware IOMMU. Used in IBM
++      pSeries and xSeries servers. This hardware IOMMU supports DMA address
++      mapping with memory protection, etc.
++      Kernel boot message: "PCI-DMA: Using Calgary IOMMU" 
+ 
+  iommu=[size][,noagp][,off][,force][,noforce][,leak][,memaper[=order]][,merge]
+          [,forcesac][,fullflush][,nomerge][,noaperture]
+-   size  set size of iommu (in bytes)
+-   noagp don't initialize the AGP driver and use full aperture.
+-   off   don't use the IOMMU
+-   leak  turn on simple iommu leak tracing (only when CONFIG_IOMMU_LEAK is on)
+-   memaper[=order] allocate an own aperture over RAM with size 32MB^order.
+-   noforce don't force IOMMU usage. Default.
+-   force  Force IOMMU.
+-   merge  Do SG merging. Implies force (experimental)
+-   nomerge Don't do SG merging.
+-   forcesac For SAC mode for masks <40bits  (experimental)
+-   fullflush Flush IOMMU on each allocation (default)
+-   nofullflush Don't use IOMMU fullflush
+-   allowed  overwrite iommu off workarounds for specific chipsets.
+-   soft	 Use software bounce buffering (default for Intel machines)
+-   noaperture Don't touch the aperture for AGP.
+-   allowdac Allow DMA >4GB
+-	    When off all DMA over >4GB is forced through an IOMMU or bounce
+-	    buffering.
+-   nodac    Forbid DMA >4GB
+-   panic    Always panic when IOMMU overflows
++   size             set size of IOMMU (in bytes)
++   noagp            don't initialize the AGP driver and use full aperture.
++   off              don't initialize and use any kind of IOMMU.
++   leak             turn on simple iommu leak tracing (only when
++                    CONFIG_IOMMU_LEAK is on)
++   memaper[=order]  allocate an own aperture over RAM with size 32MB<<order.
++                    (default: order=1, i.e. 64MB)
++   noforce          don't force hardware IOMMU usage when it is not needed.
++                    (default).
++   force            Force the use of the hardware IOMMU even when it is
++                    not actually needed (e.g. because < 3 GB memory).
++   merge            Do scather-gather (SG) merging. Implies force (experimental)
++   nomerge          Don't do scather-gather (SG) merging.
++   forcesac         For SAC mode for masks <40bits  (experimental)
++   fullflush        Flush AMD GART based hardware IOMMU on each allocation
++                    (default)
++   nofullflush      Don't use IOMMU fullflush
++   allowed          overwrite iommu off workarounds for specific chipsets.
++   soft             Use software bounce buffering (SWIOTLB) (default for Intel
++                    machines). This can be used to prevent the usage
++                    of a available hardware IOMMU.
++   noaperture       Ask the AMD GART based hardware IOMMU driver not to 
++                    touch the aperture for AGP.
++   allowdac         Allow DMA >4GB
++                    When off all DMA over >4GB is forced through an IOMMU or
++                    bounce buffering.
++   nodac            Forbid DMA >4GB
++   panic            Always panic when IOMMU overflows
+ 
+   swiotlb=pages[,force]
++   pages            Prereserve that many 128K pages for the software IO bounce
++                    buffering.
++   force            Force all IO through the software TLB.
+ 
+-  pages  Prereserve that many 128K pages for the software IO bounce buffering.
+-  force  Force all IO through the software TLB.
++  Settings for the IBM Calgary hardware IOMMU currently found in IBM
++  pSeries and xSeries machines:
+ 
+   calgary=[64k,128k,256k,512k,1M,2M,4M,8M]
+   calgary=[translate_empty_slots]
+--- linux-2.6.19/Documentation/kernel-parameters.txt.original	2006-12-14 11:03:46.584429749 +0100
++++ linux-2.6.19/Documentation/kernel-parameters.txt	2006-12-14 11:11:22.172025378 +0100
+@@ -104,6 +104,9 @@
+ Do not modify the syntax of boot loader parameters without extreme
+ need or coordination with <Documentation/i386/boot.txt>.
+ 
++There are also arch-specific kernel-parameters not documented here.
++See for example <Documentation/x86_64/boot-options.txt>.
++
+ Note that ALL kernel parameters listed below are CASE SENSITIVE, and that
+ a trailing = on the name of any parameter states that that parameter will
+ be entered as an environment variable, whereas its absence indicates that
+
+-- 
+__________________________________________creating IT solutions
+Dipl.-Inf. Karsten Weiss               science + computing ag
+phone:    +49 7071 9457 452            Hagellocher Weg 73
+teamline: +49 7071 9457 681            72070 Tuebingen, Germany
+email:    knweiss@science-computing.de www.science-computing.de
 

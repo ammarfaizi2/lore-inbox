@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932897AbWLNUdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932881AbWLNUcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932897AbWLNUdK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 15:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932864AbWLNUdK
+	id S932881AbWLNUcm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 15:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932864AbWLNUcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 15:33:10 -0500
-Received: from smtp-out01.alice.it ([85.33.2.12]:4320 "EHLO
-	smtp-out01.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932880AbWLNUdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 15:33:08 -0500
-X-Greylist: delayed 849 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 15:33:08 EST
-Message-ID: <4581B1AD.2000609@alice.it>
-Date: Thu, 14 Dec 2006 21:18:53 +0100
-From: Mario Vanoni <vanonim@alice.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061108 SeaMonkey/1.0.6
-MIME-Version: 1.0
+	Thu, 14 Dec 2006 15:32:41 -0500
+Received: from main.gmane.org ([80.91.229.2]:58001 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932827AbWLNUck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 15:32:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Will there be security updates for 2.6.17 kernels?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2006 20:18:54.0464 (UTC) FILETIME=[13CA1800:01C71FBD]
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+Subject: Re: Linux 2.6.20-rc1
+Date: Thu, 14 Dec 2006 20:32:00 +0000 (UTC)
+Message-ID: <loom.20061214T213058-9@post.gmane.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612141930.19797.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 81.64.156.37 (Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.1) Gecko/20061027 Firefox/2.0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not in lkml, so cc if needed.
+Alistair John Strachan <s0348365 <at> sms.ed.ac.uk> writes:
 
-Running 3 machines Slackware 11.0,
-all kernel 2.6.18.5, no problems.
-Waiting 2.6.19.3 to update ...
+> `hddtemp' has stopped working on 2.6.20-rc1:
 
-Regards
-Mario Vanoni
+→ http://bugzilla.kernel.org/show_bug.cgi?id=7581
+
+

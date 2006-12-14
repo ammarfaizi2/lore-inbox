@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932684AbWLNMMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932650AbWLNMTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbWLNMMJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 07:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWLNMMJ
+	id S932650AbWLNMTL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 07:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932688AbWLNMTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 07:12:09 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:1351 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932684AbWLNMMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 07:12:08 -0500
-X-Greylist: delayed 1259 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 07:12:08 EST
-Date: Thu, 14 Dec 2006 12:51:05 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Message-ID: <20061214115105.GA8742@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org> <200612140949.43270.duncan.sands@math.u-psud.fr> <200612141056.03538.hjk@linutronix.de>
+	Thu, 14 Dec 2006 07:19:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41436 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932650AbWLNMTK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 07:19:10 -0500
+Subject: Re: Executability of the stack
+From: Arjan van de Ven <arjan@infradead.org>
+To: Franck Pommereau <pommereau@univ-paris12.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45813E67.80709@univ-paris12.fr>
+References: <458118BB.5050308@univ-paris12.fr>
+	 <1166090244.27217.978.camel@laptopd505.fenrus.org>
+	 <45813E67.80709@univ-paris12.fr>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 14 Dec 2006 13:19:07 +0100
+Message-Id: <1166098747.27217.1018.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200612141056.03538.hjk@linutronix.de>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 10:56:03AM +0100, Hans-Jürgen Koch wrote:
-> A small German manufacturer produces high-end AD converter cards. He sells
-> 100 pieces per year, only in Germany and only with Windows drivers. He would
-> now like to make his cards work with Linux. He has two driver programmers
-> with little experience in writing Linux kernel drivers. What do you tell him?
-> Write a large kernel module from scratch? Completely rewrite his code 
-> because it uses floating point arithmetics?
+On Thu, 2006-12-14 at 13:07 +0100, Franck Pommereau wrote:
+> >> # grep maps /proc/self/maps
+> >> bfce8000-bfcfe000 rw-p bfce8000 00:00 0          [stack]
+> > 
+> > this shows that the *intent* is to have it non-executable. 
+> > Not all x86 processors can enforce this. All modern ones do.
+> 
+> Mine is quite recent:
 
-Write a small kernel module which:
-- create a device node per-card
-- read the data from the A/D as fast as possible and buffer it in main
-  memory without touching it
-- implements a read interface to read data from the buffer
-- implement ioctls for whatever controls you need
+> mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm
 
-And that's it.  All the rest can be done in userspace, safely, with
-floating point, C++ and everything.  If the driver programmers are
-worth their pay, their driver is probably already split logically at
-where the userspace-kernel interface would be.
+the "nx" shows that if you configure your kernel correctly (enable PAE)
+that you indeed have a non-executable capability, which will apply to
+the stack (and afaik the heap too)
 
-And small means small, like 200 lines or so, more if you want to have
-fun with sysfs, poll, aio and their ilk, but that's not a necessity.
+> > the alternative (showing effective permission) is equally confusing;
+> > apps would see permissions they didn't set...
+> 
+> Indeed, both are confusing (the other way is having permission that you
+> do not see). But which one is the most dangerous from a security point
+> of view? For me it is believing that you're protected while you're not.
 
-  OG.
+it's debatable what the file means; the maps file shows software
+permissions currently not hardware enforced permissions. The "problem"
+is that if you show software permissions... it's harder to see the
+kernels view (vma's etc). I don't think there's a perfect answer.
+
+It gets even more complex if you have something like execshield in use;
+where the stack and heap are non-executable, unless you get a "higher"
+executable mapping. In that case, the appearance of such a higher
+mapping would change the visual mapping of other mappings. Outright
+confusing as well :)
+> 
+> >> Maybe it comes from sharing source code for 64 bits and 32 bits
+> >> architectures but if so, it should be possible (and highly desirable) to
+> >> treat 32 bits differently.
+> > 
+> > it's not a "32 bit" thing, it's an "older processors don't, newer ones
+> > do" thing.
+> 
+> I've read that 64 bit processors have an execute bit at the page level
+> while 32 bit ones do not (only at the segment level). I didn't know that
+> newer 31 bit CPUs did have this bit.
+
+your cpu has this bit, you just didn't turn it on ;(
+
+> > Can you paste your /proc/cpuinfo file here ? Maybe you have a processor
+> > with the capability but just haven't enabled it (either in the bios or
+> > in the kernel config)
+> 
+> I'd be happy to know how to enable it.
+
+enable
+CONFIG_HIGHMEM64G=y
+
+and you're all set.
+
+
+Greetings,
+   Arjan van de Ven
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

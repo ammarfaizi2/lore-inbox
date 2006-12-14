@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751860AbWLNH52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751862AbWLNH4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751860AbWLNH52 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 02:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbWLNH5Z
+	id S1751862AbWLNH4V (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWLNH4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 02:57:25 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:37585 "EHLO
+	Thu, 14 Dec 2006 02:56:21 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:37579 "EHLO
 	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751885AbWLNH4b convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751850AbWLNH4R convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 02:56:31 -0500
+	Thu, 14 Dec 2006 02:56:17 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,11 +17,11 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
-Subject: [take28 5/8] kevent: Timer notifications.
-In-Reply-To: <11660803632018@2ka.mipt.ru>
+Subject: [take28 6/8] kevent: Pipe notifications.
+In-Reply-To: <1166080363445@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 14 Dec 2006 10:12:43 +0300
-Message-Id: <1166080363445@2ka.mipt.ru>
+Message-Id: <11660803634120@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -32,28 +32,73 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Timer notifications.
+Pipe notifications.
 
-Timer notifications can be used for fine grained per-process time 
-management, since interval timers are very inconvenient to use, 
-and they are limited.
 
-This subsystem uses high-resolution timers.
-id.raw[0] is used as number of seconds
-id.raw[1] is used as number of nanoseconds
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
-diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+diff --git a/fs/pipe.c b/fs/pipe.c
+index f3b6f71..aeaee9c 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -16,6 +16,7 @@
+ #include <linux/uio.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/kevent.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+@@ -312,6 +313,7 @@ redo:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 			wake_up_interruptible_sync(&pipe->wait);
+  			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 		}
+@@ -321,6 +323,7 @@ redo:
+ 
+ 	/* Signal writers asynchronously that there is more room. */
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 	}
+@@ -490,6 +493,7 @@ redo2:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 			wake_up_interruptible_sync(&pipe->wait);
+ 			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 			do_wakeup = 0;
+@@ -501,6 +505,7 @@ redo2:
+ out:
+ 	mutex_unlock(&inode->i_mutex);
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 	}
+@@ -605,6 +610,7 @@ pipe_release(struct inode *inode, int decr, int decw)
+ 		free_pipe_info(inode);
+ 	} else {
+ 		wake_up_interruptible(&pipe->wait);
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 	}
+diff --git a/kernel/kevent/kevent_pipe.c b/kernel/kevent/kevent_pipe.c
 new file mode 100644
-index 0000000..c21a155
+index 0000000..91dc1eb
 --- /dev/null
-+++ b/kernel/kevent/kevent_timer.c
-@@ -0,0 +1,114 @@
++++ b/kernel/kevent/kevent_pipe.c
+@@ -0,0 +1,123 @@
 +/*
++ * 	kevent_pipe.c
++ * 
 + * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 + * All rights reserved.
-+ *
++ * 
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
 + * the Free Software Foundation; either version 2 of the License, or
@@ -71,97 +116,104 @@ index 0000000..c21a155
 +
 +#include <linux/kernel.h>
 +#include <linux/types.h>
-+#include <linux/list.h>
 +#include <linux/slab.h>
 +#include <linux/spinlock.h>
-+#include <linux/hrtimer.h>
-+#include <linux/jiffies.h>
++#include <linux/file.h>
++#include <linux/fs.h>
 +#include <linux/kevent.h>
++#include <linux/pipe_fs_i.h>
 +
-+struct kevent_timer
++static int kevent_pipe_callback(struct kevent *k)
 +{
-+	struct hrtimer		ktimer;
-+	struct kevent_storage	ktimer_storage;
-+	struct kevent		*ktimer_event;
-+};
++	struct inode *inode = k->st->origin;
++	struct pipe_inode_info *pipe = inode->i_pipe;
++	int nrbufs = pipe->nrbufs;
 +
-+static int kevent_timer_func(struct hrtimer *timer)
-+{
-+	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
-+	struct kevent *k = t->ktimer_event;
-+
-+	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
-+	hrtimer_forward(timer, timer->base->softirq_time,
-+			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
-+	return HRTIMER_RESTART;
-+}
-+
-+static struct lock_class_key kevent_timer_key;
-+
-+static int kevent_timer_enqueue(struct kevent *k)
-+{
-+	int err;
-+	struct kevent_timer *t;
-+
-+	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
-+
-+	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
-+	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
-+	t->ktimer.function = kevent_timer_func;
-+	t->ktimer_event = k;
-+
-+	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
-+	if (err)
-+		goto err_out_free;
-+	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-+
-+	err = kevent_storage_enqueue(&t->ktimer_storage, k);
-+	if (err)
-+		goto err_out_st_fini;
-+
-+	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++	if (k->event.event & KEVENT_SOCKET_RECV && nrbufs > 0) {
++		if (!pipe->writers)
++			return -1;
++		return 1;
++	}
++	
++	if (k->event.event & KEVENT_SOCKET_SEND && nrbufs < PIPE_BUFFERS) {
++		if (!pipe->readers)
++			return -1;
++		return 1;
++	}
 +
 +	return 0;
++}
 +
-+err_out_st_fini:
-+	kevent_storage_fini(&t->ktimer_storage);
-+err_out_free:
-+	kfree(t);
++int kevent_pipe_enqueue(struct kevent *k)
++{
++	struct file *pipe;
++	int err = -EBADF;
++	struct inode *inode;
 +
++	pipe = fget(k->event.id.raw[0]);
++	if (!pipe)
++		goto err_out_exit;
++
++	inode = igrab(pipe->f_dentry->d_inode);
++	if (!inode)
++		goto err_out_fput;
++
++	err = -EINVAL;
++	if (!S_ISFIFO(inode->i_mode))
++		goto err_out_iput;
++
++	err = kevent_storage_enqueue(&inode->st, k);
++	if (err)
++		goto err_out_iput;
++
++	if (k->event.req_flags & KEVENT_REQ_ALWAYS_QUEUE) {
++		kevent_requeue(k);
++		err = 0;
++	} else {
++		err = k->callbacks.callback(k);
++		if (err)
++			goto err_out_dequeue;
++	}
++
++	fput(pipe);
++
++	return err;
++
++err_out_dequeue:
++	kevent_storage_dequeue(k->st, k);
++err_out_iput:
++	iput(inode);
++err_out_fput:
++	fput(pipe);
++err_out_exit:
 +	return err;
 +}
 +
-+static int kevent_timer_dequeue(struct kevent *k)
++int kevent_pipe_dequeue(struct kevent *k)
 +{
-+	struct kevent_storage *st = k->st;
-+	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
++	struct inode *inode = k->st->origin;
 +
-+	hrtimer_cancel(&t->ktimer);
-+	kevent_storage_dequeue(st, k);
-+	kfree(t);
++	kevent_storage_dequeue(k->st, k);
++	iput(inode);
 +
 +	return 0;
 +}
 +
-+static int kevent_timer_callback(struct kevent *k)
++void kevent_pipe_notify(struct inode *inode, u32 event)
 +{
-+	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
-+	return 1;
++	kevent_storage_ready(&inode->st, NULL, event);
 +}
 +
-+static int __init kevent_init_timer(void)
++static int __init kevent_init_pipe(void)
 +{
-+	struct kevent_callbacks tc = {
-+		.callback = &kevent_timer_callback,
-+		.enqueue = &kevent_timer_enqueue,
-+		.dequeue = &kevent_timer_dequeue,
++	struct kevent_callbacks sc = {
++		.callback = &kevent_pipe_callback,
++		.enqueue = &kevent_pipe_enqueue,
++		.dequeue = &kevent_pipe_dequeue,
 +		.flags = 0,
 +	};
 +
-+	return kevent_add_callbacks(&tc, KEVENT_TIMER);
++	return kevent_add_callbacks(&sc, KEVENT_PIPE);
 +}
-+module_init(kevent_init_timer);
-+
++module_init(kevent_init_pipe);
 

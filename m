@@ -1,219 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751862AbWLNH4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751890AbWLNH6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751862AbWLNH4V (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 02:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWLNH4V
+	id S1751890AbWLNH6G (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751903AbWLNH5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 02:56:21 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:37579 "EHLO
-	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751850AbWLNH4R convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 02:56:17 -0500
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: [take28 6/8] kevent: Pipe notifications.
-In-Reply-To: <1166080363445@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 14 Dec 2006 10:12:43 +0300
-Message-Id: <11660803634120@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Thu, 14 Dec 2006 02:57:41 -0500
+Received: from sp604002mt.neufgp.fr ([84.96.92.61]:53269 "EHLO sMtp.neuf.fr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751886AbWLNH5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 02:57:37 -0500
+Date: Thu, 14 Dec 2006 08:56:44 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: kref refcnt and false positives
+In-reply-to: <20061213164159.f93cde95.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Arjan <arjan@linux.intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Message-id: <458103BC.4080802@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <20061213153408.A13049@unix-os.sc.intel.com>
+ <20061214001246.GA10056@suse.de> <20061213164159.f93cde95.akpm@osdl.org>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton a écrit :
+> On Wed, 13 Dec 2006 16:12:46 -0800
+> Greg KH <gregkh@suse.de> wrote:
+> 
+>>> Original comment seemed to indicate that this conditional thing was
+>>> performance related. Is it really? If not, we should consider the below patch.
+>> Yes, it's a performance gain and I don't see how this patch would change
+>> the above warning.
+> 
+> I suspect it's a false optimisation.
+> 
+> int kref_put(struct kref *kref, void (*release)(struct kref *kref))
+> {
+> 	WARN_ON(release == NULL);
+> 	WARN_ON(release == (void (*)(struct kref *))kfree);
+> 
+> 	/*
+> 	 * if current count is one, we are the last user and can release object
+> 	 * right now, avoiding an atomic operation on 'refcount'
+> 	 */
+>  	if ((atomic_read(&kref->refcount) == 1) ||
+> 	    (atomic_dec_and_test(&kref->refcount))) {
+> 		release(kref);
+> 		return 1;
+> 	}
+> 	return 0;
+> }
+> 
+> The only time we avoid the atomic_dec_and_test() is when the object is
+> about to be freed.  ie: once in its entire lifetime.  And freeing the
+> object is part of an expensive (and rare) operation anyway.
+> 
+> otoh, we've gone and added a test-n-branch to the common case: those cases
+> where the object will not be freed.
+> 
 
-Pipe notifications.
+I agree this 'optimization' is not "good" (I was the guy who suggested it 
+http://lkml.org/lkml/2006/1/30/4 )
 
+After Eric Biederman message (http://lkml.org/lkml/2006/1/30/292) I remember 
+adding some stat counters and telling Greg to not put the patch in because 
+kref_put() was mostly called with refcount=1. But the patch did its way. I 
+*did* ask Greg to revert it, but cannot find this mail archived somewhere...
 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index f3b6f71..aeaee9c 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -16,6 +16,7 @@
- #include <linux/uio.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/kevent.h>
- 
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
-@@ -312,6 +313,7 @@ redo:
- 			break;
- 		}
- 		if (do_wakeup) {
-+			kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
- 			wake_up_interruptible_sync(&pipe->wait);
-  			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 		}
-@@ -321,6 +323,7 @@ redo:
- 
- 	/* Signal writers asynchronously that there is more room. */
- 	if (do_wakeup) {
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
- 		wake_up_interruptible(&pipe->wait);
- 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 	}
-@@ -490,6 +493,7 @@ redo2:
- 			break;
- 		}
- 		if (do_wakeup) {
-+			kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
- 			wake_up_interruptible_sync(&pipe->wait);
- 			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 			do_wakeup = 0;
-@@ -501,6 +505,7 @@ redo2:
- out:
- 	mutex_unlock(&inode->i_mutex);
- 	if (do_wakeup) {
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
- 		wake_up_interruptible(&pipe->wait);
- 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 	}
-@@ -605,6 +610,7 @@ pipe_release(struct inode *inode, int decr, int decw)
- 		free_pipe_info(inode);
- 	} else {
- 		wake_up_interruptible(&pipe->wait);
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
- 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 	}
-diff --git a/kernel/kevent/kevent_pipe.c b/kernel/kevent/kevent_pipe.c
-new file mode 100644
-index 0000000..91dc1eb
---- /dev/null
-+++ b/kernel/kevent/kevent_pipe.c
-@@ -0,0 +1,123 @@
-+/*
-+ * 	kevent_pipe.c
-+ * 
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/file.h>
-+#include <linux/fs.h>
-+#include <linux/kevent.h>
-+#include <linux/pipe_fs_i.h>
-+
-+static int kevent_pipe_callback(struct kevent *k)
-+{
-+	struct inode *inode = k->st->origin;
-+	struct pipe_inode_info *pipe = inode->i_pipe;
-+	int nrbufs = pipe->nrbufs;
-+
-+	if (k->event.event & KEVENT_SOCKET_RECV && nrbufs > 0) {
-+		if (!pipe->writers)
-+			return -1;
-+		return 1;
-+	}
-+	
-+	if (k->event.event & KEVENT_SOCKET_SEND && nrbufs < PIPE_BUFFERS) {
-+		if (!pipe->readers)
-+			return -1;
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+int kevent_pipe_enqueue(struct kevent *k)
-+{
-+	struct file *pipe;
-+	int err = -EBADF;
-+	struct inode *inode;
-+
-+	pipe = fget(k->event.id.raw[0]);
-+	if (!pipe)
-+		goto err_out_exit;
-+
-+	inode = igrab(pipe->f_dentry->d_inode);
-+	if (!inode)
-+		goto err_out_fput;
-+
-+	err = -EINVAL;
-+	if (!S_ISFIFO(inode->i_mode))
-+		goto err_out_iput;
-+
-+	err = kevent_storage_enqueue(&inode->st, k);
-+	if (err)
-+		goto err_out_iput;
-+
-+	if (k->event.req_flags & KEVENT_REQ_ALWAYS_QUEUE) {
-+		kevent_requeue(k);
-+		err = 0;
-+	} else {
-+		err = k->callbacks.callback(k);
-+		if (err)
-+			goto err_out_dequeue;
-+	}
-+
-+	fput(pipe);
-+
-+	return err;
-+
-+err_out_dequeue:
-+	kevent_storage_dequeue(k->st, k);
-+err_out_iput:
-+	iput(inode);
-+err_out_fput:
-+	fput(pipe);
-+err_out_exit:
-+	return err;
-+}
-+
-+int kevent_pipe_dequeue(struct kevent *k)
-+{
-+	struct inode *inode = k->st->origin;
-+
-+	kevent_storage_dequeue(k->st, k);
-+	iput(inode);
-+
-+	return 0;
-+}
-+
-+void kevent_pipe_notify(struct inode *inode, u32 event)
-+{
-+	kevent_storage_ready(&inode->st, NULL, event);
-+}
-+
-+static int __init kevent_init_pipe(void)
-+{
-+	struct kevent_callbacks sc = {
-+		.callback = &kevent_pipe_callback,
-+		.enqueue = &kevent_pipe_enqueue,
-+		.dequeue = &kevent_pipe_dequeue,
-+		.flags = 0,
-+	};
-+
-+	return kevent_add_callbacks(&sc, KEVENT_PIPE);
-+}
-+module_init(kevent_init_pipe);
+But I believe Venkatesh problem comes from its release() function : It is 
+supposed to free the object.
+If not, it should properly setup it so that further uses are OK.
 
+ie doing in release(kref)
+atomic_set(&kref->count, 0);
+
+Eric

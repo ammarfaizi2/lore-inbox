@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932197AbWLNJ4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932190AbWLNJ51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWLNJ4R (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 04:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWLNJ4R
+	id S932190AbWLNJ51 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 04:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWLNJ51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 04:56:17 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:17002 "EHLO
-	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932197AbWLNJ4Q (ORCPT
+	Thu, 14 Dec 2006 04:57:27 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47241 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932190AbWLNJ50 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 04:56:16 -0500
-Date: Thu, 14 Dec 2006 11:56:13 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Erik Andersen <andersen@codepoet.org>
-Cc: Karsten Weiss <K.Weiss@science-computing.de>,
-       Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
-Message-ID: <20061214095613.GJ6674@rhun.haifa.ibm.com>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org> <20061214092311.GC6674@rhun.haifa.ibm.com> <20061214095235.GA10208@codepoet.org>
+	Thu, 14 Dec 2006 04:57:26 -0500
+Subject: Re: Executability of the stack
+From: Arjan van de Ven <arjan@infradead.org>
+To: Franck Pommereau <pommereau@univ-paris12.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <458118BB.5050308@univ-paris12.fr>
+References: <458118BB.5050308@univ-paris12.fr>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 14 Dec 2006 10:57:24 +0100
+Message-Id: <1166090244.27217.978.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214095235.GA10208@codepoet.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 02:52:35AM -0700, Erik Andersen wrote:
-> On Thu Dec 14, 2006 at 11:23:11AM +0200, Muli Ben-Yehuda wrote:
-> > > I just realized that booting with "iommu=soft" makes my pcHDTV
-> > > HD5500 DVB cards not work.  Time to go back to disabling the
-> > > memhole and losing 1 GB.  :-(
-> > 
-> > That points to a bug in the driver (likely) or swiotlb (unlikely), as
-> > the IOMMU in use should be transparent to the driver. Which driver is
-> > it?
+On Thu, 2006-12-14 at 10:26 +0100, Franck Pommereau wrote:
+> Dear Linux developers,
 > 
-> presumably one of cx88xx, cx88_blackbird, cx8800, cx88_dvb,
-> cx8802, cx88_alsa, lgdt330x, tuner, cx2341x, btcx_risc,
-> video_buf, video_buf_dvb, tveeprom, or dvb_pll.  It seems
-> to take an amazing number of drivers to make these devices
-> actually work...
+> I recently discovered that the Linux kernel on 32 bits x86 processors
+> reports the stack as being non-executable while it is actually
+> executable (because located in the same memory segment).
 
-Yikes! do you know which one actually handles the DMA mappings? I
-suspect a missnig unmap or sync, which swiotlb requires to sync back
-the bounce buffer with the driver's buffer.
+this is not per se true, it depends on the capabilities of your 32 bit
+x86 processor.
 
-Cheers,
-Muli
+
+> # grep maps /proc/self/maps
+> bfce8000-bfcfe000 rw-p bfce8000 00:00 0          [stack]
+
+this shows that the *intent* is to have it non-executable. 
+Not all x86 processors can enforce this. All modern ones do.
+
+> Is there any reason for this situation? 
+
+the alternative (showing effective permission) is equally confusing;
+apps would see permissions they didn't set...
+
+> Maybe it comes from sharing source code for 64 bits and 32 bits
+> architectures but if so, it should be possible (and highly desirable) to
+> treat 32 bits differently.
+
+it's not a "32 bit" thing, it's an "older processors don't, newer ones
+do" thing.
+
+Can you paste your /proc/cpuinfo file here ? Maybe you have a processor
+with the capability but just haven't enabled it (either in the bios or
+in the kernel config)
+
+Greetings,
+   Arjan van de Ven
+

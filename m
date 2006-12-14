@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932709AbWLNNHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932713AbWLNNHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932709AbWLNNHU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 08:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbWLNNHU
+	id S932713AbWLNNHX (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 08:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbWLNNHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 08:07:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43274 "EHLO mx1.redhat.com"
+	Thu, 14 Dec 2006 08:07:23 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:57599 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932709AbWLNNHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 08:07:18 -0500
-Date: Thu, 14 Dec 2006 08:07:04 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
+	id S932714AbWLNNHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 08:07:21 -0500
+Date: Thu, 14 Dec 2006 13:55:47 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+cc: =?UTF-8?B?SGFucy1Kw7xyZ2Vu?= Koch <hjk@linutronix.de>,
+       Hua Zhong <hzhong@gmail.com>, "'Martin J. Bligh'" <mbligh@mbligh.org>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, "'Greg KH'" <gregkh@suse.de>,
+       "'Jonathan Corbet'" <corbet@lwn.net>, "'Andrew Morton'" <akpm@osdl.org>,
+       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061214130704.GB17565@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-	Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-	"Michael K. Edwards" <medwards.linux@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <4580E37F.8000305@mbligh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4580E37F.8000305@mbligh.org>
-User-Agent: Mutt/1.4.2.2i
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <20061214124241.44347df6@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0612141354410.6223@yvahk01.tjqt.qr>
+References: <4580E37F.8000305@mbligh.org> <003801c71f45$45d722c0$6721100a@nuitysystems.com>
+ <20061214111439.11bed930@localhost.localdomain> <200612141231.17331.hjk@linutronix.de>
+ <20061214124241.44347df6@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-818596626-1166100947=:6223"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 09:39:11PM -0800, Martin J. Bligh wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
- > The Ubuntu feisty fawn mess was a dangerous warning bell of where we're
- > going. If we don't stand up at some point, and ban binary drivers, we
- > will, I fear, end up with an unsustainable ecosystem for Linux when
- > binary drivers become pervasive. I don't want to see Linux destroyed
- > like that.
+--1283855629-818596626-1166100947=:6223
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Thing is, if kernel.org kernels get patched to disallow binary modules,
-whats to stop Ubuntu (or anyone else) reverting that change in the
-kernels they distribute ?  The landscape doesn't really change much,
-given that the majority of Linux end-users are probably running
-distro kernels.
 
-		Dave
+On Dec 14 2006 12:42, Alan wrote:
+>On Thu, 14 Dec 2006 12:31:16 +0100
+>Hans-Jürgen Koch <hjk@linutronix.de> wrote:
+>> You think it's easier for a manufacturer of industrial IO cards to
+>> debug a (large) kernel module?
+>
+>You think its any easier to debug because the code now runs in ring 3 but
+>accessing I/O space.
 
+A NULL fault won't oops the system, but of course the wrong inb/inw/inl() or
+outb* can fubar the machine.
+
+
+>> > uio also doesn't handle hotplug, pci and other "small" matters.
+>> 
+>> uio is supposed to be a very thin layer. Hotplug and PCI are already
+>> handled by other subsystems. 
+>
+>And if you have a PCI or a hotplug card ? How many industrial I/O cards
+>are still ISA btw ?
+
+Something called PC104 out there.
+
+
+	-`J'
 -- 
-http://www.codemonkey.org.uk
+--1283855629-818596626-1166100947=:6223--

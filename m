@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751821AbWLNGBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751964AbWLNGO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWLNGBK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 01:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWLNGBK
+	id S1751964AbWLNGO7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 01:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751962AbWLNGO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 01:01:10 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:61860 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751821AbWLNGBJ (ORCPT
+	Thu, 14 Dec 2006 01:14:58 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:8716 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751959AbWLNGO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 01:01:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=FkvnPvR3Mm8x4J/c+yCNB+cxaPG1WX+rzJuxx/aH0uEJvIBZ2b4fAyk/Rs9VdeU25FQcTzeKRRoY7U5M0aXkW9HuVC6IVWF3xRpBpwvZXgSyMK9lEu/+US5DE54o0Rc2ALVgEd4CWDbavilo+ann9hY351d9IG8Z8rrY1L2OYgc=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Martin J. Bligh'" <mbligh@mbligh.org>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Greg KH'" <gregkh@suse.de>, "'Jonathan Corbet'" <corbet@lwn.net>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Wed, 13 Dec 2006 22:01:15 -0800
-Message-ID: <003801c71f45$45d722c0$6721100a@nuitysystems.com>
+	Thu, 14 Dec 2006 01:14:58 -0500
+X-Greylist: delayed 2050 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 01:14:57 EST
+Message-ID: <4580E3D7.3050708@chelsio.com>
+Date: Wed, 13 Dec 2006 21:40:39 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Jeff Garzik <jeff@garzik.org>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/10] cxgb3: Chelsio T3 1G/10G ethernet device driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <4580E37F.8000305@mbligh.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Thread-Index: AccfQysdYDQCd77/Tc2QVub3YuyzAgAAedzg
+X-OriginalArrivalTime: 14 Dec 2006 05:40:42.0188 (UTC) FILETIME=[64BED8C0:01C71F42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think allowing binary hardware drivers in userspace hurts 
-> our ability to leverage companies to release hardware specs. 
+Jeff,
 
-If filesystems can be in user space, why can't drivers be in user space? On what *technical* ground?
+I resubmit the patch supporting the latest Chelsio T3 adapter.
+It incorporates the last feedbacks for code cleanup.
+It is built gainst Linus'tree.
+
+We think the driver is now ready to be merged.
+Can you please advise on the next steps for inclusion in 2.6.20 ?
+
+A corresponding monolithic patch is posted at the following URL:
+http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+
+This driver is required by the Chelsio T3 RDMA driver
+which was updated on 12/10/2006.
+
+Cheers,
+Divy
 

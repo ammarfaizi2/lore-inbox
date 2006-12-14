@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932879AbWLNRb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932877AbWLNRcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932879AbWLNRb0 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 12:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932884AbWLNRb0
+	id S932877AbWLNRcd (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 12:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932882AbWLNRcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 12:31:26 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:44553 "EHLO tmailer.gwdg.de"
+	Thu, 14 Dec 2006 12:32:33 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41683 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932879AbWLNRbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 12:31:25 -0500
-Date: Thu, 14 Dec 2006 18:17:08 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Alan <alan@lxorguk.ukuu.org.uk>,
-       =?ISO-8859-1?Q?Hans-J=FCrgen?= Koch <hjk@linutronix.de>,
-       Hua Zhong <hzhong@gmail.com>, "'Martin J. Bligh'" <mbligh@mbligh.org>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, "'Greg KH'" <gregkh@suse.de>,
-       "'Jonathan Corbet'" <corbet@lwn.net>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
+	id S932877AbWLNRcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 12:32:32 -0500
+Date: Thu, 14 Dec 2006 09:32:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-In-Reply-To: <1166101830.27217.1037.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0612141815100.12730@yvahk01.tjqt.qr>
-References: <4580E37F.8000305@mbligh.org>  <003801c71f45$45d722c0$6721100a@nuitysystems.com>
-  <20061214111439.11bed930@localhost.localdomain>  <200612141231.17331.hjk@linutronix.de>
-  <20061214124241.44347df6@localhost.localdomain> 
- <Pine.LNX.4.61.0612141354410.6223@yvahk01.tjqt.qr>
- <1166101830.27217.1037.camel@laptopd505.fenrus.org>
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+In-Reply-To: <Pine.LNX.4.61.0612141224190.6223@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64.0612140926290.5718@woody.osdl.org>
+References: <20061213195226.GA6736@kroah.com>  <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+ <1166044471.11914.195.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0612132219480.32433@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0612131522310.5718@woody.osdl.org>
+ <Pine.LNX.4.61.0612141206500.6223@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0612141224190.6223@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1895033763-1166116628=:12730"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---1283855629-1895033763-1166116628=:12730
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
 
 
-On Dec 14 2006 14:10, Arjan van de Ven wrote:
->On Thu, 2006-12-14 at 13:55 +0100, Jan Engelhardt wrote:
->> >On Thu, 14 Dec 2006 12:31:16 +0100
->> >Hans-Jürgen Koch wrote:
->> >
->> >You think its any easier to debug because the code now runs in ring 3 but
->> >accessing I/O space.
->> 
->> A NULL fault won't oops the system,
->
->.. except when the userspace driver crashes as a result and then the hw
->still crashes the hw (for example via an irq storm or by tying the PCI
->bus or .. )
+On Thu, 14 Dec 2006, Jan Engelhardt wrote:
+> 
+> Rather than IRQ_HANDLED, it should have been: remove this irq handler 
+> from the irq handlers for irq number N, so that it does not get called 
+> again until userspace has acked it.
 
-hw crashes the hw? Anyway, yes it might happen, the more with non-NULL pointers
-(dangling references f.ex.)
-However, if the userspace part is dead, no one acknowledges the irq, hence an
-irq storm (if not caused by writing bogus stuff into registers) should not
-happen.
->
->
+Wrongo.
 
-	-`J'
--- 
---1283855629-1895033763-1166116628=:12730--
+That just means that the _handler_ won't be called.
+
+But the irq still stays active, and if it's shared, ALL THE OTHER HANDLERS 
+FOR THAT INTERRUPT will be called. 
+
+Over and over again. Forever. Because the machine won't be making any 
+progress, and the user-level code (which might know how to shut it up) 
+won't ever be called, because the machine is busy just doing interrupt 
+delivery all the time.
+
+> See, maybe I don't have enough clue yet to exactly figure out why you 
+> say it does not work. However, this is how simple people see it 8)
+
+You may be a bit simple. But I think it's more polite to call you 
+"special". Or maybe just not very used to how hardware works.
+
+Btw, this is not something theoretical. We used to have this particular 
+problem _all_ the time with PCMCIA back when we weren't as good at 
+interrupt routing. You'd insert a PCMCIA card, and the machine just hung. 
+Hard.
+
+And the reason was that it would send an irq, but we were expecting it on 
+another interrupt. But if it showed up on something that was shared, you'd 
+have a hung machine, because you'd just have the (say) ethernet driver 
+saying "not for me", and returning. And obviously not able to actually 
+shut it up, so when we returned from the interrupt handler, the interrupt 
+happened immediately again.
+
+So this really isn't theoretical. It's a very common failure schenario for 
+mishandled interrupts. In fact, exactly because it's so common, these days 
+we have all this special logic in the generic interrupt layer that 
+notices, and shuts them up entirely (but does so by disabling _all_ the 
+devices on that interrupt, so when this happens, you might well lose your 
+disk driver or somethign else).
+
+			Linus

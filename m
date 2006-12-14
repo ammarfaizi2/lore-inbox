@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964917AbWLNWbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964887AbWLNWc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWLNWbp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 17:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWLNWbp
+	id S964887AbWLNWc7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 17:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWLNWc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 17:31:45 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:52098 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964917AbWLNWbo (ORCPT
+	Thu, 14 Dec 2006 17:32:59 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:1115 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964887AbWLNWc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 17:31:44 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Thu, 14 Dec 2006 17:27:24 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Zach Brown <zach.brown@oracle.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
-In-Reply-To: <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
-Message-ID: <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
-References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
- <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
+	Thu, 14 Dec 2006 17:32:58 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: Linux 2.6.20-rc1
+Date: Thu, 14 Dec 2006 22:33:10 +0000
+User-Agent: KMail/1.9.5
+Cc: Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Hancock <hancockr@shaw.ca>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612142144.26023.s0348365@sms.ed.ac.uk> <4581C73F.6060707@garzik.org>
+In-Reply-To: <4581C73F.6060707@garzik.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612142233.10584.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006, Zach Brown wrote:
-
-> >  there are numerous places throughout the source tree that
-> > apparently calculate the size of an array using the construct
-> > "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
-
-> >  $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+On Thursday 14 December 2006 21:50, Jeff Garzik wrote:
+> Alistair John Strachan wrote:
+> > Before I proceed with the horrors of an -rc1 bisection, could somebody
+> > send me the ADMA patches so I can eliminate those first?
 >
-> Indeed, there seems to be lots of potential clean-up there.
-> Including duplicate macros like:
+> Run
 >
-> ./drivers/ide/ide-cd.h:#define ARY_LEN(a) ((sizeof(a) / sizeof(a[0])))
+> 	git-whatchanged drivers/ata/sata_nv.c
+>
+> and that will give you a list of recent changes.  To obtain the "diff
+> -u" patch for a single commit, run
+>
+> 	git-diff-tree -p $SHA_HASH > /tmp/patch
 
-not surprisingly, i have a script "arraysize.sh":
+I used a variation on this:
 
-============================================================
-#!/bin/sh
+	git-whatchanged -p v2.6.19.. drivers/ata/sata_nv.c >sata_nv
 
-DIR=$1
+Reverted it (against v2.6.20-rc1), compiled that kernel, no dice.
 
-# grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}
-# grep -Erl "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}
+[root] 22:32 [~] hddtemp /dev/sda
+/dev/sda: ATA WDC WD2500KS-00M: S.M.A.R.T. not available
 
-for f in $(grep -Erl "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}) ; do
-  echo "ARRAY_SIZE()ing $f ..."
-  perl -pi -e "s|sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)|ARRAY_SIZE\(\1\)|" $f
-done
-===========================================================
+I'll start the bisection.
 
-  anyone who's interested can run it with a single argument of the
-directory to process, eg.:
+-- 
+Cheers,
+Alistair.
 
-  $ arraysize.sh fs
-  $ arraysize.sh drivers
-  $ arraysize.sh .		# entire tree, of course
-
-it's just a first pass, but it seems to produce reasonable code.
-
-rday
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

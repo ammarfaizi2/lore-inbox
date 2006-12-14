@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932839AbWLNQBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932840AbWLNQB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932839AbWLNQBg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 11:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932840AbWLNQBf
+	id S932840AbWLNQB6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 11:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbWLNQB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 11:01:35 -0500
-Received: from hera.kernel.org ([140.211.167.34]:42778 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932839AbWLNQBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 11:01:35 -0500
-X-Greylist: delayed 1419 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 11:01:34 EST
-Date: Thu, 14 Dec 2006 15:37:53 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Linux 2.4.34-rc2
-Message-ID: <20061214153753.GA31342@hera.kernel.org>
+	Thu, 14 Dec 2006 11:01:58 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:46309 "EHLO
+	ms-smtp-04.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932840AbWLNQB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 11:01:57 -0500
+Subject: [PATCH -rt] wrong config option in sched.c for notick
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 11:01:33 -0500
+Message-Id: <1166112093.1785.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In compiling the kernel without high res, I hit this error:
 
-this is the second and hopefully last release candidate for 2.4.34.
-It fixes vulnerability CVE-2006-6106 affecting bluetooth (with
-With malformed packets it might be possible to overwrite internal
-CMTP and CAPI data structures).
+kernel/sched.c:4135: error: notick undeclared (first use in this function)
+kernel/sched.c:4135: error: (Each undeclared identifier is reported only once
+kernel/sched.c:4135: error: for each function it appears in.)
 
-Please build and test this version, especially on non-x86 archs.
-I intend to release 2.4.34 within a few days if nobody complains.
+I'm assuming that this was meant for NO_HZ.
 
-Regards,
-Willy
+signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
 
-Summary of changes from v2.4.34-rc1 to v2.4.34-rc2
-============================================
+Index: linux-2.6.19-rt14/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rt14.orig/kernel/sched.c	2006-12-14 10:55:43.000000000 -0500
++++ linux-2.6.19-rt14/kernel/sched.c	2006-12-14 10:55:46.000000000 -0500
+@@ -4147,7 +4147,7 @@ switch_tasks:
+ 		++*switch_count;
+ 
+ 		prepare_task_switch(rq, next);
+-#if defined(CONFIG_HZ) && defined(CONFIG_SMP)
++#if defined(CONFIG_NO_HZ) && defined(CONFIG_SMP)
+ 		if (prev == rq->idle && notick.load_balancer == -1) {
+ 			/*
+ 			 * simple selection for now: Nominate the first cpu in
 
-Marcel Holtmann (1):
-      [Bluetooth] Add packet size checks for CAPI messages (CVE-2006-6106)
-
-Willy Tarreau (1):
-      Change VERSION to 2.4.34-rc2
 

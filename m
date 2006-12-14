@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752041AbWLNHaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752035AbWLNHfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752041AbWLNHaJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 02:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWLNHaJ
+	id S1752035AbWLNHfZ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWLNHfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 02:30:09 -0500
-Received: from mx1.suse.de ([195.135.220.2]:56324 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752033AbWLNHaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 02:30:07 -0500
-X-Greylist: delayed 786 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 02:30:07 EST
-Date: Thu, 14 Dec 2006 08:16:31 +0100
-From: Holger Macht <hmacht@suse.de>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Brandon Philips <brandon@ifup.org>
-Subject: Re: [patch 2/3] acpi: Add a docked sysfs file to the dock driver.
-Message-ID: <20061214071631.GA6575@homac2.gate.uni-erlangen.de>
-Mail-Followup-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-	len.brown@intel.com, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, Brandon Philips <brandon@ifup.org>
-References: <20061204224037.713257809@localhost.localdomain> <20061204144958.207e58e2.kristen.c.accardi@intel.com> <20061209115957.GA5254@homac2> <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
+	Thu, 14 Dec 2006 02:35:25 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:34607 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752035AbWLNHfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 02:35:24 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 14 Dec 2006 02:30:55 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org
+Subject: [PATCH] sound: Fix last two instances of "kcalloc(1,...)" ->
+ "kzalloc()"
+Message-ID: <Pine.LNX.4.64.0612140221440.11794@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061211120508.2f2704ac.kristen.c.accardi@intel.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 11. Dec - 12:05:08, Kristen Carlson Accardi wrote:
-> On Sat, 9 Dec 2006 12:59:58 +0100
-> Holger Macht <hmacht@suse.de> wrote:
-> 
-> > Well, I like to have them ;-)
-> 
-> Ok - how is this?
 
-Looks good to me, thanks!
+  Change the remaining two instances of "kcalloc(1,...)" to
+"kzalloc()".
 
-> Send a uevent to indicate a device change whenever we dock or
-> undock, so that userspace may now check the dock status via 
-> sysfs.
-> 
-> Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Signed-off-by:  Robert P. J. Day <rpjday@mindspring.com>
 
-Signed-off-by: Holger Macht <hmacht@suse.de>
+---
 
-Regards,
-	Holger
+  Now that that general change has been merged into Linus' tree, I've
+added a check for that to an ongoing "coding style" script of mine
+that scans the tree on a regular basis to detect stuff that shouldn't
+be there anymore.  Having subjected everyone to the unspeakable grief
+of getting that patch in in the first place, I'm going to make sure
+stuff like that never comes back.
+
+  As Barney Fife would say, "Nip it!  Nip it in the bud!"
+
+
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index fb96144..5ebdd8a 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5936,7 +5936,7 @@ static int patch_alc262(struct hda_codec *codec)
+ 	int board_config;
+ 	int err;
+
+-	spec = kcalloc(1, sizeof(*spec), GFP_KERNEL);
++	spec = kzalloc(sizeof(*spec), GFP_KERNEL);
+ 	if (spec == NULL)
+ 		return -ENOMEM;
+
+@@ -6795,7 +6795,7 @@ static int patch_alc861(struct hda_codec *codec)
+ 	int board_config;
+ 	int err;
+
+-	spec = kcalloc(1, sizeof(*spec), GFP_KERNEL);
++	spec = kzalloc(sizeof(*spec), GFP_KERNEL);
+ 	if (spec == NULL)
+ 		return -ENOMEM;
+

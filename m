@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbWLNKqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750729AbWLNKr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWLNKqa (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 05:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWLNKq3
+	id S1750729AbWLNKr4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 05:47:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWLNKr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 05:46:29 -0500
-Received: from il.qumranet.com ([62.219.232.206]:53124 "EHLO il.qumranet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932371AbWLNKq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 05:46:29 -0500
-Message-ID: <45812B83.90006@argo.co.il>
-Date: Thu, 14 Dec 2006 12:46:27 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, tglx@linutronix.de
-Subject: Re: Userspace I/O driver core
-References: <20061214010608.GA13229@kroah.com> <45811D0F.2070705@argo.co.il> <1166091570.27217.983.camel@laptopd505.fenrus.org>
-In-Reply-To: <1166091570.27217.983.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Dec 2006 05:47:56 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53739 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750729AbWLNKrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 05:47:55 -0500
+Date: Thu, 14 Dec 2006 10:56:08 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] EDAC: Add memory scrubbing controls API to core
+Message-ID: <20061214105608.526ff91d@localhost.localdomain>
+In-Reply-To: <20061214011853.74832.qmail@web50109.mail.yahoo.com>
+References: <20061214011853.74832.qmail@web50109.mail.yahoo.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> I understand one still has to write a kernel driver to shut up the irq.  
->> How about writing a small bytecode interpreter to make event than 
->> unnecessary?
->>     
->
-> if you do that why not do a real driver.
->
->   
+On Wed, 13 Dec 2006 17:18:53 -0800 (PST)
+Doug Thompson <norsk5@yahoo.com> wrote:
 
-An entire driver in bytecode? that means exposing the entire kernel API 
-to the bytecode interpreter.  A monumental task.
+> From: Frithiof Jensen <frithiof.jensen@ericson.com>
+> 
+>  This patch is meant for Kernel version 2.6.19
+>  
+>  This is an attempt of providing an interface for memory 
+>  scrubbing control in EDAC.
 
-Or did I misunderstand you?
+> Signed-off-by: Frithiof Jensen <frithiof.jensen@ericson.com>
+> Signed-off-by: doug thompson <norsk5@xmission.com>
 
-
--- 
-error compiling committee.c: too many arguments to function
+Acked-by: Alan Cox <alan@redhat.com>
 

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932318AbWLNKpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbWLNKqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWLNKpc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 05:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWLNKpc
+	id S932371AbWLNKqa (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 05:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWLNKq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 05:45:32 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53735 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932318AbWLNKpb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 05:45:31 -0500
-Date: Thu, 14 Dec 2006 10:53:46 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Doug Thompson <norsk5@yahoo.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] EDAC: Fix in e752x mc driver
-Message-ID: <20061214105346.10b5c2a1@localhost.localdomain>
-In-Reply-To: <701304.80899.qm@web50103.mail.yahoo.com>
-References: <701304.80899.qm@web50103.mail.yahoo.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Dec 2006 05:46:29 -0500
+Received: from il.qumranet.com ([62.219.232.206]:53124 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932371AbWLNKq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 05:46:29 -0500
+Message-ID: <45812B83.90006@argo.co.il>
+Date: Thu, 14 Dec 2006 12:46:27 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, tglx@linutronix.de
+Subject: Re: Userspace I/O driver core
+References: <20061214010608.GA13229@kroah.com> <45811D0F.2070705@argo.co.il> <1166091570.27217.983.camel@laptopd505.fenrus.org>
+In-Reply-To: <1166091570.27217.983.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006 17:17:45 -0800 (PST)
-Doug Thompson <norsk5@yahoo.com> wrote:
+Arjan van de Ven wrote:
+>> I understand one still has to write a kernel driver to shut up the irq.  
+>> How about writing a small bytecode interpreter to make event than 
+>> unnecessary?
+>>     
+>
+> if you do that why not do a real driver.
+>
+>   
 
-> From: Mike Chan <mikechan@google.com>
-> 
-> Diff against 2.6.19
-> 
-> This fix/change returns the offset into the page for
-> the ce/ue error, instead of just 0. The e752x dram controller reads
-> 34:6 of the
-> linear address with the error.
-> 
-> Mike Chan
-> 
-> Signed-off-by: Mike Chan <mikechan@google.com>
-> Signed-off-by: doug thompson <norsk5@xmission.com>
+An entire driver in bytecode? that means exposing the entire kernel API 
+to the bytecode interpreter.  A monumental task.
 
-Acked-by: Alan Cox <alan@redhat.com>
+Or did I misunderstand you?
+
+
+-- 
+error compiling committee.c: too many arguments to function
+

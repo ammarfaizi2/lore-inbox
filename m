@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932111AbWLNJL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932153AbWLNJW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWLNJL6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 04:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWLNJL6
+	id S932153AbWLNJW3 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 04:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWLNJW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 04:11:58 -0500
-Received: from www.osadl.org ([213.239.205.134]:37673 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932111AbWLNJL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 04:11:57 -0500
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061213235601.2a565229@localhost.localdomain>
-References: <20061213195226.GA6736@kroah.com>
-	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
-	 <1166044471.11914.195.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
-	 <1166048081.11914.208.camel@localhost.localdomain>
-	 <1166049055.29505.47.camel@localhost.localdomain>
-	 <20061213235601.2a565229@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 14 Dec 2006 10:15:41 +0100
-Message-Id: <1166087742.29505.79.camel@localhost.localdomain>
+	Thu, 14 Dec 2006 04:22:29 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:15823 "EHLO
+	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932153AbWLNJW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 04:22:28 -0500
+Date: Thu, 14 Dec 2006 11:22:08 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Karsten Weiss <K.Weiss@science-computing.de>
+Cc: Chris Wedgwood <cw@f00f.org>,
+       Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
+Message-ID: <20061214092208.GB6674@rhun.haifa.ibm.com>
+References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <458051FD.1060900@scientia.net> <20061213195345.GA16112@tuatara.stupidest.org> <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 23:56 +0000, Alan wrote:
-> On Wed, 13 Dec 2006 23:30:55 +0100
-> Thomas Gleixner <tglx@linutronix.de> wrote:
+On Wed, Dec 13, 2006 at 09:34:16PM +0100, Karsten Weiss wrote:
+
+> FWIW: As far as I understand the linux kernel code (I am no kernel 
+> developer so please correct me if I am wrong) the PCI dma mapping code is 
+> abstracted by struct dma_mapping_ops. I.e. there are currently four 
+> possible implementations for x86_64 (see
+> linux-2.6/arch/x86_64/kernel/)
 > 
-> > - IRQ happens
-> > - kernel handler runs and masks the chip irq, which removes the IRQ
-> > request
+> 1. pci-nommu.c : no IOMMU at all (e.g. because you have < 4 GB memory)
+>    Kernel boot message: "PCI-DMA: Disabling IOMMU."
 > 
-> IRQ is shared with the disk driver, box dead.
+> 2. pci-gart.c : (AMD) Hardware-IOMMU.
+>    Kernel boot message: "PCI-DMA: using GART IOMMU" (this message
+>    first appeared in 2.6.16)
+> 
+> 3. pci-swiotlb.c : Software-IOMMU (used e.g. if there is no hw iommu)
+>    Kernel boot message: "PCI-DMA: Using software bounce buffering 
+>    for IO (SWIOTLB)"
 
-Err ? 
+Used if there's no HW IOMMU *and* it's needed (because you have >4GB
+memory) or you told the kernel to use it (iommu=soft).
 
-IRQ happens
+> 4. pci-calgary.c : Calgary HW-IOMMU from IBM; used in pSeries servers. 
+>    This HW-IOMMU supports dma address mapping with memory proctection,
+>    etc.
+>    Kernel boot message: "PCI-DMA: Using Calgary IOMMU" (since
+>    2.6.18!)
 
-IRQ is disabled by the generic handling code
+Calgary is found in pSeries servers, but also in high-end xSeries
+(Intel based) servers. It would be a little awkward if pSeries servers
+(which are based on PowerPC processors) used code under arch/x86-64
+:-)
 
-Handler is invoked and checks, whether the irq is from the device or
-not. 
- - If not, it returns IRQ_NONE, so the next driver (e.g. disk) is
-invoked.
- - If yes, it masks the chip on the device, which disables the chip
-interrupt line and returns IRQ_HANDLED.
+> BTW: It would be really great if this area of the kernel would get some 
+> more and better documentation. The information at 
+> linux-2.6/Documentation/x86_64/boot_options.txt is very terse. I had to 
+> read the code to get a *rough* idea what all the "iommu=" options 
+> actually do and how they interact.
 
-In both cases the IRQ gets reenabled from the generic irq handling code
-on return, so why is the box dead ?
+Patches happily accepted :-)
 
-	tglx
-
-
+Cheers,
+Muli

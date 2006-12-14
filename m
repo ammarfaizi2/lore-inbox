@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932757AbWLNUGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932528AbWLNUI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbWLNUGs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 15:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932762AbWLNUGs
+	id S932528AbWLNUI5 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 15:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbWLNUI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 15:06:48 -0500
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:56739
-	"EHLO vs166246.vserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932761AbWLNUGr (ORCPT
+	Thu, 14 Dec 2006 15:08:56 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:1500 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932528AbWLNUI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 15:06:47 -0500
-X-Greylist: delayed 2189 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 15:06:47 EST
-From: Michael Buesch <mb@bu3sch.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Thu, 14 Dec 2006 20:29:47 +0100
-User-Agent: KMail/1.9.5
-References: <20061214003246.GA12162@suse.de> <4580E37F.8000305@mbligh.org> <1166105545.6748.212.camel@gullible>
-In-Reply-To: <1166105545.6748.212.camel@gullible>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>
+	Thu, 14 Dec 2006 15:08:56 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Date: Thu, 14 Dec 2006 12:08:11 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612142029.47753.mb@bu3sch.de>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20061214153949.GA3388@stusta.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 14 Dec 2006 13:11:27 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 14 Dec 2006 13:11:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 December 2006 15:12, Ben Collins wrote:
-> You can't talk about drivers that don't exist for Linux. Things like
-> bcm43xx aren't effected by this new restriction for GPL-only drivers.
-> There's no binary-only driver for it (ndiswrapper doesn't count). If the
-> hardware vendor doesn't want to write a driver for linux, you can't make
-> them. You can buy other hardware, but that's about it.
 
-Not that is matters in this discussion, but there are binary Broadcom
-43xx drivers for linux available.
+> And there's also the common misconception all costumers had enough
+> information when buying something. If you are a normal Linux user and
+> buy some hardware labelled "runs under Linux", it could turn out that's
+> with a Windows driver running under ndiswrapper...
 
-> Here's the list of proprietary drivers that are in Ubuntu's restricted
-> modules package:
-> 
-> 	madwifi (closed hal implementation, being replaced in openhal)
-> 	fritz
+That is something that I think is well worth fixing. Doesn't Linus own the
+trademark 'Linux'? How about some rules for use of that trademark and a
+'Works with Linux' logo that can only be used if the hardware specifications
+are provided?
 
-Well, that's not just one, right?
-That's like, 10 or so for the different AVM cards.
-I'm just estimating. Correct me, if I'm wrong.
+Let them provide a closed-source driver if they want. Let them provide
+user-space applications for which no source is provided if they want. But
+don't let them use the logo unless they release sufficient information to
+allow people to develop their own drivers and applications to interface with
+the hardware.
 
-(And if I didn't mention it yet; AVM binary drivers are
-complete crap.)
+That makes it clear that it's not about giving us the fruits of years of
+your own work but that it's about enabling us to do our own work. (I would
+have no objection to also requiring them to provide a minimal open-source
+driver. I'm not trying to work out the exact terms here, just get the idea
+out.)
 
-> 	ati
-> 	nvidia
-> 	ltmodem (does that even still work?)
-> 	ipw3945d (not a kernel module, but just the daemon)
+DS
 
-> Don't get me wrong, I'm not bashing reverse engineering, or writing our
-> own drivers. It's how Linux got started. But the problem isn't as narrow
-> as people would like to think. And proprietary code isn't a growing
-> problem. At best, it's just a distraction that will eventually go away
-> on it's own.
 
-Well, I _hope_ that, too.
-
--- 
-Greetings Michael.

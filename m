@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932832AbWLNPwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932833AbWLNPy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932832AbWLNPwK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbWLNPwJ
+	id S932833AbWLNPy7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932835AbWLNPy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:52:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48502 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932828AbWLNPwI (ORCPT
+	Thu, 14 Dec 2006 10:54:59 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:60713 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932833AbWLNPy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:52:08 -0500
-Subject: Re: [PATCH] Clarify i386/Kconfig explanation of the HIGHMEM config
-	options
-From: Arjan van de Ven <arjan@infradead.org>
-To: Theodore Tso <tytso@mit.edu>
-Cc: Franck Pommereau <pommereau@univ-paris12.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061214151745.GC9079@thunk.org>
-References: <458118BB.5050308@univ-paris12.fr>
-	 <1166090244.27217.978.camel@laptopd505.fenrus.org>
-	 <45813E67.80709@univ-paris12.fr>
-	 <1166098747.27217.1018.camel@laptopd505.fenrus.org>
-	 <20061214151745.GC9079@thunk.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 14 Dec 2006 16:52:05 +0100
-Message-Id: <1166111525.27217.1068.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Thu, 14 Dec 2006 10:54:58 -0500
+Message-ID: <458173D5.5050008@bull.net>
+Date: Thu, 14 Dec 2006 16:55:01 +0100
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, suresh.b.siddha@intel.com
+Subject: [PATCH 2.6.19-rt14][BUG] kernel/sched.c:4135: error: 'notick' undeclared
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 14/12/2006 17:02:31,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 14/12/2006 17:02:31,
+	Serialize complete at 14/12/2006 17:02:31
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-14 at 10:17 -0500, Theodore Tso wrote:
-> > > I'd be happy to know how to enable it.
-> >
-> > CONFIG_HIGHMEM64G=y
-> 
-> This is not at all obvious from arch/i386/Kconfig.  Maybe we should
-> fix this?
+Hi,
 
-looks better; maybe add how to look for "pae" and "nx" in
-the /proc/cpuinfo flags line ?
+The kernel (sched.c) does not compile if CONFIG_HZ and CONFIG_SMP are set, and 
+CONFIG_NO_HZ isn't.
+
+Is this patch correct ?
+
+---
+
+Index: linux-2.6.19-rt14-test/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rt14-test.orig/kernel/sched.c  2006-12-14 16:27:37.000000000 +0100
++++ linux-2.6.19-rt14-test/kernel/sched.c       2006-12-14 16:42:38.000000000 +0100
+@@ -4131,7 +4131,7 @@ switch_tasks:
+                 ++*switch_count;
+
+                 prepare_task_switch(rq, next);
+-#if defined(CONFIG_HZ) && defined(CONFIG_SMP)
++#if defined(CONFIG_NO_HZ) && defined(CONFIG_SMP)
+                 if (prev == rq->idle && notick.load_balancer == -1) {
+                         /*
+                          * simple selection for now: Nominate the first cpu in
+
+
+Thanks,
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Pierre Peiffer

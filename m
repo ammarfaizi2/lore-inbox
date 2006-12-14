@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751965AbWLNXhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751990AbWLNXmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751965AbWLNXhY (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751981AbWLNXhX
+	id S1751990AbWLNXmV (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWLNXmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:37:23 -0500
-Received: from outbound-sin.frontbridge.com ([207.46.51.80]:11477 "EHLO
-	outbound2-sin-R.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751965AbWLNXhV (ORCPT
+	Thu, 14 Dec 2006 18:42:20 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:60861 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751990AbWLNXmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:37:21 -0500
-X-Greylist: delayed 5663 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 18:37:21 EST
-X-BigFish: V
-Message-ID: <4581CA0C.20102@am.sony.com>
-Date: Thu, 14 Dec 2006 14:02:52 -0800
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Thu, 14 Dec 2006 18:42:20 -0500
+Message-ID: <4581E192.3010108@oracle.com>
+Date: Thu, 14 Dec 2006 15:43:14 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Updated PS3 Linux Distributor's Starter Kit released
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8
+To: Scott Preece <sepreece@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH/RFC] CodingStyle updates
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com> <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
+In-Reply-To: <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2006 22:02:52.0601 (UTC) FILETIME=[9A024290:01C71FCB]
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to let anyone interested know, an updated
-PS3 Linux Distributor's Starter Kit was released.
-The release note is here:
+Scott Preece wrote:
+[1]
+>>  Outside of comments, documentation and except in Kconfig, spaces are 
+>> never
+>>  used for indentation, and the above example is deliberately broken.
+> ---
+> 
+> I realize it isn't text you added, but what's that supposed to mean?
+> Surely the 8-character indents are made up of spaces.  Does it mean
 
-  http://www.kernel.org/pub/linux/kernel/people/geoff/cell/ps3-linux-distro-kit-20061208/README-e.txt
+No, the 8-character indents are made of one ASCII TAB character.
 
-I extracted the ISO contents for browsing here: 
+> "spaces other than 8-space blocks"? In any case, how does it synch
+> with the following chapter's statement that continuations " are placed
+> substantially to the right" - isn't that done with spaces, too?
 
-  http://www.kernel.org/pub/linux/kernel/people/geoff/cell/ps3-linux-distro-kit-20061208/
+That's usually (preferably) done with tab(s).  Sometimes it is done
+with a few spaces instead.  (and we put up with it :)
 
-The CD ISO image is here:
+> Or am I just totally spacing out on what was meant?
 
-  ftp://ftp.uk.linux.org/pub/linux/Sony-PS3/
+I take [1] to mean that this example:
 
--Geoff
+	if (condition) do_this;
+	  do_something_everytime;
 
+is broken in at least 3 ways:
+1/ do_this(); should be on a separate line;
+2/ do_something_everytime() should not be indented more than the "if"
+	above it; and
+3/ *if* do_something_everytime() were to be indented more than it is,
+	it should be done with a tab, not spaces.
 
+-- 
+~Randy

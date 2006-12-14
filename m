@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751960AbWLNSST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751952AbWLNSWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751960AbWLNSST (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 13:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWLNSST
+	id S1751952AbWLNSWH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 13:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWLNSWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 13:18:19 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34770 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751960AbWLNSSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 13:18:18 -0500
-Date: Thu, 14 Dec 2006 18:26:26 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <gregkh@suse.de>
-Cc: Hans-J??rgen Koch <hjk@linutronix.de>, Hua Zhong <hzhong@gmail.com>,
-       "'Martin J. Bligh'" <mbligh@mbligh.org>,
-       "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Jonathan Corbet'" <corbet@lwn.net>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
+	Thu, 14 Dec 2006 13:22:07 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:46696 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751956AbWLNSWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 13:22:06 -0500
+Date: Thu, 14 Dec 2006 19:09:51 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
  for 2.6.19]
-Message-ID: <20061214182626.6b07c6ad@localhost.localdomain>
-In-Reply-To: <20061214165954.GA23138@suse.de>
-References: <4580E37F.8000305@mbligh.org>
-	<200612141231.17331.hjk@linutronix.de>
-	<20061214124241.44347df6@localhost.localdomain>
-	<200612141354.26506.hjk@linutronix.de>
-	<20061214165954.GA23138@suse.de>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20061214175253.GB12498@tuatara.stupidest.org>
+Message-ID: <Pine.LNX.4.61.0612141907450.12730@yvahk01.tjqt.qr>
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
+ <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
+ <458171C1.3070400@garzik.org> <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
+ <20061214170841.GA11196@tuatara.stupidest.org> <20061214173827.GC3452@infradead.org>
+ <20061214175253.GB12498@tuatara.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Think of uio as just a "class" of driver, like input or v4l.  It's still
-> up to the driver writer to provide a proper bus interface to the
-> hardware (pci, usb, etc.) in order for the device to work at all.
 
-Understood. That leads me to ask another question of the folks who deal
-with a lot of these cards. How many could reasonably be described by the
-following
+On Dec 14 2006 09:52, Chris Wedgwood wrote:
+>On Thu, Dec 14, 2006 at 05:38:27PM +0000, Christoph Hellwig wrote:
+>
+>> Yes, EXPORT_SYMBOL_INTERNAL would make a lot more sense.
+>
+>A quick grep shows that changing this now would require updating
+>nearly 1900 instances, so patches to do this would be pretty large and
+>disruptive (though we could support both during a transition and
+>migrate them over time).
 
-		bar to map, offset, length, ro/rw, root/user, local-offset
-(x n ?)
-		interrupt function or null
+I'd prefer to do it at once. But that's not my decision so you anyway do what
+you want.
 
-It seems if we have a lot of this kind of card that all fit that pattern
-it might actually get more vendors submitting updates if we had a single
-pci driver that took a struct of the above as the device_id field so
-vendors had to write five lines of IRQ code, a struct and update a PCI
-table ? That seems to have mostly worked with all the parallel/serial
-boards.
+That said, I would like to keep EXPORT_SYMBOL_GPL, because EXPORT and INTERNAL
+is somehow contrary. Just a wording issue.
 
-Alan
+	-`J'
+-- 

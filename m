@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750838AbWLNTmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750956AbWLNTnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWLNTmj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 14:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWLNTmj
+	id S1750956AbWLNTnl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 14:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWLNTnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 14:42:39 -0500
-Received: from an-out-0708.google.com ([209.85.132.243]:5499 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750838AbWLNTmi (ORCPT
+	Thu, 14 Dec 2006 14:43:41 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:58047 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750925AbWLNTnk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 14:42:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kGMgMGl+JxbQya/hjJMMxNEIw4omW2qNni+lg0+PqH6IkuxS601v/ydJjz1EydAV+dbzXbygD7RkBWkeS7gupEPXD4pJXmgVpKYvzFs5PTP2AjwIx9pStanpvkcB0wRqOC7TTjRWDAe5lvClawLuMM+hkFvgszqC5fQMnfXyPtQ=
-Message-ID: <7b69d1470612141142k63cc7d11l89c0a7f26acc631a@mail.gmail.com>
-Date: Thu, 14 Dec 2006 13:42:35 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Chris Wedgwood" <cw@f00f.org>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Cc: "Eric Sandeen" <sandeen@sandeen.net>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Linus Torvalds" <torvalds@osdl.org>, "Jeff Garzik" <jeff@garzik.org>,
-       "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
-       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061214183956.GA13692@tuatara.stupidest.org>
+	Thu, 14 Dec 2006 14:43:40 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 14 Dec 2006 14:39:07 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org
+Subject: [PATCH] init: Remove commented, obsolete code invoking smp_commence().
+Message-ID: <Pine.LNX.4.64.0612141433050.7079@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061214003246.GA12162@suse.de> <20061214005532.GA12790@suse.de>
-	 <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-	 <458171C1.3070400@garzik.org>
-	 <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
-	 <20061214170841.GA11196@tuatara.stupidest.org>
-	 <20061214173827.GC3452@infradead.org>
-	 <20061214175253.GB12498@tuatara.stupidest.org>
-	 <458194B8.1090309@sandeen.net>
-	 <20061214183956.GA13692@tuatara.stupidest.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/06, Chris Wedgwood <cw@f00f.org> wrote:
-> On Thu, Dec 14, 2006 at 12:15:20PM -0600, Eric Sandeen wrote:
->
-> > Please don't use that name, it strikes me as much more confusing
-> > than EXPORT_SYMBOL_GPL, even though I agree that _GPL doesn't quite
-> > convey what it means, either.
->
-> Calling internal symbols _INTERNAL is confusing?
 
-I think it's the combination of "INTERNAL" and "EXPORT" that seems
-contradictory - "If it's internal, why are you exporting it?"
+  Remove the "#if 0"ed call to smp_commence, which is clearly
+obsolete.
 
-I think "EXPORT_SYMBOL_GPL_ONLY" or "...ONLY UNDER_GPL" would make the
-meaning clearer, but I don't really think the gain is worth the pain.
-Anybody using kernel interfaces ought to be able to figure it out.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
->
-> But those symbols aren't, they're about internal interfaces that might
-> change.
+---
 
-Folks who think this is likely to make a difference in court might
-want to look at
-<http:www.linuxworld.com/news/2006/120806-closed-modules2.html> for a
-litany of court cases that have rejected infringement claims where a
-much sterner effort had been made to hide or block use of interfaces.
-The article claims that courts have increasingly found that
-interfacing your code to an existing work is not infringement,
-regardless of what you have to work around to do it.
+  There appears to be no value to leaving that call in the code, given
+that the source file "arch/ia64/kernel/smpboot.c" explains:
 
-Of course, that's one author's reading of the case law and I'm sure
-there are others who disagree, but it's something you'd want to keep
-in mind in calculating the expected value of a suit...
+  "Switch over to hotplug-CPU boot-sequence.
+smp_boot_cpus()/smp_commence() is replaced by
+smp_prepare_cpus()/__cpu_up()/smp_cpus_done()."
 
-scott
+diff --git a/init/main.c b/init/main.c
+index e3f0bb2..a148039 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -397,11 +397,6 @@ static void __init smp_init(void)
+ 	/* Any cleanup work */
+ 	printk(KERN_INFO "Brought up %ld CPUs\n", (long)num_online_cpus());
+ 	smp_cpus_done(max_cpus);
+-#if 0
+-	/* Get other processors into their bootup holding patterns. */
+-
+-	smp_commence();
+-#endif
+ }
+
+ #endif

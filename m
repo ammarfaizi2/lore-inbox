@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750939AbWLNRDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750934AbWLNRE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWLNRDM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 12:03:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWLNRDM
+	id S1750934AbWLNRE0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 12:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWLNREZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 12:03:12 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39572 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750939AbWLNRDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 12:03:10 -0500
-Date: Thu, 14 Dec 2006 09:03:00 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: [PATCH] slab: fix kmem_ptr_validate prototype
-In-Reply-To: <1166099200.32332.233.camel@twins>
-Message-ID: <Pine.LNX.4.64.0612140857240.29461@schroedinger.engr.sgi.com>
-References: <1166099200.32332.233.camel@twins>
+	Thu, 14 Dec 2006 12:04:25 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:39970 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750872AbWLNREZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 12:04:25 -0500
+Date: Thu, 14 Dec 2006 09:03:57 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
+       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <458171C1.3070400@garzik.org>
+Message-ID: <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
+ <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
+ <458171C1.3070400@garzik.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The declaration of kmem_ptr_validate in slab.h does not match the
-one in slab.c. Remove the fastcall attribute (this is the only use in 
-slab.c).
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6/mm/slab.c
-===================================================================
---- linux-2.6.orig/mm/slab.c	2006-12-14 08:56:59.000000000 -0800
-+++ linux-2.6/mm/slab.c	2006-12-14 08:57:10.000000000 -0800
-@@ -3553,7 +3553,7 @@ EXPORT_SYMBOL(kmem_cache_zalloc);
-  *
-  * Currently only used for dentry validation.
-  */
--int fastcall kmem_ptr_validate(struct kmem_cache *cachep, const void *ptr)
-+int kmem_ptr_validate(struct kmem_cache *cachep, const void *ptr)
- {
- 	unsigned long addr = (unsigned long)ptr;
- 	unsigned long min_addr = PAGE_OFFSET;
+On Thu, 14 Dec 2006, Jeff Garzik wrote:
+> 
+> For the record, I also disagree with the sneaky backdoor way people want to
+> add EXPORT_SYMBOL_GPL() to key subsystems that drivers will need.
+
+I actually think the EXPORT_SYMBOL_GPL() thing is a good thing, if done 
+properly (and I think we use it fairly well).
+
+I think we _can_ do things where we give clear hints to people that "we 
+think this is such an internal Linux thing that you simply cannot use this 
+without being considered a derived work".
+
+It's really just a strong hint about what we consider to be internal. The 
+fact is, "intent" actually does matter, and as such our _intent_ in saying 
+"these are very deep and internal interfaces" is actually meaningful - 
+even in a court of law.
+
+So I personally don't see EXPORT_SYMBOL_GPL() to be a "technical measure", 
+I see it as being "documentation".
+
+That said, I think that some people seem to be a bit over-eager to use it. 
+And I actually think that weakens the rest of them too (imagine a lawyer 
+saying in front of a judge:
+
+  "Look, they marked 'strcpy()' as a symbol that requires us to be GPL'd, 
+   but look, it's a standard function available everywhere else too, and 
+   you can implement it as one line of code, so a module that uses it 
+   clearly is NOT a derived work, so EXPORT_SYMBOL_GPL is obviously not 
+   something that means anything"
+
+So this is why I've actually argued in the past for some 
+EXPORT_SYMBOL_GPL's to be demoted to "normal" EXPORT_SYMBOL's. Exactly 
+because over-using them actually _weakens_ them, and makes them pointless 
+both from a documentation _and_ from a legal standpoint.
+
+Btw, I've actually had a lawyer tell me that EXPORT_SYMBOL_GPL makes legal 
+sense and has actually made people happier, for what its worth. Of course, 
+you can get <n*2> different opinions from <n> lawyers, so that may not be 
+all that meaningful ;)
+
+				Linus

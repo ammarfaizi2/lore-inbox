@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932702AbWLNMyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932707AbWLNND7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbWLNMyb (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 07:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbWLNMyb
+	id S932707AbWLNND7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 08:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWLNND7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 07:54:31 -0500
-Received: from www.osadl.org ([213.239.205.134]:60248 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932702AbWLNMya convert rfc822-to-8bit (ORCPT
+	Thu, 14 Dec 2006 08:03:59 -0500
+Received: from plusavs02.SBG.AC.AT ([141.201.10.77]:33381 "HELO
+	plusavs02.sbg.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932707AbWLNND6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 07:54:30 -0500
-From: =?utf-8?q?Hans-J=C3=BCrgen_Koch?= <hjk@linutronix.de>
-Organization: Linutronix
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Thu, 14 Dec 2006 13:54:24 +0100
-User-Agent: KMail/1.9.5
-Cc: "Hua Zhong" <hzhong@gmail.com>, "'Martin J. Bligh'" <mbligh@mbligh.org>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, "'Greg KH'" <gregkh@suse.de>,
-       "'Jonathan Corbet'" <corbet@lwn.net>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-References: <4580E37F.8000305@mbligh.org> <200612141231.17331.hjk@linutronix.de> <20061214124241.44347df6@localhost.localdomain>
-In-Reply-To: <20061214124241.44347df6@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612141354.26506.hjk@linutronix.de>
+	Thu, 14 Dec 2006 08:03:58 -0500
+Subject: Re: get device from file struct
+From: Silviu Craciunas <silviu.craciunas@sbg.ac.at>
+Reply-To: silviu.craciunas@sbg.ac.at
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061213155346.0a9ecf20@freekitty>
+References: <1165850548.30185.18.camel@ThinkPadCK6>
+	 <457DA4A0.4060108@ens-lyon.org> <1165914248.30185.41.camel@ThinkPadCK6>
+	 <Pine.LNX.4.61.0612131059100.25870@yvahk01.tjqt.qr>
+	 <1166006239.30185.66.camel@ThinkPadCK6>
+	 <Pine.LNX.4.61.0612131200430.25870@yvahk01.tjqt.qr>
+	 <1166012939.30185.77.camel@ThinkPadCK6>
+	 <Pine.LNX.4.61.0612132011280.32433@yvahk01.tjqt.qr>
+	 <20061213155346.0a9ecf20@freekitty>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 14:03:28 +0100
+Message-Id: <1166101408.6186.7.camel@ThinkPadCK6>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Dec 2006 13:03:55.0981 (UTC) FILETIME=[4FE19FD0:01C71F80]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 14. Dezember 2006 13:42 schrieb Alan:
-> On Thu, 14 Dec 2006 12:31:16 +0100
-> Hans-Jürgen Koch <hjk@linutronix.de> wrote:
-> > You think it's easier for a manufacturer of industrial IO cards to
-> > debug a (large) kernel module?
-> 
-> You think its any easier to debug because the code now runs in ring 3 but
-> accessing I/O space.
+On Wed, 2006-12-13 at 15:53 -0800, Stephen Hemminger wrote:
+> The connection between file and network device is through many
+> layers and there is no direct binding. It could be 0 to N interfaces
+> and even be data dependent. 
 
-For the intended audience, yes.
+you mean protocol dependent? yes,it goes trough the layer of the vfs but
+I thought there may be a way to get to the struct net_device from the
+struct file. You have the dev_base which contains all devices and in the
+net_device there is the ifindex which is the unique identifier. I guess
+there is no way to know the ifindex directly from a socket struct.
 
-> 
-> 
-> > > uio also doesn't handle hotplug, pci and other "small" matters.
-> > 
-> > uio is supposed to be a very thin layer. Hotplug and PCI are already
-> > handled by other subsystems. 
-> 
-> And if you have a PCI or a hotplug card ? How many industrial I/O cards
-> are still ISA btw ?
-
-Who is talking about ISA? All cards we had in mind are PCI. Of course
-you have to do the usual initialization work in your probe/release or
-init/exit functions. These are just a few lines you find in any
-beginners device-driver-writing book. I don't think that the UIO 
-framework could simplify that in a sensible way.
-
-Hans
+thanks
+silviu
 

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751914AbWLNCMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751892AbWLNCqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751914AbWLNCMF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 21:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWLNCMF
+	id S1751892AbWLNCqs (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 21:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWLNCqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 21:12:05 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39524 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751914AbWLNCME (ORCPT
+	Wed, 13 Dec 2006 21:46:48 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:62304 "EHLO
+	vms042pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751892AbWLNCqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 21:12:04 -0500
-Date: Thu, 14 Dec 2006 02:11:56 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Message-ID: <20061214021156.GL4587@ftp.linux.org.uk>
-References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org> <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com> <20061213210219.GA9410@suse.de> <45807182.1060408@mbligh.org> <20061213134721.d8ff8c11.akpm@osdl.org> <f2b55d220612131420l5f956e05qb10ef233670fb588@mail.gmail.com> <20061213235500.1764d85e@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061213235500.1764d85e@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Dec 2006 21:46:47 -0500
+Date: Wed, 13 Dec 2006 21:46:41 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.20-rc1
+In-reply-to: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Message-id: <200612132146.41829.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 11:55:00PM +0000, Alan wrote:
-> > IIRC, Linus has deliberately and explicitly estopped himself from
-> > claiming that loading a binary-only driver is a GPL violation.  Do you
-> 
-> He only owns a small amount of the code. Furthermore he imported third
-> party GPL code using the license as sole permission. So he may have dug a
-> personal hole but many of the rest of us have been repeatedly saying
-> whenever he said that - that we do not agree. The FSF has always said
-> binary modules are wrong and there is FSF code imported into the kernel
-> by Linus on license only grounds.
-> 
-> Whether it is a good idea is a different question.
+On Wednesday 13 December 2006 21:06, Linus Torvalds wrote:
+>Ok, the two-week merge period is over, and -rc1 is out there.
+>
+Ok, one not so silly Q (IMO) from the resident old fart.  I saw, sometime 
+in the past week, a relatively huge ieee1394 update go by.  And I have 
+some issues with the present 2.6.19 version causeing segfaults and kino 
+go-aways when trying to capture from my firewire movie camera.  Problems 
+occur when trying to control the camera from kino.
 
-Wait a bloody minute - the only FSF code in the kernel I know of is from
-libgcc, which does allow linking to non-GPL code.  Is there anything else?
+Is this patchset in this -rc1?  If it is, I'll see if I can get a build to 
+work and check it out.
+
+Thanks.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

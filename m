@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751668AbWLNXQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751856AbWLNXVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751668AbWLNXQH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWLNXQH
+	id S1751856AbWLNXVb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWLNXVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:16:07 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:5060 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751668AbWLNXQD (ORCPT
+	Thu, 14 Dec 2006 18:21:30 -0500
+Received: from mail.velocitynet.com.au ([203.17.154.25]:48914 "EHLO
+	m0.velocity.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751867AbWLNXV2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:16:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FWjNGvG/qbK7LVqgthm9vlR8kGxYVD1LXbL812i2PCab5qIEHHigpaSQ2CLMSbbG7yASc/uD+3cfLdQrXw5Dm1NETHp8RPM9maYgE226gHClAg4HI6nEE2836M+twvsU8vdkbdCVyryECPHbqA9iyElMzkOUmg6B9WlKXuNKA0Q=
-Message-ID: <653402b90612141516w46e4a623u21ba34f9664f392c@mail.gmail.com>
-Date: Fri, 15 Dec 2006 00:16:01 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
-Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+	Thu, 14 Dec 2006 18:21:28 -0500
+Message-ID: <4581DC71.5000503@iinet.net.au>
+Date: Fri, 15 Dec 2006 10:21:21 +1100
+From: Ben Nizette <ben.nizette@iinet.net.au>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Re: [GIT PATCH] more Driver core patches for 2.6.19]
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/13/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+Linus Torvalds wrote:
+> On Thu, 14 Dec 2006, Thomas Gleixner wrote:
+>   
+>> The kernel part of the UIO driver also knows how to shut the interrupt
+>> up, so where is the difference ?
+>>     
 >
->   there are numerous places throughout the source tree that apparently
-> calculate the size of an array using the construct
-> "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
+> Thomas, you've been discussing some totally different and private 
+> Thomas-only thread than everybody else in this thread has been.
 >
->   $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+> The point is NO, THE UIO DRIVER DID NOT KNOW THAT AT ALL. Go and read the 
+> post that STARTED this whole thread. Go and read the "example driver". 
 >
-> but we already have, from "include/linux/kernel.h":
->
->   #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+> The example driver was complete crap and drivel. 
+>   
+OK the example driver was a bad example.  A very bad example.  Writing a
+driver with UIO does involve writing _some_ kernel code, just not much.
+Some of the kernel code you do have to write is the bit of the interrupt
+routine which shuts the device up.  UIO doesn't really move the
+interrupt handling to userspace, more it moves the bottom-half work to
+userspace.  If you are using UIO, a prerequisite is probably that your
+actual interrupt handler code is trivial, all work can be done in this
+form of userspace bottom-half.
 
-Maybe *(x) instead of (x)[0]?
+The example didn't show that, the docco shipped with the UIO patches does.
 
--- 
-Miguel Ojeda
-http://maxextreme.googlepages.com/index.htm
+        Ben.

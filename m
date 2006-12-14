@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751871AbWLNAeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751879AbWLNAel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751871AbWLNAeY (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 19:34:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWLNAeY
+	id S1751879AbWLNAel (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 19:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbWLNAel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 19:34:24 -0500
-Received: from ozlabs.org ([203.10.76.45]:59399 "EHLO ozlabs.org"
+	Wed, 13 Dec 2006 19:34:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:50837 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751871AbWLNAeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 19:34:23 -0500
-X-Greylist: delayed 2124 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 19:34:23 EST
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S1751874AbWLNAej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 19:34:39 -0500
+Subject: Re: [PATCH 0/6] PCI-X/PCI-Express read control interfaces
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061213161734.42821fdf@freekitty>
+References: <20061208182241.786324000@osdl.org>
+	 <1165808912.7260.14.camel@localhost.localdomain>
+	 <20061213161734.42821fdf@freekitty>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 11:34:24 +1100
+Message-Id: <1166056464.11914.249.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17792.37821.279813.601921@cargo.ozlabs.ibm.com>
-Date: Thu, 14 Dec 2006 10:58:53 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, cbe-oss-dev@ozlabs.org,
-       linuxppc-dev@ozlabs.org, linux-mm@kvack.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andy Whitcroft <apw@shadowen.org>,
-       Michael Kravetz <mkravetz@us.ibm.com>, hch@infradead.org,
-       Jeremy Kerr <jk@ozlabs.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Bug: early_pfn_in_nid() called when not early
-In-Reply-To: <20061213231717.GC10708@monkey.ibm.com>
-References: <200612131920.59270.arnd@arndb.de>
-	<20061213231717.GC10708@monkey.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz writes:
 
-> Thanks for the debug work!  Just curious if you really need
-> CONFIG_NODES_SPAN_OTHER_NODES defined for your platform?  Can you get
-> those types of memory layouts?  If not, an easy/immediate fix for you
-> might be to simply turn off the option.
+> I am thinking in the next revision of these of masking the distinction
+> between pci-x and pci express and just have:
+> 
+> pci_get_read_count
+> pci_get_max_read_count
+> pci_set_read_count
 
-We really need CONFIG_NODES_SPAN_OTHER_NODES for pSeries.  Since we
-can build a single kernel binary that runs on both Cell and pSeries,
-the Cell code needs to be able to work with that option turned on.
+We absolutely need an arch hook though to limit the size. We need to
+make sure we don't go over the capabilities of parent bridges,
+especially the host bridge. P2P bridges and most PCIe host bridges can
+be handled by generic code but pretty much no PCI-X host bridge, they'll
+need an arch hook.
 
-Paul.
+Ben.
+
+

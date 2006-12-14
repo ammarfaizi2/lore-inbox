@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751848AbWLNK0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751902AbWLNK07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751848AbWLNK0S (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 05:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWLNK0S
+	id S1751902AbWLNK07 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 05:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWLNK07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 05:26:18 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50536 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751848AbWLNK0R (ORCPT
+	Thu, 14 Dec 2006 05:26:59 -0500
+Received: from web59212.mail.re1.yahoo.com ([66.196.101.38]:27915 "HELO
+	web59212.mail.re1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751902AbWLNK06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 05:26:17 -0500
-Date: Thu, 14 Dec 2006 10:34:35 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 1/1] Char: isicom, remove tty_{hang,wake}up bottomhalves
-Message-ID: <20061214103435.0dfcfa1c@localhost.localdomain>
-In-Reply-To: <16468312961305320785@karneval.cz>
-References: <16468312961305320785@karneval.cz>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 14 Dec 2006 05:26:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=ZgjF/773PTox71o55vBkBPqHl+Q9/jNrJslXLp8GaB2hp4dzCQ4vw2pNCGE9qQNVjeQBXf2I5Jal6nsuCWwg72amuyEIBxtszTPLL080HHsm3/grDMLJ9sz8za0xJP/9dZwaSsw3017r2PN6McrZLUQE9x7KIjy34zCMIVPQA8k=;
+X-YMail-OSG: Er_MzYwVM1mxhIP0ZYX9aMISu1GDrLzJSJvUTomI
+Date: Thu, 14 Dec 2006 02:26:56 -0800 (PST)
+From: tike64 <tike64@yahoo.com>
+Subject: Re: realtime-preempt and arm
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20061214100055.GB19549@elte.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <297400.29698.qm@web59212.mail.re1.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 01:35:17 +0100 (CET)
-Jiri Slaby <jirislaby@gmail.com> wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
+> tike64 <tike64@yahoo.com> wrote:
+> > Ok, understood; I tried this:
+> > 
+> > 	t = raw_timer();
+> > 	ts.tv_nsec = 5000000;
+> > 	ts.tv_sec = 0;
+> > 	nanosleep(&ts, 0);
+> > 	t = raw_timer() - t;
+> > 
+> > It is better but I still see 8ms occasional delays when listing 
+> > nfs-mounted directories onto FB. And, what is funny, also this
+> > version makes the average delay 20ms as if it made the jiffy 20ms.
+> 
+> ARM has no high resolution timers support yet in the -rt tree.
 
-> isicom, remove tty_{hang,wake}up bottomhalves
-> 
-> - tty_hangup() itself schedules work, so there is no need to schedule hangup
->   in the driver
-> - tty_wakeup() its safe to call it while in atomic (IS THIS CORRECT?), so that
->   its schedule_work might be also wiped out
-> 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> 
+Yes, but is there a reason why the -rt patch seems to make the 10ms
+jiffy 20ms and why the jitter is so high. I don't need high resolution
+but reasonable, a couple of milliseconds, jitter.
 
-Acked-by: Alan Cox <alan@redhat.com>
+--
+
+tike
+
+
+
+ 
+____________________________________________________________________________________
+Cheap talk?
+Check out Yahoo! Messenger's low PC-to-Phone call rates.
+http://voice.yahoo.com

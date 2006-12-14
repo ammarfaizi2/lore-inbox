@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932845AbWLNQGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932847AbWLNQHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932845AbWLNQGc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 11:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932846AbWLNQGc
+	id S932847AbWLNQHI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 11:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932846AbWLNQHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 11:06:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53651 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932845AbWLNQGb (ORCPT
+	Thu, 14 Dec 2006 11:07:08 -0500
+Received: from zcars04f.nortel.com ([47.129.242.57]:58037 "EHLO
+	zcars04f.nortel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932847AbWLNQHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 11:06:31 -0500
-Subject: Re: [PATCH] Clarify i386/Kconfig explanation of the HIGHMEM config
-	options
-From: Arjan van de Ven <arjan@infradead.org>
-To: Theodore Tso <tytso@mit.edu>
-Cc: thunder7@xs4all.nl, Franck Pommereau <pommereau@univ-paris12.fr>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061214153754.GD9079@thunk.org>
-References: <458118BB.5050308@univ-paris12.fr>
-	 <1166090244.27217.978.camel@laptopd505.fenrus.org>
-	 <45813E67.80709@univ-paris12.fr>
-	 <1166098747.27217.1018.camel@laptopd505.fenrus.org>
-	 <20061214151745.GC9079@thunk.org> <20061214152721.GA5652@amd64.of.nowhere>
-	 <20061214153754.GD9079@thunk.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 14 Dec 2006 17:06:28 +0100
-Message-Id: <1166112388.27217.1074.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Thu, 14 Dec 2006 11:07:05 -0500
+X-Greylist: delayed 1381 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 11:07:05 EST
+Message-ID: <458170FF.9030801@nortel.com>
+Date: Thu, 14 Dec 2006 09:42:55 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
+       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <20061214051015.GA3506@nostromo.devel.redhat.com> <20061214084820.GA29311@suse.de> <4581595C.7080508@redhat.com>
+In-Reply-To: <4581595C.7080508@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-OriginalArrivalTime: 14 Dec 2006 15:43:11.0406 (UTC) FILETIME=[8F5BC4E0:01C71F96]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-14 at 10:37 -0500, Theodore Tso wrote:
-> > +	  1 Gigabyte or more total physical RAM, answer "off" here.
-> > 
-> 
-> I don't think your proposed wording (1 gigabyte or more) versus (more
-> than 1 gigabyte) doesn't really change the sense of this.
-> 
-> If we want to be even more explicit about this, then if the CPU level
-> selected by the user is greater than Pentium-M (or whatever is was the
-> oldest CPU that didn't have NX support --- Arjan?) 
+Rik van Riel wrote:
 
-later pentium M's do support PAE (for NX). Only the very first ones did
-not. Celerons might not either.. but PPro and later generally have
-pae...
+> Why would users buy a piece of hardware that needs a binary
+> only driver that's unsupportable, when they can buy a similar
+> piece of hardware that has a driver that's upstream and is
+> supported by every single Linux distribution out there?
 
+In my experience it falls into a number of categories:
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+1) The system that requires the binary driver has other hardware on it 
+that is required for the app.
 
+2) The system that requires the binary driver costs significantly less, 
+enough that they decide to bite the bullet on the software support side.
+
+3) The system that requires the binary driver is the *only* one 
+available in the specified form factor with the specified cpu architecture.
+
+4) The team that decides on the hardware is totally divorced from the OS 
+guys, so they don't know/care what is supported by open source drivers 
+in the first place.
+
+Chris

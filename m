@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750795AbWLNTyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751080AbWLNT6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWLNTyf (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 14:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWLNTyf
+	id S1751080AbWLNT6O (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 14:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWLNT6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 14:54:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:51376 "EHLO mx1.redhat.com"
+	Thu, 14 Dec 2006 14:58:14 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52709 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750795AbWLNTye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 14:54:34 -0500
-Date: Thu, 14 Dec 2006 14:53:14 -0500
-From: Bill Nottingham <notting@redhat.com>
+	id S1751080AbWLNT6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 14:58:13 -0500
+Date: Thu, 14 Dec 2006 11:57:14 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: libata-pata with ICH4, rootfs
-Message-ID: <20061214195314.GC10955@nostromo.devel.redhat.com>
-Mail-Followup-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <200612141714.55948.s0348365@sms.ed.ac.uk> <20061214182010.477073a9@localhost.localdomain> <200612141832.50587.s0348365@sms.ed.ac.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>, Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Linux 2.6.20-rc1
+In-Reply-To: <200612141930.19797.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0612141150480.5718@woody.osdl.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+ <200612141930.19797.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612141832.50587.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan (s0348365@sms.ed.ac.uk) said: 
-> > > Is it possible to use pata_mpiix (or pata_oldpiix) with an ICH4 IDE
-> > > controller and boot off it?
-> >
-> > ata_piix (the SATA/PATA driver) deals with the ICH4. pata_mpiix is
-> > specifically for the Intel MPIIX laptop chipset and pata_oldpiix
-> > explicitly for the original PIIX chipset and none of the later ones.
+
+
+On Thu, 14 Dec 2006, Alistair John Strachan wrote:
 > 
-> Correct me if I'm wrong, but SATA wasn't available on ICH4. Only 5 and 
-> greater. The kernel help text agrees with me.
-> 
-> My IDE controller usually works with CONFIG_BLK_DEV_PIIX; I was interested in 
-> using your pata_xxx drivers in replacement, assuming there was support.
+> `hddtemp' has stopped working on 2.6.20-rc1:
 
-pata_xxx is for older PIIX, not ICH4. ICH* is handled by ata_piix, which
-can drive both SATA *and* PATA in the new kernels. In fact:
+Hmm. Can you do the strace on a working kernel too? For example, is it 
+that the 0x30d ioctl (which is HDIO_GET_IDENTITY) used to work? If it's a 
+SATA device, and you _used_ to use the PATA drivers, some of the old 
+IDE-only ioctl's simply don't work when used in native SATA 
+configurations.
 
-[notting@nostromo: ~]$ lspci | grep IDE
-00:1f.1 IDE interface: Intel Corporation 82801DBM (ICH4-M) IDE Controller (rev 01)
-[notting@nostromo: ~]$ dmesg | grep ata
-...
-ata_piix 0000:00:1f.1: version 2.00ac6
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x1860 irq 14
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0x1868 irq 15
-...
-[notting@nostromo: ~]$ uname -r
-2.6.19-1.2839.fc7
+[ Side note: I consider that to be a mis-feature, but it's not a new 
+  regression, it's always been that way: different block subsystems have 
+  had their own "private" ioctl spaces.
 
-Bill
+  We've been moving more and more towards a unified space, and we could 
+  probably make scsi_ioctl.c emulate at least _some_ of the HDIO_xxx calls 
+  too, and try to support all the block ioctl's on all block devices 
+  rather than have some that work only on some certain class of hardware. 
+
+  But we're not there yet, and in the meantime it will actually make a 
+  difference whether you use your disks through the kernel SCSI layer 
+  (SATA and /dev/sdX) or through the IDE layer (IDE and /dev/hdX) ]
+
+On the other hand, this _sounds_ very much like a bug that should have 
+been fixed before 2.6.20-rc1, which affected SG_IO. 
+
+If you can do a "git bisect" on this, that would help a lot.
+
+(Btw, where is "hddtemp" from, anyway? Doesn't seem to be part of the 
+standard set of tools I have on any of my systems)
+
+		Linus

@@ -1,140 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932078AbWLNIsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932080AbWLNIuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWLNIsw (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 03:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWLNIsw
+	id S932080AbWLNIuI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 03:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWLNIuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 03:48:52 -0500
-Received: from ns2.suse.de ([195.135.220.15]:33470 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932078AbWLNIsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 03:48:52 -0500
-Date: Thu, 14 Dec 2006 00:48:20 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061214084820.GA29311@suse.de>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <20061214051015.GA3506@nostromo.devel.redhat.com>
+	Thu, 14 Dec 2006 03:50:08 -0500
+Received: from mail.bencastricum.nl ([213.84.203.196]:55409 "EHLO
+	bencastricum.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932080AbWLNIuG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 03:50:06 -0500
+X-Greylist: delayed 1055 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 03:50:06 EST
+Date: Thu, 14 Dec 2006 09:32:22 +0100 (CET)
+From: Ben Castricum <mail0612@bencastricum.nl>
+X-X-Sender: benc@gateway.bencastricum.nl
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: linux-kernel@vger.kernel.org, gregkh <greg@kroah.com>
+Subject: Re: BUG: unable to handle kernel paging request in 2.6.19-git
+In-Reply-To: <20061212163929.987c6716.randy.dunlap@oracle.com>
+Message-ID: <Pine.LNX.4.58.0612140929400.18009@gateway.bencastricum.nl>
+References: <Pine.LNX.4.58.0612120737130.26641@gateway.bencastricum.nl>
+ <20061212163929.987c6716.randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214051015.GA3506@nostromo.devel.redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 12:10:15AM -0500, Bill Nottingham wrote:
-> 
-> Greg KH (gregkh@suse.de) said: 
-> > An updated version is below.
-> 
-> If you're adding this, you should probably schedule EXPORT_SYMBOL_GPL
-> for removal at the same time, as this essentially renders that irrelevant.
-> 
-> That being said...
-> 
-> First, this is adding the measure at module load time. Any copyright
-> infringment happens on distribution; module load isn't (necessarily)
-> that; if I write random code and load it, without ever sending it
-> to anyone, I'm not violating the license, and this would prevent that.
-> So it seems somewhat misplaced.
 
-Yes, as Linus points out, this is the main point here, my apologies.
-GPL covers distribution, not usage, no matter how much the people
-working on v3 want to change that :)
 
-Even if we change the kernel this way, it prevents valid and legal
-usages of the kernel.  So I am wrong, sorry.
+On Tue, 12 Dec 2006, Randy Dunlap wrote:
 
-> Secondly...
-> 
-> > Oh, and for those who have asked me how we would enforce this after this
-> > date if this decision is made, I'd like to go on record that I will be
-> > glad to take whatever legal means necessary to stop people from
-> > violating this.
-> 
-> There's nothing stopping you undertaking these means now. Addition of
-> this measure doesn't change the copyright status of any code - what was
-> a violation before would still be a violation.
+> On Tue, 12 Dec 2006 07:48:51 +0100 (CET) Ben Castricum wrote:
+>
+> >
+> > This bug started to show up after the release of 2.6.19 (iirc plain 2.6.19
+> > was still working fine).
+> >
+> > The full dmesg is at
+> > http://www.bencastricum.nl/lk/bootmessages-2.6.19-g9202f325.log,
+> > and the .config http://www.bencastricum.nl/lk/config-g9202f325.log
+> >
+> > I haven't tried disabling CONFIG_PCI_MULTITHREAD_PROBE. But if this
+> > might help in someway I'll give it a shot.
+>
+> Yes, it appears to be that config option.  Please disable it
+> and retest and re-report.
 
-Agreed, and I have done this in the past.  I only stated this because it
-seems that some people keep just wishing this whole issue would go away
-if they ignore it.
+As expected, disabling CONFIG_PCI_MULTITHREAD_PROBE causes the bug to
+disappear.
 
-> Hence, the only purpose of a clause like this legally would seem to be
-> to *intentionally* go after people using the DMCA. Which seems... tacky.
+Regards,
+Ben
 
-Despite my wardrobe consisting mainly of old t-shirts and jeans, I still
-never want to be called tacky :)
-
-It's just that I'm so damn tired of this whole thing.  I'm tired of
-people thinking they have a right to violate my copyright all the time.
-I'm tired of people and companies somehow treating our license in ways
-that are blatantly wrong and feeling fine about it.  Because we are a
-loose band of a lot of individuals, and not a company or legal entity,
-it seems to give companies the chutzpah to feel that they can get away
-with violating our license.
-
-So when someone like Andrew gives me the opportunity to put a stop to
-all of the crap that I have to put up with each and every day with a
-tiny 2 line patch, I jumped in and took it.  I need to sit back and
-remember to see the bigger picture some times, so I apologize to
-everyone here.
-
-And yes, it is crap that I deal with every day due to the lovely grey
-area that is Linux kernel module licensing these days.  I have customers
-that demand we support them despite them mixing three and more different
-closed source kernel modules at once and getting upset that I have no
-way to help them out.  I have loony video tweakers that hand edit kernel
-oopses to try to hide the fact that they are using a binary module
-bigger than the sum of the whole kernel and demand that our group fix
-their suspend/resume issue for them.  I see executives who say one thing
-to the community and then turn around and overrule them just because
-someone made a horrible purchasing decision on the brand of laptop wifi
-card that they purchased.  I see lawyers who have their hands tied by
-attorney-client rules and can not speak out in public for how they
-really feel about licenses and how to interpret them.
-
-And in the midst of all of that are the poor users who have no idea who
-to listen to.  They don't know what is going on, they "just want to use
-their hardware" and don't give a damm about anyone's license.  And then
-there's the distros out there that listen to those users and give them
-the working distro as they see a market for it, and again, as a company,
-justify to themselves that it must be ok to violate those kernel
-developers rights because no one seems to be stopping them so far.
-
-[side diversion, it's not the video drivers that really matter here
-everyone, those are just so obvious.  It's the hundreds of other
-blatantly infringing binary kernel modules out there that really matter.
-The ones that control filesystems, cluster interconnects, disk arrays,
-media codecs, and a whole host of custom hardware.  That's the real
-problem that Linux faces now and will only get worse in the future.
-It's not two stupid little video drivers, I could honestly care less
-about them...]
-
-But it's all part of the process, and I can live with it, even if at
-times it drives me crazy.
-
-But I know we will succeed, it will just take us a little longer to get
-there, so I might as well learn to enjoy the view more.
-
-Even though I really think I can get that patch by the Novell lawyers
-and convince management there that it is something we can do, it's not
-something that I want to take on, as I think my time can be better spent
-coding to advance Linux technically, not fight legal battles.
-
-I'll go delete that module.c patch from my tree now.
-
-thanks,
-
-greg k-h
-
-p.s. I still think the UIO interface is a valid and good one.  And yes,
-it might cause people to move stuff to userspace that they really should
-not be just to get around the GPL issues.  But like loots of tools, it
-can be used in good and bad ways, we shouldn't prevent the good usages
-of it.  I'll work to get more real examples using it before
-resubmitting.
+>
+>
+> > Thanks,
+> > Ben
+> >
+> > e100: Intel(R) PRO/100 Network Driver, 3.5.17-k2-NAPI
+> > e100: Copyright(c) 1999-2006 Intel Corporation
+> > BUG: unable to handle kernel paging request at virtual address d880a000
+> >  printing eip:
+> > d880a000
+> > *pde = 01382067
+> > *pte = 00000000
+> > Oops: 0000 [#1]
+> > Modules linked in: e100 mii ext2 unix
+> > CPU:    0
+> > EIP:    0060:[<d880a000>]    Not tainted VLI
+> > EFLAGS: 00010282   (2.6.19-g9202f325 #15)
+> > EIP is at 0xd880a000
+> > eax: c13c9000   ebx: d8876fe0   ecx: d8876470   edx: d8876470
+> > esi: d8876fe0   edi: ffffffed   ebp: d8877014   esp: d7a15f7c
+> > ds: 007b   es: 007b   ss: 0068
+> > Process probe-0000:00:0 (pid: 72, ti=d7a14000 task=d7828560
+> > task.ti=d7a14000)
+> > Stack: c01b009a c13c9000 c01b00ec d8876fe0 c13c9000 00000000 c01b0126
+> > c13c9048
+> >        d7821560 c0205b27 d7821560 00001fcc 6ab5e081 00004ada d7acded0
+> > d7821560
+> >        c0205aa0 fffffffc c0128186 00000001 ffffffff ffffffff c01280d0
+> > 00000000
+> > Call Trace:
+> >  [<c01b009a>] pci_call_probe+0xa/0x10
+> >  [<c01b00ec>] __pci_device_probe+0x4c/0x60
+> >  [<c01b0126>] pci_device_probe+0x26/0x50
+> >  [<c0205b27>] really_probe+0x87/0x100
+> >  [<c0205aa0>] really_probe+0x0/0x100
+> >  [<c0128186>] kthread+0xb6/0xc0
+> >  [<c01280d0>] kthread+0x0/0xc0
+> >  [<c0103963>] kernel_thread_helper+0x7/0x14
+> >  =======================
+> > Code:  Bad EIP value.
+> > EIP: [<d880a000>] 0xd880a000 SS:ESP 0068:d7a15f7c
+>
+> ---
+> ~Randy
+>

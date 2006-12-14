@@ -1,62 +1,116 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964882AbWLNWVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964865AbWLNWXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWLNWVr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 17:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWLNWVr
+	id S964865AbWLNWXX (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 17:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWLNWXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 17:21:47 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:39204 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964882AbWLNWVq (ORCPT
+	Thu, 14 Dec 2006 17:23:22 -0500
+Received: from smtp-server.carlislefsp.com ([12.28.84.26]:46996 "EHLO
+	smtp-server.carlislefsp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964865AbWLNWXW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 17:21:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=A05fFi/7iI/4S+8lCJh2MesOV8zO2bSrR0coG7tD2O1B+vP8wH3ekbpsP+tgaiwiSY/s6djGCImO/Od05iqdiGjEbceQBU/n5HPO7y1ic4BgxX4jFLqyguW4758reyCkps1zaesduNPDBc4Sb/dMGA/4P2kwJ8arL4gQrGk/B54=
-Message-ID: <21d7e9970612141421o79a47705i8a87adbdcbf8b3a9@mail.gmail.com>
-Date: Fri, 15 Dec 2006 09:21:45 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, "Rik van Riel" <riel@redhat.com>,
-       "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
-       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4581726B.9050006@garzik.org>
+	Thu, 14 Dec 2006 17:23:22 -0500
+X-Archive-Filename: imail11661350006917070 
+X-Qmail-Scanner-Mail-From: stever@carlislefsp.com via imail
+X-Qmail-Scanner: 1.24st (Clear:RC:1(10.10.3.184):. Processed in 0.03556 secs Process 7070)
+Message-ID: <4581CE94.5000900@carlislefsp.com>
+Date: Thu, 14 Dec 2006 16:22:12 -0600
+From: Steve Roemen <stever@carlislefsp.com>
+Reply-To: stever@carlislefsp.com
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+CC: "Frazier, Daniel Kent" <daniel_frazier@hp.com>,
+       Jens Axboe <jens.axboe@oracle.com>, LKML <linux-kernel@vger.kernel.org>,
+       ISS StorageDev <iss_storagedev@hp.com>
+Subject: Re: 2.6.19-git20 cciss: cmd f7b00000 timedout
+References: <E717642AF17E744CA95C070CA815AE55F6F0C3@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <E717642AF17E744CA95C070CA815AE55F6F0C3@cceexc23.americas.cpqcorp.net>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
-	 <20061214005532.GA12790@suse.de>
-	 <20061214051015.GA3506@nostromo.devel.redhat.com>
-	 <20061214084820.GA29311@suse.de> <4581595C.7080508@redhat.com>
-	 <20061214154734.189a23c6@localhost.localdomain>
-	 <4581726B.9050006@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/15/06, Jeff Garzik <jeff@garzik.org> wrote:
-> Alan wrote:
-> > Another thing we should do more is aggressively merge prototype open
-> > drivers for binary only hardware - lets get Nouveau's DRM bits into the
-> > kernel ASAP for example.
->
-> ACK++  We should definitely push Nouveau[1] as hard as we can.
->
->         Jeff
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It'll get in when the developers feel it is at a stage where it can be
-supported, at the moment (I'm not speaking for all the nouveau team
-only my own opinion) the API isn't stable and putting it into the
-kernel only means we've declared the API supportable, I know in theory
-marking it EXPERIMENTAL might work, in practice it will just cause us
-headaches at this stage, there isn't enough knowledgeable developers
-working on it both support users and continue development at a decent
-rate, so mainly ppl are concentrating on development until it can at
-least play Q3, and for me dualhead on my G5 :-)
+Yes,  32bit Debian
 
-Dave.
+Miller, Mike (OS Dev) wrote:
+> 
+>
+>> -----Original Message-----
+>> From: Frazier, Daniel Kent
+>> Sent: Thursday, December 14, 2006 3:12 PM
+>> To: Miller, Mike (OS Dev)
+>> Cc: Jens Axboe; Steve Roemen; LKML; ISS StorageDev
+>> Subject: Re: 2.6.19-git20 cciss: cmd f7b00000 timedout
+>>
+>> On Thu, Dec 14, 2006 at 01:44:34PM -0600, Miller, Mike (OS Dev) wrote:
+>>> 
+>>>
+>>>> -----Original Message-----
+>>>> From: Jens Axboe [mailto:jens.axboe@oracle.com]
+>>>> Sent: Thursday, December 14, 2006 12:51 PM
+>>>> To: Steve Roemen
+>>>> Cc: LKML; ISS StorageDev; Miller, Mike (OS Dev)
+>>>> Subject: Re: 2.6.19-git20 cciss: cmd f7b00000 timedout
+>>>>
+>>>> On Thu, Dec 14 2006, Steve Roemen wrote:
+>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>> Hash: SHA1
+>>>>>
+>>>>> All,
+>>>>>     I tried out the 2.6.19-git20 kernel on one of my
+>> machines (HP
+>>>>> DL380 G3) that has the on board 5i controller (disabled),
+>>>>> 2 smart array 642 controllers.
+>>>>>
+>>>>> I get the error (cciss: cmd f7b00000 timedout) with Buffer
+>>>> I/O error
+>>>>> on device cciss/c (all cards, and disks) logical block 0, 1, 2,
+>>>>> etc
+>>>> I saw this on another box, but it works on the ones that I have.
+>>>> Does
+>>>> 2.6.19 work? Any chance you can try and narrow down when it broke?
+>>> Jens/Steve:
+>>> We also encountered a time out issue on the 642. This one
+>> is connected
+>>> to an MSA500. Do either of you have MSA500? What controller
+>> fw are you
+>>> running? Check /proc/driver/cciss/ccissN.
+>> fyi, we've been seeing this in Debian too (which is why Mike
+>> added me to the CC list), and I've narrowed it down to the
+>> 2TB patch that went into 2.6.19:
+>>   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=402787
+>
+> Hmmmm. Dann, did you see this on 32-bit Debian? I have this running in
+> the lab on x86_64 and ia64. Someone else was _supposed_ to test ia32 for
+> me. Dammit.
+>
+> Jens/Steve:
+> Are your os'es 32-bit?
+>
+> mikem
+>
+>
+>> --
+>
+>
+>> dann frazier | HP Open Source and Linux Organization
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFgc6UcA4cgQlZoQ8RAnRHAKDRshyyEIJTECKRTe/ghkNNkC8a0QCfQYnO
+To0nPyou9F3OWbyxzTnZ5JU=
+=0z54
+-----END PGP SIGNATURE-----
+

@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751952AbWLNSWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751966AbWLNSXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751952AbWLNSWH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 13:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWLNSWH
+	id S1751966AbWLNSXN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 13:23:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751969AbWLNSXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 13:22:07 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:46696 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751956AbWLNSWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 13:22:06 -0500
-Date: Thu, 14 Dec 2006 19:09:51 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-In-Reply-To: <20061214175253.GB12498@tuatara.stupidest.org>
-Message-ID: <Pine.LNX.4.61.0612141907450.12730@yvahk01.tjqt.qr>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
- <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
- <458171C1.3070400@garzik.org> <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
- <20061214170841.GA11196@tuatara.stupidest.org> <20061214173827.GC3452@infradead.org>
- <20061214175253.GB12498@tuatara.stupidest.org>
+	Thu, 14 Dec 2006 13:23:13 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:16217 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751966AbWLNSXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 13:23:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=atnh046gcOirouyuDwga4A96HHIF/5o9I1W4qSd0c0iCj5K+rwDijP+93bA2ivIRteTqDM7JafdZTWdwiA7/B50VqVoSsTqTHBzh0IJV16F1LIZrhsyl+dbVqXXJ0tOsujPoujCAY5IJSHTdg6OZyVwNWjw36BkBNKG0QVoVfkk=
+Message-ID: <e6babb600612141023g5fd73b8bi89282b8c3008522b@mail.gmail.com>
+Date: Thu, 14 Dec 2006 11:23:11 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Subject: Re: isochronous receives?
+Cc: "Keith Curtis" <Keith.Curtis@digeo.com>,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <45804615.3060004@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <DD2010E58E069B40886650EE617FCC0CBA8EC9@digeo-mail1.digeo.com>
+	 <e6babb600612130630y341aaadehb0436ade65ea6f7d@mail.gmail.com>
+	 <45804615.3060004@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Dec 14 2006 09:52, Chris Wedgwood wrote:
->On Thu, Dec 14, 2006 at 05:38:27PM +0000, Christoph Hellwig wrote:
+On 12/13/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> How about leaving ohci1394 as it is but document tag_mask better in
+> libraw1394's inline doxygen(?) comments, and maybe add an enum or macros
+> to be used as values of raw1394_iso_recv_start's tag_mask argument?
 >
->> Yes, EXPORT_SYMBOL_INTERNAL would make a lot more sense.
->
->A quick grep shows that changing this now would require updating
->nearly 1900 instances, so patches to do this would be pretty large and
->disruptive (though we could support both during a transition and
->migrate them over time).
+> /* can be ORed together */
+> #define RAW1394_IR_MATCH_TAG_0       1
+> #define RAW1394_IR_MATCH_TAG_1       2
+> #define RAW1394_IR_MATCH_TAG_2       4
+> #define RAW1394_IR_MATCH_TAG_3       8
+> #define RAW1394_IR_MATCH_ALL_TAGS   -1
 
-I'd prefer to do it at once. But that's not my decision so you anyway do what
-you want.
+Yeah, that's definitely much better.  I guess this would go in
+libraw1394's raw1394.h?  Similar to:
 
-That said, I would like to keep EXPORT_SYMBOL_GPL, because EXPORT and INTERNAL
-is somehow contrary. Just a wording issue.
+--- raw1394.h   2006-11-29 11:54:56.000000000 -0700
++++ raw1394_modified.h  2006-12-14 11:20:57.000000000 -0700
+@@ -40,6 +40,14 @@
+ #define RAW1394_RCODE_TYPE_ERROR         0x6
+ #define RAW1394_RCODE_ADDRESS_ERROR      0x7
 
-	-`J'
++/* can be ORed together */
++#define RAW1394_IR_MATCH_TAG_0          0x1
++#define RAW1394_IR_MATCH_TAG_1          0x2
++#define RAW1394_IR_MATCH_TAG_2          0x4
++#define RAW1394_IR_MATCH_TAG_3          0x8
++#define RAW1394_IR_MATCH_ALL_TAGS       -1
++#define RAW1394_IR_MATCH_TAG(tag)       (1 << (tag))
++
+ typedef u_int8_t  byte_t;
+ typedef u_int32_t quadlet_t;
+ typedef u_int64_t octlet_t;
+@@ -273,7 +281,9 @@
+  * @handle: libraw1394 handle
+  * @start_on_cycle: isochronous cycle number on which to start
+  * (-1 if you don't care)
+- * @tag_mask: mask of tag fields to match (-1 to receive all packets)
++ * @tag_mask: mask of tag fields to match.  Use the RAW1394_IR_MATCH_*
++ * values for this rather than the literal tag bits: the values are not
++ * equivalent.
+  * @sync: not used, reserved for future implementation
+  *
+  * Returns: 0 on success or -1 on failure (sets errno)
+
+??
+
 -- 
+Robert Crocombe
+rcrocomb@gmail.com

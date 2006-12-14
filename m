@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751979AbWLNXvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752010AbWLNXvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751979AbWLNXvX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752006AbWLNXvX
+	id S1752010AbWLNXvo (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWLNXvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:51:23 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:60916 "EHLO mx2.suse.de"
+	Thu, 14 Dec 2006 18:51:44 -0500
+Received: from mga02.intel.com ([134.134.136.20]:45810 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751979AbWLNXvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:51:22 -0500
-Date: Thu, 14 Dec 2006 15:50:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-mm1: gotemp: memset(..., 0) error
-Message-ID: <20061214235059.GA11375@kroah.com>
-References: <20061211005807.f220b81c.akpm@osdl.org> <20061213130559.GD3851@stusta.de>
+	id S1752010AbWLNXvn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 18:51:43 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,171,1165219200"; 
+   d="scan'208"; a="174676836:sNHT33272302"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061213130559.GD3851@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: kref refcnt and false positives
+Date: Thu, 14 Dec 2006 15:51:38 -0800
+Message-ID: <EB12A50964762B4D8111D55B764A8454010572C1@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kref refcnt and false positives
+Thread-Index: AccfVYqhGE0ngqJjSmmanwoF4T3whQAhOlGA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Eric Dumazet" <dada1@cosmosbay.com>, "Andrew Morton" <akpm@osdl.org>
+Cc: "Greg KH" <gregkh@suse.de>, "Arjan" <arjan@linux.intel.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+X-OriginalArrivalTime: 14 Dec 2006 23:51:39.0972 (UTC) FILETIME=[CCA00840:01C71FDA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2006 at 02:05:59PM +0100, Adrian Bunk wrote:
-> <--  snip  -->
-> 
-> ...
-> NOT FOR MAINLINE!
-> 
-> This is for the driver tutorial I give.  It will not be included in the
-> mainline kernel tree ever.  Use the ldusb driver that is already there
-> instead for this device.
-> 
-> This is only a teaching tool.
-> ...
-> +       pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC);
-> +       if (!pkt)
-> +               return -ENOMEM;
-> +       memset(pkt, sizeof(*pkt), 0x00);
-> ...
-> 
-> <--  snip  -->
-> 
-> 
-> Lesson 1:
-> Write an USB driver.
-> 
-> Lesson 2:
-> Correct the memset() argument order or use kzalloc().
+ 
 
-Heh, thanks, I've now fixed that up in my tree.
+>-----Original Message-----
+>From: Eric Dumazet [mailto:dada1@cosmosbay.com] 
+>Sent: Wednesday, December 13, 2006 11:57 PM
+>To: Andrew Morton
+>Cc: Greg KH; Pallipadi, Venkatesh; Arjan; linux-kernel; Eric 
+>W. Biederman
+>Subject: Re: kref refcnt and false positives
+>
+>
+>I agree this 'optimization' is not "good" (I was the guy who 
+>suggested it 
+>http://lkml.org/lkml/2006/1/30/4 )
+>
+>After Eric Biederman message 
+>(http://lkml.org/lkml/2006/1/30/292) I remember 
+>adding some stat counters and telling Greg to not put the 
+>patch in because 
+>kref_put() was mostly called with refcount=1. But the patch 
+>did its way. I 
+>*did* ask Greg to revert it, but cannot find this mail 
+>archived somewhere...
+>
+>But I believe Venkatesh problem comes from its release() 
+>function : It is 
+>supposed to free the object.
+>If not, it should properly setup it so that further uses are OK.
+>
+>ie doing in release(kref)
+>atomic_set(&kref->count, 0);
+>
 
-greg k-h
+Agreed that setting kref refcnt to 0 in release will solve the probloem.
+But, once the optimization code is removed, we don't need to set it to
+zero as release will only be called after the count reaches zero anyway.
+
+Thanks,
+Venki

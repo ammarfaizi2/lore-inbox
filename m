@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932108AbWLNJKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932111AbWLNJL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWLNJKw (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 04:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWLNJKw
+	id S932111AbWLNJL6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 04:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWLNJL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 04:10:52 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33897 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932110AbWLNJKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 04:10:50 -0500
-Date: Thu, 14 Dec 2006 01:10:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
-Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
-Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
-Message-Id: <20061214011042.7b279be6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl>
-References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
-	<20061130212248.1b49bd32.akpm@osdl.org>
-	<Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
-	<Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
-	<Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl>
-	<20061206074008.2f308b2b.akpm@osdl.org>
-	<Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
-	<Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
-	<Pine.LNX.4.58.0612140912010.30202@jdi.jdi-ict.nl>
-	<20061214004213.13149a48.akpm@osdl.org>
-	<Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 14 Dec 2006 04:11:58 -0500
+Received: from www.osadl.org ([213.239.205.134]:37673 "EHLO mail.tglx.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932111AbWLNJL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 04:11:57 -0500
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061213235601.2a565229@localhost.localdomain>
+References: <20061213195226.GA6736@kroah.com>
+	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+	 <1166044471.11914.195.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0612131323380.5718@woody.osdl.org>
+	 <1166048081.11914.208.camel@localhost.localdomain>
+	 <1166049055.29505.47.camel@localhost.localdomain>
+	 <20061213235601.2a565229@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 10:15:41 +0100
+Message-Id: <1166087742.29505.79.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 09:55:38 +0100 (CET)
-Igmar Palsenberg <i.palsenberg@jdi-ict.nl> wrote:
-
+On Wed, 2006-12-13 at 23:56 +0000, Alan wrote:
+> On Wed, 13 Dec 2006 23:30:55 +0100
+> Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
-> > > Hmm.. Switching CONFIG_HZ from 1000 to 250 seems to 'fix' the problem. 
-> > > I haven't seen the issue in nearly a week now. This makes Andrew's theory 
-> > > about missing interrupts very likely.
-> > > 
-> > > Andrew / others : Is there a way to find out if it *is* missing 
-> > > interrupts ?
-> > > 
-> > 
-> > umm, nasty.  What's in /proc/interrupts?
+> > - IRQ happens
+> > - kernel handler runs and masks the chip irq, which removes the IRQ
+> > request
 > 
-> See below. The other machine is mostly identifical, except for i8042 
-> missing (probably due to running an older kernel, or small differences in 
-> the kernel config).
-> 
+> IRQ is shared with the disk driver, box dead.
 
-Does the other machine have the same problems?
+Err ? 
 
-Are you able to rule out a hardware failure?
+IRQ happens
 
-> [jdiict@lnx01 ~]$ cat /proc/interrupts
->            CPU0       CPU1
->   0:   73702693   74509271   IO-APIC-edge      timer
->   1:          1          1   IO-APIC-edge      i8042
->   4:       2289       8389   IO-APIC-edge      serial
->   8:          0          1   IO-APIC-edge      rtc
->   9:          0          0   IO-APIC-fasteoi   acpi
->  12:          3          1   IO-APIC-edge      i8042
->  16:  203127788          0   IO-APIC-fasteoi   uhci_hcd:usb2, eth0
->  17:        525        492   IO-APIC-fasteoi   uhci_hcd:usb4
->  18:   13000070   67584889   IO-APIC-fasteoi   arcmsr
->  19:          0          0   IO-APIC-fasteoi   ehci_hcd:usb1
->  20:          0          0   IO-APIC-fasteoi   uhci_hcd:usb3
-> NMI:          0          0
-> LOC:  148127756  148133476
-> ERR:          0
-> MIS:          0
+IRQ is disabled by the generic handling code
 
-The disk interrupt is unshared, which rules out a few software problems, I
-guess.
+Handler is invoked and checks, whether the irq is from the device or
+not. 
+ - If not, it returns IRQ_NONE, so the next driver (e.g. disk) is
+invoked.
+ - If yes, it masks the chip on the device, which disables the chip
+interrupt line and returns IRQ_HANDLED.
+
+In both cases the IRQ gets reenabled from the generic irq handling code
+on return, so why is the box dead ?
+
+	tglx
+
 

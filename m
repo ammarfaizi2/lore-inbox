@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752018AbWLNXyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751999AbWLNXzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752018AbWLNXyU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWLNXyU
+	id S1751999AbWLNXzx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWLNXzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:54:20 -0500
-Received: from an-out-0708.google.com ([209.85.132.240]:50238 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752018AbWLNXyT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:54:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Y0yvGAzcIvJUuUSlN3MlJdfhNSB1QrYaoBV80woR9qwF67ZHEpfyN3v2JRLTbeYcp2ILIWTYWi0148VaUnwvKsvIfKF5mSmJqEHQ2J6U1wCTRYDFvac5LUGu6JHK+gRZbcW1m3ZRNDZirb9WXshXiWxFRmPhLHiYKA/uOMkM2R4=
-Message-ID: <7b69d1470612141554n45070e37wc8ecc019b34a5bb@mail.gmail.com>
-Date: Thu, 14 Dec 2006 17:54:17 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Randy Dunlap" <randy.dunlap@oracle.com>
-Subject: Re: [PATCH/RFC] CodingStyle updates
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jesper.juhl@gmail.com
-In-Reply-To: <4581E192.3010108@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
-	 <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
-	 <4581E192.3010108@oracle.com>
+	Thu, 14 Dec 2006 18:55:53 -0500
+Received: from mx.laposte.net ([81.255.54.11]:10786 "EHLO mx.laposte.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751999AbWLNXzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 18:55:52 -0500
+X-Greylist: delayed 1298 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 18:55:52 EST
+Subject: Re: Linux 2.6.20-rc1
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4581DCA4.2010800@garzik.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+	 <200612141930.19797.s0348365@sms.ed.ac.uk>
+	 <loom.20061214T213058-9@post.gmane.org>  <4581DCA4.2010800@garzik.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oOPT5JGoVXCsf196dvI7"
+Organization: Adresse perso
+Date: Fri, 15 Dec 2006 00:33:59 +0100
+Message-Id: <1166139239.32306.4.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.9.2 (2.9.2-3.fc7) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/06, Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> Scott Preece wrote:
-> [1]
-> >>  Outside of comments, documentation and except in Kconfig, spaces are
-> >> never
-> >>  used for indentation, and the above example is deliberately broken.
-> > ---
-> >
-> > I realize it isn't text you added, but what's that supposed to mean?
-> > Surely the 8-character indents are made up of spaces.  Does it mean
->
-> No, the 8-character indents are made of one ASCII TAB character.
-----
 
-Probably should say so, then. As it is, the only way to figure that
-out (other than loking at code (:)) is to infer it from the .emacs
-example, which doesn't come until 8 chapters later in the document.
+--=-oOPT5JGoVXCsf196dvI7
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Maybe:
+Le jeudi 14 d=C3=A9cembre 2006 =C3=A0 18:22 -0500, Jeff Garzik a =C3=A9crit=
+ :
+> Nicolas Mailhot wrote:
+> > Alistair John Strachan <s0348365 <at> sms.ed.ac.uk> writes:
+> >=20
+> >> `hddtemp' has stopped working on 2.6.20-rc1:
+> >=20
+> > =E2=86=92 http://bugzilla.kernel.org/show_bug.cgi?id=3D7581
+>=20
+> I'm not sure I quite follow your bug report.  Are you saying that the=20
+> patch you attached causes the problem?
 
-Outside of comments, documentation, and Kconfig, use TAB characters
-for indentation. Spaces are never used for indentation, and the above
-example is deliberately broken in several ways, including use of
-spaces.
+No, I'm saying the hddtemp breakage people report against 2.6.20-rc1
+also occurred between 2.6.19-rc5-mm2 and 2.6.19-rc6-mm1, as reported in
+this bug.
 
-scott
+Also this system sports two different (S)ATA controllers (SiI 3114 and
+CK804), disks on both stopped reporting temp at the same time so the
+change is not chipset-specific
+
+--=20
+Nicolas Mailhot
+
+--=-oOPT5JGoVXCsf196dvI7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iEYEABECAAYFAkWB32cACgkQI2bVKDsp8g1rcgCgv1U4Gxhx3UHwLur+EatDSA16
+zMEAoMN4/8U1ofmjSswu7KxP7Tx936tG
+=TXcW
+-----END PGP SIGNATURE-----
+
+--=-oOPT5JGoVXCsf196dvI7--

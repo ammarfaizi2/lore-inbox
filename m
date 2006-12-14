@@ -1,26 +1,32 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932107AbWLNJI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932108AbWLNJKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWLNJI6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 04:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWLNJI6
+	id S932108AbWLNJKw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 04:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWLNJKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 04:08:58 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33809 "EHLO smtp.osdl.org"
+	Thu, 14 Dec 2006 04:10:52 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:33897 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932107AbWLNJI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 04:08:56 -0500
-Date: Thu, 14 Dec 2006 01:08:48 -0800
+	id S932110AbWLNJKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 04:10:50 -0500
+Date: Thu, 14 Dec 2006 01:10:42 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Ben Collins <ben.collins@ubuntu.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc1] ib_verbs: Use explicit if-else statements to
- avoid errors with do-while macros
-Message-Id: <20061214010848.6fbb920f.akpm@osdl.org>
-In-Reply-To: <20061214065624.GN4587@ftp.linux.org.uk>
-References: <1166065805.6748.135.camel@gullible>
-	<20061214064430.GM4587@ftp.linux.org.uk>
-	<20061214065624.GN4587@ftp.linux.org.uk>
+To: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
+Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
+Message-Id: <20061214011042.7b279be6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl>
+References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
+	<20061130212248.1b49bd32.akpm@osdl.org>
+	<Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
+	<Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
+	<Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl>
+	<20061206074008.2f308b2b.akpm@osdl.org>
+	<Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
+	<Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
+	<Pine.LNX.4.58.0612140912010.30202@jdi.jdi-ict.nl>
+	<20061214004213.13149a48.akpm@osdl.org>
+	<Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,80 +34,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 06:56:24 +0000
-Al Viro <viro@ftp.linux.org.uk> wrote:
+On Thu, 14 Dec 2006 09:55:38 +0100 (CET)
+Igmar Palsenberg <i.palsenberg@jdi-ict.nl> wrote:
 
-> On Thu, Dec 14, 2006 at 06:44:30AM +0000, Al Viro wrote:
-> > On Wed, Dec 13, 2006 at 10:10:05PM -0500, Ben Collins wrote:
-> > > At least on PPC, the "op ? op : dma" construct causes a compile failure
-> > > because the dma_* is a do{}while(0) macro.
+> 
+> > > Hmm.. Switching CONFIG_HZ from 1000 to 250 seems to 'fix' the problem. 
+> > > I haven't seen the issue in nearly a week now. This makes Andrew's theory 
+> > > about missing interrupts very likely.
 > > > 
-> > > This turns all of them into proper if/else to avoid this problem.
+> > > Andrew / others : Is there a way to find out if it *is* missing 
+> > > interrupts ?
+> > > 
 > > 
-> > NAK.
-> > 
-> > Proper fix is to kill stupid do { } while (0) mess.  It's supposed
-> > to behave like a function returning void, so it should be ((void)0).
+> > umm, nasty.  What's in /proc/interrupts?
 > 
-> BTW, even though the original patch is already merged, I think that
-> we ought to get rid of do-while in such stubs, exactly to avoid such
-> problems in the future.  Probably even add to CodingStyle - it's not
-> the first time such crap happens.
+> See below. The other machine is mostly identifical, except for i8042 
+> missing (probably due to running an older kernel, or small differences in 
+> the kernel config).
 > 
-> IOW, do ; while(0) / do { } while (0)  is not a proper way to do a macro
-> that imitates a function returning void.
-> 
-> Objections?
 
-Would prefer static inline void foo(args){} when possible - for the arg
-typechecking and arg existence checking and unused variable warnings.
+Does the other machine have the same problems?
 
-I end up having to do rather a lot of things like this:
+Are you able to rule out a hardware failure?
 
---- a/mm/vmalloc.c~virtual-memmap-on-sparsemem-v3-map-and-unmap-fix-2
-+++ a/mm/vmalloc.c
-@@ -929,6 +929,6 @@ int unmap_generic_kernel(unsigned long a
- 		if (err)
- 			break;
- 	} while (pgd++, addr = next, addr != end);
--	flush_tlb_kernel_range((unsigned long)start_addr, end_addr);
-+	flush_tlb_kernel_range(addr, addr);
- 	return err;
- }
+> [jdiict@lnx01 ~]$ cat /proc/interrupts
+>            CPU0       CPU1
+>   0:   73702693   74509271   IO-APIC-edge      timer
+>   1:          1          1   IO-APIC-edge      i8042
+>   4:       2289       8389   IO-APIC-edge      serial
+>   8:          0          1   IO-APIC-edge      rtc
+>   9:          0          0   IO-APIC-fasteoi   acpi
+>  12:          3          1   IO-APIC-edge      i8042
+>  16:  203127788          0   IO-APIC-fasteoi   uhci_hcd:usb2, eth0
+>  17:        525        492   IO-APIC-fasteoi   uhci_hcd:usb4
+>  18:   13000070   67584889   IO-APIC-fasteoi   arcmsr
+>  19:          0          0   IO-APIC-fasteoi   ehci_hcd:usb1
+>  20:          0          0   IO-APIC-fasteoi   uhci_hcd:usb3
+> NMI:          0          0
+> LOC:  148127756  148133476
+> ERR:          0
+> MIS:          0
 
+The disk interrupt is unshared, which rules out a few software problems, I
+guess.
 
-and this:
-
-
-@@ -85,12 +84,24 @@ extern void vm_events_fold_cpu(int cpu);
- #else
- 
- /* Disable counters */
--#define get_cpu_vm_events(e)	0L
--#define count_vm_event(e)	do { } while (0)
--#define count_vm_events(e,d)	do { } while (0)
--#define __count_vm_event(e)	do { } while (0)
--#define __count_vm_events(e,d)	do { } while (0)
--#define vm_events_fold_cpu(x)	do { } while (0)
-+static inline void count_vm_event(enum vm_event_item item)
-+{
-+}
-+static inline void count_vm_events(enum vm_event_item item, long delta)
-+{
-+}
-+static inline void __count_vm_event(enum vm_event_item item)
-+{
-+}
-+static inline void __count_vm_events(enum vm_event_item item, long delta)
-+{
-+}
-+static inline void all_vm_events(unsigned long *ret)
-+{
-+}
-+static inline void vm_events_fold_cpu(int cpu)
-+{
-+}
-
-because of these problems.
-
-Plus macros are putrid.

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932811AbWLNPqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932820AbWLNPsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932811AbWLNPqY (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:46:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932817AbWLNPqY
+	id S932820AbWLNPsL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWLNPsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:46:24 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:47301 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932811AbWLNPqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:46:24 -0500
-Message-ID: <458171C1.3070400@garzik.org>
-Date: Thu, 14 Dec 2006 10:46:09 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 14 Dec 2006 10:48:10 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:53232 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932820AbWLNPsI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:48:08 -0500
+X-Greylist: delayed 2510 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:48:08 EST
+Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to
+	ieee80211softmac_assoc_work
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Michael Bommarito <mjbommar@umich.edu>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
+References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1dJt2Ny4W+ooYdMe3982"
+Date: Thu, 14 Dec 2006 16:06:40 +0100
+Message-Id: <1166108800.3161.11.camel@johannes.berg>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Because I think it's stupid. So use somebody else than me to push your 
-> political agendas, please.
 
+--=-1dJt2Ny4W+ooYdMe3982
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-ACK, I agree completely.  I think its a silly, political, non-technical 
-decision being pushed here.
+On Wed, 2006-12-13 at 13:17 -0500, Michael Bommarito wrote:
 
-For the record, I also disagree with the sneaky backdoor way people want 
-to add EXPORT_SYMBOL_GPL() to key subsystems that drivers will need. 
-EXPORT_SYMBOL_GPL() is more to emphasize that certain symbols are more 
-'internal' or frequently changed, and therefore use of them would imply 
-you are using a derived work of the kernel.  EXPORT_SYMBOL_GPL() is 
-/not/ a place for political activism either.
+> Attached is a patch that fixes this (the actual change is two lines
+> but context provided in patch for review).  The dmesg containing call
+> trace is attached to the bugzilla entry above.
 
-	Jeff
+You forgot to attach the patch but IIRC it's been found and fixed
+already.
 
+johannes
+
+--=-1dJt2Ny4W+ooYdMe3982
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iD4DBQBFgWiA/ETPhpq3jKURAmMKAJjs76OLuHAEKBoOBR7cP6z3pmcGAJ0WXjAC
+VXTTqCmp2EiE/QlQhyqkSw==
+=I/8J
+-----END PGP SIGNATURE-----
+
+--=-1dJt2Ny4W+ooYdMe3982--
 

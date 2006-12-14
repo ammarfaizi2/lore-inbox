@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932856AbWLNQ1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932858AbWLNQbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932856AbWLNQ1l (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 11:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932855AbWLNQ1l
+	id S932858AbWLNQbG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 11:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932859AbWLNQbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 11:27:41 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55572 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932856AbWLNQ1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 11:27:40 -0500
-Date: Thu, 14 Dec 2006 16:33:47 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+	Thu, 14 Dec 2006 11:31:06 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:4290 "EHLO dspnet.fr.eu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932858AbWLNQbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 11:31:04 -0500
+Date: Thu, 14 Dec 2006 17:31:01 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
        Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
        "Michael K. Edwards" <medwards.linux@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-Message-ID: <20061214163347.4f1be668@localhost.localdomain>
-In-Reply-To: <20061214161750.GB3388@stusta.de>
-References: <20061214003246.GA12162@suse.de>
-	<22299.1166057009@lwn.net>
-	<20061214005532.GA12790@suse.de>
-	<Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-	<20061214161750.GB3388@stusta.de>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061214163101.GA43130@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+	Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+	"Michael K. Edwards" <medwards.linux@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <4580E37F.8000305@mbligh.org> <20061214130704.GB17565@redhat.com> <20061214150514.GI3629@stusta.de> <20061214161133.GD17115@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061214161133.GD17115@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The trick is to let a lawyer send cease and desist letters to people 
-> distributing the infringing software for 1 Euro at Ebay.
+On Thu, Dec 14, 2006 at 11:11:33AM -0500, Dave Jones wrote:
+> On Thu, Dec 14, 2006 at 04:05:14PM +0100, Adrian Bunk wrote:
+>  > If a kernel developer or a competitor sends a cease&desist letter to 
+>  > such a distribution, the situation changes from a complicated "derived 
+>  > work" discussion to a relatively clear "They circumvented a technical 
+>  > measure to enforce the copyright.".
+> 
+> C&D's don't work that way.  They can enforce "don't ship my code"
+> but not "ship my code, or else".  The modification would be just like
+> any other thats allowable by the GPL.
 
-Doesn't that sound even more like the music industry ? Pick on Grandma,
-and people who've no clue about the issue. It's not the way to solve such
-problems. The world does not need "The war on binary modules". Educate
-people instead, and talk to vendors.
+Careful here.  The "technical measure" protection is something
+unrelated to the copyright license itself.  Cf the streambox vcr
+lawsuit for instance (settled though) where not implementing the
+handling of one bit that said "don't save to disk" in original code
+seemed to be illegal.
 
-Save the atomic weapons for the people who are straight forward ripping
-off work in routers, tvs and all sorts of appliances.
+  OG.
 
-Alan

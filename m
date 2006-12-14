@@ -1,76 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932890AbWLNSwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932894AbWLNTIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932890AbWLNSwe (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 13:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932894AbWLNSwe
+	id S932894AbWLNTIN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 14:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932895AbWLNTIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 13:52:34 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:47602 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932890AbWLNSwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 13:52:33 -0500
-Date: Thu, 14 Dec 2006 10:51:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Eric Sandeen <sandeen@sandeen.net>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Garzik <jeff@garzik.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-In-Reply-To: <20061214183956.GA13692@tuatara.stupidest.org>
-Message-ID: <Pine.LNX.4.64.0612141045210.5718@woody.osdl.org>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
- <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
- <458171C1.3070400@garzik.org> <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
- <20061214170841.GA11196@tuatara.stupidest.org> <20061214173827.GC3452@infradead.org>
- <20061214175253.GB12498@tuatara.stupidest.org> <458194B8.1090309@sandeen.net>
- <20061214183956.GA13692@tuatara.stupidest.org>
+	Thu, 14 Dec 2006 14:08:13 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:43953 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932894AbWLNTIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 14:08:13 -0500
+Message-ID: <4581A11A.70309@s5r6.in-berlin.de>
+Date: Thu, 14 Dec 2006 20:08:10 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ieee1394 in 2.6.20-rc1 (was Re: Linux 2.6.20-rc1)
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612132146.41829.gene.heskett@verizon.net> <Pine.LNX.4.64.0612131918100.5718@woody.osdl.org> <200612140036.46083.gene.heskett@verizon.net> <45818E6E.8020505@s5r6.in-berlin.de>
+In-Reply-To: <45818E6E.8020505@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wrote:
+> http://me.in-berlin.de/~s5r6/linux1394/merged/.
 
-
-On Thu, 14 Dec 2006, Chris Wedgwood wrote:
-> 
-> Calling internal symbols _INTERNAL is confusing?
-
-Well, I'm not sure the _INTERNAL name is all that much better than the 
-_GPL one.
-
-In many ways, the _GPL one describes the _effects_ better, and also points 
-out the reason _why_ something is marked differently. Sure, it's marked 
-becasue it's internal, but why is does that have to be pointed out at all? 
-Why not use the same EXPORT_SYMBOL? The answer to that is the "GPL" part, 
-ie the expectation that internal symbols are so internal that they have 
-license effects.
-
-And if you were an external vendor doing binary only modules, would you 
-react to "internal"? It wouldn't have the same "oh, _that_ is what it is 
-all about" thing, would it?
-
-So I do agree that we have probably done a bad job of explaining why that 
-_GPL thing makes sense, and what it means on a deeper level (the license 
-thing is a very superficial thing, but its worth naming just because the 
-superficial thing is also the biggest _impact_ - even if it may not be the 
-underlying deeper _reason_ for it).
-
-So which makes more sense from a naming standpoint: the superficial impact 
-that is what _matters_ for people, or the more subtle issue that causes it 
-to have that impact?
-
-I think that question is what it boils down to, and at least personally, 
-while I see both things as being worthwhile, I think the superficial thing 
-is the one that needs pointing out, because it's the one that may change 
-your behaviour (while the deeper _meaning_ is more of just an 
-explanation).
-
-But I don't personally care that deeply. I mostly care about the fact that 
-changing the name now would just be inconvenient and unnecessary churn, 
-and that's probably my biggest reason to not want to do it ;)
-
-			Linus
+Nope, http://me.in-berlin.de/~s5r6/linux1394/updates/. %-|
+-- 
+Stefan Richter
+-=====-=-==- ==-- -===-
+http://arcgraph.de/sr/

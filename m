@@ -1,51 +1,212 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932796AbWLNOYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932748AbWLNOTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932796AbWLNOYr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932797AbWLNOYr
+	id S932748AbWLNOTf (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbWLNOTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:24:47 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:54965 "EHLO
-	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932786AbWLNOYq (ORCPT
+	Thu, 14 Dec 2006 09:19:34 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46393 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932751AbWLNOT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:24:46 -0500
-Subject: Re: [PATCH 2.6.20-rc1] ib_verbs: Use explicit if-else statements
-	to avoid errors with do-while macros
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+	Thu, 14 Dec 2006 09:19:27 -0500
+From: Steve Wise <swise@opengridcomputing.com>
+Subject: [PATCH  v4 08/13] Memory Registration
+Date: Thu, 14 Dec 2006 07:56:37 -0600
+To: rdreier@cisco.com
+Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <ada4pryq5ts.fsf@cisco.com>
-References: <1166065805.6748.135.camel@gullible>
-	 <20061214064430.GM4587@ftp.linux.org.uk>
-	 <20061214065624.GN4587@ftp.linux.org.uk>  <ada4pryq5ts.fsf@cisco.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 14 Dec 2006 09:24:19 -0500
-Message-Id: <1166106259.6748.217.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Message-Id: <20061214135636.21159.34359.stgit@dell3.ogc.int>
+In-Reply-To: <20061214135233.21159.78613.stgit@dell3.ogc.int>
+References: <20061214135233.21159.78613.stgit@dell3.ogc.int>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 23:45 -0800, Roland Dreier wrote:
->  > IOW, do ; while(0) / do { } while (0)  is not a proper way to do a macro
->  > that imitates a function returning void.
->  > 
->  > Objections?
-> 
-> None from me, although the ternary ? : is a pretty odd way to write
-> 
-> 	if (blah)
-> 		do_this_void_function();
-> 	else
-> 		do_that_void_function();
-> 
-> so I'm in favor of that half of the patch anyway.  It's my fault for
-> not noticing that part of the patch in the first place.
-> 
-> Changing the non-void ? : constructions is just churn, but there's no
-> sense changing it again now that the patch is merged.
 
-The rest of it was just for consistency sake.
+Functions to register memory regions.
+
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+---
+
+ drivers/infiniband/hw/cxgb3/iwch_mem.c |  170 ++++++++++++++++++++++++++++++++
+ 1 files changed, 170 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_mem.c b/drivers/infiniband/hw/cxgb3/iwch_mem.c
+new file mode 100644
+index 0000000..774d11e
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/iwch_mem.c
+@@ -0,0 +1,170 @@
++/*
++ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
++ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++#include <asm/byteorder.h>
++
++#include <rdma/iw_cm.h>
++#include <rdma/ib_verbs.h>
++
++#include "cxio_hal.h"
++#include "iwch.h"
++#include "iwch_provider.h"
++
++int iwch_register_mem(struct iwch_dev *rhp, struct iwch_pd *php,
++					struct iwch_mr *mhp,
++					int shift,
++					__be64 *page_list)
++{
++	u32 stag;
++	u32 mmid;
++
++
++	if (cxio_register_phys_mem(&rhp->rdev,
++				   &stag, mhp->attr.pdid,
++				   mhp->attr.perms,
++				   mhp->attr.zbva,
++				   mhp->attr.va_fbo,
++				   mhp->attr.len,
++				   shift-12,
++				   page_list,
++				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
++		return -ENOMEM;
++	mhp->attr.state = 1;
++	mhp->attr.stag = stag;
++	mmid = stag >> 8;
++	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
++	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
++	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
++	return 0;
++}
++
++int iwch_reregister_mem(struct iwch_dev *rhp, struct iwch_pd *php,
++					struct iwch_mr *mhp,
++					int shift,
++					__be64 *page_list,
++					int npages)
++{
++	u32 stag;
++	u32 mmid;
++
++
++	/* We could support this... */
++	if (npages > mhp->attr.pbl_size)
++		return -ENOMEM;
++
++	stag = mhp->attr.stag;
++	if (cxio_reregister_phys_mem(&rhp->rdev,
++				   &stag, mhp->attr.pdid,
++				   mhp->attr.perms,
++				   mhp->attr.zbva,
++				   mhp->attr.va_fbo,
++				   mhp->attr.len,
++				   shift-12,
++				   page_list,
++				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
++		return -ENOMEM;
++	mhp->attr.state = 1;
++	mhp->attr.stag = stag;
++	mmid = stag >> 8;
++	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
++	insert_handle(rhp, &rhp->mmidr, mhp, mmid); 
++	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
++	return 0;
++}
++
++int build_phys_page_list(struct ib_phys_buf *buffer_list,
++					int num_phys_buf,
++					u64 *iova_start,
++					u64 *total_size,
++					int *npages,
++					int *shift,
++					__be64 **page_list)
++{
++	u64 mask;
++	int i, j, n;
++
++	mask = 0;
++	*total_size = 0;
++	for (i = 0; i < num_phys_buf; ++i) {
++		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
++			return -EINVAL;
++		if (i != 0 && i != num_phys_buf - 1 &&
++		    (buffer_list[i].size & ~PAGE_MASK))
++			return -EINVAL;
++		*total_size += buffer_list[i].size;
++		if (i > 0)
++			mask |= buffer_list[i].addr;
++	}
++
++	if (*total_size > 0xFFFFFFFFULL)
++		return -ENOMEM;
++
++	/* Find largest page shift we can use to cover buffers */
++	for (*shift = PAGE_SHIFT; *shift < 27; ++(*shift))
++		if (num_phys_buf > 1) {
++			if ((1ULL << *shift) & mask)
++				break;
++		} else 
++			if (1ULL << *shift >=
++			    buffer_list[0].size +
++			    (buffer_list[0].addr & ((1ULL << *shift) - 1)))
++				break;
++
++	buffer_list[0].size += buffer_list[0].addr & ((1ULL << *shift) - 1);
++	buffer_list[0].addr &= ~0ull << *shift;
++
++	*npages = 0;
++	for (i = 0; i < num_phys_buf; ++i)
++		*npages += (buffer_list[i].size + 
++			(1ULL << *shift) - 1) >> *shift;
++
++	if (!*npages)
++		return -EINVAL;
++
++	*page_list = kmalloc(sizeof(u64) * *npages, GFP_KERNEL);
++	if (!*page_list)
++		return -ENOMEM;
++
++	n = 0;
++	for (i = 0; i < num_phys_buf; ++i)
++		for (j = 0;
++		     j < (buffer_list[i].size + (1ULL << *shift) - 1) >> *shift;
++		     ++j) 
++			(*page_list)[n++] = cpu_to_be64(buffer_list[i].addr +
++			    ((u64) j << *shift));
++
++	PDBG("%s va 0x%llx mask 0x%llx shift %d len %lld pbl_size %d\n",
++	     __FUNCTION__, *iova_start, mask, *shift, *total_size, *npages);
++
++	return 0;
++
++}

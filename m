@@ -1,273 +1,589 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932783AbWLNOVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932745AbWLNO30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932783AbWLNOVX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbWLNOTn
+	id S932745AbWLNO30 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWLNO30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:19:43 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46397 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932752AbWLNOT3 (ORCPT
+	Thu, 14 Dec 2006 09:29:26 -0500
+Received: from gw-eur4.philips.com ([161.85.125.10]:55229 "EHLO
+	gw-eur4.philips.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932745AbWLNO3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:19:29 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v4 06/13] Completion Queues
-Date: Thu, 14 Dec 2006 07:55:36 -0600
-To: rdreier@cisco.com
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Message-Id: <20061214135536.21159.74057.stgit@dell3.ogc.int>
-In-Reply-To: <20061214135233.21159.78613.stgit@dell3.ogc.int>
-References: <20061214135233.21159.78613.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 14 Dec 2006 09:29:24 -0500
+To: <hpa@zytor.com>, <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] disable init/initramfs.c (updated)
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
+Message-ID: <OF9C0D2745.6844BC7B-ONC1257244.003CD5C0-C1257244.004D8073@philips.com>
+From: Jean-Paul Saman <jean-paul.saman@nxp.com>
+Date: Thu, 14 Dec 2006 15:06:29 +0100
+X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF805 | August
+ 26, 2006) at 14/12/2006 15:06:32,
+	Serialize complete at 14/12/2006 15:06:32
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Update all arch/*/kernel/vmlinux.lds.S to not include space for initramfs 
+when CONFIG_BLK_DEV_INITRAMFS is not selected. This saves another 4 kbytes 
+on most platfoms (some reserve PAGE_SIZE for initramfs).
 
-Functions to manipulate CQs.
+Signed-off-by: Jean-Paul Saman <jean-paul.saman@nxp.com>
+----------------------
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
-
- drivers/infiniband/hw/cxgb3/iwch_cq.c |  231 +++++++++++++++++++++++++++++++++
- 1 files changed, 231 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_cq.c b/drivers/infiniband/hw/cxgb3/iwch_cq.c
-new file mode 100644
-index 0000000..9d82df4
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_cq.c
-@@ -0,0 +1,231 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include "iwch_provider.h"
-+#include "iwch.h"
+Index: linux-2.6.git/arch/arm/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/arm/kernel/vmlinux.lds.S    2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/arm/kernel/vmlinux.lds.S 2006-12-14 
+14:20:30.000000000 +0100
+@@ -53,10 +53,12 @@ SECTIONS
+                __security_initcall_start = .;
+                        *(.security_initcall.init)
+                __security_initcall_end = .;
++#ifdef CONFIG_BLK_DEV_INITRD
+                . = ALIGN(32);
+                __initramfs_start = .;
+                        usr/built-in.o(.init.ramfs)
+                __initramfs_end = .;
++#endif
+                . = ALIGN(64);
+                __per_cpu_start = .;
+                        *(.data.percpu)
+Index: linux-2.6.git/arch/alpha/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/alpha/kernel/vmlinux.lds.S  2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/alpha/kernel/vmlinux.lds.S       2006-12-14 
+14:20:30.000000000 +0100
+@@ -52,10 +52,12 @@ SECTIONS
+   }
+   __initcall_end = .;
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(8192);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+ 
+   . = ALIGN(8);
+   .con_initcall.init : {
+Index: linux-2.6.git/arch/arm26/kernel/vmlinux-arm26-xip.lds.in
+===================================================================
+--- linux-2.6.git.orig/arch/arm26/kernel/vmlinux-arm26-xip.lds.in 
+2006-12-14 13:21:54.000000000 +0100
++++ linux-2.6.git/arch/arm26/kernel/vmlinux-arm26-xip.lds.in    2006-12-14 
+14:20:30.000000000 +0100
+@@ -46,10 +46,12 @@ SECTIONS
+                __con_initcall_start = .;
+                        *(.con_initcall.init)
+                __con_initcall_end = .;
++#ifdef CONFIG_BLK_DEV_INITRD
+                . = ALIGN(32);
+                __initramfs_start = .;
+                        usr/built-in.o(.init.ramfs)
+                __initramfs_end = .;
++#endif
+                . = ALIGN(32768);
+                __init_end = .;
+        }
+Index: linux-2.6.git/arch/arm26/kernel/vmlinux-arm26.lds.in
+===================================================================
+--- linux-2.6.git.orig/arch/arm26/kernel/vmlinux-arm26.lds.in   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/arm26/kernel/vmlinux-arm26.lds.in        2006-12-14 
+14:20:30.000000000 +0100
+@@ -47,10 +47,12 @@ SECTIONS
+                __con_initcall_start = .;
+                        *(.con_initcall.init)
+                __con_initcall_end = .;
++#ifdef CONFIG_BLK_DEV_INITRD
+                . = ALIGN(32);
+                __initramfs_start = .;
+                        usr/built-in.o(.init.ramfs)
+                __initramfs_end = .;
++#endif
+                . = ALIGN(32768);
+                __init_end = .;
+        }
+Index: linux-2.6.git/arch/avr32/kernel/vmlinux.lds.c
+===================================================================
+--- linux-2.6.git.orig/arch/avr32/kernel/vmlinux.lds.c  2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/avr32/kernel/vmlinux.lds.c       2006-12-14 
+14:20:30.000000000 +0100
+@@ -46,10 +46,12 @@ SECTIONS
+                __security_initcall_start = .;
+                        *(.security_initcall.init)
+                __security_initcall_end = .;
++#ifdef CONFIG_BLK_DEV_INITRD
+                . = ALIGN(32);
+                __initramfs_start = .;
+                        *(.init.ramfs)
+                __initramfs_end = .;
++#endif
+                . = ALIGN(4096);
+                __init_end = .;
+        }
+Index: linux-2.6.git/arch/frv/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/frv/kernel/vmlinux.lds.S    2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/frv/kernel/vmlinux.lds.S 2006-12-14 
+14:20:30.000000000 +0100
+@@ -61,10 +61,12 @@ SECTIONS
+   .data.percpu  : { *(.data.percpu) }
+   __per_cpu_end = .;
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+ 
+   . = ALIGN(THREAD_SIZE);
+   __init_end = .;
+Index: linux-2.6.git/arch/h8300/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/h8300/kernel/vmlinux.lds.S  2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/h8300/kernel/vmlinux.lds.S       2006-12-14 
+14:20:30.000000000 +0100
+@@ -126,10 +126,12 @@ SECTIONS
+        ___con_initcall_end = .;
+                *(.exit.text)
+                *(.exit.data)
++#if defined(CONFIG_BLK_DEV_INITRD)
+                . = ALIGN(4);
+        ___initramfs_start = .;
+                *(.init.ramfs)
+        ___initramfs_end = .;
++#endif
+        . = ALIGN(0x4) ;
+        ___init_end = .;
+        __edata = . ;
+Index: linux-2.6.git/arch/ia64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/ia64/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/ia64/kernel/vmlinux.lds.S        2006-12-14 
+14:20:30.000000000 +0100
+@@ -111,12 +111,14 @@ SECTIONS
+   .init.data : AT(ADDR(.init.data) - LOAD_OFFSET)
+        { *(.init.data) }
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET)
+        {
+          __initramfs_start = .;
+          *(.init.ramfs)
+          __initramfs_end = .;
+        }
++#endif
+ 
+    . = ALIGN(16);
+   .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET)
+Index: linux-2.6.git/arch/m32r/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/m32r/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/m32r/kernel/vmlinux.lds.S        2006-12-14 
+14:20:30.000000000 +0100
+@@ -99,10 +99,14 @@ SECTIONS
+      from .altinstructions and .eh_frame */
+   .exit.text : { *(.exit.text) }
+   .exit.data : { *(.exit.data) }
 +
-+/*
-+ * Get one cq entry from cxio and map it to openib.
-+ *
-+ * Returns:
-+ * 	0 			EMPTY;
-+ *	1			cqe returned
-+ *	-EAGAIN 		caller must try again
-+ * 	any other -errno	fatal error
-+ */
-+int iwch_poll_cq_one(struct iwch_dev *rhp, struct iwch_cq *chp,
-+		     struct ib_wc *wc)
-+{
-+	struct iwch_qp *qhp = NULL;
-+	struct t3_cqe cqe, *rd_cqe;
-+	struct t3_wq *wq;
-+	u32 credit = 0;
-+	u8 cqe_flushed;
-+	u64 cookie;
-+	int ret = 1;
-+
-+	rd_cqe = cxio_next_cqe(&chp->cq);
-+
-+	if (!rd_cqe)
-+		return 0;
-+
-+	qhp = get_qhp(rhp, CQE_QPID(*rd_cqe));
-+	if (!qhp)
-+		wq = NULL;
-+	else {
-+		spin_lock(&qhp->lock);
-+		wq = &(qhp->wq);
-+	}
-+	ret = cxio_poll_cq(wq, &(chp->cq), &cqe, &cqe_flushed, &cookie,
-+				   &credit);
-+	if (t3a_device(chp->rhp) && credit) {
-+		PDBG("%s updating %d cq credits on id %d\n", __FUNCTION__, 
-+		     credit, chp->cq.cqid);
-+		cxio_hal_cq_op(&rhp->rdev, &chp->cq, CQ_CREDIT_UPDATE, credit);
-+	}
-+
-+	if (ret) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+	ret = 1;
-+
-+	wc->wr_id = cookie;
-+	wc->qp_num = qhp->wq.qpid;
-+	wc->vendor_err = CQE_STATUS(cqe);
-+
-+	PDBG("%s qpid 0x%x type %d opcode %d status 0x%x wrid hi 0x%x "
-+	     "lo 0x%x cookie 0x%llx\n", __FUNCTION__, 
-+	     CQE_QPID(cqe), CQE_TYPE(cqe),
-+	     CQE_OPCODE(cqe), CQE_STATUS(cqe), CQE_WRID_HI(cqe),
-+	     CQE_WRID_LOW(cqe), cookie);
-+
-+	if (CQE_TYPE(cqe) == 0) {
-+		if (!CQE_STATUS(cqe))
-+			wc->byte_len = CQE_LEN(cqe);
-+		else
-+			wc->byte_len = 0;
-+		wc->opcode = IB_WC_RECV;
-+	} else {
-+		switch (CQE_OPCODE(cqe)) {
-+		case T3_RDMA_WRITE:
-+			wc->opcode = IB_WC_RDMA_WRITE;
-+			break;
-+		case T3_READ_REQ:
-+			wc->opcode = IB_WC_RDMA_READ;
-+			wc->byte_len = CQE_LEN(cqe);
-+			break;
-+		case T3_SEND:
-+		case T3_SEND_WITH_SE:
-+			wc->opcode = IB_WC_SEND;
-+			break;
-+		case T3_BIND_MW:
-+			wc->opcode = IB_WC_BIND_MW;
-+			break;
-+
-+		/* these aren't supported yet */
-+		case T3_SEND_WITH_INV:
-+		case T3_SEND_WITH_SE_INV:
-+		case T3_LOCAL_INV:
-+		case T3_FAST_REGISTER:
-+		default:
-+			printk(KERN_ERR MOD "Unexpected opcode %d "
-+			       "in the CQE received for QPID=0x%0x\n", 
-+			       CQE_OPCODE(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+	}
-+
-+	if (cqe_flushed)
-+		wc->status = IB_WC_WR_FLUSH_ERR;
-+	else {
-+		
-+		switch (CQE_STATUS(cqe)) {
-+		case TPT_ERR_SUCCESS:
-+			wc->status = IB_WC_SUCCESS;
-+			break;
-+		case TPT_ERR_STAG:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_PDID:
-+			wc->status = IB_WC_LOC_PROT_ERR;
-+			break;
-+		case TPT_ERR_QPID:
-+		case TPT_ERR_ACCESS:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_WRAP:
-+			wc->status = IB_WC_GENERAL_ERR;
-+			break;
-+		case TPT_ERR_BOUND:
-+			wc->status = IB_WC_LOC_LEN_ERR;
-+			break;
-+		case TPT_ERR_INVALIDATE_SHARED_MR:
-+		case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
-+			wc->status = IB_WC_MW_BIND_ERR;
-+			break;
-+		case TPT_ERR_CRC:
-+		case TPT_ERR_MARKER:
-+		case TPT_ERR_PDU_LEN_ERR:
-+		case TPT_ERR_OUT_OF_RQE:
-+		case TPT_ERR_DDP_VERSION:
-+		case TPT_ERR_RDMA_VERSION:
-+		case TPT_ERR_DDP_QUEUE_NUM:
-+		case TPT_ERR_MSN:
-+		case TPT_ERR_TBIT:
-+		case TPT_ERR_MO:
-+		case TPT_ERR_MSN_RANGE:
-+		case TPT_ERR_IRD_OVERFLOW:
-+		case TPT_ERR_OPCODE:
-+			wc->status = IB_WC_FATAL_ERR;
-+			break;
-+		case TPT_ERR_SWFLUSH:
-+			wc->status = IB_WC_WR_FLUSH_ERR;
-+			break;
-+		default:
-+			printk(KERN_ERR MOD "Unexpected cqe_status 0x%x for "
-+			       "QPID=0x%0x\n", CQE_STATUS(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+		}
-+	}
-+out:
-+	if (wq)
-+		spin_unlock(&qhp->lock);
-+	return ret;
-+}
-+
-+int iwch_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
-+{
-+	struct iwch_dev *rhp;
-+	struct iwch_cq *chp;
-+	unsigned long flags;
-+	int npolled;
-+	int err = 0;
-+
-+	chp = to_iwch_cq(ibcq);
-+	rhp = chp->rhp;
-+
-+	spin_lock_irqsave(&chp->lock, flags);
-+	for (npolled = 0; npolled < num_entries; ++npolled) {
-+#ifdef DEBUG
-+		int i=0;
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
 +#endif
 +
-+		/*
-+	 	 * Because T3 can post CQEs that are _not_ associated
-+	 	 * with a WR, we might have to poll again after removing
-+	 	 * one of these.  
-+		 */
-+		do {
-+			err = iwch_poll_cq_one(rhp, chp, wc + npolled);
-+#ifdef DEBUG
-+			BUG_ON(++i > 1000);
+   . = ALIGN(32);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+Index: linux-2.6.git/arch/m68k/kernel/vmlinux-std.lds
+===================================================================
+--- linux-2.6.git.orig/arch/m68k/kernel/vmlinux-std.lds 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/m68k/kernel/vmlinux-std.lds      2006-12-14 
+14:20:30.000000000 +0100
+@@ -61,10 +61,12 @@ SECTIONS
+   .con_initcall.init : { *(.con_initcall.init) }
+   __con_initcall_end = .;
+   SECURITY_INIT
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(8192);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
 +#endif
-+		} while (err == -EAGAIN);
-+		if (err <= 0)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&chp->lock, flags);
+   . = ALIGN(8192);
+   __init_end = .;
+ 
+Index: linux-2.6.git/arch/m68k/kernel/vmlinux-sun3.lds
+===================================================================
+--- linux-2.6.git.orig/arch/m68k/kernel/vmlinux-sun3.lds        2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/m68k/kernel/vmlinux-sun3.lds     2006-12-14 
+14:20:30.000000000 +0100
+@@ -55,10 +55,12 @@ __init_begin = .;
+        .con_initcall.init : { *(.con_initcall.init) }
+        __con_initcall_end = .;
+        SECURITY_INIT
++#ifdef CONFIG_BLK_DEV_INITRD
+        . = ALIGN(8192);
+        __initramfs_start = .;
+        .init.ramfs : { *(.init.ramfs) }
+        __initramfs_end = .;
++#endif
+        . = ALIGN(8192);
+        __init_end = .;
+        .data.init.task : { *(.data.init_task) }
+Index: linux-2.6.git/arch/m68knommu/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/m68knommu/kernel/vmlinux.lds.S      2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/m68knommu/kernel/vmlinux.lds.S   2006-12-14 
+14:20:30.000000000 +0100
+@@ -149,10 +149,12 @@ SECTIONS {
+                __security_initcall_start = .;
+                *(.security_initcall.init)
+                __security_initcall_end = .;
++#ifdef CONFIG_BLK_DEV_INITRD
+                . = ALIGN(4);
+                __initramfs_start = .;
+                *(.init.ramfs)
+                __initramfs_end = .;
++#endif
+                . = ALIGN(4096);
+                __init_end = .;
+        } > INIT
+Index: linux-2.6.git/arch/parisc/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/parisc/kernel/vmlinux.lds.S 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/parisc/kernel/vmlinux.lds.S      2006-12-14 
+14:20:30.000000000 +0100
+@@ -173,10 +173,12 @@ SECTIONS
+      from .altinstructions and .eh_frame */
+   .exit.text : { *(.exit.text) }
+   .exit.data : { *(.exit.data) }
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(ASM_PAGE_SIZE);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+   . = ALIGN(32);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+Index: linux-2.6.git/arch/powerpc/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/powerpc/kernel/vmlinux.lds.S        2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/powerpc/kernel/vmlinux.lds.S     2006-12-14 
+14:20:30.000000000 +0100
+@@ -131,14 +131,14 @@ SECTIONS
+                __stop___fw_ftr_fixup = .;
+        }
+ #endif
+-
++#ifdef CONFIG_BLK_DEV_INITRD
+        . = ALIGN(PAGE_SIZE);
+        .init.ramfs : {
+                __initramfs_start = .;
+                *(.init.ramfs)
+                __initramfs_end = .;
+        }
+-
++#endif
+ #ifdef CONFIG_PPC32
+        . = ALIGN(32);
+ #else
+Index: linux-2.6.git/arch/ppc/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/ppc/kernel/vmlinux.lds.S    2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/ppc/kernel/vmlinux.lds.S 2006-12-14 
+14:20:30.000000000 +0100
+@@ -135,10 +135,12 @@ SECTIONS
+   .data.percpu  : { *(.data.percpu) }
+   __per_cpu_end = .;
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+ 
+   . = ALIGN(4096);
+   __init_end = .;
+Index: linux-2.6.git/arch/s390/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/s390/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/s390/kernel/vmlinux.lds.S        2006-12-14 
+14:56:33.000000000 +0100
+@@ -90,11 +90,14 @@ SECTIONS
+   .con_initcall.init : { *(.con_initcall.init) }
+   __con_initcall_end = .;
+   SECURITY_INIT
 +
-+	if (err < 0)
-+		return err;
-+	else {
-+		return npolled;
-+	}
-+}
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(256);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.initramfs) }
+   . = ALIGN(2);
+   __initramfs_end = .;
++#endif
+   . = ALIGN(256);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+Index: linux-2.6.git/arch/sh/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/sh/kernel/vmlinux.lds.S     2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/sh/kernel/vmlinux.lds.S  2006-12-14 
+14:20:30.000000000 +0100
+@@ -83,9 +83,13 @@ SECTIONS
+   .con_initcall.init : { *(.con_initcall.init) }
+   __con_initcall_end = .;
+   SECURITY_INIT
 +
-+int iwch_modify_cq(struct ib_cq *cq, int cqe)
-+{
-+	PDBG("iwch_modify_cq: TBD\n");
-+	return 0;
-+}
++#ifdef CONFIG_BLK_DEV_INITRD
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
++
+   __machvec_start = .;
+   .init.machvec : { *(.init.machvec) }
+   __machvec_end = .;
+Index: linux-2.6.git/arch/sh64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/sh64/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/sh64/kernel/vmlinux.lds.S        2006-12-14 
+14:57:16.000000000 +0100
+@@ -115,9 +115,13 @@ SECTIONS
+   .con_initcall.init : C_PHYS(.con_initcall.init) { *(.con_initcall.init) 
+}
+   __con_initcall_end = .;
+   SECURITY_INIT
++
++#ifdef CONFIG_BLK_DEV_INITRD
+   __initramfs_start = .;
+   .init.ramfs : C_PHYS(.init.ramfs) { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
++
+   . = ALIGN(PAGE_SIZE);
+   __init_end = .;
+ 
+Index: linux-2.6.git/arch/sparc/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/sparc/kernel/vmlinux.lds.S  2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/sparc/kernel/vmlinux.lds.S       2006-12-14 
+14:20:30.000000000 +0100
+@@ -57,10 +57,14 @@ SECTIONS
+   .con_initcall.init : { *(.con_initcall.init) }
+   __con_initcall_end = .;
+   SECURITY_INIT
++
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
++
+   . = ALIGN(32);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+Index: linux-2.6.git/arch/sparc64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/sparc64/kernel/vmlinux.lds.S        2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/sparc64/kernel/vmlinux.lds.S     2006-12-14 
+14:20:30.000000000 +0100
+@@ -81,10 +81,14 @@ SECTIONS
+   __sun4v_2insn_patch = .;
+   .sun4v_2insn_patch : { *(.sun4v_2insn_patch) }
+   __sun4v_2insn_patch_end = .;
++
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(8192); 
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
++
+   . = ALIGN(8192);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+Index: linux-2.6.git/arch/v850/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/v850/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/v850/kernel/vmlinux.lds.S        2006-12-14 
+14:20:30.000000000 +0100
+@@ -190,12 +190,16 @@
+                __root_fs_image_start = . ;    \
+                *(.root)    \
+                __root_fs_image_end = . ;
++
++#ifdef CONFIG_BLK_DEV_INITRD
+ /* The initramfs archive.  */
+ #define INITRAMFS_CONTENTS    \
+                . = ALIGN (4) ;    \
+                ___initramfs_start = . ;    \
+                        *(.init.ramfs)    \
+                ___initramfs_end = . ;
++#endif
++
+ /* Where the initial bootmap (bitmap for the boot-time memory allocator) 
+    should be place.  */
+ #define BOOTMAP_CONTENTS    \
+Index: linux-2.6.git/arch/x86_64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/x86_64/kernel/vmlinux.lds.S 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/x86_64/kernel/vmlinux.lds.S      2006-12-14 
+14:20:30.000000000 +0100
+@@ -192,10 +192,14 @@ SECTIONS
+      from .altinstructions and .eh_frame */
+   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
+   .exit.data : AT(ADDR(.exit.data) - LOAD_OFFSET) { *(.exit.data) }
++
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start = .;
+   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
++
+     . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) 
+}
+Index: linux-2.6.git/arch/xtensa/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/xtensa/kernel/vmlinux.lds.S 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/xtensa/kernel/vmlinux.lds.S      2006-12-14 
+14:20:30.000000000 +0100
+@@ -203,10 +203,12 @@ SECTIONS
+   .data.percpu  : { *(.data.percpu) }
+   __per_cpu_end = .;
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+   . = ALIGN(4096);
+   __initramfs_start =.;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+ 
+   /* We need this dummy segment here */
+ 
+Index: linux-2.6.git/arch/cris/arch-v10/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/cris/arch-v10/vmlinux.lds.S 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/cris/arch-v10/vmlinux.lds.S      2006-12-14 
+14:20:30.000000000 +0100
+@@ -82,7 +82,8 @@ SECTIONS
+                __con_initcall_end = .;
+        } 
+        SECURITY_INIT
+- 
++
++#ifdef CONFIG_BLK_DEV_INITRD
+        .init.ramfs : {
+                __initramfs_start = .;
+                *(.init.ramfs)
+@@ -93,6 +94,7 @@ SECTIONS
+                FILL (0); 
+                . = ALIGN (8192);
+        }
++#endif
+ 
+        __vmlinux_end = .;            /* last address of the physical file 
+*/
+        __init_end = .;
+Index: linux-2.6.git/arch/cris/arch-v32/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/cris/arch-v32/vmlinux.lds.S 2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/cris/arch-v32/vmlinux.lds.S      2006-12-14 
+14:20:30.000000000 +0100
+@@ -95,6 +95,7 @@ SECTIONS
+        .data.percpu  : { *(.data.percpu) }
+        __per_cpu_end = .;
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
+        .init.ramfs : {
+                __initramfs_start = .;
+                *(.init.ramfs)
+@@ -107,6 +108,7 @@ SECTIONS
+                FILL (0);
+                . = ALIGN (8192);
+        }
++#endif
+ 
+        __vmlinux_end = .;      /* Last address of the physical file. */
+        __init_end = .;
+Index: linux-2.6.git/arch/i386/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/i386/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/i386/kernel/vmlinux.lds.S        2006-12-14 
+14:20:30.000000000 +0100
+@@ -181,12 +181,14 @@ SECTIONS
+      from .altinstructions and .eh_frame */
+   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
+   .exit.data : AT(ADDR(.exit.data) - LOAD_OFFSET) { *(.exit.data) }
++#if defined(CONFIG_BLK_DEV_INITRD)
+   . = ALIGN(4096);
+   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) {
+        __initramfs_start = .;
+        *(.init.ramfs)
+        __initramfs_end = .;
+   }
++#endif
+   . = ALIGN(L1_CACHE_BYTES);
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) {
+        __per_cpu_start = .;
+Index: linux-2.6.git/arch/mips/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.git.orig/arch/mips/kernel/vmlinux.lds.S   2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/arch/mips/kernel/vmlinux.lds.S        2006-12-14 
+14:20:30.000000000 +0100
+@@ -113,10 +113,12 @@ SECTIONS
+      references from .rodata */
+   .exit.text : { *(.exit.text) }
+   .exit.data : { *(.exit.data) }
++#if defined(CONFIG_BLK_DEV_INITRD)
+   . = ALIGN(_PAGE_SIZE);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
++#endif
+   . = ALIGN(32);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+
+-----
+Kind greetings,
+
+Jean-Paul Saman
+
+NXP Semiconductors CTO/RTG DesignIP

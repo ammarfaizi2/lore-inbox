@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751187AbWLNEf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751344AbWLNElF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWLNEf0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 23:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWLNEf0
+	id S1751344AbWLNElF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 23:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWLNElF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 23:35:26 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:40086 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751187AbWLNEfZ (ORCPT
+	Wed, 13 Dec 2006 23:41:05 -0500
+Received: from wx-out-0506.google.com ([66.249.82.231]:9536 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751344AbWLNElD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 23:35:25 -0500
+	Wed, 13 Dec 2006 23:41:03 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
-        b=K8dSOlkGw+cWuzLqqUuAOO1yX+1zv8ZSTC+SxFopycaZOoNoyflN8e30en+98h3sziOxu5YwNDFoB3f7/VdqpzNqj5ABNfxGtxnxKJheFbibdwJ6FIqtgc7m4rQ9QdAizwhGHMh+yoPDVxROociJbM60kNtLqbeMRDCfTZVenNo=
-Message-ID: <5b8e20700612132035w2ad90000wcaca60be5d93277d@mail.gmail.com>
-Date: Wed, 13 Dec 2006 23:35:23 -0500
-From: "Michael Bommarito" <michael.bommarito@gmail.com>
-To: "Mike Galbraith" <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to ieee80211softmac_assoc_work
-In-Reply-To: <1166070494.5853.0.camel@Homer.simpson.net>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UkipfTrWgM6LR6uvlE3qARsMaur7mMKr041sjZi0KIsSbccuq/6XeyJilSD0dOn2V/lVmjT8+PFRugukKpsjwmbWp677Qi9GDsYPaz6/bC3C+DfpAAYz5mG4rbGoxa3aI7pTLaxZQqDRFJHVV+71sWWD1KJh0r9qEMxwEOyixcg=
+Message-ID: <72dbd3150612132041x15e6ab78u47c6ecf6826a3b23@mail.gmail.com>
+Date: Wed, 13 Dec 2006 20:41:02 -0800
+From: "David Rees" <drees76@gmail.com>
+To: "Giacomo A. Catenazzi" <cate@cateee.net>
+Subject: Re: Postgrey experiment at VGER
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <458025A5.2070001@cateee.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_65465_15737798.1166070923846"
-References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
-	 <1166070494.5853.0.camel@Homer.simpson.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200612131711.28292.a1426z@gawab.com> <458025A5.2070001@cateee.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_65465_15737798.1166070923846
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On 12/13/06, Giacomo A. Catenazzi <cate@cateee.net> wrote:
+> So a challange to the kernel hackers: build a mail filtering/proxy
+> system, a' la BSD.
+> I don't remember the specification and features, but IIRC the
+> netfilter is not enough to do the graylisting (but pf was).
+> Someone has some hints what kernel can do in the fight against
+> spam?
 
-Sorry, realized I might not have been clear as to what I meant!  The
-patch was attached to the bugzilla entry, but I'll attach it here as
-well.  My description of the patch itself was really as complicated as
-it gets too (just two lines, switch (void*)mac to
-&mac->assoc.work.work in
-net/ieee80211/softmac/ieee80211softmac_assoc.c), just a small bug
-while somebody was rushing through the work/delayed_work changes.
+I've gone through a number of anti-spam measures over the years. I
+started with SpamAssassin, then bogofilter, greylisting, various RBLs
+and most recently DSPAM.
 
--Mike
+SpamAssassin an bogofilter used to work pretty well, but over time
+they let more and more spam through so I stopped using them.
 
-On 12/13/06, Mike Galbraith <efault@gmx.de> wrote:
-> On Wed, 2006-12-13 at 13:17 -0500, Michael Bommarito wrote:
-> > This didn't get much attention on bugzilla and I figured it was
-> > important enough to forward along to the whole list since it's been
-> > lingering around in ieee80211-softmac since 19-git5 at least.
-> > http://bugzilla.kernel.org/show_bug.cgi?id=7657
-> >
-> > Somebody was passing the whole mac device structure to
-> > ieee80211softmac_assoc_work instead of just the assocation work, which
-> > lead to much death and locking.
-> >
-> > Attached is a patch that fixes this (the actual change is two lines
-> > but context provided in patch for review).  The dmesg containing call
-> > trace is attached to the bugzilla entry above.
->
-> -ENOPATCH :)
->
->
+Greylisting used to work very well, but recently more and more
+spammers are retrying not to mention I kept on running across broken
+mail servers that either wouldn't retry or would take forever to
+retry. My users would also complain that email was broken when a
+message would take hours to deliver instead of being delivered almost
+immediately. They found it better to get spam than to occasionally
+miss email or have to wait for email.
 
-------=_Part_65465_15737798.1166070923846
-Content-Type: application/octet-stream; 
-	name=patch-ieee80211softmac_assoc_work
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_evoofzsz
-Content-Disposition: attachment; filename="patch-ieee80211softmac_assoc_work"
+RBLs work pretty well as long as you choose the right ones that aren't
+too aggressive with their lists. sbl-xbl.spamhaus.org is pretty
+reliable and I have found it good at not blocking legitimate sources
+of email.
 
-LS0tIG5ldC9pZWVlODAyMTEvc29mdG1hYy9pZWVlODAyMTFzb2Z0bWFjX2Fzc29jLmMJMjAwNi0x
-Mi0xMyAxMToyMzowMy4wMDAwMDAwMDAgLTA1MDAKKysrIG5ldC9pZWVlODAyMTEvc29mdG1hYy9p
-ZWVlODAyMTFzb2Z0bWFjX2Fzc29jLmMJMjAwNi0xMi0xMyAxMToyNDoyNi4wMDAwMDAwMDAgLTA1
-MDAKQEAgLTE2Nyw3ICsxNjcsNyBAQAogaWVlZTgwMjExc29mdG1hY19hc3NvY19ub3RpZnlfc2Nh
-bihzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LCBpbnQgZXZlbnRfdHlwZSwgdm9pZCAqY29udGV4dCkK
-IHsKIAlzdHJ1Y3QgaWVlZTgwMjExc29mdG1hY19kZXZpY2UgKm1hYyA9IGllZWU4MDIxMV9wcml2
-KGRldik7Ci0JaWVlZTgwMjExc29mdG1hY19hc3NvY193b3JrKCh2b2lkKiltYWMpOworCWllZWU4
-MDIxMXNvZnRtYWNfYXNzb2Nfd29yaygmbWFjLT5hc3NvY2luZm8ud29yay53b3JrKTsKIH0KIAog
-c3RhdGljIHZvaWQKQEAgLTE3Nyw3ICsxNzcsNyBAQAogCiAJc3dpdGNoIChldmVudF90eXBlKSB7
-CiAJY2FzZSBJRUVFODAyMTFTT0ZUTUFDX0VWRU5UX0FVVEhFTlRJQ0FURUQ6Ci0JCWllZWU4MDIx
-MXNvZnRtYWNfYXNzb2Nfd29yaygodm9pZCopbWFjKTsKKwkgICAgICAgIGllZWU4MDIxMXNvZnRt
-YWNfYXNzb2Nfd29yaygmbWFjLT5hc3NvY2luZm8ud29yay53b3JrKTsKIAkJYnJlYWs7CiAJY2Fz
-ZSBJRUVFODAyMTFTT0ZUTUFDX0VWRU5UX0FVVEhfRkFJTEVEOgogCWNhc2UgSUVFRTgwMjExU09G
-VE1BQ19FVkVOVF9BVVRIX1RJTUVPVVQ6Cg==
-------=_Part_65465_15737798.1166070923846--
+DSPAM's learning ability seems to be very good (better than SA and
+bogofilter) once trained and the web interface for training mail makes
+it a snap to do (you can also do it via command line). It's also
+flexible enough that it's easy to plug it into just about any mail
+server configuration out there.
+
+-Dave

@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932952AbWLNVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932938AbWLNVsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932952AbWLNVoN (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 16:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932953AbWLNVoN
+	id S932938AbWLNVsv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 16:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932955AbWLNVsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 16:44:13 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:3345 "EHLO
-	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932952AbWLNVoM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 16:44:12 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: Linux 2.6.20-rc1
-Date: Thu, 14 Dec 2006 21:44:26 +0000
-User-Agent: KMail/1.9.5
-Cc: Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Hancock <hancockr@shaw.ca>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612142113.41135.s0348365@sms.ed.ac.uk> <4581C345.2070600@garzik.org>
-In-Reply-To: <4581C345.2070600@garzik.org>
+	Thu, 14 Dec 2006 16:48:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:57803 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932954AbWLNVsu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 16:48:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fr6Uq1gaNT0iOHt0wuf6JqsbdMZBX3NrUulFZNokhnpHdh7BqMuXAbIR8tY0IAOkIV55KOdIHNsnXaLta2FAEzBVG02iHCMGvrcSHwI3KJQpNVf0xZ2ikXS5A47DaP3gl4ic5YTMzD1e/RQi9wywVl19o2iKpXFEqnhPrv9XzFM=
+Message-ID: <5b8e20700612141348l66af58b6lb6899b710d1d9c14@mail.gmail.com>
+Date: Thu, 14 Dec 2006 16:48:48 -0500
+From: "Michael Bommarito" <michael.bommarito@gmail.com>
+To: "Uli Kunitz" <kune@deine-taler.de>
+Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to ieee80211softmac_assoc_work
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <341A1CE8-DF10-4CD5-B675-89449256EAB5@deine-taler.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612142144.26023.s0348365@sms.ed.ac.uk>
+References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
+	 <341A1CE8-DF10-4CD5-B675-89449256EAB5@deine-taler.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 December 2006 21:33, Jeff Garzik wrote:
-> Alistair John Strachan wrote:
-> > Hi Jens,
-> >
-> > On Thursday 14 December 2006 20:48, Jens Axboe wrote:
-> >> On Thu, Dec 14 2006, Jens Axboe wrote:
-> >>>> I'll do that if nobody comes up with anything obvious.
-> >>>
-> >>> If you can just test 2.6.19-git1, then we'll know if it's the SG_IO
-> >>> patch again.
-> >>
-> >> Actually, you should test 2.6.19-git1 with this patch applied as well.
-> >
-> > 2.6.19-git1 with FUJITA Tomonori's bio-leak fix doesn't break, and
-> > hddtemp continues to work fine:
-> >
-> > [root] 21:10 [~] hddtemp /dev/sda /dev/sdb /dev/sdc /dev/sdd
-> > /dev/sda: WDC WD2500KS-00MJB0: 29°C
-> > /dev/sdb: WDC WD2500KS-00MJB0: 27°C
-> > /dev/sdc: Maxtor 6B200M0: 28°C
-> > /dev/sdd: Maxtor 6B200M0: 26°C
+Hello Uli,
+  Yes, apologies, I had been waiting for an abandoned bugzilla entry
+to get attention, and when I realized it was assigned to a dead-end, I
+had simply posted the patch without checking for prior messages.
+  I was further confused by the fact that it hadn't made its way into
+any of the 19-gitX sets (and for that matter, the window for
+2.6.20-rc1 has come and gone and this still remains unfixed), despite
+how clear the error was and how trivial the fix seems.
+
+-Mike
+
+On 12/14/06, Uli Kunitz <kune@deine-taler.de> wrote:
+> Michael,
 >
-> So can you bisect and see which patch broke things?
+> I sent a patch to this list on Sunday, that patched the problem. It
+> seems to be migrated into the wireless-2.6 git tree.
 >
-> I do wonder if its the update to sata_nv ADMA.
-
-Before I proceed with the horrors of an -rc1 bisection, could somebody send me 
-the ADMA patches so I can eliminate those first?
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+> Regards,
+>
+> Uli
+> Am 13.12.2006 um 19:17 schrieb Michael Bommarito:
+>
+> > This didn't get much attention on bugzilla and I figured it was
+> > important enough to forward along to the whole list since it's been
+> > lingering around in ieee80211-softmac since 19-git5 at least.
+> > http://bugzilla.kernel.org/show_bug.cgi?id=7657
+> >
+> > Somebody was passing the whole mac device structure to
+> > ieee80211softmac_assoc_work instead of just the assocation work, which
+> > lead to much death and locking.
+> >
+> > Attached is a patch that fixes this (the actual change is two lines
+> > but context provided in patch for review).  The dmesg containing call
+> > trace is attached to the bugzilla entry above.
+> >
+> > -Mike
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe netdev" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> --
+> Uli Kunitz
+>
+>
+>
+>

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932825AbWLNPtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932832AbWLNPwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932825AbWLNPtM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbWLNPtM
+	id S932832AbWLNPwK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbWLNPwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:49:12 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:47347 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932825AbWLNPtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:49:10 -0500
-Message-ID: <4581726B.9050006@garzik.org>
-Date: Thu, 14 Dec 2006 10:48:59 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Alan <alan@lxorguk.ukuu.org.uk>
-CC: Rik van Riel <riel@redhat.com>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-References: <20061214003246.GA12162@suse.de>	<22299.1166057009@lwn.net>	<20061214005532.GA12790@suse.de>	<20061214051015.GA3506@nostromo.devel.redhat.com>	<20061214084820.GA29311@suse.de>	<4581595C.7080508@redhat.com> <20061214154734.189a23c6@localhost.localdomain>
-In-Reply-To: <20061214154734.189a23c6@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Dec 2006 10:52:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48502 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932828AbWLNPwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:52:08 -0500
+Subject: Re: [PATCH] Clarify i386/Kconfig explanation of the HIGHMEM config
+	options
+From: Arjan van de Ven <arjan@infradead.org>
+To: Theodore Tso <tytso@mit.edu>
+Cc: Franck Pommereau <pommereau@univ-paris12.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061214151745.GC9079@thunk.org>
+References: <458118BB.5050308@univ-paris12.fr>
+	 <1166090244.27217.978.camel@laptopd505.fenrus.org>
+	 <45813E67.80709@univ-paris12.fr>
+	 <1166098747.27217.1018.camel@laptopd505.fenrus.org>
+	 <20061214151745.GC9079@thunk.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 14 Dec 2006 16:52:05 +0100
+Message-Id: <1166111525.27217.1068.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> Another thing we should do more is aggressively merge prototype open
-> drivers for binary only hardware - lets get Nouveau's DRM bits into the
-> kernel ASAP for example.
+On Thu, 2006-12-14 at 10:17 -0500, Theodore Tso wrote:
+> > > I'd be happy to know how to enable it.
+> >
+> > CONFIG_HIGHMEM64G=y
+> 
+> This is not at all obvious from arch/i386/Kconfig.  Maybe we should
+> fix this?
 
-ACK++  We should definitely push Nouveau[1] as hard as we can.
+looks better; maybe add how to look for "pae" and "nx" in
+the /proc/cpuinfo flags line ?
 
-	Jeff
-
-
-[1] http://nouveau.freedesktop.org/
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

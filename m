@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932692AbWLNM1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932694AbWLNM1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbWLNM1Y (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 07:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWLNM1Y
+	id S932694AbWLNM1t (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 07:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWLNM1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 07:27:24 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:13120 "EHLO
-	amsfep14-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932692AbWLNM1Y (ORCPT
+	Thu, 14 Dec 2006 07:27:48 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:1370 "EHLO
+	anchor-post-32.mail.demon.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932694AbWLNM1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 07:27:24 -0500
-Subject: [PATCH] slab: fix kmem_ptr_validate prototype
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 14 Dec 2006 13:26:40 +0100
-Message-Id: <1166099200.32332.233.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 8bit
+	Thu, 14 Dec 2006 07:27:48 -0500
+X-Greylist: delayed 10392 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 07:27:47 EST
+Message-ID: <45814340.301@superbug.co.uk>
+Date: Thu, 14 Dec 2006 12:27:44 +0000
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
+MIME-Version: 1.0
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+CC: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+References: <20061213195226.GA6736@kroah.com> <20061213203113.GA9026@suse.de> <Pine.LNX.4.64.0612131252300.5718@woody.osdl.org> <200612140949.43270.duncan.sands@math.u-psud.fr>
+In-Reply-To: <200612140949.43270.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some fallout of: 2e892f43ccb602e8ffad73396a1000f2040c9e0b
+Duncan Sands wrote:
+>> I'm really not convinced about the user-mode thing unless somebody can 
+>> show me a good reason for it. Not just some "wouldn't it be nice" kind of 
+>> thing. A real, honest-to-goodness reason that we actually _want_ to see 
+>> used.
+> 
+> Qemu?  It would be nice if emulators could directly drive hardware:
+> useful for reverse engineering windows drivers for example.
+> 
+> Duncan.
 
-  CC      mm/slab.o
-/usr/src/linux-2.6-git/mm/slab.c:3557: error: conflicting types for ‘kmem_ptr_validate’
-/usr/src/linux-2.6-git/include/linux/slab.h:58: error: previous declaration of ‘kmem_ptr_validate’ was here
+I have reverse engineered many windows drivers, and what you suggest is 
+not at all helpful. For reverse engineering, one wants to see what is 
+happening. I.e. capture all the IO, MMIO and DMA accesses.
+Your suggestion bypasses this possibility.
+For reverse engineering windows drivers, one puts breakpoints in the 
+HAL.DLL code or replaces the HAL.DLL code with a debugging version of it 
+  while actually running windows.
 
+Your approach runs into problems.
+e.g
+There is a register on the card that sets the DMA base address, but you 
+don't know which register this is. If you let the driver inside QEMU 
+write to this register, it will write values suitable for the Virtual 
+machine instead of values suitable to for host OS. The DMA transaction 
+will write all over the wrong memory location resulting in CRASH.
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- include/linux/slab.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+One might be able to get round some of these problem with a combination 
+of QEMU and a hacked up HAL.DLL, but it will be complicated.
 
-Index: linux-2.6-git/include/linux/slab.h
-===================================================================
---- linux-2.6-git.orig/include/linux/slab.h	2006-12-14 11:56:35.000000000 +0100
-+++ linux-2.6-git/include/linux/slab.h	2006-12-14 11:56:46.000000000 +0100
-@@ -55,7 +55,7 @@ void *kmem_cache_zalloc(struct kmem_cach
- void kmem_cache_free(struct kmem_cache *, void *);
- unsigned int kmem_cache_size(struct kmem_cache *);
- const char *kmem_cache_name(struct kmem_cache *);
--int kmem_ptr_validate(struct kmem_cache *cachep, const void *ptr);
-+int fastcall kmem_ptr_validate(struct kmem_cache *cachep, const void *ptr);
- 
- #ifdef CONFIG_NUMA
- extern void *kmem_cache_alloc_node(struct kmem_cache *, gfp_t flags, int node);
-
+James
 

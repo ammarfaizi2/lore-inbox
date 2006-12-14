@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751990AbWLNXmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751995AbWLNXm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751990AbWLNXmV (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWLNXmU
+	id S1751995AbWLNXm0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWLNXm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:42:20 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:60861 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751990AbWLNXmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:42:20 -0500
-Message-ID: <4581E192.3010108@oracle.com>
-Date: Thu, 14 Dec 2006 15:43:14 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Scott Preece <sepreece@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jesper.juhl@gmail.com
-Subject: Re: [PATCH/RFC] CodingStyle updates
-References: <20061207004838.4d84842c.randy.dunlap@oracle.com> <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
-In-Reply-To: <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Dec 2006 18:42:26 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:42694 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751995AbWLNXmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 18:42:25 -0500
+Date: Thu, 14 Dec 2006 15:42:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Amitabha Roy" <amitabha.roy@gmail.com>
+Cc: phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/1] oprofile: Add a special cookie for the VDSO region
+Message-Id: <20061214154211.34b0a7f7.akpm@osdl.org>
+In-Reply-To: <cf9d85500612110156y40341563ge96ae598f72ef303@mail.gmail.com>
+References: <cf9d85500612110156y40341563ge96ae598f72ef303@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Preece wrote:
-[1]
->>  Outside of comments, documentation and except in Kconfig, spaces are 
->> never
->>  used for indentation, and the above example is deliberately broken.
+On Mon, 11 Dec 2006 15:26:26 +0530
+"Amitabha Roy" <amitabha.roy@gmail.com> wrote:
+
+> Emit a special VDSO_COOKIE for VDSO regions instead of simply marking
+> them as anon.
+
+Why?
+
+> Signed-off-by: Amitabha Roy <amitabha.roy@gmail.com>
 > ---
+> diff --git a/drivers/oprofile/buffer_sync.c b/drivers/oprofile/buffer_sync.c
+> index 78c2e6e..7f879db 100644
+> --- a/drivers/oprofile/buffer_sync.c
+> +++ b/drivers/oprofile/buffer_sync.c
+> @@ -250,7 +250,14 @@ static unsigned long lookup_dcookie(stru
+>  				vma->vm_file->f_path.mnt);
+>  			*offset = (vma->vm_pgoff << PAGE_SHIFT) + addr -
+>  				vma->vm_start;
+> -		} else {
+> +		}
+> +#ifdef CONFIG_X86_32
+> +		else if(mm->context.vdso==vma->vm_start){
+> +                        cookie = VDSO_COOKIE;
+> +		        *offset = addr;
+> +		}
+> +#endif
+> +		else {
+>  			/* must be an anonymous map */
+>  			*offset = addr;
+>  		}
+> diff --git a/drivers/oprofile/event_buffer.h b/drivers/oprofile/event_buffer.h
+> index 9241627..edc8ee2 100644
+> --- a/drivers/oprofile/event_buffer.h
+> +++ b/drivers/oprofile/event_buffer.h
+> @@ -35,6 +35,7 @@ #define CTX_TGID_CODE			7
+>  #define TRACE_BEGIN_CODE		8
+>  #define TRACE_END_CODE			9
 > 
-> I realize it isn't text you added, but what's that supposed to mean?
-> Surely the 8-character indents are made up of spaces.  Does it mean
+> +#define VDSO_COOKIE ~1UL
+>  #define INVALID_COOKIE ~0UL
+>  #define NO_COOKIE 0UL
 
-No, the 8-character indents are made of one ASCII TAB character.
 
-> "spaces other than 8-space blocks"? In any case, how does it synch
-> with the following chapter's statement that continuations " are placed
-> substantially to the right" - isn't that done with spaces, too?
-
-That's usually (preferably) done with tab(s).  Sometimes it is done
-with a few spaces instead.  (and we put up with it :)
-
-> Or am I just totally spacing out on what was meant?
-
-I take [1] to mean that this example:
-
-	if (condition) do_this;
-	  do_something_everytime;
-
-is broken in at least 3 ways:
-1/ do_this(); should be on a separate line;
-2/ do_something_everytime() should not be indented more than the "if"
-	above it; and
-3/ *if* do_something_everytime() were to be indented more than it is,
-	it should be done with a tab, not spaces.
-
--- 
-~Randy

@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932877AbWLNRcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932883AbWLNRet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932877AbWLNRcd (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 12:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932882AbWLNRcd
+	id S932883AbWLNRet (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 12:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932885AbWLNRet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 12:32:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41683 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932877AbWLNRcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 12:32:32 -0500
-Date: Thu, 14 Dec 2006 09:32:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-In-Reply-To: <Pine.LNX.4.61.0612141224190.6223@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0612140926290.5718@woody.osdl.org>
-References: <20061213195226.GA6736@kroah.com>  <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
- <1166044471.11914.195.camel@localhost.localdomain>
- <Pine.LNX.4.61.0612132219480.32433@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0612131522310.5718@woody.osdl.org>
- <Pine.LNX.4.61.0612141206500.6223@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0612141224190.6223@yvahk01.tjqt.qr>
+	Thu, 14 Dec 2006 12:34:49 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:2075 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932883AbWLNRes (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 12:34:48 -0500
+X-Greylist: delayed 1205 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 12:34:48 EST
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: libata-pata with ICH4, rootfs
+Date: Thu, 14 Dec 2006 17:14:55 +0000
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612141714.55948.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
 
+Is it possible to use pata_mpiix (or pata_oldpiix) with an ICH4 IDE controller 
+and boot off it?
 
-On Thu, 14 Dec 2006, Jan Engelhardt wrote:
-> 
-> Rather than IRQ_HANDLED, it should have been: remove this irq handler 
-> from the irq handlers for irq number N, so that it does not get called 
-> again until userspace has acked it.
+I've tried compiling both drivers into the kernel, and totally disabling 
+CONFIG_IDE, but it doesn't boot. dmesg doesn't indicate any detection has 
+taken place. The old IDE layer works fine.
 
-Wrongo.
+-- 
+Cheers,
+Alistair.
 
-That just means that the _handler_ won't be called.
-
-But the irq still stays active, and if it's shared, ALL THE OTHER HANDLERS 
-FOR THAT INTERRUPT will be called. 
-
-Over and over again. Forever. Because the machine won't be making any 
-progress, and the user-level code (which might know how to shut it up) 
-won't ever be called, because the machine is busy just doing interrupt 
-delivery all the time.
-
-> See, maybe I don't have enough clue yet to exactly figure out why you 
-> say it does not work. However, this is how simple people see it 8)
-
-You may be a bit simple. But I think it's more polite to call you 
-"special". Or maybe just not very used to how hardware works.
-
-Btw, this is not something theoretical. We used to have this particular 
-problem _all_ the time with PCMCIA back when we weren't as good at 
-interrupt routing. You'd insert a PCMCIA card, and the machine just hung. 
-Hard.
-
-And the reason was that it would send an irq, but we were expecting it on 
-another interrupt. But if it showed up on something that was shared, you'd 
-have a hung machine, because you'd just have the (say) ethernet driver 
-saying "not for me", and returning. And obviously not able to actually 
-shut it up, so when we returned from the interrupt handler, the interrupt 
-happened immediately again.
-
-So this really isn't theoretical. It's a very common failure schenario for 
-mishandled interrupts. In fact, exactly because it's so common, these days 
-we have all this special logic in the generic interrupt layer that 
-notices, and shuts them up entirely (but does so by disabling _all_ the 
-devices on that interrupt, so when this happens, you might well lose your 
-disk driver or somethign else).
-
-			Linus
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

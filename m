@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751837AbWLNKZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751848AbWLNK0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWLNKZS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 05:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751847AbWLNKZS
+	id S1751848AbWLNK0S (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 05:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWLNK0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 05:25:18 -0500
-Received: from www.osadl.org ([213.239.205.134]:51810 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751837AbWLNKZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 05:25:17 -0500
-From: =?iso-8859-1?q?Hans-J=FCrgen_Koch?= <hjk@linutronix.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Userspace I/O driver core
-Date: Thu, 14 Dec 2006 11:25:14 +0100
-User-Agent: KMail/1.9.5
-References: <20061214010608.GA13229@kroah.com> <45811D0F.2070705@argo.co.il>
-In-Reply-To: <45811D0F.2070705@argo.co.il>
-Organization: Linutronix
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 14 Dec 2006 05:26:18 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50536 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751848AbWLNK0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 05:26:17 -0500
+Date: Thu, 14 Dec 2006 10:34:35 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 1/1] Char: isicom, remove tty_{hang,wake}up bottomhalves
+Message-ID: <20061214103435.0dfcfa1c@localhost.localdomain>
+In-Reply-To: <16468312961305320785@karneval.cz>
+References: <16468312961305320785@karneval.cz>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612141125.14777.hjk@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 14. Dezember 2006 10:44 schrieb Avi Kivity:
+On Thu, 14 Dec 2006 01:35:17 +0100 (CET)
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
+> isicom, remove tty_{hang,wake}up bottomhalves
 > 
-> I understand one still has to write a kernel driver to shut up the irq.  
-> How about writing a small bytecode interpreter to make event than 
-> unnecessary?
+> - tty_hangup() itself schedules work, so there is no need to schedule hangup
+>   in the driver
+> - tty_wakeup() its safe to call it while in atomic (IS THIS CORRECT?), so that
+>   its schedule_work might be also wiped out
 > 
-> The userspace driver would register a couple of bytecode programs: 
-> is_interrupt_pending() and disable_interrupt(), which the uio framework 
-> would call when the interrupt fires.
-> 
-> The bytecode could reuse net/core/filter.c, with the packet replaced by 
-> the mmio or ioregion, or use something new.
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 > 
 
-I think this would be overkill. The kernel module you have to write
-is _really_ very simple. And it has to be written only once, so even
-a manufacturer who employs no experienced kernel developers can
-easily outsource that task.
-
-Hans
-
+Acked-by: Alan Cox <alan@redhat.com>

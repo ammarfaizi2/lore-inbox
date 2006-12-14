@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932756AbWLNOUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932791AbWLNOVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932756AbWLNOUs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbWLNOTy
+	id S932791AbWLNOVz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbWLNOTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:19:54 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46401 "EHLO
+	Thu, 14 Dec 2006 09:19:37 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46394 "EHLO
 	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932756AbWLNOTb (ORCPT
+	by vger.kernel.org with ESMTP id S932750AbWLNOT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:19:31 -0500
+	Thu, 14 Dec 2006 09:19:27 -0500
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v4 11/13] Core Resource Allocation
-Date: Thu, 14 Dec 2006 07:58:07 -0600
+Subject: [PATCH  v4 01/13] Linux RDMA Core Changes
+Date: Thu, 14 Dec 2006 07:53:05 -0600
 To: rdreier@cisco.com
 Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org
-Message-Id: <20061214135807.21159.36678.stgit@dell3.ogc.int>
+Message-Id: <20061214135303.21159.61880.stgit@dell3.ogc.int>
 In-Reply-To: <20061214135233.21159.78613.stgit@dell3.ogc.int>
 References: <20061214135233.21159.78613.stgit@dell3.ogc.int>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,425 +26,201 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Core functions to carve up adapter memory, stag, qp, and cq IDs.
+Support provider-specific data in ib_uverbs_cmd_req_notify_cq().
+The Chelsio iwarp provider library needs to pass information to the
+kernel verb for re-arming the CQ.
 
 Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 ---
 
- drivers/infiniband/hw/cxgb3/core/cxio_resource.c |  331 ++++++++++++++++++++++
- drivers/infiniband/hw/cxgb3/core/cxio_resource.h |   70 +++++
- 2 files changed, 401 insertions(+), 0 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c      |    9 +++++++--
+ drivers/infiniband/hw/amso1100/c2.h       |    2 +-
+ drivers/infiniband/hw/amso1100/c2_cq.c    |    3 ++-
+ drivers/infiniband/hw/ehca/ehca_iverbs.h  |    3 ++-
+ drivers/infiniband/hw/ehca/ehca_reqs.c    |    3 ++-
+ drivers/infiniband/hw/ipath/ipath_cq.c    |    4 +++-
+ drivers/infiniband/hw/ipath/ipath_verbs.h |    3 ++-
+ drivers/infiniband/hw/mthca/mthca_cq.c    |    6 ++++--
+ drivers/infiniband/hw/mthca/mthca_dev.h   |    4 ++--
+ include/rdma/ib_verbs.h                   |    5 +++--
+ 10 files changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_resource.c b/drivers/infiniband/hw/cxgb3/core/cxio_resource.c
-new file mode 100644
-index 0000000..444df15
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_resource.c
-@@ -0,0 +1,331 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+/* Crude resource management */
-+#include <linux/kernel.h>
-+#include <linux/random.h>
-+#include <linux/slab.h>
-+#include <linux/kfifo.h>
-+#include <linux/spinlock.h>
-+#include <linux/errno.h>
-+#include "cxio_resource.h"
-+#include "cxio_hal.h"
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 743247e..5dd1de9 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -959,6 +959,7 @@ ssize_t ib_uverbs_req_notify_cq(struct i
+ 				int out_len)
+ {
+ 	struct ib_uverbs_req_notify_cq cmd;
++	struct ib_udata		      udata;
+ 	struct ib_cq                  *cq;
+ 
+ 	if (copy_from_user(&cmd, buf, sizeof cmd))
+@@ -968,8 +969,12 @@ ssize_t ib_uverbs_req_notify_cq(struct i
+ 	if (!cq)
+ 		return -EINVAL;
+ 
+-	ib_req_notify_cq(cq, cmd.solicited_only ?
+-			 IB_CQ_SOLICITED : IB_CQ_NEXT_COMP);
++	INIT_UDATA(&udata, buf + sizeof cmd, 0,
++		   in_len - sizeof cmd, 0); 
 +
-+static struct kfifo *rhdl_fifo;
-+static spinlock_t rhdl_fifo_lock;
-+
-+#define RANDOM_SIZE 16
-+
-+static int __cxio_init_resource_fifo(struct kfifo **fifo,
-+				   spinlock_t *fifo_lock,
-+				   u32 nr, u32 skip_low,
-+				   u32 skip_high,
-+				   int random)
-+{
-+	u32 i, j, entry = 0, idx;
-+	u32 random_bytes;
-+	u32 rarray[16];
-+	spin_lock_init(fifo_lock);
-+
-+	*fifo = kfifo_alloc(nr * sizeof(u32), GFP_KERNEL, fifo_lock);
-+	if (IS_ERR(*fifo))
-+		return -ENOMEM;
-+
-+	for (i = 0; i < skip_low + skip_high; i++)
-+		__kfifo_put(*fifo, (unsigned char *) &entry, sizeof(u32));
-+	if (random) {
-+		j = 0;
-+		random_bytes = random32();
-+		for (i = 0; i < RANDOM_SIZE; i++)
-+			rarray[i] = i + skip_low;
-+		for (i = skip_low + RANDOM_SIZE; i < nr - skip_high; i++) {
-+			if (j >= RANDOM_SIZE) {
-+				j = 0;
-+				random_bytes = random32();
-+			}
-+			idx = (random_bytes >> (j * 2)) & 0xF;
-+			__kfifo_put(*fifo, 
-+				(unsigned char *) &rarray[idx],
-+				sizeof(u32));
-+			rarray[idx] = i;
-+			j++;	
-+		}
-+		for (i = 0; i < RANDOM_SIZE; i++)
-+			__kfifo_put(*fifo, 
-+				(unsigned char *) &rarray[i],
-+				sizeof(u32));
-+	} else
-+		for (i = skip_low; i < nr - skip_high; i++)
-+			__kfifo_put(*fifo, (unsigned char *) &i, sizeof(u32));
-+
-+	for (i = 0; i < skip_low + skip_high; i++)
-+		kfifo_get(*fifo, (unsigned char *) &entry, sizeof(u32));
-+	return 0;
-+}
-+
-+static int cxio_init_resource_fifo(struct kfifo **fifo, spinlock_t * fifo_lock,
-+				   u32 nr, u32 skip_low, u32 skip_high)
-+{
-+	return (__cxio_init_resource_fifo(fifo, fifo_lock, nr, skip_low, 
-+					  skip_high, 0));
-+}
-+
-+static int cxio_init_resource_fifo_random(struct kfifo **fifo,
-+				   spinlock_t * fifo_lock,
-+				   u32 nr, u32 skip_low, u32 skip_high)
-+{
-+
-+	return (__cxio_init_resource_fifo(fifo, fifo_lock, nr, skip_low, 
-+					  skip_high, 1));
-+}
-+
-+static int cxio_init_qpid_fifo(struct cxio_rdev *rdev_p)
-+{
-+	u32 i;
-+
-+	spin_lock_init(&rdev_p->rscp->qpid_fifo_lock);
-+
-+	rdev_p->rscp->qpid_fifo = kfifo_alloc(T3_MAX_NUM_QP * sizeof(u32), 
-+					      GFP_KERNEL, 
-+					      &rdev_p->rscp->qpid_fifo_lock);
-+	if (IS_ERR(rdev_p->rscp->qpid_fifo))
-+		return -ENOMEM;
-+
-+	for (i = 16; i < T3_MAX_NUM_QP; i++)
-+		if (!(i & rdev_p->qpmask))
-+			__kfifo_put(rdev_p->rscp->qpid_fifo, 
-+				    (unsigned char *) &i, sizeof(u32));
-+	return 0;
-+}
-+
-+int cxio_hal_init_rhdl_resource(u32 nr_rhdl)
-+{
-+	return cxio_init_resource_fifo(&rhdl_fifo, &rhdl_fifo_lock, nr_rhdl, 1,
-+				       0);
-+}
-+
-+void cxio_hal_destroy_rhdl_resource(void)
-+{
-+	kfifo_free(rhdl_fifo);
-+}
-+
-+/* nr_* must be power of 2 */
-+int cxio_hal_init_resource(struct cxio_rdev *rdev_p,
-+			   u32 nr_tpt, u32 nr_pbl,
-+			   u32 nr_rqt, u32 nr_qpid, u32 nr_cqid, u32 nr_pdid)
-+{
-+	int err = 0;
-+	struct cxio_hal_resource *rscp;
-+
-+	rscp = kmalloc(sizeof(*rscp), GFP_KERNEL);
-+	if (!rscp)
-+		return -ENOMEM;
-+	rdev_p->rscp = rscp;
-+	err = cxio_init_resource_fifo_random(&rscp->tpt_fifo,
-+				      &rscp->tpt_fifo_lock, 
-+				      nr_tpt, 1, 0);
-+	if (err)
-+		goto tpt_err;
-+	err = cxio_init_qpid_fifo(rdev_p);
-+	if (err)
-+		goto qpid_err;
-+	err = cxio_init_resource_fifo(&rscp->cqid_fifo, &rscp->cqid_fifo_lock, 
-+				      nr_cqid, 1, 0);
-+	if (err)
-+		goto cqid_err;
-+	err = cxio_init_resource_fifo(&rscp->pdid_fifo, &rscp->pdid_fifo_lock, 
-+				      nr_pdid, 1, 0);
-+	if (err)
-+		goto pdid_err;
-+	return 0;
-+pdid_err:
-+	kfifo_free(rscp->cqid_fifo);
-+cqid_err:
-+	kfifo_free(rscp->qpid_fifo);
-+qpid_err:
-+	kfifo_free(rscp->tpt_fifo);
-+tpt_err:
-+	return -ENOMEM;
-+}
-+
-+/*
-+ * returns 0 if no resource available
-+ */
-+static inline u32 cxio_hal_get_resource(struct kfifo *fifo)
-+{
-+	u32 entry;
-+	if (kfifo_get(fifo, (unsigned char *) &entry, sizeof(u32)))
-+		return entry;
-+	else
-+		return 0;	/* fifo emptry */
-+}
-+
-+static inline void cxio_hal_put_resource(struct kfifo *fifo, u32 entry)
-+{
-+	BUG_ON(kfifo_put(fifo, (unsigned char *) &entry, sizeof(u32)) == 0);
-+}
-+
-+u32 cxio_hal_get_rhdl(void)
-+{
-+	return cxio_hal_get_resource(rhdl_fifo);
-+}
-+
-+void cxio_hal_put_rhdl(u32 rhdl)
-+{
-+	cxio_hal_put_resource(rhdl_fifo, rhdl);
-+}
-+
-+u32 cxio_hal_get_stag(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->tpt_fifo);
-+}
-+
-+void cxio_hal_put_stag(struct cxio_hal_resource *rscp, u32 stag)
-+{
-+	cxio_hal_put_resource(rscp->tpt_fifo, stag);
-+}
-+
-+u32 cxio_hal_get_qpid(struct cxio_hal_resource *rscp)
-+{
-+	u32 qpid = cxio_hal_get_resource(rscp->qpid_fifo);
-+	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
-+	return qpid;
-+}
-+
-+void cxio_hal_put_qpid(struct cxio_hal_resource *rscp, u32 qpid)
-+{
-+	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
-+	cxio_hal_put_resource(rscp->qpid_fifo, qpid);
-+}
-+
-+u32 cxio_hal_get_cqid(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->cqid_fifo);
-+}
-+
-+void cxio_hal_put_cqid(struct cxio_hal_resource *rscp, u32 cqid)
-+{
-+	cxio_hal_put_resource(rscp->cqid_fifo, cqid);
-+}
-+
-+u32 cxio_hal_get_pdid(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->pdid_fifo);
-+}
-+
-+void cxio_hal_put_pdid(struct cxio_hal_resource *rscp, u32 pdid)
-+{
-+	cxio_hal_put_resource(rscp->pdid_fifo, pdid);
-+}
-+
-+void cxio_hal_destroy_resource(struct cxio_hal_resource *rscp)
-+{
-+	kfifo_free(rscp->tpt_fifo);
-+	kfifo_free(rscp->cqid_fifo);
-+	kfifo_free(rscp->qpid_fifo);
-+	kfifo_free(rscp->pdid_fifo);
-+	kfree(rscp);
-+}
-+
-+/*
-+ * PBL Memory Manager.  Uses Linux generic allocator.
-+ */
-+
-+#define MIN_PBL_SHIFT 8			/* 256B == min PBL size (32 entries) */
-+#define PBL_CHUNK 2*1024*1024 		
-+
-+u32 cxio_hal_pblpool_alloc(struct cxio_rdev *rdev_p, int size)
-+{
-+	unsigned long addr = gen_pool_alloc(rdev_p->pbl_pool, size);
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, (u32)addr, size);
-+	return (u32)addr;
-+}
-+
-+void cxio_hal_pblpool_free(struct cxio_rdev *rdev_p, u32 addr, int size)
-+{
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, addr, size);
-+	gen_pool_free(rdev_p->pbl_pool, (unsigned long)addr, size);
-+}
-+
-+int cxio_hal_pblpool_create(struct cxio_rdev *rdev_p)
-+{
-+	unsigned long i;
-+	rdev_p->pbl_pool = gen_pool_create(MIN_PBL_SHIFT, -1);
-+	if (rdev_p->pbl_pool)
-+		for (i = rdev_p->rnic_info.pbl_base; 
-+		     i <= rdev_p->rnic_info.pbl_top - PBL_CHUNK + 1; 
-+		     i += PBL_CHUNK)
-+			gen_pool_add(rdev_p->pbl_pool, i, PBL_CHUNK, -1);
-+	return rdev_p->pbl_pool ? 0 : -ENOMEM;
-+}
-+
-+void cxio_hal_pblpool_destroy(struct cxio_rdev *rdev_p)
-+{
-+	gen_pool_destroy(rdev_p->pbl_pool);
-+}
-+
-+/*
-+ * RQT Memory Manager.  Uses Linux generic allocator.
-+ */
-+
-+#define MIN_RQT_SHIFT 10	/* 1KB == mini RQT size (16 entries) */
-+#define RQT_CHUNK 2*1024*1024 		
-+
-+u32 cxio_hal_rqtpool_alloc(struct cxio_rdev *rdev_p, int size)
-+{
-+	unsigned long addr = gen_pool_alloc(rdev_p->rqt_pool, size << 6);
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, (u32)addr, size << 6);
-+	return (u32)addr;
-+}
-+
-+void cxio_hal_rqtpool_free(struct cxio_rdev *rdev_p, u32 addr, int size)
-+{
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, addr, size << 6);
-+	gen_pool_free(rdev_p->rqt_pool, (unsigned long)addr, size << 6);
-+}
-+
-+int cxio_hal_rqtpool_create(struct cxio_rdev *rdev_p)
-+{
-+	unsigned long i;
-+	rdev_p->rqt_pool = gen_pool_create(MIN_RQT_SHIFT, -1);
-+	if (rdev_p->rqt_pool)
-+		for (i = rdev_p->rnic_info.rqt_base; 
-+		     i <= rdev_p->rnic_info.rqt_top - RQT_CHUNK + 1; 
-+		     i += RQT_CHUNK)
-+			gen_pool_add(rdev_p->rqt_pool, i, RQT_CHUNK, -1);
-+	return rdev_p->rqt_pool ? 0 : -ENOMEM;
-+}
-+
-+void cxio_hal_rqtpool_destroy(struct cxio_rdev *rdev_p)
-+{
-+	gen_pool_destroy(rdev_p->rqt_pool);
-+}
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_resource.h b/drivers/infiniband/hw/cxgb3/core/cxio_resource.h
-new file mode 100644
-index 0000000..a6bbe83
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_resource.h
-@@ -0,0 +1,70 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#ifndef __CXIO_RESOURCE_H__
-+#define __CXIO_RESOURCE_H__
-+
-+#include <linux/kernel.h>
-+#include <linux/random.h>
-+#include <linux/slab.h>
-+#include <linux/kfifo.h>
-+#include <linux/spinlock.h>
-+#include <linux/errno.h>
-+#include <linux/genalloc.h>
-+#include "cxio_hal.h"
-+
-+extern int cxio_hal_init_rhdl_resource(u32 nr_rhdl);
-+extern void cxio_hal_destroy_rhdl_resource(void);
-+extern int cxio_hal_init_resource(struct cxio_rdev *rdev_p,
-+				  u32 nr_tpt, u32 nr_pbl,
-+				  u32 nr_rqt, u32 nr_qpid, u32 nr_cqid,
-+				  u32 nr_pdid);
-+extern u32 cxio_hal_get_stag(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_stag(struct cxio_hal_resource *rscp, u32 stag);
-+extern u32 cxio_hal_get_qpid(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_qpid(struct cxio_hal_resource *rscp, u32 qpid);
-+extern u32 cxio_hal_get_cqid(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_cqid(struct cxio_hal_resource *rscp, u32 cqid);
-+extern void cxio_hal_destroy_resource(struct cxio_hal_resource *rscp);
-+
-+#define PBL_OFF(rdev_p, a) ( (a) - (rdev_p)->rnic_info.pbl_base )
-+extern int cxio_hal_pblpool_create(struct cxio_rdev *rdev_p);
-+extern void cxio_hal_pblpool_destroy(struct cxio_rdev *rdev_p);
-+extern u32 cxio_hal_pblpool_alloc(struct cxio_rdev *rdev_p, int size);
-+extern void cxio_hal_pblpool_free(struct cxio_rdev *rdev_p, u32 addr, int size);
-+
-+#define RQT_OFF(rdev_p, a) ( (a) - (rdev_p)->rnic_info.rqt_base )
-+extern int cxio_hal_rqtpool_create(struct cxio_rdev *rdev_p);
-+extern void cxio_hal_rqtpool_destroy(struct cxio_rdev *rdev_p);
-+extern u32 cxio_hal_rqtpool_alloc(struct cxio_rdev *rdev_p, int size);
-+extern void cxio_hal_rqtpool_free(struct cxio_rdev *rdev_p, u32 addr, int size);
-+#endif
++	cq->device->req_notify_cq(cq, cmd.solicited_only ?
++				  IB_CQ_SOLICITED : IB_CQ_NEXT_COMP,
++				  &udata);
+ 
+ 	put_cq_read(cq);
+ 
+diff --git a/drivers/infiniband/hw/amso1100/c2.h b/drivers/infiniband/hw/amso1100/c2.h
+index 04a9db5..9a76869 100644
+--- a/drivers/infiniband/hw/amso1100/c2.h
++++ b/drivers/infiniband/hw/amso1100/c2.h
+@@ -519,7 +519,7 @@ extern void c2_free_cq(struct c2_dev *c2
+ extern void c2_cq_event(struct c2_dev *c2dev, u32 mq_index);
+ extern void c2_cq_clean(struct c2_dev *c2dev, struct c2_qp *qp, u32 mq_index);
+ extern int c2_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry);
+-extern int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify);
++extern int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify, struct ib_udata *udata);
+ 
+ /* CM */
+ extern int c2_llp_connect(struct iw_cm_id *cm_id,
+diff --git a/drivers/infiniband/hw/amso1100/c2_cq.c b/drivers/infiniband/hw/amso1100/c2_cq.c
+index 05c9154..7ce8bca 100644
+--- a/drivers/infiniband/hw/amso1100/c2_cq.c
++++ b/drivers/infiniband/hw/amso1100/c2_cq.c
+@@ -217,7 +217,8 @@ int c2_poll_cq(struct ib_cq *ibcq, int n
+ 	return npolled;
+ }
+ 
+-int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++	      struct ib_udata *udata)
+ {
+ 	struct c2_mq_shared __iomem *shared;
+ 	struct c2_cq *cq;
+diff --git a/drivers/infiniband/hw/ehca/ehca_iverbs.h b/drivers/infiniband/hw/ehca/ehca_iverbs.h
+index 3720e30..566b30c 100644
+--- a/drivers/infiniband/hw/ehca/ehca_iverbs.h
++++ b/drivers/infiniband/hw/ehca/ehca_iverbs.h
+@@ -135,7 +135,8 @@ int ehca_poll_cq(struct ib_cq *cq, int n
+ 
+ int ehca_peek_cq(struct ib_cq *cq, int wc_cnt);
+ 
+-int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify);
++int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify,
++		       struct ib_udata *udata);
+ 
+ struct ib_qp *ehca_create_qp(struct ib_pd *pd,
+ 			     struct ib_qp_init_attr *init_attr,
+diff --git a/drivers/infiniband/hw/ehca/ehca_reqs.c b/drivers/infiniband/hw/ehca/ehca_reqs.c
+index b46bda1..3ed6992 100644
+--- a/drivers/infiniband/hw/ehca/ehca_reqs.c
++++ b/drivers/infiniband/hw/ehca/ehca_reqs.c
+@@ -634,7 +634,8 @@ poll_cq_exit0:
+ 	return ret;
+ }
+ 
+-int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify)
++int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify,
++		       struct ib_udata *udata)
+ {
+ 	struct ehca_cq *my_cq = container_of(cq, struct ehca_cq, ib_cq);
+ 
+diff --git a/drivers/infiniband/hw/ipath/ipath_cq.c b/drivers/infiniband/hw/ipath/ipath_cq.c
+index 87462e0..27ba4db 100644
+--- a/drivers/infiniband/hw/ipath/ipath_cq.c
++++ b/drivers/infiniband/hw/ipath/ipath_cq.c
+@@ -307,13 +307,15 @@ int ipath_destroy_cq(struct ib_cq *ibcq)
+  * ipath_req_notify_cq - change the notification type for a completion queue
+  * @ibcq: the completion queue
+  * @notify: the type of notification to request
++ * @udata: user data 
+  *
+  * Returns 0 for success.
+  *
+  * This may be called from interrupt context.  Also called by
+  * ib_req_notify_cq() in the generic verbs code.
+  */
+-int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++			struct ib_udata *udata)
+ {
+ 	struct ipath_cq *cq = to_icq(ibcq);
+ 	unsigned long flags;
+diff --git a/drivers/infiniband/hw/ipath/ipath_verbs.h b/drivers/infiniband/hw/ipath/ipath_verbs.h
+index 8039f6e..0d39960 100644
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.h
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.h
+@@ -716,7 +716,8 @@ struct ib_cq *ipath_create_cq(struct ib_
+ 
+ int ipath_destroy_cq(struct ib_cq *ibcq);
+ 
+-int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify);
++int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++			struct ib_udata *udata);
+ 
+ int ipath_resize_cq(struct ib_cq *ibcq, int cqe, struct ib_udata *udata);
+ 
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index 283d50b..15cbd49 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -722,7 +722,8 @@ repoll:
+ 	return err == 0 || err == -EAGAIN ? npolled : err;
+ }
+ 
+-int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify)
++int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, 
++		       struct ib_udata *udata)
+ {
+ 	__be32 doorbell[2];
+ 
+@@ -739,7 +740,8 @@ int mthca_tavor_arm_cq(struct ib_cq *cq,
+ 	return 0;
+ }
+ 
+-int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++		       struct ib_udata *udata)
+ {
+ 	struct mthca_cq *cq = to_mcq(ibcq);
+ 	__be32 doorbell[2];
+diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
+index fe5cecf..6b9ccf6 100644
+--- a/drivers/infiniband/hw/mthca/mthca_dev.h
++++ b/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -493,8 +493,8 @@ void mthca_unmap_eq_icm(struct mthca_dev
+ 
+ int mthca_poll_cq(struct ib_cq *ibcq, int num_entries,
+ 		  struct ib_wc *entry);
+-int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
+-int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
++int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
++int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
+ int mthca_init_cq(struct mthca_dev *dev, int nent,
+ 		  struct mthca_ucontext *ctx, u32 pdn,
+ 		  struct mthca_cq *cq);
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 8eacc35..e3e1a2c 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -941,7 +941,8 @@ struct ib_device {
+ 					      struct ib_wc *wc);
+ 	int                        (*peek_cq)(struct ib_cq *cq, int wc_cnt);
+ 	int                        (*req_notify_cq)(struct ib_cq *cq,
+-						    enum ib_cq_notify cq_notify);
++						    enum ib_cq_notify cq_notify,
++						    struct ib_udata *udata);
+ 	int                        (*req_ncomp_notif)(struct ib_cq *cq,
+ 						      int wc_cnt);
+ 	struct ib_mr *             (*get_dma_mr)(struct ib_pd *pd,
+@@ -1373,7 +1374,7 @@ int ib_peek_cq(struct ib_cq *cq, int wc_
+ static inline int ib_req_notify_cq(struct ib_cq *cq,
+ 				   enum ib_cq_notify cq_notify)
+ {
+-	return cq->device->req_notify_cq(cq, cq_notify);
++	return cq->device->req_notify_cq(cq, cq_notify, NULL);
+ }
+ 
+ /**

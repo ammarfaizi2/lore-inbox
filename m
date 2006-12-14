@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932881AbWLNUcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932827AbWLNUde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932881AbWLNUcm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 15:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932864AbWLNUcl
+	id S932827AbWLNUde (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 15:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932864AbWLNUdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 15:32:41 -0500
-Received: from main.gmane.org ([80.91.229.2]:58001 "EHLO ciao.gmane.org"
+	Thu, 14 Dec 2006 15:33:33 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:49277 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932827AbWLNUck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 15:32:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+	id S932827AbWLNUdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 15:33:33 -0500
+Message-ID: <4581B50A.90704@garzik.org>
+Date: Thu, 14 Dec 2006 15:33:14 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.20-rc1
-Date: Thu, 14 Dec 2006 20:32:00 +0000 (UTC)
-Message-ID: <loom.20061214T213058-9@post.gmane.org>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612141930.19797.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 81.64.156.37 (Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.1) Gecko/20061027 Firefox/2.0)
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612141930.19797.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0612141150480.5718@woody.osdl.org> <200612142016.55286.s0348365@sms.ed.ac.uk> <20061214202854.GM5010@kernel.dk>
+In-Reply-To: <20061214202854.GM5010@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan <s0348365 <at> sms.ed.ac.uk> writes:
+Jens Axboe wrote:
+> Is the hddtemp source not available?
 
-> `hddtemp' has stopped working on 2.6.20-rc1:
 
-→ http://bugzilla.kernel.org/show_bug.cgi?id=7581
+http://www.guzu.net/linux/hddtemp.php says 
+http://www.guzu.net/files/hddtemp-0.3-beta15.tar.bz2
+
+	Jeff
 
 

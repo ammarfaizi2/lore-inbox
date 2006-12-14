@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752010AbWLNXvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752018AbWLNXyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752010AbWLNXvo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWLNXvo
+	id S1752018AbWLNXyU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWLNXyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:51:44 -0500
-Received: from mga02.intel.com ([134.134.136.20]:45810 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752010AbWLNXvn convert rfc822-to-8bit (ORCPT
+	Thu, 14 Dec 2006 18:54:20 -0500
+Received: from an-out-0708.google.com ([209.85.132.240]:50238 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752018AbWLNXyT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:51:43 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,171,1165219200"; 
-   d="scan'208"; a="174676836:sNHT33272302"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 14 Dec 2006 18:54:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y0yvGAzcIvJUuUSlN3MlJdfhNSB1QrYaoBV80woR9qwF67ZHEpfyN3v2JRLTbeYcp2ILIWTYWi0148VaUnwvKsvIfKF5mSmJqEHQ2J6U1wCTRYDFvac5LUGu6JHK+gRZbcW1m3ZRNDZirb9WXshXiWxFRmPhLHiYKA/uOMkM2R4=
+Message-ID: <7b69d1470612141554n45070e37wc8ecc019b34a5bb@mail.gmail.com>
+Date: Thu, 14 Dec 2006 17:54:17 -0600
+From: "Scott Preece" <sepreece@gmail.com>
+To: "Randy Dunlap" <randy.dunlap@oracle.com>
+Subject: Re: [PATCH/RFC] CodingStyle updates
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jesper.juhl@gmail.com
+In-Reply-To: <4581E192.3010108@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: kref refcnt and false positives
-Date: Thu, 14 Dec 2006 15:51:38 -0800
-Message-ID: <EB12A50964762B4D8111D55B764A8454010572C1@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kref refcnt and false positives
-Thread-Index: AccfVYqhGE0ngqJjSmmanwoF4T3whQAhOlGA
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Eric Dumazet" <dada1@cosmosbay.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Greg KH" <gregkh@suse.de>, "Arjan" <arjan@linux.intel.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-X-OriginalArrivalTime: 14 Dec 2006 23:51:39.0972 (UTC) FILETIME=[CCA00840:01C71FDA]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
+	 <7b69d1470612141533v6ea076ap7149dbabceeb8ab4@mail.gmail.com>
+	 <4581E192.3010108@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On 12/14/06, Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> Scott Preece wrote:
+> [1]
+> >>  Outside of comments, documentation and except in Kconfig, spaces are
+> >> never
+> >>  used for indentation, and the above example is deliberately broken.
+> > ---
+> >
+> > I realize it isn't text you added, but what's that supposed to mean?
+> > Surely the 8-character indents are made up of spaces.  Does it mean
+>
+> No, the 8-character indents are made of one ASCII TAB character.
+----
 
->-----Original Message-----
->From: Eric Dumazet [mailto:dada1@cosmosbay.com] 
->Sent: Wednesday, December 13, 2006 11:57 PM
->To: Andrew Morton
->Cc: Greg KH; Pallipadi, Venkatesh; Arjan; linux-kernel; Eric 
->W. Biederman
->Subject: Re: kref refcnt and false positives
->
->
->I agree this 'optimization' is not "good" (I was the guy who 
->suggested it 
->http://lkml.org/lkml/2006/1/30/4 )
->
->After Eric Biederman message 
->(http://lkml.org/lkml/2006/1/30/292) I remember 
->adding some stat counters and telling Greg to not put the 
->patch in because 
->kref_put() was mostly called with refcount=1. But the patch 
->did its way. I 
->*did* ask Greg to revert it, but cannot find this mail 
->archived somewhere...
->
->But I believe Venkatesh problem comes from its release() 
->function : It is 
->supposed to free the object.
->If not, it should properly setup it so that further uses are OK.
->
->ie doing in release(kref)
->atomic_set(&kref->count, 0);
->
+Probably should say so, then. As it is, the only way to figure that
+out (other than loking at code (:)) is to infer it from the .emacs
+example, which doesn't come until 8 chapters later in the document.
 
-Agreed that setting kref refcnt to 0 in release will solve the probloem.
-But, once the optimization code is removed, we don't need to set it to
-zero as release will only be called after the count reaches zero anyway.
+Maybe:
 
-Thanks,
-Venki
+Outside of comments, documentation, and Kconfig, use TAB characters
+for indentation. Spaces are never used for indentation, and the above
+example is deliberately broken in several ways, including use of
+spaces.
+
+scott

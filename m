@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750821AbWLNO5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750808AbWLNO54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWLNO5w (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWLNO5w
+	id S1750808AbWLNO54 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWLNO54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:57:52 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4583 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750821AbWLNO5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:57:51 -0500
-Date: Thu, 14 Dec 2006 15:57:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Jonathan Corbet <corbet@lwn.net>, Greg KH <gregkh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061214145759.GH3629@stusta.de>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214103613.49965c91@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214103613.49965c91@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 14 Dec 2006 09:57:56 -0500
+Received: from main.gmane.org ([80.91.229.2]:53905 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750808AbWLNO5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 09:57:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Manuel Reimer <Manuel.Spam@nurfuerspam.de>
+Subject: Will there be security updates for 2.6.17 kernels?
+Date: Thu, 14 Dec 2006 15:59:54 +0100
+Message-ID: <elrop2$vdl$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e4389e.dip0.t-ipconnect.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8.0.8) Gecko/20061108 SeaMonkey/1.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 10:36:13AM +0000, Alan wrote:
-> > 2008?  I bet a lot of people would read the above to say that their
-> > system will just drop dead of a New Year's hangover, and they'll freak.
-> > I wouldn't want to be the one getting all the email at that point...
-> 
-> I wouldn't worry. Everyone will have patched it back out again by then,
-> or made their driver lie about the license. Both of which make the
-> problem worse not better when it comes to debugging.
+Hello,
 
-But make it easier when it comes to court...
+my problem is, that the slackware maintainers decided to use kernel 
+2.6.17. Here is their comment, they posted to the changelog:
 
-> Alan
+After much thought and consultation with developers, it has been decided 
+to move 2.6.17.x out of /testing and into /extra.  It runs stable by all 
+reports, has better wireless support, and is not going to be stale as 
+soon.  In addition, HIGHMEM4G has been enabled.  This caused no problems 
+with my old 486 with 24MB (the one I use for compiling KDE ;-), and 
+Tomas Matejicek has enabled this in SLAX for a long time with no reports 
+of problems, so I believe it is a safe option (and is needed by many 
+modern machines). Thanks again to Andrea for building these kernels and 
+packages.  :-)
 
-cu
-Adrian
+They had a 2.6.16 kernel in /extra before and as far as I know the
+2.6.16 kernel series still gets security updates.
 
--- 
+Is this also the case for 2.6.17 kernels? will there be an update if
+there is an security hole in the latest 2.6.17 kernel?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+The problem is, that the slackware team doesn't patch anything on their
+own. They always wait for the update done by the author, if the bug
+isn't very critical. This means they will stay forever with their
+current version of the 2.6.17 kernel, if there will be no updates in
+future.
+
+If there will be no updates for 2.6.17 in future: Are there already
+security holes in 2.6.17? Could someone please give two examples? I need
+informations, to be able to contact the slackware team, to request a
+"downgrade" to 2.6.16.
+
+Thank you very much in advance
+
+Yours
+
+Manuel Reimer
 

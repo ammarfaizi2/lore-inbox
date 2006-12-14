@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932730AbWLNNqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932728AbWLNNyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932730AbWLNNqn (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 08:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWLNNqn
+	id S932728AbWLNNyn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 08:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbWLNNyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 08:46:43 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:40306 "EHLO
-	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932730AbWLNNqm (ORCPT
+	Thu, 14 Dec 2006 08:54:43 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4440 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932728AbWLNNym (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 08:46:42 -0500
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
-	for 2.6.19]
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
-	 <20061214005532.GA12790@suse.de>
-	 <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 14 Dec 2006 08:46:15 -0500
-Message-Id: <1166103975.6748.190.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 14 Dec 2006 08:54:42 -0500
+Date: Thu, 14 Dec 2006 14:54:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.36
+Message-ID: <20061214135449.GF3629@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Location:
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
 
-> So go get it merged in the Ubuntu, (Open)SuSE and RHEL and Fedora trees 
-> first. This is not something where we use my tree as a way to get it to 
-> other trees. This is something where the push had better come from the 
-> other direction.
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-I can probably speak for Ubuntu in saying we wont include any sort of
-patch like this unless it's forced on us.
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-I have to agree with your your whole statement. The gradual changes to
-lock down kernel modules to a particular license(s) tends to mirror the
-slow lock down of content (music/movies) that people complain about so
-loudly. It's basically becoming DRM for code.
 
-I don't think anyone ever expected technical mechanisms to be developed
-to enforce the GPL. It's sort of counter intuitive to why the GPL
-exists, which is to free the code.
+Changes since 2.6.16.35:
 
-Let the licenses and lawyers fight to protect the code. The code doesn't
-need to do that itself. It's got better things to do.
+Adrian Bunk (3):
+      revert the quirk_via_irq changes
+      Linux 2.6.16.36-rc1
+      Linux 2.6.16.36
+
+Bjorn Helgaas (1):
+      PCI: quirk to disable e100 interrupt if RESET failed to
+
+Brice Goglin (1):
+      PCI: nVidia quirk to make AER PCI-E extended capability visible
+
+Chuck Ebbert (1):
+      binfmt_elf: fix checks for bad address
+
+Daniel Ritz (2):
+      PCI: fix ICH6 quirks
+      PCI: add ICH7/8 ACPI/GPIO io resource quirks
+
+David S. Miller (1):
+      [IPSEC]: Fix inetpeer leak in ipv4 xfrm dst entries.
+
+Jean Delvare (1):
+      PCI: Unhide the SMBus on Asus PU-DLS
+
+John W. Linville (1):
+      pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
+
+Linus Torvalds (1):
+      Add PIIX4 APCI quirk for the 440MX chipset too
+
+Patrick McHardy (1):
+      [XFRM]: Use output device disable_xfrm for forwarded packets
+
+Ralf Baechle (1):
+      Fix mempolicy.h build error
+
+
+ Makefile                  |    2 
+ drivers/pci/quirks.c      |  101 ++++++++++++++++++++++++++++++++++----
+ fs/binfmt_elf.c           |   15 ++---
+ include/linux/mempolicy.h |    1 
+ include/linux/pci_ids.h   |    5 +
+ net/ipv4/route.c          |    2 
+ net/ipv4/xfrm4_policy.c   |    2 
+ 7 files changed, 109 insertions(+), 19 deletions(-)

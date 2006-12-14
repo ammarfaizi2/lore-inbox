@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932816AbWLNPk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932819AbWLNPlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932816AbWLNPk2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932815AbWLNPk2
+	id S932819AbWLNPlT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbWLNPlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:40:28 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36284 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932812AbWLNPk0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:40:26 -0500
-Date: Thu, 14 Dec 2006 15:48:44 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc1
-Message-ID: <20061214154844.437b95dc@localhost.localdomain>
-In-Reply-To: <5a4c581d0612140559l6ecb2343o26dd31ace0cd7dd5@mail.gmail.com>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
-	<5a4c581d0612140559l6ecb2343o26dd31ace0cd7dd5@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Dec 2006 10:41:19 -0500
+Received: from dvhart.com ([64.146.134.43]:51441 "EHLO dvhart.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932819AbWLNPlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:41:18 -0500
+Message-ID: <45816F98.9040602@mbligh.org>
+Date: Thu, 14 Dec 2006 07:36:56 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <4580E37F.8000305@mbligh.org> <20061214130704.GB17565@redhat.com>
+In-Reply-To: <20061214130704.GB17565@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 14:59:23 +0100
-"Alessandro Suardi" <alessandro.suardi@gmail.com> wrote:
+Dave Jones wrote:
+> On Wed, Dec 13, 2006 at 09:39:11PM -0800, Martin J. Bligh wrote:
+> 
+>  > The Ubuntu feisty fawn mess was a dangerous warning bell of where we're
+>  > going. If we don't stand up at some point, and ban binary drivers, we
+>  > will, I fear, end up with an unsustainable ecosystem for Linux when
+>  > binary drivers become pervasive. I don't want to see Linux destroyed
+>  > like that.
+> 
+> Thing is, if kernel.org kernels get patched to disallow binary modules,
+> whats to stop Ubuntu (or anyone else) reverting that change in the
+> kernels they distribute ?  The landscape doesn't really change much,
+> given that the majority of Linux end-users are probably running
+> distro kernels.
 
-> On 12/14/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > Ok, the two-week merge period is over, and -rc1 is out there.
-> 
-> Still need this libata-sff.c patch:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116343564202844&q=raw
-> 
->  to have my root device detected, ata_piix probe would otherwise
->  fail as described in this thread:
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0612.0/0690.html
-> 
+I don't think they'd dare spit in our faces quite that directly.
+They think binary modules are permissible because we don't seem to have
+consistently stated an intent contradicting that - some individual
+developers have, but ultimately Linus hasn't.
 
-Yep - sorry about not dealing with this yet but I've not had opportunity
-to do much but email. I'm grabbing 20-rc1 atm to check there are no other
-outstanding bits.
+I'm not talking about any legal issues to do with derived works,
+copyrights or licenses - a clear statement of intent is probably all
+it'd take to tip the balance.
 
-Alan
+M.

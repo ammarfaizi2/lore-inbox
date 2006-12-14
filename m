@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932872AbWLNRTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932871AbWLNRXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932872AbWLNRTF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 12:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932871AbWLNRTE
+	id S932871AbWLNRXD (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 12:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932873AbWLNRXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 12:19:04 -0500
-Received: from thunk.org ([69.25.196.29]:40168 "EHLO thunker.thunk.org"
+	Thu, 14 Dec 2006 12:23:02 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41170 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932874AbWLNRTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 12:19:03 -0500
-Date: Thu, 14 Dec 2006 12:17:49 -0500
-From: Theodore Tso <tytso@mit.edu>
+	id S932871AbWLNRXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 12:23:01 -0500
+Date: Thu, 14 Dec 2006 09:22:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
+cc: "Michael K. Edwards" <medwards.linux@gmail.com>,
        Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061214171749.GA29982@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Alan <alan@lxorguk.ukuu.org.uk>, Adrian Bunk <bunk@stusta.de>,
-	Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-	Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-	Martin Bligh <mbligh@mbligh.org>,
-	"Michael K. Edwards" <medwards.linux@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <20061214161750.GB3388@stusta.de> <20061214163347.4f1be668@localhost.localdomain>
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+In-Reply-To: <20061213235500.1764d85e@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0612140905150.5718@woody.osdl.org>
+References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>
+ <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>
+ <20061213210219.GA9410@suse.de> <45807182.1060408@mbligh.org>
+ <20061213134721.d8ff8c11.akpm@osdl.org> <f2b55d220612131420l5f956e05qb10ef233670fb588@mail.gmail.com>
+ <20061213235500.1764d85e@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214163347.4f1be668@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 04:33:47PM +0000, Alan wrote:
-> > The trick is to let a lawyer send cease and desist letters to people 
-> > distributing the infringing software for 1 Euro at Ebay.
+
+
+On Wed, 13 Dec 2006, Alan wrote:
 > 
-> Doesn't that sound even more like the music industry ? Pick on Grandma,
-> and people who've no clue about the issue. It's not the way to solve such
-> problems. The world does not need "The war on binary modules". Educate
-> people instead, and talk to vendors.
+> He only owns a small amount of the code. Furthermore he imported third 
+> party GPL code using the license as sole permission. So he may have dug 
+> a personal hole but many of the rest of us have been repeatedly saying 
+> whenever he said that - that we do not agree.
 
-.... or like Microsoft, who is threatening to make war on end-users
-instead of settling things with vendors.  (One of the reasons why I
-personally find the Microsoft promise not to sue _Novell_'s end users
-so nasty.  Microsoft shouldn't be threatening anyone's users; if they
-have a problem, they should be taking it up with the relevant vendor,
-not sueing innocent and relatively shallow-pocketed end-users and
-distributors.)
+[ The "he" being me in the above ]
 
-One of the things that I find so interesting about how rabid people
-get about enforcing GPL-only modules is how they start acting more and
-more like the RIAA, MPAA, and Microsoft every day....
+Btw, I'd like to make it clear in this discussion too (as I have in 
+others), that I agree 100% with Alan here. 
 
-						- Ted
+The thing is, my opinion is really just _my_ opinion. People shouldn't see 
+it as anything else. When I say "I don't think we should totally disallow 
+binary modules", you should always keep in mind that:
+
+ - the fact that I think that _some_ binary modules may be perfectly legal 
+   does not mean that I think _all_ binary modules would be legal. I think 
+   there are lots of ways to make such a binary module that is obviously 
+   not ok.
+
+ - I really _am_ just one of hundreds of copyright owners. The fact that 
+   _I_ am not necessarily all that eager to take things to court should in 
+   no way be seen as estoppel for _others_ who decide that they want to 
+   flex their legal rights.
+
+So when I "may have dug a personal hole", please realize that this is 
+actually a personal - and conscious - choice. I've never wanted to do 
+copyright assignments, for several reasons: I think they are nasty and 
+wrong personally, and I'd hate all the paperwork, and I think it would 
+actually detract from the development model.
+
+But one of the reasons I've never wanted copyright assignments is that I'm 
+personally actually _more_ comfortable with the system being co-owned. I 
+_like_ having my hands bound, and being in that hole. Not because of any 
+strange sexual hangups either, but simply because I think being personally 
+limited is something that makes people trust me more in the end - or 
+rather, it is something that means that people don't _have_ to trust me.
+
+So people know that I can't unilaterally change the license. And they 
+_know_ that they can actually take things to court on their own. AND THAT 
+IS A GOOD THING. The last thing anybody _ever_ wants is to have me having 
+absolute powers. Not you guys, and certainly not me.
+
+So you guys should always be happy, realizing that Linus may have his 
+quirks, but that my quirks can't ever really screw you guys up.
+
+So I repeat: my opinions are _my_ opinions. Nobody else is legally bound 
+by them. And I'm certainly willing to bend my behaviour in the presense of 
+pressure (I think only mindless idiots can't change their mind - I 
+personally change some of my opinions several times a day just to keep 
+them fresh), but in somethign like this, where I _do_ have a fairly strong 
+opinion, I really think that this kind of patch has to be merged in 
+somebody elses tree than mine.
+
+If, after a year, it turns out that my tree is the only one that doesn't 
+have that clause, I think I'll either get the hint, or people will realize 
+that I'm pointless and will just ignore me. It will have taken you long 
+enough to realize that ;)
+
+Because one of the great things about the GPL is that _nobody_ has the 
+power to deny other peoples will. Not even me, not even for the kernel.
+
+				Linus

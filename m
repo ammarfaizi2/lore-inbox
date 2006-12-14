@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752035AbWLNHfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752042AbWLNHpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752035AbWLNHfZ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 02:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWLNHfZ
+	id S1752042AbWLNHpI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752043AbWLNHpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 02:35:25 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:34607 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752035AbWLNHfY (ORCPT
+	Thu, 14 Dec 2006 02:45:08 -0500
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:36538 "EHLO
+	sj-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752042AbWLNHpF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 02:35:24 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Thu, 14 Dec 2006 02:30:55 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: trivial@kernel.org
-Subject: [PATCH] sound: Fix last two instances of "kcalloc(1,...)" ->
- "kzalloc()"
-Message-ID: <Pine.LNX.4.64.0612140221440.11794@localhost.localdomain>
+	Thu, 14 Dec 2006 02:45:05 -0500
+X-IronPort-AV: i="4.12,166,1165219200"; 
+   d="scan'208"; a="90546604:sNHT65649006"
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Ben Collins <ben.collins@ubuntu.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc1] ib_verbs: Use explicit if-else statements to avoid errors with do-while macros
+X-Message-Flag: Warning: May contain useful information
+References: <1166065805.6748.135.camel@gullible>
+	<20061214064430.GM4587@ftp.linux.org.uk>
+	<20061214065624.GN4587@ftp.linux.org.uk>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 13 Dec 2006 23:45:03 -0800
+In-Reply-To: <20061214065624.GN4587@ftp.linux.org.uk> (Al Viro's message of "Thu, 14 Dec 2006 06:56:24 +0000")
+Message-ID: <ada4pryq5ts.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 14 Dec 2006 07:45:03.0844 (UTC) FILETIME=[C43D3240:01C71F53]
+Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim3002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > IOW, do ; while(0) / do { } while (0)  is not a proper way to do a macro
+ > that imitates a function returning void.
+ > 
+ > Objections?
 
-  Change the remaining two instances of "kcalloc(1,...)" to
-"kzalloc()".
+None from me, although the ternary ? : is a pretty odd way to write
 
-Signed-off-by:  Robert P. J. Day <rpjday@mindspring.com>
+	if (blah)
+		do_this_void_function();
+	else
+		do_that_void_function();
 
----
+so I'm in favor of that half of the patch anyway.  It's my fault for
+not noticing that part of the patch in the first place.
 
-  Now that that general change has been merged into Linus' tree, I've
-added a check for that to an ongoing "coding style" script of mine
-that scans the tree on a regular basis to detect stuff that shouldn't
-be there anymore.  Having subjected everyone to the unspeakable grief
-of getting that patch in in the first place, I'm going to make sure
-stuff like that never comes back.
+Changing the non-void ? : constructions is just churn, but there's no
+sense changing it again now that the patch is merged.
 
-  As Barney Fife would say, "Nip it!  Nip it in the bud!"
-
-
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index fb96144..5ebdd8a 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5936,7 +5936,7 @@ static int patch_alc262(struct hda_codec *codec)
- 	int board_config;
- 	int err;
-
--	spec = kcalloc(1, sizeof(*spec), GFP_KERNEL);
-+	spec = kzalloc(sizeof(*spec), GFP_KERNEL);
- 	if (spec == NULL)
- 		return -ENOMEM;
-
-@@ -6795,7 +6795,7 @@ static int patch_alc861(struct hda_codec *codec)
- 	int board_config;
- 	int err;
-
--	spec = kcalloc(1, sizeof(*spec), GFP_KERNEL);
-+	spec = kzalloc(sizeof(*spec), GFP_KERNEL);
- 	if (spec == NULL)
- 		return -ENOMEM;
-
+ - R.

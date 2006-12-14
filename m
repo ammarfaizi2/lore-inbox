@@ -1,66 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752031AbWLNH1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752027AbWLNH2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752031AbWLNH1K (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 02:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752027AbWLNH1K
+	id S1752027AbWLNH2K (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWLNH2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 02:27:10 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:42841 "EHLO mail.sf-mail.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752031AbWLNH1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 02:27:09 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Greg.Chandler@wellsfargo.com
-Subject: Re: Interphase Tachyon drivers missing.
-Date: Thu, 14 Dec 2006 08:27:26 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, mkp@mkp.net
-References: <E8C008223DD5F64485DFBDF6D4B7F71D023BAE21@msgswbmnmsp25.wellsfargo.com>
-In-Reply-To: <E8C008223DD5F64485DFBDF6D4B7F71D023BAE21@msgswbmnmsp25.wellsfargo.com>
+	Thu, 14 Dec 2006 02:28:09 -0500
+Received: from web59204.mail.re1.yahoo.com ([66.196.101.30]:27043 "HELO
+	web59204.mail.re1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752027AbWLNH2I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 02:28:08 -0500
+X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 02:28:08 EST
+Message-ID: <20061214072126.12023.qmail@web59204.mail.re1.yahoo.com>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=PkU6L2LKqy/mlibYS6jJ3Ka29/4isWLgZWBRkrR46x2coOcz7VxmUU4u81FHkD8fI66OS0/SRHF0mFkQaox3399bQJEf5qeefmhGawIDbLhRsDpSfhGkB7B1+/L+VyFTQrg3kGkZPd2yza9+i4fwBNuSozZjlxzV21unB8/uH0s=;
+Date: Wed, 13 Dec 2006 23:21:26 -0800 (PST)
+From: tike64 <tike64@yahoo.com>
+Subject: Re: realtime-preempt and arm
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1166034960.1785.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2572560.4AAqEgUTR7";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200612140827.31858.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2572560.4AAqEgUTR7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Steven Rostedt <rostedt@goodmis.org> wrote:
+> Also, have you tried this with a nanosleep instead of a select.
+> Select's timeout is just that, a timeout. It's not suppose to be
+> accurate, as long as it doesn't expire early.  The reason I state
+> this, is that select uses a different mechanism than nanosleep, and
+> that can indeed affect the jitter.
 
-Am Mittwoch, 13. Dezember 2006 17:51 schrieb Greg.Chandler@wellsfargo.com:
-> I'm not sure about the driver being cpqfc, I know in 2.6.0 & 1 the
-> driver was definitely iphase.c/h/o
-> I do know the chipset was used by almost everyone, Compaq/HP/DEC and
-> Interphase's namebrand cards.
->
-> I also know that the driver is still working in 2.4.33 my slackware 11
-> default kernel picked up the card, which suprised me to say the least...
-> I won't have time to spend a weekend on it until about christmas. {or
-> probably christmas day is more likely} Even then I can't make any kind
-> of promise that I can do anything useful about it...
+Ok, understood; I tried this:
 
-Ok, than we're likely talking about different things. Maybe just another=20
-driver for that chipset. If I'll ever find some time I'll have a look on th=
-is=20
-one too.
+	t = raw_timer();
+	ts.tv_nsec = 5000000;
+	ts.tv_sec = 0;
+	nanosleep(&ts, 0);
+	t = raw_timer() - t;
 
-Eike
+It is better but I still see 8ms occasional delays when listing
+nfs-mounted directories onto FB. And, what is funny, also this version
+makes the average delay 20ms as if it made the jiffy 20ms.
 
---nextPart2572560.4AAqEgUTR7
-Content-Type: application/pgp-signature
+> Although without the high res enabled, you can't get better than
+jiffy
+> resolution, you shouldn't get a large jitter either.  BTW, using high
+> res won't help the select anyway. The select uses a normal
+> schedule_timeout, which means that it's not really expected to
+> timeout, but something should wake it up before hand. Which means
+that
+> the good old timer wheel (non-hrtimer) is going to do the waking of
+> the process. This means that you need to wait for the timer softirq
+to
+> be scheduled before your process wakes up. If there's a process with
+a
+> higher priority than the timer softirq running, then you need to
+wait.
+> 
+> Using nansleep uses the hrtimer code (available with out the high
+> resolutions).  The hrtimer uses its own timer softirq
+> (softirq-hrtimer), and it is special.  It inherits the priority of
+the
+> task that created the timer when the timer goes off.  Also, something
+> like nanosleep, won't even use the softirq, and will bypass the
+> softirq all together, and wake your process up from the interrupt.
+> 
+> So basically, don't use select for timing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Thanks a lot for a thorough explanation. While we are at it, is it then
+the only option to use threads to wait for IO and use ms-accurate
+timing? Formerly I have used select with timeouts for this task but
+timing requirement have not been this accurate back then, of course.
 
-iD8DBQBFgPzjXKSJPmm5/E4RAqzrAJ9fwvscvwmkKfa9X/yoUhcG7HfXYQCePmQu
-15yvUDImi3p7jNxH67IKSrs=
-=wOVW
------END PGP SIGNATURE-----
+--
 
---nextPart2572560.4AAqEgUTR7--
+tike
+
+
+
+ 
+____________________________________________________________________________________
+Do you Yahoo!?
+Everyone is raving about the all-new Yahoo! Mail beta.
+http://new.mail.yahoo.com
+
+
+ 
+____________________________________________________________________________________
+Need a quick answer? Get one in minutes from people who know.
+Ask your question on www.Answers.yahoo.com

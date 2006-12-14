@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751836AbWLNKER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751490AbWLNKGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751836AbWLNKER (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 05:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751837AbWLNKER
+	id S1751490AbWLNKGb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 05:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWLNKGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 05:04:17 -0500
-Received: from il.qumranet.com ([62.219.232.206]:40634 "EHLO il.qumranet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751836AbWLNKEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 05:04:16 -0500
-X-Greylist: delayed 1168 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 05:04:16 EST
-Message-ID: <45811D0F.2070705@argo.co.il>
-Date: Thu, 14 Dec 2006 11:44:47 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, tglx@linutronix.de
-Subject: Re: Userspace I/O driver core
-References: <20061214010608.GA13229@kroah.com>
-In-Reply-To: <20061214010608.GA13229@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Dec 2006 05:06:31 -0500
+Received: from mail.gmx.net ([213.165.64.20]:52154 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751490AbWLNKGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 05:06:30 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.19.1-rt14-smp circular locking dependency
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061214095926.GA19549@elte.hu>
+References: <1166090243.7147.10.camel@Homer.simpson.net>
+	 <20061214095926.GA19549@elte.hu>
+Content-Type: text/plain
+Date: Thu, 14 Dec 2006 11:06:22 +0100
+Message-Id: <1166090782.7147.12.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> A large number of people have expressed interest recently in the
-> userspace i/o driver core which allows userspace drivers to be written
-> to handle some types of hardware.
->
-> Right now the UIO core is working and in the -mm releases.  It's been
-> rewritten from the last time patches were posted to lkml and is much
-> simpler.  It also includes full documentation and two example drivers
-> and two example userspace programs that test those drivers.
->
-> But in order to get this core into the kernel tree, we need to have some
-> "real" drivers written that use it.  So, for anyone that wants to see
-> this go into the tree, now is the time to step forward and post your
-> patches for hardware that this kind of driver interface is needed.
->
->   
-[...]
+On Thu, 2006-12-14 at 10:59 +0100, Ingo Molnar wrote:
+> * Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > Greetings,
+> > 
+> > Lockdep doesn't approve of cpufreq, and seemingly with cause... I had 
+> > to poke SysRq-O.
+> 
+> hm ... this must be an upstream problem too, right? -rt shouldnt change 
+> anything in this area (in theory).
 
-> If anyone has any questions on how to use this interface, or anything
-> else about it, please let me and Thomas know.
->
->   
+I'll find out in a few.. enabling lockdep / compiling 2.5.19.1.
 
-I understand one still has to write a kernel driver to shut up the irq.  
-How about writing a small bytecode interpreter to make event than 
-unnecessary?
-
-The userspace driver would register a couple of bytecode programs: 
-is_interrupt_pending() and disable_interrupt(), which the uio framework 
-would call when the interrupt fires.
-
-The bytecode could reuse net/core/filter.c, with the packet replaced by 
-the mmio or ioregion, or use something new.
-
--- 
-error compiling committee.c: too many arguments to function
+	-Mike
 

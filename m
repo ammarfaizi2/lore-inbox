@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751869AbWLNXWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751934AbWLNXYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751869AbWLNXWQ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751905AbWLNXWQ
+	id S1751934AbWLNXYc (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWLNXYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:22:16 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:50585 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751869AbWLNXWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:22:15 -0500
-Message-ID: <4581DCA4.2010800@garzik.org>
-Date: Thu, 14 Dec 2006 18:22:12 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.20-rc1
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612141930.19797.s0348365@sms.ed.ac.uk> <loom.20061214T213058-9@post.gmane.org>
-In-Reply-To: <loom.20061214T213058-9@post.gmane.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 14 Dec 2006 18:24:32 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:37943
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1751826AbWLNXYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 18:24:31 -0500
+Date: Thu, 14 Dec 2006 15:24:17 -0800 (PST)
+Message-Id: <20061214.152417.55722558.davem@davemloft.net>
+To: nuxdoors@cegetel.net
+Cc: vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19.1] sunkbd.c: fix sunkbd_enable(sunkbd, 0);
+ obvious
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4581B330.5040106@cegetel.net>
+References: <4581B330.5040106@cegetel.net>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Mailhot wrote:
-> Alistair John Strachan <s0348365 <at> sms.ed.ac.uk> writes:
+From: nuxdoors@cegetel.net
+Date: Thu, 14 Dec 2006 21:25:20 +0100
+
+> "sunkbd_enable(sunkbd, 0);" has no effect. Adding "sunkbd->enabled = enable" in sunkbd_enable (obvious)
 > 
->> `hddtemp' has stopped working on 2.6.20-rc1:
-> 
-> → http://bugzilla.kernel.org/show_bug.cgi?id=7581
+> Signed-off-by: Fabrice Knevez <nuxdoors@cegetel.net>
 
-I'm not sure I quite follow your bug report.  Are you saying that the 
-patch you attached causes the problem?
-
-	Jeff
-
-
-
+Applied, thanks.

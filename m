@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752002AbWLNXoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751991AbWLNXpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752002AbWLNXoX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 18:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751999AbWLNXoX
+	id S1751991AbWLNXpN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 18:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWLNXpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 18:44:23 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:35883 "EHLO
-	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751920AbWLNXoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 18:44:22 -0500
-Date: Thu, 14 Dec 2006 18:44:18 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <200612141412.30686.a1426z@gawab.com>
-Message-ID: <Pine.GSO.4.53.0612141828220.8234@compserv1>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
- <200612141412.30686.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Dec 2006 18:45:13 -0500
+Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:57068 "HELO sapo.pt"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1751991AbWLNXpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 18:45:10 -0500
+X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 18:45:10 EST
+X-AntiVirus: PTMail-AV 0.3-0.88.6
+Subject: Re: kernel.org lies about latest -mm kernel
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Pavel Machek <pavel@ucw.cz>, webmaster@kernel.org
+Cc: kernel list <linux-kernel@vger.kernel.org>, hpa@zytor.com,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061214223718.GA3816@elf.ucw.cz>
+References: <20061214223718.GA3816@elf.ucw.cz>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 14 Dec 2006 23:38:28 +0000
+Message-Id: <1166139508.17998.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We started the project in April 2004.  Right now I am using it as my
-> > /home/kolya file system at home.  We believe that at this stage RAIF is
-> > mature enough for others to try it out.  The code is available at:
-> >
-> > 	<ftp://ftp.fsl.cs.sunysb.edu/pub/raif/>
-> >
-> > The code requires no kernel patches and compiles for a wide range of
-> > kernels as a module.  The latest kernel we used it for is 2.6.13 and we
-> > are in the process of porting it to 2.6.19.
-> >
-> > We will be happy to hear your back.
->
-> When removing a file from the underlying branch, the oops below happens.
-> Wouldn't it be possible to just fail the branch instead of oopsing?
+kernel.org don't lie is not updated ,
+this problem should be snd to webmaster isn't ? 
 
-This is a known problem of all Linux stackable file systems.  Users are
-not supposed to change the file systems below mounted stackable file
-systems (but they can read them).  One of the ways to enforce it is to use
-overlay mounts.  For example, mount the lower file systems at
-/raif/b0 ... /raif/bN and then mount RAIF at /raif.  Stackable file
-systems recently started getting into the kernel and we hope that there
-will be a better solution for this problem in the future.  Having said
-that, you are right: failing the branch would be the right thing to do.
+--
+Sérgio M. B.
 
-Nikolai.
----------------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+On Thu, 2006-12-14 at 23:37 +0100, Pavel Machek wrote:
+> Hi!
+> 
+> pavel@amd:/data/pavel$ finger @www.kernel.org
+> [zeus-pub.kernel.org]
+> ...
+> The latest -mm patch to the stable Linux kernels is: 2.6.19-rc6-mm2
+> pavel@amd:/data/pavel$ head /data/l/linux-mm/Makefile
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 19
+> EXTRAVERSION = -mm1
+> ...
+> pavel@amd:/data/pavel$
+> 
+> AFAICT 2.6.19-mm1 is newer than 2.6.19-rc6-mm2, but kernel.org does
+> not understand that.
+> 								Pavel
+> 
+

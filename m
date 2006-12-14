@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932728AbWLNNyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932732AbWLNN4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932728AbWLNNyn (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 08:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbWLNNyn
+	id S932732AbWLNN4m (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 08:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbWLNN4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 08:54:43 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4440 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932728AbWLNNym (ORCPT
+	Thu, 14 Dec 2006 08:56:42 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4745 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932732AbWLNN4l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 08:54:42 -0500
-Date: Thu, 14 Dec 2006 14:54:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.36
-Message-ID: <20061214135449.GF3629@stusta.de>
+	Thu, 14 Dec 2006 08:56:41 -0500
+Date: Thu, 14 Dec 2006 13:56:36 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, Antonino Daplas <adaplas@pol.net>
+cc: linux-fbdev-devel@lists.sourceforge.net, axp-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.19 7/6] tgafb: Fix the PCI ID table
+Message-ID: <Pine.LNX.4.64N.0612141349590.12201@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+ The end marker is missing from the driver's PCI ID table.  This set of 
+changes adds the marker, switches to using PCI_DEVICE() and records the 
+table for the use in a module.
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+---
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+ Here's one more. ;-)
 
+ Please apply.
 
-Changes since 2.6.16.35:
+  Maciej
 
-Adrian Bunk (3):
-      revert the quirk_via_irq changes
-      Linux 2.6.16.36-rc1
-      Linux 2.6.16.36
-
-Bjorn Helgaas (1):
-      PCI: quirk to disable e100 interrupt if RESET failed to
-
-Brice Goglin (1):
-      PCI: nVidia quirk to make AER PCI-E extended capability visible
-
-Chuck Ebbert (1):
-      binfmt_elf: fix checks for bad address
-
-Daniel Ritz (2):
-      PCI: fix ICH6 quirks
-      PCI: add ICH7/8 ACPI/GPIO io resource quirks
-
-David S. Miller (1):
-      [IPSEC]: Fix inetpeer leak in ipv4 xfrm dst entries.
-
-Jean Delvare (1):
-      PCI: Unhide the SMBus on Asus PU-DLS
-
-John W. Linville (1):
-      pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
-
-Linus Torvalds (1):
-      Add PIIX4 APCI quirk for the 440MX chipset too
-
-Patrick McHardy (1):
-      [XFRM]: Use output device disable_xfrm for forwarded packets
-
-Ralf Baechle (1):
-      Fix mempolicy.h build error
-
-
- Makefile                  |    2 
- drivers/pci/quirks.c      |  101 ++++++++++++++++++++++++++++++++++----
- fs/binfmt_elf.c           |   15 ++---
- include/linux/mempolicy.h |    1 
- include/linux/pci_ids.h   |    5 +
- net/ipv4/route.c          |    2 
- net/ipv4/xfrm4_policy.c   |    2 
- 7 files changed, 109 insertions(+), 19 deletions(-)
+patch-mips-2.6.18-20060920-tgafb-pci_tbl-0
+diff -up --recursive --new-file linux-mips-2.6.18-20060920.macro/drivers/video/tgafb.c linux-mips-2.6.18-20060920/drivers/video/tgafb.c
+--- linux-mips-2.6.18-20060920.macro/drivers/video/tgafb.c	2006-09-20 20:50:52.000000000 +0000
++++ linux-mips-2.6.18-20060920/drivers/video/tgafb.c	2006-12-14 00:55:35.000000000 +0000
+@@ -69,9 +69,10 @@ static struct fb_ops tgafb_ops = {
+  */
+ 
+ static struct pci_device_id const tgafb_pci_table[] = {
+-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TGA, PCI_ANY_ID, PCI_ANY_ID,
+-	  0, 0, 0 }
++	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TGA) },
++	{ }
+ };
++MODULE_DEVICE_TABLE(pci, tgafb_pci_table);
+ 
+ static struct pci_driver tgafb_driver = {
+ 	.name			= "tgafb",

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932724AbWLNN7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932737AbWLNN70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932724AbWLNN7B (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 08:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWLNN7B
+	id S932737AbWLNN70 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 08:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWLNN70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 08:59:01 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:48742 "EHLO
-	mailhub.fokus.fraunhofer.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932724AbWLNN7A (ORCPT
+	Thu, 14 Dec 2006 08:59:26 -0500
+Received: from wx-out-0506.google.com ([66.249.82.236]:35419 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932737AbWLNN7Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 08:59:00 -0500
-X-Greylist: delayed 706 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 08:59:00 EST
-Date: Thu, 14 Dec 2006 14:46:05 +0100
-From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
-To: linux-kernel@vger.kernel.org, teunis@alphatrade.com
-Subject: Re: 2.6.19 kernel series, SATA, wodim (cd recording), synaptics
- update,
-Message-ID: <4581559d.iqe9L1/wj2D5j93L%Joerg.Schilling@fokus.fraunhofer.de>
-User-Agent: nail 11.22 3/20/05
+	Thu, 14 Dec 2006 08:59:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QYGHVM/2uwVbE9QuVsK7YphN6l/9n9Sg1/UT7K7S/OfLQhiQ9NMB/z4EvV0s6vJpuL/UgyrgNyfA/b4EggjbCfLDKvq/Ad/zFyhy6SNyW9kg2QlG4ttWScJI2nzCIXW40wpSRQfeeF2FaOdRWcF47Cz8z5FK/6rEY6SUdeZu6ZU=
+Message-ID: <5a4c581d0612140559l6ecb2343o26dd31ace0cd7dd5@mail.gmail.com>
+Date: Thu, 14 Dec 2006 14:59:23 +0100
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Linux 2.6.20-rc1
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->CD recording : recorder no longer detected by "wodim" software set in
->2.6.19.   I suspect it's a bug in the software...  but don't know where
->to look for changes.   2.6.19-rc5 worked.
->hardware: IDE MATSHITADVD-RAM UJ-820S
->(2.6.19-git6 also fails with external LiteON USB DVD burner)
+On 12/14/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Ok, the two-week merge period is over, and -rc1 is out there.
 
-I recommend to check the latest cdrtools packet from:
+Still need this libata-sff.c patch:
 
-ftp://ftp.berlios.de/pub/cdrecord/alpha/
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116343564202844&q=raw
 
-At the same place, there is a patch for recent Linux systems
-that allows cdrecord to sense the MAX DMA size for USB.
+ to have my root device detected, ata_piix probe would otherwise
+ fail as described in this thread:
 
-Do not use cdrecord derivates but the original as derivates may have bugs
-that are not present in the original.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0612.0/0690.html
 
-Jörg
+--alessandro
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+"...when I get it, I _get_ it"
+
+     (Lara Eidemiller)

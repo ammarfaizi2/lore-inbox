@@ -1,89 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932691AbWLNMpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932701AbWLNMwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbWLNMpX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 07:45:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWLNMpX
+	id S932701AbWLNMwN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 07:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbWLNMwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 07:45:23 -0500
-Received: from www.osadl.org ([213.239.205.134]:38421 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932691AbWLNMpW convert rfc822-to-8bit (ORCPT
+	Thu, 14 Dec 2006 07:52:13 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:59909 "EHLO
+	ms-smtp-02.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932701AbWLNMwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 07:45:22 -0500
-From: =?iso-8859-1?q?Hans-J=FCrgen_Koch?= <hjk@linutronix.de>
-To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-Date: Thu, 14 Dec 2006 13:45:16 +0100
-User-Agent: KMail/1.9.5
-References: <20061213195226.GA6736@kroah.com> <200612141056.03538.hjk@linutronix.de> <20061214115105.GA8742@dspnet.fr.eu.org>
-In-Reply-To: <20061214115105.GA8742@dspnet.fr.eu.org>
-Organization: Linutronix
+	Thu, 14 Dec 2006 07:52:12 -0500
+Date: Thu, 14 Dec 2006 07:52:02 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: tike64 <tike64@yahoo.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: realtime-preempt and arm
+In-Reply-To: <297400.29698.qm@web59212.mail.re1.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0612140740480.17165@gandalf.stny.rr.com>
+References: <297400.29698.qm@web59212.mail.re1.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612141345.18103.hjk@linutronix.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 14. Dezember 2006 12:51 schrieb Olivier Galibert:
-> On Thu, Dec 14, 2006 at 10:56:03AM +0100, Hans-Jürgen Koch wrote:
-> > A small German manufacturer produces high-end AD converter cards. He sells
-> > 100 pieces per year, only in Germany and only with Windows drivers. He would
-> > now like to make his cards work with Linux. He has two driver programmers
-> > with little experience in writing Linux kernel drivers. What do you tell him?
-> > Write a large kernel module from scratch? Completely rewrite his code 
-> > because it uses floating point arithmetics?
-> 
-> Write a small kernel module which:
 
-What you suggest is not a "small kernel module". It's what we have now,
-writing a complete driver.
 
-> - create a device node per-card
+On Thu, 14 Dec 2006, tike64 wrote:
 
-That's what UIO does, plus some standard sysfs files, that tell you e.g.
-the size of the cards memory you can map. There are standard file names
-that allow you e.g. to automatically search for all registered uio 
-drivers and their properties.
+> Ingo Molnar <mingo@elte.hu> wrote:
+> > tike64 <tike64@yahoo.com> wrote:
+> > > Ok, understood; I tried this:
+> > >
+> > > 	t = raw_timer();
+> > > 	ts.tv_nsec = 5000000;
+> > > 	ts.tv_sec = 0;
+> > > 	nanosleep(&ts, 0);
+> > > 	t = raw_timer() - t;
+> > >
+> > > It is better but I still see 8ms occasional delays when listing
+> > > nfs-mounted directories onto FB. And, what is funny, also this
+> > > version makes the average delay 20ms as if it made the jiffy 20ms.
+> >
+> > ARM has no high resolution timers support yet in the -rt tree.
+>
+> Yes, but is there a reason why the -rt patch seems to make the 10ms
+> jiffy 20ms and why the jitter is so high. I don't need high resolution
+> but reasonable, a couple of milliseconds, jitter.
+>
 
-> - read the data from the A/D as fast as possible and buffer it in main
->   memory without touching it
+OK, let me see if I get this right.  You have jiffies at 100HZ right? So
+that means the timer needs to go off at 10ms intervals. So you are always
+seeing a jiffy+1 delay?  Well this unfortunately has to happen, since it's
+ok for the timer to be a little over, but it must never be a little under.
+Lets add some ASCII graphics to this :)
 
-If the card already has that data in its dual port RAM, you do an
-unneccessary copy.
 
-> - implements a read interface to read data from the buffer
+         10ms      20ms          (n+10)ms     (n+11)ms
+|---------+---------+---- .... ---+---------+--->
+                 ^                  ^
+               Start               End
 
-Here you do the next unneccessary copy.
+OK, here we have a timer that should go off in (n)ms. We start between
+10ms and 20ms (remember, our resolution is only 10ms).  If we just make
+the timer go off at 10+n ms in the future, you get the above.  But notice,
+that the Start was really closer to 20 than to 10, so the End really
+didn't go off in (n)ms. It went off in less. So to solve this, we must add
+one resolution time to the counter. So we make sure the timer goes off in
+(n+1) ms, and not just (n).
 
-> - implement ioctls for whatever controls you need
+Is this what you're seeing?
 
-Implementing ioctls for everything is bad coding style and a has bad
-performance. I said "high-end AD card", that means you have a 
-signal processor on that board, want to download firmware to it 
-and so on. You end up copying lots of data between user space
-and kernel space.
+Note, even with high resolution timers, you still get a resolution+1 time.
+But with high resolution timers, that resolution number is much smaller
+than 10ms :)
 
-> 
-> And that's it.  
-
-Yes, that's a complete kernel driver that you'd never get into
-a mainline kernel. Furthermore, the card manufacturer would have to
-employ at least two experienced Linux _kernel_ programmers. That's
-too much for a small company who's business is something different.
-
-> All the rest can be done in userspace, safely, with 
-> floating point, C++ and everything.  If the driver programmers are
-> worth their pay, their driver is probably already split logically at
-> where the userspace-kernel interface would be.
-> 
-> And small means small, like 200 lines or so, more if you want to have
-> fun with sysfs, poll, aio and their ilk, but that's not a necessity.
-
-You can achieve 100 lines with uio, including sysfs and poll. What you
-describe would never fit in 200 lines for a non-trivial card.
-
-Hans
+-- Steve
 

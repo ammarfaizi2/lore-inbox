@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932820AbWLNPsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932822AbWLNPsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWLNPsL (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWLNPsK
+	id S932822AbWLNPsV (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932823AbWLNPsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:48:10 -0500
-Received: from crystal.sipsolutions.net ([195.210.38.204]:53232 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932820AbWLNPsI (ORCPT
+	Thu, 14 Dec 2006 10:48:21 -0500
+Received: from mail.tbdnetworks.com ([204.13.84.99]:55843 "EHLO
+	mail.tbdnetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932822AbWLNPsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:48:08 -0500
-X-Greylist: delayed 2510 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:48:08 EST
-Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to
-	ieee80211softmac_assoc_work
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Michael Bommarito <mjbommar@umich.edu>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
-References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1dJt2Ny4W+ooYdMe3982"
-Date: Thu, 14 Dec 2006 16:06:40 +0100
-Message-Id: <1166108800.3161.11.camel@johannes.berg>
+	Thu, 14 Dec 2006 10:48:19 -0500
+X-Greylist: delayed 1337 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:48:19 EST
+Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alejandro Riveira =?ISO-8859-1?Q?Fern=E1ndez?= 
+	<ariveira@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061214144750.GA4022@ucw.cz>
+References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
+	 <1165406299.3233.436.camel@laptopd505.fenrus.org>
+	 <1165407548.5954.224.camel@titan.tbdnetworks.com>
+	 <20061206131003.GF24140@stusta.de>
+	 <20061209132742.7a25dcb5@localhost.localdomain>
+	 <1165679105.7455.116.camel@titan.tbdnetworks.com>
+	 <20061214144750.GA4022@ucw.cz>
+Content-Type: text/plain
+Organization: TBD Networks
+Date: Thu, 14 Dec 2006 16:24:44 +0100
+Message-Id: <1166109884.8815.157.camel@titan.tbdnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-12-14 at 14:47 +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > So far all first-hand experiences I heard of were positive (i.e. I did
+> > not get an emaail from anyone saying: It had a negative effect for me),
+> > so I propose to apply the patch from Con Kolivas. The wording in the
+> > description still very strongly recommends to not change that value, and
+> > it's still dependent on EXPERIMENTAL. I append the patch just because
+> 
+> There's a big difference between 'experimental' and 'known to broke
+> obscure userspace apps'.
 
---=-1dJt2Ny4W+ooYdMe3982
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+True, but abusing EMBEDDED for "only do that if you know what you are
+doing and if it breaks, you have to keep the pieces" is not good
+either. 
+Some other places that seem to fall into the same category are
+IPX_INTERN ("...This might break existing applications...") which is
+neither EMBEDDED nor EXPERIMENTAL or RMW_INSNS ("...It is very likely
+that this will cause serious problems on any Amiga...") that is
+dependent on ADVANCED.
 
-On Wed, 2006-12-13 at 13:17 -0500, Michael Bommarito wrote:
+Anyway, perhaps I should just select EMBEDDED although I don't have a
+small system (though a 6 year old 1Ghz K7 with 1GB mem might be
+considered small by some people these days :-), and ignore all the other
+options that pop up through this.
 
-> Attached is a patch that fixes this (the actual change is two lines
-> but context provided in patch for review).  The dmesg containing call
-> trace is attached to the bugzilla entry above.
+Best,
+  Norbert
 
-You forgot to attach the patch but IIRC it's been found and fixed
-already.
-
-johannes
-
---=-1dJt2Ny4W+ooYdMe3982
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iD4DBQBFgWiA/ETPhpq3jKURAmMKAJjs76OLuHAEKBoOBR7cP6z3pmcGAJ0WXjAC
-VXTTqCmp2EiE/QlQhyqkSw==
-=I/8J
------END PGP SIGNATURE-----
-
---=-1dJt2Ny4W+ooYdMe3982--
 

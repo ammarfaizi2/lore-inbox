@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932822AbWLNPsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932825AbWLNPtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932822AbWLNPsV (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932823AbWLNPsV
+	id S932825AbWLNPtM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbWLNPtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:48:21 -0500
-Received: from mail.tbdnetworks.com ([204.13.84.99]:55843 "EHLO
-	mail.tbdnetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932822AbWLNPsT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:48:19 -0500
-X-Greylist: delayed 1337 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:48:19 EST
-Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alejandro Riveira =?ISO-8859-1?Q?Fern=E1ndez?= 
-	<ariveira@gmail.com>,
-       Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061214144750.GA4022@ucw.cz>
-References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
-	 <1165406299.3233.436.camel@laptopd505.fenrus.org>
-	 <1165407548.5954.224.camel@titan.tbdnetworks.com>
-	 <20061206131003.GF24140@stusta.de>
-	 <20061209132742.7a25dcb5@localhost.localdomain>
-	 <1165679105.7455.116.camel@titan.tbdnetworks.com>
-	 <20061214144750.GA4022@ucw.cz>
-Content-Type: text/plain
-Organization: TBD Networks
-Date: Thu, 14 Dec 2006 16:24:44 +0100
-Message-Id: <1166109884.8815.157.camel@titan.tbdnetworks.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 14 Dec 2006 10:49:12 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:47347 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932825AbWLNPtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:49:10 -0500
+Message-ID: <4581726B.9050006@garzik.org>
+Date: Thu, 14 Dec 2006 10:48:59 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Rik van Riel <riel@redhat.com>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+References: <20061214003246.GA12162@suse.de>	<22299.1166057009@lwn.net>	<20061214005532.GA12790@suse.de>	<20061214051015.GA3506@nostromo.devel.redhat.com>	<20061214084820.GA29311@suse.de>	<4581595C.7080508@redhat.com> <20061214154734.189a23c6@localhost.localdomain>
+In-Reply-To: <20061214154734.189a23c6@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-14 at 14:47 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > So far all first-hand experiences I heard of were positive (i.e. I did
-> > not get an emaail from anyone saying: It had a negative effect for me),
-> > so I propose to apply the patch from Con Kolivas. The wording in the
-> > description still very strongly recommends to not change that value, and
-> > it's still dependent on EXPERIMENTAL. I append the patch just because
-> 
-> There's a big difference between 'experimental' and 'known to broke
-> obscure userspace apps'.
+Alan wrote:
+> Another thing we should do more is aggressively merge prototype open
+> drivers for binary only hardware - lets get Nouveau's DRM bits into the
+> kernel ASAP for example.
 
-True, but abusing EMBEDDED for "only do that if you know what you are
-doing and if it breaks, you have to keep the pieces" is not good
-either. 
-Some other places that seem to fall into the same category are
-IPX_INTERN ("...This might break existing applications...") which is
-neither EMBEDDED nor EXPERIMENTAL or RMW_INSNS ("...It is very likely
-that this will cause serious problems on any Amiga...") that is
-dependent on ADVANCED.
+ACK++  We should definitely push Nouveau[1] as hard as we can.
 
-Anyway, perhaps I should just select EMBEDDED although I don't have a
-small system (though a 6 year old 1Ghz K7 with 1GB mem might be
-considered small by some people these days :-), and ignore all the other
-options that pop up through this.
+	Jeff
 
-Best,
-  Norbert
 
+[1] http://nouveau.freedesktop.org/
 

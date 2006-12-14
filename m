@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750716AbWLNDBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750724AbWLNDcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWLNDBP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 13 Dec 2006 22:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWLNDBP
+	id S1750724AbWLNDcJ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 13 Dec 2006 22:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWLNDcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Dec 2006 22:01:15 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.16]:63346 "EHLO
-	amsfep11-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750716AbWLNDBO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Dec 2006 22:01:14 -0500
-X-Greylist: delayed 984 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Dec 2006 22:01:12 EST
-Message-ID: <4580C8AB.9020500@science.uva.nl>
-Date: Thu, 14 Dec 2006 03:44:43 +0000
-From: Vasco Visser <vvisser@science.uva.nl>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Wed, 13 Dec 2006 22:32:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:45356 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750724AbWLNDcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Dec 2006 22:32:08 -0500
+Date: Wed, 13 Dec 2006 19:32:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.20-rc1
+In-Reply-To: <200612132146.41829.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.64.0612131918100.5718@woody.osdl.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+ <200612132146.41829.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Luca Tettamanti <kronos.it@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] atl1: Revised Attansic L1 ethernet driver
-References: <20061210150730.GA6823@dreamland.darkstar.lan>
-In-Reply-To: <20061210150730.GA6823@dreamland.darkstar.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've tested the new driver for a couple of days, mostly by running
-XDMCP session over the Gbit LAN. Its all working good.
 
-I didn't experience any crashes or slowdowns at all. The driver is
-definitly usefull in it current state.
+On Wed, 13 Dec 2006, Gene Heskett wrote:
+>
+> Ok, one not so silly Q (IMO) from the resident old fart.  I saw, sometime 
+> in the past week, a relatively huge ieee1394 update go by.  And I have 
+> some issues with the present 2.6.19 version causeing segfaults and kino 
+> go-aways when trying to capture from my firewire movie camera.  Problems 
+> occur when trying to control the camera from kino.
+> 
+> Is this patchset in this -rc1?  If it is, I'll see if I can get a build to 
+> work and check it out.
 
-Performance is good, tops at ~40MB/s.
+-rc1 does include a reasonably big firewire update, but I'm not sure how 
+it will affect your camera usage. In fact, the ieee1394 people seem to be 
+trying to deprecate the dv1394 stuff, in favour of just raw1394 and 
+user-mode libraries.
 
-BTW: what is this MSI patch?
+I think you can tell Kino to use either the DV or the raw interface, but 
+I'm not sure. If you can, try either. The raw interface seems to be 
+horribly misdesigned (security problems), but is the one to use.
 
-gr,
-Vasco
+But by all means, give it a shot, and regardless of whether it works 
+better or not, you might want to cry on the shoulder of Stefan Richter 
+<stefanr@s5r6.in-berlin.de> about the issues you see.. Of course, please 
+talk to the Kino people too (although I have absolutely no idea who they 
+would be).
 
-Luca Tettamanti wrote:
-> Vasco <vvisser@science.uva.nl> ha scritto:
->   
->> I've got the p5B-E board to with the onboard attansic l1.
->>
->> I did the the atl1-2.0.2 patch against the 2.6.19.rc6 kernel.
->>     
->
-> Hi,
-> there has been another iteration of the driver.
->
->   
->> I can confirm the card is working but performance is *really* bad, 200Kb/s
->> over Gbit LAN.
->> I tried copying a ~50MB file over SSH and it didn't complete because of a
->> connection stall.
->>
->> I also tried turninig off TSO as adviced, but i got the message "operation
->> not supported". 
->>     
->
-> Hum, did you tried:
->
-> ethtool -K tso off eth0
->
-> Anyway the new version of the driver keeps TSO off by default, so it
-> should be fine.
-> I'm attaching what I'm using here (2.0.3 + my MSI patch).
->
-> Luca
->   
+		Linus
 

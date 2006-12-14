@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751802AbWLNFrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751821AbWLNGBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbWLNFrJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 00:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWLNFrJ
+	id S1751821AbWLNGBK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 01:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWLNGBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 00:47:09 -0500
-Received: from agminet02.oracle.com ([141.146.126.229]:48763 "EHLO
-	agminet02.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751802AbWLNFrI (ORCPT
+	Thu, 14 Dec 2006 01:01:10 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:61860 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751821AbWLNGBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 00:47:08 -0500
-X-Greylist: delayed 382 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 00:47:08 EST
-Date: Wed, 13 Dec 2006 21:41:40 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: sergio@sergiomb.no-ip.org, bjlockie@lockie.ca
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: escape key]
-Message-Id: <20061213214140.df6111f5.randy.dunlap@oracle.com>
-In-Reply-To: <1166058290.2964.15.camel@monteirov>
-References: <1166058290.2964.15.camel@monteirov>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Dec 2006 01:01:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
+        b=FkvnPvR3Mm8x4J/c+yCNB+cxaPG1WX+rzJuxx/aH0uEJvIBZ2b4fAyk/Rs9VdeU25FQcTzeKRRoY7U5M0aXkW9HuVC6IVWF3xRpBpwvZXgSyMK9lEu/+US5DE54o0Rc2ALVgEd4CWDbavilo+ann9hY351d9IG8Z8rrY1L2OYgc=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Martin J. Bligh'" <mbligh@mbligh.org>,
+       "'Linus Torvalds'" <torvalds@osdl.org>
+Cc: "'Greg KH'" <gregkh@suse.de>, "'Jonathan Corbet'" <corbet@lwn.net>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Michael K. Edwards'" <medwards.linux@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Date: Wed, 13 Dec 2006 22:01:15 -0800
+Message-ID: <003801c71f45$45d722c0$6721100a@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <4580E37F.8000305@mbligh.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+Thread-Index: AccfQysdYDQCd77/Tc2QVub3YuyzAgAAedzg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 01:04:50 +0000 Sergio Monteiro Basto wrote:
+> I think allowing binary hardware drivers in userspace hurts 
+> our ability to leverage companies to release hardware specs. 
 
-> -------- Forwarded Message --------
-> > From: James Lockie <bjlockie@lockie.ca>
-> > To: linux-x86_64@vger.kernel.org
-> > Subject: escape key
-> > Date: 	Tue, 12 Dec 2006 14:57:57 -0500
-> > 
-> > I can't use the escape key to exit a menu with make menuconfig on 
-> > kernel-2.6.19 or .1
-> > It works on 2.6.18. :-(
+If filesystems can be in user space, why can't drivers be in user space? On what *technical* ground?
 
-Is this a problem?
-
-You can exit a menu by selecting <Exit> and pressing Enter
-or (as the help text at the top of the screen says:)
-pressing <Esc><Esc> (2 times).  Yes, pressing <Esc> one time
-and then waiting for 1-2 seconds used to exit a menu.
-
-One could argue that it has been "fixed" to match the help text.
-
----
-~Randy

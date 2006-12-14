@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964973AbWLNWlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964942AbWLNWpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWLNWlh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 17:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWLNWlh
+	id S964942AbWLNWpm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 17:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWLNWpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 17:41:37 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:11233 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964974AbWLNWlg (ORCPT
+	Thu, 14 Dec 2006 17:45:42 -0500
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:35141
+	"EHLO vs166246.vserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964942AbWLNWpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 17:41:36 -0500
-Message-ID: <4581D355.1000701@oracle.com>
-Date: Thu, 14 Dec 2006 14:42:29 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Thu, 14 Dec 2006 17:45:41 -0500
+From: Michael Buesch <mb@bu3sch.de>
+To: "Dave Airlie" <airlied@gmail.com>
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Date: Thu, 14 Dec 2006 23:45:05 +0100
+User-Agent: KMail/1.9.5
+References: <20061214003246.GA12162@suse.de> <200612142326.43295.mb@bu3sch.de> <21d7e9970612141439s9ff4652tddd0983d19daeed3@mail.gmail.com>
+In-Reply-To: <21d7e9970612141439s9ff4652tddd0983d19daeed3@mail.gmail.com>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, "Rik van Riel" <riel@redhat.com>,
+       "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
+       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       "Jeff Garzik" <jeff@garzik.org>
 MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jesper.juhl@gmail.com
-Subject: Re: [PATCH/RFC] CodingStyle updates
-References: <20061207004838.4d84842c.randy.dunlap@oracle.com> <20061214223850.GC25114@vasa.acc.umu.se>
-In-Reply-To: <20061214223850.GC25114@vasa.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+Message-Id: <200612142345.06013.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> On Thu, Dec 07, 2006 at 12:48:38AM -0800, Randy Dunlap wrote:
+On Thursday 14 December 2006 23:39, Dave Airlie wrote:
+> > >
+> > > It'll get in when the developers feel it is at a stage where it can be
+> > > supported, at the moment (I'm not speaking for all the nouveau team
+> > > only my own opinion) the API isn't stable and putting it into the
+> > > kernel only means we've declared the API supportable, I know in theory
+> > > marking it EXPERIMENTAL might work, in practice it will just cause us
+> > > headaches at this stage, there isn't enough knowledgeable developers
+> > > working on it both support users and continue development at a decent
+> > > rate, so mainly ppl are concentrating on development until it can at
+> > > least play Q3, and for me dualhead on my G5 :-)
+> >
+> > To what degree does it work on the G5?
+> > Can we already drive a desktop system with it?
+> > I'd like to play around with this on my Quad.
+> >
 > 
-> [snip]
-> 
->> +but no space after unary operators:
->> +		sizeof  ++  --  &  *  +  -  ~  !  defined
-> 
-> Uhm, that doesn't compute...  If you don't put a space after sizeof,
-> the program won't compile.
-> 
-> int c;
-> printf("%d", sizeofc);
+> 2D worked the last time I tested it and fixed up all the problems, it
+> is slightly faster than nv, but may be more unstable, still only
+> single head... 3D even on x86 doesn't work yet without pre-loading
+> nvidia to set the hardware up correctly.. but it's coming along....
+> there are summary updates posted ~weekly on the nouveau wiki....
 
-Uh, we prefer not to see "sizeof c".  IOW, we prefer to have
-the parentheses use all the time.  Maybe I need to say that better?
-
-> Options are:
-> 
-> sizeof c
-> sizeof(c)
-> 
-> or
-> 
-> sizeof (c)
-> 
-> If you take sizeof the type rather than the variable, the options are
-> 
-> sizeof(int)
-> 
-> or
-> 
-> sizeof (int)
-> 
-> [snip]
-> 
-> 
-> Regards: David Weinehall
-
+Ok, that's nice to hear. :)
+Can't be much more pain than nv, heh.
+And as I only have singlehead, anyway, I'll give it a try.
 
 -- 
-~Randy
+Greetings Michael.

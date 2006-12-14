@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932750AbWLNPNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932793AbWLNPRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbWLNPNi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932798AbWLNPNh
+	id S932793AbWLNPRl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLNPRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:13:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32812 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932750AbWLNPNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:13:36 -0500
-Message-ID: <45816A14.8060802@redhat.com>
-Date: Thu, 14 Dec 2006 10:13:24 -0500
-From: Rik van Riel <riel@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+	Thu, 14 Dec 2006 10:17:41 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:50876 "EHLO
+	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932774AbWLNPRk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:17:40 -0500
+Message-ID: <45816B11.9040309@lwfinger.net>
+Date: Thu, 14 Dec 2006 09:17:37 -0600
+From: Larry Finger <larry.finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-To: "Michael K. Edwards" <medwards.linux@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
-References: <20061213195226.GA6736@kroah.com>	 <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org>	 <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com>	 <20061213210219.GA9410@suse.de> <45807182.1060408@mbligh.org>	 <20061213134721.d8ff8c11.akpm@osdl.org> <f2b55d220612131420l5f956e05qb10ef233670fb588@mail.gmail.com>
-In-Reply-To: <f2b55d220612131420l5f956e05qb10ef233670fb588@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Mike Christie <michaelc@cs.wisc.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Regression in v2.6.19-git18: Unable to write CD
+References: <4580DD6F.8060907@lwfinger.net> <20061214072129.GW4576@kernel.dk>
+In-Reply-To: <20061214072129.GW4576@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael K. Edwards wrote:
+Jens Axboe wrote:
+> On Wed, Dec 13 2006, Larry Finger wrote:
+>> There is a regression in v2.6.19-rc18 that makes one unable to write CD's. 
+>> In k3b, the drive status shows no devices. I used git bisect to find the 
+>> bad commit is the following:
+> 
+> Try a newer snapshot, it was fixed a few days ago.
+> 
 
-> I don't think it would.  There is a strong argument that GPL drivers
-> in the mainline kernel are a good idea on technical and business
-> grounds.
+-git19 or -git20 fixed the problem.
 
-Any volunteers to expand on that in the Kernelnewbies section
-on this subject?  So far the "business ground" is only half a
-page or so :)
+Thanks,
 
-http://kernelnewbies.org/UpstreamMerge
+Larry
 
--- 
-All Rights Reversed

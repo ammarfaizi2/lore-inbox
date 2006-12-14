@@ -1,85 +1,180 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932738AbWLNOMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932740AbWLNONJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932738AbWLNOMj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 09:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWLNOMj
+	id S932740AbWLNONJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 09:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbWLNONI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 09:12:39 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:53714 "EHLO
-	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932738AbWLNOMi (ORCPT
+	Thu, 14 Dec 2006 09:13:08 -0500
+Received: from gw-eur4.philips.com ([161.85.125.10]:48807 "EHLO
+	gw-eur4.philips.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932741AbWLNONH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 09:12:38 -0500
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
-	for 2.6.19]
-From: Ben Collins <ben.collins@ubuntu.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4580E37F.8000305@mbligh.org>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
-	 <20061214005532.GA12790@suse.de>
-	 <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-	 <4580E37F.8000305@mbligh.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 14 Dec 2006 09:12:25 -0500
-Message-Id: <1166105545.6748.212.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 14 Dec 2006 09:13:07 -0500
+To: <hpa@zytor.com>, <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] disable init/initramfs.c (updated)
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
+Message-ID: <OF05F1364A.E55256D9-ONC1257244.003C1687-C1257244.004D7E0F@philips.com>
+From: Jean-Paul Saman <jean-paul.saman@nxp.com>
+Date: Thu, 14 Dec 2006 15:06:23 +0100
+X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF805 | August
+ 26, 2006) at 14/12/2006 15:06:24,
+	Serialize complete at 14/12/2006 15:06:24
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-13 at 21:39 -0800, Martin J. Bligh wrote:
-> The Ubuntu feisty fawn mess was a dangerous warning bell of where we're
-> going. If we don't stand up at some point, and ban binary drivers, we
-> will, I fear, end up with an unsustainable ecosystem for Linux when
-> binary drivers become pervasive. I don't want to see Linux destroyed
-> like that.
+The file init/initramfs.c is always compiled and linked in the kernel 
+vmlinux even when BLK_DEV_RAM and BLK_DEV_INITRD are disabled and the 
+system isn't using any form of an initramfs or initrd. In this situation 
+the code is only used to unpack a (static) default initial rootfilesystem. 
+The current init/initramfs.c code. usr/initramfs_data.o compiles to a size 
+of ~15 kbytes. Disabling BLK_DEV_RAM and BLK_DEV_INTRD shrinks the kernel 
+code size with ~60 Kbytes.
 
-Yes, people have been worried about this for years, and to my knowledge,
-it seems like things have been getting better with drivers, not worse
-(look at Intel). And yet, people want to enforce more and more
-restrictions against binary-only drivers, when it appears that we are
-already winning.
+This patch makes it doesn't compile in the code and data for initramfs 
+support if CONFIG_BLK_DEV_INITRD is not defined. Instead of the initramfs 
+code and data it uses a small routine in init/noinitramfs.c to setup an 
+initial static default environment for mounting a rootfilesystem later on 
+in the kernel initialisation process. The new code is: 164 bytes of size.
 
-You can't talk about drivers that don't exist for Linux. Things like
-bcm43xx aren't effected by this new restriction for GPL-only drivers.
-There's no binary-only driver for it (ndiswrapper doesn't count). If the
-hardware vendor doesn't want to write a driver for linux, you can't make
-them. You can buy other hardware, but that's about it.
+The patch is separated in two parts:
+1) doesn't compile initramfs code when CONFIG_BLK_DEV_INITRD is not set
+2) changing all plaforms vmlinux.lds.S files to not reserve an area of 
+PAGE_SIZE when CONFIG_BLK_DEV_INITRD is not set.
 
-Here's the list of proprietary drivers that are in Ubuntu's restricted
-modules package:
+The patchset is compiled (2.6.10, 2.6.15, 2.6.git) and tested on mips 
+(PNX8535, kernel version 2.6.10) and arm (IntegratorAP/ARM1176 SoC, kernel 
+version 2.6.15).
 
-	madwifi (closed hal implementation, being replaced in openhal)
-	fritz
-	ati
-	nvidia
-	ltmodem (does that even still work?)
-	ipw3945d (not a kernel module, but just the daemon)
+Signed-off-by: Jean-Paul Saman <jean-paul.saman@nxp.com>
+----------------------
 
-In over a year that list has only grown by ipw3945d. None of our users
-are asking for new proprietary drivers. Believe me, if they needed them,
-I'd hear about it. We have more cases of new unsupported hardware than
-we do of new hardware with binary-only drivers. This proposed
-restriction doesn't fix that.
+Index: linux-2.6.git/drivers/block/Kconfig
+===================================================================
+--- linux-2.6.git.orig/drivers/block/Kconfig    2006-12-14 
+13:21:54.000000000 +0100
++++ linux-2.6.git/drivers/block/Kconfig 2006-12-14 14:59:38.000000000 
++0100
+@@ -417,8 +417,10 @@ config BLK_DEV_INITRD
+          etc. See <file:Documentation/initrd.txt> for details.
+ 
+          If RAM disk support (BLK_DEV_RAM) is also included, this
+-         also enables initial RAM disk (initrd) support.
++         also enables initial RAM disk (initrd) support and adds
++         15 Kbytes (more on some other architectures) to the kernel size.
+ 
++         If unsure say Y.
+ 
+ config CDROM_PKTCDVD
+        tristate "Packet writing on CD/DVD media"
+Index: linux-2.6.git/init/Makefile
+===================================================================
+--- linux-2.6.git.orig/init/Makefile    2006-12-14 13:21:54.000000000 
++0100
++++ linux-2.6.git/init/Makefile 2006-12-14 14:00:49.000000000 +0100
+@@ -2,7 +2,12 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-obj-y                          := main.o version.o mounts.o initramfs.o
++obj-y                          := main.o version.o mounts.o
++ifneq ($(CONFIG_BLK_DEV_INITRD),y)
++obj-y                          += noinitramfs.o
++else
++obj-$(CONFIG_BLK_DEV_INITRD)   += initramfs.o
++endif
+ obj-$(CONFIG_GENERIC_CALIBRATE_DELAY) += calibrate.o
+ 
+ mounts-y                       := do_mounts.o
+Index: linux-2.6.git/usr/Makefile
+===================================================================
+--- linux-2.6.git.orig/usr/Makefile     2006-12-14 13:21:54.000000000 
++0100
++++ linux-2.6.git/usr/Makefile  2006-12-14 13:31:29.000000000 +0100
+@@ -7,7 +7,7 @@ PHONY += klibcdirs
+ 
+ 
+ # Generate builtin.o based on initramfs_data.o
+-obj-y := initramfs_data.o
++obj-$(CONFIG_BLK_DEV_INITRD) := initramfs_data.o
+ 
+ # initramfs_data.o contains the initramfs_data.cpio.gz image.
+ # The image is included using .incbin, a dependency which is not
+Index: linux-2.6.git/init/Kconfig
+===================================================================
+--- linux-2.6.git.orig/init/Kconfig     2006-12-14 13:21:54.000000000 
++0100
++++ linux-2.6.git/init/Kconfig  2006-12-14 13:38:44.000000000 +0100
+@@ -280,8 +280,12 @@ config RELAY
+ 
+          If unsure, say N.
+ 
++if BLK_DEV_INITRD
++
+ source "usr/Kconfig"
+ 
++endif
++
+ config CC_OPTIMIZE_FOR_SIZE
+        bool "Optimize for size (Look out for broken compilers!)"
+        default y
+Index: linux-2.6.git/init/noinitramfs.c
+===================================================================
+--- /dev/null   1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.git/init/noinitramfs.c    2006-12-14 13:31:29.000000000 
++0100
+@@ -0,0 +1,43 @@
++/*
++ * init/noinitramfs.c
++ *
++ * Copyright (C) 2006, NXP Semiconductors, All Rights Reserved
++ * Author: Jean-Paul Saman <jean-paul.saman@nxp.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 
+USA
++ */
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++#include <linux/fcntl.h>
++#include <linux/delay.h>
++#include <linux/string.h>
++#include <linux/syscalls.h>
++
++/*
++ * Create a simple rootfs that is similar to the default initramfs
++ */
++static void __init default_rootfs(void)
++{
++        int mkdir_err = sys_mkdir("/dev", 0755);
++        int err = sys_mknod((const char __user *) "/dev/console",
++                                S_IFCHR | S_IRUSR | S_IWUSR,
++                                new_encode_dev(MKDEV(5, 1)));
++        if (err == -EROFS )
++               printk( "Warning: Failed to create a rootfs\n" );
++        mkdir_err = sys_mkdir("/root", 0700);
++}
++rootfs_initcall(default_rootfs);
++
 
-You know what I think hurts us more than anything? You know what
-probably keeps companies from writing drivers or releasing specs? It's
-because they know some non-paid kernel hackers out there will eventually
-reverse engineer it and write the drivers for them. Free development,
-and they didn't even have to release their precious specs.
+---------------------------------
 
-Don't get me wrong, I'm not bashing reverse engineering, or writing our
-own drivers. It's how Linux got started. But the problem isn't as narrow
-as people would like to think. And proprietary code isn't a growing
-problem. At best, it's just a distraction that will eventually go away
-on it's own.
+Kind greetings,
 
-The whole hardware vendor landscape is showing this, and it's not
-because we locked down the kernel, it's because we've shown how well we
-play with others, and how easy it is to get along with the whole
-community. Do we want to destroy this good will?
+Jean-Paul Saman
+
+NXP Semiconductors CTO/RTG DesignIP

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751844AbWLNIfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932070AbWLNIkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751844AbWLNIfS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 03:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWLNIfR
+	id S932070AbWLNIkU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 03:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWLNIkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 03:35:17 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:48857 "EHLO jaguar.mkp.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751833AbWLNIew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 03:34:52 -0500
-X-Greylist: delayed 1415 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 03:34:52 EST
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Greg.Chandler@wellsfargo.com, linux-kernel@vger.kernel.org
-Subject: Re: Interphase Tachyon drivers missing.
-From: "Martin K. Petersen" <mkp@mkp.net>
-Organization: mkp.net
-References: <E8C008223DD5F64485DFBDF6D4B7F71D023BAE21@msgswbmnmsp25.wellsfargo.com>
-	<200612140827.31858.eike-kernel@sf-tec.de>
-Date: Thu, 14 Dec 2006 03:11:16 -0500
-In-Reply-To: <200612140827.31858.eike-kernel@sf-tec.de> (Rolf Eike Beer's message of "Thu, 14 Dec 2006 08:27:26 +0100")
-Message-ID: <yq18xha28yj.fsf@sermon.lab.mkp.net>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Thu, 14 Dec 2006 03:40:20 -0500
+Received: from twinlark.arctic.org ([207.29.250.54]:41391 "EHLO
+	twinlark.arctic.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932070AbWLNIkS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 03:40:18 -0500
+Date: Thu, 14 Dec 2006 00:40:16 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: Jan Beulich <jbeulich@novell.com>
+cc: Chris Wright <chrisw@sous-sol.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Michael Buesch <mb@bu3sch.de>,
+       Metathronius Galabant <m.galabant@googlemail.com>, stable@kernel.org,
+       Michael Krufky <mkrufky@linuxtv.org>,
+       Justin Forbes <jmforbes@linuxtx.org>, alan@lxorguk.ukuu.org.uk,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       torvalds@osdl.org, Chuck Wolber <chuckw@quantumlinux.com>,
+       Dave Jones <davej@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
+In-Reply-To: <45811163.76E4.0078.0@novell.com>
+Message-ID: <Pine.LNX.4.64.0612140028410.16018@twinlark.arctic.org>
+References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org>
+ <20061120234535.GD17736@redhat.com> <20061121022109.GF1397@sequoia.sous-sol.org>
+ <4562D5DA.76E4.0078.0@novell.com> <20061122015046.GI1397@sequoia.sous-sol.org>
+ <45640FF4.76E4.0078.0@novell.com> <20061124202729.GC29264@redhat.com>
+ <456D56E7.76E4.0078.0@novell.com> <Pine.LNX.4.64.0612131145460.14936@twinlark.arctic.org>
+ <20061213203325.GL10475@sequoia.sous-sol.org> <Pine.LNX.4.64.0612131458510.16018@twinlark.arctic.org>
+ <45811163.76E4.0078.0@novell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Eike" == Rolf Eike Beer <eike-kernel@sf-tec.de> writes:
+On Thu, 14 Dec 2006, Jan Beulich wrote:
 
-Eike> Am Mittwoch, 13. Dezember 2006 17:51 schrieb
-Eike> Greg.Chandler@wellsfargo.com:
->> I'm not sure about the driver being cpqfc, I know in 2.6.0 & 1 the
->> driver was definitely iphase.c/h/o I do know the chipset was used
->> by almost everyone, Compaq/HP/DEC and Interphase's namebrand cards.
->> 
->> I also know that the driver is still working in 2.4.33 my slackware
->> 11 default kernel picked up the card, which suprised me to say the
->> least...  I won't have time to spend a weekend on it until about
->> christmas. {or probably christmas day is more likely} Even then I
->> can't make any kind of promise that I can do anything useful about
->> it...
+> >with the patch it boots perfectly without any command-line args.
+> 
+> Are you getting the 'Firmware space is locked read-only' message then?
 
-Eike> Ok, than we're likely talking about different things. Maybe just
-Eike> another driver for that chipset. If I'll ever find some time
-Eike> I'll have a look on this one too.
+yep...
 
-The ip5526 driver was removed way back due to lack of interest.  It
-only drove a limited set of cards from one vendor.
+so let me ask a naive question... don't we want the firmware locked 
+read-only because that protects the bios from viruses?  honestly i'm naive 
+in this area of pc hardware, but i'm kind of confused why we'd want 
+unlocked firmware just so we can detect a RNG.
 
-The interphase cards used a "real" Tachyon (HPFC-5000) chip.  The
-controllers we usually discuss in the context of cpqfc have TachLite
-(HPFC-51xx and later).
-
-Tachyon is a really old chip and it's not completely compatible with
-TachLite from a programming perspective.  It also doesn't have
-contemporary features like - cough - PCI-support.  The
-GSC/EISA/PCI/whatever glue chip was vendor-specific.
-
-I'm sure the ip5526 driver could be revived -- it's not very big.  But
-I doubt there are many cards out there that haven't been scrapped.
-
--- 
-Martin K. Petersen      http://mkp.net/
+-dean

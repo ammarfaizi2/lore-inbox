@@ -1,98 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932774AbWLNPRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932800AbWLNPSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932774AbWLNPRp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 10:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLNPRp
+	id S932800AbWLNPSr (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 10:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLNPSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 10:17:45 -0500
-Received: from thunk.org ([69.25.196.29]:36242 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932774AbWLNPRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 10:17:44 -0500
-X-Greylist: delayed 1351 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:17:44 EST
-Date: Thu, 14 Dec 2006 10:17:45 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Franck Pommereau <pommereau@univ-paris12.fr>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Clarify i386/Kconfig explanation of the HIGHMEM config options
-Message-ID: <20061214151745.GC9079@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Franck Pommereau <pommereau@univ-paris12.fr>,
-	linux-kernel@vger.kernel.org
-References: <458118BB.5050308@univ-paris12.fr> <1166090244.27217.978.camel@laptopd505.fenrus.org> <45813E67.80709@univ-paris12.fr> <1166098747.27217.1018.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Thu, 14 Dec 2006 10:18:47 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:54668 "EHLO
+	alpha.logic.tuwien.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932801AbWLNPSq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 10:18:46 -0500
+X-Greylist: delayed 1971 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 10:18:46 EST
+Date: Thu, 14 Dec 2006 15:45:26 +0100
+To: Tejun Heo <htejun@gmail.com>
+Cc: avl@logic.at, Alan <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Allow turning off hpa-checking.
+Message-ID: <20061214144526.GG21855@gamma.logic.tuwien.ac.at>
+Reply-To: avl@logic.at
+References: <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain> <20061127175647.GD2352@gamma.logic.tuwien.ac.at> <20061127181033.58e72d9a@localhost.localdomain> <20061127182943.GE2352@gamma.logic.tuwien.ac.at> <20061127195940.1b90a897@localhost.localdomain> <20061128092930.GF2352@gamma.logic.tuwien.ac.at> <456C056D.2070008@gmail.com> <20061128120916.GG2352@gamma.logic.tuwien.ac.at> <456C2A6F.9020406@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1166098747.27217.1018.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <456C2A6F.9020406@gmail.com>
+User-Agent: Mutt/1.3.28i
+From: Andreas Leitgeb <avl@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'd be happy to know how to enable it.
->
-> CONFIG_HIGHMEM64G=y
+Just a Thank you & EOThread message :-)
 
-This is not at all obvious from arch/i386/Kconfig.  Maybe we should
-fix this?
+On Tue, Nov 28, 2006 at 09:24:15PM +0900, Tejun Heo wrote:
+> Dunno about IDE layer.  It has been done that way for long time and not 
+> sure whether adding such option will happen, but for libata, hpa 
+> handling is still not implemented ...
 
-					- Ted
+I'm now (since 2.6.19) happily using libata instead of ide
+on that machine, no longer need to apply extra patches and will
+do so until the harddisk finally dies.
 
-Add an explanation that HIGHMEM64G is needed in order to get support
-for the NX feature.
+> and it will have to be optional when 
+> it gets implemented.  So, libata will have such option when it finally 
+> receives implementation for hpa handling.
 
-Remove an (incorrect) assertion that NOHIGHMEM is right for more
-users, since most systems are coming with at least 1G of memory these
-days, and even some laptops have up 4G of memory.
+Glad to read that.
 
-Finally, although the explanation of the 1G/3G split is correct, it is
-not relevant to the NOHIGHMEM/HIGHMEM4G/HIGHMEM64G discussion, since
-the each process will always see 3GB of virtual memory.  It also might
-be something else depending on the setting of CONFIG_VMSPLIT_*.
-
-Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
----
- arch/i386/Kconfig |   17 ++++++++---------
- 1 files changed, 8 insertions(+), 9 deletions(-)
-
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 8ff1c6f..4b8f156 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -457,22 +457,21 @@ config NOHIGHMEM
- 	  "high memory".
- 
- 	  If you are compiling a kernel which will never run on a machine with
--	  more than 1 Gigabyte total physical RAM, answer "off" here (default
--	  choice and suitable for most users). This will result in a "3GB/1GB"
--	  split: 3GB are mapped so that each process sees a 3GB virtual memory
--	  space and the remaining part of the 4GB virtual memory space is used
--	  by the kernel to permanently map as much physical memory as
--	  possible.
-+	  more than 1 Gigabyte total physical RAM, answer "off" here.
- 
- 	  If the machine has between 1 and 4 Gigabytes physical RAM, then
- 	  answer "4GB" here.
- 
- 	  If more than 4 Gigabytes is used then answer "64GB" here. This
- 	  selection turns Intel PAE (Physical Address Extension) mode on.
--	  PAE implements 3-level paging on IA32 processors. PAE is fully
-+	  PAE implements 3-level paging on IA32 processors.  PAE is fully
- 	  supported by Linux, PAE mode is implemented on all recent Intel
--	  processors (Pentium Pro and better). NOTE: If you say "64GB" here,
--	  then the kernel will not boot on CPUs that don't support PAE!
-+	  processors (Pentium Pro and better).  PAE support is also needed
-+	  if you wish to enable NX support, to make your system more secure by
-+	  enabling non-executable stacks.
-+
-+	  NOTE: If you say "64GB" here, then the kernel will not boot
-+	  on CPUs that don't support PAE!
- 
- 	  The actual amount of total physical memory will either be
- 	  auto detected or can be forced by using a kernel command line option
--- 
-1.4.1
-
+Thanks for all the patience with me.

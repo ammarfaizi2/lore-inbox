@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964875AbWLNW1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964917AbWLNWbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWLNW1x (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 17:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWLNW1x
+	id S964917AbWLNWbp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 17:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWLNWbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 17:27:53 -0500
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:53399
-	"EHLO vs166246.vserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964888AbWLNW1w (ORCPT
+	Thu, 14 Dec 2006 17:31:45 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:52098 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964917AbWLNWbo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 17:27:52 -0500
-From: Michael Buesch <mb@bu3sch.de>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Thu, 14 Dec 2006 23:26:42 +0100
-User-Agent: KMail/1.9.5
-References: <20061214003246.GA12162@suse.de> <4581726B.9050006@garzik.org> <21d7e9970612141421o79a47705i8a87adbdcbf8b3a9@mail.gmail.com>
-In-Reply-To: <21d7e9970612141421o79a47705i8a87adbdcbf8b3a9@mail.gmail.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, "Rik van Riel" <riel@redhat.com>,
-       "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
-       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       "Jeff Garzik" <jeff@garzik.org>
+	Thu, 14 Dec 2006 17:31:44 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 14 Dec 2006 17:27:24 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Zach Brown <zach.brown@oracle.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
+Message-ID: <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612142326.43295.mb@bu3sch.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 December 2006 23:21, Dave Airlie wrote:
-> On 12/15/06, Jeff Garzik <jeff@garzik.org> wrote:
-> > Alan wrote:
-> > > Another thing we should do more is aggressively merge prototype open
-> > > drivers for binary only hardware - lets get Nouveau's DRM bits into the
-> > > kernel ASAP for example.
-> >
-> > ACK++  We should definitely push Nouveau[1] as hard as we can.
-> >
-> >         Jeff
-> >
-> 
-> It'll get in when the developers feel it is at a stage where it can be
-> supported, at the moment (I'm not speaking for all the nouveau team
-> only my own opinion) the API isn't stable and putting it into the
-> kernel only means we've declared the API supportable, I know in theory
-> marking it EXPERIMENTAL might work, in practice it will just cause us
-> headaches at this stage, there isn't enough knowledgeable developers
-> working on it both support users and continue development at a decent
-> rate, so mainly ppl are concentrating on development until it can at
-> least play Q3, and for me dualhead on my G5 :-)
+On Thu, 14 Dec 2006, Zach Brown wrote:
 
-To what degree does it work on the G5?
-Can we already drive a desktop system with it?
-I'd like to play around with this on my Quad.
+> >  there are numerous places throughout the source tree that
+> > apparently calculate the size of an array using the construct
+> > "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
 
--- 
-Greetings Michael.
+> >  $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+>
+> Indeed, there seems to be lots of potential clean-up there.
+> Including duplicate macros like:
+>
+> ./drivers/ide/ide-cd.h:#define ARY_LEN(a) ((sizeof(a) / sizeof(a[0])))
+
+not surprisingly, i have a script "arraysize.sh":
+
+============================================================
+#!/bin/sh
+
+DIR=$1
+
+# grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}
+# grep -Erl "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}
+
+for f in $(grep -Erl "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" ${DIR}) ; do
+  echo "ARRAY_SIZE()ing $f ..."
+  perl -pi -e "s|sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)|ARRAY_SIZE\(\1\)|" $f
+done
+===========================================================
+
+  anyone who's interested can run it with a single argument of the
+directory to process, eg.:
+
+  $ arraysize.sh fs
+  $ arraysize.sh drivers
+  $ arraysize.sh .		# entire tree, of course
+
+it's just a first pass, but it seems to produce reasonable code.
+
+rday

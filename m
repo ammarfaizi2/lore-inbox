@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752021AbWLNG4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751131AbWLNHFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWLNG4Z (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 01:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752027AbWLNG4Z
+	id S1751131AbWLNHFF (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 02:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWLNHFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 01:56:25 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:51954 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752021AbWLNG4Z (ORCPT
+	Thu, 14 Dec 2006 02:05:04 -0500
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:56437 "EHLO
+	gw02.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751131AbWLNHFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 01:56:25 -0500
-Date: Thu, 14 Dec 2006 06:56:24 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc1] ib_verbs: Use explicit if-else statements to avoid errors with do-while macros
-Message-ID: <20061214065624.GN4587@ftp.linux.org.uk>
-References: <1166065805.6748.135.camel@gullible> <20061214064430.GM4587@ftp.linux.org.uk>
+	Thu, 14 Dec 2006 02:05:03 -0500
+X-Greylist: delayed 1493 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 02:05:03 EST
+Date: Thu, 14 Dec 2006 08:40:02 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] updated proper-backlight-selection-for-fbdev-drivers.patch
+Message-ID: <20061214064002.GB12910@sci.fi>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0612131530340.4484@pentafluge.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20061214064430.GM4587@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0612131530340.4484@pentafluge.infradead.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 06:44:30AM +0000, Al Viro wrote:
-> On Wed, Dec 13, 2006 at 10:10:05PM -0500, Ben Collins wrote:
-> > At least on PPC, the "op ? op : dma" construct causes a compile failure
-> > because the dma_* is a do{}while(0) macro.
-> > 
-> > This turns all of them into proper if/else to avoid this problem.
+On Wed, Dec 13, 2006 at 03:32:09PM +0000, James Simmons wrote:
 > 
-> NAK.
+> Signed-Off-By: James Simmons <jsimmons@www.infradead.org>
 > 
-> Proper fix is to kill stupid do { } while (0) mess.  It's supposed
-> to behave like a function returning void, so it should be ((void)0).
+> Here is the updated patch for proper backlight selection.
+> 
+> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+...
+> @@ -1135,8 +1140,7 @@ config FB_ATY_GX
+>  
+>  config FB_ATY_BACKLIGHT
+>  	bool "Support for backlight control"
+> -	depends on FB_ATY && PMAC_BACKLIGHT
+> -	select FB_BACKLIGHT
+> +	depends on FB_ATY
+>  	default y
+>  	help
+>  	  Say Y here if you want to control the backlight of your display.
 
-BTW, even though the original patch is already merged, I think that
-we ought to get rid of do-while in such stubs, exactly to avoid such
-problems in the future.  Probably even add to CodingStyle - it's not
-the first time such crap happens.
+Is there some non-Mac hardware on which the backlight control actually 
+works? IIRC I tried it on some x86 laptops at some point and it didn't 
+do anything, and that is why I added the generic backlight voltage 
+on/off thing. Just to be sure I can re-test my laptops next weekend...
 
-IOW, do ; while(0) / do { } while (0)  is not a proper way to do a macro
-that imitates a function returning void.
-
-Objections?
+-- 
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

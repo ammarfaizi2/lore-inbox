@@ -1,99 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932080AbWLNIuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932082AbWLNIzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWLNIuI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 03:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWLNIuI
+	id S932082AbWLNIzu (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 03:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWLNIzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 03:50:08 -0500
-Received: from mail.bencastricum.nl ([213.84.203.196]:55409 "EHLO
-	bencastricum.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932080AbWLNIuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 03:50:06 -0500
-X-Greylist: delayed 1055 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 03:50:06 EST
-Date: Thu, 14 Dec 2006 09:32:22 +0100 (CET)
-From: Ben Castricum <mail0612@bencastricum.nl>
-X-X-Sender: benc@gateway.bencastricum.nl
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: linux-kernel@vger.kernel.org, gregkh <greg@kroah.com>
-Subject: Re: BUG: unable to handle kernel paging request in 2.6.19-git
-In-Reply-To: <20061212163929.987c6716.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.58.0612140929400.18009@gateway.bencastricum.nl>
-References: <Pine.LNX.4.58.0612120737130.26641@gateway.bencastricum.nl>
- <20061212163929.987c6716.randy.dunlap@oracle.com>
+	Thu, 14 Dec 2006 03:55:50 -0500
+Received: from jdi.jdi-ict.nl ([82.94.239.5]:60619 "EHLO jdi.jdi-ict.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932082AbWLNIzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 03:55:49 -0500
+Date: Thu, 14 Dec 2006 09:55:38 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+X-X-Sender: igmar@jdi.jdi-ict.nl
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
+Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
+In-Reply-To: <20061214004213.13149a48.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl>
+References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
+ <20061130212248.1b49bd32.akpm@osdl.org> <Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl> <20061206074008.2f308b2b.akpm@osdl.org>
+ <Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612140912010.30202@jdi.jdi-ict.nl> <20061214004213.13149a48.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 14 Dec 2006 09:55:38 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > Hmm.. Switching CONFIG_HZ from 1000 to 250 seems to 'fix' the problem. 
+> > I haven't seen the issue in nearly a week now. This makes Andrew's theory 
+> > about missing interrupts very likely.
+> > 
+> > Andrew / others : Is there a way to find out if it *is* missing 
+> > interrupts ?
+> > 
+> 
+> umm, nasty.  What's in /proc/interrupts?
 
-On Tue, 12 Dec 2006, Randy Dunlap wrote:
-
-> On Tue, 12 Dec 2006 07:48:51 +0100 (CET) Ben Castricum wrote:
->
-> >
-> > This bug started to show up after the release of 2.6.19 (iirc plain 2.6.19
-> > was still working fine).
-> >
-> > The full dmesg is at
-> > http://www.bencastricum.nl/lk/bootmessages-2.6.19-g9202f325.log,
-> > and the .config http://www.bencastricum.nl/lk/config-g9202f325.log
-> >
-> > I haven't tried disabling CONFIG_PCI_MULTITHREAD_PROBE. But if this
-> > might help in someway I'll give it a shot.
->
-> Yes, it appears to be that config option.  Please disable it
-> and retest and re-report.
-
-As expected, disabling CONFIG_PCI_MULTITHREAD_PROBE causes the bug to
-disappear.
+See below. The other machine is mostly identifical, except for i8042 
+missing (probably due to running an older kernel, or small differences in 
+the kernel config).
 
 Regards,
-Ben
 
->
->
-> > Thanks,
-> > Ben
-> >
-> > e100: Intel(R) PRO/100 Network Driver, 3.5.17-k2-NAPI
-> > e100: Copyright(c) 1999-2006 Intel Corporation
-> > BUG: unable to handle kernel paging request at virtual address d880a000
-> >  printing eip:
-> > d880a000
-> > *pde = 01382067
-> > *pte = 00000000
-> > Oops: 0000 [#1]
-> > Modules linked in: e100 mii ext2 unix
-> > CPU:    0
-> > EIP:    0060:[<d880a000>]    Not tainted VLI
-> > EFLAGS: 00010282   (2.6.19-g9202f325 #15)
-> > EIP is at 0xd880a000
-> > eax: c13c9000   ebx: d8876fe0   ecx: d8876470   edx: d8876470
-> > esi: d8876fe0   edi: ffffffed   ebp: d8877014   esp: d7a15f7c
-> > ds: 007b   es: 007b   ss: 0068
-> > Process probe-0000:00:0 (pid: 72, ti=d7a14000 task=d7828560
-> > task.ti=d7a14000)
-> > Stack: c01b009a c13c9000 c01b00ec d8876fe0 c13c9000 00000000 c01b0126
-> > c13c9048
-> >        d7821560 c0205b27 d7821560 00001fcc 6ab5e081 00004ada d7acded0
-> > d7821560
-> >        c0205aa0 fffffffc c0128186 00000001 ffffffff ffffffff c01280d0
-> > 00000000
-> > Call Trace:
-> >  [<c01b009a>] pci_call_probe+0xa/0x10
-> >  [<c01b00ec>] __pci_device_probe+0x4c/0x60
-> >  [<c01b0126>] pci_device_probe+0x26/0x50
-> >  [<c0205b27>] really_probe+0x87/0x100
-> >  [<c0205aa0>] really_probe+0x0/0x100
-> >  [<c0128186>] kthread+0xb6/0xc0
-> >  [<c01280d0>] kthread+0x0/0xc0
-> >  [<c0103963>] kernel_thread_helper+0x7/0x14
-> >  =======================
-> > Code:  Bad EIP value.
-> > EIP: [<d880a000>] 0xd880a000 SS:ESP 0068:d7a15f7c
->
-> ---
-> ~Randy
->
+
+	Igmar
+
+[jdiict@lnx01 ~]$ cat /proc/interrupts
+           CPU0       CPU1
+  0:   73702693   74509271   IO-APIC-edge      timer
+  1:          1          1   IO-APIC-edge      i8042
+  4:       2289       8389   IO-APIC-edge      serial
+  8:          0          1   IO-APIC-edge      rtc
+  9:          0          0   IO-APIC-fasteoi   acpi
+ 12:          3          1   IO-APIC-edge      i8042
+ 16:  203127788          0   IO-APIC-fasteoi   uhci_hcd:usb2, eth0
+ 17:        525        492   IO-APIC-fasteoi   uhci_hcd:usb4
+ 18:   13000070   67584889   IO-APIC-fasteoi   arcmsr
+ 19:          0          0   IO-APIC-fasteoi   ehci_hcd:usb1
+ 20:          0          0   IO-APIC-fasteoi   uhci_hcd:usb3
+NMI:          0          0
+LOC:  148127756  148133476
+ERR:          0
+MIS:          0

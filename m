@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751970AbWLNTX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751872AbWLNTaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbWLNTX6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 14:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751973AbWLNTX6
+	id S1751872AbWLNTaJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 14:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751973AbWLNTaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 14:23:58 -0500
-Received: from mail1.key-systems.net ([81.3.43.211]:41864 "HELO
-	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751970AbWLNTX6 (ORCPT
+	Thu, 14 Dec 2006 14:30:08 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:3415 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751872AbWLNTaH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 14:23:58 -0500
-Message-ID: <4581A4A1.4050707@scientia.net>
-Date: Thu, 14 Dec 2006 20:23:13 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
+	Thu, 14 Dec 2006 14:30:07 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.20-rc1
+Date: Thu, 14 Dec 2006 19:30:19 +0000
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>, Jens Axboe <jens.axboe@oracle.com>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-CC: andersen@codepoet.org, Karsten Weiss <K.Weiss@science-computing.de>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org> <45808DC3.2010907@scientia.net> <20061214092431.GD6674@rhun.haifa.ibm.com>
-In-Reply-To: <20061214092431.GD6674@rhun.haifa.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------060802050209020503080409"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612141930.19797.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060802050209020503080409
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hi Linus,
 
-Muli Ben-Yehuda wrote:
->> 4)
->> And does someone know if the nforce/opteron iommu requires IBM Calgary
->> IOMMU support?
->>     
-> It doesn't, Calgary isn't found in machine with Opteron CPUs or NForce
-> chipsets (AFAIK). However, compiling Calgary in should make no
-> difference, as we detect in run-time which IOMMU is found and the
-> machine.
-Yes,.. I've read the relevant section shortly after sending that email ;-)
+`hddtemp' has stopped working on 2.6.20-rc1:
 
-btw & for everybody:
-I'm working (as student) at the LRZ (Leibniz Computing Centre) in Munich
-where we have very large Linux Cluster and lots of different other
-machines,...
-I'm going to test for that error on most of the different types of
-systems we have,.. and will inform you about my results (if they're
-interesting).
+[root] 19:25 [~] hddtemp /dev/sda /dev/sdb /dev/sdc /dev/sdd
+/dev/sda: ATA WDC WD2500KS-00M: S.M.A.R.T. not available
+/dev/sdb: ATA WDC WD2500KS-00M: S.M.A.R.T. not available
+/dev/sdc: ATA Maxtor 6B200M0: S.M.A.R.T. not available
+/dev/sdd: ATA Maxtor 6B200M0: S.M.A.R.T. not available
 
-Chris.
+Stracing the binary reveals:
 
---------------060802050209020503080409
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+open("/dev/sdd", O_RDONLY|O_NONBLOCK)   = 3
+ioctl(3, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a0636c) = 0
+ioctl(3, SG_IO, 0x7fffe8a06020)         = 0
+ioctl(3, SG_IO, 0x7fffe8a06040)         = 0
+ioctl(3, 0x30d, 0x506b80)               = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a06384) = 0
+ioctl(3, SG_IO, 0x7fffe8a06240)         = 0
+open("/dev/sdc", O_RDONLY|O_NONBLOCK)   = 4
+ioctl(4, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a0636c) = 0
+ioctl(4, SG_IO, 0x7fffe8a06020)         = 0
+ioctl(4, SG_IO, 0x7fffe8a06040)         = 0
+ioctl(4, 0x30d, 0x506b80)               = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a06384) = 0
+ioctl(4, SG_IO, 0x7fffe8a06240)         = 0
+open("/dev/sdb", O_RDONLY|O_NONBLOCK)   = 5
+ioctl(5, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a0636c) = 0
+ioctl(5, SG_IO, 0x7fffe8a06020)         = 0
+ioctl(5, SG_IO, 0x7fffe8a06040)         = 0
+ioctl(5, 0x30d, 0x506b80)               = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(5, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a06384) = 0
+ioctl(5, SG_IO, 0x7fffe8a06240)         = 0
+open("/dev/sda", O_RDONLY|O_NONBLOCK)   = 6
+ioctl(6, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a0636c) = 0
+ioctl(6, SG_IO, 0x7fffe8a06020)         = 0
+ioctl(6, SG_IO, 0x7fffe8a06040)         = 0
+ioctl(6, 0x30d, 0x506b80)               = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(6, SCSI_IOCTL_GET_BUS_NUMBER, 0x7fffe8a06384) = 0
+ioctl(6, SG_IO, 0x7fffe8a06240)         = 0
+ioctl(6, SG_IO, 0x7fffe8a05d20)         = 0
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------060802050209020503080409--
+Is there a known workaround for this?
+
+SMART is enabled in the BIOS and it's available in 2.6.19.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964827AbWLNVvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964777AbWLNVyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWLNVvF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 16:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWLNVvE
+	id S964777AbWLNVyI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 16:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWLNVyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 16:51:04 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:49883 "EHLO mail.dvmed.net"
+	Thu, 14 Dec 2006 16:54:08 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:49899 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964827AbWLNVvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 16:51:04 -0500
-Message-ID: <4581C73F.6060707@garzik.org>
-Date: Thu, 14 Dec 2006 16:50:55 -0500
+	id S964777AbWLNVyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 16:54:07 -0500
+Message-ID: <4581C7EC.6020104@garzik.org>
+Date: Thu, 14 Dec 2006 16:53:48 -0500
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
@@ -33,16 +33,10 @@ Alistair John Strachan wrote:
 > Before I proceed with the horrors of an -rc1 bisection, could somebody send me 
 > the ADMA patches so I can eliminate those first?
 
-Run
 
-	git-whatchanged drivers/ata/sata_nv.c
-
-and that will give you a list of recent changes.  To obtain the "diff 
--u" patch for a single commit, run
-
-	git-diff-tree -p $SHA_HASH > /tmp/patch
-
-Regards,
+BTW a bisection need not be blindly horrific...  You can look at the 
+commit ids from git-whatchanged output mentioned in the previous email, 
+and make educated guesses about what might be a good or bad change.
 
 	Jeff
 

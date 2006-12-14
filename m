@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932690AbWLNMg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932698AbWLNMhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWLNMg2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 07:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbWLNMg2
+	id S932698AbWLNMhk (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 07:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWLNMhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 07:36:28 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:1621 "EHLO
-	anchor-post-33.mail.demon.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932690AbWLNMg1 (ORCPT
+	Thu, 14 Dec 2006 07:37:40 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39419 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932698AbWLNMhj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 07:36:27 -0500
-Message-ID: <45814544.1050102@superbug.co.uk>
-Date: Thu, 14 Dec 2006 12:36:20 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Franck Pommereau <pommereau@univ-paris12.fr>, linux-kernel@vger.kernel.org
-Subject: Re: Executability of the stack
-References: <458118BB.5050308@univ-paris12.fr> <1166090244.27217.978.camel@laptopd505.fenrus.org>
-In-Reply-To: <1166090244.27217.978.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Dec 2006 07:37:39 -0500
+Date: Thu, 14 Dec 2006 12:45:58 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: =?UTF-8?B?SGFucy1Kw7xyZ2Vu?= Koch <hjk@linutronix.de>
+Cc: tglx@linutronix.de, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Userspace I/O driver core
+Message-ID: <20061214124558.3bda956b@localhost.localdomain>
+In-Reply-To: <200612141237.16535.hjk@linutronix.de>
+References: <20061214010608.GA13229@kroah.com>
+	<1166095336.29505.97.camel@localhost.localdomain>
+	<20061214113933.07140f0a@localhost.localdomain>
+	<200612141237.16535.hjk@linutronix.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, 2006-12-14 at 10:26 +0100, Franck Pommereau wrote:
->> Dear Linux developers,
->>
->> I recently discovered that the Linux kernel on 32 bits x86 processors
->> reports the stack as being non-executable while it is actually
->> executable (because located in the same memory segment).
-> 
-> this is not per se true, it depends on the capabilities of your 32 bit
-> x86 processor.
-> 
-> 
->> # grep maps /proc/self/maps
->> bfce8000-bfcfe000 rw-p bfce8000 00:00 0          [stack]
-> 
-> this shows that the *intent* is to have it non-executable. 
-> Not all x86 processors can enforce this. All modern ones do.
-> 
->> Is there any reason for this situation? 
-> 
-> the alternative (showing effective permission) is equally confusing;
-> apps would see permissions they didn't set...
-> 
+On Thu, 14 Dec 2006 12:37:16 +0100
+Hans-Jürgen Koch <hjk@linutronix.de> wrote:
 
-Why not show both.
-"intent" and "effective".
+> There are three breaks in that while loop, the first makes it return as 
+> soon as an interrupt occurs.
 
+Doh ignore that I misread it. Perils of reading email before midday

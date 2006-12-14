@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964781AbWLNV4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964851AbWLNWB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWLNV4q (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 16:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWLNV4q
+	id S964851AbWLNWB2 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 17:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWLNWB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 16:56:46 -0500
-Received: from sp604005mt.neufgp.fr ([84.96.92.11]:64435 "EHLO smtp.Neuf.fr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964781AbWLNV4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 16:56:45 -0500
-X-Greylist: delayed 4504 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 16:56:45 EST
-Date: Thu, 14 Dec 2006 21:25:20 +0100
-From: nuxdoors@cegetel.net
-Subject: [PATCH 2.6.19.1] sunkbd.c: fix sunkbd_enable(sunkbd, 0); obvious
-To: vojtech@ucw.cz
-Cc: linux-kernel@vger.kernel.org
-Message-id: <4581B330.5040106@cegetel.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0.2 (X11/20060926)
+	Thu, 14 Dec 2006 17:01:28 -0500
+Received: from deine-taler.de ([217.160.107.63]:54384 "EHLO
+	p15091797.pureserver.info" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964851AbWLNWB1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 17:01:27 -0500
+X-Greylist: delayed 1350 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Dec 2006 17:01:27 EST
+In-Reply-To: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
+References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <341A1CE8-DF10-4CD5-B675-89449256EAB5@deine-taler.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Uli Kunitz <kune@deine-taler.de>
+Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to ieee80211softmac_assoc_work
+Date: Thu, 14 Dec 2006 22:38:56 +0100
+To: Michael Bommarito <mjbommar@umich.edu>
+X-Mailer: Apple Mail (2.752.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Fabrice Knevez <nuxdoors@cegetel.net>
+Michael,
 
-"sunkbd_enable(sunkbd, 0);" has no effect. Adding "sunkbd->enabled = enable" in sunkbd_enable (obvious)
+I sent a patch to this list on Sunday, that patched the problem. It  
+seems to be migrated into the wireless-2.6 git tree.
 
-Signed-off-by: Fabrice Knevez <nuxdoors@cegetel.net>
+Regards,
 
----
+Uli
+Am 13.12.2006 um 19:17 schrieb Michael Bommarito:
 
-Sorry about thunderbird mangling the patch in the first email...
-I don't have any sun keyboard, i was just reading the sources and it seemed like an obvious modification.
+> This didn't get much attention on bugzilla and I figured it was
+> important enough to forward along to the whole list since it's been
+> lingering around in ieee80211-softmac since 19-git5 at least.
+> http://bugzilla.kernel.org/show_bug.cgi?id=7657
+>
+> Somebody was passing the whole mac device structure to
+> ieee80211softmac_assoc_work instead of just the assocation work, which
+> lead to much death and locking.
+>
+> Attached is a patch that fixes this (the actual change is two lines
+> but context provided in patch for review).  The dmesg containing call
+> trace is attached to the bugzilla entry above.
+>
+> -Mike
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---- linux-2.6.19.1/drivers/input/keyboard/sunkbd.c.orig	2006-12-11 20:32:53.000000000 +0100
-+++ linux-2.6.19.1/drivers/input/keyboard/sunkbd.c	2006-12-14 17:32:48.000000000 +0100
-@@ -225,7 +225,7 @@ static void sunkbd_reinit(void *data)
- static void sunkbd_enable(struct sunkbd *sunkbd, int enable)
- {
- 	serio_pause_rx(sunkbd->serio);
--	sunkbd->enabled = 1;
-+	sunkbd->enabled = enable;
- 	serio_continue_rx(sunkbd->serio);
- }
+--
+Uli Kunitz
 
 
 

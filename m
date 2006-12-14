@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932168AbWLNJZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932100AbWLNJZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWLNJZr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 04:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWLNJZq
+	id S932100AbWLNJZR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 04:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWLNJZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 04:25:46 -0500
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:7311 "EHLO
-	mtagate1.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932146AbWLNJZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 04:25:45 -0500
-Date: Thu, 14 Dec 2006 11:24:31 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Cc: andersen@codepoet.org, Karsten Weiss <K.Weiss@science-computing.de>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
-Message-ID: <20061214092431.GD6674@rhun.haifa.ibm.com>
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org> <45808DC3.2010907@scientia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45808DC3.2010907@scientia.net>
-User-Agent: Mutt/1.5.11
+	Thu, 14 Dec 2006 04:25:16 -0500
+Received: from jdi.jdi-ict.nl ([82.94.239.5]:40035 "EHLO jdi.jdi-ict.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932100AbWLNJZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 04:25:14 -0500
+Date: Thu, 14 Dec 2006 10:25:02 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+X-X-Sender: igmar@jdi.jdi-ict.nl
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
+Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
+In-Reply-To: <20061214011042.7b279be6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0612141012200.15891@jdi.jdi-ict.nl>
+References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
+ <20061130212248.1b49bd32.akpm@osdl.org> <Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl> <20061206074008.2f308b2b.akpm@osdl.org>
+ <Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
+ <Pine.LNX.4.58.0612140912010.30202@jdi.jdi-ict.nl> <20061214004213.13149a48.akpm@osdl.org>
+ <Pine.LNX.4.58.0612140953080.9623@jdi.jdi-ict.nl> <20061214011042.7b279be6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 14 Dec 2006 10:25:03 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 12:33:23AM +0100, Christoph Anton Mitterer wrote:
 
-> 4)
-> And does someone know if the nforce/opteron iommu requires IBM Calgary
-> IOMMU support?
+> > See below. The other machine is mostly identifical, except for i8042 
+> > missing (probably due to running an older kernel, or small differences in 
+> > the kernel config).
+> > 
+> 
+> Does the other machine have the same problems?
 
-It doesn't, Calgary isn't found in machine with Opteron CPUs or NForce
-chipsets (AFAIK). However, compiling Calgary in should make no
-difference, as we detect in run-time which IOMMU is found and the
-machine.
+No, but that machine has a lot less disk and networkactivity.
+ 
+> Are you able to rule out a hardware failure?
 
-Cheers,
-Muli
+100% ? No, but the hardware is relatively new (about a year old), and of 
+good quality. It's hard to reprodure, so looking at it when it starts to 
+fault isn't possible either :(
+
+> The disk interrupt is unshared, which rules out a few software problems, I
+> guess.
+
+Indeed. Bah, I hate these kind of things :(
+
+
+
+Regards,
+
+
+	Igmar

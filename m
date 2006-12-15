@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965045AbWLOBgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964992AbWLOBgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWLOBgo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbWLOBgG
+	id S964992AbWLOBgA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWLOBf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:36:06 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46183 "EHLO
+	Thu, 14 Dec 2006 20:35:58 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46211 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964929AbWLOBf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:35:26 -0500
-Message-Id: <20061215013748.879629000@sous-sol.org>
+	id S964997AbWLOBfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:35:45 -0500
+Message-Id: <20061215013814.210732000@sous-sol.org>
 References: <20061215013337.823935000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 17:33:54 -0800
+Date: Thu, 14 Dec 2006 17:33:56 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,86 +21,71 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Hans Verkuil <hverkuil@xs4all.nl>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [patch 17/24] V4L: Fix broken TUNER_LG_NTSC_TAPE radio support
-Content-Disposition: inline; filename=v4l-fix-broken-tuner_lg_ntsc_tape-radio-support.patch
+       alan@lxorguk.ukuu.org.uk, Russell King <rmk@arm.linux.org.uk>,
+       Russell King <rmk+kernel@arm.linux.org.uk>
+Subject: [patch 19/24] ARM: Add sys_*at syscalls
+Content-Disposition: inline; filename=arm-add-sys_-at-syscalls.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 2.6.18-stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Russell King <rmk@arm.linux.org.uk>
 
-The TUNER_LG_NTSC_TAPE is identical in all respects to the
-TUNER_PHILIPS_FM1236_MK3. So use the params struct for the Philips tuner.
-Also add this LG_NTSC_TAPE tuner to the switches where radio specific
-parameters are set so it behaves like a TUNER_PHILIPS_FM1236_MK3. This
-change fixes the radio support for this tuner (the wrong bandswitch byte
-was used).
+Later glibc requires the *at syscalls.  Add them.
 
-Thanks to Andy Walls <cwalls@radix.net> for finding this bug.
-
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
 ---
+ arch/arm/kernel/calls.S  |   13 +++++++++++++
+ include/asm-arm/unistd.h |   13 +++++++++++++
+ 2 files changed, 26 insertions(+)
 
- drivers/media/video/tuner-simple.c |    2 ++
- drivers/media/video/tuner-types.c  |   14 ++------------
- 2 files changed, 4 insertions(+), 12 deletions(-)
-
---- linux-2.6.18.5.orig/drivers/media/video/tuner-simple.c
-+++ linux-2.6.18.5/drivers/media/video/tuner-simple.c
-@@ -108,6 +108,7 @@ static int tuner_stereo(struct i2c_clien
- 		case TUNER_PHILIPS_FM1216ME_MK3:
- 		case TUNER_PHILIPS_FM1236_MK3:
- 		case TUNER_PHILIPS_FM1256_IH3:
-+		case TUNER_LG_NTSC_TAPE:
- 			stereo = ((status & TUNER_SIGNAL) == TUNER_STEREO_MK3);
- 			break;
- 		default:
-@@ -419,6 +420,7 @@ static void default_set_radio_freq(struc
- 	case TUNER_PHILIPS_FM1216ME_MK3:
- 	case TUNER_PHILIPS_FM1236_MK3:
- 	case TUNER_PHILIPS_FMD1216ME_MK3:
-+	case TUNER_LG_NTSC_TAPE:
- 		buffer[3] = 0x19;
- 		break;
- 	case TUNER_TNF_5335MF:
---- linux-2.6.18.5.orig/drivers/media/video/tuner-types.c
-+++ linux-2.6.18.5/drivers/media/video/tuner-types.c
-@@ -671,16 +671,6 @@ static struct tuner_params tuner_panason
- 	},
- };
+bca0b8e75f6b7cf52cf52c967286b72d84f9b37e
+--- linux-2.6.18.5.orig/arch/arm/kernel/calls.S
++++ linux-2.6.18.5/arch/arm/kernel/calls.S
+@@ -331,6 +331,19 @@
+ 		CALL(sys_mbind)
+ /* 320 */	CALL(sys_get_mempolicy)
+ 		CALL(sys_set_mempolicy)
++		CALL(sys_openat)
++		CALL(sys_mkdirat)
++		CALL(sys_mknodat)
++/* 325 */	CALL(sys_fchownat)
++		CALL(sys_futimesat)
++		CALL(sys_fstatat64)
++		CALL(sys_unlinkat)
++		CALL(sys_renameat)
++/* 330 */	CALL(sys_linkat)
++		CALL(sys_symlinkat)
++		CALL(sys_readlinkat)
++		CALL(sys_fchmodat)
++		CALL(sys_faccessat)
+ #ifndef syscalls_counted
+ .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
+ #define syscalls_counted
+--- linux-2.6.18.5.orig/include/asm-arm/unistd.h
++++ linux-2.6.18.5/include/asm-arm/unistd.h
+@@ -347,6 +347,19 @@
+ #define __NR_mbind			(__NR_SYSCALL_BASE+319)
+ #define __NR_get_mempolicy		(__NR_SYSCALL_BASE+320)
+ #define __NR_set_mempolicy		(__NR_SYSCALL_BASE+321)
++#define __NR_openat			(__NR_SYSCALL_BASE+322)
++#define __NR_mkdirat			(__NR_SYSCALL_BASE+323)
++#define __NR_mknodat			(__NR_SYSCALL_BASE+324)
++#define __NR_fchownat			(__NR_SYSCALL_BASE+325)
++#define __NR_futimesat			(__NR_SYSCALL_BASE+326)
++#define __NR_fstatat64			(__NR_SYSCALL_BASE+327)
++#define __NR_unlinkat			(__NR_SYSCALL_BASE+328)
++#define __NR_renameat			(__NR_SYSCALL_BASE+329)
++#define __NR_linkat			(__NR_SYSCALL_BASE+330)
++#define __NR_symlinkat			(__NR_SYSCALL_BASE+331)
++#define __NR_readlinkat			(__NR_SYSCALL_BASE+332)
++#define __NR_fchmodat			(__NR_SYSCALL_BASE+333)
++#define __NR_faccessat			(__NR_SYSCALL_BASE+334)
  
--/* ------------ TUNER_LG_NTSC_TAPE - LGINNOTEK NTSC ------------ */
--
--static struct tuner_params tuner_lg_ntsc_tape_params[] = {
--	{
--		.type   = TUNER_PARAM_TYPE_NTSC,
--		.ranges = tuner_fm1236_mk3_ntsc_ranges,
--		.count  = ARRAY_SIZE(tuner_fm1236_mk3_ntsc_ranges),
--	},
--};
--
- /* ------------ TUNER_TNF_8831BGFF - Philips PAL ------------ */
- 
- static struct tuner_range tuner_tnf_8831bgff_pal_ranges[] = {
-@@ -1331,8 +1321,8 @@ struct tunertype tuners[] = {
- 	},
- 	[TUNER_LG_NTSC_TAPE] = { /* LGINNOTEK NTSC */
- 		.name   = "LG NTSC (TAPE series)",
--		.params = tuner_lg_ntsc_tape_params,
--		.count  = ARRAY_SIZE(tuner_lg_ntsc_tape_params),
-+		.params = tuner_fm1236_mk3_params,
-+		.count  = ARRAY_SIZE(tuner_fm1236_mk3_params),
- 	},
- 	[TUNER_TNF_8831BGFF] = { /* Philips PAL */
- 		.name   = "Tenna TNF 8831 BGFF)",
+ /*
+  * The following SWIs are ARM private.
 
 --

@@ -1,123 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752893AbWLOQzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752900AbWLOQ57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752893AbWLOQzf (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752895AbWLOQzf
+	id S1752900AbWLOQ57 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752903AbWLOQ56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:55:35 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:56176 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752892AbWLOQze (ORCPT
+	Fri, 15 Dec 2006 11:57:58 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:52490 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752902AbWLOQ56 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:55:34 -0500
-Subject: [PATCH] Fix sparsemem on Cell
-To: cbe-oss-dev@ozlabs.org
-Cc: linuxppc-dev@ozlabs.org, linux-mm@kvack.org, apw@shadowen.org,
-       mkravetz@us.ibm.com, hch@infradead.org, jk@ozlabs.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, paulus@samba.org,
-       benh@kernel.crashing.org, gone@us.ibm.com,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 15 Dec 2006 08:53:35 -0800
-Message-Id: <20061215165335.61D9F775@localhost.localdomain>
+	Fri, 15 Dec 2006 11:57:58 -0500
+Subject: Re: [PATCH 0/10] cxgb3: Chelsio T3 1G/10G ethernet device driver
+From: Steve Wise <swise@opengridcomputing.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Divy Le Ray <divy@chelsio.com>, netdev@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4580E3D7.3050708@chelsio.com>
+References: <4580E3D7.3050708@chelsio.com>
+Content-Type: text/plain
+Date: Fri, 15 Dec 2006 10:57:58 -0600
+Message-Id: <1166201878.2304.11.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey Jeff,
 
-I think the comments added say it pretty well, but I'll repeat it here.
+Is this driver in your queue for merging?  The Chelsio T3 RDMA driver
+that depends on the T3 Ethernet driver is also ready to be merged.
 
-This fix is pretty similar in concept to the one that Arnd posted
-as a temporary workaround, but I've added a few comments explaining
-what the actual assumptions are, and improved it a wee little bit.
+I was just wondering if its in queue, or if there is something else we
+need to do.
 
-The end goal here is to simply avoid calling the early_*() functions
-when it is _not_ early.  Those functions stop working as soon as
-free_initmem() is called.  system_state is set to SYSTEM_RUNNING
-just after free_initmem() is called, so it seems appropriate to use
-here.
+Thanks,
 
-I did think twice about actually using SYSTEM_RUNNING because we
-moved away from it in other parts of memory hotplug, but those
-were actually for _allocations_ in favor of slab_is_available(),
-and we really don't care about the slab here.
+Steve.
 
-The only other assumption is that all memory-hotplug-time pages 
-given to memmap_init_zone() are valid and able to be onlined into
-any any zone after the system is running.  The "valid" part is
-really just a question of whether or not a 'struct page' is there
-for the pfn, and *not* whether there is actual memory.  Since
-all sparsemem sections have contiguous mem_map[]s within them,
-and we only memory hotplug entire sparsemem sections, we can
-be confident that this assumption will hold.
 
-As for the memory being in the right node, we'll assume tha
-memory hotplug is putting things in the right node.
+On Wed, 2006-12-13 at 21:40 -0800, Divy Le Ray wrote:
+> Jeff,
+> 
+> I resubmit the patch supporting the latest Chelsio T3 adapter.
+> It incorporates the last feedbacks for code cleanup.
+> It is built gainst Linus'tree.
+> 
+> We think the driver is now ready to be merged.
+> Can you please advise on the next steps for inclusion in 2.6.20 ?
+> 
+> A corresponding monolithic patch is posted at the following URL:
+> http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+> 
+> This driver is required by the Chelsio T3 RDMA driver
+> which was updated on 12/10/2006.
+> 
+> Cheers,
+> Divy
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-
----
-
- lxc-dave/init/main.c     |    4 ++++
- lxc-dave/mm/page_alloc.c |   28 +++++++++++++++++++++++++---
- 2 files changed, 29 insertions(+), 3 deletions(-)
-
-diff -puN init/main.c~sparsemem-fix init/main.c
---- lxc/init/main.c~sparsemem-fix	2006-12-15 08:49:53.000000000 -0800
-+++ lxc-dave/init/main.c	2006-12-15 08:49:53.000000000 -0800
-@@ -770,6 +770,10 @@ static int init(void * unused)
- 	free_initmem();
- 	unlock_kernel();
- 	mark_rodata_ro();
-+	/*
-+	 * Memory hotplug requires that this system_state transition
-+	 * happer after free_initmem().  (see memmap_init_zone())
-+	 */
- 	system_state = SYSTEM_RUNNING;
- 	numa_default_policy();
- 
-diff -puN mm/page_alloc.c~sparsemem-fix mm/page_alloc.c
---- lxc/mm/page_alloc.c~sparsemem-fix	2006-12-15 08:49:53.000000000 -0800
-+++ lxc-dave/mm/page_alloc.c	2006-12-15 08:49:53.000000000 -0800
-@@ -2056,6 +2056,30 @@ static inline unsigned long wait_table_b
- 
- #define LONG_ALIGN(x) (((x)+(sizeof(long))-1)&~((sizeof(long))-1))
- 
-+static int can_online_pfn_into_nid(unsigned long pfn, int nid)
-+{
-+	/*
-+	 * There are two things that make this work:
-+	 * 1. The early_pfn...() functions are __init and
-+	 *    use __initdata.  If the system is < SYSTEM_RUNNING,
-+	 *    those functions and their data will still exist.
-+	 * 2. We also assume that all actual memory hotplug
-+	 *    (as opposed to boot-time) calls to this are only
-+	 *    for contiguous memory regions.  With sparsemem,
-+	 *    this guaranteed is easy because all sections are
-+	 *    contiguous and we never online more than one
-+	 *    section at a time.  Boot-time memory can have holes
-+	 *    anywhere.
-+	 */
-+	if (system_state >= SYSTEM_RUNNING)
-+		return 1;
-+	if (!early_pfn_valid(pfn))
-+		return 0;
-+	if (!early_pfn_in_nid(pfn, nid))
-+		return 0;
-+	return 1;
-+}
-+
- /*
-  * Initially all pages are reserved - free ones are freed
-  * up by free_all_bootmem() once the early boot process is
-@@ -2069,9 +2093,7 @@ void __meminit memmap_init_zone(unsigned
- 	unsigned long pfn;
- 
- 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
--		if (!early_pfn_valid(pfn))
--			continue;
--		if (!early_pfn_in_nid(pfn, nid))
-+		if (!can_online_pfn_into_nid(pfn))
- 			continue;
- 		page = pfn_to_page(pfn);
- 		set_page_links(page, zone, nid, pfn);
-_

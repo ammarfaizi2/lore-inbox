@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030687AbWLPHqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030697AbWLPHuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030687AbWLPHqP (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 02:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030694AbWLPHqP
+	id S1030697AbWLPHuF (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 02:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030694AbWLPHuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 02:46:15 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:51655 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030687AbWLPHqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 02:46:14 -0500
-X-Greylist: delayed 495 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 02:46:14 EST
-X-Originating-Ip: 216.16.235.2
-Date: Sat, 16 Dec 2006 02:37:42 -0500
-From: Chris Frey <cdfrey@foursquare.net>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix to usbfs_snoop logging of user defined control urbs
-Message-ID: <20061216073742.GA23625@foursquare.net>
+	Sat, 16 Dec 2006 02:50:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4412 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030697AbWLPHuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 02:50:03 -0500
+Date: Fri, 15 Dec 2006 12:53:35 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Mach-O binary format support and Darwin syscall personality [Was: uts banner changes]
+Message-ID: <20061215125335.GB4551@ucw.cz>
+References: <457D750C.9060807@shadowen.org> <20061211163333.GA17947@aepfle.de> <Pine.LNX.4.64.0612110840240.12500@woody.osdl.org> <Pine.LNX.4.64.0612110852010.12500@woody.osdl.org> <20061211180414.GA18833@aepfle.de> <20061211181813.GB18963@aepfle.de> <Pine.LNX.4.64.0612111022140.12500@woody.osdl.org> <320BD259-74D6-411F-82A4-4BF3CB15012F@mac.com> <Pine.LNX.4.64.0612120815550.6452@woody.osdl.org> <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (not cached, score=-16.275, required 5,
-	autolearn=not spam, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	SARE_OBFU_VALUE 0.53)
-X-Net-Direct-Inc-MailScanner-From: <cdfrey@netdirect.ca>
+In-Reply-To: <D571C4CB-3D52-446C-802E-024C4C333562@mac.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg KH,
+Hi!
 
-According to a Linux Journal article, you were the original author of the
-usbfs_snoop patch, so I'm sending this patch to you.
+> So I guess all I have to do is:
+>   (A)  Write a bunch of new syscall handlers taking 
+>   arguments of the  same types as the Darwin syscall 
+> handlers,
+>   (B)  Figure out how to switch tables depending on the 
+>   "syscall  personality" of "current"
+>   (C)  Figure out how to set the "syscall personality" 
+>   of "current"  from my Mach-O binary format module.
+> 
+> (A) seems fairly straightforward, if unusually tedious 
+> and error- prone, but I'm totally in the dark for (B) 
+> and (C).  Any help would  be much appreciated.
 
-When sending CONTROL URB's using the usual CONTROL ioctl, logging works
-fine, but when sending them via SUBMITURB, like VMWare does, the
-control fields are not logged.  This patch fixes that.
-
-I didn't see any major changes to devio.c recently, so this patch should apply
-cleanly to even the latest kernel.  I can resubmit if it doesn't.
-
-Take care,
-- Chris
-
-
-diff -ru linux-2.6.18.1/drivers/usb/core/devio.c linux-2.6.18.1-cdf/drivers/usb/core/devio.c
---- linux-2.6.18.1/drivers/usb/core/devio.c	2006-10-13 23:34:03.000000000 -0400
-+++ linux-2.6.18.1-cdf/drivers/usb/core/devio.c	2006-12-15 17:00:48.000000000 -0500
-@@ -950,7 +950,11 @@
- 			kfree(dr);
- 			return -EFAULT;
- 		}
--		snoop(&ps->dev->dev, "control urb\n");
-+		snoop(&ps->dev->dev, "control urb: bRequest=%02x "
-+			"bRrequestType=%02x wValue=%04x "
-+			"wIndex=%04x wLength=%04x\n",
-+			dr->bRequest, dr->bRequestType, dr->wValue,
-+			dr->wIndex, dr->wLength);
- 		break;
- 
- 	case USBDEVFS_URB_TYPE_BULK:
-
+try strace osx_binary. If syscall interface is similar enough, perhaps
+it is possible to do it with ptrace() :-).
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

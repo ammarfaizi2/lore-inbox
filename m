@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752725AbWLOPRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752761AbWLOPxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752725AbWLOPRd (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 10:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752729AbWLOPRd
+	id S1752761AbWLOPxZ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 10:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752763AbWLOPxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 10:17:33 -0500
-Received: from smtp-dmz-235-friday.dmz.nerim.net ([195.5.254.235]:60020 "EHLO
-	kellthuzad.dmz.nerim.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752726AbWLOPRc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 10:17:32 -0500
-X-Greylist: delayed 1716 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 10:17:32 EST
-Date: Fri, 15 Dec 2006 15:47:51 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Olivier Galibert <galibert@pobox.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare
-Message-Id: <20061215154751.86a2dbdd.khali@linux-fr.org>
-In-Reply-To: <1165712131.1103.166.camel@localhost.localdomain>
-References: <20061209165606.2f026a6c.khali@linux-fr.org>
-	<1165694351.1103.133.camel@localhost.localdomain>
-	<20061209123817.f0117ad6.akpm@osdl.org>
-	<20061209214453.GA69320@dspnet.fr.eu.org>
-	<20061209135829.86038f32.akpm@osdl.org>
-	<20061209223418.GA76069@dspnet.fr.eu.org>
-	<20061209145303.3d5fe141.akpm@osdl.org>
-	<1165712131.1103.166.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Dec 2006 10:53:24 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:37889 "EHLO iradimed.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752761AbWLOPxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 10:53:24 -0500
+Message-ID: <4582C4FC.8040203@cfl.rr.com>
+Date: Fri, 15 Dec 2006 10:53:32 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: interface for modems with out of band signalling
+References: <200612151514.00390.oliver@neukum.org>
+In-Reply-To: <200612151514.00390.oliver@neukum.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Dec 2006 15:53:33.0042 (UTC) FILETIME=[2C4BA520:01C72061]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14874.003
+X-TM-AS-Result: No--12.466900-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben,
-
-On Sun, 10 Dec 2006 11:55:31 +1100, Benjamin Herrenschmidt wrote:
-> > And (ultimately) make the function return void.
-> > 
-> > Yes, that's probably a valid approach - we've discussed it before but nobody has
-> > taken it further.
+Oliver Neukum wrote:
+> Hi,
 > 
-> I would have preferred that approach (with a WARN_ON rather than a BUG
-> though). On the other hand that would make it slightly harder for the
-> few cases (if any ?) who actually want something like a "create if it
-> doesn't exist already" semantic.
+> I have got a question about modems which use the AT command set, but
+> don't use in band signalling like true rs232 modems. Would two device nodes
+> per communication channel be a good interface?
 
-Let's just boldly state that nobody wants that semantic, if it helps.
+Huh?  What do you mean "don't use in band signaling"?  If you are asking 
+how you issue AT commands to the modem while connected, you have to 
+break to command mode.  IIRC, this involves sending a special break 
+character or two with the correct delay between them, or flipping one of 
+the RS232 handshake lines.
 
-> I'm a bit worried by the amount of code added by systematic checking of
-> the results for cases that really should never happen. That's why I
-> prefer a BUG/WARN type semantic.
-> 
-> Maybe the best is to have the examples like radeonfb actually do the
-> 
-> WARN_ON(sysfs_create_file(...));
 
-Beware that sysfs_remove_bin_file() will complain loudly if you later
-attempt to delete that file that was never created.
-
--- 
-Jean Delvare

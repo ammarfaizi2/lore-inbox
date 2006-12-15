@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753120AbWLOSTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753041AbWLOSW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753120AbWLOSTN (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 13:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753124AbWLOSTN
+	id S1753041AbWLOSW3 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 13:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753042AbWLOSW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 13:19:13 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45707 "EHLO
-	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753120AbWLOSTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 13:19:12 -0500
-Date: Fri, 15 Dec 2006 10:20:39 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
-       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>
-Subject: [patch 25/24] x86-64: Mark rdtsc as sync only for netburst, not for core2
-Message-ID: <20061215182039.GG10475@sequoia.sous-sol.org>
-References: <20061215013337.823935000@sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061215013337.823935000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 15 Dec 2006 13:22:29 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:58197 "EHLO
+	rwcrmhc11.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753040AbWLOSW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 13:22:28 -0500
+Message-ID: <4582E337.2000005@soleranetworks.com>
+Date: Fri, 15 Dec 2006 11:02:31 -0700
+From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] Open Source Protocol Reconstruction Project for Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-stable review patch.  If anyone has any objections, please let us know.  
-------------------  
+We have open sourced this project for our Linux based appliances and 
+file systems.  Anyone from Linux
+who wants to help port the program from Windows to Linux is welcome.  
+The program supports
+all native Linux forensics applications and formats.  The program 
+reconsutructs web session and
+email, and we are adding FTP, P2P, and other Linux kernel protocols. 
 
-From: Arjan van de Ven <arjan@linux.intel.com>
+Jeff
 
-On the Core2 cpus, the rdtsc instruction is not serializing (as defined
-in the architecture reference since rdtsc exists) and due to the deep
-speculation of these cores, it's possible that you can observe time go
-backwards between cores due to this speculation. Since the kernel
-already deals with this with the SYNC_RDTSC flag, the solution is
-simple, only assume that the instruction is serializing on family 15...
+     LINDON, Utah, Dec. 15 /PRNewswire/ -- Solera Networks, Inc., the
+technology leader in network packet record and playback appliances, today
+announced that source code for DataEcho, a web session reconstruction
+application, will be made available under the GNU General Public License.
+The company has established a community website at
+http://sourceforge.net/projects/data-echo. Source code and Windows
+installers are available for download now.
+    DataEcho reconstructs historical web browsing and email traffic from
+captured network packets, for monitoring insider security threats and
+policy compliance. It is a useful adjunct to network protocol analyzers
+such as Sniffer(TM) or WireShark.
+    
 
-The price one pays for this is a slightly slower gettimeofday (by a
-dozen or two cycles), but that increase is quite small to pay for a
-really-going-forward tsc counter.
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-[chrisw: backported to 2.6.18]
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
-Commit:     f3d73707a1e84f0687a05144b70b660441e999c7
-Author:     Arjan van de Ven <arjan@linux.intel.com>
-Date:       Thu Dec 7 02:14:12 2006 +0100
-
- arch/x86_64/kernel/setup.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
---- linux-2.6.18.5.orig/arch/x86_64/kernel/setup.c
-+++ linux-2.6.18.5/arch/x86_64/kernel/setup.c
-@@ -1010,7 +1010,10 @@ static void __cpuinit init_intel(struct 
- 	if ((c->x86 == 0xf && c->x86_model >= 0x03) ||
- 	    (c->x86 == 0x6 && c->x86_model >= 0x0e))
- 		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
--	set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
-+	if (c->x86 == 15)
-+		set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
-+	else
-+		clear_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
-  	c->x86_max_cores = intel_num_cpu_cores(c);
- 
- 	srat_detect_node();

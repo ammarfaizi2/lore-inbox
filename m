@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751722AbWLOX0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753555AbWLOXf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751722AbWLOX0R (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 18:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753538AbWLOX0R
+	id S1753555AbWLOXf5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 18:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753556AbWLOXf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 18:26:17 -0500
-Received: from nf-out-0910.google.com ([64.233.182.187]:42269 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751722AbWLOX0R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 18:26:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=k4NfB6CEphI//LOEn/4Br8C/rmDozCMaITtbMuEMLBwNSiKuvfrYY0RLlzRBWcmvYi+TF39+tEN7v/D1tM5HRF+sXXSAoiyia1k6Keg17F5kn33SmauNZmitwuNgk30F2eRJVqcXb8lW4cORpHKn5uWPDlLYHkNIQA3nPEM6/8c=
-Message-ID: <45832F0E.6000005@gmail.com>
-Date: Sat, 16 Dec 2006 00:25:43 +0059
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Fri, 15 Dec 2006 18:35:56 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:39936 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753554AbWLOXfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 18:35:55 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+Date: Sat, 16 Dec 2006 00:38:02 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
+       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       Alan <alan@lxorguk.ukuu.org.uk>
+References: <20061204203410.6152efec.akpm@osdl.org> <200612152322.26375.rjw@sisk.pl> <45832095.9000503@garzik.org>
+In-Reply-To: <45832095.9000503@garzik.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-       Anton Altaparmakov <aia21@cantab.net>
-Subject: WARNING (1) at .../arch/i386/mm/highmem.c:49 [Was: 2.6.20-rc1-mm1]
-References: <20061214225913.3338f677.akpm@osdl.org>
-In-Reply-To: <20061214225913.3338f677.akpm@osdl.org>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612160038.03149.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Temporarily at
+On Friday, 15 December 2006 23:24, Jeff Garzik wrote:
+> Rafael J. Wysocki wrote:
+> > On Friday, 15 December 2006 22:39, Andrew Morton wrote:
+> >> On Fri, 15 Dec 2006 13:05:52 -0800
+> >> Andrew Morton <akpm@osdl.org> wrote:
+> >>
+> >>> Jeff, I shall send all the sata patches which I have at you one single time
+> >>> and I shall then drop the lot.  So please don't flub them.
+> >>>
+> >>> I'll then do a rc1-mm2 without them.
+> >> hm, this is looking like a lot of work for not much gain.  Rafael, are
+> >> you able to do a quick chop and tell us whether these:
+> >>
+> >> pci-move-pci_vdevice-from-libata-to-core.patch
+> >> pata_cs5530-suspend-resume-support-tweak.patch
+> >> ata-fix-platform_device_register_simple-error-check.patch
+> >> initializer-entry-defined-twice-in-pata_rz1000.patch
+> >> pata_via-suspend-resume-support-fix.patch
+> >> sata_nv-add-suspend-resume-support.patch
+> >> libata-simulate-report-luns-for-atapi-devices.patch
+> >> user-of-the-jiffies-rounding-patch-ata-subsystem.patch
+> >> libata-fix-oops-with-sparsemem.patch
+> >> sata_nv-fix-kfree-ordering-in-remove.patch
+> >> libata-dont-initialize-sg-in-ata_exec_internal-if-dma_none-take-2.patch
+> >> pci-quirks-fix-the-festering-mess-that-claims-to-handle-ide-quirks-ide-fix.patch
+> >>
+> >> are innocent?
+> > 
+> > Yes, they are.
 > 
-> 	http://userweb.kernel.org/~akpm/2.6.20-rc1-mm1/
+> We all really appreciate your patience :)  This is good feedback.
 > 
-> Will appear later at
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc1/2.6.20-rc1-mm1/
+> To narrow down some more, does applying 2.6.20-rc1 + the attached patch 
+> work?  (ignoring -mm tree altogether)
 
-Ok, after fixing sata_promise, I got this 7 times:
-[   30.957539] WARNING (1) at /home/l/latest/xxx/arch/i386/mm/highmem.c:49
-kmap_atomic()
-[   30.957642]  [<c0103f1b>] show_trace_log_lvl+0x1a/0x30
-[   30.957748]  [<c01045d5>] show_trace+0x12/0x14
-[   30.957846]  [<c010465c>] dump_stack+0x16/0x18
-[   30.957944]  [<c011a20b>] kmap_atomic+0x1f8/0x20d
-[   30.958041]  [<c01b1921>] ntfs_end_buffer_async_read+0x191/0x2ed
-[   30.958142]  [<c0182f3a>] end_bio_bh_io_sync+0x26/0x3f
-[   30.958241]  [<c01849d4>] bio_endio+0x37/0x62
-[   30.958338]  [<c01cc500>] __end_that_request_first+0x224/0x445
-[   30.958441]  [<c01cc729>] end_that_request_chunk+0x8/0xa
-[   30.958541]  [<c025fe3a>] scsi_end_request+0x1f/0xc6
-[   30.958640]  [<c02600c8>] scsi_io_completion+0x1a1/0x336
-[   30.958738]  [<c026578d>] sd_rw_intr+0x23/0x1ab
-[   30.958835]  [<c025c38d>] scsi_finish_command+0x42/0x47
-[   30.958935]  [<c02607f8>] scsi_softirq_done+0x64/0xca
-[   30.959032]  [<c01ce2c9>] blk_done_softirq+0x54/0x62
-[   30.959132]  [<c0126a25>] __do_softirq+0x75/0xde
-[   30.959229]  [<c0126ac9>] do_softirq+0x3b/0x3d
-[   30.959326]  [<c0126d5e>] irq_exit+0x3b/0x3e
-[   30.959423]  [<c0105746>] do_IRQ+0x45/0x7f
-[   30.959540]  [<c010397f>] common_interrupt+0x23/0x28
-[   30.959713]  [<c010138b>] cpu_idle+0x7c/0xba
-[   30.959809]  [<c01006dc>] rest_init+0x23/0x37
-[   30.959951]  [<c050a7df>] start_kernel+0x337/0x3e8
-[   30.960090]  [<00000000>] 0x0
+Yes, it does.
 
-regards,
+Greetings,
+Rafael
+
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753411AbWLOUcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753422AbWLOUdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753411AbWLOUcN (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753413AbWLOUcN
+	id S1753422AbWLOUdM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753416AbWLOUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:32:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42100 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753411AbWLOUcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:32:12 -0500
-Date: Fri, 15 Dec 2006 12:31:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jean Delvare <khali@linux-fr.org>, Olivier Galibert <galibert@pobox.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs file creation result nightmare
-Message-Id: <20061215123103.adfbd78b.akpm@osdl.org>
-In-Reply-To: <1166213773.31351.96.camel@localhost.localdomain>
-References: <20061209165606.2f026a6c.khali@linux-fr.org>
-	<1165694351.1103.133.camel@localhost.localdomain>
-	<20061209123817.f0117ad6.akpm@osdl.org>
-	<20061209214453.GA69320@dspnet.fr.eu.org>
-	<20061209135829.86038f32.akpm@osdl.org>
-	<20061209223418.GA76069@dspnet.fr.eu.org>
-	<20061209145303.3d5fe141.akpm@osdl.org>
-	<1165712131.1103.166.camel@localhost.localdomain>
-	<20061215154751.86a2dbdd.khali@linux-fr.org>
-	<1166213773.31351.96.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 15 Dec 2006 15:33:12 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:60821 "EHLO
+	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753414AbWLOUdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:33:11 -0500
+X-Greylist: delayed 951 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 15:33:10 EST
+Date: Fri, 15 Dec 2006 21:15:22 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: Martin Michlmayr <tbm@cyrius.com>, Riku Voipio <riku.voipio@iki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
+Message-ID: <20061215201522.GA11288@electric-eye.fr.zoreil.com>
+References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061215132740.GD11579@xi.wantstofly.org>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2006 07:16:13 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Lennert Buytenhek <buytenh@wantstofly.org> :
+[...]
+> Is there a way we can have this done by default on the n2100?  I guess
+> that since it's a PCI device, there isn't much hope for that..?
 
-> > Beware that sysfs_remove_bin_file() will complain loudly if you later
-> > attempt to delete that file that was never created.
-> 
-> That's another problem... what is a driver that creates 15 files
-> supposed to do ? Have 15 booleans to remember which files where
-> successfully created and then test all of them on cleanup ? That sounds
-> like even more bloat to me...
+Do you mean an automagically tuned default value based on CONFIG_ARM ?
 
-That's the sort of thing which should be done inside sysfs_create_group()
-and sysfs_remove_group().
+-- 
+Ueimor

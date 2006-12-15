@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751681AbWLOAfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751731AbWLOAgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751681AbWLOAfd (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 19:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbWLOAfd
+	id S1751731AbWLOAgR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 19:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbWLOAgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 19:35:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45941 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750726AbWLOAfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 19:35:32 -0500
-Date: Thu, 14 Dec 2006 16:35:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Eric Dumazet" <dada1@cosmosbay.com>, "Greg KH" <gregkh@suse.de>,
-       "Arjan" <arjan@linux.intel.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: kref refcnt and false positives
-Message-Id: <20061214163519.9e5f4f64.akpm@osdl.org>
-In-Reply-To: <m13b7ivwlw.fsf@ebiederm.dsl.xmission.com>
-References: <EB12A50964762B4D8111D55B764A8454010572C1@scsmsx413.amr.corp.intel.com>
-	<m13b7ivwlw.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 14 Dec 2006 19:36:17 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42003 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751731AbWLOAgQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 19:36:16 -0500
+Date: Fri, 15 Dec 2006 00:44:33 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: libata-pata with ICH4, rootfs
+Message-ID: <20061215004433.590b592d@localhost.localdomain>
+In-Reply-To: <200612141832.50587.s0348365@sms.ed.ac.uk>
+References: <200612141714.55948.s0348365@sms.ed.ac.uk>
+	<20061214182010.477073a9@localhost.localdomain>
+	<200612141832.50587.s0348365@sms.ed.ac.uk>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006 17:19:55 -0700
-ebiederm@xmission.com (Eric W. Biederman) wrote:
-
-> "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
+On Thu, 14 Dec 2006 18:32:50 +0000
+Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> Correct me if I'm wrong, but SATA wasn't available on ICH4. Only 5 and 
+> greater. The kernel help text agrees with me.
 > 
-> >>But I believe Venkatesh problem comes from its release() 
-> >>function : It is 
-> >>supposed to free the object.
-> >>If not, it should properly setup it so that further uses are OK.
-> >>
-> >>ie doing in release(kref)
-> >>atomic_set(&kref->count, 0);
-> >>
-> >
-> > Agreed that setting kref refcnt to 0 in release will solve the probloem.
-> > But, once the optimization code is removed, we don't need to set it to
-> > zero as release will only be called after the count reaches zero anyway.
-> 
-> The primary point of the optimization is to not write allocate a cache line
-> unnecessarily.   I don't know it's value, but it can have one especially
-> on big way SMP machines.
+> My IDE controller usually works with CONFIG_BLK_DEV_PIIX; I was interested in 
+> using your pata_xxx drivers in replacement, assuming there was support.
 
-Guys, we have about 1000000000000000000000000000000 reports of weirdo
-crashes, smashes, bashes and splats in the kref code.  The last thing we
-need is some obscure, tricksy little optimisation which leads legitimate
-uses of the API to mysteriously fail.  
+The ata_piix driver does both SATA and PATA for the later chips. The
+reason for this is that the SATA ICH devices have PATA ports as well
+which are closely interlinked in how they operate. Since the ata_piix
+driver has to drive those and the PATA only ones from PIIX3 onward are
+similar it handles them all.
 
-If we are allocating and freeing kref-counted objects at a sufficiently
-high frequency for this thing to make a difference then we should fix that
-instead of trying to suck faster.
+Alan
+

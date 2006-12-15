@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752690AbWLOOw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752702AbWLOPBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752690AbWLOOw7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 09:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752691AbWLOOw6
+	id S1752702AbWLOPBY (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 10:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752701AbWLOPBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 09:52:58 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:64719 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752690AbWLOOw6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 09:52:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W4DszSe0su0CkB5AJUoSibBEs89JJ4J24UF/+zIc45rqZKA3RsQfBKMPa7sr37CimTfoSG4eAaUcRudSYEeqCkVqVFsMhg+09zOf0TvrVtgnUHChYRxolhxKhYBfaR0nKQ5b47TU1mPVE1ENUVS3CS7EMrNKU3yJ50nYsWmhA2A=
-Message-ID: <7b69d1470612150652p609c38d2n9bff58bdb0a1edb7@mail.gmail.com>
-Date: Fri, 15 Dec 2006 08:52:22 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [PATCH/v2] CodingStyle updates
-Cc: "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       "Randy Dunlap" <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, jesper.juhl@gmail.com,
-       akpm <akpm@osdl.org>
-In-Reply-To: <20061215142206.GC2053@elf.ucw.cz>
+	Fri, 15 Dec 2006 10:01:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55096 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752700AbWLOPBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 10:01:23 -0500
+Message-ID: <4582B8AF.9060707@redhat.com>
+Date: Fri, 15 Dec 2006 10:01:03 -0500
+From: Jeff Layton <jlayton@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061207165508.e6bf0269.randy.dunlap@oracle.com>
-	 <20061215120942.GA4551@ucw.cz> <4582AEC8.7030608@s5r6.in-berlin.de>
-	 <20061215142206.GC2053@elf.ucw.cz>
+To: =?UTF-8?B?SsO2cm4gRW5nZWw=?= <joern@lazybastard.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 0/3] ensure unique i_ino in filesystems without permanent
+ inode numbers (introduction)
+References: <457891E7.10902@redhat.com> <45829D94.1090304@redhat.com> <20061215140057.GF30508@lazybastard.org>
+In-Reply-To: <20061215140057.GF30508@lazybastard.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/15/06, Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
->
-> > Pavel Machek wrote:
-> > >> From: Randy Dunlap <randy.dunlap@oracle.com>
-> > >> +Use one space around (on each side of) most binary and ternary operators,
-> > >> +such as any of these:
-> > >> +  =  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
-> > >
-> > > Actually, this should not be hard rule. We want to allow
-> > >
-> > >     j = 3*i + l<<2;
-> >
-> > Which would be very misleading. This expression evaluates to
-> >
-> >       j = (((3 * i) + l) << 2);
-> >
-> > Binary + precedes <<.
->
-> Aha, okay. So this one should be written as
->
->         j = 3*i+l << 2;
->
-> (Well, parenthesses should really be used. Anyway, sometimes grouping
-> around operator is useful, even if I made mistake demonstrating that.
----
+Jörn Engel wrote:
+ > On Fri, 15 December 2006 08:05:24 -0500, Jeff Layton wrote:
+ >> Jeff Layton wrote:
+ >>> Apologies for the long email, but I couldn't come up with a way to explain
+ >>> this in fewer words. Many filesystems that are part of the linux kernel
+ >>> have problems with how they have assign out i_ino values:
+ >>>
+ >> If there are no further comments/suggestions on this patchset, I'd like to
+ >> ask Andrew to add it to -mm soon and target getting it rolled into 2.6.21.
+ >
+ > I'm still unsure whether idr has a sufficient advantage over simply
+ > hashing the inodes.  Hch has suggested that keeping the hashtable
+ > smaller is good for performance.  But idr adds new complexity, which
+ > should be avoided on its own right.  So is the performance benefit big
+ > enough to add more complexity?  Is it even measurable?
+ >
+ > Jörn
+ >
 
-I think the mistake illuminates why parentheses should be the rule. If
-you're thinking about using spacing to convey grouping, use
-parentheses instead...
 
-scott
+A very good question. Certainly, just hashing them would be a heck of a
+lot simpler. That was my first inclination when I looked at this, but as
+you said, HCH NAK'ed that idea stating that it would bloat out the
+hashtable. I tend to think that it's probably not that significant, but
+that might very much depend on workload.
+
+I'm OK with either approach, though I'd like to have some sort of buyin
+from Christoph on hashing the inodes before I start working on patches to
+do that.
+
+Christoph, care to comment?
+
+-- Jeff
+
+

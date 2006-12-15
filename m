@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753138AbWLOS2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753067AbWLOSjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753138AbWLOS2y (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 13:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753141AbWLOS2y
+	id S1753067AbWLOSjS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 13:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753157AbWLOSjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 13:28:54 -0500
-Received: from mxout005.mail.hostpoint.ch ([217.26.49.184]:60979 "EHLO
-	mxout005.mail.hostpoint.ch" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753140AbWLOS2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 13:28:53 -0500
-X-Greylist: delayed 9529 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 13:28:52 EST
-X-Authenticated-Sender-Id: andreas.jaggi@waterwave.ch
-Date: Fri, 15 Dec 2006 16:49:46 +0100
-From: Andreas Jaggi <andreas.jaggi@waterwave.ch>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] remove ambiguous redefinition of INIT_WORK
-Message-ID: <20061215164946.433210e3@localhost>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.19; powerpc-unknown-linux-gnu)
-X-Face: ~'tADa1faeey.m~:h}X+Y,gdK*18AQQun"fQ6e-FE@0&cEf&{p1`$bqU[Zr^D]G<fqBU;"P
- 2X\'U16EWS^zbPX?:[nRF)evEb_4|[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Dec 2006 13:39:18 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:55995 "EHLO pfx2.jmh.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753067AbWLOSjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 13:39:17 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] avoid one conditional branch in touch_atime()
+Date: Fri, 15 Dec 2006 19:38:54 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200612150823.kBF8NV2u011171@shell0.pdx.osdl.net> <20061215081138.4c51e7c5.akpm@osdl.org> <200612151851.58741.dada1@cosmosbay.com>
+In-Reply-To: <200612151851.58741.dada1@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/uugFUh4B9Do63f"
+Message-Id: <200612151938.55010.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removes an unused and ambiguous redefinition of INIT_WORK()
+--Boundary-00=_/uugFUh4B9Do63f
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Andreas Jaggi <andreas.jaggi@waterwave.ch>
+I added IS_NOATIME(inode) macro definition in include/linux/fs.h, true if the 
+inode superblock is marked readonly or noatime.
 
---
-diff --git a/drivers/char/mxser.h b/drivers/char/mxser.h
-index 7e188a4..9fe2849 100644
---- a/drivers/char/mxser.h
-+++ b/drivers/char/mxser.h
-@@ -439,12 +439,4 @@
+This new macro is then used in touch_atime() instead of separatly testing 
+MS_RDONLY and MS_NOATIME
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--Boundary-00=_/uugFUh4B9Do63f
+Content-Type: text/plain;
+  charset="utf-8";
+  name="touch_atime.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="touch_atime.patch"
+
+--- linux-2.6.20-rc1-mm1/fs/inode.c	2006-12-14 02:14:23.000000000 +0100
++++ linux-2.6.20-rc1-mm1-ed/fs/inode.c	2006-12-15 20:14:31.000000000 +0100
+@@ -1160,11 +1160,9 @@ void touch_atime(struct vfsmount *mnt, s
+ 	struct inode *inode = dentry->d_inode;
+ 	struct timespec now;
  
- #define READ_MOXA_MUST_GDL(baseio)	inb((baseio)+MOXA_MUST_GDL_REGISTER)
+-	if (IS_RDONLY(inode))
+-		return;
+ 	if (inode->i_flags & S_NOATIME)
+ 		return;
+-	if (inode->i_sb->s_flags & MS_NOATIME)
++	if (IS_NOATIME(inode))
+ 		return;
+ 	if ((inode->i_sb->s_flags & MS_NODIRATIME) && S_ISDIR(inode->i_mode))
+ 		return;
+--- linux-2.6.20-rc1-mm1/include/linux/fs.h	2006-12-15 15:46:16.000000000 +0100
++++ linux-2.6.20-rc1-mm1-ed/include/linux/fs.h	2006-12-15 20:16:13.000000000 +0100
+@@ -169,6 +169,7 @@ extern int dir_notify_enable;
+ #define IS_DIRSYNC(inode)	(__IS_FLG(inode, MS_SYNCHRONOUS|MS_DIRSYNC) || \
+ 					((inode)->i_flags & (S_SYNC|S_DIRSYNC)))
+ #define IS_MANDLOCK(inode)	__IS_FLG(inode, MS_MANDLOCK)
++#define IS_NOATIME(inode)   __IS_FLG(inode, MS_RDONLY|MS_NOATIME)
  
--
--#ifndef INIT_WORK
--#define INIT_WORK(_work, _func, _data){	\
--	_data->tqueue.routine = _func;\
--	_data->tqueue.data = _data;\
--	}
--#endif
--
- #endif
-diff --git a/drivers/char/mxser_new.h b/drivers/char/mxser_new.h
-index a08f0ec..55b34a0 100644
---- a/drivers/char/mxser_new.h
-+++ b/drivers/char/mxser_new.h
-@@ -439,12 +439,4 @@
- 
- #define READ_MOXA_MUST_GDL(baseio)	inb((baseio)+MOXA_MUST_GDL_REGISTER)
- 
--
--#ifndef INIT_WORK
--#define INIT_WORK(_work, _func, _data){	\
--	_data->tqueue.routine = _func;\
--	_data->tqueue.data = _data;\
--	}
--#endif
--
- #endif
+ #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
+ #define IS_APPEND(inode)	((inode)->i_flags & S_APPEND)
+
+--Boundary-00=_/uugFUh4B9Do63f--

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752796AbWLOQIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752801AbWLOQLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752796AbWLOQIg (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752797AbWLOQIf
+	id S1752801AbWLOQLs (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752802AbWLOQLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:08:35 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:54831 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752796AbWLOQIf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:08:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=By9zmpeqIhaQa/htsHkstGBEyXggWF3h85mAfXXn9+VlCvztdS+jmyTfWfTO1a+C0AF+nex5GgbaMyfylTCaicWyVEfgqhRplhTGRQuAZLrXmyYie16O7Qm+hgW1N232Eta72aQaF6C9ZERVk9vdbHqUYYQO8wBKJboeyfywnoI=
-Message-ID: <a2ebde260612150808y20c61f30t584ceaa5e2dcdcf4@mail.gmail.com>
-Date: Sat, 16 Dec 2006 00:08:33 +0800
-From: "Dong Feng" <middle.fengdong@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Redundent Parameter or Inconsistent Hardcoding
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Dec 2006 11:11:48 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:49605 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752801AbWLOQLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 11:11:47 -0500
+Date: Fri, 15 Dec 2006 08:11:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: + schedule_on_each_cpu-use-preempt_disable.patch added to -mm
+ tree
+Message-Id: <20061215081138.4c51e7c5.akpm@osdl.org>
+In-Reply-To: <20061215083112.GB10687@elte.hu>
+References: <200612150823.kBF8NV2u011171@shell0.pdx.osdl.net>
+	<20061215083112.GB10687@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Function permanent_kmaps_init() take a struct pgd_t as parameter.
+On Fri, 15 Dec 2006 09:31:12 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-I presume passing the struct pgd_t as a parameter is to make the
-function flexible in order to reuse it under different cases. However,
-I discover the following things imparing the rationality of this
-parameter.
+> 
+> * akpm@osdl.org <akpm@osdl.org> wrote:
+> 
+> > -	mutex_lock(&workqueue_mutex);
+> > +	preempt_disable();		/* CPU hotplug */
+> >  	for_each_online_cpu(cpu) {
+> >  		INIT_WORK(per_cpu_ptr(works, cpu), func);
+> >  		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
+> >  				per_cpu_ptr(works, cpu));
+> >  	}
+> > -	mutex_unlock(&workqueue_mutex);
+> > +	preempt_enable();
+> 
+> Why not cpu_hotplug_lock()?
+> 
 
-1. This function is invoke from one place only. That is, in
-pagetable_init(), where swapper_pg_dir is passed as the parameter.
+Because the workqueue code was explicitly switched over to per-subsystem
+cpu-hotplug locking.
 
-2. The function accesses swapper_pg_dir directly.
+Because lock_cpu_hotplug() is a complete turkey, source of deadlocks and
+overall bad idea.
 
-So I think either the parameter is redundent or the direct hardcoded
-access to swapper_pg_dir within the function should be replaced by the
-access to the parameter.
+This is actually a pretty simple problem.  A subsystem has per-cpu reosurces,
+and it needs to lock them while using them.  duh.  We know how to do that
+sort of thing.  But because the first implementation of lock_cpu_hotplug()
+was conceived with magical properties, we seem to think we need to retain
+magical properties.  We don't...

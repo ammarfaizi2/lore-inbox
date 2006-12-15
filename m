@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964889AbWLOU4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964928AbWLOVCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWLOU4v (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWLOU4v
+	id S964928AbWLOVCJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWLOVCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:56:51 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:58974 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964889AbWLOU4u convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:56:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EzTUAF5obm79NEQQSskU/NPvSeSHJRlg88ljlB5MnSXK5YL43pEr96/2aIo9MF3/4FxxWuLCv9W50Z82W1zpi91bGG8sS0GCH99cJjunAF9ZkqQCUbCDvWwxH71PXKhraKrBNcK/pmVTaOaDbZOaONe9mOutof4QQ1irwAnPINg=
-Message-ID: <d120d5000612151256h5428eddcpbd137ce939a58b32@mail.gmail.com>
-Date: Fri, 15 Dec 2006 15:56:46 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@lazybastard.org>
-Subject: Re: [PATCH/v2] CodingStyle updates
-Cc: "Randy Dunlap" <randy.dunlap@oracle.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Scott Preece" <sepreece@gmail.com>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061215201127.GA32210@lazybastard.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20061207165508.e6bf0269.randy.dunlap@oracle.com>
-	 <20061215120942.GA4551@ucw.cz> <4582AEC8.7030608@s5r6.in-berlin.de>
-	 <20061215142206.GC2053@elf.ucw.cz>
-	 <7b69d1470612150652p609c38d2n9bff58bdb0a1edb7@mail.gmail.com>
-	 <20061215150717.GA2345@elf.ucw.cz>
-	 <20061215090037.05c021af.randy.dunlap@oracle.com>
-	 <20061215201127.GA32210@lazybastard.org>
+	Fri, 15 Dec 2006 16:02:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44398 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964928AbWLOVCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:02:07 -0500
+Date: Fri, 15 Dec 2006 13:01:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Damien Wyart <damien.wyart@free.fr>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       Jeff Garzik <jeff@garzik.org>, Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: 2.6.20-rc1-mm1
+Message-Id: <20061215130141.fd6a0c25.akpm@osdl.org>
+In-Reply-To: <20061215203936.GA2202@localhost.localdomain>
+References: <20061214225913.3338f677.akpm@osdl.org>
+	<20061215203936.GA2202@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/15/06, Jörn Engel <joern@lazybastard.org> wrote:
-> On Fri, 15 December 2006 09:00:37 -0800, Randy Dunlap wrote:
-> > On Fri, 15 Dec 2006 16:07:17 +0100 Pavel Machek wrote:
-> >
-> > > Not in simple cases.
-> > >
-> > >     3*i + 2*j should be writen like that. Not like
-> > >     (3 * i) + (2 * j)
-> >
-> > I would just write it as:
-> >       3 * i + 2 * j
->
-> So would I.  But I definitely wouldn't write
->        for (i = 0; i < 10; i += 2)
-> because I prefer the grouping in
->        for (i=0; i<10; i+=2)
->
+On Fri, 15 Dec 2006 21:39:36 +0100
+Damien Wyart <damien.wyart@free.fr> wrote:
 
-Would you write:
+> With this new kernel, I notice two messages I do not have with
+> 2.6.19-rc6-mm2 :
+> 
+> Dec 15 20:00:47 brouette kernel: Filesystem "sdb9": Disabling barriers,trial barrier write failed
+> Dec 15 20:00:47 brouette kernel: Filesystem "sda5": Disabling barriers,trial barrier write failed
+> 
+> Nothing changed in the config between the two, and going back to
+> 2.6.19-rc6-mm2 do not give the messages.
 
-       i+=2;
+I don't think anything has changed in this area in XFS.  I'd expect that
+something got broken in sata, ata_piix or the block core which caused the
+"trial barrier write" to start failing.  Various cc's hopefully added.
 
-outside the loop? If not then it is better to keep style consistent
-and not use condensed form in loops either.
+> Also, I got panics when unmounting reiser4 filesystems with
+> 2.6.20-rc1-mm1 but I guess this is related to your waring about reiser4
+> being broken in 2.6.19-mm1 (even if it is not listed in notes for
+> 2.6.20-rc1-mm1)... I attach dmesg and config, but the reiser4 panics did
+> not get logged and I am not able to reboot on 2.6.20-rc1-mm1 right now.
+> For the moment, I mainly wanted to report the xfs messages which seems
+> a bit suspect.
 
--- 
-Dmitry
+The reiser4 failure is unexpected.  Could you please see if you can capture
+a trae, let the people at reiserfs-dev@namesys.com know?
+
+Thanks.

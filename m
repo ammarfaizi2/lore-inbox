@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752039AbWLOACz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752043AbWLOAL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752039AbWLOACz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 19:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752040AbWLOACz
+	id S1752043AbWLOAL1 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 19:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752045AbWLOAL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 19:02:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40427 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752039AbWLOACy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 19:02:54 -0500
-Date: Thu, 14 Dec 2006 19:02:50 -0500
-From: Dave Jones <davej@redhat.com>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: linux list <linux-kernel@vger.kernel.org>
-Subject: Re: amd64 agpgart aperture base value
-Message-ID: <20061215000250.GB18456@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Daniel Drake <dsd@gentoo.org>,
-	linux list <linux-kernel@vger.kernel.org>
-References: <4580C954.103@gentoo.org> <20061214132224.GD17565@redhat.com> <4581DFC2.1000304@gentoo.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4581DFC2.1000304@gentoo.org>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 14 Dec 2006 19:11:27 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:35721 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752043AbWLOAL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 19:11:26 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 14 Dec 2006 19:07:27 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH/RFC] CodingStyle updates
+In-Reply-To: <4581D355.1000701@oracle.com>
+Message-ID: <Pine.LNX.4.64.0612141906270.27378@localhost.localdomain>
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
+ <20061214223850.GC25114@vasa.acc.umu.se> <4581D355.1000701@oracle.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 06:35:30PM -0500, Daniel Drake wrote:
+On Thu, 14 Dec 2006, Randy Dunlap wrote:
 
- > So, you think that the aperture moving to a different location on every 
- > boot is what the BIOS desires? Is it normal for it to move so much?
+> David Weinehall wrote:
+> > On Thu, Dec 07, 2006 at 12:48:38AM -0800, Randy Dunlap wrote:
+> >
+> > [snip]
+> >
+> > > +but no space after unary operators:
+> > > +		sizeof  ++  --  &  *  +  -  ~  !  defined
+> >
+> > Uhm, that doesn't compute...  If you don't put a space after sizeof,
+> > the program won't compile.
+> >
+> > int c;
+> > printf("%d", sizeofc);
+>
+> Uh, we prefer not to see "sizeof c".  IOW, we prefer to have the
+> parentheses use all the time.  Maybe I need to say that better?
 
-Beats me. I gave up trying to understand BIOS authors motivations years ago.
+here's a *really* rough first pass, i'm sure the end result would need
+some hand tweaking:
 
- > The current patch drops the upper bits and results in the aperture 
- > always being in the same place, and this appears to work. If the BIOS 
- > did really put the aperture beyond 4GB but my patch is making Linux put 
- > it somewhere else, does it surprise you that things are still working 
- > smoothly?
+=============================================
+#!/bin/sh
 
-Does it survive a run of testgart when masking out the high bits?
-It could be that you're right, and the upper bits being reported really
-are garbage.
+DIR=$1
 
- > Is it even possible for the aperture to start beyond 4GB when the system 
- > has less than 4GB of RAM?
+#
+#  Put in missing parentheses.
+#
 
-The amount of RAM is irrelevant, it can appear anywhere in the address space,
-which on 64bit, is pretty darned huge.  The aperture isn't backed by RAM,
-it's a 'virtual window' of sorts. When you write to an address in that range, it
-gets transparently remapped to somewhere else in the address space.
-The window is the 'aperture', where it remaps to is controlled by a translation
-table called the GATT (which does live in real memory).
+for f in $(grep -Erl "sizeof [^\(]" ${DIR}) ; do
+  echo $f
+  perl -pi -e "s/sizeof ([*]?[A-Za-z0-9_>\[\]\.-]+)( *)/sizeof\(\1\)\2/g" $f
+done
 
-That's pretty much all there is to AGP. It's just a really dumb MMU of sorts.
 
-		Dave
+#
+#  Delete possible space between "sizeof" and "(".
+#
 
--- 
-http://www.codemonkey.org.uk
+for f in $(grep -rl "sizeof (" ${DIR}) ; do
+  perl -pi -e "s/sizeof \(/sizeof\(/g" $f
+done
+
+#
+#  Delete obnoxious spaces inside parentheses.
+#
+
+for f in $(grep -rl "sizeof( " ${DIR}) ; do
+  perl -pi -e "s/sizeof\( *([^ \)]+) *\)/sizeof\(\1\)/g" $f
+done
+===========================================
+
+rday

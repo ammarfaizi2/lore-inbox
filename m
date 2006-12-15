@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965036AbWLOBmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964807AbWLOB6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWLOBmk (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWLOBmk
+	id S964807AbWLOB6q (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWLOB6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:42:40 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46167 "EHLO
-	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964966AbWLOBfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:35:16 -0500
-Message-Id: <20061215013803.284069000@sous-sol.org>
-References: <20061215013337.823935000@sous-sol.org>
-User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 17:33:55 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
-       stefanr@s5r6.in-berlin.de
-Subject: [patch 18/24] ieee1394: ohci1394: add PPC_PMAC platform code to driver probe
-Content-Disposition: inline; filename=ieee1394-ohci1394-add-ppc_pmac-platform-code-to-driver-probe.patch
+	Thu, 14 Dec 2006 20:58:46 -0500
+Received: from mga02.intel.com ([134.134.136.20]:38437 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964807AbWLOB6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:58:45 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,171,1165219200"; 
+   d="scan'208"; a="174721531:sNHT20977264"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       "'xb'" <xavier.bru@bull.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.18.4: flush_workqueue calls mutex_lock in interrupt environment
+Date: Thu, 14 Dec 2006 17:58:43 -0800
+Message-ID: <000001c71fec$8d5ca370$d034030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accf5339jWiQtQIlRdqjjNxFhLpISAABDM8A
+In-Reply-To: <20061214172010.a3810c9d.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-stable review patch.  If anyone has any objections, please let us know.
-------------------
+Andrew Morton wrote on Thursday, December 14, 2006 5:20 PM
+> it's hard to disagree.
+> 
+> Begin forwarded message:
+> > On Wed, 2006-12-13 at 08:25 +0100, xb wrote:
+> > > Hi all,
+> > > 
+> > > Running some IO stress tests on a 8*ways IA64 platform, we got:
+> > >      BUG: warning at kernel/mutex.c:132/__mutex_lock_common()  message
+> > > followed by:
+> > >      Unable to handle kernel paging request at virtual address
+> > > 0000000000200200
+> > > oops corresponding to anon_vma_unlink() calling list_del() on a
+> > > poisonned list.
+> > > 
+> > > Having a look to the stack, we see that flush_workqueue() calls
+> > > mutex_lock() with softirqs disabled.
+> > 
+> > something is wrong here... flush_workqueue() is a sleeping function and
+> > is not allowed to be called in such a context!
+> 
+> It seems utterly insane to have aio_complete() flush a workqueue. That
+> function has to be called from a number of different environments,
+> including non-sleep tolerant environments.
+> 
+> For instance it means that directIO on NFS will now cause the rpciod
+> workqueues to call flush_workqueue(aio_wq), thus slowing down all RPC
+> activity.
 
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+The bug appears to be somewhere else, somehow the ref count on ioctx is
+all messed up.
 
-Fixes http://bugzilla.kernel.org/show_bug.cgi?id=7431
-iBook G3 threw a machine check exception and put the display backlight
-to full brightness after ohci1394 was unloaded and reloaded.
+In aio_complete, __put_ioctx() should not be invoked because ref count
+on ioctx is supposedly more than 2, aio_complete decrement it once and
+should return without invoking the free function.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-[dsd@gentoo.org: also added missing if condition, commit
- 63cca59e89892497e95e1e9c7156d3345fb7e2e8]
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
-Acked-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
-It fixes a kernel oops which occurs when the ohci1394 driver is reloaded on PPC
-http://bugs.gentoo.org/154851
+The real freeing ioctx should be coming from exit_aio() or io_destroy(),
+in which case both wait until no further pending AIO request via
+wait_for_all_aios().
 
- drivers/ieee1394/ohci1394.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
---- linux-2.6.18.5.orig/drivers/ieee1394/ohci1394.c
-+++ linux-2.6.18.5/drivers/ieee1394/ohci1394.c
-@@ -3218,6 +3218,19 @@ static int __devinit ohci1394_pci_probe(
- 	struct ti_ohci *ohci;	/* shortcut to currently handled device */
- 	resource_size_t ohci_base;
- 
-+#ifdef CONFIG_PPC_PMAC
-+	/* Necessary on some machines if ohci1394 was loaded/ unloaded before */
-+	if (machine_is(powermac)) {
-+		struct device_node *of_node = pci_device_to_OF_node(dev);
-+
-+		if (of_node) {
-+			pmac_call_feature(PMAC_FTR_1394_CABLE_POWER, of_node,
-+					  0, 1);
-+			pmac_call_feature(PMAC_FTR_1394_ENABLE, of_node, 0, 1);
-+		}
-+	}
-+#endif /* CONFIG_PPC_PMAC */
-+
-         if (pci_enable_device(dev))
- 		FAIL(-ENXIO, "Failed to enable OHCI hardware");
-         pci_set_master(dev);
-@@ -3506,11 +3519,9 @@ static void ohci1394_pci_remove(struct p
- #endif
- 
- #ifdef CONFIG_PPC_PMAC
--	/* On UniNorth, power down the cable and turn off the chip
--	 * clock when the module is removed to save power on
--	 * laptops. Turning it back ON is done by the arch code when
--	 * pci_enable_device() is called */
--	{
-+	/* On UniNorth, power down the cable and turn off the chip clock
-+	 * to save power on laptops */
-+	if (machine_is(powermac)) {
- 		struct device_node* of_node;
- 
- 		of_node = pci_device_to_OF_node(ohci->dev);
-
---
+- Ken

@@ -1,124 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932640AbWLOAq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932635AbWLOArh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbWLOAq6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 19:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWLOAqj
+	id S932635AbWLOArh (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 19:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWLOArh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 19:46:39 -0500
-Received: from l2mail1.panix.com ([166.84.1.75]:60447 "EHLO l2mail1.panix.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932620AbWLOAqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 19:46:36 -0500
-Message-Id: <20061215002334.387333000@panix.com>
-References: <20061215001639.988521000@panix.com>
-User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 16:16:43 -0800
-From: Zack Weinberg <zackw@panix.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org,
-       Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 4/4] Distinguish /proc/kmsg access from sys_syslog
-Content-Disposition: inline; filename=distinguish_kmsg_security.diff
+	Thu, 14 Dec 2006 19:47:37 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:49576 "EHLO
+	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932674AbWLOAr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 19:47:29 -0500
+Message-ID: <4581F093.3020806@lwfinger.net>
+Date: Thu, 14 Dec 2006 18:47:15 -0600
+From: Larry Finger <larry.finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Michael Bommarito <michael.bommarito@gmail.com>
+CC: Uli Kunitz <kune@deine-taler.de>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6.19-git19] BUG due to bad argument to ieee80211softmac_assoc_work
+References: <5b8e20700612131017n1cd8aff3qbe41351435427e25@mail.gmail.com>	 <341A1CE8-DF10-4CD5-B675-89449256EAB5@deine-taler.de> <5b8e20700612141348l66af58b6lb6899b710d1d9c14@mail.gmail.com>
+In-Reply-To: <5b8e20700612141348l66af58b6lb6899b710d1d9c14@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Finally, add a new security class for access to /proc/kmsg, distinct
-from the class used for the "read current messages" operations on
-sys_syslog.  The dummy and capability modules permit access to
-/proc/kmsg to any user (who has somehow acquired an open fd on it);
-SELinux is unchanged.  This accomplishes what I was trying to do in
-the first place, i.e. enable running klogd unprivileged without a root
-shim, in a non-SELinux installation.  Please remember that the
-default DAC permissions for /proc/kmsg restrict it to root, so unless
-you chmod it in your installation or modify klogd to open the file and
-then drop privs, the actual restrictions are unchanged.
+Michael Bommarito wrote:
+> Hello Uli,
+>  Yes, apologies, I had been waiting for an abandoned bugzilla entry
+> to get attention, and when I realized it was assigned to a dead-end, I
+> had simply posted the patch without checking for prior messages.
+>  I was further confused by the fact that it hadn't made its way into
+> any of the 19-gitX sets (and for that matter, the window for
+> 2.6.20-rc1 has come and gone and this still remains unfixed), despite
+> how clear the error was and how trivial the fix seems.
 
-zw
+I was not aware that a bugzilla entry existed for this problem. I learned about it when my system 
+would hang on bootup if the bcm43xx card was installed. By bisection, I learned which commit was 
+causing the problem. About that time, the complete fix was discussed on the netdev and bcm43xx 
+mailing lists. I was a little perturbed that only part of the fix was accepted into 2.6.19-gitX.
 
+The full fix was pushed to John Linville on Dec. 10, who pushed it on to Jeff Garzik on Dec. 11. I 
+have not yet seen any message sending it on to Andrew Morton or Linus.
 
-Index: linux-2.6/fs/proc/kmsg.c
-===================================================================
---- linux-2.6.orig/fs/proc/kmsg.c	2006-12-13 16:36:56.000000000 -0800
-+++ linux-2.6/fs/proc/kmsg.c	2006-12-13 16:41:33.000000000 -0800
-@@ -23,7 +23,7 @@
- 
- static int kmsg_open(struct inode * inode, struct file * file)
- {
--	int error = security_syslog(LSM_KLOG_READ);
-+	int error = security_syslog(LSM_KLOG_READ_PROC);
- 	if (error)
- 		return error;
- 	return nonseekable_open(inode, file);
-@@ -37,7 +37,7 @@
- static ssize_t kmsg_read(struct file *file, char __user *buf,
- 			 size_t count, loff_t *ppos)
- {
--	int error = security_syslog(LSM_KLOG_READ);
-+	int error = security_syslog(LSM_KLOG_READ_PROC);
- 	if (error)
- 		return error;
- 	return klog_read(buf, count, !(file->f_flags & O_NONBLOCK));
-@@ -45,7 +45,7 @@
- 
- static unsigned int kmsg_poll(struct file *file, poll_table *wait)
- {
--	int error = security_syslog(LSM_KLOG_READ);
-+	int error = security_syslog(LSM_KLOG_READ_PROC);
- 	if (error)
- 		return error;
- 	return klog_poll(file, wait);
-Index: linux-2.6/security/commoncap.c
-===================================================================
---- linux-2.6.orig/security/commoncap.c	2006-12-13 16:11:13.000000000 -0800
-+++ linux-2.6/security/commoncap.c	2006-12-13 16:41:33.000000000 -0800
-@@ -311,7 +311,14 @@
- 
- int cap_syslog (int type)
- {
--	if (type != LSM_KLOG_READHIST && !capable(CAP_SYS_ADMIN))
-+	/*
-+	 * Reading history is allowed to any user, and so is reading
-+	 * current messages via /proc/kmsg (by default that file is
-+	 * only readable by root, but root is allowed to change that,
-+	 * or open it and hand the fd to an unprivileged process).
-+	 */
-+	if (type != LSM_KLOG_READHIST && type != LSM_KLOG_READ_PROC
-+	    && !capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 	return 0;
- }
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
---- linux-2.6.orig/security/selinux/hooks.c	2006-12-13 16:11:41.000000000 -0800
-+++ linux-2.6/security/selinux/hooks.c	2006-12-13 16:41:33.000000000 -0800
-@@ -1515,7 +1515,14 @@
- 	case LSM_KLOG_CONSOLE:
- 		return task_has_system(current, SYSTEM__SYSLOG_CONSOLE);
- 
-+		/*
-+		 * N.B. Unlike the default security model, with
-+		 * SELinux active you have to have SYSTEM__SYSLOG_MOD
-+		 * privilege to read current messages either with the
-+		 * system call or from /proc/kmsg.
-+		 */
- 	case LSM_KLOG_READ:
-+	case LSM_KLOG_READ_PROC:
- 	case LSM_KLOG_CLEARHIST:
- 	default:
- 		return task_has_system(current, SYSTEM__SYSLOG_MOD);
-Index: linux-2.6/include/linux/security.h
-===================================================================
---- linux-2.6.orig/include/linux/security.h	2006-12-13 16:41:45.000000000 -0800
-+++ linux-2.6/include/linux/security.h	2006-12-13 16:42:26.000000000 -0800
-@@ -94,6 +94,8 @@
- #define LSM_KLOG_READHIST  1  /* read message history (dmesg) */
- #define LSM_KLOG_CLEARHIST 2  /* clear message history (dmesg -c) */
- #define LSM_KLOG_CONSOLE   3  /* set console log level */
-+#define LSM_KLOG_READ_PROC 4  /* read current messages, but from /proc/kmsg
-+				rather than the system call */
- 
- /* forward declares to avoid warnings */
- struct nfsctl_arg;
+A bug fix will always be accepted, particularly one that only changes 2 lines - it is only a new 
+feature that will no longer be accepted once the -rc1 stage is reached. If this message doesn't do 
+the trick and it isn't included by -rc2, I'll ping Jeff to see what happened. Changes always take 
+longer than one likes, but one needs to be careful.
 
---
+Larry
 

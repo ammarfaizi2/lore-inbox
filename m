@@ -1,70 +1,123 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932263AbWLOEH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965075AbWLOEbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWLOEH2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 23:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWLOEH2
+	id S965075AbWLOEbA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 23:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWLOEa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 23:07:28 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58142 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932263AbWLOEH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 23:07:27 -0500
-Date: Fri, 15 Dec 2006 15:07:03 +1100
-From: David Chinner <dgc@sgi.com>
-To: Shinichiro HIDA <shinichiro@stained-g.net>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org, xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, Keith Owens <kaos@sgi.com>
-Subject: Re: 2.6.18.3 also 2.6.19 XFS xfs_force_shutdown (was: XFS internal error [...])
-Message-ID: <20061215040703.GB44411608@melbourne.sgi.com>
-References: <9a8748490611280749k5c97d21bx2e499d2209d27dfe@mail.gmail.com> <20061129013214.GH44411608@melbourne.sgi.com> <9a8748490611290117oc0ba880v1a6407bc4f41088f@mail.gmail.com> <20061130020734.GB37654165@melbourne.sgi.com> <87bqm89y6g.wl%shinichiro@stained-g.net> <20061213062502.GT44411608@melbourne.sgi.com> <877iwu3k9e.wl%shinichiro@stained-g.net>
+	Thu, 14 Dec 2006 23:30:59 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58917 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965075AbWLOEa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 23:30:58 -0500
+Date: Thu, 14 Dec 2006 20:30:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: NeilBrown <neilb@suse.de>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Chuck Lever <chuck.lever@oracle.com>
+Subject: Re: [PATCH 007 of 14] knfsd: SUNRPC: Provide room in svc_rqst for
+ larger addresses
+Message-Id: <20061214203044.915cedfc.akpm@osdl.org>
+In-Reply-To: <1061212235911.21440@suse.de>
+References: <20061213105528.21128.patches@notabene>
+	<1061212235911.21440@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877iwu3k9e.wl%shinichiro@stained-g.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 06:21:49PM +0900, Shinichiro HIDA wrote:
-> Hi,
-> 
-> ;; Sorry for late, and Thanks for following up.
-> 
-> >>>>> In <20061213062502.GT44411608@melbourne.sgi.com> 
-> >>>>>	David Chinner <dgc@sgi.com> wrote:
-> > On Wed, Dec 13, 2006 at 02:12:23PM +0900, Shinichiro HIDA wrote:
-> > > Hi,
-> > > 
-> > > I met same problem on my 2 machines, 2.6.19 (Debian unstable) also
-> > > 2.6.18.3 (Debian stable),
-> > Should have been preceeded with some other output explaining the
-> > reason for the shutdown.
+On Wed, 13 Dec 2006 10:59:11 +1100
+NeilBrown <neilb@suse.de> wrote:
 
-> Dec 12 21:31:25 lune kernel: xfs_da_do_buf: bno 16777216
-> Dec 12 21:31:25 lune kernel: dir: inode 9078346
-> Dec 12 21:31:25 lune kernel: Filesystem "hdf5": XFS internal error xfs_da_do_buf(1) at line 1995 of file fs/xfs/xfs_da_btree.c.  Caller 0xc02982ec
+> From: Chuck Lever <chuck.lever@oracle.com>
+> Expand the rq_addr field to allow it to contain larger addresses.
 
-Ok, that bno (16777216) is a definite sign of corruption
-caused by the 2.6.17.x (x <=6) kernels.
+This patch breaks the NFS server on my heroically modern RH FC1 machine.
 
-> > Did these machines run 2.6.17.x where x<= 6?
-> > i.e. is this problem:
-> 
-> > http://oss.sgi.com/projects/xfs/faq.html#dir2
-> 
-> Yes, I could boot this machine(lune) with 2.6.17.6. 
+There's a mysterious 30-second pause when initscripts are bringing up
+mountd.
 
-I wasn't suggesting that you use this kernel - that could cause more
-corruption to occur.  What I was asking is if you have run a kernel
-of this version in the past (i.e. before you upgraded to 2.6.18.3)?
+showmount (from a FC5 client) works:
 
-Regardless, I suggest you get the latest xfsprogs and run xfs_repair
-on your filesystems to fix the problem.
+box:/usr/src/25> 0 showmount -e vmm
+Export list for vmm:
+/         *
+/mnt/hda5 *
 
-Cheers,
+But things get really exciting when we try to mount it:
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+
+box:/usr/src/25> 0 mount vmm:/mnt/hda5 /mnt         
+*** buffer overflow detected ***: mount terminated
+======= Backtrace: =========
+/lib64/libc.so.6(__chk_fail+0x2f)[0x32adbdfaef]
+mount[0x40bcf8]
+mount[0x4044c5]
+mount[0x405850]
+mount[0x406388]
+/lib64/libc.so.6(__libc_start_main+0xf4)[0x32adb1ce54]
+mount[0x4034a9]
+======= Memory map: ========
+00400000-00414000 r-xp 00000000 08:01 3041513                            /bin/mount
+00513000-00514000 rw-p 00013000 08:01 3041513                            /bin/mount
+00514000-00516000 rw-p 00514000 00:00 0 
+00613000-00615000 rw-p 00013000 08:01 3041513                            /bin/mount
+00615000-00636000 rw-p 00615000 00:00 0                                  [heap]
+32ad900000-32ad91a000 r-xp 00000000 08:01 1619031                        /lib64/ld-2.4.so
+32ada19000-32ada1a000 r--p 00019000 08:01 1619031                        /lib64/ld-2.4.so
+32ada1a000-32ada1b000 rw-p 0001a000 08:01 1619031                        /lib64/ld-2.4.so
+32adb00000-32adc3f000 r-xp 00000000 08:01 1619091                        /lib64/libc-2.4.so
+32adc3f000-32add3f000 ---p 0013f000 08:01 1619091                        /lib64/libc-2.4.so
+32add3f000-32add43000 r--p 0013f000 08:01 1619091                        /lib64/libc-2.4.so
+32add43000-32add44000 rw-p 00143000 08:01 1619091                        /lib64/libc-2.4.so
+32add44000-32add49000 rw-p 32add44000 00:00 0 
+32ade00000-32ade02000 r-xp 00000000 08:01 1619011                        /lib64/libuuid.so.1.2
+32ade02000-32adf02000 ---p 00002000 08:01 1619011                        /lib64/libuuid.so.1.2
+32adf02000-32adf03000 rw-p 00002000 08:01 1619011                        /lib64/libuuid.so.1.2
+32ae000000-32ae002000 r-xp 00000000 08:01 1619095                        /lib64/libdl-2.4.so
+32ae002000-32ae102000 ---p 00002000 08:01 1619095                        /lib64/libdl-2.4.so
+32ae102000-32ae103000 r--p 00002000 08:01 1619095                        /lib64/libdl-2.4.so
+32ae103000-32ae104000 rw-p 00003000 08:01 1619095                        /lib64/libdl-2.4.so
+32ae200000-32ae20e000 r-xp 00000000 08:01 1619005                        /lib64/libdevmapper.so.1.02
+32ae20e000-32ae30e000 ---p 0000e000 08:01 1619005                        /lib64/libdevmapper.so.1.02
+32ae30e000-32ae310000 rw-p 0000e000 08:01 1619005                        /lib64/libdevmapper.so.1.02
+32ae400000-32ae408000 r-xp 00000000 08:01 1619066                        /lib64/libblkid.so.1.0
+32ae408000-32ae508000 ---p 00008000 08:01 1619066                        /lib64/libblkid.so.1.0
+32ae508000-32ae509000 rw-p 00008000 08:01 1619066                        /lib64/libblkid.so.1.0
+32b0600000-32b060d000 r-xp 00000000 08:01 1619093                        /lib64/libgcc_s-4.1.1-20060525.so.1
+32b060d000-32b070d000 ---p 0000d000 08:01 1619093                        /lib64/libgcc_s-4.1.1-20060525.so.1
+32b070d000-32b070e000 rw-p 0000d000 08:01 1619093                        /lib64/libgcc_s-4.1.1-20060525.so.1
+32b2800000-32b2814000 r-xp 00000000 08:01 1619102                        /lib64/libselinux.so.1
+32b2814000-32b2913000 ---p 00014000 08:01 1619102                        /lib64/libselinux.so.1
+32b2913000-32b2915000 rw-p 00013000 08:01 1619102                        /lib64/libselinux.so.1
+32b2915000-32b2916000 rw-p 32b2915000 00:00 0 
+32b2a00000-32b2a38000 r-xp 00000000 08:01 1619101                        /lib64/libsepol.so.1
+32b2a38000-32b2b37000 ---p 00038000 08:01 1619101                        /lib64/libsepol.so.1
+32b2b37000-32b2b38000 rw-p 00037000 08:01 1619101                        /lib64/libsepol.so.1
+32b2b38000-32b2b42000 rw-p 32b2b38000 00:00 0 
+2b9eea00c000-2b9eea00d000 rw-p 2b9eea00c000 00:00 0 
+2b9eea032000-2b9eea036000 rw-p 2b9eea032000 00:00 0 
+2b9eea036000-2b9eea039000 r-xp 00000000 08:01 1618858                    /lib64/libsetrans.so.0
+2b9eea039000-2b9eea138000 ---p 00003000 08:01 1618858                    /lib64/libsetrans.so.0
+2b9eea138000-2b9eea139000 rw-p 00002000 08:01 1618858                    /lib64/libsetrans.so.0
+2b9eea139000-2b9eea143000 r-xp 00000000 08:01 1619053                    /lib64/libnss_files-2.4.so
+2b9eea143000-2b9eea242000 ---p 0000a000 08:01 1619053                    /lib64/libnss_files-2.4.so
+2b9eea242000-2b9eea243000 r--p 00009000 08:01 1619053                    /lib64/libnss_files-2.4.so
+2b9eea243000-2b9eea244000 rw-p 0000a000 08:01 1619053                    /lib64/libnss_files-2.4.so
+7fffc0a88000-7fffc0a9e000 rw-p 7fffc0a88000 00:00 0                      [stack]
+ffffffffff600000-ffffffffffe00000 ---p 00000000 00:00 0                  [vdso]
+zsh: abort      0 mount vmm:/mnt/hda5 /mnt
+
+
+btw, knfsd-sunrpc-cache-remote-peers-address-in-svc_sock.patch breaks the build:
+
+net/sunrpc/svcsock.c: In function 'svc_recvfrom':
+net/sunrpc/svcsock.c:581: error: 'svsk' undeclared (first use in this function)
+net/sunrpc/svcsock.c:581: error: (Each undeclared identifier is reported only once
+
+but the next patch
+(knfsd-sunrpc-dont-set-msg_name-and-msg_namelen-when-calling-sock_recvmsg.patch)
+fixes that.
+
+

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932110AbWLOBdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964988AbWLOBfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWLOBdh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWLOBdg
+	id S964988AbWLOBfK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:35:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWLOBfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:33:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45992 "EHLO
+	Thu, 14 Dec 2006 20:35:10 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46138 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932110AbWLOBdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:33:19 -0500
-Message-Id: <20061215013447.185743000@sous-sol.org>
+	id S964988AbWLOBfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:35:07 -0500
+Message-Id: <20061215013522.033735000@sous-sol.org>
 References: <20061215013337.823935000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 17:33:38 -0800
+Date: Thu, 14 Dec 2006 17:33:41 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,48 +21,41 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Larry Finger <Larry.Finger@lwfinger.net>,
-       Michael Buesch <mb@bu3sch.de>
-Subject: [patch 01/24] softmac: remove netif_tx_disable when scanning
-Content-Disposition: inline; filename=softmac-remove-netif_tx_disable-when-scanning.patch
+       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
+       bunk@stusta.de, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [patch 04/24] EBTABLES: Deal with the worst-case behaviour in loop checks.
+Content-Disposition: inline; filename=ebtables-deal-with-the-worst-case-behaviour-in-loop-checks.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 2.6.18-stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Michael Buesch <mb@bu3sch.de>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-In the scan section of ieee80211softmac, network transmits are disabled.
-When SoftMAC re-enables transmits, it may override the wishes of a driver
-that may have very good reasons for disabling transmits. At least one failure
-in bcm43xx can be traced to this problem. In addition, several unexplained
-problems may arise from the unexpected enabling of transmits.
+No need to revisit a chain we'd already finished with during
+the check for current hook.  It's either instant loop (which
+we'd just detected) or a duplicate work.
 
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- net/ieee80211/softmac/ieee80211softmac_scan.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/bridge/netfilter/ebtables.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- linux-2.6.18.5.orig/net/ieee80211/softmac/ieee80211softmac_scan.c
-+++ linux-2.6.18.5/net/ieee80211/softmac/ieee80211softmac_scan.c
-@@ -47,7 +47,6 @@ ieee80211softmac_start_scan(struct ieee8
- 	sm->scanning = 1;
- 	spin_unlock_irqrestore(&sm->lock, flags);
- 
--	netif_tx_disable(sm->ieee->dev);
- 	ret = sm->start_scan(sm->dev);
- 	if (ret) {
- 		spin_lock_irqsave(&sm->lock, flags);
-@@ -248,7 +247,6 @@ void ieee80211softmac_scan_finished(stru
- 		if (net)
- 			sm->set_channel(sm->dev, net->channel);
- 	}
--	netif_wake_queue(sm->ieee->dev);
- 	ieee80211softmac_call_events(sm, IEEE80211SOFTMAC_EVENT_SCAN_FINISHED, NULL);
- }
- EXPORT_SYMBOL_GPL(ieee80211softmac_scan_finished);
+--- linux-2.6.18.5.orig/net/bridge/netfilter/ebtables.c
++++ linux-2.6.18.5/net/bridge/netfilter/ebtables.c
+@@ -739,7 +739,9 @@ static int check_chainloops(struct ebt_e
+ 				BUGPRINT("loop\n");
+ 				return -1;
+ 			}
+-			/* this can't be 0, so the above test is correct */
++			if (cl_s[i].hookmask & (1 << hooknr))
++				goto letscontinue;
++			/* this can't be 0, so the loop test is correct */
+ 			cl_s[i].cs.n = pos + 1;
+ 			pos = 0;
+ 			cl_s[i].cs.e = ((void *)e + e->next_offset);
 
 --

@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753422AbWLOUdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753435AbWLOUkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753422AbWLOUdM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753416AbWLOUdM
+	id S1753435AbWLOUkX (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753437AbWLOUkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:33:12 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:60821 "EHLO
-	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753414AbWLOUdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:33:11 -0500
-X-Greylist: delayed 951 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 15:33:10 EST
-Date: Fri, 15 Dec 2006 21:15:22 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: Martin Michlmayr <tbm@cyrius.com>, Riku Voipio <riku.voipio@iki.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
-Message-ID: <20061215201522.GA11288@electric-eye.fr.zoreil.com>
-References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org>
+	Fri, 15 Dec 2006 15:40:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51739 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753435AbWLOUkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:40:22 -0500
+Subject: [RFC] make reading /proc/sys/kernel/cap-bould not require
+	CAP_SYS_MODULE
+From: Eric Paris <eparis@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>, chrisw@sous-sol.org
+Content-Type: text/plain
+Date: Fri, 15 Dec 2006 15:39:48 -0500
+Message-Id: <1166215188.20187.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061215132740.GD11579@xi.wantstofly.org>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennert Buytenhek <buytenh@wantstofly.org> :
-[...]
-> Is there a way we can have this done by default on the n2100?  I guess
-> that since it's a PCI device, there isn't much hope for that..?
+Reading /proc/sys/kernel/cap-bound requires CAP_SYS_MODULE.  (see
+proc_dointvec_bset in kernel/sysctl.c)
 
-Do you mean an automagically tuned default value based on CONFIG_ARM ?
+sysctl appears to drive all over proc reading everything it can get it's
+hands on and is complaining when it is being denied access to read
+cap-bound.  Clearly writing to cap-bound should be a sensitive operation
+but requiring CAP_SYS_MODULE to read cap-bound seems a bit to strong.  I
+believe the information could with reasonable certainty be obtained by
+looking at a bunch of the output of /proc/pid/status which has very low
+security protection, so at best we are just getting a little obfuscation
+of information.
 
--- 
-Ueimor
+Currently SELinux policy has to 'dontaudit' capability checks for
+CAP_SYS_MODULE for things like sysctl which just want to read cap-bound.
+In doing so we also as a by product have to hide warnings of potential
+exploits such as if at some time that sysctl actually tried to load a
+module.  I wondered if anyone would have a problem opening cap-bound up
+to read from anyone?  Possibly with something like the patch below?
+
+-Eric
+
+ kernel/sysctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6-upstream/kernel/sysctl.c.cap.sys.module
++++ linux-2.6-upstream/kernel/sysctl.c
+@@ -2020,7 +2020,7 @@ int proc_dointvec_bset(ctl_table *table,
+ {
+ 	int op;
+ 
+-	if (!capable(CAP_SYS_MODULE)) {
++	if (write && !capable(CAP_SYS_MODULE)) {
+ 		return -EPERM;
+ 	}
+ 
+
+

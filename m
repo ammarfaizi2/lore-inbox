@@ -1,70 +1,165 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750849AbWLOGAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750967AbWLOGfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWLOGAz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 01:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWLOGAz
+	id S1750967AbWLOGfM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 01:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWLOGfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 01:00:55 -0500
-Received: from wx-out-0506.google.com ([66.249.82.236]:34350 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750856AbWLOGAy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 01:00:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fR13uoivKJEulZ7N+c7iQoPqdrv2ySFZkyfoqF2FyU7AAAkdQWy3NDKf4Ger5z4WD+a7hJU3gr6j3Yl2oU32UxL5TQw+9Ql8FIf5V8LQZtNBQUC9bKXMuMeLKzY6rXsXuGlw1nv5ZM3gOMnoFIwk5uONU77n361HFE6fTtR9DcI=
-Message-ID: <ad7541e70612142200v7709a254xe5e702e2f5e3695f@mail.gmail.com>
-Date: Fri, 15 Dec 2006 11:30:51 +0530
-From: "kiran kumar" <cnvkiran@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: crash in 'wake_up_interruptible()' on SMP
+	Fri, 15 Dec 2006 01:35:12 -0500
+Received: from mga09.intel.com ([134.134.136.24]:41508 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751056AbWLOGfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 01:35:11 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,171,1165219200"; 
+   d="scan'208"; a="27279166:sNHT23677497"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       "'xb'" <xavier.bru@bull.net>, <linux-kernel@vger.kernel.org>,
+       "'Zach Brown'" <zach.brown@oracle.com>
+Subject: RE: 2.6.18.4: flush_workqueue calls mutex_lock in interrupt environment
+Date: Thu, 14 Dec 2006 22:35:07 -0800
+Message-ID: <000001c72013$2a1a90c0$b481030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accf5339jWiQtQIlRdqjjNxFhLpISAABDM8AAAVpvbA=
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can some one explain why I see the below crash on Intel Xeon SMP box.
-The kernel version is 2.6.11. This is what I'm trying to do in the
-driver.
+Chen, Kenneth wrote on Thursday, December 14, 2006 5:59 PM
+> > It seems utterly insane to have aio_complete() flush a workqueue. That
+> > function has to be called from a number of different environments,
+> > including non-sleep tolerant environments.
+> > 
+> > For instance it means that directIO on NFS will now cause the rpciod
+> > workqueues to call flush_workqueue(aio_wq), thus slowing down all RPC
+> > activity.
+> 
+> The bug appears to be somewhere else, somehow the ref count on ioctx is
+> all messed up.
+> 
+> In aio_complete, __put_ioctx() should not be invoked because ref count
+> on ioctx is supposedly more than 2, aio_complete decrement it once and
+> should return without invoking the free function.
+> 
+> The real freeing ioctx should be coming from exit_aio() or io_destroy(),
+> in which case both wait until no further pending AIO request via
+> wait_for_all_aios().
 
-1.Submit a request to a device in 'unlocked_ioctl()' and issue
-'wait_event_interruptible_timeout()' for 10 jiffies. There can be many
-such outstanding requests issued by different processes and all these
-are placed in a queue.
-2.The 'wake_up_interruptible()' is issued either from tasklet or a
-poll-thread which polls on the status of the request.
-3. The request queue is protected using  'spin_lock_bh/spin_unlock_bh'
-to be softIRQ safe. I'm stating this to point that
-'spin_lock_irqsave/spin_lock_irqrestore' is issued only within waitQ.
+Ah, I think I see the bug: it must be a race between io_destroy() and
+aio_complete().  A possible scenario:
 
-If i either not use 'unlocked_ioctl()' i.e. use ioctl() (or)comment
-out 'wake_up_interruptible()' call I don't see the crash. Is
-wake_up_interruptible SMP safe???
+cpu0                               cpu1
+io_destroy                         aio_complete
+  wait_for_all_aios {                __aio_put_req
+     ...                                 ctx->reqs_active--;
+     if (!ctx->reqs_active)
+        return;
+  }
+  ...
+  put_ioctx(ioctx)
 
-Regards,
-kiran
+                                     put_ioctx(ctx);
+                                        bam! Bug trigger!
 
-/---------------------------------------------------------------------------------------------------------/
-[root@localhost ~]# ------------[ cut here ]------------
-kernel BUG at include/asm/spinlock.h:112!
-invalid operand: 0000 [#1]
-SMP
-Modules linked in: pkp_drv(U) md5 ipv6 parport_pc lp parport autofs4
-rfcomm l2cap bluetooth sunrpc dm_mod video button battery ac uhci_hcd
-hw_random i2c_i801 i2c_core shpchp e1000 e100 mii floppy sata_sil
-libata scsi_mod ext3 jbd
-CPU:    0
-EIP:    0060:[<c03087b0>]    Tainted: P      VLI
-EFLAGS: 00210002   (2.6.11-1.1369_FC4smp)
-EIP is at _spin_unlock_irqrestore+0x26/0x30
-eax: 00000001   ebx: cfefb810   ecx: cfefb810   edx: 00200292
-esi: 00000000   edi: e0af0f20   ebp: 00000000   esp: c8ae2e10
-ds: 007b   es: 007b   ss: 0068
-Process swamp (pid: 5920, threadinfo=c8ae2000 task=c79d4a80)
-Stack: badc0ded e0c8e1af 00000000 e0af0268 e0a86ef8 e0c87f46 00000802 00000000
-       00200286 e0a86ef8 00200286 e0c9c580 00000000 e0c87dd1 cfec1810 d028a810
-       00000000 bf9fc228 e0c8dab4 00000001 c8ae2000 3f37331a bf9fc228 e0c9c580
-/----------------------------------------------------------------------------------------------------------------------------------/
+AIO finished on cpu1 and while in the middle of aio_complete, cpu0 starts
+io_destroy sequence, sees no pending AIO, went ahead decrement the ref
+count on ioctx.  At a later point in aio_complete, the put_ioctx decrement
+last ref count and calls the ioctx freeing function and there it triggered
+the bug warning.
+
+A simple fix would be to access ctx->reqs_active inside ctx spin lock in wait_for_all_aios().  At the mean time, I would like to
+remove ref counting
+for each iocb because we already performing ref count using reqs_active. This
+would also prevent similar buggy code in the future.
+
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+--- ./fs/aio.c.orig	2006-11-29 13:57:37.000000000 -0800
++++ ./fs/aio.c	2006-12-14 20:45:14.000000000 -0800
+@@ -298,17 +298,23 @@ static void wait_for_all_aios(struct kio
+ 	struct task_struct *tsk = current;
+ 	DECLARE_WAITQUEUE(wait, tsk);
+ 
++	spin_lock_irq(&ctx->ctx_lock);
+ 	if (!ctx->reqs_active)
+-		return;
++		goto out;
+ 
+ 	add_wait_queue(&ctx->wait, &wait);
+ 	set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+ 	while (ctx->reqs_active) {
++		spin_unlock_irq(&ctx->ctx_lock);
+ 		schedule();
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
++		spin_lock_irq(&ctx->ctx_lock);
+ 	}
+ 	__set_task_state(tsk, TASK_RUNNING);
+ 	remove_wait_queue(&ctx->wait, &wait);
++
++out:
++	spin_unlock_irq(&ctx->ctx_lock);
+ }
+ 
+ /* wait_on_sync_kiocb:
+@@ -425,7 +431,6 @@ static struct kiocb fastcall *__aio_get_
+ 	ring = kmap_atomic(ctx->ring_info.ring_pages[0], KM_USER0);
+ 	if (ctx->reqs_active < aio_ring_avail(&ctx->ring_info, ring)) {
+ 		list_add(&req->ki_list, &ctx->active_reqs);
+-		get_ioctx(ctx);
+ 		ctx->reqs_active++;
+ 		okay = 1;
+ 	}
+@@ -538,8 +543,6 @@ int fastcall aio_put_req(struct kiocb *r
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	ret = __aio_put_req(ctx, req);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+-	if (ret)
+-		put_ioctx(ctx);
+ 	return ret;
+ }
+ 
+@@ -795,8 +798,7 @@ static int __aio_run_iocbs(struct kioctx
+ 		 */
+ 		iocb->ki_users++;       /* grab extra reference */
+ 		aio_run_iocb(iocb);
+-		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
+-			put_ioctx(ctx);
++		__aio_put_req(ctx, iocb);
+  	}
+ 	if (!list_empty(&ctx->run_list))
+ 		return 1;
+@@ -942,7 +944,6 @@ int fastcall aio_complete(struct kiocb *
+ 	struct io_event	*event;
+ 	unsigned long	flags;
+ 	unsigned long	tail;
+-	int		ret;
+ 
+ 	/*
+ 	 * Special case handling for sync iocbs:
+@@ -1011,18 +1012,12 @@ int fastcall aio_complete(struct kiocb *
+ 	pr_debug("%ld retries: %zd of %zd\n", iocb->ki_retried,
+ 		iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes);
+ put_rq:
+-	/* everything turned out well, dispose of the aiocb. */
+-	ret = __aio_put_req(ctx, iocb);
+-
+ 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+ 
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 
+-	if (ret)
+-		put_ioctx(ctx);
+-
+-	return ret;
++	return aio_put_req(iocb);
+ }
+ 
+ /* aio_read_evt

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751753AbWLOK0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751801AbWLOKiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751753AbWLOK0Y (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 05:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWLOK0Y
+	id S1751801AbWLOKiJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 05:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWLOKiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 05:26:24 -0500
-Received: from mailgw1.uni-kl.de ([131.246.120.220]:55697 "EHLO
-	mailgw1.uni-kl.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751753AbWLOK0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 05:26:23 -0500
-X-Greylist: delayed 668 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 05:26:22 EST
-Date: Fri, 15 Dec 2006 11:13:30 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Scott Preece <sepreece@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-       Eric Sandeen <sandeen@sandeen.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061215101330.GA15243@debian>
-References: <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <458171C1.3070400@garzik.org> <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org> <20061214170841.GA11196@tuatara.stupidest.org> <20061214173827.GC3452@infradead.org> <20061214175253.GB12498@tuatara.stupidest.org> <458194B8.1090309@sandeen.net> <20061214183956.GA13692@tuatara.stupidest.org> <7b69d1470612141142k63cc7d11l89c0a7f26acc631a@mail.gmail.com> <4581A75C.9020509@wolfmountaingroup.com>
+	Fri, 15 Dec 2006 05:38:09 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:37187 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751801AbWLOKiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 05:38:07 -0500
+Date: Fri, 15 Dec 2006 11:36:23 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Zach Brown <zach.brown@oracle.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <4581DAB0.2060505@s5r6.in-berlin.de>
+Message-ID: <Pine.LNX.4.61.0612151135330.22867@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
+ <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
+ <4581DAB0.2060505@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4581A75C.9020509@wolfmountaingroup.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
-* Jeff V. Merkey [Thu, Dec 14 2006, 12:34:52PM]:
-> 
-> This whole effort is pointless.  This is the same kind of crap MICROSOFT 
-> DOES to create incompatibilities
 
-Just my 0.02¤ - one of the things I wonder about is why eg. class*
-interfaces has been replaced with something "protected" by GPL enforcing
-macros. What is the point? Nobody wins. The access to the new fine-grained
-system has been restricted for users, and distributors (yes, I maintain
-a such module) have to work around this in-kernel restriction
-and create cludges.
+>>> Indeed, there seems to be lots of potential clean-up there.
+>>> Including duplicate macros like:
+>>>
+>>> ./drivers/ide/ide-cd.h:#define ARY_LEN(a) ((sizeof(a) / sizeof(a[0])))
+>> 
+>> not surprisingly, i have a script "arraysize.sh":
+>...
+>
+>This could also come in the flavor "sizeof(a) / sizeof(*a)".
+>I haven't checked if there are actual instances.
 
-Greg (and others from the "every touch of my bits is a derivation of it
-and I need to protect it" party)  - what are you thinking? Do you
-seriously think that such restrictions would help anyone? IMO protecting
-the access to interfaces is an utterly stupid idea in the free software
-world.
+Even  sizeof a / sizeof *a
 
-Eduard.
+may happen.
 
+
+	-`J'
 -- 
-<Ref|ex> Geht 'n Mantafahrer zum Manta-Treffen.
-         Fragt: Fährt hier wer Manta
-		-- #Debian.DE

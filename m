@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965092AbWLOVYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965125AbWLOV2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbWLOVYt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWLOVYt
+	id S965125AbWLOV2W (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWLOV2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:24:49 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:40457 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965092AbWLOVYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:24:49 -0500
-Message-ID: <458312BB.2000600@oracle.com>
-Date: Fri, 15 Dec 2006 13:25:15 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: =?UTF-8?B?SsO2cm4gRW5nZWw=?= <joern@lazybastard.org>
-CC: Pavel Machek <pavel@ucw.cz>, Scott Preece <sepreece@gmail.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/v2] CodingStyle updates
-References: <20061207165508.e6bf0269.randy.dunlap@oracle.com> <20061215120942.GA4551@ucw.cz> <4582AEC8.7030608@s5r6.in-berlin.de> <20061215142206.GC2053@elf.ucw.cz> <7b69d1470612150652p609c38d2n9bff58bdb0a1edb7@mail.gmail.com> <20061215150717.GA2345@elf.ucw.cz> <20061215090037.05c021af.randy.dunlap@oracle.com> <20061215201127.GA32210@lazybastard.org> <20061215122659.ebccdede.randy.dunlap@oracle.com> <20061215211014.GB32210@lazybastard.org> <20061215211629.GA317@lazybastard.org>
-In-Reply-To: <20061215211629.GA317@lazybastard.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Fri, 15 Dec 2006 16:28:21 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:39799 "EHLO palrel10.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965125AbWLOV2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:28:20 -0500
+Date: Fri, 15 Dec 2006 15:28:17 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: jens.axboe@oracle.com, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       daniel_frazier@hp.com, andrew.patterson@hp.com
+Subject: [PATCH 2/2] cciss: fix XFER_READ/XFER_WRITE in do_cciss_request
+Message-ID: <20061215212817.GA10996@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Fri, 15 December 2006 21:10:14 +0000, Jörn Engel wrote:
->> Like so?  I manually edited the patch and weakened a few of the space
->> rules, basically the ones in dispute in this thread.
-> 
-> Btw, this doesn't apply to my git tree at all (just pulled):
-> Hunk #1 FAILED at 35.
-> Hunk #2 FAILED at 94.
-> Hunk #3 succeeded at 145 with fuzz 1 (offset 39 lines).
-> Hunk #4 succeeded at 242 with fuzz 2 (offset 82 lines).
-> Hunk #5 FAILED at 315.
-> Hunk #6 succeeded at 435 with fuzz 2 (offset 96 lines).
-> Hunk #7 FAILED at 497.
-> Hunk #8 FAILED at 802.
-> 5 out of 8 hunks FAILED -- saving rejects to file
-> Documentation/CodingStyle.rej
-> 
-> Is it against -mm or something such?
+Patch 2 of 2
 
-It's already been merged, so you'll need to make new patches
-against -current (as always).
+This patch fixes a stupid bug. Sometime during the 2tb enhancement I ended up
+replacing the macros XFER_READ and XFER_WRITE with h->cciss_read and
+h->cciss_write respectively. It seemed to work somehow at least on x86_64 and
+ia64. I don't know how. But people started complaining about command timeouts
+on older controllers like the 64xx series and only on ia32. This resolves the
+issue reproduced in our lab. Please consider this for inclusion. 
 
--- 
-~Randy
+Thanks,
+mikem
+
+Signed-off-by: Mike Miller <mike.miller@hp.com>
+--------------------------------------------------------------------------------
+
+ drivers/block/cciss.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/block/cciss.c~cciss_xfer_fix drivers/block/cciss.c
+--- linux-2.6-work/drivers/block/cciss.c~cciss_xfer_fix	2006-12-15 08:56:40.000000000 -0600
++++ linux-2.6-work-mikem/drivers/block/cciss.c	2006-12-15 08:58:20.000000000 -0600
+@@ -2492,7 +2492,7 @@ static void do_cciss_request(request_que
+ 	c->Request.Type.Type = TYPE_CMD;	// It is a command.
+ 	c->Request.Type.Attribute = ATTR_SIMPLE;
+ 	c->Request.Type.Direction =
+-	    (rq_data_dir(creq) == READ) ? h->cciss_read : h->cciss_write;
++	    (rq_data_dir(creq) == READ) ? XFER_READ : XFER_WRITE;
+ 	c->Request.Timeout = 0;	// Don't time out
+ 	c->Request.CDB[0] =
+ 	    (rq_data_dir(creq) == READ) ? h->cciss_read : h->cciss_write;
+_

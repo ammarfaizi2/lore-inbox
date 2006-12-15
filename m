@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751219AbWLOHqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751278AbWLOIAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWLOHqv (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 02:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWLOHqv
+	id S1751278AbWLOIAk (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 03:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWLOIAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 02:46:51 -0500
-Received: from mail.gdatech.co.in ([202.144.30.226]:42386 "EHLO gdatech.co.in"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751219AbWLOHqu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 02:46:50 -0500
-X-Greylist: delayed 1109 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 02:46:50 EST
-X-Propel-Return-Path: <n.balaji@gdatech.co.in>
-Message-ID: <35900.202.144.30.226.1166167961.squirrel@mail.gdatech.co.in>
-Date: Fri, 15 Dec 2006 13:02:41 +0530 (IST)
-Subject: Asynchronous Crypto suppor for MPC8360E's Security Engine
-From: n.balaji@gdatech.co.in
-To: "David McCullough" <david_mccullough@au.securecomputing.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-       n.balaji@gdatech.co.in
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Priority: 3
-Importance: Normal
-Content-Transfer-Encoding: 7BIT
-X-Propel-ID: r6ce232809-00-2
+	Fri, 15 Dec 2006 03:00:39 -0500
+Received: from tur.go2.pl ([193.17.41.50]:59352 "EHLO tur.go2.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751278AbWLOIAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 03:00:39 -0500
+X-Greylist: delayed 1576 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 03:00:39 EST
+Date: Fri, 15 Dec 2006 08:35:14 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-git19: lockdep messages on console
+Message-ID: <20061215073514.GA1594@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Alessandro Suardi <alessandro.suardi@gmail.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5a4c581d0612121149h4695dd51sd9cfbef8a3ef37f1@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12-12-2006 20:49, Alessandro Suardi wrote:
+> Very shortly after boot on my K7-800 running up-to-date FC6
+> and 2.6.19-git19; didn't happen in 2.6.19-vanilla:
+...
+> [  134.915521] INFO: trying to register non-static key.
+> [  134.915890] the code is fine but needs lockdep annotation.
+> [  134.916249] turning off the locking correctness validator.
 
-Hi,
-  I am working on MPC8360E Security Engine. I have ported the Openswan
-2.4.5(IPSec --KLIPS) with OCF to MPC8360E's Security Engine (Talitos).
-Encryption and Decryption is working. But when I check the performance of
-Talitos with netio benchmark Tool, IPSec S/W Algorithms is giving more
-bandwidth than Talitos.
-  I do not know that why Talitos is giving less bandwidth and any probelm
-in Openswan or OCF or Talitos driver or Talitos H/W. Please give your
-suggestions and if you have any link related to Talitos, send to me.
+It looks like repaired in 2.6.20-rc1 by this:
 
-  Linux kernel version is 2.6.11.
+[patch] lockdep: fix seqlock_init()
 
- I am not a member of the above mailing lists. Please send the mail to me.
+Regards,
 
--Thanks
- N.Balaji
-
-
+Jarek P.

@@ -1,62 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753435AbWLOUkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964784AbWLOUmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753435AbWLOUkX (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753437AbWLOUkX
+	id S964784AbWLOUmT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWLOUmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:40:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:51739 "EHLO mx1.redhat.com"
+	Fri, 15 Dec 2006 15:42:19 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:42976 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753435AbWLOUkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:40:22 -0500
-Subject: [RFC] make reading /proc/sys/kernel/cap-bould not require
-	CAP_SYS_MODULE
-From: Eric Paris <eparis@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>, chrisw@sous-sol.org
-Content-Type: text/plain
-Date: Fri, 15 Dec 2006 15:39:48 -0500
-Message-Id: <1166215188.20187.22.camel@localhost.localdomain>
+	id S964784AbWLOUmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:42:18 -0500
+Date: Fri, 15 Dec 2006 12:42:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Michal Sabala <lkml@saahbs.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 mmap hangs unrelated apps
+Message-Id: <20061215124208.a053f4d3.akpm@osdl.org>
+In-Reply-To: <20061215175030.GG6220@prosiaczek>
+References: <20061215023014.GC2721@prosiaczek>
+	<1166199855.5761.34.camel@lade.trondhjem.org>
+	<20061215175030.GG6220@prosiaczek>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading /proc/sys/kernel/cap-bound requires CAP_SYS_MODULE.  (see
-proc_dointvec_bset in kernel/sysctl.c)
+On Fri, 15 Dec 2006 11:50:30 -0600
+Michal Sabala <lkml@saahbs.net> wrote:
 
-sysctl appears to drive all over proc reading everything it can get it's
-hands on and is complaining when it is being denied access to read
-cap-bound.  Clearly writing to cap-bound should be a sensitive operation
-but requiring CAP_SYS_MODULE to read cap-bound seems a bit to strong.  I
-believe the information could with reasonable certainty be obtained by
-looking at a bunch of the output of /proc/pid/status which has very low
-security protection, so at best we are just getting a little obfuscation
-of information.
+> On 2006/12/15 at 10:24:15 Trond Myklebust <trond.myklebust@fys.uio.no> wrote
+> > On Thu, 2006-12-14 at 20:30 -0600, Michal Sabala wrote:
+> > > 
+> > > `cat /proc/*PID*/wchan` for all hanging processes contains page_sync.
+> > 
+> > Have you tried an 'echo t >/proc/sysrq-trigger' on a client with one of
+> > these hanging processes? If so, what does the output look like?
+> 
+> Hello Trond,
+> 
+> Below is the sysrq trace output for XFree86 which entered the
+> uninterruptible sleep state on the P4 machine with nfs /home. Please
+> note that XFree86 does not have any files open in /home - as reported by
+> `lsof`. Below, I also listed the output of vmstat.
 
-Currently SELinux policy has to 'dontaudit' capability checks for
-CAP_SYS_MODULE for things like sysctl which just want to read cap-bound.
-In doing so we also as a by product have to hide warnings of potential
-exploits such as if at some time that sysctl actually tried to load a
-module.  I wondered if anyone would have a problem opening cap-bound up
-to read from anyone?  Possibly with something like the patch below?
+We'd need to see the trace of all D-state processes, please.  Xfree86 might
+just be a victim of a deadlock elsewhere.  However there is a problem here..
 
--Eric
 
- kernel/sysctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> XFree86       D 00000003     0  2471   2453                     (NOTLB)
+>        c4871c0c 00003082 c86b72bc 00000003 cb7c94a4 0000001d 3b67f3ff c0146dd2 
+>        c1184180 cb3e7110 00000000 001ec7ff a60f8097 00000089 c02e1e60 cb3e7000 
+>        c1184180 00000000 c1180030 c4871c18 c028c7d8 c4871c5c c01435b6 c01435f3 
+> Call Trace:
+>  [<c0146dd2>] free_pages_bulk+0x1d/0x1d4
+>  [<c028c7d8>] io_schedule+0x26/0x30
+>  [<c01435b6>] sync_page+0x0/0x40
+>  [<c01435f3>] sync_page+0x3d/0x40
+>  [<c028c9ce>] __wait_on_bit_lock+0x2c/0x52
+>  [<c0143c13>] __lock_page+0x6a/0x72
+>  [<c012ec77>] wake_bit_function+0x0/0x3c
+>  [<c012ec77>] wake_bit_function+0x0/0x3c
+>  [<c0149d2f>] pagevec_lookup+0x17/0x1d
+>  [<c014a085>] truncate_inode_pages_range+0x20a/0x260
+>  [<c014a0e4>] truncate_inode_pages+0x9/0xc
+>  [<c0172c8a>] generic_delete_inode+0xb6/0x10f
+>  [<c0172e73>] iput+0x5f/0x61
+>  [<c01706bd>] dentry_iput+0x68/0x83
+>  [<c01707d8>] dput+0x100/0x118
+>  [<ccb6c334>] put_nfs_open_context+0x67/0x88 [nfs]
+>  [<ccb701ed>] nfs_release_request+0x38/0x47 [nfs]
+>  [<ccb736dd>] nfs_wait_on_requests_locked+0x62/0x98 [nfs]
+>  [<ccb74c32>] nfs_sync_inode_wait+0x4a/0x130 [nfs]
+>  [<ccb6b639>] nfs_release_page+0x0/0x30 [nfs]
+>  [<ccb6b655>] nfs_release_page+0x1c/0x30 [nfs]
+>  [<c015f37c>] try_to_release_page+0x34/0x46
+>  [<c014aa8b>] shrink_page_list+0x263/0x350
+>  [<c0104db8>] do_IRQ+0x48/0x50
+>  [<c01036c6>] common_interrupt+0x1a/0x20
+>  [<c014acd7>] shrink_inactive_list+0x9b/0x248
+>  [<c014b2fd>] shrink_zone+0xb5/0xd0
+>  [<c014b382>] shrink_zones+0x6a/0x7e
+>  [<c014b48e>] try_to_free_pages+0xf8/0x1da
+>  [<c0147a18>] __alloc_pages+0x17c/0x278
+>  [<c014f555>] do_anonymous_page+0x45/0x150
+>  [<c014f9f7>] __handle_mm_fault+0xda/0x1bf
+>  [<c0115849>] do_page_fault+0x1c4/0x4bc
+>  [<c01021b7>] restore_sigcontext+0x10c/0x15f
+>  [<c0115685>] do_page_fault+0x0/0x4bc
+>  [<c0103809>] error_code+0x39/0x40
 
---- linux-2.6-upstream/kernel/sysctl.c.cap.sys.module
-+++ linux-2.6-upstream/kernel/sysctl.c
-@@ -2020,7 +2020,7 @@ int proc_dointvec_bset(ctl_table *table,
- {
- 	int op;
- 
--	if (!capable(CAP_SYS_MODULE)) {
-+	if (write && !capable(CAP_SYS_MODULE)) {
- 		return -EPERM;
- 	}
- 
+nfs_release_page() was called with a locked page.  It's doing a bunch of
+stuff which results in a call to truncate_inode_pages(), which will run
+lock_page(), which is deadlocky.
 
+But it's rather obviously deadlocky, so perhaps NFS drops and reacquires
+the page lock somewhere?
 

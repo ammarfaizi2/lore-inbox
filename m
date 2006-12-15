@@ -1,74 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752821AbWLOQ1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751513AbWLOQjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752821AbWLOQ1r (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWLOQ1r
+	id S1751513AbWLOQjA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752868AbWLOQjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:27:47 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48239 "EHLO mx2.mail.elte.hu"
+	Fri, 15 Dec 2006 11:39:00 -0500
+Received: from lw.wurtel.net ([82.192.92.211]:2496 "EHLO lw.wurtel.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752821AbWLOQ1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:27:46 -0500
-Date: Fri, 15 Dec 2006 17:24:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: + schedule_on_each_cpu-use-preempt_disable.patch added to -mm tree
-Message-ID: <20061215162416.GB29191@elte.hu>
-References: <200612150823.kBF8NV2u011171@shell0.pdx.osdl.net> <20061215083112.GB10687@elte.hu> <20061215081138.4c51e7c5.akpm@osdl.org>
-Mime-Version: 1.0
+	id S1752870AbWLOQi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 11:38:59 -0500
+X-Greylist: delayed 2465 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 11:38:59 EST
+Date: Fri, 15 Dec 2006 16:57:47 +0100
+From: Paul Slootman <paul+nospam@wurtel.net>
+To: linux-kernel@vger.kernel.org
+Cc: cw@f00f.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
+Message-ID: <20061215155747.GB1519@msgid.wurtel.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, cw@f00f.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061215081138.4c51e7c5.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+cw@f00f.org wrote:
+>On Wed, Dec 13, 2006 at 09:11:29PM +0100, Christoph Anton Mitterer wrote:
+>
+>> - error in the Opteron (memory controller)
+>> - error in the Nvidia chipsets
+>> - error in the kernel
+>
+>My guess without further information would be that some, but not all
+>BIOSes are doing some work to avoid this.
+>
+>Does anyone have an amd64 with an nforce4 chipset and >4GB that does
+>NOT have this problem?  If so it might be worth chasing the BIOS
+>vendors to see what errata they are dealing with.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+We have a number of Tyan S2891 systems at work, most with 8GB but all at
+least 4GB (data corruption still occurs whether 4 or 8GB is installed;
+didn't try less than 4GB...). All have 2 of the following CPUs:
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 37
+model name      : AMD Opteron(tm) Processor 248
+stepping        : 1
+cpu MHz         : 2210.208
+cache size      : 1024 KB
 
-> > >  	for_each_online_cpu(cpu) {
-> > >  		INIT_WORK(per_cpu_ptr(works, cpu), func);
-> > >  		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
-> > >  				per_cpu_ptr(works, cpu));
-> > >  	}
-> > > -	mutex_unlock(&workqueue_mutex);
-> > > +	preempt_enable();
-> > 
-> > Why not cpu_hotplug_lock()?
-> > 
-> 
-> Because the workqueue code was explicitly switched over to 
-> per-subsystem cpu-hotplug locking.
-> 
-> Because lock_cpu_hotplug() is a complete turkey, source of deadlocks 
-> and overall bad idea.
 
-not in the locking model i outlined earlier, which would turn it into a 
-read-lock in essence.
+- the older models have no problem with data corruption,
+  but fail to boot 2.6.18 and up (exactly like
+  http://bugzilla.kernel.org/show_bug.cgi?id=7505 )
 
-> This is actually a pretty simple problem.  A subsystem has per-cpu 
-> reosurces, and it needs to lock them while using them.  duh.  We know 
-> how to do that sort of thing.  But because the first implementation of 
-> lock_cpu_hotplug() was conceived with magical properties, we seem to 
-> think we need to retain magical properties.  We don't...
+- the newer models had problems with data corruption (running md5sum
+  over a large number of files would show differences from run to run).
+  Sometimes the system would hang (no messages on the serial console,
+  no magic sysrq, nothing).
+  These have no problem booting 2.6.18 and up, however.
+  These were delivered with a 2.02 BIOS version.
+  On a whim I tried booting with "nosmp noapic", and running on one CPU
+  the systems seemed stable, no data corruption and no crashes.
 
-actually, we use two things here: cpu_online_map and the per-cpu keventd 
-workqueues. cpu_online_map is pretty much attached to the CPU hotplug 
-subsystem so it would be quite natural to use cpu_hotplug_read_lock() 
-for that.
+- The older models flashed to the latest 2.02 BIOS from the Tyan website
+  still have no data corruption but still won't boot 2.6.18 and up.
 
-so i disagree that CPU hotplug locking should be per-subsystem. We 
-should have one lightweight and scalable primitive that protects 
-cpu_online_map use, and that same primitive can be used to protect other 
-per-CPU resources too.
+- The newer models flashed (downgraded!) to the 2.01 BIOS available from the Tyan
+  website seem to work fine, no data corruption while running on both
+  CPUs and no crashes (although perhaps time is too short to tell for
+  sure, first one I did was 10 days ago).
 
-	Ingo
+- I have an idea that perhaps the 2.02 BIOS the newer systems were
+  delivered with is a subtely different version than the one on the
+  website. I may try flashing 2.02 again once the current 2.01 on these
+  systems has proven to be stable.
+
+- Apparently there's something different on the motherboards from the
+  first batch and the second batch, otherwise I couldn't explain the
+  difference in ability to boot 2.6.18 and up. However, I haven't had an
+  opportunity to open two systems up to compare them visually.
+
+
+
+Paul Slootman

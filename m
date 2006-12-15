@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964855AbWLOBIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964910AbWLOBNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWLOBIP (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWLOBIO
+	id S964910AbWLOBNs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWLOBNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:08:14 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:1589 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964855AbWLOBIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:08:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ESiwMcyCEtsd8hhuqTHO5YV3LFUV6JgrvMsCHLm297jenW0fviLukKQDANKPgxzphYeXrhnbCZcduDobLp3gTViq/ReUv0E06UNrBpHulpyx7lOAd8OypbL80mgPZCBFWKzb4cZ3HA5IpetHdnmuQpoawrxexy2O5S82DtBntuQ=
-Message-ID: <993d182d0612141708k650a8172ge9e99f3e14486a2e@mail.gmail.com>
-Date: Thu, 14 Dec 2006 17:08:13 -0800
-From: "Conio sandiago" <coniodiago@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem in EHCI 2.6.15
+	Thu, 14 Dec 2006 20:13:48 -0500
+Received: from sbcs.sunysb.edu ([130.245.1.15]:38285 "EHLO sbcs.cs.sunysb.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964834AbWLOBNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:13:47 -0500
+Date: Thu, 14 Dec 2006 20:13:36 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: berk walker <berk@panix.com>
+cc: Al Boldi <a1426z@gawab.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+Message-ID: <Pine.GSO.4.53.0612142008180.8234@compserv1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I am working on a ARM based SOV and i am tryig to add glue logic for
-EHCI controller.
-But i am facing some problem.
+> Well, Congratulations, Doctor!!  [Must be nice to be exiled to Stony
+> Brook!!  Oh, well, not I]
 
-I want to know ,are there any known problem in 2.6.15?
-Thanks
-Ashwini
+Long Island is a very nice place with lots of vineries and perfect sand
+beaches - don't envy :-)
+
+> Here's hoping that source exists, and that it is available for us.
+
+I guess, you are subscribed to the linux-raid list only.  Unfortunately, I
+didn't CC my post to that list and one of the replies was CC'd there
+without the link.  The original post is available here:
+
+  <http://marc.theaimsgroup.com/?l=linux-fsdevel&m=116603282106036&w=2>
+
+And the link to the sources is:
+
+  <ftp://ftp.fsl.cs.sunysb.edu/pub/raif/>
+
+Nikolai.
+---------------------
+Nikolai Joukov, Ph.D.
+Filesystems and Storage Laboratory
+Stony Brook University

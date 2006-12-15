@@ -1,57 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753476AbWLOV6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753456AbWLOWBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753476AbWLOV6Q (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753456AbWLOV6Q
+	id S1753456AbWLOWBT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 17:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753524AbWLOWBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:58:16 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34615 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753498AbWLOV6P (ORCPT
+	Fri, 15 Dec 2006 17:01:19 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:42753 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753456AbWLOWBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:58:15 -0500
-Date: Fri, 15 Dec 2006 22:06:18 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Message-ID: <20061215220618.06f1873c@localhost.localdomain>
-In-Reply-To: <20061215133927.a8346372.akpm@osdl.org>
-References: <20061204203410.6152efec.akpm@osdl.org>
-	<17780.63770.228659.234534@cse.unsw.edu.au>
-	<20061205061623.GA13749@amd64.of.nowhere>
-	<20061205062142.GA14784@amd64.of.nowhere>
-	<20061204224323.2e5d0494.akpm@osdl.org>
-	<20061205105928.GA6482@amd64.of.nowhere>
-	<17782.28505.303064.964551@cse.unsw.edu.au>
-	<20061215192146.GA3616@amd64.of.nowhere>
-	<17795.2681.523120.656367@cse.unsw.edu.au>
-	<20061215130552.95860b72.akpm@osdl.org>
-	<20061215133927.a8346372.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Fri, 15 Dec 2006 17:01:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=EYd23xH7NHpDsgeMQCcq7XkQwvrqaLqVkGz+ssfBjoBEugsaG0ZlIJRM6w/RcNIqztB5hqMdazccrmQ1gziBDpmmhafOMGXm9e3Q71h6ldrFpM/ku41wd6XUYeB7lFcoxdtLBIAzUfdZIueV9Alhd+kkh2hgsav3l0XXMCzgvHg=
+Date: Sat, 16 Dec 2006 01:01:17 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: James Porter <jameslporter@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers
+Message-ID: <20061215220117.GA24819@martell.zuzino.mipt.ru>
+References: <loom.20061215T220806-362@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <loom.20061215T220806-362@post.gmane.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 13:39:27 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+On Fri, Dec 15, 2006 at 09:20:58PM +0000, James Porter wrote:
+> I think some kernel developers take to much responsibility, is there a bug in a
+> binary driver? Send it upstream and explain to the user that it's a closed
+> source driver and is up to said company to fix it.
+>
+> For what it's worth, I don't see any problem with binary drivers from hardware
+> manufacturers.
 
-> On Fri, 15 Dec 2006 13:05:52 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Jeff, I shall send all the sata patches which I have at you one single time
-> > and I shall then drop the lot.  So please don't flub them.
-> > 
-> > I'll then do a rc1-mm2 without them.
-> 
-> hm, this is looking like a lot of work for not much gain.  Rafael, are
-> you able to do a quick chop and tell us whether these:
+Binary drivers from hardware manufacturers are crap. Learn it by heart.
 
-The md one and the long history of reports about parallel I/O causing
-problems sounds a lot more like the kmap stuff you were worried about
-Andrew. I'd be very intereste dto know if it happens on x86_32 built with
-a standard memory split and no highmem....
+> Just because nvidia makes a closed source driver doesn't mean that we can't also
+> create an open source driver(limited functionality, reverse engineered,
+> etc.,etc.).
+
+We can.
+
+> I firmly believe that the choice should be up to the user and/or
+> distro. I'm not a kernel dev, I don't know c...
+
+but you can't.
+
+> but I understand the concepts and
+> I should have the right to do what I want with this GPL code.
+
+You don't have a right to do what you want with GNU GPL'ed code.
+Read the fucking license, already.
+
+> Restricting me only frustrates me.
+
+Nobody is restricting you.
+
+> Should the default be open source, definitely; should binary
+> drivers be blocked from running on a linux kernel...certainly not.
+
+But users of binary drivers should be blocked from sending bug reports
+to kernel developers.
+
+> I personally like nvidia's products, they have spent a lot of money in R&D. One
+> example is SLI, if their spec was open what would stop ATI from stealing their
+> work(patents?, gotta love those).
+
+I lost a nice quote about 10-20% of the community stopping making
+excuses for vendors. Sad, sad, nice quote definitely.
+
+> Personally I think nvidia has excellent
+> support for linux, I have actually convinced people to use linux(desktop and
+> server) just by showing them beryl with the nvidia beta drivers.
+
+beryl on server?
+
+> Lastly I think it's ridiculous to create,diplay, and distribute "Free" as in
+> freedom and "Free" as in cost software only to later consider limiting my
+> freedom...
+
+Nobody is limiting you.
+
+> want to know why a lot of large companies don't support
+> linux...exactly threads like this.
+
+You asked them?
+
+> Why make the effort to use "Free" software
+> only to have the rug pulled out from under you. This is what makes the BSDs so
+> attractive.
+
+So use BSD.
+

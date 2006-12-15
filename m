@@ -1,100 +1,251 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964784AbWLOUmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964771AbWLOUsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWLOUmT (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWLOUmT
+	id S964771AbWLOUsm (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWLOUsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:42:19 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42976 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964784AbWLOUmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:42:18 -0500
-Date: Fri, 15 Dec 2006 12:42:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michal Sabala <lkml@saahbs.net>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 mmap hangs unrelated apps
-Message-Id: <20061215124208.a053f4d3.akpm@osdl.org>
-In-Reply-To: <20061215175030.GG6220@prosiaczek>
-References: <20061215023014.GC2721@prosiaczek>
-	<1166199855.5761.34.camel@lade.trondhjem.org>
-	<20061215175030.GG6220@prosiaczek>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Dec 2006 15:48:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34439 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964771AbWLOUsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:48:40 -0500
+From: Aaron Young <ayoung@google.engr.sgi.com>
+Message-Id: <200612152048.MAA98809@google.engr.sgi.com>
+Subject: Re: [PATCH 3/3] - Add support for acpi_load_table/acpi_unload_table_id
+To: jpk@sgi.com (John Keller)
+Date: Fri, 15 Dec 2006 12:48:24 -0800 (PST)
+Cc: linux-acpi@vger.kernel.org, akpm@osdl.org, len.brown@intel.com,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, ayoung@sgi.com, jes@sgi.com,
+       jpk@sgi.com (John Keller)
+In-Reply-To: <20061130230410.23614.55659.74300@attica.americas.sgi.com> from "John Keller" at Nov 30, 2006 05:04:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 11:50:30 -0600
-Michal Sabala <lkml@saahbs.net> wrote:
 
-> On 2006/12/15 at 10:24:15 Trond Myklebust <trond.myklebust@fys.uio.no> wrote
-> > On Thu, 2006-12-14 at 20:30 -0600, Michal Sabala wrote:
-> > > 
-> > > `cat /proc/*PID*/wchan` for all hanging processes contains page_sync.
-> > 
-> > Have you tried an 'echo t >/proc/sysrq-trigger' on a client with one of
-> > these hanging processes? If so, what does the output look like?
-> 
-> Hello Trond,
-> 
-> Below is the sysrq trace output for XFree86 which entered the
-> uninterruptible sleep state on the P4 machine with nfs /home. Please
-> note that XFree86 does not have any files open in /home - as reported by
-> `lsof`. Below, I also listed the output of vmstat.
 
-We'd need to see the trace of all D-state processes, please.  Xfree86 might
-just be a victim of a deadlock elsewhere.  However there is a problem here..
+  Per Len's request:
 
+      I understand and agree this project and the contribution         
+      are public and that a record of the contribution (including all
+      personal information I submit with it, including my sign-off) is
+      maintained indefinitely. I thereby license this patch to be
+      redistributed under any license (GPL or non-GPL) consistent
+      with the project.
+
+  PS. We'd like this to get into 2.6.20. If there's anything
+  we (John K. and I) can do to help, please let us know.
+
+  Thanks,
+
+  -Aaron Young
 
 > 
-> XFree86       D 00000003     0  2471   2453                     (NOTLB)
->        c4871c0c 00003082 c86b72bc 00000003 cb7c94a4 0000001d 3b67f3ff c0146dd2 
->        c1184180 cb3e7110 00000000 001ec7ff a60f8097 00000089 c02e1e60 cb3e7000 
->        c1184180 00000000 c1180030 c4871c18 c028c7d8 c4871c5c c01435b6 c01435f3 
-> Call Trace:
->  [<c0146dd2>] free_pages_bulk+0x1d/0x1d4
->  [<c028c7d8>] io_schedule+0x26/0x30
->  [<c01435b6>] sync_page+0x0/0x40
->  [<c01435f3>] sync_page+0x3d/0x40
->  [<c028c9ce>] __wait_on_bit_lock+0x2c/0x52
->  [<c0143c13>] __lock_page+0x6a/0x72
->  [<c012ec77>] wake_bit_function+0x0/0x3c
->  [<c012ec77>] wake_bit_function+0x0/0x3c
->  [<c0149d2f>] pagevec_lookup+0x17/0x1d
->  [<c014a085>] truncate_inode_pages_range+0x20a/0x260
->  [<c014a0e4>] truncate_inode_pages+0x9/0xc
->  [<c0172c8a>] generic_delete_inode+0xb6/0x10f
->  [<c0172e73>] iput+0x5f/0x61
->  [<c01706bd>] dentry_iput+0x68/0x83
->  [<c01707d8>] dput+0x100/0x118
->  [<ccb6c334>] put_nfs_open_context+0x67/0x88 [nfs]
->  [<ccb701ed>] nfs_release_request+0x38/0x47 [nfs]
->  [<ccb736dd>] nfs_wait_on_requests_locked+0x62/0x98 [nfs]
->  [<ccb74c32>] nfs_sync_inode_wait+0x4a/0x130 [nfs]
->  [<ccb6b639>] nfs_release_page+0x0/0x30 [nfs]
->  [<ccb6b655>] nfs_release_page+0x1c/0x30 [nfs]
->  [<c015f37c>] try_to_release_page+0x34/0x46
->  [<c014aa8b>] shrink_page_list+0x263/0x350
->  [<c0104db8>] do_IRQ+0x48/0x50
->  [<c01036c6>] common_interrupt+0x1a/0x20
->  [<c014acd7>] shrink_inactive_list+0x9b/0x248
->  [<c014b2fd>] shrink_zone+0xb5/0xd0
->  [<c014b382>] shrink_zones+0x6a/0x7e
->  [<c014b48e>] try_to_free_pages+0xf8/0x1da
->  [<c0147a18>] __alloc_pages+0x17c/0x278
->  [<c014f555>] do_anonymous_page+0x45/0x150
->  [<c014f9f7>] __handle_mm_fault+0xda/0x1bf
->  [<c0115849>] do_page_fault+0x1c4/0x4bc
->  [<c01021b7>] restore_sigcontext+0x10c/0x15f
->  [<c0115685>] do_page_fault+0x0/0x4bc
->  [<c0103809>] error_code+0x39/0x40
-
-nfs_release_page() was called with a locked page.  It's doing a bunch of
-stuff which results in a call to truncate_inode_pages(), which will run
-lock_page(), which is deadlocky.
-
-But it's rather obviously deadlocky, so perhaps NFS drops and reacquires
-the page lock somewhere?
+> 
+>  This patch makes acpi_load_table() available
+>  for use by removing it from the #ifdef ACPI_FUTURE_USAGE.
+> 
+>  It also adds a new routine used to unload an ACPI table
+>  of a given type and "id" - acpi_unload_table_id().
+>  The implementation of this new routine was almost a direct
+>  copy of existing routine acpi_unload_table() - only difference
+>  being that it only removes a specific table id instead of
+>  ALL tables of a given type.
+>  The SN hotplug driver (sgi_hotplug.c) now uses both of these
+>  interfaces to dynamically load and unload SSDT ACPI tables.
+> 
+> Signed-off-by: Aaron Young <ayoung@sgi.com>
+> 
+> ---
+> 
+> Andrew,
+>   Can you take this update and replace the current version in
+>   your -mm tree:
+>    add-support-for-acpi_load_table-acpi_unload_table_id.patch
+> 
+> Len,
+>   What do we need to do to resolve any licensing issues related to
+>   these changes?
+> 
+> Thanks.
+> 
+> 
+> Resend #2
+>    Code has been improved to no longer use ACPI "internal" routines
+>    (such as acpi_ns_get_next_node()). To this end, a new public interface
+>    to obtain the owner_id for a handle was added (acpi_get_id()). It is
+>    very similar to existing routine acpi_get_type().
+> 
+> Resend #1
+>    Original send of this patch was outdated and did not have
+>    acpi_ut_acquire_mutex() and acpi_ut_release_mutex() calls
+>    in acpi_unload_table_id().
+> 
+> 
+>  drivers/acpi/namespace/nsxfobj.c |   44 +++++++++++++++++++++++
+>  drivers/acpi/tables/tbxface.c    |   54 ++++++++++++++++++++++++++++-
+>  include/acpi/acpixf.h            |    7 ++-
+>  3 files changed, 102 insertions(+), 3 deletions(-)
+> 
+> Index: release/drivers/acpi/tables/tbxface.c
+> ===================================================================
+> --- release.orig/drivers/acpi/tables/tbxface.c	2006-11-29 14:14:23.532910707 -0600
+> +++ release/drivers/acpi/tables/tbxface.c	2006-11-29 14:15:04.173937975 -0600
+> @@ -123,7 +123,6 @@ acpi_status acpi_load_tables(void)
+>  
+>  ACPI_EXPORT_SYMBOL(acpi_load_tables)
+>  
+> -#ifdef ACPI_FUTURE_USAGE
+>  /*******************************************************************************
+>   *
+>   * FUNCTION:    acpi_load_table
+> @@ -221,6 +220,59 @@ ACPI_EXPORT_SYMBOL(acpi_load_table)
+>  
+>  /*******************************************************************************
+>   *
+> + * FUNCTION:    acpi_unload_table_id
+> + *
+> + * PARAMETERS:  table_type    - Type of table to be unloaded
+> + *              id            - Owner ID of the table to be removed.
+> + *
+> + * RETURN:      Status
+> + *
+> + * DESCRIPTION: This routine is used to force the unload of a table (by id)
+> + *
+> + ******************************************************************************/
+> +acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id)
+> +{
+> +	struct acpi_table_desc *table_desc;
+> +	acpi_status status;
+> +
+> +	ACPI_FUNCTION_TRACE(acpi_unload_table);
+> +
+> +	/* Parameter validation */
+> +	if (table_type > ACPI_TABLE_ID_MAX)
+> +		return_ACPI_STATUS(AE_BAD_PARAMETER);
+> +
+> +	/* Find table from the requested type list */
+> +	table_desc = acpi_gbl_table_lists[table_type].next;
+> +	while (table_desc && table_desc->owner_id != id)
+> +		table_desc = table_desc->next;
+> +
+> +	if (!table_desc)
+> +		return_ACPI_STATUS(AE_NOT_EXIST);
+> +
+> +	/*
+> +	 * Delete all namespace objects owned by this table. Note that these
+> +	 * objects can appear anywhere in the namespace by virtue of the AML
+> +	 * "Scope" operator. Thus, we need to track ownership by an ID, not
+> +	 * simply a position within the hierarchy
+> +	 */
+> +	acpi_ns_delete_namespace_by_owner(table_desc->owner_id);
+> +
+> +	status = acpi_ut_acquire_mutex(ACPI_MTX_TABLES);
+> +	if (ACPI_FAILURE(status))
+> +		return_ACPI_STATUS(status);
+> +
+> +	(void)acpi_tb_uninstall_table(table_desc);
+> +
+> +	(void)acpi_ut_release_mutex(ACPI_MTX_TABLES);
+> +
+> +	return_ACPI_STATUS(AE_OK);
+> +}
+> +
+> +ACPI_EXPORT_SYMBOL(acpi_unload_table_id)
+> +
+> +#ifdef ACPI_FUTURE_USAGE
+> +/*******************************************************************************
+> + *
+>   * FUNCTION:    acpi_unload_table
+>   *
+>   * PARAMETERS:  table_type    - Type of table to be unloaded
+> Index: release/include/acpi/acpixf.h
+> ===================================================================
+> --- release.orig/include/acpi/acpixf.h	2006-11-29 14:14:23.556913676 -0600
+> +++ release/include/acpi/acpixf.h	2006-11-29 14:18:55.966606388 -0600
+> @@ -97,11 +97,12 @@ acpi_find_root_pointer(u32 flags, struct
+>  
+>  acpi_status acpi_load_tables(void);
+>  
+> -#ifdef ACPI_FUTURE_USAGE
+>  acpi_status acpi_load_table(struct acpi_table_header *table_ptr);
+>  
+> -acpi_status acpi_unload_table(acpi_table_type table_type);
+> +acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id);
+>  
+> +#ifdef ACPI_FUTURE_USAGE
+> +acpi_status acpi_unload_table(acpi_table_type table_type);
+>  acpi_status
+>  acpi_get_table_header(acpi_table_type table_type,
+>  		      u32 instance, struct acpi_table_header *out_table_header);
+> @@ -180,6 +181,8 @@ acpi_get_next_object(acpi_object_type ty
+>  
+>  acpi_status acpi_get_type(acpi_handle object, acpi_object_type * out_type);
+>  
+> +acpi_status acpi_get_id(acpi_handle object, acpi_owner_id * out_type);
+> +
+>  acpi_status acpi_get_parent(acpi_handle object, acpi_handle * out_handle);
+>  
+>  /*
+> Index: release/drivers/acpi/namespace/nsxfobj.c
+> ===================================================================
+> --- release.orig/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:18:31.000000000 -0600
+> +++ release/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:19:18.709418875 -0600
+> @@ -50,6 +50,50 @@ ACPI_MODULE_NAME("nsxfobj")
+>  
+>  /*******************************************************************************
+>   *
+> + * FUNCTION:    acpi_get_id
+> + *
+> + * PARAMETERS:  Handle          - Handle of object whose id is desired
+> + *              ret_id          - Where the id will be placed
+> + *
+> + * RETURN:      Status
+> + *
+> + * DESCRIPTION: This routine returns the owner id associated with a handle
+> + *
+> + ******************************************************************************/
+> +acpi_status acpi_get_id(acpi_handle handle, acpi_owner_id * ret_id)
+> +{
+> +	struct acpi_namespace_node *node;
+> +	acpi_status status;
+> +
+> +	/* Parameter Validation */
+> +
+> +	if (!ret_id) {
+> +		return (AE_BAD_PARAMETER);
+> +	}
+> +
+> +	status = acpi_ut_acquire_mutex(ACPI_MTX_NAMESPACE);
+> +	if (ACPI_FAILURE(status)) {
+> +		return (status);
+> +	}
+> +
+> +	/* Convert and validate the handle */
+> +
+> +	node = acpi_ns_map_handle_to_node(handle);
+> +	if (!node) {
+> +		(void)acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
+> +		return (AE_BAD_PARAMETER);
+> +	}
+> +
+> +	*ret_id = node->owner_id;
+> +
+> +	status = acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
+> +	return (status);
+> +}
+> +
+> +ACPI_EXPORT_SYMBOL(acpi_get_id)
+> +
+> +/*******************************************************************************
+> + *
+>   * FUNCTION:    acpi_get_type
+>   *
+>   * PARAMETERS:  Handle          - Handle of object whose type is desired
+> 
 

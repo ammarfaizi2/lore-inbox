@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752763AbWLOPxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752771AbWLOPz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752763AbWLOPxt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 10:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWLOPxt
+	id S1752771AbWLOPz0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 10:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752772AbWLOPz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 10:53:49 -0500
-Received: from mail2.utc.com ([192.249.46.191]:42747 "EHLO mail2.utc.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752763AbWLOPxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 10:53:48 -0500
-X-Greylist: delayed 710 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 10:53:48 EST
-Message-ID: <4582C234.4040408@cybsft.com>
-Date: Fri, 15 Dec 2006 09:41:40 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Fri, 15 Dec 2006 10:55:26 -0500
+Received: from wr-out-0506.google.com ([64.233.184.225]:19267 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752771AbWLOPzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 10:55:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=SsVSeKNuNl9k0Be/BksTJKm1V3b+dp9kQ10YFDQuwJbJi4J30CpWD9d7FefeLOT7IfMYb9AL3fuzob8v29B1quH+HjJnxULPBdWNC4IWWM1pVnbrIHWQ4eGkTw8+tGzMDczwtrXm8We+ptflIQKIT4F9RHx0BxLhzGnPfQutJi4=
+Message-ID: <4582C55C.9040507@gmail.com>
+Date: Fri, 15 Dec 2006 16:54:45 +0059
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: linux@bohmer.net
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [BUG] 2.6.19-rt14 does not compile with CONFIG_NO_HZ
-References: <3efb10970612150606p643f7cffr6b93e857843abed6@mail.gmail.com>
-In-Reply-To: <3efb10970612150606p643f7cffr6b93e857843abed6@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
+To: Andreas Jaggi <andreas.jaggi@waterwave.ch>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove ambiguous redefinition of INIT_WORK
+References: <20061215164946.433210e3@localhost>
+In-Reply-To: <20061215164946.433210e3@localhost>
+X-Enigmail-Version: 0.94.1.1
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remy Bohmer wrote:
-> Hello,
+Andreas Jaggi wrote:
+> Removes an unused and ambiguous redefinition of INIT_WORK()
 > 
-> For your Information, I get the following compile error when
-> CONFIG_NO_HZ is NOT configured on 2.6.19.1-rt14:
-> 
-> ------------------------------------------------------
->   CC      kernel/sched.o
-> kernel/sched.c: In function '__schedule':
-> kernel/sched.c:4135: error: 'notick' undeclared (first use in this
-> function)
-> kernel/sched.c:4135: error: (Each undeclared identifier is reported only
-> once
-> kernel/sched.c:4135: error: for each function it appears in.)
-> make[1]: *** [kernel/sched.o] Error 1
-> ------------------------------------------------------
-> 
-> For me it is not a real problem as I configured the kernel now as a
-> tickless system.
-> Attached 2 config files, 1 showing the error, and 1 that is working.
-> 
-> Kind Regards,
-> 
-> Remy Bohmer
+> Signed-off-by: Andreas Jaggi <andreas.jaggi@waterwave.ch>
+Acked-by: Jiri Slaby <jirislaby@gmail.com>
 
-See Steven's patch to fix this here: >
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116611237701140&w=2
-
-
-
+thanks,
 -- 
-   kr
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

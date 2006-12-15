@@ -1,15 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964935AbWLOBe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbWLOBeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWLOBe1 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWLOBe0
+	id S964947AbWLOBeH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWLOBeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:34:26 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46096 "EHLO
+	Thu, 14 Dec 2006 20:34:06 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46053 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964935AbWLOBeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:34:24 -0500
-Date: Thu, 14 Dec 2006 17:37:19 -0800
+	id S964807AbWLOBd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:33:59 -0500
+Message-Id: <20061215013648.197529000@sous-sol.org>
+References: <20061215013337.823935000@sous-sol.org>
+User-Agent: quilt/0.45-1
+Date: Thu, 14 Dec 2006 17:33:49 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,23 +21,43 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 00/24] -stable review
-Message-ID: <20061215013719.GA10475@sequoia.sous-sol.org>
-References: <20061215013337.823935000@sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061215013337.823935000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+       alan@lxorguk.ukuu.org.uk, Milan Broz <mbroz@redhat.com>,
+       device-mapper development <dm-devel@redhat.com>,
+       Alasdair G Kergon <agk@redhat.com>
+Subject: [patch 12/24] dm snapshot: fix freeing pending exception
+Content-Disposition: inline; filename=dm-snapshot-fix-freeing-pending-exception.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch roll-up is available at:
+2.6.18-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-	http://www.kernel.org/pub/linux/kernel/people/chrisw/stable/patch-2.6.18.6-rc1.{gz,bz2}
+From: Milan Broz <mbroz@redhat.com>
 
-once mirroring has completed.
+Fix oops when removing full snapshot
+kernel bugzilla bug 7040
 
-thanks,
--chris
+If a snapshot became invalid (full) while there is outstanding 
+pending_exception, pending_complete() forgets to remove
+the corresponding exception from its exception table before freeing it.
+
+Already fixed in 2.6.19.
+
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ drivers/md/dm-snap.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-2.6.18.5.orig/drivers/md/dm-snap.c
++++ linux-2.6.18.5/drivers/md/dm-snap.c
+@@ -691,6 +691,7 @@ static void pending_complete(struct pend
+ 
+ 		free_exception(e);
+ 
++		remove_exception(&pe->e);
+ 		error_snapshot_bios(pe);
+ 		goto out;
+ 	}
+
+--

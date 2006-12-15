@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965187AbWLOWRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030189AbWLOWT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbWLOWRM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 17:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbWLOWRL
+	id S1030189AbWLOWT4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 17:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWLOWT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 17:17:11 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:55744 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965187AbWLOWRK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 17:17:10 -0500
-Subject: Re: Task watchers v2
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, Al Viro <viro@zeniv.linux.org.uk>,
-       Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <20061215083414.GA13884@lst.de>
-References: <20061215000754.764718000@us.ibm.com>
-	 <20061215000817.771088000@us.ibm.com>  <20061215083414.GA13884@lst.de>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Fri, 15 Dec 2006 14:17:06 -0800
-Message-Id: <1166221027.27070.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 15 Dec 2006 17:19:56 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:58573 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030186AbWLOWTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 17:19:55 -0500
+Message-ID: <45831F80.5060008@garzik.org>
+Date: Fri, 15 Dec 2006 17:19:44 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
+       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+References: <20061204203410.6152efec.akpm@osdl.org>	<17780.63770.228659.234534@cse.unsw.edu.au>	<20061205061623.GA13749@amd64.of.nowhere>	<20061205062142.GA14784@amd64.of.nowhere>	<20061204224323.2e5d0494.akpm@osdl.org>	<20061205105928.GA6482@amd64.of.nowhere>	<17782.28505.303064.964551@cse.unsw.edu.au>	<20061215192146.GA3616@amd64.of.nowhere>	<17795.2681.523120.656367@cse.unsw.edu.au>	<20061215130552.95860b72.akpm@osdl.org>	<20061215133927.a8346372.akpm@osdl.org> <20061215220618.06f1873c@localhost.localdomain>
+In-Reply-To: <20061215220618.06f1873c@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-15 at 09:34 +0100, Christoph Hellwig wrote:
-> On Thu, Dec 14, 2006 at 04:07:55PM -0800, Matt Helsley wrote:
-> > Associate function calls with significant events in a task's lifetime much like
-> > we handle kernel and module init/exit functions. This creates a table for each
-> > of the following events in the task_watchers_table ELF section:
-> >
-> > WATCH_TASK_INIT at the beginning of a fork/clone system call when the
-> > new task struct first becomes available.
-> >
-> > WATCH_TASK_CLONE just before returning successfully from a fork/clone.
-> >
-> > WATCH_TASK_EXEC just before successfully returning from the exec
-> > system call.
-> >
-> > WATCH_TASK_UID every time a task's real or effective user id changes.
-> >
-> > WATCH_TASK_GID every time a task's real or effective group id changes.
-> >
-> > WATCH_TASK_EXIT at the beginning of do_exit when a task is exiting
-> > for any reason.
-> >
-> > WATCH_TASK_FREE is called before critical task structures like
-> > the mm_struct become inaccessible and the task is subsequently freed.
-> >
-> > The next patch will add a debugfs interface for measuring fork and exit rates
-> > which can be used to calculate the overhead of the task watcher infrastructure.
+Alan wrote:
+> On Fri, 15 Dec 2006 13:39:27 -0800
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> What's the point of the ELF hackery? This code would be a lot simpler
-> and more understandable if you simply had task_watcher_ops and a
-> register / unregister function for it.
+>> On Fri, 15 Dec 2006 13:05:52 -0800
+>> Andrew Morton <akpm@osdl.org> wrote:
+>>
+>>> Jeff, I shall send all the sata patches which I have at you one single time
+>>> and I shall then drop the lot.  So please don't flub them.
+>>>
+>>> I'll then do a rc1-mm2 without them.
+>> hm, this is looking like a lot of work for not much gain.  Rafael, are
+>> you able to do a quick chop and tell us whether these:
+> 
+> The md one and the long history of reports about parallel I/O causing
+> problems sounds a lot more like the kmap stuff you were worried about
+> Andrew. I'd be very intereste dto know if it happens on x86_32 built with
+> a standard memory split and no highmem....
 
-	Andrew asked me to avoid locking and added complexity in the code that
-uses one or more task watchers. The ELF hackery helps me avoid locking
-in the fork/exit/etc paths that call the "registered" function.
+2.6.20-rc1 works, and 2.6.20-rc1 does not have the kmap_atomic() fix.
 
-Cheers,
-	-Matt Helsley
+Upstream does kmap_atomic(KM_USER0) and -mm does kmap_atomic(KM_IRQ0)
+
+	Jeff
+
+
 

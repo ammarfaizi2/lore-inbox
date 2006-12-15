@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965098AbWLOFCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965100AbWLOFCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbWLOFCA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 00:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWLOFB7
+	id S965100AbWLOFCE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 00:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWLOFCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 00:01:59 -0500
-Received: from [213.184.169.238] ([213.184.169.238]:32844 "EHLO
+	Fri, 15 Dec 2006 00:02:04 -0500
+Received: from [213.184.169.238] ([213.184.169.238]:32845 "EHLO
 	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S965098AbWLOFB7 (ORCPT
+	by vger.kernel.org with ESMTP id S965100AbWLOFCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 00:01:59 -0500
-X-Greylist: delayed 151876 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 00:01:56 EST
+	Fri, 15 Dec 2006 00:02:01 -0500
 From: Al Boldi <a1426z@gawab.com>
 To: Nikolai Joukov <kolya@cs.sunysb.edu>
 Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-Date: Fri, 15 Dec 2006 08:02:55 +0300
+Date: Fri, 15 Dec 2006 08:03:01 +0300
 User-Agent: KMail/1.5
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        linux-raid@vger.kernel.org
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1> <200612132257.24399.a1426z@gawab.com> <Pine.GSO.4.53.0612141538410.6095@compserv1>
-In-Reply-To: <Pine.GSO.4.53.0612141538410.6095@compserv1>
+References: <Pine.GSO.4.53.0612122217360.22195@compserv1> <200612141412.30686.a1426z@gawab.com> <Pine.GSO.4.53.0612141828220.8234@compserv1>
+In-Reply-To: <Pine.GSO.4.53.0612141828220.8234@compserv1>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200612150802.55396.a1426z@gawab.com>
+Message-Id: <200612150803.01246.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Nikolai Joukov wrote:
-> > Nikolai Joukov wrote:
-> > > We have designed a new stackable file system that we called RAIF:
-> > > Redundant Array of Independent Filesystems.
+> > > We started the project in April 2004.  Right now I am using it as my
+> > > /home/kolya file system at home.  We believe that at this stage RAIF
+> > > is mature enough for others to try it out.  The code is available at:
+> > >
+> > > 	<ftp://ftp.fsl.cs.sunysb.edu/pub/raif/>
+> > >
+> > > The code requires no kernel patches and compiles for a wide range of
+> > > kernels as a module.  The latest kernel we used it for is 2.6.13 and
+> > > we are in the process of porting it to 2.6.19.
+> > >
+> > > We will be happy to hear your back.
 > >
-> > Great!
-> >
-> > > We have performed some benchmarking on a 3GHz PC with 2GB of RAM and
-> > > U320 SCSI disks.  Compared to the Linux RAID driver, RAIF has
-> > > overheads of about 20-25% under the Postmark v1.5 benchmark in case of
-> > > striping and replication.  In case of RAID4 and RAID5-like
-> > > configurations, RAIF performed about two times *better* than software
-> > > RAID and even better than an Adaptec 2120S RAID5 controller.
-> >
-> > I am not surprised.  RAID 4/5/6 performance is highly sensitive to the
-> > underlying hw, and thus needs a fair amount of fine tuning.
+> > When removing a file from the underlying branch, the oops below happens.
+> > Wouldn't it be possible to just fail the branch instead of oopsing?
 >
-> Nevertheless, performance is not the biggest advantage of RAIF.  For
-> read-biased workloads RAID is always slightly faster than RAIF.  The
-> biggest advantages of RAIF are flexible configurations (e.g., can combine
-> NFS and local file systems), per-file-type storage policies, and the fact
-> that files are stored as files on the lower file systems (which is
-> convenient).
+> This is a known problem of all Linux stackable file systems.  Users are
+> not supposed to change the file systems below mounted stackable file
+> systems (but they can read them).  One of the ways to enforce it is to use
+> overlay mounts.  For example, mount the lower file systems at
+> /raif/b0 ... /raif/bN and then mount RAIF at /raif.  Stackable file
+> systems recently started getting into the kernel and we hope that there
+> will be a better solution for this problem in the future.  Having said
+> that, you are right: failing the branch would be the right thing to do.
 
-Ok, a I was just about to inform you of a three nfs-branch raif which was 
-unable to fill the net pipe.  So it looks like a 25% performance hit across 
-the board.  Should be possible to reduce to sub 3% though once RAIF matures, 
-don't you think?
-
-
-> > > This is because RAIF is located above
-> > > file system caches and can cache parity as normal data when needed. 
-> > > We have more performance details in a technical report, if anyone is
-> > > interested.
-> >
-> > Definitely interested.  Can you give a link?
->
-> The main focus of the paper is on a general OS profiling method and not
-> on RAIF.  However, it has some details about the RAIF benchmarking with
-> Postmark in Chapter 9:
->
->   <http://www.fsl.cs.sunysb.edu/docs/joukov-phdthesis/thesis.pdf>
->
-> Figures 9.7 and 9.8 also show profiles of the Linux RAID5 and RAIF5
-> operation under the same Postmark workload.
+Good.  It seems that there is also some tmpfs/raif-over-nfs deadlock 
+situation.  Can't really tell if it's the kernel or the raif, but when do 
+you think the patches could be brought into sync with the current mainline?
 
 
 Thanks!

@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751801AbWLOKiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751812AbWLOKnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWLOKiJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 05:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWLOKiJ
+	id S1751812AbWLOKnx (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 05:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWLOKnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 05:38:09 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:37187 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751801AbWLOKiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 05:38:07 -0500
-Date: Fri, 15 Dec 2006 11:36:23 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Zach Brown <zach.brown@oracle.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
-In-Reply-To: <4581DAB0.2060505@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.61.0612151135330.22867@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
- <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
- <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
- <4581DAB0.2060505@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 15 Dec 2006 05:43:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:53717 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751812AbWLOKnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 05:43:52 -0500
+Date: Fri, 15 Dec 2006 10:43:41 +0000
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, Dmitriy Monakhov <dmonakhov@sw.ru>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       Dmitriy Monakhov <dmonakhov@openvz.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>, devel@openvz.org,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH]  incorrect error handling inside generic_file_direct_write
+Message-ID: <20061215104341.GA20089@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	'Andrew Morton' <akpm@osdl.org>, Dmitriy Monakhov <dmonakhov@sw.ru>,
+	Dmitriy Monakhov <dmonakhov@openvz.org>,
+	linux-kernel@vger.kernel.org,
+	Linux Memory Management <linux-mm@kvack.org>, devel@openvz.org,
+	xfs@oss.sgi.com
+References: <20061212024027.6c2a79d3.akpm@osdl.org> <000001c71e60$7df9e010$e434030a@amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000001c71e60$7df9e010$e434030a@amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> +ssize_t
+> +__generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
+> +				unsigned long nr_segs, loff_t pos)
 
->>> Indeed, there seems to be lots of potential clean-up there.
->>> Including duplicate macros like:
->>>
->>> ./drivers/ide/ide-cd.h:#define ARY_LEN(a) ((sizeof(a) / sizeof(a[0])))
->> 
->> not surprisingly, i have a script "arraysize.sh":
->...
->
->This could also come in the flavor "sizeof(a) / sizeof(*a)".
->I haven't checked if there are actual instances.
+I'd still call this generic_file_aio_write_nolock.
 
-Even  sizeof a / sizeof *a
+> +	loff_t		*ppos = &iocb->ki_pos;
 
-may happen.
+I'd rather use iocb->ki_pos directly in the few places ppos is referenced
+currently.
+
+>  	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+> -		ssize_t err;
+> -
+>  		err = sync_page_range_nolock(inode, mapping, pos, ret);
+>  		if (err < 0)
+>  			ret = err;
+>  	}
+
+So we're doing the sync_page_range once in __generic_file_aio_write
+with i_mutex held.
 
 
-	-`J'
--- 
+>  	mutex_lock(&inode->i_mutex);
+> -	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs,
+> -			&iocb->ki_pos);
+> +	ret = __generic_file_aio_write(iocb, iov, nr_segs, pos);
+>  	mutex_unlock(&inode->i_mutex);
+>  
+>  	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+
+And then another time after it's unlocked, this seems wrong.

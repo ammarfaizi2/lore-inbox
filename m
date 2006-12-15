@@ -1,120 +1,121 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752835AbWLOQXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752842AbWLOQYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752835AbWLOQXM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752842AbWLOQWv
+	id S1752842AbWLOQYc (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752841AbWLOQYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:22:51 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:3550 "EHLO
-	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752830AbWLOQWk (ORCPT
+	Fri, 15 Dec 2006 11:24:32 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:46841 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752842AbWLOQYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:22:40 -0500
-Date: Fri, 15 Dec 2006 17:22:32 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
-Subject: [S390] Fix reboot hang
-Message-ID: <20061215162232.GG4920@skybase>
-MIME-Version: 1.0
+	Fri, 15 Dec 2006 11:24:30 -0500
+Date: Fri, 15 Dec 2006 10:24:28 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: jsipek@fsl.cs.sunysb.edu, Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "TREVOR S. HIGHLAND" <tshighla@us.ibm.com>
+Subject: [PATCH] fsstack: Remove inode copy
+Message-ID: <20061215162428.GA3570@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+Trevor found a file size problem in eCryptfs in recent kernels, and he
+tracked it down to an fsstack change.
 
-[S390] Fix reboot hang
+This was the eCryptfs copy_attr_all:
 
-We use printks after shutting down all other cpus. This is not allowed
-and can lead to deadlocks. Therefore the printks have to be removed.
+> -void ecryptfs_copy_attr_all(struct inode *dest, const struct inode *src)
+> -{
+> -       dest->i_mode = src->i_mode;
+> -       dest->i_nlink = src->i_nlink;
+> -       dest->i_uid = src->i_uid;
+> -       dest->i_gid = src->i_gid;
+> -       dest->i_rdev = src->i_rdev;
+> -       dest->i_atime = src->i_atime;
+> -       dest->i_mtime = src->i_mtime;
+> -       dest->i_ctime = src->i_ctime;
+> -       dest->i_blkbits = src->i_blkbits;
+> -       dest->i_flags = src->i_flags;
+> -}
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+This is the fsstack copy_attr_all:
+
+> +void fsstack_copy_attr_all(struct inode *dest, const struct inode *src,
+> +                               int (*get_nlinks)(struct inode *))
+> +{
+> +       if (!get_nlinks)
+> +               dest->i_nlink = src->i_nlink;
+> +       else
+> +               dest->i_nlink = (*get_nlinks)(dest);
+> +
+> +       dest->i_mode = src->i_mode;
+> +       dest->i_uid = src->i_uid;
+> +       dest->i_gid = src->i_gid;
+> +       dest->i_rdev = src->i_rdev;
+> +       dest->i_atime = src->i_atime;
+> +       dest->i_mtime = src->i_mtime;
+> +       dest->i_ctime = src->i_ctime;
+> +       dest->i_blkbits = src->i_blkbits;
+> +       dest->i_flags = src->i_flags;
+> +
+> +       fsstack_copy_inode_size(dest, src);
+> +}
+
+The addition of copy_inode_size breaks eCryptfs, since eCryptfs needs
+to interpolate the file sizes (eCryptfs has extra space in the lower
+file for the header). The setting of the upper inode size occurs
+elsewhere in eCryptfs, and the new copy_attr_all now undoes what
+eCryptfs was doing right beforehand.
+
+I see three ways of going forward from here. (1) Something like this
+patch needs to go in (assuming it jives with Unionfs), (2) we need to
+make a change to the fsstack API for more fine-grained control over
+copying attributes (e.g., by also including a callback function for
+calculating the right file size, which will require some more work on
+both eCryptfs and Unionfs), or (3) the fsstack patch on eCryptfs
+(commit 0cc72dc7f050188d8d7344b1dd688cbc68d3cd30 made on Fri Dec 8
+02:36:31 2006 -0800) needs to be yanked in 2.6.20.
+
+I think the simplest solution, from eCryptfs' perspective, is to just
+remove the inode size copy. Jeff, please let me know if this approach
+will work for you, or let me know if you have another idea.
+
+Thanks,
+Mike
+
 ---
 
- arch/s390/kernel/ipl.c |   45 +--------------------------------------------
- 1 files changed, 1 insertion(+), 44 deletions(-)
+Remove inode size copy in general fsstack attr copy code. Stacked
+filesystems may need to interpolate the inode size, since the file
+size in the lower file may be different than the file size in the
+stacked layer.
 
-diff -urpN linux-2.6/arch/s390/kernel/ipl.c linux-2.6-patched/arch/s390/kernel/ipl.c
---- linux-2.6/arch/s390/kernel/ipl.c	2006-12-15 16:55:11.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/ipl.c	2006-12-15 16:55:12.000000000 +0100
-@@ -609,42 +609,12 @@ static ssize_t on_panic_store(struct sub
- static struct subsys_attribute on_panic_attr =
- 		__ATTR(on_panic, 0644, on_panic_show, on_panic_store);
- 
--static void print_fcp_block(struct ipl_parameter_block *fcp_block)
--{
--	printk(KERN_EMERG "wwpn:      %016llx\n",
--		(unsigned long long)fcp_block->ipl_info.fcp.wwpn);
--	printk(KERN_EMERG "lun:       %016llx\n",
--		(unsigned long long)fcp_block->ipl_info.fcp.lun);
--	printk(KERN_EMERG "bootprog:  %lld\n",
--		(unsigned long long)fcp_block->ipl_info.fcp.bootprog);
--	printk(KERN_EMERG "br_lba:    %lld\n",
--		(unsigned long long)fcp_block->ipl_info.fcp.br_lba);
--	printk(KERN_EMERG "device:    %llx\n",
--		(unsigned long long)fcp_block->ipl_info.fcp.devno);
--	printk(KERN_EMERG "opt:       %x\n", fcp_block->ipl_info.fcp.opt);
--}
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+
+---
+
+ fs/stack.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+97582cdc0c45a37fb75488a96b02995a7b28364d
+diff --git a/fs/stack.c b/fs/stack.c
+index 5ddbc34..8ffb880 100644
+--- a/fs/stack.c
++++ b/fs/stack.c
+@@ -34,7 +34,5 @@ void fsstack_copy_attr_all(struct inode 
+ 	dest->i_ctime = src->i_ctime;
+ 	dest->i_blkbits = src->i_blkbits;
+ 	dest->i_flags = src->i_flags;
 -
- void do_reipl(void)
- {
- 	struct ccw_dev_id devid;
- 	static char buf[100];
- 	char loadparm[LOADPARM_LEN + 1];
- 
--	switch (reipl_type) {
--	case IPL_TYPE_CCW:
--		reipl_get_ascii_loadparm(loadparm);
--		printk(KERN_EMERG "reboot on ccw device: 0.0.%04x\n",
--			reipl_block_ccw->ipl_info.ccw.devno);
--		printk(KERN_EMERG "loadparm = '%s'\n", loadparm);
--		break;
--	case IPL_TYPE_FCP:
--		printk(KERN_EMERG "reboot on fcp device:\n");
--		print_fcp_block(reipl_block_fcp);
--		break;
--	default:
--		break;
--	}
--
- 	switch (reipl_method) {
- 	case IPL_METHOD_CCW_CIO:
- 		devid.devno = reipl_block_ccw->ipl_info.ccw.devno;
-@@ -654,6 +624,7 @@ void do_reipl(void)
- 		reipl_ccw_dev(&devid);
- 		break;
- 	case IPL_METHOD_CCW_VM:
-+		reipl_get_ascii_loadparm(loadparm);
- 		if (strlen(loadparm) == 0)
- 			sprintf(buf, "IPL %X",
- 				reipl_block_ccw->ipl_info.ccw.devno);
-@@ -683,7 +654,6 @@ void do_reipl(void)
- 		diag308(DIAG308_IPL, NULL);
- 		break;
- 	}
--	printk(KERN_EMERG "reboot failed!\n");
- 	signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+-	fsstack_copy_inode_size(dest, src);
  }
- 
-@@ -692,19 +662,6 @@ static void do_dump(void)
- 	struct ccw_dev_id devid;
- 	static char buf[100];
- 
--	switch (dump_type) {
--	case IPL_TYPE_CCW:
--		printk(KERN_EMERG "Automatic dump on ccw device: 0.0.%04x\n",
--		       dump_block_ccw->ipl_info.ccw.devno);
--		break;
--	case IPL_TYPE_FCP:
--		printk(KERN_EMERG "Automatic dump on fcp device:\n");
--		print_fcp_block(dump_block_fcp);
--		break;
--	default:
--		return;
--	}
--
- 	switch (dump_method) {
- 	case IPL_METHOD_CCW_CIO:
- 		smp_send_stop();
+ EXPORT_SYMBOL_GPL(fsstack_copy_attr_all);
+-- 
+1.3.3
+

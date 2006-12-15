@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753334AbWLOU2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753411AbWLOUcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753334AbWLOU2w (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753339AbWLOU2w
+	id S1753411AbWLOUcN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753413AbWLOUcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:28:52 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:39447 "EHLO ogre.sisk.pl"
+	Fri, 15 Dec 2006 15:32:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:42100 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753334AbWLOU2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:28:51 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH/v2] CodingStyle updates
-Date: Fri, 15 Dec 2006 21:30:59 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Scott Preece <sepreece@gmail.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <20061207165508.e6bf0269.randy.dunlap@oracle.com> <20061215150717.GA2345@elf.ucw.cz> <20061215090037.05c021af.randy.dunlap@oracle.com>
-In-Reply-To: <20061215090037.05c021af.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S1753411AbWLOUcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:32:12 -0500
+Date: Fri, 15 Dec 2006 12:31:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jean Delvare <khali@linux-fr.org>, Olivier Galibert <galibert@pobox.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sysfs file creation result nightmare
+Message-Id: <20061215123103.adfbd78b.akpm@osdl.org>
+In-Reply-To: <1166213773.31351.96.camel@localhost.localdomain>
+References: <20061209165606.2f026a6c.khali@linux-fr.org>
+	<1165694351.1103.133.camel@localhost.localdomain>
+	<20061209123817.f0117ad6.akpm@osdl.org>
+	<20061209214453.GA69320@dspnet.fr.eu.org>
+	<20061209135829.86038f32.akpm@osdl.org>
+	<20061209223418.GA76069@dspnet.fr.eu.org>
+	<20061209145303.3d5fe141.akpm@osdl.org>
+	<1165712131.1103.166.camel@localhost.localdomain>
+	<20061215154751.86a2dbdd.khali@linux-fr.org>
+	<1166213773.31351.96.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612152130.59848.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 15 December 2006 18:00, Randy Dunlap wrote:
-> On Fri, 15 Dec 2006 16:07:17 +0100 Pavel Machek wrote:
-> 
-> > On Fri 2006-12-15 08:52:22, Scott Preece wrote:
-> > > On 12/15/06, Pavel Machek <pavel@ucw.cz> wrote:
-> > > >Hi!
-> > > >
-> > > >> Pavel Machek wrote:
-> > > >> >> From: Randy Dunlap <randy.dunlap@oracle.com>
-> > > >> >> +Use one space around (on each side of) most binary and ternary 
-> > > >operators,
-> > > >> >> +such as any of these:
-> > > >> >> +  =  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
-> > > >> >
-> > > >> > Actually, this should not be hard rule. We want to allow
-> > > >> >
-> > > >> >     j = 3*i + l<<2;
-> > > >>
-> > > >> Which would be very misleading. This expression evaluates to
-> > > >>
-> > > >>       j = (((3 * i) + l) << 2);
-> > > >>
-> > > >> Binary + precedes <<.
-> > > >
-> > > >Aha, okay. So this one should be written as
-> > > >
-> > > >        j = 3*i+l << 2;
-> > > >
-> > > >(Well, parenthesses should really be used. Anyway, sometimes grouping
-> > > >around operator is useful, even if I made mistake demonstrating that.
-> > > ---
-> > > 
-> > > I think the mistake illuminates why parentheses should be the rule. If
-> > > you're thinking about using spacing to convey grouping, use
-> > > parentheses instead...
-> > 
-> > Not in simple cases.
-> > 
-> > 	3*i + 2*j should be writen like that. Not like
-> > 	(3 * i) + (2 * j)
-> 
-> I would just write it as:
-> 	3 * i + 2 * j
+On Sat, 16 Dec 2006 07:16:13 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-\metoo
+> > Beware that sysfs_remove_bin_file() will complain loudly if you later
+> > attempt to delete that file that was never created.
+> 
+> That's another problem... what is a driver that creates 15 files
+> supposed to do ? Have 15 booleans to remember which files where
+> successfully created and then test all of them on cleanup ? That sounds
+> like even more bloat to me...
+
+That's the sort of thing which should be done inside sysfs_create_group()
+and sysfs_remove_group().

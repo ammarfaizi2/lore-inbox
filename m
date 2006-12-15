@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751615AbWLOBdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932163AbWLOBdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751615AbWLOBdL (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWLOBdK
+	id S932163AbWLOBdM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWLOBdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:33:10 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45971 "EHLO
+	Thu, 14 Dec 2006 20:33:12 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45976 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751615AbWLOBdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:33:09 -0500
-Message-Id: <20061215013337.823935000@sous-sol.org>
+	id S1751640AbWLOBdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:33:10 -0500
+Message-Id: <20061215013546.475996000@sous-sol.org>
+References: <20061215013337.823935000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 17:33:37 -0800
+Date: Thu, 14 Dec 2006 17:33:44 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -20,26 +21,47 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: [patch 00/24] -stable review
+       alan@lxorguk.ukuu.org.uk, Christophe Saout <christophe@saout.de>
+Subject: [patch 07/24] dm crypt: Fix data corruption with dm-crypt over RAID5
+Content-Disposition: inline; filename=dm-crypt-fix-data-corruption-with-dm-crypt-over-raid5.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.18.6 release.
-There are 24 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let us know.  If anyone is a maintainer of the proper subsystem, and
-wants to add a Signed-off-by: line to the patch, please respond with it.
+2.6.18-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-These patches are sent out with a number of different people on the
-Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
-to add your name to the list.  If you want to be off the reviewer list,
-also email us.
+From: Christophe Saout <christophe@saout.de>
 
-Responses should be made by Sun Dec 17 01:30 UTC.  Anything received
-after that time might be too late.
+Fix corruption issue with dm-crypt on top of software raid5. Cancelled
+readahead bio's that report no error, just have BIO_UPTODATE cleared
+were reported as successful reads to the higher layers (and leaving
+random content in the buffer cache). Already fixed in 2.6.19.
 
-thanks,
+Signed-off-by: Christophe Saout <christophe@saout.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ drivers/md/dm-crypt.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-the -stable release team
+--- linux-2.6.18.5.orig/drivers/md/dm-crypt.c
++++ linux-2.6.18.5/drivers/md/dm-crypt.c
+@@ -717,13 +717,15 @@ static int crypt_endio(struct bio *bio, 
+ 	if (bio->bi_size)
+ 		return 1;
+ 
++	if (!bio_flagged(bio, BIO_UPTODATE) && !error)
++		error = -EIO;
++
+ 	bio_put(bio);
+ 
+ 	/*
+ 	 * successful reads are decrypted by the worker thread
+ 	 */
+-	if ((bio_data_dir(bio) == READ)
+-	    && bio_flagged(bio, BIO_UPTODATE)) {
++	if (bio_data_dir(io->bio) == READ && !error) {
+ 		kcryptd_queue_io(io);
+ 		return 0;
+ 	}
+
 --

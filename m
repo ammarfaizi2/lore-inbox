@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752950AbWLORMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752955AbWLORNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752950AbWLORMm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 12:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752954AbWLORMm
+	id S1752955AbWLORNw (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 12:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752956AbWLORNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 12:12:42 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:48225 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752947AbWLORMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 12:12:41 -0500
-Date: Fri, 15 Dec 2006 09:13:26 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Pavel Machek <pavel@ucw.cz>, lkml <linux-kernel@vger.kernel.org>,
-       jesper.juhl@gmail.com, akpm <akpm@osdl.org>
-Subject: Re: [PATCH/v2] CodingStyle updates
-Message-Id: <20061215091326.4d121119.randy.dunlap@oracle.com>
-In-Reply-To: <4582B11C.9070305@s5r6.in-berlin.de>
-References: <20061207165508.e6bf0269.randy.dunlap@oracle.com>
-	<20061215120942.GA4551@ucw.cz>
-	<4582AEC8.7030608@s5r6.in-berlin.de>
-	<20061215142206.GC2053@elf.ucw.cz>
-	<4582B11C.9070305@s5r6.in-berlin.de>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Dec 2006 12:13:52 -0500
+Received: from mail.tmr.com ([64.65.253.246]:54211 "EHLO gaimboi.tmr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752953AbWLORNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 12:13:52 -0500
+Message-ID: <4582D8CE.7000304@tmr.com>
+Date: Fri, 15 Dec 2006 12:18:06 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>,
+       jens.axboe@oracle.com
+Subject: Re: 2.6.19 kernel series, SATA, wodim (cd recording), synaptics 
+  update,
+References: <4581559d.iqe9L1/wj2D5j93L%Joerg.Schilling@fokus.fraunhofer.de>
+In-Reply-To: <4581559d.iqe9L1/wj2D5j93L%Joerg.Schilling@fokus.fraunhofer.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 15:28:44 +0100 Stefan Richter wrote:
-
-> Pavel Machek wrote:
-> >> Pavel Machek wrote:
-> >> >> From: Randy Dunlap <randy.dunlap@oracle.com>
-> >> >> +Use one space around (on each side of) most binary and ternary operators,
-> >> >> +such as any of these:
-> >> >> +	=  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
-> >> > 
-> >> > Actually, this should not be hard rule.
-> [...]
-> > sometimes grouping around operator is useful,
-> [...]
+Joerg Schilling wrote:
+>> CD recording : recorder no longer detected by "wodim" software set in
+>> 2.6.19.   I suspect it's a bug in the software...  but don't know where
+>> to look for changes.   2.6.19-rc5 worked.
+>> hardware: IDE MATSHITADVD-RAM UJ-820S
+>> (2.6.19-git6 also fails with external LiteON USB DVD burner)
 > 
-> I agree.
+> I recommend to check the latest cdrtools packet from:
 > 
-> By the way, the longer CodingStyle becomes, the less people will read it.
+> ftp://ftp.berlios.de/pub/cdrecord/alpha/
+> 
+> At the same place, there is a patch for recent Linux systems
+> that allows cdrecord to sense the MAX DMA size for USB.
 
-That's a good point IMO.
+Jens, any comment on this? DMA size limitations could be useful to other 
+programs as well.
+> 
+> Do not use cdrecord derivates but the original as derivates may have bugs
+> that are not present in the original.
 
-Maybe we could just summarize it with something like:
+That cuts both ways.
 
-Use spaces around binary operators for readability but not to imply
-any kind of grouping.
-
-But I suppose that Pavel doesn't agree with that.  Oh well.
-
----
-~Randy
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

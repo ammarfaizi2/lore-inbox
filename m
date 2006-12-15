@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752109AbWLONJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752113AbWLONUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752109AbWLONJx (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 08:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752107AbWLONJx
+	id S1752113AbWLONUF (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 08:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752115AbWLONUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 08:09:53 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:63244 "EHLO aeimail.aei.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752104AbWLONJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 08:09:52 -0500
-X-Greylist: delayed 1193 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 08:09:51 EST
-From: Ed Tomlinson <edt@aei.ca>
-To: Nikolai Joukov <kolya@cs.sunysb.edu>
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-Date: Fri, 15 Dec 2006 07:47:02 -0500
-User-Agent: KMail/1.9.5
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       unionfs@filer.fsl.cs.sunysb.edu, fistgen@filer.fsl.cs.sunysb.edu
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
-In-Reply-To: <Pine.GSO.4.53.0612122217360.22195@compserv1>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="ansi_x3.4-1968"
+	Fri, 15 Dec 2006 08:20:05 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:40502 "HELO
+	mail.dev.rtsoft.ru" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with SMTP id S1752113AbWLONUE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 08:20:04 -0500
+Date: Fri, 15 Dec 2006 16:13:28 +0300
+From: Vitaly Wool <vitalywool@gmail.com>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] smc911x: fix netpoll compilation faliure
+Message-Id: <20061215161328.9797232d.vitalywool@gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612150747.02708.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 December 2006 12:47, Nikolai Joukov wrote:
-> We have designed a new stackable file system that we called RAIF:
-> Redundant Array of Independent Filesystems
+Hello folks,
 
-Do you have a function similar to an an EMC cloneset?   Basicily a cloneset
-tracks what has changed in both the source and target luns (drives).  When one
-updates the cloneset the target is made identical to the source.  Its a great
-way to do backups.  Its an important feature to be able to write to the target drives.
-I would love to see this working at a filesystem level.
+the trivial patch below fixes the compilation failure for smc911x.c when NET_POLL_CONTROLLER is set.
 
-Thanks
-Ed Tomlinson
+ drivers/net/smc911x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
+
+diff --git a/drivers/net/smc911x.c b/drivers/net/smc911x.c
+index 2c43433..797ab91 100644
+--- a/drivers/net/smc911x.c
++++ b/drivers/net/smc911x.c
+@@ -1331,7 +1331,7 @@ smc911x_rx_dma_irq(int dma, void *data)
+ static void smc911x_poll_controller(struct net_device *dev)
+ {
+ 	disable_irq(dev->irq);
+-	smc911x_interrupt(dev->irq, dev, NULL);
++	smc911x_interrupt(dev->irq, dev);
+ 	enable_irq(dev->irq);
+ }
+ #endif

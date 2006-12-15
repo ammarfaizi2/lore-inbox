@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752764AbWLOQpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752880AbWLOQst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752764AbWLOQpH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752746AbWLOQpG
+	id S1752880AbWLOQst (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752863AbWLOQst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:45:06 -0500
-Received: from mail.tmr.com ([64.65.253.246]:54192 "EHLO gaimboi.tmr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752764AbWLOQpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:45:05 -0500
-Message-ID: <4582D246.3010701@tmr.com>
-Date: Fri, 15 Dec 2006 11:50:14 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	Fri, 15 Dec 2006 11:48:49 -0500
+Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:56085 "EHLO
+	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752749AbWLOQss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 11:48:48 -0500
+Date: Fri, 15 Dec 2006 11:48:40 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: Charles Manning <manningc2@actrix.gen.nz>
+cc: Al Boldi <a1426z@gawab.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+In-Reply-To: <200612151030.31846.manningc2@actrix.gen.nz>
+Message-ID: <Pine.GSO.4.53.0612151138360.26813@compserv1>
+References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
+ <200612132257.24399.a1426z@gawab.com> <Pine.GSO.4.53.0612141538410.6095@compserv1>
+ <200612151030.31846.manningc2@actrix.gen.nz>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc1
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ok, the two-week merge period is over, and -rc1 is out there.
-> 
-> I'm _really_ hoping that we can keep the 2.6.20 release calmer and without 
-> any of the dragging-out-due-to-core-changes that we've had lately. We 
-> didn't actually merge any really core changes here, with the biggest 
-> conceptual one being the "work_struct" split into regular work and 
-> "delayed" work, so I'm hoping we can really end up with an easy 2.6.20 
-> release.
-> 
-> Some of the commits there are pretty big patches, but more than a couple 
-> of them are due to fairly straightforward search-and-replace things (like 
-> a largely scripted removal of unnecessary casts of the return value of 
-> "kmalloc()", for example, or the switch to "ktermios" for the tty layer, 
-> or the introduction of "struct path" in the VFS layer instead of keeping 
-> the f_{dentry,vfsmnt} entries separate, or indeed the removal of SLAB_xxx 
-> constant names in favour of the standard GFP_xxx ones).
-> 
-> So while the patch itself isn't actually all that much smaller than usual, 
-> at least my personal gut feel is that the actual changes are not as 
-> intrusive, just in some cases have big diffs.
-> 
-> But both the diffstat and the shortlog are still too big to fit in the 
-> kernel mailing list limits, so you'll just have to take my word for it. Or 
-> get the git repo, and do your own delving into things with
-> 
-> 	git log v2.6.19..v2.6.20-rc1 | git shortlog
-> 
-> There _are_ a few areas of note:
-> 
->  - the aforementioned "workqueue" changes (where we still have some work 
->    to do to finalize the proper actions on all architectures: it's being 
->    somewhat discussed on the arch mailing lists, hopefully we'll have it 
->    all resolved by -rc2, and it doesn't really worry me)
-> 
->  - lockless page cache (RCU lookups of radix trees)
-> 
->  - kvm driver for all those crazy virtualization people to play with
-> 
->  - networking updates (DCCP, address-family agnostic connection tracking 
->    in netfilter, sparse byte order annotations, yadda yadda)
-> 
->  - HID layer separated out of the USB stuff (bluetooth apparently wants 
->    the HID stuff too)
-> 
->  - tons and tons of driver (ftape removal, ATA, pcmcia, i2c, 
->    infiniband, dvb, networking..) and architecture updates (arm, mips, 
->    powerpc, sh)
-> 
-Did I miss an alternate method of handling ftape devices, or are these 
-old beasts now unsupported? I occasionally have to be able to handle 
-that media, since the industrial device using ftape for control updates 
-cost more than a small house.
+> On Friday 15 December 2006 10:01, Nikolai Joukov wrote:
+> > > Nikolai Joukov wrote:
+> > > > We have designed a new stackable file system that we called RAIF:
+> > > > Redundant Array of Independent Filesystems.
+> > >
+> > > Great!
+>
+> Yes, definitely...
+>
+> I see the major benefit being in the mobile, industrial and embedded systems
+> arena. Perhaps this might come as a suprise to people, but a very large and
+> ever growing number (perhaps even most) Linux devices don't use block devices
+> for storage. Instead they use flash file systems or nfs, niether of which use
+> local block devices.
+>
+> It looks like RAIF gives a way to provide redundancy etc on these devices.
 
-I can obviously keep an old slow machine to do the job, but I'd like to 
-know if I need to.
+Good point!  Also, RAIF can store different file types differently.
+Therefore, it is possible to mount RAIF over file systems with lots of
+storage space and a flash file system (with usually less space).  In this
+case, RAIF can be configured to use flash to keep replicas of the most
+important data only.   And yes, thanks to the stackable nature of RAIF no
+explicit flash support is required.  RAIF can reuse existing file systems
+designed for flash media (e.g., JFFS2).
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Nikolai.

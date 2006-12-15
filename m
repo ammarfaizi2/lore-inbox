@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751606AbWLOAUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750728AbWLOAWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751606AbWLOAUj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 19:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWLOAUi
+	id S1750728AbWLOAWN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 19:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWLOAWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 19:20:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58393 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751606AbWLOAUi (ORCPT
+	Thu, 14 Dec 2006 19:22:13 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:36599 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750728AbWLOAWM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 19:20:38 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: "Eric Dumazet" <dada1@cosmosbay.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Greg KH" <gregkh@suse.de>, "Arjan" <arjan@linux.intel.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: kref refcnt and false positives
-References: <EB12A50964762B4D8111D55B764A8454010572C1@scsmsx413.amr.corp.intel.com>
-Date: Thu, 14 Dec 2006 17:19:55 -0700
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454010572C1@scsmsx413.amr.corp.intel.com>
-	(Venkatesh Pallipadi's message of "Thu, 14 Dec 2006 15:51:38 -0800")
-Message-ID: <m13b7ivwlw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Thu, 14 Dec 2006 19:22:12 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 14 Dec 2006 19:12:59 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Miguel Ojeda <maxextreme@gmail.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <653402b90612141516w46e4a623u21ba34f9664f392c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0612141911240.27384@localhost.localdomain>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <653402b90612141516w46e4a623u21ba34f9664f392c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
+On Fri, 15 Dec 2006, Miguel Ojeda wrote:
 
->>But I believe Venkatesh problem comes from its release() 
->>function : It is 
->>supposed to free the object.
->>If not, it should properly setup it so that further uses are OK.
->>
->>ie doing in release(kref)
->>atomic_set(&kref->count, 0);
->>
+> On 12/13/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> >
+> >   there are numerous places throughout the source tree that apparently
+> > calculate the size of an array using the construct
+> > "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
+> >
+> >   $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+> >
+> > but we already have, from "include/linux/kernel.h":
+> >
+> >   #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 >
-> Agreed that setting kref refcnt to 0 in release will solve the probloem.
-> But, once the optimization code is removed, we don't need to set it to
-> zero as release will only be called after the count reaches zero anyway.
+> Maybe *(x) instead of (x)[0]?
 
-The primary point of the optimization is to not write allocate a cache line
-unnecessarily.   I don't know it's value, but it can have one especially
-on big way SMP machines.
+yeah, there's a bunch of that, too:
 
-If the optimization is not performed setting the value to 0 immediately
-there after has not real cost as your cpu has the dirty cache line
-already.  If the optimization is performed you still have to dirty
-the cache line but at least you don't have to allocate it.
+  $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\*\1\)" .
 
-How that compares to the branch mispredict in cost I don't know, except
-that cache line misses are the only operation that is generally
-more expensive than branch misses.
+easy enough to catch using the same technique.
 
-So I see no virtue in avoiding the atomic_set(&kref->count, 0) if
-you are about to immediately reuse the data structure.
-
-Eric
+rday

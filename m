@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965063AbWLODrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932263AbWLOEH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbWLODrs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 22:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbWLODrs
+	id S932263AbWLOEH2 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 23:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWLOEH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 22:47:48 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:52612 "EHLO
-	ms-smtp-02.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965063AbWLODrr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 22:47:47 -0500
-Subject: [BUG -rt] scheduling in atomic.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 14 Dec 2006 22:47:43 -0500
-Message-Id: <1166154463.19210.7.camel@localhost.localdomain>
+	Thu, 14 Dec 2006 23:07:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58142 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932263AbWLOEH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 23:07:27 -0500
+Date: Fri, 15 Dec 2006 15:07:03 +1100
+From: David Chinner <dgc@sgi.com>
+To: Shinichiro HIDA <shinichiro@stained-g.net>
+Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org, xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com, Keith Owens <kaos@sgi.com>
+Subject: Re: 2.6.18.3 also 2.6.19 XFS xfs_force_shutdown (was: XFS internal error [...])
+Message-ID: <20061215040703.GB44411608@melbourne.sgi.com>
+References: <9a8748490611280749k5c97d21bx2e499d2209d27dfe@mail.gmail.com> <20061129013214.GH44411608@melbourne.sgi.com> <9a8748490611290117oc0ba880v1a6407bc4f41088f@mail.gmail.com> <20061130020734.GB37654165@melbourne.sgi.com> <87bqm89y6g.wl%shinichiro@stained-g.net> <20061213062502.GT44411608@melbourne.sgi.com> <877iwu3k9e.wl%shinichiro@stained-g.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <877iwu3k9e.wl%shinichiro@stained-g.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+On Thu, Dec 14, 2006 at 06:21:49PM +0900, Shinichiro HIDA wrote:
+> Hi,
+> 
+> ;; Sorry for late, and Thanks for following up.
+> 
+> >>>>> In <20061213062502.GT44411608@melbourne.sgi.com> 
+> >>>>>	David Chinner <dgc@sgi.com> wrote:
+> > On Wed, Dec 13, 2006 at 02:12:23PM +0900, Shinichiro HIDA wrote:
+> > > Hi,
+> > > 
+> > > I met same problem on my 2 machines, 2.6.19 (Debian unstable) also
+> > > 2.6.18.3 (Debian stable),
+> > Should have been preceeded with some other output explaining the
+> > reason for the shutdown.
 
-I've hit this. I compiled the kernel as CONFIG_PREEMPT, and turned off
-IRQ's as threads.
+> Dec 12 21:31:25 lune kernel: xfs_da_do_buf: bno 16777216
+> Dec 12 21:31:25 lune kernel: dir: inode 9078346
+> Dec 12 21:31:25 lune kernel: Filesystem "hdf5": XFS internal error xfs_da_do_buf(1) at line 1995 of file fs/xfs/xfs_da_btree.c.  Caller 0xc02982ec
 
-BUG: scheduling while atomic: swapper/0x00000001/1, CPU#3
+Ok, that bno (16777216) is a definite sign of corruption
+caused by the 2.6.17.x (x <=6) kernels.
 
-Call Trace:
- [<ffffffff8026f9b0>] dump_trace+0xaa/0x404
- [<ffffffff8026fd46>] show_trace+0x3c/0x52
- [<ffffffff8026fd71>] dump_stack+0x15/0x17
- [<ffffffff8026562a>] __sched_text_start+0x8a/0xbb7
- [<ffffffff80266492>] schedule+0xd3/0xf3
- [<ffffffff802a11bd>] flush_cpu_workqueue+0x72/0xa4
- [<ffffffff802a125c>] flush_workqueue+0x6d/0x95
- [<ffffffff802a19a8>] schedule_on_each_cpu+0xe8/0xff
- [<ffffffff802dc927>] filevec_add_drain_all+0x12/0x14
- [<ffffffff80304701>] remove_proc_entry+0xaf/0x258
- [<ffffffff802c1782>] unregister_handler_proc+0x23/0x48
- [<ffffffff802bff91>] free_irq+0xda/0x114
- [<ffffffff803fe3fa>] i8042_probe+0x338/0x75c
- [<ffffffff803ba4b1>] platform_drv_probe+0x12/0x14
- [<ffffffff803b8b00>] really_probe+0x54/0xee
- [<ffffffff803b8c48>] driver_probe_device+0xae/0xba
- [<ffffffff803b8c5d>] __device_attach+0x9/0xb
- [<ffffffff803b7ef8>] bus_for_each_drv+0x47/0x7d
- [<ffffffff803b8cc4>] device_attach+0x65/0x79
- [<ffffffff803b7e89>] bus_attach_device+0x24/0x4c
- [<ffffffff803b6f7d>] device_add+0x38f/0x505
- [<ffffffff803ba7ca>] platform_device_add+0x11a/0x152
- [<ffffffff808e1d1f>] i8042_init+0x2b0/0x30d
- [<ffffffff8026ea53>] init+0x182/0x344
- [<ffffffff80261f08>] child_rip+0xa/0x12
+> > Did these machines run 2.6.17.x where x<= 6?
+> > i.e. is this problem:
+> 
+> > http://oss.sgi.com/projects/xfs/faq.html#dir2
+> 
+> Yes, I could boot this machine(lune) with 2.6.17.6. 
 
+I wasn't suggesting that you use this kernel - that could cause more
+corruption to occur.  What I was asking is if you have run a kernel
+of this version in the past (i.e. before you upgraded to 2.6.18.3)?
 
-Seems that we have this in remove_proc_entry:
+Regardless, I suggest you get the latest xfsprogs and run xfs_repair
+on your filesystems to fix the problem.
 
-	spin_lock(&proc_subdir_lock);
-	for (p = &parent->subdir; *p; p=&(*p)->next ) {
+Cheers,
 
-		[...]
-
-		proc_kill_inodes(de);
-
-		[...]
-
-	}
-	spin_unlock(&proc_subdir_lock);
-
-And in proc_kill_inodes:
-
-static void proc_kill_inodes(struct proc_dir_entry *de)
-{
-	struct file *filp;
-	struct super_block *sb = proc_mnt->mnt_sb;
-
-	/*
-	 * Actually it's a partial revoke().
-	 */
-	filevec_add_drain_all();
-
-	[...]
-}
-
-and in filevec_add_drain_all:
-
-int filevec_add_drain_all(void)
-{
-	return schedule_on_each_cpu(filevec_add_drain_per_cpu, NULL);
-}
-
-
-And schedule_on_each_cpu is easily schedulable.
-
-So it seems that it schedules while holding a spin lock.
-
-I don't know this code very well, and don't have time to look too deep
-into it, but I figure that I would report it.
-
--- Steve
-
-
-
-
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

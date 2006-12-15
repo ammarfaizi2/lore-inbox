@@ -1,32 +1,26 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753471AbWLOVjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753491AbWLOVl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753471AbWLOVjr (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753480AbWLOVjr
+	id S1753491AbWLOVl2 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753490AbWLOVl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:39:47 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:46933 "EHLO smtp.osdl.org"
+	Fri, 15 Dec 2006 16:41:28 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47020 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753471AbWLOVjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:39:46 -0500
-Date: Fri, 15 Dec 2006 13:39:27 -0800
+	id S1753489AbWLOVl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:41:27 -0500
+Date: Fri, 15 Dec 2006 13:41:16 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Message-Id: <20061215133927.a8346372.akpm@osdl.org>
-In-Reply-To: <20061215130552.95860b72.akpm@osdl.org>
-References: <20061204203410.6152efec.akpm@osdl.org>
-	<17780.63770.228659.234534@cse.unsw.edu.au>
-	<20061205061623.GA13749@amd64.of.nowhere>
-	<20061205062142.GA14784@amd64.of.nowhere>
-	<20061204224323.2e5d0494.akpm@osdl.org>
-	<20061205105928.GA6482@amd64.of.nowhere>
-	<17782.28505.303064.964551@cse.unsw.edu.au>
-	<20061215192146.GA3616@amd64.of.nowhere>
-	<17795.2681.523120.656367@cse.unsw.edu.au>
-	<20061215130552.95860b72.akpm@osdl.org>
+To: Michael Sabala <lkml@saahbs.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 mmap hangs unrelated apps
+Message-Id: <20061215134116.f93f471b.akpm@osdl.org>
+In-Reply-To: <20061215213500.GA16106@prosiaczek>
+References: <20061215023014.GC2721@prosiaczek>
+	<1166199855.5761.34.camel@lade.trondhjem.org>
+	<20061215175030.GG6220@prosiaczek>
+	<20061215124208.a053f4d3.akpm@osdl.org>
+	<20061215213500.GA16106@prosiaczek>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -34,30 +28,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 13:05:52 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+On Fri, 15 Dec 2006 15:35:00 -0600
+Michal Sabala <lkml@saahbs.net> wrote:
 
-> Jeff, I shall send all the sata patches which I have at you one single time
-> and I shall then drop the lot.  So please don't flub them.
+> On 2006/12/15 at 14:42:08 Andrew Morton <akpm@osdl.org> wrote
+> > On Fri, 15 Dec 2006 11:50:30 -0600
+> > Michal Sabala <lkml@saahbs.net> wrote:
+> > 
+> > > On 2006/12/15 at 10:24:15 Trond Myklebust <trond.myklebust@fys.uio.no> wrote
+> > > > On Thu, 2006-12-14 at 20:30 -0600, Michal Sabala wrote:
+> > > > > 
+> > > > > `cat /proc/*PID*/wchan` for all hanging processes contains page_sync.
+> > > > 
+> > > > Have you tried an 'echo t >/proc/sysrq-trigger' on a client with one of
+> > > > these hanging processes? If so, what does the output look like?
+> > > 
+> > > Hello Trond,
+> > > 
+> > > Below is the sysrq trace output for XFree86 which entered the
+> > > uninterruptible sleep state on the P4 machine with nfs /home. Please
+> > > note that XFree86 does not have any files open in /home - as reported by
+> > > `lsof`. Below, I also listed the output of vmstat.
+> > 
+> > We'd need to see the trace of all D-state processes, please.  Xfree86 might
+> > just be a victim of a deadlock elsewhere.  However there is a problem here..
 > 
-> I'll then do a rc1-mm2 without them.
+> Hi Andrew,
+> 
+> In most cases only a single process enters the D-state, this time it was
+> XFree, but I've seen gimp, firefox, gconfd and bash. Once or twice I did
+> see two or three processes ending up in uninterruptible sleep, but I
+> suspect they entered this state at different test-mmap.c runs (I left
+> test-mmap.c running in a bash loop and checked the system after a few
+> hours).
 
-hm, this is looking like a lot of work for not much gain.  Rafael, are
-you able to do a quick chop and tell us whether these:
+OK, useful info, thanks.
 
-pci-move-pci_vdevice-from-libata-to-core.patch
-pata_cs5530-suspend-resume-support-tweak.patch
-ata-fix-platform_device_register_simple-error-check.patch
-initializer-entry-defined-twice-in-pata_rz1000.patch
-pata_via-suspend-resume-support-fix.patch
-sata_nv-add-suspend-resume-support.patch
-libata-simulate-report-luns-for-atapi-devices.patch
-user-of-the-jiffies-rounding-patch-ata-subsystem.patch
-libata-fix-oops-with-sparsemem.patch
-sata_nv-fix-kfree-ordering-in-remove.patch
-libata-dont-initialize-sg-in-ata_exec_internal-if-dma_none-take-2.patch
-pci-quirks-fix-the-festering-mess-that-claims-to-handle-ide-quirks-ide-fix.patch
+> Would it be beneficial to keep running test-mmap.c on this machine until
+> two or more processes end up in D-state? I can leave this machine
+> running test-mmap.c over the weekend. 
 
-are innocent?
+No, that's OK.  The next step should be for a kernel wrangler to get in
+there with your testcase.  It could well be that lock_page-inside-lock_page
+thing.
 
-Thanks.

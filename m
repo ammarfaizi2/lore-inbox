@@ -1,251 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964771AbWLOUsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964837AbWLOUts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWLOUsm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWLOUsm
+	id S964837AbWLOUts (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWLOUtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:48:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34439 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964771AbWLOUsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:48:40 -0500
-From: Aaron Young <ayoung@google.engr.sgi.com>
-Message-Id: <200612152048.MAA98809@google.engr.sgi.com>
-Subject: Re: [PATCH 3/3] - Add support for acpi_load_table/acpi_unload_table_id
-To: jpk@sgi.com (John Keller)
-Date: Fri, 15 Dec 2006 12:48:24 -0800 (PST)
-Cc: linux-acpi@vger.kernel.org, akpm@osdl.org, len.brown@intel.com,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, ayoung@sgi.com, jes@sgi.com,
-       jpk@sgi.com (John Keller)
-In-Reply-To: <20061130230410.23614.55659.74300@attica.americas.sgi.com> from "John Keller" at Nov 30, 2006 05:04:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Fri, 15 Dec 2006 15:49:47 -0500
+Received: from mx1.suse.de ([195.135.220.2]:59953 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964808AbWLOUtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:49:46 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jurriaan <thunder7@xs4all.nl>
+Date: Sat, 16 Dec 2006 07:50:01 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17795.2681.523120.656367@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+In-Reply-To: message from thunder7@xs4all.nl on Friday December 15
+References: <20061204203410.6152efec.akpm@osdl.org>
+	<17780.63770.228659.234534@cse.unsw.edu.au>
+	<20061205061623.GA13749@amd64.of.nowhere>
+	<20061205062142.GA14784@amd64.of.nowhere>
+	<20061204224323.2e5d0494.akpm@osdl.org>
+	<20061205105928.GA6482@amd64.of.nowhere>
+	<17782.28505.303064.964551@cse.unsw.edu.au>
+	<20061215192146.GA3616@amd64.of.nowhere>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-  Per Len's request:
-
-      I understand and agree this project and the contribution         
-      are public and that a record of the contribution (including all
-      personal information I submit with it, including my sign-off) is
-      maintained indefinitely. I thereby license this patch to be
-      redistributed under any license (GPL or non-GPL) consistent
-      with the project.
-
-  PS. We'd like this to get into 2.6.20. If there's anything
-  we (John K. and I) can do to help, please let us know.
-
-  Thanks,
-
-  -Aaron Young
-
+On Friday December 15, thunder7@xs4all.nl wrote:
+> From: Neil Brown <neilb@suse.de>
+> Date: Wed, Dec 06, 2006 at 06:20:57PM +1100
+> > i.e. current -mm is good for 2.6.20 (though I have a few other little
+> > things I'll be sending in soon, they aren't related to the raid6
+> > problem).
+> > 
+> 2.6.20-rc1-mm1 doesn't boot on my box, due to the fact that e2fsck gives
 > 
-> 
->  This patch makes acpi_load_table() available
->  for use by removing it from the #ifdef ACPI_FUTURE_USAGE.
-> 
->  It also adds a new routine used to unload an ACPI table
->  of a given type and "id" - acpi_unload_table_id().
->  The implementation of this new routine was almost a direct
->  copy of existing routine acpi_unload_table() - only difference
->  being that it only removes a specific table id instead of
->  ALL tables of a given type.
->  The SN hotplug driver (sgi_hotplug.c) now uses both of these
->  interfaces to dynamically load and unload SSDT ACPI tables.
-> 
-> Signed-off-by: Aaron Young <ayoung@sgi.com>
-> 
-> ---
-> 
-> Andrew,
->   Can you take this update and replace the current version in
->   your -mm tree:
->    add-support-for-acpi_load_table-acpi_unload_table_id.patch
-> 
-> Len,
->   What do we need to do to resolve any licensing issues related to
->   these changes?
-> 
-> Thanks.
-> 
-> 
-> Resend #2
->    Code has been improved to no longer use ACPI "internal" routines
->    (such as acpi_ns_get_next_node()). To this end, a new public interface
->    to obtain the owner_id for a handle was added (acpi_get_id()). It is
->    very similar to existing routine acpi_get_type().
-> 
-> Resend #1
->    Original send of this patch was outdated and did not have
->    acpi_ut_acquire_mutex() and acpi_ut_release_mutex() calls
->    in acpi_unload_table_id().
-> 
-> 
->  drivers/acpi/namespace/nsxfobj.c |   44 +++++++++++++++++++++++
->  drivers/acpi/tables/tbxface.c    |   54 ++++++++++++++++++++++++++++-
->  include/acpi/acpixf.h            |    7 ++-
->  3 files changed, 102 insertions(+), 3 deletions(-)
-> 
-> Index: release/drivers/acpi/tables/tbxface.c
-> ===================================================================
-> --- release.orig/drivers/acpi/tables/tbxface.c	2006-11-29 14:14:23.532910707 -0600
-> +++ release/drivers/acpi/tables/tbxface.c	2006-11-29 14:15:04.173937975 -0600
-> @@ -123,7 +123,6 @@ acpi_status acpi_load_tables(void)
->  
->  ACPI_EXPORT_SYMBOL(acpi_load_tables)
->  
-> -#ifdef ACPI_FUTURE_USAGE
->  /*******************************************************************************
->   *
->   * FUNCTION:    acpi_load_table
-> @@ -221,6 +220,59 @@ ACPI_EXPORT_SYMBOL(acpi_load_table)
->  
->  /*******************************************************************************
->   *
-> + * FUNCTION:    acpi_unload_table_id
-> + *
-> + * PARAMETERS:  table_type    - Type of table to be unloaded
-> + *              id            - Owner ID of the table to be removed.
-> + *
-> + * RETURN:      Status
-> + *
-> + * DESCRIPTION: This routine is used to force the unload of a table (by id)
-> + *
-> + ******************************************************************************/
-> +acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id)
-> +{
-> +	struct acpi_table_desc *table_desc;
-> +	acpi_status status;
-> +
-> +	ACPI_FUNCTION_TRACE(acpi_unload_table);
-> +
-> +	/* Parameter validation */
-> +	if (table_type > ACPI_TABLE_ID_MAX)
-> +		return_ACPI_STATUS(AE_BAD_PARAMETER);
-> +
-> +	/* Find table from the requested type list */
-> +	table_desc = acpi_gbl_table_lists[table_type].next;
-> +	while (table_desc && table_desc->owner_id != id)
-> +		table_desc = table_desc->next;
-> +
-> +	if (!table_desc)
-> +		return_ACPI_STATUS(AE_NOT_EXIST);
-> +
-> +	/*
-> +	 * Delete all namespace objects owned by this table. Note that these
-> +	 * objects can appear anywhere in the namespace by virtue of the AML
-> +	 * "Scope" operator. Thus, we need to track ownership by an ID, not
-> +	 * simply a position within the hierarchy
-> +	 */
-> +	acpi_ns_delete_namespace_by_owner(table_desc->owner_id);
-> +
-> +	status = acpi_ut_acquire_mutex(ACPI_MTX_TABLES);
-> +	if (ACPI_FAILURE(status))
-> +		return_ACPI_STATUS(status);
-> +
-> +	(void)acpi_tb_uninstall_table(table_desc);
-> +
-> +	(void)acpi_ut_release_mutex(ACPI_MTX_TABLES);
-> +
-> +	return_ACPI_STATUS(AE_OK);
-> +}
-> +
-> +ACPI_EXPORT_SYMBOL(acpi_unload_table_id)
-> +
-> +#ifdef ACPI_FUTURE_USAGE
-> +/*******************************************************************************
-> + *
->   * FUNCTION:    acpi_unload_table
->   *
->   * PARAMETERS:  table_type    - Type of table to be unloaded
-> Index: release/include/acpi/acpixf.h
-> ===================================================================
-> --- release.orig/include/acpi/acpixf.h	2006-11-29 14:14:23.556913676 -0600
-> +++ release/include/acpi/acpixf.h	2006-11-29 14:18:55.966606388 -0600
-> @@ -97,11 +97,12 @@ acpi_find_root_pointer(u32 flags, struct
->  
->  acpi_status acpi_load_tables(void);
->  
-> -#ifdef ACPI_FUTURE_USAGE
->  acpi_status acpi_load_table(struct acpi_table_header *table_ptr);
->  
-> -acpi_status acpi_unload_table(acpi_table_type table_type);
-> +acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id);
->  
-> +#ifdef ACPI_FUTURE_USAGE
-> +acpi_status acpi_unload_table(acpi_table_type table_type);
->  acpi_status
->  acpi_get_table_header(acpi_table_type table_type,
->  		      u32 instance, struct acpi_table_header *out_table_header);
-> @@ -180,6 +181,8 @@ acpi_get_next_object(acpi_object_type ty
->  
->  acpi_status acpi_get_type(acpi_handle object, acpi_object_type * out_type);
->  
-> +acpi_status acpi_get_id(acpi_handle object, acpi_owner_id * out_type);
-> +
->  acpi_status acpi_get_parent(acpi_handle object, acpi_handle * out_handle);
->  
->  /*
-> Index: release/drivers/acpi/namespace/nsxfobj.c
-> ===================================================================
-> --- release.orig/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:18:31.000000000 -0600
-> +++ release/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:19:18.709418875 -0600
-> @@ -50,6 +50,50 @@ ACPI_MODULE_NAME("nsxfobj")
->  
->  /*******************************************************************************
->   *
-> + * FUNCTION:    acpi_get_id
-> + *
-> + * PARAMETERS:  Handle          - Handle of object whose id is desired
-> + *              ret_id          - Where the id will be placed
-> + *
-> + * RETURN:      Status
-> + *
-> + * DESCRIPTION: This routine returns the owner id associated with a handle
-> + *
-> + ******************************************************************************/
-> +acpi_status acpi_get_id(acpi_handle handle, acpi_owner_id * ret_id)
-> +{
-> +	struct acpi_namespace_node *node;
-> +	acpi_status status;
-> +
-> +	/* Parameter Validation */
-> +
-> +	if (!ret_id) {
-> +		return (AE_BAD_PARAMETER);
-> +	}
-> +
-> +	status = acpi_ut_acquire_mutex(ACPI_MTX_NAMESPACE);
-> +	if (ACPI_FAILURE(status)) {
-> +		return (status);
-> +	}
-> +
-> +	/* Convert and validate the handle */
-> +
-> +	node = acpi_ns_map_handle_to_node(handle);
-> +	if (!node) {
-> +		(void)acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
-> +		return (AE_BAD_PARAMETER);
-> +	}
-> +
-> +	*ret_id = node->owner_id;
-> +
-> +	status = acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
-> +	return (status);
-> +}
-> +
-> +ACPI_EXPORT_SYMBOL(acpi_get_id)
-> +
-> +/*******************************************************************************
-> + *
->   * FUNCTION:    acpi_get_type
->   *
->   * PARAMETERS:  Handle          - Handle of object whose type is desired
+> Buffer I/O error on device /dev/md0, logical block 0
 > 
 
+But before that....
+> raid5: device sdh1 operational as raid disk 1
+> raid5: device sdg1 operational as raid disk 0
+> raid5: device sdf1 operational as raid disk 5
+> raid5: device sde1 operational as raid disk 6
+> raid5: device sdd1 operational as raid disk 7
+> raid5: device sdc1 operational as raid disk 3
+> raid5: device sdb1 operational as raid disk 2
+> raid5: device sda1 operational as raid disk 4
+> raid5: allocated 8462kB for md0
+> raid5: raid level 6 set md0 active with 8 out of 8 devices, algorithm 2
+> RAID5 conf printout:
+>  --- rd:8 wd:8
+>  disk 0, o:1, dev:sdg1
+>  disk 1, o:1, dev:sdh1
+>  disk 2, o:1, dev:sdb1
+>  disk 3, o:1, dev:sdc1
+>  disk 4, o:1, dev:sda1
+>  disk 5, o:1, dev:sdf1
+>  disk 6, o:1, dev:sde1
+>  disk 7, o:1, dev:sdd1
+> md0: bitmap initialized from disk: read 15/15 pages, set 1 bits, status: 0
+> created bitmap (233 pages) for device md0
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sde1, disabling device. Operation continuing on 7 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdg1, disabling device. Operation continuing on 6 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdf1, disabling device. Operation continuing on 5 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdc1, disabling device. Operation continuing on 4 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdb1, disabling device. Operation continuing on 3 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdh1, disabling device. Operation continuing on 2 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sdd1, disabling device. Operation continuing on 1 devices
+> md: super_written gets error=-5, uptodate=0
+> raid5: Disk failure on sda1, disabling device. Operation continuing on 0 devices
+
+Oh dear, that array isn't much good any more.!
+That is the second report I have had of this with sata drives.  This
+was raid456, the other was raid1.  Two different sata drivers are
+involved (sata_nv in this case, sata_uli in the other case).
+I think something bad happened in sata land just recently.
+The device driver is returning -EIO for a write without printing any messages.
+
+NeilBrown

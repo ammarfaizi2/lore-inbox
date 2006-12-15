@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030206AbWLOWZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030277AbWLOWoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWLOWZJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 17:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWLOWZJ
+	id S1030277AbWLOWoB (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 17:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWLOWoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 17:25:09 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:39810 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030206AbWLOWZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 17:25:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Date: Fri, 15 Dec 2006 23:27:24 +0100
-User-Agent: KMail/1.9.1
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Neil Brown <neilb@suse.de>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       Tejun Heo <htejun@gmail.com>
-References: <20061204203410.6152efec.akpm@osdl.org> <20061215220618.06f1873c@localhost.localdomain> <45831F80.5060008@garzik.org>
-In-Reply-To: <45831F80.5060008@garzik.org>
+	Fri, 15 Dec 2006 17:44:01 -0500
+Received: from wx-out-0506.google.com ([66.249.82.226]:39956 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030277AbWLOWoA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 17:44:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=EuChcH9IeNfMBYnw/Tw6J4uYIuptbpdV27SBlZ0YnnJ48zM89doZryKuYLvb1pAcEhoJLWiekuEKadlr5bXeC8D1D+PaRjGNOFotielMAy/khn9qxodg44egN3oPlAN3JSeZ6qWGDlOmcUDRqvyrt/d39Q2SZm99S4vodFRfxu4=
+Message-ID: <5c49b0ed0612151443t3a6cad53u29575a3b9b0ac1fb@mail.gmail.com>
+Date: Fri, 15 Dec 2006 14:43:59 -0800
+From: "Nate Diller" <nate.diller@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: generic_file_buffered_write and O_SYNC
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612152327.25706.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 15 December 2006 23:19, Jeff Garzik wrote:
-> Alan wrote:
-> > On Fri, 15 Dec 2006 13:39:27 -0800
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> >> On Fri, 15 Dec 2006 13:05:52 -0800
-> >> Andrew Morton <akpm@osdl.org> wrote:
-> >>
-> >>> Jeff, I shall send all the sata patches which I have at you one single time
-> >>> and I shall then drop the lot.  So please don't flub them.
-> >>>
-> >>> I'll then do a rc1-mm2 without them.
-> >> hm, this is looking like a lot of work for not much gain.  Rafael, are
-> >> you able to do a quick chop and tell us whether these:
-> > 
-> > The md one and the long history of reports about parallel I/O causing
-> > problems sounds a lot more like the kmap stuff you were worried about
-> > Andrew. I'd be very intereste dto know if it happens on x86_32 built with
-> > a standard memory split and no highmem....
-> 
-> 2.6.20-rc1 works, and 2.6.20-rc1 does not have the kmap_atomic() fix.
-> 
-> Upstream does kmap_atomic(KM_USER0) and -mm does kmap_atomic(KM_IRQ0)
+So I'm trying to get an understanding of the interactions between the
+various aio_read/aio_write paths, and I ran across this gem at the end
+of generic_file_buffered_write:
 
-On x86_64 that shouldn't be a problem, I think, and my machine is an x86_64
-one.
+        /*
+         * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
+         */
+        if (likely(status >= 0)) {
+                if (unlikely((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+                        if (!a_ops->writepage || !is_sync_kiocb(iocb))
+                                status = generic_osync_inode(inode, mapping,
+                                                OSYNC_METADATA|OSYNC_DATA);
+                }
+        }
 
-Greetings,
-Rafael
+        /*
+         * If we get here for O_DIRECT writes then we must have fallen through
+         * to buffered writes (block instantiation inside i_size).  So we sync
+         * the file data here, to try to honour O_DIRECT expectations.
+         */
+        if (unlikely(file->f_flags & O_DIRECT) && written)
+                status = filemap_write_and_wait(mapping);
 
+So if there's a writepage function AND we're doing async i/o, then
+skip the writeout for O_SYNC files.  But always do writeout for dio,
+synchronously.  Why do we check for the existence of ->writepage, but
+not ->writepages?  Why do we ever skip writeback at all?
 
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+in addition to being poorly documented, this code looks to me like it
+has a high likelyhood of being incorrect.  can anyone clarify?
+
+thanks
+
+NATE

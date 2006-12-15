@@ -1,108 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965055AbWLOVNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965064AbWLOVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbWLOVNR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWLOVNR
+	id S965064AbWLOVOq (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWLOVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:13:17 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:39580 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965055AbWLOVNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:13:15 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Date: Fri, 15 Dec 2006 22:15:23 +0100
-User-Agent: KMail/1.9.1
-Cc: Jurriaan <thunder7@xs4all.nl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-References: <20061204203410.6152efec.akpm@osdl.org> <20061215192146.GA3616@amd64.of.nowhere> <17795.2681.523120.656367@cse.unsw.edu.au>
-In-Reply-To: <17795.2681.523120.656367@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Dec 2006 16:14:46 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4417 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965064AbWLOVOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:14:45 -0500
+Date: Fri, 15 Dec 2006 21:14:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, Martin Michlmayr <tbm@cyrius.com>,
+       Riku Voipio <riku.voipio@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
+Message-ID: <20061215211435.GB10367@flint.arm.linux.org.uk>
+Mail-Followup-To: Lennert Buytenhek <buytenh@wantstofly.org>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	Martin Michlmayr <tbm@cyrius.com>, Riku Voipio <riku.voipio@iki.fi>,
+	linux-kernel@vger.kernel.org
+References: <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org> <20061215201522.GA11288@electric-eye.fr.zoreil.com> <20061215210329.GB14860@xi.wantstofly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612152215.23629.rjw@sisk.pl>
+In-Reply-To: <20061215210329.GB14860@xi.wantstofly.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think it's in -rc1, please see below.
-
-On Friday, 15 December 2006 21:50, Neil Brown wrote:
-> On Friday December 15, thunder7@xs4all.nl wrote:
-> > From: Neil Brown <neilb@suse.de>
-> > Date: Wed, Dec 06, 2006 at 06:20:57PM +1100
-> > > i.e. current -mm is good for 2.6.20 (though I have a few other little
-> > > things I'll be sending in soon, they aren't related to the raid6
-> > > problem).
-> > > 
-> > 2.6.20-rc1-mm1 doesn't boot on my box, due to the fact that e2fsck gives
-> > 
-> > Buffer I/O error on device /dev/md0, logical block 0
-> > 
+On Fri, Dec 15, 2006 at 10:03:29PM +0100, Lennert Buytenhek wrote:
+> On Fri, Dec 15, 2006 at 09:15:22PM +0100, Francois Romieu wrote:
 > 
-> But before that....
-> > raid5: device sdh1 operational as raid disk 1
-> > raid5: device sdg1 operational as raid disk 0
-> > raid5: device sdf1 operational as raid disk 5
-> > raid5: device sde1 operational as raid disk 6
-> > raid5: device sdd1 operational as raid disk 7
-> > raid5: device sdc1 operational as raid disk 3
-> > raid5: device sdb1 operational as raid disk 2
-> > raid5: device sda1 operational as raid disk 4
-> > raid5: allocated 8462kB for md0
-> > raid5: raid level 6 set md0 active with 8 out of 8 devices, algorithm 2
-> > RAID5 conf printout:
-> >  --- rd:8 wd:8
-> >  disk 0, o:1, dev:sdg1
-> >  disk 1, o:1, dev:sdh1
-> >  disk 2, o:1, dev:sdb1
-> >  disk 3, o:1, dev:sdc1
-> >  disk 4, o:1, dev:sda1
-> >  disk 5, o:1, dev:sdf1
-> >  disk 6, o:1, dev:sde1
-> >  disk 7, o:1, dev:sdd1
-> > md0: bitmap initialized from disk: read 15/15 pages, set 1 bits, status: 0
-> > created bitmap (233 pages) for device md0
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sde1, disabling device. Operation continuing on 7 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdg1, disabling device. Operation continuing on 6 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdf1, disabling device. Operation continuing on 5 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdc1, disabling device. Operation continuing on 4 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdb1, disabling device. Operation continuing on 3 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdh1, disabling device. Operation continuing on 2 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sdd1, disabling device. Operation continuing on 1 devices
-> > md: super_written gets error=-5, uptodate=0
-> > raid5: Disk failure on sda1, disabling device. Operation continuing on 0 devices
+> > > Is there a way we can have this done by default on the n2100?  I guess
+> > > that since it's a PCI device, there isn't much hope for that..?
+> > 
+> > Do you mean an automagically tuned default value based on CONFIG_ARM ?
 > 
-> Oh dear, that array isn't much good any more.!
-> That is the second report I have had of this with sata drives.  This
-> was raid456, the other was raid1.  Two different sata drivers are
-> involved (sata_nv in this case, sata_uli in the other case).
+> No, that wouldn't make sense, that's like making a workaround depend on
+> arch == i386.
+> 
+> I'm thinking that we should somehow enable this option on the n2100
+> built-in r8169 ports by default only.  Since the n2100 also has a mini-PCI
+> slot, and it is in theory possible to put an r8169 on a mini-PCI card,
+> the workaround probably shouldn't apply to those, so testing for
+> CONFIG_MACH_N2100 also isn't the right thing to do.
 
-The other box is mine and it works just fine with 2.6.20-rc1.
+There is dev->broken_parity_status ... although exactly what the sematics
+of that flag actually are seems to be rather vague - there's code which
+sets it for the Mellanox Tavor device, but it seems to only be exposed
+via sysfs - no code in drivers/pci seems to take any action based upon
+this flag being set.
 
-> I think something bad happened in sata land just recently.
-
-Yup.  Please see, for example:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116621656432500&w=2
-
-It looks like the breakage is in sata, in the patches that went in after
-2.6.19-rc6-mm2 (that one worked for me like charm).
-
-Greetings,
-Rafael
-
+That rather raises the question about the usefulness of that quirk.
 
 -- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

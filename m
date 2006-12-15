@@ -1,86 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751513AbWLOQjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752764AbWLOQpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWLOQjA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 11:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752868AbWLOQjA
+	id S1752764AbWLOQpH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 11:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752746AbWLOQpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 11:39:00 -0500
-Received: from lw.wurtel.net ([82.192.92.211]:2496 "EHLO lw.wurtel.net"
+	Fri, 15 Dec 2006 11:45:06 -0500
+Received: from mail.tmr.com ([64.65.253.246]:54192 "EHLO gaimboi.tmr.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752870AbWLOQi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 11:38:59 -0500
-X-Greylist: delayed 2465 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 11:38:59 EST
-Date: Fri, 15 Dec 2006 16:57:47 +0100
-From: Paul Slootman <paul+nospam@wurtel.net>
-To: linux-kernel@vger.kernel.org
-Cc: cw@f00f.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
-Message-ID: <20061215155747.GB1519@msgid.wurtel.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, cw@f00f.org
+	id S1752764AbWLOQpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 11:45:05 -0500
+Message-ID: <4582D246.3010701@tmr.com>
+Date: Fri, 15 Dec 2006 11:50:14 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.20-rc1
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cw@f00f.org wrote:
->On Wed, Dec 13, 2006 at 09:11:29PM +0100, Christoph Anton Mitterer wrote:
->
->> - error in the Opteron (memory controller)
->> - error in the Nvidia chipsets
->> - error in the kernel
->
->My guess without further information would be that some, but not all
->BIOSes are doing some work to avoid this.
->
->Does anyone have an amd64 with an nforce4 chipset and >4GB that does
->NOT have this problem?  If so it might be worth chasing the BIOS
->vendors to see what errata they are dealing with.
+Linus Torvalds wrote:
+> Ok, the two-week merge period is over, and -rc1 is out there.
+> 
+> I'm _really_ hoping that we can keep the 2.6.20 release calmer and without 
+> any of the dragging-out-due-to-core-changes that we've had lately. We 
+> didn't actually merge any really core changes here, with the biggest 
+> conceptual one being the "work_struct" split into regular work and 
+> "delayed" work, so I'm hoping we can really end up with an easy 2.6.20 
+> release.
+> 
+> Some of the commits there are pretty big patches, but more than a couple 
+> of them are due to fairly straightforward search-and-replace things (like 
+> a largely scripted removal of unnecessary casts of the return value of 
+> "kmalloc()", for example, or the switch to "ktermios" for the tty layer, 
+> or the introduction of "struct path" in the VFS layer instead of keeping 
+> the f_{dentry,vfsmnt} entries separate, or indeed the removal of SLAB_xxx 
+> constant names in favour of the standard GFP_xxx ones).
+> 
+> So while the patch itself isn't actually all that much smaller than usual, 
+> at least my personal gut feel is that the actual changes are not as 
+> intrusive, just in some cases have big diffs.
+> 
+> But both the diffstat and the shortlog are still too big to fit in the 
+> kernel mailing list limits, so you'll just have to take my word for it. Or 
+> get the git repo, and do your own delving into things with
+> 
+> 	git log v2.6.19..v2.6.20-rc1 | git shortlog
+> 
+> There _are_ a few areas of note:
+> 
+>  - the aforementioned "workqueue" changes (where we still have some work 
+>    to do to finalize the proper actions on all architectures: it's being 
+>    somewhat discussed on the arch mailing lists, hopefully we'll have it 
+>    all resolved by -rc2, and it doesn't really worry me)
+> 
+>  - lockless page cache (RCU lookups of radix trees)
+> 
+>  - kvm driver for all those crazy virtualization people to play with
+> 
+>  - networking updates (DCCP, address-family agnostic connection tracking 
+>    in netfilter, sparse byte order annotations, yadda yadda)
+> 
+>  - HID layer separated out of the USB stuff (bluetooth apparently wants 
+>    the HID stuff too)
+> 
+>  - tons and tons of driver (ftape removal, ATA, pcmcia, i2c, 
+>    infiniband, dvb, networking..) and architecture updates (arm, mips, 
+>    powerpc, sh)
+> 
+Did I miss an alternate method of handling ftape devices, or are these 
+old beasts now unsupported? I occasionally have to be able to handle 
+that media, since the industrial device using ftape for control updates 
+cost more than a small house.
 
-We have a number of Tyan S2891 systems at work, most with 8GB but all at
-least 4GB (data corruption still occurs whether 4 or 8GB is installed;
-didn't try less than 4GB...). All have 2 of the following CPUs:
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 37
-model name      : AMD Opteron(tm) Processor 248
-stepping        : 1
-cpu MHz         : 2210.208
-cache size      : 1024 KB
+I can obviously keep an old slow machine to do the job, but I'd like to 
+know if I need to.
 
-
-- the older models have no problem with data corruption,
-  but fail to boot 2.6.18 and up (exactly like
-  http://bugzilla.kernel.org/show_bug.cgi?id=7505 )
-
-- the newer models had problems with data corruption (running md5sum
-  over a large number of files would show differences from run to run).
-  Sometimes the system would hang (no messages on the serial console,
-  no magic sysrq, nothing).
-  These have no problem booting 2.6.18 and up, however.
-  These were delivered with a 2.02 BIOS version.
-  On a whim I tried booting with "nosmp noapic", and running on one CPU
-  the systems seemed stable, no data corruption and no crashes.
-
-- The older models flashed to the latest 2.02 BIOS from the Tyan website
-  still have no data corruption but still won't boot 2.6.18 and up.
-
-- The newer models flashed (downgraded!) to the 2.01 BIOS available from the Tyan
-  website seem to work fine, no data corruption while running on both
-  CPUs and no crashes (although perhaps time is too short to tell for
-  sure, first one I did was 10 days ago).
-
-- I have an idea that perhaps the 2.02 BIOS the newer systems were
-  delivered with is a subtely different version than the one on the
-  website. I may try flashing 2.02 again once the current 2.01 on these
-  systems has proven to be stable.
-
-- Apparently there's something different on the motherboards from the
-  first batch and the second batch, otherwise I couldn't explain the
-  difference in ability to boot 2.6.18 and up. However, I haven't had an
-  opportunity to open two systems up to compare them visually.
-
-
-
-Paul Slootman
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753366AbWLOUGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753385AbWLOULx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753366AbWLOUGK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 15:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753369AbWLOUGK
+	id S1753385AbWLOULx (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753383AbWLOULx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 15:06:10 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:40382 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753366AbWLOUGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 15:06:08 -0500
-Date: Fri, 15 Dec 2006 12:06:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+	Fri, 15 Dec 2006 15:11:53 -0500
+Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:63487 "EHLO
+	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753379AbWLOULw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:11:52 -0500
+Date: Fri, 15 Dec 2006 15:11:49 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: Ed Tomlinson <edt@aei.ca>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        linux-raid@vger.kernel.org
-Subject: Re: md patches in -mm
-Message-Id: <20061215120603.41ff6fed.akpm@osdl.org>
-In-Reply-To: <20061215192146.GA3616@amd64.of.nowhere>
-References: <20061204203410.6152efec.akpm@osdl.org>
-	<17780.63770.228659.234534@cse.unsw.edu.au>
-	<20061205061623.GA13749@amd64.of.nowhere>
-	<20061205062142.GA14784@amd64.of.nowhere>
-	<20061204224323.2e5d0494.akpm@osdl.org>
-	<20061205105928.GA6482@amd64.of.nowhere>
-	<17782.28505.303064.964551@cse.unsw.edu.au>
-	<20061215192146.GA3616@amd64.of.nowhere>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+In-Reply-To: <200612150747.02708.edt@aei.ca>
+Message-ID: <Pine.GSO.4.53.0612151504360.3466@compserv1>
+References: <Pine.GSO.4.53.0612122217360.22195@compserv1> <200612150747.02708.edt@aei.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 20:21:46 +0100
-thunder7@xs4all.nl wrote:
+> On Wednesday 13 December 2006 12:47, Nikolai Joukov wrote:
+> > We have designed a new stackable file system that we called RAIF:
+> > Redundant Array of Independent Filesystems
+>
+> Do you have a function similar to an an EMC cloneset?   Basicily a cloneset
+> tracks what has changed in both the source and target luns (drives).  When one
+> updates the cloneset the target is made identical to the source.  Its a great
+> way to do backups.  Its an important feature to be able to write to the target drives.
+> I would love to see this working at a filesystem level.
 
-> From: Neil Brown <neilb@suse.de>
-> Date: Wed, Dec 06, 2006 at 06:20:57PM +1100
-> > i.e. current -mm is good for 2.6.20 (though I have a few other little
-> > things I'll be sending in soon, they aren't related to the raid6
-> > problem).
-> > 
-> 2.6.20-rc1-mm1 doesn't boot on my box, due to the fact that e2fsck gives
-> 
-> Buffer I/O error on device /dev/md0, logical block 0
-> 
-> and after that 1,2,3,4,5,6,7,8,9, at which points it complains it can't
-> read the superblock. It seems the raid6 problem hasn't gone away
-> completely, after all.
+Well, if you mount RAIF over your file system and a for-backups file
+system, RAIF can replicate the files on both of them automatically.  I
+guess that's what you need.
 
-Odd.  The only md patch in rc1-mm1 is the truly ancient 
-md-dm-reduce-stack-usage-with-stacked-block-devices.patch
-
-Does 2.6.20-rc1 work?
+Nikolai.
+---------------------
+Nikolai Joukov, Ph.D.
+Filesystems and Storage Laboratory
+Stony Brook University

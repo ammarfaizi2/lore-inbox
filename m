@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965135AbWLOVaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753431AbWLOVfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbWLOVaS (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLOVaR
+	id S1753431AbWLOVfD (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:35:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753440AbWLOVfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:30:17 -0500
-Received: from main.gmane.org ([80.91.229.2]:52128 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965135AbWLOVaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:30:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: James Porter <jameslporter@gmail.com>
-Subject: Binary Drivers
-Date: Fri, 15 Dec 2006 21:20:58 +0000 (UTC)
-Message-ID: <loom.20061215T220806-362@post.gmane.org>
+	Fri, 15 Dec 2006 16:35:02 -0500
+Received: from smtp.saahbs.net ([70.235.213.234]:34729 "HELO smtp.saahbs.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1752057AbWLOVfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:35:01 -0500
+Date: Fri, 15 Dec 2006 15:35:00 -0600
+From: Michal Sabala <lkml@saahbs.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 mmap hangs unrelated apps
+Message-ID: <20061215213500.GA16106@prosiaczek>
+Reply-To: Michael Sabala <lkml@saahbs.net>
+References: <20061215023014.GC2721@prosiaczek> <1166199855.5761.34.camel@lade.trondhjem.org> <20061215175030.GG6220@prosiaczek> <20061215124208.a053f4d3.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 72.156.214.83 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061025 Firefox/1.5.0.8)
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20061215124208.a053f4d3.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think some kernel developers take to much responsibility, is there a bug in a
-binary driver? Send it upstream and explain to the user that it's a closed
-source driver and is up to said company to fix it.
+On 2006/12/15 at 14:42:08 Andrew Morton <akpm@osdl.org> wrote
+> On Fri, 15 Dec 2006 11:50:30 -0600
+> Michal Sabala <lkml@saahbs.net> wrote:
+> 
+> > On 2006/12/15 at 10:24:15 Trond Myklebust <trond.myklebust@fys.uio.no> wrote
+> > > On Thu, 2006-12-14 at 20:30 -0600, Michal Sabala wrote:
+> > > > 
+> > > > `cat /proc/*PID*/wchan` for all hanging processes contains page_sync.
+> > > 
+> > > Have you tried an 'echo t >/proc/sysrq-trigger' on a client with one of
+> > > these hanging processes? If so, what does the output look like?
+> > 
+> > Hello Trond,
+> > 
+> > Below is the sysrq trace output for XFree86 which entered the
+> > uninterruptible sleep state on the P4 machine with nfs /home. Please
+> > note that XFree86 does not have any files open in /home - as reported by
+> > `lsof`. Below, I also listed the output of vmstat.
+> 
+> We'd need to see the trace of all D-state processes, please.  Xfree86 might
+> just be a victim of a deadlock elsewhere.  However there is a problem here..
 
-For what it's worth, I don't see any problem with binary drivers from hardware
-manufacturers. 
+Hi Andrew,
 
-Just because nvidia makes a closed source driver doesn't mean that we can't also
-create an open source driver(limited functionality, reverse engineered,
-etc.,etc.). I firmly believe that the choice should be up to the user and/or
-distro. I'm not a kernel dev, I don't know c...but I understand the concepts and
-I should have the right to do what I want with this GPL code. Restricting me
-only frustrates me. Should the default be open source, definitely; should binary
-drivers be blocked from running on a linux kernel...certainly not.
+In most cases only a single process enters the D-state, this time it was
+XFree, but I've seen gimp, firefox, gconfd and bash. Once or twice I did
+see two or three processes ending up in uninterruptible sleep, but I
+suspect they entered this state at different test-mmap.c runs (I left
+test-mmap.c running in a bash loop and checked the system after a few
+hours).
 
-I personally like nvidia's products, they have spent a lot of money in R&D. One
-example is SLI, if their spec was open what would stop ATI from stealing their
-work(patents?, gotta love those). Personally I think nvidia has excellent
-support for linux, I have actually convinced people to use linux(desktop and
-server) just by showing them beryl with the nvidia beta drivers.
+Would it be beneficial to keep running test-mmap.c on this machine until
+two or more processes end up in D-state? I can leave this machine
+running test-mmap.c over the weekend. 
 
-Lastly I think it's ridiculous to create,diplay, and distribute "Free" as in
-freedom and "Free" as in cost software only to later consider limiting my
-freedom...want to know why a lot of large companies don't support
-linux...exactly threads like this. Why make the effort to use "Free" software
-only to have the rug pulled out from under you. This is what makes the BSDs so
-attractive.
+Please advise,
 
+Sincerely,
+
+Michal
+
+-- 
+Michal "Saahbs" Sabala

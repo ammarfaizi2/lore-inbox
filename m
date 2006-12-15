@@ -1,28 +1,30 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753325AbWLOTtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753366AbWLOUGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753325AbWLOTtq (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 14:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753326AbWLOTtp
+	id S1753366AbWLOUGK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 15:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753369AbWLOUGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 14:49:45 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:38854 "EHLO smtp.osdl.org"
+	Fri, 15 Dec 2006 15:06:10 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:40382 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753325AbWLOTtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 14:49:45 -0500
-Date: Fri, 15 Dec 2006 11:45:36 -0800
+	id S1753366AbWLOUGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 15:06:08 -0500
+Date: Fri, 15 Dec 2006 12:06:03 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andy Whitcroft <apw@shadowen.org>, cbe-oss-dev@ozlabs.org,
-       linuxppc-dev@ozlabs.org, linux-mm@kvack.org, mkravetz@us.ibm.com,
-       hch@infradead.org, jk@ozlabs.org, linux-kernel@vger.kernel.org,
-       paulus@samba.org, benh@kernel.crashing.org, gone@us.ibm.com,
-       Keith Mannthey <kmannth@us.ibm.com>
-Subject: Re: [PATCH] Fix sparsemem on Cell
-Message-Id: <20061215114536.dc5c93af.akpm@osdl.org>
-In-Reply-To: <1166203440.8105.22.camel@localhost.localdomain>
-References: <20061215165335.61D9F775@localhost.localdomain>
-	<4582D756.7090702@shadowen.org>
-	<1166203440.8105.22.camel@localhost.localdomain>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: md patches in -mm
+Message-Id: <20061215120603.41ff6fed.akpm@osdl.org>
+In-Reply-To: <20061215192146.GA3616@amd64.of.nowhere>
+References: <20061204203410.6152efec.akpm@osdl.org>
+	<17780.63770.228659.234534@cse.unsw.edu.au>
+	<20061205061623.GA13749@amd64.of.nowhere>
+	<20061205062142.GA14784@amd64.of.nowhere>
+	<20061204224323.2e5d0494.akpm@osdl.org>
+	<20061205105928.GA6482@amd64.of.nowhere>
+	<17782.28505.303064.964551@cse.unsw.edu.au>
+	<20061215192146.GA3616@amd64.of.nowhere>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,37 +32,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 09:24:00 -0800
-Dave Hansen <haveblue@us.ibm.com> wrote:
+On Fri, 15 Dec 2006 20:21:46 +0100
+thunder7@xs4all.nl wrote:
 
+> From: Neil Brown <neilb@suse.de>
+> Date: Wed, Dec 06, 2006 at 06:20:57PM +1100
+> > i.e. current -mm is good for 2.6.20 (though I have a few other little
+> > things I'll be sending in soon, they aren't related to the raid6
+> > problem).
+> > 
+> 2.6.20-rc1-mm1 doesn't boot on my box, due to the fact that e2fsck gives
 > 
-> ...
->
-> I think the comments added say it pretty well, but I'll repeat it here.
+> Buffer I/O error on device /dev/md0, logical block 0
 > 
-> This fix is pretty similar in concept to the one that Arnd posted
-> as a temporary workaround, but I've added a few comments explaining
-> what the actual assumptions are, and improved it a wee little bit.
-> 
-> The end goal here is to simply avoid calling the early_*() functions
-> when it is _not_ early.  Those functions stop working as soon as
-> free_initmem() is called.  system_state is set to SYSTEM_RUNNING
-> just after free_initmem() is called, so it seems appropriate to use
-> here.
+> and after that 1,2,3,4,5,6,7,8,9, at which points it complains it can't
+> read the superblock. It seems the raid6 problem hasn't gone away
+> completely, after all.
 
-Would really prefer not to do this.  system_state is evil.  Its semantics
-are poorly-defined and if someone changes them a bit, or changes memory
-initialisation order, you get whacked.
+Odd.  The only md patch in rc1-mm1 is the truly ancient 
+md-dm-reduce-stack-usage-with-stacked-block-devices.patch
 
-I think an mm-private flag with /*documented*/ semantics would be better. 
-It's only a byte.
-
-> +static int __meminit can_online_pfn_into_nid(unsigned long pfn, int nid)
-
-I spent some time trying to work out what "can_online_pfn_into_nid" can
-possibly mean and failed.  "We can bring a pfn online then turn it into a
-NID"?  Don't think so.  "We can bring this page online and allocate it to
-this node"?  Maybe.
-
-Perhaps if the function's role in the world was commented it would be clearer.
-
+Does 2.6.20-rc1 work?

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbWLOBeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932110AbWLOBdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWLOBeH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 14 Dec 2006 20:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWLOBeG
+	id S932110AbWLOBdh (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 14 Dec 2006 20:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWLOBdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Dec 2006 20:34:06 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46053 "EHLO
+	Thu, 14 Dec 2006 20:33:36 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45992 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964807AbWLOBd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Dec 2006 20:33:59 -0500
-Message-Id: <20061215013648.197529000@sous-sol.org>
+	id S932110AbWLOBdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Dec 2006 20:33:19 -0500
+Message-Id: <20061215013447.185743000@sous-sol.org>
 References: <20061215013337.823935000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 14 Dec 2006 17:33:49 -0800
+Date: Thu, 14 Dec 2006 17:33:38 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,43 +21,48 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Milan Broz <mbroz@redhat.com>,
-       device-mapper development <dm-devel@redhat.com>,
-       Alasdair G Kergon <agk@redhat.com>
-Subject: [patch 12/24] dm snapshot: fix freeing pending exception
-Content-Disposition: inline; filename=dm-snapshot-fix-freeing-pending-exception.patch
+       alan@lxorguk.ukuu.org.uk, Larry Finger <Larry.Finger@lwfinger.net>,
+       Michael Buesch <mb@bu3sch.de>
+Subject: [patch 01/24] softmac: remove netif_tx_disable when scanning
+Content-Disposition: inline; filename=softmac-remove-netif_tx_disable-when-scanning.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 2.6.18-stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Milan Broz <mbroz@redhat.com>
+From: Michael Buesch <mb@bu3sch.de>
 
-Fix oops when removing full snapshot
-kernel bugzilla bug 7040
+In the scan section of ieee80211softmac, network transmits are disabled.
+When SoftMAC re-enables transmits, it may override the wishes of a driver
+that may have very good reasons for disabling transmits. At least one failure
+in bcm43xx can be traced to this problem. In addition, several unexplained
+problems may arise from the unexpected enabling of transmits.
 
-If a snapshot became invalid (full) while there is outstanding 
-pending_exception, pending_complete() forgets to remove
-the corresponding exception from its exception table before freeing it.
-
-Already fixed in 2.6.19.
-
-Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Michael Buesch <mb@bu3sch.de>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/md/dm-snap.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ieee80211/softmac/ieee80211softmac_scan.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- linux-2.6.18.5.orig/drivers/md/dm-snap.c
-+++ linux-2.6.18.5/drivers/md/dm-snap.c
-@@ -691,6 +691,7 @@ static void pending_complete(struct pend
+--- linux-2.6.18.5.orig/net/ieee80211/softmac/ieee80211softmac_scan.c
++++ linux-2.6.18.5/net/ieee80211/softmac/ieee80211softmac_scan.c
+@@ -47,7 +47,6 @@ ieee80211softmac_start_scan(struct ieee8
+ 	sm->scanning = 1;
+ 	spin_unlock_irqrestore(&sm->lock, flags);
  
- 		free_exception(e);
- 
-+		remove_exception(&pe->e);
- 		error_snapshot_bios(pe);
- 		goto out;
+-	netif_tx_disable(sm->ieee->dev);
+ 	ret = sm->start_scan(sm->dev);
+ 	if (ret) {
+ 		spin_lock_irqsave(&sm->lock, flags);
+@@ -248,7 +247,6 @@ void ieee80211softmac_scan_finished(stru
+ 		if (net)
+ 			sm->set_channel(sm->dev, net->channel);
  	}
+-	netif_wake_queue(sm->ieee->dev);
+ 	ieee80211softmac_call_events(sm, IEEE80211SOFTMAC_EVENT_SCAN_FINISHED, NULL);
+ }
+ EXPORT_SYMBOL_GPL(ieee80211softmac_scan_finished);
 
 --

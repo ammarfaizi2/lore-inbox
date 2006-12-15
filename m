@@ -1,89 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753045AbWLORlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753062AbWLORoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753045AbWLORlJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 12:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753046AbWLORlJ
+	id S1753062AbWLORoX (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 12:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753065AbWLORoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 12:41:09 -0500
-Received: from sbcs.sunysb.edu ([130.245.1.15]:58933 "EHLO sbcs.cs.sunysb.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752902AbWLORlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 12:41:08 -0500
-Date: Fri, 15 Dec 2006 12:41:02 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <200612150802.55396.a1426z@gawab.com>
-Message-ID: <Pine.GSO.4.53.0612151156130.26813@compserv1>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
- <200612132257.24399.a1426z@gawab.com> <Pine.GSO.4.53.0612141538410.6095@compserv1>
- <200612150802.55396.a1426z@gawab.com>
+	Fri, 15 Dec 2006 12:44:22 -0500
+Received: from wr-out-0506.google.com ([64.233.184.237]:61418 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753061AbWLORoV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 12:44:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=LT2criMUaHVuBKsvu2/g137zh3uDRaCGVycXwgWyINvkkUGOU5OOW6bcZ3ir95zXnhf9XPVyCJ3fPtdjvclMlnbEC9NwdyoNgdmBzRD3+HSR5W5OwYab3QYPqFCfDxgEB+SabeBSCh8JuHYAdE6ADoK1MbAiqeB45FJwBWtpJw4=
+Message-ID: <161717d50612150944u2dd36425u9dea25c7f3aa2da3@mail.gmail.com>
+Date: Fri, 15 Dec 2006 12:44:20 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Cc: "Scott Preece" <sepreece@gmail.com>, "Chris Wedgwood" <cw@f00f.org>,
+       "Eric Sandeen" <sandeen@sandeen.net>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Jeff Garzik" <jeff@garzik.org>,
+       "Greg KH" <gregkh@suse.de>, "Jonathan Corbet" <corbet@lwn.net>,
+       "Andrew Morton" <akpm@osdl.org>, "Martin Bligh" <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4581A75C.9020509@wolfmountaingroup.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061214003246.GA12162@suse.de> <458171C1.3070400@garzik.org>
+	 <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
+	 <20061214170841.GA11196@tuatara.stupidest.org>
+	 <20061214173827.GC3452@infradead.org>
+	 <20061214175253.GB12498@tuatara.stupidest.org>
+	 <458194B8.1090309@sandeen.net>
+	 <20061214183956.GA13692@tuatara.stupidest.org>
+	 <7b69d1470612141142k63cc7d11l89c0a7f26acc631a@mail.gmail.com>
+	 <4581A75C.9020509@wolfmountaingroup.com>
+X-Google-Sender-Auth: f1fd828a1bb565bc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nikolai Joukov wrote:
-> > > Nikolai Joukov wrote:
-> > > > We have designed a new stackable file system that we called RAIF:
-> > > > Redundant Array of Independent Filesystems.
-> > >
-> > > Great!
-> > >
-> > > > We have performed some benchmarking on a 3GHz PC with 2GB of RAM and
-> > > > U320 SCSI disks.  Compared to the Linux RAID driver, RAIF has
-> > > > overheads of about 20-25% under the Postmark v1.5 benchmark in case of
-> > > > striping and replication.  In case of RAID4 and RAID5-like
-> > > > configurations, RAIF performed about two times *better* than software
-> > > > RAID and even better than an Adaptec 2120S RAID5 controller.
-> > >
-> > > I am not surprised.  RAID 4/5/6 performance is highly sensitive to the
-> > > underlying hw, and thus needs a fair amount of fine tuning.
-> >
-> > Nevertheless, performance is not the biggest advantage of RAIF.  For
-> > read-biased workloads RAID is always slightly faster than RAIF.  The
-> > biggest advantages of RAIF are flexible configurations (e.g., can combine
-> > NFS and local file systems), per-file-type storage policies, and the fact
-> > that files are stored as files on the lower file systems (which is
-> > convenient).
+On 12/14/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
 >
-> Ok, a I was just about to inform you of a three nfs-branch raif which was
-> unable to fill the net pipe.  So it looks like a 25% performance hit across
-> the board.  Should be possible to reduce to sub 3% though once RAIF matures,
-> don't you think?
+> This whole effort is pointless.  This is the same kind of crap MICROSOFT
+> DOES to create incompatibilities
+> DELIBERATELY.  The code is either FREE or its NOT FREE.
+>
+> All someone has to do or say is.
+>
+> "... I did not ever accept the GPL license with the FREE code I was
+> given.  They said the code was FREE, and I took them
+> at their word. .."
 
-Hmmm.  Which workload did you try?  Which RAIF level did you use: RAIF0
-(striping), replication (RAIF1, default), or striping with parity (RAIF4,
-5, 6)?  Which hardware did you use?  RAIF has to consume extra CPU time
-and on older machines the overheads seem to be higher (CPUs are getting
-faster than I/O devices at a faster pace).  Also, I guess you are
-comparing RAIF mounted over three NFS branches with NFS alone, right?
-It doesn't seem to be very fair to me :-)
+At which point, hopefully everyone in that courtroom besides the idiot
+who says this knows the difference between a license and a contract.
+If anyone doesn't, they can be referred to:
 
-Recently we solved the double-caching problem, which improved RAIF's
-performance by an order of magnitude under I/O-intensive workloads.
-(Normally, Linux stackable file systems cache the data twice.)
-Unfortunately, many VFS meta-operations are synchronous (e.g., lookup).
-RAIF has to wait on such operations in sequence for every branch
-involved.  (This is different from, say, readpage operation.  We
-call readpage on all the branches right away and then wait for their
-simultaneous operation.)  Sequential waiting on lookups should be OK for
-multi-threaded workloads but may result in extra elapsed time for the
-single-threaded workloads.  Again, elegant solutions may require VFS API
-changes.  Alternatively, we can create kernel threads for every branch.
+"5.  You are not required to accept this License, since you have not
+signed it. However, nothing else grants you permission to modify or
+distribute the Program or its derivative works. These actions are
+prohibited by law if you do not accept this License."
 
-I am not sure about 3% overheads in all the cases compared to NFS alone.
-On one hand, there should be some price to pay for the extra
-functionality.  On the other hand, for some workloads RAIF should
-even improve performance compared to a single NFS because of the load
-distribution.  In general, I agree that there are still many things we can
-optimize.
+The code is free, as in "redistributable at no charge as long as you
+adhere to the terms of the license."
 
-Nikolai.
----------------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+Your estoppel argument seems too confused between laches, promissory
+estoppel and statutes of limitations to even make sense of, sorry.
+
+Dave

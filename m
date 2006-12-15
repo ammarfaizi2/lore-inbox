@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964945AbWLOVDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964958AbWLOVE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964945AbWLOVDc (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 16:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWLOVDc
+	id S964958AbWLOVE7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 16:04:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWLOVE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 16:03:32 -0500
-Received: from alephnull.demon.nl ([83.160.184.112]:58332 "EHLO
-	xi.wantstofly.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964945AbWLOVDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 16:03:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
-	d=wantstofly.org;
-	h=date:from:to:cc:subject:message-id:mime-version:content-type:
-	content-disposition:in-reply-to:user-agent;
-	b=tZMSlFQHf0WWfm4T21Vbq7SLmrqgrw36R5syJBOL9rzR9y2wKY6HE1tpvfAvv
-	/9G/MISR7pEfz9PXcCtmuo9pQ==
-Date: Fri, 15 Dec 2006 22:03:29 +0100
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Martin Michlmayr <tbm@cyrius.com>, Riku Voipio <riku.voipio@iki.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
-Message-ID: <20061215210329.GB14860@xi.wantstofly.org>
-References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org> <20061215201522.GA11288@electric-eye.fr.zoreil.com>
+	Fri, 15 Dec 2006 16:04:59 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:59969 "EHLO palrel10.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964958AbWLOVE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 16:04:58 -0500
+X-Greylist: delayed 933 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 16:04:58 EST
+Date: Fri, 15 Dec 2006 14:49:22 -0600
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: jens.axboe@oracle.com, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       daniel_frazier@hp.com, andrew.patterson@hp.com
+Subject: [PATCH 1/2] cciss: set default raid level when reading geometry fails
+Message-ID: <20061215204922.GA8682@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061215201522.GA11288@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2006 at 09:15:22PM +0100, Francois Romieu wrote:
+PATCH 1 of 2
 
-> > Is there a way we can have this done by default on the n2100?  I guess
-> > that since it's a PCI device, there isn't much hope for that..?
-> 
-> Do you mean an automagically tuned default value based on CONFIG_ARM ?
+This patch sets a default raid level on a volume that either does not support
+reading the geometry or reports an invalid geometry for whatever reason. We
+were always setting some values for heads and sectors but never set a raid
+level. This caused lots of problems on some buggy firmware. Please consider
+this for inclusion.
 
-No, that wouldn't make sense, that's like making a workaround depend on
-arch == i386.
+Thanks,
+mikem
 
-I'm thinking that we should somehow enable this option on the n2100
-built-in r8169 ports by default only.  Since the n2100 also has a mini-PCI
-slot, and it is in theory possible to put an r8169 on a mini-PCI card,
-the workaround probably shouldn't apply to those, so testing for
-CONFIG_MACH_N2100 also isn't the right thing to do.
+Signed-off-by: Mike Miller <mike.miller@hp.com>
+--------------------------------------------------------------------------------
+
+ drivers/block/cciss.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN drivers/block/cciss.c~cciss_set_default_raidlevel drivers/block/cciss.c
+--- linux-2.6-work/drivers/block/cciss.c~cciss_set_default_raidlevel	2006-12-13 11:04:39.000000000 -0600
++++ linux-2.6-work-mikem/drivers/block/cciss.c	2006-12-13 11:05:06.000000000 -0600
+@@ -1907,6 +1907,7 @@ static void cciss_geometry_inquiry(int c
+ 			       "does not support reading geometry\n");
+ 			drv->heads = 255;
+ 			drv->sectors = 32;	// Sectors per track
++			drv->raid_level = RAID_UNKNOWN;
+ 		} else {
+ 			drv->heads = inq_buff->data_byte[6];
+ 			drv->sectors = inq_buff->data_byte[7];
+_

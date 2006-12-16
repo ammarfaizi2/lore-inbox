@@ -1,76 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965281AbWLPBJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751187AbWLPBS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965281AbWLPBJJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965304AbWLPBJJ
+	id S1751187AbWLPBS4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWLPBS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:09:09 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33456 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965281AbWLPBJI (ORCPT
+	Fri, 15 Dec 2006 20:18:56 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51397 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751187AbWLPBS4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 20:09:08 -0500
-Date: Sat, 16 Dec 2006 01:09:06 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, Dirk@Opfer-Online.de,
-       arminlitzel@web.de, pavel.urban@ct.cz, metan@seznam.cz
-Subject: Re: Nasty warnings on arm (+ one compile problem -- INIT_WORK related)
-Message-ID: <20061216010906.GC17561@ftp.linux.org.uk>
-References: <20061215235818.GD2853@elf.ucw.cz>
+	Fri, 15 Dec 2006 20:18:56 -0500
+Date: Sat, 16 Dec 2006 01:27:21 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+Message-ID: <20061216012721.47be92f3@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
+References: <1166226982.12721.78.camel@localhost>
+	<Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061215235818.GD2853@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Plus compile error. It should be some search&replace I should do, but
-> which one?
-> 
-> drivers/video/sa1100fb.c:1447:49: macro "INIT_WORK" passed 3
-> arguments, but takes just 2
-> drivers/video/sa1100fb.c: In function `sa1100fb_init_fbinfo':
-> drivers/video/sa1100fb.c:1447: error: `INIT_WORK' undeclared (first
-> use in this function)
-> drivers/video/sa1100fb.c:1447: error: (Each undeclared identifier is
-> reported only once
-> drivers/video/sa1100fb.c:1447: error: for each function it appears
-> in.)
-> drivers/video/sa1100fb.c: At top level:
-> drivers/video/sa1100fb.c:1204: warning: `sa1100fb_task' defined but
-> not used
-> make[2]: *** [drivers/video/sa1100fb.o] Error 1
-> make[1]: *** [drivers/video] Error 2
-> make: *** [drivers] Error 2
-> 
->         INIT_WORK(&fbi->task, sa1100fb_task, fbi);
-> 
-> ...
-> 
-> /*
->  * Our LCD controller task (which is called when we blank or unblank)
->  * via keventd.
->  */
-> static void sa1100fb_task(void *dummy)
-> {
->         struct sa1100fb_info *fbi = dummy;
->         u_int state = xchg(&fbi->task_state, -1);
-> 
->         set_ctrlr_state(fbi, state);
-> }
-> 
-> (Or will I need to play with container_of or something? I guess I did
-> not pay attetion to workqueue stuff).
+> blather and idiotic hogwash. "Information" doesn't want to be free, nor is 
+> it somethign you should fight for or necessarily even encourage.
 
-... and that's
+As a pedant that is the one item I have to pick you up on Linus.
+Information wants to be free, the natural efficient economic state of
+information is generally free in both senses.
 
-static void sa1100fb_task(struct work_struct *ucking_fugly)
-{
-	struct sa1100fb_info *fbi = container_of(ucking_fugly,
-						 struct sa1100fb_info,
-						 task);

@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030299AbWLPF13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965330AbWLPFwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWLPF13 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 00:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWLPF13
+	id S965330AbWLPFwp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 00:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965336AbWLPFwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 00:27:29 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:39663 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932386AbWLPF13 (ORCPT
+	Sat, 16 Dec 2006 00:52:45 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:60420 "EHLO
+	liaag2ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965330AbWLPFwo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 00:27:29 -0500
-Date: Fri, 15 Dec 2006 21:28:35 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Mike Accetta <maccetta@laurelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Change in multiple NFS mount behavior in 2.6.19?
-Message-Id: <20061215212835.447659c8.randy.dunlap@oracle.com>
-In-Reply-To: <45837A24.9040207@laurelnetworks.com>
-References: <45837A24.9040207@laurelnetworks.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 16 Dec 2006 00:52:44 -0500
+Date: Sat, 16 Dec 2006 00:47:09 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.18.5 usb/sysfs bug.
+To: Dave Jones <davej@redhat.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Message-ID: <200612160050_MC3-1-D538-EA63@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 23:46:28 -0500 Mike Accetta wrote:
+In-Reply-To: <20061215213715.GB15792@redhat.com>
 
-> After upgrading an NFS client from 2.6.18 to 2.6.19 (and also with 
-> 2.6.19.1) we see a change in behavior of multiple NFS mounts against the 
-> same server (running 2.4.20 in this case).  With 2.6.18 we could mount 
-> different pieces of the same remote file system with distinct read-only 
-> and read-write attributes at corresponding places on the client.  With 
-> 2.6.19 if the first mount is read-only, subsequent mounts seem to 
-> inherit the read-only status even though not explicitly mounted read-only.
-> 
-> If I did the "git bisect" properly, the behavior changed with commit
-> 54ceac4515986030c2502960be620198dd8fe25b and the description of this 
-> commit seems like it could indeed have caused this behavior, but perhaps 
-> not intentionally. I believe the client is making NFS V2 calls. Also, I 
-> am still able to issue a "mount -o remount,rw" on the client to regain 
-> read-write capability.  Was this a regression or is this now the 
-> expected behavior for multiple NFS client mounts in 2.6.19?
-> -- 
+On Fri, 15 Dec 2006 16:37:15 -0500, Dave Jones wrote:
 
-That would correspond to this bugzilla item, which explains
-that multiple mount semantics for one filesystem are all shared.
+> > Can you enable CONFIG_USB_DEBUG and send the log info that happens right
+> > before this oops?
+>
+> Gah, and here it is, actually attached this time.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7655
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 0000000b
 
----
-~Randy
+> EIP is at sysfs_hash_and_remove+0x18/0xfd
+
+That's strange.  Remove_files called sysfs_hash_and_remove()
+with dir==0xfffffff3 (-13 decimal.)
+
+static void remove_files(struct dentry * dir,
+                         const struct attribute_group * grp)
+{
+        struct attribute *const* attr;
+
+        for (attr = grp->attrs; *attr; attr++)
+                sysfs_hash_and_remove(dir,(*attr)->name); <========
+}
+
+> Process pcscd (pid: 2678, ti=f6d28000 task=f7dbe1f0 task.ti=f6d28000)
+> Stack: c0634109 fffffff3 f7063414 c069cf0c fffffff3 fffffff3 f7063414 c04a7f69 
+>        c069cf00 f70632b0 c04a7fb8 f7063208 f70473a0 f7063208 c055572f f70632b0 
+>        c05513ff f7063208 f7000640 00000001 f703f788 c055142e f6d28ed4 c058800c 
+> Call Trace:
+>  [<c04a7f69>] remove_files+0x15/0x1e
+>  [<c04a7fb8>] sysfs_remove_group+0x46/0x5c
+>  [<c055572f>] device_pm_remove+0x2b/0x62
+>  [<c05513ff>] device_del+0x11a/0x141
+>  [<c055142e>] device_unregister+0x8/0x10
+>  [<c058800c>] usb_remove_ep_files+0x5b/0x7b
+>  [<c0587b82>] usb_remove_sysfs_intf_files+0x1d/0x54
+>  [<c0585b5c>] usb_set_interface+0x135/0x1bf
+>  [<c0586047>] usb_unbind_interface+0x4a/0x6a
+>  [<c0552a38>] __device_release_driver+0x60/0x78
+>  [<c0552c85>] device_release_driver+0x2b/0x3a
+>  [<c057e4f5>] usb_driver_release_interface+0x3b/0x63
+>  [<c058833d>] releaseintf+0x4b/0x5b
+>  [<c058ab8d>] usbdev_release+0x67/0x9e
+>  [<c0470402>] __fput+0xba/0x188
+>  [<c046dc61>] filp_close+0x52/0x59
+>  [<c0404013>] syscall_call+0x7/0xb
+
+What is pcscd?
+
+Earlier in bootup you got this:
+
+hub 1-0:1.0: state 7 ports 2 chg 0000 evt 0004
+uhci_hcd 0000:00:1d.0: port 2 portsc 008a,00
+hub 1-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
+usb 1-2: USB disconnect, address 2
+usb 1-2: usb_disable_device nuking all URBs
+uhci_hcd 0000:00:1d.0: shutdown urb f7ed7540 pipe 40408280 ep1in-intr
+usb 1-2: unregistering interface 1-2:1.0
+ usbdev1.2_ep81: ep_device_release called for usbdev1.2_ep81
+usb 1-2:1.0: uevent
+usb 1-2: unregistering device
+ usbdev1.2_ep00: ep_device_release called for usbdev1.2_ep00
+
+usb_remove_ep_files() is in the call trace, so this may be related?
+
+-- 
+MBTI: IXTP

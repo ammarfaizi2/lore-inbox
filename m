@@ -1,84 +1,586 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422647AbWLPWHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422662AbWLPWQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422647AbWLPWHy (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 17:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWLPWHy
+	id S1422662AbWLPWQw (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 17:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWLPWQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 17:07:54 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:46192 "EHLO tmailer.gwdg.de"
+	Sat, 16 Dec 2006 17:16:52 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:43470 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422647AbWLPWHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 17:07:53 -0500
-Date: Sat, 16 Dec 2006 23:06:51 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Divy Le Ray <divy@chelsio.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cxgb3 and 2.6.20-rc1
-In-Reply-To: <45846B47.6010609@chelsio.com>
-Message-ID: <Pine.LNX.4.61.0612162303390.5411@yvahk01.tjqt.qr>
-References: <4580E3D7.3050708@chelsio.com> <Pine.LNX.4.61.0612162007110.5411@yvahk01.tjqt.qr>
- <45846B47.6010609@chelsio.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-2087777651-1166306668=:5411"
-Content-ID: <Pine.LNX.4.61.0612162304400.5411@yvahk01.tjqt.qr>
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1422662AbWLPWQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 17:16:51 -0500
+Message-id: <53003385545127333@wsc.cz>
+Subject: [PATCH 1/1] Char: tty_wakeup cleanup
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>
+Date: Sat, 16 Dec 2006 23:17:00 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+tty_wakeup cleanup
 
---1283855629-2087777651-1166306668=:5411
-Content-Type: TEXT/PLAIN; CHARSET=UTF-8
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.61.0612162304401.5411@yvahk01.tjqt.qr>
+- remove wake_up_interruptible(&tty->write_wait) surrounding
+  tty_wakup(tty);
+- substitute tty->ldisc.write_wakeup(tty) + wake_up() by tty_wakeup(tty);
 
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-On Dec 16 2006 13:55, Divy Le Ray wrote:
->> > A corresponding monolithic patch is posted at the following URL:
->> > http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
->> > 
->> 
->> I was unable to compile this on 2.6.20-rc1, because:
->> 
->>  CC [M]  drivers/net/cxgb3/cxgb3_offload.o
->> drivers/net/cxgb3/cxgb3_offload.c: In function â€˜cxgb_free_memâ€™:
->> drivers/net/cxgb3/cxgb3_offload.c:1004: error: â€˜PKMAP_BASEâ€™ undeclared
->> (first use in this function)
->> 
->> However, line 1004 is:
->> 
->> if (p >= VMALLOC_START && p < VMALLOC_END)
->> 
->> and include/asm/pgtable.h:
->> 
->> # ifdef CONFIG_HIGHMEM
->> # define VMALLOC_END    (PKMAP_BASE-2*PAGE_SIZE)
->> # else
->> # define VMALLOC_END    (FIXADDR_START-2*PAGE_SIZE)
->> # endif
->> 
->> So include/asm/pgtable.h lacks inclusion of include/asm/highmem.h,
->> where PKMAP_BASE is defined. Adding it gives me more compile errors.
->> Not good. Does anyone have a patch to fix that?
->> 
->
-> I've never tripped on this. I cannot reproduce it.
+---
+commit 2acac8f970a75a3dc8466781845ae5d14c3d8988
+tree 396cc84d4e198d2a65cd4aa9748aabeab5681ba5
+parent 8b380d8b1c3ff7d09d68d467d2f135774cab4086
+author Jiri Slaby <jirislaby@gmail.com> Sat, 16 Dec 2006 22:22:57 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 16 Dec 2006 22:22:57 +0059
 
-Enable CONFIG_HIGHMEM4G or CONFIG_HIGHMEM64G.
+ drivers/char/amiserial.c             |    5 +----
+ drivers/char/cyclades.c              |    1 -
+ drivers/char/epca.c                  |    3 ---
+ drivers/char/generic_serial.c        |    1 -
+ drivers/char/ip2/i2lib.c             |   10 +---------
+ drivers/char/isicom.c                |    1 -
+ drivers/char/istallion.c             |    1 -
+ drivers/char/mxser.c                 |    4 +---
+ drivers/char/pcmcia/synclink_cs.c    |    4 +---
+ drivers/char/rio/riointr.c           |    9 ++-------
+ drivers/char/riscom8.c               |    5 +----
+ drivers/char/rocket.c                |    3 ---
+ drivers/char/specialix.c             |    4 +---
+ drivers/char/synclink.c              |    5 +----
+ drivers/char/synclink_gt.c           |    5 +----
+ drivers/char/synclinkmp.c            |    5 +----
+ drivers/isdn/gigaset/interface.c     |   14 ++------------
+ drivers/isdn/i4l/isdn_tty.c          |    1 -
+ drivers/serial/crisv10.c             |   14 +++-----------
+ drivers/tc/zs.c                      |    4 +---
+ drivers/usb/serial/digi_acceleport.c |   10 +---------
+ drivers/usb/serial/keyspan_pda.c     |    7 +------
+ drivers/usb/serial/mos7720.c         |   14 ++------------
+ drivers/usb/serial/mos7840.c         |   14 ++------------
+ drivers/usb/serial/serqt_usb.c       |   18 ++----------------
+ 25 files changed, 25 insertions(+), 137 deletions(-)
 
-> Would you mind trying this:
-> add #include <linux/highmem.h> in drivers/net/cxgb3/cxgb3_offload.c 
-> and see if it fixes the compilation ?
-
-Yes 'fixes' it.
-But such a change seems bogus to me. You are 
-using VMALLOC_END, hence you should include the .h file which contains 
-VMALLOC_END, and nothing more. Of course there are exceptions to this 
-(like getting at elevator.h's stuff by means of inclusion of blkdev.h)
-
-
-	-`J'
--- 
---1283855629-2087777651-1166306668=:5411--
+diff --git a/drivers/char/amiserial.c b/drivers/char/amiserial.c
+index feb4ac8..39880eb 100644
+--- a/drivers/char/amiserial.c
++++ b/drivers/char/amiserial.c
+@@ -527,10 +527,8 @@ static void do_softint(unsigned long private_)
+ 	if (!tty)
+ 		return;
+ 
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event)) {
++	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event))
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ /*
+@@ -968,7 +966,6 @@ static void rs_flush_buffer(struct tty_struct *tty)
+ 	local_irq_save(flags);
+ 	info->xmit.head = info->xmit.tail = 0;
+ 	local_irq_restore(flags);
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+diff --git a/drivers/char/cyclades.c b/drivers/char/cyclades.c
+index 3ffa080..363beb1 100644
+--- a/drivers/char/cyclades.c
++++ b/drivers/char/cyclades.c
+@@ -4488,7 +4488,6 @@ static void cy_flush_buffer(struct tty_struct *tty)
+ 		CY_UNLOCK(info, flags);
+ 	}
+ 	tty_wakeup(tty);
+-	wake_up_interruptible(&tty->write_wait);
+ }				/* cy_flush_buffer */
+ 
+ /*
+diff --git a/drivers/char/epca.c b/drivers/char/epca.c
+index a0f822c..88fc24f 100644
+--- a/drivers/char/epca.c
++++ b/drivers/char/epca.c
+@@ -844,7 +844,6 @@ static void pc_flush_buffer(struct tty_struct *tty)
+ 	fepcmd(ch, STOUT, (unsigned) tail, 0, 0, 0);
+ 	memoff(ch);
+ 	spin_unlock_irqrestore(&epca_lock, flags);
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ } /* End pc_flush_buffer */
+ 
+@@ -1795,7 +1794,6 @@ static void doevent(int crd)
+ 				{ /* Begin if LOWWAIT */
+ 					ch->statusflags &= ~LOWWAIT;
+ 					tty_wakeup(tty);
+-					wake_up_interruptible(&tty->write_wait);
+ 				} /* End if LOWWAIT */
+ 			} else if (event & EMPTYTX_IND)  { /* Begin EMPTYTX_IND */
+ 				/* This event is generated by setup_empty_event */
+@@ -1803,7 +1801,6 @@ static void doevent(int crd)
+ 				if (ch->statusflags & EMPTYWAIT)  { /* Begin if EMPTYWAIT */
+ 					ch->statusflags &= ~EMPTYWAIT;
+ 					tty_wakeup(tty);
+-					wake_up_interruptible(&tty->write_wait);
+ 				} /* End if EMPTYWAIT */
+ 			} /* End EMPTYTX_IND */
+ 		} /* End if valid tty */
+diff --git a/drivers/char/generic_serial.c b/drivers/char/generic_serial.c
+index e769811..337bbcd 100644
+--- a/drivers/char/generic_serial.c
++++ b/drivers/char/generic_serial.c
+@@ -382,7 +382,6 @@ void gs_flush_buffer(struct tty_struct *tty)
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+ 	spin_unlock_irqrestore (&port->driver_lock, flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ 	func_exit ();
+ }
+diff --git a/drivers/char/ip2/i2lib.c b/drivers/char/ip2/i2lib.c
+index 7804576..88b9d33 100644
+--- a/drivers/char/ip2/i2lib.c
++++ b/drivers/char/ip2/i2lib.c
+@@ -1373,15 +1373,7 @@ ip2_owake( PTTY tp)
+ 	ip2trace (CHANN, ITRC_SICMD, 10, 2, tp->flags,
+ 			(1 << TTY_DO_WRITE_WAKEUP) );
+ 
+-	wake_up_interruptible ( &tp->write_wait );
+-	if ( ( tp->flags & (1 << TTY_DO_WRITE_WAKEUP) ) 
+-	  && tp->ldisc.write_wakeup )
+-	{
+-		(tp->ldisc.write_wakeup) ( tp );
+-
+-		ip2trace (CHANN, ITRC_SICMD, 11, 0 );
+-
+-	}
++	tty_wakeup(tp);
+ }
+ 
+ static inline void
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index 60df87c..c9e4c01 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -1478,7 +1478,6 @@ static void isicom_flush_buffer(struct tty_struct *tty)
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+ 	spin_unlock_irqrestore(&card->card_lock, flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+diff --git a/drivers/char/istallion.c b/drivers/char/istallion.c
+index 68645d3..7b279d1 100644
+--- a/drivers/char/istallion.c
++++ b/drivers/char/istallion.c
+@@ -2424,7 +2424,6 @@ static int stli_hostcmd(struct stlibrd *brdp, struct stliport *portp)
+ 			if (tty != NULL) {
+ 				tty_wakeup(tty);
+ 				EBRDENABLE(brdp);
+-				wake_up_interruptible(&tty->write_wait);
+ 			}
+ 		}
+ 
+diff --git a/drivers/char/mxser.c b/drivers/char/mxser.c
+index c063359..f6e59f1 100644
+--- a/drivers/char/mxser.c
++++ b/drivers/char/mxser.c
+@@ -1253,9 +1253,7 @@ static void mxser_flush_buffer(struct tty_struct *tty)
+ 	spin_unlock_irqrestore(&info->slock, flags);
+ 	/* above added by shinhay */
+ 
+-	wake_up_interruptible(&tty->write_wait);
+-	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup)
+-		(tty->ldisc.write_wakeup) (tty);
++	tty_wakeup(tty);
+ }
+ 
+ static int mxser_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
+index f108c13..4ab2c98 100644
+--- a/drivers/char/pcmcia/synclink_cs.c
++++ b/drivers/char/pcmcia/synclink_cs.c
+@@ -887,10 +887,8 @@ static void bh_transmit(MGSLPC_INFO *info)
+ 	if (debug_level >= DEBUG_LEVEL_BH)
+ 		printk("bh_transmit() entry on %s\n", info->device_name);
+ 
+-	if (tty) {
++	if (tty)
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ static void bh_status(MGSLPC_INFO *info)
+diff --git a/drivers/char/rio/riointr.c b/drivers/char/rio/riointr.c
+index eeda40c..ebc7634 100644
+--- a/drivers/char/rio/riointr.c
++++ b/drivers/char/rio/riointr.c
+@@ -162,13 +162,8 @@ void RIOTxEnable(char *en)
+ 
+ 	rio_spin_unlock_irqrestore(&PortP->portSem, flags);
+ 
+-	if (PortP->gs.xmit_cnt <= (PortP->gs.wakeup_chars + 2 * PKT_MAX_DATA_LEN)) {
+-		rio_dprintk(RIO_DEBUG_INTR, "Waking up.... ldisc:%d (%d/%d)....", (int) (PortP->gs.tty->flags & (1 << TTY_DO_WRITE_WAKEUP)), PortP->gs.wakeup_chars, PortP->gs.xmit_cnt);
+-		if ((PortP->gs.tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && PortP->gs.tty->ldisc.write_wakeup)
+-			(PortP->gs.tty->ldisc.write_wakeup) (PortP->gs.tty);
+-		rio_dprintk(RIO_DEBUG_INTR, "(%d/%d)\n", PortP->gs.wakeup_chars, PortP->gs.xmit_cnt);
+-		wake_up_interruptible(&PortP->gs.tty->write_wait);
+-	}
++	if (PortP->gs.xmit_cnt <= (PortP->gs.wakeup_chars + 2 * PKT_MAX_DATA_LEN))
++		tty_wakeup(PortP->gs.tty);
+ 
+ }
+ 
+diff --git a/drivers/char/riscom8.c b/drivers/char/riscom8.c
+index e2a94bf..7014525 100644
+--- a/drivers/char/riscom8.c
++++ b/drivers/char/riscom8.c
+@@ -1229,7 +1229,6 @@ static void rc_flush_buffer(struct tty_struct *tty)
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+ 	restore_flags(flags);
+ 	
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+@@ -1570,10 +1569,8 @@ static void do_softint(struct work_struct *ugly_api)
+ 	if(!(tty = port->tty)) 
+ 		return;
+ 
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event)) {
++	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event))
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ static const struct tty_operations riscom_ops = {
+diff --git a/drivers/char/rocket.c b/drivers/char/rocket.c
+index e94a62e..106f225 100644
+--- a/drivers/char/rocket.c
++++ b/drivers/char/rocket.c
+@@ -474,7 +474,6 @@ static void rp_do_transmit(struct r_port *info)
+ 
+ 	if (info->xmit_cnt < WAKEUP_CHARS) {
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+ #ifdef ROCKETPORT_HAVE_POLL_WAIT
+ 		wake_up_interruptible(&tty->poll_wait);
+ #endif
+@@ -1772,7 +1771,6 @@ static int rp_write(struct tty_struct *tty,
+ end:
+  	if (info->xmit_cnt < WAKEUP_CHARS) {
+  		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+ #ifdef ROCKETPORT_HAVE_POLL_WAIT
+ 		wake_up_interruptible(&tty->poll_wait);
+ #endif
+@@ -1841,7 +1839,6 @@ static void rp_flush_buffer(struct tty_struct *tty)
+ 	info->xmit_cnt = info->xmit_head = info->xmit_tail = 0;
+ 	spin_unlock_irqrestore(&info->slock, flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+ #ifdef ROCKETPORT_HAVE_POLL_WAIT
+ 	wake_up_interruptible(&tty->poll_wait);
+ #endif
+diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
+index 20946f5..92043c8 100644
+--- a/drivers/char/specialix.c
++++ b/drivers/char/specialix.c
+@@ -2350,10 +2350,8 @@ static void do_softint(struct work_struct *work)
+ 		return;
+ 	}
+ 
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event)) {
++	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event))
+  		tty_wakeup(tty);
+-		//wake_up_interruptible(&tty->write_wait);
+-	}
+ 
+ 	func_exit();
+ }
+diff --git a/drivers/char/synclink.c b/drivers/char/synclink.c
+index 3fa625d..bf76db1 100644
+--- a/drivers/char/synclink.c
++++ b/drivers/char/synclink.c
+@@ -1148,10 +1148,8 @@ static void mgsl_bh_transmit(struct mgsl_struct *info)
+ 		printk( "%s(%d):mgsl_bh_transmit() entry on %s\n",
+ 			__FILE__,__LINE__,info->device_name);
+ 
+-	if (tty) {
++	if (tty)
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ 
+ 	/* if transmitter idle and loopmode_send_done_requested
+ 	 * then start echoing RxD to TxD
+@@ -2340,7 +2338,6 @@ static void mgsl_flush_buffer(struct tty_struct *tty)
+ 	del_timer(&info->tx_timer);	
+ 	spin_unlock_irqrestore(&info->irq_spinlock,flags);
+ 	
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+diff --git a/drivers/char/synclink_gt.c b/drivers/char/synclink_gt.c
+index 792c79c..54af763 100644
+--- a/drivers/char/synclink_gt.c
++++ b/drivers/char/synclink_gt.c
+@@ -1045,7 +1045,6 @@ static void flush_buffer(struct tty_struct *tty)
+ 		info->tx_count = 0;
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+@@ -1933,10 +1932,8 @@ static void bh_transmit(struct slgt_info *info)
+ 	struct tty_struct *tty = info->tty;
+ 
+ 	DBGBH(("%s bh_transmit\n", info->device_name));
+-	if (tty) {
++	if (tty)
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ static void dsr_change(struct slgt_info *info)
+diff --git a/drivers/char/synclinkmp.c b/drivers/char/synclinkmp.c
+index 8f4d67a..ebde4e5 100644
+--- a/drivers/char/synclinkmp.c
++++ b/drivers/char/synclinkmp.c
+@@ -1258,7 +1258,6 @@ static void flush_buffer(struct tty_struct *tty)
+ 	del_timer(&info->tx_timer);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+@@ -2127,10 +2126,8 @@ void bh_transmit(SLMP_INFO *info)
+ 		printk( "%s(%d):%s bh_transmit() entry\n",
+ 			__FILE__,__LINE__,info->device_name);
+ 
+-	if (tty) {
++	if (tty)
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ void bh_status(SLMP_INFO *info)
+diff --git a/drivers/isdn/gigaset/interface.c b/drivers/isdn/gigaset/interface.c
+index 458b646..f13de20 100644
+--- a/drivers/isdn/gigaset/interface.c
++++ b/drivers/isdn/gigaset/interface.c
+@@ -599,19 +599,9 @@ out:
+ static void if_wake(unsigned long data)
+ {
+ 	struct cardstate *cs = (struct cardstate *) data;
+-	struct tty_struct *tty;
+-
+-	tty = cs->tty;
+-	if (!tty)
+-		return;
+-
+-	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
+-	    tty->ldisc.write_wakeup) {
+-		gig_dbg(DEBUG_IF, "write wakeup call");
+-		tty->ldisc.write_wakeup(tty);
+-	}
+ 
+-	wake_up_interruptible(&tty->write_wait);
++	if (cs->tty)
++		tty_wakeup(cs->tty);
+ }
+ 
+ /*** interface to common ***/
+diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
+index fc80afe..ea5f30d 100644
+--- a/drivers/isdn/i4l/isdn_tty.c
++++ b/drivers/isdn/i4l/isdn_tty.c
+@@ -1261,7 +1261,6 @@ isdn_tty_flush_buffer(struct tty_struct *tty)
+ 	}
+ 	isdn_tty_cleanup_xmit(info);
+ 	info->xmit_count = 0;
+-	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+ }
+ 
+diff --git a/drivers/serial/crisv10.c b/drivers/serial/crisv10.c
+index 42b050c..312bef6 100644
+--- a/drivers/serial/crisv10.c
++++ b/drivers/serial/crisv10.c
+@@ -3173,12 +3173,8 @@ do_softint(void *private_)
+ 	if (!tty)
+ 		return;
+ 
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event)) {
+-		if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
+-		    tty->ldisc.write_wakeup)
+-			(tty->ldisc.write_wakeup)(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
++	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event))
++		tty_wakeup(tty);
+ }
+ 
+ static int
+@@ -3798,11 +3794,7 @@ rs_flush_buffer(struct tty_struct *tty)
+ 	info->xmit.head = info->xmit.tail = 0;
+ 	restore_flags(flags);
+ 
+-	wake_up_interruptible(&tty->write_wait);
+-
+-	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
+-	    tty->ldisc.write_wakeup)
+-		(tty->ldisc.write_wakeup)(tty);
++	tty_wakeup(tty);
+ }
+ 
+ /*
+diff --git a/drivers/tc/zs.c b/drivers/tc/zs.c
+index fc31972..3d72aa5 100644
+--- a/drivers/tc/zs.c
++++ b/drivers/tc/zs.c
+@@ -626,10 +626,8 @@ static void do_softint(unsigned long private_)
+ 	if (!tty)
+ 		return;
+ 
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event)) {
++	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &info->event))
+ 		tty_wakeup(tty);
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+ }
+ 
+ static int zs_startup(struct dec_serial * info)
+diff --git a/drivers/usb/serial/digi_acceleport.c b/drivers/usb/serial/digi_acceleport.c
+index efd9ce3..455a7a3 100644
+--- a/drivers/usb/serial/digi_acceleport.c
++++ b/drivers/usb/serial/digi_acceleport.c
+@@ -614,15 +614,7 @@ static void digi_wakeup_write_lock(struct work_struct *work)
+ 
+ static void digi_wakeup_write( struct usb_serial_port *port )
+ {
+-
+-	struct tty_struct *tty = port->tty;
+-
+-
+-	/* wake up port processes */
+-	wake_up_interruptible( &port->write_wait );
+-
+-	/* wake up line discipline */
+-	tty_wakeup(tty);
++	tty_wakeup(port->tty);
+ }
+ 
+ 
+diff --git a/drivers/usb/serial/keyspan_pda.c b/drivers/usb/serial/keyspan_pda.c
+index 126b970..14bc29d 100644
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -182,13 +182,8 @@ static void keyspan_pda_wakeup_write(struct work_struct *work)
+ 	struct keyspan_pda_private *priv =
+ 		container_of(work, struct keyspan_pda_private, wakeup_work);
+ 	struct usb_serial_port *port = priv->port;
+-	struct tty_struct *tty = port->tty;
+ 
+-	/* wake up port processes */
+-	wake_up_interruptible( &port->write_wait );
+-
+-	/* wake up line discipline */
+-	tty_wakeup(tty);
++	tty_wakeup(port->tty);
+ }
+ 
+ static void keyspan_pda_request_unthrottle(struct work_struct *work)
+diff --git a/drivers/usb/serial/mos7720.c b/drivers/usb/serial/mos7720.c
+index e55f4ed..b8069d7 100644
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -269,18 +269,8 @@ static void mos7720_bulk_out_data_callback(struct urb *urb)
+ 
+ 	tty = mos7720_port->port->tty;
+ 
+-	if (tty && mos7720_port->open) {
+-		/* let the tty driver wakeup if it has a special *
+-		 * write_wakeup function */
+-		if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
+-		     tty->ldisc.write_wakeup)
+-			(tty->ldisc.write_wakeup)(tty);
+-
+-		/* tell the tty driver that something has changed */
+-		wake_up_interruptible(&tty->write_wait);
+-	}
+-
+-	/* schedule_work(&mos7720_port->port->work); */
++	if (tty && mos7720_port->open)
++		tty_wakeup(tty);
+ }
+ 
+ /*
+diff --git a/drivers/usb/serial/mos7840.c b/drivers/usb/serial/mos7840.c
+index 83f6614..3aeca6c 100644
+--- a/drivers/usb/serial/mos7840.c
++++ b/drivers/usb/serial/mos7840.c
+@@ -755,18 +755,8 @@ static void mos7840_bulk_out_data_callback(struct urb *urb)
+ 
+ 	tty = mos7840_port->port->tty;
+ 
+-	if (tty && mos7840_port->open) {
+-		/* let the tty driver wakeup if it has a special *
+-		 * write_wakeup function                         */
+-
+-		if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP))
+-		    && tty->ldisc.write_wakeup) {
+-			(tty->ldisc.write_wakeup) (tty);
+-		}
+-
+-		/* tell the tty driver that something has changed */
+-		wake_up_interruptible(&tty->write_wait);
+-	}
++	if (tty && mos7840_port->open)
++		tty_wakeup(tty);
+ 
+ }
+ 
+diff --git a/drivers/usb/serial/serqt_usb.c b/drivers/usb/serial/serqt_usb.c
+index 187f1f2..3598f05 100644
+--- a/drivers/usb/serial/serqt_usb.c
++++ b/drivers/usb/serial/serqt_usb.c
+@@ -1542,28 +1542,14 @@ static void port_softint(struct work_struct *work)
+     struct usb_serial_port *port =
+ 		container_of(work, struct usb_serial_port, work);
+     struct usb_serial *serial = get_usb_serial (port, __FUNCTION__);
+-    struct tty_struct *tty;
+-
+ 
+     mydbg("%s - port %d\n", __FUNCTION__, port->number);
+ 
+-
+-
+     if (!serial)
+         return;
+ 
+-
+-    tty = port->tty;
+-    if (!tty)
+-        return;
+-
+-    if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup)
+-    {
+-        mydbg("%s - write wakeup call.\n", __FUNCTION__);
+-        (tty->ldisc.write_wakeup)(tty);
+-    }
+-
+-    wake_up_interruptible(&tty->write_wait);
++    if (port->tty)
++	    tty_wakeup(port->tty);
+ }
+ static int serial_write_room (struct tty_struct *tty)
+ {

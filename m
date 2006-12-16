@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161109AbWLPQQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161135AbWLPQQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbWLPQQ3 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 11:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161133AbWLPQQ3
+	id S1161135AbWLPQQz (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 11:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWLPQQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 11:16:29 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:36658 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161109AbWLPQQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 11:16:29 -0500
-X-Greylist: delayed 1520 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 11:16:29 EST
-Date: Sat, 16 Dec 2006 16:50:44 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Recent mm changes leading to filesystem corruption?
-Message-ID: <20061216155044.GA14681@deprecation.cyrius.com>
-MIME-Version: 1.0
+	Sat, 16 Dec 2006 11:16:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43229 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161135AbWLPQQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 11:16:54 -0500
+Date: Sat, 16 Dec 2006 11:16:47 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pata_via: Cable detect error
+Message-ID: <20061216161647.GG23368@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Alan <alan@lxorguk.ukuu.org.uk>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20061216143221.47c5e7f3@localhost.localdomain> <45841525.7040406@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45841525.7040406@pobox.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Debian recently applied a number of mm changes that went into 2.6.19
-to their 2.6.18 kernel for LSB 3.1 compliance (msync() had problems
-before).  Since then, some filesystem corruption has been observed
-which can be traced back to these mm changes.  Is anyone aware of
-problems with these patches?
+On Sat, Dec 16, 2006 at 10:47:49AM -0500, Jeff Garzik wrote:
 
-The patches that were applied are:
+ > I think it's #upstream-fixes material (-rc material), and applied as such.
+ > 
+ > Especially considering that libata pata_* drivers are not the primary 
+ > drivers, I think it's best to forward this type of stuff, especially as 
+ > it is indeed IMO a fix worth having.
 
-   - mm: tracking shared dirty pages
-   - mm: balance dirty pages
-   - mm: optimize the new mprotect() code a bit
-   - mm: small cleanup of install_page()
-   - mm: fixup do_wp_page()
-   - mm: msync() cleanup
+They may not be primary today, but it's not going to be very long
+at all before that situation changes.  AFAIK, most of (if not all) the major
+distros basing on 2.6.19+ are moving to using the libata PATA drivers in
+their next releases.
 
-With these applied to 2.6.18, the Debian installer on a slow ARM
-system fails because a program segfaults due to filesystem corruption:
-http://bugs.debian.org/401980  This problem also occurs if you only
-apply the "mm: tracking shared dirty pages" patch to 2.6.18 from the
-series of 5 patches listed above.
+		Dave
 
-Another problem has been reported related to libtorrent: according to
-http://bugs.debian.org/402707 someone also saw this with non-Debian
-2.6.19 but obviously it's hard to say whether the bugs are really
-related.
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=394392;msg=24 shows
-some dmesg messages but again it's not 100% clear it's the same bug.
-
-Has anyone else seen problems or is aware of a fix to the patches
-listed above that I'm unaware of?  It's possible the problem only
-shows up on slow systems. (The corruption is reproducible on a slow
-NSLU2 ARM system with 32 MB ram, but it doesn't happen on a faster ARM
-box with more RAM.)
 -- 
-Martin Michlmayr
-http://www.cyrius.com/
+http://www.codemonkey.org.uk

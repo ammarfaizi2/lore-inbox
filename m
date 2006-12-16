@@ -1,113 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030602AbWLPCeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753354AbWLPCzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030602AbWLPCeD (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 21:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030604AbWLPCeD
+	id S1753354AbWLPCzX (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 21:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753370AbWLPCzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 21:34:03 -0500
-Received: from wx-out-0506.google.com ([66.249.82.224]:54061 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030602AbWLPCeA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 21:34:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:organization:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:x-mimeole:thread-index;
-        b=U6XWFvc1ejGu8KoW2w3jQ4NB6zmhE98HsaNm9kA0v1UeRIQfy7o8n+bPDfJvrkIVgNSP7FTqHJdYMLP5YC33nxc0WmdXZFa4W2WWBmOODTMZ1jheZSFeow3/ofH57s5+nogBSXEjkFr9+d/nrIpDM8jrPAuhErL12X+NLVF9q7M=
-From: "Bryan Wu" <cooloney.lkml@gmail.com>
-To: <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Merge Blackfin-uClinux tree with latest Linus GIT tree including "LOG2.H" patch failed
-Date: Sat, 16 Dec 2006 10:33:56 +0800
-Organization: Analog Devices, Inc.
-Message-ID: <003b01c720ba$a6a251d0$1502400a@BWUL01>
+	Fri, 15 Dec 2006 21:55:23 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:39459 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753354AbWLPCzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 21:55:22 -0500
+Date: Fri, 15 Dec 2006 18:55:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: karderio <karderio@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <1166236356.12721.142.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
+References: <1166226982.12721.78.camel@localhost> 
+ <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AccfnzWN7ALuEUJNQ/27BkWxdwPdNgBGwtkg
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dear David and Forks:
 
-I am a developer of Blackfin uClinux (blackfin.uclinux.org). After git clone
-the latest Linus GIT tree and quilt the blackfin-uclinux patch list, I met
-some problems related with your log2.h patches when I try to compile the
-kernel. The compile log is listed as below:
+On Sat, 16 Dec 2006, karderio wrote:
+> 
+> As it stands, I believe the licence of the Linux kernel does impose
+> certain restrictions and come with certain obligations
 
-======================================================
-$ make
-scripts/kconfig/conf -s arch/blackfin/Kconfig
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CC      arch/blackfin/kernel/asm-offsets.s
-In file included from include/asm-generic/page.h:7,
-                 from include/asm/page.h:84,
-                 from include/asm/user.h:10,
-                 from include/asm/bfin-global.h:38,
-                 from include/asm/blackfin.h:12,
-                 from include/asm/system.h:240,
-                 from include/asm/bitops.h:10,
-                 from include/linux/bitops.h:9,
-                 from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/blackfin/kernel/asm-offsets.c:33:
-include/linux/log2.h: In function '__ilog2_u32':
-include/linux/log2.h:34: warning: implicit declaration of function 'fls'
-include/linux/log2.h: In function '__ilog2_u64':
-include/linux/log2.h:42: warning: implicit declaration of function 'fls64'
-include/linux/log2.h: In function '__roundup_pow_of_two':
-include/linux/log2.h:52: warning: implicit declaration of function
-'fls_long'
-In file included from include/asm/bitops.h:210,
-                 from include/linux/bitops.h:9,
-                 from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/blackfin/kernel/asm-offsets.c:33:
-include/asm-generic/bitops/fls.h: At top level:
-include/asm-generic/bitops/fls.h:13: error: static declaration of 'fls'
-follows non-static declaration
-include/linux/log2.h:34: error: previous implicit declaration of 'fls' was
-here
-In file included from include/asm/bitops.h:211,
-                 from include/linux/bitops.h:9,
-                 from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/blackfin/kernel/asm-offsets.c:33:
-include/asm-generic/bitops/fls64.h:7: error: static declaration of 'fls64'
-follows non-static declaration
-include/linux/log2.h:42: error: previous implicit declaration of 'fls64' was
-here
-In file included from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/blackfin/kernel/asm-offsets.c:33:
-include/linux/bitops.h:57: error: conflicting types for 'fls_long'
-include/linux/log2.h:52: error: previous implicit declaration of 'fls_long'
-was here
-make[1]: *** [arch/blackfin/kernel/asm-offsets.s] Error 1
-make: *** [prepare0] Error 2
-=============================================================
+Absolutely. And they boil down to something very simple:
 
-Could you please point me some hint with this?
-Thanks a lot
-Regards
--Bryan Wu
+	"Derived works have to be under the same license"
 
+where the rest is just really fluff.
 
+But the point is, "derived work" is not what _you_ or _I_ define. It's 
+what copyright law defines.
 
+And trying to push that definition too far is a total disaster. If you 
+push the definition of derived work to "anything that touches our work", 
+you're going to end up in a very dark and unhappy place. One where the 
+RIAA is your best buddy.
 
+And the proposed "we make some technical measure whereby we draw our _own_ 
+lines" is exactly that total disaster.
+
+We don't draw our own lines. We accept that the lines are drawn for us by 
+copyright law, and we actually _hope_ that the lines aren't too sharp and 
+too clearcut. Because sharp edges on copyright is the worst possible 
+situation we could ever be in.
+
+The reason fair use is so important is exactly that it blunts/dulls the 
+sharp knife that overly strong copyright protection could be. It would be 
+a total disaster if you couldn't quote other peoples work, and if you 
+couldn't make parodies on them, and if you couldn't legally use the 
+knowledge you gained for them.
+
+In other words, copyright MUST NOT be seen as some "we own this, and you 
+have no rights AT ALL unless you play along with our rules". Copyright 
+absolutely _has_ to allow others to have some rights to play according to 
+their rules even without our permission, and even if we don't always agree 
+with what they do.
+
+And that is why it would be WRONG to think that we have the absolute right 
+to say "that is illegal". It's simply not our place to make that 
+judgement. When you start thinking that you have absolute control over the 
+content or programs you produce, and that the rest of the worlds opinions 
+doesn't matter, you're just _wrong_.
+
+And no, "BECAUSE I'M GOOD" is _not_ an excuse. It's never an excuse to do 
+something like that just because you believe you are "in the right". It 
+doesn't matter _how_ much you believe in freedom, or anything else - 
+everybody _always_ thinks that they are in the right.  The RIAA I'm sure 
+is in a moral lather because they are protecting their own stronghold of 
+morality against the infidels and barbarians at the gate.
+
+So don't go talking about how we should twist peoples arms and force them 
+to be open source of free software. Instead, BE HAPPY that people can take 
+advantage of "loopholes" in copyright protections and can legally do 
+things that you as the copyright owner might not like. Because those 
+"loopholes" are in the end what protects YOU.
+
+			Linus

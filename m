@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030467AbWLPAZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030465AbWLPAZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWLPAZD (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 19:25:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWLPAZD
+	id S1030465AbWLPAZO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 19:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWLPAZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 19:25:03 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:56858 "HELO
-	warden.diginsite.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S1030456AbWLPAZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 19:25:00 -0500
-X-Greylist: delayed 377 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 19:25:00 EST
-Date: Fri, 15 Dec 2006 16:02:21 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Nikolai Joukov <kolya@cs.sunysb.edu>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       unionfs@filer.fsl.cs.sunysb.edu, fistgen@filer.fsl.cs.sunysb.edu
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <Pine.GSO.4.53.0612122217360.22195@compserv1>
-Message-ID: <Pine.LNX.4.63.0612151556351.14988@qynat.qvtvafvgr.pbz>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
+	Fri, 15 Dec 2006 19:25:14 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58280 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030465AbWLPAZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 19:25:13 -0500
+Date: Fri, 15 Dec 2006 16:24:50 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: karderio <karderio@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <1166226982.12721.78.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
+References: <1166226982.12721.78.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2006, Nikolai Joukov wrote:
 
-> We have designed a new stackable file system that we called RAIF:
-> Redundant Array of Independent Filesystems.
->
-> Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
-> many different disk-based, memory, network, and distributed file systems.
-> RAIF can use the stable and maintained code of the other file systems and
-> thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
-> data or store it with parity on any subset of the lower file systems.  RAIF
-> has three main advantages over traditional driver-level RAID systems:
 
-this sounds very interesting. did you see the paper on chunkfs? 
-http://www.usenix.org/events/hotdep06/tech/prelim_papers/henson/henson_html/
+On Sat, 16 Dec 2006, karderio wrote:
+> 
+> If the "free software community" has the clout to twist vendor's arms to
+> get them release driver source, then I'm all for it.
 
-this sounds as if it may be something that you would be able to make a 
-functional equivalent to chunkfs with your raid0 mode.
+I don't care what you're for, or what your imaginary "free software 
+community" is for.
 
-David Lang
+We're "open source", and we're not a religion. We don't "twist peoples 
+arms". We show people what we think is a better way, and we let them 
+participate. We don't force it, we don't twist it, and it's ok not to 
+believe in the GPL or our ideals. In fact, "our ideals" aren't even one 
+unified thing to begin with.
+
+We also don't try to pervert copyright into a "you have to _use_ things 
+in a certain way". We don't think "fair use" is a bad thing. We encourage 
+it, and that means that we have to abide by it ourselves. It means, most 
+particularly, that even people we disagree with have that right of "fair 
+use".
+
+That, btw, is what "freedom" and "rights" are all about. It's obly 
+meaningful when you grant those rights to people you don't agree with. 
+
+Also, since you haven't apparently gotten the memo yet, let me point it 
+out to you: the end results don't justify the means, and never did. So 
+arm-twisting doesn't become good just because you think the end result 
+might be worth it. It's still bad.
+
+And btw, that "information freedom" thing you talked about is just so much 
+blather and idiotic hogwash. "Information" doesn't want to be free, nor is 
+it somethign you should fight for or necessarily even encourage.
+
+It doesn't hold a candle to _peoples_ freedom, the foremost of which is to 
+just disagree with you. Once you allow people to talk and do what they 
+want, that "information freedom" will follow.
+
+It's not a religion, and it's not about suppressing other people and other 
+viewpoints. 
+
+			Linus

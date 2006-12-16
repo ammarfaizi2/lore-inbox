@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965007AbWLTMEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754805AbWLTMEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbWLTMEA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 07:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWLTMD6
+	id S1754805AbWLTMEg (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 07:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754803AbWLTMEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 07:03:58 -0500
-Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:60055 "EHLO
-	thumbler.kulnet.kuleuven.ac.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964991AbWLTMCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 07:02:46 -0500
-X-Greylist: delayed 2026 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 07:02:46 EST
-Message-ID: <458956CB.7060004@joow.be>
-Date: Wed, 20 Dec 2006 12:29:15 -0300
-From: Pieter Palmers <pieterp@joow.be>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/4] New firewire stack - updated patches
-References: <20061220005822.GB11746@devserv.devel.redhat.com>
-In-Reply-To: <20061220005822.GB11746@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 20 Dec 2006 07:04:36 -0500
+Received: from binarycity.net ([206.130.117.222]:51298 "EHLO binarycity.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965011AbWLTMEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 07:04:08 -0500
+X-Greylist: delayed 3602 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 07:04:07 EST
+Message-Id: <200612161909.kBGJ9Hj24307@binarycity.net>
+From: "geoff@puretick.com" <geoff@puretick.com>
+Subject: re: Day trading obsticles
+To: linux-kernel@vger.kernel.org
+Organization: www.gsa-online.de
+Date: Sat, 16 Dec 2006 14:09:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Høgsberg wrote:
-> Hi,
-> 
-> Here's a new set of patches for the new firewire stack.  The changes
-> since the last set of patches address the issues that were raised on
-> the list and can be reviewed in detail here:
-.. for some reason I didn't get patch 3/4 and 4/4 on the linux1394-devel 
-list, so I'll reply to this one.
+Good day once again,
 
-I would suggest a reordering of the interrupt flag checks. Currently the 
-interrupts that are least likely to occur are checked first. I don't see 
-why. I would reorder the check such that ISO interrupts are checked 
-first, as they have the most stringent timing constraints and are most 
-likely to occur (when using ISO traffic).
+Here is a day trading video on how to clean up your charting/execution computer. A few of the group members have been having problems with audio, low resources and system slow downs. This video explains how you can minimize a lot of these issues. If you'd like to check it out, please see the link below. Trading is my job, I cant have a unefficient PC causing me to miss moves.
 
-After processing the ISO interrupts (and maybe the Async ones), a bypass 
-could be inserted to exit the interrupt handler when there are no other 
-interrupts to be handled. All other interrupts are to report relatively 
-rare events or errors (error handling still to be added I assume). The 
-effective run-length of the interrupt handler would be shorter using 
-such a bypass, especially in the case where there is a lot of ISO traffic.
+FLASH VIDEO LINK: http://webpages.charter.net/puretick/cleanup/index.html
 
-I'm looking forward to your ISO implementation, and I hope to 
-incorporate it into FreeBob really fast.
+Also we have updated the PureTick blog at http://www.puretick.com/blog
 
-Pieter
+GN! 
+
+Have a good day trading tomorrow
+
+
+*********************
+ Geoffrey Preston 
+ HTML Designer/Coder/Admin
+ www PureTick Com  - Disciplined Traders Helping Bring You Real Returns
+

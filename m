@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751187AbWLPBS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965314AbWLPBUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWLPBS4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWLPBS4
+	id S965314AbWLPBUO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbWLPBUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:18:56 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51397 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751187AbWLPBS4 (ORCPT
+	Fri, 15 Dec 2006 20:20:13 -0500
+Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:37261 "EHLO
+	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965314AbWLPBUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 20:18:56 -0500
-Date: Sat, 16 Dec 2006 01:27:21 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-Message-ID: <20061216012721.47be92f3@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
-References: <1166226982.12721.78.camel@localhost>
-	<Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Dec 2006 20:20:09 -0500
+Date: Fri, 15 Dec 2006 20:20:02 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: Bryan Henderson <hbryan@us.ibm.com>
+cc: Ed Tomlinson <edt@aei.ca>, linux-fsdevel@vger.kernel.org,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+In-Reply-To: <OFCB8FCFF5.BA0A74ED-ON88257246.0000FE7C-88257246.0001E5FD@us.ibm.com>
+Message-ID: <Pine.GSO.4.53.0612152004080.10315@compserv1>
+References: <OFCB8FCFF5.BA0A74ED-ON88257246.0000FE7C-88257246.0001E5FD@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> blather and idiotic hogwash. "Information" doesn't want to be free, nor is 
-> it somethign you should fight for or necessarily even encourage.
+> >The idea behind the cloneset is that most of the blocks (or files)
+> >do not change in either source or target.  This being the case its only
+> necessary
+> >to update the changed elements.  This means updates are incremental. Once
+> >the system has figured out what it needs to update its usable and if you
+> access
+> >an element that should be updated you will see the correctly updated
+> version - even
+> >though backgound resyncing is still in progress.
+>
+> I still can't tell what you're describing.  With RAID1 as well, only
+> changed elements ever get updated.  I have two identical filesystems,
+> members of a RAIF set.  I change one file.  One file in each member
+> filesystem gets updated, and I again have two identical filesystems.
+>
+> How would a cloneset work differently, and how would it be better?
 
-As a pedant that is the one item I have to pick you up on Linus.
-Information wants to be free, the natural efficient economic state of
-information is generally free in both senses.
+Thanks, Bryan.  I was about to write almost the same.
 
+> > This type of logic is great for backups.
+>
+> Can you give an example of using it for backup?
+
+I guess, you can mount Versionfs (yet another stackable file system)
+below RAIF and above one of the lower file systems or use some other
+versioning file system such as ext3cow.  This will allow rolling back to
+any older file system version at any time.
+
+Nikolai.
+---------------------
+Nikolai Joukov, Ph.D.
+Filesystems and Storage Laboratory
+Stony Brook University

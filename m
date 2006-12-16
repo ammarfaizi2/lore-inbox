@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030535AbWLPBd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030534AbWLPBcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030535AbWLPBd1 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030538AbWLPBc4
+	id S1030534AbWLPBcz (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030538AbWLPBcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:32:56 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:38869 "EHLO cacti.profiwh.com"
+	Fri, 15 Dec 2006 20:32:55 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:38866 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030535AbWLPBcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030534AbWLPBcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 15 Dec 2006 20:32:54 -0500
-Message-id: <2880031291415520798@wsc.cz>
-Subject: [PATCH 1/5] Char: isicom, fix locking in isr
+Message-id: <30714220511571319076@wsc.cz>
+In-reply-to: <2880031291415520798@wsc.cz>
+Subject: [PATCH 5/5] Char: isicom, support higher rates
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sat, 16 Dec 2006 02:09:44 +0100 (CET)
+Date: Sat, 16 Dec 2006 02:09:49 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isicom, fix locking in isr
+isicom, support higher rates
 
-2 spin_unlocks are omitted in the interrupt handler. Put them there to fix
-up deadlocking on UP.
+Add support for higher baud rates (coming from original isi driver).
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit f2d37e8d3de070f8cda48a454f7b991d29b310be
-tree 23027dcdc3215fbb488577edb9610322956edb0b
-parent 5df5a993999b94d728cedfa669eba2b0b58e16d7
-author Jiri Slaby <jirislaby@gmail.com> Wed, 13 Dec 2006 23:10:48 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 20:29:34 +0059
+commit 8b380d8b1c3ff7d09d68d467d2f135774cab4086
+tree d1e9332d7dc76c5f1d80f936bca71312d0bcb07b
+parent 601667e4ee38183358ea8f7980537bb8c09d8728
+author Jiri Slaby <jirislaby@gmail.com> Sat, 16 Dec 2006 02:05:20 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 16 Dec 2006 02:05:20 +0059
 
- drivers/char/isicom.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/char/isicom.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 0362740..836e967 100644
+index f4faa76..60df87c 100644
 --- a/drivers/char/isicom.c
 +++ b/drivers/char/isicom.c
-@@ -563,6 +563,7 @@ static irqreturn_t isicom_interrupt(int irq, void *dev_id)
- 	port = card->ports + channel;
- 	if (!(port->flags & ASYNC_INITIALIZED)) {
- 		outw(0x0000, base+0x04); /* enable interrupts */
-+		spin_unlock(&card->card_lock);
- 		return IRQ_HANDLED;
- 	}
+@@ -183,7 +183,7 @@ static DEFINE_TIMER(tx, isicom_tx, 0, 0);
+ /*   baud index mappings from linux defns to isi */
  
-@@ -677,6 +678,7 @@ static irqreturn_t isicom_interrupt(int irq, void *dev_id)
- 		tty_flip_buffer_push(tty);
- 	}
- 	outw(0x0000, base+0x04); /* enable interrupts */
-+	spin_unlock(&card->card_lock);
+ static signed char linuxb_to_isib[] = {
+-	-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 16, 17, 18, 19
++	-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 16, 17, 18, 19, 20, 21
+ };
  
- 	return IRQ_HANDLED;
- }
+ struct	isi_board {
+@@ -709,7 +709,8 @@ static void isicom_config_port(struct isi_port *port)
+ 		 *  respectively.
+ 		 */
+ 
+-		if (baud < 1 || baud > 2)
++		/* 1,2,3,4 => 57.6, 115.2, 230, 460 kbps resp. */
++		if (baud < 1 || baud > 4)
+ 			port->tty->termios->c_cflag &= ~CBAUDEX;
+ 		else
+ 			baud += 15;
+@@ -725,6 +726,10 @@ static void isicom_config_port(struct isi_port *port)
+ 			baud++; /*  57.6 Kbps */
+ 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
+ 			baud +=2; /*  115  Kbps */
++		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_SHI)
++			baud += 3; /* 230 kbps*/
++		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_WARP)
++			baud += 4; /* 460 kbps*/
+ 	}
+ 	if (linuxb_to_isib[baud] == -1) {
+ 		/* hang up */

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965444AbWLPOX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965454AbWLPOqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965444AbWLPOX7 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 09:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965442AbWLPOX7
+	id S965454AbWLPOqr (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 09:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965457AbWLPOqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 09:23:59 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37441 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S965444AbWLPOX6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 09:23:58 -0500
-Date: Sat, 16 Dec 2006 14:32:21 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: [PATCH] pata_via: Cable detect error
-Message-ID: <20061216143221.47c5e7f3@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Dec 2006 09:46:47 -0500
+Received: from THUNK.ORG ([69.25.196.29]:38429 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965454AbWLPOqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 09:46:46 -0500
+Date: Sat, 16 Dec 2006 09:42:36 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Linus Torvalds <torvalds@osdl.org>, karderio <karderio@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061216144236.GB1003@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>, Willy Tarreau <w@1wt.eu>,
+	Linus Torvalds <torvalds@osdl.org>, karderio <karderio@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org> <20061216064344.GF24090@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061216064344.GF24090@1wt.eu>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The UDMA66 VIA hardware has no controller side cable detect bits we can
-use. This patch minimally fixes the problem by reporting unknown in this
-case and using drive side detection.
+On Sat, Dec 16, 2006 at 07:43:44AM +0100, Willy Tarreau wrote:
+> All this is about "fair use", and "fair use" comes from compatibility
+> between the author's intent and the user's intent. 
 
-The old drivers/ide code does some additional tricks but those aren't
-appropriate now we are in -rc.
+That is NOT TRUE.  If the author's intent is that anyone who is using
+a TV with a screen larger than 29" and with two chairs is a theatrical
+performance, and so anyone with a large screen TV must ask permission
+from the MPAA first and pay $$$ before they crack open a DVD, would
+you think that they should be allowed to claim that watching a DVD
+isn't fair use unless you obey their rules?
 
-Without this update UDMA66 via controllers run slowly. They don't fail so
-it's a borderline call whether this is -rc material or not.
+I thought not.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+						- Ted
 
---- linux.vanilla-2.6.20-rc1/drivers/ata/pata_via.c	2006-12-14 17:23:30.000000000 +0000
-+++ linux-2.6.20-rc1/drivers/ata/pata_via.c	2006-12-16 14:05:12.044300968 +0000
-@@ -161,10 +161,15 @@
- 			return -ENOENT;
- 	}
- 
--	if ((config->flags & VIA_UDMA) >= VIA_UDMA_66)
-+	if ((config->flags & VIA_UDMA) >= VIA_UDMA_100)
- 		ap->cbl = via_cable_detect(ap);
--	else
-+	/* The UDMA66 series has no cable detect so do drive side detect */
-+	else if ((config->flags & VIA_UDMA) < VIA_UDMA_66)
- 		ap->cbl = ATA_CBL_PATA40;
-+	else
-+		ap->cbl = ATA_CBL_PATA_UNK;
-+		
-+
- 	return ata_std_prereset(ap);
- }
- 
+P.S.  For people who live in the US; write your congresscritters; the
+MPAA wants to propose new legislation stating exactly this.
+

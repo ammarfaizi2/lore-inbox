@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030510AbWLPA6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965232AbWLPBH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030510AbWLPA6b (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 19:58:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbWLPA6a
+	id S965232AbWLPBH1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbWLPBH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 19:58:30 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:37081 "EHLO
-	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030504AbWLPA6a (ORCPT
+	Fri, 15 Dec 2006 20:07:27 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:33410 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965232AbWLPBH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 19:58:30 -0500
-Date: Fri, 15 Dec 2006 19:58:26 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: David Lang <dlang@digitalinsight.com>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <Pine.LNX.4.63.0612151556351.14988@qynat.qvtvafvgr.pbz>
-Message-ID: <Pine.GSO.4.53.0612151932410.10315@compserv1>
-References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
- <Pine.LNX.4.63.0612151556351.14988@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Dec 2006 20:07:26 -0500
+Date: Sat, 16 Dec 2006 01:07:02 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rmk@arm.linux.org.uk, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, Dirk@Opfer-Online.de,
+       arminlitzel@web.de, pavel.urban@ct.cz, metan@seznam.cz
+Subject: Re: Nasty warnings on arm (+ one compile problem -- INIT_WORK related)
+Message-ID: <20061216010702.GB17561@ftp.linux.org.uk>
+References: <20061215235818.GD2853@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061215235818.GD2853@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We have designed a new stackable file system that we called RAIF:
-> > Redundant Array of Independent Filesystems.
-> >
-> > Similar to Unionfs, RAIF is a fan-out file system and can be mounted over
-> > many different disk-based, memory, network, and distributed file systems.
-> > RAIF can use the stable and maintained code of the other file systems and
-> > thus stay simple itself.  Similar to standard RAID, RAIF can replicate the
-> > data or store it with parity on any subset of the lower file systems.  RAIF
-> > has three main advantages over traditional driver-level RAID systems:
->
-> this sounds very interesting. did you see the paper on chunkfs?
-> http://www.usenix.org/events/hotdep06/tech/prelim_papers/henson/henson_html/
+On Sat, Dec 16, 2006 at 12:58:18AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> I get nasty warning for each file compiled:
+> 
+>   CC      drivers/video/sa1100fb.o
+> In file included from include/asm/bitops.h:23,
+>                  from include/linux/bitops.h:9,
+>                  from include/linux/thread_info.h:20,
+>                  from include/linux/preempt.h:9,
+>                  from include/linux/spinlock.h:49,
+>                  from include/linux/module.h:9,
+>                  from drivers/video/sa1100fb.c:163:
+> include/asm/system.h: In function `adjust_cr':
+> include/asm/system.h:185: warning: implicit declaration of function
+> `local_irq_save'
+> include/asm/system.h:192: warning: implicit declaration of function
+> `local_irq_restore'
+> include/asm/system.h:179: warning: unused variable `cr'
 
-I saw Val at OSDI right before this HotDep talk and sure, I have seen the
-paper :-)
+That's dealt with by the following:
 
-> this sounds as if it may be something that you would be able to make a
-> functional equivalent to chunkfs with your raid0 mode.
-
-I also have this feeling.  RAIF0 is similar to chunkfs and allows more
-flexibility.  Not only RAIF can stripe the data on many small local file
-systems (possibly located on multiple drives) but also can stripe the data
-on remote file systems.  In addition, it can keep the parity, use
-per-file-type storage policies etc.  However, such a configuration would
-mean lots and lots of lower file systems ( = branches = chunks).  I am
-afraid that in this case RAIF's performance would be not so great due to
-VFS API restrictions for operations like lookup.
-
-Nikolai.
----------------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+diff --git a/include/asm-arm/system.h b/include/asm-arm/system.h
+index e160aeb..bf44782 100644
+--- a/include/asm-arm/system.h
++++ b/include/asm-arm/system.h
+@@ -173,10 +173,12 @@ static inline void set_copro_access(unsi
+ extern unsigned long cr_no_alignment;	/* defined in entry-armv.S */
+ extern unsigned long cr_alignment;	/* defined in entry-armv.S */
+ 
++#include <linux/irqflags.h>
++
+ #ifndef CONFIG_SMP
+ static inline void adjust_cr(unsigned long mask, unsigned long set)
+ {
+-	unsigned long flags, cr;
++	unsigned long flags;
+ 
+ 	mask &= ~CR_A;
+ 
+@@ -248,8 +250,6 @@ static inline void sched_cacheflush(void
+ {
+ }
+ 
+-#include <linux/irqflags.h>
+-
+ #ifdef CONFIG_SMP
+ 
+ #define smp_mb()		mb()

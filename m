@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161071AbWLPPrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161072AbWLPPrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWLPPrL (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 10:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWLPPrL
+	id S1161072AbWLPPrN (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 10:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWLPPrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 10:47:11 -0500
+	Sat, 16 Dec 2006 10:47:12 -0500
 Received: from queue02-winn.ispmail.ntl.com ([81.103.221.56]:11466 "EHLO
 	queue02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161071AbWLPPrK (ORCPT
+	by vger.kernel.org with ESMTP id S1161072AbWLPPrL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 10:47:10 -0500
+	Sat, 16 Dec 2006 10:47:11 -0500
 X-Greylist: delayed 773 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 10:47:09 EST
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.20-rc1 02/10] Kmemleak documentation
+Subject: [PATCH 2.6.20-rc1 04/10] Modules support for kmemleak
 To: linux-kernel@vger.kernel.org
-Date: Sat, 16 Dec 2006 15:34:37 +0000
-Message-ID: <20061216153437.18200.43689.stgit@localhost.localdomain>
+Date: Sat, 16 Dec 2006 15:34:59 +0000
+Message-ID: <20061216153459.18200.27076.stgit@localhost.localdomain>
 In-Reply-To: <20061216153346.18200.51408.stgit@localhost.localdomain>
 References: <20061216153346.18200.51408.stgit@localhost.localdomain>
 User-Agent: StGIT/0.11
@@ -25,176 +25,128 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch handles the kmemleak operations needed for modules loading so
+that memory allocations from inside a module are properly tracked.
+
 Signed-off-by: Catalin Marinas <catalin.marinas@gmail.com>
 ---
 
- Documentation/kmemleak.txt |  161 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 161 insertions(+), 0 deletions(-)
+ kernel/module.c |   56 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 56 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/kmemleak.txt b/Documentation/kmemleak.txt
-new file mode 100644
-index 0000000..4689f85
---- /dev/null
-+++ b/Documentation/kmemleak.txt
-@@ -0,0 +1,161 @@
-+Kernel Memory Leak Detector
-+===========================
+diff --git a/kernel/module.c b/kernel/module.c
+index b565eae..f1ff3f5 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -345,6 +345,7 @@ static void *percpu_modalloc(unsigned lo
+ 	unsigned long extra;
+ 	unsigned int i;
+ 	void *ptr;
++	int cpu;
+ 
+ 	if (align > SMP_CACHE_BYTES) {
+ 		printk(KERN_WARNING "%s: per-cpu alignment %li > %i\n",
+@@ -374,6 +375,10 @@ static void *percpu_modalloc(unsigned lo
+ 			if (!split_block(i, size))
+ 				return NULL;
+ 
++		/* add the per-cpu scanning areas */
++		for_each_possible_cpu(cpu)
++			memleak_alloc(ptr + per_cpu_offset(cpu), size, 0);
 +
+ 		/* Mark allocated */
+ 		pcpu_size[i] = -pcpu_size[i];
+ 		return ptr;
+@@ -388,6 +393,7 @@ static void percpu_modfree(void *freeme)
+ {
+ 	unsigned int i;
+ 	void *ptr = __per_cpu_start + block_size(pcpu_size[0]);
++	int cpu;
+ 
+ 	/* First entry is core kernel percpu data. */
+ 	for (i = 1; i < pcpu_num_used; ptr += block_size(pcpu_size[i]), i++) {
+@@ -399,6 +405,10 @@ static void percpu_modfree(void *freeme)
+ 	BUG();
+ 
+  free:
++	/* remove the per-cpu scanning areas */
++	for_each_possible_cpu(cpu)
++		memleak_free(freeme + per_cpu_offset(cpu));
 +
-+Introduction
-+------------
+ 	/* Merge with previous? */
+ 	if (pcpu_size[i-1] >= 0) {
+ 		pcpu_size[i-1] += pcpu_size[i];
+@@ -1529,6 +1539,42 @@ static inline void add_kallsyms(struct m
+ }
+ #endif /* CONFIG_KALLSYMS */
+ 
++#ifdef CONFIG_DEBUG_MEMLEAK
++static void memleak_load_module(struct module *mod, Elf_Ehdr *hdr,
++				Elf_Shdr *sechdrs, char *secstrings)
++{
++	unsigned int mloffindex, i;
 +
-+Kmemleak provides a way of detecting possible kernel memory leaks in a
-+way similar to a tracing garbage collector
-+(http://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29#Tracing_garbage_collectors),
-+with the difference that the orphan objects are not freed but only
-+reported via /sys/kernel/debug/memleak. A similar method is used by
-+the Valgrind tool (memcheck --leak-check) to detect the memory leaks
-+in user-space applications.
++	/* insert any new pointer aliases */
++	mloffindex = find_sec(hdr, sechdrs, secstrings, ".init.memleak_offsets");
++	if (mloffindex)
++		memleak_insert_aliases((void *)sechdrs[mloffindex].sh_addr,
++				       (void *)sechdrs[mloffindex].sh_addr
++				       + sechdrs[mloffindex].sh_size);
 +
++	/* only scan the sections containing data */
++	memleak_scan_area(mod->module_core,
++			  (unsigned long)mod - (unsigned long)mod->module_core,
++			  sizeof(struct module));
 +
-+Usage
-+-----
++	for (i = 1; i < hdr->e_shnum; i++) {
++		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
++			continue;
++		if (strncmp(secstrings + sechdrs[i].sh_name, ".data", 5) != 0
++		    && strncmp(secstrings + sechdrs[i].sh_name, ".bss", 4) != 0)
++			continue;
 +
-+CONFIG_DEBUG_MEMLEAK has to be enabled. For additional config options,
-+look in:
++		memleak_scan_area(mod->module_core,
++				  sechdrs[i].sh_addr - (unsigned long)mod->module_core,
++				  sechdrs[i].sh_size);
++	}
++}
++#else
++static inline void memleak_load_module(struct module *mod, Elf_Ehdr *hdr,
++				       Elf_Shdr *sechdrs, char *secstrings)
++{ }
++#endif
 +
-+  -> Kernel hacking
-+    -> Kernel debugging
-+      -> Debug slab memory allocations
-+        -> Kernel memory leak detector
-+
-+To display the possible memory leaks:
-+
-+  # mount -t debugfs nodev /sys/kernel/debug/
-+  # cat /sys/kernel/debug/memleak
-+
-+In order to reduce the run-time overhead, memory scanning is only
-+performed when reading the /sys/kernel/debug/memleak file. Note that
-+the orphan objects are listed in the order they were allocated and one
-+object at the beginning of the list may cause other subsequent objects
-+to be reported as orphan.
-+
-+
-+Basic Algorithm
-+---------------
-+
-+The memory allocations via kmalloc, vmalloc, kmem_cache_alloc and
-+friends are tracked and the pointers, together with additional
-+information like size and stack trace, are stored in a hash table. The
-+corresponding freeing function calls are tracked and the pointers
-+removed from the hash table.
-+
-+An allocated block of memory is considered orphan if no pointer to its
-+start address or to an alias (pointer aliases are explained later) can
-+be found by scanning the memory (including saved registers). This
-+means that there might be no way for the kernel to pass the address of
-+the allocated block to a freeing function and therefore the block is
-+considered a leak.
-+
-+The scanning algorithm steps:
-+
-+  1. mark all objects as white (remaining white objects will later be
-+     considered orphan)
-+  2. scan the memory starting with the data section and stacks,
-+     checking the values against the addresses stored in the hash
-+     table. If a pointer to a white object is found, the object is
-+     added to the grey list
-+  3. scan the grey objects for matching addresses (some white objects
-+     can become grey and added at the end of the grey list) until the
-+     grey set is finished
-+  4. the remaining white objects are considered orphan and reported
-+     via /sys/kernel/debug/memleak
-+
-+
-+Improvements
-+------------
-+
-+Because the Linux kernel calculates many pointers at run-time via the
-+container_of macro (see the lists implementation), a lot of false
-+positives would be reported. This tool re-writes the container_of
-+macro so that the offset and type information is stored in the
-+.init.memleak_offsets section. The memleak_init() function creates a
-+radix tree with corresponding offsets for every encountered block
-+type. The memory allocations hook stores the pointer address together
-+with its aliases based on the type of the allocated block.
-+
-+While one level of offsets should be enough for most cases, a second
-+level, i.e. container_of(container_of(...)), can be enabled via the
-+configuration options (one false positive is the "struct socket_alloc"
-+allocation in the sock_alloc_inode() function).
-+
-+Some allocated memory blocks have pointers stored in the kernel's
-+internal data structures and they cannot be detected as orphans. To
-+avoid this, kmemleak can also store the number of values equal to the
-+pointer (or aliases) that need to be found so that the block is not
-+considered a leak. One example is __vmalloc().
-+
-+
-+Limitations and Drawbacks
-+-------------------------
-+
-+The biggest drawback is the reduced performance of memory allocation
-+and freeing. To avoid other penalties, the memory scanning is only
-+performed when the /sys/kernel/debug/memleak file is read. Anyway,
-+this tool is intended for debugging purposes where the performance
-+might not be the most important requirement.
-+
-+Kmemleak currently approximates the type id using the sizeof()
-+compiler built-in function. This is not accurate and can lead to false
-+negatives. The aim is to gradually change the kernel and kmemleak to
-+do more precise type identification.
-+
-+Another source of false negatives is the data stored in non-pointer
-+values. Together with the more precise type identification, kmemleak
-+could only scan the pointer members in the allocated structures.
-+
-+The tool can report false positives. These are cases where an
-+allocated block doesn't need to be freed (some cases in the init_call
-+functions), the pointer is calculated by other methods than the
-+container_of macro or the pointer is stored in a location not scanned
-+by kmemleak. If the "member" argument in the offsetof(type, member)
-+call is not constant, kmemleak considers the offset as zero since it
-+cannot be determined at compilation time.
-+
-+Page allocations and ioremap are not tracked. Only the ARM and i386
-+architectures are currently supported.
-+
-+
-+Kmemleak API
-+------------
-+
-+See the include/linux/memleak.h header for the functions prototype.
-+
-+memleak_init		- initialize kmemleak
-+memleak_alloc		- notify of a memory block allocation
-+memleak_free		- notify of a memory block freeing
-+memleak_padding		- mark the boundaries of the data inside the block
-+memleak_not_leak	- mark an object as not a leak
-+memleak_ignore		- do not scan or report an object as leak
-+memleak_scan_area	- add scan areas inside a memory block
-+memleak_insert_aliases	- add aliases for a given type
-+memleak_erase		- erase an old value in a pointer variable
-+memleak_typeid_raw	- set the typeid for an allocated block
-+memleak_container	- statically declare a pointer alias
-+memleak_typeid		- set the typeid for an allocated block (takes
-+			  a type rather than typeid as argument)
-+
-+
-+Dealing with false positives/negatives
-+--------------------------------------
-+
-+To reduce the false negatives, kmemleak provides the memleak_ignore,
-+memleak_scan_area and memleak_erase functions. The task stacks also
-+increase the amount of false negatives and their scanning is not
-+enabled by default.
-+
-+To eliminate the false positives caused by code allocating a different
-+size from the object one (either for alignment or for extra memory
-+after the end of the structure), kmemleak provides the memleak_padding
-+and memleak_typeid functions.
-+
-+For objects known not to be leaks, kmemleak provides the
-+memleak_not_leak function. The memleak_ignore could also be used if
-+the memory block is known not to contain other pointers and it will no
-+longer be scanned.
+ /* Allocate and load the module: note that size of section 0 is always
+    zero, and we rely on this for optional sections. */
+ static struct module *load_module(void __user *umod,
+@@ -1724,6 +1770,10 @@ static struct module *load_module(void _
+ 
+ 	/* Do the allocs. */
+ 	ptr = module_alloc(mod->core_size);
++	/* the pointer to this block is stored in the module structure
++	 * which is inside the block. Just mark it as not being a
++	 * leak */
++	memleak_not_leak(ptr);
+ 	if (!ptr) {
+ 		err = -ENOMEM;
+ 		goto free_percpu;
+@@ -1732,6 +1782,11 @@ static struct module *load_module(void _
+ 	mod->module_core = ptr;
+ 
+ 	ptr = module_alloc(mod->init_size);
++	/* the pointer to this block is stored in the module structure
++	 * which is inside the block. This block doesn't need to be
++	 * scanned as it contains data and code that will be freed
++	 * after the module is initialized */
++	memleak_ignore(ptr);
+ 	if (!ptr && mod->init_size) {
+ 		err = -ENOMEM;
+ 		goto free_core;
+@@ -1762,6 +1817,7 @@ static struct module *load_module(void _
+ 	}
+ 	/* Module has been moved. */
+ 	mod = (void *)sechdrs[modindex].sh_addr;
++	memleak_load_module(mod, hdr, sechdrs, secstrings);
+ 
+ 	/* Now we've moved module, initialize linked lists, etc. */
+ 	module_unload_init(mod);

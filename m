@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932727AbWLPXJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422758AbWLPXKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbWLPXJG (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 18:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbWLPXJG
+	id S1422758AbWLPXKm (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 18:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWLPXKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 18:09:06 -0500
-Received: from alephnull.demon.nl ([83.160.184.112]:59957 "EHLO
-	xi.wantstofly.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932727AbWLPXJF (ORCPT
+	Sat, 16 Dec 2006 18:10:41 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46301 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422758AbWLPXKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 18:09:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
-	d=wantstofly.org;
-	h=date:from:to:subject:message-id:mime-version:content-type:con
-	tent-disposition:in-reply-to:user-agent;
-	b=JUbb8qWMfUMDW/NkaVq7H307ESh7srxXuv+fRkIJLzel5j4R3eTwwHULE7kck
-	CAdyHnVkoC7DATNKcbqC7+CoA==
-Date: Sun, 17 Dec 2006 00:09:01 +0100
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Francois Romieu <romieu@fr.zoreil.com>, Martin Michlmayr <tbm@cyrius.com>,
-       Riku Voipio <riku.voipio@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
-Message-ID: <20061216230901.GA23143@xi.wantstofly.org>
-References: <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org> <20061215201522.GA11288@electric-eye.fr.zoreil.com> <20061215210329.GB14860@xi.wantstofly.org> <20061215211435.GB10367@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Sat, 16 Dec 2006 18:10:41 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] kill_something_info: misc cleanups
+References: <20061216200510.GA5535@tv-sign.ru>
+Date: Sat, 16 Dec 2006 16:10:01 -0700
+In-Reply-To: <20061216200510.GA5535@tv-sign.ru> (Oleg Nesterov's message of
+	"Sat, 16 Dec 2006 23:05:10 +0300")
+Message-ID: <m1psajtp2u.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061215211435.GB10367@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2006 at 09:14:35PM +0000, Russell King wrote:
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> > > > Is there a way we can have this done by default on the n2100?  I guess
-> > > > that since it's a PCI device, there isn't much hope for that..?
-> > > 
-> > > Do you mean an automagically tuned default value based on CONFIG_ARM ?
-> > 
-> > No, that wouldn't make sense, that's like making a workaround depend on
-> > arch == i386.
-> > 
-> > I'm thinking that we should somehow enable this option on the n2100
-> > built-in r8169 ports by default only.  Since the n2100 also has a mini-PCI
-> > slot, and it is in theory possible to put an r8169 on a mini-PCI card,
-> > the workaround probably shouldn't apply to those, so testing for
-> > CONFIG_MACH_N2100 also isn't the right thing to do.
-> 
-> There is dev->broken_parity_status ... although exactly what the sematics
-> of that flag actually are seems to be rather vague - there's code which
-> sets it for the Mellanox Tavor device, but it seems to only be exposed
-> via sysfs - no code in drivers/pci seems to take any action based upon
-> this flag being set.
-
-Sounds good.  How about something like the patch below plus the
-corresponding r8169 diff?
+> On top of
+> 	signal-rewrite-kill_something_info-so-it-uses-newer-helpers.patch
+>
+> - Factor out sending PIDTYPE_PGID wide signals.
+>
+> - Use is_init(p) instead of "p->pid > 1". We don't hash idle threads anymore,
+>   no need to worry about p->pid == 0.
 
 
-Index: linux-2.6.19/arch/arm/mach-iop32x/n2100.c
-===================================================================
---- linux-2.6.19.orig/arch/arm/mach-iop32x/n2100.c
-+++ linux-2.6.19/arch/arm/mach-iop32x/n2100.c
-@@ -123,9 +123,13 @@ static struct hw_pci n2100_pci __initdat
- 
- static int __init n2100_pci_init(void)
- {
--	if (machine_is_n2100())
-+	if (machine_is_n2100()) {
- 		pci_common_init(&n2100_pci);
- 
-+		pci_get_bus_and_slot(0, 0x08)->broken_parity_status = 1;
-+		pci_get_bus_and_slot(0, 0x10)->broken_parity_status = 1;
-+	}
-+
- 	return 0;
- }
+I do not believe is_init is the proper function here.  In the presence
+of multiple pid namespaces the intention is for is_init to catch all of
+the special handling (except signal behavior) for the init process.
+
+That way when we have multiple processes with pid == 1 we know which
+one we care about.
+
+
+> - Use "p != current->group_leader" instead of "p->tgid != current->tgid",
+>   saves one dereference and kills yet another direct pid_t usage.
+
+Makes sense as you have to be a group_leader to be on the task list.
+
+> - Simplify return value calculation for "pid == -1" case, remove "retval"
+>   variable.
+>
+> No functional changes.
+
+Looks sane.
+
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+Eric

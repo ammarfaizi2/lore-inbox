@@ -1,96 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030941AbWLPVER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161487AbWLPVJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030941AbWLPVER (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 16:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030942AbWLPVEQ
+	id S1161487AbWLPVJu (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 16:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161489AbWLPVJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 16:04:16 -0500
-Received: from 1wt.eu ([62.212.114.60]:1551 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030941AbWLPVEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 16:04:16 -0500
-Date: Sat, 16 Dec 2006 22:04:06 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061216210406.GH24090@1wt.eu>
-References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org> <20061216064344.GF24090@1wt.eu> <20061216144236.GB1003@thunk.org> <20061216163031.GA31013@1wt.eu> <20061216202312.GC1003@thunk.org>
+	Sat, 16 Dec 2006 16:09:50 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:58812 "EHLO
+	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161487AbWLPVJt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 16:09:49 -0500
+Subject: OOPS: 2.6.20-rc1 in ieee80211softmac_get_network_by_bssid_locked()
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Martin Pitt <martin.pitt@ubuntu.com>, netdev@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 16 Dec 2006 16:09:44 -0500
+Message-Id: <1166303384.6748.490.camel@gullible>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061216202312.GC1003@thunk.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2006 at 03:23:12PM -0500, Theodore Tso wrote:
-> On Sat, Dec 16, 2006 at 05:30:31PM +0100, Willy Tarreau wrote:
-> > I don't think this is the same case. The film _author_'s primary goal is
-> > to have a lot of families buy his DVD to watch it. Whatever the MPAA says,
-> > I can consider it "fair use" if a family of 4..8 persons watch the DVD at
-> > the same time. 
-> 
-> "You can consider it"?  But you're not the author.  This is the
-> hypocrisy that Linus was talking about.  At the same time that you're
-> trying to dictate to other other people can use their copy of the
-> Linux kernel, when it comes to others people's copyrighted work, you
-> feel to dictate what is and isn't "fair use".
+Kernel is 2.6.20-rc1, SMP, voluntary-preempt.
 
-No, I don't want to dictate, it's the opposite, I say what _I_ consider
-fair use. Other people will consider it other ways. It's exactly the
-gray area Linus was talking about. As long as all parties agree on one
-given fair use, there's no problem. Discussion and sometimes litigation
-is needed when some parties disagree.
+CC'd Martin, since he was the original reporter.
 
-> That's the big thing about dynamic linking.  The GPL has always said
-> it is about distribution, not about use.  The dynamic linking of a
-> kernel module happens in the privacy of someone's home.  When we try
-> to dictate what people are doing in the privacy in their home, we're
-> no better than the MPAA or the RIAA.  
+[  110.701863] ADDRCONF(NETDEV_UP): eth0: link is not ready
+[  110.813273] Unable to handle kernel paging request for data at address 0x00000000
+[  110.813291] Faulting instruction address: 0xf24124c4
+[  110.813306] Oops: Kernel access of bad area, sig: 11 [#1]
+[  110.813311] 
+[  110.813314] Modules linked in: ipv6 radeon drm ppdev lp parport cpufreq_conservative cpufreq_stats cpufreq_userspace cpufreq_ondemand cpufreq_powersave reiserfs dm_crypt dm_mod therm_adt746x snd_powermac sbp2 scsi_mod apm_emu snd_aoa_i2sbus snd_pcm_oss snd_mixer_oss snd_pcm snd_page_alloc snd_seq_dummy snd_seq_oss snd_seq_midi snd_rawmidi snd_seq_midi_event snd_seq snd_timer snd_seq_device snd soundcore pmac_zilog serial_core snd_aoa_soundbus bcm43xx ieee80211softmac ieee80211 ieee80211_crypt uninorth_agp agpgart tsdev evdev ext3 jbd mbcache ide_cd cdrom ide_disk ohci1394 ieee1394 sungem sungem_phy ehci_hcd ohci_hcd usbcore capability commoncap
+[  110.813408] NIP: F24124C4 LR: F2412C08 CTR: C024C638
+[  110.813417] REGS: effc9d90 TRAP: 0300   Not tainted  (2.6.20-1-powerpc)
+[  110.813423] MSR: 00001032 <ME,IR,DR>  CR: 22000024  XER: 20000000
+[  110.813435] DAR: 00000000, DSISR: 40000000
+[  110.813441] TASK = effc0620[4] 'events/0' THREAD: effc8000
+[  110.813446] GPR00: F2412C08 EFFC9E40 EFFC0620 EFAFA9A0 EFAFAA2C 00000000 EFFC9F18 F2414754 
+[  110.813462] GPR08: 00000000 00000000 C03A5000 00000000 22000028 00000000 01719A4C 00241AC8 
+[  110.813477] GPR16: 00241AC4 01719600 016B1E74 01719A44 00241B10 016B1D4C 016B282C 0171981C 
+[  110.813492] GPR24: EFAFA9DC 00000000 00000000 F2414754 EFAFAA2C EFAFACC4 00000008 EFAFA9A0 
+[  110.813508] NIP [F24124C4] ieee80211softmac_get_network_by_bssid_locked+0x1c/0x88 [ieee80211softmac]
+[  110.813541] LR [F2412C08] ieee80211softmac_get_network_by_bssid+0x20/0x38 [ieee80211softmac]
+[  110.813555] Call Trace:
+[  110.813560] [EFFC9E40] [F2459E48] bcm43xx_generate_txhdr+0x15c/0x2d8 [bcm43xx] (unreliable)
+[  110.813607] [EFFC9E60] [F2412C08] ieee80211softmac_get_network_by_bssid+0x20/0x38 [ieee80211softmac]
+[  110.813623] [EFFC9E80] [F2414238] ieee80211softmac_send_disassoc_req+0x50/0x80 [ieee80211softmac]
+[  110.813639] [EFFC9E90] [F2414528] ieee80211softmac_assoc_work+0x2c0/0x4ec [ieee80211softmac]
+[  110.813654] [EFFC9ED0] [F2414D80] ieee80211softmac_notify_callback+0x50/0x1198 [ieee80211softmac]
+[  110.813669] [EFFC9F50] [C004218C] run_workqueue+0xb4/0x174
+[  110.813691] [EFFC9F70] [C0042A70] worker_thread+0x14c/0x178
+[  110.813703] [EFFC9FC0] [C00466A4] kthread+0xc0/0xfc
+[  110.813715] [EFFC9FF0] [C00143F4] kernel_thread+0x44/0x60
+[  110.813725] Instruction dump:
+[  110.813732] 80010024 bba10014 38210020 7c0803a6 4e800020 9421ffe0 7c0802a6 bf810010 
+[  110.813753] 7c9c2378 3ba30324 90010024 81230324 <83e90000> 2f9f0000 419e0008 7c00fa2c 
+[  110.813774]  <6>ADDRCONF(NETDEV_UP): eth1: link is not ready
 
-100% agreed with you on this !
-
-> As far as whether or not someone is allowed to distribute a binary
-> module that can be linked into the Linux kernel, that's a question of
-> whether the binary module is a derived work or not.  And that's not up
-> to us, that's up to the local laws.  But before you decide that you
-> want the most extreme form of anything that wanders close to one
-> person's code or header files is a derived work, and to start going to
-> work lobbying your local legislature, recall that there have been
-> those who have claimed that Linux is a derived work of Unix because we
-> used things like #define's for errno codes and structure definitions
-> of ELF binaries.  You really sure you want to go there?
-
-Ted, I think you get me wrong. I don't want to dictate anyone what's
-derived work and what is not. Instead, it's the opposite. I just want
-to indicate them what's explicitly permitted by the author and copyright
-owner (at least by me as the author/copyright owner when I can) so that
-people can decide by themselves what level of risk they take by doing
-whatever they want. What I consider the most important is to encourage
-fair use even in areas I never anticipated, and when possible, try to
-protect fair users from the GPL zealots who want to bite whenever one
-gives them an opportunity to abuse the gray area to feel stronger.
-
-I have opened even more my software and tried to clarify the reasons
-why I chose the dual license exactly for this reason.
-
-What I was suggesting is to add a clarification with the kernel to
-avoid those overly long threads on LKML such as this one. It would
-basically be structured like this :
-
-"Use in the following order" :
-  1) fully respect the license and you're OK.
-  2) play in the gray area if you need and if you consider it fair use,
-     but seek legal advice from a lawyer (and not LKML) before !
-  3) explicitly violate the license, and prepare to get sued sooner or later.
-  For GPL zealots : please do not report what _you_ consider abuse to LKML,
-  contact the abuser, then a lawyer or specialized sites for this.
-
-But Linus is right, he's not the only copyright owner, and that makes it
-harder to touch anything related to license and use.
-
-> 						- Ted
-
-Willy
 

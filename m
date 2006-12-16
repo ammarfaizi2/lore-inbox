@@ -1,94 +1,119 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965330AbWLPFwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030626AbWLPGEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965330AbWLPFwp (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 00:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965336AbWLPFwp
+	id S1030626AbWLPGEP (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 01:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWLPGEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 00:52:45 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:60420 "EHLO
-	liaag2ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965330AbWLPFwo (ORCPT
+	Sat, 16 Dec 2006 01:04:14 -0500
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:3435 "EHLO
+	smtp-vbr10.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030626AbWLPGEN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 00:52:44 -0500
-Date: Sat, 16 Dec 2006 00:47:09 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.18.5 usb/sysfs bug.
-To: Dave Jones <davej@redhat.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Message-ID: <200612160050_MC3-1-D538-EA63@compuserve.com>
+	Sat, 16 Dec 2006 01:04:13 -0500
+Date: Sat, 16 Dec 2006 07:03:29 +0100
+From: thunder7@xs4all.nl
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
+       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+Message-ID: <20061216060328.GA9694@amd64.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <17780.63770.228659.234534@cse.unsw.edu.au> <20061205061623.GA13749@amd64.of.nowhere> <20061205062142.GA14784@amd64.of.nowhere> <20061204224323.2e5d0494.akpm@osdl.org> <20061205105928.GA6482@amd64.of.nowhere> <17782.28505.303064.964551@cse.unsw.edu.au> <20061215192146.GA3616@amd64.of.nowhere> <17795.2681.523120.656367@cse.unsw.edu.au> <20061215130552.95860b72.akpm@osdl.org> <4583183C.7000107@garzik.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4583183C.7000107@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20061215213715.GB15792@redhat.com>
+From: Jeff Garzik <jeff@garzik.org>
+Date: Fri, Dec 15, 2006 at 04:48:44PM -0500
+> The "Re: Linux 2.6.20-rc1" sub-thread that had Jens and Alistair John 
+> Strachan replying seemed to implicate some core block layer badness.
+> 
+The original problem (not mounting my raid6 partition) is observable in
+2.6.20-rc1-mm1, but not in 2.6.20-rc1; ie. 2.6.20-rc1 is good for me.
 
-On Fri, 15 Dec 2006 16:37:15 -0500, Dave Jones wrote:
+Linux version 2.6.20-rc1 (jurriaan@middle) (gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)) #3 SMP Fri Dec 15 21:19:54 CET 2006
+<snip>
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: considering sdh1 ...
+md:  adding sdh1 ...
+md:  adding sdg1 ...
+md:  adding sdf1 ...
+md:  adding sde1 ...
+md:  adding sdd1 ...
+md:  adding sdc1 ...
+md:  adding sdb1 ...
+md:  adding sda1 ...
+md: hdc9 has different UUID to sdh1
+md: hdc8 has different UUID to sdh1
+md: hdc7 has different UUID to sdh1
+md: hdc6 has different UUID to sdh1
+md: hdc5 has different UUID to sdh1
+md: hda9 has different UUID to sdh1
+md: hda8 has different UUID to sdh1
+md: hda7 has different UUID to sdh1
+md: hda6 has different UUID to sdh1
+md: hda5 has different UUID to sdh1
+md: created md0
+md: bind<sda1>
+md: bind<sdb1>
+md: bind<sdc1>
+md: bind<sdd1>
+md: bind<sde1>
+md: bind<sdf1>
+md: bind<sdg1>
+md: bind<sdh1>
+md: running: <sdh1><sdg1><sdf1><sde1><sdd1><sdc1><sdb1><sda1>
+raid5: device sdh1 operational as raid disk 1
+raid5: device sdg1 operational as raid disk 0
+raid5: device sdf1 operational as raid disk 5
+raid5: device sde1 operational as raid disk 6
+raid5: device sdd1 operational as raid disk 7
+raid5: device sdc1 operational as raid disk 3
+raid5: device sdb1 operational as raid disk 2
+raid5: device sda1 operational as raid disk 4
+raid5: allocated 8462kB for md0
+raid5: raid level 6 set md0 active with 8 out of 8 devices, algorithm 2
+RAID5 conf printout:
+ --- rd:8 wd:8
+ disk 0, o:1, dev:sdg1
+ disk 1, o:1, dev:sdh1
+ disk 2, o:1, dev:sdb1
+ disk 3, o:1, dev:sdc1
+ disk 4, o:1, dev:sda1
+ disk 5, o:1, dev:sdf1
+ disk 6, o:1, dev:sde1
+ disk 7, o:1, dev:sdd1
+md0: bitmap initialized from disk: read 15/15 pages, set 1 bits, status: 0
+created bitmap (233 pages) for device md0
+md: considering hdc9 ...
+md:  adding hdc9 ...
+md: hdc8 has different UUID to hdc9
+md: hdc7 has different UUID to hdc9
+md: hdc6 has different UUID to hdc9
+md: hdc5 has different UUID to hdc9
+md:  adding hda9 ...
+md: hda8 has different UUID to hdc9
+md: hda7 has different UUID to hdc9
+md: hda6 has different UUID to hdc9
+md: hda5 has different UUID to hdc9
+md: created md4
+md: bind<hda9>
+md: bind<hdc9>
+md: running: <hdc9><hda9>
+raid1: raid set md4 active with 2 out of 2 mirrors
+md4: bitmap initialized from disk: read 10/10 pages, set 45 bits, status: 0
+<snip>
+EXT3 FS on md0, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
 
-> > Can you enable CONFIG_USB_DEBUG and send the log info that happens right
-> > before this oops?
->
-> Gah, and here it is, actually attached this time.
-
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 0000000b
-
-> EIP is at sysfs_hash_and_remove+0x18/0xfd
-
-That's strange.  Remove_files called sysfs_hash_and_remove()
-with dir==0xfffffff3 (-13 decimal.)
-
-static void remove_files(struct dentry * dir,
-                         const struct attribute_group * grp)
-{
-        struct attribute *const* attr;
-
-        for (attr = grp->attrs; *attr; attr++)
-                sysfs_hash_and_remove(dir,(*attr)->name); <========
-}
-
-> Process pcscd (pid: 2678, ti=f6d28000 task=f7dbe1f0 task.ti=f6d28000)
-> Stack: c0634109 fffffff3 f7063414 c069cf0c fffffff3 fffffff3 f7063414 c04a7f69 
->        c069cf00 f70632b0 c04a7fb8 f7063208 f70473a0 f7063208 c055572f f70632b0 
->        c05513ff f7063208 f7000640 00000001 f703f788 c055142e f6d28ed4 c058800c 
-> Call Trace:
->  [<c04a7f69>] remove_files+0x15/0x1e
->  [<c04a7fb8>] sysfs_remove_group+0x46/0x5c
->  [<c055572f>] device_pm_remove+0x2b/0x62
->  [<c05513ff>] device_del+0x11a/0x141
->  [<c055142e>] device_unregister+0x8/0x10
->  [<c058800c>] usb_remove_ep_files+0x5b/0x7b
->  [<c0587b82>] usb_remove_sysfs_intf_files+0x1d/0x54
->  [<c0585b5c>] usb_set_interface+0x135/0x1bf
->  [<c0586047>] usb_unbind_interface+0x4a/0x6a
->  [<c0552a38>] __device_release_driver+0x60/0x78
->  [<c0552c85>] device_release_driver+0x2b/0x3a
->  [<c057e4f5>] usb_driver_release_interface+0x3b/0x63
->  [<c058833d>] releaseintf+0x4b/0x5b
->  [<c058ab8d>] usbdev_release+0x67/0x9e
->  [<c0470402>] __fput+0xba/0x188
->  [<c046dc61>] filp_close+0x52/0x59
->  [<c0404013>] syscall_call+0x7/0xb
-
-What is pcscd?
-
-Earlier in bootup you got this:
-
-hub 1-0:1.0: state 7 ports 2 chg 0000 evt 0004
-uhci_hcd 0000:00:1d.0: port 2 portsc 008a,00
-hub 1-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
-usb 1-2: USB disconnect, address 2
-usb 1-2: usb_disable_device nuking all URBs
-uhci_hcd 0000:00:1d.0: shutdown urb f7ed7540 pipe 40408280 ep1in-intr
-usb 1-2: unregistering interface 1-2:1.0
- usbdev1.2_ep81: ep_device_release called for usbdev1.2_ep81
-usb 1-2:1.0: uevent
-usb 1-2: unregistering device
- usbdev1.2_ep00: ep_device_release called for usbdev1.2_ep00
-
-usb_remove_ep_files() is in the call trace, so this may be related?
-
+Jurriaan
 -- 
-MBTI: IXTP
+And I thought that the Borg were bad...
+Debian (Unstable) GNU/Linux 2.6.20-rc1 2x4023 bogomips load 5.55
+the Jack Vance Integral Edition: http://www.integralarchive.org

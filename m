@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030537AbWLPBdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030524AbWLPBd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030537AbWLPBdW (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWLPBc6
+	id S1030524AbWLPBd1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbWLPBc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:32:58 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:38870 "EHLO cacti.profiwh.com"
+	Fri, 15 Dec 2006 20:32:57 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:38868 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030537AbWLPBcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030536AbWLPBcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 15 Dec 2006 20:32:54 -0500
-Message-id: <29302220751300732488@wsc.cz>
+Message-id: <175641799062336386@wsc.cz>
 In-reply-to: <2880031291415520798@wsc.cz>
-Subject: [PATCH 2/5] Char: isicom, fix probe race
+Subject: [PATCH 3/5] Char: isicom, augment card_reset
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
@@ -19,104 +19,101 @@ Date: Sat, 16 Dec 2006 02:09:48 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isicom, fix probe race
+isicom, augment card_reset
 
-Fix two race conditions in the probe function with mutex.
+- add 0xee to signatures
+- change long delays to sleeps
+- make one sleep shorter not to wait 3s
+- portcount == 16 is also correct
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit e7087b32ad4b5ee1240fa7f9ba46a9b4566fe424
-tree 28bc5ad2a47c03e1b7a09fce22afbe7000955e97
-parent f2d37e8d3de070f8cda48a454f7b991d29b310be
-author Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 21:08:11 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 21:08:11 +0059
+commit 405c17b09b010b41f6ec2388a11777e4048c7976
+tree 4954b33027ee87193bfe91109d6fbc8b12c4e71a
+parent e7087b32ad4b5ee1240fa7f9ba46a9b4566fe424
+author Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 22:20:14 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 22:20:14 +0059
 
- drivers/char/isicom.c |   26 ++++++++++++++++----------
- 1 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/char/isicom.c |   39 ++++++++++++++++++++++-----------------
+ 1 files changed, 22 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 836e967..5d2c345 100644
+index 5d2c345..7968160 100644
 --- a/drivers/char/isicom.c
 +++ b/drivers/char/isicom.c
-@@ -1732,22 +1732,25 @@ end:
- /*
-  *	Insmod can set static symbols so keep these static
-  */
--static int card;
-+static unsigned int card_count;
- 
- static int __devinit isicom_probe(struct pci_dev *pdev,
- 	const struct pci_device_id *ent)
+@@ -1501,7 +1501,7 @@ static int __devinit reset_card(struct pci_dev *pdev,
  {
-+	static DEFINE_MUTEX(probe_lock);
- 	unsigned int ioaddr, signature, index;
- 	int retval = -EPERM;
--	u8 pciirq;
- 	struct isi_board *board = NULL;
+ 	struct isi_board *board = pci_get_drvdata(pdev);
+ 	unsigned long base = board->base;
+-	unsigned int portcount = 0;
++	unsigned int sig, portcount = 0;
+ 	int retval = 0;
  
--	if (card >= BOARD_COUNT)
-+	mutex_lock(&probe_lock);
-+	if (card_count >= BOARD_COUNT) {
-+		mutex_unlock(&probe_lock);
- 		goto err;
-+	}
-+	card_count++;
+ 	dev_dbg(&pdev->dev, "ISILoad:Resetting Card%d at 0x%lx\n", card + 1,
+@@ -1509,27 +1509,35 @@ static int __devinit reset_card(struct pci_dev *pdev,
  
- 	ioaddr = pci_resource_start(pdev, 3);
- 	/* i.e at offset 0x1c in the PCI configuration register space. */
--	pciirq = pdev->irq;
- 	dev_info(&pdev->dev, "ISI PCI Card(Device ID 0x%x)\n", ent->device);
+ 	inw(base + 0x8);
  
- 	/* allot the first empty slot in the array */
-@@ -1759,8 +1762,9 @@ static int __devinit isicom_probe(struct pci_dev *pdev,
+-	mdelay(10);
++	msleep(10);
  
- 	board->index = index;
- 	board->base = ioaddr;
--	board->irq = pciirq;
--	card++;
-+	board->irq = pdev->irq;
+ 	outw(0, base + 0x8); /* Reset */
+ 
+-	msleep(3000);
++	msleep(1000);
+ 
+-	*signature = inw(base + 0x4) & 0xff;
++	sig = inw(base + 0x4) & 0xff;
 +
-+	mutex_unlock(&probe_lock);
++	if (sig != 0xa5 && sig != 0xbb && sig != 0xcc && sig != 0xdd &&
++			sig != 0xee) {
++		dev_warn(&pdev->dev, "ISILoad:Card%u reset failure (Possible "
++			"bad I/O Port Address 0x%lx).\n", card + 1, base);
++		dev_dbg(&pdev->dev, "Sig=0x%x\n", sig);
++		retval = -EIO;
++		goto end;
++	}
++
++	msleep(10);
  
- 	pci_set_drvdata(pdev, board);
+ 	portcount = inw(base + 0x2);
+-	if (!(inw(base + 0xe) & 0x1) || ((portcount != 0) &&
+-			(portcount != 4) && (portcount != 8))) {
+-		dev_dbg(&pdev->dev, "base+0x2=0x%lx, base+0xe=0x%lx\n",
+-			inw(base + 0x2), inw(base + 0xe));
+-		dev_err(&pdev->dev, "ISILoad:PCI Card%d reset failure "
+-			"(Possible bad I/O Port Address 0x%lx).\n",
+-			card + 1, base);
++	if (!inw(base + 0xe) & 0x1 || (portcount != 0 && portcount != 4 &&
++				portcount != 8 && portcount != 16)) {
++		dev_err(&pdev->dev, "ISILoad:PCI Card%d reset failure.",
++			card + 1);
+ 		retval = -EIO;
+ 		goto end;
+ 	}
  
-@@ -1770,7 +1774,7 @@ static int __devinit isicom_probe(struct pci_dev *pdev,
- 			"will be disabled.\n", board->base, board->base + 15,
- 			index + 1);
- 		retval = -EBUSY;
--		goto err;
-+		goto err_dec;
-  	}
+-	switch (*signature) {
++	switch (sig) {
+ 	case 0xa5:
+ 	case 0xbb:
+ 	case 0xdd:
+@@ -1537,16 +1545,13 @@ static int __devinit reset_card(struct pci_dev *pdev,
+ 		board->shift_count = 12;
+ 		break;
+ 	case 0xcc:
++	case 0xee:
+ 		board->port_count = 16;
+ 		board->shift_count = 11;
+ 		break;
+-	default:
+-		dev_warn(&pdev->dev, "ISILoad:Card%d reset failure (Possible "
+-			"bad I/O Port Address 0x%lx).\n", card + 1, base);
+-		dev_dbg(&pdev->dev, "Sig=0x%lx\n", signature);
+-		retval = -EIO;
+ 	}
+ 	dev_info(&pdev->dev, "-Done\n");
++	*signature = sig;
  
- 	retval = request_irq(board->irq, isicom_interrupt,
-@@ -1799,8 +1803,10 @@ errunri:
- 	free_irq(board->irq, board);
- errunrr:
- 	pci_release_region(pdev, 3);
--err:
-+err_dec:
-+	card_count--;
- 	board->base = 0;
-+err:
+ end:
  	return retval;
- }
- 
-@@ -1814,6 +1820,8 @@ static void __devexit isicom_remove(struct pci_dev *pdev)
- 
- 	free_irq(board->irq, board);
- 	pci_release_region(pdev, 3);
-+	card_count--;
-+	board->base = 0;
- }
- 
- static int __init isicom_init(void)
-@@ -1821,8 +1829,6 @@ static int __init isicom_init(void)
- 	int retval, idx, channel;
- 	struct isi_port *port;
- 
--	card = 0;
--
- 	for(idx = 0; idx < BOARD_COUNT; idx++) {
- 		port = &isi_ports[idx * 16];
- 		isi_card[idx].ports = port;

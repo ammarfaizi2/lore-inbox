@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030787AbWLPIkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030791AbWLPIpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030787AbWLPIkT (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 03:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030788AbWLPIkS
+	id S1030791AbWLPIpy (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 03:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030794AbWLPIpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 03:40:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4854 "EHLO spitz.ucw.cz"
+	Sat, 16 Dec 2006 03:45:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2618 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1030787AbWLPIkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 03:40:17 -0500
-Date: Sat, 16 Dec 2006 08:40:08 +0000
+	id S1030791AbWLPIpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 03:45:53 -0500
+Date: Sat, 16 Dec 2006 08:45:42 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
-Message-ID: <20061216084007.GC4049@ucw.cz>
-References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+To: James Lockie <bjlockie@lockie.ca>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: escape key]
+Message-ID: <20061216084542.GD4049@ucw.cz>
+References: <1166058290.2964.15.camel@monteirov> <20061213214140.df6111f5.randy.dunlap@oracle.com> <4580E985.2090208@lockie.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+In-Reply-To: <4580E985.2090208@lockie.ca>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
->   there are numerous places throughout the source tree that apparently
-> calculate the size of an array using the construct
-> "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
-> 
->   $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
-> 
-> but we already have, from "include/linux/kernel.h":
-> 
->   #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+> >>>From: James Lockie <bjlockie@lockie.ca>
+> >>>To: linux-x86_64@vger.kernel.org
+> >>>Subject: escape key
+> >>>Date: 	Tue, 12 Dec 2006 14:57:57 -0500
+> >>>
+> >>>I can't use the escape key to exit a menu with make 
+> >>>menuconfig on kernel-2.6.19 or .1
+> >>>It works on 2.6.18. :-(
+> >>>      
+> >
+> >Is this a problem?
+> >
+> >You can exit a menu by selecting <Exit> and pressing 
+> >Enter
+> >or (as the help text at the top of the screen says:)
+> >pressing <Esc><Esc> (2 times).  Yes, pressing <Esc> one 
+> >time
+> >and then waiting for 1-2 seconds used to exit a menu.
+> >
+> >One could argue that it has been "fixed" to match the 
+> >help text.
 
-Hmmm. quite misleading name :-(. ARRAY_LEN would be better.
+> Two escapes works now. :-)
 
+Actually could we fix our consoles, somehow, to make esc usable?
+Having important key like esc unusable on consoles is quite ugly.
+
+ioctl(console_fd, AM_I_IN_THE_MIDDLE_OF_ESCAPE_SEQUENCE_?) would do
+the trick at least for vt consoles...
+							Pavel
 -- 
 Thanks for all the (sleeping) penguins.

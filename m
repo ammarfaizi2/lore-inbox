@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030916AbWLPMqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753663AbWLPNNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030916AbWLPMqV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 07:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030917AbWLPMqV
+	id S1753663AbWLPNNg (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 08:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753666AbWLPNNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 07:46:21 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49119 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1030916AbWLPMqU (ORCPT
+	Sat, 16 Dec 2006 08:13:36 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:42534 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753657AbWLPNNf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 07:46:20 -0500
-Date: Sat, 16 Dec 2006 12:54:29 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: torvalds@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix help text for CONFIG_ATA_PIIX
-Message-ID: <20061216125429.68e5cdc5@localhost.localdomain>
-In-Reply-To: <200612142006.49406.s0348365@sms.ed.ac.uk>
-References: <200612141714.55948.s0348365@sms.ed.ac.uk>
-	<200612141832.50587.s0348365@sms.ed.ac.uk>
-	<20061214195314.GC10955@nostromo.devel.redhat.com>
-	<200612142006.49406.s0348365@sms.ed.ac.uk>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Dec 2006 08:13:35 -0500
+X-Originating-Ip: 24.148.236.183
+Date: Sat, 16 Dec 2006 08:09:25 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Pavel Machek <pavel@ucw.cz>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <20061216084007.GC4049@ucw.cz>
+Message-ID: <Pine.LNX.4.64.0612160802250.3660@localhost.localdomain>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <20061216084007.GC4049@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for clarifying Bill, and sorry Alan. ata_piix does indeed work 
-> correctly. The help text is a bit confusing:
-> 
-> config ATA_PIIX
->         tristate "Intel PIIX/ICH SATA support"
->         depends on PCI
->         help
->           This option enables support for ICH5/6/7/8 Serial ATA.
->           If PATA support was enabled previously, this enables
->           support for select Intel PIIX/ICH PATA host controllers.
+On Sat, 16 Dec 2006, Pavel Machek wrote:
 
-New help text
+> Hi!
+>
+> >   there are numerous places throughout the source tree that apparently
+> > calculate the size of an array using the construct
+> > "sizeof(fubar)/sizeof(fubar[0])". see for yourself:
+> >
+> >   $ grep -Er "sizeof\((.*)\) ?/ ?sizeof\(\1\[0\]\)" *
+> >
+> > but we already have, from "include/linux/kernel.h":
+> >
+> >   #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+>
+> Hmmm. quite misleading name :-(. ARRAY_LEN would be better.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+i suspect it's *way* too late to make that kind of change, given that
+"ARRAY_SIZE" is firmly ensconced in countless places in the source
+tree and that would be a major, disruptive change.
 
---- linux.vanilla-2.6.20-rc1/drivers/ata/Kconfig	2006-12-14 17:23:30.000000000 +0000
-+++ linux-2.6.20-rc1/drivers/ata/Kconfig	2006-12-16 12:29:50.198153800 +0000
-@@ -40,9 +40,9 @@
- 	tristate "Intel PIIX/ICH SATA support"
- 	depends on PCI
- 	help
--	  This option enables support for ICH5/6/7/8 Serial ATA.
--	  If PATA support was enabled previously, this enables
--	  support for select Intel PIIX/ICH PATA host controllers.
-+	  This option enables support for ICH5/6/7/8 Serial ATA
-+	  and support for PATA on the Intel PIIX3/PIIX4/ICH series
-+	  PATA host controllers.
- 
- 	  If unsure, say N.
- 
+even *i* wouldn't try to promote that idea.  :-)
+
+rday

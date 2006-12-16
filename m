@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161513AbWLPVV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161520AbWLPVX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161513AbWLPVV1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 16:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161515AbWLPVV1
+	id S1161520AbWLPVX5 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 16:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161521AbWLPVX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 16:21:27 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:34011 "EHLO
-	nigel.suspend2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161513AbWLPVV0 (ORCPT
+	Sat, 16 Dec 2006 16:23:57 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:37176 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161520AbWLPVX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 16:21:26 -0500
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-From: Nigel Cunningham <nigel@nigel.suspend2.net>
-Reply-To: nigel@nigel.suspend2.net
-To: "J.H." <warthog9@kernel.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com, webmaster@kernel.org
-In-Reply-To: <1166297434.26330.34.camel@localhost.localdomain>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	 <20061216094421.416a271e.randy.dunlap@oracle.com>
-	 <20061216095702.3e6f1d1f.akpm@osdl.org>  <458434B0.4090506@oracle.com>
-	 <1166297434.26330.34.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 17 Dec 2006 08:21:20 +1100
-Message-Id: <1166304080.13548.8.camel@nigel.suspend2.net>
+	Sat, 16 Dec 2006 16:23:57 -0500
+Date: Sat, 16 Dec 2006 21:23:46 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       debian-kernel@lists.debian.org, linux-mm <linux-mm@kvack.org>,
+       David Miller <davem@davemloft.net>
+Subject: Re: Recent mm changes leading to filesystem corruption?
+Message-ID: <20061216212346.GA4426@unjust.cyrius.com>
+References: <20061216155044.GA14681@deprecation.cyrius.com> <1166302516.10372.5.camel@twins>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166302516.10372.5.camel@twins>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+* Peter Zijlstra <a.p.zijlstra@chello.nl> [2006-12-16 21:55]:
+> What is not clear from all these reports is what architectures this is
+> seen on. I suspect some of them are i686, which together with the
+> explicit mention of ARM make it a cross platform issue.
 
-I've have git trees against a few versions besides Linus', and have just
-moved all but Linus' to staging to help until you can get your new
-hardware. If others were encouraged to do the same, it might help a lot?
-
-Regards,
-
-Nigel
-
+Problems have been seen at least on x86, x86_64 and arm.
+-- 
+Martin Michlmayr
+tbm@cyrius.com

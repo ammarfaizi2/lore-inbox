@@ -1,98 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030856AbWLPLNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030869AbWLPLU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030856AbWLPLNp (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 06:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030857AbWLPLNp
+	id S1030869AbWLPLU3 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 06:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030872AbWLPLU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 06:13:45 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:40745 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030856AbWLPLNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 06:13:44 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Date: Sat, 16 Dec 2006 12:16:06 +0100
-User-Agent: KMail/1.9.1
-Cc: Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>,
-       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
-       Alan <alan@lxorguk.ukuu.org.uk>
-References: <20061204203410.6152efec.akpm@osdl.org> <200612160038.03149.rjw@sisk.pl> <200612161056.26830.rjw@sisk.pl>
-In-Reply-To: <200612161056.26830.rjw@sisk.pl>
+	Sat, 16 Dec 2006 06:20:29 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:29158 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030869AbWLPLU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 06:20:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XmpO/hlBXRqXyOPo9EIX6H5bmTOUdwFvpor1JywkmopcT03nNRVbnOZYqNxsCwmVDZMlLtAtU9aUWcEP00WRQIIsTYxRADS5a5pAttYyhkdcuoEXM05WWiJIuV/CpyNnlyT0LH7h9szss2QoobwYytxMQ8LhMTKFKnSInrvsO1A=
+Message-ID: <2c0942db0612160320o5f830855y3c607585d5f855f1@mail.gmail.com>
+Date: Sat, 16 Dec 2006 03:20:26 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5: known regressions (v3)
+Cc: "Andi Kleen" <ak@suse.de>, "Eric Dumazet" <dada1@cosmosbay.com>,
+       "Adrian Bunk" <bunk@stusta.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Stephen Hemminger" <shemminger@osdl.org>, gregkh@suse.de,
+       "Ingo Molnar" <mingo@redhat.com>, "Len Brown" <len.brown@intel.com>,
+       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net
+In-Reply-To: <20061122104245.3ce89487.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612161216.07669.rjw@sisk.pl>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	 <200611151135.48306.dada1@cosmosbay.com>
+	 <200611221128.05769.dada1@cosmosbay.com>
+	 <200611221136.14565.ak@suse.de>
+	 <20061122104245.3ce89487.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 16 December 2006 10:56, Rafael J. Wysocki wrote:
-> On Saturday, 16 December 2006 00:38, Rafael J. Wysocki wrote:
-> > On Friday, 15 December 2006 23:24, Jeff Garzik wrote:
-> > > Rafael J. Wysocki wrote:
-> > > > On Friday, 15 December 2006 22:39, Andrew Morton wrote:
-> > > >> On Fri, 15 Dec 2006 13:05:52 -0800
-> > > >> Andrew Morton <akpm@osdl.org> wrote:
-> > > >>
-> > > >>> Jeff, I shall send all the sata patches which I have at you one single time
-> > > >>> and I shall then drop the lot.  So please don't flub them.
-> > > >>>
-> > > >>> I'll then do a rc1-mm2 without them.
-> > > >> hm, this is looking like a lot of work for not much gain.  Rafael, are
-> > > >> you able to do a quick chop and tell us whether these:
-> > > >>
-> > > >> pci-move-pci_vdevice-from-libata-to-core.patch
-> > > >> pata_cs5530-suspend-resume-support-tweak.patch
-> > > >> ata-fix-platform_device_register_simple-error-check.patch
-> > > >> initializer-entry-defined-twice-in-pata_rz1000.patch
-> > > >> pata_via-suspend-resume-support-fix.patch
-> > > >> sata_nv-add-suspend-resume-support.patch
-> > > >> libata-simulate-report-luns-for-atapi-devices.patch
-> > > >> user-of-the-jiffies-rounding-patch-ata-subsystem.patch
-> > > >> libata-fix-oops-with-sparsemem.patch
-> > > >> sata_nv-fix-kfree-ordering-in-remove.patch
-> > > >> libata-dont-initialize-sg-in-ata_exec_internal-if-dma_none-take-2.patch
-> > > >> pci-quirks-fix-the-festering-mess-that-claims-to-handle-ide-quirks-ide-fix.patch
-> > > >>
-> > > >> are innocent?
-> > > > 
-> > > > Yes, they are.
-> > > 
-> > > We all really appreciate your patience :)  This is good feedback.
-> > > 
-> > > To narrow down some more, does applying 2.6.20-rc1 + the attached patch 
-> > > work?  (ignoring -mm tree altogether)
-> > 
-> > Yes, it does.
-> 
-> I've applied the patches from -rc1-mm1 up to and including
-> 
-> problem-phy-probe-not-working-properly-for-ibm_emac-ppc4xx.patch
-> 
-> on top of 2.6.20-rc1 and they don't seem to break anything.  Will try some
-> more.
+On 11/22/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, 22 Nov 2006 11:36:14 +0100
+> Andi Kleen <ak@suse.de> wrote:
+>
+> > On Wednesday 22 November 2006 11:28, Eric Dumazet wrote:
+> > > On Wednesday 15 November 2006 11:35, Eric Dumazet wrote:
+> > > > On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
+> > > > > Subject    : x86_64: oprofile doesn't work
+> > > > > References : http://lkml.org/lkml/2006/10/27/3
+> > > > > Submitter  : Prakash Punnoor <prakash@punnoor.de>
+> > > > > Status     : unknown
+> > > >
+> > >
+> > > I hit the same problem on i386 architecture too, if CONFIG_ACPI is not set.
+> >
+> > oprofile is still broken because it cannot deal with the lack of perfctr 0.
+>
+> The kernel is still broken because we changed the interface.
 
-The patch that breaks things is somewhere between
+I just got bit by this on 2.6.20-latest (well, of two days ago anyway)
+while trying to debug another transient 'kacpid sucks all available
+cpu time'. But that's okay, I'm sure it will happen again in a week or
+two.
 
-dont-export-device-ids-to-userspace.patch
+In the meantime, who won this pis^H^H^H discussion?
 
-and
+Mikael Pettersson wrote:
+> Andrew Morton writes:
+> > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
+> > to then put the NMI back to doing the watchdog thing after oprofile has
+> > finished with it.
+>
+> Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
+> the in-kernel API allowing real performance counter drivers like
+> oprofile (and perfctr) to claim the HW from the NMI watchdog,
+> do their work, and then release it which resumed the watchdog.
+>
+> Note that oprofile (and perfctr) didn't do anything behind the
+> NMI watchdog's back. They went via the API. Nothing dodgy going on.
 
-funsoft-is-bust-on-sparc.patch
-
-inclusive.
-
-Now I'll need to resync my disk arrays so if anyone has any suggestions
-what to try next, I'll be grateful. ;-)
-
-Greetings,
-Rafael
-
-
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+Well, that seems clear.

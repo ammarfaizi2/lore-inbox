@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030912AbWLPMpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030916AbWLPMqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030912AbWLPMpP (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 07:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030915AbWLPMpP
+	id S1030916AbWLPMqV (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 07:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030917AbWLPMqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 07:45:15 -0500
-Received: from main.gmane.org ([80.91.229.2]:40108 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030912AbWLPMpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 07:45:13 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wiebe Cazemier <halfgaar@gmx.net>
-Subject: Software RAID1 (with non-identical discs) performance
-Date: Sat, 16 Dec 2006 13:39:22 +0100
-Message-ID: <em0pdq$r7o$2@sea.gmane.org>
+	Sat, 16 Dec 2006 07:46:21 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49119 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1030916AbWLPMqU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 07:46:20 -0500
+Date: Sat, 16 Dec 2006 12:54:29 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: torvalds@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix help text for CONFIG_ATA_PIIX
+Message-ID: <20061216125429.68e5cdc5@localhost.localdomain>
+In-Reply-To: <200612142006.49406.s0348365@sms.ed.ac.uk>
+References: <200612141714.55948.s0348365@sms.ed.ac.uk>
+	<200612141832.50587.s0348365@sms.ed.ac.uk>
+	<20061214195314.GC10955@nostromo.devel.redhat.com>
+	<200612142006.49406.s0348365@sms.ed.ac.uk>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cc503261-a.eelde1.dr.home.nl
-User-Agent: KNode/0.10.4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Thanks for clarifying Bill, and sorry Alan. ata_piix does indeed work 
+> correctly. The help text is a bit confusing:
+> 
+> config ATA_PIIX
+>         tristate "Intel PIIX/ICH SATA support"
+>         depends on PCI
+>         help
+>           This option enables support for ICH5/6/7/8 Serial ATA.
+>           If PATA support was enabled previously, this enables
+>           support for select Intel PIIX/ICH PATA host controllers.
 
-I'm planning to put a software RAID1 array in my computer, but I have a few
-technical questions. 
+New help text
 
-When using non-identical discs (not just size, but also geometry) to contruct
-your array, you can never get the partitions of the underlying discs to be
-equal in size because the size of a partition can only be N*cylindersize,
-where cylindersize varies across discs; the array always assumes the size of
-the smallest partition. When one of the discs fails, you need to replace it
-and make a partition that is exactly equal in size to the array, but because
-that usually is impossible, it mostly will be bigger. To cover for this, I
-have always left a small bit of unpartioned space on my discs. This not only
-provides me with headroom in making the partitions on discs with different
-geometry, but it's also possible that brand B's 250 GB is a little smaller
-than brand A's, and staying (well) below the 250 GB, makes sure any 250 GB
-disc fits in the array.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-My first question is, is this a necessary/convenient technique to ensure you
-can replace discs over time, especially when you can't get the exact same
-replacement disc?
-
-My second question is about the performance impact of using non-identical discs
-and partitions. I can't really find any info about this, but I've read someone
-making the statement that it would slow things down.
-
-My third question: write performance of RAID1 is usually lower than non-RAID,
-because the data has to be sent over the bus twice. But, with for example an
-NForce4 based mainboard using SATA, does that matter? I don't know if the SATA
-ports are connected to the chipset by means of PCI express or hypertransport,
-but both should be able to handle the double data transfer with room to spare.
-So, as I understand it, as long as the kernel can perform both transfers
-simultaniously, there should be no slow down, because when writing, there will
-simply be two discs writing data simultaniously, at the same speed one drive
-would. Is this correct?
-
-Thanks in advance,
-
-Wiebe Cazemier
-
+--- linux.vanilla-2.6.20-rc1/drivers/ata/Kconfig	2006-12-14 17:23:30.000000000 +0000
++++ linux-2.6.20-rc1/drivers/ata/Kconfig	2006-12-16 12:29:50.198153800 +0000
+@@ -40,9 +40,9 @@
+ 	tristate "Intel PIIX/ICH SATA support"
+ 	depends on PCI
+ 	help
+-	  This option enables support for ICH5/6/7/8 Serial ATA.
+-	  If PATA support was enabled previously, this enables
+-	  support for select Intel PIIX/ICH PATA host controllers.
++	  This option enables support for ICH5/6/7/8 Serial ATA
++	  and support for PATA on the Intel PIIX3/PIIX4/ICH series
++	  PATA host controllers.
+ 
+ 	  If unsure, say N.
+ 

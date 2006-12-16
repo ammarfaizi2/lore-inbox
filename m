@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422758AbWLPXKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422801AbWLPXZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422758AbWLPXKm (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 18:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWLPXKl
+	id S1422801AbWLPXZc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 18:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422802AbWLPXZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 18:10:41 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46301 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422758AbWLPXKl (ORCPT
+	Sat, 16 Dec 2006 18:25:32 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:39881 "EHLO
+	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422801AbWLPXZb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 18:10:41 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] kill_something_info: misc cleanups
-References: <20061216200510.GA5535@tv-sign.ru>
-Date: Sat, 16 Dec 2006 16:10:01 -0700
-In-Reply-To: <20061216200510.GA5535@tv-sign.ru> (Oleg Nesterov's message of
-	"Sat, 16 Dec 2006 23:05:10 +0300")
-Message-ID: <m1psajtp2u.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Sat, 16 Dec 2006 18:25:31 -0500
+X-Greylist: delayed 1043 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 18:25:31 EST
+X-AuditID: d80ac21c-98b9cbb0000069a0-88-45847c58cba1 
+Date: Sat, 16 Dec 2006 23:08:24 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Martin Michlmayr <tbm@cyrius.com>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>, Jan Kara <jack@suse.cz>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <1166304581.10372.18.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612162259510.15520@blonde.wat.veritas.com>
+References: <20061207155740.GC1434@torres.l21.ma.zugschlus.de> 
+ <4578465D.7030104@cfl.rr.com>  <20061209092639.GA15443@torres.l21.ma.zugschlus.de>
+  <20061216184310.GA891@unjust.cyrius.com>  <Pine.LNX.4.64.0612161909460.25272@blonde.wat.veritas.com>
+ <1166304581.10372.18.camel@twins>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Dec 2006 23:08:07.0802 (UTC) FILETIME=[0C7A05A0:01C72167]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+On Sat, 16 Dec 2006, Peter Zijlstra wrote:
+> Moving the cleaning of the page out from under the private_lock opened
+> up a window where newly attached buffer might still see the page dirty
+> status and were thus marked (incorrectly) dirty themselves; resulting in
+> filesystem data corruption.
 
-> On top of
-> 	signal-rewrite-kill_something_info-so-it-uses-newer-helpers.patch
->
-> - Factor out sending PIDTYPE_PGID wide signals.
->
-> - Use is_init(p) instead of "p->pid > 1". We don't hash idle threads anymore,
->   no need to worry about p->pid == 0.
+I'm not going to pretend to understand the buffers issues here:
+people thought that change was safe originally, and I can't say
+it's not - it just stood out as a potentially weakening change.
 
+The patch you propose certainly looks like a good way out, if
+that moved unlock really is a problem: your patch is very well
+worth trying by those people seeing their corruption problems,
+let's wait to hear their feedback.
 
-I do not believe is_init is the proper function here.  In the presence
-of multiple pid namespaces the intention is for is_init to catch all of
-the special handling (except signal behavior) for the init process.
-
-That way when we have multiple processes with pid == 1 we know which
-one we care about.
-
-
-> - Use "p != current->group_leader" instead of "p->tgid != current->tgid",
->   saves one dereference and kills yet another direct pid_t usage.
-
-Makes sense as you have to be a group_leader to be on the task list.
-
-> - Simplify return value calculation for "pid == -1" case, remove "retval"
->   variable.
->
-> No functional changes.
-
-Looks sane.
-
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
-Eric
+Thanks!
+Hugh

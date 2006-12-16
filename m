@@ -1,140 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422833AbWLPXjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422864AbWLPXws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422833AbWLPXjc (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 18:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422835AbWLPXjc
+	id S1422864AbWLPXws (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 18:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422863AbWLPXws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 18:39:32 -0500
-Received: from py-out-1112.google.com ([64.233.166.181]:44793 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422833AbWLPXjb (ORCPT
+	Sat, 16 Dec 2006 18:52:48 -0500
+Received: from alephnull.demon.nl ([83.160.184.112]:60002 "EHLO
+	xi.wantstofly.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422864AbWLPXwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 18:39:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eWZbTazTDg2B8AhydL+g5vhAQMPl5g+bVidsS28d/HJ9Yhbfu6sFFQIw3MqbCQcZVkp81rDfv7nD1JQFYuov8/9L4cAkFRomi7Nk2rgkhrM7hnBBHiPTTD+94k4XhNBMIW522Xi+7zAqvx5d5/RpmA5Bjy+AAuSkBZNtG3W8gXg=
-Message-ID: <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com>
-Date: Sat, 16 Dec 2006 23:39:30 +0000
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061216165738.GA5165@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Dec 2006 18:52:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
+	d=wantstofly.org;
+	h=date:from:to:cc:subject:message-id:mime-version:content-type:
+	content-disposition:in-reply-to:user-agent;
+	b=EpTheGoq8/vnoR7XASWHwAgxuKq2fqWZAmFGB6AjikjGdwd0YhmWQAoOpuAML
+	XM/UAYdIWmpMi0JjzUB6UoYww==
+Date: Sun, 17 Dec 2006 00:52:45 +0100
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Martin Michlmayr <tbm@cyrius.com>, Riku Voipio <riku.voipio@iki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
+Message-ID: <20061216235245.GA23238@xi.wantstofly.org>
+References: <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061215132740.GD11579@xi.wantstofly.org> <20061215201522.GA11288@electric-eye.fr.zoreil.com> <20061215210329.GB14860@xi.wantstofly.org> <20061215211435.GB10367@flint.arm.linux.org.uk> <20061216230901.GA23143@xi.wantstofly.org> <20061216233134.GA25177@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061216153346.18200.51408.stgit@localhost.localdomain>
-	 <20061216165738.GA5165@elte.hu>
+In-Reply-To: <20061216233134.GA25177@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Sun, Dec 17, 2006 at 12:31:34AM +0100, Francois Romieu wrote:
 
-On 16/12/06, Ingo Molnar <mingo@elte.hu> wrote:
-> FYI, i'm working on integrating kmemleak into -rt. Firstly, i needed the
-> fixes below when applying it ontop of 2.6.19-rt15.
+> > Sounds good.  How about something like the patch below plus the
+> > corresponding r8169 diff?
+> 
+> Go wild.
 
-Do you need these fixes to avoid a compiler error? If yes, this is
-caused by a bug in gcc-4.x. The kmemleak container_of macro has
-protection for non-constant offsets passed to container_of but the
-faulty gcc always returns true for builtin_contant_p, even when this
-is not the case. Previous versions (3.4) or one of the latest 4.x gcc
-don't have this bug.
+Martin/Riku, I'm pretty busy with other stuff at the moment, can you
+give this (on top of 2.6.20-rc1) a spin?  
 
-I wouldn't extend kmemleak to work around a gcc bug which was already fixed.
 
-> Secondly, i'm wondering about the following recursion:
->
->  [<c045a7e1>] rt_spin_lock_slowlock+0x98/0x1dc
->  [<c045b16b>] rt_spin_lock+0x13/0x4b
->  [<c018f155>] kfree+0x3a/0xce
->  [<c0192e79>] hash_delete+0x58/0x5f
->  [<c019309b>] memleak_free+0xe9/0x1e6
->  [<c018ed2e>] __cache_free+0x27/0x414
->  [<c018f1d0>] kfree+0xb5/0xce
->  [<c02788dd>] acpi_ns_get_node+0xb1/0xbb
->  [<c02772fa>] acpi_ns_root_initialize+0x30f/0x31d
->  [<c0280194>] acpi_initialize_subsystem+0x58/0x87
->  [<c06a4641>] acpi_early_init+0x4f/0x12e
->  [<c06888bc>] start_kernel+0x41b/0x44b
->
-> kfree() within kfree() ... this probably works on the upstream SLAB
-> allocator but makes it pretty nasty to sort out SLAB locking in -rt.
-
-I test kmemleak with lockdep enabled but I eliminated all the
-dependencies on the vanilla kernel. When kfree(hnode) is called (in
-hash_delete), no kmemleak locks are held and hence no dependency on
-the kmemleak locks (since kmemleak is protected against re-entrance).
-My understanding is that slab __cache_free is re-entrant anyway
-(noticed this when using radix-tree instead of hash in kmemleak and
-got some lockdep reports on l3->list_lock and memleak_lock) and
-calling it again from kmemleak doesn't seem to have any problem on the
-vanilla kernel.
-
-In the -rt kernel, is there any protection against a re-entrant
-__cache_free (via cache_flusharray -> free_block -> slab_destroy) or
-this is not needed?
-
-> Wouldnt it be better to just preallocate the hash nodes, like lockdep
-> does, to avoid conceptual nesting? Basically debugging infrastructure
-> should rely on other infrastructure as little as possible.
-
-It would indeed be better to avoid using the slab infrastructure (and
-not worry about kmemleak re-entrance and lock dependecies). I'll have
-a look on how this is done in lockdep since the preallocation size
-isn't known. There are also the memleak_object structures that need to
-be allocated/freed. To avoid any locking dependencies, I ended up
-delaying the memleak_object structures freeing in an RCU manner. It
-might work if I do the same with the hash nodes.
-
-> also, the number of knobs in the Kconfig is quite large:
-
-I had some reasons and couldn't find a unified solution, but probably
-only for one or two if them:
-
->  CONFIG_DEBUG_MEMLEAK=y
->  CONFIG_DEBUG_MEMLEAK_HASH_BITS=16
-
-For my limited configurations (an x86 laptop and several ARM embedded
-platforms), 16 bits were enough. I'm not sure this is enough on a
-server machine for example.
-
->  CONFIG_DEBUG_MEMLEAK_TRACE_LENGTH=4
-
-I thought this is a user preference. I could hard-code it to 16.
-What's the trace length used by lockdep?
-
->  CONFIG_DEBUG_MEMLEAK_PREINIT_OBJECTS=512
-
-I can probably hard-code this as well. This is a buffer to temporary
-store memory allocations before kmemleak is fully initialised.
-Kmemleak gets initialised quite early in the start_kernel function and
-shouldn't be that different in other kernel configurations.
-
->  CONFIG_DEBUG_MEMLEAK_SECONDARY_ALIASES=y
->  CONFIG_DEBUG_MEMLEAK_TASK_STACKS=y
-
-These could be eliminated as well.
-
-There are also:
-
-CONFIG_DEBUG_MEMLEAK_REPORT_THLD - can be removed
-CONFIG_DEBUG_MEMLEAK_REPORTS_NR - can be removed
-CONFIG_DEBUG_KEEP_INIT - this might be useful for other tools that
-store the backtrace and display it at a later time. Could be made more
-generic.
-
-> plus the Kconfig dependency on SLAB_DEBUG makes it less likely for
-> people to spontaneously try kmemleak. I'd suggest to offer KMEMLEAK
-> unconditionally (when KERNEL_DEBUG is specified) and simply select
-> SLAB_DEBUG.
-
-I just followed the DEBUG_SLAB_LEAK configuration but I don't have any
-problem with making it more visible.
-
-Thanks for your comments.
-
--- 
-Catalin
+Index: linux-2.6.19/arch/arm/mach-iop32x/n2100.c
+===================================================================
+--- linux-2.6.19.orig/arch/arm/mach-iop32x/n2100.c
++++ linux-2.6.19/arch/arm/mach-iop32x/n2100.c
+@@ -123,9 +123,13 @@ static struct hw_pci n2100_pci __initdat
+ 
+ static int __init n2100_pci_init(void)
+ {
+-	if (machine_is_n2100())
++	if (machine_is_n2100()) {
+ 		pci_common_init(&n2100_pci);
+ 
++		pci_get_bus_and_slot(0, 0x08)->broken_parity_status = 1;
++		pci_get_bus_and_slot(0, 0x10)->broken_parity_status = 1;
++	}
++
+ 	return 0;
+ }
+ 
+Index: linux-2.6.19/drivers/net/r8169.c
+===================================================================
+--- linux-2.6.19.orig/drivers/net/r8169.c
++++ linux-2.6.19/drivers/net/r8169.c
+@@ -225,7 +225,6 @@ MODULE_DEVICE_TABLE(pci, rtl8169_pci_tbl
+ 
+ static int rx_copybreak = 200;
+ static int use_dac;
+-static int ignore_parity_err;
+ static struct {
+ 	u32 msg_enable;
+ } debug = { -1 };
+@@ -471,8 +470,6 @@ module_param(use_dac, int, 0);
+ MODULE_PARM_DESC(use_dac, "Enable PCI DAC. Unsafe on 32 bit PCI slot.");
+ module_param_named(debug, debug.msg_enable, int, 0);
+ MODULE_PARM_DESC(debug, "Debug verbosity level (0=none, ..., 16=all)");
+-module_param_named(ignore_parity_err, ignore_parity_err, bool, 0);
+-MODULE_PARM_DESC(ignore_parity_err, "Ignore PCI parity error as target. Default: false");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(RTL8169_VERSION);
+ 
+@@ -2388,7 +2385,7 @@ static void rtl8169_pcierr_interrupt(str
+ 	 *
+ 	 * Feel free to adjust to your needs.
+ 	 */
+-	if (ignore_parity_err)
++	if (pdev->broken_parity_status)
+ 		pci_cmd &= ~PCI_COMMAND_PARITY;
+ 	else
+ 		pci_cmd |= PCI_COMMAND_SERR | PCI_COMMAND_PARITY;

@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753578AbWLPJWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965387AbWLPJy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753578AbWLPJWu (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 04:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753580AbWLPJWu
+	id S965387AbWLPJy2 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 04:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965390AbWLPJy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 04:22:50 -0500
-Received: from bld-mail01.adl2.internode.on.net ([203.16.214.65]:40944 "EHLO
-	mail.internode.on.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753578AbWLPJWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 04:22:49 -0500
-X-Greylist: delayed 913 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 04:22:49 EST
-From: Marek Wawrzyczny <marekw1977@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Binary Drivers
-Date: Sat, 16 Dec 2006 20:07:31 +1100
-User-Agent: KMail/1.9.5
-References: <loom.20061215T220806-362@post.gmane.org>
-In-Reply-To: <loom.20061215T220806-362@post.gmane.org>
+	Sat, 16 Dec 2006 04:54:28 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:40613 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965387AbWLPJy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 04:54:27 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+Date: Sat, 16 Dec 2006 10:56:25 +0100
+User-Agent: KMail/1.9.1
+Cc: Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>,
+       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       Alan <alan@lxorguk.ukuu.org.uk>
+References: <20061204203410.6152efec.akpm@osdl.org> <45832095.9000503@garzik.org> <200612160038.03149.rjw@sisk.pl>
+In-Reply-To: <200612160038.03149.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612162007.32110.marekw1977@yahoo.com.au>
+Message-Id: <200612161056.26830.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel ML,
+On Saturday, 16 December 2006 00:38, Rafael J. Wysocki wrote:
+> On Friday, 15 December 2006 23:24, Jeff Garzik wrote:
+> > Rafael J. Wysocki wrote:
+> > > On Friday, 15 December 2006 22:39, Andrew Morton wrote:
+> > >> On Fri, 15 Dec 2006 13:05:52 -0800
+> > >> Andrew Morton <akpm@osdl.org> wrote:
+> > >>
+> > >>> Jeff, I shall send all the sata patches which I have at you one single time
+> > >>> and I shall then drop the lot.  So please don't flub them.
+> > >>>
+> > >>> I'll then do a rc1-mm2 without them.
+> > >> hm, this is looking like a lot of work for not much gain.  Rafael, are
+> > >> you able to do a quick chop and tell us whether these:
+> > >>
+> > >> pci-move-pci_vdevice-from-libata-to-core.patch
+> > >> pata_cs5530-suspend-resume-support-tweak.patch
+> > >> ata-fix-platform_device_register_simple-error-check.patch
+> > >> initializer-entry-defined-twice-in-pata_rz1000.patch
+> > >> pata_via-suspend-resume-support-fix.patch
+> > >> sata_nv-add-suspend-resume-support.patch
+> > >> libata-simulate-report-luns-for-atapi-devices.patch
+> > >> user-of-the-jiffies-rounding-patch-ata-subsystem.patch
+> > >> libata-fix-oops-with-sparsemem.patch
+> > >> sata_nv-fix-kfree-ordering-in-remove.patch
+> > >> libata-dont-initialize-sg-in-ata_exec_internal-if-dma_none-take-2.patch
+> > >> pci-quirks-fix-the-festering-mess-that-claims-to-handle-ide-quirks-ide-fix.patch
+> > >>
+> > >> are innocent?
+> > > 
+> > > Yes, they are.
+> > 
+> > We all really appreciate your patience :)  This is good feedback.
+> > 
+> > To narrow down some more, does applying 2.6.20-rc1 + the attached patch 
+> > work?  (ignoring -mm tree altogether)
+> 
+> Yes, it does.
 
-I am writing as a Linux-only user of over 2 years to express my concern with 
-the recent proposal to block out closed source modules from the kernel.
+I've applied the patches from -rc1-mm1 up to and including
 
-While, I understand and share your sentiments over open source software and 
-drivers. I fear however, that trying to steamroll the industry into 
-developing open source drivers by banning closed source drivers is going to 
-have a completely different result. They will simply abandon Linux support 
-for some of their products altogether.
+problem-phy-probe-not-working-properly-for-ibm_emac-ppc4xx.patch
 
-Take the high-end graphic cards that are prevalent in most of today's 
-home/SOHO hardware- desktops and laptops. Would I be wrong in saying that the 
-Linux market share in this market is no more than 5%?
-These companies have already demonstrated that the support they provide is 
-proportional to the market share.
+on top of 2.6.20-rc1 and they don't seem to break anything.  Will try some
+more.
 
-The open source driver development is promising but it has been mentioned 
-several times that the project is undermanned and the vendors are not 
-forthcoming with the necessary information.
-My hardware as it stands today is still not working with the open-source 
-drivers. Perhaps this is the case of PEBCAK and not the open-source drivers 
-per se but with a 1-4 hour turnaround to test a new version of the r300 
-driver it is not a small effort on my part. Still, I'm eagerly awaiting the 
-day that I'll be able to use an open-source driver that is on par with the 
-ati one.
+Greetings,
+Rafael
 
-The bottom line is that the proposed 1st Jan 2008 dead line is unlikely to 
-make any corporations tremble. It is likely to be the day when I will be no 
-longer able to run the latest version of the kernel.
 
-Finally, I'd like to thank you for reading my email and on your work on the 
-fantastic work and community that Linux is.
-I hope you will take this user and others like me under consideration when 
-making the final decision on whether or not to include the proposed patch and 
-whether to undertake work on code that will prevent binary drivers from 
-loading.
-
-Warmest regards,
-
-Marek Wawrzyczny
+-- 
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

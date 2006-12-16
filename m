@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030869AbWLPLU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965440AbWLPMET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030869AbWLPLU3 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 06:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030872AbWLPLU3
+	id S965440AbWLPMET (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 07:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965438AbWLPMET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 06:20:29 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:29158 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030869AbWLPLU2 (ORCPT
+	Sat, 16 Dec 2006 07:04:19 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:60318 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965440AbWLPMES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 06:20:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XmpO/hlBXRqXyOPo9EIX6H5bmTOUdwFvpor1JywkmopcT03nNRVbnOZYqNxsCwmVDZMlLtAtU9aUWcEP00WRQIIsTYxRADS5a5pAttYyhkdcuoEXM05WWiJIuV/CpyNnlyT0LH7h9szss2QoobwYytxMQ8LhMTKFKnSInrvsO1A=
-Message-ID: <2c0942db0612160320o5f830855y3c607585d5f855f1@mail.gmail.com>
-Date: Sat, 16 Dec 2006 03:20:26 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Cc: "Andi Kleen" <ak@suse.de>, "Eric Dumazet" <dada1@cosmosbay.com>,
-       "Adrian Bunk" <bunk@stusta.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Stephen Hemminger" <shemminger@osdl.org>, gregkh@suse.de,
-       "Ingo Molnar" <mingo@redhat.com>, "Len Brown" <len.brown@intel.com>,
-       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net
-In-Reply-To: <20061122104245.3ce89487.akpm@osdl.org>
+	Sat, 16 Dec 2006 07:04:18 -0500
+X-Originating-Ip: 24.148.236.183
+Date: Sat, 16 Dec 2006 06:59:07 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Zach Brown <zach.brown@oracle.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <Pine.LNX.4.63.0612152351360.16895@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.64.0612160651140.3946@localhost.localdomain>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
+ <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
+ <4581DAB0.2060505@s5r6.in-berlin.de> <Pine.LNX.4.61.0612151135330.22867@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0612151547290.6136@localhost.localdomain>
+ <Pine.LNX.4.63.0612152351360.16895@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	 <200611151135.48306.dada1@cosmosbay.com>
-	 <200611221128.05769.dada1@cosmosbay.com>
-	 <200611221136.14565.ak@suse.de>
-	 <20061122104245.3ce89487.akpm@osdl.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
+	RCVD_IN_SORBS_DUL 2.05)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Wed, 22 Nov 2006 11:36:14 +0100
-> Andi Kleen <ak@suse.de> wrote:
->
-> > On Wednesday 22 November 2006 11:28, Eric Dumazet wrote:
-> > > On Wednesday 15 November 2006 11:35, Eric Dumazet wrote:
-> > > > On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
-> > > > > Subject    : x86_64: oprofile doesn't work
-> > > > > References : http://lkml.org/lkml/2006/10/27/3
-> > > > > Submitter  : Prakash Punnoor <prakash@punnoor.de>
-> > > > > Status     : unknown
-> > > >
+On Fri, 15 Dec 2006, Tim Schmielau wrote:
+
+> On Fri, 15 Dec 2006, Robert P. J. Day wrote:
+> > On Fri, 15 Dec 2006, Jan Engelhardt wrote:
+> > > Even  sizeof a / sizeof *a
 > > >
-> > > I hit the same problem on i386 architecture too, if CONFIG_ACPI is not set.
+> > > may happen.
 > >
-> > oprofile is still broken because it cannot deal with the lack of perfctr 0.
+> > yes, sadly, there are a number of those as well.  back to the drawing
+> > board.
 >
-> The kernel is still broken because we changed the interface.
+> It might be interesting to grep for anything that divides two
+> sizeofs and eyeball the result for possible mistakes. This would
+> provide some real benefit beyond the cosmetical changes.
 
-I just got bit by this on 2.6.20-latest (well, of two days ago anyway)
-while trying to debug another transient 'kacpid sucks all available
-cpu time'. But that's okay, I'm sure it will happen again in a week or
-two.
+i did that a while ago and it's amazing the variation that you find
+beyond the obvious:
 
-In the meantime, who won this pis^H^H^H discussion?
+$ grep -Er "sizeof.*/.*sizeof" . | less
 
-Mikael Pettersson wrote:
-> Andrew Morton writes:
-> > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
-> > to then put the NMI back to doing the watchdog thing after oprofile has
-> > finished with it.
->
-> Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
-> the in-kernel API allowing real performance counter drivers like
-> oprofile (and perfctr) to claim the HW from the NMI watchdog,
-> do their work, and then release it which resumed the watchdog.
->
-> Note that oprofile (and perfctr) didn't do anything behind the
-> NMI watchdog's back. They went via the API. Nothing dodgy going on.
+...
+./net/key/af_key.c:     sa->sadb_sa_len = sizeof(struct sadb_sa)/sizeof(uint64_t);
+./net/xfrm/xfrm_policy.c:       int len = sizeof(struct xfrm_selector) / sizeof(u32);
+./net/core/flow.c:      const int n_elem = sizeof(struct flowi) / sizeof(flow_compare_t);
+./net/ipv4/netfilter/arp_tables.c:      for (i = 0; i < sizeof(*arp)/sizeof(__u32); i++)
+./net/ipv4/af_inet.c:#define INETSW_ARRAY_LEN (sizeof(inetsw_array) / sizeof(struct inet_protosw))
+./drivers/net/wireless/ray_cs.c:        .num_standard   = sizeof(ray_handler)/sizeof(iw_handler),
 
-Well, that seems clear.
+and on and on.  there's no way a cute little perl script is
+going to clean up all of *that*.
+
+so what to do?
+
+rday

@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965501AbWLPUzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965506AbWLPU71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965501AbWLPUzd (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 15:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965498AbWLPUzd
+	id S965506AbWLPU71 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 15:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965507AbWLPU71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 15:55:33 -0500
-Received: from amsfep20-int.chello.nl ([62.179.120.15]:42953 "EHLO
-	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965501AbWLPUzc (ORCPT
+	Sat, 16 Dec 2006 15:59:27 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:41816 "EHLO
+	adelie.ubuntu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965506AbWLPU70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 15:55:32 -0500
-Subject: Re: Recent mm changes leading to filesystem corruption?
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       debian-kernel@lists.debian.org, linux-mm <linux-mm@kvack.org>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <20061216155044.GA14681@deprecation.cyrius.com>
-References: <20061216155044.GA14681@deprecation.cyrius.com>
+	Sat, 16 Dec 2006 15:59:26 -0500
+Subject: OOPS: 2.6.20-rc1 in __find_get_block()
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Daniel Holbach <daniel.holbach@ubuntu.com>
 Content-Type: text/plain
-Date: Sat, 16 Dec 2006 21:55:16 +0100
-Message-Id: <1166302516.10372.5.camel@twins>
+Content-Transfer-Encoding: 7bit
+Date: Sat, 16 Dec 2006 15:59:20 -0500
+Message-Id: <1166302760.6748.482.camel@gullible>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-12-16 at 16:50 +0100, Martin Michlmayr wrote:
-> Debian recently applied a number of mm changes that went into 2.6.19
-> to their 2.6.18 kernel for LSB 3.1 compliance (msync() had problems
-> before).  Since then, some filesystem corruption has been observed
-> which can be traced back to these mm changes.  Is anyone aware of
-> problems with these patches?
+This occurred on a X40 (amd64 running x86 kernel) after a few minutes of
+uptime. Cc'd Daniel, since he originally reported the bug.
 
-As said by Hugh, no we were not.
+Kernel is SMP, voluntary-preempt.
 
-> The patches that were applied are:
-> 
->    - mm: tracking shared dirty pages
->    - mm: balance dirty pages
->    - mm: optimize the new mprotect() code a bit
->    - mm: small cleanup of install_page()
->    - mm: fixup do_wp_page()
->    - mm: msync() cleanup
-> 
-> With these applied to 2.6.18, the Debian installer on a slow ARM
-> system fails because a program segfaults due to filesystem corruption:
-> http://bugs.debian.org/401980  This problem also occurs if you only
-> apply the "mm: tracking shared dirty pages" patch to 2.6.18 from the
-> series of 5 patches listed above.
-
-This made me think of a blog entry by DaveM from some time ago:
-  http://vger.kernel.org/~davem/cgi-bin/blog.cgi/2006/06/09
-
-> Another problem has been reported related to libtorrent: according to
-> http://bugs.debian.org/402707 someone also saw this with non-Debian
-> 2.6.19 but obviously it's hard to say whether the bugs are really
-> related.
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=394392;msg=24 shows
-> some dmesg messages but again it's not 100% clear it's the same bug.
-> 
-> Has anyone else seen problems or is aware of a fix to the patches
-> listed above that I'm unaware of?  It's possible the problem only
-> shows up on slow systems. (The corruption is reproducible on a slow
-> NSLU2 ARM system with 32 MB ram, but it doesn't happen on a faster ARM
-> box with more RAM.)
-
-What is not clear from all these reports is what architectures this is
-seen on. I suspect some of them are i686, which together with the
-explicit mention of ARM make it a cross platform issue.
-
-
+[  287.328000] invalid opcode: 0000 [#1]
+[  287.328000] SMP 
+[  287.328000] CPU:    0
+[  287.328000] EIP:    0060:[__find_get_block+376/400]    Not tainted VLI
+[  287.328000] EFLAGS: 00010046   (2.6.20-1-generic #3)
+[  287.328000] EIP is at __find_get_block+0x178/0x190
+[  287.328000] eax: 00000096   ebx: 00001000   ecx: 00001000   edx: 00520050
+[  287.328000] esi: 000000a4   edi: 00520050   ebp: df8c6900   esp: f1f15c78
+[  287.328000] ds: 007b   es: 007b   ss: 0068
+[  287.328000] Process gcalctool (pid: 5411, ti=f1f14000 task=f2127560 task.ti=f1f14000)
+[  287.328000] Stack: 00520050 00000000 00000001 00000001 00000000 00000002 00000000 000280d2 
+[  287.328000]        c03e2c2c 00000246 00000040 00001000 000000a4 00520050 dfdc0a00 c01957b3 
+[  287.328000]        00001000 00000000 c015ae7f 00000044 00000010 00520050 00000000 df8c6900 
+[  287.328000] Call Trace:
+[  287.328000]  [__getblk+35/688] __getblk+0x23/0x2b0
+[  287.328000]  [pg0+944672526/1068770304] __ext3_get_inode_loc+0x11e/0x340 [ext3]
+[  287.328000]  [pg0+944673143/1068770304] ext3_reserve_inode_write+0x27/0x80 [ext3]
+[  287.328000]  [pg0+944673267/1068770304] ext3_mark_inode_dirty+0x23/0x50 [ext3]
+[  287.328000]  [pg0+944685961/1068770304] ext3_dirty_inode+0x79/0x90 [ext3]
+[  287.328000]  [__mark_inode_dirty+52/400] __mark_inode_dirty+0x34/0x190
+[  287.328000]  [__link_path_walk+3074/3696] __link_path_walk+0xc02/0xe70
+[  287.328000]  [link_path_walk+69/192] link_path_walk+0x45/0xc0
+[  287.328000]  [do_path_lookup+131/448] do_path_lookup+0x83/0x1c0
+[  287.328000]  [__path_lookup_intent_open+81/160] __path_lookup_intent_open+0x51/0xa0
+[  287.328000]  [path_lookup_open+32/48] path_lookup_open+0x20/0x30
+[  287.328000]  [open_namei+90/1536] open_namei+0x5a/0x600
+[  287.328000]  [do_filp_open+51/96] do_filp_open+0x33/0x60
+[  287.328000]  [do_sys_open+78/240] do_sys_open+0x4e/0xf0
+[  287.328000]  [sys_open+28/32] sys_open+0x1c/0x20
+[  287.328000]  [syscall_call+7/11] syscall_call+0x7/0xb
+[  287.328000]  [phys_startup_32+-1209614444/-1073741824] 0xb7f6bf94
+[  287.328000]  =======================
+[  287.328000] Code: 24 08 e8 ac f4 ff ff e9 20 ff ff ff 89 d8 e8 a0 f4 ff ff eb 8b 89 d6 8d 56 ff 8b 04 97 85 d2 89 04 b7 75 f1 89 1f e9 f0 fe ff ff <0f> 0b eb fe 0f 0b eb fe 0f 0b eb fe 8d b6 00 00 00 00 8d bf 00 
+[  287.328000] EIP: [__find_get_block+376/400] __find_get_block+0x178/0x190 SS:ESP 0068:f1f15c78
 

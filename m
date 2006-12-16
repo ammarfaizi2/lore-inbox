@@ -1,106 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753776AbWLPTbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161414AbWLPTiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753776AbWLPTbs (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 14:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753773AbWLPTbs
+	id S1161414AbWLPTiq (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 14:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161416AbWLPTiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 14:31:48 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:62795 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753771AbWLPTbr (ORCPT
+	Sat, 16 Dec 2006 14:38:46 -0500
+Received: from fmmailgate02.web.de ([217.72.192.227]:57751 "EHLO
+	fmmailgate02.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161414AbWLPTip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 14:31:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=g+wkOR3fMDVUxbXNeVhu7RdO9/C1VM1F/FcHwyQ0gv+4oJY7XlLjohBpbcYili6yJSg7S9Hfx51nJZ6ka3DxGn/9MLkh7OpafUjYGTo6sqa0Mud+pu3O8EfiQJNeyFgWA9BOYTgZ1MOvNkjHYttMN0yRN2av30dhrqscE5hT4wM=
-Date: Sat, 16 Dec 2006 19:30:22 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jean-paul.saman@nxp.com
-Subject: [-mm patch] noinitramfs cleanup
-Message-ID: <20061216193022.GA21145@slug>
-References: <20061214225913.3338f677.akpm@osdl.org>
+	Sat, 16 Dec 2006 14:38:45 -0500
+X-Greylist: delayed 1940 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 14:38:45 EST
+Message-ID: <45844374.60903@web.de>
+Date: Sat, 16 Dec 2006 20:05:24 +0100
+From: Lee Garrett <lee-in-berlin@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061128 Thunderbird/1.5.0.8 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214225913.3338f677.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk
+ than in 2.6.18
+References: <200611121436.46436.arvidjaar@mail.ru>
+In-Reply-To: <200611121436.46436.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 10:59:13PM -0800, Andrew Morton wrote:
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc1/2.6.20-rc1-mm1/
-> 
-> +disable-init-initramfsc-updated.patch
+Andrey Borzenkov wrote:
+ > [...]
+> This is rather funny; in 2.6.19-rc5 grub is *really* slow loading kernel when 
+> I switch on the system after suspend to disk. Actually, after kernel has been 
+> loaded, the whole resuming (up to the point I have usable desktop again) 
+> takes about three time less than the process of loading kernel + initrd. 
+> During loading disk LED is constantly lit. This almost looks like kernel 
+> leaves HDD in some strange state, although I always assumed HDD/IDE is 
+> completely reinitialized in this case.
+ > [...]
 
+I had the same problem (/boot on reiserfs, grub hanging for ages 
+after resume with 2.6.19), but in 2.6.19.1 it seems fixed. Do you 
+still have this bug, Andrey? I didn't find an update on this issue 
+on LKML.
 
-Jean-Paul,
+Greetings, Lee
 
-The following patch silences the following compile time warning introduced
-by the disable-init-initramfsc-updated patch:
-
-  CC      init/noinitramfs.o
-  init/noinitramfs.c:42: warning : initialization from incompatible pointer type
-
-In addition, I've cleaned up the headers and added some error handling.
-
-Regards,
-Frederik
-
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-
-diff --git a/init/noinitramfs.c b/init/noinitramfs.c
-index 01f88c3..f4c1a3a 100644
---- a/init/noinitramfs.c
-+++ b/init/noinitramfs.c
-@@ -18,25 +18,35 @@
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
- #include <linux/init.h>
--#include <linux/fs.h>
--#include <linux/slab.h>
--#include <linux/types.h>
--#include <linux/fcntl.h>
--#include <linux/delay.h>
--#include <linux/string.h>
-+#include <linux/stat.h>
-+#include <linux/kdev_t.h>
- #include <linux/syscalls.h>
- 
- /*
-  * Create a simple rootfs that is similar to the default initramfs
-  */
--static void __init default_rootfs(void)
-+static int __init default_rootfs(void)
- {
--	int mkdir_err = sys_mkdir("/dev", 0755);
--	int err = sys_mknod((const char __user *) "/dev/console",
--				S_IFCHR | S_IRUSR | S_IWUSR,
--				new_encode_dev(MKDEV(5, 1)));
--	if (err == -EROFS)
--		printk("Warning: Failed to create a rootfs\n");
--	mkdir_err = sys_mkdir("/root", 0700);
-+	int err;
-+
-+	err = sys_mkdir("/dev", 0755);
-+	if (err < 0)
-+		goto out;
-+
-+	err = sys_mknod((const char __user *) "/dev/console",
-+			S_IFCHR | S_IRUSR | S_IWUSR,
-+			new_encode_dev(MKDEV(5, 1)));
-+	if (err < 0)
-+		goto out;
-+
-+	err = sys_mkdir("/root", 0700);
-+	if (err < 0)
-+		goto out;
-+
-+	return 0;
-+
-+out:
-+	printk(KERN_WARNING "Failed to create a rootfs\n");
-+	return err;
- }
- rootfs_initcall(default_rootfs);

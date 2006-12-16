@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965314AbWLPBUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030526AbWLPBcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965314AbWLPBUO (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbWLPBUN
+	id S1030526AbWLPBcz (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030540AbWLPBcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:20:13 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:37261 "EHLO
-	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965314AbWLPBUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 20:20:09 -0500
-Date: Fri, 15 Dec 2006 20:20:02 -0500 (EST)
-From: Nikolai Joukov <kolya@cs.sunysb.edu>
-X-X-Sender: kolya@compserv1
-To: Bryan Henderson <hbryan@us.ibm.com>
-cc: Ed Tomlinson <edt@aei.ca>, linux-fsdevel@vger.kernel.org,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
-In-Reply-To: <OFCB8FCFF5.BA0A74ED-ON88257246.0000FE7C-88257246.0001E5FD@us.ibm.com>
-Message-ID: <Pine.GSO.4.53.0612152004080.10315@compserv1>
-References: <OFCB8FCFF5.BA0A74ED-ON88257246.0000FE7C-88257246.0001E5FD@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Dec 2006 20:32:55 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:38867 "EHLO cacti.profiwh.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030526AbWLPBcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 20:32:54 -0500
+X-Greylist: delayed 1389 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 20:32:54 EST
+Message-id: <3240146701999923690@wsc.cz>
+In-reply-to: <2880031291415520798@wsc.cz>
+Subject: [PATCH 4/5] Char: isicom, check card state in isr
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Sat, 16 Dec 2006 02:09:48 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >The idea behind the cloneset is that most of the blocks (or files)
-> >do not change in either source or target.  This being the case its only
-> necessary
-> >to update the changed elements.  This means updates are incremental. Once
-> >the system has figured out what it needs to update its usable and if you
-> access
-> >an element that should be updated you will see the correctly updated
-> version - even
-> >though backgound resyncing is still in progress.
->
-> I still can't tell what you're describing.  With RAID1 as well, only
-> changed elements ever get updated.  I have two identical filesystems,
-> members of a RAIF set.  I change one file.  One file in each member
-> filesystem gets updated, and I again have two identical filesystems.
->
-> How would a cloneset work differently, and how would it be better?
+isicom, check card state in isr
 
-Thanks, Bryan.  I was about to write almost the same.
+Check if the card really interrupted us by reading its IO space and
+eventualy return IRQ_NONE.
 
-> > This type of logic is great for backups.
->
-> Can you give an example of using it for backup?
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-I guess, you can mount Versionfs (yet another stackable file system)
-below RAIF and above one of the lower file systems or use some other
-versioning file system such as ext3cow.  This will allow rolling back to
-any older file system version at any time.
+---
+commit 601667e4ee38183358ea8f7980537bb8c09d8728
+tree ccb1c085309ad35178f8d741e7c074308ae277ee
+parent 405c17b09b010b41f6ec2388a11777e4048c7976
+author Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 23:29:57 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Fri, 15 Dec 2006 23:29:57 +0059
 
-Nikolai.
----------------------
-Nikolai Joukov, Ph.D.
-Filesystems and Storage Laboratory
-Stony Brook University
+ drivers/char/isicom.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index 7968160..f4faa76 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -539,6 +539,11 @@ static irqreturn_t isicom_interrupt(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	base = card->base;
++
++	/* did the card interrupt us? */
++	if (!(inw(base + 0x0e) & 0x02))
++		return IRQ_NONE;
++
+ 	spin_lock(&card->card_lock);
+ 
+ 	/*

@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932222AbWLPEIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932233AbWLPEJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWLPEIE (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 23:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWLPEIE
+	id S932233AbWLPEJd (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 23:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWLPEJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 23:08:04 -0500
-Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:40647 "EHLO
+	Fri, 15 Dec 2006 23:09:33 -0500
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:42212 "EHLO
 	elasmtp-banded.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932232AbWLPEID (ORCPT
+	by vger.kernel.org with ESMTP id S932233AbWLPEJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 23:08:03 -0500
-X-Greylist: delayed 709 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 Dec 2006 23:08:02 EST
+	Fri, 15 Dec 2006 23:09:32 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=dk20050327; d=earthlink.net;
-  b=M9LVflM5MOZhTzTBj77eYGvtU9Uo22sBbV3t0EQOm6pL+1ubuYhS9g9Wm6waHLgk;
+  b=sx885ZdL0ozYBRcbq6yBe5d79zayqEKiVLTFbuz6iP8ArGLwJgSpMxdaPiJeSRck;
   h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MIMEOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <057701c720c6$a2305b40$0225a8c0@wednesday>
+Message-ID: <056f01c720c6$201a0ca0$0225a8c0@wednesday>
 From: "jdow" <jdow@earthlink.net>
-To: "Alan" <alan@lxorguk.ukuu.org.uk>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: "karderio" <karderio@gmail.com>, <linux-kernel@vger.kernel.org>
-References: <1166226982.12721.78.camel@localhost><Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <20061216012721.47be92f3@localhost.localdomain>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Fri, 15 Dec 2006 19:59:49 -0800
+To: "Alexey Dobriyan" <adobriyan@gmail.com>,
+       "James Porter" <jameslporter@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <loom.20061215T220806-362@post.gmane.org> <20061215220117.GA24819@martell.zuzino.mipt.ru>
+Subject: Re: Binary Drivers
+Date: Fri, 15 Dec 2006 19:56:10 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
@@ -32,24 +32,31 @@ X-Priority: 3
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 6.00.2900.3028
 X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120f57504025ad5385795cd538b1e961764746fb9d80ee25ff7350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120f57504025ad538576b0c3492dbd5e7588adfe556ef2d9778350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
 X-Originating-IP: 208.127.11.96
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan" <alan@lxorguk.ukuu.org.uk>
+From: "Alexey Dobriyan" <adobriyan@gmail.com>
 
->> blather and idiotic hogwash. "Information" doesn't want to be free, nor 
->> is
->> it somethign you should fight for or necessarily even encourage.
+> On Fri, Dec 15, 2006 at 09:20:58PM +0000, James Porter wrote:
+>> I think some kernel developers take to much responsibility, is there a 
+>> bug in a
+>> binary driver? Send it upstream and explain to the user that it's a 
+>> closed
+>> source driver and is up to said company to fix it.
+>>
+>> For what it's worth, I don't see any problem with binary drivers from 
+>> hardware
+>> manufacturers.
 >
-> As a pedant that is the one item I have to pick you up on Linus.
-> Information wants to be free, the natural efficient economic state of
-> information is generally free in both senses.
+> Binary drivers from hardware manufacturers are crap. Learn it by heart.
 
-Alan, you might as well declare a rock wants to be free. Information
-does not have a brain that could in any way want to be free. It is all
-people who want something for nothing who want information to be free.
+So are the Linux drivers in some cases. My ATI Radeon Mobility video
+in my laptop is an example.
 
-{^_^}    JOanne 
+If you are going to mount a sanctimonious high horse it is a wise idea
+to mount a horse instead of a donkey.
+
+{^_^} 
 

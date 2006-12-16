@@ -1,108 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030847AbWLPLIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030856AbWLPLNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030847AbWLPLIA (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 06:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030854AbWLPLIA
+	id S1030856AbWLPLNp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 06:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030857AbWLPLNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 06:08:00 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:40733 "EHLO ogre.sisk.pl"
+	Sat, 16 Dec 2006 06:13:45 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:40745 "EHLO ogre.sisk.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030847AbWLPLH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 06:07:59 -0500
+	id S1030856AbWLPLNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 06:13:44 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Sat, 16 Dec 2006 12:09:57 +0100
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+Date: Sat, 16 Dec 2006 12:16:06 +0100
 User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>, karderio <karderio@gmail.com>,
-       linux-kernel@vger.kernel.org
-References: <1166226982.12721.78.camel@localhost> <200612161128.27721.rjw@sisk.pl> <20061216105035.GG24090@1wt.eu>
-In-Reply-To: <20061216105035.GG24090@1wt.eu>
+Cc: Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>,
+       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       Alan <alan@lxorguk.ukuu.org.uk>
+References: <20061204203410.6152efec.akpm@osdl.org> <200612160038.03149.rjw@sisk.pl> <200612161056.26830.rjw@sisk.pl>
+In-Reply-To: <200612161056.26830.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612161209.58498.rjw@sisk.pl>
+Message-Id: <200612161216.07669.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 16 December 2006 11:50, Willy Tarreau wrote:
-> On Sat, Dec 16, 2006 at 11:28:27AM +0100, Rafael J. Wysocki wrote:
-> > On Saturday, 16 December 2006 07:43, Willy Tarreau wrote:
-> > > On Fri, Dec 15, 2006 at 06:55:17PM -0800, Linus Torvalds wrote:
+On Saturday, 16 December 2006 10:56, Rafael J. Wysocki wrote:
+> On Saturday, 16 December 2006 00:38, Rafael J. Wysocki wrote:
+> > On Friday, 15 December 2006 23:24, Jeff Garzik wrote:
+> > > Rafael J. Wysocki wrote:
+> > > > On Friday, 15 December 2006 22:39, Andrew Morton wrote:
+> > > >> On Fri, 15 Dec 2006 13:05:52 -0800
+> > > >> Andrew Morton <akpm@osdl.org> wrote:
+> > > >>
+> > > >>> Jeff, I shall send all the sata patches which I have at you one single time
+> > > >>> and I shall then drop the lot.  So please don't flub them.
+> > > >>>
+> > > >>> I'll then do a rc1-mm2 without them.
+> > > >> hm, this is looking like a lot of work for not much gain.  Rafael, are
+> > > >> you able to do a quick chop and tell us whether these:
+> > > >>
+> > > >> pci-move-pci_vdevice-from-libata-to-core.patch
+> > > >> pata_cs5530-suspend-resume-support-tweak.patch
+> > > >> ata-fix-platform_device_register_simple-error-check.patch
+> > > >> initializer-entry-defined-twice-in-pata_rz1000.patch
+> > > >> pata_via-suspend-resume-support-fix.patch
+> > > >> sata_nv-add-suspend-resume-support.patch
+> > > >> libata-simulate-report-luns-for-atapi-devices.patch
+> > > >> user-of-the-jiffies-rounding-patch-ata-subsystem.patch
+> > > >> libata-fix-oops-with-sparsemem.patch
+> > > >> sata_nv-fix-kfree-ordering-in-remove.patch
+> > > >> libata-dont-initialize-sg-in-ata_exec_internal-if-dma_none-take-2.patch
+> > > >> pci-quirks-fix-the-festering-mess-that-claims-to-handle-ide-quirks-ide-fix.patch
+> > > >>
+> > > >> are innocent?
 > > > > 
-> > > > 
-> > > > On Sat, 16 Dec 2006, karderio wrote:
-> > > > > 
-> > > > > As it stands, I believe the licence of the Linux kernel does impose
-> > > > > certain restrictions and come with certain obligations
-> > > > 
-> > > > Absolutely. And they boil down to something very simple:
-> > > > 
-> > > > 	"Derived works have to be under the same license"
-> > > > 
-> > > > where the rest is just really fluff.
-> > > > 
-> > > > But the point is, "derived work" is not what _you_ or _I_ define. It's 
-> > > > what copyright law defines.
-> > > > 
-> > > > And trying to push that definition too far is a total disaster. If you 
-> > > > push the definition of derived work to "anything that touches our work", 
-> > > > you're going to end up in a very dark and unhappy place. One where the 
-> > > > RIAA is your best buddy.
-> > > > 
-> > > > And the proposed "we make some technical measure whereby we draw our _own_ 
-> > > > lines" is exactly that total disaster.
-> > > > 
-> > > > We don't draw our own lines. We accept that the lines are drawn for us by 
-> > > > copyright law, and we actually _hope_ that the lines aren't too sharp and 
-> > > > too clearcut. Because sharp edges on copyright is the worst possible 
-> > > > situation we could ever be in.
-> > > > 
-> > > > The reason fair use is so important is exactly that it blunts/dulls the 
-> > > > sharp knife that overly strong copyright protection could be.
+> > > > Yes, they are.
 > > > 
-> > > All this is about "fair use", and "fair use" comes from compatibility
-> > > between the author's intent and the user's intent. For this exact reason,
-> > > I have added a "LICENSE" file [1] in my software (haproxy) stating that I
-> > > explicitly permit linking with binary code if the user has no other choice
-> > > (eg: protocols specs obtained under NDA), provided that "derived work"
-> > > does not steal any GPL code (include files are under LGPL). On the other
-> > > hand, all "common protocols" are developped under GPL so that normal users
-> > > are the winners, and everyone is strongly encouraged to use the GPL for
-> > > their new code to benefit from everyone else's eyes on the code.
+> > > We all really appreciate your patience :)  This is good feedback.
 > > > 
-> > > This clarifies my intent and let developers decide whether *they* are
-> > > doing legal things or not.
-> > > 
-> > > Don't you think it would be a good idea to add such a precision in the
-> > > sources ? It could put an end to all those repeated lessons you have to
-> > > teach to a lot of people about fair use. Or perhaps you like to put
-> > > your teacher hat once a month ? :-)
+> > > To narrow down some more, does applying 2.6.20-rc1 + the attached patch 
+> > > work?  (ignoring -mm tree altogether)
 > > 
-> > I think the most important problem with the binary-only drivers is that we
-> > can't support their users _at_ _all_, but some of them expect us to support
-> > them somehow.
+> > Yes, it does.
 > 
-> Agreed this is the most important problem.
+> I've applied the patches from -rc1-mm1 up to and including
 > 
-> > So, why don't we make an official statement, like something that will appear
-> > on the front page of www.kernel.org, that the users of binary-only drivers
-> > will never get any support from us?  That would make things crystal clear.
+> problem-phy-probe-not-working-properly-for-ibm_emac-ppc4xx.patch
 > 
-> This would constitute a good starting point. But what I was trying
-> to address is the other side of the problem : all the politicial
-> discussions on LKML which make the developers waste their time
-> always trying to explain the same things to extremist people (you
-> see, "we must forbid binary drivers to protect users freedom" and
-> "I'm free to run whatever I want"). I don't care at all about what
-> those people think and I don't like the way they want to impose
-> their vision to others. But above all, but I'm fed up with those
-> recurrent subjects on development and bug reporting mailing list,
-> they waste everyone's time.
+> on top of 2.6.20-rc1 and they don't seem to break anything.  Will try some
+> more.
 
-Agreed.
+The patch that breaks things is somewhere between
+
+dont-export-device-ids-to-userspace.patch
+
+and
+
+funsoft-is-bust-on-sparc.patch
+
+inclusive.
+
+Now I'll need to resync my disk arrays so if anyone has any suggestions
+what to try next, I'll be grateful. ;-)
 
 Greetings,
 Rafael
+
+
+-- 
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

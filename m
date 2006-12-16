@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161382AbWLPTPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161391AbWLPTRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161382AbWLPTPb (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 14:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161389AbWLPTPb
+	id S1161391AbWLPTRn (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 14:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161397AbWLPTRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 14:15:31 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:53194 "EHLO 2ka.mipt.ru"
+	Sat, 16 Dec 2006 14:17:42 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:57754 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161382AbWLPTPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 14:15:30 -0500
-Date: Sat, 16 Dec 2006 22:15:22 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org
-Subject: [ANN] Acrypto asynchronous crypto layer 2.6.19 release.
-Message-ID: <20061216191521.GA26549@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 16 Dec 2006 22:15:24 +0300 (MSK)
+	id S1161391AbWLPTRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 14:17:42 -0500
+Date: Sat, 16 Dec 2006 20:12:55 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Divy Le Ray <divy@chelsio.com>
+cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org, akpm@osdl.org,
+       netdev@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cxgb3 and 2.6.20-rc1
+In-Reply-To: <4580E3D7.3050708@chelsio.com>
+Message-ID: <Pine.LNX.4.61.0612162007110.5411@yvahk01.tjqt.qr>
+References: <4580E3D7.3050708@chelsio.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-71474371-1166296375=:5411"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I am pleased to announce new release of the acrypto for 2.6.19 kernel -
-first asynchronous crypto layer for Linux kernel 2.6.
+--1283855629-71474371-1166296375=:5411
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Acrypto allows to handle crypto requests asynchronously in hardware.
+Hi,
 
-Acrypto supports following features:
- * multiple asynchronous crypto device queues
- * crypto session routing (allows to complete single crypto session when
-   several operations (crypto, hmac, anything) are completed)
- * crypto session binding (bind crypto processing to specified device)
- * modular load balancing (one can created load balancer which will get
-   into account for example pid of the calling process)
- * crypto session batching genetically implemented by design (acrypto
-   provides the whole data structure to crypto device, i.e. it is
-   possible to use acrypto as a bridge which routes requests between
-   completely different devices, since it does not differentiate between
-   users, just handles requests)
- * crypto session priority
- * different kinds of crypto operation(RNG, asymmetrical crypto, HMAC and
-   any other)
 
-Combined patchset includes:
- * acrypto core
- * IPsec ESP4 port to acrypto
- * dm-crypt port to acrypto
- * OCF to acrypto bridge, which allows to run OCF device
-   drivers with acrypto (for example ixp4xx), requires OCF installed.
+On Dec 13 2006 21:40, Divy Le Ray wrote:
+>
+> A corresponding monolithic patch is posted at the following URL:
+> http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
 
-Ported crypto drivers and benchmarks can be found on acrypto homepage:
-http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+I was unable to compile this on 2.6.20-rc1, because:
 
-Changes from previous release:
- * moved to 2.6.19 crypto API where it is used
- * updated XFRM engine
- * bugfixes
+  CC [M]  drivers/net/cxgb3/cxgb3_offload.o
+drivers/net/cxgb3/cxgb3_offload.c: In function ‘cxgb_free_mem’:
+drivers/net/cxgb3/cxgb3_offload.c:1004: error: ‘PKMAP_BASE’ undeclared 
+(first use in this function)
 
-2.6.16 - 2.6.18 releases moved to maintenance mode.
+However, line 1004 is:
 
-Patchset is not attached due to its size (192kb).
+	if (p >= VMALLOC_START && p < VMALLOC_END)
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+and include/asm/pgtable.h:
 
+	#ifdef CONFIG_HIGHMEM
+	# define VMALLOC_END    (PKMAP_BASE-2*PAGE_SIZE)
+	#else
+	# define VMALLOC_END    (FIXADDR_START-2*PAGE_SIZE)
+	#endif
+
+So include/asm/pgtable.h lacks inclusion of include/asm/highmem.h,
+where PKMAP_BASE is defined. Adding it gives me more compile errors.
+Not good. Does anyone have a patch to fix that?
+
+
+	-`J'
 -- 
-	Evgeniy Polyakov
+--1283855629-71474371-1166296375=:5411--

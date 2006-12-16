@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753194AbWLPBtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030528AbWLPBxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753194AbWLPBtT (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 15 Dec 2006 20:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWLPBtT
+	id S1030528AbWLPBxa (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 15 Dec 2006 20:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030556AbWLPBxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Dec 2006 20:49:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47716 "EHLO mx1.redhat.com"
+	Fri, 15 Dec 2006 20:53:30 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35536 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753194AbWLPBtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Dec 2006 20:49:19 -0500
-Date: Fri, 15 Dec 2006 17:47:50 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18.5 usb/sysfs bug.
-Message-Id: <20061215174750.e1389c0d.zaitcev@redhat.com>
-In-Reply-To: <20061215213715.GB15792@redhat.com>
-References: <20061215175027.GA17987@redhat.com>
-	<20061215175344.GA15871@kroah.com>
-	<20061215213715.GB15792@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1030528AbWLPBxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Dec 2006 20:53:30 -0500
+Date: Fri, 15 Dec 2006 17:53:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+cc: karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <20061216012721.47be92f3@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0612151750510.3849@woody.osdl.org>
+References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
+ <20061216012721.47be92f3@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2006 16:37:15 -0500, Dave Jones <davej@redhat.com> wrote:
 
-> Linux version 2.6.18-1.2864.fc6 (brewbuilder@hs20-bc2-4.build.redhat.com) (gcc version 4.1.1 20061011 (Red Hat 4.1.1-30)) #1 SMP Fri Dec 15 13:14:58 EST 2006
-> Kernel command line: ro root=/dev/VolGroup00/LogVol00 profile=1 vga=791
 
-> audit(1166218060.464:4): avc:  denied  { search } for  pid=2678 comm="pcscd" name="usbdev2.4_ep03" dev=sysfs ino=1384 scontext=system_u:system_r:pcscd_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 0000000b
+On Sat, 16 Dec 2006, Alan wrote:
 
-But if you boot with selinux=0, everything works, right? Printk time.
+> > blather and idiotic hogwash. "Information" doesn't want to be free, nor is 
+> > it somethign you should fight for or necessarily even encourage.
+> 
+> As a pedant that is the one item I have to pick you up on Linus.
+> Information wants to be free, the natural efficient economic state of
+> information is generally free in both senses.
 
--- Pete
+I would say that that is a different thing. It "takes effort" to actually 
+hide information, so in that sense, it's actually more expensive to try to 
+keep it "non-free".
+
+But that has nothing to do with the FSF kind of "freedom", the same way 
+"no price" has nothing to do with that freedom.
+
+So "information wants to be free" is more about "free as in beer", I'd 
+argue. Trying to suppress information (or spread mis-information) takes 
+real effort.
+
+		Linus

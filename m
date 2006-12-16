@@ -1,119 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030626AbWLPGEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030655AbWLPGoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030626AbWLPGEP (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 01:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWLPGEO
+	id S1030655AbWLPGoA (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 01:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030659AbWLPGoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 01:04:14 -0500
-Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:3435 "EHLO
-	smtp-vbr10.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030626AbWLPGEN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 01:04:13 -0500
-Date: Sat, 16 Dec 2006 07:03:29 +0100
-From: thunder7@xs4all.nl
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
-       Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, Tejun Heo <htejun@gmail.com>
-Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
-Message-ID: <20061216060328.GA9694@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <17780.63770.228659.234534@cse.unsw.edu.au> <20061205061623.GA13749@amd64.of.nowhere> <20061205062142.GA14784@amd64.of.nowhere> <20061204224323.2e5d0494.akpm@osdl.org> <20061205105928.GA6482@amd64.of.nowhere> <17782.28505.303064.964551@cse.unsw.edu.au> <20061215192146.GA3616@amd64.of.nowhere> <17795.2681.523120.656367@cse.unsw.edu.au> <20061215130552.95860b72.akpm@osdl.org> <4583183C.7000107@garzik.org>
-MIME-Version: 1.0
+	Sat, 16 Dec 2006 01:44:00 -0500
+Received: from 1wt.eu ([62.212.114.60]:1535 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030655AbWLPGn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 01:43:59 -0500
+Date: Sat, 16 Dec 2006 07:43:44 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061216064344.GF24090@1wt.eu>
+References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4583183C.7000107@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Garzik <jeff@garzik.org>
-Date: Fri, Dec 15, 2006 at 04:48:44PM -0500
-> The "Re: Linux 2.6.20-rc1" sub-thread that had Jens and Alistair John 
-> Strachan replying seemed to implicate some core block layer badness.
+On Fri, Dec 15, 2006 at 06:55:17PM -0800, Linus Torvalds wrote:
 > 
-The original problem (not mounting my raid6 partition) is observable in
-2.6.20-rc1-mm1, but not in 2.6.20-rc1; ie. 2.6.20-rc1 is good for me.
+> 
+> On Sat, 16 Dec 2006, karderio wrote:
+> > 
+> > As it stands, I believe the licence of the Linux kernel does impose
+> > certain restrictions and come with certain obligations
+> 
+> Absolutely. And they boil down to something very simple:
+> 
+> 	"Derived works have to be under the same license"
+> 
+> where the rest is just really fluff.
+> 
+> But the point is, "derived work" is not what _you_ or _I_ define. It's 
+> what copyright law defines.
+> 
+> And trying to push that definition too far is a total disaster. If you 
+> push the definition of derived work to "anything that touches our work", 
+> you're going to end up in a very dark and unhappy place. One where the 
+> RIAA is your best buddy.
+> 
+> And the proposed "we make some technical measure whereby we draw our _own_ 
+> lines" is exactly that total disaster.
+> 
+> We don't draw our own lines. We accept that the lines are drawn for us by 
+> copyright law, and we actually _hope_ that the lines aren't too sharp and 
+> too clearcut. Because sharp edges on copyright is the worst possible 
+> situation we could ever be in.
+> 
+> The reason fair use is so important is exactly that it blunts/dulls the 
+> sharp knife that overly strong copyright protection could be.
 
-Linux version 2.6.20-rc1 (jurriaan@middle) (gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)) #3 SMP Fri Dec 15 21:19:54 CET 2006
-<snip>
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: considering sdh1 ...
-md:  adding sdh1 ...
-md:  adding sdg1 ...
-md:  adding sdf1 ...
-md:  adding sde1 ...
-md:  adding sdd1 ...
-md:  adding sdc1 ...
-md:  adding sdb1 ...
-md:  adding sda1 ...
-md: hdc9 has different UUID to sdh1
-md: hdc8 has different UUID to sdh1
-md: hdc7 has different UUID to sdh1
-md: hdc6 has different UUID to sdh1
-md: hdc5 has different UUID to sdh1
-md: hda9 has different UUID to sdh1
-md: hda8 has different UUID to sdh1
-md: hda7 has different UUID to sdh1
-md: hda6 has different UUID to sdh1
-md: hda5 has different UUID to sdh1
-md: created md0
-md: bind<sda1>
-md: bind<sdb1>
-md: bind<sdc1>
-md: bind<sdd1>
-md: bind<sde1>
-md: bind<sdf1>
-md: bind<sdg1>
-md: bind<sdh1>
-md: running: <sdh1><sdg1><sdf1><sde1><sdd1><sdc1><sdb1><sda1>
-raid5: device sdh1 operational as raid disk 1
-raid5: device sdg1 operational as raid disk 0
-raid5: device sdf1 operational as raid disk 5
-raid5: device sde1 operational as raid disk 6
-raid5: device sdd1 operational as raid disk 7
-raid5: device sdc1 operational as raid disk 3
-raid5: device sdb1 operational as raid disk 2
-raid5: device sda1 operational as raid disk 4
-raid5: allocated 8462kB for md0
-raid5: raid level 6 set md0 active with 8 out of 8 devices, algorithm 2
-RAID5 conf printout:
- --- rd:8 wd:8
- disk 0, o:1, dev:sdg1
- disk 1, o:1, dev:sdh1
- disk 2, o:1, dev:sdb1
- disk 3, o:1, dev:sdc1
- disk 4, o:1, dev:sda1
- disk 5, o:1, dev:sdf1
- disk 6, o:1, dev:sde1
- disk 7, o:1, dev:sdd1
-md0: bitmap initialized from disk: read 15/15 pages, set 1 bits, status: 0
-created bitmap (233 pages) for device md0
-md: considering hdc9 ...
-md:  adding hdc9 ...
-md: hdc8 has different UUID to hdc9
-md: hdc7 has different UUID to hdc9
-md: hdc6 has different UUID to hdc9
-md: hdc5 has different UUID to hdc9
-md:  adding hda9 ...
-md: hda8 has different UUID to hdc9
-md: hda7 has different UUID to hdc9
-md: hda6 has different UUID to hdc9
-md: hda5 has different UUID to hdc9
-md: created md4
-md: bind<hda9>
-md: bind<hdc9>
-md: running: <hdc9><hda9>
-raid1: raid set md4 active with 2 out of 2 mirrors
-md4: bitmap initialized from disk: read 10/10 pages, set 45 bits, status: 0
-<snip>
-EXT3 FS on md0, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
+All this is about "fair use", and "fair use" comes from compatibility
+between the author's intent and the user's intent. For this exact reason,
+I have added a "LICENSE" file [1] in my software (haproxy) stating that I
+explicitly permit linking with binary code if the user has no other choice
+(eg: protocols specs obtained under NDA), provided that "derived work"
+does not steal any GPL code (include files are under LGPL). On the other
+hand, all "common protocols" are developped under GPL so that normal users
+are the winners, and everyone is strongly encouraged to use the GPL for
+their new code to benefit from everyone else's eyes on the code.
 
-Jurriaan
--- 
-And I thought that the Borg were bad...
-Debian (Unstable) GNU/Linux 2.6.20-rc1 2x4023 bogomips load 5.55
-the Jack Vance Integral Edition: http://www.integralarchive.org
+This clarifies my intent and let developers decide whether *they* are
+doing legal things or not.
+
+Don't you think it would be a good idea to add such a precision in the
+sources ? It could put an end to all those repeated lessons you have to
+teach to a lot of people about fair use. Or perhaps you like to put
+your teacher hat once a month ? :-)
+
+Regards,
+Willy
+
+[1] http://haproxy.1wt.eu/download/1.3/src/LICENSE
+

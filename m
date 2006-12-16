@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161308AbWLPSEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161312AbWLPSGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161308AbWLPSEs (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 13:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161303AbWLPSEs
+	id S1161312AbWLPSGs (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 13:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161313AbWLPSGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 13:04:48 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:42454 "EHLO tmailer.gwdg.de"
+	Sat, 16 Dec 2006 13:06:47 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60022 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161308AbWLPSEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 13:04:47 -0500
-Date: Sat, 16 Dec 2006 19:03:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Tomas Carnecky <tom@dbservice.com>
-cc: Alexey Dobriyan <adobriyan@gmail.com>,
-       James Porter <jameslporter@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary Drivers
-In-Reply-To: <4583527D.4000903@dbservice.com>
-Message-ID: <Pine.LNX.4.61.0612161900090.30896@yvahk01.tjqt.qr>
-References: <loom.20061215T220806-362@post.gmane.org>
- <20061215220117.GA24819@martell.zuzino.mipt.ru> <4583527D.4000903@dbservice.com>
+	id S1161312AbWLPSGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 13:06:47 -0500
+Date: Sat, 16 Dec 2006 10:06:27 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tobias Diedrich <ranma+kernel@tdiedrich.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ranma@yamamaya.is-a-geek.org, Andi Kleen <ak@suse.de>,
+       Yinghai Lu <yinghai.lu@amd.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: IO-APIC + timer doesn't work (was: Linux 2.6.20-rc1)
+In-Reply-To: <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
+Message-ID: <Pine.LNX.4.64.0612160955370.3557@woody.osdl.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+ <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 16 2006 01:57, Tomas Carnecky wrote:
-> Alexey Dobriyan wrote:
->> On Fri, Dec 15, 2006 at 09:20:58PM +0000, James Porter wrote:
->> > For what it's worth, I don't see any problem with binary drivers from
->> > hardware
->> > manufacturers.
->> 
->> Binary drivers from hardware manufacturers are crap. Learn it by heart.
->
-> That's your personal opinion! A lot other people (including me) have had
-> excellent experience with binary drivers!
 
-Either way.
+On Sat, 16 Dec 2006, Tobias Diedrich wrote:
+> 
+> 2.6.20-rc1 won't boot with the error message "IO-APIC + timer
+> doesn't work! Try using the 'noapic' kernel parameter".
+> However, IO-APIC seems to work just fine with 2.6.19-rc6 and I'd
+> rather like to continue using it. :)
 
- *  NVIDIA blob on a desktop box
+Can you try "git bisect" on this?
 
-    Ability to deadlock the machine, proved so in the past, but
-    has not happened >= 1.0.7xxx so far.
+It's really easy: since you know that v2.6.20-rc1 doesn't work, and 
+v2.6.19-rc6 _does_ work, just get the current kernel git tree, and then do
 
+	git bisect start
+	git bisect good v2.6.19-rc6
+	git bisect bad v2.6.20-rc1
 
- *  Free "radeon" driver on a laptop
+and it will pick a kernel for you to try. Just compile that, boot with it, 
+and if it works, say "git bisect good" (and if it doesn't work, just do 
+"git bisect bad" instead). It will give you a new kernel, and in a few 
+tries you'll have been able to narrow down exactly where it breaks (ok, 
+more than "a few" - there's 3728 commits in that range, so it's more like 
+"twelve reboots later").
 
-    The _second_ time (relative to starting the X binary) I switch
-    from Xorg 6.x to the console, the screen fades from black to
-    white. System remains operational, switching back to X gives me
-    my graphics mode back, but no way to go back to console.
+That said, it's likely one of not a lot of commits that are broken, as 
+shown by
 
+	git log v2.6.19-rc6..v2.6.20-rc1 arch/x86_64/kernel/io_apic.c
 
+and it's *probably* commit b0268726: "[PATCH] x86-64: Try multiple timer 
+variants in check_timer"
 
-	-`J'
--- 
+But a few other people also added to the Cc in case they have ideas.
+
+			Linus
+
+*** snip snip, left the most relevant info here
+***
+*** others: please look up the post on linux-kernel
+*** for config info if you care
+
+> http://tdiedrich.de/~ranma/2.6.20-rc1-oops.jpg
+> (netconsole is configured but doesn't work for some reason, haven't
+> looked into that so far)
+> [...]
+> ENABLING IO-APIC IRQs
+> ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 disabled(3) .. failed
+> ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 enabled(7)APIC error on CPU0: 04(40)
+>  .. failed
+> ..TIMER: trying IO-APIC=0 PIN=2 fallback with 8259 IRQ0 disabled(3) .. failed
+> ...trying to set up timer as Virtual Wire IRQ... failed.
+> ...trying to set up timer as ExtINT IRQ... failed :(.
+> Kernel panic - not syncing: IO-APIC + timer doesn't work! Try using the 'noapic' kernel parameter
+> 
+> The board is an ASUS M2N SLI Deluxe (Athlon64/nforce).

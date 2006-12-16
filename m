@@ -1,25 +1,30 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030774AbWLPIcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753574AbWLPIh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030774AbWLPIcq (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 03:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030777AbWLPIcq
+	id S1753574AbWLPIh2 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 03:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030762AbWLPIh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 03:32:46 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:60959 "EHLO
-	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030774AbWLPIcp (ORCPT
+	Sat, 16 Dec 2006 03:37:28 -0500
+Received: from fgwmail9.fujitsu.co.jp ([192.51.44.39]:53054 "EHLO
+	fgwmail9.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753574AbWLPIh1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 03:32:45 -0500
-Date: Sat, 16 Dec 2006 17:35:48 +0900
+	Sat, 16 Dec 2006 03:37:27 -0500
+Date: Sat, 16 Dec 2006 17:03:53 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, clameter@engr.sgi.com,
-       apw@shadowen.org, heiko.carstens@de.ibm.com, bob.picco@hp.com
-Subject: [PATCH][2.6.20-rc1-mm1] sparsemem vmem_map optimzed pfn_valid()
- [2/2] for ia64
-Message-Id: <20061216173548.7c30ca40.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061216173136.fbc91fa6.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20061216173136.fbc91fa6.kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: haveblue@us.ibm.com, apw@shadowen.org, cbe-oss-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-mm@kvack.org, mkravetz@us.ibm.com,
+       hch@infradead.org, jk@ozlabs.org, linux-kernel@vger.kernel.org,
+       paulus@samba.org, benh@kernel.crashing.org, gone@us.ibm.com,
+       kmannth@us.ibm.com
+Subject: Re: [PATCH] Fix sparsemem on Cell
+Message-Id: <20061216170353.2dfa27b1.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20061215114536.dc5c93af.akpm@osdl.org>
+References: <20061215165335.61D9F775@localhost.localdomain>
+	<4582D756.7090702@shadowen.org>
+	<1166203440.8105.22.camel@localhost.localdomain>
+	<20061215114536.dc5c93af.akpm@osdl.org>
 Organization: Fujitsu
 X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
@@ -28,55 +33,104 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ia64 support for sparsemem vmem_map optimize pfn_valid() patch.
+On Fri, 15 Dec 2006 11:45:36 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-Because ia64 has its own virtual mem_map, we can reuse the same code.
-So this patch is simple.
+> Perhaps if the function's role in the world was commented it would be clearer.
+> 
 
-To support optimized pfn_valid() in other arch, you (may) have to modify fault
-handler in kernel address space.
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
- arch/ia64/Kconfig    |    4 ++++
- arch/ia64/mm/fault.c |    4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-Index: devel-2.6.20-rc1-mm1/arch/ia64/Kconfig
-===================================================================
---- devel-2.6.20-rc1-mm1.orig/arch/ia64/Kconfig	2006-12-16 14:42:57.000000000 +0900
-+++ devel-2.6.20-rc1-mm1/arch/ia64/Kconfig	2006-12-16 14:43:14.000000000 +0900
-@@ -353,6 +353,10 @@
- 	def_bool y
- 	depends on SPARSEMEM_VMEMMAP
+How about patch like this ? (this one is not tested.)
+Already-exisiting-more-generic-flag is available ?
  
-+config ARCH_SPARSEMEM_VMEMMAP_OPT_PFN_VALID
-+	def_bool y
-+	depends on SPARSEMEM_VMEMMAP
+-Kame
+==
+ include/linux/memory_hotplug.h |    8 ++++++++
+ mm/memory_hotplug.c            |   14 ++++++++++++++
+ mm/page_alloc.c                |   11 +++++++----
+ 3 files changed, 29 insertions(+), 4 deletions(-)
+
+Index: linux-2.6.20-rc1-mm1/include/linux/memory_hotplug.h
+===================================================================
+--- linux-2.6.20-rc1-mm1.orig/include/linux/memory_hotplug.h	2006-11-30 06:57:37.000000000 +0900
++++ linux-2.6.20-rc1-mm1/include/linux/memory_hotplug.h	2006-12-16 16:42:40.000000000 +0900
+@@ -133,6 +133,10 @@
+ #endif /* CONFIG_NUMA */
+ #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+ 
++extern int under_memory_hotadd(void);
 +
- config ARCH_DISCONTIGMEM_DEFAULT
- 	def_bool y if (IA64_SGI_SN2 || IA64_GENERIC || IA64_HP_ZX1 || IA64_HP_ZX1_SWIOTLB)
- 	depends on ARCH_DISCONTIGMEM_ENABLE
-Index: devel-2.6.20-rc1-mm1/arch/ia64/mm/fault.c
++
++
+ #else /* ! CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Stub functions for when hotplug is off
+@@ -159,6 +163,10 @@
+ 	dump_stack();
+ 	return -ENOSYS;
+ }
++static inline int under_memory_hotadd()
++{
++	return 0;
++}
+ 
+ #endif /* ! CONFIG_MEMORY_HOTPLUG */
+ static inline int __remove_pages(struct zone *zone, unsigned long start_pfn,
+Index: linux-2.6.20-rc1-mm1/mm/memory_hotplug.c
 ===================================================================
---- devel-2.6.20-rc1-mm1.orig/arch/ia64/mm/fault.c	2006-12-16 14:42:57.000000000 +0900
-+++ devel-2.6.20-rc1-mm1/arch/ia64/mm/fault.c	2006-12-16 14:43:40.000000000 +0900
-@@ -103,7 +103,7 @@
- 	if (in_atomic() || !mm)
- 		goto no_context;
+--- linux-2.6.20-rc1-mm1.orig/mm/memory_hotplug.c	2006-12-16 14:24:10.000000000 +0900
++++ linux-2.6.20-rc1-mm1/mm/memory_hotplug.c	2006-12-16 16:51:08.000000000 +0900
+@@ -26,6 +26,17 @@
  
--#ifdef CONFIG_VIRTUAL_MEM_MAP
-+#if defined(CONFIG_VIRTUAL_MEM_MAP) || defined(CONFIG_SPARSEMEM_VMEMMAP_OPT_PFNVALID)
- 	/*
- 	 * If fault is in region 5 and we are in the kernel, we may already
- 	 * have the mmap_sem (pfn_valid macro is called during mmap). There
-@@ -211,7 +211,7 @@
+ #include <asm/tlbflush.h>
  
-   bad_area:
- 	up_read(&mm->mmap_sem);
--#ifdef CONFIG_VIRTUAL_MEM_MAP
-+#if defined(CONFIG_VIRTUAL_MEM_MAP) || defined(CONFIG_SPARSEMEM_VMEMMAP_OPT_PFNVALID)
-   bad_area_no_up:
- #endif
- 	if ((isr & IA64_ISR_SP)
++/*
++ * Because memory hotplug shares some codes for initilization with boot,
++ * we sometimes have to check what we are doing ?
++ */
++static atomic_t memory_hotadd_count;
++
++int under_memory_hotadd(void)
++{
++	return atomic_read(&memory_hotadd_count);
++}
++
+ /* add this memory to iomem resource */
+ static struct resource *register_memory_resource(u64 start, u64 size)
+ {
+@@ -273,10 +284,13 @@
+ 		if (ret)
+ 			goto error;
+ 	}
++	atomic_inc(&memory_hotadd_count);
+ 
+ 	/* call arch's memory hotadd */
+ 	ret = arch_add_memory(nid, start, size);
+ 
++	atomic_dec(&memory_hotadd_count);
++
+ 	if (ret < 0)
+ 		goto error;
+ 
+Index: linux-2.6.20-rc1-mm1/mm/page_alloc.c
+===================================================================
+--- linux-2.6.20-rc1-mm1.orig/mm/page_alloc.c	2006-12-16 14:24:38.000000000 +0900
++++ linux-2.6.20-rc1-mm1/mm/page_alloc.c	2006-12-16 16:53:02.000000000 +0900
+@@ -2069,10 +2069,13 @@
+ 	unsigned long pfn;
+ 
+ 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+-		if (!early_pfn_valid(pfn))
+-			continue;
+-		if (!early_pfn_in_nid(pfn, nid))
+-			continue;
++		if (!under_memory_hotadd()) {
++			/* we are in boot */
++			if (!early_pfn_valid(pfn))
++				continue;
++			if (!early_pfn_in_nid(pfn, nid))
++				continue;
++		}
+ 		page = pfn_to_page(pfn);
+ 		set_page_links(page, zone, nid, pfn);
+ 		init_page_count(page);
 

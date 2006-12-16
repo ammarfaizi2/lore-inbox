@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161369AbWLPTGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161382AbWLPTPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161369AbWLPTGq (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 14:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161370AbWLPTGq
+	id S1161382AbWLPTPb (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 14:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161389AbWLPTPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 14:06:46 -0500
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:55236 "EHLO
-	excu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161369AbWLPTGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 14:06:45 -0500
-X-AuditID: c606310c-a0855bb0000072e7-51-45844614cdd1 
-Date: Sat, 16 Dec 2006 19:07:05 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Martin Michlmayr <tbm@cyrius.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Jan Kara <jack@suse.cz>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       debian-kernel@lists.debian.org
-Subject: Re: Recent mm changes leading to filesystem corruption?
-In-Reply-To: <20061216184450.GA21129@deprecation.cyrius.com>
-Message-ID: <Pine.LNX.4.64.0612161903270.25272@blonde.wat.veritas.com>
-References: <20061216155044.GA14681@deprecation.cyrius.com>
- <Pine.LNX.4.64.0612161812090.21270@blonde.wat.veritas.com>
- <20061216184450.GA21129@deprecation.cyrius.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Dec 2006 19:06:44.0376 (UTC) FILETIME=[53AE9980:01C72145]
-X-Brightmail-Tracker: AAAAAA==
+	Sat, 16 Dec 2006 14:15:31 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:53194 "EHLO 2ka.mipt.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161382AbWLPTPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 14:15:30 -0500
+Date: Sat, 16 Dec 2006 22:15:22 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org
+Subject: [ANN] Acrypto asynchronous crypto layer 2.6.19 release.
+Message-ID: <20061216191521.GA26549@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 16 Dec 2006 22:15:24 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2006, Martin Michlmayr wrote:
-> * Hugh Dickins <hugh@veritas.com> [2006-12-16 18:20]:
-> > Very disturbing.  I'm not aware of any problem with them, and we
-> > surely wouldn't have released 2.6.19 with any known-corrupting patches
-> > in.  There's some doubts about 2.6.19 itself in the links below: were
-> > it not for those, I'd suspect a mismerge of the pieces into 2.6.18,
-> > perhaps a hidden dependency on something else.  I'll ponder a little,
-> > but let's CC linux-mm in case someone there has an idea.
-> 
-> Do you think http://article.gmane.org/gmane.linux.kernel/473710 might
-> be related?
+Hello.
 
-Sounds like it.  Let's CC Jan Kara on your other thread,
-he seems to have delved into it a little.
+I am pleased to announce new release of the acrypto for 2.6.19 kernel -
+first asynchronous crypto layer for Linux kernel 2.6.
 
-Hugh
+Acrypto allows to handle crypto requests asynchronously in hardware.
+
+Acrypto supports following features:
+ * multiple asynchronous crypto device queues
+ * crypto session routing (allows to complete single crypto session when
+   several operations (crypto, hmac, anything) are completed)
+ * crypto session binding (bind crypto processing to specified device)
+ * modular load balancing (one can created load balancer which will get
+   into account for example pid of the calling process)
+ * crypto session batching genetically implemented by design (acrypto
+   provides the whole data structure to crypto device, i.e. it is
+   possible to use acrypto as a bridge which routes requests between
+   completely different devices, since it does not differentiate between
+   users, just handles requests)
+ * crypto session priority
+ * different kinds of crypto operation(RNG, asymmetrical crypto, HMAC and
+   any other)
+
+Combined patchset includes:
+ * acrypto core
+ * IPsec ESP4 port to acrypto
+ * dm-crypt port to acrypto
+ * OCF to acrypto bridge, which allows to run OCF device
+   drivers with acrypto (for example ixp4xx), requires OCF installed.
+
+Ported crypto drivers and benchmarks can be found on acrypto homepage:
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+
+Changes from previous release:
+ * moved to 2.6.19 crypto API where it is used
+ * updated XFRM engine
+ * bugfixes
+
+2.6.16 - 2.6.18 releases moved to maintenance mode.
+
+Patchset is not attached due to its size (192kb).
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+-- 
+	Evgeniy Polyakov

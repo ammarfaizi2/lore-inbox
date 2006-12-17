@@ -1,45 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752581AbWLQNN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752588AbWLQNXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752581AbWLQNN4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 08:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752583AbWLQNN4
+	id S1752588AbWLQNXE (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 08:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752591AbWLQNXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 08:13:56 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:39569 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752581AbWLQNNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 08:13:55 -0500
-Message-ID: <45854273.3090701@garzik.org>
-Date: Sun, 17 Dec 2006 08:13:23 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sun, 17 Dec 2006 08:23:04 -0500
+Received: from smtp.telefonica.net ([213.4.149.66]:64466 "EHLO
+	ctsmtpout2.frontal.correo" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752588AbWLQNXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 08:23:03 -0500
+From: Jose Alberto Reguero <jareguero@telefonica.net>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: pata_marvell and Marvell 88SE6121
+Date: Sun, 17 Dec 2006 14:22:48 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200612161841.26700.jareguero@telefonica.net> <20061216193146.06373923@localhost.localdomain>
+In-Reply-To: <20061216193146.06373923@localhost.localdomain>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: "J.H." <warthog9@kernel.org>, vojtech@suse.cz,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, hpa@zytor.com,
-       webmaster@kernel.org
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-References: <20061214223718.GA3816@elf.ucw.cz> <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <20061217123233.GD28628@elf.ucw.cz>
-In-Reply-To: <20061217123233.GD28628@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_pSUhFfmeh1CfPJN"
+Message-Id: <200612171422.49112.jareguero@telefonica.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Would you accept help from someone else than HP? kernel.org is very
-> important, and hardware is cheap these days... What are the
-> requirements for machine to be interesting to kernel.org? I guess
-> AMD/1GHz, 1GB ram, 100GB disk is not interesting to you....
+--Boundary-00=_pSUhFfmeh1CfPJN
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-quoting http://www.kernel.org/ ...
+El S=E1bado, 16 de Diciembre de 2006 20:31, Alan escribi=F3:
+> On Sat, 16 Dec 2006 18:41:26 +0100
+>
+> Jose Alberto Reguero <jareguero@telefonica.net> wrote:
+> > I am trying to make work the driver pata_marvell of linux-2.6.20-rc1 wi=
+th
+> > Marvell 88SE6121.
+>
+> The 6121 is I believe ahci.
 
-"We have put two new external servers, graciously donated by 
-Hewlett-Packard into full production use. These servers are both 
-ProLiant DL585  quad Opteron servers, each with 24 GB of RAM and 10 TB 
-of disk. Huge thanks to HP!"
+So there is no change to make work with pata_marvell ?
+I thought that 61xx series was similar.
 
+Do you suggest to try with ahci driver?
+
+I atach new log with kernel 2.6.19 and pata_marvell patch.
+
+Thanks.
+Jose Alberto
+
+--Boundary-00=_pSUhFfmeh1CfPJN
+Content-Type: text/plain;
+  charset="iso-8859-15";
+  name="log"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="log"
+
+Dec 17 13:07:28 jar kernel: ata3: PATA max UDMA/100 cmd 0xEC00 ctl 0xE882 bmdma 0xE400 irq 28
+Dec 17 13:07:28 jar kernel: ata4: PATA max UDMA/133 cmd 0xE800 ctl 0xE482 bmdma 0xE408 irq 28
+Dec 17 13:07:28 jar kernel: scsi2 : pata_marvell
+Dec 17 13:07:28 jar kernel: BAR5:00:02 01:7F 02:22 03:CA 04:00 05:00 06:00 07:80 08:00 09:00 0A:00 0B:00 0C:07 0D:00 0E:00 0F:00 
+Dec 17 13:07:28 jar kernel: ATA: abnormal status 0x7F on port 0xEC07
+Dec 17 13:07:28 jar kernel: scsi3 : pata_marvell
+Dec 17 13:07:28 jar kernel: BAR5:00:02 01:7F 02:22 03:CA 04:00 05:00 06:00 07:80 08:00 09:00 0A:00 0B:00 0C:07 0D:00 0E:00 0F:00 
+Dec 17 13:07:28 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:07:28 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:07:58 jar kernel: ata4.00: qc timeout (cmd 0xec)
+Dec 17 13:07:58 jar kernel: ata4.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+Dec 17 13:07:59 jar kernel: BAR5:00:02 01:7F 02:22 03:CA 04:00 05:00 06:00 07:80 08:00 09:00 0A:00 0B:00 0C:07 0D:00 0E:00 0F:00 
+Dec 17 13:07:59 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:07:59 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:08:29 jar kernel: ata4.00: qc timeout (cmd 0xec)
+Dec 17 13:08:29 jar kernel: ata4.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+Dec 17 13:08:29 jar kernel: BAR5:00:02 01:7F 02:22 03:CA 04:00 05:00 06:00 07:80 08:00 09:00 0A:00 0B:00 0C:07 0D:00 0E:00 0F:00 
+Dec 17 13:08:30 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:08:30 jar kernel: ATA: abnormal status 0x7F on port 0xE807
+Dec 17 13:09:00 jar kernel: ata4.00: qc timeout (cmd 0xec)
+Dec 17 13:09:00 jar kernel: ata4.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+Dec 17 13:09:00 jar kernel: BAR5:00:02 01:7F 02:22 03:CA 04:00 05:00 06:00 07:80 08:00 09:00 0A:00 0B:00 0C:07 0D:00 0E:00 0F:00 
+Dec 17 13:14:30 jar vdr: [3345] connect from 127.0.0.1, port 33449 - accepted
+
+--Boundary-00=_pSUhFfmeh1CfPJN--

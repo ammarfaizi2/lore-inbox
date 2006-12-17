@@ -1,328 +1,273 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752552AbWLQMs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752566AbWLQNAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752552AbWLQMs5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 07:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752553AbWLQMs4
+	id S1752566AbWLQNAO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 08:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752568AbWLQNAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 07:48:56 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:52738 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752552AbWLQMsz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 07:48:55 -0500
-X-Originating-Ip: 24.148.236.183
-Date: Sun, 17 Dec 2006 07:43:39 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] Rewrite unnecessary duplicated code to use FIELD_SIZEOF().
-Message-ID: <Pine.LNX.4.64.0612170738410.24046@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-14.6, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	RCVD_IN_SORBS_DUL 2.05, TW_TX 0.08, TW_XG 0.08)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Sun, 17 Dec 2006 08:00:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:32800 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752566AbWLQNAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 08:00:11 -0500
+X-Greylist: delayed 1017 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 08:00:10 EST
+Date: Sun, 17 Dec 2006 13:43:01 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       linux-fsdevel@vger.kernel.org
+Cc: Mark Fasheh <mark.fasheh@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [rfc][patch] fix buffered write deadlocks with extra copy (and a way out?)
+Message-ID: <20061217124301.GA24637@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My attempt to fix this problem by modifying the prepare_write/commit_write
+API fell on its face because it ended up breaking filesystems and the
+buffer layer in various interesting ways, but probably more importantly
+the logic was getting complex and fragile and the fixes would have made
+that even worse.
 
-  as with ARRAY_SIZE(), there are a number of places (mercifully, far
-fewer) that recode what could be done with the FIELD_SIZEOF() macro in
-kernel.h.
+What I will now propose is basically the simplest possible solution (AFAIKS),
+which is almost obviously correct, and fixes not only the deadlock but
+also corruption that comes from a failed usercopy inserting zeroes into
+the pagecache (eg. upon EFAULT).
 
-  i wrote a short script to handle that and this is the result (after
-a minor amount of hand tweaking):
+The price is quite large. An extra copy. One from userspace into a temporary
+buffer, then a second from temp buffer to actual pagecache. I wanted to
+avoid this for obvious reasons, but now I think I have to advocate it for
+correctness over performance.
 
- arch/m68k/kernel/signal.c               |   30 +++++++++++-----------
- arch/um/drivers/net_kern.c              |    2 -
- drivers/block/viodasd.c                 |    2 -
- drivers/net/e1000/e1000_ethtool.c       |    2 -
- drivers/net/ixgb/ixgb_ethtool.c         |    2 -
- drivers/net/mv643xx_eth.c               |    2 -
- drivers/net/netxen/netxen_nic_ethtool.c |    2 -
- drivers/usb/atm/usbatm.c                |    2 -
- drivers/usb/net/cdc_ether.c             |    2 -
- drivers/usb/net/usbnet.c                |    2 -
- drivers/usb/serial/io_usbvend.h         |    8 ++---
- fs/ext2/xattr.c                         |    2 -
- fs/ext3/xattr.c                         |    2 -
- fs/ext4/xattr.c                         |    2 -
- fs/mbcache.c                            |    2 -
- include/acpi/actbl.h                    |    2 -
- include/asm-powerpc/fs_pd.h             |    2 -
- include/net/sctp/sctp.h                 |    2 -
- 18 files changed, 35 insertions(+), 35 deletions(-)
+There are a number of things we can do to avoid some of this overhead -- we
+could avoid the extra copy when doing a full-page write into a newly
+allocated page, and when writing to uptodate pagecache. But I prefer not
+to (and haven't in this patch) because it adds quite a bit of complexity
+and does not solve _all_ cases.
 
+What I propose instead is to add a new aop, perform_write which can be
+implemented instead of the inflexible 2-phase API. It would be up to the
+filesystem implementation to perform the data copy. Initially I tried
+wrapping up the iovec stuff into an iterator structure passed into
+perform_write, which can then pass it back to filemap_copy_from_user
+helpers. However this is not enough to handle stuff like loop.c usage
+if we wanted the API to be able to replace prepare/commmit completely.
+Maybe passing down a generic "filler" function would be a better idea?
 
+Anyway, as an aside, the perform_write API need not be a page based one
+(in my half-done implementation it is not), so it can end up fulfilling
+the role of Hans's batch_write proposal. Actually now that I look at
+his patch there are similarities (eg. my iovec iterator struct
+looks similar).
 
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index f9af893..c99517e 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -54,21 +54,21 @@
- asmlinkage int do_signal(sigset_t *oldset, struct pt_regs *regs);
+I would like more input about this from filesystems people, and will post
+a sample implementation after a first round of feedback.
 
- const int frame_extra_sizes[16] = {
--  [1]	= -1, /* sizeof(((struct frame *)0)->un.fmt1), */
--  [2]	= sizeof(((struct frame *)0)->un.fmt2),
--  [3]	= sizeof(((struct frame *)0)->un.fmt3),
--  [4]	= sizeof(((struct frame *)0)->un.fmt4),
--  [5]	= -1, /* sizeof(((struct frame *)0)->un.fmt5), */
--  [6]	= -1, /* sizeof(((struct frame *)0)->un.fmt6), */
--  [7]	= sizeof(((struct frame *)0)->un.fmt7),
--  [8]	= -1, /* sizeof(((struct frame *)0)->un.fmt8), */
--  [9]	= sizeof(((struct frame *)0)->un.fmt9),
--  [10]	= sizeof(((struct frame *)0)->un.fmta),
--  [11]	= sizeof(((struct frame *)0)->un.fmtb),
--  [12]	= -1, /* sizeof(((struct frame *)0)->un.fmtc), */
--  [13]	= -1, /* sizeof(((struct frame *)0)->un.fmtd), */
--  [14]	= -1, /* sizeof(((struct frame *)0)->un.fmte), */
--  [15]	= -1, /* sizeof(((struct frame *)0)->un.fmtf), */
-+  [1]	= -1, /* FIELD_SIZEOF(struct frame, un.fmt1), */
-+  [2]	= FIELD_SIZEOF(struct frame, un.fmt2),
-+  [3]	= FIELD_SIZEOF(struct frame, un.fmt3),
-+  [4]	= FIELD_SIZEOF(struct frame, un.fmt4),
-+  [5]	= -1, /* FIELD_SIZEOF(struct frame, un.fmt5), */
-+  [6]	= -1, /* FIELD_SIZEOF(struct frame, un.fmt6), */
-+  [7]	= FIELD_SIZEOF(struct frame, un.fmt7),
-+  [8]	= -1, /* FIELD_SIZEOF(struct frame, un.fmt8), */
-+  [9]	= FIELD_SIZEOF(struct frame, un.fmt9),
-+  [10]	= FIELD_SIZEOF(struct frame, un.fmta),
-+  [11]	= FIELD_SIZEOF(struct frame, un.fmtb),
-+  [12]	= -1, /* FIELD_SIZEOF(struct frame, un.fmtc), */
-+  [13]	= -1, /* FIELD_SIZEOF(struct frame, un.fmtd), */
-+  [14]	= -1, /* FIELD_SIZEOF(struct frame, un.fmte), */
-+  [15]	= -1, /* FIELD_SIZEOF(struct frame, un.fmtf), */
- };
+For now, I just submit the double-buffer patch for comments. It is not
+quite polished (but does run OK). It does rely on some previous cleanups
+and changes not posted. If there are no objections I'll submit the whole
+patchset for inclusion.
 
- /*
-diff --git a/arch/um/drivers/net_kern.c b/arch/um/drivers/net_kern.c
-index afe3d42..07adda0 100644
---- a/arch/um/drivers/net_kern.c
-+++ b/arch/um/drivers/net_kern.c
-@@ -334,7 +334,7 @@ static int eth_configure(int n, void *init, char *mac,
- 	int save, err, size;
+Thanks,
+Nick
 
- 	size = transport->private_size + sizeof(struct uml_net_private) +
--		sizeof(((struct uml_net_private *) 0)->user);
-+		FIELD_SIZEOF(struct uml_net_private, user);
+--
+Modify the core write() code so that it won't take a pagefault while holding a
+lock on the pagecache page. There are a number of different deadlocks possible
+if we try to do such a thing:
 
- 	device = kzalloc(sizeof(*device), GFP_KERNEL);
- 	if (device == NULL) {
-diff --git a/drivers/block/viodasd.c b/drivers/block/viodasd.c
-index e19ba4e..a2825cf 100644
---- a/drivers/block/viodasd.c
-+++ b/drivers/block/viodasd.c
-@@ -68,7 +68,7 @@ MODULE_LICENSE("GPL");
- enum {
- 	PARTITION_SHIFT = 3,
- 	MAX_DISKNO = HVMAXARCHITECTEDVIRTUALDISKS,
--	MAX_DISK_NAME = sizeof(((struct gendisk *)0)->disk_name)
-+	MAX_DISK_NAME = FIELD_SIZEOF(struct gendisk, disk_name)
- };
+1.  generic_buffered_write
+2.   lock_page
+3.    prepare_write
+4.     unlock_page+vmtruncate
+5.     copy_from_user
+6.      mmap_sem(r)
+7.       handle_mm_fault
+8.        lock_page (filemap_nopage)
+9.    commit_write
+1.   unlock_page
 
- static DEFINE_SPINLOCK(viodasd_spinlock);
-diff --git a/drivers/net/e1000/e1000_ethtool.c b/drivers/net/e1000/e1000_ethtool.c
-index da459f7..c00d358 100644
---- a/drivers/net/e1000/e1000_ethtool.c
-+++ b/drivers/net/e1000/e1000_ethtool.c
-@@ -53,7 +53,7 @@ struct e1000_stats {
- 	int stat_offset;
- };
+b. sys_munmap / sys_mlock / others
+c.  mmap_sem(w)
+d.   make_pages_present
+e.    get_user_pages
+f.     handle_mm_fault
+g.      lock_page (filemap_nopage)
 
--#define E1000_STAT(m) sizeof(((struct e1000_adapter *)0)->m), \
-+#define E1000_STAT(m) FIELD_SIZEOF(struct e1000_adapter, m), \
- 		      offsetof(struct e1000_adapter, m)
- static const struct e1000_stats e1000_gstrings_stats[] = {
- 	{ "rx_packets", E1000_STAT(stats.gprc) },
-diff --git a/drivers/net/ixgb/ixgb_ethtool.c b/drivers/net/ixgb/ixgb_ethtool.c
-index cd22523..4ee1b23 100644
---- a/drivers/net/ixgb/ixgb_ethtool.c
-+++ b/drivers/net/ixgb/ixgb_ethtool.c
-@@ -52,7 +52,7 @@ struct ixgb_stats {
- 	int stat_offset;
- };
+2,8	- recursive deadlock if page is same
+2,8;2,8	- ABBA deadlock is page is different
+2,6;c,g	- ABBA deadlock if page is same
 
--#define IXGB_STAT(m) sizeof(((struct ixgb_adapter *)0)->m), \
-+#define IXGB_STAT(m) FIELD_SIZEOF(struct ixgb_adapter, m), \
- 		      offsetof(struct ixgb_adapter, m)
- static struct ixgb_stats ixgb_gstrings_stats[] = {
- 	{"rx_packets", IXGB_STAT(net_stats.rx_packets)},
-diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
-index c41ae42..3872471 100644
---- a/drivers/net/mv643xx_eth.c
-+++ b/drivers/net/mv643xx_eth.c
-@@ -2652,7 +2652,7 @@ struct mv643xx_stats {
- 	int stat_offset;
- };
+(also, rename maxlen to seglen, because it was confusing)
 
--#define MV643XX_STAT(m) sizeof(((struct mv643xx_private *)0)->m), \
-+#define MV643XX_STAT(m) FIELD_SIZEOF(struct mv643xx_private, m), \
- 					offsetof(struct mv643xx_private, m)
-
- static const struct mv643xx_stats mv643xx_gstrings_stats[] = {
-diff --git a/drivers/net/netxen/netxen_nic_ethtool.c b/drivers/net/netxen/netxen_nic_ethtool.c
-index 2ab4885..938c6ea 100644
---- a/drivers/net/netxen/netxen_nic_ethtool.c
-+++ b/drivers/net/netxen/netxen_nic_ethtool.c
-@@ -50,7 +50,7 @@ struct netxen_nic_stats {
- 	int stat_offset;
- };
-
--#define NETXEN_NIC_STAT(m) sizeof(((struct netxen_port *)0)->m), \
-+#define NETXEN_NIC_STAT(m) FIELD_SIZEOF(struct netxen_port, m), \
- 			offsetof(struct netxen_port, m)
-
- #define NETXEN_NIC_PORT_WINDOW 0x10000
-diff --git a/drivers/usb/atm/usbatm.c b/drivers/usb/atm/usbatm.c
-index ec63b0e..0be22a3 100644
---- a/drivers/usb/atm/usbatm.c
-+++ b/drivers/usb/atm/usbatm.c
-@@ -1332,7 +1332,7 @@ static int __init usbatm_usb_init(void)
+Index: linux-2.6/mm/filemap.c
+===================================================================
+--- linux-2.6.orig/mm/filemap.c
++++ linux-2.6/mm/filemap.c
+@@ -1837,7 +1837,7 @@ generic_file_buffered_write(struct kiocb
+ 	long		status = 0;
+ 	const struct iovec *cur_iov = iov; /* current iovec */
+ 	size_t		iov_offset = 0;	   /* offset in the current iovec */
+-	char __user	*buf;
++	struct page	*tmp_pg = NULL;
+ 
+ 	/*
+ 	 * handle partial DIO write.  Adjust cur_iov if needed.
+@@ -1846,72 +1846,70 @@ generic_file_buffered_write(struct kiocb
+ 
+ 	do {
+ 		struct page *page;
++		char *src, *dst;
+ 		pgoff_t index;		/* Pagecache index for current page */
+ 		unsigned long offset;	/* Offset into pagecache page */
+-		unsigned long maxlen;	/* Bytes remaining in current iovec */
+ 		size_t bytes;		/* Bytes to write to page */
+ 		size_t copied;		/* Bytes copied from user */
+ 
+-		buf = cur_iov->iov_base + iov_offset;
+ 		offset = (pos & (PAGE_CACHE_SIZE - 1));
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+ 		if (bytes > count)
+ 			bytes = count;
+ 
+-		maxlen = cur_iov->iov_len - iov_offset;
+-		if (maxlen > bytes)
+-			maxlen = bytes;
+-
+-#ifndef CONFIG_DEBUG_VM
+-		/*
+-		 * Bring in the user page that we will copy from _first_.
+-		 * Otherwise there's a nasty deadlock on copying from the
+-		 * same page as we're writing to, without it being marked
+-		 * up-to-date.
+-		 */
+-		fault_in_pages_readable(buf, maxlen);
+-#endif
++		if (!tmp_pg) {
++			tmp_pg = page_cache_alloc(mapping);
++			if (!tmp_pg) {
++				status = -ENOMEM;
++				break;
++			}
++			src = kmap(tmp_pg);
++		}
+ 
++		copied = filemap_copy_from_user(tmp_pg, offset,
++				cur_iov, nr_segs, iov_offset, bytes);
++		if (unlikely(!copied)) {
++			status = -EFAULT;
++			break;
++		}
++		bytes = copied;
+ 
+ 		page = __grab_cache_page(mapping, index);
+ 		if (!page) {
+ 			status = -ENOMEM;
+ 			break;
+ 		}
++		dst = kmap(page);
+ 
+ 		status = a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (unlikely(status))
+ 			goto fs_write_aop_error;
+ 
+-		copied = filemap_copy_from_user(page, offset,
+-					cur_iov, nr_segs, iov_offset, bytes);
++		memcpy(dst+offset, src+offset, bytes);
+ 		flush_dcache_page(page);
+ 
+ 		status = a_ops->commit_write(file, page, offset, offset+bytes);
+ 		if (unlikely(status))
+ 			goto fs_write_aop_error;
+ 
+-		if (likely(copied > 0)) {
+-			written += copied;
+-			count -= copied;
+-			pos += copied;
+-			filemap_set_next_iovec(&cur_iov, nr_segs,
+-						&iov_offset, written);
+-		}
+-		if (unlikely(copied != bytes))
+-			status = -EFAULT;
+-
++		kunmap(page);
+ 		unlock_page(page);
+ 		mark_page_accessed(page);
+ 		page_cache_release(page);
+-		if (status < 0)
+-			break;
+ 		balance_dirty_pages_ratelimited(mapping);
+ 		cond_resched();
++
++		if (likely(copied > 0)) {
++			written += copied;
++			count -= copied;
++			pos += copied;
++			filemap_set_next_iovec(&cur_iov, nr_segs, &iov_offset, copied);
++		}
+ 		continue;
+ 
+ fs_write_aop_error:
++		kunmap(page);
+ 		if (status != AOP_TRUNCATED_PAGE)
+ 			unlock_page(page);
+ 		page_cache_release(page);
+@@ -1931,6 +1929,11 @@ fs_write_aop_error:
+ 	} while (count);
+ 	*ppos = pos;
+ 
++	if (tmp_pg) {
++		kunmap(tmp_pg);
++		page_cache_release(tmp_pg);
++	}
++
+ 	/*
+ 	 * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
+ 	 */
+Index: linux-2.6/include/linux/pagemap.h
+===================================================================
+--- linux-2.6.orig/include/linux/pagemap.h
++++ linux-2.6/include/linux/pagemap.h
+@@ -198,6 +198,9 @@ static inline int fault_in_pages_writeab
  {
- 	dbg("%s: driver version %s", __func__, DRIVER_VERSION);
-
--	if (sizeof(struct usbatm_control) > sizeof(((struct sk_buff *) 0)->cb)) {
-+	if (sizeof(struct usbatm_control) > FIELD_SIZEOF(struct sk_buff, cb)) {
- 		printk(KERN_ERR "%s unusable with this kernel!\n", usbatm_driver_name);
- 		return -EIO;
+ 	int ret;
+ 
++	if (unlikely(size == 0))
++		return 0;
++
+ 	/*
+ 	 * Writing zeroes into userspace here is OK, because we know that if
+ 	 * the zero gets there, we'll be overwriting it.
+@@ -217,19 +220,23 @@ static inline int fault_in_pages_writeab
+ 	return ret;
+ }
+ 
+-static inline void fault_in_pages_readable(const char __user *uaddr, int size)
++static inline int fault_in_pages_readable(const char __user *uaddr, int size)
+ {
+ 	volatile char c;
+ 	int ret;
+ 
++	if (unlikely(size == 0))
++		return 0;
++
+ 	ret = __get_user(c, uaddr);
+ 	if (ret == 0) {
+ 		const char __user *end = uaddr + size - 1;
+ 
+ 		if (((unsigned long)uaddr & PAGE_MASK) !=
+ 				((unsigned long)end & PAGE_MASK))
+-		 	__get_user(c, end);
++		 	ret = __get_user(c, end);
  	}
-diff --git a/drivers/usb/net/cdc_ether.c b/drivers/usb/net/cdc_ether.c
-index 44a9154..dbc2ba3 100644
---- a/drivers/usb/net/cdc_ether.c
-+++ b/drivers/usb/net/cdc_ether.c
-@@ -497,7 +497,7 @@ static struct usb_driver cdc_driver = {
++	return ret;
+ }
+ 
+ #endif /* _LINUX_PAGEMAP_H */
 
- static int __init cdc_init(void)
- {
--	BUILD_BUG_ON((sizeof(((struct usbnet *)0)->data)
-+	BUILD_BUG_ON((FIELD_SIZEOF(struct usbnet, data)
- 			< sizeof(struct cdc_state)));
 
-  	return usb_register(&cdc_driver);
-diff --git a/drivers/usb/net/usbnet.c b/drivers/usb/net/usbnet.c
-index 6e39e99..03cef6c 100644
---- a/drivers/usb/net/usbnet.c
-+++ b/drivers/usb/net/usbnet.c
-@@ -1283,7 +1283,7 @@ EXPORT_SYMBOL_GPL(usbnet_resume);
- static int __init usbnet_init(void)
- {
- 	/* compiler should optimize this out */
--	BUILD_BUG_ON (sizeof (((struct sk_buff *)0)->cb)
-+	BUILD_BUG_ON (FIELD_SIZEOF(struct sk_buff, cb)
- 			< sizeof (struct skb_data));
-
- 	random_ether_addr(node_id);
-diff --git a/drivers/usb/serial/io_usbvend.h b/drivers/usb/serial/io_usbvend.h
-index f1804fd..b967389 100644
---- a/drivers/usb/serial/io_usbvend.h
-+++ b/drivers/usb/serial/io_usbvend.h
-@@ -507,10 +507,10 @@ struct edge_manuf_descriptor {
-
- #define MANUF_BOARD_REV_A		1	// First rev of 251+Netchip design
-
--#define	MANUF_SERNUM_LENGTH		sizeof(((struct edge_manuf_descriptor *)0)->SerialNumber)
--#define	MANUF_ASSYNUM_LENGTH		sizeof(((struct edge_manuf_descriptor *)0)->AssemblyNumber)
--#define	MANUF_OEMASSYNUM_LENGTH		sizeof(((struct edge_manuf_descriptor *)0)->OemAssyNumber)
--#define	MANUF_MANUFDATE_LENGTH		sizeof(((struct edge_manuf_descriptor *)0)->ManufDate)
-+#define	MANUF_SERNUM_LENGTH		FIELD_SIZEOF(struct edge_manuf_descriptor, SerialNumber)
-+#define	MANUF_ASSYNUM_LENGTH		FIELD_SIZEOF(struct edge_manuf_descriptor, AssemblyNumber)
-+#define	MANUF_OEMASSYNUM_LENGTH		FIELD_SIZEOF(struct edge_manuf_descriptor, OemAssyNumber)
-+#define	MANUF_MANUFDATE_LENGTH		FIELD_SIZEOF(struct edge_manuf_descriptor, ManufDate)
-
- #define	MANUF_ION_CONFIG_DIAG_NO_LOOP	0x20	// As below but no ext loopback test
- #define	MANUF_ION_CONFIG_DIAG		0x40	// 930 based device: 1=Run h/w diags, 0=norm
-diff --git a/fs/ext2/xattr.c b/fs/ext2/xattr.c
-index 247efd0..bd58220 100644
---- a/fs/ext2/xattr.c
-+++ b/fs/ext2/xattr.c
-@@ -1024,7 +1024,7 @@ init_ext2_xattr(void)
- {
- 	ext2_xattr_cache = mb_cache_create("ext2_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
--		sizeof(((struct mb_cache_entry *) 0)->e_indexes[0]), 1, 6);
-+		FIELD_SIZEOF(struct mb_cache_entry, e_indexes[0]), 1, 6);
- 	if (!ext2_xattr_cache)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/ext3/xattr.c b/fs/ext3/xattr.c
-index 99857a4..0c89380 100644
---- a/fs/ext3/xattr.c
-+++ b/fs/ext3/xattr.c
-@@ -1299,7 +1299,7 @@ init_ext3_xattr(void)
- {
- 	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
--		sizeof(((struct mb_cache_entry *) 0)->e_indexes[0]), 1, 6);
-+		FIELD_SIZEOF(struct mb_cache_entry, e_indexes[0]), 1, 6);
- 	if (!ext3_xattr_cache)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index dc969c3..e52d7f8 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1299,7 +1299,7 @@ init_ext4_xattr(void)
- {
- 	ext4_xattr_cache = mb_cache_create("ext4_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
--		sizeof(((struct mb_cache_entry *) 0)->e_indexes[0]), 1, 6);
-+		FIELD_SIZEOF(struct mb_cache_entry, e_indexes[0]), 1, 6);
- 	if (!ext4_xattr_cache)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index deeb9dc..4b987c3 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -255,7 +255,7 @@ mb_cache_create(const char *name, struct mb_cache_op *cache_op,
- 	struct mb_cache *cache = NULL;
-
- 	if(entry_size < sizeof(struct mb_cache_entry) +
--	   indexes_count * sizeof(((struct mb_cache_entry *) 0)->e_indexes[0]))
-+	   indexes_count * FIELD_SIZEOF(struct mb_cache_entry, e_indexes[0]))
- 		return NULL;
-
- 	cache = kmalloc(sizeof(struct mb_cache) +
-diff --git a/include/acpi/actbl.h b/include/acpi/actbl.h
-index b125cee..8b9dd97 100644
---- a/include/acpi/actbl.h
-+++ b/include/acpi/actbl.h
-@@ -317,7 +317,7 @@ struct fadt_descriptor_rev1 {
-  * are removed and replaced by a Flags field.
-  */
- #define ACPI_FLAG_OFFSET(d,f,o)         (u8) (ACPI_OFFSET (d,f) + \
--			  sizeof(((d *)0)->f) + o)
-+			  FIELD_SIZEOF(d, f) + o)
- /*
-  * Get the remaining ACPI tables
-  */
-diff --git a/include/asm-powerpc/fs_pd.h b/include/asm-powerpc/fs_pd.h
-index 3d0e819..efb6d55 100644
---- a/include/asm-powerpc/fs_pd.h
-+++ b/include/asm-powerpc/fs_pd.h
-@@ -29,7 +29,7 @@ static inline int uart_clock(void)
- ({									\
- 	u32 offset = offsetof(cpm2_map_t, member);			\
- 	void *addr = ioremap (CPM_MAP_ADDR + offset,			\
--			      sizeof( ((cpm2_map_t*)0)->member));	\
-+			      FIELD_SIZEOF(cpm2_map_t, member));	\
- 	addr;								\
- })
-
-diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
-index c818f87..d929d18 100644
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -601,7 +601,7 @@ static inline int param_type2af(__be16 type)
- static inline int sctp_sanity_check(void)
- {
- 	SCTP_ASSERT(sizeof(struct sctp_ulpevent) <=
--		    sizeof(((struct sk_buff *)0)->cb),
-+		    FIELD_SIZEOF(struct sk_buff, cb),
- 		    "SCTP: ulpevent does not fit in skb!\n", return 0);
-
- 	return 1;

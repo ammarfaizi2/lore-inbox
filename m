@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753027AbWLQR1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932071AbWLQRch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753027AbWLQR1O (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 12:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753022AbWLQR1O
+	id S932071AbWLQRch (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 12:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWLQRch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 12:27:14 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45649 "EHLO smtp.osdl.org"
+	Sun, 17 Dec 2006 12:32:37 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:52987 "EHLO 2ka.mipt.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753024AbWLQR1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 12:27:13 -0500
-Date: Sun, 17 Dec 2006 09:26:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tobias Diedrich <ranma+kernel@tdiedrich.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: IO-APIC + timer doesn't work
-In-Reply-To: <20061217131033.GA25999@tomodachi.de>
-Message-ID: <Pine.LNX.4.64.0612170925440.3479@woody.osdl.org>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
- <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0612160955370.3557@woody.osdl.org>
- <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org>
- <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org>
- <20061216235513.GA2424@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0612161603070.3479@woody.osdl.org> <20061217131033.GA25999@tomodachi.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S932071AbWLQRcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 12:32:36 -0500
+Date: Sun, 17 Dec 2006 20:32:04 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, David Howells <dhowells@redhat.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fallout from atomic_long_t patch
+Message-ID: <20061217173201.GA31675@2ka.mipt.ru>
+References: <20061217105907.GE17561@ftp.linux.org.uk> <Pine.LNX.4.64.0612170911230.3479@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612170911230.3479@woody.osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 17 Dec 2006 20:32:15 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 17 Dec 2006, Tobias Diedrich wrote:
+On Sun, Dec 17, 2006 at 09:24:30AM -0800, Linus Torvalds (torvalds@osdl.org) wrote:
 > 
-> BTW, I'm also wondering if this secondary Oops is supposed to happen:
+> 
+> On Sun, 17 Dec 2006, Al Viro wrote:
+> > -			if (likely(!test_bit(WORK_STRUCT_PENDING,
+> > -					     &__cbq->work.work.management) &&
+> > +			if (likely(!work_pending(&__cbq->work.work) &&
+> 
+> That should properly be
+> 
+> 	if (likely(!delayed_work_pending(&__cbq->work) && ...
+> 
+> and why the heck was it doing that open-coded int he first place?
+>
+> HOWEVER, looking even more, why is that thing a "delayed work" at all? All 
+> the queuing seems to happen with a timeout of zero..
+> 
+> So I _think_ that the proper patch is actually the following, but somebody 
+> who knows and uses the connector thing should double-check. Please?
 
-Well, if the timer doesn't work, then the NMI watchdog will trigger. So 
-it's "supposed" to happen in the sense that yeah, it's kind of expected, 
-but it's really bsically just a secondary issue. If the timer worked 
-properly, you'd never see it. 
+Delayed work was used to play with different timeouts and thus allow to
+smooth performance peaks, but then I dropped that idea, so timeout is always
+zero.
 
-So it's just fallout from the original problem you have, and not 
-interesting in itself.
+I posted similar patch today to netdev@, which directly used
+work_pending instead of delayed_work_pending(), but if you will figure
+this out itself, I'm ok with proposed patch.
 
-		Linus
+
+> 			Linus
+
+-- 
+	Evgeniy Polyakov

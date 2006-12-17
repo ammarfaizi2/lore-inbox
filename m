@@ -1,48 +1,311 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932292AbWLQSQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932298AbWLQSSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWLQSQs (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 13:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWLQSQs
+	id S932298AbWLQSSa (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 13:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWLQSSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 13:16:48 -0500
-Received: from www.osadl.org ([213.239.205.134]:50672 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932292AbWLQSQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 13:16:48 -0500
-From: =?iso-8859-1?q?Hans-J=FCrgen_Koch?= <hjk@linutronix.de>
-Organization: Linutronix
-To: Gleb Natapov <glebn@voltaire.com>
-Subject: Re: uio and DMA memory allocations
-Date: Sun, 17 Dec 2006 19:16:42 +0100
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <20061217150445.GC11360@minantech.com>
-In-Reply-To: <20061217150445.GC11360@minantech.com>
+	Sun, 17 Dec 2006 13:18:30 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:42566 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932298AbWLQSS3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 13:18:29 -0500
+X-Originating-Ip: 24.148.236.183
+Date: Sun, 17 Dec 2006 13:13:59 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Zach Brown <zach.brown@oracle.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
+In-Reply-To: <Pine.LNX.4.63.0612152351360.16895@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.64.0612171301020.24836@localhost.localdomain>
+References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
+ <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
+ <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
+ <4581DAB0.2060505@s5r6.in-berlin.de> <Pine.LNX.4.61.0612151135330.22867@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0612151547290.6136@localhost.localdomain>
+ <Pine.LNX.4.63.0612152351360.16895@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612171916.43534.hjk@linutronix.de>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1442214599-1166379239=:24836"
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 17. Dezember 2006 16:04 schrieb Gleb Natapov:
-> Hi Hans,
->
->    Will it be possible to allocate DMAable memory using uio
-> framework (currently it isn't as far as I see).  More specifically
-> if a driver needs memory allocated with dma_alloc_coherent() will
-> it be possible to allocate it and map into userspace using uio?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Hi Gleb,
-I didn't write such a driver yet, but it is certainly possible.
-As a first thought, I think we need a small change in the uio 
-framework mmap routine. AFAIK, dma_alloc_coherent() returns a
-kernel virtual address that would not be handled properly by
-the existing code. At the moment, we only have the choice between
-logical and physical memory, we probably have to add virtual
-memory, too. Thanks for that hint, I'll keep it in mind.
+--8323328-1442214599-1166379239=:24836
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Hans
 
+  so here's the end result of my experiment to replace unnecessary
+code snippets with an invocation of the ARRAY_SIZE() macro from
+include/linux/kernel.h.  i've attached the script that i ran on the
+entire tree, then (after adding al viro's connector patch), did:
+
+  $ make allyesconfig	# for the stress factor
+  $ make
+
+to see what would happen.
+
+  amazingly, the compile worked all the way down to:
+
+  AS      arch/i386/boot/bootsect.o
+  LD      arch/i386/boot/bootsect
+  AS      arch/i386/boot/setup.o
+  LD      arch/i386/boot/setup
+  AS      arch/i386/boot/compressed/head.o
+  CC      arch/i386/boot/compressed/misc.o
+  OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+  HOSTCC  arch/i386/boot/compressed/relocs
+arch/i386/boot/compressed/relocs.c: In function 'sym_type':
+arch/i386/boot/compressed/relocs.c:72: warning: implicit declaration of function 'ARRAY_SIZE'
+/tmp/ccRTpFxM.o: In function `main':
+relocs.c:(.text+0xb13): undefined reference to `ARRAY_SIZE'
+relocs.c:(.text+0xddb): undefined reference to `ARRAY_SIZE'
+relocs.c:(.text+0xe10): undefined reference to `ARRAY_SIZE'
+relocs.c:(.text+0xe2b): undefined reference to `ARRAY_SIZE'
+collect2: ld returned 1 exit status
+make[2]: *** [arch/i386/boot/compressed/relocs] Error 1
+make[1]: *** [arch/i386/boot/compressed/vmlinux] Error 2
+make: *** [bzImage] Error 2
+
+  not surprisingly, the diff is fairly sizable (2408 lines), and
+that's *way* outside of my comfort zone in terms of what i would
+submit as a patch.  others higher up the food chain can decide if they
+want to do anything with this.  (for the information value, i also
+attached the "diffstat" output.)
+
+  at this point, i think it's someone else's call.
+
+rday
+
+p.s.  clearly, this didn't even hit all of the possible
+transformations, such as the ones based on typedefs, or even the ones
+that are broken over two lines.  you can see from the script that i
+just went after the low-hanging fruit.
+
+p.p.s.  i didn't bother fixing relocs.c yet to see if the build would
+actually finish.  i thought i'd better stop here and wait to hear what
+others think.
+--8323328-1442214599-1166379239=:24836
+Content-Type: APPLICATION/x-sh; name=arraysize.sh
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0612171313590.24836@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=arraysize.sh
+
+IyEvYmluL3NoCgpESVI9JDEKCk1BQ1JPPUFSUkFZX1NJWkUKCiMgIEZpcnN0
+LCBncmVwIGZvciB0aGUgbW9zdCBjb21tb24gdmFyaWFudHMsIGlmIHlvdSB3
+YW50LiAgSW4gb3JkZXIsCiMgdGhlc2UgYXJlOgoKIyAgc2l6ZW9mKGJsYWgp
+L3NpemVvZihibGFoWzBdKQojICBzaXplb2YgYmxhaCAvIHNpemVvZiBibGFo
+WzBdCiMgIHNpemVvZihibGFoKS9zaXplb2YoKmJsYWgpCiMgIHNpemVvZiBi
+bGFoIC8gc2l6ZW9mICpibGFoCgojIGdyZXAgLUVyICJzaXplb2YgP1woID8o
+W15cKSBdKykgP1wpID8vID9zaXplb2YgP1woID9cMVxbMFxdID9cKSIgJHtE
+SVJ9CiMgZ3JlcCAtRXIgInNpemVvZiArKFteIFwoXCldKykgKy8gK3NpemVv
+ZiArXDFcWzBcXSIgJHtESVJ9CiMgZ3JlcCAtRXIgInNpemVvZiA/XCggPyhb
+XlwpIF0rKSA/XCkgPy8gP3NpemVvZiA/XCggP1wqXDEgP1wpIiAke0RJUn0K
+IyBncmVwIC1FciAic2l6ZW9mICsoW14vXCkgXSspICovICpzaXplb2YgK1wq
+XDEiICR7RElSfQoKIyAgRGVhbCB3aXRoIHNpemVvZihibGFoKS9zaXplb2Yo
+YmxhaFswXSkKCmZvciBmIGluICQoZ3JlcCAtRXJsICJzaXplb2YgP1woID8o
+W15cKSBdKykgP1wpID8vID9zaXplb2YgP1woID9cMVxbMFxdID9cKSIgJHtE
+SVJ9KSA7IGRvCiAgZWNobyAiJHtNQUNST30oKWluZyAkZiAuLi4iCiAgcGVy
+bCAtcGkgLWUgInN8c2l6ZW9mID9cKCA/KFteXCkgXSspID9cKSA/LyA/c2l6
+ZW9mID9cKCA/XDFcWzBcXSA/XCl8JHtNQUNST31cKFwxXCl8IiAkZgpkb25l
+CgojICBEZWFsIHdpdGggc2l6ZW9mIGJsYWggLyBzaXplb2YgYmxhaFswXQoK
+Zm9yIGYgaW4gJChncmVwIC1FcmwgInNpemVvZiArKFteIFwoXCldKykgKy8g
+K3NpemVvZiArXDFcWzBcXSIgJHtESVJ9KSA7IGRvCiAgZWNobyAiJHtNQUNS
+T30oKWluZyAkZiAuLi4iCiAgcGVybCAtcGkgLWUgInN8c2l6ZW9mICsoW15c
+KFwpIF0rKSArLyArc2l6ZW9mICtcMVxbMFxdfCR7TUFDUk99XChcMVwpfCIg
+JGYKZG9uZQoKIyAgRGVhbCB3aXRoIHNpemVvZihibGFoKS9zaXplb2YoKmJs
+YWgpCgpmb3IgZiBpbiAkKGdyZXAgLUVybCAic2l6ZW9mID9cKCA/KFteXCkg
+XSspID9cKSA/LyA/c2l6ZW9mID9cKCA/XCpcMSA/XCkiICR7RElSfSkgOyBk
+bwogIGVjaG8gIiR7TUFDUk99KClpbmcgJGYgLi4uIgogIHBlcmwgLXBpIC1l
+ICJzfHNpemVvZiA/XCggPyhbXlwpIF0rKSA/XCkgPy8gP3NpemVvZiA/XCgg
+P1wqXDEgP1wpfCR7TUFDUk99XChcMVwpfCIgJGYKZG9uZQoKIyAgRGVhbCB3
+aXRoIHNpemVvZiBibGFoIC8gc2l6ZW9mICpibGFoCgpmb3IgZiBpbiAkKGdy
+ZXAgLUVybCAic2l6ZW9mICsoW14vXCkgXSspICovICpzaXplb2YgK1wqXDEi
+ICR7RElSfSkgOyBkbwogIGVjaG8gIiR7TUFDUk99KClpbmcgJGYgLi4uIgog
+IHBlcmwgLXBpIC1lICJzfHNpemVvZiArKFteL1wpIF0rKSAqLyAqc2l6ZW9m
+ICtcKlwxfCR7TUFDUk99XChcMVwpfCIgJGYKZG9uZQo=
+
+--8323328-1442214599-1166379239=:24836
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=array_size.ds
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0612171313591.24836@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=array_size.ds
+
+IERvY3VtZW50YXRpb24vaHBldC50eHQgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgICAyIA0KIGFyY2gvYXJtL2tlcm5lbC9kbWEtaXNhLmMgICAg
+ICAgICAgICAgICAgICAgICAgICAgfCAgICAyIA0KIGFyY2gvYXJtL2tlcm5l
+bC9lY2FyZC5jICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAyIA0K
+IGFyY2gvYXJtMjYva2VybmVsL2VjYXJkLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgICAyIA0KIGFyY2gvYXZyMzIva2VybmVsL3NldHVwLmMgICAg
+ICAgICAgICAgICAgICAgICAgICAgfCAgICAyIA0KIGFyY2gvY3Jpcy9hcmNo
+LXYxMC9kcml2ZXJzL2F4aXNmbGFzaG1hcC5jICAgICAgICAgfCAgICAyIA0K
+IGFyY2gvY3Jpcy9hcmNoLXYxMC9rZXJuZWwvc2V0dXAuYyAgICAgICAgICAg
+ICAgICAgfCAgICA0IC0NCiBhcmNoL2NyaXMvbW0vdGxiLmMgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBhcmNoL2kzODYvYm9v
+dC9jb21wcmVzc2VkL3JlbG9jcy5jICAgICAgICAgICAgICAgIHwgICAgOCAr
+LS0NCiBhcmNoL202OGsvYW1pZ2EvYW1pc291bmQuYyAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAgMiANCiBhcmNoL202OGsva2VybmVsL3B0cmFjZS5j
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQogYXJjaC9tNjhr
+L2tlcm5lbC90cmFwcy5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAg
+IDIgDQogYXJjaC9tNjhrbm9tbXUva2VybmVsL3B0cmFjZS5jICAgICAgICAg
+ICAgICAgICAgICB8ICAgIDQgLQ0KIGFyY2gvbTY4a25vbW11L2tlcm5lbC90
+cmFwcy5jICAgICAgICAgICAgICAgICAgICAgfCAgICAyIA0KIGFyY2gvbWlw
+cy9hcmMvaWRlbnRpZnkuYyAgICAgICAgICAgICAgICAgICAgICAgICAgfCAg
+ICAyIA0KIGFyY2gvbWlwcy9qbXIzOTI3L3JiaG1hMzEwMC9zZXR1cC5jICAg
+ICAgICAgICAgICAgfCAgICAyIA0KIGFyY2gvbWlwcy9taXBzLWJvYXJkcy9h
+dGxhcy9hdGxhc19pbnQuYyAgICAgICAgICAgfCAgICA0IC0NCiBhcmNoL21p
+cHMvcGNpL2ZpeHVwLXZyNDEzMy5jICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAgMiANCiBhcmNoL3Bvd2VycGMvbGliL3JoZWFwLmMgICAgICAgICAgICAg
+ICAgICAgICAgICAgIHwgICAgMiANCiBhcmNoL3Bvd2VycGMveG1vbi9wcGMt
+b3BjLmMgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQogYXJjaC9w
+b3dlcnBjL3htb24vc3B1LW9wYy5jICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDIgDQogYXJjaC9wcGMvbGliL3JoZWFwLmMgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAgIDIgDQogYXJjaC9wcGMvc3lzbGliL204eHhf
+c2V0dXAuYyAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogYXJjaC9w
+cGMveG1vbi9wcGMtb3BjLmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDQgLQ0KIGFyY2gvdW0va2VybmVsL3R0L3B0cHJveHkvcHRyYWNlLmMg
+ICAgICAgICAgICAgICAgfCAgIDEyICsrLS0NCiBhcmNoL3Y4NTAva2VybmVs
+L2FubmEuYyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBh
+cmNoL3Y4NTAva2VybmVsL2FzODVlcDEuYyAgICAgICAgICAgICAgICAgICAg
+ICAgIHwgICAgMiANCiBhcmNoL3Y4NTAva2VybmVsL2ZwZ2E4NWUyYy5jICAg
+ICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBhcmNoL3Y4NTAva2VybmVs
+L2didXNfaW50LmMgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQog
+YXJjaC92ODUwL2tlcm5lbC9tYS5jICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogYXJjaC92ODUwL2tlcm5lbC9tZTIuYyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogYXJjaC92ODUwL2tlcm5l
+bC9ydGVfY2IuYyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQog
+YXJjaC92ODUwL2tlcm5lbC9ydGVfbWJfYV9wY2kuYyAgICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogYXJjaC92ODUwL2tlcm5lbC9ydGVfbWUyX2NiLmMg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogYXJjaC92ODUwL2tlcm5l
+bC90ZWcuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQog
+YXJjaC94ODZfNjQva2VybmVsL3NtcGJvb3QuYyAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogZHJpdmVycy9hY29ybi9ibG9jay9mZDE3NzIuYyAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9hY3BpL3Rv
+c2hpYmFfYWNwaS5jICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQog
+ZHJpdmVycy9hdG0vaGUuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogZHJpdmVycy9hdG0vaWR0NzcyNTIuYyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDggKy0tDQogZHJpdmVycy9ibG9j
+ay9hY3NpLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDQg
+LQ0KIGRyaXZlcnMvYmxvY2svYWNzaV9zbG0uYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgfCAgICA0IC0NCiBkcml2ZXJzL2NoYXIvZHJtL2RybV9wcm9j
+LmMgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBkcml2ZXJzL2No
+YXIvc3luY2xpbmtfZ3QuYyAgICAgICAgICAgICAgICAgICAgICAgIHwgICAg
+MiANCiBkcml2ZXJzL2Nvbm5lY3Rvci9jb25uZWN0b3IuYyAgICAgICAgICAg
+ICAgICAgICAgIHwgICAgMyAtDQogZHJpdmVycy9pZGUvaWRlLWNkLmggICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9p
+bmZpbmliYW5kL2NvcmUvZGV2aWNlLmMgICAgICAgICAgICAgICAgICB8ICAg
+IDIgDQogZHJpdmVycy9pc2RuL2NhcGkvY2FwaS5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgIDQgLQ0KIGRyaXZlcnMvaXNkbi9jYXBpL2NhcGlk
+cnYuYyAgICAgICAgICAgICAgICAgICAgICAgfCAgICA0IC0NCiBkcml2ZXJz
+L2lzZG4vaGFyZHdhcmUvZWljb24vZGVidWcuYyAgICAgICAgICAgICAgIHwg
+ICAzMCArKysrKystLS0tLS0NCiBkcml2ZXJzL2lzZG4vaGFyZHdhcmUvZWlj
+b24vbWVzc2FnZS5jICAgICAgICAgICAgIHwgICAyMiArKysrLS0tLQ0KIGRy
+aXZlcnMva3ZtL2t2bV9zdm0uaCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgICAyIA0KIGRyaXZlcnMva3ZtL3N2bS5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgfCAgICA0IC0NCiBkcml2ZXJzL2t2bS92bXgu
+YyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQog
+ZHJpdmVycy9tYWNpbnRvc2gvYXBtX2VtdS5jICAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogZHJpdmVycy9tZC9tZC5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDQgLQ0KIGRyaXZlcnMvbWVkaWEv
+ZHZiL2J0OHh4L2R2Yi1idDh4eC5jICAgICAgICAgICAgICAgfCAgICAyIA0K
+IGRyaXZlcnMvbWVkaWEvZHZiL2Zyb250ZW5kcy9jeDI0MTEwLmMgICAgICAg
+ICAgICAgfCAgICA0IC0NCiBkcml2ZXJzL21lZGlhL2R2Yi9mcm9udGVuZHMv
+Y3gyNDEyMy5jICAgICAgICAgICAgIHwgICAgNiArLQ0KIGRyaXZlcnMvbWVk
+aWEvdmlkZW8vY3BpYTIvY3BpYTJfdjRsLmMgICAgICAgICAgICAgfCAgICA4
+ICstLQ0KIGRyaXZlcnMvbWVkaWEvdmlkZW8vb3Y3NjcwLmMgICAgICAgICAg
+ICAgICAgICAgICAgfCAgICA2ICstDQogZHJpdmVycy9tZWRpYS92aWRlby9w
+dnJ1c2IyL3B2cnVzYjItYXVkaW8uYyAgICAgICB8ICAgIDQgLQ0KIGRyaXZl
+cnMvbWVkaWEvdmlkZW8vcHZydXNiMi9wdnJ1c2IyLWN0cmwuYyAgICAgICAg
+fCAgICAyIA0KIGRyaXZlcnMvbWVkaWEvdmlkZW8vcHZydXNiMi9wdnJ1c2Iy
+LWN4MjU4NHgtdjRsLmMgfCAgICA0IC0NCiBkcml2ZXJzL21lZGlhL3ZpZGVv
+L3B2cnVzYjIvcHZydXNiMi1kZWJ1Z2lmYy5jICAgIHwgICAgNCAtDQogZHJp
+dmVycy9tZWRpYS92aWRlby9wdnJ1c2IyL3B2cnVzYjItZWVwcm9tLmMgICAg
+ICB8ICAgIDIgDQogZHJpdmVycy9tZWRpYS92aWRlby9wdnJ1c2IyL3B2cnVz
+YjItZW5jb2Rlci5jICAgICB8ICAgMTYgKysrLS0tDQogZHJpdmVycy9tZWRp
+YS92aWRlby9wdnJ1c2IyL3B2cnVzYjItaGR3LmMgICAgICAgICB8ICAgMTYg
+KysrLS0tDQogZHJpdmVycy9tZWRpYS92aWRlby9wdnJ1c2IyL3B2cnVzYjIt
+aTJjLWNvcmUuYyAgICB8ICAgIDIgDQogZHJpdmVycy9tZWRpYS92aWRlby9w
+dnJ1c2IyL3B2cnVzYjItc3RkLmMgICAgICAgICB8ICAgMTQgKystLS0NCiBk
+cml2ZXJzL21lZGlhL3ZpZGVvL3B2cnVzYjIvcHZydXNiMi1zeXNmcy5jICAg
+ICAgIHwgICAgMiANCiBkcml2ZXJzL21lZGlhL3ZpZGVvL3B2cnVzYjIvcHZy
+dXNiMi12aWRlby12NGwuYyAgIHwgICAgNCAtDQogZHJpdmVycy9tZWRpYS92
+aWRlby9wdnJ1c2IyL3B2cnVzYjItd204Nzc1LmMgICAgICB8ICAgIDQgLQ0K
+IGRyaXZlcnMvbWVkaWEvdmlkZW8vdHZlZXByb20uYyAgICAgICAgICAgICAg
+ICAgICAgfCAgICA2ICstDQogZHJpdmVycy9tZWRpYS92aWRlby90dnA1MTUw
+LmMgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9tZWRp
+YS92aWRlby91c2J2aWRlby9xdWlja2NhbV9tZXNzZW5nZXIuYyB8ICAgIDIg
+DQogZHJpdmVycy9tZXNzYWdlL2Z1c2lvbi9tcHRiYXNlLmMgICAgICAgICAg
+ICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9tbWMvYXUxeG1tYy5jICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQv
+YXBuZS5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIg
+DQogZHJpdmVycy9uZXQvYXJtL2FtNzljOTYxYS5jICAgICAgICAgICAgICAg
+ICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvYXRhcmlsYW5jZS5jICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQv
+Y3M4OXgwLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDYg
+Ky0NCiBkcml2ZXJzL25ldC9lMTAwMC9lMTAwMF9ldGh0b29sLmMgICAgICAg
+ICAgICAgICAgIHwgICAgMiANCiBkcml2ZXJzL25ldC9mZWNfOHh4L2ZlY19t
+aWkuYyAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQogZHJpdmVycy9u
+ZXQvaWJtX2VtYWMvaWJtX2VtYWNfZGVidWcuYyAgICAgICAgICAgICB8ICAg
+IDggKy0tDQogZHJpdmVycy9uZXQvaXJkYS9hY3Rpc3lzLXNpci5jICAgICAg
+ICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvaXhnYi9peGdi
+X3BhcmFtLmMgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVy
+cy9uZXQvbmUtaDgzMDAuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDIgDQogZHJpdmVycy9uZXQvbmUuYyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvbmUyLmMgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVy
+cy9uZXQvbmUyay1wY2kuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDIgDQogZHJpdmVycy9uZXQvbmV0eGVuL25ldHhlbl9uaWNfaHcuYyAg
+ICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvcGNtY2lhL2F4
+bmV0X2NzLmMgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVy
+cy9uZXQvcGNtY2lhL3BjbmV0X2NzLmMgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDIgDQogZHJpdmVycy9uZXQvc2s5OGxpbi9za2dlbWliLmMgICAgICAg
+ICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvc2s5OGxpbi9z
+a2dlc2lycS5jICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVy
+cy9uZXQvc2tmcC9zbXQuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDIgDQogZHJpdmVycy9uZXQvc2tmcC9zcmYuYyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAgIDQgLQ0KIGRyaXZlcnMvbmV0L3dpcmVsZXNz
+L2Fpcm8uYyAgICAgICAgICAgICAgICAgICAgICAgfCAgICA0IC0NCiBkcml2
+ZXJzL25ldC93aXJlbGVzcy9ob3N0YXAvaG9zdGFwLmggICAgICAgICAgICAg
+IHwgICAgMiANCiBkcml2ZXJzL25ldC93aXJlbGVzcy9pcHcyMTAwLmMgICAg
+ICAgICAgICAgICAgICAgIHwgICAxMiArKy0tDQogZHJpdmVycy9uZXQvd2ly
+ZWxlc3MvcHJpc201NC9vaWRfbWd0LmMgICAgICAgICAgICB8ICAgIDIgDQog
+ZHJpdmVycy9uZXQvd2lyZWxlc3Mvd2F2ZWxhbi5wLmggICAgICAgICAgICAg
+ICAgICB8ICAgIDIgDQogZHJpdmVycy9uZXQvem9ycm84MzkwLmMgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQogZHJpdmVycy9zMzkwL2Np
+by9kZXZpY2VfaWQuYyAgICAgICAgICAgICAgICAgICAgICB8ICAgIDIgDQog
+ZHJpdmVycy9zZXJpYWwvNjgzMjhzZXJpYWwuYyAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDYgKy0NCiBkcml2ZXJzL3NlcmlhbC9tY2ZzZXJpYWwuYyAg
+ICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBkcml2ZXJzL3cxL3Ns
+YXZlcy93MV90aGVybS5jICAgICAgICAgICAgICAgICAgICAgIHwgICAgNiAr
+LQ0KIGZzL3JlaXNlcmZzL2RvX2JhbGFuLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgfCAgICA0IC0NCiBpbmNsdWRlL2FzbS1wYXJpc2MvbW16b25l
+LmggICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBpbmNsdWRlL2xp
+bnV4L25ldGZpbHRlci94dF9zY3RwLmggICAgICAgICAgICAgICAgIHwgICAg
+MiANCiBpbmNsdWRlL25ldC9pcF92cy5oICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAgMiANCiBpbmNsdWRlL3ZpZGVvL3NnaXZ3LmggICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiANCiBrZXJuZWwvcmN1
+dG9ydHVyZS5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAg
+MiANCiBuZXQvYXRtL3Byb2MuYyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAgMiANCiBzb3VuZC9vc3MvYXUxNTUwX2FjOTcuYyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNCAtDQogc291bmQvb3Nz
+L2VzMTM3MS5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAg
+IDIgDQogc291bmQvb3NzL25lY192cmM1NDc3LmMgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgIDQgLQ0KIHNvdW5kL29zcy9zd2FybV9jczQyOTdh
+LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAyIA0KIDExOSBmaWxl
+cyBjaGFuZ2VkLCAyMjMgaW5zZXJ0aW9ucygrKSwgMjI0IGRlbGV0aW9ucygt
+KQ0K
+
+--8323328-1442214599-1166379239=:24836--

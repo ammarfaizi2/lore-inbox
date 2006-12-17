@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753149AbWLQWph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753154AbWLQWuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753149AbWLQWph (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 17:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753150AbWLQWph
+	id S1753154AbWLQWuP (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 17:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753156AbWLQWuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 17:45:37 -0500
-Received: from ozlabs.org ([203.10.76.45]:35855 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753149AbWLQWpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 17:45:36 -0500
+	Sun, 17 Dec 2006 17:50:15 -0500
+Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:58107 "EHLO
+	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753154AbWLQWuO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 17:50:14 -0500
+X-Greylist: delayed 4164 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 17:50:13 EST
+Date: Sun, 17 Dec 2006 23:40:17 +0200
+From: Riku Voipio <riku.voipio@iki.fi>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: Martin Michlmayr <tbm@cyrius.com>, linux-kernel@vger.kernel.org,
+       romieu@fr.zoreil.com, rmk@arm.linux.org.uk, dan.j.williams@intel.com
+Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
+Message-ID: <20061217214016.GA28139@kos.to>
+References: <20061215210329.GB14860@xi.wantstofly.org> <20061215211435.GB10367@flint.arm.linux.org.uk> <20061216230901.GA23143@xi.wantstofly.org> <20061216233134.GA25177@electric-eye.fr.zoreil.com> <20061216235245.GA23238@xi.wantstofly.org> <20061217192812.GD17535@deprecation.cyrius.com> <20061217195635.GA10181@kos.to> <20061217195728.GF23747@xi.wantstofly.org> <20061217210209.GA13632@kos.to> <20061217211313.GG23747@xi.wantstofly.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17797.51337.364669.628160@cargo.ozlabs.ibm.com>
-Date: Mon, 18 Dec 2006 09:45:29 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-In-Reply-To: <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
-References: <200612161927.13860.gallir@gmail.com>
-	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
-	<orwt4qaara.fsf@redhat.com>
-	<Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <20061217211313.GG23747@xi.wantstofly.org>
+X-message-flag: Warning: message not sent with a DRM-Certified client
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+On Sun, Dec 17, 2006 at 10:13:13PM +0100, Lennert Buytenhek wrote:
+> On Sun, Dec 17, 2006 at 11:02:10PM +0200, Riku Voipio wrote:
+> 
+> > > > bah. 2.6.20-git shows nothing (with or without Lennert's patch) after
+> > > > the following:
+> >  
+> > > > Uncompressing Linux..........................................................................................done, booting the kernel.
+> > > 
+> > > Try the printascii()-in-printk() hack in my svn tree.
+> > 
+> > Thanks, that was priceless advice. I reverted 
+> > da2c12a279ae225f3d4696f76cb3b32a5bec5bfb "[ARM] Clean up ioremap code"
+> > and n2100 booted fine.
+ 
+> Can you try with da2c12a279ae225f3d4696f76cb3b32a5bec5bfb with the
+> following patch applied?
+ 
+> 	http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=4030/1
 
-> Why do people think that using "ln" is _any_ different from using 
-> "mkisofs". Both create one file that contains multiple pieces. What's the 
-> difference - really?
-
-The difference - really - at least for static linking - is that "ln"
-makes modifications to each piece to make them work together, and in
-the case of a library, makes a selection of the parts of the library
-as needed by the rest of the program.  What ends up in the executable
-is not just a set of verbatim copies of the input files packed
-together, but rather a single program where the various parts have
-been modified so as to fit together and create a whole.  Thus it seems
-quite reasonable to me to say that a statically linked binary is a
-derived work of all of the object files and libraries that were linked
-together to form it.  IANAL, of course.
-
-Dynamic linking is different, of course, if only because the final
-runnable program is never distributed, but only formed in memory
-during execution.  Also, the shared libraries are not modified and
-incorporated during linking.
-
-Paul.
+Boots fine. 

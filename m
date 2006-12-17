@@ -1,105 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754209AbWLRQRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754211AbWLRQR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754209AbWLRQRZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 11:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754212AbWLRQRZ
+	id S1754211AbWLRQR0 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 11:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754212AbWLRQR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 11:17:25 -0500
+	Mon, 18 Dec 2006 11:17:26 -0500
 Received: from turing-police.cc.vt.edu ([128.173.14.107]:56227 "EHLO
 	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754209AbWLRQRY (ORCPT
+	with ESMTP id S1754211AbWLRQRZ (ORCPT
 	<RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 11:17:24 -0500
+	Mon, 18 Dec 2006 11:17:25 -0500
 X-Greylist: delayed 3613 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 11:17:24 EST
-Message-Id: <200612171814.kBHIEvZ8004854@turing-police.cc.vt.edu>
+Message-Id: <200612171624.kBHGOEfZ003887@turing-police.cc.vt.edu>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.20-rc1-mm1 - another minor Dell Latitude D820 issue...
+Subject: 2.6.20-rc1-mm1 - TPM Follies on Dell Latitude D820
 From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166379297_3062P";
+Content-Type: multipart/signed; boundary="==_Exmh_1166372654_3376P";
 	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Date: Sun, 17 Dec 2006 13:14:57 -0500
+Date: Sun, 17 Dec 2006 11:24:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166379297_3062P
+--==_Exmh_1166372654_3376P
 Content-Type: text/plain; charset=us-ascii
 
-I'd never have noticed an issue if I hadn't looked in the dmesg for something
-else, so it isn't a high-priority item..  I admit being fuzzy on what, if
-anything, even *actually* needs fixing (ISTR for some people, there was some
-config issue with the transparent bridges being only translucent, but as
-I don't currently use the Firewire or Cardbus hardware, it's hard to tell..)
+(Yes, I *know* the answer is probably "Get Dell to fix the BIOS settings",
+but I'll need some more info on exactly what to tell them so it gets fixed
+right.
 
-Seen in dmesg:
+Scenario - I recently got a Dell Latitude D820 to replace my aging C840.
+Am running Fedora Core Rawhide in (mostly) 64-bit mode.
 
-[   64.846421] Boot video device is 0000:01:00.0
-[   64.847312] PCI: Transparent bridge - 0000:00:1e.0
-[   64.847380] PCI: Bus #04 (-#07) is hidden behind transparent bridge #03 (-#04) (try 'pci=assign-busses')
-[   64.847385] Please report the result to linux-kernel to fix this permanently
+Folly 1:  If you boot with the BIOS TPM setting to 'Disabled', you get this:
 
-lspci without assign-busses:
+[    0.000000] DMI 2.4 present.
+[    0.000000] ACPI: RSDP (v000 DELL                                  ) @ 0x00000000000fc0b0
+[    0.000000] ACPI: RSDT (v001 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe8198a
+[    0.000000] ACPI: FADT (v001 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe82800
+[    0.000000] ACPI: HPET (v001 DELL    M07     0x00000001 ASL  0x00000061) @ 0x000000007fe82f00
+[    0.000000] ACPI: MADT (v001 DELL    M07     0x27d60a0d ASL  0x00000047) @ 0x000000007fe83000
+[    0.000000] ACPI: ASF! (v016 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe82c00
+[    0.000000] ACPI: MCFG (v016 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe82fc0
+[    0.000000] ACPI: SLIC (v001 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe8309c
+[    0.000000] ACPI: TCPA (v001 DELL    M07     0x27d60a0d ASL  0x00000061) @ 0x000000007fe83300
+[    0.000000]   >>> ERROR: Invalid checksum
+[    0.000000] ACPI: SSDT (v001  PmRef    CpuPm 0x00003000 INTL 0x20050624) @ 0x000000007fe81a11
+[    0.000000] ACPI: DSDT (v001 INT430 SYSFexxx 0x00001001 INTL 0x20050624) @ 0x0000000000000000
 
+The 'invalid checksum' message goes away if you enable the TPM.  Note that this
+one happens even if you don't have TPM support enabled in the kernel. The code
+in drivers/acpi/tables.c isn't incredibly verbose about what the exact problem
+is - I'm willing to add instrumentation if somebody can tell me what would be
+actually useful to dump out. 
 
-00:00.0 Host bridge: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express Memory Controller Hub (rev 03)
-00:01.0 PCI bridge: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express PCI Express Root Port (rev 03)
-00:1b.0 Audio device: Intel Corporation 82801G (ICH7 Family) High Definition Audio Controller (rev 01)
-00:1c.0 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 1 (rev 01)
-00:1c.1 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 2 (rev 01)
-00:1c.2 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 3 (rev 01)
-00:1c.3 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 4 (rev 01)
-00:1d.0 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #1 (rev 01)
-00:1d.1 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #2 (rev 01)
-00:1d.2 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #3 (rev 01)
-00:1d.3 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #4 (rev 01)
-00:1d.7 USB Controller: Intel Corporation 82801G (ICH7 Family) USB2 EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev e1)
-00:1f.0 ISA bridge: Intel Corporation 82801GBM (ICH7-M) LPC Interface Bridge (rev 01)
-00:1f.2 IDE interface: Intel Corporation 82801GBM/GHM (ICH7 Family) Serial ATA Storage Controller IDE (rev 01)
-00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 01)
-01:00.0 VGA compatible controller: nVidia Corporation Quadro NVS 110M / GeForce Go 7300 (rev a1)
-03:01.0 CardBus bridge: O2 Micro, Inc. Cardbus bridge (rev 21)
-03:01.4 FireWire (IEEE 1394): O2 Micro, Inc. Firewire (IEEE 1394) (rev 02)
-09:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5752 Gigabit Ethernet PCI Express (rev 02)
-0c:00.0 Network controller: Intel Corporation PRO/Wireless 3945ABG Network Connection (rev 02)
+Folly 2: when userspace gets around to doing a 'modprobe tpm_tis', we get the
+following complaint:
 
-and with assign-busses:
-00:00.0 Host bridge: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express Memory Controller Hub (rev 03)
-00:01.0 PCI bridge: Intel Corporation Mobile 945GM/PM/GMS/940GML and 945GT Express PCI Express Root Port (rev 03)
-00:1b.0 Audio device: Intel Corporation 82801G (ICH7 Family) High Definition Audio Controller (rev 01)
-00:1c.0 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 1 (rev 01)
-00:1c.1 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 2 (rev 01)
-00:1c.2 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 3 (rev 01)
-00:1c.3 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 4 (rev 01)
-00:1d.0 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #1 (rev 01)
-00:1d.1 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #2 (rev 01)
-00:1d.2 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #3 (rev 01)
-00:1d.3 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #4 (rev 01)
-00:1d.7 USB Controller: Intel Corporation 82801G (ICH7 Family) USB2 EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev e1)
-00:1f.0 ISA bridge: Intel Corporation 82801GBM (ICH7-M) LPC Interface Bridge (rev 01)
-00:1f.2 IDE interface: Intel Corporation 82801GBM/GHM (ICH7 Family) Serial ATA Storage Controller IDE (rev 01)
-00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 01)
-01:00.0 VGA compatible controller: nVidia Corporation Quadro NVS 110M / GeForce Go 7300 (rev a1)
-03:00.0 Network controller: Intel Corporation PRO/Wireless 3945ABG Network Connection (rev 02)
-04:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5752 Gigabit Ethernet PCI Express (rev 02)
-06:01.0 CardBus bridge: O2 Micro, Inc. Cardbus bridge (rev 21)
-06:01.4 FireWire (IEEE 1394): O2 Micro, Inc. Firewire (IEEE 1394) (rev 02)
+[   76.318668] tpm_tis 00:0d: 1.2 TPM (device-id 0x1001, rev-id 2)
+[   76.378236] IRQ handler type mismatch for IRQ 8
+[   76.378239] current handler: rtc
+[   76.378240] 
+[   76.378241] Call Trace:
+[   76.378255]  [<ffffffff80266d56>] dump_trace+0xb9/0x3b3
+[   76.378261]  [<ffffffff8026708c>] show_trace+0x3c/0x52
+[   76.378265]  [<ffffffff802670b7>] dump_stack+0x15/0x17
+[   76.378270]  [<ffffffff802a3839>] setup_irq+0x1c2/0x1e6
+[   76.378275]  [<ffffffff802a38fb>] request_irq+0x9e/0xc7
+[   76.378282]  [<ffffffff885f58c5>] :tpm_tis:tpm_tis_init+0x205/0x44c
+[   76.378290]  [<ffffffff885f5b3a>] :tpm_tis:tpm_tis_pnp_init+0x2e/0x30
+[   76.378296]  [<ffffffff80392838>] pnp_device_probe+0x7b/0xa0
+[   76.378302]  [<ffffffff803b4813>] driver_probe_device+0xbc/0x138
+[   76.378307]  [<ffffffff803b497a>] __driver_attach+0x5b/0x94
+[   76.378312]  [<ffffffff803b3cdd>] bus_for_each_dev+0x49/0x7a
+[   76.378316]  [<ffffffff803b4666>] driver_attach+0x1c/0x1e
+[   76.378320]  [<ffffffff803b4011>] bus_add_driver+0x75/0x199
+[   76.378324]  [<ffffffff803b4c8a>] driver_register+0x85/0x89
+[   76.378328]  [<ffffffff80392521>] pnp_register_driver+0x1c/0x1e
+[   76.378333]  [<ffffffff8800f081>] :tpm_tis:init_tis+0x81/0x89
+[   76.378339]  [<ffffffff80295e62>] sys_init_module+0xac/0x17d
+[   76.378345]  [<ffffffff8025a11e>] system_call+0x7e/0x83
+[   76.378352]  [<00000039d1acd90a>]
+[   76.378354] 
+[   76.378355] tpm_tis 00:0d: Unable to request irq: 8 for probe
 
-What, if anything, needs to happen here?
+(2.6.19-rc6-mm2 would repeat the complaint on IRQ 14 and then 15 as well)
 
---==_Exmh_1166379297_3062P
+/proc/interrupts says:
+           CPU0       CPU1       
+  0:    1577201          0   IO-APIC-edge      timer
+  1:       4851          0   IO-APIC-edge      i8042
+  8:          0          0   IO-APIC-edge      rtc
+  9:          2          0   IO-APIC-fasteoi   acpi
+ 12:        145          0   IO-APIC-edge      i8042
+ 14:      13647      40481   IO-APIC-edge      libata
+ 15:         59       7876   IO-APIC-edge      libata
+ 16:      64047          0   IO-APIC-fasteoi   nvidia
+ 17:          0          0   IO-APIC-fasteoi   ipw3945
+ 19:         10          0   IO-APIC-fasteoi   yenta, ohci1394
+ 20:         28          0   IO-APIC-fasteoi   ehci_hcd:usb1, uhci_hcd:usb2
+ 21:       5303          0   IO-APIC-fasteoi   uhci_hcd:usb3, HDA Intel
+ 22:         29       4701   IO-APIC-fasteoi   uhci_hcd:usb4
+ 23:          0          0   IO-APIC-fasteoi   uhci_hcd:usb5
+NMI:          0          0 
+LOC:    1577087    1577049 
+ERR:          0
+
+Any ideas/suggestions?
+
+--==_Exmh_1166372654_3376P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFFhYkhcC3lWbTT17ARAsgvAJsHKj6DXDUYUtmOxqVDtScqyLnpeACfYdWN
-MrpbA+LbhXZ1NNkER3BjxZQ=
-=aTUl
+iD8DBQFFhW8ucC3lWbTT17ARAm9NAKCuUUzoOR2eSpY68RkMLKXngxHPMQCgkhYb
+SWiGcJDPyjRRgs3/fanCdws=
+=u+Jb
 -----END PGP SIGNATURE-----
 
---==_Exmh_1166379297_3062P--
+--==_Exmh_1166372654_3376P--

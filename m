@@ -1,112 +1,167 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752638AbWLQNyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752646AbWLQNyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752638AbWLQNyg (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 08:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752636AbWLQNyf
+	id S1752646AbWLQNyz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 08:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752648AbWLQNym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 17 Dec 2006 08:54:42 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:47728 "EHLO
+	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752630AbWLQNyf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 17 Dec 2006 08:54:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57806 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752635AbWLQNyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 08:54:33 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ricardo Galli <gallir@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-References: <200612161927.13860.gallir@gmail.com>
-	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Sun, 17 Dec 2006 11:54:17 -0200
-In-Reply-To: <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org> (Linus Torvalds's message of "Sat\, 16 Dec 2006 13\:01\:04 -0800 \(PST\)")
-Message-ID: <orwt4qaara.fsf@redhat.com>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [take28-resend_2->0 5/8] kevent: Timer notifications.
+In-Reply-To: <11663636324198@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Sun, 17 Dec 2006 16:53:53 +0300
+Message-Id: <11663636332185@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 16, 2006, Linus Torvalds <torvalds@osdl.org> wrote:
 
-> The whole reason the LGPL exists is that people realized that if they 
-> don't do something like that, the GPL would have been tried in court, and 
-> the FSF's position that anything that touches GPL'd code would probably 
-> have been shown to be bogus.
+Timer notifications.
 
-Or that people would feel uncomfortable about the gray area and avoid
-using the GPLed code in cases in which this would be perfectly legal
-and advantageous to Free Software.  Sure enough, when people create
-and distribute proprietary code by taking advantage of Free Software,
-that's something to be avoided, but since there are other Free
-Software licenses that are not compatible with the GNU GPL, it made
-sense to enable software licensed under them to be combined with these
-few libraries.  Letting concerns about copyright infringement, be such
-acts permissible by law or not, scare Free Software developers away
-from Free Software was not good for Free Software.
+Timer notifications can be used for fine grained per-process time 
+management, since interval timers are very inconvenient to use, 
+and they are limited.
 
-> Do you REALLY believe that a binary becomes a "derived work" of any random 
-> library that it gets linked against? If that's not "fair use" of a library 
-> that implements a standard library definition, I don't know what is.
+This subsystem uses high-resolution timers.
+id.raw[0] is used as number of seconds
+id.raw[1] is used as number of nanoseconds
 
-There are many factors involved and you're oversimplifying the issue.
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-Some claim that, in the case of static linking, since there part of
-the library copied to the binary, it is definitely a case of derived
-work.
+diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+new file mode 100644
+index 0000000..c21a155
+--- /dev/null
++++ b/kernel/kevent/kevent_timer.c
+@@ -0,0 +1,114 @@
++/*
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/hrtimer.h>
++#include <linux/jiffies.h>
++#include <linux/kevent.h>
++
++struct kevent_timer
++{
++	struct hrtimer		ktimer;
++	struct kevent_storage	ktimer_storage;
++	struct kevent		*ktimer_event;
++};
++
++static int kevent_timer_func(struct hrtimer *timer)
++{
++	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
++	struct kevent *k = t->ktimer_event;
++
++	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
++	hrtimer_forward(timer, timer->base->softirq_time,
++			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
++	return HRTIMER_RESTART;
++}
++
++static struct lock_class_key kevent_timer_key;
++
++static int kevent_timer_enqueue(struct kevent *k)
++{
++	int err;
++	struct kevent_timer *t;
++
++	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
++	if (!t)
++		return -ENOMEM;
++
++	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
++	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
++	t->ktimer.function = kevent_timer_func;
++	t->ktimer_event = k;
++
++	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
++	if (err)
++		goto err_out_free;
++	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
++
++	err = kevent_storage_enqueue(&t->ktimer_storage, k);
++	if (err)
++		goto err_out_st_fini;
++
++	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++
++	return 0;
++
++err_out_st_fini:
++	kevent_storage_fini(&t->ktimer_storage);
++err_out_free:
++	kfree(t);
++
++	return err;
++}
++
++static int kevent_timer_dequeue(struct kevent *k)
++{
++	struct kevent_storage *st = k->st;
++	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
++
++	hrtimer_cancel(&t->ktimer);
++	kevent_storage_dequeue(st, k);
++	kfree(t);
++
++	return 0;
++}
++
++static int kevent_timer_callback(struct kevent *k)
++{
++	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
++	return 1;
++}
++
++static int __init kevent_init_timer(void)
++{
++	struct kevent_callbacks tc = {
++		.callback = &kevent_timer_callback,
++		.enqueue = &kevent_timer_enqueue,
++		.dequeue = &kevent_timer_dequeue,
++		.flags = 0,
++	};
++
++	return kevent_add_callbacks(&tc, KEVENT_TIMER);
++}
++module_init(kevent_init_timer);
++
 
-Some then take this notion that linking creates derived works and
-further extend the claim that using dynamic linking is just a trick to
-avoid making the binary a derived work, and thus it shouldn't be taken
-into account, even if there still is *some* information from the
-dynamic library that affects the linked binary.
-
-Others then introduce exceptions such as the existence of another
-implementation of the library that is binary- and license-compatible,
-and that thus might make the license of the library actually used to
-create the binary irrelevant.
-
-Some disregard the fact that header files sometimes aren't just
-interface definitions, but they also contain functional code, in the
-form of preprocessor macros and inline functions, that, if used, do
-make it to the binary.
-
-All of these arguments have their strengths and weaknesses.  As you
-and others point out, and it matches my personal knowledge, none of
-them has been tried in court, and the outcome of a court dispute will
-often depend on specifics anyway.
-
-So calling these arguments idiocy is as presumptuous as FSF's alleged
-behavior.  While at that, I feel you allegation is groundless, and I
-hope this message makes it clear why, so I wish you'd take it back.
-
-
-The gray area between what is clearly permitted by a license and the
-murky lines that determine what constitutes a derived work, and what
-is fair use even if it's a derived work, is not for any of us to
-decide.  The best we can do is to offer interpretations on intent of
-license authors and software authors, and of laws.  Even though we're
-not lawyers or judges, such interpretations may be taken into account
-in court disputes.
-
-When the FSF says a license does not permit such and such behavior,
-you apparently interpret that as a statement that the FSF thinks this
-behavior wouldn't be permissible by fair use either.  This is an
-incorrect interpretation.  As we've seen above, there *is* a gray area
-beyond what is permitted by the license.  But the FSF must not give
-anyone the impression that the *license* permits actions that would
-make it less effective in fulfilling its intent, this would just
-weaken the license.
-
-Similarly, when you make an unqualified statement that some action is
-permitted, because you mean it's permitted by fair use even if not by
-the license, this might be mis-interpreted as something explicitly
-permitted by the license.  So this weakens the license, one of our
-most valuable tools to make the world a better place.  Is this what
-you intend to do?  I hope not.
-
-Thanks,
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-FSF Latin America Board Member         http://www.fsfla.org/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

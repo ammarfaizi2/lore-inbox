@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752356AbWLQKTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752376AbWLQKfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752356AbWLQKTI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 05:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752358AbWLQKTI
+	id S1752376AbWLQKfG (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 05:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752375AbWLQKfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 05:19:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60481 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752356AbWLQKTH (ORCPT
+	Sun, 17 Dec 2006 05:35:05 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:38014 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752376AbWLQKfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 05:19:07 -0500
-Date: Sun, 17 Dec 2006 10:18:56 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] kill_something_info: misc cleanups
-Message-ID: <20061217101856.GA1285@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-kernel@vger.kernel.org
-References: <20061216200510.GA5535@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061216200510.GA5535@tv-sign.ru>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 17 Dec 2006 05:35:04 -0500
+X-Greylist: delayed 1425 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 05:35:04 EST
+Date: Sun, 17 Dec 2006 11:11:12 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Schwartz <davids@webmaster.com>
+cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
+References: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2006 at 11:05:10PM +0300, Oleg Nesterov wrote:
->  static int kill_something_info(int sig, struct siginfo *info, int pid)
->  {
->  	int ret;
-> +
-> +	rcu_read_lock();
-> +	if (pid > 0) {
-> +		ret = kill_pid_info(sig, info, find_pid(pid));
-> +	} else if (pid == -1) {
-> +		struct task_struct *p;
-> +		int found = 0;
-> +
-> +		ret = 0;
-> +		read_lock(&tasklist_lock);
-> +		for_each_process(p)
-> +			if (!is_init(p) && p != current->group_leader) {
-> +				int err = group_send_sig_info(sig, info, p);
-> +				if (err != -EPERM)
-> +					ret = err;
-> +				found = 1;
-> +			}
-> +		read_unlock(&tasklist_lock);
-> +		if (!found)
-> +			ret = -ESRCH;
+On Thu, 14 Dec 2006, David Schwartz wrote:
+> > And there's also the common misconception all costumers had enough
+> > information when buying something. If you are a normal Linux user and
+> > buy some hardware labelled "runs under Linux", it could turn out that's
+> > with a Windows driver running under ndiswrapper...
+> 
+> That is something that I think is well worth fixing. Doesn't Linus own the
+> trademark 'Linux'? How about some rules for use of that trademark and a
+> 'Works with Linux' logo that can only be used if the hardware specifications
+> are provided?
 
-This branch should probably be factored out into a helper of it's own:
+Exactly my thoughts...
 
-static int kill_this_group_info(int sig, struct siginfo *info)
-{
-	struct task_struct *p;
-	int ret = 0, found = 0;
+> Let them provide a closed-source driver if they want. Let them provide
+> user-space applications for which no source is provided if they want. But
+> don't let them use the logo unless they release sufficient information to
+> allow people to develop their own drivers and applications to interface with
+> the hardware.
+> 
+> That makes it clear that it's not about giving us the fruits of years of
+> your own work but that it's about enabling us to do our own work. (I would
+> have no objection to also requiring them to provide a minimal open-source
+> driver. I'm not trying to work out the exact terms here, just get the idea
+> out.)
 
-	read_lock(&tasklist_lock);
-	for_each_process(p) {
-		if (!is_init(p) && p != current->group_leader) {
-			int err = group_send_sig_info(sig, info, p);
-			if (err != -EPERM)
-				ret = err;
-			found = 1;
-		}
-	}
-	read_unlock(&tasklist_lock);
-	if (!found)
-		return -ESRCH;
-	return found ? ret : -ESRCH;
-}
+Since `works with' may sound a bit too vague, something like
+`LinuxFriendly(tm)', with a happy penguin logo?
 
-> +	} else {
-> +		struct pid *grp = task_pgrp(current);
-> +		if (pid != 0)
-> +			grp = find_pid(-pid);
-> +		ret = kill_pgrp_info(sig, info, grp);
-> +	}
+Gr{oetje,eeting}s,
 
-This also looks rather unreadable, an
+						Geert
 
-	} else if (pid) {
-		ret = kill_pgrp_info(sig, info, find_pid(-pid));
-	} else {
-		ret = kill_pgrp_info(sig, info, task_pgrp(current));
-	}
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-might be slightly more code, but also a lot more readable.
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,71 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752871AbWLQP5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752874AbWLQP6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752871AbWLQP5E (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 10:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752873AbWLQP5E
+	id S1752874AbWLQP6x (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 10:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752875AbWLQP6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 10:57:04 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:16553 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752871AbWLQP5B convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 10:57:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=V7n24pesKHAdDbGCfBOHetHJpJ2a7EU4c85Q6bb55YdXi823QaGlN2f3lESIACKgtzpIpL9RwzpYDRe4bjKxo3e+Ui+OBA62flvzC8S8+ecyR++sP2VEoDVJZvK7UbgGW/zqhYa8CK9QXqkgBZr7pfjjzccYOtU/XKVmn1rE4bk=
-From: Ricardo Galli <gallir@gmail.com>
-Organization: UIB/Gmail
-To: Alexandre Oliva <aoliva@redhat.com>
-Subject: Re: GPL only modules
-Date: Sun, 17 Dec 2006 16:56:56 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org> <orwt4qaara.fsf@redhat.com>
-In-Reply-To: <orwt4qaara.fsf@redhat.com>
+	Sun, 17 Dec 2006 10:58:53 -0500
+Received: from yumi.tdiedrich.de ([85.10.210.183]:3215 "EHLO yumi.tdiedrich.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752873AbWLQP6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 10:58:52 -0500
+Date: Sun, 17 Dec 2006 16:58:50 +0100
+From: Tobias Diedrich <ranma@tdiedrich.de>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Len Brown <lenb@kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
+Subject: Re: CONFIG_NO_HZ: missed ticks, stall (keyb IRQ required) [2.6.18-rc4-mm1]
+Message-ID: <20061217155850.GA2765@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma@tdiedrich.de>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	Len Brown <lenb@kernel.org>, Ingo Molnar <mingo@elte.hu>,
+	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+	Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+	"Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
+References: <EB12A50964762B4D8111D55B764A8454E0DBDE@scsmsx413.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612171656.56208.gallir@gmail.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454E0DBDE@scsmsx413.amr.corp.intel.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 December 2006 14:54, Alexandre Oliva wrote:
-> > The whole reason the LGPL exists is that people realized that if they
-> > don't do something like that, the GPL would have been tried in court, and
-> > the FSF's position that anything that touches GPL'd code would probably
-> > have been shown to be bogus.
->
-> Or that people would feel uncomfortable about the gray area and avoid
-> using the GPLed code in cases in which this would be perfectly legal
-> and advantageous to Free Software.  Sure enough, when people create
-> and distribute proprietary code by taking advantage of Free Software,
-> that's something to be avoided, but since there are other Free
-> Software licenses that are not compatible with the GNU GPL, it made
-> sense to enable software licensed under them to be combined with these
-> few libraries.  Letting concerns about copyright infringement, be such
-> acts permissible by law or not, scare Free Software developers away
-> from Free Software was not good for Free Software.
+Pallipadi, Venkatesh wrote:
 
-LGPL somehow fixes this gray area to allow a wider and clear "fair use" by 
-allowing people to easily[*] run proprietary programs in a free operating 
-system.
+> There are two things that can be happening when OS does not see HPET in
+> ACPI.
+> - BIOS did enable HPET in chipset and did not communicate it to OS.
+> - BIOS did nothing to enable HPET in chipset.
+> 
+> The quirk below tries to find the HPET base address in case 1. But in
+> case 2 this will also fail as HPTC will be 0 below (Probably we can
+> still assume default base address of 0xFED00000 and probe there. But I
+> am still checking on that). I just added couple of chipset ids that I
+> could test on...
+> 
+> On the systems that I tested, HPTC was zero (case 2 above) and patch
+> below did not really help.
+> 
+> I am building on this patch to enable HPET in late init stage based on
+> the the quirk information. Will be interesting to see what this patch
+> says on other ICH based systems that don't have HPET info in ACPI.
 
-[*] In the sense they don't need to compile/link the program themselves, which 
-is clearly legal under the GPL and the FSF intentions (freedom #0).
+In case anyone is interested, here is some information about the HPET on
+nVidia MCP55:
 
-So, people that just worries about "fair use" could interpret it --besides 
-the "official" arguments- as a message that makes clear FSF is not trying to 
-push his agenda into the gray areas of copyright laws.
+With the recent update to BIOS Version 0609, ASUS has added HPET
+Support and a Enable/Disable BIOS option for the M2N SLI Deluxe.
 
-But the very same evidence is used to loudly support an opposite 
-interpretation of FSF [evil] intentions, to weaken the legal strength of the 
-GPL, and to accuse FSF of pushing some hidden and insane arguments.
+00:01.0 0601: 10de:0360 (rev a2)
+00:01.0 ISA bridge: nVidia Corporation MCP55 LPC Bridge (rev a2)
+00: de 10 60 03 0f 00 a0 00 a2 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 39 82
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 00 00
+40: 43 10 39 82 00 f0 ff fe fa 3e ff 00 fa 3e ff 00
+                ^^^^^^^^^^^
+                HPET base address
+[    0.000000] ACPI: HPET id: 0x10de8201 base: 0xfefff000
 
-Presumptuous, to say the least.
+50: fa 3e ff 00 00 5a 62 02 00 00 00 01 00 00 ff ff
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 ff
+70: 10 00 ff ff c5 80 00 00 00 00 44 19 40 06 00 03
+                ^^
+                c1 => HPET disabled
+                c5 => HPET enabled
+80: 09 10 00 00 82 0d 00 00 c0 00 00 01 f0 00 00 00
+90: 80 08 00 00 00 00 00 00 21 47 95 86 ef cd ab 00
+a0: 01 00 30 c0 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 90 02 ef 02 00 08 5f 08 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 10 00 00 00 00 00 00 00
+
+HTH,
 
 -- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/gallir/
+Tobias						PGP: http://9ac7e0bc.uguu.de

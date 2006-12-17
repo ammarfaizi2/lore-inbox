@@ -1,84 +1,216 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753113AbWLQWXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753130AbWLQWek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753113AbWLQWXG (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 17:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753116AbWLQWXG
+	id S1753130AbWLQWek (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 17:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753131AbWLQWek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 17:23:06 -0500
-Received: from mail.enter.net ([216.193.128.40]:40484 "EHLO mmail.enter.net"
+	Sun, 17 Dec 2006 17:34:40 -0500
+Received: from mail.screens.ru ([213.234.233.54]:57725 "EHLO mail.screens.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753113AbWLQWXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 17:23:05 -0500
-X-Greylist: delayed 2181 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 17:23:05 EST
-From: "D. Hazelton" <dhazelton@enter.net>
-To: davids@webmaster.com
-Subject: Re: GPL only modules
-Date: Sun, 17 Dec 2006 16:46:40 -0500
-User-Agent: KMail/1.9.5
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKGEPFAGAC.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEPFAGAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S1753130AbWLQWej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 17:34:39 -0500
+Date: Mon, 18 Dec 2006 01:34:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH, RFC] reimplement flush_workqueue()
+Message-ID: <20061217223416.GA6872@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612171646.40655.dhazelton@enter.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 December 2006 16:32, David Schwartz wrote:
-> > I would argue that this is _particularly_ pertinent with regards to
-> > Linux.  For example, if you look at many of our atomics or locking
-> > operations a good number of them (depending on architecture and
-> > version) are inline assembly that are directly output into the code
-> > which uses them.  As a result any binary module which uses those
-> > functions from the Linux headers is fairly directly a derivative work
-> > of the GPL headers because it contains machine code translated
-> > literally from GPLed assembly code found therein.  There are also a
-> > fair number of large perhaps-wrongly inline functions of which the
-> > use of any one would be likely to make the resulting binary
-> > "derivative".
->
-> That's not protectable expression under United States law. See Lexmark v.
-> Static Controls and the analogous case of the TLP (ignore the DMCA stuff in
-> that case, that's not relevant). If you want to make that kind of content
-> protectable, you have to get it out of the header files.
->
-> You cannot protect, by copyright, every reasonably practical way of
-> performing a function. Only a patent can do that. If taking something is
-> reasonably necessary to express a particular idea (and a Linux module for
-> the ATI X850 card is an idea), then that something cannot be protected by
-> copyright when it is used to express that idea. (Even if it would clearly
-> be protectably expression in another context.)
->
-> The premise of copyright is that there are millions of equally-good ways to
-> express the same idea or perform the same function, and you creatively pick
-> one, and that choice is protected. But if I'm developing a Linux module for
-> a particular network card, choosing to use the Linux kernel header files is
-> the only practical choice to perform that particular function. So their
-> content is not protectable when used in that context. (If you make another
-> way to do it, then the content becomes protectable in that context again.)
->
-> IANAL.
->
-> DS
+Remove ->remove_sequence, ->insert_sequence, and ->work_done from
+struct cpu_workqueue_struct. To implement flush_workqueue() we can
+queue a barrier work on each CPU and wait for its completition.
 
-Agreed. You missed the point. Since the Linux Kernel header files contain a 
-chunk of the source code for the kernel in the form of the macros for locking 
-et. al. then using the headers - including that code in your module - makes 
-it a derivative work.
+We don't need to worry about CPU going down while we are are sleeping
+on the completition. take_over_work() will move this work on another
+CPU, and the handler will wake up us eventually.
 
-Actually, thinking about it, the way a Linux driver module works actually 
-seems to make *ANY* driver a derivative work, because they are loaded into 
-the kernels memory space and cannot function without having that done.
+NOTE: I removed 'int cpu' parameter, flush_workqueue() locks/unlocks
+workqueue_mutex unconditionally. It may be restored, but I think it
+doesn't make much sense, we take the mutex for the very short time,
+and the code becomes simpler.
 
-*IF* the "Usermode Driver" interface that is being worked on ever proves 
-useful then, and only then, could you consider it *NOT* a derivative work. 
-Because then the only thing it is using *IS* an interface, not complete 
-chunks of the source as generated when the pre-processor finishes running 
-through the file.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-But as David said - IANAL
+ workqueue.c |   87 ++++++++++++++++++++----------------------------------------
+ 1 files changed, 29 insertions(+), 58 deletions(-)
 
-D. Hazelton
+--- mm-6.20-rc1/kernel/workqueue.c~1_flush_q	2006-12-18 00:56:58.000000000 +0300
++++ mm-6.20-rc1/kernel/workqueue.c	2006-12-18 01:13:22.000000000 +0300
+@@ -36,23 +36,13 @@
+ /*
+  * The per-CPU workqueue (if single thread, we always use the first
+  * possible cpu).
+- *
+- * The sequence counters are for flush_scheduled_work().  It wants to wait
+- * until all currently-scheduled works are completed, but it doesn't
+- * want to be livelocked by new, incoming ones.  So it waits until
+- * remove_sequence is >= the insert_sequence which pertained when
+- * flush_scheduled_work() was called.
+  */
+ struct cpu_workqueue_struct {
+ 
+ 	spinlock_t lock;
+ 
+-	long remove_sequence;	/* Least-recently added (next to run) */
+-	long insert_sequence;	/* Next to add */
+-
+ 	struct list_head worklist;
+ 	wait_queue_head_t more_work;
+-	wait_queue_head_t work_done;
+ 
+ 	struct workqueue_struct *wq;
+ 	struct task_struct *thread;
+@@ -138,8 +128,6 @@ static int __run_work(struct cpu_workque
+ 		f(work);
+ 
+ 		spin_lock_irqsave(&cwq->lock, flags);
+-		cwq->remove_sequence++;
+-		wake_up(&cwq->work_done);
+ 		ret = 1;
+ 	}
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+@@ -187,7 +175,6 @@ static void __queue_work(struct cpu_work
+ 	spin_lock_irqsave(&cwq->lock, flags);
+ 	set_wq_data(work, cwq);
+ 	list_add_tail(&work->entry, &cwq->worklist);
+-	cwq->insert_sequence++;
+ 	wake_up(&cwq->more_work);
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+ }
+@@ -338,8 +325,6 @@ static void run_workqueue(struct cpu_wor
+ 		}
+ 
+ 		spin_lock_irqsave(&cwq->lock, flags);
+-		cwq->remove_sequence++;
+-		wake_up(&cwq->work_done);
+ 	}
+ 	cwq->run_depth--;
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+@@ -394,45 +379,39 @@ static int worker_thread(void *__cwq)
+ 	return 0;
+ }
+ 
+-/*
+- * If cpu == -1 it's a single-threaded workqueue and the caller does not hold
+- * workqueue_mutex
+- */
+-static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq, int cpu)
++struct wq_barrier {
++	struct work_struct	work;
++	struct completion	done;
++};
++
++static void wq_barrier_func(struct work_struct *work)
++{
++	struct wq_barrier *barr = container_of(work, struct wq_barrier, work);
++	complete(&barr->done);
++}
++
++static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq)
+ {
+ 	if (cwq->thread == current) {
+ 		/*
+ 		 * Probably keventd trying to flush its own queue. So simply run
+ 		 * it by hand rather than deadlocking.
+ 		 */
+-		if (cpu != -1)
+-			mutex_unlock(&workqueue_mutex);
++		mutex_unlock(&workqueue_mutex);
+ 		run_workqueue(cwq);
+-		if (cpu != -1)
+-			mutex_lock(&workqueue_mutex);
++		mutex_lock(&workqueue_mutex);
+ 	} else {
+-		DEFINE_WAIT(wait);
+-		long sequence_needed;
++		struct wq_barrier barr = {
++			.work = __WORK_INITIALIZER(barr.work, wq_barrier_func),
++			.done = COMPLETION_INITIALIZER_ONSTACK(barr.done),
++		};
+ 
+-		spin_lock_irq(&cwq->lock);
+-		sequence_needed = cwq->insert_sequence;
++		__set_bit(WORK_STRUCT_PENDING, &barr.work.management);
++		__queue_work(cwq, &barr.work);
+ 
+-		while (sequence_needed - cwq->remove_sequence > 0) {
+-			prepare_to_wait(&cwq->work_done, &wait,
+-					TASK_UNINTERRUPTIBLE);
+-			spin_unlock_irq(&cwq->lock);
+-			if (cpu != -1)
+-				mutex_unlock(&workqueue_mutex);
+-			schedule();
+-			if (cpu != -1) {
+-				mutex_lock(&workqueue_mutex);
+-				if (!cpu_online(cpu))
+-					return; /* oops, CPU unplugged */
+-			}
+-			spin_lock_irq(&cwq->lock);
+-		}
+-		finish_wait(&cwq->work_done, &wait);
+-		spin_unlock_irq(&cwq->lock);
++		mutex_unlock(&workqueue_mutex);
++		wait_for_completion(&barr.done);
++		mutex_lock(&workqueue_mutex);
+ 	}
+ }
+ 
+@@ -443,30 +422,25 @@ static void flush_cpu_workqueue(struct c
+  * Forces execution of the workqueue and blocks until its completion.
+  * This is typically used in driver shutdown handlers.
+  *
+- * This function will sample each workqueue's current insert_sequence number and
+- * will sleep until the head sequence is greater than or equal to that.  This
+- * means that we sleep until all works which were queued on entry have been
+- * handled, but we are not livelocked by new incoming ones.
++ * We sleep until all works which were queued on entry have been handled,
++ * but we are not livelocked by new incoming ones.
+  *
+  * This function used to run the workqueues itself.  Now we just wait for the
+  * helper threads to do it.
+  */
+ void fastcall flush_workqueue(struct workqueue_struct *wq)
+ {
+-	might_sleep();
+-
++	mutex_lock(&workqueue_mutex);
+ 	if (is_single_threaded(wq)) {
+ 		/* Always use first cpu's area. */
+-		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
+-					-1);
++		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
+ 	} else {
+ 		int cpu;
+ 
+-		mutex_lock(&workqueue_mutex);
+ 		for_each_online_cpu(cpu)
+-			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu), cpu);
+-		mutex_unlock(&workqueue_mutex);
++			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
+ 	}
++	mutex_unlock(&workqueue_mutex);
+ }
+ EXPORT_SYMBOL_GPL(flush_workqueue);
+ 
+@@ -479,12 +453,9 @@ static struct task_struct *create_workqu
+ 	spin_lock_init(&cwq->lock);
+ 	cwq->wq = wq;
+ 	cwq->thread = NULL;
+-	cwq->insert_sequence = 0;
+-	cwq->remove_sequence = 0;
+ 	cwq->freezeable = freezeable;
+ 	INIT_LIST_HEAD(&cwq->worklist);
+ 	init_waitqueue_head(&cwq->more_work);
+-	init_waitqueue_head(&cwq->work_done);
+ 
+ 	if (is_single_threaded(wq))
+ 		p = kthread_create(worker_thread, cwq, "%s", wq->name);
+

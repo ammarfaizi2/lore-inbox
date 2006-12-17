@@ -1,216 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753130AbWLQWek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753134AbWLQWhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753130AbWLQWek (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 17:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753131AbWLQWek
+	id S1753134AbWLQWhd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 17:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753135AbWLQWhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 17:34:40 -0500
-Received: from mail.screens.ru ([213.234.233.54]:57725 "EHLO mail.screens.ru"
+	Sun, 17 Dec 2006 17:37:32 -0500
+Received: from z2.cat.iki.fi ([212.16.98.133]:38237 "EHLO z2.cat.iki.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753130AbWLQWej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 17:34:39 -0500
-Date: Mon, 18 Dec 2006 01:34:16 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH, RFC] reimplement flush_workqueue()
-Message-ID: <20061217223416.GA6872@tv-sign.ru>
+	id S1753134AbWLQWhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 17:37:32 -0500
+Date: Mon, 18 Dec 2006 00:37:30 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: "J.H." <warthog9@kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       hpa@zytor.com, webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+Message-ID: <20061217223730.GW10054@mea-ext.zmailer.org>
+References: <20061214223718.GA3816@elf.ucw.cz> <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <45858B3A.5050804@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <45858B3A.5050804@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove ->remove_sequence, ->insert_sequence, and ->work_done from
-struct cpu_workqueue_struct. To implement flush_workqueue() we can
-queue a barrier work on each CPU and wait for its completition.
+On Sun, Dec 17, 2006 at 10:23:54AM -0800, Randy Dunlap wrote:
+> J.H. wrote:
+...
+> >The root cause boils down to with git, gitweb and the normal mirroring
+> >on the frontend machines our basic working set no longer stays resident
+> >in memory, which is forcing more and more to actively go to disk causing
+> >a much higher I/O load.  You have the added problem that one of the
+> >frontend machines is getting hit harder than the other due to several
+> >factors: various DNS servers not round robining, people explicitly
+> >hitting [git|mirrors|www|etc]1 instead of 2 for whatever reason and
+> >probably several other factors we aren't aware of.  This has caused the
+> >average load on that machine to hover around 150-200 and if for whatever
+> >reason we have to take one of the machines down the load on the
+> >remaining machine will skyrocket to 2000+.  
 
-We don't need to worry about CPU going down while we are are sleeping
-on the completition. take_over_work() will move this work on another
-CPU, and the handler will wake up us eventually.
+Relaying on DNS and clients doing round-robin load-balancing is doomed.
 
-NOTE: I removed 'int cpu' parameter, flush_workqueue() locks/unlocks
-workqueue_mutex unconditionally. It may be restored, but I think it
-doesn't make much sense, we take the mutex for the very short time,
-and the code becomes simpler.
+You really, REALLY, need external L4 load-balancer switches.
+(And installation help from somebody who really knows how to do this
+kind of services on a cluster.)
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Basic config features include, of course:
+ - number of parallel active connections with each protocol
+ - availability of each served protocol  (e.g. one can shutdown rsync
+   at one server, and new rsync connections get pushed elsewere)
+ - running load-balance of each served protocol separately
+ - server load monitoring and letting it bias new connections to nodes
+   not so utterly loaded
+ - allowing direct access to each server in addition to the access
+   via cluster service
+ - some sort of connection persistence, only for HTTP access ?
+   (ftp and rsync can do nicely without)
 
- workqueue.c |   87 ++++++++++++++++++++----------------------------------------
- 1 files changed, 29 insertions(+), 58 deletions(-)
+> >Since it's apparent not everyone is aware of what we are doing, I'll
+> >mention briefly some of the bigger points.
+...
+> >- We've cut back on the number of ftp and rsync users to the machines.
+> >Basically we are cutting back where we can in an attempt to keep the
+> >load from spiraling out of control, this helped a bit when we recently
+> >had to take one of the machines down and instead of loads spiking into
+> >the 2000+ range we peaked at about 500-600 I believe.
 
---- mm-6.20-rc1/kernel/workqueue.c~1_flush_q	2006-12-18 00:56:58.000000000 +0300
-+++ mm-6.20-rc1/kernel/workqueue.c	2006-12-18 01:13:22.000000000 +0300
-@@ -36,23 +36,13 @@
- /*
-  * The per-CPU workqueue (if single thread, we always use the first
-  * possible cpu).
-- *
-- * The sequence counters are for flush_scheduled_work().  It wants to wait
-- * until all currently-scheduled works are completed, but it doesn't
-- * want to be livelocked by new, incoming ones.  So it waits until
-- * remove_sequence is >= the insert_sequence which pertained when
-- * flush_scheduled_work() was called.
-  */
- struct cpu_workqueue_struct {
- 
- 	spinlock_t lock;
- 
--	long remove_sequence;	/* Least-recently added (next to run) */
--	long insert_sequence;	/* Next to add */
--
- 	struct list_head worklist;
- 	wait_queue_head_t more_work;
--	wait_queue_head_t work_done;
- 
- 	struct workqueue_struct *wq;
- 	struct task_struct *thread;
-@@ -138,8 +128,6 @@ static int __run_work(struct cpu_workque
- 		f(work);
- 
- 		spin_lock_irqsave(&cwq->lock, flags);
--		cwq->remove_sequence++;
--		wake_up(&cwq->work_done);
- 		ret = 1;
- 	}
- 	spin_unlock_irqrestore(&cwq->lock, flags);
-@@ -187,7 +175,6 @@ static void __queue_work(struct cpu_work
- 	spin_lock_irqsave(&cwq->lock, flags);
- 	set_wq_data(work, cwq);
- 	list_add_tail(&work->entry, &cwq->worklist);
--	cwq->insert_sequence++;
- 	wake_up(&cwq->more_work);
- 	spin_unlock_irqrestore(&cwq->lock, flags);
- }
-@@ -338,8 +325,6 @@ static void run_workqueue(struct cpu_wor
- 		}
- 
- 		spin_lock_irqsave(&cwq->lock, flags);
--		cwq->remove_sequence++;
--		wake_up(&cwq->work_done);
- 	}
- 	cwq->run_depth--;
- 	spin_unlock_irqrestore(&cwq->lock, flags);
-@@ -394,45 +379,39 @@ static int worker_thread(void *__cwq)
- 	return 0;
- }
- 
--/*
-- * If cpu == -1 it's a single-threaded workqueue and the caller does not hold
-- * workqueue_mutex
-- */
--static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq, int cpu)
-+struct wq_barrier {
-+	struct work_struct	work;
-+	struct completion	done;
-+};
-+
-+static void wq_barrier_func(struct work_struct *work)
-+{
-+	struct wq_barrier *barr = container_of(work, struct wq_barrier, work);
-+	complete(&barr->done);
-+}
-+
-+static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq)
- {
- 	if (cwq->thread == current) {
- 		/*
- 		 * Probably keventd trying to flush its own queue. So simply run
- 		 * it by hand rather than deadlocking.
- 		 */
--		if (cpu != -1)
--			mutex_unlock(&workqueue_mutex);
-+		mutex_unlock(&workqueue_mutex);
- 		run_workqueue(cwq);
--		if (cpu != -1)
--			mutex_lock(&workqueue_mutex);
-+		mutex_lock(&workqueue_mutex);
- 	} else {
--		DEFINE_WAIT(wait);
--		long sequence_needed;
-+		struct wq_barrier barr = {
-+			.work = __WORK_INITIALIZER(barr.work, wq_barrier_func),
-+			.done = COMPLETION_INITIALIZER_ONSTACK(barr.done),
-+		};
- 
--		spin_lock_irq(&cwq->lock);
--		sequence_needed = cwq->insert_sequence;
-+		__set_bit(WORK_STRUCT_PENDING, &barr.work.management);
-+		__queue_work(cwq, &barr.work);
- 
--		while (sequence_needed - cwq->remove_sequence > 0) {
--			prepare_to_wait(&cwq->work_done, &wait,
--					TASK_UNINTERRUPTIBLE);
--			spin_unlock_irq(&cwq->lock);
--			if (cpu != -1)
--				mutex_unlock(&workqueue_mutex);
--			schedule();
--			if (cpu != -1) {
--				mutex_lock(&workqueue_mutex);
--				if (!cpu_online(cpu))
--					return; /* oops, CPU unplugged */
--			}
--			spin_lock_irq(&cwq->lock);
--		}
--		finish_wait(&cwq->work_done, &wait);
--		spin_unlock_irq(&cwq->lock);
-+		mutex_unlock(&workqueue_mutex);
-+		wait_for_completion(&barr.done);
-+		mutex_lock(&workqueue_mutex);
- 	}
- }
- 
-@@ -443,30 +422,25 @@ static void flush_cpu_workqueue(struct c
-  * Forces execution of the workqueue and blocks until its completion.
-  * This is typically used in driver shutdown handlers.
-  *
-- * This function will sample each workqueue's current insert_sequence number and
-- * will sleep until the head sequence is greater than or equal to that.  This
-- * means that we sleep until all works which were queued on entry have been
-- * handled, but we are not livelocked by new incoming ones.
-+ * We sleep until all works which were queued on entry have been handled,
-+ * but we are not livelocked by new incoming ones.
-  *
-  * This function used to run the workqueues itself.  Now we just wait for the
-  * helper threads to do it.
-  */
- void fastcall flush_workqueue(struct workqueue_struct *wq)
- {
--	might_sleep();
--
-+	mutex_lock(&workqueue_mutex);
- 	if (is_single_threaded(wq)) {
- 		/* Always use first cpu's area. */
--		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
--					-1);
-+		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
- 	} else {
- 		int cpu;
- 
--		mutex_lock(&workqueue_mutex);
- 		for_each_online_cpu(cpu)
--			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu), cpu);
--		mutex_unlock(&workqueue_mutex);
-+			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
- 	}
-+	mutex_unlock(&workqueue_mutex);
- }
- EXPORT_SYMBOL_GPL(flush_workqueue);
- 
-@@ -479,12 +453,9 @@ static struct task_struct *create_workqu
- 	spin_lock_init(&cwq->lock);
- 	cwq->wq = wq;
- 	cwq->thread = NULL;
--	cwq->insert_sequence = 0;
--	cwq->remove_sequence = 0;
- 	cwq->freezeable = freezeable;
- 	INIT_LIST_HEAD(&cwq->worklist);
- 	init_waitqueue_head(&cwq->more_work);
--	init_waitqueue_head(&cwq->work_done);
- 
- 	if (is_single_threaded(wq))
- 		p = kthread_create(worker_thread, cwq, "%s", wq->name);
+How about having filesystems mounted with "noatime" ?
+Or do you already do that ?
 
+> >So we know the problem is there, and we are working on it - we are
+> >getting e-mails about it if not daily than every other day or so.  If
+> >there are suggestions we are willing to hear them - but the general
+> >feeling with the admins is that we are probably hitting the biggest
+> >problems already.
+
+/Matti Aarnio

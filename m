@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752412AbWLQKyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752410AbWLQK51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752412AbWLQKyu (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 05:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752410AbWLQKyt
+	id S1752410AbWLQK51 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 05:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752411AbWLQK51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 05:54:49 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:42627 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752408AbWLQKys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 05:54:48 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Sun, 17 Dec 2006 11:56:36 +0100
-User-Agent: KMail/1.9.1
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com> <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
-In-Reply-To: <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
+	Sun, 17 Dec 2006 05:57:27 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:38260 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752408AbWLQK50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 05:57:26 -0500
+Date: Sun, 17 Dec 2006 11:57:24 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <20061214173827.GC3452@infradead.org>
+Message-ID: <Pine.LNX.4.62.0612171155590.27120@pademelon.sonytel.be>
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
+ <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
+ <458171C1.3070400@garzik.org> <Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
+ <20061214170841.GA11196@tuatara.stupidest.org> <20061214173827.GC3452@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612171156.37232.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 17 December 2006 11:11, Geert Uytterhoeven wrote:
-> On Thu, 14 Dec 2006, David Schwartz wrote:
-> > > And there's also the common misconception all costumers had enough
-> > > information when buying something. If you are a normal Linux user and
-> > > buy some hardware labelled "runs under Linux", it could turn out that's
-> > > with a Windows driver running under ndiswrapper...
+On Thu, 14 Dec 2006, Christoph Hellwig wrote:
+> On Thu, Dec 14, 2006 at 09:08:41AM -0800, Chris Wedgwood wrote:
+> > On Thu, Dec 14, 2006 at 09:03:57AM -0800, Linus Torvalds wrote:
 > > 
-> > That is something that I think is well worth fixing. Doesn't Linus own the
-> > trademark 'Linux'? How about some rules for use of that trademark and a
-> > 'Works with Linux' logo that can only be used if the hardware specifications
-> > are provided?
-> 
-> Exactly my thoughts...
-> 
-> > Let them provide a closed-source driver if they want. Let them provide
-> > user-space applications for which no source is provided if they want. But
-> > don't let them use the logo unless they release sufficient information to
-> > allow people to develop their own drivers and applications to interface with
-> > the hardware.
+> > > I actually think the EXPORT_SYMBOL_GPL() thing is a good thing, if
+> > > done properly (and I think we use it fairly well).
+> > >
+> > > I think we _can_ do things where we give clear hints to people that
+> > > "we think this is such an internal Linux thing that you simply
+> > > cannot use this without being considered a derived work".
 > > 
-> > That makes it clear that it's not about giving us the fruits of years of
-> > your own work but that it's about enabling us to do our own work. (I would
-> > have no objection to also requiring them to provide a minimal open-source
-> > driver. I'm not trying to work out the exact terms here, just get the idea
-> > out.)
+> > Then why not change the name to something more along those lines?
 > 
-> Since `works with' may sound a bit too vague, something like
-> `LinuxFriendly(tm)', with a happy penguin logo?
+> Yes, EXPORT_SYMBOL_INTERNAL would make a lot more sense.
 
-I like this idea.
+I find all those names confusing. If these special symbols are
+GPL/INTERNAL/WHATEVER, what are the other exported symbols?
 
-Greetings,
-Rafael
+GPL -> Non-GPL?
+INTERNAL -> External?
 
+Gr{oetje,eeting}s,
 
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

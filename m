@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753154AbWLQWuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753176AbWLQXDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753154AbWLQWuP (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 17:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753156AbWLQWuP
+	id S1753176AbWLQXDY (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 18:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753181AbWLQXDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 17:50:15 -0500
-Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:58107 "EHLO
-	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753154AbWLQWuO (ORCPT
+	Sun, 17 Dec 2006 18:03:24 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:50474 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753176AbWLQXDX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 17:50:14 -0500
-X-Greylist: delayed 4164 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 17:50:13 EST
-Date: Sun, 17 Dec 2006 23:40:17 +0200
-From: Riku Voipio <riku.voipio@iki.fi>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: Martin Michlmayr <tbm@cyrius.com>, linux-kernel@vger.kernel.org,
-       romieu@fr.zoreil.com, rmk@arm.linux.org.uk, dan.j.williams@intel.com
-Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
-Message-ID: <20061217214016.GA28139@kos.to>
-References: <20061215210329.GB14860@xi.wantstofly.org> <20061215211435.GB10367@flint.arm.linux.org.uk> <20061216230901.GA23143@xi.wantstofly.org> <20061216233134.GA25177@electric-eye.fr.zoreil.com> <20061216235245.GA23238@xi.wantstofly.org> <20061217192812.GD17535@deprecation.cyrius.com> <20061217195635.GA10181@kos.to> <20061217195728.GF23747@xi.wantstofly.org> <20061217210209.GA13632@kos.to> <20061217211313.GG23747@xi.wantstofly.org>
+	Sun, 17 Dec 2006 18:03:23 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH] Fix sparsemem on Cell
+Date: Mon, 18 Dec 2006 00:02:09 +0100
+User-Agent: KMail/1.9.5
+Cc: Dave Hansen <haveblue@us.ibm.com>, cbe-oss-dev@ozlabs.org, akpm@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, hch@infradead.org,
+       paulus@samba.org, mkravetz@us.ibm.com, gone@us.ibm.com
+References: <20061215171411.E3EE01AD@localhost.localdomain>
+In-Reply-To: <20061215171411.E3EE01AD@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061217211313.GG23747@xi.wantstofly.org>
-X-message-flag: Warning: message not sent with a DRM-Certified client
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200612180002.11079.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 17, 2006 at 10:13:13PM +0100, Lennert Buytenhek wrote:
-> On Sun, Dec 17, 2006 at 11:02:10PM +0200, Riku Voipio wrote:
-> 
-> > > > bah. 2.6.20-git shows nothing (with or without Lennert's patch) after
-> > > > the following:
-> >  
-> > > > Uncompressing Linux..........................................................................................done, booting the kernel.
-> > > 
-> > > Try the printascii()-in-printk() hack in my svn tree.
-> > 
-> > Thanks, that was priceless advice. I reverted 
-> > da2c12a279ae225f3d4696f76cb3b32a5bec5bfb "[ARM] Clean up ioremap code"
-> > and n2100 booted fine.
- 
-> Can you try with da2c12a279ae225f3d4696f76cb3b32a5bec5bfb with the
-> following patch applied?
- 
-> 	http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=4030/1
+On Friday 15 December 2006 18:14, Dave Hansen wrote:
+> +       if (system_state >= SYSTEM_RUNNING)
+> +               return 1;
+> +       if (!early_pfn_valid(pfn))
+> +               return 0;
+> +       if (!early_pfn_in_nid(pfn, nid))
+> +               return 0;
 
-Boots fine. 
+I haven't tried it, but I assume this is still wrong. On cell,
+we didn't actually hit the case where the init sections have
+been overwritten, since we call __add_pages from an initcall.
+
+However, the pages we add are not part of the early_node_map,
+so early_pfn_in_nid() returns a bogus result, causing some
+page structs not to get initialized. I believe your patch
+is going in the right direction, but it does not solve the
+bug we have...
+
+	Arnd <><

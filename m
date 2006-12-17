@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbWLQSaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932345AbWLQSb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWLQSaA (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 13:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWLQSaA
+	id S932345AbWLQSb5 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 13:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWLQSb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 13:30:00 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:44704 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932342AbWLQS37 (ORCPT
+	Sun, 17 Dec 2006 13:31:57 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:33266 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932345AbWLQSb5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 13:29:59 -0500
-X-Originating-Ip: 24.148.236.183
-Date: Sun, 17 Dec 2006 13:25:16 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Zach Brown <zach.brown@oracle.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lots of code could be simplified by using ARRAY_SIZE()
-In-Reply-To: <20061217102741.58d2c425.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.64.0612171324350.30593@localhost.localdomain>
-References: <Pine.LNX.4.64.0612131450270.5979@localhost.localdomain>
- <2F8F687E-C5E5-4F7D-9585-97DA97AE1376@oracle.com>
- <Pine.LNX.4.64.0612141721580.10217@localhost.localdomain>
- <4581DAB0.2060505@s5r6.in-berlin.de> <Pine.LNX.4.61.0612151135330.22867@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0612151547290.6136@localhost.localdomain>
- <Pine.LNX.4.63.0612152351360.16895@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.64.0612171301020.24836@localhost.localdomain>
- <20061217102741.58d2c425.randy.dunlap@oracle.com>
+	Sun, 17 Dec 2006 13:31:57 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45858CF2.7080402@s5r6.in-berlin.de>
+Date: Sun, 17 Dec 2006 19:31:14 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	RCVD_IN_SORBS_DUL 2.05)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ieee1394 in 2.6.20-rc1 (was Re: Linux 2.6.20-rc1)
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <45818E6E.8020505@s5r6.in-berlin.de> <200612142217.44840.gene.heskett@verizon.net> <200612171311.38763.gene.heskett@verizon.net>
+In-Reply-To: <200612171311.38763.gene.heskett@verizon.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2006, Randy Dunlap wrote:
+Gene Heskett wrote:
+...
+> while I didn't try 
+> to capture a 2 hour movie, I did use kino to control the camera playback, 
+> rewind etc stuff for about 10 minutes and had no problems whatsoever.
+...
+> The only entry in the messages log for all this was:
+> 
+> Dec 17 12:47:13 coyote kernel: WARNING: The dv1394 driver is unsupported 
+> and will be removed from Linux soon. Use raw1394 instead.
 
-> On Sun, 17 Dec 2006 13:13:59 -0500 (EST) Robert P. J. Day wrote:
->
-> >
-> >   so here's the end result of my experiment to replace unnecessary
-> > code snippets with an invocation of the ARRAY_SIZE() macro from
-> > include/linux/kernel.h.  i've attached the script that i ran on the
-> > entire tree, then (after adding al viro's connector patch), did:
-> >
-> >   $ make allyesconfig	# for the stress factor
-> >   $ make
-> >
-> > to see what would happen.
-> >
-> >   amazingly, the compile worked all the way down to:
-> >
-> >   AS      arch/i386/boot/bootsect.o
-> >   LD      arch/i386/boot/bootsect
-> >   AS      arch/i386/boot/setup.o
-> >   LD      arch/i386/boot/setup
-> >   AS      arch/i386/boot/compressed/head.o
-> >   CC      arch/i386/boot/compressed/misc.o
-> >   OBJCOPY arch/i386/boot/compressed/vmlinux.bin
-> >   HOSTCC  arch/i386/boot/compressed/relocs
-> > arch/i386/boot/compressed/relocs.c: In function 'sym_type':
-> > arch/i386/boot/compressed/relocs.c:72: warning: implicit declaration of function 'ARRAY_SIZE'
->
-> That's a userspace program and shouldn't use kernel.h.
+Is your version of kino still using dv1394 or does it work without
+dv1394 loaded too?
 
-ah, quite right, my bad.  eggnog hangover.
+> Dec 17 12:47:13 coyote kernel: ieee1394: raw1394: /dev/raw1394 device 
+> initialized
+> 
+> So whatever was done to the ieee1394 stuffs between 2.6.19 and 2.6.20-rc1 
+> was a definite, and much appreciated improvement,
+...
 
-rday
+>From what went into linux/drivers/ieee1394 after 2.6.19 was released,
+I'm puzzled how this happened. :-)
+-- 
+Stefan Richter
+-=====-=-==- ==-- =---=
+http://arcgraph.de/sr/

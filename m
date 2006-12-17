@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422891AbWLQAE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751371AbWLQAUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422891AbWLQAE4 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 16 Dec 2006 19:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422894AbWLQAE4
+	id S1751371AbWLQAUM (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 16 Dec 2006 19:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWLQAUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Dec 2006 19:04:56 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55760 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422891AbWLQAEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Dec 2006 19:04:55 -0500
-Date: Sat, 16 Dec 2006 16:04:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tobias Diedrich <ranma+kernel@tdiedrich.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: IO-APIC + timer doesn't work
-In-Reply-To: <20061216235513.GA2424@melchior.yamamaya.is-a-geek.org>
-Message-ID: <Pine.LNX.4.64.0612161603070.3479@woody.osdl.org>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
- <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0612160955370.3557@woody.osdl.org>
- <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org>
- <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org>
- <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org>
- <20061216235513.GA2424@melchior.yamamaya.is-a-geek.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 16 Dec 2006 19:20:11 -0500
+Received: from [85.204.20.254] ([85.204.20.254]:33410 "EHLO megainternet.ro"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751371AbWLQAUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Dec 2006 19:20:10 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Dec 2006 19:20:09 EST
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Andrei Popa <andrei.popa@i-neo.ro>
+Reply-To: andrei.popa@i-neo.ro
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: I-NEO
+Date: Sun, 17 Dec 2006 02:13:18 +0200
+Message-Id: <1166314399.7018.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+I had filesystem data corruption with rtorrent with 2.6.19.
+I tried recent git with Peter Zijlstra patch
+http://lkml.org/lkml/2006/12/16/144 and it seems that the problem is
+fixed.
 
+Please CC as I am not subscribed to lkml.
 
-On Sun, 17 Dec 2006, Tobias Diedrich wrote:
-> 
-> No such luck, it still panics and the APIC error is also unchanged.
+Andrei
 
-Ok. I don't see anything wrong off-hand, but I'll keep the patch in the 
-tree in the hopes that Andi and/or Eric can see what's wrong and solve it.
-
-If we don't find a solution, I'll have to revert it, but let's give it a 
-few more days. 
-
-Tobias, can you please make sure to remind me about this if nothing seems 
-to happen? 
-
-Thanks,
-
-			Linus

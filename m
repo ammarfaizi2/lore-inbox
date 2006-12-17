@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932232AbWLQSHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932244AbWLQSJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWLQSHT (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 13:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWLQSHT
+	id S932244AbWLQSJV (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 13:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWLQSJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 13:07:19 -0500
-Received: from homer.mvista.com ([63.81.120.155]:42439 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932232AbWLQSHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 13:07:17 -0500
-Message-ID: <458587AB.5000108@ru.mvista.com>
-Date: Sun, 17 Dec 2006 21:08:43 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sun, 17 Dec 2006 13:09:21 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:48203 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932244AbWLQSJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 13:09:20 -0500
+Date: Sun, 17 Dec 2006 10:08:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: Al Viro <viro@ftp.linux.org.uk>, David Howells <dhowells@redhat.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fallout from atomic_long_t patch
+In-Reply-To: <20061217173201.GA31675@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0612171005440.3479@woody.osdl.org>
+References: <20061217105907.GE17561@ftp.linux.org.uk>
+ <Pine.LNX.4.64.0612170911230.3479@woody.osdl.org> <20061217173201.GA31675@2ka.mipt.ru>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org
-Subject: Re: [-mm patch] drivers/ide/pci/tc86c001.c: make a function static
-References: <20061214225913.3338f677.akpm@osdl.org> <20061216135650.GA3388@stusta.de>
-In-Reply-To: <20061216135650.GA3388@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Adrian Bunk wrote:
 
->>+toshiba-tc86c001-ide-driver-take-2.patch
-
-> This patch makes the needlessly global init_hwif_tc86c001() static.
-
-    Duh, I hoped tha this driver may get into 2.6.20-rc1 and finally 
-overlooked this. Sigh, uou won't believe how much time this driver rewrite 
-spent in an unfinished state in my internal tree... :-/
-
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Sun, 17 Dec 2006, Evgeniy Polyakov wrote:
 > 
-> ---
-> 
-> BTW:
-> I'm not sure whether it'd be a good idea to include such a driver for 
-> the legacy IDE subsystem without a libata based driver for the same 
-> hardware.
+> Delayed work was used to play with different timeouts and thus allow to
+> smooth performance peaks, but then I dropped that idea, so timeout is always
+> zero.
 
-    Well, I'd agree with Alan here. Don't expect me to convert this to libata 
-in the foreseeable future... I'd like to join the folks hacking on libata but 
-this certainly won't happen soon (if at all)...
+Ok, thanks for the explanation.
 
-WBR, Sergei
+> I posted similar patch today to netdev@, which directly used
+> work_pending instead of delayed_work_pending(), but if you will figure
+> this out itself, I'm ok with proposed patch.
+
+If I'm going to get the proper patch from the proper network trees, I'll 
+just drop my patch. Whether you replace "delayed_work" with "work_struct" 
+or not is not something I really care about - if you think you may want to 
+play with the timeout idea in the future, please feel free to continue 
+using delayed_work.
+
+But if you do use delayed work, please use the "delayed_work_pending(&x)" 
+function, rather than doing "work_pending(&x->work)" and knowing about the 
+internals of how the delayed-work structure looks.
+
+So with that out of the way, I'll just expect that I'll get whatever you 
+decide on through Davem's git tree, once his drunken holiday revelry is 
+over ;)
+
+		Linus

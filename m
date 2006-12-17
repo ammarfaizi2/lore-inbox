@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752437AbWLQLJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752418AbWLQLX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752437AbWLQLJs (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 06:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752438AbWLQLJs
+	id S1752418AbWLQLX7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 06:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752453AbWLQLX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 06:09:48 -0500
-Received: from mail.gmx.net ([213.165.64.20]:32877 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752437AbWLQLJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 06:09:47 -0500
-X-Authenticated: #14349625
-Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061217085859.GB2938@elte.hu>
-References: <20061216153346.18200.51408.stgit@localhost.localdomain>
-	 <20061216165738.GA5165@elte.hu>
-	 <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com>
-	 <20061217085859.GB2938@elte.hu>
-Content-Type: text/plain
-Date: Sun, 17 Dec 2006 12:09:42 +0100
-Message-Id: <1166353782.21740.12.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 17 Dec 2006 06:23:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38286 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752418AbWLQLX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 06:23:58 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] kill_something_info: misc cleanups
+References: <20061216200510.GA5535@tv-sign.ru>
+	<20061217101856.GA1285@infradead.org>
+Date: Sun, 17 Dec 2006 04:22:48 -0700
+In-Reply-To: <20061217101856.GA1285@infradead.org> (Christoph Hellwig's
+	message of "Sun, 17 Dec 2006 10:18:56 +0000")
+Message-ID: <m18xh6u5pz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-17 at 09:58 +0100, Ingo Molnar wrote:
-> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> 
-> > Hi Ingo,
-> > 
-> > On 16/12/06, Ingo Molnar <mingo@elte.hu> wrote:
-> > >FYI, i'm working on integrating kmemleak into -rt. Firstly, i needed the
-> > >fixes below when applying it ontop of 2.6.19-rt15.
-> > 
-> > Do you need these fixes to avoid a compiler error? If yes, this is 
-> > caused by a bug in gcc-4.x. The kmemleak container_of macro has 
-> > protection for non-constant offsets passed to container_of but the 
-> > faulty gcc always returns true for builtin_contant_p, even when this 
-> > is not the case. Previous versions (3.4) or one of the latest 4.x gcc 
-> > don't have this bug.
-> > 
-> > I wouldn't extend kmemleak to work around a gcc bug which was already 
-> > fixed.
-> 
-> correct, i needed it for gcc 4.0.2. If you want this feature upstream, 
-> this has to be solved - no way are we going to phase out portions of 
-> gcc4. It's not hard as you can see it from my patch, non-static 
-> container_of is very rare. We do alot of other hackery to keep older 
-> compilers alive, and we only drop compiler support if some important 
-> feature really, really needs new gcc and a sane workaround is not 
-> possible.
+Christoph Hellwig <hch@infradead.org> writes:
 
-If that's because of things like the dinky testcase below,
+> On Sat, Dec 16, 2006 at 11:05:10PM +0300, Oleg Nesterov wrote:
+>>  static int kill_something_info(int sig, struct siginfo *info, int pid)
+>>  {
+>>  	int ret;
+>> +
+>> +	rcu_read_lock();
+>> +	if (pid > 0) {
+>> +		ret = kill_pid_info(sig, info, find_pid(pid));
+>> +	} else if (pid == -1) {
+>> +		struct task_struct *p;
+>> +		int found = 0;
+>> +
+>> +		ret = 0;
+>> +		read_lock(&tasklist_lock);
+>> +		for_each_process(p)
+>> +			if (!is_init(p) && p != current->group_leader) {
+>> +				int err = group_send_sig_info(sig, info, p);
+>> +				if (err != -EPERM)
+>> +					ret = err;
+>> +				found = 1;
+>> +			}
+>> +		read_unlock(&tasklist_lock);
+>> +		if (!found)
+>> +			ret = -ESRCH;
+>
+> This branch should probably be factored out into a helper of it's own:
 
-   int main (int argc, char *argv[])
-   {
-     static int a[] = { __builtin_constant_p (argc) ? 1 : 0 };
-     return a[0];
-   }
+The proper name would be something like kill_all_info().  As we are
+talking about the group of all processes.
 
-AFAIK, no SuSE compiler can handle it.  I just build/tested their latest
-version,
+I am sitting here wondering why we bother to ignore init, as init
+is protected from all signals it doesn't explicitly setup a signal
+handler for.  It is probably worth taking a quick look at the common
+shutdown scripts and sysv init and see if anything actually cares if
+we simply remove the is_init check.
 
-   gcc version 4.1.2 20061129 (prerelease) (SUSE Linux)
+The only two signals I know that are commonly handled this way
+are kill(-1, SIGTERM) and kill(-1, SIGKILL);
 
-and it still can't deal with that without gcc41-rh198849.patch being
-applied.
+And a very quick look at sysvinit-2.86 shows that it doesn't setup a
+handler for SIGTERM.  So I believe we can delete we can delete
+the is_init check entirely without changing anything and with a less
+surprising if anyone ever cares.
 
-	-Mike
+>> +	} else {
+>> +		struct pid *grp = task_pgrp(current);
+>> +		if (pid != 0)
+>> +			grp = find_pid(-pid);
+>> +		ret = kill_pgrp_info(sig, info, grp);
+>> +	}
+>
+> This also looks rather unreadable, an
+>
+> 	} else if (pid) {
+> 		ret = kill_pgrp_info(sig, info, find_pid(-pid));
+> 	} else {
+> 		ret = kill_pgrp_info(sig, info, task_pgrp(current));
+> 	}
+>
+> might be slightly more code, but also a lot more readable.
 
+And that part is basically what we have now, just reshuffled.
+
+Eric

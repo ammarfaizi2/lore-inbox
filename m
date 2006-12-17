@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752376AbWLQKfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752393AbWLQKtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752376AbWLQKfG (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 05:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752375AbWLQKfF
+	id S1752393AbWLQKtn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 05:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752394AbWLQKtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 05:35:05 -0500
-Received: from vervifontaine.sonytel.be ([80.88.33.193]:38014 "EHLO
-	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752376AbWLQKfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 05:35:04 -0500
-X-Greylist: delayed 1425 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 05:35:04 EST
-Date: Sun, 17 Dec 2006 11:11:12 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: David Schwartz <davids@webmaster.com>
-cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
-References: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
+	Sun, 17 Dec 2006 05:49:43 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43097 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752392AbWLQKtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 05:49:42 -0500
+Date: Sun, 17 Dec 2006 11:49:27 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@lazybastard.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] more Driver core patches for 2.6.19
+Message-ID: <20061217104927.GA28629@elf.ucw.cz>
+References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org> <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com> <Pine.LNX.4.64.0612131259260.5718@woody.osdl.org> <20061216090532.GF4049@ucw.cz> <20061216110414.GA1862@lazybastard.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061216110414.GA1862@lazybastard.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2006, David Schwartz wrote:
-> > And there's also the common misconception all costumers had enough
-> > information when buying something. If you are a normal Linux user and
-> > buy some hardware labelled "runs under Linux", it could turn out that's
-> > with a Windows driver running under ndiswrapper...
+Hi!
+
+> > Well.. it is easier to debug in userspace. While bad hw access can
+> > still kill the box, bad free() will not, and most bugs in early
+> > developent are actually of 2nd kind.
 > 
-> That is something that I think is well worth fixing. Doesn't Linus own the
-> trademark 'Linux'? How about some rules for use of that trademark and a
-> 'Works with Linux' logo that can only be used if the hardware specifications
-> are provided?
+> Isn't that what qemu is for?
 
-Exactly my thoughts...
+I do not think you can reasonably debug driver for new hardware under
+qemu.
 
-> Let them provide a closed-source driver if they want. Let them provide
-> user-space applications for which no source is provided if they want. But
-> don't let them use the logo unless they release sufficient information to
-> allow people to develop their own drivers and applications to interface with
-> the hardware.
-> 
-> That makes it clear that it's not about giving us the fruits of years of
-> your own work but that it's about enabling us to do our own work. (I would
-> have no objection to also requiring them to provide a minimal open-source
-> driver. I'm not trying to work out the exact terms here, just get the idea
-> out.)
-
-Since `works with' may sound a bit too vague, something like
-`LinuxFriendly(tm)', with a happy penguin logo?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Anyway, doing it in userspace is just convenient.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750731AbWLQTQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750804AbWLQTUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWLQTQO (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 14:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWLQTQO
+	id S1750804AbWLQTUR (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 14:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWLQTUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 14:16:14 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:1496 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750731AbWLQTQO (ORCPT
+	Sun, 17 Dec 2006 14:20:17 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:55225 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750804AbWLQTUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 14:16:14 -0500
-X-Greylist: delayed 12022 seconds by postgrey-1.27 at vger.kernel.org; Sun, 17 Dec 2006 14:16:13 EST
-Date: Sun, 17 Dec 2006 20:16:12 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [PATCH] Make lm70_remove a __devexit function
-Message-Id: <20061217201612.1c7ba106.khali@linux-fr.org>
-In-Reply-To: <20061210192151.GA32262@linux-mips.org>
-References: <20061210192151.GA32262@linux-mips.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Dec 2006 14:20:15 -0500
+X-Originating-Ip: 24.148.236.183
+Date: Sun, 17 Dec 2006 14:15:23 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org, Riley@Williams.name
+Subject: [PATCH] Use ARRAY_SIZE() macro in i386 relocs.c file
+Message-ID: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
+	RCVD_IN_SORBS_DUL 2.05)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ralf,
 
-On Sun, 10 Dec 2006 19:21:51 +0000, Ralf Baechle wrote:
-> Saves a few bytes on the module.
-> 
-> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-> 
-> diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
-> index 6ba8473..7eaae38 100644
-> --- a/drivers/hwmon/lm70.c
-> +++ b/drivers/hwmon/lm70.c
-> @@ -126,7 +126,7 @@ out_dev_reg_failed:
->  	return status;
->  }
->  
-> -static int __exit lm70_remove(struct spi_device *spi)
-> +static int __devexit lm70_remove(struct spi_device *spi)
->  {
->  	struct lm70 *p_lm70 = dev_get_drvdata(&spi->dev);
->  
+  Change the explicit code in the relocs.c file to use ARRAY_SIZE()
+and add a definition of ARRAY_SIZE() since this is a userspace program
+and wouldn't include kernel.h.
 
-You're not actually saving memory with this change, as __devexit is
-resolved to either __exit (i.e. nothing changes) or nothing (i.e. the
-code is now always compiled in.) This is a bugfix though as currently
-the code may be striped away while the driver still holds a pointer to
-it.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-Good catch, applied (with a different header comment), thanks.
+---
 
--- 
-Jean Delvare
+  As Randy Dunlap pointed out, the relocs.c file is a userspace
+file and wouldn't include kernel.h so it should be fixed manually to
+use ARRAY_SIZE().
+
+  I'm submitting this patch for that single file simply because this
+file represents the *single* exception to being able to globally make
+the change throughout the entire source tree, so taking this file out
+of the equation means I don't have to constantly treat it as the
+exception, if that's all right.
+
+
+diff --git a/arch/i386/boot/compressed/relocs.c b/arch/i386/boot/compressed/relocs.c
+index 468da89..5b642f4 100644
+--- a/arch/i386/boot/compressed/relocs.c
++++ b/arch/i386/boot/compressed/relocs.c
+@@ -11,6 +11,7 @@
+ #include <endian.h>
+
+ #define MAX_SHDRS 100
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ static Elf32_Ehdr ehdr;
+ static Elf32_Shdr shdr[MAX_SHDRS];
+ static Elf32_Sym  *symtab[MAX_SHDRS];
+@@ -69,7 +70,7 @@ static const char *sym_type(unsigned type)
+ #undef SYM_TYPE
+ 	};
+ 	const char *name = "unknown sym type name";
+-	if (type < sizeof(type_name)/sizeof(type_name[0])) {
++	if (type < ARRAY_SIZE(type_name)) {
+ 		name = type_name[type];
+ 	}
+ 	return name;
+@@ -85,7 +86,7 @@ static const char *sym_bind(unsigned bind)
+ #undef SYM_BIND
+ 	};
+ 	const char *name = "unknown sym bind name";
+-	if (bind < sizeof(bind_name)/sizeof(bind_name[0])) {
++	if (bind < ARRAY_SIZE(bind_name)) {
+ 		name = bind_name[bind];
+ 	}
+ 	return name;
+@@ -102,7 +103,7 @@ static const char *sym_visibility(unsigned visibility)
+ #undef SYM_VISIBILITY
+ 	};
+ 	const char *name = "unknown sym visibility name";
+-	if (visibility < sizeof(visibility_name)/sizeof(visibility_name[0])) {
++	if (visibility < ARRAY_SIZE(visibility_name)) {
+ 		name = visibility_name[visibility];
+ 	}
+ 	return name;
+@@ -126,7 +127,7 @@ static const char *rel_type(unsigned type)
+ #undef REL_TYPE
+ 	};
+ 	const char *name = "unknown type rel type name";
+-	if (type < sizeof(type_name)/sizeof(type_name[0])) {
++	if (type < ARRAY_SIZE(type_name)) {
+ 		name = type_name[type];
+ 	}
+ 	return name;

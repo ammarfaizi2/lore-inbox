@@ -1,129 +1,258 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754588AbWLRVD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754601AbWLRVLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754588AbWLRVD5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 16:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754589AbWLRVD5
+	id S1754601AbWLRVLn (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 16:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754603AbWLRVLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 16:03:57 -0500
-Received: from hu-out-0506.google.com ([72.14.214.239]:50886 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754588AbWLRVD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 16:03:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=C1yjb2z9/pYXv7zWE9pN6RFMaIS/Jn9nbux0/D7mmqvOnCAwezSUMv2QmIS8ZKnirVmfl2E1hZ7DCkUkhR0fbxBSEHbb/WvnRcawmb9GjUem+vfCpDYOuCTlXLmdlaCou6sC9vJoyTis+tUSWOTK1Quv9JI7n4KogGgJnHjqgcA=
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
-	for 2.6.19]
-From: karderio <karderio@gmail.com>
-Reply-To: karderio@gmail.com
+	Mon, 18 Dec 2006 16:11:43 -0500
+Received: from [85.204.20.254] ([85.204.20.254]:49325 "EHLO megainternet.ro"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754601AbWLRVLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 16:11:42 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Andrei Popa <andrei.popa@i-neo.ro>
+Reply-To: andrei.popa@i-neo.ro
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
-References: <1166226982.12721.78.camel@localhost>
-	 <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
-	 <1166236356.12721.142.camel@localhost>
-	 <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+In-Reply-To: <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
+	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	 <1166466272.10372.96.camel@twins>
+	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+	 <1166468651.6983.6.camel@localhost>
+	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
+	 <1166471069.6940.4.camel@localhost>
+	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
 Content-Type: text/plain
-Organization: karderio
-Date: Mon, 18 Dec 2006 22:04:07 +0100
-Message-Id: <1166475847.20449.208.camel@localhost>
+Organization: I-NEO
+Date: Mon, 18 Dec 2006 23:11:37 +0200
+Message-Id: <1166476297.6862.1.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.8.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi :o)
+On Mon, 2006-12-18 at 12:41 -0800, Linus Torvalds wrote:
+> 
+> On Mon, 18 Dec 2006, Linus Torvalds wrote:
+> > 
+> > But at the same time, it's interesting that it still happens when we try 
+> > to re-add the dirty bit. That would tell me that it's one of two cases:
+> 
+> Forget that. There's a third case, which is much more likely:
+> 
+>  - Andrew's patch had a ", 1" where it _should_ have had a ", 0".
+> 
+> This should be fairly easy to test: just change every single ", 1" case in 
+> the patch to ", 0".
+> 
+> The only case that _definitely_ would want ",1" is actually the case that 
+> already calls page_mkclean() directly: clear_page_dirty_for_io(). So no 
+> other ", 1" is valid, and that one that needed it already avoided even 
+> calling the "test_clear_page_dirty()" function, because it did it all by 
+> hand.
+> 
+> What happens for you in that case?
+> 
+> 		Linus
 
-On Fri, 2006-12-15 at 18:55 -0800, Linus Torvalds wrote:
-> But the point is, "derived work" is not what _you_ or _I_ define. It's 
-> what copyright law defines.
+I have file corruption.
 
-Of course not. I never suggested trying to define a derived work.
 
-> And trying to push that definition too far is a total disaster. If you 
-> push the definition of derived work to "anything that touches our work", 
-> you're going to end up in a very dark and unhappy place. One where the 
-> RIAA is your best buddy.
-
-I don't see how what is proposed for blocking non GPL modules at all
-touches the definition of derived work. Even if according to law and the
-GPL, binary modules are legal, the proposed changes could still be
-made. 
-
-I have realised that the proposed changes do not *impose* any more
-restriction on the use of the kernel than currently exists. Currently
-the Kernel is licenced to impose the same licence on derived works,
-enforce distribution of source code etc. and this by law. The proposed
-changes do not impose anything, they just make things technically a
-little more complicated for some, and they can be trivially circumvented
-if one desires. Maybe not a good idea, but still no excuse for the sort
-of atrocious bigotry some people are exhibiting here.
-
-I do not mean to say this is a good thing, some of the arguments
-advanced here make me much less enthusiastic as at the beginning. As I
-said in my first post, and seemed to be promptly ignored, this can only
-by any use at all if it persuades vendors to provide the essential
-information about their products without hurting users too much, or
-further alienating vendors. All this is of course highly debatable, and
-needs discussing properly, if people are able to communicate in a civil
-manner that is.
-
-Before any fanatic ranting saying that people inducing slight
-complications are freedom hating Nazis who should be burned at the
-stake, please contrast this trivial complication with the extremely
-difficult work that must be done by someone wanting to write a driver
-when a vendor doesn't provide adequate documentation.
-
-It might be noted that in some countries it is quite illegal not to
-provide documentation for a product, just as it is illegal to limit a
-product to only work with a specific vendors merchandise when said
-product is in essence generic. This is the case in France, where these
-laws are simply ignored by corporations. A large French NFP sued HP last
-week about them not allowing their PCs to be sold without Windows, so we
-may finally start to get these laws applied. I have written the NFP to
-suggest that if the case does not extend to missing hardware
-documentation, maybe another case would be in order. In the past the
-people at this NFP have been very civil and cooperative with me.
-
-> And that is why it would be WRONG to think that we have the absolute right 
-> to say "that is illegal". It's simply not our place to make that 
-> judgement. When you start thinking that you have absolute control over the 
-> content or programs you produce, and that the rest of the worlds opinions 
-> doesn't matter, you're just _wrong_.
-
-I have seen nobody with the ponce to judge people or try to have control
-over them when arguing for these mods. I think all that has been said
-has been people trying to interpret the law, it's quite possible they
-got it wrong. Not that I can blame them, law is a not simple, and I can
-see people on both "sides" of the argument not getting things quite
-right here.
-
-I would note however that I personally find it distasteful to call
-people "wrong" rather than respectfully disagreeing with them.
-
-> So don't go talking about how we should twist peoples arms and force them 
-> to be open source of free software. Instead, BE HAPPY that people can take 
-> advantage of "loopholes" in copyright protections and can legally do 
-> things that you as the copyright owner might not like. Because those 
-> "loopholes" are in the end what protects YOU.
-
-I admit I should not have used the phrase "twist arm", I meant it in an
-entirely jocular sense, it is a phrase I never employ usually. Of course
-it is a mistake I regret. The word "persuade" would have been a much
-better choice.
-
-As I hope I clearly explained above, it wasn't suggested to "force"
-anybody to do anything.
-
-Although I don't appreciate insult or aggressively, I choose to ignore
-it in order to try and advance a reasonable discussion. I will not stand
-here and let you tell me what to and not to do however. It also makes
-you seem a bit hypocritical in a discussion where you are claiming to be
-arguing for "freedom".
-
-Love, Karderio.
+diff --git a/fs/buffer.c b/fs/buffer.c
+index d1f1b54..263f88e 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2834,7 +2834,7 @@ int try_to_free_buffers(struct page *pag
+ 	int ret = 0;
+ 
+ 	BUG_ON(!PageLocked(page));
+-	if (PageWriteback(page))
++	if (PageDirty(page) || PageWriteback(page))
+ 		return 0;
+ 
+ 	if (mapping == NULL) {		/* can this still happen? */
+@@ -2845,22 +2845,6 @@ int try_to_free_buffers(struct page *pag
+ 	spin_lock(&mapping->private_lock);
+ 	ret = drop_buffers(page, &buffers_to_free);
+ 	spin_unlock(&mapping->private_lock);
+-	if (ret) {
+-		/*
+-		 * If the filesystem writes its buffers by hand (eg ext3)
+-		 * then we can have clean buffers against a dirty page.  We
+-		 * clean the page here; otherwise later reattachment of buffers
+-		 * could encounter a non-uptodate page, which is unresolvable.
+-		 * This only applies in the rare case where try_to_free_buffers
+-		 * succeeds but the page is not freed.
+-		 *
+-		 * Also, during truncate, discard_buffer will have marked all
+-		 * the page's buffers clean.  We discover that here and clean
+-		 * the page also.
+-		 */
+-		if (test_clear_page_dirty(page))
+-			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
+-	}
+ out:
+ 	if (buffers_to_free) {
+ 		struct buffer_head *bh = buffers_to_free;
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 0f05cab..760442f 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1245,7 +1245,7 @@ retry:
+ 				wait_on_page_writeback(page);
+ 
+ 			if (PageWriteback(page) ||
+-					!test_clear_page_dirty(page)) {
++					!test_clear_page_dirty(page, 0)) {
+ 				unlock_page(page);
+ 				break;
+ 			}
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 1387749..da2bdb1 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -484,7 +484,7 @@ static int fuse_commit_write(struct file
+ 		spin_unlock(&fc->lock);
+ 
+ 		if (offset == 0 && to == PAGE_CACHE_SIZE) {
+-			clear_page_dirty(page);
++			clear_page_dirty(page, 0);
+ 			SetPageUptodate(page);
+ 		}
+ 	}
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index ed2c223..7b87875 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -176,7 +176,7 @@ static int hugetlbfs_commit_write(struct
+ 
+ static void truncate_huge_page(struct page *page)
+ {
+-	clear_page_dirty(page);
++	clear_page_dirty(page, 0);
+ 	ClearPageUptodate(page);
+ 	remove_from_page_cache(page);
+ 	put_page(page);
+diff --git a/fs/jfs/jfs_metapage.c b/fs/jfs/jfs_metapage.c
+index b1a1c72..47a6b62 100644
+--- a/fs/jfs/jfs_metapage.c
++++ b/fs/jfs/jfs_metapage.c
+@@ -773,7 +773,7 @@ #if MPS_PER_PAGE == 1
+ 
+ 	/* Retest mp->count since we may have released page lock */
+ 	if (test_bit(META_discard, &mp->flag) && !mp->count) {
+-		clear_page_dirty(page);
++		clear_page_dirty(page, 0);
+ 		ClearPageUptodate(page);
+ 	}
+ #else
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index 47e7027..a97e198 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -1459,7 +1459,7 @@ static void unmap_buffers(struct page *p
+ 				bh = next;
+ 			} while (bh != head);
+ 			if (PAGE_SIZE == bh->b_size) {
+-				clear_page_dirty(page);
++				clear_page_dirty(page, 0);
+ 			}
+ 		}
+ 	}
+diff --git a/fs/xfs/linux-2.6/xfs_aops.c b/fs/xfs/linux-2.6/xfs_aops.c
+index b56eb75..d65ba84 100644
+--- a/fs/xfs/linux-2.6/xfs_aops.c
++++ b/fs/xfs/linux-2.6/xfs_aops.c
+@@ -343,7 +343,7 @@ xfs_start_page_writeback(
+ 	ASSERT(!PageWriteback(page));
+ 	set_page_writeback(page);
+ 	if (clear_dirty)
+-		clear_page_dirty(page);
++		clear_page_dirty(page, 0);
+ 	unlock_page(page);
+ 	if (!buffers) {
+ 		end_page_writeback(page);
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index 4830a3b..175ab3c 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -253,13 +253,13 @@ #define ClearPageUncached(page)	clear_bi
+ 
+ struct page;	/* forward declaration */
+ 
+-int test_clear_page_dirty(struct page *page);
++int test_clear_page_dirty(struct page *page, int must_clean_ptes);
+ int test_clear_page_writeback(struct page *page);
+ int test_set_page_writeback(struct page *page);
+ 
+-static inline void clear_page_dirty(struct page *page)
++static inline void clear_page_dirty(struct page *page, int
+must_clean_ptes)
+ {
+-	test_clear_page_dirty(page);
++	test_clear_page_dirty(page, must_clean_ptes);
+ }
+ 
+ static inline void set_page_writeback(struct page *page)
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 237107c..f7e0cc8 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -848,7 +848,7 @@ EXPORT_SYMBOL(set_page_dirty_lock);
+  * Clear a page's dirty flag, while caring for dirty memory
+accounting. 
+  * Returns true if the page was previously dirty.
+  */
+-int test_clear_page_dirty(struct page *page)
++int test_clear_page_dirty(struct page *page, int must_clean_ptes)
+ {
+ 	struct address_space *mapping = page_mapping(page);
+ 	unsigned long flags;
+@@ -866,7 +866,12 @@ int test_clear_page_dirty(struct page *p
+ 		 * page is locked, which pins the address_space
+ 		 */
+ 		if (mapping_cap_account_dirty(mapping)) {
+-			page_mkclean(page);
++			int cleaned = page_mkclean(page);
++			if (!must_clean_ptes && cleaned){
++			WARN_ON(1);
++			set_page_dirty(page);
++			}
++
+ 			dec_zone_page_state(page, NR_FILE_DIRTY);
+ 		}
+ 		return 1;
+diff --git a/mm/rmap.c b/mm/rmap.c
+diff --git a/mm/truncate.c b/mm/truncate.c
+index 9bfb8e8..cafa843 100644
+--- a/mm/truncate.c
++++ b/mm/truncate.c
+@@ -70,7 +70,7 @@ truncate_complete_page(struct address_sp
+ 	if (PagePrivate(page))
+ 		do_invalidatepage(page, 0);
+ 
+-	if (test_clear_page_dirty(page))
++	if (test_clear_page_dirty(page, 0))
+ 		task_io_account_cancelled_write(PAGE_CACHE_SIZE);
+ 	ClearPageUptodate(page);
+ 	ClearPageMappedToDisk(page);
+@@ -386,7 +386,7 @@ int invalidate_inode_pages2_range(struct
+ 					  PAGE_CACHE_SIZE, 0);
+ 				}
+ 			}
+-			was_dirty = test_clear_page_dirty(page);
++			was_dirty = test_clear_page_dirty(page, 0);
+ 			if (!invalidate_complete_page2(mapping, page)) {
+ 				if (was_dirty)
+ 					set_page_dirty(page);
 
 

@@ -1,103 +1,134 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754083AbWLROfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754094AbWLROmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754083AbWLROfO (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 09:35:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754090AbWLROfO
+	id S1754094AbWLROmP (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 09:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754092AbWLROmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 09:35:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45882 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754086AbWLROfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 09:35:12 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Tomas Carnecky <tom@dbservice.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-       James Porter <jameslporter@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary Drivers
-References: <loom.20061215T220806-362@post.gmane.org>
-	<20061215220117.GA24819@martell.zuzino.mipt.ru>
-	<4583527D.4000903@dbservice.com>
-Date: Mon, 18 Dec 2006 07:34:51 -0700
-In-Reply-To: <4583527D.4000903@dbservice.com> (Tomas Carnecky's message of
-	"Sat, 16 Dec 2006 01:57:17 +0000")
-Message-ID: <m13b7ds25w.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 18 Dec 2006 09:42:15 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:56078 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754093AbWLROmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 09:42:14 -0500
+Date: Mon, 18 Dec 2006 15:39:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jarek Poplawski <jarkao2@o2.pl>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] lockdep: more unlock-on-error fixes
+Message-ID: <20061218143936.GA4415@elte.hu>
+References: <20061218115632.GA5373@ff.dom.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061218115632.GA5373@ff.dom.local>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Carnecky <tom@dbservice.com> writes:
 
-> Alexey Dobriyan wrote:
->> On Fri, Dec 15, 2006 at 09:20:58PM +0000, James Porter wrote:
->>> For what it's worth, I don't see any problem with binary drivers from
-> hardware
->>> manufacturers.
->>
->> Binary drivers from hardware manufacturers are crap. Learn it by heart.
->>
->
-> That's your personal opinion! A lot other people (including me) have had
-> excellent experience with binary drivers!
+* Jarek Poplawski <jarkao2@o2.pl> wrote:
 
-Almost all software is crap.  Binary drivers are just unreviewed unfixable
-crap.  Things don't get better if you encourage crap.
+> Hello,
+> 
+> If any of this proposals should be omitted or separated let me know.
 
-The practical problem with simple testing for detecting problems is that
-you don't frequently test the corner cases, and corner cases are what
-developers often get wrong, often make software a security hazard, and
-are often what developers spend most of their time building
-infrastructure for so that we can get the corner cases right.
+thanks for the fixes, they look good to me. I have reorganized the 
+__lock_acquire() changes a bit. Plus i dropped the check_locks_freed() 
+changes: there's no reason lockdep should be using 'raw' irq flags 
+saving - these functions are not part of the irq-flags tracing code so 
+they dont /need/ to be raw.
 
-One such corner case that causes me to run in fear of binary only
-kernel drivers are times when drivers accidentally write to variables
-used for something else.  Which can cause failure somewhere else
-someplace a long time after it has happened.  Like driving over a
-tack in the road and having your tire go flat 1000 miles later because
-of a slow leak.
+An updated patch is below. I also have boot tested it. Andrew, Linus, 
+please apply.
 
-These are the kinds of problems you have to address if you want
-everyone to have a good experience with their hardware.  These are
-precisely the kinds of problems that cannot be addressed with
-binary only drivers.
+	Ingo
 
+------------------------->
+Subject: [patch] lockdep: more unlock-on-error fixes
+From: Jarek Poplawski <jarkao2@o2.pl>
 
-We have a process that has worked for centuries to improve our
-knowledge base.  The scientific method and peer review.  We use a
-variation of this proven process for writing software in linux.  The
-binary only vendors are being rude and refusing to participate. 
+- returns after DEBUG_LOCKS_WARN_ON added in 3 places
 
-Do you understand why we have no sympathy for their efforts, no desire
-to make their lives easier.
+- debug_locks checking after lookup_chain_cache()
+  added in __lock_acquire()
 
-In general people doing binary only drivers are being rude.
+- locking for testing and changing global variable
+  max_lockdep_depth added in __lock_acquire()
 
-> The day you show me that the open-source driver is faster and more stable then
-> the binary driver, I'll switch. But until then I'll stay with my binary
-> driver. I haven't had any serious problems with it, in fact, I'm very happy, so
-> why should I want to switch?
+Signed-off-by: Jarek Poplawski <jarkao2@o2.pl>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/lockdep.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-Oh.  So you have had problems with it.   The goal for system software
-is quality so high you can not find problems with it.  That doesn't
-always happen but we try.  The fact you have minor problems indicates
-there are problems in the driver, and which probably means that
-it is indeed crap.
-
-Anytime an end user has to be aware of drivers and not the problem
-at hand it is a problem.
-
-> I don't see Linux in such a political way like some of you do, for me Linux is
-> just like any other OS. There are good drivers and bad drivers. And I don't care
-> if they are open source or binary, I don't judge them based on that, but based
-> on how well they work and how good the support is.
-
-A very reasonable attitude.  But a binary driver is an automatic
-negative on the support side.  It fundamentally reduces the number and
-quality of the people who can support you.  The developers are not
-being cooperative with other developers so the system as a whole
-cannot improve to support it better.
-
-
-Eric
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
+@@ -1297,7 +1297,8 @@ out_unlock_set:
+ 	if (!subclass || force)
+ 		lock->class_cache = class;
+ 
+-	DEBUG_LOCKS_WARN_ON(class->subclass != subclass);
++	if (DEBUG_LOCKS_WARN_ON(class->subclass != subclass))
++		return NULL;
+ 
+ 	return class;
+ }
+@@ -1312,7 +1313,8 @@ static inline int lookup_chain_cache(u64
+ 	struct list_head *hash_head = chainhashentry(chain_key);
+ 	struct lock_chain *chain;
+ 
+-	DEBUG_LOCKS_WARN_ON(!irqs_disabled());
++	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
++		return 0;
+ 	/*
+ 	 * We can walk it lock-free, because entries only get added
+ 	 * to the hash:
+@@ -1394,7 +1396,9 @@ static void check_chain_key(struct task_
+ 			return;
+ 		}
+ 		id = hlock->class - lock_classes;
+-		DEBUG_LOCKS_WARN_ON(id >= MAX_LOCKDEP_KEYS);
++		if (DEBUG_LOCKS_WARN_ON(id >= MAX_LOCKDEP_KEYS))
++			return;
++
+ 		if (prev_hlock && (prev_hlock->irq_context !=
+ 							hlock->irq_context))
+ 			chain_key = 0;
+@@ -2210,19 +2214,24 @@ out_calc_hash:
+ 		if (!chain_head && ret != 2)
+ 			if (!check_prevs_add(curr, hlock))
+ 				return 0;
+-		graph_unlock();
+-	}
++	} else
++		/* after lookup_chain_cache(): */
++		if (unlikely(!debug_locks))
++			return 0;
++
+ 	curr->lockdep_depth++;
+ 	check_chain_key(curr);
+ 	if (unlikely(curr->lockdep_depth >= MAX_LOCK_DEPTH)) {
+-		debug_locks_off();
++		debug_locks_off_graph_unlock();
+ 		printk("BUG: MAX_LOCK_DEPTH too low!\n");
+ 		printk("turning off the locking correctness validator.\n");
+ 		return 0;
+ 	}
++
+ 	if (unlikely(curr->lockdep_depth > max_lockdep_depth))
+ 		max_lockdep_depth = curr->lockdep_depth;
+ 
++	graph_unlock();
+ 	return 1;
+ }
+ 

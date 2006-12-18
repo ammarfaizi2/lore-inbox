@@ -1,80 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754573AbWLRUuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754575AbWLRUvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754573AbWLRUuU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 15:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754574AbWLRUuU
+	id S1754575AbWLRUvl (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 15:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754576AbWLRUvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 15:50:20 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:44856 "EHLO smtp.osdl.org"
+	Mon, 18 Dec 2006 15:51:41 -0500
+Received: from mmail.enter.net ([216.193.128.40]:45422 "EHLO mmail.enter.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754573AbWLRUuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 15:50:19 -0500
-Date: Mon, 18 Dec 2006 12:50:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: Ricardo Galli <gallir@gmail.com>, linux-kernel@vger.kernel.org
+	id S1754575AbWLRUvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 15:51:41 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Dave Neuer" <mr.fred.smoothie@pobox.com>
 Subject: Re: GPL only modules
-In-Reply-To: <or64c96ius.fsf@redhat.com>
-Message-ID: <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
-References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
- <orwt4qaara.fsf@redhat.com> <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
- <orpsah6m3s.fsf@redhat.com> <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
- <or64c96ius.fsf@redhat.com>
+Date: Mon, 18 Dec 2006 12:46:49 -0500
+User-Agent: KMail/1.9.5
+Cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKGEPFAGAC.davids@webmaster.com> <200612171646.40655.dhazelton@enter.net> <161717d50612180747k5e40a802uf33203eca9515acc@mail.gmail.com>
+In-Reply-To: <161717d50612180747k5e40a802uf33203eca9515acc@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612181246.49504.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 18 Dec 2006, Alexandre Oliva wrote:
+On Monday 18 December 2006 10:47, Dave Neuer wrote:
+> On 12/17/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > On Sunday 17 December 2006 16:32, David Schwartz wrote:
+> > > > I would argue that this is _particularly_ pertinent with regards to
+> > > > Linux.  For example, if you look at many of our atomics or locking
+> > > > operations a good number of them (depending on architecture and
+> > > > version) are inline assembly that are directly output into the code
+> > > > which uses them.  As a result any binary module which uses those
+> > > > functions from the Linux headers is fairly directly a derivative work
+> > > > of the GPL headers because it contains machine code translated
+> > > > literally from GPLed assembly code found therein.  There are also a
+> > > > fair number of large perhaps-wrongly inline functions of which the
+> > > > use of any one would be likely to make the resulting binary
+> > > > "derivative".
+> > >
+> > > That's not protectable expression under United States law. See Lexmark
+> > > v. Static Controls and the analogous case of the TLP (ignore the DMCA
+> > > stuff in that case, that's not relevant). If you want to make that kind
+> > > of content protectable, you have to get it out of the header files.
+> > >
+> > > You cannot protect, by copyright, every reasonably practical way of
+> > > performing a function. Only a patent can do that. If taking something
+> > > is reasonably necessary to express a particular idea (and a Linux
+> > > module for the ATI X850 card is an idea), then that something cannot be
+> > > protected by copyright when it is used to express that idea. (Even if
+> > > it would clearly be protectably expression in another context.)
+> > >
+> > > The premise of copyright is that there are millions of equally-good
+> > > ways to express the same idea or perform the same function, and you
+> > > creatively pick one, and that choice is protected. But if I'm
+> > > developing a Linux module for a particular network card, choosing to
+> > > use the Linux kernel header files is the only practical choice to
+> > > perform that particular function. So their content is not protectable
+> > > when used in that context. (If you make another way to do it, then the
+> > > content becomes protectable in that context again.)
+> > >
+> > > IANAL.
+> > >
+> > > DS
+> >
+> > Agreed. You missed the point. Since the Linux Kernel header files contain
+> > a chunk of the source code for the kernel in the form of the macros for
+> > locking et. al. then using the headers - including that code in your
+> > module - makes it a derivative work.
 >
-> > In other words, in the GPL, "Program" does NOT mean "binary". Never has.
-> 
-> Agreed.  So what?  How does this relate with the point above?
-> 
-> The binary is a Program, as much as the sources are a Program.  Both
-> forms are subject to copyright law and to the license, in spite of
-> http://www.fsfla.org/?q=en/node/128#1
+> David didn't miss the point; Lexmark vs. Static Controls, however
+> unintuitively, ruled that even _verbatim_ copying is not always
+> copyright infringement in the case of software because of issues like
+> the doctrine of scenes a faire. In the case of spinlocks, if the only
+> way to accomplish atomic operations on an architecture is to use
+> something like the assembler that the inclusion of spinlock.h injects
+> into your binary, then according to Lexmark vs. Static Controls that
+> makes that included code unprotectable by copyright.
 
-Here's how it relates:
- - if a program is not a "derived work" of the C library, then it's not 
-   "the program" as defined by the GPLv2 AT ALL.
+Ah, okay. However I'm quite sure that there are more ways to accomplish the 
+tasks handled by the code in the header files (in most cases). 
 
-In other words, it doesn't matter ONE WHIT whether you use "ld --static" 
-or "ld" or "mkisofs" - if the program isn't (by copyright law) derived 
-from glibc, then EVEN IF glibc was under the GPLv2, it would IN NO WAY 
-AFFECT THE RESULTING BINARY.
+> Where I disagree with David (as I have publicly before on this list),
+> is that he incorrectly applies the concept of "functional idea" to
+> "write a linux kernel module." I don't believe that is a "functional
+> idea" in the sense that is meaningful in the context of software
+> copyright or patents (at least until someone writes a piece of
+> software that writes kernel modules).
 
-And I'm simply claiming that a binary doesn't become "derived from" by any 
-action of linking.
+Agreed. And thanks for clarifying that.
 
-Even if you link using "ld", even if it's static, the binary is not 
-"derived from". It's an aggregate.
-
-"Derivation" has nothing to do with "linking". Either it's derived or it 
-is not, and "linking" simply doesn't matter. It doesn't matter whether 
-it's static or dynamic. That's a detail that simply doesn't have anythign 
-at all to do with "derivative work".
-
-THAT is my point. 
-
-Static vs dynamic matters for whether it's an AGGREGATE work. Clearly, 
-static linking aggregates the library with the other program in the same 
-binary. There's no question about that. And that _does_ have meaning from 
-a copyright law angle, since if you don't have permission to ship 
-aggregate works under the license, then you can't ship said binary. It's 
-just a non-issue in the specific case of the GPLv2.
-
-In the presense of dynamic linking the binary isn't even an aggregate 
-work.
-
-THAT is the difference between static and dynamic. A simple command line 
-flag to the linker shouldn't really reasonably be considered to change 
-"derivation" status.
-
-Either something is derived, or it's not. If it's derived, "ld", 
-"mkisofs", "putting them close together" or "shipping them on totally 
-separate CD's" doesn't matter. It's still derived.
-
-		Linus
+DRH

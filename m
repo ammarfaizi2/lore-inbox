@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754617AbWLRWgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754706AbWLRWgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754617AbWLRWgV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754707AbWLRWgV
+	id S1754706AbWLRWgd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754712AbWLRWgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:36:21 -0500
-Received: from frodo.hserus.net ([204.74.68.40]:33737 "EHLO frodo.hserus.net"
+	Mon, 18 Dec 2006 17:36:33 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:47275 "EHLO ogre.sisk.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754617AbWLRWgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:36:20 -0500
-X-Greylist: delayed 1510 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 17:36:20 EST
-From: Dan Jacobson <jidanni@jidanni.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel-parameters.txt: expand APIC
-References: <Pine.LNX.4.61.0612182053260.29144@yvahk01.tjqt.qr>
-Date: Tue, 19 Dec 2006 05:58:46 +0800
-Message-ID: <87d56ghnmx.fsf@jidanni.org>
+	id S1754707AbWLRWgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 17:36:32 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [linux-pm] OOPS: divide error while s2dsk (2.6.20-rc1-mm1)
+Date: Mon, 18 Dec 2006 23:38:23 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-pm@lists.osdl.org,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       linux-pm@osdl.org
+References: <4586797B.3080007@gmail.com> <200612181646.23292.rjw@sisk.pl> <4586C99C.9020606@gmail.com>
+In-Reply-To: <4586C99C.9020606@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612182338.24843.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> kernel-parameters.txt says what ACPI and APM stand for, but not APIC.
+On Monday, 18 December 2006 18:02, Jiri Slaby wrote:
+> Rafael J. Wysocki wrote:
+> > Hi,
+> > 
+> > On Monday, 18 December 2006 12:20, Jiri Slaby wrote:
+> >> Hi.
+> >>
+> >> I got this oops while suspending:
+> >> [  309.366557] Disabling non-boot CPUs ...
+> >> [  309.386563] CPU 1 is now offline
+> >> [  309.387625] CPU1 is down
+> >> [  309.387704] Stopping tasks ... done.
+> >> [  310.030991] Shrinking memory... -<0>divide error: 0000 [#1]
+> >> [  310.456669] SMP
+> >> [  310.456814] last sysfs file:
+> >> /devices/pci0000:00/0000:00:1e.0/0000:02:08.0/eth0/statistics/collisions
+> >> [  310.456919] Modules linked in: eth1394 floppy ohci1394 ide_cd ieee1394 cdrom
+> >> [  310.457259] CPU:    0
+> >> [  310.457260] EIP:    0060:[<c0150c9a>]    Not tainted VLI
+> >> [  310.457261] EFLAGS: 00210246   (2.6.20-rc1-mm1 #207)
+> >> [  310.457478] EIP is at shrink_slab+0x9e/0x169
+> > 
+> > Looks like we have a problem with slab shrinking here.
+> > 
+> > Could you please use gdb to check what exactly is at shrink_slab+0x9e?
+> 
+> Sure, but not till Friday, sorry (I am away).
 
-J> Advanced PIC, most likely.
-Also say what PIC means.
-J> http://en.wikipedia.org/wiki/APIC will tell more.
-Not when one is having booting problems and can't connect their modem.
->> Also there give some basic apm related parameters, instead of just
->> saying see apm.c, which the user is less likely to have handy than
->> kernel-parameters.txt.
-J> As always, patches welcome :)
-apm.c is in a Debian package that is too big for me to download before
-my next trip to town. So for now I will just put
-append="apm=off" as a guess in lilo, as there is no basic mention of
-how to turn it off in kernel-parameters.txt, as an attempt to stop the
-total power off that happens on my first boot of the day after 10 or
-15 minutes.
+I reproduced this on one box, but then it turned out that EIP was at line 195
+of mm/vmscan.c where there was
 
-What I'm saying is that your files should be more self-contained.
+do_div(delta, lru_pages + 1);
 
-	apic=		[APIC,i386] Change the output verbosity whilst booting
-			Format: { quiet (default) | verbose | debug }
-			Change the amount of debugging information output
-			when initialising the APIC and IO-APIC components.
+Well, I have no idea how this can lead to a divide error (lru_pages is
+unsigned).
 
-	apm=		[APM] Advanced Power Management
-			See header of arch/i386/kernel/apm.c.
+I'm unable to reproduce this on another i386 box, so it seems to be somewhat
+configuration specific.
 
-Drat. All they had to do was add one little
-			Format: { ... }
-line with the answers. Instead one needs to have the source code to
-find the answer. Multi megabyte download just for one line of
-information. And the user might be at a remote site with no net
-connection too.
+Does 2.6.20-rc1 work for you?
+
+Rafael
+
+
+-- 
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

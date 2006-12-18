@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753664AbWLRJze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753683AbWLRJ5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753664AbWLRJze (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 04:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753649AbWLRJze
+	id S1753683AbWLRJ5Q (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 04:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753684AbWLRJ5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 04:55:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46372 "EHLO mx1.redhat.com"
+	Mon, 18 Dec 2006 04:57:15 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:11384 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753667AbWLRJzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 04:55:32 -0500
-Subject: [GFS2] Fix Kconfig [2/2]
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Cc: Patrick Caulfield <pcaulfie@redhat.com>,
-       Chris Zubrzycki <chris@middle--earth.org>, Adrian Bunk <bunk@stusta.de>,
-       Randy Dunlap <randy.dunlap@oracle.com>,
-       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
-       Aleksandr Koltsoff <czr@iki.fi>
-In-Reply-To: <1166435650.3752.1263.camel@quoit.chygwyn.com>
-References: <1166435650.3752.1263.camel@quoit.chygwyn.com>
-Content-Type: text/plain; charset=UTF-8
-Organization: Red Hat (UK) Ltd
-Date: Mon, 18 Dec 2006 09:57:29 +0000
-Message-Id: <1166435849.3752.1266.camel@quoit.chygwyn.com>
+	id S1753679AbWLRJ5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 04:57:14 -0500
+Date: Mon, 18 Dec 2006 10:58:53 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       daniel_frazier@hp.com, andrew.patterson@hp.com
+Subject: Re: [PATCH 2/2] cciss: fix XFER_READ/XFER_WRITE in do_cciss_request
+Message-ID: <20061218095852.GF5010@kernel.dk>
+References: <20061215212817.GA10996@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061215212817.GA10996@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 1003f06953472ecc34f12d9867670f475a8c1af6 Mon Sep 17 00:00:00 2001
-From: Steven Whitehouse <swhiteho@redhat.com>
-Date: Tue, 12 Dec 2006 10:16:25 +0000
-Subject: [PATCH] [GFS2] Fix Kconfig
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Fri, Dec 15 2006, Mike Miller (OS Dev) wrote:
+> Patch 2 of 2
+> 
+> This patch fixes a stupid bug. Sometime during the 2tb enhancement I ended up
+> replacing the macros XFER_READ and XFER_WRITE with h->cciss_read and
+> h->cciss_write respectively. It seemed to work somehow at least on x86_64 and
+> ia64. I don't know how. But people started complaining about command timeouts
+> on older controllers like the 64xx series and only on ia32. This resolves the
+> issue reproduced in our lab. Please consider this for inclusion. 
 
-Here is a patch to fix up the Kconfig so that we don't land up with
-problems when people disable the NET subsystem.  Thanks for all the hints and
-suggestions that people have sent me regarding this.
+Great, works here as well. Applied 1+2.
 
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-Cc: Aleksandr Koltsoff <czr@iki.fi>
-Cc: Toralf Förster <toralf.foerster@gmx.de>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Adrian Bunk <bunk@stusta.de>
-Cc: Chris Zubrzycki <chris@middle--earth.org>
-Cc: Patrick Caulfield <pcaulfie@redhat.com>
----
- fs/gfs2/Kconfig |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
-index c0791cb..6a2ffa2 100644
---- a/fs/gfs2/Kconfig
-+++ b/fs/gfs2/Kconfig
-@@ -34,7 +34,9 @@ config GFS2_FS_LOCKING_NOLOCK
- 
- config GFS2_FS_LOCKING_DLM
- 	tristate "GFS2 DLM locking module"
--	depends on GFS2_FS
-+	depends on GFS2_FS && NET && INET && (IPV6 || IPV6=n)
-+	select IP_SCTP if DLM_SCTP
-+	select CONFIGFS_FS
- 	select DLM
- 	help
- 	Multiple node locking module for GFS2
 -- 
-1.4.1
-
-
+Jens Axboe
 

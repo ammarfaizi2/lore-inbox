@@ -1,91 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753916AbWLRMZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753923AbWLRM0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753916AbWLRMZ6 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 07:25:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753920AbWLRMZ6
+	id S1753923AbWLRM0z (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 07:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753924AbWLRM0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 07:25:58 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:57187 "EHLO
-	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753916AbWLRMZ5 (ORCPT
+	Mon, 18 Dec 2006 07:26:55 -0500
+Received: from wr-out-0506.google.com ([64.233.184.224]:65504 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753923AbWLRM0y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 07:25:57 -0500
-X-Greylist: delayed 3905 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 07:25:56 EST
-Message-ID: <4586797B.3080007@gmail.com>
-Date: Mon, 18 Dec 2006 12:20:27 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Mon, 18 Dec 2006 07:26:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m9o5N9YWgr4tNSR+muH5VY6iciQdF4c3yyadE7E6/hZ2x2jWQclqjOIj9douA1lxqiy1N0epGLzBTCguViH5/kUC5FNqj3UvNaCiRw9Qdt3wGp5YaLPO24KFQa82NO44ZHbLsPuadqhgs/DzST1xYBziDiO70/nfU6i8u+vXaKQ=
+Message-ID: <b0943d9e0612180426m3f320a3ah86631d1852a6b15@mail.gmail.com>
+Date: Mon, 18 Dec 2006 12:26:53 +0000
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061218112120.GA7599@elte.hu>
 MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-CC: akpm@osdl.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: OOPS: divide error while s2dsk (2.6.20-rc1-mm1)
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
+Content-Disposition: inline
+References: <20061216153346.18200.51408.stgit@localhost.localdomain>
+	 <20061216165738.GA5165@elte.hu>
+	 <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com>
+	 <20061217085859.GB2938@elte.hu>
+	 <b0943d9e0612171505l6dfe19c6h6391b08f41243b1@mail.gmail.com>
+	 <20061218072932.GA5624@elte.hu>
+	 <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
+	 <20061218112120.GA7599@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 18/12/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
+>
+> > >> [...] It could be so simple that it would never need to free any
+> > >> pages, just grow the size as required and reuse the freed memleak
+> > >> objects from a list.
+> > >
+> > >sounds good to me. Please make it a per-CPU pool.
+> >
+> > Isn't there a risk for the pools to become imbalanced? A lot of
+> > allocations would initially happen on the first CPU.
+>
+> hm, what's the problem with imbalance? These are trees and imbalance
+> isnt a big issue.
 
-I got this oops while suspending:
-[  309.366557] Disabling non-boot CPUs ...
-[  309.386563] CPU 1 is now offline
-[  309.387625] CPU1 is down
-[  309.387704] Stopping tasks ... done.
-[  310.030991] Shrinking memory... -<0>divide error: 0000 [#1]
-[  310.456669] SMP
-[  310.456814] last sysfs file:
-/devices/pci0000:00/0000:00:1e.0/0000:02:08.0/eth0/statistics/collisions
-[  310.456919] Modules linked in: eth1394 floppy ohci1394 ide_cd ieee1394 cdrom
-[  310.457259] CPU:    0
-[  310.457260] EIP:    0060:[<c0150c9a>]    Not tainted VLI
-[  310.457261] EFLAGS: 00210246   (2.6.20-rc1-mm1 #207)
-[  310.457478] EIP is at shrink_slab+0x9e/0x169
-[  310.457548] eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
-[  310.457623] esi: 00000000   edi: c18fe500   ebp: f7b3fe3c   esp: f7b3fe08
-[  310.457696] ds: 007b   es: 007b   fs: 00d8  gs: 0033  ss: 0068
-[  310.457772] Process swsusp (pid: 3243, ti=f7b3e000 task=f756f030
-task.ti=f7b3e000)
-[  310.457845] Stack: c175d8a0 c175daa0 c175db00 00000000 00000000 c053cec0
-000045ec 000000d0
-[  310.458286]        00000000 00000000 00001179 00001179 00000000 f7b3fe94
-c0151445 00000001
-[  310.458723]        f7b3fe64 00001df1 00000002 00000001 00000001 00038000
-00000c79 0000117b
-[  310.459199] Call Trace:
-[  310.459334]  [<c0103f1b>] show_trace_log_lvl+0x1a/0x30
-[  310.459450]  [<c0103fd6>] show_stack_log_lvl+0xa5/0xca
-[  310.459562]  [<c01041ce>] show_registers+0x1d3/0x2b8
-[  310.459673]  [<c01043d4>] die+0x121/0x243
-[  310.459781]  [<c010456c>] do_trap+0x76/0x9c
-[  310.459892]  [<c0104bd8>] do_divide_error+0x94/0x9e
-[  310.460001]  [<c038a7e4>] error_code+0x7c/0x84
-[  310.460113]  [<c0151445>] shrink_all_memory+0x211/0x2eb
-[  310.460225]  [<c01418c1>] swsusp_shrink_memory+0x187/0x196
-[  310.460335]  [<c0141a07>] prepare_processes+0x35/0xc8
-[  310.460446]  [<c0141cce>] pm_suspend_disk+0xd/0x16f
-[  310.460558]  [<c0140c87>] enter_state+0x129/0x19b
-[  310.460668]  [<c0140d9c>] state_store+0xa3/0xac
-[  310.460777]  [<c0198ab0>] subsys_attr_store+0x20/0x25
-[  310.460889]  [<c0198b9f>] sysfs_write_file+0x97/0xd8
-[  310.460998]  [<c0165262>] vfs_write+0x8b/0x149
-[  310.461108]  [<c01658cb>] sys_write+0x3d/0x64
-[  310.461216]  [<c0102fe4>] syscall_call+0x7/0xb
-[  310.461328]  =======================
-[  310.461397] Code: 31 c0 ff 17 89 c3 8b 45 e4 31 d2 f7 77 0c f7 e3 89 45 d8 89
-55 dc 89 d1 89 c6 31 d2 85 c9 74 09 89 c8 31 d2 f7 75 f0 89 c1 89 f0 <f7> 75 f0
-89 ca 89 45 d8 89 55 dc 8b 45 d8 03 47 10 89 47 10 85
-[  310.464079] EIP: [<c0150c9a>] shrink_slab+0x9e/0x169 SS:ESP 0068:f7b3fe08
-[  310.464228]
+It could just be more available (freed) memleak_objects on one CPU
+than on the others and use more memory. Not a big problem though.
 
-swsusp script is something like this:
-echo platform > /sys/power/disk
-echo disk > /sys/power/state
+> > > We'll have to fix the locking too, to be per-CPU - memleak_lock is
+> > > quite a scalability problem right now.
+> >
+> > The memleak_lock is indeed too coarse (but it was easier to track the
+> > locking dependencies). With a new allocator, however, I could do a
+> > finer grain locking. It probably still needs a (rw)lock for the hash
+> > table. Having per-CPU hash tables is inefficient as we would have to
+> > look up all the tables at every freeing or scanning for the
+> > corresponding memleak_object.
+>
+> at freeing we only have to look up the tree belonging to object->cpu.
 
-regards,
+At freeing, kmemleak only gets a pointer value which has to be looked
+up in the hash table for the corresponding memleak_object. Only after
+that, we can know memleak_object->cpu. That's why I think we only need
+to have a global hash table. The hash table look-up can be RCU.
+
+It would work with per-CPU hash tables but we still need to look-up
+the other hash tables in case the freeing happened on a different CPU
+(i.e. look-up the current hash table and, if it fails, look-up the
+other per-CPU hashes). Freeing would need to remove the entry from the
+hash table and acquire a lock but this would be per-CPU. I'm not sure
+how often you get this scenario (allocation and freeing on different
+CPUs) but it might introduce an overhead to the memory freeing.
+
+Do you have a better solution here?
+
+> > There is a global object_list as well covered by memleak_lock (only
+> > for insertions/deletions as traversing is RCU). [...]
+>
+> yeah, that would have to become per-CPU too.
+
+That's not that difficult but, as above, we need the hash table
+look-up before we find which list it is on.
+
+> > [...] List insertion/deletion is very small compared to the hash-table
+> > look-up and it wouldn't introduce a scalability problem.
+>
+> it's a common misconception to think that 'small' critical sections are
+> fine. That's not the issue. The pure fact of having globally modified
+> resource is the problem, the lock cacheline would ping-pong, etc.
+
+You are right but I didn't mean that small critical sections are
+better, just that in case we need a critical section for the global
+hash table look-up, extending this critical region with list
+addition/deletion wouldn't make things any worse (than they are,
+regarding scalability).
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Catalin

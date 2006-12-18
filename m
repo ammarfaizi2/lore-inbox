@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754013AbWLRNmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754021AbWLRNs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754013AbWLRNmS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 08:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754018AbWLRNmS
+	id S1754021AbWLRNs3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 08:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754020AbWLRNs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 08:42:18 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:31618 "HELO abra2.bitwizard.nl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1754013AbWLRNmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 08:42:17 -0500
-X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 08:42:16 EST
-Date: Mon, 18 Dec 2006 14:35:36 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Olivier Galibert <galibert@pobox.com>,
-       "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: Detecting disk I/O errors
-Message-ID: <20061218133536.GA7280@harddisk-recovery.com>
-References: <20061218130541.GA60506@dspnet.fr.eu.org>
+	Mon, 18 Dec 2006 08:48:28 -0500
+Received: from khc.piap.pl ([195.187.100.11]:37122 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754018AbWLRNs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 08:48:27 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove the broken SCSI_SEAGATE driver
+References: <20061212162238.GR28443@stusta.de>
+	<1165966274.5903.56.camel@mulgrave.il.steeleye.com>
+	<20061213000902.GD28443@stusta.de>
+	<m3wt4tp9ka.fsf@defiant.localdomain>
+	<1166198454.2846.10.camel@mulgrave.il.steeleye.com>
+	<m3ac1mb88s.fsf@defiant.localdomain>
+	<1166386966.9647.20.camel@mulgrave.il.steeleye.com>
+	<m3tzzu9q7k.fsf@defiant.localdomain>
+	<1166431702.3365.934.camel@laptopd505.fenrus.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 18 Dec 2006 14:48:25 +0100
+In-Reply-To: <1166431702.3365.934.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Mon, 18 Dec 2006 09:47:02 +0100")
+Message-ID: <m3ac1l2u3a.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061218130541.GA60506@dspnet.fr.eu.org>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 02:05:41PM +0100, Olivier Galibert wrote:
-> Is there a way to know if there has been I/O error(s) on a specific
-> disk or partition since boot other than parsing dmesg and hoping it's
-> both still there and in the expected format?
+Arjan van de Ven <arjan@infradead.org> writes:
 
-Use smartctl. It can be started in a monitor mode.
+> if a tree falls in a forest but there's nobody around to hear it, does
+> it make a sound?
+>
+> This sort of heisenbug questions aren't solved by "nobody hears it so
+> lets chop down the forest to make houses out of the wood" answers...
 
-
-Erik
-
+Does that mean you don't want to know which hardware/drivers aren't used
+anymore and which ones are?
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Krzysztof Halasa

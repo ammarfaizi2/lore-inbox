@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753816AbWLRLDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753823AbWLRLIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753816AbWLRLDq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 06:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753819AbWLRLDp
+	id S1753823AbWLRLIp (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 06:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753825AbWLRLIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 06:03:45 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:37446 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753816AbWLRLDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 06:03:44 -0500
-X-Greylist: delayed 1395 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 06:03:44 EST
-X-Sasl-enc: XomkS7An6kiezCng5lBMXLN7dgMCUmp7S1PcHL60ml88 1166438424
-Date: Mon, 18 Dec 2006 19:40:31 +0900 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Arkadiusz Miskiewicz <arekm@maven.pl>
-cc: Karel Zak <kzak@redhat.com>, util-linux-ng@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] util-linux-ng
-In-Reply-To: <200612181055.05585.arekm@maven.pl>
-Message-ID: <Pine.LNX.4.64.0612181938340.3552@raven.themaw.net>
-References: <20061218075210.GB5217@petra.dvoda.cz> <200612181055.05585.arekm@maven.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Dec 2006 06:08:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47119 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753823AbWLRLIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 06:08:44 -0500
+Subject: Re: [GFS2] Fix Kconfig [2/2]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Chris Zubrzycki <chris@middle--earth.org>, Adrian Bunk <bunk@stusta.de>,
+       Randy Dunlap <randy.dunlap@oracle.com>,
+       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
+       Aleksandr Koltsoff <czr@iki.fi>
+In-Reply-To: <Pine.LNX.4.61.0612181149420.22591@yvahk01.tjqt.qr>
+References: <1166435650.3752.1263.camel@quoit.chygwyn.com>
+	 <1166435849.3752.1266.camel@quoit.chygwyn.com>
+	 <Pine.LNX.4.61.0612181149420.22591@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 18 Dec 2006 11:10:40 +0000
+Message-Id: <1166440240.3752.1276.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2006, Arkadiusz Miskiewicz wrote:
+Hi,
 
-> On Monday 18 December 2006 08:52, Karel Zak wrote:
-> >  I'm pleased to announce a new "util-linux-ng" project. This project
-> >  is a fork of the original util-linux (2.13-pre7).
+On Mon, 2006-12-18 at 11:50 +0100, Jan Engelhardt wrote:
+> On Dec 18 2006 09:57, Steven Whitehouse wrote:
+> > config GFS2_FS_LOCKING_DLM
+> > 	tristate "GFS2 DLM locking module"
+> >-	depends on GFS2_FS
+> >+	depends on GFS2_FS && NET && INET && (IPV6 || IPV6=n)
 > 
-> Fork? Are you saying that you just didn't take over maintainership and now we 
-> will have two versions of util-linux!? :/
+> What is this supposed to do? IPV6 || IPV6=n is a tautology AFAICS.
 > 
+> 
+> 	-`J'
 
-We tried, believe me, but couldn't get agreement (or a response from 
-current maintainer).
+It looks odd, I'll grant you, but see the thread entitled "Re: [PATCH]
+Remove logically superfluous comparisons from Kconfig files." and the
+answer that Russell King has just given on the same subject where he
+says:
 
-Ian
+>config FOO
+>        tristate 'foo'
+>        depends on BAR || BAR=n
+>
+>is not superfluous.  The allowed states for FOO with the above
+>construct are (assuming modules are enabled):
+>
+>        BAR     FOO
+>        Y       Y,M,N
+>        M       M,N
+>        N       Y,M,N
+
+which hopefully explains it a bit better,
+
+Steve.
+
 

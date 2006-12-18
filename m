@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753652AbWLRJm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753671AbWLRJuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753652AbWLRJm6 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 04:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753654AbWLRJm6
+	id S1753671AbWLRJuv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 04:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753672AbWLRJuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 04:42:58 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:58606 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753652AbWLRJm6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 04:42:58 -0500
-X-Originating-Ip: 24.148.236.183
-Date: Mon, 18 Dec 2006 04:38:39 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Make entries in the "Device drivers" menu individually
- selectable
-In-Reply-To: <4583D008.40806@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.64.0612180431160.16929@localhost.localdomain>
-References: <Pine.LNX.4.64.0612140325340.13847@localhost.localdomain>
- <4583D008.40806@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	RCVD_IN_SORBS_DUL 2.05)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Mon, 18 Dec 2006 04:50:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44938 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753658AbWLRJuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 04:50:50 -0500
+Subject: [DLM] Fix compile warning [1/2]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
+Cc: Patrick Caulfield <pcaulfie@redhat.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 18 Dec 2006 09:54:10 +0000
+Message-Id: <1166435650.3752.1263.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2006, Stefan Richter wrote:
+>From c80e7c83d56866a735236b45441f024b589f9e88 Mon Sep 17 00:00:00 2001
+From: Patrick Caulfield <pcaulfie@redhat.com>
+Date: Fri, 8 Dec 2006 14:31:12 -0500
+Subject: [PATCH] [DLM] fix compile warning
 
-> Robert P. J. Day wrote on 2006-12-14:
-> >   i've posted on this before so here's a slightly-updated patch
-> > that uses the kbuild "menuconfig" feature to make numerous entries
-> > under the Device drivers menu selectable on the spot.
->
-> Works for me, but I don't see a lot of benefit from it. Actually I
-> see two disadvantages of the patch:
->
->  - Without the patch, the choice of y/m/n for a subsystem and the
-> help text is put aside into the submenu. I find this current layout
-> simpler and quieter.
+This patch fixes a compile warning in lowcomms-tcp.c indicating that
+kmem_cache_t is deprecated.
 
-it's certainly "simpler and quieter" in one sense, but one need only
-look at a submenu like "Network device support" to see a very "loud"
-menu, so it's not like this patch would be introducing an
-unprecedented level of noise.
+Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+---
+ fs/dlm/lowcomms-tcp.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-also, in the Device Drivers menu, i find it slightly annoying that i
-have to *enter* a submenu to read its help information.  if i see the
-entry, say, "Dallas's 1-wire bus" and i have no idea what that is and
-select "Help", i get the generic help screen.  i need to select that
-entry and enter the submenu just to read its top-level help.
+diff --git a/fs/dlm/lowcomms-tcp.c b/fs/dlm/lowcomms-tcp.c
+index 8f2791f..9be3a44 100644
+--- a/fs/dlm/lowcomms-tcp.c
++++ b/fs/dlm/lowcomms-tcp.c
+@@ -143,7 +143,7 @@ static DECLARE_WAIT_QUEUE_HEAD(lowcomms_
+ /* An array of pointers to connections, indexed by NODEID */
+ static struct connection **connections;
+ static DECLARE_MUTEX(connections_lock);
+-static kmem_cache_t *con_cache;
++static struct kmem_cache *con_cache;
+ static int conn_array_size;
+ 
+ /* List of sockets that have reads pending */
+-- 
+1.4.1
 
-in any event, i'm sure folks understand what i'm after here.  if
-there's a cleaner and more efficient way to do this, that would work
-for me.
 
-rday
+

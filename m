@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753813AbWLRLCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753816AbWLRLDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753813AbWLRLCQ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 06:02:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753818AbWLRLCQ
+	id S1753816AbWLRLDq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 06:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753819AbWLRLDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 06:02:16 -0500
-Received: from smtp.trashmail.net ([213.41.184.212]:35207 "EHLO
-	smtp.trashmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753813AbWLRLCP (ORCPT
+	Mon, 18 Dec 2006 06:03:45 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:37446 "EHLO
+	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753816AbWLRLDo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 06:02:15 -0500
-X-Greylist: delayed 1999 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 06:02:15 EST
-To: linux-kernel@vger.kernel.org
-From: rrcwjpgr <rrcwjpgr@trashmail.net>
-Subject: 2.4.28: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) ?
-Message-Id: <20061218103243.97FF9BB1A02B7@smtp.trashmail.net>
-Date: Mon, 18 Dec 2006 11:32:43 +0100 (CET)
+	Mon, 18 Dec 2006 06:03:44 -0500
+X-Greylist: delayed 1395 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 06:03:44 EST
+X-Sasl-enc: XomkS7An6kiezCng5lBMXLN7dgMCUmp7S1PcHL60ml88 1166438424
+Date: Mon, 18 Dec 2006 19:40:31 +0900 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Arkadiusz Miskiewicz <arekm@maven.pl>
+cc: Karel Zak <kzak@redhat.com>, util-linux-ng@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] util-linux-ng
+In-Reply-To: <200612181055.05585.arekm@maven.pl>
+Message-ID: <Pine.LNX.4.64.0612181938340.3552@raven.themaw.net>
+References: <20061218075210.GB5217@petra.dvoda.cz> <200612181055.05585.arekm@maven.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 18 Dec 2006, Arkadiusz Miskiewicz wrote:
 
-first thanks for your great support on the Linux kernel.
-I have a problem with kernel 2.4.28 and maybe somebody has an idea about my problem. When I type dmesg, I get this error messages:
-__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-VM: killing process python
+> On Monday 18 December 2006 08:52, Karel Zak wrote:
+> >  I'm pleased to announce a new "util-linux-ng" project. This project
+> >  is a fork of the original util-linux (2.13-pre7).
+> 
+> Fork? Are you saying that you just didn't take over maintainership and now we 
+> will have two versions of util-linux!? :/
+> 
 
-For any kind of reason a python script is killed.
-What this kind of error message means?
-Is this the memory killer? This would mean that maybe I have a memory leak in the python script?
+We tried, believe me, but couldn't get agreement (or a response from 
+current maintainer).
 
+Ian
 
-Best regards,
-saf
--- 
-E-Mail sent with anti-spam site TrashMail.net!
-Free disposable email addresses: http://www.trashmail.net/

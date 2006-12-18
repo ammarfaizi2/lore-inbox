@@ -1,72 +1,111 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754437AbWLRTSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754449AbWLRT1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754437AbWLRTSf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 14:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754438AbWLRTSf
+	id S1754449AbWLRT1e (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 14:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754448AbWLRT1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 14:18:35 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:37853 "EHLO smtp.osdl.org"
+	Mon, 18 Dec 2006 14:27:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38027 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754436AbWLRTSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 14:18:34 -0500
-Date: Mon, 18 Dec 2006 11:18:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrei Popa <andrei.popa@i-neo.ro>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <1166468651.6983.6.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-  <1166466272.10372.96.camel@twins>  <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
- <1166468651.6983.6.camel@localhost>
+	id S1754450AbWLRT1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 14:27:32 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ricardo Galli <gallir@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+References: <200612161927.13860.gallir@gmail.com>
+	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
+	<orwt4qaara.fsf@redhat.com>
+	<Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat OS Tools Group
+Date: Mon, 18 Dec 2006 17:27:19 -0200
+In-Reply-To: <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org> (Linus Torvalds's message of "Sun\, 17 Dec 2006 09\:59\:51 -0800 \(PST\)")
+Message-ID: <orpsah6m3s.fsf@redhat.com>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Dec 17, 2006, Linus Torvalds <torvalds@osdl.org> wrote:
+
+> For example, glibc could easily have just come out and said the thing that 
+> is obvious to any sane person: "using this library as just a standard 
+> library does not make your program a derived work". 
+
+> There really wassn't much need for the LGPL, I think. 
+
+So I guess you approve of the reformulation of LGPL as an additional
+permission on top of GPL, as in its draft at gplv3.fsf.org, right?
+
+>> Some claim that, in the case of static linking, since there part of
+>> the library copied to the binary, it is definitely a case of derived
+>> work.
+
+> No, the sane way to think about it is that linking just creates an 
+> "aggregate" work.
+
+That's your take on it.  It does make sense, but claiming it's *the*
+sane way to think about it is making the mistake you accused the FSF
+of making.
 
 
-On Mon, 18 Dec 2006, Andrei Popa wrote:
-> 
-> I applied Linus patch, Andrew patch, Peter Zijlstra patches(the last
-> two). All unified patch is attached. I tested and I have no corruption.
+> Why do people think that using "ln" is _any_ different from using 
+> "mkisofs".
 
-That wasn't very interesting, because you also had the patch that just 
-disabled "page_mkclean_one()" entirely:
+Maybe because mkisofs will create a functional filesystem image out of
+whatever you could possibly throw at it, while ld will perform a
+number of cross-checks between the inputs it is given which indicates
+a much closer relationship between the inputs?
 
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index d8a842a..3f9061e 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -448,7 +448,7 @@ static int page_mkclean_one(struct page 
->  		goto unlock;
->  
->  	entry = ptep_get_and_clear(mm, address, pte);
-> -	entry = pte_mkclean(entry);
-> +	/*entry = pte_mkclean(entry);*/
->  	entry = pte_wrprotect(entry);
->  	ptep_establish(vma, address, pte, entry);
->  	lazy_mmu_prot_update(entry);
+You said so yourself, so I guess we agree.
 
-The above patch is bad. It's always going to hide the bug, but it hides it 
-by just not doing anything at all. So any patch combination that contains 
-that patch will probably _always_ fix your problem, but it won't be an 
-interesting patch..
 
-So can you remove that small fragment? Also, it would be nice if you added 
-the WARN_ON() to this sequence in mm/page-writeback.c:
+> Does "mkisofs" create a derived work, or an aggregate?
 
-+                       if (!must_clean_ptes && cleaned)
-+                               set_page_dirty(page);
+I'd say both.  I understand it's a derived work, but one that happens
+to be a mere aggregate of works that might or might not be based on a
+GPLed program included in the aggregate.  Now, does this mean that a
+court would be pretty much forced to admit the aggregate as a derived
+work, and thus that the copyright holder (or the license author) gets
+a say on what 'mere aggregate' means in the license chosen by the
+copyright holder?
 
-just make it do a WARN_ON() if this ever triggers.
+ld creates works that perhaps can be construed as not being mere
+aggregates or even derived works, since ld doesn't always copy the
+contents of its inputs to the output.  But it does extract some
+information that makes to the output, and there is a closer
+relationship between the works than in the mere aggregation case of
+mkisofs, so there is still room for claiming that the output is a
+derived work, and that it's not a mere aggregate.
 
-Then, IF the corruption is gone, we'd love to see the WARN_ON results..
+In fact, it can't possibly be exempt by this paragraph in clause 2 of
+the GPL:
 
-		Linus
+  In addition, mere aggregation of another work not based on the
+  Program with the Program (or with a work based on the Program) on a
+  volume of a storage or distribution medium does not bring the other
+  work under the scope of this License.
+
+because we're not talking about mere aggregation of the work (or a
+work based on it) with another work not based on the program, but
+rather about whether the linker output is based on the program or not.
+A court gets to decide whether it is a derived work, but since in the
+dynamic linking case you're not aggregating (because you're not
+copying the entire library) the program with other works not based on
+the program, then this exception doesn't apply, methinks.
+
+>    This particular thing is a non-issue wrt the GPLv2, since you always 
+>    have the right to do distribution of aggregates, but it does come up in 
+>    some OTHER licenses.
+
+Make it *mere* aggregates.  That *might* turn out to be a relevant
+distinction.  E.g., if there's functional dependence of one of the
+elements of the aggregate on another, is the aggregate work still the
+result of mere aggregation?
+
+-- 
+Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
+FSF Latin America Board Member         http://www.fsfla.org/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

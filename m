@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754670AbWLRWAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754673AbWLRWFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754670AbWLRWAf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754669AbWLRWAe
+	id S1754673AbWLRWFU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754675AbWLRWFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:00:34 -0500
-Received: from wx-out-0506.google.com ([66.249.82.236]:26105 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754667AbWLRWAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:00:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rcBR3Op0xxetbYA+gIjYkNulNJ6hOBwxQeTV099yUD6YkiXIDea70I8QTrRG1zwB2XvIAmHLXSiwq2FM7WdPpqUh7HbyD+Fm4Fcf0/jNzubV6fZ1kmGh76S0I+sR4WGeSYowiCIeh7CujuKG4Kxmxku00CKzVdeZfM7vL9v1JCA=
-Message-ID: <5a4c581d0612181400t347fc9efx69e55efb3ef40c45@mail.gmail.com>
-Date: Mon, 18 Dec 2006 23:00:32 +0100
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: andrei.popa@i-neo.ro
-Subject: Re: 2.6.19 file content corruption on ext3
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
-       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
-       "Martin Michlmayr" <tbm@cyrius.com>
-In-Reply-To: <1166476297.6862.1.camel@localhost>
+	Mon, 18 Dec 2006 17:05:20 -0500
+Received: from thunk.org ([69.25.196.29]:52958 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754673AbWLRWFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 17:05:19 -0500
+Date: Mon, 18 Dec 2006 17:05:14 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: karderio <karderio@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061218220514.GB3468@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	karderio <karderio@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org> <1166475847.20449.208.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1166314399.7018.6.camel@localhost>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <1166466272.10372.96.camel@twins>
-	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
-	 <1166476297.6862.1.camel@localhost>
+In-Reply-To: <1166475847.20449.208.camel@localhost>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/18/06, Andrei Popa <andrei.popa@i-neo.ro> wrote:
-> On Mon, 2006-12-18 at 12:41 -0800, Linus Torvalds wrote:
-> >
-> > On Mon, 18 Dec 2006, Linus Torvalds wrote:
-> > >
-> > > But at the same time, it's interesting that it still happens when we try
-> > > to re-add the dirty bit. That would tell me that it's one of two cases:
-> >
-> > Forget that. There's a third case, which is much more likely:
-> >
-> >  - Andrew's patch had a ", 1" where it _should_ have had a ", 0".
-> >
-> > This should be fairly easy to test: just change every single ", 1" case in
-> > the patch to ", 0".
-> >
-> > The only case that _definitely_ would want ",1" is actually the case that
-> > already calls page_mkclean() directly: clear_page_dirty_for_io(). So no
-> > other ", 1" is valid, and that one that needed it already avoided even
-> > calling the "test_clear_page_dirty()" function, because it did it all by
-> > hand.
-> >
-> > What happens for you in that case?
-> >
-> >               Linus
->
-> I have file corruption.
+On Mon, Dec 18, 2006 at 10:04:07PM +0100, karderio wrote:
+> I have realised that the proposed changes do not *impose* any more
+> restriction on the use of the kernel than currently exists. Currently
+> the Kernel is licenced to impose the same licence on derived works,
+> enforce distribution of source code etc. and this by law. The proposed
+> changes do not impose anything, they just make things technically a
+> little more complicated for some, and they can be trivially circumvented
+> if one desires. 
 
-No idea whether this can be a data point or not, but
- here it goes... my P2P box is about to turn 5 days old
- while running nonstop one or both of aMule 2.1.3 and
- BitTorrent 4.4.0 on ext3 mounted w/default options
- on both IDE and USB disks. Zero corruption.
+.... except that the people who proposed these changes have already
+suggested that these circumventions would be violations of the United
+States' Digital Milllenium Copyright Act, which has rather draconoian
+penalties for these "trivial circumventions".  Which is precisely why
+Linus has said that if we go down this path, we are basically using
+the same tactics as the RIAA and MPAA.  And why this kind of arm
+twisting as "pursuasion" would be a very, VERY bad idea.  
 
-AMD K7-800, 512MB RAM, PREEMPT/UP kernel,
-2.6.19-git20 on top of up-to-date FC6.
+						- Ted
 
---alessandro
-
-"...when I get it, I _get_ it"
-
-     (Lara Eidemiller)

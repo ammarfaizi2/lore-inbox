@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753836AbWLRLRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753651AbWLRLX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753836AbWLRLRg (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 06:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753835AbWLRLRg
+	id S1753651AbWLRLX5 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 06:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753679AbWLRLX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 06:17:36 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:51724 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753836AbWLRLRf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 06:17:35 -0500
-X-Originating-Ip: 24.148.236.183
-Date: Mon, 18 Dec 2006 06:09:59 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Steven Whitehouse <swhiteho@redhat.com>, cluster-devel@redhat.com,
-       linux-kernel@vger.kernel.org, Patrick Caulfield <pcaulfie@redhat.com>,
-       Chris Zubrzycki <chris@middle--earth.org>, Adrian Bunk <bunk@stusta.de>,
-       Randy Dunlap <randy.dunlap@oracle.com>,
-       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>,
-       Aleksandr Koltsoff <czr@iki.fi>
-Subject: Re: [GFS2] Fix Kconfig [2/2]
-In-Reply-To: <Pine.LNX.4.61.0612181149420.22591@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0612180606200.23454@localhost.localdomain>
-References: <1166435650.3752.1263.camel@quoit.chygwyn.com>
- <1166435849.3752.1266.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0612181149420.22591@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	RCVD_IN_SORBS_DUL 2.05)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Mon, 18 Dec 2006 06:23:56 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33732 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753651AbWLRLX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 06:23:56 -0500
+Date: Mon, 18 Dec 2006 12:21:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
+Message-ID: <20061218112120.GA7599@elte.hu>
+References: <20061216153346.18200.51408.stgit@localhost.localdomain> <20061216165738.GA5165@elte.hu> <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com> <20061217085859.GB2938@elte.hu> <b0943d9e0612171505l6dfe19c6h6391b08f41243b1@mail.gmail.com> <20061218072932.GA5624@elte.hu> <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2006, Jan Engelhardt wrote:
 
->
-> On Dec 18 2006 09:57, Steven Whitehouse wrote:
-> > config GFS2_FS_LOCKING_DLM
-> > 	tristate "GFS2 DLM locking module"
-> >-	depends on GFS2_FS
-> >+	depends on GFS2_FS && NET && INET && (IPV6 || IPV6=n)
->
-> What is this supposed to do? IPV6 || IPV6=n is a tautology AFAICS.
+* Catalin Marinas <catalin.marinas@gmail.com> wrote:
 
-no, we just went through that and russell king is correct -- see the
-brief series of posts from earlier this morning during which i made a
-fool of myself.  :-P
+> >> [...] It could be so simple that it would never need to free any
+> >> pages, just grow the size as required and reuse the freed memleak
+> >> objects from a list.
+> >
+> >sounds good to me. Please make it a per-CPU pool.
+> 
+> Isn't there a risk for the pools to become imbalanced? A lot of 
+> allocations would initially happen on the first CPU.
 
-although, it *is* curious that there appear to be only four places in
-the entire source tree that incorporate that type of logical check.
-i'm still trying to wrap my head around the rationale for that
-particular combination, since it does seem to be rather infrequent and
-(at least for me) a little non-intuitive.
+hm, what's the problem with imbalance? These are trees and imbalance 
+isnt a big issue.
 
-rday
+> >[...] (Add a memleak_object->cpu pointer so that freeing can be done 
+> >on any other CPU as well.)
+> 
+> We could add the freed objects to the CPU pool where they were freed 
+> and not use a memleak_object->cpu pointer.
+
+i mean totally per-CPU locking and per-CPU radix trees, etc.
+
+> > We'll have to fix the locking too, to be per-CPU - memleak_lock is 
+> > quite a scalability problem right now.
+> 
+> The memleak_lock is indeed too coarse (but it was easier to track the 
+> locking dependencies). With a new allocator, however, I could do a 
+> finer grain locking. It probably still needs a (rw)lock for the hash 
+> table. Having per-CPU hash tables is inefficient as we would have to 
+> look up all the tables at every freeing or scanning for the 
+> corresponding memleak_object.
+
+at freeing we only have to look up the tree belonging to object->cpu. 
+Scanning overhead does not matter in comparison to runtime tracking 
+overhead. (but i doubt it would be much different - scanning overhead 
+scales with size of tree)
+
+> There is a global object_list as well covered by memleak_lock (only 
+> for insertions/deletions as traversing is RCU). [...]
+
+yeah, that would have to become per-CPU too.
+
+> [...] List insertion/deletion is very small compared to the hash-table 
+> look-up and it wouldn't introduce a scalability problem.
+
+it's a common misconception to think that 'small' critical sections are 
+fine. That's not the issue. The pure fact of having globally modified 
+resource is the problem, the lock cacheline would ping-pong, etc.
+
+	Ingo

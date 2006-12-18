@@ -1,78 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754553AbWLRVYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754599AbWLRVYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754553AbWLRVYc (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 16:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754591AbWLRVYc
+	id S1754599AbWLRVYl (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 16:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754607AbWLRVYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 16:24:32 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:1763 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754553AbWLRVYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 16:24:31 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL only modules
-Date: Mon, 18 Dec 2006 13:23:59 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEDMAHAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 14:27:16 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 14:27:18 -0800
+	Mon, 18 Dec 2006 16:24:41 -0500
+Received: from mail.screens.ru ([213.234.233.54]:54170 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754599AbWLRVYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 16:24:40 -0500
+Date: Tue, 19 Dec 2006 00:24:24 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] kill_something_info: misc cleanups
+Message-ID: <20061218212424.GB520@tv-sign.ru>
+References: <20061216200510.GA5535@tv-sign.ru> <20061217101856.GA1285@infradead.org> <m18xh6u5pz.fsf@ebiederm.dsl.xmission.com> <20061217144019.GA110@tv-sign.ru> <m1irg9s64t.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1irg9s64t.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/18, Eric W. Biederman wrote:
+>
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > Btw, de_thread() already takes care about multithread init, but
+> > get_signal_to_deliver() does not:
+> >
+> > 	if (current == child_reaper(current))
+> > 		continue;
+> 
+> Probably just: current->group_leader == child_reaper(current).
 
-> Static vs dynamic matters for whether it's an AGGREGATE work. Clearly,
-> static linking aggregates the library with the other program in the same
-> binary. There's no question about that. And that _does_ have meaning from
-> a copyright law angle, since if you don't have permission to ship
-> aggregate works under the license, then you can't ship said binary. It's
-> just a non-issue in the specific case of the GPLv2.
+No. deadlock on exec.
 
-The right to ship aggregate works is not one specifically reserved by law to
-the copyright holder. It's also not clear that an aggregate work is in fact
-a single work for any legal purpose other than the aggregator's claim to
-copyright. All you need to ship an aggregated work is the right to ship each
-of the individual works aggregated in it. For GPL'd works, you get that
-right from first sale, assuming you lawfully acquired the GPL'd work in the
-first place.
+> Can we do the ignore in send_signal?
 
-If the aggregation is performed in an automated and mechanized way, the
-aggregate is not a single work. It's still multiple works aggregated
-together. For copyright law purposes, it is not a work because no creative
-input was needed to produce it beyond what was used to create the works from
-which it was formed.
+No. It is not possible immediately with the current implemantation,
+but the main reason is that we want to retain the "init is protected
+from all signals it doesn't explicitly setup a signal handler for"
+property. Consider init doing
 
-I recently bought two DVDs as a present for a friend of mine. I put the two
-DVDs in one box and shipped them to him. Just because the two DVDs are in
-one box does not make them a derivative work for copyright purposes because
-no creative input went in to them. I can even staple the two DVDs together
-if I want. I also don't need any special permission to ship the two of them
-together to my friend, first sale covers that. The right to ship each
-individual work is all that's needed to ship the aggregate.
+	signal(SIGTERM, handler);
+	...
+	signal(SIGTERM, SIG_DFL);	<----- SIGTERM comes
 
-Now, if I wanted to write my own story with elements from the content of
-both DVDs, that would be a derivative work because the combination itself is
-done in a creative way.
+so we should do something for init on receive-signal path. Yes, yes,
+we _can_ solve this in other way (say, change sys_rt_sigaction), but
+this is nasty and doesn't solve other problems.
 
-No automated, mechanical process can create a derivative work of software.
-(With a few exceptions not relevant here.)
+> > This doesn't protect init from SIGKILL if we send it to sub-thread (and
+> > this can happen even if we use kill(1, sig), not tkill). Yes, the main
+> > thread will survive, but still this is not what we want. SIGSTOP will
+> > manage to stop entire group because sub-thread sets ->group_stop_count.
+> 
+> Yep.  We need to fix this.  It doesn't happen today because we don't
+> have a multi-threaded init.  But as soon as untrusted users can have
+> their own init this becomes we need to handle everything properly.
 
-DS
+This is a longstanding problem, an it is connected to other longstanding
+problems (say, fatal signal may be lost on exec). I wish I had a time to
+at least try to find a solution.
 
+Probably I'll find some time at the beginning of January, I have some
+vague ideas. Hmm... at least I had :)
+
+> We need two specific helpers.
+> 1) To detect the real machine init and the special things we have to
+>    do for it.
+> 2) To detect the init of a pid namespace for user visible semantic
+>    purposes like signal handling (is there anything else).
+
+Yes, I understand. My intent was to push this cleanup before multiple
+pid namespaces will change kill_something_inf(). But as I said it is
+minor, and since you and Christoph don't like it (for whatever reason)
+please forget it.
+
+Oleg.
 

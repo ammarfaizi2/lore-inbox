@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754244AbWLRQgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754250AbWLRQlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754244AbWLRQgk (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 11:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754245AbWLRQgj
+	id S1754250AbWLRQlA (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 11:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754251AbWLRQlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 11:36:39 -0500
-Received: from apollo.i-cable.com ([203.83.115.103]:60403 "HELO
-	apollo.i-cable.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754244AbWLRQgi (ORCPT
+	Mon, 18 Dec 2006 11:41:00 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:22840 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754249AbWLRQlA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 11:36:38 -0500
-X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 11:36:38 EST
-Message-ID: <002601c722c1$9c4d1b80$28df0f3d@kylecea1512a3f>
-From: "kyle" <kylewong@southa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: schedule_timeout: wrong timeout value
-Date: Tue, 19 Dec 2006 00:28:53 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="big5";
-	reply-type=original
+	Mon, 18 Dec 2006 11:41:00 -0500
+Subject: Re: bug: crash in adummy_init()
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061218153145.GA17449@elte.hu>
+References: <20061218153145.GA17449@elte.hu>
+Content-Type: text/plain
+Date: Mon, 18 Dec 2006 08:40:31 -0800
+Message-Id: <1166460032.11560.9.camel@imap.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-12-18 at 16:31 +0100, Ingo Molnar wrote:
+> crash in adummy_init() - allyesconfig bootup.
+> 
+> 	Ingo
+> 
+> ---------------->
+> Calling initcall 0xc1eb1f7e: adummy_init+0x0/0xb9()
+> adummy: version 1.0
+> swapper/1[CPU#0]: BUG in kref_get at lib/kref.c:32
+>  [<c0106273>] show_trace_log_lvl+0x34/0x4a
+>  [<c01063a9>] show_trace+0x2c/0x2e
+>  [<c01063d6>] dump_stack+0x2b/0x2d
+>  [<c0135acb>] __WARN_ON+0x63/0x75
+>  [<c04f0fb9>] kref_get+0x31/0x3c
+>  [<c04f028c>] kobject_get+0x1c/0x22
+>  [<c06e296a>] class_get+0x1d/0x2d
 
-Recently my mysql servershows something like:
-Dec 18 18:24:05 sql kernel: schedule_timeout: wrong timeout value ffffffff 
-from c0284efd
-Dec 18 18:24:36 sql last message repeated 19939 times
-Dec 18 18:25:37 sql last message repeated 33392 times
+Here, adummy_init() depends on atm_init() and they're both in the same
+initcall level. I wonder if there's suppose to be a set ordering inside
+any given initcall level, I don't think there is.
 
-from syslog every 1 or 2 days. Whenever the messages show, mysql server stop 
-accept new connections from the same network, and I need to restart the 
-mysql service and then it will keep running well for 1-2 days until the 
-messages show up again.
-
-The server has been running over 1 year without any problem, the problem 
-started show up around 2 weeks ago. It's running kernel 2.6.12, and mysql 
-server, nothing else. Hardware is Pentium 4 2.8GHz with hyperthreading 
-enabled.
-
-What does the kernel message mean and why it make mysql stop accept new 
-connections? Is it hardware problem or try upgrade the kernel may help?
-Please CC me if possible. Thank you
-
-Kyle
-
-
+Daniel
 

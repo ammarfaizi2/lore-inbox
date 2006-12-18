@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753651AbWLRLX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753861AbWLRLjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753651AbWLRLX5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 06:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753679AbWLRLX4
+	id S1753861AbWLRLjd (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 06:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753863AbWLRLjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 06:23:56 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33732 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753651AbWLRLX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 06:23:56 -0500
-Date: Mon, 18 Dec 2006 12:21:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
-Message-ID: <20061218112120.GA7599@elte.hu>
-References: <20061216153346.18200.51408.stgit@localhost.localdomain> <20061216165738.GA5165@elte.hu> <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com> <20061217085859.GB2938@elte.hu> <b0943d9e0612171505l6dfe19c6h6391b08f41243b1@mail.gmail.com> <20061218072932.GA5624@elte.hu> <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
-Mime-Version: 1.0
+	Mon, 18 Dec 2006 06:39:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52831 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753861AbWLRLjd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 06:39:33 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Dave Jones <davej@redhat.com>
+Cc: Daniel Drake <dsd@gentoo.org>, linux list <linux-kernel@vger.kernel.org>
+Subject: Re: amd64 agpgart aperture base value
+References: <4580C954.103@gentoo.org> <20061214132224.GD17565@redhat.com>
+	<4581DFC2.1000304@gentoo.org> <20061215000250.GB18456@redhat.com>
+Date: Mon, 18 Dec 2006 04:38:58 -0700
+In-Reply-To: <20061215000250.GB18456@redhat.com> (Dave Jones's message of
+	"Thu, 14 Dec 2006 19:02:50 -0500")
+Message-ID: <m1psahsab1.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones <davej@redhat.com> writes:
 
-* Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On Thu, Dec 14, 2006 at 06:35:30PM -0500, Daniel Drake wrote:
+>
+>  > So, you think that the aperture moving to a different location on every 
+>  > boot is what the BIOS desires? Is it normal for it to move so much?
+>
+> Beats me. I gave up trying to understand BIOS authors motivations years ago.
+>
+>  > The current patch drops the upper bits and results in the aperture 
+>  > always being in the same place, and this appears to work. If the BIOS 
+>  > did really put the aperture beyond 4GB but my patch is making Linux put 
+>  > it somewhere else, does it surprise you that things are still working 
+>  > smoothly?
+>
+> Does it survive a run of testgart when masking out the high bits?
+> It could be that you're right, and the upper bits being reported really
+> are garbage.
+>
+>  > Is it even possible for the aperture to start beyond 4GB when the system 
+>  > has less than 4GB of RAM?
+>
+> The amount of RAM is irrelevant, it can appear anywhere in the address space,
+> which on 64bit, is pretty darned huge.  The aperture isn't backed by RAM,
+> it's a 'virtual window' of sorts. When you write to an address in that range, it
+> gets transparently remapped to somewhere else in the address space.
+> The window is the 'aperture', where it remaps to is controlled by a translation
+> table called the GATT (which does live in real memory).
+>
+> That's pretty much all there is to AGP. It's just a really dumb MMU of sorts.
 
-> >> [...] It could be so simple that it would never need to free any
-> >> pages, just grow the size as required and reuse the freed memleak
-> >> objects from a list.
-> >
-> >sounds good to me. Please make it a per-CPU pool.
-> 
-> Isn't there a risk for the pools to become imbalanced? A lot of 
-> allocations would initially happen on the first CPU.
+Well I just took a quick look, and it looks like there is a bug in amd64-agp.c
+It isn't masking off the reserved high bits of the register at 0x94, and it
+isn't being very careful with the promotion to 64bits.
 
-hm, what's the problem with imbalance? These are trees and imbalance 
-isnt a big issue.
+However that does not appear to be the problem, as the base addresses you are
+seeing are only seeing 40 bits long, and you are fixing it in the register
+before the code in amd64-agp.c runs.
 
-> >[...] (Add a memleak_object->cpu pointer so that freeing can be done 
-> >on any other CPU as well.)
-> 
-> We could add the freed objects to the CPU pool where they were freed 
-> and not use a memleak_object->cpu pointer.
+So I do agree that it appears that the BIOS is letting the upper address bits
+float, and giving you a 32bit value.
 
-i mean totally per-CPU locking and per-CPU radix trees, etc.
+Fixing this with a board specific pci quirk is questionable but it may
+be ok.  A reliable fix is probably if the address is sufficiently questionable
+to allocate a new aperture ourselves, and scream that the BIOS messed up.
+arch/x86_64/kernel/aperture.c appears to do that when we use the agp aperture
+for an iommu.
 
-> > We'll have to fix the locking too, to be per-CPU - memleak_lock is 
-> > quite a scalability problem right now.
-> 
-> The memleak_lock is indeed too coarse (but it was easier to track the 
-> locking dependencies). With a new allocator, however, I could do a 
-> finer grain locking. It probably still needs a (rw)lock for the hash 
-> table. Having per-CPU hash tables is inefficient as we would have to 
-> look up all the tables at every freeing or scanning for the 
-> corresponding memleak_object.
+I don't think a agp aperture above 64bits is actually very interesting,
+in practice as most agp cards are only 32bits so won't be able to use it.
+And we are talking bus addresses here.
 
-at freeing we only have to look up the tree belonging to object->cpu. 
-Scanning overhead does not matter in comparison to runtime tracking 
-overhead. (but i doubt it would be much different - scanning overhead 
-scales with size of tree)
-
-> There is a global object_list as well covered by memleak_lock (only 
-> for insertions/deletions as traversing is RCU). [...]
-
-yeah, that would have to become per-CPU too.
-
-> [...] List insertion/deletion is very small compared to the hash-table 
-> look-up and it wouldn't introduce a scalability problem.
-
-it's a common misconception to think that 'small' critical sections are 
-fine. That's not the issue. The pure fact of having globally modified 
-resource is the problem, the lock cacheline would ping-pong, etc.
-
-	Ingo
+Eric

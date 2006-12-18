@@ -1,94 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754180AbWLRPrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754183AbWLRPzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754180AbWLRPrz (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 10:47:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754182AbWLRPrz
+	id S1754183AbWLRPzL (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 10:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754185AbWLRPzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 10:47:55 -0500
-Received: from nz-out-0506.google.com ([64.233.162.237]:45312 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754177AbWLRPrq (ORCPT
+	Mon, 18 Dec 2006 10:55:11 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:43002 "EHLO
+	vms048pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754183AbWLRPzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 10:47:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=OXbcCIqAl9zOL+c3pQuU0of5TkRcXFzcSca1veofd9ZiYfHpor1VJ6/59oB9h5jTz94/h4MwRjyxnR40MTBzXAFmeK6z+krCTDhrdG2znFW9U6pvMM7hgJm7V2d/qyvuB/igI86kryFuY17va8+FcDnHWxGTfsbdbhA4zHtp9Ko=
-Message-ID: <161717d50612180747k5e40a802uf33203eca9515acc@mail.gmail.com>
-Date: Mon, 18 Dec 2006 10:47:44 -0500
-From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-To: "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: GPL only modules
-Cc: davids@webmaster.com,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612171646.40655.dhazelton@enter.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <MDEHLPKNGKAHNMBLJOLKGEPFAGAC.davids@webmaster.com>
-	 <200612171646.40655.dhazelton@enter.net>
-X-Google-Sender-Auth: 5d26241b1414694e
+	Mon, 18 Dec 2006 10:55:09 -0500
+Date: Mon, 18 Dec 2006 10:54:16 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: ieee1394 in 2.6.20-rc1 (was Re: Linux 2.6.20-rc1)
+In-reply-to: <4586B77E.1080803@s5r6.in-berlin.de>
+To: linux-kernel@vger.kernel.org
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux1394-devel@lists.sourceforge.net
+Message-id: <200612181054.18226.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+ <200612172329.14723.gene.heskett@verizon.net>
+ <4586B77E.1080803@s5r6.in-berlin.de>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/17/06, D. Hazelton <dhazelton@enter.net> wrote:
-> On Sunday 17 December 2006 16:32, David Schwartz wrote:
-> > > I would argue that this is _particularly_ pertinent with regards to
-> > > Linux.  For example, if you look at many of our atomics or locking
-> > > operations a good number of them (depending on architecture and
-> > > version) are inline assembly that are directly output into the code
-> > > which uses them.  As a result any binary module which uses those
-> > > functions from the Linux headers is fairly directly a derivative work
-> > > of the GPL headers because it contains machine code translated
-> > > literally from GPLed assembly code found therein.  There are also a
-> > > fair number of large perhaps-wrongly inline functions of which the
-> > > use of any one would be likely to make the resulting binary
-> > > "derivative".
-> >
-> > That's not protectable expression under United States law. See Lexmark v.
-> > Static Controls and the analogous case of the TLP (ignore the DMCA stuff in
-> > that case, that's not relevant). If you want to make that kind of content
-> > protectable, you have to get it out of the header files.
-> >
-> > You cannot protect, by copyright, every reasonably practical way of
-> > performing a function. Only a patent can do that. If taking something is
-> > reasonably necessary to express a particular idea (and a Linux module for
-> > the ATI X850 card is an idea), then that something cannot be protected by
-> > copyright when it is used to express that idea. (Even if it would clearly
-> > be protectably expression in another context.)
-> >
-> > The premise of copyright is that there are millions of equally-good ways to
-> > express the same idea or perform the same function, and you creatively pick
-> > one, and that choice is protected. But if I'm developing a Linux module for
-> > a particular network card, choosing to use the Linux kernel header files is
-> > the only practical choice to perform that particular function. So their
-> > content is not protectable when used in that context. (If you make another
-> > way to do it, then the content becomes protectable in that context again.)
-> >
-> > IANAL.
-> >
-> > DS
+On Monday 18 December 2006 10:45, Stefan Richter wrote:
+>Gene Heskett wrote:
+>> On Sunday 17 December 2006 20:05, Stefan Richter wrote:
+>>>What's missing in our implementation is that the use count of ohci1394
+>>>goes up too once a "high-level driver" uses resources of a host driven
+>>>by ohci1394.
+>>
+>> This needs some tlc then I assume?
 >
-> Agreed. You missed the point. Since the Linux Kernel header files contain a
-> chunk of the source code for the kernel in the form of the macros for locking
-> et. al. then using the headers - including that code in your module - makes
-> it a derivative work.
+>Yes. It's now logged at http://bugzilla.kernel.org/show_bug.cgi?id=7701
+>and will probably stay there until I do something about it myself.
 
-David didn't miss the point; Lexmark vs. Static Controls, however
-unintuitively, ruled that even _verbatim_ copying is not always
-copyright infringement in the case of software because of issues like
-the doctrine of scenes a faire. In the case of spinlocks, if the only
-way to accomplish atomic operations on an architecture is to use
-something like the assembler that the inclusion of spinlock.h injects
-into your binary, then according to Lexmark vs. Static Controls that
-makes that included code unprotectable by copyright.
+Thanks, that pretty well describes what happened here.
 
-Where I disagree with David (as I have publicly before on this list),
-is that he incorrectly applies the concept of "functional idea" to
-"write a linux kernel module." I don't believe that is a "functional
-idea" in the sense that is meaningful in the context of software
-copyright or patents (at least until someone writes a piece of
-software that writes kernel modules).
+>>>The FireWire stack has three layers: Low level (ohci1394 and pcilynx;
+>>>control the host bus adapter),
+>>
+>> The hardware
+>
+>Yes, or more precisely the built-in hardware, not hardware at the other
+>end of the wire.
 
-Dave
+That was assumed when I wrote it :)
+
+>>>mid level (the ieee1394 core)
+>>
+>> which I assume (fuggly word) steers the high level stuff to the right
+>> entry points in the hardware handler?
+>
+>Yes. It implements common management functionality and makes actions
+>like "write into a register of a remote node" or "receive a stream into
+>a buffer" independent of the actual host adapter --- or at least that
+>was the intent when Linux' FireWire stack was designed. Years ago there
+>was actually another driver for a non-OHCI host adapter chip from
+>Adaptec; and there is a mostly functional but unmaintained out-of-tree
+>driver for a non-OHCI/ non-PCI adapter from Texas Instruments (TI
+> GP2Lynx).
+>
+>IOW the ieee1394 core provides a platform to stick application-level
+>drivers (protocol drivers) like for DV, IPv4 networking, SBP-2 storage
+>on top of it without having to care of how particular host adapter chips
+>are programmed. raw1394 basically extends ieee1394 to stick userspace
+>drivers on it.
+>
+>But as mentioned, this layering is partly violated in the actual
+>implementation. Also, the ieee1394 core is itself needlessly dependent
+>on a PCI kernel API, making it harder for embedded developers to add
+>their own low-level drivers than it ought to be. (So I was told; I
+>actually rarely hear from embedded development projects.)
+
+Typical :-)  Don't let me distract you from more important work :)
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

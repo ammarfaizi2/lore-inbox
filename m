@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753737AbWLRK2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753745AbWLRKap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753737AbWLRK2p (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 05:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753733AbWLRK2p
+	id S1753745AbWLRKap (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 05:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753750AbWLRKao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 05:28:45 -0500
-Received: from py-out-1112.google.com ([64.233.166.180]:47361 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753734AbWLRK2o (ORCPT
+	Mon, 18 Dec 2006 05:30:44 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49172 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753744AbWLRKao (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 05:28:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wp4cvFs7p/Ql1hIPk2eN4H8G0qWdJgmtG02ZNv805L3xPOlCEGmksZLzTvJt5ryc4/ycpoBQo3Kf9Q5BIrkV7+ck+u0mmeT+/Y5mnlS76cJIURwZ5nx7L4zUFqmMuWJGFba47kwXCeLs+barxUaG7EZnz1A0QYBDdwak8mMdiII=
-Message-ID: <b0943d9e0612180228w142a7375obf33a0f42d1982ae@mail.gmail.com>
-Date: Mon, 18 Dec 2006 10:28:43 +0000
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061218072932.GA5624@elte.hu>
+	Mon, 18 Dec 2006 05:30:44 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Jonathan Corbet <corbet@lwn.net>,
+       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net>
+	<20061214005532.GA12790@suse.de>
+	<Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
+	<458171C1.3070400@garzik.org>
+	<Pine.LNX.4.64.0612140855250.5718@woody.osdl.org>
+	<20061214170841.GA11196@tuatara.stupidest.org>
+	<20061214173827.GC3452@infradead.org>
+	<20061214175253.GB12498@tuatara.stupidest.org>
+	<Pine.LNX.4.61.0612141907450.12730@yvahk01.tjqt.qr>
+Date: Mon, 18 Dec 2006 03:28:38 -0700
+In-Reply-To: <Pine.LNX.4.61.0612141907450.12730@yvahk01.tjqt.qr> (Jan
+	Engelhardt's message of "Thu, 14 Dec 2006 19:09:51 +0100 (MET)")
+Message-ID: <m1vek9sdk9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061216153346.18200.51408.stgit@localhost.localdomain>
-	 <20061216165738.GA5165@elte.hu>
-	 <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com>
-	 <20061217085859.GB2938@elte.hu>
-	 <b0943d9e0612171505l6dfe19c6h6391b08f41243b1@mail.gmail.com>
-	 <20061218072932.GA5624@elte.hu>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18/12/06, Ingo Molnar <mingo@elte.hu> wrote:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+
+> On Dec 14 2006 09:52, Chris Wedgwood wrote:
+>>On Thu, Dec 14, 2006 at 05:38:27PM +0000, Christoph Hellwig wrote:
+>>
+>>> Yes, EXPORT_SYMBOL_INTERNAL would make a lot more sense.
+>>
+>>A quick grep shows that changing this now would require updating
+>>nearly 1900 instances, so patches to do this would be pretty large and
+>>disruptive (though we could support both during a transition and
+>>migrate them over time).
 >
-> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > I could also use a simple allocator based on alloc_pages since
-> > kmemleak doesn't track pages. [...]
+> I'd prefer to do it at once. But that's not my decision so you anyway do what
+> you want.
 >
-> actually, i'm quite sure we want to track pages later on too, any reason
-> why kmemleak shouldnt cover them?
+> That said, I would like to keep EXPORT_SYMBOL_GPL, because EXPORT and INTERNAL
+> is somehow contrary. Just a wording issue.
 
-It could track them but I'm not sure how efficient it would be since
-you have different ways to get the page addresses like pfn, struct
-page. The pfn would actually introduce a lot of false negatives.
+I would suggest that we make the prefix MODULE and not EXPORT.  It
+more accurately conveys what we are trying to say, and it doesn't
+have the conflicting problem with INTERNAL.
 
-This needs some investigation and it can probably be done but I'll
-first focus on the slab allocator.
+I don't know if it is actually worth doing a great rename for such
+a simple clarification in language.  But it is worth considering
+because it would more strongly convey that we don't expect these
+symbols to be used by everything.
 
-> > [...] It could be so simple that it would never need to free any
-> > pages, just grow the size as required and reuse the freed memleak
-> > objects from a list.
->
-> sounds good to me. Please make it a per-CPU pool.
-
-Isn't there a risk for the pools to become imbalanced? A lot of
-allocations would initially happen on the first CPU.
-
-> [...] (Add a memleak_object->cpu pointer so that freeing can be
-> done on any other CPU as well.)
-
-We could add the freed objects to the CPU pool where they were freed
-and not use a memleak_object->cpu pointer.
-
-> We'll have to fix the
-> locking too, to be per-CPU - memleak_lock is quite a scalability problem
-> right now.
-
-The memleak_lock is indeed too coarse (but it was easier to track the
-locking dependencies). With a new allocator, however, I could do a
-finer grain locking. It probably still needs a (rw)lock for the hash
-table. Having per-CPU hash tables is inefficient as we would have to
-look up all the tables at every freeing or scanning for the
-corresponding memleak_object.
-
-There is a global object_list as well covered by memleak_lock (only
-for insertions/deletions as traversing is RCU). Since modifications to
-this list happen at the same time with the hash table modifications,
-the memleak_lock is held anyway so we probably don't need to do
-per-CPU object lists (they would also need some locking if freeing
-would happen on a different CPU). List insertion/deletion is very
-small compared to the hash-table look-up and it wouldn't introduce a
-scalability problem.
-
--- 
-Catalin
+Eric

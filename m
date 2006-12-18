@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754113AbWLRPBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754115AbWLRPCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754113AbWLRPBK (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 10:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754115AbWLRPBK
+	id S1754115AbWLRPCa (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 10:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754117AbWLRPCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 10:01:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49849 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754113AbWLRPBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 10:01:09 -0500
-Date: Mon, 18 Dec 2006 16:00:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Arkadiusz Miskiewicz <arekm@maven.pl>
-Cc: linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
-       Olaf Hering <olh@suse.de>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: util-linux: orphan
-Message-ID: <20061218150048.GA11005@petra.dvoda.cz>
-References: <20061218075210.GB5217@petra.dvoda.cz> <200612181055.05585.arekm@maven.pl> <20061109224157.GH4324@petra.dvoda.cz> <20061218071737.GA5217@petra.dvoda.cz> <Pine.LNX.4.61.0612181031210.21739@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612181055.05585.arekm@maven.pl> <Pine.LNX.4.61.0612181031210.21739@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+	Mon, 18 Dec 2006 10:02:30 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:56336 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754115AbWLRPC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 10:02:29 -0500
+Message-ID: <4586AD83.5030600@s5r6.in-berlin.de>
+Date: Mon, 18 Dec 2006 16:02:27 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Make entries in the "Device drivers" menu individually
+ selectable
+References: <Pine.LNX.4.64.0612140325340.13847@localhost.localdomain> <4583D008.40806@s5r6.in-berlin.de> <Pine.LNX.4.64.0612180444230.16929@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612180444230.16929@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 10:33:33AM +0100, Jan Engelhardt wrote:
+Robert P. J. Day wrote:
+> On Sat, 16 Dec 2006, Stefan Richter wrote:
+>> Works for me, but I don't see a lot of benefit from it. Actually I see
+>> two disadvantages of the patch:
 > 
-> > after few weeks I'm pleased to announce a new "util-linux-ng" project. This
-> > project is a fork of the original util-linux (2.13-pre7). 
-> >
-> > The goal of the project is to move util-linux code back to useful state, sync
-> > with actual distributions and kernel and make development more transparent end
-> > open.
+> ... snip ...
 > 
-> If Adrian [ http://lkml.org/lkml/2006/11/9/262 ] does not want to be
-> the maintainer, ask if you can take over, including the name.
+>>  - There are two out-of-tree FireWire drivers for special purposes
+                    ^^^^^^^^^^^
+>> (one bus sniffer, one remote debugging aid) which might perhaps be
+>> candidates for integration into mainline. These drivers do not use
+>> the ieee1394 base driver.
+[...]
+> i've noticed this sort of thing before -- submenus containing entries
+> that don't actually depend on the top-level config variable.  but
+> which drivers are you talking about here?
 
-On Mon, Dec 18, 2006 at 10:55:05AM +0100, Arkadiusz Miskiewicz wrote:
-> On Monday 18 December 2006 08:52, Karel Zak wrote:
-> >  I'm pleased to announce a new "util-linux-ng" project. This project
-> >  is a fork of the original util-linux (2.13-pre7).
-> 
-> Fork? Are you saying that you just didn't take over maintainership and now we 
-> will have two versions of util-linux!? :/
+As yet non-existent drivers. (Out-of-tree drivers.)
 
- People around util-linux-ng are not so naive ;-)
- 
- We spent last month with discussion about a way how (non-)fork this
- project. We made decision that a fork is the right way, because
- Adrian Bunk completely ignores __everyone__ who wants to talk with
- him about utils-linux.
+> i'm looking at the
+> ieee1394/Kconfig file and every entry in that submenu appears to
+> depend explicitly on IEEE1394.
 
- A fork is nothing attractive, but it's also a way how improve things
- in Open Source world.
+Correct. What I described is purely hypothetical in case of
+drivers/ieee1394. There surely are other submenus with actual
+independent entries. But AFAIU you didn't touch such menus of course.
 
- The goal is not only improve source code, but also a way how this
- project is maintained (mailing list, discussion about changes, git,
- transparent development, ...).
+[...]
+> in any event, as i mentioned earlier, i'm just trying to find a way to
+> make the menu entries more obvious and more easily selectable, without
+> having to enter each submenu to see what it represents.
+[...]
 
-    Karel
-
+Yes, this and the points you made in the other post are definitely valid.
 -- 
- Karel Zak  <kzak@redhat.com>
+Stefan Richter
+-=====-=-==- ==-- =--=-
+http://arcgraph.de/sr/

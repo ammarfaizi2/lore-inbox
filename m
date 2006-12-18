@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754239AbWLRQe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754240AbWLRQfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754239AbWLRQe4 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 11:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754240AbWLRQe4
+	id S1754240AbWLRQfY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 11:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754243AbWLRQfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 11:34:56 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:21482 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754238AbWLRQez (ORCPT
+	Mon, 18 Dec 2006 11:35:23 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2242 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754242AbWLRQfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 11:34:55 -0500
-X-Greylist: delayed 1216 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 11:34:55 EST
-Subject: Re: bug: kobject_add failed for audio with -EEXIST
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <20061218155349.GA21282@elte.hu>
-References: <20061218155349.GA21282@elte.hu>
-Content-Type: text/plain
-Date: Mon, 18 Dec 2006 08:14:10 -0800
-Message-Id: <1166458451.11560.5.camel@imap.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Dec 2006 11:35:22 -0500
+Date: Mon, 18 Dec 2006 17:35:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org
+Subject: Re: [PATCH] Remove reference to "depends" directive from Kconfig documentation.
+Message-ID: <20061218163522.GE10316@stusta.de>
+References: <Pine.LNX.4.64.0612181038560.26878@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612181038560.26878@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 16:53 +0100, Ingo Molnar wrote:
-> an allyesconfig bootup generates the driver core warning below, in 
-> alsa_card_dummy_init().
+On Mon, Dec 18, 2006 at 10:40:25AM -0500, Robert P. J. Day wrote:
 > 
-> 	Ingo
+>   Remove from the documentation the notion of using "depends" rather
+> than "depends on" in Kconfig files.
 > 
-> ------------------>
-> Calling initcall 0xc1ee1d35: alsa_card_dummy_init+0x0/0x8a()
-> PM: Adding info for platform:snd_dummy.0
-> kobject_add failed for audio with -EEXIST, don't try to register things with the same name in the same directory.
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> 
+> ---
+> 
+>   given that there are only three Kconfig files left that still use
+> "depends" rather than "depends on", there's no point encouraging
+> anyone to still use it (although the parser itself still accepts both
+> "depends" and "requires").
+> 
+> 
+> diff --git a/Documentation/kbuild/kconfig-language.txt b/Documentation/kbuild/kconfig-language.txt
+> index 536d5bf..658abb5 100644
+> --- a/Documentation/kbuild/kconfig-language.txt
+> +++ b/Documentation/kbuild/kconfig-language.txt
+> @@ -77,7 +77,7 @@ applicable everywhere (see syntax).
+>    Optionally, dependencies only for this default value can be added with
+>    "if".
+> 
+> -- dependencies: "depends on"/"requires" <expr>
+> +- dependencies: "depends on" <expr>
+>    This defines a dependency for this menu entry. If multiple
+>    dependencies are defined, they are connected with '&&'. Dependencies
+>    are applied to all other options within this menu entry (which also
 
-This is i386 or x86_64? This one, and the others, your been sending look
-like initcall ordering issues. For instance, some alsa init usually runs
-after alsa_card_dummy_init() , but in your kernel alsa_card_dummy_init()
-runs first. It's a problem even in the same initcall level.
+Your patch does something different:
+It's not about "depends", it's about the unused alternative "requires".
 
-Daniel
+Removing "requires" sounds reasonable (even for the implementation, not 
+only the documentation), but that's different from what you were 
+thinking about.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

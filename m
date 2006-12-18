@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751699AbWLRAwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753330AbWLRBDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWLRAwR (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 19:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWLRAwR
+	id S1753330AbWLRBDM (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 20:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753327AbWLRBDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 19:52:17 -0500
-Received: from gate.crashing.org ([63.228.1.57]:40000 "EHLO gate.crashing.org"
+	Sun, 17 Dec 2006 20:03:12 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:45331 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751336AbWLRAwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 19:52:17 -0500
-Subject: Re: [OOPS] PPC NULL pointer dereference from cache_alloc_refill
-	(ide?)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1166385277.31351.120.camel@localhost.localdomain>
-References: <1f1b08da0612162246u36f1e265r596ff7afa9e988b9@mail.gmail.com>
-	 <1166385277.31351.120.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 18 Dec 2006 11:50:58 +1100
-Message-Id: <1166403059.4976.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	id S1753331AbWLRBDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 20:03:12 -0500
+Date: Sun, 17 Dec 2006 17:02:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <20061217154026.219b294f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612171701010.3479@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 06:54 +1100, Benjamin Herrenschmidt wrote:
-> On Sat, 2006-12-16 at 22:46 -0800, john stultz wrote:
-> > Tried booting git from today (2.6.20-rc1+) on my PPC Mac Mini, and got
-> > the oops captured in the image attached.
+
+
+On Sun, 17 Dec 2006, Andrew Morton wrote:
 > 
-> No idea at this point, I'll have to dig... maybe something changed in
-> the IDE code and ide pmac wasn't updated..
+> So this patch instead arranges for clear_page_dirty() to not clean the pte's
+> when it is called on the try_to_free_buffers() path.
 
-I haven't been able to reproduce with today's tree on a couple of
-machines. Can you send me your .config ?
+No. This is wrong.
 
-Ben.
+It's wrong exactly because it now _breaks_ the whole thing that the 2.6.19 
+PG_dirty changes were all about: keeping track of dirty pages. Now you 
+have a page that is dirty, but it's no longer marked PG_dirty, and thus it 
+doesn't participate in the dirty accounting.
 
+> From my quick reading, all callers of try_to_free_buffers() have already
+> unmapped the page from pagetables, and given that the reported ext3 corruption
+> happens on uniprocessor, non-preempt kernels, I doubt if this patch will fix
+> things.
 
+So not only are you breaking this, you also claim that it cannot happen in 
+the first place. So either the patch is buggy, or it's pointless. In 
+neither case does it seem to be a good idea to do.
+
+		Linus

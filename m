@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754572AbWLRUpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754570AbWLRUqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754572AbWLRUpi (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 15:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754570AbWLRUpi
+	id S1754570AbWLRUqm (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 15:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754497AbWLRUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 15:45:38 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:44647 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754572AbWLRUpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 15:45:38 -0500
-Date: Mon, 18 Dec 2006 12:41:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrei Popa <andrei.popa@i-neo.ro>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-  <1166466272.10372.96.camel@twins>  <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-  <1166468651.6983.6.camel@localhost>  <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
- <1166471069.6940.4.camel@localhost> <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Dec 2006 15:46:42 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:40615 "EHLO
+	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754570AbWLRUql (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 15:46:41 -0500
+Subject: Re: [Patch] BUG in fs/jfs/jfs_xtree.c
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1166467889.32321.4.camel@alice>
+References: <1166467889.32321.4.camel@alice>
+Content-Type: text/plain
+Date: Mon, 18 Dec 2006 14:46:36 -0600
+Message-Id: <1166474796.28381.3.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 18 Dec 2006, Linus Torvalds wrote:
+On Mon, 2006-12-18 at 19:51 +0100, Eric Sesterhenn wrote:
+> hi,
 > 
-> But at the same time, it's interesting that it still happens when we try 
-> to re-add the dirty bit. That would tell me that it's one of two cases:
+> while playing around with fsfuzzer, i got the following oops with jfs:
+> 
+> [  851.804875] BUG at fs/jfs/jfs_xtree.c:760 assert(!BT_STACK_FULL(btstack))
 
-Forget that. There's a third case, which is much more likely:
+... 
 
- - Andrew's patch had a ", 1" where it _should_ have had a ", 0".
+> On a damaged filesystem we might have a full stack and should
+> not progress further, and return instead of calling BUG()
+> 
+> Signed-off-by: Eric Sesterhenn
+> 
+> --- linux-2.6.19/fs/jfs/jfs_xtree.c.orig	2006-12-18 14:37:07.000000000 +0100
+> +++ linux-2.6.19/fs/jfs/jfs_xtree.c	2006-12-18 14:37:55.000000000 +0100
+> @@ -757,6 +757,8 @@ static int xtSearch(struct inode *ip, s6
+>  			nsplit = 0;
+>  
+>  		/* push (bn, index) of the parent page/entry */
+> +		if (BT_STACK_FULL(btstack))
+> +			return -EINVAL;
+>  		BT_PUSH(btstack, bn, index);
+>  
+>  		/* get the child page block number */
+> 
 
-This should be fairly easy to test: just change every single ", 1" case in 
-the patch to ", 0".
+I typically return -EIO for metadata-corruption problems.  I also want
+to look at the other places in jfs_xtree.c that call BT_PUSH.  I'm on
+vacation today, so I'll take a closer look at this tomorrow and push it
+upstream.
 
-The only case that _definitely_ would want ",1" is actually the case that 
-already calls page_mkclean() directly: clear_page_dirty_for_io(). So no 
-other ", 1" is valid, and that one that needed it already avoided even 
-calling the "test_clear_page_dirty()" function, because it did it all by 
-hand.
+Thanks!
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-What happens for you in that case?
-
-		Linus

@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754472AbWLRTnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754477AbWLRToH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754472AbWLRTnD (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 14:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754474AbWLRTnC
+	id S1754477AbWLRToH (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 14:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754478AbWLRToH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 14:43:02 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:39804 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754472AbWLRTnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 14:43:00 -0500
-Date: Mon, 18 Dec 2006 11:42:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: Ricardo Galli <gallir@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-In-Reply-To: <orpsah6m3s.fsf@redhat.com>
-Message-ID: <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
-References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
- <orwt4qaara.fsf@redhat.com> <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
- <orpsah6m3s.fsf@redhat.com>
+	Mon, 18 Dec 2006 14:44:07 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:52878 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754477AbWLRToF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 14:44:05 -0500
+X-Originating-Ip: 24.148.236.183
+Date: Mon, 18 Dec 2006 14:38:47 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Adrian Bunk <bunk@stusta.de>
+cc: zippel@linux-m68k.org,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] kconfig: remove the unused "requires" syntax
+In-Reply-To: <20061218193111.GH10316@stusta.de>
+Message-ID: <Pine.LNX.4.64.0612181432140.5909@localhost.localdomain>
+References: <Pine.LNX.4.64.0612181138360.27491@localhost.localdomain>
+ <20061218180447.GF10316@stusta.de> <Pine.LNX.4.64.0612181341090.28308@localhost.localdomain>
+ <20061218193111.GH10316@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-14.754, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
+	RCVD_IN_SORBS_DUL 2.05)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Dec 2006, Adrian Bunk wrote:
+
+> On Mon, Dec 18, 2006 at 01:46:27PM -0500, Robert P. J. Day wrote:
+
+> > p.s.  i didn't look closely enough to see if your patch took out
+> > support for both "depends" *and* "requires".  at this point,
+> > neither of those are necessary anymore -- it's all "depends on"
+> > except for three remaining Kconfig files.
+>
+> It takes out only "requires" (as the patch description says).
+
+which makes perfect sense, of course.
+
+> Whether to remove the plain "depends" (opposed to "depends on") is a
+> different (and perhaps more controversial) question, but it should
+> anyway not happen before the last usage is removed.
+
+agreed on that last point.  my patch submission to change "depends" to
+"depends on" globally *did* get applied recently:
 
 
-On Mon, 18 Dec 2006, Alexandre Oliva wrote:
-> 
-> So I guess you approve of the reformulation of LGPL as an additional
-> permission on top of GPL, as in its draft at gplv3.fsf.org, right?
+commit 775ba7ad491a154f99871fe603f03366e84ae159
+Merge: d940505... 18b36c7...
+Author: Linus Torvalds <torvalds@woody.osdl.org>
+Date:   Tue Dec 12 18:51:51 2006 -0800
 
-Yes. I think that part of the GPLv3 is a good idea.
+    Merge git://git.kernel.org/pub/scm/linux/kernel/git/bunk/trivial
 
-That said, I think they are still pushing the "you don't have any rights 
-unless we give you additional rights explicitly" angle a bit too hard.
+    * git://git.kernel.org/pub/scm/linux/kernel/git/bunk/trivial:
+      ...
+      kconfig: Standardize "depends" -> "depends on" in Kconfig files
+      ...
 
-The fact is, people DO have rights, regardless of what the license says. 
-We have them when it comes to music, and we have them when it comes to 
-software. Copyright law only gives _limited_ rights to copyright holders, 
-and we should actually fight those rights being expanded, instead of 
-trying to expand on them ourselves.
+so it's clear that that transformation was approved.  now we just wait
+for the patch to deal with the last three files to go through and
+we're all set.
 
-> > No, the sane way to think about it is that linking just creates an 
-> > "aggregate" work.
-> 
-> That's your take on it.  It does make sense, but claiming it's *the*
-> sane way to think about it is making the mistake you accused the FSF
-> of making.
+$ grep "depends" $(find . -name Kconfig) | grep -v "depends on"
+./arch/arm/mm/Kconfig:  depends !MMU && CPU_CP15 && !CPU_ARM740T
+./arch/arm/Kconfig:     depends CPU_XSCALE || CPU_XSC3
+./arch/v850/Kconfig:      depends !V850E2_SIM85E2C
 
-I did point that out at the end of the email you quote. I said it's not 
-necessarily the only way to look at things. But I GUARANTEE you that it 
-makes more sense than the "no rights" approach, and I GUARANTEE you that 
-it makes more sense than thinking that "ld is magic, and makes a derived 
-work" approach.
 
-> In fact, it can't possibly be exempt by this paragraph in clause 2 of
-> the GPL:
-> 
->   In addition, mere aggregation of another work not based on the
->   Program with the Program (or with a work based on the Program) on a
->   volume of a storage or distribution medium does not bring the other
->   work under the scope of this License.
-
-This is actually a red herring. The way the GPLv2 _defines_ "work" and 
-"Program" is by derived "derived work". 
-
-You're confused by _your_ interpretation of "work" and "Program". You 
-think that "Program" means "binary", because that's you think normally.
-
-But the GPLv2 actually defines that "Program" is just the "derivative work 
-under copyright law".
-
-Really. Go look. It's right there at the very top, in section 0.
-
-In other words, in the GPL, "Program" does NOT mean "binary". Never has.
-
-And in fact, it wouldn't make sense if it did, since you can use the GPL 
-for other things than just programs (and people have).
-
-So you _always_ get back to the question: what is "derivative"? And the 
-GPLv2 doesn't actually even say anything about that, but EXPLICITLY says 
-that it is left to copyright law.
-
-			Linus
+rday

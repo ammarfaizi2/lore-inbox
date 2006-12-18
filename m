@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753466AbWLRHmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753478AbWLRHwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753466AbWLRHmk (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 02:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753463AbWLRHmk
+	id S1753478AbWLRHwO (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 02:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753476AbWLRHwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 02:42:40 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:24668 "EHLO kernel.dk"
+	Mon, 18 Dec 2006 02:52:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59293 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753467AbWLRHmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 02:42:39 -0500
-Date: Mon, 18 Dec 2006 08:44:17 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Damien Wyart <damien.wyart@free.fr>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com, xfs-masters@oss.sgi.com, Jeff Garzik <jeff@garzik.org>
-Subject: Re: 2.6.20-rc1-mm1
-Message-ID: <20061218074417.GC5010@kernel.dk>
-References: <20061214225913.3338f677.akpm@osdl.org> <20061215203936.GA2202@localhost.localdomain> <20061215130141.fd6a0c25.akpm@osdl.org>
+	id S1753475AbWLRHwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 02:52:13 -0500
+Date: Mon, 18 Dec 2006 08:52:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, util-linux-ng@vger.kernel.org
+Subject: [ANNOUNCE] util-linux-ng
+Message-ID: <20061218075210.GB5217@petra.dvoda.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061215130141.fd6a0c25.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15 2006, Andrew Morton wrote:
-> On Fri, 15 Dec 2006 21:39:36 +0100
-> Damien Wyart <damien.wyart@free.fr> wrote:
-> 
-> > With this new kernel, I notice two messages I do not have with
-> > 2.6.19-rc6-mm2 :
-> > 
-> > Dec 15 20:00:47 brouette kernel: Filesystem "sdb9": Disabling barriers,trial barrier write failed
-> > Dec 15 20:00:47 brouette kernel: Filesystem "sda5": Disabling barriers,trial barrier write failed
-> > 
-> > Nothing changed in the config between the two, and going back to
-> > 2.6.19-rc6-mm2 do not give the messages.
-> 
-> I don't think anything has changed in this area in XFS.  I'd expect that
-> something got broken in sata, ata_piix or the block core which caused the
-> "trial barrier write" to start failing.  Various cc's hopefully added.
 
-There hasn't been any barrier changes lately (or block layer handling of
-such), so I don't think it's in that area. I'll do some barrier testing
-today to verify that things work for me.
+
+ I'm pleased to announce a new "util-linux-ng" project. This project
+ is a fork of the original util-linux (2.13-pre7). 
+
+ The goal of the project is to move util-linux code back to useful state, sync
+ with actual distributions and kernel and make development more transparent end
+ open.
+
+ The short term goals (for 2.13 release):
+
+	- remove all NFS code from util-linux-ng 
+          (/sbin/mount.nfs from nfs-utils is replacement)
+	- remove FS/device detection code
+          (libblkid from e2fsprogs or libvolumeid is replacement)
+	- move as much as possible patches from distributions to upstream
+
+ Mailing list:
+   http://vger.kernel.org/vger-lists.html#util-linux-ng
+
+ FTP:
+   ftp://ftp.kernel.org/pub/scm/utils/util-linux-ng/
+
+ GIT:
+   git clone git://git.kernel.org/pub/scm/utils/util-linux-ng/util-linux-ng.git util-linux-ng
+
+   [Note, GIT repo contains previous 47 versions of util-linux.]
+
+        
+ The mailing list or my private e-mail are open for your patches, ideas and
+ suggestion. The mailing list is also place where you can help us review
+ patches.
+
+    Karel
 
 -- 
-Jens Axboe
-
+ Karel Zak  <kzak@redhat.com>

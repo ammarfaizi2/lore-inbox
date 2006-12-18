@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753533AbWLRIpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753541AbWLRIuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753533AbWLRIpZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 03:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753534AbWLRIpZ
+	id S1753541AbWLRIuh (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 03:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753540AbWLRIuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 03:45:25 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:43932 "HELO
-	smtp101.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753533AbWLRIpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 03:45:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=khIlXTDfOjFuqBrHuEfioTwZNQTIYbU8GE/6w/oKH15+TBTDR2QkFlUXQqJyJ4VK78eJV9Vcv5kzQg5ASdSQ8o3yyLO5jjWEqd3jDSMZTI2bP5hWfoiFs2leZgd2RTNOphMV82RZfl4Gfc8j+7VHBjaYU8ZqOumCJoHeiT90p/w=  ;
-X-YMail-OSG: XVcPK7kVM1nEoY6HIVFWV.cle92i8F5s_BVcp9vbLqK3aFZuxtDQyoLI65qjTKP7V5e3uDec3J4ws8bKT_aI3QHd5gNNnyLQRkJL.s1vF8QwxCN9pIqyQ1sqH2ZMvVy_tHZz19arkC3pnVI-
-Message-ID: <45864380.1010201@yahoo.com.au>
-Date: Mon, 18 Dec 2006 18:30:08 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org> <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org> <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org> <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au> <Pine.LNX.4.64.0612172145250.3479@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612172145250.3479@woody.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Dec 2006 03:50:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48280 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753541AbWLRIug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 03:50:36 -0500
+Date: Mon, 18 Dec 2006 09:50:34 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ian Kent <ikent@redhat.com>
+Cc: linux-kernel@vger.kernel.org, util-linux-ng@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux-ng
+Message-ID: <20061218085034.GD5217@petra.dvoda.cz>
+References: <20061218075210.GB5217@petra.dvoda.cz> <1166430929.3610.3.camel@raven.themaw.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166430929.3610.3.camel@raven.themaw.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, Dec 18, 2006 at 05:35:29PM +0900, Ian Kent wrote:
+> On Mon, 2006-12-18 at 08:52 +0100, Karel Zak wrote:
+> > 
+> >  I'm pleased to announce a new "util-linux-ng" project. This project
+> >  is a fork of the original util-linux (2.13-pre7). 
 > 
-> On Mon, 18 Dec 2006, Nick Piggin wrote:
-> 
->>I can't see how that's exactly a problem -- so long as the page does not
->>get reclaimed (it won't, because we have a ref on it) then all that matters
->>is that the page eventually gets marked dirty.
-> 
-> 
-> But the point being that "try_to_free_buffers()" marks it clean 
-> AFTERWARDS.
+> Perhaps forwarding this to fs-devel would be good also.
 
-For some reason I thought you were suggesting it is a problem on its own :P
+ Fixed.
 
-Yes I agree there is a pagefault vs ttfb race.
+   Karel
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ Karel Zak  <kzak@redhat.com>

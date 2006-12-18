@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754382AbWLRSfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754379AbWLRSfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754382AbWLRSfY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 13:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754383AbWLRSfY
+	id S1754379AbWLRSfc (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 13:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754380AbWLRSfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 13:35:24 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34371 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754380AbWLRSfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 13:35:23 -0500
-Date: Mon, 18 Dec 2006 10:35:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Andrew Morton <akpm@osdl.org>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <1166466272.10372.96.camel@twins>
-Message-ID: <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
- <1166466272.10372.96.camel@twins>
+	Mon, 18 Dec 2006 13:35:31 -0500
+Received: from smtp7.tech.numericable.fr ([82.216.111.43]:52406 "EHLO
+	smtp7.tech.numericable.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754379AbWLRSfb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 13:35:31 -0500
+Date: Mon, 18 Dec 2006 19:35:26 +0100
+From: Damien Wyart <damien.wyart@free.fr>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <ltuikov@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       reiserfs-dev@namesys.com
+Subject: Re: 2.6.20-rc1-mm1
+Message-ID: <20061218183526.GA14297@localhost.localdomain>
+References: <20061214225913.3338f677.akpm@osdl.org> <20061215203936.GA2202@localhost.localdomain> <20061215130141.fd6a0c25.akpm@osdl.org> <20061217110710.GA1994@localhost.localdomain> <45864B68.2030306@free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45864B68.2030306@free.fr>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > The reiser4 failure is unexpected. Could you please see if you can
+> > > capture a trace, let the people at reiserfs-dev@namesys.com know?
 
+> > Ok, I've handwritten the messages, here they are :
 
-On Mon, 18 Dec 2006, Peter Zijlstra wrote:
-> > 
-> > Or maybe the WARN_ON() just points out _why_ somebody would want to do 
-> > something this insane. Right now I just can't see why it's a valid thing 
-> > to do.
-> 
-> Maybe, but I think Nick's mail here:
->   http://lkml.org/lkml/2006/12/18/59
-> 
-> shows a trace like that.
+> > reiser4 panicked cowardly : reiser4[umount(2451)] : commit_current_atom 
+> > (fs/reiser4/txmngr.c:1087) (zam-597)
+> > write log failed (-5)
 
-Sure, but I actually think that "try_to_free_buffers()" was buggy in the 
-first place, shouldn't have done what it did at all (it has NO business 
-clearing dirty data), and should be fixed with my other simple and clean 
-patch that just removes the crap.
+> > [ got 2 copies of them because I have 2 reiser4 fs)
 
-But sadly, Andrei said that he still saw data corruption, which implies 
-that the problem had nothing to do with "try_to_free_buffers()" at all.
+> > I got them mainly when I try to reboot or halt the machine, and the
+> > process doesn't finish, the computer gets stuck after the reiser4
+> > messages. This is only with 2.6.20-mm1, not 2.6.19-rc6-mm2.
 
-(On that note: Andrei - if you do test this out, I'd suggest applying my 
-patch too - the one that you already tested. It won't apply cleanly on top 
-of Andrew's patch, but it should be trivial to apply by hand, since you 
-really just want to remove the whole "if (ret) {...}" sequence. I realize 
-that it didn't make any difference for you, but applying that patch is 
-probably a good idea just to remove the noise for a codepath that you 
-already showed to not matter)
+* Laurent Riffard <laurent.riffard@free.fr> [2006-12-18 09:03]:
+> fix-sense-key-medium-error-processing-and-retry.patch seems to be the
+> culprit.
 
-> I'm guessing that if we do the WARN_ON() some folks might get a lot of 
-> output, perhaps WARN_ON_ONCE() ?
+> Reverting it fix those reiser4 panics for me. Damien, could you confirm 
+> please ?
 
-Well, I'd rather get lots of noise to see all the paths that can cause 
-this. We've been concentrating mainly on one (try_to_free_buffers()), but 
-that one was already shown not to matter or at least not to be the _whole_ 
-issue, so..
+Yes, this fixes it too on my side. Thanks for this tracking !
 
-		Linus
+-- 
+Damien Wyart

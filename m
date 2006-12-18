@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754240AbWLRQfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754244AbWLRQgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754240AbWLRQfY (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 11:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754243AbWLRQfX
+	id S1754244AbWLRQgk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 11:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754245AbWLRQgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 11:35:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2242 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754242AbWLRQfW (ORCPT
+	Mon, 18 Dec 2006 11:36:39 -0500
+Received: from apollo.i-cable.com ([203.83.115.103]:60403 "HELO
+	apollo.i-cable.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754244AbWLRQgi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 11:35:22 -0500
-Date: Mon, 18 Dec 2006 17:35:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] Remove reference to "depends" directive from Kconfig documentation.
-Message-ID: <20061218163522.GE10316@stusta.de>
-References: <Pine.LNX.4.64.0612181038560.26878@localhost.localdomain>
+	Mon, 18 Dec 2006 11:36:38 -0500
+X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 11:36:38 EST
+Message-ID: <002601c722c1$9c4d1b80$28df0f3d@kylecea1512a3f>
+From: "kyle" <kylewong@southa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: schedule_timeout: wrong timeout value
+Date: Tue, 19 Dec 2006 00:28:53 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612181038560.26878@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	format=flowed;
+	charset="big5";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 10:40:25AM -0500, Robert P. J. Day wrote:
-> 
->   Remove from the documentation the notion of using "depends" rather
-> than "depends on" in Kconfig files.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   given that there are only three Kconfig files left that still use
-> "depends" rather than "depends on", there's no point encouraging
-> anyone to still use it (although the parser itself still accepts both
-> "depends" and "requires").
-> 
-> 
-> diff --git a/Documentation/kbuild/kconfig-language.txt b/Documentation/kbuild/kconfig-language.txt
-> index 536d5bf..658abb5 100644
-> --- a/Documentation/kbuild/kconfig-language.txt
-> +++ b/Documentation/kbuild/kconfig-language.txt
-> @@ -77,7 +77,7 @@ applicable everywhere (see syntax).
->    Optionally, dependencies only for this default value can be added with
->    "if".
-> 
-> -- dependencies: "depends on"/"requires" <expr>
-> +- dependencies: "depends on" <expr>
->    This defines a dependency for this menu entry. If multiple
->    dependencies are defined, they are connected with '&&'. Dependencies
->    are applied to all other options within this menu entry (which also
+Hi,
 
-Your patch does something different:
-It's not about "depends", it's about the unused alternative "requires".
+Recently my mysql servershows something like:
+Dec 18 18:24:05 sql kernel: schedule_timeout: wrong timeout value ffffffff 
+from c0284efd
+Dec 18 18:24:36 sql last message repeated 19939 times
+Dec 18 18:25:37 sql last message repeated 33392 times
 
-Removing "requires" sounds reasonable (even for the implementation, not 
-only the documentation), but that's different from what you were 
-thinking about.
+from syslog every 1 or 2 days. Whenever the messages show, mysql server stop 
+accept new connections from the same network, and I need to restart the 
+mysql service and then it will keep running well for 1-2 days until the 
+messages show up again.
 
-cu
-Adrian
+The server has been running over 1 year without any problem, the problem 
+started show up around 2 weeks ago. It's running kernel 2.6.12, and mysql 
+server, nothing else. Hardware is Pentium 4 2.8GHz with hyperthreading 
+enabled.
 
--- 
+What does the kernel message mean and why it make mysql stop accept new 
+connections? Is it hardware problem or try upgrade the kernel may help?
+Please CC me if possible. Thank you
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Kyle
+
+
 

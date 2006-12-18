@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753763AbWLRKoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753783AbWLRKty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753763AbWLRKoK (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 05:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753775AbWLRKoK
+	id S1753783AbWLRKty (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 05:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753780AbWLRKty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 05:44:10 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:20705 "HELO
-	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753763AbWLRKoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 05:44:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Cifm6Y/xQLELgRdiqhZXey94/FtuqvSyIgxHswycP4/RcxSzNuYrB90Qm1NCfl4aPokfN/jbpMJ6SfirxBxzaAB4Kn/lwMLBNbQhEEWVk1N4ZDIYsHKy9x4EbNMqIST9woiZ7lBKKH1xZSbgz7dRSrmjkAAWwpYRK+5dVysWFk0=  ;
-X-YMail-OSG: V2pz2qEVM1l0PPP6yFF6jFGldzwMpe9nz9QhHkBDuaXgLf_.uKZ_gB0IJBSAigYP2.3RYENXhz.FSvRAO6v82JhKBv81iPHcKwCVECtIstzC9E7wvQn8dSHGsDmY.6G89WIPepupfsSsDRw-
-Message-ID: <4586626C.9020300@yahoo.com.au>
-Date: Mon, 18 Dec 2006 20:42:04 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>, andrei.popa@i-neo.ro,
+	Mon, 18 Dec 2006 05:49:54 -0500
+Received: from [85.204.20.254] ([85.204.20.254]:47721 "EHLO megainternet.ro"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753781AbWLRKtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 05:49:53 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Andrei Popa <andrei.popa@i-neo.ro>
+Reply-To: andrei.popa@i-neo.ro
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
        Marc Haber <mh+linux-kernel@zugschlus.de>,
        Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost>	<20061217040620.91dac272.akpm@osdl.org>	<1166362772.8593.2.camel@localhost>	<20061217154026.219b294f.akpm@osdl.org>	<Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>	<Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>	<Pine.LNX.4.64.0612171744360.3479@woody.osdl.org>	<45861E68.3060403@yahoo.com.au>	<20061217214308.62b9021a.akpm@osdl.org>	<458641C2.5010807@yahoo.com.au> <20061218011801.04ec66be.akpm@osdl.org>
-In-Reply-To: <20061218011801.04ec66be.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <1166436717.10372.58.camel@twins>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org>
+	 <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org>
+	 <45861E68.3060403@yahoo.com.au>
+	 <Pine.LNX.4.64.0612172145250.3479@woody.osdl.org>
+	 <1166433544.6911.5.camel@localhost> <20061218013806.2cf67614.akpm@osdl.org>
+	 <1166436005.7072.15.camel@localhost>  <1166436717.10372.58.camel@twins>
+Content-Type: text/plain
+Organization: I-NEO
+Date: Mon, 18 Dec 2006 12:49:46 +0200
+Message-Id: <1166438986.7003.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 18 Dec 2006 18:22:42 +1100
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
- >>Yes I could believe it the corruption is caused by something else
- >>completely.
- >
- >
- > Think so.  We do have a problem here, but only on threaded apps, I believe.
- > rtorrent doesn't appear to be threaded, and the bug is hit on non-preempt
- > UP.
-
-I think (see below) that it does not apply only to threaded apps. But
-it would need one of SMP or PREEMPT to trigger.
-
-
->>After try_to_free_buffers detaches the buffers from the page, a
->>pagefault can come in, and mark the pte writeable, then set_page_dirty
->>(which finds no buffers, so only sets PG_dirty).
->>
->>The page can now get dirtied through this mapping.
->>
->>try_to_free_buffers then goes on to clean the page and ptes.
+> OK, I'll try this on a ext3 box. BTW, what data mode are you using ext3
+> in?
 > 
+
+ordered
+
 > 
-> try_to_free_buffers() isn't called against a page which doesn't have
-> buffers.  It'll oops.
+> Also, for testings sake, could you give this a go:
+> It's a total hack but I guess worth testing.
+> 
+> ---
+>  mm/rmap.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6-git/mm/rmap.c
+> ===================================================================
+> --- linux-2.6-git.orig/mm/rmap.c	2006-12-18 11:06:29.000000000 +0100
+> +++ linux-2.6-git/mm/rmap.c	2006-12-18 11:07:16.000000000 +0100
+> @@ -448,7 +448,7 @@ static int page_mkclean_one(struct page 
+>  		goto unlock;
+>  
+>  	entry = ptep_get_and_clear(mm, address, pte);
+> -	entry = pte_mkclean(entry);
+> +	/* entry = pte_mkclean(entry); */
+>  	entry = pte_wrprotect(entry);
+>  	ptep_establish(vma, address, pte, entry);
+>  	lazy_mmu_prot_update(entry);
+> 
 
-Sure. But I think the race exists... I'll try spelling it out in
-the conventional way:
-
-try_to_free_buffers()
-   drop_buffers() (succeeds)
-
-** preempt here or run right-hand thread on 2nd CPU in SMP **
-
-                                do_no_page()
-                                  set_page_dirty()
-
-                                [now modify the page via this mapping
-                                (from this process or a concurrent thread)]
+with latest git and this patch there is no corruption !
 
 
-   clear_page_dirty() (clears PG_dirty + pte dirty, oops)
 
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

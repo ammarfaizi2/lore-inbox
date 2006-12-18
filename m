@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750997AbWLRBXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751078AbWLRB3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWLRBXM (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 20:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWLRBXM
+	id S1751078AbWLRB3t (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 20:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWLRB3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 20:23:12 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:46634 "EHLO smtp.osdl.org"
+	Sun, 17 Dec 2006 20:29:49 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47137 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750994AbWLRBXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 20:23:11 -0500
-Date: Sun, 17 Dec 2006 17:22:57 -0800 (PST)
+	id S1751207AbWLRB3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 20:29:48 -0500
+Date: Sun, 17 Dec 2006 17:29:30 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
 cc: andrei.popa@i-neo.ro,
@@ -19,10 +19,11 @@ cc: andrei.popa@i-neo.ro,
        Marc Haber <mh+linux-kernel@zugschlus.de>,
        Martin Michlmayr <tbm@cyrius.com>
 Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <20061217154026.219b294f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
 References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org>
  <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org>
+ <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,26 +31,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 17 Dec 2006, Andrew Morton wrote:
+On Sun, 17 Dec 2006, Linus Torvalds wrote:
 > 
-> From my quick reading, all callers of try_to_free_buffers() have already
-> unmapped the page from pagetables, and given that the reported ext3 corruption
-> happens on uniprocessor, non-preempt kernels, I doubt if this patch will fix
-> things.
+> So we should probably do a "wait_for_page()" in do_no_page()?
+> 
+> Or maybe only do it for write accesses (since we don't really care about 
+> getting mapped readably)? If so, we need to do it in the write case of 
+> do_no_page() _and_ in the do_wp_page() case. Hmm?
 
-Hmm. One possible explanation: maybe the page actually _did_ get unmapped 
-from the page tables, but got added back?
+I think we discussed doing exactly this at some earlier time, actually, 
+just to try to throttle people who do lots of page dirtying. 
 
-I don't think we lock the page when faulting it in (we want it to be 
-uptodate, but not necessarily locked). So assuming the pageout sequence 
-always _does_ follow the rule that it only does try_to_free_buffers() on 
-pages that aren't mapped, what actually protects them from not becoming 
-mapped (and dirtied) during that sequence?
+Maybe we even do it somewhere, but I tried to see it, and in the normal 
+"nopage()" routine we very much try to _avoid_ locking the page (ie if 
+it's marked PageUptodate() we'll return it whether locked or not). Which 
+is fine - especially for readers, there really isn't any reason to ever 
+delay them getting access to a page just because it's locked for write-out 
+or something (once it's mapped, they'll have access to it regardless of 
+any locked state in the kernel anyway).
 
-So we should probably do a "wait_for_page()" in do_no_page()?
-
-Or maybe only do it for write accesses (since we don't really care about 
-getting mapped readably)? If so, we need to do it in the write case of 
-do_no_page() _and_ in the do_wp_page() case. Hmm?
+So I don't actually see any serialization at all that would keep a random 
+page from being paged back in.
 
 		Linus

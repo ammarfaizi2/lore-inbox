@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754644AbWLRVqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754649AbWLRVuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754644AbWLRVqU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 16:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754643AbWLRVqU
+	id S1754649AbWLRVuG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 16:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754647AbWLRVuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 16:46:20 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:48642 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754644AbWLRVqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 16:46:19 -0500
-Date: Mon, 18 Dec 2006 13:43:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrei Popa <andrei.popa@i-neo.ro>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-Id: <20061218134342.1ae02f75.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	<20061217040620.91dac272.akpm@osdl.org>
-	<1166362772.8593.2.camel@localhost>
-	<20061217154026.219b294f.akpm@osdl.org>
-	<1166460945.10372.84.camel@twins>
-	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	<1166466272.10372.96.camel@twins>
-	<Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	<1166468651.6983.6.camel@localhost>
-	<Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	<1166471069.6940.4.camel@localhost>
-	<Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Dec 2006 16:50:06 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:44067 "HELO abra2.bitwizard.nl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1754649AbWLRVuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 16:50:05 -0500
+Date: Mon, 18 Dec 2006 22:50:02 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Add a new section to CodingStyle, promoting include/linux/kernel.h.
+Message-ID: <20061218215002.GL7280@harddisk-recovery.com>
+References: <Pine.LNX.4.64.0612181238210.27907@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612181238210.27907@localhost.localdomain>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2006 12:14:35 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Mon, Dec 18, 2006 at 12:43:35PM -0500, Robert P. J. Day wrote:
+>   Add a new section to the CodingStyle file, encouraging people not to
+> re-invent available kernel macros such as ARRAY_SIZE(),
+> FIELD_SIZEOF(), min() and max(), among others.
 
-> OR:
-> 
->  - page_mkclean_one() is simply buggy.
-> 
-> And I'm starting to wonder about the second case. But it all LOOKS really 
-> fine - I can't see anything wrong there (it uses the extremely 
-> conservative "ptep_get_and_clear()", and seems to flush everything right 
-> too, through "ptep_establish()").
+Good stuff. Could you also mention the printk() KERN_ALERT etc. levels?
+I've seen quite some people using "<1>" on the kernelnewbies list.
 
-What does the call to page_check_address() in there do?
 
-It'd be good to have a printk in there to see if it's triggering.
+Erik
 
-Is this all correct for non-linear VMAs?  (rtorrent doesn't use
-MAP_NONLINEAR though).
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

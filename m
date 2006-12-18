@@ -1,46 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754021AbWLRNs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754038AbWLROC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754021AbWLRNs3 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 08:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754020AbWLRNs2
+	id S1754038AbWLROC7 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 09:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754036AbWLROC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 08:48:28 -0500
-Received: from khc.piap.pl ([195.187.100.11]:37122 "EHLO khc.piap.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754018AbWLRNs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 08:48:27 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the broken SCSI_SEAGATE driver
-References: <20061212162238.GR28443@stusta.de>
-	<1165966274.5903.56.camel@mulgrave.il.steeleye.com>
-	<20061213000902.GD28443@stusta.de>
-	<m3wt4tp9ka.fsf@defiant.localdomain>
-	<1166198454.2846.10.camel@mulgrave.il.steeleye.com>
-	<m3ac1mb88s.fsf@defiant.localdomain>
-	<1166386966.9647.20.camel@mulgrave.il.steeleye.com>
-	<m3tzzu9q7k.fsf@defiant.localdomain>
-	<1166431702.3365.934.camel@laptopd505.fenrus.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 18 Dec 2006 14:48:25 +0100
-In-Reply-To: <1166431702.3365.934.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Mon, 18 Dec 2006 09:47:02 +0100")
-Message-ID: <m3ac1l2u3a.fsf@defiant.localdomain>
+	Mon, 18 Dec 2006 09:02:59 -0500
+Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:34912
+	"HELO smtpout04-04.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754037AbWLROC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 09:02:58 -0500
+Message-ID: <45869F8F.2020009@seclark.us>
+Date: Mon, 18 Dec 2006 09:02:55 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: James Cloos <cloos@jhcloos.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
+       James Lockie <bjlockie@lockie.ca>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: escape key]
+References: <1166058290.2964.15.camel@monteirov>	<20061213214140.df6111f5.randy.dunlap@oracle.com>	<4580E985.2090208@lockie.ca> <20061216084542.GD4049@ucw.cz>	<Pine.LNX.4.61.0612161922530.30896@yvahk01.tjqt.qr> <m3bqm20zj8.fsf@lugabout.jhcloos.org>
+In-Reply-To: <m3bqm20zj8.fsf@lugabout.jhcloos.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
+James Cloos wrote:
 
-> if a tree falls in a forest but there's nobody around to hear it, does
-> it make a sound?
+>>>>>>"Jan" == Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+>>>>>>            
+>>>>>>
 >
-> This sort of heisenbug questions aren't solved by "nobody hears it so
-> lets chop down the forest to make houses out of the wood" answers...
+>Jan> HOWEVER, unix people probably _had a reason_ to make ESC generate
+>Jan> part of what function keys do.
+>
+>You are looking at it backwards.  The Escape key generates an ASCII
+>escape.  The funtion keys (including the cursor keys) generate escape
+>sequences because the vt100 won out the title as the most ubiquitous
+>async serial terminal, and linux devs chose to have the console be
+>(mostly) vt100 compatable.  As xterm, et al had done before.
+>
+>The terminals (the actual hardware) used ASCII, so it was normal to
+>use Escape to initiate the sequences used by the function keys.
+>
+>And that concept goes back a *lot* longer than unix.  (Hmm.  I can't
+>remember.  Did TOPS-20 or its predecessor have glass terminals in the
+>day?  I did get to use a DEC paper terminal a couple of times, but
+>that was connected to a VMS box back in the '80s; most of the time it
+>sat in the corner collecting dust....)
+>
+>At any rate, given that Escape was used to initiate sequences sent to
+>the terminal for funtions such as moving the cursor around the screen,
+>clearing rows or cols, et al it must have only seemed natural to also
+>have it initiate sequences /from/ the terminal which did not fit into
+>standard ASCII.  That was after all Escape's purpose in the ASCII std.
+>
+>If you do want to change the console's terminal emulation, a good
+>first step would be to check whether any existing terminal already
+>uses something other than Escape to initiate function key sequences,
+>and, if so, promote that as the alternative to vt100-esque emulation.
+>
+>Finally, note that the reason vt100 was chosen for the console was to
+>make it more useful for users who were physically at a linux box, were
+>logged in on the console, and from there logged in to remote servers.
+>That does remain something which the console *must* support.
+>
+>-JimC
+>  
+>
+Also ansi came along and pretty much put their blessing on what DEC had 
+done and made the
+escape sequences a standard.
 
-Does that mean you don't want to know which hardware/drivers aren't used
-anymore and which ones are?
+Steve
+
 -- 
-Krzysztof Halasa
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

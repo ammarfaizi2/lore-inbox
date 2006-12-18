@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753982AbWLRNPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753952AbWLRNSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753982AbWLRNPS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 08:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753981AbWLRNPS
+	id S1753952AbWLRNSg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 08:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753987AbWLRNSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 08:15:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60262 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753982AbWLRNPQ (ORCPT
+	Mon, 18 Dec 2006 08:18:36 -0500
+Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:2967 "EHLO
+	smtp-vbr3.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753952AbWLRNSf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 08:15:16 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Tobias Diedrich <ranma@tdiedrich.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Tobias Diedrich <ranma+kernel@tdiedrich.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: IO-APIC + timer doesn't work (was: Linux 2.6.20-rc1)
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
-	<20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
-	<Pine.LNX.4.64.0612160955370.3557@woody.osdl.org>
-	<20061216225338.GA2616@melchior.yamamaya.is-a-geek.org>
-	<20061216230605.GA2789@melchior.yamamaya.is-a-geek.org>
-	<Pine.LNX.4.64.0612161518080.3479@woody.osdl.org>
-	<20061217145714.GA2987@melchior.yamamaya.is-a-geek.org>
-Date: Mon, 18 Dec 2006 06:14:28 -0700
-In-Reply-To: <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org> (Tobias
-	Diedrich's message of "Sun, 17 Dec 2006 15:57:14 +0100")
-Message-ID: <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Mon, 18 Dec 2006 08:18:35 -0500
+X-Greylist: delayed 679 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 08:18:34 EST
+Date: Mon, 18 Dec 2006 14:07:02 +0100
+From: Erik Mouw <mouw@nl.linux.org>
+To: Manish Regmi <regmi.manish@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: Linux disk performance.
+Message-ID: <20061218130702.GA14984@gateway.home>
+References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com> <1166431020.3365.931.camel@laptopd505.fenrus.org> <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Diedrich <ranma@tdiedrich.de> writes:
+On Mon, Dec 18, 2006 at 06:24:39PM +0545, Manish Regmi wrote:
+> On 12/18/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> >if you want truely really smooth writes you'll have to work for it,
+> >since "bumpy" writes tend to be better for performance so naturally the
+> >kernel will favor those.
+> >
+> >to get smooth writes you'll need to do a threaded setup where you do an
+> >msync/fdatasync/sync_file_range on a frequent-but-regular interval from
+> >a thread. Be aware that this is quite likely to give you lower maximum
+> >performance than the batching behavior though.
+> >
+> 
+> Thanks...
+> 
+> But isn't O_DIRECT supposed to bypass buffering in Kernel?
 
-> Linus Torvalds wrote:
->
->> Your dmesg is kind of interesting:
->> 
->> ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 enabled(7)APIC error on CPU0:
-> 04(40)
->>  .. failed
->> 
->> where that APIC error on CPU0 seems to be a "Send accept error" and "Send 
->> illegal vector" thing. I think we actually got the interrupt there, but 
->> because we had some APIC setup bug, we didn't accept it properly, and it 
->> resulted in that "APIC error" thing. Maybe. 
->
-> I just tried changing the code so the "8259 IRQ0 enabled" case is
-> tested first and with that it boots fine.
+It is.
 
-Could you try removing the clear_IO_APIC_pin from try_io_apic_pin.
+> Doesn't it directly write to disk?
 
-This isn't a complete fix but I believe for your hardware it will
-fix the problem and it points at what the real fix is.  
+Yes, but it still uses an IO scheduler.
 
-Not properly programming the io_apic for the case we want to test.
+> I tried to put fdatasync() at regular intervals but there was no
+> visible effect.
 
-Eric
+In your first message you mentioned you were using an ancient 2.6.10
+kernel. That kernel uses the anticipatory IO scheduler. Update to the
+latest stable kernel (2.6.19.1 at time of writing) and it will default
+to the CFQ scheduler which has a smoother writeout, plus you can give
+your process a different IO scheduling class and level (see
+Documentation/block/ioprio.txt).
+
+
+Erik

@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753561AbWLRJDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753569AbWLRJHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753561AbWLRJDj (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 04:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753565AbWLRJDj
+	id S1753569AbWLRJHu (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 04:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753571AbWLRJHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 04:03:39 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:56695 "EHLO 2ka.mipt.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753563AbWLRJDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 04:03:38 -0500
-Date: Mon, 18 Dec 2006 12:03:12 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, David Howells <dhowells@redhat.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fallout from atomic_long_t patch
-Message-ID: <20061218090309.GA21778@2ka.mipt.ru>
-References: <20061217105907.GE17561@ftp.linux.org.uk> <Pine.LNX.4.64.0612170911230.3479@woody.osdl.org> <20061217173201.GA31675@2ka.mipt.ru> <Pine.LNX.4.64.0612171005440.3479@woody.osdl.org>
+	Mon, 18 Dec 2006 04:07:50 -0500
+Received: from aa011msr.fastwebnet.it ([85.18.95.71]:44654 "EHLO
+	aa011msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753569AbWLRJHt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 04:07:49 -0500
+Date: Mon, 18 Dec 2006 10:06:12 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Stefan Seyfried <seife@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: s2disk curiosity  :)
+Message-ID: <20061218100612.02d807f7@localhost>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612171005440.3479@woody.osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 18 Dec 2006 12:03:14 +0300 (MSK)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 17, 2006 at 10:08:49AM -0800, Linus Torvalds (torvalds@osdl.org) wrote:
-> So with that out of the way, I'll just expect that I'll get whatever you 
-> decide on through Davem's git tree, once his drunken holiday revelry is 
-> over ;)
+Hello,
 
-This is important process - never interrupt it for things like patches
-from external developers :)
-I will push it through his tree.
+I'm using uswsusp and with commit
 
-> 		Linus
+	3592695c363c3f3119621bdcf5ed852d6b9d1a5c
+	uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode")
+
+
+My PC power-light starts flashing during s2disk as expected (comment
+from the commit that fixes the same thing in in-kernel suspend):
+
+"    [PATCH] swsusp: fix platform mode
+
+    At some point after 2.6.13, in-kernel software suspend got "incomplete" for
+    the so-called "platform" mode.  pm_ops->prepare() is never called.  A
+    visible sign of this is the "moon" light on thinkpads not flashing during
+    suspend.  Fix by readding the pm_ops->prepare call during suspend."
+
+
+BUT: another thing that happens is that now my PC powers itself on
+_without_ pressing the power button (just by plugging the AC power).
+
+
+I don't like this all that much...
+
+I understand this is probably MOBO specific but, is this behaviour
+expected/common?
 
 -- 
-	Evgeniy Polyakov
+	Paolo Ornati
+	Linux 2.6.20-rc1-g99f5e971 on x86_64

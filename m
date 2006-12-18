@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754545AbWLRU2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754550AbWLRUbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754545AbWLRU2c (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 15:28:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754546AbWLRU2b
+	id S1754550AbWLRUbp (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 15:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754552AbWLRUbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 15:28:31 -0500
-Received: from mga01.intel.com ([192.55.52.88]:24515 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754545AbWLRU2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 15:28:31 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,185,1165219200"; 
-   d="scan'208"; a="179019342:sNHT18744957"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Dmitriy Monakhov'" <dmonakhov@openvz.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: <devel@openvz.org>, "Andrew Morton" <akpm@osdl.org>, <xfs@oss.sgi.com>
-Subject: RE: [PATCH] incorrect direct io error handling
-Date: Mon, 18 Dec 2006 11:56:36 -0800
-Message-ID: <000101c722de$9fdca4b0$e834030a@amr.corp.intel.com>
+	Mon, 18 Dec 2006 15:31:45 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:48519 "EHLO
+	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754550AbWLRUbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 15:31:44 -0500
+Message-ID: <4586FAA1.8080904@gmail.com>
+Date: Mon, 18 Dec 2006 21:31:29 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bug: isicom: kobject_add failed for ttyM0 with -EEXIST
+References: <20061218155714.GA21823@elte.hu> <4586C882.6090906@gmail.com> <20061218200050.GB339@elte.hu>
+In-Reply-To: <20061218200050.GB339@elte.hu>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccireomkU5q+2FZTSmiIVVKTJhrWQAL8ZqQ
-In-Reply-To: <87d56he3tn.fsf@sw.ru>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Muni-Spam-TestIP: 147.251.48.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitriy Monakhov wrote on Monday, December 18, 2006 5:23 AM
-> This patch is result of discussion started week ago here:
-> http://lkml.org/lkml/2006/12/11/66
-> changes from original patch:
->  - Update wrong comments about i_mutex locking.
->  - Add BUG_ON(!mutex_is_locked(..)) for non blkdev. 
->  - vmtruncate call only for non blockdev
-> LOG:
-> If generic_file_direct_write() has fail (ENOSPC condition) inside 
-> __generic_file_aio_write_nolock() it may have instantiated
-> a few blocks outside i_size. And fsck will complain about wrong i_size
-> (ext2, ext3 and reiserfs interpret i_size and biggest block difference as error),
-> after fsck will fix error i_size will be increased to the biggest block,
-> but this blocks contain gurbage from previous write attempt, this is not 
-> information leak, but its silence file data corruption. This issue affect 
-> fs regardless the values of blocksize or pagesize.
-> We need truncate any block beyond i_size after write have failed , do in simular
-> generic_file_buffered_write() error path. If host is !S_ISBLK i_mutex always
-> held inside generic_file_aio_write_nolock() and we may safely call vmtruncate().
-> Some fs (XFS at least) may directly call generic_file_direct_write()with 
-> i_mutex not held. There is no general scenario in this case. This fs have to 
-> handle generic_file_direct_write() error by its own specific way (place).      
+Ingo Molnar wrote:
+> * Jiri Slaby <jirislaby@gmail.com> wrote:
+> 
+>> Ingo Molnar wrote:
+>>> allyesconfig bzImage bootup produced 33 warning messages, of which the 
+>>> first couple are attached below.
+>> With which kernel? mxser had ttyM for a long time, it should be fixed 
+>> in 2.6.20-rc1.
+> 
+> current -git.
 
+It's rather impossible. Aren't you seeked somewhere (I'm in
+825020c3866e7312947e17a0caa9dd1a5622bafc now)?
 
-I'm puzzled that if ext2 is able to instantiate some blocks, then why does it
-return no space error?  Where is the error coming from?
+Calling initcall 0xc0628d59: isicom_setup+0x0/0x315()
+kobject_add failed for ttyM0 with -EEXIST, don't try to register things with the
+same name in the same directory.
+ [<c0106273>] show_trace_log_lvl+0x34/0x4a
+ [<c01063a9>] show_trace+0x2c/0x2e
+ [<c01063d6>] dump_stack+0x2b/0x2d
+ [<c04f06a3>] kobject_add+0x15f/0x187
+ [<c06e3421>] class_device_add+0xb5/0x45c
+ [<c06e37e5>] class_device_register+0x1d/0x21
+ [<c06e3892>] class_device_create+0xa9/0xcc
+ [<c05f8a5c>] tty_register_device+0xe3/0xea
+
+Can't be called from tty_register_driver, since
+!(driver->flags & TTY_DRIVER_DYNAMIC_DEV) is false in
+http://www.linux-m32r.org/lxr/http/source/drivers/char/tty_io.c#L3756
+
+ [<c05f97fa>] tty_register_driver+0x202/0x21e
+ [<c0628fa3>] isicom_setup+0x24a/0x315
+
+Is no longer in the isicom driver.
+
+ [<c0100567>] init+0x178/0x451
+ [<c0105feb>] kernel_thread_helper+0x7/0x10
+ =======================
+
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

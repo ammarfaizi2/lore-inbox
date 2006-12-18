@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754073AbWLRO1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754079AbWLRObX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754073AbWLRO1c (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 09:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754064AbWLRO1c
+	id S1754079AbWLRObX (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 09:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754083AbWLRObX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 09:27:32 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:56767 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754073AbWLRO1b (ORCPT
+	Mon, 18 Dec 2006 09:31:23 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:36745 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754082AbWLRObX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 09:27:31 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4586A541.2060306@s5r6.in-berlin.de>
-Date: Mon, 18 Dec 2006 15:27:13 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Add PCI class ID for firewire OHCI controllers.
-References: <20061217193409.GA19585@devserv.devel.redhat.com>
-In-Reply-To: <20061217193409.GA19585@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 18 Dec 2006 09:31:23 -0500
+Date: Mon, 18 Dec 2006 09:31:22 -0500
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: James Porter <jameslporter@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers
+Message-ID: <20061218143122.GB8591@csclub.uwaterloo.ca>
+References: <loom.20061215T220806-362@post.gmane.org> <20061215215943.622dd456@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061215215943.622dd456@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Høgsberg wrote:
-> Pull this define out of drivers/ieee1394/ohci1394.c and rename to match
-> other PCI class defines.
+On Fri, Dec 15, 2006 at 09:59:43PM +0000, Alan wrote:
+> 3DFx invented SLI many years ago. The SLI programming information for the
+> 3DFx cards is public. Nvidia are a bit late to the party except on the PR
+> front.
 
-Committed to linux1394-2.6.git.
--- 
-Stefan Richter
--=====-=-==- ==-- =--=-
-http://arcgraph.de/sr/
+Well they do work differently.  3Dfx just did alternate line rendering,
+while nvidia does a lot more methods of dividing the work load (many of
+which are likely to be more efficient than alternate line rendering in
+general).  No doubt why they picked the name SLI though.  They did also
+buy out 3Dfx so I guess by that they can claim to have "invented" it. :)
+
+--
+Len Sorensen

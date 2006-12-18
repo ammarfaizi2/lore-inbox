@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754412AbWLRTIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754426AbWLRTLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754412AbWLRTIJ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 14:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754421AbWLRTII
+	id S1754426AbWLRTLT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 14:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754338AbWLRTLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 14:08:08 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:44367 "EHLO
-	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754412AbWLRTIH (ORCPT
+	Mon, 18 Dec 2006 14:11:19 -0500
+Received: from amsfep20-int.chello.nl ([62.179.120.15]:36353 "EHLO
+	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753768AbWLRTLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 14:08:07 -0500
-Message-ID: <4586E703.60503@gmail.com>
-Date: Mon, 18 Dec 2006 20:07:47 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Miles Lane <miles.lane@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.20-rc1-mm1 -- WARNING (1) at arch/i386/mm/highmem.c:41 kmap_atomic()
-References: <a44ae5cd0612180948g75da787ge2cf47f2208f7741@mail.gmail.com>	 <4586E11E.6040706@gmail.com> <a44ae5cd0612181100x2908bb7co2a6348653015f32@mail.gmail.com>
-In-Reply-To: <a44ae5cd0612181100x2908bb7co2a6348653015f32@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+	Mon, 18 Dec 2006 14:11:18 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: andrei.popa@i-neo.ro
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+In-Reply-To: <1166468651.6983.6.camel@localhost>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
+	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	 <1166466272.10372.96.camel@twins>
+	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+	 <1166468651.6983.6.camel@localhost>
+Content-Type: text/plain
+Date: Mon, 18 Dec 2006 20:10:19 +0100
+Message-Id: <1166469019.10372.99.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> On 12/18/06, Jiri Slaby <jirislaby@gmail.com> wrote:
->> Miles Lane wrote:
->> > Sorry, I am not finding who maintains highmem.  Please forward.
->> >
->> > WARNING (1) at arch/i386/mm/highmem.c:41 kmap_atomic()
->> > [<c0103c25>] dump_trace+0x68/0x1d2
->> > [<c0103da7>] show_trace_log_lvl+0x18/0x2c
->> > [<c0104410>] show_trace+0xf/0x11
->> > [<c010449b>] dump_stack+0x12/0x14
->> > [<c01144d9>] kmap_atomic+0x6f/0x1ca
->> > [<f930e25d>] ntfs_end_buffer_async_read+0x25d/0x2ca [ntfs]
->> > [<c017c294>] end_bio_bh_io_sync+0x2c/0x37
->> > [<c017dc29>] bio_endio+0x5a/0x62
->> > [<c01c8412>] __end_that_request_first+0x145/0x3ab
->> > [<c0237695>] ide_end_request+0x80/0xd8
->> > [<c023e3f0>] ide_dma_intr+0x55/0x9a
->> > [<c02388dc>] ide_intr+0x182/0x1f2
->> > [<c0140775>] handle_IRQ_event+0x1a/0x3f
->> > [<c0141baa>] handle_edge_irq+0xc6/0x11c
->> > [<c0105416>] do_IRQ+0x57/0x71
->> > [<c010366b>] common_interrupt+0x23/0x28
->> > [<f8826ee4>] acpi_processor_idle+0x1cc/0x36c [processor]
->> > [<c010132b>] cpu_idle+0x3e/0x6c
->> > [<c03f06d9>] start_kernel+0x2fa/0x2fe
->> > =======================
->>
->> Reported yet, you might see it here:
->> http://lkml.org/lkml/2006/12/15/222
-> 
-> It is certainly very similar, and probably has the same root cause.
-> Though, the trace isn't an exact match.   So, who should look into
-> this?
+On Mon, 2006-12-18 at 21:04 +0200, Andrei Popa wrote:
 
-The trace needn't be the same. The problem was, that kmap_atomic didn't know
-KM_BIO_SRC_IRQ which is called (twice) from ntfs_end_buffer_async_read. It
-doesn't matter who called this ntfs function and why.
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index d8a842a..3f9061e 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -448,7 +448,7 @@ static int page_mkclean_one(struct page 
+>  		goto unlock;
+>  
+>  	entry = ptep_get_and_clear(mm, address, pte);
+> -	entry = pte_mkclean(entry);
+> +	/*entry = pte_mkclean(entry);*/
+>  	entry = pte_wrprotect(entry);
+>  	ptep_establish(vma, address, pte, entry);
+>  	lazy_mmu_prot_update(entry);
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+please drop this chunk, this will always make the problem go away.
+
+

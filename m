@@ -1,109 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754144AbWLRP0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754150AbWLRP3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754144AbWLRP0s (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 10:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754142AbWLRP0s
+	id S1754150AbWLRP3u (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 10:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754149AbWLRP3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 10:26:48 -0500
-Received: from web52913.mail.yahoo.com ([206.190.49.23]:28272 "HELO
-	web52913.mail.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754144AbWLRP0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 10:26:47 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 10:26:46 EST
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=bdMsbzcR2BfwX0k47rOmqjSyqNsw2KuUNMon3YQFxx1g8GyNQtVnodoVXycM8e/GHMu1eFHC1Lmslq5SQo6x9xUeeMHNx3MC1Aakx+BkHaJ8iVLb8wZ+gQ4t+jY6An9Vnoiwqw4/i4YxHAGXHEAXTeXiX3Kjy99f4eSLG6vZlR8=  ;
-Message-ID: <20061218152006.52617.qmail@web52913.mail.yahoo.com>
-X-YMail-OSG: E68uk8kVM1kRRSCJRVS4zNfvCSxfBbCI9GNdZgwz6NA8U8OYFB4vfp7qlS.ZmiUwig--
-Date: Mon, 18 Dec 2006 15:20:06 +0000 (GMT)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: [BUG] Linux 2.6.19.1 - "page_mapcount(page) went negative (-1)"
+	Mon, 18 Dec 2006 10:29:50 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36522 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754154AbWLRP3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 10:29:49 -0500
+Date: Mon, 18 Dec 2006 16:27:13 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: bug: depca_module_init() cleanup error
+Message-ID: <20061218152713.GA16208@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I just tripped this bug when compiling xine-lib on 2.6.19.1. This is on a dual P4, SMP and HT, 2
-GB RAM, compiled with gcc-4.1.1.
+while doing an allyesconfig bootup on a PC the depca driver triggered 
+the crash below.
 
-Cheers,
-Chris
+	Ingo
 
-Eeek! page_mapcount(page) went negative! (-1)
-  page->flags = 14
-  page->count = 0
-  page->mapping = 00000000
+------------------>
+Calling initcall 0xc1ea0506: depca_module_init+0x0/0xd7()
+PM: Adding info for platform:depca.0
+depca: probe of depca.0 failed with error -16
+PM: Removing info for platform:depca.0
+kfree_debugcheck: out of range ptr 300h.
+BUG at mm/slab.c:2910!
+stopped custom tracer.
 ------------[ cut here ]------------
-kernel BUG at /home/chris/LINUX/linux-2.6.19/mm/rmap.c:578!
+kernel BUG at mm/slab.c:2910!
 invalid opcode: 0000 [#1]
-PREEMPT SMP
-Modules linked in: radeon drm pwc eeprom cpufreq_ondemand p4_clockmod speedstep_lib nfsd exportfs
-ipv6 autofs4 nfs lockd sunrpc af_packet firmware_class binfmt_misc video thermal processor fan
-button ac lp parport_pc parport nvram video1394 raw1394 eth1394 compat_ioctl32 videodev
-v4l1_compat v4l2_common snd_usb_audio snd_usb_lib snd_intel8x0 snd_emu10k1_synth snd_emux_synth
-snd_seq_virmidi snd_seq_midi_emul snd_emu10k1 snd_rawmidi snd_ac97_codec snd_ac97_bus
-snd_seq_dummy snd_seq_oss ohci1394 snd_seq_midi_event snd_seq ieee1394 snd_pcm_oss snd_mixer_oss
-snd_pcm ehci_hcd e7xxx_edac serio_raw snd_seq_device uhci_hcd edac_mc e1000 psmouse snd_timer
-snd_page_alloc snd_util_mem snd_hwdep ide_cd cdrom snd soundcore pcspkr intel_agp i2c_i801
-i2c_core agpgart usbcore ext3 jbd
+PREEMPT SMP 
+Modules linked in:
 CPU:    0
-EIP:    0060:[<c0145fa0>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.19.1 #1)
-EIP is at page_remove_rmap+0x70/0x8f
-eax: 0000001e   ebx: c100f500   ecx: ebd0c000   edx: 00000002
-esi: 00000020   edi: 08665000   ebp: eac11994   esp: ebd0cee0
-ds: 007b   es: 007b   ss: 0068
-Process cc1 (pid: 24220, ti=ebd0c000 task=ed5b3a90 task.ti=ebd0c000)
-Stack: c0284bf0 00000000 c100f500 c0140c39 00000000 edb60518 ebd0cf54 00000000
-       00000001 08696000 ec3f3084 f798f040 c200f0c0 fffffff9 ffffffff c155822c
-       ec3f3084 08696000 00000000 00000000 ebd0cf54 ecfab5c0 f798f040 00000001
+EIP:    0060:[<c0194367>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.19.1-rt16 #494)
+EIP is at kfree_debugcheck+0x52/0xa9
+eax: 0000001a   ebx: 00040000   ecx: c01356a9   edx: 00000001
+esi: 00000300   edi: 00000300   ebp: f7c21ec4   esp: f7c21eb0
+ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+Process swapper (pid: 1, ti=f7c21000 task=f7c30c50 task.ti=f7c21000)
+Stack: c14f9371 c150c05d 00000b5e f772aea0 c1fd4ea0 f7c21ee8 c01953b2 00000300 
+       fffffff0 f772b080 00000000 f772aea0 f772b080 c1902880 f7c21ef8 c06e3d0e 
+       00000300 c19029f0 f7c21f0c c06dfcd9 f772aea8 c06dfe6e f772b080 f7c21f28 
 Call Trace:
- [<c0140c39>] unmap_vmas+0x24d/0x4df
- [<c01436ac>] exit_mmap+0x7e/0x10e
- [<c011717d>] mmput+0x1d/0x78
- [<c011bb94>] do_exit+0x1a9/0x77c
- [<c0111c2f>] do_page_fault+0x281/0x51a
- [<c0150689>] vfs_write+0xfc/0x13b
- [<c011c1dd>] sys_exit_group+0x0/0xd
- [<c0102b9d>] sysenter_past_esp+0x56/0x79
+ [<c0106273>] show_trace_log_lvl+0x34/0x4a
+ [<c0106332>] show_stack_log_lvl+0xa9/0xb9
+ [<c010663e>] show_registers+0x1f5/0x290
+ [<c0106a3b>] die+0x1de/0x2db
+ [<c13deb95>] do_trap+0xac/0xca
+ [<c0106f73>] do_invalid_op+0xae/0xb8
+ [<c13de8a1>] error_code+0x39/0x40
+ [<c01953b2>] kfree+0x42/0xce
+ [<c06e3d0e>] platform_device_release+0x1e/0x38
+ [<c06dfcd9>] device_release+0x36/0x6b
+ [<c04f091c>] kobject_cleanup+0x4d/0x74
+ [<c04f095a>] kobject_release+0x17/0x19
+ [<c04f0f7a>] kref_put+0x5b/0x69
+ [<c04f02b6>] kobject_put+0x24/0x26
+ [<c06dfe6e>] put_device+0x1d/0x1f
+ [<c06e3cee>] platform_device_put+0x1b/0x1d
+ [<c1ea0598>] depca_module_init+0x92/0xd7
+ [<c0100567>] init+0x178/0x451
+ [<c0105feb>] kernel_thread_helper+0x7/0x10
  =======================
-Code: 74 03 8b 53 0c 8b 42 04 89 44 24 04 c7 04 24 d9 4b 28 c0 e8 52 3c fd ff 8b 43 10 89 44 24 04
-c7 04 24 f0 4b 28 c0 e8 3f 3c fd ff <0f> 0b 42 02 66 4b 28 c0 8b 53 10 83 f2 01 83 e2 01 89 d8 5b
-59
-EIP: [<c0145fa0>] page_remove_rmap+0x70/0x8f SS:ESP 0068:ebd0cee0
- <1>Fixing recursive fault but reboot is needed!
-BUG: scheduling while atomic: cc1/0x00000002/24220
- [<c026d6cf>] __sched_text_start+0x4f/0x900
- [<c019ed40>] cfq_free_io_context+0x57/0xbb
- [<c0140068>] sys_madvise+0x168/0x3a4
- [<c011bad9>] do_exit+0xee/0x77c
- [<c0140068>] sys_madvise+0x168/0x3a4
- [<c0140068>] sys_madvise+0x168/0x3a4
- [<c0103fc7>] die+0x2a5/0x2cc
- [<c010486c>] do_invalid_op+0x0/0xab
- [<c010490e>] do_invalid_op+0xa2/0xab
- [<c0145fa0>] page_remove_rmap+0x70/0x8f
- [<c0119b85>] vprintk+0x2b9/0x313
- [<c0119b8f>] vprintk+0x2c3/0x313
- [<c013a59c>] __pagevec_free+0x18/0x22
- [<c026ff79>] error_code+0x39/0x40
- [<c0145fa0>] page_remove_rmap+0x70/0x8f
- [<c0140c39>] unmap_vmas+0x24d/0x4df
- [<c01436ac>] exit_mmap+0x7e/0x10e
- [<c011717d>] mmput+0x1d/0x78
- [<c011bb94>] do_exit+0x1a9/0x77c
- [<c0111c2f>] do_page_fault+0x281/0x51a
- [<c0150689>] vfs_write+0xfc/0x13b
- [<c011c1dd>] sys_exit_group+0x0/0xd
- [<c0102b9d>] sysenter_past_esp+0x56/0x79
+Code: 24 e7 c3 50 c1 e8 00 17 fa ff e8 49 08 fd ff c7 44 24 08 5e 0b 00 00 c7 44 24 04 5d c0 50 c1 c7 04 24 71 93 4f c1 e8 df 16 fa ff <0f> 0b 5e 0b 5d c0 50 c1 6b c3 74 03 05 10 f2 35 c2 8b 00 84 c0 
+EIP: [<c0194367>] kfree_debugcheck+0x52/0xa9 SS:ESP 0068:f7c21eb0
+ <0>Kernel panic - not syncing: Attempted to kill init!
+ [<c0106273>] show_trace_log_lvl+0x34/0x4a
+ [<c01063a9>] show_trace+0x2c/0x2e
+ [<c01063d6>] dump_stack+0x2b/0x2d
+ [<c0134c93>] panic+0x67/0x124
+ [<c0137a0d>] do_exit+0xb8/0x9ed
+ [<c0106b30>] die+0x2d3/0x2db
+ [<c13deb95>] do_trap+0xac/0xca
+ [<c0106f73>] do_invalid_op+0xae/0xb8
+ [<c13de8a1>] error_code+0x39/0x40
+ [<c01953b2>] kfree+0x42/0xce
+ [<c06e3d0e>] platform_device_release+0x1e/0x38
+ [<c06dfcd9>] device_release+0x36/0x6b
+ [<c04f091c>] kobject_cleanup+0x4d/0x74
+ [<c04f095a>] kobject_release+0x17/0x19
+ [<c04f0f7a>] kref_put+0x5b/0x69
+ [<c04f02b6>] kobject_put+0x24/0x26
+ [<c06dfe6e>] put_device+0x1d/0x1f
+ [<c06e3cee>] platform_device_put+0x1b/0x1d
+ [<c1ea0598>] depca_module_init+0x92/0xd7
+ [<c0100567>] init+0x178/0x451
+ [<c0105feb>] kernel_thread_helper+0x7/0x10
  =======================
-
-
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+ 

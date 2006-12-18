@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754622AbWLRWQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754688AbWLRWV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754622AbWLRWQA (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754626AbWLRWQA
+	id S1754688AbWLRWV7 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754685AbWLRWV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:16:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:35819 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754622AbWLRWP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:15:58 -0500
-Date: Mon, 18 Dec 2006 22:15:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, apw@shadowen.org, cbe-oss-dev@ozlabs.org,
-       linuxppc-dev@ozlabs.org, linux-mm@kvack.org, mkravetz@us.ibm.com,
-       hch@infradead.org, jk@ozlabs.org, linux-kernel@vger.kernel.org,
-       paulus@samba.org, benh@kernel.crashing.org, gone@us.ibm.com,
-       kmannth@us.ibm.com
-Subject: Re: [PATCH] Fix sparsemem on Cell
-Message-ID: <20061218221534.GB25472@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-	Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
-	cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org, linux-mm@kvack.org,
-	mkravetz@us.ibm.com, jk@ozlabs.org, linux-kernel@vger.kernel.org,
-	paulus@samba.org, benh@kernel.crashing.org, gone@us.ibm.com,
-	kmannth@us.ibm.com
-References: <20061215165335.61D9F775@localhost.localdomain> <4582D756.7090702@shadowen.org> <1166203440.8105.22.camel@localhost.localdomain> <20061215114536.dc5c93af.akpm@osdl.org> <20061216170353.2dfa27b1.kamezawa.hiroyu@jp.fujitsu.com> <1166476437.8648.7.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 18 Dec 2006 17:21:59 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:13487 "EHLO coraid.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754675AbWLRWV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 17:21:58 -0500
+Date: Mon, 18 Dec 2006 17:21:09 -0500
+From: "Ed L. Cashin" <ecashin@coraid.com>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>, boddingt@optusnet.com.au,
+       Andrew Morton <akpm@osdl.org>, bugme-daemon@bugzilla.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: bio pages with zero page reference count
+Message-ID: <20061218222109.GA23156@coraid.com>
+Reply-To: support@coraid.com
+References: <20061209234305.c65b4e14.akpm@osdl.org> <20061218175300.GM23156@coraid.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1166476437.8648.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20061218175300.GM23156@coraid.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 01:13:57PM -0800, Dave Hansen wrote:
-> On Sat, 2006-12-16 at 17:03 +0900, KAMEZAWA Hiroyuki wrote:
-> >  /* add this memory to iomem resource */
-> >  static struct resource *register_memory_resource(u64 start, u64 size)
-> >  {
-> > @@ -273,10 +284,13 @@
-> >  		if (ret)
-> >  			goto error;
-> >  	}
-> > +	atomic_inc(&memory_hotadd_count);
-> >  
-> >  	/* call arch's memory hotadd */
-> >  	ret = arch_add_memory(nid, start, size);
-> >  
-> > +	atomic_dec(&memory_hotadd_count);
-> 
-> I'd be willing to be that this will work just fine.  But, I think we can
-> do it without any static state at all, if we just pass a runtime-or-not
-> flag down into the arch_add_memory() call chain.
-> 
-> I'll code that up so we can compare to yours.  
+(This email is a followup to "Re: [PATCH 2.6.19.1] fix aoe without
+scatter-gather [Bug 7662]".)
 
-Yes, I stronly concur that passing an explicit flag is much much better
-than any hack involving global state.
+On Mon, Dec 18, 2006 at 12:53:00PM -0500, Ed L. Cashin wrote:
+...
+> This patch eliminates the offset data on cards that don't support
+> scatter-gather or have had scatter-gather turned off.  There remains
+> an unrelated issue that I'll address in a separate email.
+
+After fixing the problem with the skb headers, we noticed that there
+were still problems when scatter gather wasn't in use.  XFS was giving
+us bios that had pages with a reference count of zero.
+
+The aoe driver sets up the skb with the frags pointing to the pages,
+and when scatter gather isn't supported and __pskb_pull_tail gets
+involved, put_page is called after the data is copied from the pages.
+That causes problems because of the zero page reference count.
+
+It seems like it would always be incorrect for one part of the kernel
+to give pages with a zero reference count to another part of the
+kernel, so this seems like a bug in XFS.
+
+Christoph Hellwig, though, points out,
+
+  > It's a kmalloced page.  The same can happen with ext3 aswell, but
+  > only when doing log recovery.  The last time this came up (vs
+  > iscsi) the conclusion was that the driver needs to handle this
+  > case.
+
+In attempting to find the conversation he was referencing, I only
+found this:
+
+  Subject: tcp_sendpage and page allocation lifetime vs. iscsi
+  Date: 2005-04-25 17:02:59 GMT
+  http://article.gmane.org/gmane.linux.kernel/298377
+
+If anyone has a better reference, I'd like to see it.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>

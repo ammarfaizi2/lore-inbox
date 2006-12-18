@@ -1,107 +1,143 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932074AbWLRA2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753274AbWLRAgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWLRA2Z (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 17 Dec 2006 19:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWLRA2Z
+	id S1753274AbWLRAgQ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 17 Dec 2006 19:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753313AbWLRAgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Dec 2006 19:28:25 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:51622 "EHLO
-	exch01smtp11.hdi.tvcabo" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932074AbWLRA2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Dec 2006 19:28:24 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Ao8CAOZuhUVThFhodGdsb2JhbACNbwE
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.129.93):SA:0(-1.4/5.0):. Processed in 2.898764 secs Process 13865)
-Subject: Re: kernel-rt-15 give NETDEV WATCHDOG: eth1: transmit timed out
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-rt <linux-rt-users@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1166314848.11625.9.camel@monteirov>
-References: <1166314848.11625.9.camel@monteirov>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-JDM4Y5LHfRVs5OJB4h2j"
-Date: Mon, 18 Dec 2006 00:28:26 +0000
-Message-Id: <1166401706.3575.5.camel@monteirov>
+	Sun, 17 Dec 2006 19:36:16 -0500
+Received: from gate.crashing.org ([63.228.1.57]:35254 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753274AbWLRAgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Dec 2006 19:36:16 -0500
+Subject: Re: [PATCH] more work_struct mess
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061208091649.GL4587@ftp.linux.org.uk>
+References: <20061208091649.GL4587@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 18 Dec 2006 11:35:59 +1100
+Message-Id: <1166402159.31351.140.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-X-OriginalArrivalTime: 18 Dec 2006 00:28:22.0276 (UTC) FILETIME=[6C8A3440:01C7223B]
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-12-08 at 09:16 +0000, Al Viro wrote:
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
---=-JDM4Y5LHfRVs5OJB4h2j
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
 
-After many hours of stressing network I could reproduce once NETDEV
-WATCHDOG: eth1: transmit timed out on rt-14, but is not so frequently as
-on rt15. I just reproduce one time on rt14 with many many stress, on
-rt15 is much more frequently.
+Please merge, right now, pmac32_defconfig is busted. I'm tempted to
+mark dmasound_pmac for removal soon too ...
 
+Ben.
 
-On Sun, 2006-12-17 at 00:20 +0000, Sergio Monteiro Basto wrote:
-> Hi,=20
-> kernel-rt-14 rocks but wiht kernel-rt-15 I got kernel: NETDEV WATCHDOG:
-> eth1: transmit timed out, I downgrade to kernel-rt-14 and that got this
-> problem anymore.
->=20
-> I not use my on-board via-rhine II Ethernet.=20
-> This tests has been made with one external Ethernet card, one Realtek
-> Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
->=20
-> kernel-rt-14 without notsc option and boot clean, don't have any oops
-> anymore.
->=20
-> Thanks,
---=20
-S=E9rgio M.B.
+> ---
+> diff --git a/sound/oss/dmasound/tas3001c.c b/sound/oss/dmasound/tas3001c.c
+> index f227c9f..2f21a3c 100644
+> --- a/sound/oss/dmasound/tas3001c.c
+> +++ b/sound/oss/dmasound/tas3001c.c
+> @@ -50,6 +50,7 @@ struct tas3001c_data_t {
+>  	int output_id;
+>  	int speaker_id;
+>  	struct tas_drce_t drce_state;
+> +	struct work_struct change;
+>  };
+>  
+> 
+> @@ -667,14 +668,13 @@ tas3001c_update_device_parameters(struct
+>  }
+>  
+>  static void
+> -tas3001c_device_change_handler(void *self)
+> +tas3001c_device_change_handler(struct work_struct *work)
+>  {
+> -	if (self)
+> -		tas3001c_update_device_parameters(self);
+> +	struct tas3001c_data_t *self;
+> +	self = container_of(work, struct tas3001c_data_t, change);
+> +	tas3001c_update_device_parameters(self);
+>  }
+>  
+> -static struct work_struct device_change;
+> -
+>  static int
+>  tas3001c_output_device_change(	struct tas3001c_data_t *self,
+>  				int device_id,
+> @@ -685,7 +685,7 @@ tas3001c_output_device_change(	struct ta
+>  	self->output_id=output_id;
+>  	self->speaker_id=speaker_id;
+>  
+> -	schedule_work(&device_change);
+> +	schedule_work(&self->change);
+>  	return 0;
+>  }
+>  
+> @@ -823,7 +823,7 @@ tas3001c_init(struct i2c_client *client)
+>  			tas3001c_write_biquad_shadow(self, i, j,
+>  				&tas3001c_eq_unity);
+>  
+> -	INIT_WORK(&device_change, tas3001c_device_change_handler, self);
+> +	INIT_WORK(&self->change, tas3001c_device_change_handler);
+>  	return 0;
+>  }
+>  
+> diff --git a/sound/oss/dmasound/tas3004.c b/sound/oss/dmasound/tas3004.c
+> index 82eaaca..af34fb3 100644
+> --- a/sound/oss/dmasound/tas3004.c
+> +++ b/sound/oss/dmasound/tas3004.c
+> @@ -48,6 +48,7 @@ struct tas3004_data_t {
+>  	int output_id;
+>  	int speaker_id;
+>  	struct tas_drce_t drce_state;
+> +	struct work_struct change;
+>  };
+>  
+>  #define MAKE_TIME(sec,usec) (((sec)<<12) + (50000+(usec/10)*(1<<12))/100000)
+> @@ -914,15 +915,13 @@ tas3004_update_device_parameters(struct 
+>  }
+>  
+>  static void
+> -tas3004_device_change_handler(void *self)
+> +tas3004_device_change_handler(struct work_struct *work)
+>  {
+> -	if (!self) return;
+> -
+> -	tas3004_update_device_parameters((struct tas3004_data_t *)self);
+> +	struct tas3004_data_t *self;
+> +	self = container_of(work, struct tas3004_data_t, change);
+> +	tas3004_update_device_parameters(self);
+>  }
+>  
+> -static struct work_struct device_change;
+> -
+>  static int
+>  tas3004_output_device_change(	struct tas3004_data_t *self,
+>  				int device_id,
+> @@ -933,7 +932,7 @@ tas3004_output_device_change(	struct tas
+>  	self->output_id=output_id;
+>  	self->speaker_id=speaker_id;
+>  
+> -	schedule_work(&device_change);
+> +	schedule_work(&self->change);
+>  
+>  	return 0;
+>  }
+> @@ -1112,7 +1111,7 @@ tas3004_init(struct i2c_client *client)
+>  	tas3004_write_register(self, TAS3004_REG_MCR2, &mcr2, WRITE_SHADOW);
+>  	tas3004_write_register(self, TAS3004_REG_DRC, drce_init, WRITE_SHADOW);
+>  
+> -	INIT_WORK(&device_change, tas3004_device_change_handler, self);
+> +	INIT_WORK(&self->change, tas3004_device_change_handler);
+>  	return 0;
+>  }
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---=-JDM4Y5LHfRVs5OJB4h2j
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjEyMTgwMDI4MThaMCMGCSqGSIb3DQEJBDEWBBQ2cYnfgb8WdY2lrc25QMns
-MZVvlTANBgkqhkiG9w0BAQEFAASCAQCZXDrL7Hjobz7G0sbsjr/QkRh8vVFLkCVbx7YccImWttsu
-xARESL7m0tf7/XTByfuTbi8kK0ldrFHP280BKkFo8fLyiSxfF+EhdHBtV8BLD3Sl2l4GqfVPabSE
-kGteHaDJlvrr18vNXxpHlklNV7cLXuNvtkbPfI8lleqw2Ovc3d8HrwIdBxzaOFvClnhMW/GfavdL
-szCW3lMTG8CnGoRzMoaxIXD7x4hy5GSKRRu8xuIKXvnYnLftHA3OZ6IIsES16Sn2UXw2i51cVblj
-HDQgG44sfOtWVtSNnpVn8Sh34b3BDfEyhzY763ONqGORlWVPQekdSr3FG0ndqKuQcE38AAAAAAAA
-
-
-
---=-JDM4Y5LHfRVs5OJB4h2j--

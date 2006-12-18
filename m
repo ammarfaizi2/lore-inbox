@@ -1,66 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754133AbWLRPUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754134AbWLRPXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754133AbWLRPUQ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 10:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754114AbWLRPUP
+	id S1754134AbWLRPXj (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 10:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754138AbWLRPXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 10:20:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32854 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754133AbWLRPUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 10:20:14 -0500
-Subject: Re: [2.6 patch] remove the broken SCSI_SEAGATE driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <m3ac1l2u3a.fsf@defiant.localdomain>
-References: <20061212162238.GR28443@stusta.de>
-	 <1165966274.5903.56.camel@mulgrave.il.steeleye.com>
-	 <20061213000902.GD28443@stusta.de> <m3wt4tp9ka.fsf@defiant.localdomain>
-	 <1166198454.2846.10.camel@mulgrave.il.steeleye.com>
-	 <m3ac1mb88s.fsf@defiant.localdomain>
-	 <1166386966.9647.20.camel@mulgrave.il.steeleye.com>
-	 <m3tzzu9q7k.fsf@defiant.localdomain>
-	 <1166431702.3365.934.camel@laptopd505.fenrus.org>
-	 <m3ac1l2u3a.fsf@defiant.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 18 Dec 2006 16:20:10 +0100
-Message-Id: <1166455210.3365.1050.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Dec 2006 10:23:39 -0500
+Received: from yumi.tdiedrich.de ([85.10.210.183]:3375 "EHLO yumi.tdiedrich.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754134AbWLRPXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 10:23:38 -0500
+Date: Mon, 18 Dec 2006 16:23:34 +0100
+From: Tobias Diedrich <ranma+kernel@tdiedrich.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: IO-APIC + timer doesn't work (was: Linux 2.6.20-rc1)
+Message-ID: <20061218152333.GA2400@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
+	Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org> <Pine.LNX.4.64.0612160955370.3557@woody.osdl.org> <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org> <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org> <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org> <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org> <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 14:48 +0100, Krzysztof Halasa wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
+Eric W. Biederman wrote:
+> Tobias Diedrich <ranma@tdiedrich.de> writes:
 > 
-> > if a tree falls in a forest but there's nobody around to hear it, does
-> > it make a sound?
+> > Linus Torvalds wrote:
 > >
-> > This sort of heisenbug questions aren't solved by "nobody hears it so
-> > lets chop down the forest to make houses out of the wood" answers...
+> >> Your dmesg is kind of interesting:
+> >> 
+> >> ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 enabled(7)APIC error on CPU0:
+> > 04(40)
+> >>  .. failed
+> >> 
+> >> where that APIC error on CPU0 seems to be a "Send accept error" and "Send 
+> >> illegal vector" thing. I think we actually got the interrupt there, but 
+> >> because we had some APIC setup bug, we didn't accept it properly, and it 
+> >> resulted in that "APIC error" thing. Maybe. 
+> >
+> > I just tried changing the code so the "8259 IRQ0 enabled" case is
+> > tested first and with that it boots fine.
 > 
-> Does that mean you don't want to know which hardware/drivers aren't used
-> anymore and which ones are?
+> Could you try removing the clear_IO_APIC_pin from try_io_apic_pin.
+> 
+> This isn't a complete fix but I believe for your hardware it will
+> fix the problem and it points at what the real fix is.  
+> 
+> Not properly programming the io_apic for the case we want to test.
 
-it means that IT DOESN'T MATTER.
-* If it's entirely unused, we get no bugreports -> there is no problem.
-* If it's used but good quality, we get no bugreports -> there is no
-problem
+Yes, this works:
 
-we can't distinguish the two. But.. in neither case is there a problem
-so why force anything? I know some people don't like Heisenberg
-uncertainty, but... personally for me if the effect is the same I
-couldn't care less.
+|[   27.535937] init IO_APIC IRQs
+|[   27.536009]  IO-APIC (apicid-pin) 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not connected.
+|[   27.536140] ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 disabled<3> (clear_IO_APIC_pin not called)<3> .. failed
+|[   27.569357] ..TIMER: trying IO-APIC=0 PIN=0 with 8259 IRQ0 enabled<3> .. works
+|[   27.602547] Using local APIC timer interrupts.
+
+I can also report, that updating the BIOS to version 0609 (released
+last week or so, also adds the long-missing HPET support) also makes
+the problem go away since the first testcase then already works.
+I'm currently running with the BIOS downgraded to version 0402.
+
+|[   23.646371] ENABLING IO-APIC IRQs
+|[   23.646477] init IO_APIC IRQs
+|[   23.646479]  IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not connected.
+|[   23.646674] ..TIMER: trying IO-APIC=0 PIN=2 with 8259 IRQ0 disabled<3> .. works
+|[   23.679872] Using local APIC timer interrupts.
+
+Index: linux-2.6.20-rc1/arch/x86_64/kernel/io_apic.c
+===================================================================
+--- linux-2.6.20-rc1.orig/arch/x86_64/kernel/io_apic.c	2006-12-18 15:56:38.000000000 +0100
++++ linux-2.6.20-rc1/arch/x86_64/kernel/io_apic.c	2006-12-18 16:04:15.000000000 +0100
+@@ -1586,9 +1586,11 @@
+ 			setup_nmi();
+ 			enable_8259A_irq(0);
+ 		}
++		apic_printk(APIC_QUIET, KERN_ERR " .. works\n");
+ 		return 1;
+ 	}
+-	clear_IO_APIC_pin(apic, pin);
++	printk(KERN_ERR " (clear_IO_APIC_pin not called)");
++	/* clear_IO_APIC_pin(apic, pin); */
+ 	apic_printk(APIC_QUIET, KERN_ERR " .. failed\n");
+ 	return 0;
+ }
+
+HTH,
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Tobias						PGP: http://9ac7e0bc.uguu.de
+このメールは十割再利用されたビットで作られています。

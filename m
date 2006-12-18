@@ -1,99 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753427AbWLRHRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753438AbWLRHZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753427AbWLRHRy (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 02:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753428AbWLRHRy
+	id S1753438AbWLRHZF (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 02:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753439AbWLRHZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 02:17:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49936 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753427AbWLRHRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 02:17:53 -0500
-Date: Mon, 18 Dec 2006 08:17:37 +0100
-From: Karel Zak <kzak@redhat.com>
+	Mon, 18 Dec 2006 02:25:05 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:6200 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753438AbWLRHZD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 02:25:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NRkKyzYmLafS6E5p4YuOzY6ya3IcbrxIImk+jLzTgEtADWWDC4zDVU6LQ4F/cHlk5ebQ9ktTuIuSwQQyxsIep4vpwZEFN5ll/XG0LNx9z8G/1PdPsSL3Xg807NqizMjMQ2XmaxADyU1O0D3kaJHO+YI0NFL9I/Gw1qf5JkjpuyY=
+Message-ID: <f1dc79790612172325n54e1e654u76c31120d4153cf5@mail.gmail.com>
+Date: Mon, 18 Dec 2006 10:25:01 +0300
+From: "Nick Olkin" <nick.olkin@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: util-linux: orphan
-Message-ID: <20061218071737.GA5217@petra.dvoda.cz>
-References: <20061109224157.GH4324@petra.dvoda.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Q: pages_min determination
+Cc: nick.olkin@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061109224157.GH4324@petra.dvoda.cz>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all!
 
- Hello,
+I've a question regarding the work of the Virtual Memory Manager.
+Unfortunately reading the "Understanding The Linux Virtual Memory
+Manager" (Mel Gorman) didn't help much.
 
- after few weeks I'm pleased to announce a new "util-linux-ng" project. This
- project is a fork of the original util-linux (2.13-pre7). 
+In general the question is how to determine on the working machine
+what the number of the pages_min is?
 
- The goal of the project is to move util-linux code back to useful state, sync
- with actual distributions and kernel and make development more transparent end
- open.
+I have a SunFire v20z running the Red Hat Enterprise Linux AS release
+3 (Taroon Update 7) 2.4.21-40.ELsmp.
 
- The short term goals (for 2.13 release):
+To be honest this question is not of very high urgency and it does not
+imply high practical importance. The interest was stimulated by the
+observing the VM activities on the machine. The server has 4G of
+physical RAM and 4G of swap. A Java App is running on this host. It
+works quite stable, but any time I check the memory state I see that
+the free memory is quite low, and the swap is not used at all. It does
+not worry me as far as I don't see any lack of memory messages, but I
+wonder how the zone balancing occurs, how does it determine the way of
+freeing pages and how can make the system to start swaping (just for
+testing of cause). I tried to load my system a bit more (started
+different applications to consume the memory), but as you all guessed,
+all I've got is slightly lessened free mem and some reclamation
+between cached/used/free.
 
-	- remove all NFS code from util-linux-ng 
-          (/sbin/mount.nfs from nfs-utils is replacement)
-	- remove FS/device detection code
-          (libblkid from e2fsprogs or libvolumeid is replacement)
-	- move as much as possible patches from distributions to upstream
+I thought the value of min_free_kbytes would help me, but I didn't
+find it on my system:
 
- Mailing list:
-   http://vger.kernel.org/vger-lists.html#util-linux-ng
+ls  /proc/sys/vm/
+bdflush
+dcache_priority
+hugetlb_pool
+inactive_clean_percent
+kscand_work_percent
+kswapd
+max_map_count
+max-readahead
+min-readahead
+oom-kill
+overcommit_memory
+overcommit_ratio
+pagecache
+page-cluster
+pagetable_cache
+skip_mapped_pages
+stack_defer_threshold
 
- FTP:
-   ftp://ftp.kernel.org/pub/scm/utils/util-linux-ng/
+The sample output of free –m
 
- GIT:
-   git clone git://git.kernel.org/pub/scm/utils/util-linux-ng/util-linux-ng.git util-linux-ng
+             total       used       free     shared    buffers     cached
 
-   [Note, GIT repo contains previous 47 versions of util-linux.]
+Mem:          3955       3927         28          0         65       3611
+-/+ buffers/cache:        250       3705
+Swap:         4094          0       4094
 
-        
- The mailing list or my private e-mail are open for your patches, ideas and
- suggestion. The mailing list is also place where you can help us review
- patches.
+I will greatly appreciate any assistance although I understand that my
+question does not suite this mailing-list entirely.
 
- Thanks mostly to Ian Kent, P.H. Anvin. Well, and thanks to Adrian
- Bunk for his previous work on this package.
-
-    Karel
-
-
-On Thu, Nov 09, 2006 at 11:41:57PM +0100, Karel Zak wrote:
-> 
->  It really seems that util-linux project is in a bad condition:
-> 
->   * the latest *major* stable release: 05-Mar-2004 (util-linux-2.12a)
->   * the latest *minor* stable release: 23-Sep-2005 (util-linux-2.12r)
->   * the latest unstable release:       05-Mar-2006 (util-linux-2.13-pre7)
->   * missing source code repository
->   * missing web page
->   * maintainer (Adrian Bunk) completely ignores mails about this package
->   * source code doesn't follow linux kernel, because there isn't any
->     development
->   * contributors are sending their patches to distributions rather than 
->     to upstream
->   * Red Hat (FC6) has 75 patches for this package (!)
->   * Novell has (OpenSuse 10.2) 53 patches for this package (!)
->  
-> 
->  I'm Red Hat util-linux maintainer (for 2 years) and I'd like to
->  change this bad situation. Yes.. I'd like to help. I've already
->  talked with Peter Anvin about git repository for this project at
->  kernel.org. Also I have feedback from Novell that they agree that the
->  current situation is bad and they want to contribute future
->  development.
-> 
->  I've originally thought about util-linux upstream fork, but as
->  usually an fork is bad step. So.. I'd like to start some discussion
->  before this step. Maybe Adrian will be realistic and he will leave
->  the project and invest all his time to kernel only.
-
--- 
- Karel Zak  <kzak@redhat.com>
+Thanks a lot!

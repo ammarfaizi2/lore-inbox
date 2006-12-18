@@ -1,90 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754038AbWLROC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754039AbWLROE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754038AbWLROC7 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 09:02:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754036AbWLROC7
+	id S1754039AbWLROE6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 09:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754034AbWLROE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 09:02:59 -0500
-Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:34912
-	"HELO smtpout04-04.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754037AbWLROC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 09:02:58 -0500
-Message-ID: <45869F8F.2020009@seclark.us>
-Date: Mon, 18 Dec 2006 09:02:55 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Mon, 18 Dec 2006 09:04:58 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:2884 "EHLO relay.sw.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754040AbWLROE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 09:04:57 -0500
+X-Greylist: delayed 2514 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 09:04:49 EST
+To: linux-kernel@vger.kernel.org
+CC: <devel@openvz.org>, Andrew Morton <akpm@osdl.org>, xfs@oss.sgi.com
+Subject: [PATCH] incorrect direct io error handling
+From: Dmitriy Monakhov <dmonakhov@openvz.org>
+Date: Mon, 18 Dec 2006 16:22:44 +0300
+Message-ID: <87d56he3tn.fsf@sw.ru>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: James Cloos <cloos@jhcloos.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
-       James Lockie <bjlockie@lockie.ca>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: escape key]
-References: <1166058290.2964.15.camel@monteirov>	<20061213214140.df6111f5.randy.dunlap@oracle.com>	<4580E985.2090208@lockie.ca> <20061216084542.GD4049@ucw.cz>	<Pine.LNX.4.61.0612161922530.30896@yvahk01.tjqt.qr> <m3bqm20zj8.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m3bqm20zj8.fsf@lugabout.jhcloos.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Cloos wrote:
+--=-=-=
 
->>>>>>"Jan" == Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
->>>>>>            
->>>>>>
->
->Jan> HOWEVER, unix people probably _had a reason_ to make ESC generate
->Jan> part of what function keys do.
->
->You are looking at it backwards.  The Escape key generates an ASCII
->escape.  The funtion keys (including the cursor keys) generate escape
->sequences because the vt100 won out the title as the most ubiquitous
->async serial terminal, and linux devs chose to have the console be
->(mostly) vt100 compatable.  As xterm, et al had done before.
->
->The terminals (the actual hardware) used ASCII, so it was normal to
->use Escape to initiate the sequences used by the function keys.
->
->And that concept goes back a *lot* longer than unix.  (Hmm.  I can't
->remember.  Did TOPS-20 or its predecessor have glass terminals in the
->day?  I did get to use a DEC paper terminal a couple of times, but
->that was connected to a VMS box back in the '80s; most of the time it
->sat in the corner collecting dust....)
->
->At any rate, given that Escape was used to initiate sequences sent to
->the terminal for funtions such as moving the cursor around the screen,
->clearing rows or cols, et al it must have only seemed natural to also
->have it initiate sequences /from/ the terminal which did not fit into
->standard ASCII.  That was after all Escape's purpose in the ASCII std.
->
->If you do want to change the console's terminal emulation, a good
->first step would be to check whether any existing terminal already
->uses something other than Escape to initiate function key sequences,
->and, if so, promote that as the alternative to vt100-esque emulation.
->
->Finally, note that the reason vt100 was chosen for the console was to
->make it more useful for users who were physically at a linux box, were
->logged in on the console, and from there logged in to remote servers.
->That does remain something which the console *must* support.
->
->-JimC
->  
->
-Also ansi came along and pretty much put their blessing on what DEC had 
-done and made the
-escape sequences a standard.
+This patch is result of discussion started week ago here:
+http://lkml.org/lkml/2006/12/11/66
+changes from original patch:
+ - Update wrong comments about i_mutex locking.
+ - Add BUG_ON(!mutex_is_locked(..)) for non blkdev. 
+ - vmtruncate call only for non blockdev
+LOG:
+If generic_file_direct_write() has fail (ENOSPC condition) inside 
+__generic_file_aio_write_nolock() it may have instantiated
+a few blocks outside i_size. And fsck will complain about wrong i_size
+(ext2, ext3 and reiserfs interpret i_size and biggest block difference as error),
+after fsck will fix error i_size will be increased to the biggest block,
+but this blocks contain gurbage from previous write attempt, this is not 
+information leak, but its silence file data corruption. This issue affect 
+fs regardless the values of blocksize or pagesize.
+We need truncate any block beyond i_size after write have failed , do in simular
+generic_file_buffered_write() error path. If host is !S_ISBLK i_mutex always
+held inside generic_file_aio_write_nolock() and we may safely call vmtruncate().
+Some fs (XFS at least) may directly call generic_file_direct_write()with 
+i_mutex not held. There is no general scenario in this case. This fs have to 
+handle generic_file_direct_write() error by its own specific way (place).      
 
-Steve
+Issue was found during OpenVZ kernel testing.
 
--- 
+Exampe:
+open("mnt2/FILE3", O_WRONLY|O_CREAT|O_DIRECT, 0666) = 3
+write(3, "aaaaaa"..., 4096) = -1 ENOSPC (No space left on device)
 
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
+stat mnt2/FILE3
+File: `mnt2/FILE3'
+Size: 0               Blocks: 4          IO Block: 4096   regular empty file
+>>>>>>>>>>>>>>>>>>>>>>^^^^^^^^^^ file size is less than biggest block idx
+Device: 700h/1792d      Inode: 14          Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
 
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
+fsck.ext2 -f -n  mnt1/fs_img
+Pass 1: Checking inodes, blocks, and sizes
+Inode 14, i_size is 0, should be 2048.  Fix? no
 
+Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
+-------------
 
+--=-=-=
+Content-Disposition: inline; filename=direct-io-fix.patch2
+
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 8332c77..7c571dd 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2044,8 +2044,9 @@ generic_file_direct_write(struct kiocb *
+ 	/*
+ 	 * Sync the fs metadata but not the minor inode changes and
+ 	 * of course not the data as we did direct DMA for the IO.
+-	 * i_mutex is held, which protects generic_osync_inode() from
+-	 * livelocking.  AIO O_DIRECT ops attempt to sync metadata here.
++	 * i_mutex may not being held (XFS does this), if so some specific locking
++	 * ordering must protect generic_osync_inode() from livelocking.
++	 * AIO O_DIRECT ops attempt to sync metadata here.
+ 	 */
+ 	if ((written >= 0 || written == -EIOCBQUEUED) &&
+ 	    ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+@@ -2279,6 +2280,17 @@ __generic_file_aio_write_nolock(struct k
+ 
+ 		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
+ 							ppos, count, ocount);
++		/*
++		 * If host is not S_ISBLK generic_file_direct_write() may 
++		 * have instantiated a few blocks outside i_size  files
++		 * Trim these off again.
++		 */
++		if (unlikely(written < 0) && !S_ISBLK(inode->i_mode)) {
++			loff_t isize = i_size_read(inode);
++			if (pos + count > isize)
++				vmtruncate(inode, isize);
++		}
++
+ 		if (written < 0 || written == count)
+ 			goto out;
+ 		/*
+@@ -2341,6 +2353,13 @@ ssize_t generic_file_aio_write_nolock(st
+ 	ssize_t ret;
+ 
+ 	BUG_ON(iocb->ki_pos != pos);
++	/*
++	 *  generic_file_buffered_write() may be called inside 
++	 *  __generic_file_aio_write_nolock() even in case of
++	 *  O_DIRECT for non S_ISBLK files. So i_mutex must be held.
++	 */
++	if (!S_ISBLK(inode->i_mode))
++		BUG_ON(!mutex_is_locked(&inode->i_mutex));
+ 
+ 	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs,
+ 			&iocb->ki_pos);
+@@ -2383,8 +2402,8 @@ ssize_t generic_file_aio_write(struct ki
+ EXPORT_SYMBOL(generic_file_aio_write);
+ 
+ /*
+- * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
+- * went wrong during pagecache shootdown.
++ * May be called without i_mutex for writes to S_ISREG files. XFS does this.
++ * Returns -EIO if something went wrong during pagecache shootdown.
+  */
+ static ssize_t
+ generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+
+--=-=-=--
 

@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754376AbWLRSd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754382AbWLRSfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754376AbWLRSd4 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 13:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754377AbWLRSd4
+	id S1754382AbWLRSfY (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 13:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754383AbWLRSfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 13:33:56 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:11046 "EHLO iradimed.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754375AbWLRSdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 13:33:55 -0500
-Message-ID: <4586DF1D.6040501@cfl.rr.com>
-Date: Mon, 18 Dec 2006 13:34:05 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Mon, 18 Dec 2006 13:35:24 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:34371 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754380AbWLRSfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 13:35:23 -0500
+Date: Mon, 18 Dec 2006 10:35:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Andrew Morton <akpm@osdl.org>, andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <1166466272.10372.96.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
+ <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+ <1166466272.10372.96.camel@twins>
 MIME-Version: 1.0
-To: Wiebe Cazemier <halfgaar@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Software RAID1 (with non-identical discs) performance
-References: <em0pdq$r7o$2@sea.gmane.org>
-In-Reply-To: <em0pdq$r7o$2@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Dec 2006 18:34:06.0954 (UTC) FILETIME=[19CB34A0:01C722D3]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14880.003
-X-TM-AS-Result: No--7.786400-5.000000-31
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiebe Cazemier wrote:
-> When using non-identical discs (not just size, but also geometry) to contruct
-> your array, you can never get the partitions of the underlying discs to be
-> equal in size because the size of a partition can only be N*cylindersize,
-> where cylindersize varies across discs; the array always assumes the size of
-> the smallest partition. When one of the discs fails, you need to replace it
-> and make a partition that is exactly equal in size to the array, but because
-> that usually is impossible, it mostly will be bigger. To cover for this, I
-> have always left a small bit of unpartioned space on my discs. This not only
-> provides me with headroom in making the partitions on discs with different
-> geometry, but it's also possible that brand B's 250 GB is a little smaller
-> than brand A's, and staying (well) below the 250 GB, makes sure any 250 GB
-> disc fits in the array.
-
-The entire concept of geometry is a a carryover from days gone by. 
-These days it is just a farse maintained for backwards compatibility. 
-You can put fdisk into sector mode with the 'u' command and create 
-partitions of any number of sectors you desire, regardless of the 
-perceived geometry.
-
-> My first question is, is this a necessary/convenient technique to ensure you
-> can replace discs over time, especially when you can't get the exact same
-> replacement disc?
-
-I don't believe you need to do anything; md will simply not use the few 
-extra sectors at the end of the larger disk/partition and round down to 
-the appropriate size.
-
-> My second question is about the performance impact of using non-identical discs
-> and partitions. I can't really find any info about this, but I've read someone
-> making the statement that it would slow things down.
-
-Yes, it slows things down.  You want to try to match disk speeds as 
-closely as possible for best performance.
-
-> My third question: write performance of RAID1 is usually lower than non-RAID,
-> because the data has to be sent over the bus twice. But, with for example an
-> NForce4 based mainboard using SATA, does that matter? I don't know if the SATA
-> ports are connected to the chipset by means of PCI express or hypertransport,
-> but both should be able to handle the double data transfer with room to spare.
-> So, as I understand it, as long as the kernel can perform both transfers
-> simultaniously, there should be no slow down, because when writing, there will
-> simply be two discs writing data simultaniously, at the same speed one drive
-> would. Is this correct?
-
-Theoretically yes, more time will be spent sending the data across the 
-bus twice, but most systems have enough spare capacity there that you 
-probably won't notice.
 
 
+On Mon, 18 Dec 2006, Peter Zijlstra wrote:
+> > 
+> > Or maybe the WARN_ON() just points out _why_ somebody would want to do 
+> > something this insane. Right now I just can't see why it's a valid thing 
+> > to do.
+> 
+> Maybe, but I think Nick's mail here:
+>   http://lkml.org/lkml/2006/12/18/59
+> 
+> shows a trace like that.
+
+Sure, but I actually think that "try_to_free_buffers()" was buggy in the 
+first place, shouldn't have done what it did at all (it has NO business 
+clearing dirty data), and should be fixed with my other simple and clean 
+patch that just removes the crap.
+
+But sadly, Andrei said that he still saw data corruption, which implies 
+that the problem had nothing to do with "try_to_free_buffers()" at all.
+
+(On that note: Andrei - if you do test this out, I'd suggest applying my 
+patch too - the one that you already tested. It won't apply cleanly on top 
+of Andrew's patch, but it should be trivial to apply by hand, since you 
+really just want to remove the whole "if (ret) {...}" sequence. I realize 
+that it didn't make any difference for you, but applying that patch is 
+probably a good idea just to remove the noise for a codepath that you 
+already showed to not matter)
+
+> I'm guessing that if we do the WARN_ON() some folks might get a lot of 
+> output, perhaps WARN_ON_ONCE() ?
+
+Well, I'd rather get lots of noise to see all the paths that can cause 
+this. We've been concentrating mainly on one (try_to_free_buffers()), but 
+that one was already shown not to matter or at least not to be the _whole_ 
+issue, so..
+
+		Linus

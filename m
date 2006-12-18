@@ -1,141 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754307AbWLRRRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754315AbWLRRXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754307AbWLRRRR (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 12:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754308AbWLRRRR
+	id S1754315AbWLRRXG (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 12:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754317AbWLRRXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 12:17:17 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:1463 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754307AbWLRRRQ (ORCPT
+	Mon, 18 Dec 2006 12:23:06 -0500
+Received: from an-out-0708.google.com ([209.85.132.241]:27920 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754315AbWLRRXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 12:17:16 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL only modules
-Date: Mon, 18 Dec 2006 09:16:31 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKECHAHAC.davids@webmaster.com>
+	Mon, 18 Dec 2006 12:23:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=FPtg87V1qXSvlYejAOXauXUdpapmEQIAnVf4f9PeYiZ5KWRaAdCx/cuCRcqD51ArOXXxPllUf1ZDBYkWDRGHymEwNYJcd01p8bcMqoRUniixyObV94FAqBMrbWLg9+FwIpQaU7sRRNUYzlOvh4v84Ng/fOstHzY7MUBCv6K9Zmg=
+Message-ID: <161717d50612180923h6ae59ff1y1ef01d4a6dc2caed@mail.gmail.com>
+Date: Mon, 18 Dec 2006 12:23:03 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Theodore Tso" <tytso@mit.edu>, "Dave Neuer" <mr.fred.smoothie@pobox.com>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Alexandre Oliva" <aoliva@redhat.com>,
+       "Ricardo Galli" <gallir@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+In-Reply-To: <20061218170222.GB18255@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200612171646.40655.dhazelton@enter.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 10:19:05 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 10:19:05 -0800
+Content-Disposition: inline
+References: <200612161927.13860.gallir@gmail.com>
+	 <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
+	 <orwt4qaara.fsf@redhat.com>
+	 <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
+	 <161717d50612180738y4feec39dp5d1d090409a9e074@mail.gmail.com>
+	 <20061218170222.GB18255@thunk.org>
+X-Google-Sender-Auth: d1c0cdf16ae85b7a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/18/06, Theodore Tso <tytso@mit.edu> wrote:
+> On Mon, Dec 18, 2006 at 10:38:38AM -0500, Dave Neuer wrote:
+> > I think this is the key, both with libraries and w/ your book example
+> > below; the concept of independant "meaning." If your code doesn't do
+> > whatever it is supposed to do _unless_ it is linked with _my_ code,
+> > then it seems fairly clear that your code is derivative of mine, just
+> > as your sequel to my novel (or your pages added onto my book) don't
+> > "mean" anything if someone hasn't read mine.
+>
+> For myself, I believe we actually get the largest amount of
+> programming freedom if we use a very tightly defined definition of
+> derived code, and not try to create new expansive definitions and try
+> to ram them through the court system or through legislatures.  In the
+> end, we may end up regretting it.
 
-Combined responses to save bandwidth and reduce the number of times people
-have to press "d".
+To be sure, we as programmers will have the most freedom if there is
+no form of intellectual property protection for software at all
+(imagine all of those Renaissance publishers whose sensibilities would
+have been quite shocked by the suggestion that their distribution of
+some author's work for a small fee was somehow "theft").
 
-> Agreed. You missed the point.
+It's less clear to me that a more expansive "we" will be equally well
+served, freedom-wise, by less protection though I'm very sympathetic
+to the argument.
 
-I don't understand how you could lead with "agreed" and then proceed to
-completely ignore the entire point I just made.
+>                                                 - Ted
+>
 
-> Since the Linux Kernel header files
-> contain a
-> chunk of the source code for the kernel in the form of the macros
-> for locking
-> et. al. then using the headers - including that code in your
-> module - makes
-> it a derivative work.
-
-No, it does not. The header files are purely function and not expressive in
-this case. Copyright only protects one choice among many equally-practical
-choices for expressing the same idea or performing the same function.
-
-> Actually, thinking about it, the way a Linux driver module works actually
-> seems to make *ANY* driver a derivative work, because they are
-> loaded into
-> the kernels memory space and cannot function without having that done.
-
-If every practical way of expressing an idea contains something, then that
-something is *not* protectable when used to express an idea of that kind.
-
-> *IF* the "Usermode Driver" interface that is being worked on ever proves
-> useful then, and only then, could you consider it *NOT* a
-> derivative work.
-> Because then the only thing it is using *IS* an interface, not complete
-> chunks of the source as generated when the pre-processor finishes running
-> through the file.
-
-No, you have it completely backwards.
-
-If a usermode driver interface was equally practical to develop a particular
-type of driver, then using the kernel headers would make the driver a
-derivative work. Because, in that case, the choice to use the kernel headers
-would be a creative choice -- one chosen method among many equally practical
-one.
-
-Copyright only protects creative choices, not purely functional ones.
-
-"A Linux 2.6 driver for the ATI X800 graphics chipset" is an idea. If the
-only reasonably practical way to express that idea is with the Linux kernel
-header files, then using the Linux kernel header files is scenes a fair, not
-protected content.
-
-For example, you cannot discuss the Napeleonic wars with using the word
-"Napoleon", at least, not nearly as well. So nobody can claim copyright on
-the word "Napoleon" when used to describe those wars because it is
-deomnstrably *superior*. Only patents protect "best ways". Copyrights
-protected "the way I choose among thousands of equally-good ways".
-
-See Lexmark v. Static Controls and the Sega and Atari cases. This is clearly
-a cases where "[w]hile, hypothetically, there might be a myriad of ways in
-which a programmer may effectuate certain functions within a program . . .
-efficiency concerns may so narrow the practical range of choice as to make
-only one or two forms of expression workable options." "In order to
-characterize a choice between alleged programming alternatives as
-expressive, in short, the alternatives must be feasible within real-world
-constraints."
-
-The inclusion of the kernel header files in a kernel module is not
-expressive, it's purely functional. The kernel header files are simply not
-protectable expression when used in a kernel module.
-
--
-
->The difference - really - at least for static linking - is that "ln"
->makes modifications to each piece to make them work together, and in
->the case of a library, makes a selection of the parts of the library
->as needed by the rest of the program.  What ends up in the executable
->is not just a set of verbatim copies of the input files packed
->together, but rather a single program where the various parts have
->been modified so as to fit together and create a whole.  Thus it seems
->quite reasonable to me to say that a statically linked binary is a
->derived work of all of the object files and libraries that were linked
->together to form it.  IANAL, of course.
-
-The linker makes no creative choices, so it does not produce a "work" for
-copyright purposes. If it does not even produce a work, it cannot produce a
-derivative work.
-
-The question is not whether the combination is verbatim or transformative
-but whether it is creative or mechanical. The linker combines things in a
-mechanical and purely functional way.
-
-A tar/gzip does the same thing. The compressed output for the third file may
-be as dependent on the content of the second file as on the content of the
-third file and in a very real sense will contain aspects of both of their
-structures.
-
-"Mere aggregation" does not mean a literal splicing of the raw code for two
-or more files. It means a purely functional combination dictated completely
-by technical concerns and lacking any creative input.
-
-DS
-
-
+Dave

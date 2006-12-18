@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754707AbWLRWgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754671AbWLRWnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754707AbWLRWgt (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754712AbWLRWgt
+	id S1754671AbWLRWnA (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754693AbWLRWnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:36:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36023 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754707AbWLRWgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:36:48 -0500
-Date: Tue, 19 Dec 2006 09:36:37 +1100
-From: David Chinner <dgc@sgi.com>
-To: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>
-Cc: David Chinner <dgc@sgi.com>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: xfslogd-spinlock bug?
-Message-ID: <20061218223637.GP44411608@melbourne.sgi.com>
-References: <003701c71d78$33ed28d0$0400a8c0@dcccs> <Pine.LNX.4.64.0612120932220.19050@p34.internal.lan> <00ab01c71e53$942af2f0$0400a8c0@dcccs> <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 18 Dec 2006 17:43:00 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:19775 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754671AbWLRWm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 17:42:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QoFjppQWWmE5wg3WejECzh+g1Mbh0/a2e5Ds/oqGD8fvMmDhslxtzfyAm+5A/q4QVcWwv/gwg50wJabwNyfFhQTMGnUmuEtDoe51mfO6tIWV1vKSqzEGmrhlwZBqcf9rv1C7iy0Dj4dWX+DwKvl5i0pwipB+ZMohzVrGhQns/Lw=
+Message-ID: <7b69d1470612181442v1da0841bi1eaff7a71a523d39@mail.gmail.com>
+Date: Mon, 18 Dec 2006 16:42:57 -0600
+From: "Scott Preece" <sepreece@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Cc: karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0612181410080.3479@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <027b01c7227d$0e26d1f0$0400a8c0@dcccs>
-User-Agent: Mutt/1.4.2.1i
+References: <1166226982.12721.78.camel@localhost>
+	 <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
+	 <1166236356.12721.142.camel@localhost>
+	 <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org>
+	 <1166475847.20449.208.camel@localhost>
+	 <Pine.LNX.4.64.0612181410080.3479@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 09:17:50AM +0100, Haar János wrote:
-> From: "David Chinner" <dgc@sgi.com>
-> > > The NBD serves through eth1, and it is on the CPU3, but the ide0 is on
-> the
-> > > CPU0.
-> >
-> > I'd say your NBD based XFS filesystem is having trouble.
-> >
-> > > > Are you using XFS on a NBD?
-> > >
-> > > Yes, on the 3. source.
-> >
-> > Ok, I've never heard of a problem like this before and you are doing
-> > something that very few ppl are doing (i.e. XFS on NBD). I'd start
-> > Hence  I'd start by suspecting a bug in the NBD driver.
-> 
-> Ok, if you have right, this also can be in context with the following issue:
-> 
-> http://download.netcenter.hu/bughunt/20061217/messages.txt   (10KB)
+On 12/18/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> In other words, it means that we are pushing a agenda that is no longer
+> neither a technical issue (it's clearly technically _worse_ to not be able
+> to do something) _nor_ a legal issue.
+>
+> So tell me, what does the proposed blocking actually do?
+>
+> It's "big prother, FSF style". And I say NO THANK YOU.
+>
+>                 Linus
+---
 
-Which appears to be a crash in wake_up_process() when doing memory
-reclaim (waking the xfsbufd).
+Well, you can't really say it's "FSF-style", since the GPLv3 language
+explicitly gives permission to circumvent any protection measures
+implemented by a GPLv3 program.  Even the FSF doesn't support using
+the DMCA to support GPL restrictions.
 
-> > > > > Dec 16 12:08:36 dy-base RSP: 0018:ffff81011fdedbc0  EFLAGS: 00010002
-> > > > > Dec 16 12:08:36 dy-base RAX: 0000000000000033 RBX: 6b6b6b6b6b6b6b6b
-> RCX:
-> > > >                                                      ^^^^^^^^^^^^^^^^
-> > > > Anyone recognise that pattern?
-
-Ok, I've found this pattern:
-
-#define POISON_FREE 0x6b
-
-Can you confirm that you are running with CONFIG_DEBUG_SLAB=y?
-
-If so, we have a use after free occurring here and it would also
-explain why no-one has reported it before.
-
-FWIW, can you turn on CONFIG_XFS_DEBUG=y and see if that triggers
-a different bug check prior to the above dump?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+scott

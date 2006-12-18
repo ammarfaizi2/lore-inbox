@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754706AbWLRWgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754707AbWLRWgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754706AbWLRWgd (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:36:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754712AbWLRWgd
+	id S1754707AbWLRWgt (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754712AbWLRWgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:36:33 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:47275 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754707AbWLRWgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:36:32 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [linux-pm] OOPS: divide error while s2dsk (2.6.20-rc1-mm1)
-Date: Mon, 18 Dec 2006 23:38:23 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-pm@lists.osdl.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       linux-pm@osdl.org
-References: <4586797B.3080007@gmail.com> <200612181646.23292.rjw@sisk.pl> <4586C99C.9020606@gmail.com>
-In-Reply-To: <4586C99C.9020606@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Dec 2006 17:36:49 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36023 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754707AbWLRWgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 17:36:48 -0500
+Date: Tue, 19 Dec 2006 09:36:37 +1100
+From: David Chinner <dgc@sgi.com>
+To: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>
+Cc: David Chinner <dgc@sgi.com>, linux-xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: xfslogd-spinlock bug?
+Message-ID: <20061218223637.GP44411608@melbourne.sgi.com>
+References: <003701c71d78$33ed28d0$0400a8c0@dcccs> <Pine.LNX.4.64.0612120932220.19050@p34.internal.lan> <00ab01c71e53$942af2f0$0400a8c0@dcccs> <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200612182338.24843.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <027b01c7227d$0e26d1f0$0400a8c0@dcccs>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 18 December 2006 18:02, Jiri Slaby wrote:
-> Rafael J. Wysocki wrote:
-> > Hi,
-> > 
-> > On Monday, 18 December 2006 12:20, Jiri Slaby wrote:
-> >> Hi.
-> >>
-> >> I got this oops while suspending:
-> >> [  309.366557] Disabling non-boot CPUs ...
-> >> [  309.386563] CPU 1 is now offline
-> >> [  309.387625] CPU1 is down
-> >> [  309.387704] Stopping tasks ... done.
-> >> [  310.030991] Shrinking memory... -<0>divide error: 0000 [#1]
-> >> [  310.456669] SMP
-> >> [  310.456814] last sysfs file:
-> >> /devices/pci0000:00/0000:00:1e.0/0000:02:08.0/eth0/statistics/collisions
-> >> [  310.456919] Modules linked in: eth1394 floppy ohci1394 ide_cd ieee1394 cdrom
-> >> [  310.457259] CPU:    0
-> >> [  310.457260] EIP:    0060:[<c0150c9a>]    Not tainted VLI
-> >> [  310.457261] EFLAGS: 00210246   (2.6.20-rc1-mm1 #207)
-> >> [  310.457478] EIP is at shrink_slab+0x9e/0x169
-> > 
-> > Looks like we have a problem with slab shrinking here.
-> > 
-> > Could you please use gdb to check what exactly is at shrink_slab+0x9e?
+On Mon, Dec 18, 2006 at 09:17:50AM +0100, Haar János wrote:
+> From: "David Chinner" <dgc@sgi.com>
+> > > The NBD serves through eth1, and it is on the CPU3, but the ide0 is on
+> the
+> > > CPU0.
+> >
+> > I'd say your NBD based XFS filesystem is having trouble.
+> >
+> > > > Are you using XFS on a NBD?
+> > >
+> > > Yes, on the 3. source.
+> >
+> > Ok, I've never heard of a problem like this before and you are doing
+> > something that very few ppl are doing (i.e. XFS on NBD). I'd start
+> > Hence  I'd start by suspecting a bug in the NBD driver.
 > 
-> Sure, but not till Friday, sorry (I am away).
+> Ok, if you have right, this also can be in context with the following issue:
+> 
+> http://download.netcenter.hu/bughunt/20061217/messages.txt   (10KB)
 
-I reproduced this on one box, but then it turned out that EIP was at line 195
-of mm/vmscan.c where there was
+Which appears to be a crash in wake_up_process() when doing memory
+reclaim (waking the xfsbufd).
 
-do_div(delta, lru_pages + 1);
+> > > > > Dec 16 12:08:36 dy-base RSP: 0018:ffff81011fdedbc0  EFLAGS: 00010002
+> > > > > Dec 16 12:08:36 dy-base RAX: 0000000000000033 RBX: 6b6b6b6b6b6b6b6b
+> RCX:
+> > > >                                                      ^^^^^^^^^^^^^^^^
+> > > > Anyone recognise that pattern?
 
-Well, I have no idea how this can lead to a divide error (lru_pages is
-unsigned).
+Ok, I've found this pattern:
 
-I'm unable to reproduce this on another i386 box, so it seems to be somewhat
-configuration specific.
+#define POISON_FREE 0x6b
 
-Does 2.6.20-rc1 work for you?
+Can you confirm that you are running with CONFIG_DEBUG_SLAB=y?
 
-Rafael
+If so, we have a use after free occurring here and it would also
+explain why no-one has reported it before.
 
+FWIW, can you turn on CONFIG_XFS_DEBUG=y and see if that triggers
+a different bug check prior to the above dump?
 
+Cheers,
+
+Dave.
 -- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

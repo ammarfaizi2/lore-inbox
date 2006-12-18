@@ -1,74 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754550AbWLRUbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754546AbWLRUef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754550AbWLRUbp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 15:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754552AbWLRUbp
+	id S1754546AbWLRUef (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 15:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754553AbWLRUef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 15:31:45 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:48519 "EHLO
-	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754550AbWLRUbo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 15:31:44 -0500
-Message-ID: <4586FAA1.8080904@gmail.com>
-Date: Mon, 18 Dec 2006 21:31:29 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Mon, 18 Dec 2006 15:34:35 -0500
+Received: from [194.112.174.227] ([194.112.174.227]:33851 "EHLO mail.hofr.at"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1754546AbWLRUee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 15:34:34 -0500
+X-Greylist: delayed 1976 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 15:34:33 EST
+Date: Mon, 18 Dec 2006 20:05:35 +0100 (CET)
+From: Nicholas Mc Guire <der.herr@hofr.at>
+To: linux-kernel@vger.kernel.org
+Subject: problem with signal delivery SIGCHLD
+Message-ID: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug: isicom: kobject_add failed for ttyM0 with -EEXIST
-References: <20061218155714.GA21823@elte.hu> <4586C882.6090906@gmail.com> <20061218200050.GB339@elte.hu>
-In-Reply-To: <20061218200050.GB339@elte.hu>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Jiri Slaby <jirislaby@gmail.com> wrote:
-> 
->> Ingo Molnar wrote:
->>> allyesconfig bzImage bootup produced 33 warning messages, of which the 
->>> first couple are attached below.
->> With which kernel? mxser had ttyM for a long time, it should be fixed 
->> in 2.6.20-rc1.
-> 
-> current -git.
 
-It's rather impossible. Aren't you seeked somewhere (I'm in
-825020c3866e7312947e17a0caa9dd1a5622bafc now)?
 
-Calling initcall 0xc0628d59: isicom_setup+0x0/0x315()
-kobject_add failed for ttyM0 with -EEXIST, don't try to register things with the
-same name in the same directory.
- [<c0106273>] show_trace_log_lvl+0x34/0x4a
- [<c01063a9>] show_trace+0x2c/0x2e
- [<c01063d6>] dump_stack+0x2b/0x2d
- [<c04f06a3>] kobject_add+0x15f/0x187
- [<c06e3421>] class_device_add+0xb5/0x45c
- [<c06e37e5>] class_device_register+0x1d/0x21
- [<c06e3892>] class_device_create+0xa9/0xcc
- [<c05f8a5c>] tty_register_device+0xe3/0xea
+Hi !
 
-Can't be called from tty_register_driver, since
-!(driver->flags & TTY_DRIVER_DYNAMIC_DEV) is false in
-http://www.linux-m32r.org/lxr/http/source/drivers/char/tty_io.c#L3756
+  I have a phenomena that I don't quite understand. gdbserver forks and 
+after setting ptrace (PTRACE_TRACEME, 0, 0, 0); it then execv 
+(program, allargs); when this child process hits ptrace_stoped (breakpoint
+it does the following in kernel space:
 
- [<c05f97fa>] tty_register_driver+0x202/0x21e
- [<c0628fa3>] isicom_setup+0x24a/0x315
+pid 1242 = child process
+pid 1241 = gdbserver
+pid 0    = kernel
+pid -1   = interrupt
+                                     pid
+          1        559          5    1242 ptrace_stop
+          3          6          2    1242 |  do_notify_parent_cldstop
+          4          3          2    1242 |  |  __group_send_sig_info
+          5          1          1    1242 |  |  |  handle_stop_signal
+          7          0          0    1242 |  |  |  sig_ignored
+          8          1          0    1242 |  |  __wake_up_sync
+          8          1          1    1242 |  |  |  __wake_up_common
+         10        547        541    1242 |  schedule
+         10          2          2    1242 |  |  profile_hit
+         13          1          1    1242 |  |  sched_clock
+         15          1          0    1242 |  |  deactivate_task
+         15          1          1    1242 |  |  |  dequeue_task
+         19          2          2       0 |  |  __switch_to
+----------- !!!! start --------------
+         24        574        574       0 default_idle
+----------- $$$$ end ----------------
+----------- //// start --------------
+        780         41         12       0 do_IRQ
+        780         29          2      -1 /  __do_IRQ
+        ...
+        807          2          2      -1 /  /  /  enable_8259A_irq
+----------- //// end ----------------
+----------- {{{{ start --------------
+        810         11          0       0 do_softirq
+        ...
+        820          0          0      -1 {  {  {  preempt_schedule
+----------- {{{{ end ----------------
+----------- %%%% start --------------
+        822        358          1       0 preempt_schedule_irq
+        ...
+        827          1          1    1241 %  %  __switch_to
+----------- %%%% end ----------------
+        829          1          1    1241 (  (  (  del_timer
+----------- (((( end ----------------
+----------- ]]]] start --------------
+        837          8          2    1241 sys_waitpid
 
-Is no longer in the isicom driver.
+So basically child signals -> delayed to next tick -> parent wakes up.
 
- [<c0100567>] init+0x178/0x451
- [<c0105feb>] kernel_thread_helper+0x7/0x10
- =======================
+  now what I don't understand is why does it not schedule the parent ? in
+fact the traces show that on an idle system the parent will not be 
+scheduled until the next tick.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+  I don't want to post the full traces as they are very lengthy - but if 
+someone could point me in what direction to search to find out why this 
+delay between the child process signaling and the parent breaking out of 
+waitpid it would be helpfull - the background is that we implemented GDB 
+tracepoints but they only work properly on highly loaded systems (the 
+parent gets scheduled fast then and the tracepoint is processed "fast"
+but on an idle system it is simply not usabel as you get almost 
+deterministic 10ms between the child process signaling and the parent 
+waking up...
+
+  Is this delay on sigchild expected behavior ?
+
+  any ideas ?
+
+thx !
+hofrat
+
+ps.: if anybody is intersted in the detailed logs see
+      http://dslab.lzu.edu.cn/~hofrat/sigchld_problem.html

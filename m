@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754695AbWLRW13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754705AbWLRWeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754695AbWLRW13 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 17:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754697AbWLRW12
+	id S1754705AbWLRWeT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 17:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754706AbWLRWeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 17:27:28 -0500
-Received: from exo3753.pck.nerim.net ([213.41.240.142]:18727 "EHLO
-	mail-out1.exosec.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754695AbWLRW12 (ORCPT
+	Mon, 18 Dec 2006 17:34:19 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:27413 "EHLO
+	vms040pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754705AbWLRWeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 17:27:28 -0500
-X-Greylist: delayed 786 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 17:27:27 EST
-Date: Mon, 18 Dec 2006 23:14:18 +0100
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>,
-       Grant Coady <grant_lkml@dodo.com.au>
-Subject: Re: Linux 2.4.34-rc3 / Linux 2.4.33.6
-Message-ID: <20061218221418.GB19835@exosec.fr>
-References: <20061218084133.GA13867@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061218084133.GA13867@hera.kernel.org>
-User-Agent: Mutt/1.5.11
+	Mon, 18 Dec 2006 17:34:18 -0500
+Date: Mon, 18 Dec 2006 17:34:01 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.19 file content corruption on ext3
+In-reply-to: <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrei Popa <andrei.popa@i-neo.ro>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Message-id: <200612181734.01809.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <1166314399.7018.6.camel@localhost>
+ <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+ <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 18 December 2006 15:41, Linus Torvalds wrote:
+>On Mon, 18 Dec 2006, Linus Torvalds wrote:
+>> But at the same time, it's interesting that it still happens when we
+>> try to re-add the dirty bit. That would tell me that it's one of two
+>> cases:
+>
+>Forget that. There's a third case, which is much more likely:
+>
+> - Andrew's patch had a ", 1" where it _should_ have had a ", 0".
+>
+>This should be fairly easy to test: just change every single ", 1" case
+> in the patch to ", 0".
+>
+>The only case that _definitely_ would want ",1" is actually the case
+> that already calls page_mkclean() directly: clear_page_dirty_for_io().
+> So no other ", 1" is valid, and that one that needed it already avoided
+> even calling the "test_clear_page_dirty()" function, because it did it
+> all by hand.
+>
+What about the mm/rmap.c one liner, in or out?
 
-On Mon, Dec 18, 2006 at 08:41:33AM +0000, Willy Tarreau wrote:
-> Hi,
-> 
-> Two changes before -final. The first one fixes a race where
-> one can hit a BUG(), the second one fixes CVE-2006-4814.
-> 
-> -final is just a few days ahead (it scares me, I'll have to check
-> my scripts to ensure everything's OK). If you have important fixes
-> you want to see in, or if it does not work for you, please
-> manifest yourself.
+Thanks.
 
+>What happens for you in that case?
+>
+>		Linus
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-OK, it seems that the mirroring system on kernel.org is under load,
-because the files have not been mirrored yet after about 15 hours.
-Even the .bz2/.sign have not been produced.
-
-As a TEMPORARY workaround for the (very few but brave) testers, I've
-put the kernels here (both 2.4.34-rc3 and 2.4.33.6) :
-
-      http://linux.exosec.net/kernel/2.4/
-
-It has a small pipe, but I don't expect to see many downloads anyway.
-There are NO signatures on those files, so believe what you want after
-the test results.
-
-Cheers,
-Willy
-
-
-
---
-EXOSEC - ZAC des Metz - 3 Rue du petit robinson - 78350 JOUY EN JOSAS
-N°Indigo: 0 825 075 510 - Accueil: +33 1 72 89 72 30 - Fax: +33 1 72 89 80 19
-Site web : http://www.exosec.fr/
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

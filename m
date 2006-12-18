@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753692AbWLRJ5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753685AbWLRJ55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753692AbWLRJ5s (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 04:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753691AbWLRJ5s
+	id S1753685AbWLRJ55 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 04:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753691AbWLRJ55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 04:57:48 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:57134 "EHLO 2ka.mipt.ru"
+	Mon, 18 Dec 2006 04:57:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46961 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753688AbWLRJ5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 04:57:46 -0500
-Date: Mon, 18 Dec 2006 12:57:40 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANN] Acrypto asynchronous crypto layer 2.6.19 release.
-Message-ID: <20061218095740.GA5219@2ka.mipt.ru>
-References: <20061216191521.GA26549@2ka.mipt.ru> <4586458E.6000503@dungeon.inka.de>
+	id S1753696AbWLRJ5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 04:57:53 -0500
+Subject: [GFS2 & DLM] Pull request
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1166435849.3752.1266.camel@quoit.chygwyn.com>
+References: <1166435650.3752.1263.camel@quoit.chygwyn.com>
+	 <1166435849.3752.1266.camel@quoit.chygwyn.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 18 Dec 2006 10:01:11 +0000
+Message-Id: <1166436072.3752.1269.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <4586458E.6000503@dungeon.inka.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 18 Dec 2006 12:57:41 +0300 (MSK)
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 08:38:54AM +0100, Andreas Jellinghaus (aj@dungeon.inka.de) wrote:
-> Does acrypto still have the same size restrictions
-> I ran into with the last release?
+Hi,
 
-Actually I do not recall what is 'size retrictions' - if you talk about
-possibility to use software crypto provider, which supports one cipher
-in a time, then yes, but it is intended to be used with hardware though.
-Otherwise I do not recall any problems pointed to me.
+Please consider pulling the following two compile fixes for GFS2/DLM,
 
-> Thanks, Andreas
+Steve.
 
--- 
-	Evgeniy Polyakov
+------------------------------------------------------------------------------------------
+The following changes since commit d1998ef38a13c4e74c69df55ccd38b0440c429b2:
+  Ben Collins:
+        ib_verbs: Use explicit if-else statements to avoid errors with do-while macros
+
+are found in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-fixes.git
+
+Patrick Caulfield:
+      [DLM] fix compile warning
+
+Steven Whitehouse:
+      [GFS2] Fix Kconfig
+
+ fs/dlm/lowcomms-tcp.c |    2 +-
+ fs/gfs2/Kconfig       |    4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+

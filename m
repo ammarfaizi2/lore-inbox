@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932852AbWLSRo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932860AbWLSRuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932852AbWLSRo6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 12:44:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932859AbWLSRo6
+	id S932860AbWLSRuf (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 12:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932861AbWLSRuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 12:44:58 -0500
-Received: from mga06.intel.com ([134.134.136.21]:1147 "EHLO
-	orsmga101.jf.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932852AbWLSRo5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 12:44:57 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,187,1165219200"; 
-   d="scan'208"; a="176406183:sNHT31663170"
-Subject: 2.6.19-rt14 e1000 shutdown problem
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 19 Dec 2006 08:54:39 -0800
-Message-Id: <1166547279.28359.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 12:50:35 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:49709 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932860AbWLSRue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 12:50:34 -0500
+Date: Tue, 19 Dec 2006 09:49:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Robert Hancock <hancockr@shaw.ca>
+cc: Jens Axboe <jens.axboe@oracle.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.20-rc1
+In-Reply-To: <4587F7E4.8000609@shaw.ca>
+Message-ID: <Pine.LNX.4.64.0612190944290.3483@woody.osdl.org>
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+ <200612142144.26023.s0348365@sms.ed.ac.uk> <4581C73F.6060707@garzik.org>
+ <200612142233.10584.s0348365@sms.ed.ac.uk> <20061219124130.GN5010@kernel.dk>
+ <4587F7E4.8000609@shaw.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
 
-While trying out the 2.6.19.1-rt14 kernel with a 
-x86_64 system with Clovertown processor, it hung when it 
-was shutting down e1000 ethernet interface running the command:
 
-/sbin/ip link set dev eth0 down
+On Tue, 19 Dec 2006, Robert Hancock wrote:
+> 
+> From what I've seen it appears that smartctl has the same problem, it was also
+> reporting the device didn't support SMART..
 
-Same problem was also seen for 2.6.19.1-rt15.  The default 
-kernel from your RPM was used. Sysreq was still working and 
-call trace of the ip command using Sysreq-prtscr-t is listed below:
+No, there were actually two different problems, and to confuse people, 
+they had the same _symptoms_.
 
-ip   D [ffff810139201040] ffff81013fe47840    0  3526 3433
-(NOTLB)
- ffff81012ce75ba8 0000000000000086 0000000000000007 0000000000000297
- 00000000000c4994 ffff810139201278 ffff810139201040 ffff81013fe47800
- 0000005681bed269 0000000400000080 ffff81013fe47800 00000004802df143
-Call Trace:
- [<ffffffff80265da0>] schedule+0xd8/0xfc
- [<ffffffff802a0bab>] flush_cpu_workqueue+0x72/0xa7
- [<ffffffff802a0e13>] flush_workqueue+0x59/0x81
- [<ffffffff802a0f79>] schedule_on_each_cpu+0xe6/0xfd
- [<ffffffff802e33ca>] filevec_add_drain_all+0x12/0x14
- [<ffffffff8030bb38>] remove_proc_entry+0xaf/0x25a
- [<ffffffff802c720d>] unregister_handler_proc+0x43/0x48
- [<ffffffff802c56c4>] free_irq+0xdd/0x117
- [<ffffffff88133101>] :e1000:e1000_free_irq+0x22/0x3b
- [<ffffffff88135c88>] :e1000:e1000_close+0x4d/0xb9
- [<ffffffff80429735>] dev_close+0x5b/0x7c
- [<ffffffff80429ab9>] dev_change_flags+0x64/0x139
- [<ffffffff8046048b>] devinet_ioctl+0x252/0x5e1
- [<ffffffff80460ac1>] inet_ioctl+0x71/0x8f
- [<ffffffff80422042>] sock_ioctl+0x1d7/0x1ff
- [<ffffffff802433b8>] do_ioctl+0x27/0x74
- [<ffffffff80231339>] vfs_ioctl+0x263/0x280
- [<ffffffff8024dfb7>] sys_ioctl+0x5f/0x82
- [<ffffffff8026042c>] tracesys+0x151/0x1c5
- [<0000003055ac6267>]   
+Commit 0e75f9063f5c55fb0b0b546a7c356f8ec186825e introduced a bug where 
+SG_IO wouldn't copy the data back to user space correctly, which was why 
+you got various tools like "dvd+rw-mediainfo" (and probably smartctl too) 
+breaking.
 
-Tim                      
+That was also probably why bisection didn't pick out the right commit for 
+the _other_ bug: it was effectively masked by the same problem, so the 
+fact that commit f38621b3109068adc8430bc2d170ccea59df4261 fixed the sense 
+info details and broke hddtemp was not visible as a bug, because the sense 
+info was _more_ corrupted by the other bug, and thus "git bisect" walked 
+back to where the _first_ bug was introduced, rather than the second one.
+
+Anyway, sounds like hddtemp was just buggy. 
+
+		Linus

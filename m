@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932900AbWLST2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932899AbWLSTc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932900AbWLST2U (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932911AbWLST2U
+	id S932899AbWLSTc5 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWLSTc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:28:20 -0500
-Received: from web32915.mail.mud.yahoo.com ([209.191.69.115]:43232 "HELO
-	web32915.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932900AbWLST2T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:28:19 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 14:28:19 EST
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=K12+MflD8Q8kyaum/X53NyINLCgi3GmNckrM5OabwnS8tMSWimz4mbmGQvE8/1r6qyCsbKDWQbSqFPquVGX6widk5ab1Yw5vW03YoAwpxxfd5KuJIOBP1C8PoGUNJLVrV1UYTJUcOEJam06rTrL+ZetXrLlr8ojfhKGRy+LMLco=;
-X-YMail-OSG: eHRx5_MVM1mjkO2Nkv0zsW0_0q9Bag8n1Hrz3kHnAKSaC4XHI2NvXHvSZ8YfuCTjxXiFYjJuhiQFRutLurRpLPBjbNCLGiUHOqof9pWKSjKshH0lqDV7PJQKLv9S7u12AkBI2AuLqISlXrc-
-Date: Tue, 19 Dec 2006 11:21:38 -0800 (PST)
-From: J <jhnlmn@yahoo.com>
-Subject: Possible race condition in usb-serial.c
-To: linux-kernel@vger.kernel.org
+	Tue, 19 Dec 2006 14:32:56 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:55183 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932899AbWLSTc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 14:32:56 -0500
+Message-ID: <45883E64.20400@garzik.org>
+Date: Tue, 19 Dec 2006 14:32:52 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <247966.89742.qm@web32915.mail.mud.yahoo.com>
+To: conke.hu@gmail.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add pci class code for SATA
+References: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain> <1166551886.2977.5.camel@localhost.localdomain>
+In-Reply-To: <1166551886.2977.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I read usb-serial.c code (in 2.6.19) and I cannot
-figure out how it is
-supposed to prevent race condition and premature
-deletion of usb_serial
-structure. I see that the code attempts to protect
-usb_serial by ref
-counting, but it does not appear to be correct. I am
-not 100% sure in my
-findings, so I will appreciate if somebody will double
-check.
+Conke Hu wrote:
+> Add pci class code 0x0106 for SATA to pci_ids.h
+> 
+> signed-off-by: conke.hu@gmail.com
+> --------------------
+> --- linux-2.6.20-rc1/include/linux/pci_ids.h.orig	2006-12-20
+> 01:58:30.000000000 +0800
+> +++ linux-2.6.20-rc1/include/linux/pci_ids.h	2006-12-20
+> 01:59:07.000000000 +0800
+> @@ -15,6 +15,7 @@
+>  #define PCI_CLASS_STORAGE_FLOPPY	0x0102
+>  #define PCI_CLASS_STORAGE_IPI		0x0103
+>  #define PCI_CLASS_STORAGE_RAID		0x0104
+> +#define PCI_CLASS_STORAGE_SATA		0x0106
+>  #define PCI_CLASS_STORAGE_SAS		0x0107
+>  #define PCI_CLASS_STORAGE_OTHER		0x0180
 
-Suppose:
-A:->usb_serial_disconnect
-A:  -> usb_serial_put (serial);
-A:   -> kref_put
-A:    if ((atomic_read(&kref->refcount) == 1)
-             Suppose refcount is 1
-A:       -> release -> destroy_serial
+Two comments:
 
-B: -> serial_open
-B:  -> usb_serial_get_by_index
-B:     serial = serial_table[index]
-B:     -> kref_get(&serial->kref);
+1) I think "_SATA" is an inaccurate description.  It should be _AHCI AFAICS.
 
-A:        -> return_serial(serial);
-A:        serial_table[serial->minor + i] = NULL;
-A:          -> kfree (serial);
+2) Typically we don't add constants unless they are used somewhere...
 
-B:   continue to use serial, which was already freed.
-
-So, I am missing something or the USB serial driver is
-broken?
-
-As I understand it, the correct use of ref counted
-pointers it to increment
-ref count of an object for each outstanding pointer to
-this object. But
-usb-serial.c keeps one or more pointers to usb_serial
-in serial_table, and
-does not increments the counter for any of them!
-
-Thank you
-John
+	Jeff
 
 
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

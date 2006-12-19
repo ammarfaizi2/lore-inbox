@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932859AbWLSU3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932934AbWLSUdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932859AbWLSU3p (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 15:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932891AbWLSU3p
+	id S932934AbWLSUdF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 15:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932891AbWLSUdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 15:29:45 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:46610 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932859AbWLSU3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 15:29:45 -0500
-Date: Tue, 19 Dec 2006 21:27:56 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Bob Copeland <me@bobcopeland.com>
-cc: Dave Jones <davej@redhat.com>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: my handy-dandy, "coding style" script
-In-Reply-To: <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
- <20061219164146.GI25461@redhat.com> <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
+	Tue, 19 Dec 2006 15:33:04 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:58582 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932935AbWLSUdD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 15:33:03 -0500
+Date: Tue, 19 Dec 2006 20:32:51 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, gregkh@suse.de
+Message-ID: <20061219203251.GA14648@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org> <1166556889.3365.1269.camel@laptopd505.fenrus.org> <20061219194410.GA14121@srcf.ucam.org> <1166558602.3365.1271.camel@laptopd505.fenrus.org> <20061219200803.GA14332@srcf.ucam.org> <1166559785.3365.1276.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166559785.3365.1276.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Re: Changes to sysfs PM layer break userspace
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 19, 2006 at 09:23:05PM +0100, Arjan van de Ven wrote:
+> On Tue, 2006-12-19 at 20:08 +0000, Matthew Garrett wrote:
+> > I'm not sure. Suspending the chip means you lose things like link beat 
+> > detection, so it's not something you necessarily want to automatically 
+> > tie to something like interface status. 
+> 
+> right now the "spec" for Linux network drivers assumes that you put the
+> NIC into D3 on down, except for cases where Wake-on-Lan is enabled etc.
 
->> >  just for fun, i threw the following together to peruse the tree (or
->> > any subdirectory) and look for stuff that violates the CodingStyle
->> > guide.  clearly, it's far from complete and very ad hoc, but it's
->> > amusing.  extra searches happily accepted.
->> 
->> I had a bunch of similar greps that I've recently been half-assedly
->> putting together into a single script too.
->> See http://www.codemonkey.org.uk/projects/findbugs/
->
-> I don't know if anyone cares about them anymore, since I think gcc
-> grew some smarts in the area recently, but there are a lot of lines of
-> code matching "static int.*= *0;" and equivalents in the driver tree.
+Really? I can't find any drivers that seem to do this. The only calls to 
+pci_set_power_state seem to be in the suspend, resume, init and exit 
+routines.
 
-I'd really like to see the C compiler being enhanced to detect
-"stupid casts", i.e. those, which when removed, do not change (a) the outcome
-(b) the compiler warnings/error output.
+> > Some chips support more 
+> > fine-grained power management, so we could do something more sensible in 
+> > that case - but right now, there doesn't seem to be a lot of driver 
+> > support for it.
+> 
+> sounds like that's the right approach at least .. not talking to the PCI
+> hardware directly from userspace...
 
+I'd certainly agree that that's the right thing to do, but userspace has 
+a habit of using whatever functionality /is/ available to get to a given 
+end. The semantics of the device/power/state file were never made 
+terribly clear, and it did have the desired effect of suspending the 
+device. Removing it without providing warning or a transition pathway is 
+a pain.
 
-	-`J'
+> I can see the point of having more than just "UP" and "DOWN" as
+> interface states; "UP", "DOWN" and "OFF" for example... 
+
+Agreed.
+
 -- 
+Matthew Garrett | mjg59@srcf.ucam.org

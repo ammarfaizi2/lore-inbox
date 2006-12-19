@@ -1,100 +1,135 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932761AbWLSMEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932800AbWLSMGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932761AbWLSMEn (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 07:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLSMEn
+	id S932800AbWLSMGH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 07:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWLSMGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 07:04:43 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48003 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932761AbWLSMEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 07:04:42 -0500
-Date: Tue, 19 Dec 2006 13:01:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] debugging feature: SysRq-Q to print timers
-Message-ID: <20061219120150.GA27819@elte.hu>
-References: <20061214225913.3338f677.akpm@osdl.org> <20061216000440.GY3388@stusta.de> <20061216075658.GA16116@elte.hu> <20061218153103.57860bf8.akpm@osdl.org> <20061218234549.GB32353@redhat.com> <20061218160019.988171f5.akpm@osdl.org>
+	Tue, 19 Dec 2006 07:06:07 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:35314 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932800AbWLSMGE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 07:06:04 -0500
+Subject: Re: Task watchers v2
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: yanmin_zhang@linux.intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jes@sgi.com, hch@lst.de, viro@zeniv.linux.org.uk, sgrubb@redhat.com,
+       linux-audit@redhat.com, systemtap@sources.redhat.com
+In-Reply-To: <20061218214159.2d571bf5.pj@sgi.com>
+References: <20061215000754.764718000@us.ibm.com>
+	 <20061215000817.771088000@us.ibm.com> <1166420641.15989.117.camel@ymzhang>
+	 <1166447901.995.110.camel@localhost.localdomain>
+	 <20061218214159.2d571bf5.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Tue, 19 Dec 2006 04:05:55 -0800
+Message-Id: <1166529955.995.177.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061218160019.988171f5.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > /proc/timer-list is useful for profiling applications doing 
-> > excessive wakeups. With the move towards being tickless, this is 
-> > more important than ever, and giving users the right tools to find 
-> > these problems themselves is important.
-> > 
+On Mon, 2006-12-18 at 21:41 -0800, Paul Jackson wrote:
+> Matt wrote:
+> > - Task watchers can actually improve kernel performance slightly (up to
+> > 2% in extremely fork-heavy workloads for instance).
 > 
-> oic.  Nobody ever tells me squat.  <updates changelog>
+> Nice.
 > 
-> Your explanation doesn't explain why we need this info in a sysrq 
-> triggerable form.
-> 
-> And what about /proc/timer-stat?
+> Could you explain why?
 
-/proc/timer_stats does timer profiling. You start it via:
+After the last round of patches I set out to improve instruction and
+data cache hits.
 
-	echo 1 > /proc/timer_stats
+Previous iterations of task watchers would prevent the code in these
+paths from being inlined. Furthermore, the code certainly wouldn't be
+placed near the table of function pointers (which was in an entirely
+different ELF section). By placing them adjacent to each other in the
+same ELF section we can improve the likelihood of cache hits in
+fork-heavy workloads (which were the ones that showed a performance
+decrease in the previous iteration of these patches).
 
-and then the profile info gathers into /proc/timer_stats. Useful way to 
-look at it is:
+Suppose we have two functions to invoke during fork -- A and B. Here's
+what the memory layout looked like in the previous iteration of task
+watchers:
 
-	sort -n /proc/timer_stats
++--------------+<----+
+|  insns of B  |     |
+       .             |
+       .             |
+       .             |
+|              |     |
++--------------+     |
+       .             |
+       .             |
+       .             |
++--------------+<-+  |
+|  insns of A  |  |  |
+       .          |  |
+       .          |  |
+       .          |  |
+|              |  |  |
++--------------+  |  |
+       .          |  |
+       .          |  |
+       .          |  |  .text
+==================|==|========= ELF Section Boundary
++--------------+  |  |  .task
+| pointer to A----+  |
++--------------+     |
+| pointer to B-------+
++--------------+
 
-for example:
+The notify_task_watchers() function would first load the pointer to A from the .task
+section. Then it would immediately jump into the .text section and force the
+instructions from A to be loaded. When A was finished, it would return to
+notify_task_watchers() only to jump into B by the same steps.
 
-Timer Stats Version: v0.1
-   1,     0 swapper          page_writeback_init (wb_timer_fn)
-   1,  1898 modprobe         neigh_table_init_no_netlink (neigh_periodic_timer)
-   1,     1 init             schedule_timeout (process_timeout)
-   1,     1 swapper          neigh_table_init_no_netlink (neigh_periodic_timer)
-   1,  2700 hald-addon-stor  do_nanosleep (hrtimer_wakeup)
-   1,     6 softirq-timer/0  __netdev_watchdog_up (dev_watchdog)
-   2,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
-   2,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
-   2,   480 IRQ 218          e1000_intr_msi (e1000_watchdog)
-   3,  2652 yum-updatesd     schedule_timeout (process_timeout)
-   4,  2472 pcscd            do_nanosleep (hrtimer_wakeup)
-   4,  7824 sshd             sk_reset_timer (tcp_write_timer)
-  13,   428 insmod           usb_hcd_poll_rh_status (rh_timer_func)
-  13,   428 insmod           usb_hcd_poll_rh_status (rh_timer_func)
-  13,   437 insmod           usb_hcd_submit_urb (rh_timer_func)
-  19,    21 softirq-net-rx/  sk_reset_timer (tcp_delack_timer)
- 164,  1868 kondemand/0      queue_delayed_work_on (delayed_work_timer_fn)
- 164,  1869 kondemand/1      queue_delayed_work_on (delayed_work_timer_fn)
- 282,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
- 321,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
- 335,     0 swapper          hrtimer_restart_sched_tick (hrtimer_sched_tick)
- 408,     0 swapper          hrtimer_restart_sched_tick (hrtimer_sched_tick)
-1755 total events, 585.534 events/sec
+As you can see things can be rather spread out. Unless the compiler inlined the
+functions called from copy_process() things are very similar in a mainline
+kernel -- copy_process() could be jumping to rather distant portions of the kernel
+text and the pointer table would be rather distant from the instructions to be loaded.
 
-this shows us that the kondemand kernel threads are causing 90% of the 
-timeout events on this system.
+Here's what the new patches look like:
 
-/proc/timer_list shows all currently pending timers, and all the state 
-of the hardware timers. That is a bit different from timer_stat but 
-still very useful: it gives us a snapshot into the current state of the 
-(hr)timer subsystem. I needed it to debug a couple of high-res timers 
-subsystem bugs. The SysRq trigger was useful for things like timer 
-related boot hangs. (It's also useful to catch excessive waiters during 
-bootup.)
+===============================
++--------------+        .task
+| pointer to A----+
++--------------+  |
+| pointer to B-------+
++--------------+  |  |
+       .          |  |
+       .          |  |
++--------------+<-+  |
+|  insns of A  |     |
+       .             |
+       .             |
+       .             |
+|              |     |
++--------------+<----+
+|  insns of B  |
+       .
+       .
+       .
+|              |
++--------------+
+===============================
 
-	Ingo
+Which is clearly more compact and also follows the order of calls (A
+then B). The instructions are all in the same section. When A finishes
+executing we soon jump into B which could be in the same instruction
+cache line as the function we just left. Furthermore, since the sequence
+always goes from A to B I expect some anticipatory loads could be done.
+
+For fork-heavy workloads I'd expect this to explain the performance
+difference. For workloads that aren't fork-heavy I suspect we're just as
+likely to experience instruction cache misses -- whether the functions
+are inlined, adjacent, or not -- since the fork happens relatively
+infrequently and other instructions are likely to push fork-related
+instructions out.
+
+Cheers,
+	-Matt Helsley
+

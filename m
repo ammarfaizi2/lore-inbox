@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932657AbWLSIe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932670AbWLSIfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbWLSIe6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbWLSIe5
+	id S932670AbWLSIfl (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWLSIfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:34:57 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:60062 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932657AbWLSIe5 (ORCPT
+	Tue, 19 Dec 2006 03:35:41 -0500
+Received: from noname.neutralserver.com ([70.84.186.210]:53539 "EHLO
+	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932663AbWLSIfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:34:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=jCG3vQKrMiG61iq9fowEX4q6a7So0L1j/Zau0n4/6xemE2UXLo6921lx4gt3U5AL//1giebLZkBdqtj+CWnl5lJSz638XtUrGuUavG7o+4/MuT/0p5yoz/IN1MsTx/EGWS/jko9X3LdYo+pD4s1X2bP4mW/nn/+AhtswHUTzJfo=
-Message-ID: <84144f020612190034s3936a1b6k9ab50a283d63135@mail.gmail.com>
-Date: Tue, 19 Dec 2006 10:34:55 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.19 file content corruption on ext3
-Cc: andrei.popa@i-neo.ro, "Linus Torvalds" <torvalds@osdl.org>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
-       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
-       "Martin Michlmayr" <tbm@cyrius.com>
-In-Reply-To: <20061219002416.ed8f1dda.akpm@osdl.org>
+	Tue, 19 Dec 2006 03:35:39 -0500
+X-Greylist: delayed 30760 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 03:35:39 EST
+Date: Tue, 19 Dec 2006 10:35:07 +0200
+From: Dan Aloni <da-x@monatomic.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: linux-scsi@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
+Subject: [PATCH] scsi_execute_async() should add to the tail of the queue
+Message-ID: <20061219083507.GA20847@localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1166314399.7018.6.camel@localhost>
-	 <1166485691.6977.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181559230.3479@woody.osdl.org>
-	 <1166488199.6950.2.camel@localhost>
-	 <Pine.LNX.4.64.0612181648490.3479@woody.osdl.org>
-	 <20061218172126.0822b5d2.akpm@osdl.org>
-	 <1166492691.6890.12.camel@localhost>
-	 <20061218175449.3c752879.akpm@osdl.org>
-	 <1166515504.6897.0.camel@localhost>
-	 <20061219002416.ed8f1dda.akpm@osdl.org>
-X-Google-Sender-Auth: d0b0a9f7b1e23711
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - noname.neutralserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - monatomic.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/19/06, Andrew Morton <akpm@osdl.org> wrote:
-> Wow.  I didn't expect that, because Mark Haber reported that ext3's data=writeback
-> fixed it.   Maybe he didn't run it for long enough?
+Hello,
 
-I don't think it did fix it for Mark:
+scsi_execute_async() has replaced scsi_do_req() a few versions ago, 
+but it also incurred a change of behavior. I noticed that over-queuing 
+a SCSI device using that function causes I/Os to be starved from 
+low-level queuing for no justified reason.
+ 
+I think it makes much more sense to perserve the original behaviour 
+of scsi_do_req() and add the request to the tail of the queue.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116625777306843&w=2
+Signed-off-by: Dan Aloni <da-x@monatomic.org>
+
+diff -p -urN a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+--- a/drivers/scsi/scsi_lib.c	2006-12-19 01:48:50.000000000 +0200
++++ b/drivers/scsi/scsi_lib.c	2006-12-19 01:49:35.000000000 +0200
+@@ -421,7 +421,7 @@ int scsi_execute_async(struct scsi_devic
+ 	sioc->data = privdata;
+ 	sioc->done = done;
+ 
+-	blk_execute_rq_nowait(req->q, NULL, req, 1, scsi_end_async);
++	blk_execute_rq_nowait(req->q, NULL, req, 0, scsi_end_async);
+ 	return 0;
+ 
+ free_req:
+
+
+ - Dan

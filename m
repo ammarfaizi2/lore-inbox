@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932722AbWLSJiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932085AbWLSJkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932722AbWLSJiE (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 04:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWLSJiE
+	id S932085AbWLSJkV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 04:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWLSJkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 04:38:04 -0500
-Received: from blaster.systems.pipex.net ([62.241.163.7]:44957 "EHLO
-	blaster.systems.pipex.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932721AbWLSJiD (ORCPT
+	Tue, 19 Dec 2006 04:40:20 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:46648 "EHLO
+	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932085AbWLSJkT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 04:38:03 -0500
-X-Greylist: delayed 1621 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 04:38:03 EST
-Date: Tue, 19 Dec 2006 09:10:25 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@ws.homenet
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] microcode: Fix mc_cpu_notifier section warning
-In-Reply-To: <20061219083328.5951571f.khali@linux-fr.org>
-Message-ID: <Pine.LNX.4.61.0612190909030.7347@ws.homenet>
-References: <20061217173602.abaf4b69.khali@linux-fr.org>
- <Pine.LNX.4.61.0612180954380.3848@ws.homenet> <20061219083328.5951571f.khali@linux-fr.org>
+	Tue, 19 Dec 2006 04:40:19 -0500
+Date: Tue, 19 Dec 2006 02:40:18 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] lock debugging: fix DEBUG_LOCKS_WARN_ON() & debug_locks_silent
+Message-ID: <20061219094017.GM21070@parisc-linux.org>
+References: <20061216080458.GC16116@elte.hu> <20061219084359.GB1731@ff.dom.local> <20061219093135.GA28269@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061219093135.GA28269@elte.hu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
+On Tue, Dec 19, 2006 at 10:31:35AM +0100, Ingo Molnar wrote:
+> 
+> * Jarek Poplawski <jarkao2@o2.pl> wrote:
+> 
+> > >  	if (unlikely(c)) {						\
+> > > -		if (debug_locks_silent || debug_locks_off())		\
+> > > +		if (!debug_locks_silent && debug_locks_off())		\
+> 
+> btw., updated patch is below - the right order is to first do 
+> debug_locks_off(), then debug_locks_silent.
 
-On Tue, 19 Dec 2006, Jean Delvare wrote:
-> I don't see anything in arch/i386/kernel/microcode.c depending on
-> CONFIG_HOTPLUG_CPU (in 2.6.20-rc1), sorry.
-
-I run 2.6.19.1 and there both mc_cpu_notifier (which your patch modified) 
-and mc_cpu_callback (which uses mc_cpu_notifier) are inside #ifdef 
-CONFIG_HOTPLUG_CPU.
-
-Kind regards
-Tigran
+Then how does one re-enable lock debugging after running the locking
+testsuite?

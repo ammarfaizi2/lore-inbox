@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932453AbWLSOkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932506AbWLSOlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWLSOkB (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 09:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWLSOkA
+	id S932506AbWLSOlG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 09:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWLSOlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 09:40:00 -0500
-Received: from 1wt.eu ([62.212.114.60]:1596 "EHLO 1wt.eu"
+	Tue, 19 Dec 2006 09:41:06 -0500
+Received: from ns2.tasking.nl ([195.193.207.10]:25931 "EHLO ns2.tasking.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932453AbWLSOkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 09:40:00 -0500
-Date: Tue, 19 Dec 2006 15:38:41 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Dave Jones <davej@redhat.com>, "J.H." <warthog9@kernel.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com, webmaster@kernel.org
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-Message-ID: <20061219143841.GB19084@1wt.eu>
-References: <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <45858B3A.5050804@oracle.com> <20061217223730.GW10054@mea-ext.zmailer.org> <1166402576.26330.81.camel@localhost.localdomain> <20061219064646.GJ24090@1wt.eu> <1166513991.26330.136.camel@localhost.localdomain> <20061219143606.GE25461@redhat.com>
+	id S932506AbWLSOlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 09:41:05 -0500
+X-Greylist: delayed 1481 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 09:41:05 EST
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <em0pdq$r7o$2@sea.gmane.org> <em0pdq$r7o$2@sea.gmane.org> <4586DF1D.6040501@cfl.rr.com>
+From: dick.streefland@altium.nl (Dick Streefland)
+Subject: Re: Software RAID1 (with non-identical discs) performance
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219143606.GE25461@redhat.com>
-User-Agent: Mutt/1.5.11
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <3960.4587f434.9e684@altium.nl>
+Date: Tue, 19 Dec 2006 14:16:20 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 09:36:06AM -0500, Dave Jones wrote:
-> On Mon, Dec 18, 2006 at 11:39:51PM -0800, J.H. wrote:
-> 
->  > I'll have to look into it - but by and large the round robining tends to
->  > work.  Specifically as I am writing this the machines are both pushing
->  > right around 150mbps, however the load on zeus1 is 170 vs. zeus2's 4.
->  > Also when we peak the bandwidth we do use every last kb we can get our
->  > hands on, so doing any tunneling takes just that much bandwidth away
->  > from the total.
->  > 
->  > 	Number of Processes running
->  > process		#1	#2
->  > ------------------------------------
->  > rsync		162	69
->  > http		734	642
->  > ftp		353	190
-> 
-> A wild idea just occured to me.  You guys are running Fedora/RHEL kernels
-> on the kernel.org boxes iirc, which have Ingo's 'tux' httpd accelerator.
-> It might not make the problem go away, but it could make it more
-> bearable under high load.   Or it might do absolutely squat depending
-> on the ratio of static/dynamic content.
+Phillip Susi <psusi@cfl.rr.com> wrote:
+| The entire concept of geometry is a a carryover from days gone by. 
+| These days it is just a farse maintained for backwards compatibility. 
+| You can put fdisk into sector mode with the 'u' command and create 
+| partitions of any number of sectors you desire, regardless of the 
+| perceived geometry.
 
-I've already thought about this and never knew why it's not used. It
-supports both HTTP and FTP and does a wonderful job under high loads.
-In fact, it's what I use as an HTTP termination during benchmarks, because
-it's the absolute best performer I've ever found.
+An easy way to clone a partition table is:
 
-> 		Dave
+  sfdisk -d /dev/sdX | sfdisk /dev/sdY
 
-Regards,
-Willy
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 

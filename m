@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932803AbWLSMXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932808AbWLSM0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932803AbWLSMXL (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 07:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWLSMXL
+	id S932808AbWLSM0z (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 07:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932810AbWLSM0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 07:23:11 -0500
-Received: from main.gmane.org ([80.91.229.2]:57814 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932803AbWLSMXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 07:23:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wiebe Cazemier <halfgaar@gmx.net>
-Subject: Re: Software RAID1 (with non-identical discs) performance
-Date: Tue, 19 Dec 2006 13:22:46 +0100
-Message-ID: <em8lim$lqd$1@sea.gmane.org>
-References: <em0pdq$r7o$2@sea.gmane.org>
+	Tue, 19 Dec 2006 07:26:55 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48436 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932808AbWLSM0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 07:26:54 -0500
+Date: Tue, 19 Dec 2006 04:26:07 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: yanmin_zhang@linux.intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jes@sgi.com, hch@lst.de, viro@zeniv.linux.org.uk, sgrubb@redhat.com,
+       linux-audit@redhat.com, systemtap@sources.redhat.com
+Subject: Re: Task watchers v2
+Message-Id: <20061219042607.dcd865a3.pj@sgi.com>
+In-Reply-To: <1166529955.995.177.camel@localhost.localdomain>
+References: <20061215000754.764718000@us.ibm.com>
+	<20061215000817.771088000@us.ibm.com>
+	<1166420641.15989.117.camel@ymzhang>
+	<1166447901.995.110.camel@localhost.localdomain>
+	<20061218214159.2d571bf5.pj@sgi.com>
+	<1166529955.995.177.camel@localhost.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cc503261-a.eelde1.dr.home.nl
-User-Agent: KNode/0.10.4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For some reason, your message doesn't appear in the GMane mail-to-news gateway.
-I've quoted your message here. Hopefully, the quoting isn't messed up.
+Matt wrote:
+> Previous iterations of task watchers would prevent the code in these
+> paths from being inlined. Furthermore, the code certainly wouldn't be
+> placed near the table of function pointers (which was in an entirely
+> different ELF section). By placing them adjacent to each other in the
+> same ELF section we can improve the likelihood of cache hits in
+> fork-heavy workloads (which were the ones that showed a performance
+> decrease in the previous iteration of these patches).
 
-> The entire concept of geometry is a a carryover from days gone by. These days
-it is just a farse maintained for backwards compatibility. You can put fdisk
-into sector mode with the 'u' command and create partitions of any number of
-sectors you desire, regardless of the perceived geometry.
+Ah so - by marking some of the fork (and exit, exec, ...) routines
+with the WATCH_TASK_* mechanism, you can compact them together in the
+kernel's text pages, instead of having them scattered about based on
+whatever source files they are in.
 
-I remember when I did that, fdisk started complaining. But, I'm going to have
-to experiment with this.
+Nice.
 
-> > My first question is, is this a necessary/convenient technique to ensure
-you
-> > can replace discs over time, especially when you can't get the exact same
-> > replacement disc?
-> 
-> I don't believe you need to do anything; md will simply not use the few extra
-sectors at the end of the larger disk/partition and round down to the
-appropriate size. 
-
-If you can indeed make partitions equally big on different types of drives by
-using sector mode, that would solve part of the problem. But what if a
-replacement disk you got, is just a tad smaller than the original one, and
-doesn't fit in the array? That's also a reason I always left some space
-unpartitioned, since resizing the array to make it smaller, is a pain last
-time I tried.
-
-> Yes, it slows things down.  You want to try to match disk speeds as closely
-as possible for best performance. 
-
-My concern wasn't so much about the different speeds of the drives, but the
-fact that they have a different geometry. But, because you said that is
-simulated anyway, can I assume that as long as both drives are equal in speed,
-using different types of drives doesn't matter?
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

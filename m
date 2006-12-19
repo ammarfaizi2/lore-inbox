@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932866AbWLSSAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932876AbWLSSI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932866AbWLSSAy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 13:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932871AbWLSSAy
+	id S932876AbWLSSI3 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 13:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932875AbWLSSI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 13:00:54 -0500
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:48852 "EHLO
-	liaag2ag.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932866AbWLSSAx (ORCPT
+	Tue, 19 Dec 2006 13:08:29 -0500
+Received: from mail.wildbrain.com ([209.130.193.228]:57738 "EHLO
+	hermes.wildbrain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932849AbWLSSI2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 13:00:53 -0500
-Date: Tue, 19 Dec 2006 12:55:06 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: problem with signal delivery SIGCHLD
-To: Nicholas Mc Guire <der.herr@hofr.at>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200612191259_MC3-1-D597-DE30@compuserve.com>
+	Tue, 19 Dec 2006 13:08:28 -0500
+X-Greylist: delayed 939 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 13:08:28 EST
+Message-ID: <458826E4.1030806@wildbrain.com>
+Date: Tue, 19 Dec 2006 09:52:36 -0800
+From: Gregory Brauer <greg@wildbrain.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+CC: Mikael Pettersson <mikpe@it.uu.se>, Roel.Teuwen@advalvas.be
+Subject: Re: SATA300 TX4 + WD2500KS = status=0x50 { DriveReady SeekComplete
+ }
+References: <200612191424.kBJEO7bD007303@harpo.it.uu.se>
+In-Reply-To: <200612191424.kBJEO7bD007303@harpo.it.uu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-WB-MailScanner: Found to be clean
+X-WB-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=0.001, required 5, BAYES_50 0.00)
+X-MailScanner-From: greg@wildbrain.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
-
-On Mon, 18 Dec 2006 20:05:35 +0100, Nicholas Mc Guire wrote:
-
->   I have a phenomena that I don't quite understand. gdbserver forks and 
-> after setting ptrace (PTRACE_TRACEME, 0, 0, 0); it then execv 
-> (program, allargs); when this child process hits ptrace_stoped (breakpoint
-> it does the following in kernel space:
+Mikael Pettersson wrote:
+> I was looking briefly at the port mapping issue on 4-port Promise controllers
+> yesterday and noticed a bit of programming magic in Promise's driver that
+> Linux doesn't do, and which affects two of the four ports. That _could_
+> explain your issues.
 > 
->                                      pid
->           1        559          5    1242 ptrace_stop
->           3          6          2    1242 |  do_notify_parent_cldstop
->           4          3          2    1242 |  |  __group_send_sig_info
->           5          1          1    1242 |  |  |  handle_stop_signal
->           7          0          0    1242 |  |  |  sig_ignored
->           8          1          0    1242 |  |  __wake_up_sync
->           8          1          1    1242 |  |  |  __wake_up_common
->          10        547        541    1242 |  schedule
->          10          2          2    1242 |  |  profile_hit
->          13          1          1    1242 |  |  sched_clock
->          15          1          0    1242 |  |  deactivate_task
->          15          1          1    1242 |  |  |  dequeue_task
->          19          2          2       0 |  |  __switch_to
+> /Mikael
 
->          24        574        574       0 default_idle
+Just as a note, I filed the issue that this thread is about as a
+kernel bug:
 
-> So basically child signals -> delayed to next tick -> parent wakes up.
+http://bugzilla.kernel.org/show_bug.cgi?id=7516
 
-What do the first three columns represent?
+I am also experiencing the port-mapping issue you mention with
+the SATA300 TX4, but I believe that the port mapping problem and
+the excess status messages are separate and unrelated problems.
 
-Do you see __wake_up_common() calling default_wake_function()?
-
-Can you trace through schedule() and see exactly how it decides to
-run the idle task instead of the newly-woken parent?  Exactly what
-path does it take?  (And which kernel version is this?)
-
--- 
-MBTI: IXTP
-
+Greg

@@ -1,175 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752418AbWLSENk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752390AbWLSETC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752418AbWLSENk (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 23:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752501AbWLSENj
+	id S1752390AbWLSETC (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 23:19:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752411AbWLSETC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 23:13:39 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4470 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752418AbWLSENP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 23:13:15 -0500
-Date: Tue, 19 Dec 2006 05:13:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: greg@kroah.com
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/pci/quirks.c: cleanup
-Message-ID: <20061219041315.GE6993@stusta.de>
+	Mon, 18 Dec 2006 23:19:02 -0500
+Received: from mail.enter.net ([216.193.128.40]:31061 "EHLO mmail.enter.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752390AbWLSETA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 23:19:00 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: davids@webmaster.com
+Subject: Re: GPL only modules
+Date: Mon, 18 Dec 2006 21:38:25 -0500
+User-Agent: KMail/1.9.5
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200612182138.25332.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- move all EXPORT_SYMBOL's directly below the code they are exporting
-- move all DECLARE_PCI_FIXUP_*'s directly below the functions they
-  are calling
+On Monday 18 December 2006 20:35, David Schwartz wrote:
+> > For both static and dynamic linking, you might claim the output is an
+> > aggregate, but that doesn't matter.  What matters is whether or not
+> > the output is a work based on the program, and whether the "mere
+> > aggregation" paragraph kicks in.
+> >
+> > If the output is not an aggregate, which is quite likely to be
+> > the case for dynamic linking, and quite possibly also for many static
+> > linking cases, then the "mere aggregation" paragraph of clause 2 does
+> > not kick in.
+> >
+> > If the output is indeed an aggregate, as it may quite likely be in the
+> > case of static linking, then the "mere aggregation" considerations of
+> > clause 2 may kick in and enable the 'anything else' to not be brought
+> > under the scope of the license.  You still need permission to
+> > distribute the whole.  The GPL asserts its non-interference with your
+> > ability to distribute the separate portion separately, under whatever
+> > license you can, as long as it's not a derived work from the GPL
+> > portion.
+>
+> No!
+>
+> It makes no difference whether the "mere aggregation" paragraph kicks in
+> because the "mere aggregation" paragraph is *explaining* the *law*. What
+> matters is what the law actually *says*.
+>
+> We are talking about what works are within the GPL's scope. The text of the
+> GPL does not matter because the GPL does not set its own scope, copyright
+> law does.
+>
+> The GPL could say that if you ever see the source code to a GPL'd work,
+> every work you ever write must be placed under the GPL. But that wouldn't
+> make it true, because that would be a requirement outside the GPL's scope.
+>
+> We are talking about works are inside the GPL's legal scope, and in that
+> case, nothing the GPL says can enlarge the scope.
+>
+> DS
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
+Actually, after rereading the GPLv2 because of this discussion I came to a 
+most surprising conclusion. While there are *IMPLICIT* and *EXPLICIT* 
+copyrights on the code, they have no bearing on the text of the GPL.
 
- drivers/pci/pci.c    |    4 ----
- drivers/pci/quirks.c |   42 +++++++++++++++++-------------------------
- 2 files changed, 17 insertions(+), 29 deletions(-)
+The GPL is a License that covers how the code may be used, modified and 
+distributed. This is the reason that the FSF people had to make the big 
+exception for Bison, because the parser skeleton is such an integral part of 
+Bison (Bison itself, IIRC, uses the same skeleton, modified, as part of the 
+program) that truthfully, any parser built using Bison is a derivative work 
+of code released under the GPL.
 
---- linux-2.6.20-rc1-mm1/drivers/pci/quirks.c.old	2006-12-19 04:12:39.000000000 +0100
-+++ linux-2.6.20-rc1-mm1/drivers/pci/quirks.c	2006-12-19 04:59:22.000000000 +0100
-@@ -61,7 +61,8 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_I
-     
-     This appears to be BIOS not version dependent. So presumably there is a 
-     chipset level fix */
--int isa_dma_bridge_buggy;		/* Exported */
-+int isa_dma_bridge_buggy;
-+EXPORT_SYMBOL(isa_dma_bridge_buggy);
-     
- static void __devinit quirk_isa_dma_hangs(struct pci_dev *dev)
- {
-@@ -83,6 +84,7 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NE
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_3,	quirk_isa_dma_hangs );
- 
- int pci_pci_problems;
-+EXPORT_SYMBOL(pci_pci_problems);
- 
- /*
-  *	Chipsets where PCI->PCI transfers vanish or hang
-@@ -94,6 +96,8 @@ static void __devinit quirk_nopcipci(str
- 		pci_pci_problems |= PCIPCI_FAIL;
- 	}
- }
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		quirk_nopcipci );
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_496,		quirk_nopcipci );
- 
- static void __devinit quirk_nopciamd(struct pci_dev *dev)
- {
-@@ -105,9 +109,6 @@ static void __devinit quirk_nopciamd(str
- 		pci_pci_problems |= PCIAGP_FAIL;
- 	}
- }
--
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		quirk_nopcipci );
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_496,		quirk_nopcipci );
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_8151_0,	quirk_nopciamd );
- 
- /*
-@@ -1122,6 +1123,14 @@ static void quirk_sis_96x_smbus(struct p
- 	pci_write_config_byte(dev, 0x77, val & ~0x10);
- 	pci_read_config_byte(dev, 0x77, &val);
- }
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
-+DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
- 
- /*
-  * ... This is further complicated by the fact that some SiS96x south
-@@ -1158,6 +1167,8 @@ static void quirk_sis_503(struct pci_dev
- 	 */
- 	dev->device = devid;
- }
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
-+DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
- 
- static void __init quirk_sis_96x_compatible(struct pci_dev *dev)
- {
-@@ -1170,8 +1181,6 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_S
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_651,		quirk_sis_96x_compatible );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_735,		quirk_sis_96x_compatible );
- 
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
--DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
- /*
-  * On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
-  * and MC97 modem controller are disabled when a second PCI soundcard is
-@@ -1202,21 +1211,8 @@ static void asus_hides_ac97_lpc(struct p
- 	}
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237, asus_hides_ac97_lpc );
--
--
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
--
- DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237, asus_hides_ac97_lpc );
- 
--
--DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
--DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
--
- #if defined(CONFIG_ATA) || defined(CONFIG_ATA_MODULE)
- 
- /*
-@@ -1261,7 +1257,6 @@ static void quirk_jmicron_dualfn(struct 
- 			break;
- 	}
- }
--
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, quirk_jmicron_dualfn);
- DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, quirk_jmicron_dualfn);
- 
-@@ -1405,6 +1400,7 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
- 
- 
- int pcie_mch_quirk;
-+EXPORT_SYMBOL(pcie_mch_quirk);
- 
- static void __devinit quirk_pcie_mch(struct pci_dev *pdev)
- {
-@@ -1649,6 +1645,7 @@ void pci_fixup_device(enum pci_fixup_pas
- 	}
- 	pci_do_fixups(dev, start, end);
- }
-+EXPORT_SYMBOL(pci_fixup_device);
- 
- /* Enable 1k I/O space granularity on the Intel P64H2 */
- static void __devinit quirk_p64h2_1k_io(struct pci_dev *dev)
-@@ -1791,8 +1788,3 @@ static void __devinit quirk_nvidia_ck804
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_CK804_PCIE,
- 			quirk_nvidia_ck804_msi_ht_cap);
- #endif /* CONFIG_PCI_MSI */
--
--EXPORT_SYMBOL(pcie_mch_quirk);
--#ifdef CONFIG_HOTPLUG
--EXPORT_SYMBOL(pci_fixup_device);
--#endif
---- linux-2.6.20-rc1-mm1/drivers/pci/pci.c.old	2006-12-19 04:15:52.000000000 +0100
-+++ linux-2.6.20-rc1-mm1/drivers/pci/pci.c	2006-12-19 04:16:00.000000000 +0100
-@@ -1210,7 +1210,3 @@ EXPORT_SYMBOL(pci_save_state);
- EXPORT_SYMBOL(pci_restore_state);
- EXPORT_SYMBOL(pci_enable_wake);
- 
--/* Quirk info */
--
--EXPORT_SYMBOL(isa_dma_bridge_buggy);
--EXPORT_SYMBOL(pci_pci_problems);
+That said, since there is a distribution, use and modification license on the 
+Linux Kernel - the GPLv2 - there are those extra restrictions on the code 
+*OUTSIDE* the copyright rules.
+
+DRH

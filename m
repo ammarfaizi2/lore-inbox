@@ -1,90 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932923AbWLSTsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932920AbWLST7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932923AbWLSTsy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932920AbWLSTsy
+	id S932920AbWLST7H (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932917AbWLST7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:48:54 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:48297 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932923AbWLSTsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:48:53 -0500
-X-Originating-Ip: 24.163.66.209
-Date: Tue, 19 Dec 2006 14:44:36 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: David Rientjes <rientjes@cs.washington.edu>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Get rid of most of the remaining k*alloc() casts.
-In-Reply-To: <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
-Message-ID: <Pine.LNX.4.64.0612191436340.11231@localhost.localdomain>
-References: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
- <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=2.008, required 5, ALL_TRUSTED -1.80, BAYES_20 -0.74,
-	RCVD_IN_NJABL_DUL 1.95, RCVD_IN_SORBS_DUL 2.05,
-	SARE_SUB_GETRID 0.56)
-X-Net-Direct-Inc-MailScanner-SpamScore: ss
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Tue, 19 Dec 2006 14:59:07 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33224 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932922AbWLST7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 14:59:06 -0500
+Date: Tue, 19 Dec 2006 20:56:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch] hrtimers: add state tracking, fix
+Message-ID: <20061219195650.GA8797@elte.hu>
+References: <20061214225913.3338f677.akpm@osdl.org> <200612191815.kBJIFF4O018306@lx1.pxnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612191815.kBJIFF4O018306@lx1.pxnet.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006, David Rientjes wrote:
 
-> On Tue, 19 Dec 2006, Robert P. J. Day wrote:
->
-> > diff --git a/include/asm-um/thread_info.h b/include/asm-um/thread_info.h
-> > index 261e2f4..e43c2dd 100644
-> > --- a/include/asm-um/thread_info.h
-> > +++ b/include/asm-um/thread_info.h
-> > @@ -51,8 +51,7 @@ static inline struct thread_info *current_thread_info(void)
-> >  }
-> >
-> >  /* thread information allocation */
-> > -#define alloc_thread_info(tsk) \
-> > -	((struct thread_info *) kmalloc(THREAD_SIZE, GFP_KERNEL))
-> > +#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL))
-> >  #define free_thread_info(ti) kfree(ti)
-> >
-> >  #endif
->
-> This patch breaks all of usermode from the change above.
+* Tilman Schmidt <tilman@imap.cc> wrote:
 
-whoops, you're right, i didn't notice that.  duh.  i can resubmit that
-patch with that part whacked out, or someone higher up the food chain
-can do that.  either way works for me.  sorry about that.
+> I tried kernel 2.6.20-rc1-mm1 with the "tickless" option on my P3/933 
+> but it has now for the second time in a row caused a system freeze as 
+> soon as I left the system idle for a couple of hours. The second time 
+> I was warned and switched to a text console before I left the system, 
+> and was able to collect this BUG message (copied manually, beware of 
+> typos):
+> 
+> EFLAGS: 00200082   (2.6.20-rc1-mm1-noinitrd #0)
+> EIP is at __rb_rotate_right+0x1/0x54
+[...]
+> Call Trace:
+>  [<c021d049>] rb_insert_color+0x55/0xbe
+>  [<c012d15b>] enqueue_hrtimer+0x10a/0x116
+>  [<c012d9b4>] hrtimer_start+0x78/0x93
 
-> There's also no reason to avoid other cleanups in the area you're
-> changing (and testing) such as moving the asterisk for pointers to
-> the variable name, deleting extraneous whitespace, or changing the
-> several instances in this patch where kzalloc conversion is
-> appropriate.  If it's not done now, it will either be forgotten or
-> another patch on the same elaborate scale as this one will need to
-> fix it incrementally.  Given the high chance of typos such as the
-> one above in broad patches like this, all the changes should be
-> rolled together into one patch that is at least inspected before
-> submission by the author.
+thanks for the report - this made me review the hrtimer state engine 
+logic, and bingo, it indeed has a nasty typo! Could you try the fix 
+below, does it fix your problem? It might explain the crash you are 
+seeing, because the typo means we'd ignore HRTIMER_STATE_PENDING state 
+(which is rare but possible).
 
-that sounds reasonable but, as i've mentioned before, many of the
-sizable cleanups i've submitted are produced by a simple script, which
-is written to process *one* kind of cleanup.  if i tried to fix
-everything else in the same area at the same time, *that* would
-involve far more manual labour, not to mention that the patch would be
-less well-defined, and the probability of a fatal typo would actually
-increase.
+	Ingo
 
-it's also possible that the stuff that isn't getting fixed in *this*
-cleanup will be done in a future submission.  like i said, it's a
-tradeoff.  i'm certainly open to suggestions but there's not much
-chance that, when i attack one issue, i'm then going to manually
-inspect every line that was changed to see what *else* could be done
-at the same time.
+-------------------------->
+Subject: [patch] hrtimers: add state tracking, fix
+From: Ingo Molnar <mingo@elte.hu>
 
-life's just too short for that.
+fix bug in hrtimer_is_queued(), introduced by a cleanup during
+the recent refactoring.
 
-rday
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/hrtimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux/kernel/hrtimer.c
+===================================================================
+--- linux.orig/kernel/hrtimer.c
++++ linux/kernel/hrtimer.c
+@@ -157,7 +157,7 @@ static void hrtimer_get_softirq_time(str
+ static inline int hrtimer_is_queued(struct hrtimer *timer)
+ {
+ 	return timer->state &
+-		(HRTIMER_STATE_ENQUEUED || HRTIMER_STATE_PENDING);
++		(HRTIMER_STATE_ENQUEUED | HRTIMER_STATE_PENDING);
+ }
+ 
+ /*

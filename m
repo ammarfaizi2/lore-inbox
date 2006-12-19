@@ -1,96 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932697AbWLSJHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932706AbWLSJNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbWLSJHA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 04:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWLSJHA
+	id S932706AbWLSJNL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 04:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbWLSJNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 04:07:00 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:36932 "EHLO
-	amsfep12-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932697AbWLSJG7 (ORCPT
+	Tue, 19 Dec 2006 04:13:11 -0500
+Received: from torres.zugschlus.de ([85.10.211.154]:2777 "EHLO
+	torres.zugschlus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932706AbWLSJNJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 04:06:59 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
+	Tue, 19 Dec 2006 04:13:09 -0500
+Date: Tue, 19 Dec 2006 10:13:05 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: andrei.popa@i-neo.ro, Linus Torvalds <torvalds@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
        Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <1166518810.10372.127.camel@twins>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <45876C65.7010301@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	 <45878BE8.8010700@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-	 <1166518810.10372.127.camel@twins>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 10:05:46 +0100
-Message-Id: <1166519146.10372.130.camel@twins>
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-ID: <20061219091305.GB20442@torres.l21.ma.zugschlus.de>
+References: <Pine.LNX.4.64.0612181426390.3479@woody.osdl.org> <1166485691.6977.6.camel@localhost> <Pine.LNX.4.64.0612181559230.3479@woody.osdl.org> <1166488199.6950.2.camel@localhost> <Pine.LNX.4.64.0612181648490.3479@woody.osdl.org> <20061218172126.0822b5d2.akpm@osdl.org> <1166492691.6890.12.camel@localhost> <20061218175449.3c752879.akpm@osdl.org> <1166515504.6897.0.camel@localhost> <20061219002416.ed8f1dda.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061219002416.ed8f1dda.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 10:00 +0100, Peter Zijlstra wrote:
-> On Tue, 2006-12-19 at 00:04 -0800, Linus Torvalds wrote:
-> 
-> > Nobody has actually ever explained why "test_clear_page_dirty()" is good 
-> > at all.
-> > 
-> >  - Why is it ever used instead of "clear_page_dirty_for_io()"?
-> > 
-> >  - What is the difference?
-> > 
-> >  - Why would you EVER want to clear bits just in the "struct page *" or 
-> >    just in the PTE's?
-> > 
-> >  - Why is it EVER correct to clear dirty bits except JUST BEFORE THE IO?
-> > 
-> > In other words, I have a theory:
-> > 
-> >  "A lot of this is actually historical cruft. Some of it may even be code 
-> >   that was never supposed to work, but because we maintained _other_ dirty 
-> >   bits in the PTE's, and never touched them before, we never even realized 
-> >   that the code that played with PG_dirty was totally insane"
-> > 
-> > Now, that's just a theory. And yeah, it may be stated a bit provocatively. 
-> > It may not be entirely correct. I'm just saying.. maybe it is?
-> 
-> On Sun, 2006-12-17 at 15:40 -0800, Andrew Morton wrote:
-> 
-> > try_to_free_buffers() clears the page's dirty state if it successfully removed
-> > the page's buffers.
-> > 
-> >   Background for this:
-> > 
-> >   - a process does a one-byte-write to a file on a 64k pagesize, 4k
-> >     blocksize ext3 filesystem.  The page is now PageDirty, !PgeUptodate and
-> >     has one dirty buffer and 15 not uptodate buffers.
-> > 
-> >   - kjournald writes the dirty buffer.  The page is now PageDirty,
-> >     !PageUptodate and has a mix of clean and not uptodate buffers.
-> > 
-> >   - try_to_free_buffers() removes the page's buffers.  It MUST now clear
-> >     PageDirty.  If we were to leave the page dirty then we'd have a dirty, not
-> >     uptodate page with no buffer_heads.
-> > 
-> >     We're screwed: we cannot write the page because we don't know which
-> >     sections of it contain garbage.  We cannot read the page because we don't
-> >     know which sections of it contain modified data.  We cannot free the page
-> >     because it is dirty.
-> 
-> However!! this is not true for mapped pages because mapped pages must
-> have the whole (16k in akpm's example) page loaded. Hence I suspect that
-> what Andrei did by accident - remove the if (mapping) case in
-> test_clean_dirty_pages() - is actually totally correct.
+On Tue, Dec 19, 2006 at 12:24:16AM -0800, Andrew Morton wrote:
+> Wow.  I didn't expect that, because Mark Haber reported that ext3's data=writeback
+> fixed it.   Maybe he didn't run it for long enough?
 
-Obviously I need my morning shot, 64k ofcourse.
+My test case is Debian's "aptitude update" running once an hour, and
+it was always the same file getting corrupted. With 2.6.19, I had this
+corruption like every third hour (but -only- if run from cron, running
+from a shell was always fine), data=writeback made the issue disappear
+for about two days before I booted into 2.6.19.1 without
+data=writeback (defaults chosen then), after which the issue only
+shows up like every other day.
 
+So, I feel like out of the loop since rtorrent seems much better in
+reproducing this.
+
+I notice, though, that both aptitude and rtorrent do downloads from
+the net, so there might be a relation to tcp/ip and/or the network
+driver. My box has a Linksys NC100 network card running with the tulip
+driver.
+
+Greetings
+Marc
+
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835

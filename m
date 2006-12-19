@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932827AbWLSQvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932837AbWLSQzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932827AbWLSQvk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 11:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932832AbWLSQvk
+	id S932837AbWLSQzr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 11:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932832AbWLSQzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 11:51:40 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45133 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932827AbWLSQvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 11:51:39 -0500
-Date: Tue, 19 Dec 2006 08:51:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <4587B762.2030603@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins> <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
- <45876C65.7010301@yahoo.com.au> <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
- <45878BE8.8010700@yahoo.com.au> <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org> <4587B762.2030603@yahoo.com.au>
+	Tue, 19 Dec 2006 11:55:47 -0500
+Received: from an-out-0708.google.com ([209.85.132.249]:22355 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932837AbWLSQzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 11:55:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aC3isbGBlLO4VQRPHdv8863uyD1HeI7rp8Z/lX/5Sn1f3exrAVrMUQkt/09ILJsOYc2BSFen+qA5hVKRc/Zw1TbggwD/4OhMsz3atAUcU4dvOui7usy/sGdB6vkhSooxipTQhO794FxU7AAzAX3+0UFrmtcpJw87K+tNVbtbMyo=
+Message-ID: <7b69d1470612190855t1df801as35852be1e25bd3c6@mail.gmail.com>
+Date: Tue, 19 Dec 2006 10:55:44 -0600
+From: "Scott Preece" <sepreece@gmail.com>
+To: davids@webmaster.com
+Subject: Re: GPL only modules
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEENAHAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <7b69d1470612181435s505282f0r7c9c47d554f87ecf@mail.gmail.com>
+	 <MDEHLPKNGKAHNMBLJOLKCEENAHAC.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/18/06, David Schwartz <davids@webmaster.com> wrote:
+>
+>
+> > First sale has nothing to do with this. First sale applies to the
+> > redistribution or resale of copies you have purchased, not with the
+> > right to make additional copies.
+>
+> First sale is exactly what this is about. Nobody needs to make "additional
+> copies" of the Linux kernel because I can download a thousand of them from a
+> computer operated by the guy in the office down the hall from me.
+---
 
+This is an interesting argument that was new to me. However, it is not
+clear at all that First Sale applies to intangible copies. And it's
+not clear that there is a sale involved, legally. Again, IANAL, but I
+think this is seriously untested ground.
 
-On Tue, 19 Dec 2006, Nick Piggin wrote:
-> 
-> Counterexample? Well AFAIKS, the clearing of PG_dirty in ttfb() in
-> response to finding all buffers clean is perfectly valid. What makes
-> you think otherwise?
-
-If the page really is clean, then why the heck cant' we just clean the 
-page table bits too?
-
-Either it's clean or it isn't. If all the buffers being clean means that 
-the page is clean, then it's clean. WE SHOULD NOT THINK THAT PTE'S ARE ANY 
-DIFFERENT.
-
-I really don't see your point. Is it clean? If it is, then clear the damn 
-dirty bits from the page tables too. Don't go pussyfooting around the 
-issue and confuse yourself and everybody but me by saying "but if it's 
-dirty in the page tables, it's magically dirty". NO.
-
-It really is that simple. Is it clean or not?
-
-If it's clean, you can remove ALL the dirty bits. Not just some.
-
-			Linus
+scott

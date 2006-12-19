@@ -1,76 +1,115 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752957AbWLSGv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753016AbWLSGyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752957AbWLSGv7 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 01:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752963AbWLSGv7
+	id S1753016AbWLSGyN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 01:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753022AbWLSGyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 01:51:59 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:38943 "HELO
-	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752948AbWLSGv6 (ORCPT
+	Tue, 19 Dec 2006 01:54:12 -0500
+Received: from shards.monkeyblade.net ([192.83.249.58]:33557 "EHLO
+	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752963AbWLSGyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 01:51:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pnrA9+nKhdm1fnKCxgClM8mwCRywocVqyeVm46GC96Mvrts0Mj9DScKPW6VIKQaq1c7pP2++owtAhjuLw39wrb6dQeOu7TNmuCF2mInRJmd/+5cQR+1MpnxFHIrKXYNwcz2QHoZbFamD9lNs90wQnV3yJzHkbVarXViajrOc+8Y=  ;
-X-YMail-OSG: eUJ0vcYVM1lk4xDevSg_hB5WOEnLmw6d7R6jEhnIzMoPma4UXefL2uenKfbTDiMSAtcXdZ_.2hoJuuLIW9PMmWLhdNegwKKziR0ui1DnOuM9XzJ_Nil4rFHNCQatdKp18CbgdVOWbNaArSESPj2Zf5dWkJcJ2MeBo5i0C9OFpy8EmSzeevOAlKMH8fVt
-Message-ID: <45878BE8.8010700@yahoo.com.au>
-Date: Tue, 19 Dec 2006 17:51:20 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins> <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org> <45876C65.7010301@yahoo.com.au> <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 19 Dec 2006 01:54:12 -0500
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+From: "J.H." <warthog9@kernel.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       hpa@zytor.com, webmaster@kernel.org
+In-Reply-To: <20061219063413.GI24090@1wt.eu>
+References: <20061214223718.GA3816@elf.ucw.cz>
+	 <20061216094421.416a271e.randy.dunlap@oracle.com>
+	 <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
+	 <1166297434.26330.34.camel@localhost.localdomain>
+	 <20061219063413.GI24090@1wt.eu>
+Content-Type: text/plain
+Date: Mon, 18 Dec 2006 22:52:51 -0800
+Message-Id: <1166511171.26330.120.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, 2006-12-19 at 07:34 +0100, Willy Tarreau wrote:
+> On Sat, Dec 16, 2006 at 11:30:34AM -0800, J.H. wrote:
+> (...)
+> > Since it's apparent not everyone is aware of what we are doing, I'll
+> > mention briefly some of the bigger points.
+> > 
+> > - We have contacted HP to see if we can get additional hardware, mind
+> > you though this is a long term solution and will take time, but if our
+> > request is approved it will double the number of machines kernel.org
+> > runs.
 > 
-> On Tue, 19 Dec 2006, Nick Piggin wrote:
+> Just evil suggestion, but if you contact someone else than HP, they
+> might be _very_ interested in taking HP's place and providing whatever
+> you need to get their name on www.kernel.org. Sun and IBM do such
+> monter machines too. That would not be very kind to HP, but it might
+> help getting hardware faster.
+
+I leave the actual hardware acquisitions up to HPA, I just try to keep
+the machines up and running without too many problems.  HP has been
+incredibly supportive of kernel.org in the past and I for one have been
+very appreciative of their hardware and would love to continue working
+with them.
+
 > 
->>We never want to drop dirty data! (ignoring the truncate case, which is
->>handled privately by truncate anyway)
+> > - Gitweb is causing us no end of headache, there are (known to me
+> > anyway) two different things happening on that.  I am looking at Jeff
+> > Garzik's suggested caching mechanism as a temporary stop-gap, with an
+> > eye more on doing a rather heavy re-write of gitweb itself to include
+> > semi-intelligent caching.  I've already started in on the later - and I
+> > just about have the caching layer put in.  But this is still at least a
+> > week out before we could even remotely consider deploying it.
 > 
+> Couldn't we disable gitweb for as long as we don't get newer machines ?
+> I've been using it in the past, but it was just a convenience. If needed,
+> we can explode all the recent patches with a "git-format-patch -k -m" in a
+> directory.
+
+I've mentioned this to the other admins and the consensus was that there
+would be quite the outcry to suggest this - if the consensus is to
+disable gitweb until we can get it under control we would take doing
+that into consideration.
+
 > 
-> Bzzt.
+> > - We've cut back on the number of ftp and rsync users to the machines.
+> > Basically we are cutting back where we can in an attempt to keep the
+> > load from spiraling out of control, this helped a bit when we recently
+> > had to take one of the machines down and instead of loads spiking into
+> > the 2000+ range we peaked at about 500-600 I believe.
 > 
-> SURE we do.
+> I did not imagine FTP and rsync being so much used !
+
+On average we are moving anywhere from 400-600mbps between the two
+machines, on release days we max both of the connections at 1gpbs each
+and have seen that draw last for 48hours.  For instance when FC6 was
+released in the first 12 hours or so we moved 13 TBytes of data.
+
 > 
-> We absolutely do want to drop dirty data in the writeout path.
+> > So we know the problem is there, and we are working on it - we are
+> > getting e-mails about it if not daily than every other day or so.  If
+> > there are suggestions we are willing to hear them - but the general
+> > feeling with the admins is that we are probably hitting the biggest
+> > problems already.
 > 
-> How do you think dirty data ever _becomes_ clean data?
+> BTW, yesterday my 2.4 patches were not published, but I noticed that
+> they were not even signed not bziped on hera. At first I simply thought
+> it was related, but right now I have a doubt. Maybe the automatic script
+> has been temporarily been disabled on hera too ?
 
-I wouldn't have thought it becomes clean by dropping it ;) Is this a
-trick question? My answer is that we clean a page by by taking some
-action such that the underlying data matches the data in RAM...
+The script that deals with the uploads also deals with the packaging -
+so yes the problem is related.
 
-We don't "drop" any data until it has been cleaned (again, ignoring
-things like truncate for a minute). That's a bug! And
-try_to_free_buffers() is called from places outside the writeout path.
-This is our bug (or at least, one of our bugs that appears to have the
-same triggers and symptoms as people are reporting).
+> 
+> > - John 'Warthog9' Hawley
+> > Kernel.org Admin
+> 
+> Thanks for keeping us informed !
+> Willy
 
-[...]
+Doing what I can :-)
 
-> In no other circumstance do we ever want to clear a dirty bit, as far as I 
-> can tell. 
+- John
 
-Exactly. And that is exactly what try_to_free_buffers is doing now.
-
-I still think you should have a look at the patch.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

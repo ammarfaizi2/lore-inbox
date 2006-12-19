@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932896AbWLSTZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932900AbWLST2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932896AbWLSTZv (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWLSTZv
+	id S932900AbWLST2U (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932911AbWLST2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:25:51 -0500
-Received: from mx1.cs.washington.edu ([128.208.5.52]:48181 "EHLO
-	mx1.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932896AbWLSTZu (ORCPT
+	Tue, 19 Dec 2006 14:28:20 -0500
+Received: from web32915.mail.mud.yahoo.com ([209.191.69.115]:43232 "HELO
+	web32915.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932900AbWLST2T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:25:50 -0500
-Date: Tue, 19 Dec 2006 11:25:48 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Get rid of most of the remaining k*alloc() casts.
-In-Reply-To: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
-References: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
+	Tue, 19 Dec 2006 14:28:19 -0500
+X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 14:28:19 EST
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=K12+MflD8Q8kyaum/X53NyINLCgi3GmNckrM5OabwnS8tMSWimz4mbmGQvE8/1r6qyCsbKDWQbSqFPquVGX6widk5ab1Yw5vW03YoAwpxxfd5KuJIOBP1C8PoGUNJLVrV1UYTJUcOEJam06rTrL+ZetXrLlr8ojfhKGRy+LMLco=;
+X-YMail-OSG: eHRx5_MVM1mjkO2Nkv0zsW0_0q9Bag8n1Hrz3kHnAKSaC4XHI2NvXHvSZ8YfuCTjxXiFYjJuhiQFRutLurRpLPBjbNCLGiUHOqof9pWKSjKshH0lqDV7PJQKLv9S7u12AkBI2AuLqISlXrc-
+Date: Tue, 19 Dec 2006 11:21:38 -0800 (PST)
+From: J <jhnlmn@yahoo.com>
+Subject: Possible race condition in usb-serial.c
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <247966.89742.qm@web32915.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006, Robert P. J. Day wrote:
+Hi,
+I read usb-serial.c code (in 2.6.19) and I cannot
+figure out how it is
+supposed to prevent race condition and premature
+deletion of usb_serial
+structure. I see that the code attempts to protect
+usb_serial by ref
+counting, but it does not appear to be correct. I am
+not 100% sure in my
+findings, so I will appreciate if somebody will double
+check.
 
-> diff --git a/include/asm-um/thread_info.h b/include/asm-um/thread_info.h
-> index 261e2f4..e43c2dd 100644
-> --- a/include/asm-um/thread_info.h
-> +++ b/include/asm-um/thread_info.h
-> @@ -51,8 +51,7 @@ static inline struct thread_info *current_thread_info(void)
->  }
-> 
->  /* thread information allocation */
-> -#define alloc_thread_info(tsk) \
-> -	((struct thread_info *) kmalloc(THREAD_SIZE, GFP_KERNEL))
-> +#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL))
->  #define free_thread_info(ti) kfree(ti)
-> 
->  #endif
+Suppose:
+A:->usb_serial_disconnect
+A:  -> usb_serial_put (serial);
+A:   -> kref_put
+A:    if ((atomic_read(&kref->refcount) == 1)
+             Suppose refcount is 1
+A:       -> release -> destroy_serial
 
-This patch breaks all of usermode from the change above.
+B: -> serial_open
+B:  -> usb_serial_get_by_index
+B:     serial = serial_table[index]
+B:     -> kref_get(&serial->kref);
 
-There's also no reason to avoid other cleanups in the area you're 
-changing (and testing) such as moving the asterisk for pointers to the 
-variable name, deleting extraneous whitespace, or changing the several 
-instances in this patch where kzalloc conversion is appropriate.  If it's 
-not done now, it will either be forgotten or another patch on the same 
-elaborate scale as this one will need to fix it incrementally.  Given the 
-high chance of typos such as the one above in broad patches like this, all 
-the changes should be rolled together into one patch that is at least 
-inspected before submission by the author.
+A:        -> return_serial(serial);
+A:        serial_table[serial->minor + i] = NULL;
+A:          -> kfree (serial);
 
-		David
+B:   continue to use serial, which was already freed.
+
+So, I am missing something or the USB serial driver is
+broken?
+
+As I understand it, the correct use of ref counted
+pointers it to increment
+ref count of an object for each outstanding pointer to
+this object. But
+usb-serial.c keeps one or more pointers to usb_serial
+in serial_table, and
+does not increments the counter for any of them!
+
+Thank you
+John
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

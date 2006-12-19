@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752863AbWLSPlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752879AbWLSPmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752863AbWLSPlb (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 10:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752872AbWLSPla
+	id S1752879AbWLSPmN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 10:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752878AbWLSPmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 10:41:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:45096 "EHLO ciao.gmane.org"
+	Tue, 19 Dec 2006 10:42:13 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:40410 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752749AbWLSPla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 10:41:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wiebe Cazemier <halfgaar@gmx.net>
-Subject: Re: Software RAID1 (with non-identical discs) performance
-Date: Tue, 19 Dec 2006 16:40:46 +0100
-Message-ID: <em915v$7h6$1@sea.gmane.org>
-References: <em0pdq$r7o$2@sea.gmane.org> <4586DF1D.6040501@cfl.rr.com> <3960.4587f434.9e684@altium.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cc503261-a.eelde1.dr.home.nl
-User-Agent: KNode/0.10.4
+	id S1752883AbWLSPmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 10:42:12 -0500
+Date: Tue, 19 Dec 2006 16:41:09 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Get rid of most of the remaining k*alloc() casts.
+In-Reply-To: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0612191639540.10396@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 December 2006 15:16, Dick Streefland wrote:
 
-> An easy way to clone a partition table is:
-> 
->   sfdisk -d /dev/sdX | sfdisk /dev/sdY
-> 
+>  Get rid of the remaining obvious pointer casts of all k[cmz]alloc
+>calls, and do a little whitespace cleanup on the result, based on the
+>CodingStyle file.
 
-And with one Maxtor 250 GB and one Seagate 250 GB, will that work? It can go
-wrong on two accounts; the geometry issue I desbribed (which, I understand,
-shouldn't be an issue at all), and if you're trying to clone the partition
-table on a smaller disk. The latter would be fixed by leaving some unpartioned
-space available.
+>-		struct intmem_allocation* alloc =
+>-		  (struct intmem_allocation*)kmalloc(sizeof *alloc, GFP_KERNEL);
+>+		struct intmem_allocation* alloc =
+>+			kmalloc(sizeof(*alloc), GFP_KERNEL);
 
-This is something I'm going to experiment with on several disks I have.
+At the same time, you could make * alloc -> *alloc when it falls on the same
+line as the kmczalloc cleanup. :)
 
-On a sidenote, can you use this command, along with "dd if=oldpartition
-of=newpartition" to clone an old disk to a new one (including NTFS/FAT
-partitions for example), like Seagate disk wizzard does, and have a working
-bootable system on the new disk? Or, can that even be done by dd-ing the
-entire disk, and not individual partitions? I can remember G4u being
-uncomfortable with that.
 
+	-`J'
+-- 

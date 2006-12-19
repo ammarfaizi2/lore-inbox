@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933056AbWLSXNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933062AbWLSXOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933056AbWLSXNr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 18:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933063AbWLSXNr
+	id S933062AbWLSXOr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 18:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933064AbWLSXOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 18:13:47 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:58230 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933056AbWLSXNq (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 18:13:46 -0500
-Message-Id: <200612192312.kBJNCffp028309@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: =?iso-8859-2?Q?Maciej_So=B3tysiak?= <solt2@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of Serial Attached SCSI in linux?
-In-Reply-To: Your message of "Mon, 18 Dec 2006 13:28:29 +0100."
-             <683EBFF521DF494B8BFEF669D7C587CA@pysiak>
-From: Valdis.Kletnieks@vt.edu
-References: <683EBFF521DF494B8BFEF669D7C587CA@pysiak>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166569961_3767P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 19 Dec 2006 18:14:46 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:37380 "EHLO
+	nommos.sslcatacombnetworking.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933062AbWLSXOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 18:14:46 -0500
+X-Greylist: delayed 25272 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 18:14:46 EST
+In-Reply-To: <20061219041254.GB6993@stusta.de>
+References: <20061124234935.GJ28363@stusta.de> <20061219041254.GB6993@stusta.de>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <3B7827F6-D6CA-481F-B6DE-0F0B2AB4F632@kernel.crashing.org>
+Cc: paulus@samba.org, Kumar Gala <galak@freescale.com>,
+       linuxppc-dev@ozlabs.org, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Date: Tue, 19 Dec 2006 18:12:41 -0500
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [2.6 patch] powerpc: remove the broken Gemini support
+Date: Tue, 19 Dec 2006 10:13:29 -0600
+To: Adrian Bunk <bunk@stusta.de>
+X-Mailer: Apple Mail (2.752.2)
+X-PopBeforeSMTPSenders: kumar-chaos@kgala.com,kumar-statements@kgala.com,kumar@kgala.com
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166569961_3767P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 18 Dec 2006 13:28:29 +0100, =?iso-8859-2?Q?Maciej_So=B3tysiak?= said:
-> Hello,
-> 
-> I am choosing hardware for new servers that will run Linux hence I would
-> like to ask whether current SAS support is production grade ?
-> Any comments on the state of the thing?
+On Dec 18, 2006, at 10:12 PM, Adrian Bunk wrote:
 
-What, *exactly*, do you mean by "production grade"? (A serious question -
-across the hall I have a quarter acre of server room, filled with machines
-that have *wildly* differing requirements regarding price, performance, and
-reliability, though for most it's "pick any two" :)
+> On Sat, Nov 25, 2006 at 12:49:35AM +0100, Adrian Bunk wrote:
+>> I just saw the commit message below.
+>>
+>> There seems to have been some although unmerged work on APUS  
+>> support by
+>> Roman, but I didn't find any recent work on bringing the GEMINI  
+>> support
+>> back into life.
+>>
+>> Is this a wrong impression, or would a patch to remove it be OK?
+>> ...
+>
+> Zero feedback, patch to remove it below.
+>
+> cu
+> Adrian
 
---==_Exmh_1166569961_3767P
-Content-Type: application/pgp-signature
+I'm good with removing GEMINI since no one seems to have raised any  
+fuss about this and I brought the issue up over a year ago now.   
+However, I leave the final decision up to Paul.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Also, where do we stand with APUS?
 
-iD8DBQFFiHHpcC3lWbTT17ARAowWAJ9mXq0CqA9mbgsdWN8UkH8Rtn65AACg4HFZ
-1DXDaCBOrS1ySa+16ef3Hus=
-=8I/1
------END PGP SIGNATURE-----
-
---==_Exmh_1166569961_3767P--
+- k

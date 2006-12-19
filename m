@@ -1,123 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932898AbWLSTJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932907AbWLSTJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932898AbWLSTJQ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932901AbWLSTJQ
+	id S932907AbWLSTJz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932904AbWLSTJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:09:16 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55399 "EHLO smtp.osdl.org"
+	Tue, 19 Dec 2006 14:09:55 -0500
+Received: from doppler.zen.co.uk ([212.23.3.27]:39757 "EHLO doppler.zen.co.uk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932898AbWLSTJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:09:16 -0500
-Date: Tue, 19 Dec 2006 10:59:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins> <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
- <45876C65.7010301@yahoo.com.au> <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
- <45878BE8.8010700@yahoo.com.au> <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org> <4587B762.2030603@yahoo.com.au>
- <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
+	id S932901AbWLSTJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 14:09:53 -0500
+X-Greylist: delayed 2073 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 14:09:53 EST
+X-DSPAM-Result: Innocent
+X-DSPAM-Processed: Tue Dec 19 18:34:28 2006
+X-DSPAM-Confidence: 0.9997
+X-DSPAM-Probability: 0.0000
+X-DSPAM-Signature: 458830b4153491540471188
+X-DSPAM-Factors: 27,
+X-Spam-Score: -3.968
+Message-ID: <458830B9.90107@dresco.co.uk>
+Date: Tue, 19 Dec 2006 18:34:33 +0000
+From: Jon Escombe <lists@dresco.co.uk>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Arjan van de Ven <arjan@fenrus.demon.nl>, Dan Aloni <da-x@monatomic.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>,
+       Elias Oltmanns <eo@nebensachen.de>
+Subject: Re: [PATCH] scsi_execute_async() should add to the tail of the  queue
+References: <20061219083507.GA20847@localdomain> <1166522613.3365.1198.camel@laptopd505.fenrus.org> <20061219112649.GG5010@kernel.dk>
+In-Reply-To: <20061219112649.GG5010@kernel.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-Heisenberg-IP: [82.68.23.174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+ > On Tue, Dec 19 2006, Arjan van de Ven wrote:
+ >> On Tue, 2006-12-19 at 10:35 +0200, Dan Aloni wrote:
+ >>> Hello,
+ >>>
+ >>> scsi_execute_async() has replaced scsi_do_req() a few versions ago,
+ >>> but it also incurred a change of behavior. I noticed that over-queuing
+ >>> a SCSI device using that function causes I/Os to be starved from
+ >>> low-level queuing for no justified reason.
+ >>>
+ >>> I think it makes much more sense to perserve the original behaviour
+ >>> of scsi_do_req() and add the request to the tail of the queue.
+ >> Hi,
+ >>
+ >> some things should really be added to the head of the queue, like
+ >> maintenance requests and error handling requests. Are you sure this is
+ >> the right change? At least I'd expect 2 apis, one for a head and one for
+ >> a "normal" queueing...
+ >
+ > It does sounds broken - head insertion should only be used for careful
+ > internal commands, not be the default way user issued commands. Looking
+ > at the current users, the patch makes sense to me.
+ >
 
+It's worth noting that the hdaps disk protection patches rely on the 
+current behaviour to add 'IDLE IMMEDIATE WITH UNLOAD' commands to the 
+head of the queue.. Another function, or a new parameter for queue 
+position would be needed to retain this functionality - any preference 
+for either?
 
-On Tue, 19 Dec 2006, Linus Torvalds wrote:
->
->  here's a totally new tangent on this: it's possible that user code is 
-> simply BUGGY. 
+Regards,
+Jon.
 
-Btw, here's a simpler test-program that actually shows the difference 
-between 2.6.18 and 2.6.19 in action, and why it could explain why a 
-program like rtorrent might show corruption behavious that it didn't show 
-before.
-
-	#include <sys/mman.h>
-	#include <sys/fcntl.h>
-	#include <unistd.h>
-	#include <string.h>
-	
-	int main(int argc, char **argv)
-	{
-		char *mapping;
-		int fd;
-	
-		fd = open("mapfile", O_RDWR | O_TRUNC | O_CREAT, 0666);
-		if (fd < 0)
-			return -1;
-		if (ftruncate(fd, 10) < 0)
-			return -1;
-		mapping = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-		if (-1 == (int)(long)mapping)
-			return -1;
-		memset(mapping, 0xaa, 20);
-		sync();
-		if (ftruncate(fd, 40) < 0)
-			return -1;
-		memset(mapping + 20, 0x55, 20);
-		write(1, mapping, 40);
-		return 0;
-	}
-
-Notice the "sync()" in between the "memset()" and the "ftruncate()". In 
-2.6.18, that would normally do absolutely _nothing_ to the shared memory 
-mapping, becuase we simply couldn't track pages that were dirty in the 
-page tables. 
-
-So in 2.6.18, if you try this, with
-
-	./a.out | od -x
-
-you should see something like
-
-	0000000 aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa
-	0000020 aaaa aaaa 5555 5555 5555 5555 5555 5555
-	0000040 5555 5555 5555 5555
-	0000050
-
-which matches your memset() patterns: 20 bytes of 0xaa, and 20 bytes of 
-0x55.
-
-HOWEVER. 
-
-In 2.6.19, because we actually track dirty data so much better, "sync()" 
-will actually be smart enough to write out the dirty mmap'ed data too. But 
-since the user program has only allocated ten bytes for it in the file, 
-when it is written out, the rest of the page is cleared. When you then 
-write the last 20 bytes (after _properly_ allocating memory for them), you 
-should now see a pattern like
-
-	0000000 aaaa aaaa aaaa aaaa aaaa 0000 0000 0000
-	0000020 0000 0000 5555 5555 5555 5555 5555 5555
-	0000040 5555 5555 5555 5555
-	0000050
-
-instead: with ten bytes of zero in between, because the data that couldn't 
-be written out was cleared.
-
-So 2.6.19 is strictly _better_, but exactly because it's tracking dirty 
-status much more precisely, you'll see certain user-level bugs much more 
-easily.
-
-NOTE NOTE NOTE! The code really _was_ buggy in 2.6.18 too, and you _can_ 
-get the zeroes in the middle of the file with an older kernel. But in 
-older kernels, you need to be really really unlucky, and have the page 
-cleaned by strong memory pressure. In 2.6.19, any "sync()" activity 
-(includign from the outside) will clean the page, so a user program with 
-this bug can just be made to trigger the bug much more easily.
-
-			Linus

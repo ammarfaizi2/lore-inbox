@@ -1,132 +1,144 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932582AbWLSHlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932598AbWLSHle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932582AbWLSHlI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 02:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWLSHlI
+	id S932598AbWLSHle (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 02:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWLSHle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 02:41:08 -0500
-Received: from shards.monkeyblade.net ([192.83.249.58]:33910 "EHLO
-	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932616AbWLSHlH (ORCPT
+	Tue, 19 Dec 2006 02:41:34 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:34413 "EHLO
+	calculon.skynet.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932616AbWLSHlV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 02:41:07 -0500
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-From: "J.H." <warthog9@kernel.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com, webmaster@kernel.org
-In-Reply-To: <20061219064646.GJ24090@1wt.eu>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	 <20061216094421.416a271e.randy.dunlap@oracle.com>
-	 <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com>
-	 <1166297434.26330.34.camel@localhost.localdomain>
-	 <45858B3A.5050804@oracle.com> <20061217223730.GW10054@mea-ext.zmailer.org>
-	 <1166402576.26330.81.camel@localhost.localdomain>
-	 <20061219064646.GJ24090@1wt.eu>
-Content-Type: text/plain
-Date: Mon, 18 Dec 2006 23:39:51 -0800
-Message-Id: <1166513991.26330.136.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 02:41:21 -0500
+X-Greylist: delayed 1691 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 02:41:21 EST
+Date: Tue, 19 Dec 2006 07:13:08 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [git pull] more drm patches for 2.6.20
+Message-ID: <Pine.LNX.4.64.0612190707120.32160@skynet.skynet.ie>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 07:46 +0100, Willy Tarreau wrote:
-> On Sun, Dec 17, 2006 at 04:42:56PM -0800, J.H. wrote:
-> > On Mon, 2006-12-18 at 00:37 +0200, Matti Aarnio wrote:
-> > > On Sun, Dec 17, 2006 at 10:23:54AM -0800, Randy Dunlap wrote:
-> > > > J.H. wrote:
-> > > ...
-> > > > >The root cause boils down to with git, gitweb and the normal mirroring
-> > > > >on the frontend machines our basic working set no longer stays resident
-> > > > >in memory, which is forcing more and more to actively go to disk causing
-> > > > >a much higher I/O load.  You have the added problem that one of the
-> > > > >frontend machines is getting hit harder than the other due to several
-> > > > >factors: various DNS servers not round robining, people explicitly
-> > > > >hitting [git|mirrors|www|etc]1 instead of 2 for whatever reason and
-> > > > >probably several other factors we aren't aware of.  This has caused the
-> > > > >average load on that machine to hover around 150-200 and if for whatever
-> > > > >reason we have to take one of the machines down the load on the
-> > > > >remaining machine will skyrocket to 2000+.  
-> > > 
-> > > Relaying on DNS and clients doing round-robin load-balancing is doomed.
-> > > 
-> > > You really, REALLY, need external L4 load-balancer switches.
-> > > (And installation help from somebody who really knows how to do this
-> > > kind of services on a cluster.)
-> > 
-> > While this is a really good idea when you have systems that are all in a
-> > single location, with a single uplink and what not - this isn't the case
-> > with kernel.org.  Our machines are currently in three separate
-> > facilities in the US (spanning two different states), with us working on
-> > a fourth in Europe.
-> 
-> On multi-site setups, you have to rely on DNS, but the DNS should not
-> announce the servers themselves, but the local load balancers, each of
-> which knows other sites.
-> 
-> While people often find it dirty, there's no problem forwarding a
-> request from one site to another via the internet as long as there
-> are big pipes. Generally, I play with weights to slightly smooth
-> the load and reduce the bandwidth usage on the pipe (eg: 2/3 local,
-> 1/3 remote).
-> 
-> With LVS, you can even use the tunneling mode, with which the request
-> comes to LB on site A, is forwarded to site B via the net, but the data
-> returns from site B to the client.
-> 
-> If the frontend machines are not taken off-line too often, it should
-> be no big deal for them to handle something such as LVS, and would
-> help spreding the load.
 
-I'll have to look into it - but by and large the round robining tends to
-work.  Specifically as I am writing this the machines are both pushing
-right around 150mbps, however the load on zeus1 is 170 vs. zeus2's 4.
-Also when we peak the bandwidth we do use every last kb we can get our
-hands on, so doing any tunneling takes just that much bandwidth away
-from the total.
+Hi Linus,
 
-	Number of Processes running
-process		#1	#2
-------------------------------------
-rsync		162	69
-http		734	642
-ftp		353	190
+This is just a bunch of minor patches and fixes for the drm tree.
+The biggest change is to the intel driver to fix up some tearing issues,
+and a small update to the radeon bounds check to fix r300 issue.
 
-as a quick snapshot.  I would agree with HPA's recent statement - that
-people who are mirroring against kernel.org have probably hard coded the
-first machine into their scripts, combine that with a few dns servers
-that don't honor or deal with round robining and you have the extra load
-on the first machine vs. the second.
+The rest are just cleanups and comment fixes..
 
-> 
-> > > > >Since it's apparent not everyone is aware of what we are doing, I'll
-> > > > >mention briefly some of the bigger points.
-> > > ...
-> > > > >- We've cut back on the number of ftp and rsync users to the machines.
-> > > > >Basically we are cutting back where we can in an attempt to keep the
-> > > > >load from spiraling out of control, this helped a bit when we recently
-> > > > >had to take one of the machines down and instead of loads spiking into
-> > > > >the 2000+ range we peaked at about 500-600 I believe.
-> > > 
-> > > How about having filesystems mounted with "noatime" ?
-> > > Or do you already do that ?
-> > 
-> > We've been doing that for over a year.
-> 
-> Couldn't we temporarily *cut* the services one after the other on www1
-> to find which ones are the most I/O consumming, and see which ones can
-> coexist without bad interaction ?
-> 
-> Also, I see that keepalive is still enabled on apache, I guess there
-> are thousands of processes and that apache is eating gigs of RAM by
-> itself. I strongly suggest disabling keepalive there.
-> 
-> > - John
-> 
-> Just my 2 cents,
-> Willy
+Dave.
 
+  drivers/char/drm/drmP.h         |    7 -
+  drivers/char/drm/drm_lock.c     |    2
+  drivers/char/drm/drm_stub.c     |   12 ++
+  drivers/char/drm/drm_sysfs.c    |    8 +-
+  drivers/char/drm/i915_irq.c     |  199 +++++++++++++++++++++++++++------------
+  drivers/char/drm/r128_drm.h     |    3 -
+  drivers/char/drm/r128_drv.h     |    3 -
+  drivers/char/drm/r128_state.c   |    3 -
+  drivers/char/drm/r300_cmdbuf.c  |   32 +-----
+  drivers/char/drm/radeon_drv.h   |   15 +++
+  drivers/char/drm/radeon_irq.c   |    4 -
+  drivers/char/drm/radeon_mem.c   |    4 -
+  drivers/char/drm/radeon_state.c |   13 +--
+  drivers/char/drm/savage_bci.c   |    4 -
+  14 files changed, 190 insertions(+), 119 deletions(-)
+
+commit f9841a8d6018f8bcba77e75c9e368d94f1f22933
+Author: Jean Delvare <khali@linux-fr.org>
+Date:   Tue Dec 19 18:04:33 2006 +1100
+
+     drm: Stop defining pci_pretty_name
+
+     drm drivers no longer use pci_pretty_name so we can stop defining it.
+
+     Signed-off-by: Jean Delvare <khali@linux-fr.org>
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 83a9e29b0fd753c28e3979d638a8ebfd3f6ebc96
+Author: Dave Airlie <airlied@optimus.localdomain>
+Date:   Tue Dec 19 17:56:14 2006 +1100
+
+     drm: r128: comment aligment with drm git
+
+     Align some r128 license comments
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 0c4dd906a220fac7997048178ee4f5d8c378b38b
+Author: Dave Airlie <airlied@optimus.localdomain>
+Date:   Tue Dec 19 17:49:44 2006 +1100
+
+     drm: make kernel context switch same as for drm git tree.
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 94bb598e6b7d68690426f4c7c4385823951861eb
+Author: Dave Airlie <airlied@optimus.localdomain>
+Date:   Tue Dec 19 17:49:08 2006 +1100
+
+     drm: fixup comment header style
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 183b4aeefa1ff8e0a792b95d5d56f0994d022449
+Author: Eric Anholt <eric@anholt.net>
+Date:   Tue Dec 19 17:20:02 2006 +1100
+
+     drm: savage: compat fix from drm git.
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 1d6bb8e51dba3db1c15575901022fe72d363e5a4
+Author: =?utf-8?q?Michel_D=C3=A4nzer?= <michel@tungstengraphics.com>
+Date:   Fri Dec 15 18:54:35 2006 +1100
+
+     drm: Unify radeon offset checking.
+
+     Replace r300_check_offset() with generic radeon_check_offset(), which doesn't
+     reject valid offsets when the framebuffer area is at the very end of the card's
+     32 bit address space. Make radeon_check_and_fixup_offset() use
+     radeon_check_offset() as well.
+
+     This fixes https://bugs.freedesktop.org/show_bug.cgi?id=7697 .
+
+commit 3188a24c256bae0ed93d81d82db1f1bb6060d727
+Author: =?utf-8?q?Michel_D=C3=A4nzer?= <michel@tungstengraphics.com>
+Date:   Mon Dec 11 18:32:27 2006 +1100
+
+     i915_vblank_tasklet: Try harder to avoid tearing.
+
+     Previously, if there were several buffer swaps scheduled for the same vertical
+     blank, all but the first blit emitted stood a chance of exhibiting tearing. In
+     order to avoid this, split the blits along slices of each output top to bottom.
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 2c3f0eddfbd7f5c7a5450de287bad805722888c3
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Sat Dec 9 10:50:22 2006 +1100
+
+     DRM: handle pci_enable_device failure
+
+     Signed-off-by: Jeff Garzik <jeff@garzik.org>
+     Signed-off-by: Andrew Morton <akpm@osdl.org>
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit 94f060bd0f78814f4daf8c7942bd710af52c7d6f
+Author: Akinobu Mita <akinobu.mita@gmail.com>
+Date:   Sat Dec 9 10:49:47 2006 +1100
+
+     drm: fix return value check
+
+     class_create() and class_device_create() return error code as a pointer on
+     failure.  These return values need to be checked by IS_ERR().
+
+     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+     Signed-off-by: Andrew Morton <akpm@osdl.org>
+     Signed-off-by: Dave Airlie <airlied@linux.ie>

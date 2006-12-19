@@ -1,62 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932764AbWLSKcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932762AbWLSKdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932764AbWLSKcz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 05:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWLSKcz
+	id S932762AbWLSKdb (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 05:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbWLSKdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 05:32:55 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:20611 "EHLO
-	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932761AbWLSKcy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 05:32:54 -0500
-Date: Tue, 19 Dec 2006 02:02:34 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: linux-scsi@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: [PATCH] scsi_execute_async() should add to the tail of the queue
-Message-ID: <20061219000234.GA5330@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 19 Dec 2006 05:33:31 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47259 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932762AbWLSKda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 05:33:30 -0500
+Date: Tue, 19 Dec 2006 02:32:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-Id: <20061219023255.f5241bb0.akpm@osdl.org>
+In-Reply-To: <4587B762.2030603@yahoo.com.au>
+References: <1166314399.7018.6.camel@localhost>
+	<20061217040620.91dac272.akpm@osdl.org>
+	<1166362772.8593.2.camel@localhost>
+	<20061217154026.219b294f.akpm@osdl.org>
+	<1166460945.10372.84.camel@twins>
+	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	<45876C65.7010301@yahoo.com.au>
+	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+	<45878BE8.8010700@yahoo.com.au>
+	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
+	<4587B762.2030603@yahoo.com.au>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 19 Dec 2006 20:56:50 +1100
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-scsi_execute_async() has replaced scsi_do_req() a few versions ago, 
-but it also incurred a change of behavior. I noticed that over-queuing 
-a SCSI device using that function causes I/Os to be starved from 
-low-level queuing for no justified reason.
+> Linus Torvalds wrote:
+> 
+> > NOTICE? First you make a BIG DEAL about how dirty bits should never get 
+> > lost, but THE VERY SAME FUNCTION actually very much on purpose DOES drop 
+> > the dirty bit for when it's not in the page tables.
+> 
+> try_to_free_buffers is quite a special case, where we're transferring
+> the page dirty metadata from the buffers to the page. I think Andrew
+> would have a better grasp of it so he could correct me, but what it
+> does is legitimate.
+
+Well it used to be.  After 2.6.19 it can do the wrong thing for mapped
+pages.  But it turns out that we don't feed it mapped pages, apart from
+pagevec_strip() and possibly races against pagefaults.
+
+> I think it could be very likely that indeed the bug is a latent one in
+> a clear_page_dirty caller, rather than dirty-tracking itself.
+
+The only callers are try_to_free_buffers(), truncate and a few scruffy
+possibly-wrong-for-fsync filesytems which aren't being used here.
+
+
+<spots a race in do_no_page()>
+
+If a write-fault races with a read-fault and the write-fault loses, we forget
+to mark the page dirty.
+
+Something like this, but it's probably wrong - I didn't try very hard (am
+feeling ill, and vaguely grumpy)
+
+
+From: Andrew Morton <akpm@osdl.org>
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ mm/memory.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff -puN mm/memory.c~a mm/memory.c
+--- a/mm/memory.c~a
++++ a/mm/memory.c
+@@ -2264,10 +2264,22 @@ retry:
+ 		}
+ 	} else {
+ 		/* One of our sibling threads was faster, back out. */
++		if (write_access) {
++			/*
++			 * We might have raced against a read-fault.  We still
++			 * need to dirty the page.
++			 */
++			dirty_page = vm_normal_page(vma, address, *page_table);
++			if (dirty_page) {
++				get_page(dirty_page);
++				goto dirty_it;
++			}
++		}
+ 		page_cache_release(new_page);
+ 		goto unlock;
+ 	}
  
-I think it makes much more sense to perserve the original behaviour 
-of scsi_do_req() and add the request to the tail of the queue.
++dirty_it:
+ 	/* no need to invalidate: a not-present page shouldn't be cached */
+ 	update_mmu_cache(vma, address, entry);
+ 	lazy_mmu_prot_update(entry);
+_
 
-Signed-off-by: Dan Aloni <da-x@monatomic.org>
-
-diff -p -urN a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
---- a/drivers/scsi/scsi_lib.c	2006-12-19 01:48:50.000000000 +0200
-+++ b/drivers/scsi/scsi_lib.c	2006-12-19 01:49:35.000000000 +0200
-@@ -421,7 +421,7 @@ int scsi_execute_async(struct scsi_devic
- 	sioc->data = privdata;
- 	sioc->done = done;
- 
--	blk_execute_rq_nowait(req->q, NULL, req, 1, scsi_end_async);
-+	blk_execute_rq_nowait(req->q, NULL, req, 0, scsi_end_async);
- 	return 0;
- 
- free_req:
-
-
--- 
-Dan Aloni
-XIV, http://www.xivstorage.com

@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752633AbWLSGWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752638AbWLSGba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752633AbWLSGWR (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 01:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752646AbWLSGWR
+	id S1752638AbWLSGba (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 01:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752647AbWLSGba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 01:22:17 -0500
-Received: from wx-out-0506.google.com ([66.249.82.237]:17783 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752633AbWLSGWQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 01:22:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EvSS+6Rtt1Qr9XK4iCP938HcBSGSlaEokfVuMxkvB6gQrW1Pk6yyH0IEWT1hY8UTuUcCaI6/fcTMovKhakvzlwjnyflimH7ksRjiFsue/Uy7e+O+M5DLP2cFAN+RFO26LrlJvY7uJPUbK3K752+fskU+CCmUqd4aiOBRedfYF54=
-Message-ID: <652016d30612182222h7fde4ea5jbc0927c8ebeae76a@mail.gmail.com>
-Date: Tue, 19 Dec 2006 12:07:14 +0545
-From: "Manish Regmi" <regmi.manish@gmail.com>
-To: "Erik Mouw" <mouw@nl.linux.org>, nickpiggin@yahoo.com.au
-Subject: Re: Linux disk performance.
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061218130702.GA14984@gateway.home>
+	Tue, 19 Dec 2006 01:31:30 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:46605 "EHLO relay.sw.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752638AbWLSGb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 01:31:29 -0500
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Dmitriy Monakhov'" <dmonakhov@openvz.org>,
+       <linux-kernel@vger.kernel.org>, <devel@openvz.org>,
+       "Andrew Morton" <akpm@osdl.org>, <xfs@oss.sgi.com>
+Subject: Re: [PATCH] incorrect direct io error handling
+References: <000101c722de$9fdca4b0$e834030a@amr.corp.intel.com>
+From: Dmitriy Monakhov <dmonakhov@sw.ru>
+Date: Tue, 19 Dec 2006 09:31:15 +0300
+In-Reply-To: <000101c722de$9fdca4b0$e834030a@amr.corp.intel.com> (Kenneth W. Chen's message of "Mon, 18 Dec 2006 11:56:36 -0800")
+Message-ID: <87lkl4tn0s.fsf@sw.ru>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com>
-	 <1166431020.3365.931.camel@laptopd505.fenrus.org>
-	 <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>
-	 <20061218130702.GA14984@gateway.home>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/18/06, Erik Mouw <mouw@nl.linux.org> wrote:
-<...snip...>
-> >
-> > But isn't O_DIRECT supposed to bypass buffering in Kernel?
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+
+> Dmitriy Monakhov wrote on Monday, December 18, 2006 5:23 AM
+>> This patch is result of discussion started week ago here:
+>> http://lkml.org/lkml/2006/12/11/66
+>> changes from original patch:
+>>  - Update wrong comments about i_mutex locking.
+>>  - Add BUG_ON(!mutex_is_locked(..)) for non blkdev. 
+>>  - vmtruncate call only for non blockdev
+>> LOG:
+>> If generic_file_direct_write() has fail (ENOSPC condition) inside 
+>> __generic_file_aio_write_nolock() it may have instantiated
+>> a few blocks outside i_size. And fsck will complain about wrong i_size
+>> (ext2, ext3 and reiserfs interpret i_size and biggest block difference as error),
+>> after fsck will fix error i_size will be increased to the biggest block,
+>> but this blocks contain gurbage from previous write attempt, this is not 
+>> information leak, but its silence file data corruption. This issue affect 
+>> fs regardless the values of blocksize or pagesize.
+>> We need truncate any block beyond i_size after write have failed , do in simular
+>> generic_file_buffered_write() error path. If host is !S_ISBLK i_mutex always
+>> held inside generic_file_aio_write_nolock() and we may safely call vmtruncate().
+>> Some fs (XFS at least) may directly call generic_file_direct_write()with 
+>> i_mutex not held. There is no general scenario in this case. This fs have to 
+>> handle generic_file_direct_write() error by its own specific way (place).      
 >
-> It is.
 >
-> > Doesn't it directly write to disk?
->
-> Yes, but it still uses an IO scheduler.
->
+> I'm puzzled that if ext2 is able to instantiate some blocks, then why does it
+> return no space error?  Where is the error coming from?
+generic_file_aio_write_nolock()
+ ->generic_file_direct_write()
+   ->generic_file_direct_IO()
+     ->ext2_direct_IO(WRITE,...)
+       ->blockdev_direct_IO( ....,ext2_get_block,...)
 
-Ok. but i also tried with noop to turnoff disk scheduling effects.
-There was still timing differences. Usually i get 3100 microseconds
-but upto 20000 microseconds at certain intervals. I am just using
-gettimeofday between two writes to read the timing.
-
-
-
-> In your first message you mentioned you were using an ancient 2.6.10
-> kernel. That kernel uses the anticipatory IO scheduler. Update to the
-> latest stable kernel (2.6.19.1 at time of writing) and it will default
-> to the CFQ scheduler which has a smoother writeout, plus you can give
-> your process a different IO scheduling class and level (see
-> Documentation/block/ioprio.txt).
-
-Thanks... i will try with CFQ.
-
-
-
-Nick Piggin:
-> but
-> they look like they might be a (HZ quantised) delay coming from
-> block layer plugging.
-
-Sorry i didn´t understand what you mean.
-
-To minimise scheduling effects i tried giving it maximum priority.
-
-
--- 
----------------------------------------------------------------
-regards
-Manish Regmi
-
----------------------------------------------------------------
-UNIX without a C Compiler is like eating Spaghetti with your mouth
-sewn shut. It just doesn't make sense.

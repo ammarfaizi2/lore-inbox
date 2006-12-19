@@ -1,69 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932965AbWLSV4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932967AbWLSV7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932965AbWLSV4e (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932969AbWLSV4e
+	id S932967AbWLSV7k (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932990AbWLSV7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:56:34 -0500
-Received: from mail.enyo.de ([212.9.189.167]:2681 "EHLO mail.enyo.de"
+	Tue, 19 Dec 2006 16:59:40 -0500
+Received: from mga03.intel.com ([143.182.124.21]:2197 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932965AbWLSV4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:56:33 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost>
-	<20061217040620.91dac272.akpm@osdl.org>
-	<1166362772.8593.2.camel@localhost>
-	<20061217154026.219b294f.akpm@osdl.org>
-	<1166460945.10372.84.camel@twins>
-	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	<45876C65.7010301@yahoo.com.au>
-	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	<45878BE8.8010700@yahoo.com.au>
-	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-	<4587B762.2030603@yahoo.com.au>
-	<Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
-	<Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-Date: Tue, 19 Dec 2006 22:56:16 +0100
-In-Reply-To: <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org> (Linus
-	Torvalds's message of "Tue, 19 Dec 2006 09:43:00 -0800 (PST)")
-Message-ID: <87d56fv9bz.fsf@mid.deneb.enyo.de>
+	id S932967AbWLSV7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 16:59:39 -0500
+X-Greylist: delayed 618 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 16:59:39 EST
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,188,1165219200"; 
+   d="scan'208"; a="160302308:sNHT671634481"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>,
+       "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
+       "'xb'" <xavier.bru@bull.net>, "'Zach Brown'" <zach.brown@oracle.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] aio: fix buggy put_ioctx call in aio_complete
+Date: Tue, 19 Dec 2006 13:49:18 -0800
+Message-ID: <000001c723b7$89257830$e834030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accjt4jdpQPFdUhzTnyMev/W6wKZCw==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds:
+Regarding to a bug report on:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116599593200888&w=2
 
-> Now, this should _matter_ only for user processes that are buggy,
-> and that have written to the page _before_ extending it with
-> ftruncate().
+flush_workqueue() is not allowed to be called in the softirq context.
+However, aio_complete() called from I/O interrupt can potentially call
+put_ioctx with last ref count on ioctx and trigger a bug warning.  It
+is simply incorrect to perform ioctx freeing from aio_complete.
 
-APT seems to properly extend the file before mapping it, by writing a
-zero byte at the desired position (creating a hole).
+This patch removes all duplicate ref counting for each kiocb as
+reqs_active already used as a request ref count for each active ioctx.
+This also ensures that buggy call to flush_workqueue() in softirq
+context is eliminated. wait_for_all_aios currently will wait on last
+active kiocb.  However, it is racy.  This patch also tighten it up
+by utilizing rcu synchronization mechanism to ensure no further
+reference to ioctx before put_ioctx function is run.
 
-24986 open("/var/cache/apt/pkgcache.bin", O_RDWR|O_CREAT|O_TRUNC, 0666) = 6
 
-24986 lseek(6, 12582911, SEEK_SET)      = 12582911
-24986 write(6, "\0", 1)                 = 1
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-24986 mmap(NULL, 12582912, PROT_READ|PROT_WRITE, MAP_SHARED, 6, 0) = 0x2b6578636000
 
-24986 msync(0x2b6578636000, 7464112, MS_SYNC) = 0
-24986 msync(0x2b6578636000, 8656, MS_SYNC) = 0
-24986 munmap(0x2b6578636000, 12582912)  = 0
-24986 ftruncate(6, 7464112)             = 0
-24986 fstat(6, {st_mode=S_IFREG|0644, st_size=7464112, ...}) = 0
-24986 mmap(NULL, 7464112, PROT_READ, MAP_SHARED, 6, 0) = 0x2b6578636000
-
-APT's code is pretty convoluted, though, and there might be some code
-path in it that gets it wrong. 8-P
+--- ./fs/aio.c.orig	2006-12-19 08:35:01.000000000 -0800
++++ ./fs/aio.c	2006-12-19 08:46:34.000000000 -0800
+@@ -308,6 +308,7 @@ static void wait_for_all_aios(struct kio
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+ 	}
+ 	__set_task_state(tsk, TASK_RUNNING);
++	synchronize_rcu();
+ 	remove_wait_queue(&ctx->wait, &wait);
+ }
+ 
+@@ -425,7 +426,6 @@ static struct kiocb fastcall *__aio_get_
+ 	ring = kmap_atomic(ctx->ring_info.ring_pages[0], KM_USER0);
+ 	if (ctx->reqs_active < aio_ring_avail(&ctx->ring_info, ring)) {
+ 		list_add(&req->ki_list, &ctx->active_reqs);
+-		get_ioctx(ctx);
+ 		ctx->reqs_active++;
+ 		okay = 1;
+ 	}
+@@ -538,8 +538,6 @@ int fastcall aio_put_req(struct kiocb *r
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	ret = __aio_put_req(ctx, req);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+-	if (ret)
+-		put_ioctx(ctx);
+ 	return ret;
+ }
+ 
+@@ -795,8 +793,7 @@ static int __aio_run_iocbs(struct kioctx
+ 		 */
+ 		iocb->ki_users++;       /* grab extra reference */
+ 		aio_run_iocb(iocb);
+-		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
+-			put_ioctx(ctx);
++		__aio_put_req(ctx, iocb);
+  	}
+ 	if (!list_empty(&ctx->run_list))
+ 		return 1;
+@@ -1012,6 +1009,7 @@ int fastcall aio_complete(struct kiocb *
+ 		iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes);
+ put_rq:
+ 	/* everything turned out well, dispose of the aiocb. */
++	rcu_read_lock();
+ 	ret = __aio_put_req(ctx, iocb);
+ 
+ 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+@@ -1019,9 +1017,7 @@ put_rq:
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 
+-	if (ret)
+-		put_ioctx(ctx);
+-
++	rcu_read_unlock();
+ 	return ret;
+ }
+ 

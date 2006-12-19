@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932820AbWLSOtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752415AbWLSP23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWLSOtF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 09:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932825AbWLSOtF
+	id S1752415AbWLSP23 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 10:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752742AbWLSP23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 09:49:05 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:6378 "EHLO kernel.dk"
+	Tue, 19 Dec 2006 10:28:29 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:39782 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932820AbWLSOtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 09:49:04 -0500
-Date: Tue, 19 Dec 2006 15:50:46 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jeff Garzik <jeff@garzik.org>, Linus Torvalds <torvalds@osdl.org>,
+	id S1752415AbWLSP22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 10:28:28 -0500
+Date: Tue, 19 Dec 2006 16:27:36 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Patrick McHardy <kaber@trash.net>
+cc: Netfilter Developer Mailing List 
+	<netfilter-devel@lists.netfilter.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc1
-Message-ID: <20061219145045.GY5010@kernel.dk>
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org> <200612142144.26023.s0348365@sms.ed.ac.uk> <4581C73F.6060707@garzik.org> <200612142233.10584.s0348365@sms.ed.ac.uk> <20061219124130.GN5010@kernel.dk> <4587F7E4.8000609@shaw.ca> <20061219143815.GW5010@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219143815.GW5010@kernel.dk>
+Subject: Re: [PATCH] xt_request_find_match
+In-Reply-To: <4587E91A.2020903@trash.net>
+Message-ID: <Pine.LNX.4.61.0612191623490.10396@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0612161851180.30896@yvahk01.tjqt.qr>
+ <4587D227.1000003@trash.net> <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr>
+ <4587E91A.2020903@trash.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19 2006, Jens Axboe wrote:
-> On Tue, Dec 19 2006, Robert Hancock wrote:
-> > Jens Axboe wrote:
-> > >Just noticed that most of the mails I wrote on this thread were
-> > >apparently without linux-kernel cc'ed (dunno who removed the cc). So
-> > >I'll write a small summary - the problem is that hddtemp includes some
-> > >fragile code to check the sense info, and this commit:
-> > >
-> > >http://git.kernel.dk/?p=linux-2.6-block.git;a=commit;h=f38621b3109068adc8430bc2d170ccea59df4261
-> > >
-> > >broke it. hddtemp expects 14, but it now sees 12. IMHO hddtemp is buggy
-> > >and should be fixed, the best option is simply to kill the sense checks
-> > >as I think they have little (if any) value. Patch below for that.
-> > >
-> > >So the problem was never the SG_IO changes, the fact that somebody
-> > >noticed the same thing in bugzilla for a 2.6.19-rc6-mm kernel backs that
-> > >up.
-> > 
-> > From what I've seen it appears that smartctl has the same problem, it 
-> > was also reporting the device didn't support SMART..
-> 
-> Can you check whether reverting the above commit makes SMART work again?
 
-smartctl fine for me, with and without the patch.
+>>>>Reusing code is a good idea, and I would like to do so from my 
+>>>>match modules. netfilter already provides a xt_request_find_target() but 
+>>>>an xt_request_find_match() does not yet exist. This patch adds it.
+>>>
+>>>Why does your match module needs to lookup other matches?
+>> 
+>> To use them?
+>> 
+>> I did not want to write
+>> 
+>> some_xt_target() {
+>>     if(skb->nh.iph->protocol == IPPROTO_TCP)
+>>         do_this();
+>>     else
+>>         do_that();
+>> }
+>
+>I don't think
+>
+>xt_request_find_match(match->family, "tcp", 0)->match(lots of arguments)
+>
+>is better than a simple comparison. Besides that the tcp match itself
+>expects that the protocol match already checked for IPPROTO_TCP, so
+>you'd still have to do it.
+>>     /* To quote Alan:
+>> 
+>>        Don't allow a fragment of TCP 8 bytes in. Nobody normal
+>>        causes this. Its a cracker trying to break in by doing a
+>>        flag overwrite to pass the direction checks.
+>>     */
+>
+>This check makes sure the flags are not overwritten _after you
+>matched on them_. It doesn't matter at all if you're only
+>interested in the protocol since the user didn't tell you to care.
 
+Ok, but let's say I wanted to use a bigger match module (layer7, anyone?)
+Then it's just not if(protocol == IPPROTO_TCP). What's the preferred solution
+then?
+
+
+	-`J'
 -- 
-Jens Axboe
-

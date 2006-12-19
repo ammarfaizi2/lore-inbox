@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932871AbWLSSLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932875AbWLSSOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932871AbWLSSLh (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 13:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932872AbWLSSLh
+	id S932875AbWLSSOT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 13:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932878AbWLSSOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 13:11:37 -0500
-Received: from wr-out-0506.google.com ([64.233.184.231]:1749 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932871AbWLSSLg (ORCPT
+	Tue, 19 Dec 2006 13:14:19 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:58421 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932875AbWLSSOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 13:11:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:in-reply-to:references:content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=XKdkU9aZFgrQO92F7oJwX73oC96ekF9KDjPI1dF95fi4blRfBcHGRDI1bL1AJ2PEbWXvWe5GraO29GTLVLU21TPXNq8e7C6E3vmiGFjE5ZvCan88p+mmJUocPNr5SC72XwSUDzbYew7hKwpVZfWAzhnDDNcLYzhccCUOtZGD/ZY=
-Subject: [PATCH] Add pci class code for SATA
-From: Conke Hu <conke.hu@gmail.com>
-Reply-To: conke.hu@gmail.com
+	Tue, 19 Dec 2006 13:14:18 -0500
+X-Originating-Ip: 24.163.66.209
+Date: Tue, 19 Dec 2006 13:10:11 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
 To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
-References: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
-Content-Type: text/plain
-Organization: zju
-Date: Wed, 20 Dec 2006 02:11:26 +0800
-Message-Id: <1166551886.2977.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] mm: Remove final traces of deprecated kmem_cache_t.
+Message-ID: <Pine.LNX.4.64.0612191305490.10391@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-12.808, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
+	RCVD_IN_NJABL_DUL 1.95, RCVD_IN_SORBS_DUL 2.05)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add pci class code 0x0106 for SATA to pci_ids.h
 
-signed-off-by: conke.hu@gmail.com
---------------------
---- linux-2.6.20-rc1/include/linux/pci_ids.h.orig	2006-12-20
-01:58:30.000000000 +0800
-+++ linux-2.6.20-rc1/include/linux/pci_ids.h	2006-12-20
-01:59:07.000000000 +0800
-@@ -15,6 +15,7 @@
- #define PCI_CLASS_STORAGE_FLOPPY	0x0102
- #define PCI_CLASS_STORAGE_IPI		0x0103
- #define PCI_CLASS_STORAGE_RAID		0x0104
-+#define PCI_CLASS_STORAGE_SATA		0x0106
- #define PCI_CLASS_STORAGE_SAS		0x0107
- #define PCI_CLASS_STORAGE_OTHER		0x0180
+  Remove the last use of kmem_cache_t and the deprecated typedef.
 
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+
+---
+
+  without looking too deeply into it, it looks like the last
+references to kmem_cache_t can be removed, although there are still
+going to be online web pages that refer to it, like
+
+  http://old.kernelnewbies.org/documents/kdoc/kernel-api/r2382.html
+
+
+ fs/dlm/lowcomms-tcp.c |    2 +-
+ include/linux/slab.h  |    2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+
+diff --git a/fs/dlm/lowcomms-tcp.c b/fs/dlm/lowcomms-tcp.c
+index 8f2791f..9be3a44 100644
+--- a/fs/dlm/lowcomms-tcp.c
++++ b/fs/dlm/lowcomms-tcp.c
+@@ -143,7 +143,7 @@ static DECLARE_WAIT_QUEUE_HEAD(lowcomms_recv_waitq);
+ /* An array of pointers to connections, indexed by NODEID */
+ static struct connection **connections;
+ static DECLARE_MUTEX(connections_lock);
+-static kmem_cache_t *con_cache;
++static struct kmem_cache *con_cache;
+ static int conn_array_size;
+
+ /* List of sockets that have reads pending */
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index 1ef822e..b115541 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -14,8 +14,6 @@
+ #include <linux/gfp.h>
+ #include <linux/types.h>
+
+-typedef struct kmem_cache kmem_cache_t __deprecated;
+-
+ /*
+  * Flags to pass to kmem_cache_create().
+  * The ones marked DEBUG are only valid if CONFIG_SLAB_DEBUG is set.

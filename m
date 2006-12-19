@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932672AbWLSIm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932676AbWLSIno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWLSIm6 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932676AbWLSIm6
+	id S932676AbWLSIno (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbWLSInn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:42:58 -0500
-Received: from mx10.go2.pl ([193.17.41.74]:35265 "EHLO poczta.o2.pl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932672AbWLSIm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:42:57 -0500
-Date: Tue, 19 Dec 2006 09:43:59 +0100
-From: Jarek Poplawski <jarkao2@o2.pl>
+	Tue, 19 Dec 2006 03:43:43 -0500
+Received: from an-out-0708.google.com ([209.85.132.241]:54703 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932676AbWLSInm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 03:43:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=JLk4niM5v7uakg1F5QodDZ+7Rg2aIHRYTzShTHRT6XZS5B1J4aEJpGEwGkHTm9/9fnbz1aOPpmSynSBRxn693jsJSkP/+f4rkOG40f2KvWwe1DDfV7Ka6puTk4zSHx6E3qisiygoxHeZK2n3RdH42x8d11MZCJVkaeMcRAQ31J4=
+Date: Tue, 19 Dec 2006 17:42:48 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [patch] lock debugging: fix DEBUG_LOCKS_WARN_ON() & debug_locks_silent
-Message-ID: <20061219084359.GB1731@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, Matthew Wilcox <matthew@wil.cx>
+Cc: Hoang-Nam Nguyen <hnguyen@de.ibm.com>,
+       Christoph Raisch <raisch@de.ibm.com>
+Subject: [PATCH] ehca: fix kthread_create() error check
+Message-ID: <20061219084248.GF4049@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Hoang-Nam Nguyen <hnguyen@de.ibm.com>,
+	Christoph Raisch <raisch@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061216080458.GC16116@elte.hu>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16-12-2006 09:04, Ingo Molnar wrote:
-> * Matthew Wilcox <matthew@wil.cx> wrote:
-...
-> Bug-found-by: Matthew Wilcox <matthew@wil.cx>
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  include/linux/debug_locks.h |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: linux/include/linux/debug_locks.h
-> ===================================================================
-> --- linux.orig/include/linux/debug_locks.h
-> +++ linux/include/linux/debug_locks.h
-> @@ -24,7 +24,7 @@ extern int debug_locks_off(void);
->  	int __ret = 0;							\
->  									\
->  	if (unlikely(c)) {						\
-> -		if (debug_locks_silent || debug_locks_off())		\
-> +		if (!debug_locks_silent && debug_locks_off())		\
->  			WARN_ON(1);					\
->  		__ret = 1;						\
->  	}								\
+The return value of kthread_create() should be checked by
+IS_ERR(). create_comp_task() returns the return value from
+kthread_create().
 
-I wonder why doing debug_locks_off depends here on
-debug_lock_silent state which is only "esthetical"
-flag. And debug_locks_off() takes into consideration
-debug_lock_silent after all. So IMHO:
+Cc: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
+Cc: Christoph Raisch <raisch@de.ibm.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-	if (unlikely(c)) {						\
-		if (debug_locks_off())					\
-			WARN_ON(1);					\
-		__ret = 1;						\
-	}								\
+---
+ drivers/infiniband/hw/ehca/ehca_irq.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Jarek P.
+Index: 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
+===================================================================
+--- 2.6-mm.orig/drivers/infiniband/hw/ehca/ehca_irq.c
++++ 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
+@@ -670,11 +670,13 @@ static int comp_pool_callback(struct not
+ {
+ 	unsigned int cpu = (unsigned long)hcpu;
+ 	struct ehca_cpu_comp_task *cct;
++	struct task_struct *task;
+ 
+ 	switch (action) {
+ 	case CPU_UP_PREPARE:
+ 		ehca_gen_dbg("CPU: %x (CPU_PREPARE)", cpu);
+-		if(!create_comp_task(pool, cpu)) {
++		task = create_comp_task(pool, cpu);
++		if (IS_ERR(task)) {
+ 			ehca_gen_err("Can't create comp_task for cpu: %x", cpu);
+ 			return NOTIFY_BAD;
+ 		}
+@@ -730,7 +732,7 @@ int ehca_create_comp_pool(void)
+ 
+ 	for_each_online_cpu(cpu) {
+ 		task = create_comp_task(pool, cpu);
+-		if (task) {
++		if (!IS_ERR(task)) {
+ 			kthread_bind(task, cpu);
+ 			wake_up_process(task);
+ 		}

@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932909AbWLSTPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932896AbWLSTZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932909AbWLSTPl (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWLSTPl
+	id S932896AbWLSTZv (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWLSTZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:15:41 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:56676 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932909AbWLSTPk (ORCPT
+	Tue, 19 Dec 2006 14:25:51 -0500
+Received: from mx1.cs.washington.edu ([128.208.5.52]:48181 "EHLO
+	mx1.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932896AbWLSTZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:15:40 -0500
-X-Greylist: delayed 1380 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 14:15:40 EST
-Date: Tue, 19 Dec 2006 18:52:23 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Cc: david-b@pacbell.net, gregkh@suse.de
-Message-ID: <20061219185223.GA13256@srcf.ucam.org>
+	Tue, 19 Dec 2006 14:25:50 -0500
+Date: Tue, 19 Dec 2006 11:25:48 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Get rid of most of the remaining k*alloc() casts.
+In-Reply-To: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
+References: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Changes to sysfs PM layer break userspace
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Commit 047bda36150d11422b2c7bacca1df324c909c0b3 broke userspace. 
-Previously, /sys/bus/pci/devices/foo/power/state could have values 
-echoed into it for triggering suspend/resume calls in the driver. The 
-breakage is handily mentioned in the comment:
+On Tue, 19 Dec 2006, Robert P. J. Day wrote:
 
-"Devices with bus.suspend_late(), or bus.resume_early() methods fail 
-this operation; those methods couldn't be called."
+> diff --git a/include/asm-um/thread_info.h b/include/asm-um/thread_info.h
+> index 261e2f4..e43c2dd 100644
+> --- a/include/asm-um/thread_info.h
+> +++ b/include/asm-um/thread_info.h
+> @@ -51,8 +51,7 @@ static inline struct thread_info *current_thread_info(void)
+>  }
+> 
+>  /* thread information allocation */
+> -#define alloc_thread_info(tsk) \
+> -	((struct thread_info *) kmalloc(THREAD_SIZE, GFP_KERNEL))
+> +#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL))
+>  #define free_thread_info(ti) kfree(ti)
+> 
+>  #endif
 
-but there's no mention of what previously working code is supposed to do 
-now. That's the second time in the past year or so that this interface 
-has been broken - can we have it working again, please, especially as 
-there doesn't appear to be an alternative yet?
+This patch breaks all of usermode from the change above.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+There's also no reason to avoid other cleanups in the area you're 
+changing (and testing) such as moving the asterisk for pointers to the 
+variable name, deleting extraneous whitespace, or changing the several 
+instances in this patch where kzalloc conversion is appropriate.  If it's 
+not done now, it will either be forgotten or another patch on the same 
+elaborate scale as this one will need to fix it incrementally.  Given the 
+high chance of typos such as the one above in broad patches like this, all 
+the changes should be rolled together into one patch that is at least 
+inspected before submission by the author.
+
+		David

@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933031AbWLSVex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933035AbWLSVin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933031AbWLSVex (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933033AbWLSVex
+	id S933035AbWLSVin (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933033AbWLSVin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:34:53 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:48954 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S933031AbWLSVew (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:34:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=m923RIyEdISD5NfSiP21Xbl2MCUd+4ZUWAUPVkXRCFpgTJtKJpIswr/IL8WG/EP2ccgMPyeClFLSwiEpNlUxbFGLZpmnEnd1qphTx4OnfUNVtWv8QWIFjc3Dhu9rLMRihQtZ3lmLzYfRJy+9cH+91yiR2fxF64NHixhoz6bJmes=  ;
-X-YMail-OSG: pAHHCQgVM1nON3n7E6KxfHVjyjJTfqN9yI7wM8KReJWaMoOZ2xDHhwpAKsrRisvKbVCwi1iHu4MLMO5bvZIc4nid5t_gGXe4Xkn0HiHd7zz_o.tgQxUq3D2vc9cZL4XzekQs7jZ8GwFCC9MFJkhy1i3sMytNSik__4ocEwk5VD0jERqfIm7kQgA7nu2h
-From: David Brownell <david-b@pacbell.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: Changes to sysfs PM layer break userspace
-Date: Tue, 19 Dec 2006 13:34:49 -0800
-User-Agent: KMail/1.7.1
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-References: <20061219185223.GA13256@srcf.ucam.org> <1166559785.3365.1276.camel@laptopd505.fenrus.org> <20061219203251.GA14648@srcf.ucam.org>
-In-Reply-To: <20061219203251.GA14648@srcf.ucam.org>
+	Tue, 19 Dec 2006 16:38:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33438 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932960AbWLSVim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 16:38:42 -0500
+Message-ID: <45885BAD.7030705@redhat.com>
+Date: Tue, 19 Dec 2006 15:37:49 -0600
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux@bohmer.net, linux-kernel@vger.kernel.org
+Subject: Re: [BUG+PATCH] RT-Preempt: IRQ threads running at prio 0 SCHED_OTHER
+References: <3efb10970612191252m33e7b88cydca7fb488251ee35@mail.gmail.com> <20061219212427.GA11516@elte.hu>
+In-Reply-To: <20061219212427.GA11516@elte.hu>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612191334.49760.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 December 2006 12:32 pm, Matthew Garrett wrote:
-> On Tue, Dec 19, 2006 at 09:23:05PM +0100, Arjan van de Ven wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > right now the "spec" for Linux network drivers assumes that you put the
-> > NIC into D3 on down, except for cases where Wake-on-Lan is enabled etc.
+Ingo Molnar wrote:
 > 
-> Really? I can't find any drivers that seem to do this. The only calls to 
-> pci_set_power_state seem to be in the suspend, resume, init and exit 
-> routines.
+> ok - lets try it. Clark: does this impact the set_kthread_prio utility? 
+> I've changed "IRQ 123" to "IRQ-123" to make pidof & friends work better.
 
-More drivers should do this, even though not many do so right now.  In the
-ideal case, the PHY can be active for link detection without the rest of
-the adapter being powered up...
+Yes it does, but I believe I can fix that. Most of the logic is in awk
+and I believe one call to sub() will handle the change.
 
+Clark
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-> > > Some chips support more 
-> > > fine-grained power management, so we could do something more sensible in 
-> > > that case - but right now, there doesn't seem to be a lot of driver 
-> > > support for it.
-> > 
-> > sounds like that's the right approach at least .. not talking to the PCI
-> > hardware directly from userspace...
-> 
-> I'd certainly agree that that's the right thing to do, but userspace has 
-> a habit of using whatever functionality /is/ available to get to a given 
-> end. The semantics of the device/power/state file were never made 
-> terribly clear, and it did have the desired effect of suspending the 
-> device. Removing it without providing warning or a transition pathway is 
-> a pain.
-
-Documentation/feature-removal-schedule.txt has warned about this since
-August, and the PM list has discussed how broken that model is numerous
-times over the past several years.  (I'm pretty sure that discussion has
-leaked out to LKML on occasion.)  It shouldn't be news today.
-
-
-> > I can see the point of having more than just "UP" and "DOWN" as
-> > interface states; "UP", "DOWN" and "OFF" for example... 
-> 
-> Agreed.
-
-More than one driver stack probably needs to start paying attention to
-its power management models.  I think Arjan is right about the basic
-mindset of "down == off" for network drivers.  If there are cases where
-that doesn't work, those can start driving improvements.
-
-- Dave
-
+iD8DBQFFiFutHyuj/+TTEp0RAjKlAKCaVK8hf4jY6ZUIZ0Ixc56lhSUcHgCgoqT0
+HiDbdVXrwY/LYlZN7AFwHOI=
+=1YgX
+-----END PGP SIGNATURE-----

@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932957AbWLSVeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933031AbWLSVex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932957AbWLSVeo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932959AbWLSVen
+	id S933031AbWLSVex (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933033AbWLSVex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:34:43 -0500
-Received: from amsfep16-int.chello.nl ([62.179.120.11]:45976 "EHLO
-	amsfep16-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932957AbWLSVem (ORCPT
+	Tue, 19 Dec 2006 16:34:53 -0500
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:48954 "HELO
+	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S933031AbWLSVew (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:34:42 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <45876C65.7010301@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	 <45878BE8.8010700@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-	 <4587B762.2030603@yahoo.com.au>
-	 <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-	 <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 22:30:28 +0100
-Message-Id: <1166563828.10372.162.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 19 Dec 2006 16:34:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=m923RIyEdISD5NfSiP21Xbl2MCUd+4ZUWAUPVkXRCFpgTJtKJpIswr/IL8WG/EP2ccgMPyeClFLSwiEpNlUxbFGLZpmnEnd1qphTx4OnfUNVtWv8QWIFjc3Dhu9rLMRihQtZ3lmLzYfRJy+9cH+91yiR2fxF64NHixhoz6bJmes=  ;
+X-YMail-OSG: pAHHCQgVM1nON3n7E6KxfHVjyjJTfqN9yI7wM8KReJWaMoOZ2xDHhwpAKsrRisvKbVCwi1iHu4MLMO5bvZIc4nid5t_gGXe4Xkn0HiHd7zz_o.tgQxUq3D2vc9cZL4XzekQs7jZ8GwFCC9MFJkhy1i3sMytNSik__4ocEwk5VD0jERqfIm7kQgA7nu2h
+From: David Brownell <david-b@pacbell.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: Changes to sysfs PM layer break userspace
+Date: Tue, 19 Dec 2006 13:34:49 -0800
+User-Agent: KMail/1.7.1
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <1166559785.3365.1276.camel@laptopd505.fenrus.org> <20061219203251.GA14648@srcf.ucam.org>
+In-Reply-To: <20061219203251.GA14648@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612191334.49760.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 10:59 -0800, Linus Torvalds wrote:
+On Tuesday 19 December 2006 12:32 pm, Matthew Garrett wrote:
+> On Tue, Dec 19, 2006 at 09:23:05PM +0100, Arjan van de Ven wrote:
+
+> > right now the "spec" for Linux network drivers assumes that you put the
+> > NIC into D3 on down, except for cases where Wake-on-Lan is enabled etc.
 > 
-> On Tue, 19 Dec 2006, Linus Torvalds wrote:
-> >
-> >  here's a totally new tangent on this: it's possible that user code is 
-> > simply BUGGY. 
+> Really? I can't find any drivers that seem to do this. The only calls to 
+> pci_set_power_state seem to be in the suspend, resume, init and exit 
+> routines.
 
-I'm sad to say this doesn't trigger :-(
+More drivers should do this, even though not many do so right now.  In the
+ideal case, the PHY can be active for link detection without the rest of
+the adapter being powered up...
 
+
+> > > Some chips support more 
+> > > fine-grained power management, so we could do something more sensible in 
+> > > that case - but right now, there doesn't seem to be a lot of driver 
+> > > support for it.
+> > 
+> > sounds like that's the right approach at least .. not talking to the PCI
+> > hardware directly from userspace...
+> 
+> I'd certainly agree that that's the right thing to do, but userspace has 
+> a habit of using whatever functionality /is/ available to get to a given 
+> end. The semantics of the device/power/state file were never made 
+> terribly clear, and it did have the desired effect of suspending the 
+> device. Removing it without providing warning or a transition pathway is 
+> a pain.
+
+Documentation/feature-removal-schedule.txt has warned about this since
+August, and the PM list has discussed how broken that model is numerous
+times over the past several years.  (I'm pretty sure that discussion has
+leaked out to LKML on occasion.)  It shouldn't be news today.
+
+
+> > I can see the point of having more than just "UP" and "DOWN" as
+> > interface states; "UP", "DOWN" and "OFF" for example... 
+> 
+> Agreed.
+
+More than one driver stack probably needs to start paying attention to
+its power management models.  I think Arjan is right about the basic
+mindset of "down == off" for network drivers.  If there are cases where
+that doesn't work, those can start driving improvements.
+
+- Dave
 

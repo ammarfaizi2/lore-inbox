@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932823AbWLSQWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753030AbWLSQmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932823AbWLSQWz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 11:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753539AbWLSQWz
+	id S1753030AbWLSQmO (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 11:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753172AbWLSQmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 11:22:55 -0500
-Received: from www.tedsautoline.com ([69.222.0.225]:36195 "HELO
-	mail.webhostingstar.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753484AbWLSQWy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 11:22:54 -0500
-X-Greylist: delayed 404 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 11:22:54 EST
-Message-ID: <20061219101424.yjwfjsykcbs0o0wc@69.222.0.225>
-Date: Tue, 19 Dec 2006 10:14:24 -0600
-From: art@usfltd.com
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: 2.6.20-rc1-git compilation error
-	drivers/connector/connector.c:138: error: ?struct work_struct? has no
-	member named ?management?
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
+	Tue, 19 Dec 2006 11:42:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45131 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753052AbWLSQmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 11:42:13 -0500
+Date: Tue, 19 Dec 2006 11:41:46 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+Message-ID: <20061219164146.GI25461@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
+In-Reply-To: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to: linux-kernel@vger.kernel.org
-cc: torvalds@osdl.org
+On Tue, Dec 19, 2006 at 10:46:24AM -0500, Robert P. J. Day wrote:
+ > 
+ >   just for fun, i threw the following together to peruse the tree (or
+ > any subdirectory) and look for stuff that violates the CodingStyle
+ > guide.  clearly, it's far from complete and very ad hoc, but it's
+ > amusing.  extra searches happily accepted.
 
+I had a bunch of similar greps that I've recently been half-assedly
+putting together into a single script too.
+See http://www.codemonkey.org.uk/projects/findbugs/
 
-2.6.20-rc1-git compilation error drivers/connector/connector.c:138:  
-error: ?struct work_struct? has no member named ?management?
+		Dave
 
-$ date
-Tue Dec 19 10:12:17 CST 2006
-$ git pull
-Already up-to-date.
-$ make -j 8
-   CHK     include/linux/version.h
-   CHK     include/linux/utsrelease.h
-   CHK     include/linux/compile.h
-   CC      drivers/connector/connector.o
-drivers/connector/connector.c: In function ?cn_call_callback?:
-drivers/connector/connector.c:138: error: ?struct work_struct? has no  
-member named ?management?
-drivers/connector/connector.c:138: error: ?struct work_struct? has no  
-member named ?management?
-make[2]: *** [drivers/connector/connector.o] Error 1
-make[1]: *** [drivers/connector] Error 2
-make[1]: *** Waiting for unfinished jobs....
-make: *** [drivers] Error 2
-make: *** Waiting for unfinished jobs....
-
-
-xboom
-
+-- 
+http://www.codemonkey.org.uk

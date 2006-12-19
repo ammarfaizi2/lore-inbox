@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932773AbWLSKu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932785AbWLSKvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932773AbWLSKu0 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 05:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbWLSKuZ
+	id S932785AbWLSKvW (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 05:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbWLSKvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 05:50:25 -0500
-Received: from wx-out-0506.google.com ([66.249.82.225]:4960 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932773AbWLSKuY (ORCPT
+	Tue, 19 Dec 2006 05:51:21 -0500
+Received: from mx1.ciphirelabs.net ([217.72.114.64]:45318 "EHLO
+	mx1.ciphirelabs.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932778AbWLSKvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 05:50:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=R2xsSNIQ7uiRTFU7DDWPD/ifoH/SU5nWvK8gntETOzHJDoULCWpTJj35jYqb8CM7Ru29N7TPbyXfrg11h2rBIJ9v4Y/ITw+JYKYkI29Ku61BlvZSQ201x4nNWvcx/ish0Q05c7Y37maWqvV0g7ULFegwMA8KWVNRVngcEgOfxnI=
-Message-ID: <4587C3E9.7070504@gmail.com>
-Date: Tue, 19 Dec 2006 19:50:17 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
+	Tue, 19 Dec 2006 05:51:20 -0500
+Message-ID: <4587C415.9020706@ciphirelabs.com>
+Date: Tue, 19 Dec 2006 11:51:01 +0100
+From: Andreas Jellinghaus <aj@ciphirelabs.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
 MIME-Version: 1.0
-To: Erik@echohome.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Odd system lock up
-References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAICP4fRQtKBOo0M5d3WXPNMBAAAAAA==@EchoHome.org>
-In-Reply-To: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAICP4fRQtKBOo0M5d3WXPNMBAAAAAA==@EchoHome.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Newsgroups: gmane.linux.network,gmane.linux.kernel.cryptoapi,gmane.linux.kernel
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANN] Acrypto asynchronous crypto layer 2.6.19 release.
+References: <20061216191521.GA26549@2ka.mipt.ru> <4586458E.6000503@dungeon.inka.de> <20061218095740.GA5219@2ka.mipt.ru> <458690EA.2000405@ciphirelabs.com> <20061218131356.GA11186@2ka.mipt.ru>
+In-Reply-To: <20061218131356.GA11186@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Ohrnberger wrote:
-> OK, got the 2.6.19 kernel installed and running OK, full libata wrapping of
-> existing IDE controllers and hard disks.
-> 
-> I'm experiencing some odd, random periodic system lockups without any sort
-> of debugging information being captured in the system message log.  Perhaps
-> it's a hard disk that's causing the trouble?
-> 
-> Is there a way to capture which drive might be causing the issue in the
-> message log?
+Evgeniy Polyakov wrote:
+> You can change it in async_provider in compilation time or I can create
+> module version. There is an item in related todo list to use crypto
+> contexts, they were created exactly for such kind of things (actually
+> for hardware devices which do not support realtime key changes).
 
-Care to post /var/log/boot.msg or the result of 'dmesg' after boot?
+ok, what do I need to change to get aes-cbc-essiv:sha256 support
+so I can use acrypto with my current dm-crypt'ed partitions?
 
--- 
-tejun
+>> would be nice to track those issues, so people testing your patch
+>> are aware of the situation.
+> 
+> I will change acrypto software crypto provider, but right now, yes,
+> software crypto only supports one mode.
+
+ok, thanks.
+
+Regards, Andreas

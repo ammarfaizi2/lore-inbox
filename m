@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932875AbWLSSOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932872AbWLSSVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932875AbWLSSOT (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 13:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932878AbWLSSOT
+	id S932872AbWLSSVN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 13:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932879AbWLSSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 13:14:19 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:58421 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932875AbWLSSOS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 13:14:18 -0500
-X-Originating-Ip: 24.163.66.209
-Date: Tue, 19 Dec 2006 13:10:11 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mm: Remove final traces of deprecated kmem_cache_t.
-Message-ID: <Pine.LNX.4.64.0612191305490.10391@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-12.808, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00,
-	RCVD_IN_NJABL_DUL 1.95, RCVD_IN_SORBS_DUL 2.05)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Tue, 19 Dec 2006 13:21:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52479 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932872AbWLSSVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 13:21:12 -0500
+Date: Tue, 19 Dec 2006 10:37:56 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, wenji@fnal.gov, netdev@vger.kernel.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
+Message-ID: <20061219103756.38f7426c@freekitty>
+In-Reply-To: <20061130063252.GC2003@elte.hu>
+References: <HNEBLGGMEGLPMPPDOPMGKEAJCGAA.wenji@fnal.gov>
+	<20061129154200.c4db558c.akpm@osdl.org>
+	<20061130063252.GC2003@elte.hu>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-  Remove the last use of kmem_cache_t and the deprecated typedef.
-
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-
----
-
-  without looking too deeply into it, it looks like the last
-references to kmem_cache_t can be removed, although there are still
-going to be online web pages that refer to it, like
-
-  http://old.kernelnewbies.org/documents/kdoc/kernel-api/r2382.html
+I noticed this bit of discussion in tcp_recvmsg. It implies that a better
+queuing policy would be good. But it is confusing English (Alexey?) so
+not sure where to start.
 
 
- fs/dlm/lowcomms-tcp.c |    2 +-
- include/linux/slab.h  |    2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+> 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
+> 			/* Install new reader */
+> 			if (!user_recv && !(flags & (MSG_TRUNC | MSG_PEEK))) {
+> 				user_recv = current;
+> 				tp->ucopy.task = user_recv;
+> 				tp->ucopy.iov = msg->msg_iov;
+> 			}
+> 
+> 			tp->ucopy.len = len;
+> 
+> 			BUG_TRAP(tp->copied_seq == tp->rcv_nxt ||
+> 				 (flags & (MSG_PEEK | MSG_TRUNC)));
+> 
+> 			/* Ugly... If prequeue is not empty, we have to
+> 			 * process it before releasing socket, otherwise
+> 			 * order will be broken at second iteration.
+> 			 * More elegant solution is required!!!
+> 			 *
+> 			 * Look: we have the following (pseudo)queues:
+> 			 *
+> 			 * 1. packets in flight
+> 			 * 2. backlog
+> 			 * 3. prequeue
+> 			 * 4. receive_queue
+> 			 *
+> 			 * Each queue can be processed only if the next ones
+> 			 * are empty. At this point we have empty receive_queue.
+> 			 * But prequeue _can_ be not empty after 2nd iteration,
+> 			 * when we jumped to start of loop because backlog
+> 			 * processing added something to receive_queue.
+> 			 * We cannot release_sock(), because backlog contains
+> 			 * packets arrived _after_ prequeued ones.
+> 			 *
+> 			 * Shortly, algorithm is clear --- to process all
+> 			 * the queues in order. We could make it more directly,
+> 			 * requeueing packets from backlog to prequeue, if
+> 			 * is not empty. It is more elegant, but eats cycles,
+> 			 * unfortunately.
+> 			 */
+> 			if (!skb_queue_empty(&tp->ucopy.prequeue))
+> 				goto do_prequeue;
+> 
+> 			/* __ Set realtime policy in scheduler __ */
+> 		}
+> 
+> 		if (copied >= target) {
+> 			/* Do not sleep, just process backlog. */
+> 			release_sock(sk);
+> 			lock_sock(sk);
+> 		} else
+> 		
 
-
-diff --git a/fs/dlm/lowcomms-tcp.c b/fs/dlm/lowcomms-tcp.c
-index 8f2791f..9be3a44 100644
---- a/fs/dlm/lowcomms-tcp.c
-+++ b/fs/dlm/lowcomms-tcp.c
-@@ -143,7 +143,7 @@ static DECLARE_WAIT_QUEUE_HEAD(lowcomms_recv_waitq);
- /* An array of pointers to connections, indexed by NODEID */
- static struct connection **connections;
- static DECLARE_MUTEX(connections_lock);
--static kmem_cache_t *con_cache;
-+static struct kmem_cache *con_cache;
- static int conn_array_size;
-
- /* List of sockets that have reads pending */
-diff --git a/include/linux/slab.h b/include/linux/slab.h
-index 1ef822e..b115541 100644
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -14,8 +14,6 @@
- #include <linux/gfp.h>
- #include <linux/types.h>
-
--typedef struct kmem_cache kmem_cache_t __deprecated;
--
- /*
-  * Flags to pass to kmem_cache_create().
-  * The ones marked DEBUG are only valid if CONFIG_SLAB_DEBUG is set.
+-- 
+Stephen Hemminger <shemminger@osdl.org>

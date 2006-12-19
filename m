@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932958AbWLSVVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932947AbWLSVV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932958AbWLSVVC (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933002AbWLSVVB
+	id S932947AbWLSVV4 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933002AbWLSVVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:21:01 -0500
-Received: from outmx017.isp.belgacom.be ([195.238.4.116]:60488 "EHLO
-	outmx017.isp.belgacom.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932958AbWLSVVA (ORCPT
+	Tue, 19 Dec 2006 16:21:55 -0500
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33824 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932947AbWLSVVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:21:00 -0500
-Date: Tue, 19 Dec 2006 22:20:34 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Ben Dooks <ben@simtec.co.uk>,
-       Dimitry Andric <dimitry.andric@tomtom.com>
-Subject: Re: [PATCH] watchdog: fix clk_get() error check
-Message-ID: <20061219212034.GB2943@infomag.infomag.iguana.be>
-References: <20061219085144.GI4049@APFDCB5C>
+	Tue, 19 Dec 2006 16:21:55 -0500
+X-Greylist: delayed 1341 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 16:21:54 EST
+Subject: Three if-clauses of constant logic value; char drivers for kernel
+	2.4.33.3
+From: Mats Erik Andersson <mats.andersson64@comhem.se>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 19 Dec 2006 21:59:37 +0100
+Message-Id: <1166561978.4133.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219085144.GI4049@APFDCB5C>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-Scan-Result: No virus found in message 1Gwm4M-0000tB-7H.
+X-Scan-Signature: ch-smtp02.sth.basefarm.net 1Gwm4M-0000tB-7H 3c486e8f3cf7827ad31cbc316365317c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Akinobu,
+Hi there, all masters of kernel code,
 
-> The return value of clk_get() should be checked by IS_ERR().
+I just discovered that the kernel code for 2.4.33.3 contains three
+if-statements that never can change their values, whence they should
+be repaired or eliminated. In source directory linux/drivers/char the
+files vt.c and keyboard.c produce these warning upon compilation:
 
-Modified patch added to linux-2.6-watchdog-mm git tree.
-(I needed to modify the s3c2410_wdt.c part since because of the
-changes we added yesterday).
+    vt.c:166: varning: comparison is always false due to limited range  
+              of data type
+    vt.c:289: varning: comparison is always false due to limited range
+              of data type
+    keyboard.c:640: varning: comparison is always true due to limited
+                    range of data type
 
-Greetings,
-Wim.
+I did the compilation with gcc 3.3.5 on Debian Sarge. This behaviour
+appeared first for kernel 2.2.19, since I wanted to revive the old
+minirtl edition, but to my surprise the same warnings appear also
+with the brand new kernel 2.4.33.3.
+
+Best regards
+             Mats Erik Andersson, PhD
+             ynglingatal@yahoo.se
+             mats.andersson64@comhem.se
 

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbWLSIaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932657AbWLSIe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbWLSIaa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWLSIa3
+	id S932657AbWLSIe6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbWLSIe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:30:29 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:36012 "EHLO
-	mraos.ra.phy.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932653AbWLSIa3 (ORCPT
+	Tue, 19 Dec 2006 03:34:57 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:60062 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932657AbWLSIe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:30:29 -0500
-X-Greylist: delayed 1817 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 03:30:29 EST
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-References: <200612161927.13860.gallir@gmail.com>
-	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
-	<orwt4qaara.fsf@redhat.com>
-	<Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
-	<orpsah6m3s.fsf@redhat.com> <orpsah6m3s.fsf@redhat.com>
-	<Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Date: 19 Dec 2006 08:00:00 +0000
-In-Reply-To: <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
-Message-ID: <r6odq02u4f.fsf@skye.ra.phy.cam.ac.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 19 Dec 2006 03:34:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=jCG3vQKrMiG61iq9fowEX4q6a7So0L1j/Zau0n4/6xemE2UXLo6921lx4gt3U5AL//1giebLZkBdqtj+CWnl5lJSz638XtUrGuUavG7o+4/MuT/0p5yoz/IN1MsTx/EGWS/jko9X3LdYo+pD4s1X2bP4mW/nn/+AhtswHUTzJfo=
+Message-ID: <84144f020612190034s3936a1b6k9ab50a283d63135@mail.gmail.com>
+Date: Tue, 19 Dec 2006 10:34:55 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.19 file content corruption on ext3
+Cc: andrei.popa@i-neo.ro, "Linus Torvalds" <torvalds@osdl.org>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
+       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
+       "Martin Michlmayr" <tbm@cyrius.com>
+In-Reply-To: <20061219002416.ed8f1dda.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1166314399.7018.6.camel@localhost>
+	 <1166485691.6977.6.camel@localhost>
+	 <Pine.LNX.4.64.0612181559230.3479@woody.osdl.org>
+	 <1166488199.6950.2.camel@localhost>
+	 <Pine.LNX.4.64.0612181648490.3479@woody.osdl.org>
+	 <20061218172126.0822b5d2.akpm@osdl.org>
+	 <1166492691.6890.12.camel@localhost>
+	 <20061218175449.3c752879.akpm@osdl.org>
+	 <1166515504.6897.0.camel@localhost>
+	 <20061219002416.ed8f1dda.akpm@osdl.org>
+X-Google-Sender-Auth: d0b0a9f7b1e23711
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> That said, I think they are still pushing the "you don't have any
-> rights unless we give you additional rights explicitly" angle a bit
-> too hard.
+On 12/19/06, Andrew Morton <akpm@osdl.org> wrote:
+> Wow.  I didn't expect that, because Mark Haber reported that ext3's data=writeback
+> fixed it.   Maybe he didn't run it for long enough?
 
->From section 2 (GPLv3, draft 2):
+I don't think it did fix it for Mark:
 
- This License acknowledges your rights of "fair use" or other
- equivalent, as provided by copyright law. 
-
-By choosing 'acknowledges' as the verb, the licensee says explicitly
-that fair-use rights are already yours, not that they are being given
-to you.
-
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116625777306843&w=2

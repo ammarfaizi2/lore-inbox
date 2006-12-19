@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932670AbWLSIfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932666AbWLSIgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbWLSIfl (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWLSIfl
+	id S932666AbWLSIgq (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWLSIgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:35:41 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:53539 "EHLO
-	noname.neutralserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932663AbWLSIfj (ORCPT
+	Tue, 19 Dec 2006 03:36:46 -0500
+Received: from wx-out-0506.google.com ([66.249.82.230]:10379 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932666AbWLSIgp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:35:39 -0500
-X-Greylist: delayed 30760 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 03:35:39 EST
-Date: Tue, 19 Dec 2006 10:35:07 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: linux-scsi@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: [PATCH] scsi_execute_async() should add to the tail of the queue
-Message-ID: <20061219083507.GA20847@localdomain>
-MIME-Version: 1.0
+	Tue, 19 Dec 2006 03:36:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=DeRXs9P6rcrNyZLuooYxCV+Sq6+FO4ZsRXokOYsUeUr63ge6jYAvgzDh0Zx1EIz0VB1VT26Wjx5m9x9xeP0iif9KmIR19GkFeLahrc7N4Ejx2FLxjZ47pQHUTPGIKOAn8at6Sp5L9U4KTJax4dWn37534425theGfsHRJjJodHk=
+Date: Tue, 19 Dec 2006 17:35:49 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
+Subject: [PATCH] powerpc: use is_init()
+Message-ID: <20061219083549.GA4025@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+	Anton Blanchard <anton@samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Use is_init() rather than hard coded pid comparison.
 
-scsi_execute_async() has replaced scsi_do_req() a few versions ago, 
-but it also incurred a change of behavior. I noticed that over-queuing 
-a SCSI device using that function causes I/Os to be starved from 
-low-level queuing for no justified reason.
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Anton Blanchard <anton@samba.org>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+
+---
+ arch/powerpc/kernel/traps.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: 2.6-mm/arch/powerpc/kernel/traps.c
+===================================================================
+--- 2.6-mm.orig/arch/powerpc/kernel/traps.c
++++ 2.6-mm/arch/powerpc/kernel/traps.c
+@@ -174,7 +174,7 @@ void _exception(int signr, struct pt_reg
+ 	 * generate the same exception over and over again and we get
+ 	 * nowhere.  Better to kill it and let the kernel panic.
+ 	 */
+-	if (current->pid == 1) {
++	if (is_init(current)) {
+ 		__sighandler_t handler;
  
-I think it makes much more sense to perserve the original behaviour 
-of scsi_do_req() and add the request to the tail of the queue.
-
-Signed-off-by: Dan Aloni <da-x@monatomic.org>
-
-diff -p -urN a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
---- a/drivers/scsi/scsi_lib.c	2006-12-19 01:48:50.000000000 +0200
-+++ b/drivers/scsi/scsi_lib.c	2006-12-19 01:49:35.000000000 +0200
-@@ -421,7 +421,7 @@ int scsi_execute_async(struct scsi_devic
- 	sioc->data = privdata;
- 	sioc->done = done;
- 
--	blk_execute_rq_nowait(req->q, NULL, req, 1, scsi_end_async);
-+	blk_execute_rq_nowait(req->q, NULL, req, 0, scsi_end_async);
- 	return 0;
- 
- free_req:
-
-
- - Dan
+ 		spin_lock_irq(&current->sighand->siglock);

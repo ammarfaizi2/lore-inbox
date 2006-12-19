@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932837AbWLSQzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932832AbWLSQ5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932837AbWLSQzr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 11:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932832AbWLSQzr
+	id S932832AbWLSQ5A (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 11:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932835AbWLSQ5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 11:55:47 -0500
-Received: from an-out-0708.google.com ([209.85.132.249]:22355 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932837AbWLSQzr (ORCPT
+	Tue, 19 Dec 2006 11:57:00 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:60612 "HELO
+	warden.diginsite.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with SMTP id S932832AbWLSQ47 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 11:55:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aC3isbGBlLO4VQRPHdv8863uyD1HeI7rp8Z/lX/5Sn1f3exrAVrMUQkt/09ILJsOYc2BSFen+qA5hVKRc/Zw1TbggwD/4OhMsz3atAUcU4dvOui7usy/sGdB6vkhSooxipTQhO794FxU7AAzAX3+0UFrmtcpJw87K+tNVbtbMyo=
-Message-ID: <7b69d1470612190855t1df801as35852be1e25bd3c6@mail.gmail.com>
-Date: Tue, 19 Dec 2006 10:55:44 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: davids@webmaster.com
+	Tue, 19 Dec 2006 11:56:59 -0500
+Date: Tue, 19 Dec 2006 08:39:19 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: "D. Hazelton" <dhazelton@enter.net>
+cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Subject: Re: GPL only modules
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEENAHAC.davids@webmaster.com>
+In-Reply-To: <200612190135.53832.dhazelton@enter.net>
+Message-ID: <Pine.LNX.4.63.0612190835500.18007@qynat.qvtvafvgr.pbz>
+References: <MDEHLPKNGKAHNMBLJOLKKECHAHAC.davids@webmaster.com>
+ <200612190135.53832.dhazelton@enter.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <7b69d1470612181435s505282f0r7c9c47d554f87ecf@mail.gmail.com>
-	 <MDEHLPKNGKAHNMBLJOLKCEENAHAC.davids@webmaster.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/18/06, David Schwartz <davids@webmaster.com> wrote:
->
->
-> > First sale has nothing to do with this. First sale applies to the
-> > redistribution or resale of copies you have purchased, not with the
-> > right to make additional copies.
->
-> First sale is exactly what this is about. Nobody needs to make "additional
-> copies" of the Linux kernel because I can download a thousand of them from a
-> computer operated by the guy in the office down the hall from me.
----
+On Tue, 19 Dec 2006, D. Hazelton wrote:
 
-This is an interesting argument that was new to me. However, it is not
-clear at all that First Sale applies to intangible copies. And it's
-not clear that there is a sale involved, legally. Again, IANAL, but I
-think this is seriously untested ground.
+> This doesn't negate any problems with people making Blob drivers, because, as
+> you pointed out, under the same laws they aren't a derivative work, which
+> means that that clause of the license doesn't apply. Now if the GPL contained
+> a clause specifically defining what it considered a derivative work things
+> would be different.
 
-scott
+incorrect, the GPL (or any other license) cannot define what is a derived work, 
+the law does that. they could have a clause in them that said that something 
+that is a derived work under the law is not considered a derived work by the 
+author (implicitly giving unrestricted permission to that something), but you 
+cannot define something that the law doesn't consider a derived work to be one 
+in the license.
+
+David Lang
+

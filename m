@@ -1,75 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932690AbWLSIwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932693AbWLSIww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWLSIwi (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWLSIwi
+	id S932693AbWLSIww (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbWLSIwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:52:38 -0500
-Received: from wx-out-0506.google.com ([66.249.82.232]:17341 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932691AbWLSIwh (ORCPT
+	Tue, 19 Dec 2006 03:52:51 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:33948 "EHLO
+	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932685AbWLSIwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:52:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=WsvBqCv7gqmtJBpAZwXLcE8jeh2fsB+y2QdRs+yOFIDOJrK0wYPA7mUfpDUpeF2A2yMlz8dhbhnTO06tA/HdlNrEHxkvtan7YHvm3Glz85kyCR45Mnb13VlqXiI9CAgHJ0VMUtTx+h6IshLsgfDPkwR1r7AS/FFfYlWKwG+AeT8=
-Date: Tue, 19 Dec 2006 17:51:44 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, Ben Dooks <ben@simtec.co.uk>,
-       Dimitry Andric <dimitry.andric@tomtom.com>
-Subject: [PATCH] watchdog: fix clk_get() error check
-Message-ID: <20061219085144.GI4049@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Ben Dooks <ben@simtec.co.uk>,
-	Dimitry Andric <dimitry.andric@tomtom.com>
-Mime-Version: 1.0
+	Tue, 19 Dec 2006 03:52:50 -0500
+Date: Tue, 19 Dec 2006 01:52:49 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
+Message-ID: <20061219085249.GL21070@parisc-linux.org>
+References: <20061219041315.GE6993@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061219041315.GE6993@stusta.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of clk_get() should be checked by IS_ERR().
+On Tue, Dec 19, 2006 at 05:13:15AM +0100, Adrian Bunk wrote:
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		quirk_nopcipci );
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_496,		quirk_nopcipci );
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Why all the crazy spacing?
 
----
- drivers/char/watchdog/pnx4008_wdt.c |    3 ++-
- drivers/char/watchdog/s3c2410_wdt.c |    4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-Index: 2.6-mm/drivers/char/watchdog/pnx4008_wdt.c
-===================================================================
---- 2.6-mm.orig/drivers/char/watchdog/pnx4008_wdt.c
-+++ 2.6-mm/drivers/char/watchdog/pnx4008_wdt.c
-@@ -283,7 +283,8 @@ static int pnx4008_wdt_probe(struct plat
- 	wdt_base = (void __iomem *)IO_ADDRESS(res->start);
- 
- 	wdt_clk = clk_get(&pdev->dev, "wdt_ck");
--	if (!wdt_clk) {
-+	if (IS_ERR(wdt_clk)) {
-+		ret = PTR_ERR(wdt_clk);
- 		release_resource(wdt_mem);
- 		kfree(wdt_mem);
- 		goto out;
-Index: 2.6-mm/drivers/char/watchdog/s3c2410_wdt.c
-===================================================================
---- 2.6-mm.orig/drivers/char/watchdog/s3c2410_wdt.c
-+++ 2.6-mm/drivers/char/watchdog/s3c2410_wdt.c
-@@ -392,10 +392,10 @@ static int s3c2410wdt_probe(struct platf
- 	}
- 
- 	wdt_clock = clk_get(&pdev->dev, "watchdog");
--	if (wdt_clock == NULL) {
-+	if (IS_ERR(wdt_clock)) {
- 		printk(KERN_INFO PFX "failed to find watchdog clock source\n");
- 		iounmap(wdt_base);
--		return -ENOENT;
-+		return PTR_ERR(wdt_clock);
- 	}
- 
- 	clk_enable(wdt_clock);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5597, quirk_nopcipci);

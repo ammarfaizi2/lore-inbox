@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932959AbWLSVtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932963AbWLSVtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932959AbWLSVtA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932960AbWLSVtA
+	id S932963AbWLSVtd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932964AbWLSVtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:49:00 -0500
-Received: from quechua.inka.de ([193.197.184.2]:38059 "EHLO mail.inka.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932959AbWLSVtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:49:00 -0500
-X-Greylist: delayed 1537 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 16:49:00 EST
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19: OOPS in cat /proc/fs/nfs/exports
-References: <E1GrJH9-0003Hr-00@bigred.inka.de> <17780.62607.544405.181452@cse.unsw.edu.au> <E1Gripc-0004KC-00@bigred.inka.de> <17783.28848.504885.606906@cse.unsw.edu.au> <E1GtWmU-0007Cu-00@bigred.inka.de> <17788.35808.421807.546159@cse.unsw.edu.au>
-Organization: private Linux site, southern Germany
-From: Olaf Titz <olaf@bigred.inka.de>
-Date: Tue, 19 Dec 2006 22:23:05 +0100
-Message-ID: <E1GwmQT-0005u9-00@bigred.inka.de>
+	Tue, 19 Dec 2006 16:49:33 -0500
+Received: from mga05.intel.com ([192.55.52.89]:34653 "EHLO
+	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932963AbWLSVtc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 16:49:32 -0500
+X-Greylist: delayed 579 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 16:49:32 EST
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,188,1165219200"; 
+   d="scan'208"; a="179518747:sNHT22377201"
+Date: Tue, 19 Dec 2006 13:12:24 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, vatsa@in.ibm.com,
+       clameter@sgi.com, tglx@linutronix.de, arjan@linux.intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch: dynticks: idle load balancing
+Message-ID: <20061219131223.E23105@unix-os.sc.intel.com>
+References: <20061211155304.A31760@unix-os.sc.intel.com> <20061213224317.GA2986@elte.hu> <20061213231316.GA13849@elte.hu> <20061213150314.B12795@unix-os.sc.intel.com> <20061213233157.GA20470@elte.hu> <20061213151926.C12795@unix-os.sc.intel.com> <20061219201247.GA12648@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061219201247.GA12648@elte.hu>; from mingo@elte.hu on Tue, Dec 19, 2006 at 09:12:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Dec 19, 2006 at 09:12:48PM +0100, Ingo Molnar wrote:
+>  restart:
+>  	if (idle_cpu(local_cpu) && notick.load_balancer == local_cpu) {
+>  		this_cpu = first_cpu(cpus);
+> +		if (unlikely(this_cpu >= NR_CPUS))
+> +			return;
 
-> > I've replaced exportfs, mountd and nfsd with a newer version and it
-> > works now.
->
-> What version were you using?  I would really like to know.
+oops.
 
-The system in question was built on a Knoppix release based on Debian
-Potato, with updates from Woody. Most likely this is the package
-nfs-kernel-server 1.0-2woody3 based on nfs-utils 1.0, which is the oldest
-version still to be found on the Debian mirrors.
+There is window when local_cpu is cleared from notick.cpumask
+but the notick.load_balancer still points to local_cpu..
+This can also be corrected by first resetting the notick.load_balancer
+before clearing that cpu from notick.cpumask in select_notick_load_balancer()
 
-(argh, I should have saved the old binaries and [more important, since
-the binaries have no version indication] package docs...)
-
-Olaf
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFiFgxGPw4gdAdiZ0RAvXjAJ0X+BPu8cUg+IHEZRG51KWFKevFTwCfSGCr
-j+fcUcfnunp1dyCDCrBlUBU=
-=9Uqx
------END PGP SIGNATURE-----
+thanks,
+suresh

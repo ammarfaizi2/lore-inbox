@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932934AbWLSUdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932940AbWLSUwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932934AbWLSUdF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 15:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932891AbWLSUdE
+	id S932940AbWLSUwp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 15:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932936AbWLSUwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 15:33:04 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:58582 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932935AbWLSUdD (ORCPT
+	Tue, 19 Dec 2006 15:52:45 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:30414 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932940AbWLSUwo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 15:33:03 -0500
-Date: Tue, 19 Dec 2006 20:32:51 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, gregkh@suse.de
-Message-ID: <20061219203251.GA14648@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <1166556889.3365.1269.camel@laptopd505.fenrus.org> <20061219194410.GA14121@srcf.ucam.org> <1166558602.3365.1271.camel@laptopd505.fenrus.org> <20061219200803.GA14332@srcf.ucam.org> <1166559785.3365.1276.camel@laptopd505.fenrus.org>
+	Tue, 19 Dec 2006 15:52:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=Jo7Gk8h7qCqkDFV7Wkm/cTe+RczQlqsmR97CaySGdbOB3lpZX5ZPm60vqrDFxJJZKs9dDovwp14eBVzvXizbEuZ2H81dV5/qlrkKxH8q1uqNAMIFhuHTYprI0P2Y/8+jKZf22uBcfPjd0WZz+ON3Z0Kzl0zvyxTX5pPlgYxbHg8=
+Message-ID: <3efb10970612191252m33e7b88cydca7fb488251ee35@mail.gmail.com>
+Date: Tue, 19 Dec 2006 21:52:42 +0100
+From: "Remy Bohmer" <l.pinguin@gmail.com>
+Reply-To: linux@bohmer.net
+To: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [BUG+PATCH] RT-Preempt: IRQ threads running at prio 0 SCHED_OTHER
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166559785.3365.1276.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: Changes to sysfs PM layer break userspace
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_9230_27233770.1166561562880"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 09:23:05PM +0100, Arjan van de Ven wrote:
-> On Tue, 2006-12-19 at 20:08 +0000, Matthew Garrett wrote:
-> > I'm not sure. Suspending the chip means you lose things like link beat 
-> > detection, so it's not something you necessarily want to automatically 
-> > tie to something like interface status. 
-> 
-> right now the "spec" for Linux network drivers assumes that you put the
-> NIC into D3 on down, except for cases where Wake-on-Lan is enabled etc.
+------=_Part_9230_27233770.1166561562880
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Really? I can't find any drivers that seem to do this. The only calls to 
-pci_set_power_state seem to be in the suspend, resume, init and exit 
-routines.
+Hello Ingo,
 
-> > Some chips support more 
-> > fine-grained power management, so we could do something more sensible in 
-> > that case - but right now, there doesn't seem to be a lot of driver 
-> > support for it.
-> 
-> sounds like that's the right approach at least .. not talking to the PCI
-> hardware directly from userspace...
+I am using your yum-distributed kernel 2.6.19.1-rt15, and
+unfortunately I experienced very worse latencies.
+It turned out that ALL the IRQ threads were all running at prio 0, SCHED_OT=
+HER.
 
-I'd certainly agree that that's the right thing to do, but userspace has 
-a habit of using whatever functionality /is/ available to get to a given 
-end. The semantics of the device/power/state file were never made 
-terribly clear, and it did have the desired effect of suspending the 
-device. Removing it without providing warning or a transition pathway is 
-a pain.
+Looking at the current code in kernel/irq/manage.c, the goal was to
+put them at MAX_RT_PRIO, but the call to sys_sched_setscheduler()
+fails with EINVAL. I have attached a patch to set them to
+(MAX_RT_PRIO-1). This works.
 
-> I can see the point of having more than just "UP" and "DOWN" as
-> interface states; "UP", "DOWN" and "OFF" for example... 
+Further I believe that each application of the RT-kernel requires a
+different configuration of these thread-priorities and I prefer to
+reconfigure these prios from userland during boot. As these
+threadnames contain whitespaces in its name, they make the
+shell-scripts unnecessary complex that I use to reconfigure the thread
+priorities.
+So, I would prefer a slight modification of the names: The attached
+patch also changes the names from [IRQ nn] to [IRQ-nn]. I hope that
+you agree with me here. (If not, I stick to do this patch each time
+myself ;-) )
 
-Agreed.
+Kind Regards,
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Remy B=F6hmer
+
+------=_Part_9230_27233770.1166561562880
+Content-Type: application/octet-stream; 
+	name=fix-kernel-irq-thread-prio.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_evwsh4i8
+Content-Disposition: attachment; filename="fix-kernel-irq-thread-prio.patch"
+
+LS0tIGxpbnV4LTIuNi4xOS5pNjg2L2tlcm5lbC9pcnEvbWFuYWdlLmMub3JpZwkyMDA2LTEyLTE4
+IDIyOjU5OjU5LjAwMDAwMDAwMCArMDEwMAorKysgbGludXgtMi42LjE5Lmk2ODYva2VybmVsL2ly
+cS9tYW5hZ2UuYwkyMDA2LTEyLTE5IDIxOjIyOjA5LjAwMDAwMDAwMCArMDEwMApAQCAtNjkyLDkg
+KzY5Miw5IEBACiAJY3VycmVudC0+ZmxhZ3MgfD0gUEZfTk9GUkVFWkUgfCBQRl9IQVJESVJROwog
+CiAJLyoKLQkgKiBTY2FsZSBpcnEgdGhyZWFkIHByaW9yaXRpZXMgZnJvbSBwcmlvIDUwIHRvIHBy
+aW8gMjUKKwkgKiBTY2FsZSBpcnEgdGhyZWFkIHByaW9yaXRpZXMgdG8gcHJpbyA5OQogCSAqLwot
+CXBhcmFtLnNjaGVkX3ByaW9yaXR5ID0gTUFYX1JUX1BSSU87CisJcGFyYW0uc2NoZWRfcHJpb3Jp
+dHkgPSBNQVhfUlRfUFJJTy0xOwogCiAJc3lzX3NjaGVkX3NldHNjaGVkdWxlcihjdXJyZW50LT5w
+aWQsIFNDSEVEX0ZJRk8sICZwYXJhbSk7CiAKQEAgLTcyNSw3ICs3MjUsNyBAQAogCWlmIChkZXNj
+LT50aHJlYWQgfHwgIW9rX3RvX2NyZWF0ZV9pcnFfdGhyZWFkcykKIAkJcmV0dXJuIDA7CiAKLQlk
+ZXNjLT50aHJlYWQgPSBrdGhyZWFkX2NyZWF0ZShkb19pcnFkLCBkZXNjLCAiSVJRICVkIiwgaXJx
+KTsKKwlkZXNjLT50aHJlYWQgPSBrdGhyZWFkX2NyZWF0ZShkb19pcnFkLCBkZXNjLCAiSVJRLSVk
+IiwgaXJxKTsKIAlpZiAoIWRlc2MtPnRocmVhZCkgewogCQlwcmludGsoS0VSTl9FUlIgImlycWQ6
+IGNvdWxkIG5vdCBjcmVhdGUgSVJRIHRocmVhZCAlZCFcbiIsIGlycSk7CiAJCXJldHVybiAtRU5P
+TUVNOwo=
+------=_Part_9230_27233770.1166561562880--

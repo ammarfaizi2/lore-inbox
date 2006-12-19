@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932692AbWLSI6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932695AbWLSJAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbWLSI6H (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWLSI6H
+	id S932695AbWLSJAv (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 04:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWLSJAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:58:07 -0500
-Received: from nz-out-0506.google.com ([64.233.162.228]:45057 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932692AbWLSI6G (ORCPT
+	Tue, 19 Dec 2006 04:00:51 -0500
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:36062 "EHLO
+	liaag1ab.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932695AbWLSJAu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:58:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=IyeiYVg4hTKGbLmCPwLwfS2AzpGRAf10cnNymeog99regwf3U1RoUXO6H65Zofd2vRVIAATSOf+ZvvVrQ4H83AIFS5v24ALsc8ApeEb5HhiwaYnakvZ4D5w0LRjyHbOQo95ZaOUi3dS2oQEdYzLiZjakQLBpbFEp4gB8BhLDV6k=
-Date: Tue, 19 Dec 2006 17:57:12 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>,
-       Mark Gross <mark.gross@intel.com>
-Subject: [PATCH] tlclk: delete unnecessary sysfs_remove_group
-Message-ID: <20061219085712.GM4049@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>,
-	Mark Gross <mark.gross@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Dec 2006 04:00:50 -0500
+Date: Tue, 19 Dec 2006 03:55:38 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [solved] Yenta Cardbus allocation failure
+To: "Markus Rechberger" <mrechberger@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Message-ID: <200612190359_MC3-1-D590-3237@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is unnecessary and invalid to call sysfs_remove_group()
-after sysfs_create_group() failure.
+In-Reply-To: <d9def9db0612181612v657197ees925609243fc1ef65@mail.gmail.com>
 
-Cc: Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>
-Cc: Mark Gross <mark.gross@intel.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+On Tue, 19 Dec 2006 01:12:07 +0100, Markus Rechberger wrote:
 
----
- drivers/char/tlclk.c |    2 --
- 1 file changed, 2 deletions(-)
+> I went on with investigating that problem and found the problem,
+> though I'm not sure if that solution is acceptable..
+> 
+> seems like the memory range gets preallocated in setup-bus.c, and
+> CARDBUS_MEM_SIZE defines that size.
+> 
+> I changed
+> #define CARDBUS_MEM_SIZE        (32*1024*1024)
+> to
+> #define CARDBUS_MEM_SIZE        (48*1024*1024)
+> 
+> and now the system is able to allocate the resources for the 3rd
+> pci/pcmcia function.
+> 
+> Can anyone please have a closer look at it too? I think the whole
+> implementation isn't really good there..
+> 
+> so this is the new output of iomem:
+> $ cat /proc/iomem
+> ...
+> 30000000-35ffffff : PCI Bus #02
+>   30000000-32ffffff : PCI CardBus #03
+> 36000000-360003ff : 0000:00:1f.1
+> 39000000-3bffffff : PCI CardBus #03
+>   39000000-39ffffff : 0000:03:00.0
+>   3a000000-3affffff : 0000:03:00.1
+>   3b000000-3bffffff : 0000:03:00.2 <- this one failed to allocate previously
 
-Index: 2.6-mm/drivers/char/tlclk.c
-===================================================================
---- 2.6-mm.orig/drivers/char/tlclk.c
-+++ 2.6-mm/drivers/char/tlclk.c
-@@ -807,8 +807,6 @@ static int __init tlclk_init(void)
- 			&tlclk_attribute_group);
- 	if (ret) {
- 		printk(KERN_ERR "tlclk: failed to create sysfs device attributes.\n");
--		sysfs_remove_group(&tlclk_device->dev.kobj,
--			&tlclk_attribute_group);
- 		goto out5;
- 	}
- 
+Wow, 3 regions of 16MB each!  Your change fixes this problem for you, but
+what if someone needs four such regions?
+
+-- 
+MBTI: IXTP
+

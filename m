@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751976AbWLSN3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751667AbWLSNeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751976AbWLSN3D (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 08:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWLSN3D
+	id S1751667AbWLSNeL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 08:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWLSNeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 08:29:03 -0500
-Received: from stinky.trash.net ([213.144.137.162]:50801 "EHLO
-	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751784AbWLSN3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 08:29:01 -0500
-Message-ID: <4587E91A.2020903@trash.net>
-Date: Tue, 19 Dec 2006 14:28:58 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Netfilter Developer Mailing List 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] xt_request_find_match
-References: <Pine.LNX.4.61.0612161851180.30896@yvahk01.tjqt.qr> <4587D227.1000003@trash.net> <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 08:34:11 -0500
+Received: from 1wt.eu ([62.212.114.60]:1588 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751667AbWLSNeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 08:34:10 -0500
+Date: Tue, 19 Dec 2006 14:32:56 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: "J.H." <warthog9@kernel.org>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       hpa@zytor.com, webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+Message-ID: <20061219133256.GA19084@1wt.eu>
+References: <20061214223718.GA3816@elf.ucw.cz> <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <45858B3A.5050804@oracle.com> <20061217223730.GW10054@mea-ext.zmailer.org> <1166402576.26330.81.camel@localhost.localdomain> <20061219064646.GJ24090@1wt.eu> <1166513991.26330.136.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166513991.26330.136.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> On Dec 19 2006 12:51, Patrick McHardy wrote:
+On Mon, Dec 18, 2006 at 11:39:51PM -0800, J.H. wrote:
+> > If the frontend machines are not taken off-line too often, it should
+> > be no big deal for them to handle something such as LVS, and would
+> > help spreding the load.
 > 
->>>Reusing code is a good idea, and I would like to do so from my 
->>>match modules. netfilter already provides a xt_request_find_target() but 
->>>an xt_request_find_match() does not yet exist. This patch adds it.
->>
->>Why does your match module needs to lookup other matches?
-> 
-> 
-> To use them?
-> 
-> I did not want to write
-> 
-> 
-> some_xt_target() {
->     if(skb->nh.iph->protocol == IPPROTO_TCP)
->         do_this();
->     else
->         do_that();
-> }
+> I'll have to look into it - but by and large the round robining tends to
+> work.  Specifically as I am writing this the machines are both pushing
+> right around 150mbps, however the load on zeus1 is 170 vs. zeus2's 4.
+> Also when we peak the bandwidth we do use every last kb we can get our
+> hands on, so doing any tunneling takes just that much bandwidth away
+> from the total.
 
-I don't think
+Indeed.
 
-xt_request_find_match(match->family, "tcp", 0)->match(lots of arguments)
-
-is better than a simple comparison. Besides that the tcp match itself
-expects that the protocol match already checked for IPPROTO_TCP, so
-you'd still have to do it.
-
-> since the xt_tcpudp module provides far more checks than just the protocol
-> (TCP/UDP), like
+> 	Number of Processes running
+> process		#1	#2
+> ------------------------------------
+> rsync		162	69
+> http		734	642
+> ftp		353	190
 > 
->     /* To quote Alan:
-> 
->        Don't allow a fragment of TCP 8 bytes in. Nobody normal
->        causes this. Its a cracker trying to break in by doing a
->        flag overwrite to pass the direction checks.
->     */
+> as a quick snapshot.  I would agree with HPA's recent statement - that
+> people who are mirroring against kernel.org have probably hard coded the
+> first machine into their scripts, combine that with a few dns servers
+> that don't honor or deal with round robining and you have the extra load
+> on the first machine vs. the second.
 
-This check makes sure the flags are not overwritten _after you
-matched on them_. It doesn't matter at all if you're only
-interested in the protocol since the user didn't tell you to care.
+I've also already experienced I/O loads due to rsync. The most annoying
+part certainly being that most of the connections see nothing new, but
+the disks are seeked anyway, and the cache always gets trashed. A dirty
+but probably efficient emergency workaround would be to randomly refuse
+a few rsync connections on www1. It would make the mirroring tools fail
+once in a while, and the data would be mirrored in larger batches, so
+all in all, it would reduce the rate of useless disk seeks.
+
+Since I suspect that the volume of data transferred by rsync is fairly
+moderate, it might be interesting to load balance the rsync between the
+two machines, even if that involves making the data transit via the net
+twice. I can help setting up a reverse proxy setup if you want to give
+a try to such a setup.
+
+Best regards,
+Willy
 

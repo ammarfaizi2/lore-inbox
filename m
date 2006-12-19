@@ -1,215 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932997AbWLSXnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752928AbWLSX7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932997AbWLSXnq (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 18:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933007AbWLSXnq
+	id S1752928AbWLSX7b (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 18:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752963AbWLSX7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 18:43:46 -0500
-Received: from amsfep19-int.chello.nl ([62.179.120.14]:55364 "EHLO
-	amsfep19-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932997AbWLSXnp (ORCPT
+	Tue, 19 Dec 2006 18:59:31 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:39334 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752903AbWLSX7a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 18:43:45 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <1166466272.10372.96.camel@twins>
-	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 00:42:29 +0100
-Message-Id: <1166571749.10372.178.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 18:59:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type;
+        b=eu/MH7NeCzYzqtOEBP5sLVmfkO+5dKdG936lIjWUvO5ouJKTpxSpTs8xtsoMEbpbLJRDchGBI/c2wznMjtZFDktO08sJGiq94Dj1oT562IQL7zVpPEBSoPjENubCuAGTRHJFMJ1cGCmQamXHE54LI20NX07Ml0Hv1Utvit3V7Xc=
+Message-ID: <45887CD8.5090100@gmail.com>
+Date: Wed, 20 Dec 2006 08:59:20 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
+MIME-Version: 1.0
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19.1, sata_sil: sata dvd writer doesn't work
+References: <45841710.9040900@t-online.de> <4587F87C.2050100@gmail.com> <45883299.2050209@t-online.de>
+In-Reply-To: <45883299.2050209@t-online.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/mixed;
+ boundary="------------090401020306030806070909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 12:14 -0800, Linus Torvalds wrote:
+This is a multi-part message in MIME format.
+--------------090401020306030806070909
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> OR:
-> 
->  - page_mkclean_one() is simply buggy.
+* dmesg is truncated, please post the content of file /var/log/boot.msg.
 
-GOLD!
+* Please post the result of 'lspci -nnvvv'
 
-it seems to work with all this (full diff against current git).
+* Please try the attached patch and see if it makes any difference and
+post the result of 'dmesg' after trying to play a problematic dvd.
 
-/me rebuilds full kernel to make sure...
-reboot...
-test...      pff the tension...
-yay, still good!
+-- 
+tejun
 
-Andrei; would you please verify.
+--------------090401020306030806070909
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-The magic seems to be in the extra tlb flush after clearing the dirty
-bit. Just too bad ptep_clear_flush_dirty() needs ptep not entry.
-
-diff --git a/drivers/connector/connector.c b/drivers/connector/connector.c
-index 5e7cd45..2b8893b 100644
---- a/drivers/connector/connector.c
-+++ b/drivers/connector/connector.c
-@@ -135,8 +135,7 @@ static int cn_call_callback(struct cn_msg *msg, void (*destruct_data)(void *), v
- 	spin_lock_bh(&dev->cbdev->queue_lock);
- 	list_for_each_entry(__cbq, &dev->cbdev->queue_list, callback_entry) {
- 		if (cn_cb_equal(&__cbq->id.id, &msg->id)) {
--			if (likely(!test_bit(WORK_STRUCT_PENDING,
--					     &__cbq->work.work.management) &&
-+			if (likely(!delayed_work_pending(&__cbq->work) &&
- 					__cbq->data.ddata == NULL)) {
- 				__cbq->data.callback_priv = msg;
+diff --git a/drivers/ata/libata-eh.c b/drivers/ata/libata-eh.c
+index 02b2b27..bbbec75 100644
+--- a/drivers/ata/libata-eh.c
++++ b/drivers/ata/libata-eh.c
+@@ -1433,16 +1433,47 @@ static void ata_eh_report(struct ata_port *ap)
+ 	}
  
-diff --git a/fs/buffer.c b/fs/buffer.c
-index d1f1b54..263f88e 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2834,7 +2834,7 @@ int try_to_free_buffers(struct page *page)
- 	int ret = 0;
+ 	for (tag = 0; tag < ATA_MAX_QUEUE; tag++) {
++		static const char *dma_str[] = {
++			[DMA_BIDIRECTIONAL]	= "bidi",
++			[DMA_TO_DEVICE]		= "out",
++			[DMA_FROM_DEVICE]	= "in",
++			[DMA_NONE]		= "",
++		};
+ 		struct ata_queued_cmd *qc = __ata_qc_from_tag(ap, tag);
++		struct ata_taskfile *cmd = &qc->tf, *res = &qc->result_tf;
++		const u8 *c = qc->cdb;
++		unsigned int nbytes;
  
- 	BUG_ON(!PageLocked(page));
--	if (PageWriteback(page))
-+	if (PageDirty(page) || PageWriteback(page))
- 		return 0;
+ 		if (!(qc->flags & ATA_QCFLAG_FAILED) || !qc->err_mask)
+ 			continue;
  
- 	if (mapping == NULL) {		/* can this still happen? */
-@@ -2845,22 +2845,6 @@ int try_to_free_buffers(struct page *page)
- 	spin_lock(&mapping->private_lock);
- 	ret = drop_buffers(page, &buffers_to_free);
- 	spin_unlock(&mapping->private_lock);
--	if (ret) {
--		/*
--		 * If the filesystem writes its buffers by hand (eg ext3)
--		 * then we can have clean buffers against a dirty page.  We
--		 * clean the page here; otherwise later reattachment of buffers
--		 * could encounter a non-uptodate page, which is unresolvable.
--		 * This only applies in the rare case where try_to_free_buffers
--		 * succeeds but the page is not freed.
--		 *
--		 * Also, during truncate, discard_buffer will have marked all
--		 * the page's buffers clean.  We discover that here and clean
--		 * the page also.
--		 */
--		if (test_clear_page_dirty(page))
--			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
--	}
- out:
- 	if (buffers_to_free) {
- 		struct buffer_head *bh = buffers_to_free;
-diff --git a/mm/memory.c b/mm/memory.c
-index c00bac6..60e0945 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1842,6 +1842,33 @@ void unmap_mapping_range(struct address_space *mapping,
+-		ata_dev_printk(qc->dev, KERN_ERR, "tag %d cmd 0x%x "
+-			       "Emask 0x%x stat 0x%x err 0x%x (%s)\n",
+-			       qc->tag, qc->tf.command, qc->err_mask,
+-			       qc->result_tf.command, qc->result_tf.feature,
+-			       ata_err_string(qc->err_mask));
++		nbytes = qc->nbytes;
++		if (!nbytes)
++			nbytes = qc->nsect << 9;
++
++		ata_dev_printk(qc->dev, KERN_ERR,
++			"cmd %02x/%02x:%02x:%02x:%02x:%02x/%02x:%02x:%02x:%02x:%02x/%02x "
++			"tag %d cdb 0x%x data %u %s\n         "
++			"res %02x/%02x:%02x:%02x:%02x:%02x/%02x:%02x:%02x:%02x:%02x/%02x "
++			"Emask 0x%x (%s)\n",
++			cmd->command, cmd->feature, cmd->nsect,
++			cmd->lbal, cmd->lbam, cmd->lbah,
++			cmd->hob_feature, cmd->hob_nsect,
++			cmd->hob_lbal, cmd->hob_lbam, cmd->hob_lbah,
++			cmd->device, qc->tag, qc->cdb[0], nbytes,
++			dma_str[qc->dma_dir],
++			res->command, res->feature, res->nsect,
++			res->lbal, res->lbam, res->lbah,
++			res->hob_feature, res->hob_nsect,
++			res->hob_lbal, res->hob_lbam, res->hob_lbah,
++			res->device, qc->err_mask, ata_err_string(qc->err_mask));
++
++		ata_dev_printk(qc->dev, KERN_ERR,
++			       "CDB: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x "
++			       "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x p=%d\n",
++			       c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7],
++			       c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15],
++			       cmd->protocol);
+ 	}
  }
- EXPORT_SYMBOL(unmap_mapping_range);
  
-+static void check_last_page(struct address_space *mapping, loff_t size)
-+{
-+	pgoff_t index;
-+	unsigned int offset;
-+	struct page *page;
-+
-+	if (!mapping)
-+		return;
-+	offset = size & ~PAGE_MASK;
-+	if (!offset)
-+		return;
-+	index = size >> PAGE_SHIFT;
-+	page = find_lock_page(mapping, index);
-+	if (page) {
-+		unsigned int check = 0;
-+		unsigned char *kaddr = kmap_atomic(page, KM_USER0);
-+		do {
-+			check += kaddr[offset++];
-+		} while (offset < PAGE_SIZE);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		unlock_page(page);
-+		page_cache_release(page);
-+		if (check)
-+			printk(KERN_ERR "%s: BADNESS: truncate check %u\n", current->comm, check);
-+	}
-+}
-+
- /**
-  * vmtruncate - unmap mappings "freed" by truncate() syscall
-  * @inode: inode of the file used
-@@ -1875,6 +1902,7 @@ do_expand:
- 		goto out_sig;
- 	if (offset > inode->i_sb->s_maxbytes)
- 		goto out_big;
-+	check_last_page(mapping, inode->i_size);
- 	i_size_write(inode, offset);
- 
- out_truncate:
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index 237107c..f561e72 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -957,7 +957,7 @@ int test_set_page_writeback(struct page *page)
- EXPORT_SYMBOL(test_set_page_writeback);
- 
- /*
-- * Return true if any of the pages in the mapping are marged with the
-+ * Return true if any of the pages in the mapping are marked with the
-  * passed tag.
-  */
- int mapping_tagged(struct address_space *mapping, int tag)
-diff --git a/mm/rmap.c b/mm/rmap.c
-index d8a842a..900229a 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -432,7 +432,7 @@ static int page_mkclean_one(struct page *page, struct vm_area_struct *vma)
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pte_t *pte, entry;
-+	pte_t *ptep, entry;
- 	spinlock_t *ptl;
- 	int ret = 0;
- 
-@@ -440,22 +440,23 @@ static int page_mkclean_one(struct page *page, struct vm_area_struct *vma)
- 	if (address == -EFAULT)
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 3ac4890..f018e49 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -191,6 +191,7 @@ int scsi_execute(struct scsi_device *sdev, const unsigned char *cmd,
  		goto out;
  
--	pte = page_check_address(page, mm, address, &ptl);
--	if (!pte)
-+	ptep = page_check_address(page, mm, address, &ptl);
-+	if (!ptep)
- 		goto out;
- 
--	if (!pte_dirty(*pte) && !pte_write(*pte))
-+	if (!pte_dirty(*ptep) && !pte_write(*ptep))
- 		goto unlock;
- 
--	entry = ptep_get_and_clear(mm, address, pte);
--	entry = pte_mkclean(entry);
-+	entry = ptep_get_and_clear(mm, address, ptep);
- 	entry = pte_wrprotect(entry);
--	ptep_establish(vma, address, pte, entry);
-+	ptep_establish(vma, address, ptep, entry);
-+	ret = ptep_clear_flush_dirty(vma, address, ptep) ||
-+		page_test_and_clear_dirty(page);
- 	lazy_mmu_prot_update(entry);
- 	ret = 1;
- 
- unlock:
--	pte_unmap_unlock(pte, ptl);
-+	pte_unmap_unlock(ptep, ptl);
- out:
- 	return ret;
- }
+ 	req->cmd_len = COMMAND_SIZE(cmd[0]);
++	memset(req->cmd, 0, BLK_MAX_CDB); /* ATAPI hates garbage after CDB */
+ 	memcpy(req->cmd, cmd, req->cmd_len);
+ 	req->sense = sense;
+ 	req->sense_len = 0;
 
-
+--------------090401020306030806070909--

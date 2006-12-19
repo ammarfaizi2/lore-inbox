@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932685AbWLSI4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932698AbWLSI46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932685AbWLSI4S (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWLSI4S
+	id S932698AbWLSI46 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWLSI46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:56:18 -0500
-Received: from eazy.amigager.de ([213.239.192.238]:42187 "EHLO
-	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932685AbWLSI4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:56:17 -0500
-Date: Tue, 19 Dec 2006 09:56:16 +0100
-From: Tino Keitel <tino.keitel@tikei.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to interpret PM_TRACE output
-Message-ID: <20061219085616.GA2053@dose.home.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061213212258.GA9879@dose.home.local> <20061216085748.GE4049@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Dec 2006 03:56:58 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:51773 "EHLO 2ka.mipt.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932085AbWLSI45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 03:56:57 -0500
+Date: Tue, 19 Dec 2006 11:56:49 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [take28-resend_2->0 0/8] kevent: Generic event handling mechanism.
+Message-ID: <20061219085649.GA14877@2ka.mipt.ru>
+References: <11663636322861@2ka.mipt.ru> <458760C9.7080504@redhat.com> <20061219045130.GA28980@2ka.mipt.ru> <458784EE.7080303@redhat.com> <20061219063838.GA23757@2ka.mipt.ru> <45879C5F.7040802@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20061216085748.GE4049@ucw.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45879C5F.7040802@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 19 Dec 2006 11:56:50 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2006 at 08:57:48 +0000, Pavel Machek wrote:
-> On Wed 13-12-06 22:22:59, Tino Keitel wrote:
-> > Hi folks,
-> > 
-> > I tried PM_TRACE to find the driver that breaks resume from suspend.
-> > I got working resume until I switched to the sk98lin driver
-> > (because sky2 doesn't support wake on LAN). That's why I was quite sure that
-> > sk98lin is the culprit, but I tried PM_TRACE anymay.
+On Tue, Dec 19, 2006 at 12:01:35AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >What error messages do you see and what are kevent related config
+> >changes?
 > 
-> See Doc*/power/*.
+> ARCH=um
+> 
+> #define CONFIG_KEVENT_USER_STAT 1
+> #define CONFIG_KEVENT_PIPE 1
+> #define CONFIG_KEVENT_POLL 1
+> #define CONFIG_KEVENT_TIMER 1
+> #define CONFIG_KEVENT 1
+> #define CONFIG_KEVENT_SIGNAL 1
+> #define CONFIG_KEVENT_SOCKET 1
+> 
+> 
+> 
+> In file included from kernel/kevent/kevent.c:28:
+> include/linux/kevent.h: In function ‘kevent_init_file’:
+> include/linux/kevent.h:220: error: ‘struct file’ has no member named 
+> ‘st’
+> include/linux/kevent.h: In function ‘kevent_cleanup_file’:
+> include/linux/kevent.h:225: error: ‘struct file’ has no member named 
+> ‘st’
 
-There is a nice mixture of documentation about swusp, video stuff,
-developer documentation, and one short paragraph about PM_TRACE that
-tells me nothing new. Could you point me to the documentation part that
-you are referring to, and that tells me what to do if PM_TRACE shows
-the usb device but the failure only occurs when I load the sk98lin
-driver?
+Can you send me your linux/fs.h file to chek if it is correct.
+Also does 'make prepare' fix the buid?
 
-Thanks and regards,
-Tino
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
+
+-- 
+	Evgeniy Polyakov

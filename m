@@ -1,44 +1,123 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932596AbWLSHlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932616AbWLSHpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932596AbWLSHlQ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 02:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWLSHlQ
+	id S932616AbWLSHpA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 02:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWLSHpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 02:41:16 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:8852 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932596AbWLSHlO (ORCPT
+	Tue, 19 Dec 2006 02:45:00 -0500
+Received: from orion2.pixelized.ch ([195.190.190.13]:58347 "EHLO
+	mail.pixelized.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932616AbWLSHo7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 02:41:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FzAfvsdvIFy9DQEYejQGhaMUpQ9NeUyXG91mJvhqT/WHuJokArHmoao31DApTGLbXMZ7LASGFz3IwTne8e0ksfoRSfSxmjk70zHR+yBN6PcYvkkY2Yx7/MnBrl2P+j8OVNTTfFgeZhCRDh974TtueZES5WU3AChGX+rgfrU9MDU=
-Message-ID: <6d6a94c50612182341m106eb56ctcd1bcc849aec6c23@mail.gmail.com>
-Date: Tue, 19 Dec 2006 15:41:12 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC][PATCH] Fix area->nr_free-- went (-1) issue in buddy system
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <458787FF.6080404@yahoo.com.au>
+	Tue, 19 Dec 2006 02:44:59 -0500
+X-Greylist: delayed 309 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 02:44:59 EST
+Message-ID: <4587973E.5020800@debian.org>
+Date: Tue, 19 Dec 2006 08:39:42 +0100
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org> <orwt4qaara.fsf@redhat.com> <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org> <orpsah6m3s.fsf@redhat.com> <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org> <or64c96ius.fsf@redhat.com> <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6d6a94c50612181901m1bfd9d1bsc2d9496ab24eb3f8@mail.gmail.com>
-	 <458760B0.7090803@yahoo.com.au>
-	 <6d6a94c50612182216r15cd99a3p59bbe3d49cb482f0@mail.gmail.com>
-	 <458787FF.6080404@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/19/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Hi Aubery!
->
-> That's right. I guess you can either align your zone sizes (must be
-> aligned to MAX_ORDER size), or add the zone check in page_is_buddy.
->
-Adding the zone check in page_is_buddy fix the problem.
-Thanks again, :)
+Linus Torvalds wrote:
+> 
+> On Mon, 18 Dec 2006, Alexandre Oliva wrote:
+>>> In other words, in the GPL, "Program" does NOT mean "binary". Never has.
+>> Agreed.  So what?  How does this relate with the point above?
+>>
+>> The binary is a Program, as much as the sources are a Program.  Both
+>> forms are subject to copyright law and to the license, in spite of
+>> http://www.fsfla.org/?q=en/node/128#1
+> 
+> Here's how it relates:
+>  - if a program is not a "derived work" of the C library, then it's not 
+>    "the program" as defined by the GPLv2 AT ALL.
+> 
+> In other words, it doesn't matter ONE WHIT whether you use "ld --static" 
+> or "ld" or "mkisofs" - if the program isn't (by copyright law) derived 
+> from glibc, then EVEN IF glibc was under the GPLv2, it would IN NO WAY 
+> AFFECT THE RESULTING BINARY.
 
--Aubrey
+I really don't agree.  It seems you confuse source and binary application.
+
+The source surelly is not derived, you can link *any* libc to your
+program.
+
+But a binary is different.
+
+Let start with your example about books: you write a book, you have
+the copyright of the text, but if you publish it with X publiher, he
+may use a own font.  You can read the book, scan it to extract text
+(I hope fair use allows it), but not copy the book pages: there is
+your text, but also copyrighted font.  Publisher should check
+that the two license are compatible, as the user that links
+with a new library.
+
+For binary, it is the same. You can extract libraries and rest of
+programs (better doing with sources), but until it is one binary,
+it is a new mixed entity.
+
+It is not only linking, it is mixing bytes! Some part of library is
+linked statically, there are some references in the static part of
+program. It is a mix and until the two part are mixed (not only linked)
+you should follow both licenses for copying!
+
+Choose any dynamic program in your machine, try to link glibc with an
+other (not directly derived libc) library... you see how it is hard,
+and it is very different to an "aggregation".  And dynamic links is
+only the latest step of "merging" the two binaries.
+
+Other libraries tend to be more "dynamic", but glibc mixes to much
+
+In other word, source A, library B: the binary C is derived both from A
+and B, but surelly A is not derived by B.  So IMHO IANAL, in arguments
+we should not confuse the sources and the binary in the arguments, so
+not calling simply "the program".
+
+
+ciao
+	cate
+
+
+> 
+> And I'm simply claiming that a binary doesn't become "derived from" by any 
+> action of linking.
+> 
+> Even if you link using "ld", even if it's static, the binary is not 
+> "derived from". It's an aggregate.
+> 
+> "Derivation" has nothing to do with "linking". Either it's derived or it 
+> is not, and "linking" simply doesn't matter. It doesn't matter whether 
+> it's static or dynamic. That's a detail that simply doesn't have anythign 
+> at all to do with "derivative work".
+> 
+> THAT is my point. 
+> 
+> Static vs dynamic matters for whether it's an AGGREGATE work. Clearly, 
+> static linking aggregates the library with the other program in the same 
+> binary. There's no question about that. And that _does_ have meaning from 
+> a copyright law angle, since if you don't have permission to ship 
+> aggregate works under the license, then you can't ship said binary. It's 
+> just a non-issue in the specific case of the GPLv2.
+> 
+> In the presense of dynamic linking the binary isn't even an aggregate 
+> work.
+> 
+> THAT is the difference between static and dynamic. A simple command line 
+> flag to the linker shouldn't really reasonably be considered to change 
+> "derivation" status.
+> 
+> Either something is derived, or it's not. If it's derived, "ld", 
+> "mkisofs", "putting them close together" or "shipping them on totally 
+> separate CD's" doesn't matter. It's still derived.
+> 
+> 		Linus
+

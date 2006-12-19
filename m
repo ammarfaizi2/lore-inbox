@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752390AbWLSETC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752411AbWLSE1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752390AbWLSETC (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 23:19:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752411AbWLSETC
+	id S1752411AbWLSE1L (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 23:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752417AbWLSE1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 23:19:02 -0500
-Received: from mail.enter.net ([216.193.128.40]:31061 "EHLO mmail.enter.net"
+	Mon, 18 Dec 2006 23:27:11 -0500
+Received: from iabervon.org ([66.92.72.58]:1387 "EHLO iabervon.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752390AbWLSETA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 23:19:00 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: davids@webmaster.com
+	id S1752410AbWLSE1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 23:27:10 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Dec 2006 23:27:10 EST
+Date: Mon, 18 Dec 2006 23:20:28 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: GPL only modules
-Date: Mon, 18 Dec 2006 21:38:25 -0500
-User-Agent: KMail/1.9.5
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
+In-Reply-To: <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612181839460.20138@iabervon.org>
+References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
+ <orwt4qaara.fsf@redhat.com> <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
+ <orpsah6m3s.fsf@redhat.com> <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
+ <or64c96ius.fsf@redhat.com> <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612182138.25332.dhazelton@enter.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 December 2006 20:35, David Schwartz wrote:
-> > For both static and dynamic linking, you might claim the output is an
-> > aggregate, but that doesn't matter.  What matters is whether or not
-> > the output is a work based on the program, and whether the "mere
-> > aggregation" paragraph kicks in.
-> >
-> > If the output is not an aggregate, which is quite likely to be
-> > the case for dynamic linking, and quite possibly also for many static
-> > linking cases, then the "mere aggregation" paragraph of clause 2 does
-> > not kick in.
-> >
-> > If the output is indeed an aggregate, as it may quite likely be in the
-> > case of static linking, then the "mere aggregation" considerations of
-> > clause 2 may kick in and enable the 'anything else' to not be brought
-> > under the scope of the license.  You still need permission to
-> > distribute the whole.  The GPL asserts its non-interference with your
-> > ability to distribute the separate portion separately, under whatever
-> > license you can, as long as it's not a derived work from the GPL
-> > portion.
->
-> No!
->
-> It makes no difference whether the "mere aggregation" paragraph kicks in
-> because the "mere aggregation" paragraph is *explaining* the *law*. What
-> matters is what the law actually *says*.
->
-> We are talking about what works are within the GPL's scope. The text of the
-> GPL does not matter because the GPL does not set its own scope, copyright
-> law does.
->
-> The GPL could say that if you ever see the source code to a GPL'd work,
-> every work you ever write must be placed under the GPL. But that wouldn't
-> make it true, because that would be a requirement outside the GPL's scope.
->
-> We are talking about works are inside the GPL's legal scope, and in that
-> case, nothing the GPL says can enlarge the scope.
->
-> DS
+On Mon, 18 Dec 2006, Linus Torvalds wrote:
 
+> Static vs dynamic matters for whether it's an AGGREGATE work. Clearly, 
+> static linking aggregates the library with the other program in the same 
+> binary. There's no question about that. And that _does_ have meaning from 
+> a copyright law angle, since if you don't have permission to ship 
+> aggregate works under the license, then you can't ship said binary. It's 
+> just a non-issue in the specific case of the GPLv2.
 
-Actually, after rereading the GPLv2 because of this discussion I came to a 
-most surprising conclusion. While there are *IMPLICIT* and *EXPLICIT* 
-copyrights on the code, they have no bearing on the text of the GPL.
+Under US law, the distinction is between works that are copyrightable 
+themselves as "derivative works" and works that are derived from others, 
+but aren't copyrightable. Provided you're allowed to ship aggregate works, 
+the question is whether the output of "ld" is a copyrightable work 
+distinct from the inputs.
 
-The GPL is a License that covers how the code may be used, modified and 
-distributed. This is the reason that the FSF people had to make the big 
-exception for Bison, because the parser skeleton is such an integral part of 
-Bison (Bison itself, IIRC, uses the same skeleton, modified, as part of the 
-program) that truthfully, any parser built using Bison is a derivative work 
-of code released under the GPL.
+I'd agree that "ar", like "mkisofs", doesn't create a derived work, but I 
+think that "objcopy" does create a derived work, and "ld" does too, by 
+virtue of modifying the objects it takes to resolve symbols. Now, you 
+could distribute to somebody an ar archive of your program, and the 
+recipient (given fair use rights to the copy of the program they received) 
+could do "gcc program.a -o program" to link it. But I don't think you 
+automatically get the right (under the "mere aggregation" permission) to 
+distribute the result of relocating the symbols of gnutls around those of 
+your program and vice versa, along with modifying the references to 
+external symbols from each of these to point to specific locations.
 
-That said, since there is a distribution, use and modification license on the 
-Linux Kernel - the GPLv2 - there are those extra restrictions on the code 
-*OUTSIDE* the copyright rules.
-
-DRH
+	-Daniel
+*This .sig left intentionally blank*

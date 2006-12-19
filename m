@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752437AbWLSEnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752410AbWLSErS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752437AbWLSEnE (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 23:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752423AbWLSEnD
+	id S1752410AbWLSErS (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 23:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752423AbWLSErR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 23:43:03 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:28034 "HELO
-	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752437AbWLSEnC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 23:43:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=CRAMMD2u78zARGPFwq1ZTojKJUzHhcArrFiLatwjdP4/KKYQqtkIH3Sc1CSMhYQ3BFIzNcf++PfJ2qWawRK0POR0KGcfxAPSeiGS8qiom0TsNuhb/o1iKWgFSDY2LvWDbR/I7M4adBXLgySRlRIcfv4U4HaTDll5rSTECxvEYk4=  ;
-X-YMail-OSG: 2MpsOi0VM1m7xmNTGclSJSqloc6ivJ3jOL5AtzGL_x4_vZrKlbx89Q.sgoGIZ0PtS7ViF4.7cA7Esydunll.gqDMaTVp41iXDJaQFKhkTeBdc0cheE8UrNmAQbhgeeK2M5VCoRq3Q6FBL38-
-Message-ID: <458760B0.7090803@yahoo.com.au>
-Date: Tue, 19 Dec 2006 14:46:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Aubrey <aubreylee@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Fix area->nr_free-- went (-1) issue in buddy system
-References: <6d6a94c50612181901m1bfd9d1bsc2d9496ab24eb3f8@mail.gmail.com>
-In-Reply-To: <6d6a94c50612181901m1bfd9d1bsc2d9496ab24eb3f8@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Dec 2006 23:47:17 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41711 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752401AbWLSErR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 23:47:17 -0500
+Date: Tue, 19 Dec 2006 15:47:00 +1100
+From: David Chinner <dgc@sgi.com>
+To: David Chinner <dgc@sgi.com>
+Cc: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>,
+       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: xfslogd-spinlock bug?
+Message-ID: <20061219044700.GW33919298@melbourne.sgi.com>
+References: <Pine.LNX.4.64.0612120932220.19050@p34.internal.lan> <00ab01c71e53$942af2f0$0400a8c0@dcccs> <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs> <20061218223637.GP44411608@melbourne.sgi.com> <001a01c722fd$df5ca710$0400a8c0@dcccs> <20061219025229.GT33919298@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061219025229.GT33919298@melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aubrey wrote:
-> Hi all,
-> 
-> When I setup two zones (NORMAL and DMA) in my system, I got the
-> following wired result from /proc/buddyinfo.
-> ----------------------------------------------------------------------------------------- 
-> 
-> root:~> cat /proc/buddyinfo
-> Node 0, zone      DMA      2      1      2      1      1      0      0
->     1      1      2      2      0      0      0
-> Node 0, zone   Normal      1      1      1      1      1      1      0
->     0 4294967295      0 4294967295      2      0      0
-> ----------------------------------------------------------------------------------------- 
-> 
-> 
-> As you see, two area->nr_free went -1.
-> 
-> After dig into the code, I found the problem is in the fun
-> __free_one_page() when the kernel boot up call free_all_bootmem(). If
-> two zones setup, it's possible NORMAL zone merged a block whose order
-> =8 at the first time(this time zone[NORMA]->free_area[8].nr_free = 0)
-> and found its buddy in the DMA zone. So the two blocks will be merged
-> and area->nr_free went to -1.
+On Tue, Dec 19, 2006 at 01:52:29PM +1100, David Chinner wrote:
+> On Tue, Dec 19, 2006 at 12:39:46AM +0100, Haar János wrote:
+> > From: "David Chinner" <dgc@sgi.com>
+> > > #define POISON_FREE 0x6b
+> > >
+> > > Can you confirm that you are running with CONFIG_DEBUG_SLAB=y?
+> > 
+> > Yes, i build with this option enabled.
 
-This should not happen because the pages are checked to ensure they are
-from the same zone before merging.
+......
 
-What kind of system do you have? What is the dmesg and the .config? It
-could be that the zones are not properly aligned and CONFIG_HOLES_IN_ZONE
-is not set.
+> FWIW, I've run XFSQA twice now on a scsi disk with slab debuggin turned
+> on and I haven't seen this problem. I'm not sure how to track down
+> the source of the problem without a test case, but as a quick test, can
+> you try the following patch?
 
+Third try an I got a crash on a poisoned object:
+
+[1]kdb> md8c40 e00000300d7d5100
+0xe00000300d7d5100 000000005a2cf071 0000000000000000   q.,Z............
+0xe00000300d7d5110 000000005a2cf071 6b6b6b6b6b6b6b6b   q.,Z....kkkkkkkk
+0xe00000300d7d5120 e0000039eb7b6320 6b6b6b6b6b6b6b6b    c{.9...kkkkkkkk
+0xe00000300d7d5130 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d5140 6b6b6b6f6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkokkkkkkkkkkk
+0xe00000300d7d5150 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d5160 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d5170 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d5180 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d5190 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d51a0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d51b0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d51c0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+0xe00000300d7d51d0 6b6b6b6b6b6b6b6b a56b6b6b6b6b6b6b   kkkkkkkkkkkkkkk.
+0xe00000300d7d51e0 000000005a2cf071 a000000100468c30   q.,Z....0.F.....
+[1]kdb> mds 0xe00000300d7d51e0
+0xe00000300d7d51e0 5a2cf071   q.,Z....
+0xe00000300d7d51e8 a000000100468c30 xfs_inode_item_destroy+0x30
+
+So the use-after-free here is on an inode item. You're tripping
+over a buffer item.
+
+Unfortunately, it is not the same problem - the problem I've just
+hit is to do with a QA test that does a forced shutdown on an active
+filesystem, and:
+
+[1]kdb> xmount 0xe00000304393e238
+.....
+flags 0x440010 <FSSHUTDOWN IDELETE COMPAT_IOSIZE >
+
+The filesystem was being shutdown so xfs_inode_item_destroy() just
+frees the inode log item without removing it from the AIL. I'll fix that,
+and see if i have any luck....
+
+So I'd still try that patch i sent in the previous email...
+
+Cheers,
+
+Dave.
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

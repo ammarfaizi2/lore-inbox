@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932506AbWLSOlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbWLSOrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWLSOlG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 09:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWLSOlG
+	id S932573AbWLSOrR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 09:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932819AbWLSOrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 09:41:06 -0500
-Received: from ns2.tasking.nl ([195.193.207.10]:25931 "EHLO ns2.tasking.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932506AbWLSOlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 09:41:05 -0500
-X-Greylist: delayed 1481 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 09:41:05 EST
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <em0pdq$r7o$2@sea.gmane.org> <em0pdq$r7o$2@sea.gmane.org> <4586DF1D.6040501@cfl.rr.com>
-From: dick.streefland@altium.nl (Dick Streefland)
-Subject: Re: Software RAID1 (with non-identical discs) performance
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <3960.4587f434.9e684@altium.nl>
-Date: Tue, 19 Dec 2006 14:16:20 -0000
+	Tue, 19 Dec 2006 09:47:17 -0500
+Received: from nz-out-0506.google.com ([64.233.162.232]:64144 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932573AbWLSOrQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 09:47:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=h4/HD06ECbJlm95dQfNCL+R/KxbZgigAiTL70RDBtpszLubM9cCOuxe+RujLWkYGrNmmeEYVStll3ua8jRphL1ERKR+x2vRYDGsTrTDqWbU9AQ7qUJ2piXO/YbEXD60vunhn79FaQalngCkZDZGnq5ct170lJNteu+QIIr7aw9w=
+Message-ID: <4587FB6C.8080309@gmail.com>
+Date: Tue, 19 Dec 2006 23:47:08 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
+MIME-Version: 1.0
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18.3, sata dvd writer: can't watch dvd
+References: <45805C96.5090709@t-online.de>
+In-Reply-To: <45805C96.5090709@t-online.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> wrote:
-| The entire concept of geometry is a a carryover from days gone by. 
-| These days it is just a farse maintained for backwards compatibility. 
-| You can put fdisk into sector mode with the 'u' command and create 
-| partitions of any number of sectors you desire, regardless of the 
-| perceived geometry.
+arald Dunkel wrote:
+> Hi folks,
+> 
+> I've got a shiny new sata dvd writer: A Samsung SH-183A,
+> most recent firmware SB01. Writing data DVDs is _lightning_
+> fast, but I cannot watch my css-encrypted movie DVDs, even
+> with libdvdcss installed. If I try, then it becomes
+> unresponsive. dmesg says:
+> 
+> ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+> ata2.00: (BMDMA stat 0x1)
+> ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+> ata2: soft resetting port
+> ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+> ata2.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
+> ata2.00: revalidation failed (errno=-22)
+> ata2.00: disabled
+> ata2: EH complete
+> Buffer I/O error on device sr0, logical block 0
+> Buffer I/O error on device sr0, logical block 1
+> Buffer I/O error on device sr0, logical block 2
+> Buffer I/O error on device sr0, logical block 3
+> Buffer I/O error on device sr0, logical block 4
+> Buffer I/O error on device sr0, logical block 5
+> Buffer I/O error on device sr0, logical block 6
+> Buffer I/O error on device sr0, logical block 7
+> Buffer I/O error on device sr0, logical block 0
+> Buffer I/O error on device sr0, logical block 1
+> 
+> After that the DVD drive is dead, waiting for a reset.
+> I tried this with 4 DVDs by now.
+> 
+> Watching my own DVD-Rs (created in a Philips HD recorder),
+> or commercial DVDs without CSS (e.g. "True Lies") is no
+> problem. The region code is set (2), of course.
+> 
+> 
+> Any idea? Unfortunately I cannot verify the drive in a
+> proprietary runtime environment.
 
-An easy way to clone a partition table is:
-
-  sfdisk -d /dev/sdX | sfdisk /dev/sdY
+If you use mplayer, please run it with '-v' and report what it says.
+Also, full dmesg will help.
 
 -- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
-
+tejun

@@ -1,171 +1,101 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753011AbWLSHXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932071AbWLSH0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753011AbWLSHXQ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 02:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754801AbWLSHXQ
+	id S932071AbWLSH0t (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 02:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWLSH0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 02:23:16 -0500
-Received: from amsfep19-int.chello.nl ([62.179.120.14]:60991 "EHLO
-	amsfep19-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753011AbWLSHXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 02:23:16 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Tue, 19 Dec 2006 02:26:48 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60893 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932071AbWLSH0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 02:26:48 -0500
+Date: Mon, 18 Dec 2006 23:26:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
        andrei.popa@i-neo.ro,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
        Marc Haber <mh+linux-kernel@zugschlus.de>,
        Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <45876C65.7010301@yahoo.com.au>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <45876C65.7010301@yahoo.com.au>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 08:22:03 +0100
-Message-Id: <1166512923.10372.114.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <45878BE8.8010700@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
+ <1166460945.10372.84.camel@twins> <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+ <45876C65.7010301@yahoo.com.au> <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+ <45878BE8.8010700@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 15:36 +1100, Nick Piggin wrote:
-
-> plain text document attachment (fs-fix.patch)
-> Index: linux-2.6/fs/buffer.c
-> ===================================================================
-> --- linux-2.6.orig/fs/buffer.c	2006-12-19 15:15:46.000000000 +1100
-> +++ linux-2.6/fs/buffer.c	2006-12-19 15:36:01.000000000 +1100
-> @@ -2852,7 +2852,17 @@ int try_to_free_buffers(struct page *pag
->  		 * This only applies in the rare case where try_to_free_buffers
->  		 * succeeds but the page is not freed.
->  		 */
-> -		clear_page_dirty(page);
-> +
-> +		/*
-> +		 * If the page has been dirtied via the user mappings, then
-> +		 * clean buffers does not indicate the page data is actually
-> +		 * clean! Only clear the page dirty bit if there are no dirty
-> +		 * ptes either.
-> +		 *
-> +		 * If there are dirty ptes, then the page must be uptodate, so
-> +		 * the above concern does not apply.
-> +		 */
-> +		clear_page_dirty_sync_ptes(page);
->  	}
->  out:
->  	if (buffers_to_free) {
-> Index: linux-2.6/include/linux/page-flags.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/page-flags.h	2006-12-19 15:17:18.000000000 +1100
-> +++ linux-2.6/include/linux/page-flags.h	2006-12-19 15:34:24.000000000 +1100
-> @@ -254,6 +254,7 @@ static inline void SetPageUptodate(struc
->  struct page;	/* forward declaration */
->  
->  int test_clear_page_dirty(struct page *page);
-> +int test_clear_page_dirty_sync_ptes(struct page *page);
->  int test_clear_page_writeback(struct page *page);
->  int test_set_page_writeback(struct page *page);
->  
-> @@ -262,6 +263,11 @@ static inline void clear_page_dirty(stru
->  	test_clear_page_dirty(page);
->  }
->  
-> +static inline void clear_page_dirty_sync_ptes(struct page *page)
-> +{
-> +	test_clear_page_dirty_sync_ptes(page);
-> +}
-> +
->  static inline void set_page_writeback(struct page *page)
->  {
->  	test_set_page_writeback(page);
-> Index: linux-2.6/mm/page-writeback.c
-> ===================================================================
-> --- linux-2.6.orig/mm/page-writeback.c	2006-12-19 15:17:53.000000000 +1100
-> +++ linux-2.6/mm/page-writeback.c	2006-12-19 15:33:29.000000000 +1100
-> @@ -844,9 +844,10 @@ EXPORT_SYMBOL(set_page_dirty_lock);
->  
->  /*
->   * Clear a page's dirty flag, while caring for dirty memory accounting. 
-> + * Does not clear pte dirty bits.
->   * Returns true if the page was previously dirty.
->   */
-> -int test_clear_page_dirty(struct page *page)
-> +static int test_clear_page_dirty_leave_ptes(struct page *page)
->  {
->  	struct address_space *mapping = page_mapping(page);
->  	unsigned long flags;
-> @@ -862,10 +863,8 @@ int test_clear_page_dirty(struct page *p
->  			 * We can continue to use `mapping' here because the
->  			 * page is locked, which pins the address_space
->  			 */
-> -			if (mapping_cap_account_dirty(mapping)) {
-> -				page_mkclean(page);
-> +			if (mapping_cap_account_dirty(mapping))
->  				dec_zone_page_state(page, NR_FILE_DIRTY);
-> -			}
->  			return 1;
->  		}
->  		write_unlock_irqrestore(&mapping->tree_lock, flags);
-> @@ -873,9 +872,43 @@ int test_clear_page_dirty(struct page *p
->  	}
->  	return TestClearPageDirty(page);
->  }
-> +
-> +/*
-> + * As above, but does clear dirty bits from ptes
-> + */
-> +int test_clear_page_dirty(struct page *page)
-> +{
-> +	struct address_space *mapping = page_mapping(page);
-> +
-> +	if (test_clear_page_dirty_leave_ptes(page)) {
-> +		if (mapping_cap_account_dirty(mapping))
-> +			page_mkclean(page);
-> +		return 1;
-> +	}
-> +	return 0;
-> +}
->  EXPORT_SYMBOL(test_clear_page_dirty);
->  
->  /*
-> + * As above, but redirties page if any dirty ptes are found (and then only
-> + * if the mapping accounts dirty pages, otherwise dirty ptes are left dirty
-> + * but the page is cleaned).
-> + */
-> +int test_clear_page_dirty_sync_ptes(struct page *page)
-> +{
-> +	struct address_space *mapping = page_mapping(page);
-> +
-> +	if (test_clear_page_dirty_leave_ptes(page)) {
-> +		if (mapping_cap_account_dirty(mapping)) {
-> +			if (page_mkclean(page))
-> +				set_page_dirty(page);
-> +		}
-> +		return 1;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
->   * Clear a page's dirty flag, while caring for dirty memory accounting.
->   * Returns true if the page was previously dirty.
->   *
-
-Hmm, not quite; It certainly look better than the extra ,[01] tagged to
-test_clear_page_dirty() though. Although I would have expected it the
-other way around - test_clear_pages_dirty_sync_ptes to be the default
-case and test_clear_pages_dirty_clean_ptes to be used in
-clear_page_dirty_for_io().
-
-Anyway it has the same issues as the others. See what happens when you
-run two test_clear_page_dirty_sync_ptes() consecutively, you still loose
-PG_dirty even though the page might actually be dirty.
 
 
+On Tue, 19 Dec 2006, Nick Piggin wrote:
+> 
+> I wouldn't have thought it becomes clean by dropping it ;) Is this a
+> trick question? My answer is that we clean a page by by taking some
+> action such that the underlying data matches the data in RAM...
 
+Sure.
+
+> We don't "drop" any data until it has been cleaned (again, ignoring
+> things like truncate for a minute). That's a bug!
+
+Actually, it's the other way around. We have to drop the dirty bits BEFORE 
+cleaning. If we clean first, and _then_ drop the dirty bits, THAT is a 
+bug, because the dirty bits can now refer to _new_ dirty data that didn't 
+get written out.
+
+So the proper sequence is _literally_ to mark the page clean FIRST. Drop 
+all the dirty bits, but not the _data_ obviously (ie you have a reference 
+to the page). And _then_ you do the writeout to actually clean the data 
+itself.
+
+So you actually state it exactly the wrogn way around.
+
+We MUST clear the dirty bits before we do the IO that actually cleans the 
+data. Exactly because if new writes keep on happening, if we do it in the 
+other order, we'll drop dirty data on the floor.
+
+> > In no other circumstance do we ever want to clear a dirty bit, as far as I
+> > can tell. 
+> 
+> Exactly. And that is exactly what try_to_free_buffers is doing now.
+> 
+> I still think you should have a look at the patch.
+
+I claim that dropping dirty bits AFTER the IO is always wrong. 
+Try_to_free_buffers() must never touch the dirty bits at all, because by 
+definition that thing happens after the IO has actually been done.
+
+Anbd yes, I looked at your patch. And it looks a million times cleaner 
+than Andrew's patch. However, it's already been tested multiple times, and 
+totally REMOVING the "clear_page_dirty()" from try_to_free_buffers() still 
+resulted in the corruption.
+
+That said, I think your patch is worth it just as a cleanup. Much nicer 
+than Andrews code, also from a naming standpoint. So I'm not actually 
+disagreeing about the patch itself, but I _am_ saying that I don't 
+actually see the point of ever moving the dirty bits around.
+
+So I repeat: we have the case where we really want to _remove_ the dirty 
+bits (because we're going to write the current state of the page to disk, 
+and we need to clear the dirty bits BEFORE we do that). That's the one 
+that makes sense, and that's the code we want to run before doing IO. It's 
+the "clear_dirty_bits_for_io()" case.
+
+The code that doesn't make sense is the "shuffle the dirty bits around" In 
+other words: when does it actually make sense to call your 
+(well-implemented, don't get me wrong) "test_clear_page_dirty_sync_ptes()"
+function? It doesn't _fix_ anything. It just shuffles dirty bits from one 
+place to another. What was the point again?
+
+If the point is "try_to_free_buffers()", then my argument was that I had a 
+much simpler solution: "Just don't do that then". My simple patch sadly 
+didn't fix the data corruption, so the data corruption comes from 
+something ELSE than try_to_free_buffers().
+
+		Linus

@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932787AbWLSK4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932789AbWLSK6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932787AbWLSK4R (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 05:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932788AbWLSK4R
+	id S932789AbWLSK6z (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 05:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWLSK6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 05:56:17 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:63471 "EHLO mail.acc.umu.se"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932787AbWLSK4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 05:56:16 -0500
-Date: Tue, 19 Dec 2006 11:56:08 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Nottingham <notting@redhat.com>, Jeff Garzik <jeff@garzik.org>,
-       Josh Boyer <jwboyer@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH/RFC] Delete JFFS (version 1)
-Message-ID: <20061219105608.GC19442@vasa.acc.umu.se>
-Mail-Followup-To: Alan <alan@lxorguk.ukuu.org.uk>,
-	Bill Nottingham <notting@redhat.com>, Jeff Garzik <jeff@garzik.org>,
-	Josh Boyer <jwboyer@gmail.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
-References: <457EA2FE.3050206@garzik.org> <625fc13d0612120456p1d74663fp21e40ee84a8819bc@mail.gmail.com> <457EA86B.5010407@garzik.org> <20061212170125.GA19592@nostromo.devel.redhat.com> <20061212172843.40edbaed@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061212172843.40edbaed@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+	Tue, 19 Dec 2006 05:58:55 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:31418 "HELO
+	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932789AbWLSK6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 05:58:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=vCBJmx/Yn7bj3RDjVOeyrlkxyfbAy35l2GIIyt/0ID4IX/vdNus2U1OOuAQHXScgOOz0YHEG0t5d+DNzmeEeVWw79HtyMDvNVmVFhjbn2Z5LuRPQNWMVTE7Ruwzu+T5Kad04tQIKzFFryxz2e+4eBQad6nXOYdFv6rz4pgSQYVA=  ;
+X-YMail-OSG: H3eY9XMVM1nJv9uVrjFv6pmx8GfVXYF3InIP1mbwKcrk9x9wZnJ81CZvjMJkUiU6WSUjZVCuVM2tE40Oan5ZQIvi8sl6.S6DdOAg30..1F7kpXtVcbmsIgc0xj.HJSHsF90DcFK3IDOWrrg-
+Message-ID: <4587C5C8.2060304@yahoo.com.au>
+Date: Tue, 19 Dec 2006 21:58:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+References: <1166314399.7018.6.camel@localhost>	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>	 <45876C65.7010301@yahoo.com.au>	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>	 <45878BE8.8010700@yahoo.com.au>	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>	 <4587B762.2030603@yahoo.com.au>  <20061219023255.f5241bb0.akpm@osdl.org> <1166525535.10372.138.camel@twins>
+In-Reply-To: <1166525535.10372.138.camel@twins>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2006 at 05:28:43PM +0000, Alan wrote:
-> On Tue, 12 Dec 2006 12:01:25 -0500
-> Bill Nottingham <notting@redhat.com> wrote:
+Peter Zijlstra wrote:
+> On Tue, 2006-12-19 at 02:32 -0800, Andrew Morton wrote:
+
+>>Well it used to be.  After 2.6.19 it can do the wrong thing for mapped
+>>pages.  But it turns out that we don't feed it mapped pages, apart from
+>>pagevec_strip() and possibly races against pagefaults.
 > 
-> > Jeff Garzik (jeff@garzik.org) said: 
-> > > It's always been the case that we remove Linux kernel code when the 
-> > > number of users (and more importantly, developers) drops to near-nil.
-> > 
-> > So, drivers/net/3c501.c?
 > 
-> I think 3c501.c is a case where putting in an "If you use this email ..
-> or it will go away" might be a good idea indeed.
+> So how about this:
 
-Maybe even: "the people who are using 3c501's - please chime up and we'll
-donate better cards to you."
+Well that's still racy. Anyway several earlier patches (including
+the one I posted) closed this race. Some were still reported to
+trigger corruption IIRC.
 
-After all, 3c501 is one of the crappier pieces of network cards,
-I feel sorry for the people using them...
+> Index: linux-2.6-git/mm/page-writeback.c
+> ===================================================================
+> --- linux-2.6-git.orig/mm/page-writeback.c	2006-12-19 08:24:48.000000000 +0100
+> +++ linux-2.6-git/mm/page-writeback.c	2006-12-19 11:43:31.000000000 +0100
+> @@ -859,6 +859,9 @@ int test_clear_page_dirty(struct page *p
+>  	struct address_space *mapping = page_mapping(page);
+>  	unsigned long flags;
+>  
+> +	if (page_mapped(page))
+> +		return 0;
+> +
+>  	if (!mapping)
+>  		return TestClearPageDirty(page);
+>  
+> 
+> 
+> -
 
-
-Regards: David
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

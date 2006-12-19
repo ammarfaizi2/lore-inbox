@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932069AbWLSIYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932653AbWLSIaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWLSIYb (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWLSIYb
+	id S932653AbWLSIaa (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWLSIa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:24:31 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36449 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932069AbWLSIYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:24:30 -0500
-Date: Tue, 19 Dec 2006 00:24:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: andrei.popa@i-neo.ro
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-Id: <20061219002416.ed8f1dda.akpm@osdl.org>
-In-Reply-To: <1166515504.6897.0.camel@localhost>
-References: <1166314399.7018.6.camel@localhost>
-	<20061217040620.91dac272.akpm@osdl.org>
-	<1166362772.8593.2.camel@localhost>
-	<20061217154026.219b294f.akpm@osdl.org>
-	<1166460945.10372.84.camel@twins>
-	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	<1166466272.10372.96.camel@twins>
-	<Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	<1166468651.6983.6.camel@localhost>
-	<Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	<1166471069.6940.4.camel@localhost>
-	<Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	<Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
-	<1166476297.6862.1.camel@localhost>
-	<Pine.LNX.4.64.0612181426390.3479@woody.osdl.org>
-	<1166485691.6977.6.camel@localhost>
-	<Pine.LNX.4.64.0612181559230.3479@woody.osdl.org>
-	<1166488199.6950.2.camel@localhost>
-	<Pine.LNX.4.64.0612181648490.3479@woody.osdl.org>
-	<20061218172126.0822b5d2.akpm@osdl.org>
-	<1166492691.6890.12.camel@localhost>
-	<20061218175449.3c752879.akpm@osdl.org>
-	<1166515504.6897.0.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 03:30:29 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:36012 "EHLO
+	mraos.ra.phy.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932653AbWLSIa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 03:30:29 -0500
+X-Greylist: delayed 1817 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 03:30:29 EST
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+References: <200612161927.13860.gallir@gmail.com>
+	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
+	<orwt4qaara.fsf@redhat.com>
+	<Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
+	<orpsah6m3s.fsf@redhat.com> <orpsah6m3s.fsf@redhat.com>
+	<Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Date: 19 Dec 2006 08:00:00 +0000
+In-Reply-To: <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
+Message-ID: <r6odq02u4f.fsf@skye.ra.phy.cam.ac.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006 10:05:03 +0200
-Andrei Popa <andrei.popa@i-neo.ro> wrote:
+Linus Torvalds wrote:
+> That said, I think they are still pushing the "you don't have any
+> rights unless we give you additional rights explicitly" angle a bit
+> too hard.
 
-> > > > Also, it'd be useful if you could determine whether the bug appears with
-> > > > the ext2 filesystem: do s/ext3/ext2/ in /etc/fstab, or boot with
-> > > > rootfstype=ext2 if it's the root filesystem.
-> > > 
->  I fave file corruption.
+>From section 2 (GPLv3, draft 2):
 
-Wow.  I didn't expect that, because Mark Haber reported that ext3's data=writeback
-fixed it.   Maybe he didn't run it for long enough?
+ This License acknowledges your rights of "fair use" or other
+ equivalent, as provided by copyright law. 
+
+By choosing 'acknowledges' as the verb, the licensee says explicitly
+that fair-use rights are already yours, not that they are being given
+to you.
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

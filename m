@@ -1,266 +1,171 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932999AbWLSXCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933024AbWLSXJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932999AbWLSXCj (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 18:02:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933060AbWLSXCM
+	id S933024AbWLSXJu (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 18:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933058AbWLSXJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 18:02:12 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:39056 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932999AbWLSXB7 (ORCPT
+	Tue, 19 Dec 2006 18:09:48 -0500
+Received: from mx1.cs.washington.edu ([128.208.5.52]:45275 "EHLO
+	mx1.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933024AbWLSXJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 18:01:59 -0500
-Date: Tue, 19 Dec 2006 17:01:47 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, containers@lists.osdl.org
-Subject: [PATCH 8/8] user ns: implement user ns unshare
-Message-ID: <20061219230147.GI25904@sergelap.austin.ibm.com>
-References: <20061219225902.GA25904@sergelap.austin.ibm.com>
+	Tue, 19 Dec 2006 18:09:47 -0500
+Date: Tue, 19 Dec 2006 15:09:32 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Bob Copeland <me@bobcopeland.com>, Dave Jones <davej@redhat.com>,
+       "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+In-Reply-To: <Pine.LNX.4.61.0612192240460.26276@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64N.0612191421550.27780@attu4.cs.washington.edu>
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
+ <20061219164146.GI25461@redhat.com> <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
+ <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64N.0612191311590.24901@attu4.cs.washington.edu>
+ <Pine.LNX.4.61.0612192240460.26276@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219225902.GA25904@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Serge E. Hallyn <serue@us.ibm.com>
-Subject: [PATCH 8/8] user ns: implement user ns unshare
+On Tue, 19 Dec 2006, Jan Engelhardt wrote:
 
-Implement CLONE_NEWUSER flag useable at clone and unshare.
+> (1) Catch casts where they are usually not necessary, because the value
+>     would be anyhow discarded
+> 
+>     (void)strcpy(b, a);
+> 
+>     (Does not apply to e.g. cmpxchg -- that's why I mentioned (b)!)
+> 
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
----
- include/linux/sched.h          |    1 +
- include/linux/user_namespace.h |   10 +++++
- kernel/fork.c                  |   22 ++++++++++--
- kernel/nsproxy.c               |    2 +
- kernel/user_namespace.c        |   74 +++++++++++++++++++++++++++++++++++++++-
- 5 files changed, 102 insertions(+), 7 deletions(-)
+Actually, there's a number of people out there who would like 
+(void)strcpy(b, a) or even (void)printf(...) to be required, but the gcc 
+manual addresses that point directly:
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 73df38c..55ecf81 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -26,6 +26,7 @@ #define CLONE_CHILD_SETTID	0x01000000	/*
- #define CLONE_STOPPED		0x02000000	/* Start in stopped state */
- #define CLONE_NEWUTS		0x04000000	/* New utsname group? */
- #define CLONE_NEWIPC		0x08000000	/* New ipcs */
-+#define CLONE_NEWUSER		0x10000000	/* New user namespace */
- 
- /*
-  * Scheduling policies
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 4ad4c0d..d577ede 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -25,6 +25,7 @@ static inline struct user_namespace *get
- }
- 
- extern int copy_user_ns(int flags, struct task_struct *tsk);
-+extern int unshare_user_ns(unsigned long flags, struct user_namespace **new_user);
- extern void free_user_ns(struct kref *kref);
- 
- static inline void put_user_ns(struct user_namespace *ns)
-@@ -40,6 +41,15 @@ static inline struct user_namespace *get
- 	return NULL;
- }
- 
-+static inline int unshare_user_ns(unsigned long flags,
-+			 struct user_namespace **new_user)
-+{
-+	if (flags & CLONE_NEWUSER)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- static inline int copy_user_ns(int flags, struct task_struct *tsk)
- {
- 	return 0;
-diff --git a/kernel/fork.c b/kernel/fork.c
-index deafa6e..eead517 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -49,6 +49,7 @@ #include <linux/cn_proc.h>
- #include <linux/delayacct.h>
- #include <linux/taskstats_kern.h>
- #include <linux/random.h>
-+#include <linux/user_namespace.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1620,6 +1621,7 @@ asmlinkage long sys_unshare(unsigned lon
- 	struct nsproxy *new_nsproxy = NULL, *old_nsproxy = NULL;
- 	struct uts_namespace *uts, *new_uts = NULL;
- 	struct ipc_namespace *ipc, *new_ipc = NULL;
-+	struct user_namespace *user, *new_user = NULL;
- 
- 	check_unshare_flags(&unshare_flags);
- 
-@@ -1627,7 +1629,7 @@ asmlinkage long sys_unshare(unsigned lon
- 	err = -EINVAL;
- 	if (unshare_flags & ~(CLONE_THREAD|CLONE_FS|CLONE_NEWNS|CLONE_SIGHAND|
- 				CLONE_VM|CLONE_FILES|CLONE_SYSVSEM|
--				CLONE_NEWUTS|CLONE_NEWIPC))
-+				CLONE_NEWUTS|CLONE_NEWIPC|CLONE_NEWUSER))
- 		goto bad_unshare_out;
- 
- 	if ((err = unshare_thread(unshare_flags)))
-@@ -1648,18 +1650,20 @@ asmlinkage long sys_unshare(unsigned lon
- 		goto bad_unshare_cleanup_semundo;
- 	if ((err = unshare_ipcs(unshare_flags, &new_ipc)))
- 		goto bad_unshare_cleanup_uts;
-+	if ((err = unshare_user_ns(unshare_flags, &new_user)))
-+		goto bad_unshare_cleanup_ipc;
- 
--	if (new_ns || new_uts || new_ipc) {
-+	if (new_ns || new_uts || new_ipc || new_user) {
- 		old_nsproxy = current->nsproxy;
- 		new_nsproxy = dup_namespaces(old_nsproxy);
- 		if (!new_nsproxy) {
- 			err = -ENOMEM;
--			goto bad_unshare_cleanup_ipc;
-+			goto bad_unshare_cleanup_user;
- 		}
- 	}
- 
- 	if (new_fs || new_ns || new_mm || new_fd || new_ulist ||
--				new_uts || new_ipc) {
-+				new_uts || new_ipc || new_user) {
- 
- 		task_lock(current);
- 
-@@ -1707,12 +1711,22 @@ asmlinkage long sys_unshare(unsigned lon
- 			new_ipc = ipc;
- 		}
- 
-+		if (new_user) {
-+			user = current->nsproxy->user_ns;
-+			current->nsproxy->user_ns = new_user;
-+			new_user = user;
-+		}
-+
- 		task_unlock(current);
- 	}
- 
- 	if (new_nsproxy)
- 		put_nsproxy(new_nsproxy);
- 
-+bad_unshare_cleanup_user:
-+	if (new_user)
-+		put_user_ns(new_user);
-+
- bad_unshare_cleanup_ipc:
- 	if (new_ipc)
- 		put_ipc_ns(new_ipc);
-diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
-index cf43e06..2d9bafb 100644
---- a/kernel/nsproxy.c
-+++ b/kernel/nsproxy.c
-@@ -102,7 +102,7 @@ int copy_namespaces(int flags, struct ta
- 
- 	get_nsproxy(old_ns);
- 
--	if (!(flags & (CLONE_NEWNS | CLONE_NEWUTS | CLONE_NEWIPC)))
-+	if (!(flags & (CLONE_NEWNS | CLONE_NEWUTS | CLONE_NEWIPC | CLONE_NEWUSER)))
- 		return 0;
- 
- 	new_ns = clone_namespaces(old_ns);
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 368f8da..d1ce4c1 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -20,17 +20,87 @@ struct user_namespace init_user_ns = {
- EXPORT_SYMBOL_GPL(init_user_ns);
- 
- #ifdef CONFIG_USER_NS
-+/*
-+ * Clone a new ns copying an original user ns, setting refcount to 1
-+ * @old_ns: namespace to clone
-+ * Return NULL on error (failure to kmalloc), new ns otherwise
-+ */
-+static struct user_namespace *clone_user_ns(struct user_namespace *old_ns)
-+{
-+       struct user_namespace *ns;
-+       struct user_struct *new_user;
-+       int n;
-+
-+       ns = kmalloc(sizeof(struct user_namespace), GFP_KERNEL);
-+       if (!ns)
-+               return NULL;
-+
-+       kref_init(&ns->kref);
-+
-+       for(n = 0; n < UIDHASH_SZ; ++n)
-+               INIT_LIST_HEAD(ns->uidhash_table + n);
-+
-+       /* Insert new root user.  */
-+       ns->root_user = alloc_uid(ns, 0);
-+       if (!ns->root_user) {
-+               kfree(ns);
-+               return NULL;
-+       }
-+
-+       /* Reset current->user with a new one */
-+       new_user = alloc_uid(ns, current->uid);
-+       if (!new_user) {
-+               free_uid(ns->root_user);
-+               kfree(ns);
-+               return NULL;
-+       }
-+
-+       switch_uid(new_user);
-+       return ns;
-+}
-+
-+/*
-+ * unshare the current process' user namespace.
-+ */
-+int unshare_user_ns(unsigned long flags,
-+			struct user_namespace **new_user)
-+{
-+       if (flags & CLONE_NEWUSER) {
-+               if (!capable(CAP_SYS_ADMIN))
-+                       return -EPERM;
-+
-+               *new_user = clone_user_ns(current->nsproxy->user_ns);
-+               if (!*new_user)
-+                       return -ENOMEM;
-+       }
-+
-+       return 0;
-+}
- 
- int copy_user_ns(int flags, struct task_struct *tsk)
- {
--	struct user_namespace *old_ns = tsk->nsproxy->user_ns;
-+	struct user_namespace *new_ns, *old_ns = tsk->nsproxy->user_ns;
- 	int err = 0;
- 
- 	if (!old_ns)
- 		return 0;
- 
- 	get_user_ns(old_ns);
--	return err;
-+	if (!(flags & CLONE_NEWUSER))
-+		return 0;
-+	err = -EPERM;
-+	if (!capable(CAP_SYS_ADMIN))
-+		goto out;
-+	err = -ENOMEM;
-+	new_ns = clone_user_ns(old_ns);
-+	if (!new_ns)
-+		goto out;
-+
-+	tsk->nsproxy->user_ns = new_ns;
-+	err = 0;
-+out:
-+	put_user_ns(old_ns);
-+	return 0;
- }
- 
- void free_user_ns(struct kref *kref)
--- 
-1.4.1
+	10.10 Certain Changes We Don't Want to Make
 
+	- Warning when a non-void function value is ignored
+
+	  C contains many standard functions that return a value that
+	  most programs choose to ignore.  One obvious example is printf.
+	  Warning about this practice only leads the defensive programmer
+	  to clutter programs with dozens of casts to void.  Such casts
+	  are required so frequently that they become visual noise.
+	  Writing these casts becomes so automatic that they no longer
+	  convey useful information about the intentions of the
+	  programmer.  For functions where the return value should never
+	  be ignored, use the warn_unused_result function attribute.
+
+So there _is_ a way to manipulate the warning behavior of gcc for this 
+point.
+
+> (2) Catch casts which do not change the type of an expression, e.g.
+> 
+>     void *x = (void *)kmalloc(...)
+> 
+
+And do what with it?  It's a no-op.  And when there's tokens such as this 
+in source code that become no-ops on compile, it serves as an annotation 
+to the code reader that kmalloc returns void*.
+
+> (3) Catch casts which do not change the outcome, because from-to-void* is
+>     warningless
+> 
+>     struct foo *bar = (struct foo *)kmalloc(...)
+> 
+
+So you would favor some sort of gcc warning such as "unnecessary cast" 
+when this is compiled?  If so, then there's a _tons_ of other warnings you 
+could generate when something exists in source code that does nothing.  
+Should we warn on every lone semi-colon that appears or every empty {} 
+block?
+
+	int var = (int)(int)(int)13;
+
+is compiled _exactly_ the same as:
+
+	int var = 13;
+
+> (4) extension and truncation, implicit conversions - unneessary casts
+> 
+>     func_taking_u32( (u32)some_u16 );
+>     func_taking_u16( (u16)some_u32 );
+> 
+
+Again, these would be no-ops so the casts here actually don't do anything 
+and serve as _annotation_ for the code reader since functions aren't 
+typically named func_taking_u16.  The compiler knows that the function 
+takes a u16 and can truncate the actual, but it serves to remind the 
+programmer that this value can be truncated later.
+
+	truncate(char ret)
+	{
+		return (int)ret;
+	}
+
+	main()
+	{
+		int var = 256;
+		int ret = test(var);
+		return ret;
+	}
+
+This compiles without warning.  So if there _was_ an "annotation" such as
+
+	int ret = test((char)var);
+
+then the programmer is going to catch the bug much easier especially when 
+he doesn't check the API of the interface he's using first.
+
+> (5) Slightly harder one: Where the evaluation process changes, but the
+>     outcome is the same
+> 
+>     #define V_FL_BASE_HI(x)  ((x) << 8)
+>     #define V_FL_INDEX_LO(x) (x)
+>     #define M_FL_INDEX_LO    0xFF
+> 
+>     static void t3_write_reg(struct adapter *, u32, u32);
+> 
+>     int t3_sge_init_flcntxt(struct adapter *adapter, unsigned int id,
+>                         int gts_enable, u64 base_addr, unsigned int size,
+>                         unsigned int bsize, unsigned int cong_thres, int gen,
+>                         unsigned int cidx)
+>     {
+>         t3_write_reg(adapter, A_SG_CONTEXT_DATA1,
+>                      V_FL_BASE_HI((u32) base_addr) |
+>                      V_FL_INDEX_LO(cidx & M_FL_INDEX_LO));
+>     }
+> 
+>     (Note that this is not exactly code found in the cxgb3 driver, but
+>     tweaked for this example)
+> 
+>     As far as I can see, even if base_addr was not truncated to u32, the end
+>     result would be, when the u64 value is passed to t3_write_reg.
+> 
+
+You would get the same result regardless of whether the cast was there or 
+not.  But, again, the u32 "cast" appears only as annotation so the 
+programmer is aware that the upper 32-bits of base_addr are going to be 
+discarded.
+
+This is precisely why these lines emit the exact same assembly:
+
+	auto int var = (int)(char)256;
+	auto int var = (char)256;
+
+Now, if you wrote:
+
+	auto char var = 256;
+
+Then this would emit a warning because the programmer did not explictly 
+recognize 256 as overflow for a char.
+
+> __attribute__((used)) would be more appropriate, I think.
+> 
+
+As far as I know, you can't use this on automatic variables and 
+-Wuninitialized will still emit the warning message.  It's great for the 
+static case.
+
+		David

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932977AbWLSWdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932988AbWLSWxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932977AbWLSWdL (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 17:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932988AbWLSWdL
+	id S932988AbWLSWxV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 17:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932992AbWLSWxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 17:33:11 -0500
-Received: from web32904.mail.mud.yahoo.com ([209.191.69.81]:41150 "HELO
-	web32904.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932977AbWLSWdK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 17:33:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=wrJajEVMrvIM78a320FWzXZ51k3evYJYC3aYT4CsmjvAyxapWb2edBydnNEEETOMKlku1wFN+NVOsFyImyud0Tef4eMXEo+p+cJQhR7xzQXGmQZpaqflgvu+yx4djceAn3oa4p18eCGzvzpQg4R0nprkLsv8Hi785sYUL3JUTFA=;
-X-YMail-OSG: 6EHKnL0VM1mEXjAyGVeoyM8T7a.LcBQPwKsdrHU8DVGzdMqD6yRPNCXnOpnv2UtqJNpf2mqRrkqpIgIGN0MfBquKJt0mAORf1u49rO4beksQuc7DliOOcgukTdIeC0YukhPyFHOjY8T91DC43l1pTZTZNAI79TVEpSMH7vOjoYPqg9fwoUczYwLX3NvA
-Date: Tue, 19 Dec 2006 14:33:09 -0800 (PST)
-From: J <jhnlmn@yahoo.com>
-Subject: Re: Possible race condition in usb-serial.c
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200612192113.40102.oliver@neukum.name>
+	Tue, 19 Dec 2006 17:53:21 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:42725 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932988AbWLSWxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 17:53:20 -0500
+Date: Tue, 19 Dec 2006 14:51:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <1166563828.10372.162.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612191451410.3483@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
+ <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+  <45876C65.7010301@yahoo.com.au>  <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+  <45878BE8.8010700@yahoo.com.au>  <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+  <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>  <4587B762.2030603@yahoo.com.au>
+  <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org> 
+ <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org> 
+ <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org> <1166563828.10372.162.camel@twins>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <695571.36956.qm@web32904.mail.mud.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for the response.
 
-> This code depends on protection from BKL.
 
-Really? I cannot find many lock_kernel calls in 
-USB directory and those, which I can find, 
-don't appear to protect usb_serial_disconnect
-and serial_close from being called at the same time.
+On Tue, 19 Dec 2006, Peter Zijlstra wrote:
 
-May be the protection is at a higher level? 
-Personally I don't beleive it.
-If you know how this thing is supposed to work,
-please, tell me.
+> On Tue, 2006-12-19 at 10:59 -0800, Linus Torvalds wrote:
+> > 
+> > On Tue, 19 Dec 2006, Linus Torvalds wrote:
+> > >
+> > >  here's a totally new tangent on this: it's possible that user code is 
+> > > simply BUGGY. 
+> 
+> I'm sad to say this doesn't trigger :-(
 
-Thank you
-John
+Oh, well. It was a theory. 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+		Linus

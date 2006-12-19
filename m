@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932512AbWLSAmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932510AbWLSAn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWLSAmZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 19:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWLSAmZ
+	id S932510AbWLSAn1 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 19:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWLSAn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 19:42:25 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36164 "EHLO smtp.osdl.org"
+	Mon, 18 Dec 2006 19:43:26 -0500
+Received: from ozlabs.org ([203.10.76.45]:52872 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932512AbWLSAmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 19:42:24 -0500
-Date: Mon, 18 Dec 2006 16:42:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc1-mm1
-Message-Id: <20061218164220.5b174bfd.akpm@osdl.org>
-In-Reply-To: <20061218162902.9820426d.randy.dunlap@oracle.com>
-References: <20061214225913.3338f677.akpm@osdl.org>
-	<20061218162902.9820426d.randy.dunlap@oracle.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S932510AbWLSAn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 19:43:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17799.13724.579027.764565@cargo.ozlabs.ibm.com>
+Date: Tue, 19 Dec 2006 11:43:08 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules
+In-Reply-To: <Pine.LNX.4.64.0612181554430.3479@woody.osdl.org>
+References: <200612161927.13860.gallir@gmail.com>
+	<Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
+	<orwt4qaara.fsf@redhat.com>
+	<Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
+	<orpsah6m3s.fsf@redhat.com>
+	<Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
+	<or64c96ius.fsf@redhat.com>
+	<Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
+	<17799.10706.834077.676728@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0612181554430.3479@woody.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2006 16:29:02 -0800
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
+Linus Torvalds writes:
+> 
+> 
+> On Tue, 19 Dec 2006, Paul Mackerras wrote:
+> >
+> > There is in fact a pretty substantial non-technical difference between
+> > static and dynamic linking.  If I create a binary by static linking
+> > and I include some library, and I distribute that binary to someone
+> > else, the recipient doesn't need to have a separate copy of the
+> > library, because they get one in the binary.
+> 
+> I agree, and I do agree that it's a real difference. 
+> 
+> I personally think that it's the "aggregation" issue, not a "derivation" 
+> issue, but I'll freely admit that it's just my personal view of the 
+> situation.
 
-> On Thu, 14 Dec 2006 22:59:13 -0800 Andrew Morton wrote:
-> 
-> Got this on booting up on x86_64 test box.
-> Didn't happen on next boot.
-> 
-> 
-> BUG: scheduling while atomic: hald-addon-stor/0x20000000/3300
-> 
-> Call Trace:
->  [<ffffffff8020ac30>] show_trace+0x34/0x47
->  [<ffffffff8020ac55>] dump_stack+0x12/0x17
->  [<ffffffff8050c2dd>] __sched_text_start+0x5d/0x7ba
->  [<ffffffff8022b3f0>] __cond_resched+0x1c/0x44
->  [<ffffffff8050cb4d>] cond_resched+0x29/0x30
->  [<ffffffff8050e7aa>] __reacquire_kernel_lock+0x26/0x44
->  [<ffffffff8050cae6>] thread_return+0xac/0xea
->  [<ffffffff8022b3f0>] __cond_resched+0x1c/0x44
->  [<ffffffff8050cb4d>] cond_resched+0x29/0x30
->  [<ffffffff8050cb83>] wait_for_completion+0x17/0xd2
->  [<ffffffff80337a19>] blk_execute_rq+0x98/0xb8
->  [<ffffffff80413e7b>] scsi_execute+0xd4/0xf1
->  [<ffffffff80413f51>] scsi_execute_req+0xb9/0xde
->  [<ffffffff80413faf>] scsi_test_unit_ready+0x39/0x75
->  [<ffffffff804443cd>] sd_media_changed+0x40/0x87
->  [<ffffffff8029cde0>] check_disk_change+0x1f/0x76
->  [<ffffffff8044417e>] sd_open+0x80/0x113
->  [<ffffffff8029d4c4>] do_open+0x9f/0x2a7
->  [<ffffffff8029d8bc>] blkdev_open+0x2e/0x5d
->  [<ffffffff8027afeb>] __dentry_open+0xd9/0x1a7
->  [<ffffffff8027b16a>] do_filp_open+0x2a/0x38
->  [<ffffffff8027b1bc>] do_sys_open+0x44/0xc8
->  [<ffffffff8020956e>] system_call+0x7e/0x83
+I think the critical issue is whether any human creativity is required
+to establish derivation.
 
-Bit 29 of current->preempt_count got set.  I don't think there's any way in
-which that can happen normally.  So probably some hardware or software
-error reached out and flipped that bit.
+Clearly there is some modification and adaptation that ld does to a
+library in the process of linking it into a binary, and ld is unlike
+mkisofs or gzip in that you can't extract the library in its original
+form (or any form suitable for linking with another program) from the
+output of ld --static.
+
+The question is whether it matters that the process that ld does is
+mechanical in nature.  This is possibly an area where you'll get a
+different answer in different jurisdictions.  I believe that in the
+US, some creative input is required to establish copyright, whereas in
+Australia, only "effort" is needed.  I don't know whether that affects
+the definition of "derived work".
+
+I personally would think that a mechanical process of modification
+*does* create a derived work, but it would take a court of law or a
+legislature to make an authoritative decision, I guess.
+
+Paul.

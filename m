@@ -1,125 +1,128 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752573AbWLSGHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752625AbWLSGIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752573AbWLSGHY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 01:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752625AbWLSGHY
+	id S1752625AbWLSGIt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 01:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbWLSGIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 01:07:24 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:39169 "EHLO relay.sw.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752573AbWLSGHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 01:07:23 -0500
-To: David Chinner <dgc@sgi.com>
-Cc: Dmitriy Monakhov <dmonakhov@openvz.org>, linux-kernel@vger.kernel.org,
-       devel@openvz.org, Andrew Morton <akpm@osdl.org>, xfs@oss.sgi.com
-Subject: Re: [PATCH] incorrect direct io error handling
-References: <87d56he3tn.fsf@sw.ru>
-	<20061218221515.GN44411608@melbourne.sgi.com>
-From: Dmitriy Monakhov <dmonakhov@sw.ru>
-Date: Tue, 19 Dec 2006 09:07:12 +0300
-In-Reply-To: <20061218221515.GN44411608@melbourne.sgi.com> (David Chinner's message of "Tue, 19 Dec 2006 09:15:15 +1100")
-Message-ID: <87psagto4v.fsf@sw.ru>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Dec 2006 01:08:48 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:34682 "EHLO
+	exch01smtp09.hdi.tvcabo" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752625AbWLSGIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 01:08:47 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CAEIRh0VThFhodGdsb2JhbACNcwE
+X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.20):SA:0(0.5/5.0):. Processed in 3.667226 secs Process 25615)
+Subject: Re: RFC: PCI quirks update for 2.6.16
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
+       Daniel Drake <dsd@gentoo.org>, Daniel Ritz <daniel.ritz@gmx.ch>,
+       Jean Delvare <khali@linux-fr.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Bauke Jan Douma <bjdouma@xs4all.nl>,
+       Tomasz Koprowski <tomek@koprowski.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@redhat.com>
+In-Reply-To: <20061210234733.GH10351@stusta.de>
+References: <20061207132430.GF8963@stusta.de> <45782774.8060002@gentoo.org>
+	 <1165723779.334.3.camel@localhost.localdomain>
+	 <20061210160053.GD10351@stusta.de> <457C345D.8030305@gentoo.org>
+	 <20061210223351.GA22878@tuatara.stupidest.org>
+	 <Pine.LNX.4.64.0612101438080.12500@woody.osdl.org>
+	 <20061210234733.GH10351@stusta.de>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-0l9tvKip3eFppP54+Uwe"
+Date: Tue, 19 Dec 2006 06:08:41 +0000
+Message-Id: <1166508521.3800.40.camel@monteirov>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+X-OriginalArrivalTime: 19 Dec 2006 06:08:46.0004 (UTC) FILETIME=[24718740:01C72334]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner <dgc@sgi.com> writes:
 
-> On Mon, Dec 18, 2006 at 04:22:44PM +0300, Dmitriy Monakhov wrote:
->> diff --git a/mm/filemap.c b/mm/filemap.c
->> index 8332c77..7c571dd 100644
->> --- a/mm/filemap.c
->> +++ b/mm/filemap.c
->> @@ -2044,8 +2044,9 @@ generic_file_direct_write(struct kiocb *
->>  	/*
->>  	 * Sync the fs metadata but not the minor inode changes and
->>  	 * of course not the data as we did direct DMA for the IO.
->> -	 * i_mutex is held, which protects generic_osync_inode() from
->> -	 * livelocking.  AIO O_DIRECT ops attempt to sync metadata here.
->> +	 * i_mutex may not being held (XFS does this), if so some specific locking
->> +	 * ordering must protect generic_osync_inode() from livelocking.
->> +	 * AIO O_DIRECT ops attempt to sync metadata here.
->>  	 */
->>  	if ((written >= 0 || written == -EIOCBQUEUED) &&
->>  	    ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
->> @@ -2279,6 +2280,17 @@ __generic_file_aio_write_nolock(struct k
->>  
->>  		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
->>  							ppos, count, ocount);
->> +		/*
->> +		 * If host is not S_ISBLK generic_file_direct_write() may 
->> +		 * have instantiated a few blocks outside i_size  files
->> +		 * Trim these off again.
->> +		 */
->> +		if (unlikely(written < 0) && !S_ISBLK(inode->i_mode)) {
->> +			loff_t isize = i_size_read(inode);
->> +			if (pos + count > isize)
->> +				vmtruncate(inode, isize);
->> +		}
->> +
->>  		if (written < 0 || written == count)
->>  			goto out;
->
-> You comment in the first hunk that i_mutex may not be held here,
-> but there's no comment in __generic_file_aio_write_nolock() that the
-> i_mutex must be held for !S_ISBLK devices.
-Any one may call directly call generic_file_direct_write() with i_mutex not held. 
->
->> @@ -2341,6 +2353,13 @@ ssize_t generic_file_aio_write_nolock(st
->>  	ssize_t ret;
->>  
->>  	BUG_ON(iocb->ki_pos != pos);
->> +	/*
->> +	 *  generic_file_buffered_write() may be called inside 
->> +	 *  __generic_file_aio_write_nolock() even in case of
->> +	 *  O_DIRECT for non S_ISBLK files. So i_mutex must be held.
->> +	 */
->> +	if (!S_ISBLK(inode->i_mode))
->> +		BUG_ON(!mutex_is_locked(&inode->i_mutex));
->>  
->>  	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs,
->>  			&iocb->ki_pos);
->
-> I note that you comment here in generic_file_aio_write_nolock(),
-> but it's not immediately obvious that this is refering to the
-> vmtruncate() call in __generic_file_aio_write_nolock().
-This is not about vmtruncate(). __generic_file_aio_write_nolock() may 
-call generic_file_buffered_write() even in case of O_DIRECT for !S_ISBLK, and 
-generic_file_buffered_write() has documented locking rules (i_mutex held).
-IMHO it is important to explicitly document this . And after we realize
-that i_mutex always held, vmtruncate() may be safely called.
->
-> IOWs, wouldn't it be better to put this comment and check in
-> __generic_file_aio_write_nolock() directly above the vmtruncate()
-> call that cares about this?
->
->> @@ -2383,8 +2402,8 @@ ssize_t generic_file_aio_write(struct ki
->>  EXPORT_SYMBOL(generic_file_aio_write);
->>  
->>  /*
->> - * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
->> - * went wrong during pagecache shootdown.
->> + * May be called without i_mutex for writes to S_ISREG files. XFS does this.
->> + * Returns -EIO if something went wrong during pagecache shootdown.
->>   */
->
-> Not sure you need to say "XFS does this" - other filesystems may do this
-> in the future.....
-Yes, but where are multiple comments about "reiserfs does this" in fs/buffer.c
+--=-0l9tvKip3eFppP54+Uwe
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
->
-> Cheers,
->
-> Dave.
-> -- 
-> Dave Chinner
-> Principal Engineer
-> SGI Australian Software Group
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Mon, 2006-12-11 at 00:47 +0100, Adrian Bunk wrote:
+> So we have the following situation:
+> - 2.6.16    - 2.6.16.16 : problems for Chris
+>                           (and possibly many other people)
+> - 2.6.16.17 - 2.6.16.35 : problems for many other people
+>                           (I remember 4-5 bug reports in the kernel
+>                            Bugzilla alone)
+>=20
+> The fix in 2.6.19 was considered suboptimal, and Alan's patch for
+> fixing=20
+> this whole issue more properly is currently not even in your tree. =20
 
+Right,
+Those 4-5 bug reports should test Alan's patch.
+All the problem is detected the correct devices that should be quirked.
+In 2.6.16, all ( PCI_VENDOR_ID_VIA, PCI_ANY_ID), in 2.6.16.17 just some.
+Still questionable if this quirks is for on-board VIA when interrupts
+are in PIC mode, or for all interrupts modes (historically before the
+patch to be for IO-APIC and PIC mode, was just for PIC mode, but in that
+time IO-APIC wasn't common on PC) .
+So with Alan's patch the question is:if a device need to be quirked and
+don't.=20
+Those 4-5 reports will answer the question, they needs VIA quirks and we
+want know is the patch do the right job.=20
+My laptop that need the quirks and I can test it is not available right
+now and I am too busy to test on it, sorry.
+
+Thanks,
+--=20
+S=E9rgio M.B.
+
+--=-0l9tvKip3eFppP54+Uwe
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjEyMTkwNjA4MzdaMCMGCSqGSIb3DQEJBDEWBBSzStMlVboPA0HsVj+ViFcQ
+feAq6TANBgkqhkiG9w0BAQEFAASCAQBIT1uUQswTuIrarzI0DXFiv/jTaUwAPma9bGG811rCMwhj
+8JK5oxFYsNJDH9zYs3wTDcV4dAlpsA3QsB6Qlpmea3SZ6RXXQKPk1vxLbXL3gxAeNXzQq2d5kR7Z
+hBOQR/iAklgrUf7daIUhPKodcrGF5wincjwNaXjlUtDqPTyXXmshzUoBJ6p48a36x8/rVNM0iLhU
+NVh+KA+C93lJm1KTpxloEG8I/HYinvako0KRxOD5SnZ4kLbOGM91lBvfyh/z1JGjgdIobZirXXxm
+14mbaV9P0dISohuGdKikv5RxgSEOzu6wNGb8k6UE/RgFaZp7EvYvcJzfoumHFo+sLSwwAAAAAAAA
+
+
+
+--=-0l9tvKip3eFppP54+Uwe--

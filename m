@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754797AbWLSHJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752869AbWLSHUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754797AbWLSHJF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 02:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754767AbWLSHJF
+	id S1752869AbWLSHUd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 02:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752884AbWLSHUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 02:09:05 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:44463 "EHLO
-	liaag2ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754799AbWLSHJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 02:09:04 -0500
-Date: Tue, 19 Dec 2006 02:02:14 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Aiee, killing interrupt handler!
-To: Hawk Xu <hxunix@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200612190205_MC3-1-D591-6D90@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Tue, 19 Dec 2006 02:20:32 -0500
+Received: from poczta.o2.pl ([193.17.41.142]:36601 "EHLO poczta.o2.pl"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752869AbWLSHUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 02:20:32 -0500
+Date: Tue, 19 Dec 2006 08:21:34 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] lockdep: more unlock-on-error fixes
+Message-ID: <20061219072134.GA1731@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20061218115632.GA5373@ff.dom.local> <20061218143936.GA4415@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061218143936.GA4415@elte.hu>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <4587653C.1080100@gmail.com>
-
-On Tue, 19 Dec 2006 12:06:20 +0800, Hawk Xu wrote:
-
-> Our server(running Oracle 10g) is having a kernel panic problem:
-<> 
-> Process swapper (pid: 0, threadinfo ffffffff80582000, task ffffffff80464300)
-> Stack: 0000000000000296 ffffffff8013f325 ffff81007f7f54d0 0000000000000100
->        0000000000000001 000000000000000e ffffffff8053e098 ffffffff8013f3a5
->        ffff81007f7f54d0 ffff810002c10a20
-
-You need to post the entire oops message, not just the last part.  It should
-start with "BUG". And using a more recent kernel would be a good idea.
-
-> And, we have these error messages in the /var/log/kernel file:
+On Mon, Dec 18, 2006 at 03:39:36PM +0100, Ingo Molnar wrote:
 > 
-> Dec  7 17:19:09 kf85-1 kernel: set_local_var[9683]: segfault at
-> 00000000fffffffc rip 0000000055f41d69 rsp 00000000ffffc4e8 error 6
-> Dec  7 17:27:44 kf85-1 kernel: set_local_var[12020]: segfault at
-> 00000000fffffffc rip 0000000055f41d69 rsp 00000000ffffb978 error 6
+> * Jarek Poplawski <jarkao2@o2.pl> wrote:
+> 
+> > Hello,
+> > 
+> > If any of this proposals should be omitted or separated let me know.
+> 
+> thanks for the fixes, they look good to me. I have reorganized the 
+> __lock_acquire() changes a bit. Plus i dropped the check_locks_freed() 
+> changes: there's no reason lockdep should be using 'raw' irq flags 
+> saving - these functions are not part of the irq-flags tracing code so 
+> they dont /need/ to be raw.
 
-32-bit Oracle on 64-bit kernel?  If so, it's probably not going to work.
+I'm not 100% convinced - now trace_hardirqs_off/on is 
+done only for lockdep reasons, so it is like selfcheck.
+But it's probably the matter of taste.
 
--- 
-MBTI: IXTP
+...
+> Index: linux/kernel/lockdep.c
+> ===================================================================
+> --- linux.orig/kernel/lockdep.c
+> +++ linux/kernel/lockdep.c
+...
+> @@ -2210,19 +2214,24 @@ out_calc_hash:
+>  		if (!chain_head && ret != 2)
+>  			if (!check_prevs_add(curr, hlock))
+>  				return 0;
+> -		graph_unlock();
+> -	}
+> +	} else
+> +		/* after lookup_chain_cache(): */
+> +		if (unlikely(!debug_locks))
+> +			return 0;
+> +
+>  	curr->lockdep_depth++;
+>  	check_chain_key(curr);
+>  	if (unlikely(curr->lockdep_depth >= MAX_LOCK_DEPTH)) {
+> -		debug_locks_off();
+> +		debug_locks_off_graph_unlock();
+>  		printk("BUG: MAX_LOCK_DEPTH too low!\n");
+>  		printk("turning off the locking correctness validator.\n");
+>  		return 0;
+>  	}
+> +
+>  	if (unlikely(curr->lockdep_depth > max_lockdep_depth))
+>  		max_lockdep_depth = curr->lockdep_depth;
+>  
+> +	graph_unlock();
+>  	return 1;
+>  }
+
+Sorry but it's not good... There could be no lock 
+at all here (eg. trylock != 0 || check != 2). 
+
+Jarek P.

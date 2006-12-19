@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932704AbWLSJBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932694AbWLSJCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932704AbWLSJBW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 04:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbWLSJBW
+	id S932694AbWLSJCG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 04:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWLSJCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 04:01:22 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.16]:56119 "EHLO
-	amsfep11-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932700AbWLSJBV (ORCPT
+	Tue, 19 Dec 2006 04:02:05 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:65359 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932694AbWLSJCD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 04:01:21 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <45876C65.7010301@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	 <45878BE8.8010700@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 10:00:10 +0100
-Message-Id: <1166518810.10372.127.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 04:02:03 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] Fix sparsemem on Cell
+Date: Tue, 19 Dec 2006 09:59:45 +0100
+User-Agent: KMail/1.9.5
+Cc: linuxppc-dev@ozlabs.org,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org,
+       paulus@samba.org, mkravetz@us.ibm.com, gone@us.ibm.com,
+       cbe-oss-dev@ozlabs.org
+References: <20061215165335.61D9F775@localhost.localdomain> <200612182354.47685.arnd@arndb.de> <1166483780.8648.26.camel@localhost.localdomain>
+In-Reply-To: <1166483780.8648.26.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612190959.47344.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 00:04 -0800, Linus Torvalds wrote:
+On Tuesday 19 December 2006 00:16, Dave Hansen wrote:
+> How about an enum, or a pair of #defines?
+> 
+> enum context
+> {
+>         EARLY,
+>         HOTPLUG
+> };
 
-> Nobody has actually ever explained why "test_clear_page_dirty()" is good 
-> at all.
-> 
->  - Why is it ever used instead of "clear_page_dirty_for_io()"?
-> 
->  - What is the difference?
-> 
->  - Why would you EVER want to clear bits just in the "struct page *" or 
->    just in the PTE's?
-> 
->  - Why is it EVER correct to clear dirty bits except JUST BEFORE THE IO?
-> 
-> In other words, I have a theory:
-> 
->  "A lot of this is actually historical cruft. Some of it may even be code 
->   that was never supposed to work, but because we maintained _other_ dirty 
->   bits in the PTE's, and never touched them before, we never even realized 
->   that the code that played with PG_dirty was totally insane"
-> 
-> Now, that's just a theory. And yeah, it may be stated a bit provocatively. 
-> It may not be entirely correct. I'm just saying.. maybe it is?
+Sounds good, but since this is in a global header file, it needs
+to be in an appropriate name space, like
 
-On Sun, 2006-12-17 at 15:40 -0800, Andrew Morton wrote:
+enum memmap_context {
+	MEMMAP_EARLY,
+	MEMMAP_HOTPLUG,
+};
 
-> try_to_free_buffers() clears the page's dirty state if it successfully removed
-> the page's buffers.
-> 
->   Background for this:
-> 
->   - a process does a one-byte-write to a file on a 64k pagesize, 4k
->     blocksize ext3 filesystem.  The page is now PageDirty, !PgeUptodate and
->     has one dirty buffer and 15 not uptodate buffers.
-> 
->   - kjournald writes the dirty buffer.  The page is now PageDirty,
->     !PageUptodate and has a mix of clean and not uptodate buffers.
-> 
->   - try_to_free_buffers() removes the page's buffers.  It MUST now clear
->     PageDirty.  If we were to leave the page dirty then we'd have a dirty, not
->     uptodate page with no buffer_heads.
-> 
->     We're screwed: we cannot write the page because we don't know which
->     sections of it contain garbage.  We cannot read the page because we don't
->     know which sections of it contain modified data.  We cannot free the page
->     because it is dirty.
-
-However!! this is not true for mapped pages because mapped pages must
-have the whole (16k in akpm's example) page loaded. Hence I suspect that
-what Andrei did by accident - remove the if (mapping) case in
-test_clean_dirty_pages() - is actually totally correct.
-
-
-
+	Arnd <><

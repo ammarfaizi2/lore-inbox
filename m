@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932377AbWLSANS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751791AbWLSARN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWLSANS (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 19:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWLSANS
+	id S1751791AbWLSARN (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 19:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWLSARN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 19:13:18 -0500
-Received: from [85.204.20.254] ([85.204.20.254]:41970 "EHLO megainternet.ro"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932377AbWLSANR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 19:13:17 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Andrei Popa <andrei.popa@i-neo.ro>
-Reply-To: andrei.popa@i-neo.ro
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612181434210.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <1166466272.10372.96.camel@twins>
-	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>
-	 <1166476297.6862.1.camel@localhost>
-	 <5a4c581d0612181400t347fc9efx69e55efb3ef40c45@mail.gmail.com>
-	 <Pine.LNX.4.64.0612181434210.3479@woody.osdl.org>
-Content-Type: text/plain
-Organization: I-NEO
-Date: Tue, 19 Dec 2006 02:13:11 +0200
-Message-Id: <1166487191.6869.1.camel@localhost>
+	Mon, 18 Dec 2006 19:17:13 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:55316 "EHLO
+	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751791AbWLSARM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 19:17:12 -0500
+Date: Tue, 19 Dec 2006 09:16:25 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: arnd@arndb.de, linuxppc-dev@ozlabs.org, akpm@osdl.org, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org,
+       paulus@samba.org, mkravetz@us.ibm.com, gone@us.ibm.com,
+       cbe-oss-dev@ozlabs.org
+Subject: Re: [PATCH] Fix sparsemem on Cell
+Message-Id: <20061219091625.43d45893.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1166483780.8648.26.camel@localhost.localdomain>
+References: <20061215165335.61D9F775@localhost.localdomain>
+	<20061215114536.dc5c93af.akpm@osdl.org>
+	<20061216170353.2dfa27b1.kamezawa.hiroyu@jp.fujitsu.com>
+	<200612182354.47685.arnd@arndb.de>
+	<1166483780.8648.26.camel@localhost.localdomain>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 14:45 -0800, Linus Torvalds wrote:
-> 
-> On Mon, 18 Dec 2006, Alessandro Suardi wrote:
-> > 
-> > No idea whether this can be a data point or not, but
-> > here it goes... my P2P box is about to turn 5 days old
-> > while running nonstop one or both of aMule 2.1.3 and
-> > BitTorrent 4.4.0 on ext3 mounted w/default options
-> > on both IDE and USB disks. Zero corruption.
-> > 
-> > AMD K7-800, 512MB RAM, PREEMPT/UP kernel,
-> > 2.6.19-git20 on top of up-to-date FC6.
-> 
-> It _looks_ like PREEMPT/SMP is one common configuration.
-> 
-> It might also be that the blocksize of the filesystem matters. 4kB 
-> filesystems are fundamentally simpler than 1kB filesystems, for example. 
-> You can tell at least with "/sbin/dumpe2fs -h /dev/..." or something.
-> 
-> Andrei - one thing that might be interesting to see: when corruption 
-> occurs, can you get the corrupted file somehow? And compare it with a 
-> known-good copy to see what the corruption looks like?
+On Mon, 18 Dec 2006 15:16:20 -0800
+Dave Hansen <haveblue@us.ibm.com> wrote:
 
-the corrupted file has a chink full with zeros
+> enum context
+> {
+>         EARLY,
+>         HOTPLUG
+> };
+I like this :)
 
-http://193.226.119.62/corruption0.jpg
-http://193.226.119.62/corruption1.jpg
-
-
+Thanks,
+-Kame
 

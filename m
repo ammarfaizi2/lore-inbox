@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932817AbWLSMme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751768AbWLSMrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932817AbWLSMme (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 07:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932819AbWLSMme
+	id S1751768AbWLSMrf (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 07:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751919AbWLSMrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 07:42:34 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:58634 "EHLO inti.inf.utfsm.cl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932817AbWLSMmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 07:42:33 -0500
-Message-Id: <200612191242.kBJCgBP8020472@laptop13.inf.utfsm.cl>
-To: "D. Hazelton" <dhazelton@enter.net>
-cc: davids@webmaster.com,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: GPL only modules 
-In-Reply-To: Message from "D. Hazelton" <dhazelton@enter.net> 
-   of "Mon, 18 Dec 2006 21:38:25 CDT." <200612182138.25332.dhazelton@enter.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Tue, 19 Dec 2006 09:42:11 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 19 Dec 2006 09:42:14 -0300 (CLST)
+	Tue, 19 Dec 2006 07:47:35 -0500
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:61952 "EHLO
+	lin5.shipmail.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751768AbWLSMre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 07:47:34 -0500
+Message-ID: <4587DF61.5020007@tungstengraphics.com>
+Date: Tue, 19 Dec 2006 13:47:29 +0100
+From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: sv, en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/2] agpgart - allow user-populated memory types.
+References: <4579ADE3.6040609@tungstengraphics.com>	 <1165616236.27217.108.camel@laptopd505.fenrus.org>	 <1095.213.114.71.166.1165619148.squirrel@www.shipmail.org>	 <1166518064.3365.1188.camel@laptopd505.fenrus.org>	 <4587B47F.20008@tungstengraphics.com> <1166530649.3365.1237.camel@laptopd505.fenrus.org>
+In-Reply-To: <1166530649.3365.1237.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D. Hazelton <dhazelton@enter.net> wrote:
+Arjan van de Ven wrote:
 
-[...]
+>>A short background:
+>>The current code uses vmalloc only. The potential use of kmalloc was 
+>>introduced
+>>to save memory and cpu-speed.
+>>All agp drivers expect to see a single memory chunk, so I'm not sure we 
+>>want to have an array of pages. That may require rewriting a lot of code.
+>>    
+>>
+>
+>but if it's clearly the right thing.....
+>How hard can it be? there are what.. 5 or 6 AGP drivers in the kernel?
+>
+>
+>  
+>
+Hmm,
+but we would still waste a lot of memory compared to kmalloc,
+when the amount of memory needed is much less than one page, which tends 
+to be
+a very common case.
 
-> The GPL is a License that covers how the code may be used, modified and 
-> distributed. This is the reason that the FSF people had to make the big 
-> exception for Bison, because the parser skeleton is such an integral part of 
-> Bison (Bison itself, IIRC, uses the same skeleton, modified, as part of the 
-> program) that truthfully, any parser built using Bison is a derivative work 
-> of code released under the GPL.
+Unless we allow the first entry in the array to be the virtual adress to an
+arbitrary-sized (max one page) kmalloc() area, the rest of the entries 
+can be pointers
+to pages allocated with __get_free_page().
 
-They didn't "have to make the big exception", if Linus' view is correct:
-The parser is built mechanically from the skeleton and the user's input, so
-it is just an aggregation. Sure, it is best to make this clear (by the
-exception), even if not needed.
+This would almost introduce the same level of confusion as the original 
+proposal,
+and effectively we'd be doing virtual address translation in software 
+for each access.
 
-> That said, since there is a distribution, use and modification license on
-> the Linux Kernel - the GPLv2 - there are those extra restrictions on the
-> code *OUTSIDE* the copyright rules.
+>>If it's acceptable I'd like to go for the vmalloc / kmalloc flag, or at 
+>>worst keep the current vmalloc only but that's such a _huge_ memory 
+>>waste for small buffers. The flag was the original idea, but 
+>>unfortunately the agp_memory struct is part of the drm interface, and I 
+>>wasn't sure we could add a variable to it.
+>>    
+>>
+>
+>I doubt this is part of the userspace interface so for sure we can
+>change it to be right.
+>
+>
+>  
+>
+/Thomas
 
-A license like GPL works /inside/ copyright law, by allowing you to do
-things the law prohibits unless the owner of the right agrees. What the law
-allows explicitly, regardless of the owner's wishes, can't be taken away.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

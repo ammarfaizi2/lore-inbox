@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932988AbWLSWxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932995AbWLSW5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932988AbWLSWxV (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 17:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932992AbWLSWxV
+	id S932995AbWLSW5m (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 17:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932996AbWLSW5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 17:53:21 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42725 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932988AbWLSWxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 17:53:20 -0500
-Date: Tue, 19 Dec 2006 14:51:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <1166563828.10372.162.camel@twins>
-Message-ID: <Pine.LNX.4.64.0612191451410.3483@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-  <45876C65.7010301@yahoo.com.au>  <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-  <45878BE8.8010700@yahoo.com.au>  <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-  <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>  <4587B762.2030603@yahoo.com.au>
-  <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org> 
- <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org> 
- <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org> <1166563828.10372.162.camel@twins>
+	Tue, 19 Dec 2006 17:57:42 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:41946 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932995AbWLSW5l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 17:57:41 -0500
+Date: Tue, 19 Dec 2006 22:57:29 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+Message-ID: <20061219225729.GA15777@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191322.13378.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612191322.13378.david-b@pacbell.net>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Re: Changes to sysfs PM layer break userspace
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 19, 2006 at 01:22:12PM -0800, David Brownell wrote:
 
+> Stop trying to use broken and deprecated APIs; and realize that "previously
+> working" meant you just hadn't tripped over the serious bugs yet.
 
-On Tue, 19 Dec 2006, Peter Zijlstra wrote:
+I'm happy to stop using broken and deprecated APIs, providing that 
+there's *actually a replacement*.
 
-> On Tue, 2006-12-19 at 10:59 -0800, Linus Torvalds wrote:
-> > 
-> > On Tue, 19 Dec 2006, Linus Torvalds wrote:
-> > >
-> > >  here's a totally new tangent on this: it's possible that user code is 
-> > > simply BUGGY. 
-> 
-> I'm sad to say this doesn't trigger :-(
+> Drivers can and should know how to do that sort of stuff themselves,
+> so the power savings are reliable and consistent no matter what user
+> space tools are (or aren't) used.
 
-Oh, well. It was a theory. 
+To the extent that that's possible, I entirely agree - however, it 
+clearly isn't always. Not all hardware can be powered down without 
+losing functionality, and so in those cases it's important that there be 
+a mechanism to allow that decision to be made by userspace.
 
-		Linus
+> Drivers know how to get power savings a lot better than any userspace
+> code ever could ... with the exception of hints like "ifdown eth0"
+> letting the driver know that right now is a good time to power down
+> almost everything, since it's not going to be used until "ifup".
+
+But in the cases where you don't have fine grained power management in 
+the hardware, it's still desirable to be able to suspend an unused 
+network agent. The driver can't do it by default, because that would 
+break existing behaviour.
+
+> As a generic mechanism, that interface has *ALWAYS* been "broken
+> by design"; I'd call it unfixable.  It's deprecated, and scheduled
+> to vanish; see Documentation/feature-removal-schedule.txt ...
+
+The fact that something is scheduled to be removed in July 2007 does 
+*not* mean it's acceptable to break it in 2006. We need to find a way to 
+fix this functionality in the meantime.
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

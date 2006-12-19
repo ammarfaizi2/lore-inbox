@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933010AbWLSV12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932953AbWLSVdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933010AbWLSV12 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWLSV12
+	id S932953AbWLSVdr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932982AbWLSVdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:27:28 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:55830 "EHLO mx2.mail.elte.hu"
+	Tue, 19 Dec 2006 16:33:47 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46503 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933010AbWLSV11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:27:27 -0500
-Date: Tue, 19 Dec 2006 22:24:27 +0100
+	id S932957AbWLSVdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 16:33:46 -0500
+Date: Tue, 19 Dec 2006 22:31:34 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: linux@bohmer.net
-Cc: linux-kernel@vger.kernel.org, Clark Williams <williams@redhat.com>
-Subject: Re: [BUG+PATCH] RT-Preempt: IRQ threads running at prio 0 SCHED_OTHER
-Message-ID: <20061219212427.GA11516@elte.hu>
-References: <3efb10970612191252m33e7b88cydca7fb488251ee35@mail.gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] workqueue: fix drivers/connector/connector.c
+Message-ID: <20061219213134.GA16619@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3efb10970612191252m33e7b88cydca7fb488251ee35@mail.gmail.com>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-VirusStatus: clean
 X-ELTE-SpamScore: -2.6
@@ -32,35 +30,30 @@ X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no Sp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Subject: [patch] workqueue: fix drivers/connector/connector.c
+From: Ingo Molnar <mingo@elte.hu>
 
-* Remy Bohmer <l.pinguin@gmail.com> wrote:
+commit c4028958b6ecad064b1a6303a6a5906d4fe48d73 did an incorrect 
+conversion of the work-pending check in the connector device (which 
+device is enabled in the -rt kernel rpm) - fix this by using 
+work_pending().
 
-> Hello Ingo,
-> 
-> I am using your yum-distributed kernel 2.6.19.1-rt15, and 
-> unfortunately I experienced very worse latencies. It turned out that 
-> ALL the IRQ threads were all running at prio 0, SCHED_OTHER.
-> 
-> Looking at the current code in kernel/irq/manage.c, the goal was to 
-> put them at MAX_RT_PRIO, but the call to sys_sched_setscheduler() 
-> fails with EINVAL. I have attached a patch to set them to 
-> (MAX_RT_PRIO-1). This works.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ drivers/connector/connector.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-oops - my intention was to set all IRQs and softirqs to SCHED_FIFO prio 
-50. I have fixed that now in my tree.
-
-prio 99 is pretty extensive and makes it hard to move tasks 'above' 
-hardirq priority, without setting the priority of /every/ IRQ thread. So 
-i picked SCHED_FIFO:50 - at exact half way.
-
-> Further I believe that each application of the RT-kernel requires a 
-> different configuration of these thread-priorities and I prefer to 
-> reconfigure these prios from userland during boot. As these 
-> threadnames contain whitespaces in its name, they make the 
-> shell-scripts unnecessary complex that I use to reconfigure the thread 
-> priorities.
-
-ok - lets try it. Clark: does this impact the set_kthread_prio utility? 
-I've changed "IRQ 123" to "IRQ-123" to make pidof & friends work better.
-
-	Ingo
+Index: linux/drivers/connector/connector.c
+===================================================================
+--- linux.orig/drivers/connector/connector.c
++++ linux/drivers/connector/connector.c
+@@ -135,8 +135,7 @@ static int cn_call_callback(struct cn_ms
+ 	spin_lock_bh(&dev->cbdev->queue_lock);
+ 	list_for_each_entry(__cbq, &dev->cbdev->queue_list, callback_entry) {
+ 		if (cn_cb_equal(&__cbq->id.id, &msg->id)) {
+-			if (likely(!test_bit(WORK_STRUCT_PENDING,
+-					     &__cbq->work.work.management) &&
++			if (likely(!work_pending(&__cbq->work.work) &&
+ 					__cbq->data.ddata == NULL)) {
+ 				__cbq->data.callback_priv = msg;
+ 

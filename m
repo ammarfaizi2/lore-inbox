@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933002AbWLSVWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933003AbWLSVYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933002AbWLSVWy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 16:22:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933003AbWLSVWy
+	id S933003AbWLSVYg (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 16:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932972AbWLSVYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 16:22:54 -0500
-Received: from outmx013.isp.belgacom.be ([195.238.5.64]:57469 "EHLO
-	outmx013.isp.belgacom.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933002AbWLSVWx (ORCPT
+	Tue, 19 Dec 2006 16:24:35 -0500
+Received: from mx1.cs.washington.edu ([128.208.5.52]:43192 "EHLO
+	mx1.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933003AbWLSVYf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 16:22:53 -0500
-Date: Tue, 19 Dec 2006 22:22:40 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Ben Dooks <ben@simtec.co.uk>,
-       Dimitry Andric <dimitry.andric@tomtom.com>
-Subject: Re: [PATCH] watchdog: fix clk_get() error check
-Message-ID: <20061219212240.GC2943@infomag.infomag.iguana.be>
-References: <20061219085144.GI4049@APFDCB5C> <20061219104335.GG11640@trinity.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219104335.GG11640@trinity.fluff.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 19 Dec 2006 16:24:35 -0500
+Date: Tue, 19 Dec 2006 13:24:24 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Bob Copeland <me@bobcopeland.com>, Dave Jones <davej@redhat.com>,
+       "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+In-Reply-To: <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64N.0612191311590.24901@attu4.cs.washington.edu>
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
+ <20061219164146.GI25461@redhat.com> <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
+ <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+On Tue, 19 Dec 2006, Jan Engelhardt wrote:
 
-> On Tue, Dec 19, 2006 at 05:51:44PM +0900, Akinobu Mita wrote:
-> > The return value of clk_get() should be checked by IS_ERR().
+> > I don't know if anyone cares about them anymore, since I think gcc
+> > grew some smarts in the area recently, but there are a lot of lines of
+> > code matching "static int.*= *0;" and equivalents in the driver tree.
 > 
-> thanks for spotting this, but this will probably clash with
-> a cleanup patch I sent a day or two ago to streamline the
-> exit path in the driver.
+> I'd really like to see the C compiler being enhanced to detect
+> "stupid casts", i.e. those, which when removed, do not change (a) the outcome
+> (b) the compiler warnings/error output.
 > 
-> see http://lkml.org/lkml/2006/12/18/65
 
-It did, but I modified it slightly so that it worked with your
-previous patch also. Can you test below patch?
+If your desire is for the compiler warnings output to be unchanged, I'm 
+not sure how you'd enhance the compiler from detecting these casts.  All 
+of the casts that have been removed in these cleanup patches do not change 
+the assembly when using gcc; they simply reduce the amount of visual noise 
+in the source code.
 
-Thanks,
-Wim.
+This is also true in terms of global static variables being initialized to 
+0 (or NULL).  While it is indeed unnecessary by the standard, it simply 
+moves the initialization from one segment of the assembly to the other, 
+regardless of how many different functions it is referenced in.  gcc does 
+not emit movl $0, var for these cases.
 
---- 2.6-mm.orig/drivers/char/watchdog/s3c2410_wdt.c
-+++ 2.6-mm/drivers/char/watchdog/s3c2410_wdt.c
-@@ -393,9 +393,9 @@
- 	}
- 
- 	wdt_clock = clk_get(&pdev->dev, "watchdog");
--	if (wdt_clock == NULL) {
-+	if (IS_ERR(wdt_clock)) {
- 		printk(KERN_INFO PFX "failed to find watchdog clock source\n");
--		ret =  -ENOENT;
-+		ret = PTR_ERR(wdt_clock);
- 		goto err_irq;
- 	}
- 
+It _would_ be helpful to add a macro such as:
+
+	#define	SILENCE_GCC(x)	= x
+
+to eliminate warnings such that:
+
+	auto int a SILENCE_GCC(a);
+	fill_a(&a);
+	if (a)
+		...
+
+would not produce a "may be used uninitialized" warning.
+
+		David

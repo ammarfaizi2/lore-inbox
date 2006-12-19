@@ -1,87 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752793AbWLSGix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752802AbWLSGl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752793AbWLSGix (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 01:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752789AbWLSGix
+	id S1752802AbWLSGl2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 01:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752789AbWLSGl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 01:38:53 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:33257 "HELO
-	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752724AbWLSGiw (ORCPT
+	Tue, 19 Dec 2006 01:41:28 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:11311 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752802AbWLSGl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 01:38:52 -0500
+	Tue, 19 Dec 2006 01:41:27 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=ydBozdbnEj3tAdHUgeBt57nCcpVIrT7btevJ1MMCgWi0l0tGwK7PnrkeaDR3/lfK1mwVfw6xSGYWbtY0aucqIlybBzmYI+mTuOTUFOmm4RA2HdlkVTz0IY03GxkNEe8+d/YeAI4zELxr8heHP0AWsg6fFkIBBGEt6mkQ127CzFs=  ;
-X-YMail-OSG: r9aozTgVM1mYx2QrcXmOjDgpdAQeapBywVh2G7hjIvA0Jf0fVAh0HtfIsxrQfSxYSXc5LkxMQIbpZ53zsCFUL0E8EvqSHD7e1GwfZl7L8AOKQ37Mt6kn8RbjE0azuSxyqYkEfY8mvJoRD4Q-
-Message-ID: <458788D7.2070107@yahoo.com.au>
-Date: Tue, 19 Dec 2006 17:38:15 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:date:from:reply-to:x-priority:message-id:to:cc:subject:in-reply-to:references:mime-version:content-type:content-transfer-encoding;
+        b=EKAEmRxbLZoZjHN0bUf945LRnwXhcBT3yq7k8Jqrzi2FoAUh7Xcth5I2xk8vb7XKunYJDjTkOBgslCv3JwUgfMiP8Ldo0gRqhWBqNRP26in2u8fIaV8TtWesS1H31XZqth/Lef3Td7hThWeFshdne6eVpCcgVk6Jfsjtolec7To=
+Date: Tue, 19 Dec 2006 08:41:24 +0200
+From: Paul Sokolovsky <pmiscml@gmail.com>
+Reply-To: Paul Sokolovsky <pmiscml@gmail.com>
+X-Priority: 3 (Normal)
+Message-ID: <1619959760.20061219084124@gmail.com>
+To: David Brownell <david-b@pacbell.net>
+CC: kernel-discuss@handhelds.org, linux-kernel@vger.kernel.org,
+       <linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: [PATCH] RTC classdev: Add sysfs support for wakeup alarm (r/w)
+In-Reply-To: <200612181659.11473.david-b@pacbell.net>
+References: <1866913935.20061217213036@gmail.com> <256202025.20061219015824@gmail.com> <200612181654.30864.david-b@pacbell.net> <200612181659.11473.david-b@pacbell.net>
 MIME-Version: 1.0
-To: Manish Regmi <regmi.manish@gmail.com>
-CC: Erik Mouw <mouw@nl.linux.org>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux disk performance.
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com>	 <1166431020.3365.931.camel@laptopd505.fenrus.org>	 <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>	 <20061218130702.GA14984@gateway.home> <652016d30612182222h7fde4ea5jbc0927c8ebeae76a@mail.gmail.com>
-In-Reply-To: <652016d30612182222h7fde4ea5jbc0927c8ebeae76a@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------040407040209040306090302"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040407040209040306090302
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Hello David,
 
-Manish Regmi wrote:
+Tuesday, December 19, 2006, 2:59:11 AM, you wrote:
 
-> Nick Piggin:
-> 
->> but
->> they look like they might be a (HZ quantised) delay coming from
->> block layer plugging.
-> 
-> 
-> Sorry i didn´t understand what you mean.
+> On Monday 18 December 2006 4:54 pm, David Brownell wrote:
 
-When you submit a request to an empty block device queue, it can
-get "plugged" for a number of timer ticks before any IO is actually
-started. This is done for efficiency reasons and is independent of
-the IO scheduler used.
+>> > http://handhelds.org/cgi-bin/cvsweb.cgi/linux/kernel26/drivers/rtc/rtc-sa1100.c.diff?r1=1.5&r2=1.6&f=h
+>> 
+>> That patch you applied looks right to me -- why don't you forward it
+>> to Alessandro as a bugfix for 2.6.20-rc2, and save me the effort?
 
-Use the noop IO scheduler, as well as the attached patch, and let's
-see what your numbers look like.
+> Actually, correction:  it'd be correct if you ripped out the buggy
+> calls to manage the irq wake mechanism.  A later message will show
+> how those need to work.  (The IRQ framework will give one helpful
+> hint when it warns about mismatched enable/disable calls ...)
 
-Thanks,
-Nick
+  Do you mean enable_irq_wake()/disable_irq_wake() calls? In what way
+they are buggy? The only "bug" with them I see is that they are not
+implemented for PXA, which just once again reminds that mach-pxa is
+real misfit in ARM family (own DMA API instead of fitting with generic
+ARM one, no cpufreq support in mainline, and few other not implemented
+APIs). That's of course pretty sad, as apparently PXA was/still is
+the most popular CPU for consumer market (well, at least in "something
+like real computer" caregory) ;-(.
+
+  But those calls are apparently still needed, even if you say that
+wakeup stuff should be handled in generic manner, as PM feature, and
+on device level. After all, what drivers will do to actually enable
+wakeup for a given device? I hope we don't speak about using
+CPU-specific registers in reusable device drivers for that.
+
+  This is pretty interesting topic for us, and so far in handhelds.org
+ports we don't handle dynamic wakeup configuration at all, so I would
+eagerly expect your samples. In the meantime, I went and hacked
+.set_wake methods for PXA's irq_chips. And that's when I got idea why
+it might haven't been implemented at all - PXA27x's model of wakeup
+sources is a bit weird comparing with nice and clean PXA25x's ;-).
+It's still not the reason to give up on those calls at all - after
+all, even "least common denominator" implementation will give good
+value. I yet need to test what I've put together, though.
+
+
+> - Dave
+
 
 -- 
-SUSE Labs, Novell Inc.
+Best regards,
+ Paul                            mailto:pmiscml@gmail.com
 
---------------040407040209040306090302
-Content-Type: text/plain;
- name="block-no-plug.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="block-no-plug.patch"
-
-Index: linux-2.6/block/ll_rw_blk.c
-===================================================================
---- linux-2.6.orig/block/ll_rw_blk.c	2006-12-19 17:35:00.000000000 +1100
-+++ linux-2.6/block/ll_rw_blk.c	2006-12-19 17:35:53.000000000 +1100
-@@ -226,6 +226,8 @@ void blk_queue_make_request(request_queu
- 	q->unplug_delay = (3 * HZ) / 1000;	/* 3 milliseconds */
- 	if (q->unplug_delay == 0)
- 		q->unplug_delay = 1;
-+	q->unplug_delay = 0;
-+	q->unplug_thresh = 0;
- 
- 	INIT_WORK(&q->unplug_work, blk_unplug_work, q);
- 
-
---------------040407040209040306090302--
-Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932593AbWLSBgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932640AbWLSBkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbWLSBgA (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 20:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWLSBgA
+	id S932640AbWLSBkW (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 20:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWLSBkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 20:36:00 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:3206 "EHLO
+	Mon, 18 Dec 2006 20:40:22 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:3686 "EHLO
 	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932593AbWLSBf7 (ORCPT
+	with ESMTP id S932640AbWLSBkV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 20:35:59 -0500
+	Mon, 18 Dec 2006 20:40:21 -0500
 From: "David Schwartz" <davids@webmaster.com>
 To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Subject: RE: GPL only modules
-Date: Mon, 18 Dec 2006 17:35:23 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
+Date: Mon, 18 Dec 2006 17:39:19 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEEPAHAC.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="US-ASCII"
@@ -22,58 +22,48 @@ Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <orlkl46axd.fsf@redhat.com>
+In-Reply-To: <17799.10706.834077.676728@cargo.ozlabs.ibm.com>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
 Importance: Normal
 X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 18:38:32 -0800
+X-Spam-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 18:42:27 -0800
 	(not processed: message from trusted or authenticated source)
 X-MDRemoteIP: 206.171.168.138
 X-Return-Path: davids@webmaster.com
 X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 18:38:33 -0800
+X-MDAV-Processed: mail1.webmaster.com, Mon, 18 Dec 2006 18:42:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> For both static and dynamic linking, you might claim the output is an
-> aggregate, but that doesn't matter.  What matters is whether or not
-> the output is a work based on the program, and whether the "mere
-> aggregation" paragraph kicks in.
->
-> If the output is not an aggregate, which is quite likely to be
-> the case for dynamic linking, and quite possibly also for many static
-> linking cases, then the "mere aggregation" paragraph of clause 2 does
-> not kick in.
->
-> If the output is indeed an aggregate, as it may quite likely be in the
-> case of static linking, then the "mere aggregation" considerations of
-> clause 2 may kick in and enable the 'anything else' to not be brought
-> under the scope of the license.  You still need permission to
-> distribute the whole.  The GPL asserts its non-interference with your
-> ability to distribute the separate portion separately, under whatever
-> license you can, as long as it's not a derived work from the GPL
-> portion.
+Combined responses:
 
-No!
+> So therefore I don't think you can reasonably claim that static
+> vs. dynamic linking is only a technical difference.  There are clearly
+> other differences when it comes to distribution of the resulting
+> binaries.
 
-It makes no difference whether the "mere aggregation" paragraph kicks in
-because the "mere aggregation" paragraph is *explaining* the *law*. What
-matters is what the law actually *says*.
+We're only talking about the special case of GPL'd works. You can download a
+million copies of a GPL'd work from a server run by a family member across
+the room. You can then delete one copy for each copy you distribute in the
+form of a statically linked work.
 
-We are talking about what works are within the GPL's scope. The text of the
-GPL does not matter because the GPL does not set its own scope, copyright
-law does.
+Issues of copying don't apply to GPL'd works unless you have no access to
+the source code. Otherwise, someone else can copy you as many works as you
+want with the source code, and you can use first sale to transfer every one
+of them.
 
-The GPL could say that if you ever see the source code to a GPL'd work,
-every work you ever write must be placed under the GPL. But that wouldn't
-make it true, because that would be a requirement outside the GPL's scope.
+> I personally would think that a mechanical process of modification
+> *does* create a derived work, but it would take a court of law or a
+> legislature to make an authoritative decision, I guess.
 
-We are talking about works are inside the GPL's legal scope, and in that
-case, nothing the GPL says can enlarge the scope.
+Under at least United States law, copyright protected creative expression
+and only creative expression. In other jurisdictions, there are other types
+of rights similar to copyright that one can obtain by means of hard work,
+for example database compilation rights. They are usually legally distinct
+from copyright and grant different rights with different rules.
 
 DS
-
 
 

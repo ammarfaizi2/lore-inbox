@@ -1,145 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932650AbWLSIAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932652AbWLSIBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932650AbWLSIAa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbWLSIAa
+	id S932652AbWLSIBx (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbWLSIBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:00:30 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:17648 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932650AbWLSIA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:00:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
-        b=PYQ7lAumoalm3Obrx6xLs56yjFRMIfK8OtgZbUOwxgvUJWpKBfeO4j6bVruZZDy1Xsk3mTokX8In6I9xB4JFxsRIjIcRAeDWmwjlMiOCxc/cK/cw/SehVmT2FsQc9ELSTWwtph/tuKGsyhFbO6VFaonu8vPyOpyJFDrPQ6WGxdg=
-Message-ID: <86802c440612190000k7eb5e68et9c0a776ef85b5177@mail.gmail.com>
-Date: Tue, 19 Dec 2006 00:00:27 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: IO-APIC + timer doesn't work
-Cc: "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <m1tzztqkev.fsf@ebiederm.dsl.xmission.com>
+	Tue, 19 Dec 2006 03:01:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34047 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932652AbWLSIBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 03:01:53 -0500
+Message-ID: <45879C5F.7040802@redhat.com>
+Date: Tue, 19 Dec 2006 00:01:35 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1013_20377670.1166515227471"
-References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
-	 <20061216174536.GA2753@melchior.yamamaya.is-a-geek.org>
-	 <Pine.LNX.4.64.0612160955370.3557@woody.osdl.org>
-	 <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org>
-	 <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org>
-	 <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org>
-	 <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org>
-	 <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com>
-	 <20061218152333.GA2400@melchior.yamamaya.is-a-geek.org>
-	 <m1tzztqkev.fsf@ebiederm.dsl.xmission.com>
-X-Google-Sender-Auth: cf97d1ef7c873c63
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [take28-resend_2->0 0/8] kevent: Generic event handling mechanism.
+References: <11663636322861@2ka.mipt.ru> <458760C9.7080504@redhat.com> <20061219045130.GA28980@2ka.mipt.ru> <458784EE.7080303@redhat.com> <20061219063838.GA23757@2ka.mipt.ru>
+In-Reply-To: <20061219063838.GA23757@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1013_20377670.1166515227471
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Evgeniy Polyakov wrote:
+> What error messages do you see and what are kevent related config
+> changes?
 
-On 12/18/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Thanks.  The bug is simply that the new code doesn't setup the
-> ioapic for the cases it intends to test.  But it does clear out
-> the original programming.  So if the normal good case doesn't work the
-> code is going to have problems.
+ARCH=um
 
-Please check the patch.
+#define CONFIG_KEVENT_USER_STAT 1
+#define CONFIG_KEVENT_PIPE 1
+#define CONFIG_KEVENT_POLL 1
+#define CONFIG_KEVENT_TIMER 1
+#define CONFIG_KEVENT 1
+#define CONFIG_KEVENT_SIGNAL 1
+#define CONFIG_KEVENT_SOCKET 1
 
-------=_Part_1013_20377670.1166515227471
-Content-Type: text/x-patch; name=timers_12182006.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_evw0ywjt
-Content-Disposition: attachment; filename="timers_12182006.patch"
 
-W1BBVENIXSB4ODZfNjQ6IGNoZWNrX3RpbWVyIHdpdGggaW8gYXBpYyBzZXR1cCBiZWZvcmUgdHJ5
-X2FwaWNfcGluCgphZGQgaW8gYXBpYyBzZXR1cCBiZWZvcmUgdHJ5X2FwaWNfcGluCgpjYzogQW5k
-aSBLbGVlbiA8YWtAc3VzZS5kZT4KY2M6IEVyaWMgVy4gQmllZGVybWFuIDxlYmllZGVybUB4bWlz
-c2lvbi5jb20+ClNpZ25lZC1vZmYtYnk6IFlpbmdoYWkgTHUgPHlpbmdoYWkubHVAYW1kLmNvbT4K
-CmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9rZXJuZWwvaW9fYXBpYy5jIGIvYXJjaC94ODZfNjQv
-a2VybmVsL2lvX2FwaWMuYwppbmRleCAyYTFkY2Q1Li4wNjk4MmI0IDEwMDY0NAotLS0gYS9hcmNo
-L3g4Nl82NC9rZXJuZWwvaW9fYXBpYy5jCisrKyBiL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGlj
-LmMKQEAgLTI3MywxMCArMjczLDE3IEBAIHN0YXRpYyB2b2lkIGFkZF9waW5fdG9faXJxKHVuc2ln
-bmVkIGludCBpcnEsIGludCBhcGljLCBpbnQgcGluKQogCXN0cnVjdCBpcnFfcGluX2xpc3QgKmVu
-dHJ5ID0gaXJxXzJfcGluICsgaXJxOwogCiAJQlVHX09OKGlycSA+PSBOUl9JUlFTKTsKLQl3aGls
-ZSAoZW50cnktPm5leHQpCisJd2hpbGUgKGVudHJ5LT5uZXh0KSB7CisJCWlmIChlbnRyeS0+YXBp
-YyA9PSBhcGljICYmIGVudHJ5LT5waW4gPT0gcGluKSAKKwkJCXJldHVybjsKKwkJaWYgKGVudHJ5
-LT5waW4gPT0gLTEpIAorCQkJYnJlYWs7CiAJCWVudHJ5ID0gaXJxXzJfcGluICsgZW50cnktPm5l
-eHQ7CisJfQogCiAJaWYgKGVudHJ5LT5waW4gIT0gLTEpIHsKKwkJaWYgKGVudHJ5LT5hcGljID09
-IGFwaWMgJiYgZW50cnktPnBpbiA9PSBwaW4pIAorCQkJcmV0dXJuOwogCQllbnRyeS0+bmV4dCA9
-IGZpcnN0X2ZyZWVfZW50cnk7CiAJCWVudHJ5ID0gaXJxXzJfcGluICsgZW50cnktPm5leHQ7CiAJ
-CWlmICgrK2ZpcnN0X2ZyZWVfZW50cnkgPj0gUElOX01BUF9TSVpFKQpAQCAtMjg2LDYgKzI5Mywy
-NCBAQCBzdGF0aWMgdm9pZCBhZGRfcGluX3RvX2lycSh1bnNpZ25lZCBpbnQgaXJxLCBpbnQgYXBp
-YywgaW50IHBpbikKIAllbnRyeS0+cGluID0gcGluOwogfQogCitzdGF0aWMgdm9pZCByZW1vdmVf
-cGluX3RvX2lycSh1bnNpZ25lZCBpbnQgaXJxLCBpbnQgYXBpYywgaW50IHBpbikKK3sKKwlzdHJ1
-Y3QgaXJxX3Bpbl9saXN0ICplbnRyeSA9IGlycV8yX3BpbiArIGlycTsKKworCUJVR19PTihpcnEg
-Pj0gTlJfSVJRUyk7CisKKwl3aGlsZSAoZW50cnkpIHsKKwkJaWYgKGVudHJ5LT5hcGljID09IGFw
-aWMgJiYgZW50cnktPnBpbiA9PSBwaW4pIHsKKwkJCWVudHJ5LT5hcGljID0gLTE7CisJCQllbnRy
-eS0+cGluID0gLTE7CisJCQlicmVhazsKKwkJfQorCQlpZiAoZW50cnktPm5leHQpIAorCQkJZW50
-cnkgPSBpcnFfMl9waW4gKyBlbnRyeS0+bmV4dDsKKwl9CisKK30KKwogCiAjZGVmaW5lIERPX0FD
-VElPTihuYW1lLFIsQUNUSU9OLCBGSU5BTCkJCQkJCVwKIAkJCQkJCQkJCVwKQEAgLTE1NzAsNiAr
-MTYzMCwyMSBAQCBzdGF0aWMgaW5saW5lIHZvaWQgdW5sb2NrX0V4dElOVF9sb2dpYyh2b2lkKQog
-ICogZmFuYXRpY2FsbHkgb24gaGlzIHRydWx5IGJ1Z2d5IGJvYXJkLgogICovCiAKK3N0YXRpYyBp
-bnQgc2V0X3RyeV9hcGljX3BpbihpbnQgYXBpYywgaW50IHBpbiwgaW50IGlycSkKK3sKKwlpbnQg
-aWR4OworCWludCByZXQgPSAtMTsKKwlpZHggPSBmaW5kX2lycV9lbnRyeShhcGljLHBpbixtcF9J
-TlQpOworCisJaWYoaWR4ICE9IC0xKSB7CisJCWFkZF9waW5fdG9faXJxKGlycSwgYXBpYywgcGlu
-KTsKKwkJc2V0dXBfSU9fQVBJQ19pcnEoYXBpYywgcGluLCBpZHgsIGlycSk7CisJCXJldCA9IDA7
-CisJfQorCisJcmV0dXJuIHJldDsKK30KKwogc3RhdGljIGludCB0cnlfYXBpY19waW4oaW50IGFw
-aWMsIGludCBwaW4sIGNoYXIgKm1zZykKIHsKIAlhcGljX3ByaW50ayhBUElDX1ZFUkJPU0UsIEtF
-Uk5fSU5GTwpAQCAtMTU4OCw3ICsxNjYzLDcgQEAgc3RhdGljIGludCB0cnlfYXBpY19waW4oaW50
-IGFwaWMsIGludCBwaW4sIGNoYXIgKm1zZykKIAkJfQogCQlyZXR1cm4gMTsKIAl9Ci0JY2xlYXJf
-SU9fQVBJQ19waW4oYXBpYywgcGluKTsKKwogCWFwaWNfcHJpbnRrKEFQSUNfUVVJRVQsIEtFUk5f
-RVJSICIgLi4gZmFpbGVkXG4iKTsKIAlyZXR1cm4gMDsKIH0KQEAgLTE1OTksMTIgKzE2NzQsMTIg
-QEAgc3RhdGljIHZvaWQgY2hlY2tfdGltZXIodm9pZCkKIAlpbnQgYXBpYzEsIHBpbjEsIGFwaWMy
-LCBwaW4yOwogCWludCB2ZWN0b3I7CiAJY3B1bWFza190IG1hc2s7CisJaW50IGk7CiAKIAkvKgog
-CSAqIGdldC9zZXQgdGhlIHRpbWVyIElSUSB2ZWN0b3I6CiAJICovCiAJZGlzYWJsZV84MjU5QV9p
-cnEoMCk7Ci0JdmVjdG9yID0gYXNzaWduX2lycV92ZWN0b3IoMCwgVEFSR0VUX0NQVVMsICZtYXNr
-KTsKIAogCS8qCiAJICogU3VidGxlLCBjb2RlIGluIGRvX3RpbWVyX2ludGVycnVwdCgpIGV4cGVj
-dHMgYW4gQUVPSQpAQCAtMTYyMiwzMiArMTY5Nyw0OSBAQCBzdGF0aWMgdm9pZCBjaGVja190aW1l
-cih2b2lkKQogCWFwaWMyID0gaW9hcGljX2k4MjU5LmFwaWM7CiAKIAkvKiBEbyB0aGlzIGZpcnN0
-LCBvdGhlcndpc2Ugd2UgZ2V0IGRvdWJsZSBpbnRlcnJ1cHRzIG9uIEFUSSBib2FyZHMgKi8KLQlp
-ZiAoKHBpbjEgIT0gLTEpICYmIHRyeV9hcGljX3BpbihhcGljMSwgcGluMSwid2l0aCA4MjU5IElS
-UTAgZGlzYWJsZWQiKSkKLQkJcmV0dXJuOworCWlmIChwaW4xICE9IC0xKSB7CisJCS8qIHNldF90
-cnlfYXBpY19waW4gd2lsbCBjYWxsIGRpc2FibGVfODI1OUFfaXJxICovCisJCXNldF90cnlfYXBp
-Y19waW4oYXBpYzEsIHBpbjEsIDApOworCQl1bm1hc2tfSU9fQVBJQ19pcnEoMCk7CisJCWlmICh0
-cnlfYXBpY19waW4oYXBpYzEsIHBpbjEsIndpdGggODI1OSBJUlEwIGRpc2FibGVkIikpCisJCQly
-ZXR1cm47CiAKLQkvKiBOb3cgdHJ5IGFnYWluIHdpdGggSVJRMCA4MjU5QSBlbmFibGVkLgotCSAg
-IEFzc3VtZXMgdGltZXIgaXMgb24gSU8tQVBJQyAwID8hPyAqLwotCWVuYWJsZV84MjU5QV9pcnEo
-MCk7Ci0JdW5tYXNrX0lPX0FQSUNfaXJxKDApOwotCWlmICh0cnlfYXBpY19waW4oYXBpYzEsIHBp
-bjEsICJ3aXRoIDgyNTkgSVJRMCBlbmFibGVkIikpCi0JCXJldHVybjsKLQlkaXNhYmxlXzgyNTlB
-X2lycSgwKTsKKwkJLyogTm93IHRyeSBhZ2FpbiB3aXRoIElSUTAgODI1OUEgZW5hYmxlZC4KKwkJ
-ICAgQXNzdW1lcyB0aW1lciBpcyBvbiBJTy1BUElDIDAgPyE/ICovCisJCWVuYWJsZV84MjU5QV9p
-cnEoMCk7CisJCWlmICh0cnlfYXBpY19waW4oYXBpYzEsIHBpbjEsICJ3aXRoIDgyNTkgSVJRMCBl
-bmFibGVkIikpCisJCQlyZXR1cm47CisJCWRpc2FibGVfODI1OUFfaXJxKDApOworCisgICAgCSAg
-ICAgICAgY2xlYXJfSU9fQVBJQ19waW4oYXBpYzEsIHBpbjEpOworCQlyZW1vdmVfcGluX3RvX2ly
-cSgwLCBhcGljMSwgcGluMSk7CisJfQogCiAJLyogQWx3YXlzIHRyeSBwaW4wIGFuZCBwaW4yIG9u
-IEFQSUMgMCB0byBoYW5kbGUgYnVnZ3kgdGltZXIgb3ZlcnJpZGVzCiAJICAgb24gTnZpZGlhIGJv
-YXJkcyAqLwotCWlmICghKGFwaWMxID09IDAgJiYgcGluMSA9PSAwKSAmJgotCSAgICB0cnlfYXBp
-Y19waW4oMCwgMCwgImZhbGxiYWNrIHdpdGggODI1OSBJUlEwIGRpc2FibGVkIikpCi0JCXJldHVy
-bjsKLQlpZiAoIShhcGljMSA9PSAwICYmIHBpbjEgPT0gMikgJiYKLQkgICAgdHJ5X2FwaWNfcGlu
-KDAsIDIsICJmYWxsYmFjayB3aXRoIDgyNTkgSVJRMCBkaXNhYmxlZCIpKQotCQlyZXR1cm47CisJ
-Zm9yIChpID0gMDsgaSA8PSAyOyBpICs9IDIpIAorCWlmICghKGFwaWMxID09IDAgJiYgcGluMSA9
-PSBpKSkgeworCQkvKiBzZXRfdHJ5X2FwaWNfcGluIHdpbGwgY2FsbCBkaXNhYmxlXzgyNTlBX2ly
-cSAqLworCQlpZiAoIXNldF90cnlfYXBpY19waW4oMCwgaSwgMCkgKSB7CisJCQl1bm1hc2tfSU9f
-QVBJQ19pcnEoMCk7CisJCQlpZiAodHJ5X2FwaWNfcGluKDAsIGksICJmYWxsYmFjayB3aXRoIDgy
-NTkgSVJRMCBkaXNhYmxlZCIpKQorCQkJCXJldHVybjsKKwkJCWNsZWFyX0lPX0FQSUNfcGluKDAs
-IGkpOworCQkJcmVtb3ZlX3Bpbl90b19pcnEoMCwgMCwgaSk7CisJICAgIAl9CisJfQorCisJdmVj
-dG9yID0gYXNzaWduX2lycV92ZWN0b3IoMCwgVEFSR0VUX0NQVVMsICZtYXNrKTsKIAogCS8qIFRo
-ZW4gdHJ5IHB1cmUgODI1OUEgcm91dGluZyBvbiB0aGUgODI1OSBhcyByZXBvcnRlZCBieSBCSU9T
-Ki8KLQllbmFibGVfODI1OUFfaXJxKDApOwogCWlmIChwaW4yICE9IC0xKSB7CiAJCXNldHVwX0V4
-dElOVF9JUlEwX3BpbihhcGljMiwgcGluMiwgdmVjdG9yKTsKKwkJYWRkX3Bpbl90b19pcnEoMCwg
-YXBpYzIsIHBpbjIpOworCQllbmFibGVfODI1OUFfaXJxKDApOwogCQlpZiAodHJ5X2FwaWNfcGlu
-KGFwaWMyLHBpbjIsIjgyNTlBIGJyb2FkY2FzdCBFeHRJTlQgZnJvbSBCSU9TIikpCiAJCQlyZXR1
-cm47CisJCWNsZWFyX0lPX0FQSUNfcGluKGFwaWMyLCBwaW4yKTsKKwkJcmVtb3ZlX3Bpbl90b19p
-cnEoMCwgYXBpYzIsIHBpbjIpOwogCX0KIAogCS8qIFRyaWVkIGFsbCBwb3NzaWJpbGl0aWVzIHRv
-IGdvIHRocm91Z2ggdGhlIElPLUFQSUMuIE5vdyBjb21lIHRoZQo=
-------=_Part_1013_20377670.1166515227471--
+
+In file included from kernel/kevent/kevent.c:28:
+include/linux/kevent.h: In function ‘kevent_init_file’:
+include/linux/kevent.h:220: error: ‘struct file’ has no member named ‘st’
+include/linux/kevent.h: In function ‘kevent_cleanup_file’:
+include/linux/kevent.h:225: error: ‘struct file’ has no member named ‘st’
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

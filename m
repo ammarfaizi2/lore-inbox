@@ -1,191 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932745AbWLSKEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932746AbWLSKEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932745AbWLSKEI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 05:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932746AbWLSKEI
+	id S932746AbWLSKEv (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 05:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWLSKEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 05:04:08 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1151 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932745AbWLSKEE (ORCPT
+	Tue, 19 Dec 2006 05:04:51 -0500
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:61832 "EHLO
+	lin5.shipmail.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932749AbWLSKEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 05:04:04 -0500
-Date: Tue, 19 Dec 2006 11:04:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.37-rc1
-Message-ID: <20061219100405.GG6993@stusta.de>
+	Tue, 19 Dec 2006 05:04:50 -0500
+X-Greylist: delayed 1216 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 05:04:49 EST
+Message-ID: <4587B47F.20008@tungstengraphics.com>
+Date: Tue, 19 Dec 2006 10:44:31 +0100
+From: =?UTF-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= <thomas@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: sv, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/2] agpgart - allow user-populated memory types.
+References: <4579ADE3.6040609@tungstengraphics.com>	 <1165616236.27217.108.camel@laptopd505.fenrus.org>	 <1095.213.114.71.166.1165619148.squirrel@www.shipmail.org> <1166518064.3365.1188.camel@laptopd505.fenrus.org>
+In-Reply-To: <1166518064.3365.1188.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+Arjan van de Ven wrote:
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+>On Sat, 2006-12-09 at 00:05 +0100, Thomas Hellström wrote:
+>  
+>
+>>>On Fri, 2006-12-08 at 19:24 +0100, Thomas HellstrÃ¶m wrote:
+>>>      
+>>>
+>>>>+       }
+>>>>+
+>>>>+       if (alloc_size <= PAGE_SIZE) {
+>>>>+               new->memory = kmalloc(alloc_size, GFP_KERNEL);
+>>>>+       }
+>>>>+       if (new->memory == NULL) {
+>>>>+               new->memory = vmalloc(alloc_size);
+>>>>        
+>>>>
+>>>this bit is more or less evil as well...
+>>>
+>>>1) vmalloc is expensive all the way, higher tlb use etc etc
+>>>2) mixing allocation types is just a recipe for disaster
+>>>3) if this isn't a frequent operation, kmalloc is fine upto at least 2
+>>>pages; I doubt you'll ever want more
+>>>      
+>>>
+>>I understand your feelings about this, and as you probably understand, the
+>>kfree / vfree thingy is a result of the above allocation scheme.
+>>    
+>>
+>
+>the kfree/vfree thing at MINIMUM should be changed though. Even if you
+>need both kfree and vfree, you should key it off of a flag that you
+>store, not off the address of the memory, that's just unportable and
+>highly fragile. You *know* which allocator you used, so store it and use
+>THAT info.
+>
+>
+>
+>  
+>
+>>The allocated memory holds an array of struct page pointers. The number of
+>>struct page pointers will range from 1 to about 8192, so the alloc size
+>>will range from 4bytes to 64K, but could go higher depending on
+>>architecture.
+>>    
+>>
+>
+>hmm 64Kb is a bit much indeed. You can't do an array of upto 16 entries
+>with one page in each array entry? 
+>
+>  
+>
+Arjan,
+Thanks for taking time to review this.
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+A short background:
+The current code uses vmalloc only. The potential use of kmalloc was 
+introduced
+to save memory and cpu-speed.
+All agp drivers expect to see a single memory chunk, so I'm not sure we 
+want to have an array of pages. That may require rewriting a lot of code.
 
+If it's acceptable I'd like to go for the vmalloc / kmalloc flag, or at 
+worst keep the current vmalloc only but that's such a _huge_ memory 
+waste for small buffers. The flag was the original idea, but 
+unfortunately the agp_memory struct is part of the drm interface, and I 
+wasn't sure we could add a variable to it.
 
-Changes since 2.6.16.36:
+DaveJ, is it possible to extend struct agp_memory with a flags field?
 
-Adrian Bunk (4):
-      [ALSA] sound/core/: fix 3 off-by-one errors
-      [ALSA] fix some memory leaks
-      [ALSA] sound/pci/rme9652/hdspm.c: fix off-by-one errors
-      Linux 2.6.16.37-rc1
+Regards,
+Thomas
 
-Akinobu Mita (1):
-      [WATCHDOG] sc1200wdt.c pnp unregister fix.
-
-Alasdair G Kergon (1):
-      dm snapshot: unify chunk_size
-
-Alexey Kuznetsov (1):
-      [IPV4]: severe locking bug in fib_semantics.c
-
-Andrew Chew (1):
-      sata_nv/amd74xx: Add MCP61 support
-
-Andrew Morton (1):
-      hvc_console suspend fix
-
-Arjan van de Ven (1):
-      x86-64: Mark rdtsc as sync only for netburst, not for core2
-
-Arnaud Patard (1):
-      r8169: fix infinite loop during hotplug
-
-Brian King (1):
-      [SCSI] DAC960: PCI id table fixup
-
-Christophe Saout (2):
-      Fix SUNRPC wakeup/execute race condition
-      dm crypt: Fix data corruption with dm-crypt over RAID5
-
-Daniel Kobras (1):
-      dm: Fix deadlock under high i/o load in raid1 setup.
-
-Dave Jones (5):
-      [ALSA] ad1848 double free
-      [ALSA] Fix use after free in opl3_seq and opl3_oss
-      [ALSA] sound/isa/sb/sb_mixer.c double kfree
-      [ALSA] fix usbmixer double kfree
-      [WATCHDOG] sc1200wdt.c printk fix
-
-David S. Miller (1):
-      [IPV4] ip_fragment: Always compute hash with ipfrag_lock held.
-
-Francois Romieu (2):
-      r8169: RX fifo overflow recovery
-      r8169: tweak the PCI data parity error recovery
-
-Hans Verkuil (1):
-      V4L: Fix broken TUNER_LG_NTSC_TAPE radio support
-
-Herbert Xu (1):
-      [CRYPTO] sha512: Fix sha384 block size
-
-Jean Delvare (1):
-      [SCSI] gdth: Fix && typos
-
-Jeff Garzik (2):
-      [libata] sata_nv: add PCI IDs
-      ISDN: fix drivers, by handling errors thrown by ->readstat()
-
-Jeff Mahoney (1):
-      dm: add module ref counting
-
-Joerg Ahrens (1):
-      xirc2ps_cs: Cannot reset card in atomic context
-
-Linus Torvalds (1):
-      AGP: Allocate AGP pages with GFP_DMA32 by default
-
-Mark McLoughlin (1):
-      dm snapshot: fix metadata writing when suspending
-
-Michael Krufky (1):
-      DVB: lgdt330x: fix signal / lock status detection bug
-
-Michal Miroslaw (1):
-      dm: BUG/OOPS fix
-
-Neil Brown (2):
-      dm: mirror sector offset fix
-      md: Fix md grow/size code to correctly find the maximum available space
-
-Peer Chen (2):
-      pci_ids.h: Add NVIDIA PCI ID
-      IDE: Add the support of nvidia PATA controllers of MCP67 to amd74xx.c
-
-Randy Dunlap (1):
-      amd74xx.c: add some NVIDIA chipset IDs
-
-Robin Holt (1):
-      IA64: bte_unaligned_copy() transfers one extra cache line.
-
-Stephen Hemminger (1):
-      bridge-netfilter: don't overwrite memory outside of skb
-
-Tejun Heo (1):
-      scsi: clear garbage after CDBs on SG_IO
-
-Trond Myklebust (1):
-      NFS: nfs_lookup - don't hash dentry when optimising away the lookup
-
-Zachary Amsden (1):
-      softirq: remove BUG_ONs which can incorrectly trigger
-
-
- Makefile                               |    2 
- arch/ia64/sn/kernel/bte.c              |    9 +-
- arch/x86_64/kernel/setup.c             |    5 +
- block/scsi_ioctl.c                     |    3 
- crypto/sha512.c                        |    2 
- drivers/block/DAC960.c                 |    2 
- drivers/char/agp/generic.c             |    2 
- drivers/char/agp/intel-agp.c           |    2 
- drivers/char/hvc_console.c             |    1 
- drivers/char/watchdog/sc1200wdt.c      |   11 ++-
- drivers/ide/pci/amd74xx.c              |   13 +++
- drivers/isdn/i4l/isdn_common.c         |    9 +-
- drivers/md/dm-crypt.c                  |    6 +
- drivers/md/dm-exception-store.c        |   85 +++++++++++++++----------
- drivers/md/dm-mpath.c                  |    3 
- drivers/md/dm-raid1.c                  |   67 ++++++++++---------
- drivers/md/dm-snap.c                   |    6 -
- drivers/md/dm.c                        |    6 +
- drivers/md/md.c                        |    2 
- drivers/media/dvb/frontends/lgdt330x.c |    6 -
- drivers/media/video/tuner-simple.c     |    2 
- drivers/media/video/tuner-types.c      |   19 -----
- drivers/net/pcmcia/xirc2ps_cs.c        |   18 ++++-
- drivers/net/r8169.c                    |   36 +++++++---
- drivers/scsi/gdth.c                    |    4 -
- drivers/scsi/sata_nv.c                 |   10 ++
- drivers/scsi/scsi_lib.c                |    1 
- fs/nfs/dir.c                           |   14 +++-
- include/linux/netfilter_bridge.h       |   15 +++-
- include/linux/pci_ids.h                |    6 +
- kernel/softirq.c                       |    2 
- net/bridge/br_forward.c                |   10 ++
- net/ipv4/fib_semantics.c               |   12 +--
- net/ipv4/ip_fragment.c                 |   15 ++--
- net/sunrpc/sched.c                     |   10 +-
- sound/core/sound.c                     |    4 -
- sound/core/sound_oss.c                 |    2 
- sound/drivers/opl3/opl3_oss.c          |   12 ++-
- sound/drivers/opl3/opl3_seq.c          |   12 ++-
- sound/isa/ad1848/ad1848_lib.c          |    4 -
- sound/isa/es18xx.c                     |    1 
- sound/isa/sb/sb_mixer.c                |    4 -
- sound/pci/cs46xx/dsp_spos.c            |   10 ++
- sound/pci/rme9652/hdspm.c              |    4 -
- sound/usb/usbmixer.c                   |    1 
- 45 files changed, 289 insertions(+), 181 deletions(-)

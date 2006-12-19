@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932678AbWLSIv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932690AbWLSIwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932678AbWLSIv4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 03:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWLSIvz
+	id S932690AbWLSIwi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 03:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWLSIwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 03:51:55 -0500
-Received: from torres.zugschlus.de ([85.10.211.154]:3199 "EHLO
-	torres.zugschlus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932678AbWLSIvy (ORCPT
+	Tue, 19 Dec 2006 03:52:38 -0500
+Received: from wx-out-0506.google.com ([66.249.82.232]:17341 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932691AbWLSIwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 03:51:54 -0500
-Date: Tue, 19 Dec 2006 09:51:49 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-ID: <20061219085149.GA20442@torres.l21.ma.zugschlus.de>
-References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org> <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org> <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org> <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au> <20061217214308.62b9021a.akpm@osdl.org>
+	Tue, 19 Dec 2006 03:52:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=WsvBqCv7gqmtJBpAZwXLcE8jeh2fsB+y2QdRs+yOFIDOJrK0wYPA7mUfpDUpeF2A2yMlz8dhbhnTO06tA/HdlNrEHxkvtan7YHvm3Glz85kyCR45Mnb13VlqXiI9CAgHJ0VMUtTx+h6IshLsgfDPkwR1r7AS/FFfYlWKwG+AeT8=
+Date: Tue, 19 Dec 2006 17:51:44 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, Ben Dooks <ben@simtec.co.uk>,
+       Dimitry Andric <dimitry.andric@tomtom.com>
+Subject: [PATCH] watchdog: fix clk_get() error check
+Message-ID: <20061219085144.GI4049@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Ben Dooks <ben@simtec.co.uk>,
+	Dimitry Andric <dimitry.andric@tomtom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061217214308.62b9021a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 17, 2006 at 09:43:08PM -0800, Andrew Morton wrote:
-> Six hours here of fsx-linux plus high memory pressure on SMP on 1k
-> blocksize ext3, mainline.  Zero failures.  It's unlikely that this testing
-> would pass, yet people running normal workloads are able to easily trigger
-> failures.  I suspect we're looking in the wrong place.
+The return value of clk_get() should be checked by IS_ERR().
 
-I do not have a clue about memory management at all, but is it
-possible that you're testing on a box with too much memory? My box has
-only 256 MB, and I used to use mutt with a _huge_ inbox with mutt
-taking somewhat 150 MB. Add spamassassin and a reasonably busy mail
-server, and the box used to be like 150 MB in swap.
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-I have tidied my inbox in the mean time and mutt's memory requirement
-has been reduced to somewhat 30 MB, which might be the cause that I
-don't see the issue that often any more.
+---
+ drivers/char/watchdog/pnx4008_wdt.c |    3 ++-
+ drivers/char/watchdog/s3c2410_wdt.c |    4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-Greetings
-Marc, just trying to give input
-
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
+Index: 2.6-mm/drivers/char/watchdog/pnx4008_wdt.c
+===================================================================
+--- 2.6-mm.orig/drivers/char/watchdog/pnx4008_wdt.c
++++ 2.6-mm/drivers/char/watchdog/pnx4008_wdt.c
+@@ -283,7 +283,8 @@ static int pnx4008_wdt_probe(struct plat
+ 	wdt_base = (void __iomem *)IO_ADDRESS(res->start);
+ 
+ 	wdt_clk = clk_get(&pdev->dev, "wdt_ck");
+-	if (!wdt_clk) {
++	if (IS_ERR(wdt_clk)) {
++		ret = PTR_ERR(wdt_clk);
+ 		release_resource(wdt_mem);
+ 		kfree(wdt_mem);
+ 		goto out;
+Index: 2.6-mm/drivers/char/watchdog/s3c2410_wdt.c
+===================================================================
+--- 2.6-mm.orig/drivers/char/watchdog/s3c2410_wdt.c
++++ 2.6-mm/drivers/char/watchdog/s3c2410_wdt.c
+@@ -392,10 +392,10 @@ static int s3c2410wdt_probe(struct platf
+ 	}
+ 
+ 	wdt_clock = clk_get(&pdev->dev, "watchdog");
+-	if (wdt_clock == NULL) {
++	if (IS_ERR(wdt_clock)) {
+ 		printk(KERN_INFO PFX "failed to find watchdog clock source\n");
+ 		iounmap(wdt_base);
+-		return -ENOENT;
++		return PTR_ERR(wdt_clock);
+ 	}
+ 
+ 	clk_enable(wdt_clock);

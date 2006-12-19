@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932312AbWLRX7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932371AbWLSAAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWLRX7a (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 18:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWLRX7a
+	id S932371AbWLSAAv (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 19:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWLSAAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 18:59:30 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60770 "EHLO smtp.osdl.org"
+	Mon, 18 Dec 2006 19:00:51 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60876 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932312AbWLRX73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 18:59:29 -0500
-Date: Mon, 18 Dec 2006 15:59:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Alexandre Oliva <aoliva@redhat.com>, Ricardo Galli <gallir@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-In-Reply-To: <17799.10706.834077.676728@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0612181554430.3479@woody.osdl.org>
-References: <200612161927.13860.gallir@gmail.com> <Pine.LNX.4.64.0612161253390.3479@woody.osdl.org>
- <orwt4qaara.fsf@redhat.com> <Pine.LNX.4.64.0612170927110.3479@woody.osdl.org>
- <orpsah6m3s.fsf@redhat.com> <Pine.LNX.4.64.0612181134260.3479@woody.osdl.org>
- <or64c96ius.fsf@redhat.com> <Pine.LNX.4.64.0612181242530.3479@woody.osdl.org>
- <17799.10706.834077.676728@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S932371AbWLSAAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 19:00:50 -0500
+Date: Mon, 18 Dec 2006 16:00:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch] debugging feature: SysRq-Q to print timers
+Message-Id: <20061218160019.988171f5.akpm@osdl.org>
+In-Reply-To: <20061218234549.GB32353@redhat.com>
+References: <20061214225913.3338f677.akpm@osdl.org>
+	<20061216000440.GY3388@stusta.de>
+	<20061216075658.GA16116@elte.hu>
+	<20061218153103.57860bf8.akpm@osdl.org>
+	<20061218234549.GB32353@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Dec 2006 18:45:49 -0500
+Dave Jones <davej@redhat.com> wrote:
+
+> On Mon, Dec 18, 2006 at 03:31:03PM -0800, Andrew Morton wrote:
+>  > On Sat, 16 Dec 2006 08:56:58 +0100
+>  > Ingo Molnar <mingo@elte.hu> wrote:
+>  > 
+>  > > ----------------->
+>  > > Subject: [patch] debugging feature: SysRq-Q to print timers
+>  > > From: Ingo Molnar <mingo@elte.hu>
+>  > > 
+>  > > add SysRq-Q to print pending timers and other timer info.
+>  > 
+>  > I must say that I've never needed this feature or /proc/timer-list, and I
+>  > don't recall ever having seen anyone request it, nor get themselves into a
+>  > situation where they needed it.
+> 
+> /proc/timer-list is useful for profiling applications doing excessive wakeups.
+> With the move towards being tickless, this is more important than ever,
+> and giving users the right tools to find these problems themselves is important.
+> 
+
+oic.  Nobody ever tells me squat.  <updates changelog>
+
+Your explanation doesn't explain why we need this info in a sysrq
+triggerable form.
+
+And what about /proc/timer-stat?
 
 
-On Tue, 19 Dec 2006, Paul Mackerras wrote:
->
-> There is in fact a pretty substantial non-technical difference between
-> static and dynamic linking.  If I create a binary by static linking
-> and I include some library, and I distribute that binary to someone
-> else, the recipient doesn't need to have a separate copy of the
-> library, because they get one in the binary.
-
-I agree, and I do agree that it's a real difference. 
-
-I personally think that it's the "aggregation" issue, not a "derivation" 
-issue, but I'll freely admit that it's just my personal view of the 
-situation.
-
-> In other words, static linking gives the recipient a "free" copy of
-> the library, but dynamic linking doesn't.  That is why some companies'
-> legal guidelines have quite different rules about the distribution of
-> binaries, depending on whether they are statically or dynamically
-> linked.
-
-Yes. There is not doubt at all that regardless of anything else, if you 
-link statically, you at the VERY LEAST need to have the right to 
-distribute the library as part of an "aggregate work". 
-
-> So therefore I don't think you can reasonably claim that static
-> vs. dynamic linking is only a technical difference.  There are clearly
-> other differences when it comes to distribution of the resulting
-> binaries.
-
-Yes. And I have actually talked about this exact issue - even in the 
-absense of any "derivation" from the library, the fact that static linking 
-includes a _copy_ of the library does mean that you have to have the right 
-to distribute that particular copy. 
-
-Now, under the GPL, aggregate distribution is allowed, but you still do 
-need to follow the other GPL rules (ie you would need to distributed 
-sources for the library - even if you don't necessarily distribute sources 
-to the binary you linked _with_).
-
-So there's no question that "dynamic linking" simplifies issues, by virtue 
-of not even distributing any library code at all. I absolutely agree about 
-that part.
-
-		Linus

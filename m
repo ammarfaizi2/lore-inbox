@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933052AbWLSW75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933051AbWLSW77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933052AbWLSW75 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 17:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933054AbWLSW74
+	id S933051AbWLSW77 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 17:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932950AbWLSW76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 17:59:56 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:54148 "EHLO e2.ny.us.ibm.com"
+	Tue, 19 Dec 2006 17:59:58 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43283 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933052AbWLSW7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 17:59:52 -0500
-Date: Tue, 19 Dec 2006 16:59:49 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, containers@lists.osdl.org
-Subject: [PATCH 1/8] nsproxy: externalizes exit_task_namespaces
-Message-ID: <20061219225949.GB25904@sergelap.austin.ibm.com>
-References: <20061219225902.GA25904@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061219225902.GA25904@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	id S933051AbWLSW7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 17:59:54 -0500
+Date: Tue, 19 Dec 2006 14:58:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-Id: <20061219145818.5b36381c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612191451410.3483@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>
+	<20061217040620.91dac272.akpm@osdl.org>
+	<1166362772.8593.2.camel@localhost>
+	<20061217154026.219b294f.akpm@osdl.org>
+	<1166460945.10372.84.camel@twins>
+	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	<45876C65.7010301@yahoo.com.au>
+	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+	<45878BE8.8010700@yahoo.com.au>
+	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
+	<4587B762.2030603@yahoo.com.au>
+	<Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
+	<Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
+	<1166563828.10372.162.camel@twins>
+	<Pine.LNX.4.64.0612191451410.3483@woody.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cedric Le Goater <clg@fr.ibm.com>
-Subject: [PATCH 1/8] nsproxy: externalizes exit_task_namespaces
+	On Tue, 19 Dec 2006 14:51:55 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-this is required to remove a header dependency in sched.h which breaks
-next patches.
+> 
+> 
+> On Tue, 19 Dec 2006, Peter Zijlstra wrote:
+> 
+> > On Tue, 2006-12-19 at 10:59 -0800, Linus Torvalds wrote:
+> > > 
+> > > On Tue, 19 Dec 2006, Linus Torvalds wrote:
+> > > >
+> > > >  here's a totally new tangent on this: it's possible that user code is 
+> > > > simply BUGGY. 
+> > 
+> > I'm sad to say this doesn't trigger :-(
+> 
+> Oh, well. It was a theory. 
+> 
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
----
- include/linux/nsproxy.h |   15 ++++-----------
- kernel/nsproxy.c        |   11 +++++++++++
- 2 files changed, 15 insertions(+), 11 deletions(-)
+Well... we'd need to see (corruption && this-not-triggering) to be sure.
 
-diff --git a/include/linux/nsproxy.h b/include/linux/nsproxy.h
-index 0b9f0dc..602f3d2 100644
---- a/include/linux/nsproxy.h
-+++ b/include/linux/nsproxy.h
-@@ -2,7 +2,8 @@ #ifndef _LINUX_NSPROXY_H
- #define _LINUX_NSPROXY_H
- 
- #include <linux/spinlock.h>
--#include <linux/sched.h>
-+
-+struct task_struct;
- 
- struct mnt_namespace;
- struct uts_namespace;
-@@ -43,14 +44,6 @@ static inline void put_nsproxy(struct ns
- 	}
- }
- 
--static inline void exit_task_namespaces(struct task_struct *p)
--{
--	struct nsproxy *ns = p->nsproxy;
--	if (ns) {
--		task_lock(p);
--		p->nsproxy = NULL;
--		task_unlock(p);
--		put_nsproxy(ns);
--	}
--}
-+extern void exit_task_namespaces(struct task_struct *p);
-+
- #endif
-diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
-index f5b9ee6..f11bbbf 100644
---- a/kernel/nsproxy.c
-+++ b/kernel/nsproxy.c
-@@ -36,6 +36,17 @@ void get_task_namespaces(struct task_str
- 	}
- }
- 
-+void exit_task_namespaces(struct task_struct *p)
-+{
-+	struct nsproxy *ns = p->nsproxy;
-+	if (ns) {
-+		task_lock(p);
-+		p->nsproxy = NULL;
-+		task_unlock(p);
-+		put_nsproxy(ns);
-+	}
-+}
-+
- /*
-  * creates a copy of "orig" with refcount 1.
-  * This does not grab references to the contained namespaces,
--- 
-1.4.1
-
+Peter, have you been able to trigger the corruption?

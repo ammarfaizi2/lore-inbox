@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932780AbWLSKzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932787AbWLSK4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932780AbWLSKzm (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 05:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932789AbWLSKzm
+	id S932787AbWLSK4R (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 05:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932788AbWLSK4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 05:55:42 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:37990 "HELO
-	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932787AbWLSKzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 05:55:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=f6Vee6s3Tx6uVLXwHaCR9/Vc7Lr66wUecn6YePT68tg8xfHna/QOlFW1Cfi/VqBIvsl1/GFyHreol+Izdmog3UqWMdckIW+nuu3grU4KoV4hqQQ5WeEzhdDsmowOHhipeZg4xCWSNzjtAQWQ2T9DoZVEmCoEY5u+HNLuAm7tgM4=  ;
-X-YMail-OSG: KNx0kUcVM1kZu0Pb4vBXLYgENo.qIvnRI2kR1MxMaNb_ASxF.ko1r9LSKi.bAE_0rl7QIs4EeXeVh45FWnXtGDA0Ns.5VKrxvjlBUeZP_4Bn.BfXVHXpt3Z3MkmVp4Eg2HhTZxuplepyYU2iguj3xM1f4cZYeJKg3g--
-Message-ID: <4587C506.5000900@yahoo.com.au>
-Date: Tue, 19 Dec 2006 21:55:02 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost>	<20061217040620.91dac272.akpm@osdl.org>	<1166362772.8593.2.camel@localhost>	<20061217154026.219b294f.akpm@osdl.org>	<1166460945.10372.84.camel@twins>	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>	<45876C65.7010301@yahoo.com.au>	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>	<45878BE8.8010700@yahoo.com.au>	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>	<4587B762.2030603@yahoo.com.au> <20061219023255.f5241bb0.akpm@osdl.org>
-In-Reply-To: <20061219023255.f5241bb0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 05:56:17 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:63471 "EHLO mail.acc.umu.se"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932787AbWLSK4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 05:56:16 -0500
+Date: Tue, 19 Dec 2006 11:56:08 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Nottingham <notting@redhat.com>, Jeff Garzik <jeff@garzik.org>,
+       Josh Boyer <jwboyer@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH/RFC] Delete JFFS (version 1)
+Message-ID: <20061219105608.GC19442@vasa.acc.umu.se>
+Mail-Followup-To: Alan <alan@lxorguk.ukuu.org.uk>,
+	Bill Nottingham <notting@redhat.com>, Jeff Garzik <jeff@garzik.org>,
+	Josh Boyer <jwboyer@gmail.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	jffs-dev@axis.com, David Woodhouse <dwmw2@infradead.org>
+References: <457EA2FE.3050206@garzik.org> <625fc13d0612120456p1d74663fp21e40ee84a8819bc@mail.gmail.com> <457EA86B.5010407@garzik.org> <20061212170125.GA19592@nostromo.devel.redhat.com> <20061212172843.40edbaed@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061212172843.40edbaed@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 19 Dec 2006 20:56:50 +1100
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
->>I think it could be very likely that indeed the bug is a latent one in
->>a clear_page_dirty caller, rather than dirty-tracking itself.
+On Tue, Dec 12, 2006 at 05:28:43PM +0000, Alan wrote:
+> On Tue, 12 Dec 2006 12:01:25 -0500
+> Bill Nottingham <notting@redhat.com> wrote:
 > 
+> > Jeff Garzik (jeff@garzik.org) said: 
+> > > It's always been the case that we remove Linux kernel code when the 
+> > > number of users (and more importantly, developers) drops to near-nil.
+> > 
+> > So, drivers/net/3c501.c?
 > 
-> The only callers are try_to_free_buffers(), truncate and a few scruffy
-> possibly-wrong-for-fsync filesytems which aren't being used here.
+> I think 3c501.c is a case where putting in an "If you use this email ..
+> or it will go away" might be a good idea indeed.
 
-Well truncate/invalidate will not operate on mapped pages (barring the
-very-unlikely truncate/invalidate vs fault races). We can ignore those
-filesystems as they don't include ext3. Which brings us back to
-try_to_free_buffers().
+Maybe even: "the people who are using 3c501's - please chime up and we'll
+donate better cards to you."
 
-Maybe it is something else entirely, but did try_to_free_buffers ever
-get completely cleared? Or was some of Andrei's corruption possibly
-leftover on-disk corruption from a previous kernel?
+After all, 3c501 is one of the crappier pieces of network cards,
+I feel sorry for the people using them...
 
+
+Regards: David
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932872AbWLSSVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932879AbWLSS0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932872AbWLSSVN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 13:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932879AbWLSSVN
+	id S932879AbWLSS0a (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 13:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWLSS0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 13:21:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52479 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932872AbWLSSVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 13:21:12 -0500
-Date: Tue, 19 Dec 2006 10:37:56 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, wenji@fnal.gov, netdev@vger.kernel.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
-Message-ID: <20061219103756.38f7426c@freekitty>
-In-Reply-To: <20061130063252.GC2003@elte.hu>
-References: <HNEBLGGMEGLPMPPDOPMGKEAJCGAA.wenji@fnal.gov>
-	<20061129154200.c4db558c.akpm@osdl.org>
-	<20061130063252.GC2003@elte.hu>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 13:26:30 -0500
+Received: from 87-194-8-8.bethere.co.uk ([87.194.8.8]:51245 "EHLO
+	aeryn.fluff.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932879AbWLSS0a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 13:26:30 -0500
+Date: Tue, 19 Dec 2006 18:26:08 +0000
+From: Ben Dooks <ben-linux@fluff.org>
+To: spi-devel-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix s3c24xx gpio driver (include linux/workqueue.h)
+Message-ID: <20061219182608.GA7895@home.fluff.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed this bit of discussion in tcp_recvmsg. It implies that a better
-queuing policy would be good. But it is confusing English (Alexey?) so
-not sure where to start.
 
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
-> 			/* Install new reader */
-> 			if (!user_recv && !(flags & (MSG_TRUNC | MSG_PEEK))) {
-> 				user_recv = current;
-> 				tp->ucopy.task = user_recv;
-> 				tp->ucopy.iov = msg->msg_iov;
-> 			}
-> 
-> 			tp->ucopy.len = len;
-> 
-> 			BUG_TRAP(tp->copied_seq == tp->rcv_nxt ||
-> 				 (flags & (MSG_PEEK | MSG_TRUNC)));
-> 
-> 			/* Ugly... If prequeue is not empty, we have to
-> 			 * process it before releasing socket, otherwise
-> 			 * order will be broken at second iteration.
-> 			 * More elegant solution is required!!!
-> 			 *
-> 			 * Look: we have the following (pseudo)queues:
-> 			 *
-> 			 * 1. packets in flight
-> 			 * 2. backlog
-> 			 * 3. prequeue
-> 			 * 4. receive_queue
-> 			 *
-> 			 * Each queue can be processed only if the next ones
-> 			 * are empty. At this point we have empty receive_queue.
-> 			 * But prequeue _can_ be not empty after 2nd iteration,
-> 			 * when we jumped to start of loop because backlog
-> 			 * processing added something to receive_queue.
-> 			 * We cannot release_sock(), because backlog contains
-> 			 * packets arrived _after_ prequeued ones.
-> 			 *
-> 			 * Shortly, algorithm is clear --- to process all
-> 			 * the queues in order. We could make it more directly,
-> 			 * requeueing packets from backlog to prequeue, if
-> 			 * is not empty. It is more elegant, but eats cycles,
-> 			 * unfortunately.
-> 			 */
-> 			if (!skb_queue_empty(&tp->ucopy.prequeue))
-> 				goto do_prequeue;
-> 
-> 			/* __ Set realtime policy in scheduler __ */
-> 		}
-> 
-> 		if (copied >= target) {
-> 			/* Do not sleep, just process backlog. */
-> 			release_sock(sk);
-> 			lock_sock(sk);
-> 		} else
-> 		
+The general gpio driver includes seem to
+now depend on having <linux/workqueue.h>
+included before they are.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+
+diff -urpN -X ../dontdiff linux-2.6.20-rc1/drivers/spi/spi_s3c24xx_gpio.c linux-2.6.20-rc1-tes2/drivers/spi/spi_s3c24xx_gpio.c
+--- linux-2.6.20-rc1/drivers/spi/spi_s3c24xx_gpio.c	2006-11-29 21:57:37.000000000 +0000
++++ linux-2.6.20-rc1-tes2/drivers/spi/spi_s3c24xx_gpio.c	2006-12-19 18:20:26.000000000 +0000
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <linux/spinlock.h>
++#include <linux/workqueue.h>
+ #include <linux/platform_device.h>
+ 
+ #include <linux/spi/spi.h>
+
+--cNdxnHkX5QqsyA0e
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="2620-rc1-s3c24xx-spi-workqueue.patch"
+
+diff -urpN -X ../dontdiff linux-2.6.20-rc1/drivers/spi/spi_s3c24xx_gpio.c linux-2.6.20-rc1-tes2/drivers/spi/spi_s3c24xx_gpio.c
+--- linux-2.6.20-rc1/drivers/spi/spi_s3c24xx_gpio.c	2006-11-29 21:57:37.000000000 +0000
++++ linux-2.6.20-rc1-tes2/drivers/spi/spi_s3c24xx_gpio.c	2006-12-19 18:20:26.000000000 +0000
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <linux/spinlock.h>
++#include <linux/workqueue.h>
+ #include <linux/platform_device.h>
+ 
+ #include <linux/spi/spi.h>
+
+--cNdxnHkX5QqsyA0e--

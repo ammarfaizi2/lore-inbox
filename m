@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933055AbWLSXAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932991AbWLSXB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933055AbWLSXAu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 18:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932950AbWLSXAu
+	id S932991AbWLSXB0 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 18:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933058AbWLSXBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 18:00:50 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:60447 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933055AbWLSXAD (ORCPT
+	Tue, 19 Dec 2006 18:01:25 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:41484 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933057AbWLSXBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 18:00:03 -0500
-Date: Tue, 19 Dec 2006 17:00:00 -0600
+	Tue, 19 Dec 2006 18:01:18 -0500
+Date: Tue, 19 Dec 2006 17:01:16 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>, containers@lists.osdl.org
-Subject: [PATCH 2/8] user ns: add the framework
-Message-ID: <20061219230000.GC25904@sergelap.austin.ibm.com>
+Subject: [PATCH 6/8] user ns: implement shared mounts
+Message-ID: <20061219230116.GG25904@sergelap.austin.ibm.com>
 References: <20061219225902.GA25904@sergelap.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,394 +24,185 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cedric Le Goater <clg@fr.ibm.com>
-Subject: [PATCH 2/8] user ns: add the framework
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 6/8] user ns: implement shared mounts
 
-This patch adds the user namespace struct and framework
+Implement shared-ns mounts, which allow containers in different user
+namespaces to share mounts.  Without this, containers can obviously
+never even be started.
 
-Basically, it will allow a process to unshare its user_struct table,
-resetting at the same time its own user_struct and all the associated
-accounting.
+Here is a sample smount.c (based on Miklos' version) which only
+does a bind mount of arg1 onto arg2, but making the destination
+a shared-ns mount.
 
-A new root user (uid == 0) is added to the user namespace upon
-creation.  Such root users have full privileges and it seems that
-theses privileges should be controlled through some means (process
-capabilities ?)
+int main(int argc, char *argv[])
+{
+	int type;
+	if(argc != 3) {
+		fprintf(stderr, "usage: %s src dest", argv[0]);
+		return 1;
+	}
 
-The unshare is not included in this patch.
+	fprintf(stdout, "%s %s %s\n", argv[0], argv[1], argv[2]);
 
-Changes since [try #4]:
-	- Updated get_user_ns and put_user_ns to accept NULL, and
-	  get_user_ns to return the namespace.
+	type = MS_SHARE_NS | MS_BIND;
+	setfsuid(getuid());
 
-Changes since [try #3]:
-	- moved struct user_namespace to files user_namespace.{c,h}
-
-Changes since [try #2]:
-	- removed struct user_namespace* argument from find_user()
-
-Changes since [try #1]:
-	- removed struct user_namespace* argument from find_user()
-	- added a root_user per user namespace
-
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+	if(mount(argv[1], argv[2], "none", type, "") == -1) {
+		perror("mount");
+		return 1;
+	}
+	return 0;
+}
 
 Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 ---
- include/linux/init_task.h      |    2 ++
- include/linux/nsproxy.h        |    1 +
- include/linux/sched.h          |    3 ++
- include/linux/user_namespace.h |   53 ++++++++++++++++++++++++++++++++++++++++
- init/Kconfig                   |    8 ++++++
- kernel/Makefile                |    2 +-
- kernel/fork.c                  |    2 +-
- kernel/nsproxy.c               |   12 +++++++++
- kernel/sys.c                   |    5 ++--
- kernel/user.c                  |   18 +++++++-------
- kernel/user_namespace.c        |   44 +++++++++++++++++++++++++++++++++
- 11 files changed, 136 insertions(+), 14 deletions(-)
+ fs/namespace.c        |   30 ++++++++++++++++++++++++------
+ fs/pnode.h            |    1 +
+ include/linux/fs.h    |    1 +
+ include/linux/mount.h |    1 +
+ include/linux/sched.h |    2 ++
+ 5 files changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/init_task.h b/include/linux/init_task.h
-index a2d95ff..26dc24b 100644
---- a/include/linux/init_task.h
-+++ b/include/linux/init_task.h
-@@ -8,6 +8,7 @@ #include <linux/utsname.h>
- #include <linux/lockdep.h>
- #include <linux/ipc.h>
- #include <linux/pid_namespace.h>
-+#include <linux/user_namespace.h>
+diff --git a/fs/namespace.c b/fs/namespace.c
+index f85dd73..9cf8463 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -235,7 +235,14 @@ static struct vfsmount *clone_mnt(struct
+ 					int flag)
+ {
+ 	struct super_block *sb = old->mnt_sb;
+-	struct vfsmount *mnt = alloc_vfsmnt(old->mnt_devname);
++	struct vfsmount *mnt;
++	
++	if (!(old->mnt_flags & MNT_SHARE_NS)) {
++		if (old->mnt_user_ns != current->nsproxy->user_ns)
++			return ERR_PTR(-EPERM);
++	}
++
++	mnt = alloc_vfsmnt(old->mnt_devname);
  
- #define INIT_FDTABLE \
- {							\
-@@ -78,6 +79,7 @@ #define INIT_NSPROXY(nsproxy) {						\
- 	.uts_ns		= &init_uts_ns,					\
- 	.mnt_ns		= NULL,						\
- 	INIT_IPC_NS(ipc_ns)						\
-+	.user_ns	= &init_user_ns,				\
- }
+ 	if (mnt) {
+ 		mnt->mnt_flags = old->mnt_flags;
+@@ -258,6 +265,10 @@ static struct vfsmount *clone_mnt(struct
+ 		}
+ 		if (flag & CL_MAKE_SHARED)
+ 			set_mnt_shared(mnt);
++		if (flag & CL_SHARE_NS)
++			mnt->mnt_flags |= MNT_SHARE_NS;
++		else
++			mnt->mnt_flags &= ~MNT_SHARE_NS;
  
- #define INIT_SIGHAND(sighand) {						\
-diff --git a/include/linux/nsproxy.h b/include/linux/nsproxy.h
-index 602f3d2..e57920e 100644
---- a/include/linux/nsproxy.h
-+++ b/include/linux/nsproxy.h
-@@ -29,6 +29,7 @@ struct nsproxy {
- 	struct ipc_namespace *ipc_ns;
- 	struct mnt_namespace *mnt_ns;
- 	struct pid_namespace *pid_ns;
-+	struct user_namespace *user_ns;
- };
- extern struct nsproxy init_nsproxy;
+ 		/* stick the duplicate mount on the same expiry list
+ 		 * as the original if that was on one */
+@@ -369,6 +380,7 @@ static int show_vfsmnt(struct seq_file *
+ 		{ MNT_NOSUID, ",nosuid" },
+ 		{ MNT_NODEV, ",nodev" },
+ 		{ MNT_NOEXEC, ",noexec" },
++		{ MNT_SHARE_NS, ",share_userns" },
+ 		{ MNT_NOATIME, ",noatime" },
+ 		{ MNT_NODIRATIME, ",nodiratime" },
+ 		{ MNT_RELATIME, ",relatime" },
+@@ -903,11 +915,14 @@ static int do_change_type(struct nameida
+ /*
+  * do loopback mount.
+  */
+-static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
++static int do_loopback(struct nameidata *nd, char *old_name, int recurse,
++							 int uidns_share)
+ {
+ 	struct nameidata old_nd;
+ 	struct vfsmount *mnt = NULL;
+ 	int err = mount_is_safe(nd);
++	int flag = (uidns_share ? CL_SHARE_NS : 0);
++
+ 	if (err)
+ 		return err;
+ 	if (!old_name || !*old_name)
+@@ -926,9 +941,9 @@ static int do_loopback(struct nameidata 
  
+ 	err = -ENOMEM;
+ 	if (recurse)
+-		mnt = copy_tree(old_nd.mnt, old_nd.dentry, 0);
++		mnt = copy_tree(old_nd.mnt, old_nd.dentry, flag);
+ 	else
+-		mnt = clone_mnt(old_nd.mnt, old_nd.dentry, 0);
++		mnt = clone_mnt(old_nd.mnt, old_nd.dentry, flag);
+ 
+ 	if (!mnt || IS_ERR(mnt)) {
+ 		err = mnt ? PTR_ERR(mnt) : -ENOMEM;
+@@ -1415,9 +1430,11 @@ long do_mount(char *dev_name, char *dir_
+ 		mnt_flags |= MNT_NODIRATIME;
+ 	if (flags & MS_RELATIME)
+ 		mnt_flags |= MNT_RELATIME;
++	if (flags & MS_SHARE_NS)
++		mnt_flags |= MNT_SHARE_NS;
+ 
+ 	flags &= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE |
+-		   MS_NOATIME | MS_NODIRATIME | MS_RELATIME);
++		   MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_SHARE_NS);
+ 
+ 	/* ... and get the mountpoint */
+ 	retval = path_lookup(dir_name, LOOKUP_FOLLOW, &nd);
+@@ -1432,7 +1449,8 @@ long do_mount(char *dev_name, char *dir_
+ 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+ 				    data_page);
+ 	else if (flags & MS_BIND)
+-		retval = do_loopback(&nd, dev_name, flags & MS_REC);
++		retval = do_loopback(&nd, dev_name, flags & MS_REC,
++						 mnt_flags & MNT_SHARE_NS);
+ 	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+ 		retval = do_change_type(&nd, flags);
+ 	else if (flags & MS_MOVE)
+diff --git a/fs/pnode.h b/fs/pnode.h
+index d45bd8e..eb62f4c 100644
+--- a/fs/pnode.h
++++ b/fs/pnode.h
+@@ -22,6 +22,7 @@ #define CL_SLAVE     		0x02
+ #define CL_COPY_ALL 		0x04
+ #define CL_MAKE_SHARED 		0x08
+ #define CL_PROPAGATION 		0x10
++#define CL_SHARE_NS 		0x20
+ 
+ static inline void set_mnt_shared(struct vfsmount *mnt)
+ {
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index e7268d2..bb801cb 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -121,6 +121,7 @@ #define MS_PRIVATE	(1<<18)	/* change to 
+ #define MS_SLAVE	(1<<19)	/* change to slave */
+ #define MS_SHARED	(1<<20)	/* change to shared */
+ #define MS_RELATIME	(1<<21)	/* Update atime relative to mtime/ctime. */
++#define MS_SHARE_NS	(1<<22) /* ignore user namespaces for permission */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+diff --git a/include/linux/mount.h b/include/linux/mount.h
+index acdeca7..28e0964 100644
+--- a/include/linux/mount.h
++++ b/include/linux/mount.h
+@@ -35,6 +35,7 @@ #define MNT_SHRINKABLE	0x100
+ #define MNT_SHARED	0x1000	/* if the vfsmount is a shared mount */
+ #define MNT_UNBINDABLE	0x2000	/* if the vfsmount is a unbindable mount */
+ #define MNT_PNODE_MASK	0x3000	/* propogation flag mask */
++#define MNT_SHARE_NS	0x4000  /* ignore user namespaces for permission */
+ 
+ struct vfsmount {
+ 	struct list_head mnt_hash;
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index d7e4de1..5a3f630 100644
+index 450fc39..73df38c 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -252,6 +252,7 @@ extern signed long schedule_timeout_unin
- asmlinkage void schedule(void);
- 
- struct nsproxy;
-+struct user_namespace;
- 
- /* Maximum number of active map areas.. This is a random (large) number */
- #define DEFAULT_MAX_MAP_COUNT	65536
-@@ -1285,7 +1286,7 @@ extern struct task_struct *find_task_by_
- extern void __set_special_pids(pid_t session, pid_t pgrp);
- 
- /* per-UID process charging. */
--extern struct user_struct * alloc_uid(uid_t);
-+extern struct user_struct * alloc_uid(struct user_namespace *, uid_t);
- static inline struct user_struct *get_uid(struct user_struct *u)
+@@ -1599,6 +1599,8 @@ static inline int task_mnt_same_uidns(st
  {
- 	atomic_inc(&u->__count);
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-new file mode 100644
-index 0000000..4ad4c0d
---- /dev/null
-+++ b/include/linux/user_namespace.h
-@@ -0,0 +1,53 @@
-+#ifndef _LINUX_USER_NAMESPACE_H
-+#define _LINUX_USER_NAMESPACE_H
-+
-+#include <linux/kref.h>
-+#include <linux/nsproxy.h>
-+
-+#define UIDHASH_BITS	(CONFIG_BASE_SMALL ? 3 : 8)
-+#define UIDHASH_SZ	(1 << UIDHASH_BITS)
-+
-+struct user_namespace {
-+	struct kref		kref;
-+	struct list_head	uidhash_table[UIDHASH_SZ];
-+	struct user_struct	*root_user;
-+};
-+
-+extern struct user_namespace init_user_ns;
-+
-+#ifdef CONFIG_USER_NS
-+
-+static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-+{
-+	if (ns)
-+		kref_get(&ns->kref);
-+	return ns;
-+}
-+
-+extern int copy_user_ns(int flags, struct task_struct *tsk);
-+extern void free_user_ns(struct kref *kref);
-+
-+static inline void put_user_ns(struct user_namespace *ns)
-+{
-+	if (ns)
-+		kref_put(&ns->kref, free_user_ns);
-+}
-+
-+#else
-+
-+static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-+{
-+	return NULL;
-+}
-+
-+static inline int copy_user_ns(int flags, struct task_struct *tsk)
-+{
-+	return 0;
-+}
-+
-+static inline void put_user_ns(struct user_namespace *ns)
-+{
-+}
-+#endif
-+
-+#endif /* _LINUX_USER_H */
-diff --git a/init/Kconfig b/init/Kconfig
-index d1fed9e..c930912 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -222,6 +222,14 @@ config UTS_NS
- 	  vservers, to use uts namespaces to provide different
- 	  uts info for different servers.  If unsure, say N.
- 
-+config USER_NS
-+	bool "User Namespaces"
-+	default n
-+	help
-+	  Support user namespaces.  This allows containers, i.e.
-+	  vservers, to use user namespaces to provide different
-+	  user info for different servers.  If unsure, say N.
-+
- config AUDIT
- 	bool "Auditing support"
- 	depends on NET
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 839a58b..7c39952 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -4,7 +4,7 @@ #
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    exit.o itimer.o time.o softirq.o resource.o \
--	    sysctl.o capability.o ptrace.o timer.o user.o \
-+	    sysctl.o capability.o ptrace.o timer.o user.o user_namespace.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o extable.o params.o posix-timers.o \
- 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
-diff --git a/kernel/fork.c b/kernel/fork.c
-index a6ad544..deafa6e 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -996,7 +996,7 @@ #endif
- 	if (atomic_read(&p->user->processes) >=
- 			p->signal->rlim[RLIMIT_NPROC].rlim_cur) {
- 		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE) &&
--				p->user != &root_user)
-+		    p->user != current->nsproxy->user_ns->root_user)
- 			goto bad_fork_free;
- 	}
- 
-diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
-index f11bbbf..cf43e06 100644
---- a/kernel/nsproxy.c
-+++ b/kernel/nsproxy.c
-@@ -80,6 +80,8 @@ struct nsproxy *dup_namespaces(struct ns
- 			get_ipc_ns(ns->ipc_ns);
- 		if (ns->pid_ns)
- 			get_pid_ns(ns->pid_ns);
-+		if (ns->user_ns)
-+			get_user_ns(ns->user_ns);
- 	}
- 
- 	return ns;
-@@ -127,10 +129,18 @@ int copy_namespaces(int flags, struct ta
- 	if (err)
- 		goto out_pid;
- 
-+	err = copy_user_ns(flags, tsk);
-+	if (err)
-+		goto out_user;
-+
- out:
- 	put_nsproxy(old_ns);
- 	return err;
- 
-+out_user:
-+	if (new_ns->pid_ns)
-+		put_pid_ns(new_ns->pid_ns);
-+
- out_pid:
- 	if (new_ns->ipc_ns)
- 		put_ipc_ns(new_ns->ipc_ns);
-@@ -156,5 +166,7 @@ void free_nsproxy(struct nsproxy *ns)
- 		put_ipc_ns(ns->ipc_ns);
- 	if (ns->pid_ns)
- 		put_pid_ns(ns->pid_ns);
-+	if (ns->user_ns)
-+		put_user_ns(ns->user_ns);
- 	kfree(ns);
- }
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 5590255..26bdd84 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -33,6 +33,7 @@ #include <linux/getcpu.h>
- #include <linux/compat.h>
- #include <linux/syscalls.h>
- #include <linux/kprobes.h>
-+#include <linux/user_namespace.h>
- 
- #include <asm/uaccess.h>
- #include <asm/io.h>
-@@ -1070,13 +1071,13 @@ static int set_user(uid_t new_ruid, int 
- {
- 	struct user_struct *new_user;
- 
--	new_user = alloc_uid(new_ruid);
-+	new_user = alloc_uid(current->nsproxy->user_ns, new_ruid);
- 	if (!new_user)
- 		return -EAGAIN;
- 
- 	if (atomic_read(&new_user->processes) >=
- 				current->signal->rlim[RLIMIT_NPROC].rlim_cur &&
--			new_user != &root_user) {
-+			new_user != current->nsproxy->user_ns->root_user) {
- 		free_uid(new_user);
- 		return -EAGAIN;
- 	}
-diff --git a/kernel/user.c b/kernel/user.c
-index 4869563..98b8250 100644
---- a/kernel/user.c
-+++ b/kernel/user.c
-@@ -14,20 +14,19 @@ #include <linux/slab.h>
- #include <linux/bitops.h>
- #include <linux/key.h>
- #include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/user_namespace.h>
- 
- /*
-  * UID task count cache, to get fast user lookup in "alloc_uid"
-  * when changing user ID's (ie setuid() and friends).
-  */
- 
--#define UIDHASH_BITS (CONFIG_BASE_SMALL ? 3 : 8)
--#define UIDHASH_SZ		(1 << UIDHASH_BITS)
- #define UIDHASH_MASK		(UIDHASH_SZ - 1)
- #define __uidhashfn(uid)	(((uid >> UIDHASH_BITS) + uid) & UIDHASH_MASK)
--#define uidhashentry(uid)	(uidhash_table + __uidhashfn((uid)))
-+#define uidhashentry(ns, uid)	((ns)->uidhash_table + __uidhashfn((uid)))
- 
- static struct kmem_cache *uid_cachep;
--static struct list_head uidhash_table[UIDHASH_SZ];
- 
- /*
-  * The uidhash_lock is mostly taken from process context, but it is
-@@ -94,9 +93,10 @@ struct user_struct *find_user(uid_t uid)
- {
- 	struct user_struct *ret;
- 	unsigned long flags;
-+	struct user_namespace *ns = current->nsproxy->user_ns;
- 
- 	spin_lock_irqsave(&uidhash_lock, flags);
--	ret = uid_hash_find(uid, uidhashentry(uid));
-+	ret = uid_hash_find(uid, uidhashentry(ns, uid));
- 	spin_unlock_irqrestore(&uidhash_lock, flags);
- 	return ret;
- }
-@@ -120,9 +120,9 @@ void free_uid(struct user_struct *up)
- 	}
- }
- 
--struct user_struct * alloc_uid(uid_t uid)
-+struct user_struct * alloc_uid(struct user_namespace *ns, uid_t uid)
- {
--	struct list_head *hashent = uidhashentry(uid);
-+	struct list_head *hashent = uidhashentry(ns, uid);
- 	struct user_struct *up;
- 
- 	spin_lock_irq(&uidhash_lock);
-@@ -211,11 +211,11 @@ static int __init uid_cache_init(void)
- 			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- 
- 	for(n = 0; n < UIDHASH_SZ; ++n)
--		INIT_LIST_HEAD(uidhash_table + n);
-+		INIT_LIST_HEAD(init_user_ns.uidhash_table + n);
- 
- 	/* Insert the root user immediately (init already runs as root) */
- 	spin_lock_irq(&uidhash_lock);
--	uid_hash_insert(&root_user, uidhashentry(0));
-+	uid_hash_insert(&root_user, uidhashentry(&init_user_ns, 0));
- 	spin_unlock_irq(&uidhash_lock);
- 
+ 	if (tsk->nsproxy == init_task.nsproxy)
+ 		return 1;
++ 	if (mnt->mnt_flags & MNT_SHARE_NS)
++ 		return 1;
+ 	if (mnt->mnt_user_ns == tsk->nsproxy->user_ns)
+ 		return 1;
  	return 0;
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-new file mode 100644
-index 0000000..368f8da
---- /dev/null
-+++ b/kernel/user_namespace.c
-@@ -0,0 +1,44 @@
-+/*
-+ *  This program is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU General Public License as
-+ *  published by the Free Software Foundation, version 2 of the
-+ *  License.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/version.h>
-+#include <linux/nsproxy.h>
-+#include <linux/user_namespace.h>
-+
-+struct user_namespace init_user_ns = {
-+	.kref = {
-+		.refcount	= ATOMIC_INIT(2),
-+	},
-+	.root_user = &root_user,
-+};
-+
-+EXPORT_SYMBOL_GPL(init_user_ns);
-+
-+#ifdef CONFIG_USER_NS
-+
-+int copy_user_ns(int flags, struct task_struct *tsk)
-+{
-+	struct user_namespace *old_ns = tsk->nsproxy->user_ns;
-+	int err = 0;
-+
-+	if (!old_ns)
-+		return 0;
-+
-+	get_user_ns(old_ns);
-+	return err;
-+}
-+
-+void free_user_ns(struct kref *kref)
-+{
-+	struct user_namespace *ns;
-+
-+	ns = container_of(kref, struct user_namespace, kref);
-+	kfree(ns);
-+}
-+
-+#endif /* CONFIG_USER_NS */
 -- 
 1.4.1
 

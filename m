@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932694AbWLSJCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932710AbWLSJEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbWLSJCG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 04:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWLSJCF
+	id S932710AbWLSJEG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 04:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWLSJEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 04:02:05 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:65359 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932694AbWLSJCD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 04:02:03 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] Fix sparsemem on Cell
-Date: Tue, 19 Dec 2006 09:59:45 +0100
-User-Agent: KMail/1.9.5
-Cc: linuxppc-dev@ozlabs.org,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, kmannth@us.ibm.com,
-       linux-kernel@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org,
-       paulus@samba.org, mkravetz@us.ibm.com, gone@us.ibm.com,
-       cbe-oss-dev@ozlabs.org
-References: <20061215165335.61D9F775@localhost.localdomain> <200612182354.47685.arnd@arndb.de> <1166483780.8648.26.camel@localhost.localdomain>
-In-Reply-To: <1166483780.8648.26.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Tue, 19 Dec 2006 04:04:06 -0500
+Received: from poczta.o2.pl ([193.17.41.142]:34541 "EHLO poczta.o2.pl"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932702AbWLSJEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 04:04:04 -0500
+Date: Tue, 19 Dec 2006 10:05:06 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] lock debugging: fix DEBUG_LOCKS_WARN_ON() & debug_locks_silent
+Message-ID: <20061219090506.GA2641@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+References: <20061216080458.GC16116@elte.hu> <20061219084359.GB1731@ff.dom.local> <20061219085103.GK21070@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612190959.47344.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <20061219085103.GK21070@parisc-linux.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 December 2006 00:16, Dave Hansen wrote:
-> How about an enum, or a pair of #defines?
+On Tue, Dec 19, 2006 at 01:51:03AM -0700, Matthew Wilcox wrote:
+> On Tue, Dec 19, 2006 at 09:43:59AM +0100, Jarek Poplawski wrote:
+> > I wonder why doing debug_locks_off depends here on
+> > debug_lock_silent state which is only "esthetical"
+> > flag. And debug_locks_off() takes into consideration
+> > debug_lock_silent after all. So IMHO:
 > 
-> enum context
-> {
->         EARLY,
->         HOTPLUG
-> };
+> It's not 'aesthetic' at all.  It's used to say "We are about to cause a
+> locking failure deliberately as part of the test suite".  It would be
+> wrong to disable lock debugging as a result of running the test suite.
 
-Sounds good, but since this is in a global header file, it needs
-to be in an appropriate name space, like
+So it's probably something with my English...
+>From lib/debug_locks.c:
 
-enum memmap_context {
-	MEMMAP_EARLY,
-	MEMMAP_HOTPLUG,
-};
+"/*
+ * The locking-testsuite uses <debug_locks_silent> to get a
+ * 'silent failure': nothing is printed to the console when
+ * a locking bug is detected.
+ */
+int debug_locks_silent;"
 
-	Arnd <><
+Jarek P.

@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932922AbWLSUCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932924AbWLSUDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932922AbWLSUCA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 15:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932917AbWLSUCA
+	id S932924AbWLSUDZ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 15:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932925AbWLSUDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 15:02:00 -0500
-Received: from wx-out-0506.google.com ([66.249.82.236]:55859 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932922AbWLSUB7 (ORCPT
+	Tue, 19 Dec 2006 15:03:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60726 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932924AbWLSUDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 15:01:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UpW2BBN2AQrTPLTReG1Z8vzrAAQBnZvbq6143sY+4ISC/hJnXDg5Ntp3XTLOLJcEDLYMibyJZYiTFAFdwSD7g0f0GTunD2lLdPD54MdefwKXnNx+W5XqZsnjEM72N/QNMIk/C3czNN5EKi8nxmCpkXZ8+81wGkW26QMW7VjlmqI=
-Message-ID: <5a4c581d0612191201l1e7c9693t169f4ac548411578@mail.gmail.com>
-Date: Tue, 19 Dec 2006 21:01:59 +0100
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "art@usfltd.com" <art@usfltd.com>
-Subject: Re: 2.6.20-rc1-git compilation error drivers/connector/connector.c:138: error: ?struct work_struct? has no member named ?management?
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20061219101424.yjwfjsykcbs0o0wc@69.222.0.225>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 19 Dec 2006 15:03:24 -0500
+Subject: Re: Changes to sysfs PM layer break userspace
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, gregkh@suse.de
+In-Reply-To: <20061219194410.GA14121@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org>
+	 <1166556889.3365.1269.camel@laptopd505.fenrus.org>
+	 <20061219194410.GA14121@srcf.ucam.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 19 Dec 2006 21:03:21 +0100
+Message-Id: <1166558602.3365.1271.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061219101424.yjwfjsykcbs0o0wc@69.222.0.225>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/19/06, art@usfltd.com <art@usfltd.com> wrote:
-> to: linux-kernel@vger.kernel.org
-> cc: torvalds@osdl.org
->
->
-> 2.6.20-rc1-git compilation error drivers/connector/connector.c:138:
-> error: ?struct work_struct? has no member named ?management?
->
-> $ date
-> Tue Dec 19 10:12:17 CST 2006
-> $ git pull
-> Already up-to-date.
-> $ make -j 8
->    CHK     include/linux/version.h
->    CHK     include/linux/utsrelease.h
->    CHK     include/linux/compile.h
->    CC      drivers/connector/connector.o
-> drivers/connector/connector.c: In function ?cn_call_callback?:
-> drivers/connector/connector.c:138: error: ?struct work_struct? has no
-> member named ?management?
-> drivers/connector/connector.c:138: error: ?struct work_struct? has no
-> member named ?management?
-> make[2]: *** [drivers/connector/connector.o] Error 1
-> make[1]: *** [drivers/connector] Error 2
-> make[1]: *** Waiting for unfinished jobs....
-> make: *** [drivers] Error 2
-> make: *** Waiting for unfinished jobs....
+On Tue, 2006-12-19 at 19:44 +0000, Matthew Garrett wrote:
+> On Tue, Dec 19, 2006 at 08:34:48PM +0100, Arjan van de Ven wrote:
+> 
+> > which userspace is using this btw?
+> 
+> Ubuntu uses it to disable wireless hardware under certain circumstances. 
+> I believe that Suse's powernowd uses it to power down wired ethernet 
+> hardware when it's not in use.
 
-Already reported twice, and fixed by Al Viro's patch:
+humm shouldn't the driver do this when the interface is brought down?
+sounds like you're playing with fire to do this behind the drivers'
+back....
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0612.2/0197.html
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
- (though -rc1-git6 doesn't yet have the fix)
-
---alessandro
-
-"...when I get it, I _get_ it"
-
-     (Lara Eidemiller)

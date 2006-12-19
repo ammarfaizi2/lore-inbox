@@ -1,88 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932572AbWLSA5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932556AbWLSA7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWLSA5t (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 18 Dec 2006 19:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWLSA5t
+	id S932556AbWLSA7P (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 18 Dec 2006 19:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWLSA7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Dec 2006 19:57:49 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:37353 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932572AbWLSA5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Dec 2006 19:57:48 -0500
-Date: Mon, 18 Dec 2006 16:57:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrei Popa <andrei.popa@i-neo.ro>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <1166488199.6950.2.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0612181648490.3479@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
- <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-  <1166466272.10372.96.camel@twins>  <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-  <1166468651.6983.6.camel@localhost>  <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-  <1166471069.6940.4.camel@localhost>  <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-  <Pine.LNX.4.64.0612181230330.3479@woody.osdl.org>  <1166476297.6862.1.camel@localhost>
-  <Pine.LNX.4.64.0612181426390.3479@woody.osdl.org>  <1166485691.6977.6.camel@localhost>
-  <Pine.LNX.4.64.0612181559230.3479@woody.osdl.org> <1166488199.6950.2.camel@localhost>
+	Mon, 18 Dec 2006 19:59:14 -0500
+Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:23289 "HELO
+	smtp108.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932556AbWLSA7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Dec 2006 19:59:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=1DKUx1BLM4zIk823U1yZoBKeI3rC7u1gw4kVyFKq9aGc5cCD1F75Cb3KQJ2ihP2jWwJEiefWOzMYfm8MYSxii3jOCehWBDSpt61IBNfuJK7KjkcJKAIZtITGyPA4USXigoWuZn9NQ65jmDll1h98u3H4Ph4la1PyX8PlQ2jDaeY=  ;
+X-YMail-OSG: bX9iXwkVM1m_oUGR_jSXvcgY9l6J5iSVa71sXb01tXlMXOtNCLjzvTR7dStqJG5yto9FHTjcWBELJ28ZwvzQ2ov9RQj_j94WQtSRSK4nOlQSlVJVHw5uBCJfTpovVqaprx5HqCbFwMHUVzqm2Imc1.QItZFN_7A7A22VkC.J40NsKxnbUX51GOBOHSfD
+From: David Brownell <david-b@pacbell.net>
+To: Paul Sokolovsky <pmiscml@gmail.com>
+Subject: Re: [PATCH] RTC classdev: Add sysfs support for wakeup alarm (r/w)
+Date: Mon, 18 Dec 2006 16:59:11 -0800
+User-Agent: KMail/1.7.1
+Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       kernel-discuss@handhelds.org, linux-kernel@vger.kernel.org
+References: <1866913935.20061217213036@gmail.com> <256202025.20061219015824@gmail.com> <200612181654.30864.david-b@pacbell.net>
+In-Reply-To: <200612181654.30864.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612181659.11473.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 18 December 2006 4:54 pm, David Brownell wrote:
 
-
-On Tue, 19 Dec 2006, Andrei Popa wrote:
-> > > 
-> > > nope, no file corruption at all.
-> > 
-> > Ok. That's interesting, but I think you actually #ifdef'ed out too 
-> > much:
-> > 
-> > It was really just the _inner_ "if (mapping_cap_account_dirty(.." 
-> > statement that I meant you should remove.
-> > 
-> > Can you try that too?
+> > http://handhelds.org/cgi-bin/cvsweb.cgi/linux/kernel26/drivers/rtc/rtc-sa1100.c.diff?r1=1.5&r2=1.6&f=h
 > 
-> I have file corruption: "Hash check on download completion found bad
-> chunks, consider using "safe_sync"."
+> That patch you applied looks right to me -- why don't you forward it
+> to Alessandro as a bugfix for 2.6.20-rc2, and save me the effort?
 
-Ok, that's interesting.
+Actually, correction:  it'd be correct if you ripped out the buggy
+calls to manage the irq wake mechanism.  A later message will show
+how those need to work.  (The IRQ framework will give one helpful
+hint when it warns about mismatched enable/disable calls ...)
 
-So it doesn't seem to be the call to page_mkclean() itself that causes 
-corruption. It looks like Peter's hunch that maybe there's some bug in 
-PG_dirty handling _itself_ might be an idea..
-
-And the reason it only started happening now is that it may just have been 
-_hidden_ by the fact that while we kept the dirty bits in the page tables, 
-we'd end up writing the dirty page _despite_ having lost the PG_dirty bit. 
-So if it's some bad interaction between writable mappings and some other 
-part of the system, we just didn't see it earlier, exactly because we had 
-_lots_ of dirty bits, and it was enough that _one_ of them was right.
-
-If you didn't see corruption when you #ifdef'ed out too much of the 
-"test_clean_page_dirty() function (the _whole_ TestClearPageDirty() 
-if-statement), but you get it when you just comment out the stuff that 
-does the page_mkclean(), that's interesting.
-
-I'm left lookin gat the "radix_tree_tag_clear()" in 
-test_clear_page_dirty().
-
-What happens if you only ifdef out that single thing? 
-
-The actual page-cleaning functions make sure to only clear the TAG_DIRTY 
-bit _after_ the page has been marked for writeback. Is there some ordering 
-constraint there, perhaps?
-
-I'm really reaching here. I'm trying to see the pattern, and I'm not 
-seeing it. I'm asking you to test things just to get more of a feel for 
-what triggers the failure, than because I actually have any kind of idea 
-of what the heck is going on.
-
-Andrew, Nick, Hugh - any ideas?
-
-			Linus
+- Dave

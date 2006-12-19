@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932778AbWLSUVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932901AbWLSUXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932778AbWLSUVj (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 15:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932859AbWLSUVj
+	id S932901AbWLSUXJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 15:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932936AbWLSUXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 15:21:39 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60067 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932778AbWLSUVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 15:21:38 -0500
-Date: Tue, 19 Dec 2006 12:21:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Mike Frysinger" <vapier.adi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] search a little harder for mkimage
-Message-Id: <20061219122135.8100b198.akpm@osdl.org>
-In-Reply-To: <8bd0f97a0612182120q30361eceq6219b509f8add29a@mail.gmail.com>
-References: <8bd0f97a0612182120q30361eceq6219b509f8add29a@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 19 Dec 2006 15:23:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:46131 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932901AbWLSUXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 15:23:08 -0500
+Subject: Re: Changes to sysfs PM layer break userspace
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, gregkh@suse.de
+In-Reply-To: <20061219200803.GA14332@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org>
+	 <1166556889.3365.1269.camel@laptopd505.fenrus.org>
+	 <20061219194410.GA14121@srcf.ucam.org>
+	 <1166558602.3365.1271.camel@laptopd505.fenrus.org>
+	 <20061219200803.GA14332@srcf.ucam.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 19 Dec 2006 21:23:05 +0100
+Message-Id: <1166559785.3365.1276.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006 00:20:42 -0500
-"Mike Frysinger" <vapier.adi@gmail.com> wrote:
+On Tue, 2006-12-19 at 20:08 +0000, Matthew Garrett wrote:
+> On Tue, Dec 19, 2006 at 09:03:21PM +0100, Arjan van de Ven wrote:
+> 
+> > humm shouldn't the driver do this when the interface is brought down?
+> > sounds like you're playing with fire to do this behind the drivers'
+> > back....
+> 
+> I'm not sure. Suspending the chip means you lose things like link beat 
+> detection, so it's not something you necessarily want to automatically 
+> tie to something like interface status. 
 
-> this small patch checks to see if `${CROSS_COMPILE}mkimage` exists and
-> if not, fall back to the standard `mkimage`
-> 
-> the Blackfin toolchain includes mkimage, but we dont want to namespace
-> collide with any of the user's system setup, so we prefix it with our
-> toolchain name
-> -mike
-> 
-> 
-> [check-cross-compile-mkimage.patch  text/x-patch (708B)]
-> Check to see if the mkimage tool is part of the cross-compile toolchain.
-> 
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> 
-> --- a/linux-2.6/scripts/mkuboot.sh
-> +++ b/linux-2.6/scripts/mkuboot.sh
-> @@ -4,12 +4,15 @@
->  # Build U-Boot image when `mkimage' tool is available.
->  #
->  
-> -MKIMAGE=$(type -path mkimage)
-> +MKIMAGE=$(type -path ${CROSS_COMPILE}mkimage)
+right now the "spec" for Linux network drivers assumes that you put the
+NIC into D3 on down, except for cases where Wake-on-Lan is enabled etc.
 
-Do all bash versions support `type -path'?
+> Some chips support more 
+> fine-grained power management, so we could do something more sensible in 
+> that case - but right now, there doesn't seem to be a lot of driver 
+> support for it.
 
-Perhaps /usr/bin/which would be safer, dunno.
+sounds like that's the right approach at least .. not talking to the PCI
+hardware directly from userspace...
+
+I can see the point of having more than just "UP" and "DOWN" as
+interface states; "UP", "DOWN" and "OFF" for example... 
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

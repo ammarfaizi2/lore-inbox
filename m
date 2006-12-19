@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932816AbWLSMSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932803AbWLSMXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932816AbWLSMSP (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 07:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWLSMSP
+	id S932803AbWLSMXL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 07:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWLSMXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 07:18:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:35086 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932818AbWLSMSO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 07:18:14 -0500
-Subject: Re: Linux disk performance.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Manish Regmi <regmi.manish@gmail.com>, Erik Mouw <mouw@nl.linux.org>,
-       kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <458788D7.2070107@yahoo.com.au>
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com>
-	 <1166431020.3365.931.camel@laptopd505.fenrus.org>
-	 <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>
-	 <20061218130702.GA14984@gateway.home>
-	 <652016d30612182222h7fde4ea5jbc0927c8ebeae76a@mail.gmail.com>
-	 <458788D7.2070107@yahoo.com.au>
-Content-Type: text/plain; charset=UTF-8
-Organization: Intel International BV
-Date: Tue, 19 Dec 2006 13:18:06 +0100
-Message-Id: <1166530686.3365.1238.camel@laptopd505.fenrus.org>
+	Tue, 19 Dec 2006 07:23:11 -0500
+Received: from main.gmane.org ([80.91.229.2]:57814 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932803AbWLSMXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 07:23:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Wiebe Cazemier <halfgaar@gmx.net>
+Subject: Re: Software RAID1 (with non-identical discs) performance
+Date: Tue, 19 Dec 2006 13:22:46 +0100
+Message-ID: <em8lim$lqd$1@sea.gmane.org>
+References: <em0pdq$r7o$2@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cc503261-a.eelde1.dr.home.nl
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 17:38 +1100, Nick Piggin wrote:
-> Manish Regmi wrote:
+For some reason, your message doesn't appear in the GMane mail-to-news gateway.
+I've quoted your message here. Hopefully, the quoting isn't messed up.
+
+> The entire concept of geometry is a a carryover from days gone by. These days
+it is just a farse maintained for backwards compatibility. You can put fdisk
+into sector mode with the 'u' command and create partitions of any number of
+sectors you desire, regardless of the perceived geometry.
+
+I remember when I did that, fdisk started complaining. But, I'm going to have
+to experiment with this.
+
+> > My first question is, is this a necessary/convenient technique to ensure
+you
+> > can replace discs over time, especially when you can't get the exact same
+> > replacement disc?
 > 
-> > Nick Piggin:
-> > 
-> >> but
-> >> they look like they might be a (HZ quantised) delay coming from
-> >> block layer plugging.
-> > 
-> > 
-> > Sorry i didn´t understand what you mean.
-> 
-> When you submit a request to an empty block device queue, it can
-> get "plugged" for a number of timer ticks before any IO is actually
-> started. This is done for efficiency reasons and is independent of
-> the IO scheduler used.
+> I don't believe you need to do anything; md will simply not use the few extra
+sectors at the end of the larger disk/partition and round down to the
+appropriate size. 
 
-however the O_DIRECT codepath unplugs the queues always immediately..
+If you can indeed make partitions equally big on different types of drives by
+using sector mode, that would solve part of the problem. But what if a
+replacement disk you got, is just a tad smaller than the original one, and
+doesn't fit in the array? That's also a reason I always left some space
+unpartitioned, since resizing the array to make it smaller, is a pain last
+time I tried.
 
+> Yes, it slows things down.  You want to try to match disk speeds as closely
+as possible for best performance. 
 
+My concern wasn't so much about the different speeds of the drives, but the
+fact that they have a different geometry. But, because you said that is
+simulated anyway, can I assume that as long as both drives are equal in speed,
+using different types of drives doesn't matter?
 

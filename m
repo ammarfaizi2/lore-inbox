@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933049AbWLSW3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932977AbWLSWdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933049AbWLSW3s (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 17:29:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932985AbWLSW3r
+	id S932977AbWLSWdL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 17:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932988AbWLSWdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 17:29:47 -0500
-Received: from smtp20.orange.fr ([80.12.242.27]:39610 "EHLO smtp20.orange.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932980AbWLSW3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 17:29:46 -0500
-X-ME-UUID: 20061219222944380.5CEA21C0008C@mwinf2007.orange.fr
-Date: Wed, 20 Dec 2006 00:29:43 +0200
-From: Samuel Ortiz <samuel@sortiz.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [2.6 patch] net/irda/: proper prototypes
-Message-ID: <20061219222942.GA4274@sortiz.org>
-Reply-To: Samuel Ortiz <samuel@sortiz.org>
-References: <20061218034626.GY10316@stusta.de>
+	Tue, 19 Dec 2006 17:33:11 -0500
+Received: from web32904.mail.mud.yahoo.com ([209.191.69.81]:41150 "HELO
+	web32904.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932977AbWLSWdK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 17:33:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=wrJajEVMrvIM78a320FWzXZ51k3evYJYC3aYT4CsmjvAyxapWb2edBydnNEEETOMKlku1wFN+NVOsFyImyud0Tef4eMXEo+p+cJQhR7xzQXGmQZpaqflgvu+yx4djceAn3oa4p18eCGzvzpQg4R0nprkLsv8Hi785sYUL3JUTFA=;
+X-YMail-OSG: 6EHKnL0VM1mEXjAyGVeoyM8T7a.LcBQPwKsdrHU8DVGzdMqD6yRPNCXnOpnv2UtqJNpf2mqRrkqpIgIGN0MfBquKJt0mAORf1u49rO4beksQuc7DliOOcgukTdIeC0YukhPyFHOjY8T91DC43l1pTZTZNAI79TVEpSMH7vOjoYPqg9fwoUczYwLX3NvA
+Date: Tue, 19 Dec 2006 14:33:09 -0800 (PST)
+From: J <jhnlmn@yahoo.com>
+Subject: Re: Possible race condition in usb-serial.c
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200612192113.40102.oliver@neukum.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061218034626.GY10316@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <695571.36956.qm@web32904.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Thank you for the response.
 
-On Mon, Dec 18, 2006 at 04:46:26AM +0100, Adrian Bunk wrote:
-> This patch adds proper prototypes for some functions in
-> include/net/irda/irda.h
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-looks good to me, thanks.
+> This code depends on protection from BKL.
 
-Signed-off-by: Samuel Ortiz <samuel@sortiz.org>
+Really? I cannot find many lock_kernel calls in 
+USB directory and those, which I can find, 
+don't appear to protect usb_serial_disconnect
+and serial_close from being called at the same time.
 
-Cheers,
-Samuel.
+May be the protection is at a higher level? 
+Personally I don't beleive it.
+If you know how this thing is supposed to work,
+please, tell me.
 
-> 
-> ---
-> 
->  include/net/irda/irda.h |   15 +++++++++++++++
->  net/irda/irmod.c        |   13 -------------
->  2 files changed, 15 insertions(+), 13 deletions(-)
-> 
-> --- linux-2.6.20-rc1-mm1/include/net/irda/irda.h.old	2006-12-18 02:49:02.000000000 +0100
-> +++ linux-2.6.20-rc1-mm1/include/net/irda/irda.h	2006-12-18 02:58:02.000000000 +0100
-> @@ -113,4 +113,19 @@
->  #define IAS_IRCOMM_ID 0x2343
->  #define IAS_IRLPT_ID  0x9876
->  
-> +struct net_device;
-> +struct packet_type;
-> +
-> +void irda_proc_register(void);
-> +void irda_proc_unregister(void);
-> +
-> +int irda_sysctl_register(void);
-> +void irda_sysctl_unregister(void);
-> +
-> +int irsock_init(void);
-> +void irsock_cleanup(void);
-> +
-> +int irlap_driver_rcv(struct sk_buff *skb, struct net_device *dev,
-> +		     struct packet_type *ptype, struct net_device *orig_dev);
-> +
->  #endif /* NET_IRDA_H */
-> --- linux-2.6.20-rc1-mm1/net/irda/irmod.c.old	2006-12-18 02:52:18.000000000 +0100
-> +++ linux-2.6.20-rc1-mm1/net/irda/irmod.c	2006-12-18 02:53:59.000000000 +0100
-> @@ -42,19 +42,6 @@
->  #include <net/irda/irttp.h>		/* irttp_init */
->  #include <net/irda/irda_device.h>	/* irda_device_init */
->  
-> -/* irproc.c */
-> -extern void irda_proc_register(void);
-> -extern void irda_proc_unregister(void);
-> -/* irsysctl.c */
-> -extern int  irda_sysctl_register(void);
-> -extern void irda_sysctl_unregister(void);
-> -/* af_irda.c */
-> -extern int  irsock_init(void);
-> -extern void irsock_cleanup(void);
-> -/* irlap_frame.c */
-> -extern int  irlap_driver_rcv(struct sk_buff *, struct net_device *, 
-> -			     struct packet_type *, struct net_device *);
-> -
->  /*
->   * Module parameters
->   */
-> 
+Thank you
+John
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

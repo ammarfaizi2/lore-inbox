@@ -1,84 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932921AbWLSTsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932923AbWLSTsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932921AbWLSTsR (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 14:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932923AbWLSTsR
+	id S932923AbWLSTsy (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 14:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932920AbWLSTsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 14:48:17 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:52686 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932921AbWLSTsQ (ORCPT
+	Tue, 19 Dec 2006 14:48:54 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:48297 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932923AbWLSTsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 14:48:16 -0500
-X-Greylist: delayed 1239 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 14:48:15 EST
-Message-ID: <45883D25.1000300@mvista.com>
-Date: Tue, 19 Dec 2006 13:27:33 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
+	Tue, 19 Dec 2006 14:48:53 -0500
+X-Originating-Ip: 24.163.66.209
+Date: Tue, 19 Dec 2006 14:44:36 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: David Rientjes <rientjes@cs.washington.edu>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Get rid of most of the remaining k*alloc() casts.
+In-Reply-To: <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
+Message-ID: <Pine.LNX.4.64.0612191436340.11231@localhost.localdomain>
+References: <Pine.LNX.4.64.0612190627020.22485@localhost.localdomain>
+ <Pine.LNX.4.64N.0612191116170.19395@attu4.cs.washington.edu>
 MIME-Version: 1.0
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Tilman Schmidt <tilman@imap.cc>, linux-serial@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hansjoerg Lipp <hjlipp@web.de>, Russell Doty <rdoty@redhat.com>
-Subject: Re: [PATCH] Add the ability to layer another driver over the serial
- driver
-References: <4533B8FB.5080108@mvista.com>	<20061210201438.tilman@imap.cc>	<Pine.LNX.4.60.0612102117590.9993@poirot.grange>	<457CB32A.2060804@mvista.com>	<20061211102016.43e76da2@localhost.localdomain>	<457D70A4.1000000@mvista.com> <20061211151943.2bbc720e@localhost.localdomain>
-In-Reply-To: <20061211151943.2bbc720e@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=2.008, required 5, ALL_TRUSTED -1.80, BAYES_20 -0.74,
+	RCVD_IN_NJABL_DUL 1.95, RCVD_IN_SORBS_DUL 2.05,
+	SARE_SUB_GETRID 0.56)
+X-Net-Direct-Inc-MailScanner-SpamScore: ss
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a continuation of a previous discussion.  There are
-serial interfaces to IPMI chips that I need to support and
-I need a way to access these at panic time or when the
-system is in a state where it can't schedule.
+On Tue, 19 Dec 2006, David Rientjes wrote:
 
-I have written a layered driver for the serial core, but Alan
-says that a line discipline is the right way to have a driver
-access a serial port.  That seems rather unnatural to me
-(none of the other layered drivers do this), but it's not the
-end of the world, and the serial driver is "special" in some
-regards.
+> On Tue, 19 Dec 2006, Robert P. J. Day wrote:
+>
+> > diff --git a/include/asm-um/thread_info.h b/include/asm-um/thread_info.h
+> > index 261e2f4..e43c2dd 100644
+> > --- a/include/asm-um/thread_info.h
+> > +++ b/include/asm-um/thread_info.h
+> > @@ -51,8 +51,7 @@ static inline struct thread_info *current_thread_info(void)
+> >  }
+> >
+> >  /* thread information allocation */
+> > -#define alloc_thread_info(tsk) \
+> > -	((struct thread_info *) kmalloc(THREAD_SIZE, GFP_KERNEL))
+> > +#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL))
+> >  #define free_thread_info(ti) kfree(ti)
+> >
+> >  #endif
+>
+> This patch breaks all of usermode from the change above.
 
-Alan and I discussed this some and he suggested I look at a
-way to unify all the various "raw" users of serial ports, things
-like kgdb, serial console, and the IPMI driver.  That sounded
-like a good idea at the time, so I've been working on that.
+whoops, you're right, i didn't notice that.  duh.  i can resubmit that
+patch with that part whacked out, or someone higher up the food chain
+can do that.  either way works for me.  sorry about that.
 
-Unfortunately, it hasn't turned out so well.  A line discipline
-won't work for kgdb or consoles; the driver needs some
-mechanism to register the serial port so kgdb can find it.
-Consoles need some special registration, too.
+> There's also no reason to avoid other cleanups in the area you're
+> changing (and testing) such as moving the asterisk for pointers to
+> the variable name, deleting extraneous whitespace, or changing the
+> several instances in this patch where kzalloc conversion is
+> appropriate.  If it's not done now, it will either be forgotten or
+> another patch on the same elaborate scale as this one will need to
+> fix it incrementally.  Given the high chance of typos such as the
+> one above in broad patches like this, all the changes should be
+> rolled together into one patch that is at least inspected before
+> submission by the author.
 
-This is what I would like to propose:  Keep the concept of
-a layered driver like I have already done, but modify the
-code so the uart can register very early, in time for kgdb
-and consoles.  Add a uart poll routine, poll setup and
-poll quit routine, and a few other things needed by
-consoles.  kgdb can use this, and the serial_core code
-can use it to do a console.
+that sounds reasonable but, as i've mentioned before, many of the
+sizable cleanups i've submitted are produced by a simple script, which
+is written to process *one* kind of cleanup.  if i tried to fix
+everything else in the same area at the same time, *that* would
+involve far more manual labour, not to mention that the patch would be
+less well-defined, and the probability of a fatal typo would actually
+increase.
 
-This would eliminate most of the console code from the
-individual drivers.  The normal write buffering could be
-used by the serial console (though it would have to
-insert its own info structure when it did a console write).
-The console also needs routines to get the default values
-for systems that get defaults through things like open
-firmware.  And maybe a routine for polling CTS.
+it's also possible that the stuff that isn't getting fixed in *this*
+cleanup will be done in a future submission.  like i said, it's a
+tradeoff.  i'm certainly open to suggestions but there's not much
+chance that, when i attack one issue, i'm then going to manually
+inspect every line that was changed to see what *else* could be done
+at the same time.
 
-The poll routines could be propagated up to the tty
-layer fairly easily, if required, for use by other drivers.
-I really don't like having to have two mechanisms for
-a driver to do a write, one normal and one when the
-system can't schedule.  And a poll routine reduces
-code duplication, the driver works with all the normal
-routines.  No special read or write operations.
+life's just too short for that.
 
-Anyway, this is what I think works best for all parties.
-I'll continue down this path for now.
-
-Thanks,
-
--Corey
+rday

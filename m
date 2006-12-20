@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965163AbWLTVTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965167AbWLTVTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbWLTVTQ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 16:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbWLTVTP
+	id S965167AbWLTVTR (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 16:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbWLTVTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 16:19:15 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41235 "HELO
+	Wed, 20 Dec 2006 16:19:17 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41243 "HELO
 	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965163AbWLTVTO (ORCPT
+	by vger.kernel.org with SMTP id S965164AbWLTVTP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 16:19:14 -0500
+	Wed, 20 Dec 2006 16:19:15 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=gEKCK/Y+eK4SImftntgbZI96ZmfspYJDh/zJLmdbfFJJMDoowsrvyKmW484pBIUnuLpIo8ybpy0n8s225xYFL6wg3QEF4avffNXisAMEzoBK6UvK68GHuJJcTEdJOS15fU9/N2Jp0zm7M4ZIV6jtPkgay/9u7yrkhCJ2QWtJy7k=  ;
-X-YMail-OSG: gSrmI80VM1lsWJV3QEuI9UPVtwqkECnDJTO_Z6Gltov84lPGwv5QbrluwZHQYSMwBAuqalbhTbucFBqf2UyRcEm2.AFHxCNxnXLlyJVOOUcDdN9UZ29roySB43r95zPc_02W0NuELyCwWeYDfBTF440tfrRS56Ey9a31fugtp3xcBJVF_1qjesMUE1ve
+  b=ntsQoW/2O8+bhTa8H9JS8JxsAvFztHxV7ukK55ER20TtJGNd63lgA0D4tbHUmL2LCoJAi5iRKohesS/+3oSjf13fDRKberyNrlJaDeXCtZX3tD4hgFkOF2lxgVLrzd8qA7RxDIQOkuDsKWepEAvOxNGo1aKcg1Q67lmEp/ZXU94=  ;
+X-YMail-OSG: dLlFjL0VM1lRtLP9RZ6I35c7hOMCdg35i4k52nfwJaN52pNFl.6zGkbJn4asWchzBimlHg8uMqB1yHcCDtS6Ysk2bJa8Hs4kn9x7gElO3aDRjjfwnwV6G3j5BRFiEF23Z0w0wylEqBZgkPoU07sl3gJoBYSPNHhaB.NbcG2EwIUlWjYLevfmJNfDmo6T
 From: David Brownell <david-b@pacbell.net>
 To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.20-rc1 0/6] arch-neutral GPIO calls
-Date: Wed, 20 Dec 2006 13:04:02 -0800
+Subject: [patch 2.6.20-rc1 1/6] GPIO core
+Date: Wed, 20 Dec 2006 13:08:40 -0800
 User-Agent: KMail/1.7.1
 Cc: Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
        Bill Gatliff <bgat@billgatliff.com>,
@@ -26,59 +26,362 @@ Cc: Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
        Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
        Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
        pHilipp Zabel <philipp.zabel@gmail.com>
-References: <200611111541.34699.david-b@pacbell.net>
-In-Reply-To: <200611111541.34699.david-b@pacbell.net>
+References: <200611111541.34699.david-b@pacbell.net> <200612201304.03912.david-b@pacbell.net>
+In-Reply-To: <200612201304.03912.david-b@pacbell.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612201304.03912.david-b@pacbell.net>
+Message-Id: <200612201308.41900.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on earlier discussion, I'm sending a refresh of the generic GPIO
-patch, with several (ARM based) implementations in separate patches:
+This defines a simple and minimalist programming interface for GPIO APIs:
 
- - Core patch, doc + <asm-arm/gpio.h> + <asm-generic/gpio.h>
- - OMAP implementation
- - AT91 implementation
- - PXA implementation
- - SA1100 implementation
- - S3C2410 implementation
+  - Documentation/gpio.txt ... describes things (read it)
 
-I know there's an AVR32 implementation too; and there's been interest
-in this for some PPC support as well.
+  - include/asm-arm/gpio.h ... defines the ARM hook, which just punts
+    to <asm/arch/gpio.h> for any implementation
 
-This time I'm proposing that at least the core patch go into the MM
-tree; I think there's been enough discussion, and a general acceptance
-that we need this kind of API.  Russell usually wants ARM patches to
-go through his system, so those implementations above should probably
-not go through MM.
+  - include/asm-generic/gpio.h ... implement "can sleep" variants as calling
+    the normal ones, for systems that don't handle i2c expanders.
+
+The immediate need for such a cross-architecture API convention is to support
+drivers that work the same on AT91 ARM and AVR32 AP7000 chips, which embed many
+of the same controllers but have different CPUs.  However, several other users
+have been reported, including a driver for a hardware watchdog chip and some
+handhelds.org multi-CPU button drivers.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+---
+Since the last version posted, the doc has been updated and clarified,
+and has changed to include new "cansleep" variants of GPIO accessors
+that are appropriate for all those I2C GPIO expanders.
+
+The OMAP sample implementation has been split out.
+
+The focus still remains the API, not techniques used to implement platforms
+supporting multiple GPIO controllers.  That can be done later, if needed.
 
 
-With the exception of the AT91 implementation, those are all trivial
-wrappers around the existing calls ... which should highlight the fact
-that this API reflects existing practice, but with more generic syntax.
-AT91 differed only because it needed to split out a "configure as GPIO"
-primitive, not merged with the "set gpio direction" call.
 
-Other than clarifications, the main change in the doc is defining
-new calls safe for use with GPIOs on things like pcf8574 I2C gpio
-expanders; those new calls can sleep, but are otherwise the same as
-the spinlock-safe versions.  The implementations above implement that
-as a wrapper (the asm-generic header) around the spinlock-safe calls.
-
-This API is orthogonal to pin configuration (configure ball X17 as
-GPIO 23 rather than R33, with pulldown, etc) which is in any case
-highly platform-specific.
-
-Also, as an API rather than an implementation framework, this does
-not expose a notion of a "GPIO controller", of which any given
-system might have several.  It's allowed by the API (e.g. see the
-OMAP code), but is not required.  I expect that sort of thing will
-come later; it's common enough to have SOC-based boards with GPIOs
-on the SOC as well as a couple external chips.  
-
-- Dave
-
+Index: osk/Documentation/gpio.txt
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ osk/Documentation/gpio.txt	2006-12-17 16:56:43.000000000 -0800
+@@ -0,0 +1,271 @@
++GPIO Interfaces
++
++This provides an overview of GPIO access conventions on Linux.
++
++
++What is a GPIO?
++===============
++A "General Purpose Input/Output" (GPIO) is a flexible software-controlled
++digital signal.  They are provided from many kinds of chip, and are familiar
++to Linux developers working with embedded and custom hardware.  Each GPIO
++represents a bit connected to a particular pin, or "ball" on Ball Grid Array
++(BGA) packages.  Board schematics show which external hardware connects to
++which GPIOs.  Drivers can be written generically, so that board setup code
++passes such pin configuration data to drivers.
++
++System-on-Chip (SOC) processors heavily rely on GPIOs.  In some cases, every
++non-dedicated pin can be configured as a GPIO; and most chips have at least
++several dozen of them.  Programmable logic devices (like FPGAs) can easily
++provide GPIOs; multifunction chips like power managers, and audio codecs
++often have a few such pins to help with pin scarcity on SOCs; and there are
++also "GPIO Expander" chips that connect using the I2C or SPI serial busses.
++Most PC southbridges have a few dozen GPIO-capable pins (with only the BIOS
++firmware knowing how they're used).
++
++The exact capabilities of GPIOs vary between systems.  Common options:
++
++  - Output values are writable (high=1, low=0).  Some chips also have
++    options about how that value is driven, so that for example only one
++    value might be driven ... supporting "wire-OR" and similar schemes
++    for the other value.
++
++  - Input values are likewise readable (1, 0).  Some chips support readback
++    of pins configured as "output", which is very useful in such "wire-OR"
++    cases (to support bidirectional signaling).  GPIO controllers may have
++    input de-glitch logic, sometimes with software controls.
++
++  - Inputs can often be used as IRQ signals, often edge triggered but
++    sometimes level triggered.  Such IRQs may be configurable as system
++    wakeup events, to wake the system from a low power state.
++
++  - Usually a GPIO will be configurable as either input or output, as needed
++    by different product boards; single direction ones exist too.
++
++  - Most GPIOs can be accessed while holding spinlocks, but those accessed
++    through a serial bus normally can't.  Some systems support both types.
++
++On a given board each GPIO is used for one specific purpose like monitoring
++MMC/SD card insertion/removal, detecting card writeprotect status, driving
++a LED, configuring a transceiver, bitbanging a serial bus, poking a hardware
++watchdog, sensing a switch, and so on.
++
++
++GPIO conventions
++================
++Note that this is called a "convention" because you don't need to do it this
++way, and it's no crime if you don't.  There **are** cases where portability
++is not the main issue; GPIOs are often used for the kind of board-specific
++glue logic that may even change between board revisions, and can't ever be
++used on a board that's wired differently.  Only least-common-denominator
++functionality can be very portable.  Other features are platform-specific,
++and that can be critical for glue logic.
++
++Plus, this doesn't define an implementation framework, just an interface.
++One platform might implement it as simple inline functions accessing chip
++registers; another might implement it by delegating through abstractions
++used for several very different kinds of GPIO controller.
++
++That said, if the convention is supported on their platform, drivers should
++use it when possible:
++
++	#include <asm/gpio.h>
++	
++If you stick to this convention then it'll be easier for other developers to
++see what your code is doing, and help maintain it.
++
++
++Identifying GPIOs
++-----------------
++GPIOs are identified by unsigned integers in the range 0..MAX_INT.  That
++reserves "negative" numbers for other purposes like marking signals as
++"not available on this board", or indicating faults.
++
++Platforms define how they use those integers, and usually #define symbols
++for the GPIO lines so that board-specific setup code directly corresponds
++to the relevant schematics.  In contrast, drivers should only use GPIO
++numbers passed to them from that setup code, using platform_data to hold
++board-specific pin configuration data (along with other board specific
++data they need).  That avoids portability problems.
++
++So for example one platform uses numbers 32-159 for GPIOs; while another
++uses numbers 0..63 with one set of GPIO controllers, 64-79 with another
++type of GPIO controller, and on one particular board 80-95 with an FPGA.
++The numbers need not be contiguous; either of those platforms could also
++use numbers 2000-2063 to identify GPIOs in a bank of I2C GPIO expanders.
++
++Whether a platform supports multiple GPIO controllers is currently a
++platform-specific implementation issue.
++
++
++Using GPIOs
++-----------
++One of the first things to do with a GPIO, often in board setup code when
++setting up a platform_device using the GPIO, is mark its direction:
++
++	/* set as input or output, returning 0 or negative errno */
++	int gpio_direction_input(unsigned gpio);
++	int gpio_direction_output(unsigned gpio);
++
++The return value is zero for success, else a negative errno.  It should
++be checked, since the get/set calls don't have error returns and since
++misconfiguration is possible.  (These calls could sleep.)
++
++Setting the direction can fail if the GPIO number is invalid, or when
++that particular GPIO can't be used in that mode.  It's generally a bad
++idea to rely on boot firmware to have set the direction correctly, since
++it probably wasn't validated to do more than boot Linux.  (Similarly,
++that board setup code probably needs to multiplex that pin as a GPIO,
++and configure pullups/pulldowns appropriately.)
++
++
++Spinlock-Safe GPIO access
++-------------------------
++Most GPIO controllers can be accessed with memory read/write instructions.
++That doesn't need to sleep, and can safely be done from inside IRQ handlers.
++
++Use these calls to access such GPIOs:
++
++	/* GPIO INPUT:  return zero or nonzero */
++	int gpio_get_value(unsigned gpio);
++
++	/* GPIO OUTPUT */
++	void gpio_set_value(unsigned gpio, int value);
++
++The values are boolean, zero for low, nonzero for high.  When reading the
++value of an output pin, the value returned should be what's seen on the
++pin ... that won't always match the specified output value, because of
++issues including wire-OR and output latencies.
++
++The get/set calls have no error returns because "invalid GPIO" should have
++been reported earlier in gpio_set_direction().  However, note that not all
++platforms can read the value of output pins; those that can't should always
++return zero.  Also, these calls will be ignored for GPIOs that can't safely
++be accessed wihtout sleeping (see below).
++
++Platform-specific implementations are encouraged to optimise the two
++calls to access the GPIO value in cases where the GPIO number (and for
++output, value) are constant.  It's normal for them to need only a couple
++of instructions in such cases (reading or writing a hardware register),
++and not to need spinlocks.  Such optimized calls can make bitbanging
++applications a lot more efficient (in both space and time) than spending
++dozens of instructions on subroutine calls.
++
++
++GPIO access that may sleep
++--------------------------
++Some GPIO controllers must be accessed using message based busses like I2C
++or SPI.  Commands to read or write those GPIO values require waiting to
++get to the head of a queue to transmit a command and get its response.
++This requires sleeping, which can't be done from inside IRQ handlers.
++
++Platforms that support this type of GPIO distinguish them from other GPIOs
++by returning nonzero from this call:
++
++	int gpio_cansleep(unsigned gpio);
++
++To access such GPIOs, a different set of accessors is defined:
++
++	/* GPIO INPUT:  return zero or nonzero, might sleep */
++	int gpio_get_value_cansleep(unsigned gpio);
++
++	/* GPIO OUTPUT, might sleep */
++	void gpio_set_value_cansleep(unsigned gpio, int value);
++
++Other than the fact that these calls might sleep, and will not be ignored
++for GPIOs that can't be accessed from IRQ handlers, these calls act the
++same as the spinlock-safe calls.
++
++
++Claiming and Releasing GPIOs (OPTIONAL)
++---------------------------------------
++To help catch system configuration errors, two calls are defined.
++However, many platforms don't currently support this mechanism.
++
++	/* request GPIO, returning 0 or negative errno.
++	 * non-null labels may be useful for diagnostics.
++	 */
++	int gpio_request(unsigned gpio, const char *label);
++
++	/* release previously-claimed GPIO */
++	void gpio_free(unsigned gpio);
++
++Passing invalid GPIO numbers to gpio_request() will fail, as will requesting
++GPIOs that have already been claimed with that call.  The return value of
++gpio_request() must be checked.  (These calls could sleep.)
++
++These calls serve two basic purposes.  One is marking the signals which
++are actually in use as GPIOs, for better diagnostics; systems may have
++several hundred potential GPIOs, but often only a dozen are used on any
++given board.  Another is to catch conflicts between drivers, reporting
++errors when drivers wrongly think they have exclusive use of that signal.
++
++These two calls are optional because not not all current Linux platforms
++offer such functionality in their GPIO support; a valid implementation
++could return success for all gpio_request() calls.  Unlike the other calls,
++the state they represent doesn't normally match anything from a hardware
++register; it's just a software bitmap which clearly is not necessary for
++correct operation of hardware or (bug free) drivers.
++
++Note that requesting a GPIO does NOT cause it to be configured in any
++way; it just marks that GPIO as in use.  Separate code must handle any
++pin setup (e.g. controlling which pin the GPIO uses, pullup/pulldown).
++
++
++GPIOs mapped to IRQs
++--------------------
++GPIO numbers are unsigned integers; so are IRQ numbers.  These make up
++two logically distinct namespaces (GPIO 0 need not use IRQ 0).  You can
++map between them using calls like:
++
++	/* map GPIO numbers to IRQ numbers */
++	int gpio_to_irq(unsigned gpio);
++
++	/* map IRQ numbers to GPIO numbers */
++	int irq_to_gpio(unsigned irq);
++
++Those return either the corresponding number in the other namespace, or
++else a negative errno code if the mapping can't be done.  (For example,
++some GPIOs can't used as IRQs.)  It is an unchecked error to use a GPIO
++number that hasn't been marked as an input using gpio_set_direction(), or
++to use an IRQ number that didn't originally come from gpio_to_irq().
++
++These two mapping calls are expected to cost on the order of a single
++addition or subtraction.  They're not allowed to sleep.
++
++Non-error values returned from gpio_to_irq() can be passed to request_irq()
++or free_irq().  They will often be stored into IRQ resources for platform
++devices, by the board-specific initialization code.  Note that IRQ trigger
++options are part of the IRQ interface, e.g. IRQF_TRIGGER_FALLING, as are
++system wakeup capabilities.
++
++Non-error values returned from irq_to_gpio() would most commonly be used
++with gpio_get_value().
++
++
++
++What do these conventions omit?
++===============================
++One of the biggest things these conventions omit is pin multiplexing, since
++this is highly chip-specific and nonportable.  One platform might not need
++explicit multiplexing; another might have just two options for use of any
++given pin; another might have eight options per pin; another might be able
++to route a given GPIO to any one of several pins.  (Yes, those examples all
++come from systems that run Linux today.)
++
++Related to multiplexing is configuration and enabling of the pullups or
++pulldowns integrated on some platforms.  Not all platforms support them,
++or support them in the same way; and any given board might use external
++pullups (or pulldowns) so that the on-chip ones should not be used.
++
++There are other system-specific mechanisms that are not specified here,
++like the aforementioned options for input de-glitching and wire-OR output.
++Hardware may support reading or writing GPIOs in gangs, but that's usually
++configuration dependednt:  for GPIOs sharing the same bank.  (GPIOs are
++commonly grouped in banks of 16 or 32, with a given SOC having several such
++banks.)  Code relying on such mechanisms will necessarily be nonportable.
++
++Dynamic definition of GPIOs is not currently supported; for example, as
++a side effect of configuring an add-on board with some GPIO expanders.
++
++These calls are purely for kernel space, but a userspace API could be built
++on top of it.
+Index: osk/include/asm-arm/gpio.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ osk/include/asm-arm/gpio.h	2006-12-15 03:59:41.000000000 -0800
+@@ -0,0 +1,7 @@
++#ifndef _ARCH_ARM_GPIO_H
++#define _ARCH_ARM_GPIO_H
++
++/* not all ARM platforms necessarily support this API ... */
++#include <asm/arch/gpio.h>
++
++#endif /* _ARCH_ARM_GPIO_H */
+Index: osk/include/asm-generic/gpio.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ osk/include/asm-generic/gpio.h	2006-12-17 16:53:18.000000000 -0800
+@@ -0,0 +1,25 @@
++#ifndef _ASM_GENERIC_GPIO_H
++#define _ASM_GENERIC_GPIO_H
++
++/* platforms that don't directly support access to GPIOs through I2C, SPI,
++ * or other blocking infrastructure can use these wrappers.
++ */
++
++static inline int gpio_cansleep(unsigned gpio)
++{
++	return 0;
++}
++
++static inline int gpio_get_value_cansleep(unsigned gpio)
++{
++	might_sleep();
++	return gpio_get_value(gpio);
++}
++
++static inline void gpio_set_value_cansleep(unsigned gpio, int value)
++{
++	might_sleep();
++	gpio_set_value(gpio, value);
++}
++
++#endif /* _ASM_GENERIC_GPIO_H */

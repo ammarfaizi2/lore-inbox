@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964890AbWLTUwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964982AbWLTUwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWLTUwO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWLTUwO
+	id S964982AbWLTUwX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWLTUwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:52:14 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:51305 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964890AbWLTUwN (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:52:13 -0500
-Message-Id: <200612202052.kBKKqCYr023771@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: davids@webmaster.com
-Cc: Marek Wawrzyczny <marekw1977@yahoo.com.au>, valdis.kletnietks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-In-Reply-To: Your message of "Wed, 20 Dec 2006 11:29:00 PST."
-             <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166647932_3391P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 20 Dec 2006 15:52:23 -0500
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:58794 "EHLO
+	liaag2aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964982AbWLTUwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:52:22 -0500
+Date: Wed, 20 Dec 2006 15:48:27 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Oops in 2.6.19.1
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <200612201550_MC3-1-D5C7-74C6@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Dec 2006 15:52:12 -0500
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166647932_3391P
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200612201421.03514.s0348365@sms.ed.ac.uk>
 
-On Wed, 20 Dec 2006 11:29:00 PST, David Schwartz said:
+On Wed, 20 Dec 2006 14:21:03 +0000, Alistair John Strachan wrote:
 
-> Let's not let the perfect be the enemy of the good. Remember, the goal is to
-> allow consumers to know whether or not their system's hardware
-> specifications are available. It's not about driver availability -- if the
-> hardware specifications are available and a driver is not, that's not the
-> hardware manufacturer's fault.
+> Any ideas?
+> 
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 
+> 00000009
 
-My point was "their system's hardware specifications" is, for some popular
-vendors, a *very* fuzzy notion. You can't (for instance) say "specs are
-available for a Dell Latitude D820" - there are configurations that specs are
-available for, and configs that aren't.  My D820 has an NVidia card in it - we
-know the answer there.  Do you give a different answer for a D820 that has the
-Intel i950 graphics chipset instead?
+    83 ca 10                  or     $0x10,%edx
+    3b                        .byte 0x3b
+    87 68 01                  xchg   %ebp,0x1(%eax)   <=====
+    00 00                     add    %al,(%eax)
 
-Even more annoying, Dell often *changes* the vendor - the line item for the DVD
-drive says "8X DVD+/-RW" (other choices include 24X CD-ROM and 24X CD-RW/DVD).
-Mine showed up with a Philips SDVD8820 - but it's possible that some other D820
-will get some other vendor's DVD (I've seen 2 C820's ordered at the same time,
-they showed up with 2 different vendor's "24X CD-RW/DVD").  It's possible that
-some poor guy is going to get a D820 that has a DVD that we have a known
-buggy driver for - what do we tell *them*?
+Somehow it is trying to execute code in the middle of an instruction.
+That almost never works, even when the resulting fragment is a legal
+opcode. :)
 
-It's *easy* to do a "semi-good" that tells you if there's drivers for the
-hardware config you're running the program on. But there's 2 problems:
+The real instruction is:
 
-a) You probably already know the answer
-b) By the time you can run the program, it's often too late....
+    3b 87 68 01 00 00 00        cmp    0x168(%edi),%eax
 
-So given those 2 points, what actual value-added info does this *give*, over
-and above 'lspci' and friends?  I suppose maybe for a install CD, it gives
-a quick way to cleanly abort the install with a "Don't bother continuing
-unless it's OK that your graphics/wireless/whatever won't work".  On the
-other hand, the installer should have a grasp on this *already*....
-
-Perfect may be the enemy of the good, but the good is also the enemy of
-stuff claiming to be good but misses on an important design goal...
-
---==_Exmh_1166647932_3391P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFiaJ8cC3lWbTT17ARAh9iAJ4kkAwey+wLYC8iytLJZj4f4wBWkgCg+Yv/
-VJFchJaWSgmrwn9t2/n2Xwc=
-=DnSB
------END PGP SIGNATURE-----
-
---==_Exmh_1166647932_3391P--
+I'd guess you have some kind of hardware problem.  It could also be
+a kernel problem where the saved address was corrupted during an
+interrupt, but that's not likely.
+-- 
+MBTI: IXTP

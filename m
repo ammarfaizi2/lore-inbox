@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965148AbWLTRDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965150AbWLTRFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965148AbWLTRDy (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWLTRDy
+	id S965150AbWLTRFO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWLTRFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:03:54 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:48306 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965148AbWLTRDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:03:53 -0500
-Date: Wed, 20 Dec 2006 18:03:23 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Hugh Dickins <hugh@veritas.com>, Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrei Popa <andrei.popa@i-neo.ro>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061220170323.GA12989@deprecation.cyrius.com>
-References: <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org> <1166471069.6940.4.camel@localhost> <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> <1166571749.10372.178.camel@twins> <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org> <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org> <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins>
-MIME-Version: 1.0
+	Wed, 20 Dec 2006 12:05:13 -0500
+Received: from waste.org ([66.93.16.53]:44492 "EHLO waste.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965150AbWLTRFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 12:05:12 -0500
+X-Greylist: delayed 881 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 12:05:11 EST
+Date: Wed, 20 Dec 2006 10:40:46 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.19 2/6] support multiple logging agents
+Message-ID: <20061220164046.GW13687@waste.org>
+References: <457E498C.1050806@bx.jp.nec.com> <457E4C65.6030802@bx.jp.nec.com> <20061212184250.GJ13687@waste.org> <458903ED.9040207@bx.jp.nec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1166622979.10372.224.camel@twins>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <458903ED.9040207@bx.jp.nec.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> [2006-12-20 14:56]:
-> page_mkclean_one() fix
+On Wed, Dec 20, 2006 at 06:35:41PM +0900, Keiichi KII wrote:
+> >>  static struct netpoll np = {
+> >> >      .name = "netconsole",
+> >> >      .dev_name = "eth0",
+> >> > @@ -69,23 +84,91 @@ static struct netpoll np = {
+> >> >      .drop = netpoll_queue,
+> >> >  };
+> >
+> > Shouldn't this piece get dropped in this patch?
+> >
+> 
+> This piece isn't in -mm tree, but this piece is in 2.6.19.
+> Which version should I follow ?
 
-This patch doesn't fix my problem (apt segfaults on ARM because its
-database is corrupted).
+-mm, probably.
+
+> >> -static int configured = 0;
+> >> +static int add_netcon_dev(const char* target_opt)
+> >> +{
+> >> +    static atomic_t netcon_dev_count = ATOMIC_INIT(0);
+> >
+> > Hiding this inside a function seems wrong. Why do we need a count? If
+> > we've already got a spinlock, why does it need to be atomic?
+> >
+> 
+> We don't have a spinlock for add_netcon_dev, because we don't need
+> to get a spinlock for add_netcon_dev except for list operation.
+> So, it must be atomic.
+
+Or you can just increment the list counter inside the lock.
+
+> 
+> >>      local_irq_save(flags);
+> >> +    spin_lock(&netconsole_dev_list_lock);
+> >>      for(left = len; left; ) {
+> >>          frag = min(left, MAX_PRINT_CHUNK);
+> >> -        netpoll_send_udp(&np, msg, frag);
+> >> +        list_for_each_entry(dev, &active_netconsole_dev, list) {
+> >> +            spin_lock(&dev->netpoll_lock);
+> >> +            netpoll_send_udp(&dev->np, msg, frag);
+> >> +            spin_unlock(&dev->netpoll_lock);
+> >
+> > Why do we need a lock here? Why isn't the list lock sufficient? What
+> > happens if either lock is held when we get here?
+> >
+> 
+> The netpoll_lock is for each structure containing information related to 
+> netpoll
+> (remote IP address and port, local IP address and port and so on).
+> If we don't take a spinlock for each structure, the target IP address and 
+> port
+> number are subject to change on the way sending packets.
+
+Why can't you simply define the list lock as protecting all the
+structures on the list?
+
 -- 
-Martin Michlmayr
-http://www.cyrius.com/
+Mathematics is the supreme nostalgia of our time.

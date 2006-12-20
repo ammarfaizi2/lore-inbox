@@ -1,60 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965067AbWLTOBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965068AbWLTOC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWLTOBI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 09:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWLTOBI
+	id S965068AbWLTOC3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 09:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWLTOC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 09:01:08 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56786 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965067AbWLTOBG (ORCPT
+	Wed, 20 Dec 2006 09:02:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:53786 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965066AbWLTOC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 09:01:06 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
-Date: Wed, 20 Dec 2006 07:00:11 -0700
-In-Reply-To: <20061220141808.e4b8c0ea.khali@linux-fr.org> (Jean Delvare's
-	message of "Wed, 20 Dec 2006 14:18:08 +0100")
-Message-ID: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Dec 2006 09:02:28 -0500
+Subject: Re: [PATCH 2/10] cxgb3 - main source file
+From: Arjan van de Ven <arjan@infradead.org>
+To: Divy Le Ray <None@chelsio.com>
+Cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       swise@opengridcomputing.com
+In-Reply-To: <20061220124134.6299.29373.stgit@localhost.localdomain>
+References: <20061220124134.6299.29373.stgit@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 20 Dec 2006 15:02:09 +0100
+Message-Id: <1166623330.3365.1397.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> writes:
+> +/*
+> + * Interrupt handler for asynchronous events used with MSI-X.
+> + */
+> +static irqreturn_t t3_async_intr_handler(int irq, void *cookie)
+> +{
+> +	t3_slow_intr_handler(cookie);
+> +	return IRQ_HANDLED;
+> +}
 
-> Hi Eric, Vivek, Andi,
->
-> One of my test machines (i586, Asus P4P800-X) reboots instantly when I
-> try to boot a 2.6.20-rc1 kernel. 2.6.19 and 2.6.19.1 boot OK. I ran a
-> git bisect and it pointed me to this patch:
+this looks very wrong; why is t3_slow_intr_handler a void rather than
+returning IRQ_HANDLED etc? And why wrap around it ?
 
-I don't think this is a know issue.
+> +
+> +static ssize_t attr_show(struct class_device *cd, char *buf,
+> +			 ssize_t(*format) (struct adapter *, char *))
+> +{
+> +	ssize_t len;
+> +	struct adapter *adap = to_net_dev(cd)->priv;
+> +
+> +	/* Synchronize with ioctls that may shut down the device */
+> +	rtnl_lock();
+> +	len = (*format) (adap, buf);
+> +	rtnl_unlock();
+> +	return len;
+> +}
 
-The most straight forward way to debug this is to put infinite
-loops in arch/i386/boot/compressed/head.S moving progressively farther
-in until you find where the line in head.S that the machine reboots
-on you is.
+I'm usually kind of nervous with drivers taking the rtnl_lock; to me
+that sounds like a layering violation.. why shouldn't your attributes
+etc live in the net layer instead?
 
-Although it is possible the problem falls in misc.c as well.
+> +#ifdef ETHTOOL_GPERMADDR
+> +	.get_perm_addr = ethtool_op_get_perm_addr
+> +#endif
 
-If you have a serial console setup we can probably make this
-process a little easier.
+what is this ifdef for?
 
-One hunch is that we did something stupid, and have an instruction
-that only executes on an i686 in there somewhere.
 
-> After that the machine boots OK again. Note that I did _not_ enable
-> RELOCATABLE. This is admitedly an old system with an old boot loader
-> (lilo 22.5.7.2), so if that's a known issue, I'll be happy to install
-> something newer. If not, I am willing to provide all the information
-> needed to fix the bug.
+> +static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
+> +{
+> +	int ret;
+> +	u32 cmd;
+> +	struct adapter *adapter = dev->priv;
+> +
+> +	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
+> +		return -EFAULT;
+> +
+> +	switch (cmd) {
+> +	case CHELSIO_SETREG:{
 
-Thanks.
+what are these for ?
 
-Eric
+> +
+> +	/*
+> +	 * Can't use pci_request_regions() here because some kernels want to
+> +	 * request the MSI-X BAR in pci_enable_msix.
+
+are these "some kernels" actual current mainline kernels?
+
+> +	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
+> +		pci_using_dac = 1;
+> +		err = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
+> +		if (err) {
+> +			dev_err(&pdev->dev, "unable to obtain 64-bit DMA for "
+> +			       "coherent allocations\n");
+> +			goto out_release_regions;
+
+this looks wrong; if you can't get 64 bit coherent allocs but can get 32
+bit ones.. why error out ?
+
+
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

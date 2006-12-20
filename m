@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964960AbWLTJYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbWLTJ2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWLTJYK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 04:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWLTJYK
+	id S964947AbWLTJ2I (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 04:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWLTJ2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 04:24:10 -0500
-Received: from stinky.trash.net ([213.144.137.162]:38279 "EHLO
-	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964958AbWLTJYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 04:24:08 -0500
-Message-ID: <45890135.9000306@trash.net>
-Date: Wed, 20 Dec 2006 10:24:05 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Santiago Garcia Mantinan <manty@manty.net>
-CC: linux-kernel@vger.kernel.org, ebtables-devel@lists.sourceforge.net
-Subject: Re: ebtables problems on 2.6.19.1
-References: <20061218082413.GA11064@clandestino.aytolacoruna.es>
-In-Reply-To: <20061218082413.GA11064@clandestino.aytolacoruna.es>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Wed, 20 Dec 2006 04:28:07 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42953 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964947AbWLTJ2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 04:28:06 -0500
+Subject: Re: sysfs file creation result nightmare
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>,
+       Olivier Galibert <galibert@pobox.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061220080133.GA4325@kroah.com>
+References: <1165694351.1103.133.camel@localhost.localdomain>
+	 <20061209123817.f0117ad6.akpm@osdl.org>
+	 <20061209214453.GA69320@dspnet.fr.eu.org>
+	 <20061209135829.86038f32.akpm@osdl.org>
+	 <20061209223418.GA76069@dspnet.fr.eu.org>
+	 <20061209145303.3d5fe141.akpm@osdl.org>
+	 <1165712131.1103.166.camel@localhost.localdomain>
+	 <20061215154751.86a2dbdd.khali@linux-fr.org>
+	 <1166213773.31351.96.camel@localhost.localdomain>
+	 <20061215123103.adfbd78b.akpm@osdl.org>  <20061220080133.GA4325@kroah.com>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 20:27:28 +1100
+Message-Id: <1166606848.5144.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Garcia Mantinan wrote:
-> Hi!
-> 
-> When trying to upgrade a machine from 2.6.18 to 2.6.19.1 I found that it
-> crashed when loading the ebtables rules on startup.
-> 
-> This is an example of the crash I get:
-> 
-> BUG: unable to handle kernel paging request at virtual address e081e004         
->  printing eip:                                                                  
-> c0283da0                                                                        
-> *pde = 1fbcb067                                                                 
-> *pte = 00000000                                                                 
-> Oops: 0000 [#1]                                                                 
-> CPU:    0                                                                       
-> EIP:    0060:[<c0283da0>]    Not tainted VLI                                    
-> EFLAGS: 00010282   (2.6.19.1 #1)                                                
-> EIP is at translate_table+0x600/0xe90                                           
->
-> [..]
->
-> I've tried to find a subset of the rules that are causing this and I found
-> that to be very difficult as I have only got this to fail if I load the
-> ebtables rules at boot time, if I try to load them after the machine is
-> completely booted it works ok. 2.6.18 still works ok, both kernels have the
-> "same" config where posible and they are not SMP.
 
-At what point during boot time do you load your rules? Is networking
-already up?
+> sysfs_create_group() and remove_group() handles this just fine right
+> now.  Or it should, if not, please let me know and I'll fix it.
 
-> The machine that was having the failure was a PIII 1GHz, I have copied the
-> filesystem to a PIV 1.6Ghz where it also fails and where I can do tests and
-> access the console via serial port.
-> 
-> The machine is not being used as a brouter but only as a bridge firewall, it
-> has some ebtables rules to cut non IP stuff and then does all the work at
-> iptables level.
-> 
-> I don't know what other info to add here, tell me if you need any other
-> stuff to diagnose this or any testing here.
+Ok, I didn't know about these. I'll have a look. Thanks !
 
-I'm trying to reproduce this (without success so far), please send your
-kernel config and your ebtables script.
+> As for the bin_file stuff, those are very rare.  And I'll gladly take
+> patches that keep bad things from happening if you try to remove a file
+> that isn't there.
 
-You could try if 2.6.19 works, there were some ebtables changes in
-2.6.19.1 that touched this code.
+Ben.
+
+

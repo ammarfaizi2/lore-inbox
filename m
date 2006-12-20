@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753273AbWLTHuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964916AbWLTHul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753273AbWLTHuS (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 02:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753539AbWLTHuS
+	id S964916AbWLTHul (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 02:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754431AbWLTHul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 02:50:18 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:12618 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753273AbWLTHuR (ORCPT
+	Wed, 20 Dec 2006 02:50:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43019 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753556AbWLTHuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 02:50:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=GB+Uc+YhIJtnv6izuzQfKMJMIQbzQC1+nBTEbAWwGshgvCFpBADcThEFDcddYWnh0ZdQ/pGaqS4JwtrdsJR6F5myRVx6Px+601ZMmhZpyWxZ2MbkiiHICH3tCzrhwTjJwX8zzfzwV1FCWsMPJ+MCrGGeCDHgpX00FZ57RYX0xqg=
-Date: Wed, 20 Dec 2006 16:49:17 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH] powerpc: use is_init()
-Message-ID: <20061220074917.GA4038@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-	Anton Blanchard <anton@samba.org>
-References: <20061219083549.GA4025@APFDCB5C> <17800.46811.966114.640221@cargo.ozlabs.ibm.com>
+	Wed, 20 Dec 2006 02:50:40 -0500
+Subject: Re: Changes to PM layer break userspace
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Greg KH <gregkh@suse.de>, David Brownell <david-b@pacbell.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061220055209.GA20483@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org>
+	 <200612191959.43019.david-b@pacbell.net>
+	 <20061220042648.GA19814@srcf.ucam.org>
+	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
+	 <20061220055209.GA20483@srcf.ucam.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 20 Dec 2006 08:50:24 +0100
+Message-Id: <1166601025.3365.1345.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17800.46811.966114.640221@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 03:06:51PM +1100, Paul Mackerras wrote:
-> Akinobu Mita writes:
-> 
-> > Use is_init() rather than hard coded pid comparison.
-> 
-> What's the context of this patch?  Why is this a good thing to do?
-> 
 
-This is just minor cleanup patch.
-is_init() is available on 2.6.20-rc1 (include/linux/sched.h):
+> Seriously. How many pieces of userspace-visible functionality have 
+> recently been removed without there being any sort of alternative?
 
-/**
- * is_init - check if a task structure is init
- * @tsk: Task structure to be checked.
- *
- * Check if a task structure is the first user space task the kernel created.
- */
-static inline int is_init(struct task_struct *tsk)
-{
-        return tsk->pid == 1;
-}
+There IS an alternative, you're using it for networking:
+ 
+You *down the interface*.
+
+If there's a NIC that doesn't support that let us (or preferably netdev)
+know and it'll get fixed quickly I'm sure.
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

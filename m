@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964948AbWLTJMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964949AbWLTJOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbWLTJMU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 04:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWLTJMU
+	id S964949AbWLTJOW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 04:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWLTJOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 04:12:20 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:36306 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964949AbWLTJMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 04:12:18 -0500
-Date: Wed, 20 Dec 2006 10:11:25 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Patrick McHardy <kaber@trash.net>
-cc: Netfilter Developer Mailing List 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] xt_request_find_match
-In-Reply-To: <4588F175.8060109@trash.net>
-Message-ID: <Pine.LNX.4.61.0612201009540.26276@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0612161851180.30896@yvahk01.tjqt.qr>
- <4587D227.1000003@trash.net> <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr>
- <4587E91A.2020903@trash.net> <Pine.LNX.4.61.0612191623490.10396@yvahk01.tjqt.qr>
- <4588F175.8060109@trash.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 20 Dec 2006 04:14:22 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:27759 "EHLO
+	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S964949AbWLTJOV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 04:14:21 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+In-Reply-To: <1166605296.10372.191.camel@twins>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
+	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	 <1166466272.10372.96.camel@twins>
+	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+	 <1166468651.6983.6.camel@localhost>
+	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
+	 <1166471069.6940.4.camel@localhost>
+	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	 <1166605296.10372.191.camel@twins>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 10:12:58 +0100
+Message-Id: <1166605978.10372.195.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-12-20 at 10:01 +0100, Peter Zijlstra wrote:
 
->Jan Engelhardt wrote:
->> [...]
->>
->> Ok, but let's say I wanted to use a bigger match module (layer7, anyone?)
->> Then it's just not if(protocol == IPPROTO_TCP). What's the preferred solution
->> then?
->
->Make sure the user specifies the match on the command line before
->your match. Look at the TCPMSS or REJECT targets for examples for
->this.
+> I will try, but I had a look around the different architectures
+> implementation of ptep_clear_flush_dirty() and saw that not all do the
+> actual flush. So if we go down this road perhaps we should introduce
+> another per arch function that does the potential flush. like
+> flush_tlb_on_clear_dirty() or something like that.
 
-That would mean I'd have to
-
-  -p tcp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
-lotsofothers -j TARGET
-  -p udp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
-lotsofothers -j TARGET
-
-which can become quite computationally expensive - which I wanted to 
-avoid.
+never mind, we do need an unconditional flush for changing the
+protection too.
 
 
-	-`J'
--- 

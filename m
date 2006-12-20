@@ -1,101 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030275AbWLTTB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030283AbWLTTCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWLTTB7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWLTTB7
+	id S1030283AbWLTTCW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWLTTCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:01:59 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:56719 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030275AbWLTTB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:01:58 -0500
-Date: Wed, 20 Dec 2006 11:01:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Martin Michlmayr <tbm@cyrius.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
- corruption on ext3)
-In-Reply-To: <20061220175309.GT30106@deprecation.cyrius.com>
-Message-ID: <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
-References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
- <1166571749.10372.178.camel@twins> <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
- <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org>
- <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
- <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com>
- <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Dec 2006 14:02:21 -0500
+Received: from py-out-1112.google.com ([64.233.166.176]:35233 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030283AbWLTTCU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:02:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:content-transfer-encoding:date:message-id:mime-version:x-mailer;
+        b=PWxZyrbQFvmIPb43hVtxVGwT1pLnfvl/xnD8ztmSsxjOPZlYSbH3g9qQ3wmTiSXUF7vyW0NEsdu+RnHF4qBvvKMM0rnTHiNm5a37BRFiSNC8BNLBE0MO1yP1qCG8DPe3XmYneIcVsTvjWGz9AQCmGpIXNN6M+eReptxq3ZwCkv8=
+Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda
+	changes (was Re: BUG on 2.6.20-rc1 when using gdb)
+From: "Andrew J. Barr" <andrew.james.barr@gmail.com>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       walt <w41ter@gmail.com>
+In-Reply-To: <20061220183521.GA28900@slug>
+References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org>
+	 <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org>
+	 <20061220183521.GA28900@slug>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Dec 2006 14:02:15 -0500
+Message-Id: <1166641335.4017.0.camel@r51.oakcourt.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 20 Dec 2006, Martin Michlmayr wrote:
+On Wed, 2006-12-20 at 18:35 +0000, Frederik Deweerdt wrote:
+> On Wed, Dec 20, 2006 at 03:21:53AM -0800, Jeremy Fitzhardinge wrote:
+> > "walt" <w41ter@gmail.com> reported a similar problem which he bisected
+> > down to the PDA changeset which touches ptrace
+> > (66e10a44d724f1464b5e8b5a3eae1e2cbbc2cca6).  I haven't managed to repo
+> > the problem, but I guess there's something nasty going on in ptrace -
+> > maybe its screwing up eflags on the stack or something.  Need to
+> > double-check all the conversions from kernel<->usermode registers.  Hm,
+> > wonder if its fixed with the %gs->%fs conversion patch applied?
+> > 
+> Hi Jeremy,
 > 
-> > Anyway, the page_mkclean_one() fixes (along with _most_ things we've
-> > looked at) shouldn't matter on UP, at least certainly not without
-> > PREEMPT.
+> Same problems here with 2.6.20-rc1-mm1 (ie with the %gs->%fs patch).
+> It seems to me that the problem comes from the EFL_OFFSET no longer
+> beeing accurate.
+> The following patch fixes the problem for me.
+
+Me too. Thanks.
+
+Andrew
+
+> Regards,
+> Frederik
 > 
-> Hmm.  So what about UP without PREEMPT then...
-
-So that's why I've been harping on the fact that I think we simply do 
-really wrong things with PG_dirty at times, and that I find it confusing 
-that there's
-
- - clear_page_dirty_for_io(): this one makes sense. The name makes sense, 
-   and the implementation makes sense (which is _not_ the same thing as 
-   "works", of course - "makes sense" does not mean "no bugs" ;).
-
- - test_clear_page_dirty: this one makes no sense WHATSOEVER, except as a 
-   buggy way to do the "_for_io()" case.. This makes sense neither from a 
-   concept angle _or_ an implementation angle (the whole "test_" part is 
-   nonsense: why would anybody care? What operation does this? What can it 
-   do if the page is dirty? It also has no sensible thing it can do to the 
-   page tables.
-
- - clear_page_dirty(): this one makes sense only as a "cancel" operation, 
-   for vmtruncate and friends (it's different from the "_for_io()" case in 
-   several ways:
-	(a) we should have unmapped such pages forcibly _anyway_, so 
-	    looking at the PTE's make no sense.
-	(b) because we're not starting IO, we don't have the "mark for 
-	    writeback" case, and we need to clear the dirty tags from the 
-	    radix trees etc since the writeback logic won't do it for us.
-   The _implementation_ of "clear_page_dirty()" doesn't make sense, but 
-   the concept does.
-
-I've repeated that theory a few times, but neither Andrew nor Nick seem to 
-really believe in it. So I'll just repeat it once more, only to be shot 
-down. I think we have three operations, one of which is totally idiotic 
-and senseless, and one of which is just badly implemented.
-
-> Maybe the following information is helpful in some way: remember how I
-> said that we have applied 6 mm patches to 2.6.18 in Debian?  According
-> to Gordon Farquharson, who's helping me a great deal with testing
-> installation on this ARM machine (Linksys NSLU2), the corruption
-> doesn't always show up when you only apply
-> mm-tracking-shared-dirty-pages.patch to 2.6.18 but it shows up all the
-> time with all six patches applied.
-
-I think the "it hapepns occasionally with just the first patch" is the 
-really important part. The other patches really are likely to just change 
-writeback timing behaviour (_especially_ the "tracking-shared-dirty-pages" 
-patch), but if it happens occasionally even with the first one, that's the 
-one that almost certainly introduced the real problem.
-
-And my argument above is actually that the "real problem" goes a hell of a 
-lot further back in time, but it didn't use to be a problem because we 
-just considered dirty bits in the page tables to be something _completely_ 
-independent of the "page dirty" status, so historically, it just didn't 
-matter that we had insane implementations and senseless operations.
-
-			Linus
+> Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+> 
+> diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
+> index 7f7d830..00d8a5a 100644
+> --- a/arch/i386/kernel/ptrace.c
+> +++ b/arch/i386/kernel/ptrace.c
+> @@ -45,7 +45,7 @@
+>  /*
+>   * Offset of eflags on child stack..
+>   */
+> -#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs))
+> +#define EFL_OFFSET ((EFL-1)*4-sizeof(struct pt_regs))
+>  
+>  static inline struct pt_regs *get_child_regs(struct task_struct *task)
+>  {

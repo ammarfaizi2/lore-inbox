@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965136AbWLTP2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965133AbWLTPbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbWLTP2i (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 10:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbWLTP2i
+	id S965133AbWLTPbs (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 10:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLTPbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 10:28:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46188 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965136AbWLTP2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 10:28:37 -0500
-Date: Wed, 20 Dec 2006 10:28:28 -0500
-From: Dave Jones <davej@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch] x86_64: fix boot time hang in detect_calgary()
-Message-ID: <20061220152828.GF31335@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Andi Kleen <ak@suse.de>
-References: <20061220105332.GA20922@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061220105332.GA20922@elte.hu>
-User-Agent: Mutt/1.4.2.2i
+	Wed, 20 Dec 2006 10:31:48 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:44082 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S965133AbWLTPbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 10:31:48 -0500
+X-Greylist: delayed 1918 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 10:31:48 EST
+Date: Wed, 20 Dec 2006 15:59:48 +0100 (CET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] __set_irq_handler bogus space
+Message-ID: <Pine.LNX.4.62.0612201559100.457@pademelon.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 11:53:32AM +0100, Ingo Molnar wrote:
 
- > the patch below fixes the boot hang by trusting the BIOS-supplied data 
- > structure a bit less: the parser always has to make forward progress, 
- > and if it doesnt, we break out of the loop and i get the expected kernel 
- > message:
- > 
- >   Calgary: Unable to locate Rio Grande Table in EBDA - bailing!
+__set_irq_handler: Kill a bogus space
 
-Good job tracking this down.  I saw someone get bit by probably this
-same bug a few days ago.  Whilst on the subject though, can we do
-something about the printk ?
-It always bothered me that some drivers print something when
-a) built-in, and b) they don't find something.
-For kitchen sink kernels, this makes for a really noisy bootup.
+Signed-off-by: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+---
+ kernel/irq/chip.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-So you didn't find hardware I know I don't have. Big deal, move on.
-dmesg spam these days is getting really out of hand.
+--- ps3-linux-src.orig/kernel/irq/chip.c
++++ ps3-linux-src/kernel/irq/chip.c
+@@ -520,7 +520,7 @@ __set_irq_handler(unsigned int irq, irq_
+ 
+ 	if (desc->chip == &no_irq_chip) {
+ 		printk(KERN_WARNING "Trying to install %sinterrupt handler "
+-		       "for IRQ%d\n", is_chained ? "chained " : " ", irq);
++		       "for IRQ%d\n", is_chained ? "chained " : "", irq);
+ 		/*
+ 		 * Some ARM implementations install a handler for really dumb
+ 		 * interrupt hardware without setting an irq_chip. This worked
 
-hmm, maybe a mod_printk, to only printk something when built as
-a module ?
+Gr{oetje,eeting}s,
 
-		Dave
+						Geert
 
--- 
-http://www.codemonkey.org.uk
+--
+Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
+Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
+Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium

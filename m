@@ -1,446 +1,275 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030390AbWLTWO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030391AbWLTWO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbWLTWO1 (ORCPT <rfc822;w@1wt.eu>);
+	id S1030391AbWLTWO1 (ORCPT <rfc822;w@1wt.eu>);
 	Wed, 20 Dec 2006 17:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWLTWOD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWLTWN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:14:03 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:47678 "EHLO e4.ny.us.ibm.com"
+	Wed, 20 Dec 2006 17:13:59 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:51108 "EHLO e3.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030387AbWLTWNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:13:52 -0500
-Date: Wed, 20 Dec 2006 17:13:49 -0500
+	id S1030381AbWLTWNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 17:13:33 -0500
+Date: Wed, 20 Dec 2006 17:13:31 -0500
 From: john stultz <johnstul@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
        Valdis.Kletnieks@vt.edu, john stultz <johnstul@us.ibm.com>
-Message-Id: <20061220221015.15178.16523.sendpatchset@localhost>
+Message-Id: <20061220220957.15178.62910.sendpatchset@localhost>
 In-Reply-To: <20061220220945.15178.2669.sendpatchset@localhost>
 References: <20061220220945.15178.2669.sendpatchset@localhost>
-Subject: [PATCH -mm 5/5][time][x86_64] Re-enable vsyscall support for x86_64
+Subject: [PATCH -mm 2/5][time][x86_64] hpet_address cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup and re-enable vsyscall gettimeofday using the generic 
-clocksource infrastructure.
+In preparation for supporting generic timekeeping, this patch cleans up 
+x86-64's use of vxtime.hpet_address, changing it to just hpet_address 
+as is also used in i386. This is necessary since the vxtime structure 
+will be going away.
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- arch/x86_64/Kconfig              |    4 +
- arch/x86_64/kernel/hpet.c        |    6 +
- arch/x86_64/kernel/time.c        |    6 -
- arch/x86_64/kernel/tsc.c         |    7 ++
- arch/x86_64/kernel/vmlinux.lds.S |   28 +++------
- arch/x86_64/kernel/vsyscall.c    |  121 +++++++++++++++++++++++----------------
- include/asm-x86_64/proto.h       |    2 
- include/asm-x86_64/timex.h       |    1 
- include/asm-x86_64/vsyscall.h    |   33 +---------
- 9 files changed, 105 insertions(+), 103 deletions(-)
 
-linux-2.6.20-rc1_timeofday-arch-x86-64-vsyscall-reenablement_C7.patch
+ arch/i386/kernel/acpi/boot.c |   23 ++++++-----------------
+ arch/x86_64/kernel/apic.c    |    3 ++-
+ arch/x86_64/kernel/time.c    |   36 +++++++++++++++++++-----------------
+ include/asm-x86_64/hpet.h    |    1 +
+ 4 files changed, 28 insertions(+), 35 deletions(-)
+
+linux-2.6.20-rc1_timeofday-arch-x86-64-hpet-address-cleanup_C7.patch
 ============================================
-Index: 2.6-mm/arch/x86_64/Kconfig
-===================================================================
---- 2.6-mm.orig/arch/x86_64/Kconfig	2006-12-20 12:24:10.000000000 -0800
-+++ 2.6-mm/arch/x86_64/Kconfig	2006-12-20 12:30:20.000000000 -0800
-@@ -28,6 +28,10 @@ config GENERIC_TIME
- 	bool
- 	default y
- 
-+config GENERIC_TIME_VSYSCALL
-+	bool
-+	default y
-+
- config ZONE_DMA32
- 	bool
- 	default y
-Index: 2.6-mm/arch/x86_64/kernel/hpet.c
-===================================================================
---- 2.6-mm.orig/arch/x86_64/kernel/hpet.c	2006-12-20 12:24:10.000000000 -0800
-+++ 2.6-mm/arch/x86_64/kernel/hpet.c	2006-12-20 12:30:20.000000000 -0800
-@@ -443,6 +443,11 @@ static cycle_t read_hpet(void)
- 	return (cycle_t)readl(hpet_ptr);
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+index c8f96cf..464f95b 100644
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -638,6 +638,7 @@ static int __init acpi_parse_sbf(unsigne
  }
  
-+static cycle_t __vsyscall_fn vread_hpet(void)
-+{
-+	return (cycle_t)readl((void *)fix_to_virt(VSYSCALL_HPET) + 0xf0);
-+}
-+
- struct clocksource clocksource_hpet = {
- 	.name		= "hpet",
- 	.rating		= 250,
-@@ -451,6 +456,7 @@ struct clocksource clocksource_hpet = {
- 	.mult		= 0, /* set below */
- 	.shift		= HPET_SHIFT,
- 	.is_continuous	= 1,
-+	.vread		= vread_hpet,
- };
+ #ifdef CONFIG_HPET_TIMER
++#include <asm/hpet.h>
  
- static int __init init_hpet_clocksource(void)
-Index: 2.6-mm/arch/x86_64/kernel/time.c
-===================================================================
---- 2.6-mm.orig/arch/x86_64/kernel/time.c	2006-12-20 12:29:59.000000000 -0800
-+++ 2.6-mm/arch/x86_64/kernel/time.c	2006-12-20 12:30:20.000000000 -0800
-@@ -53,13 +53,7 @@ DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
- DEFINE_SPINLOCK(i8253_lock);
- 
--unsigned long vxtime_hz = PIT_TICK_RATE;
--
--struct vxtime_data __vxtime __section_vxtime;	/* for vsyscalls */
--
- volatile unsigned long __jiffies __section_jiffies = INITIAL_JIFFIES;
--struct timespec __xtime __section_xtime;
--struct timezone __sys_tz __section_sys_tz;
- 
- unsigned long profile_pc(struct pt_regs *regs)
+ static int __init acpi_parse_hpet(unsigned long phys, unsigned long size)
  {
-Index: 2.6-mm/arch/x86_64/kernel/tsc.c
-===================================================================
---- 2.6-mm.orig/arch/x86_64/kernel/tsc.c	2006-12-20 12:24:10.000000000 -0800
-+++ 2.6-mm/arch/x86_64/kernel/tsc.c	2006-12-20 12:30:20.000000000 -0800
-@@ -193,6 +193,12 @@ static cycle_t read_tsc(void)
- 	return ret;
- }
- 
-+static cycle_t __vsyscall_fn vread_tsc(void)
-+{
-+	cycle_t ret = (cycle_t)get_cycles_sync();
-+	return ret;
-+}
-+
- static struct clocksource clocksource_tsc = {
- 	.name			= "tsc",
- 	.rating			= 300,
-@@ -202,6 +208,7 @@ static struct clocksource clocksource_ts
- 	.shift			= 22,
- 	.update_callback	= tsc_update_callback,
- 	.is_continuous		= 1,
-+	.vread			= vread_tsc,
- };
- 
- static int tsc_update_callback(void)
-Index: 2.6-mm/arch/x86_64/kernel/vmlinux.lds.S
-===================================================================
---- 2.6-mm.orig/arch/x86_64/kernel/vmlinux.lds.S	2006-12-20 12:19:26.000000000 -0800
-+++ 2.6-mm/arch/x86_64/kernel/vmlinux.lds.S	2006-12-20 12:30:20.000000000 -0800
-@@ -88,31 +88,25 @@ SECTIONS
-   __vsyscall_0 = VSYSCALL_VIRT_ADDR;
- 
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
--  .xtime_lock : AT(VLOAD(.xtime_lock)) { *(.xtime_lock) }
--  xtime_lock = VVIRT(.xtime_lock);
--
--  .vxtime : AT(VLOAD(.vxtime)) { *(.vxtime) }
--  vxtime = VVIRT(.vxtime);
-+  .vsyscall_fn : AT(VLOAD(.vsyscall_fn)) { *(.vsyscall_fn) }
-+  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
-+  .vsyscall_gtod_data : AT(VLOAD(.vsyscall_gtod_data))
-+		{ *(.vsyscall_gtod_data) }
-+  vsyscall_gtod_data = VVIRT(.vsyscall_gtod_data);
- 
-   .vgetcpu_mode : AT(VLOAD(.vgetcpu_mode)) { *(.vgetcpu_mode) }
-   vgetcpu_mode = VVIRT(.vgetcpu_mode);
- 
--  .sys_tz : AT(VLOAD(.sys_tz)) { *(.sys_tz) }
--  sys_tz = VVIRT(.sys_tz);
--
--  .sysctl_vsyscall : AT(VLOAD(.sysctl_vsyscall)) { *(.sysctl_vsyscall) }
--  sysctl_vsyscall = VVIRT(.sysctl_vsyscall);
--
--  .xtime : AT(VLOAD(.xtime)) { *(.xtime) }
--  xtime = VVIRT(.xtime);
--
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
-   .jiffies : AT(VLOAD(.jiffies)) { *(.jiffies) }
-   jiffies = VVIRT(.jiffies);
- 
--  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1)) { *(.vsyscall_1) }
--  .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2)) { *(.vsyscall_2) }
--  .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3)) { *(.vsyscall_3) }
-+  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1))
-+		{ *(.vsyscall_1) }
-+  .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2))
-+		{ *(.vsyscall_2) }
-+  .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3))
-+		{ *(.vsyscall_3) }
- 
-   . = VSYSCALL_VIRT_ADDR + 4096;
- 
-Index: 2.6-mm/arch/x86_64/kernel/vsyscall.c
-===================================================================
---- 2.6-mm.orig/arch/x86_64/kernel/vsyscall.c	2006-12-20 12:19:14.000000000 -0800
-+++ 2.6-mm/arch/x86_64/kernel/vsyscall.c	2006-12-20 12:30:20.000000000 -0800
-@@ -26,6 +26,7 @@
- #include <linux/seqlock.h>
- #include <linux/jiffies.h>
- #include <linux/sysctl.h>
-+#include <linux/clocksource.h>
- #include <linux/getcpu.h>
- #include <linux/cpu.h>
- #include <linux/smp.h>
-@@ -34,6 +35,7 @@
- #include <asm/vsyscall.h>
- #include <asm/pgtable.h>
- #include <asm/page.h>
-+#include <asm/unistd.h>
- #include <asm/fixmap.h>
- #include <asm/errno.h>
- #include <asm/io.h>
-@@ -44,56 +46,41 @@
- #define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr)))
- #define __syscall_clobber "r11","rcx","memory"
- 
--int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
--seqlock_t __xtime_lock __section_xtime_lock = SEQLOCK_UNLOCKED;
-+struct vsyscall_gtod_data_t {
-+	seqlock_t lock;
-+	int sysctl_enabled;
-+	struct timeval wall_time_tv;
-+	struct timezone sys_tz;
-+	cycle_t offset_base;
-+	struct clocksource clock;
-+};
- int __vgetcpu_mode __section_vgetcpu_mode;
- 
--#include <asm/unistd.h>
--
--static __always_inline void timeval_normalize(struct timeval * tv)
-+struct vsyscall_gtod_data_t __vsyscall_gtod_data __section_vsyscall_gtod_data =
- {
--	time_t __sec;
--
--	__sec = tv->tv_usec / 1000000;
--	if (__sec) {
--		tv->tv_usec %= 1000000;
--		tv->tv_sec += __sec;
--	}
--}
-+	.lock = SEQLOCK_UNLOCKED,
-+	.sysctl_enabled = 1,
-+};
- 
--static __always_inline void do_vgettimeofday(struct timeval * tv)
-+void update_vsyscall(struct timespec *wall_time, struct clocksource *clock)
- {
--	long sequence, t;
--	unsigned long sec, usec;
-+	unsigned long flags;
- 
--	do {
--		sequence = read_seqbegin(&__xtime_lock);
--		
--		sec = __xtime.tv_sec;
--		usec = __xtime.tv_nsec / 1000;
--
--		if (__vxtime.mode != VXTIME_HPET) {
--			t = get_cycles_sync();
--			if (t < __vxtime.last_tsc)
--				t = __vxtime.last_tsc;
--			usec += ((t - __vxtime.last_tsc) *
--				 __vxtime.tsc_quot) >> 32;
--			/* See comment in x86_64 do_gettimeofday. */
--		} else {
--			usec += ((readl((void __iomem *)
--				   fix_to_virt(VSYSCALL_HPET) + 0xf0) -
--				  __vxtime.last) * __vxtime.quot) >> 32;
--		}
--	} while (read_seqretry(&__xtime_lock, sequence));
--
--	tv->tv_sec = sec + usec / 1000000;
--	tv->tv_usec = usec % 1000000;
-+	write_seqlock_irqsave(&vsyscall_gtod_data.lock, flags);
-+	/* copy vsyscall data */
-+	vsyscall_gtod_data.clock = *clock;
-+	vsyscall_gtod_data.wall_time_tv.tv_sec = wall_time->tv_sec;
-+	vsyscall_gtod_data.wall_time_tv.tv_usec = wall_time->tv_nsec/1000;
-+	vsyscall_gtod_data.sys_tz = sys_tz;
-+	write_sequnlock_irqrestore(&vsyscall_gtod_data.lock, flags);
- }
- 
--/* RED-PEN may want to readd seq locking, but then the variable should be write-once. */
-+/* RED-PEN may want to readd seq locking, but then the variable should be
-+ * write-once.
-+ */
- static __always_inline void do_get_tz(struct timezone * tz)
- {
--	*tz = __sys_tz;
-+	*tz = __vsyscall_gtod_data.sys_tz;
- }
- 
- static __always_inline int gettimeofday(struct timeval *tv, struct timezone *tz)
-@@ -101,7 +88,8 @@ static __always_inline int gettimeofday(
- 	int ret;
- 	asm volatile("vsysc2: syscall"
- 		: "=a" (ret)
--		: "0" (__NR_gettimeofday),"D" (tv),"S" (tz) : __syscall_clobber );
-+		: "0" (__NR_gettimeofday),"D" (tv),"S" (tz)
-+		: __syscall_clobber );
- 	return ret;
- }
- 
-@@ -114,10 +102,44 @@ static __always_inline long time_syscall
- 	return secs;
- }
- 
-+static __always_inline void do_vgettimeofday(struct timeval * tv)
-+{
-+	cycle_t now, base, mask, cycle_delta;
-+	unsigned long seq, mult, shift, nsec_delta;
-+	cycle_t (*vread)(void);
-+	do {
-+		seq = read_seqbegin(&__vsyscall_gtod_data.lock);
-+
-+		vread = __vsyscall_gtod_data.clock.vread;
-+		if (unlikely(!__vsyscall_gtod_data.sysctl_enabled || !vread)) {
-+			gettimeofday(tv,0);
-+			return;
-+		}
-+		now = vread();
-+		base = __vsyscall_gtod_data.clock.cycle_last;
-+		mask = __vsyscall_gtod_data.clock.mask;
-+		mult = __vsyscall_gtod_data.clock.mult;
-+		shift = __vsyscall_gtod_data.clock.shift;
-+
-+		*tv = __vsyscall_gtod_data.wall_time_tv;
-+
-+	} while (read_seqretry(&__vsyscall_gtod_data.lock, seq));
-+
-+	/* calculate interval: */
-+	cycle_delta = (now - base) & mask;
-+	/* convert to nsecs: */
-+	nsec_delta = (cycle_delta * mult) >> shift;
-+
-+	/* convert to usecs and add to timespec: */
-+	tv->tv_usec += nsec_delta / NSEC_PER_USEC;
-+	while (tv->tv_usec > USEC_PER_SEC) {
-+		tv->tv_sec += 1;
-+		tv->tv_usec -= USEC_PER_SEC;
-+	}
-+}
-+
- int __vsyscall(0) vgettimeofday(struct timeval * tv, struct timezone * tz)
- {
--	if (!__sysctl_vsyscall)
--		return gettimeofday(tv,tz);
- 	if (tv)
- 		do_vgettimeofday(tv);
- 	if (tz)
-@@ -129,11 +151,11 @@ int __vsyscall(0) vgettimeofday(struct t
-  * unlikely */
- time_t __vsyscall(1) vtime(time_t *t)
- {
--	if (!__sysctl_vsyscall)
-+	if (unlikely(!__vsyscall_gtod_data.sysctl_enabled))
- 		return time_syscall(t);
- 	else if (t)
--		*t = __xtime.tv_sec;		
--	return __xtime.tv_sec;
-+		*t = __vsyscall_gtod_data.wall_time_tv.tv_sec;
-+	return __vsyscall_gtod_data.wall_time_tv.tv_sec;
- }
- 
- /* Fast way to get current CPU and node.
-@@ -210,7 +232,7 @@ static int vsyscall_sysctl_change(ctl_ta
- 		ret = -ENOMEM;
- 		goto out;
+@@ -671,32 +672,20 @@ #define HPET_RESOURCE_NAME_SIZE 9
+ 		hpet_res->end = (1 * 1024) - 1;
  	}
--	if (!sysctl_vsyscall) {
-+	if (!vsyscall_gtod_data.sysctl_enabled) {
- 		writew(SYSCALL, map1);
- 		writew(SYSCALL, map2);
- 	} else {
-@@ -232,7 +254,8 @@ static int vsyscall_sysctl_nostrat(ctl_t
  
- static ctl_table kernel_table2[] = {
- 	{ .ctl_name = 99, .procname = "vsyscall64",
--	  .data = &sysctl_vsyscall, .maxlen = sizeof(int), .mode = 0644,
-+	  .data = &vsyscall_gtod_data.sysctl_enabled, .maxlen = sizeof(int),
-+	  .mode = 0644,
- 	  .strategy = vsyscall_sysctl_nostrat,
- 	  .proc_handler = vsyscall_sysctl_change },
- 	{ 0, }
-Index: 2.6-mm/include/asm-x86_64/proto.h
-===================================================================
---- 2.6-mm.orig/include/asm-x86_64/proto.h	2006-12-20 12:24:10.000000000 -0800
-+++ 2.6-mm/include/asm-x86_64/proto.h	2006-12-20 12:30:20.000000000 -0800
-@@ -45,9 +45,7 @@ extern u32 pmtmr_ioport;
++	hpet_address = hpet_tbl->addr.addrl;
+ #ifdef	CONFIG_X86_64
+-	vxtime.hpet_address = hpet_tbl->addr.addrl |
+-	    ((long)hpet_tbl->addr.addrh << 32);
+-
++	hpet_address |= ((long)hpet_tbl->addr.addrh << 32);
++#endif
+ 	printk(KERN_INFO PREFIX "HPET id: %#x base: %#lx\n",
+-	       hpet_tbl->id, vxtime.hpet_address);
+-
+-	res_start = vxtime.hpet_address;
+-#else				/* X86 */
+-	{
+-		extern unsigned long hpet_address;
++	       hpet_tbl->id, hpet_address);
+ 
+-		hpet_address = hpet_tbl->addr.addrl;
+-		printk(KERN_INFO PREFIX "HPET id: %#x base: %#lx\n",
+-		       hpet_tbl->id, hpet_address);
+-
+-		res_start = hpet_address;
+-	}
+-#endif				/* X86 */
++	res_start = hpet_address;
+ 
+ 	if (hpet_res) {
+ 		hpet_res->start = res_start;
+ 		hpet_res->end += res_start;
+ 		insert_resource(&iomem_resource, hpet_res);
+ 	}
+-
+ 	return 0;
+ }
  #else
- #define pmtmr_ioport 0
- #endif
--extern int sysctl_vsyscall;
- extern int nohpet;
--extern unsigned long vxtime_hz;
+diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
+index 124b2d2..7ce7797 100644
+--- a/arch/x86_64/kernel/apic.c
++++ b/arch/x86_64/kernel/apic.c
+@@ -37,6 +37,7 @@ #include <asm/nmi.h>
+ #include <asm/idle.h>
+ #include <asm/proto.h>
+ #include <asm/timex.h>
++#include <asm/hpet.h>
+ #include <asm/apic.h>
  
- extern void early_printk(const char *fmt, ...) __attribute__((format(printf,1,2)));
+ int apic_mapped;
+@@ -763,7 +764,7 @@ static void setup_APIC_timer(unsigned in
+ 	local_irq_save(flags);
  
-Index: 2.6-mm/include/asm-x86_64/timex.h
-===================================================================
---- 2.6-mm.orig/include/asm-x86_64/timex.h	2006-12-20 12:24:10.000000000 -0800
-+++ 2.6-mm/include/asm-x86_64/timex.h	2006-12-20 12:30:20.000000000 -0800
-@@ -51,7 +51,6 @@ extern int read_current_timer(unsigned l
- #define NS_SCALE        10 /* 2^10, carefully chosen */
- #define US_SCALE        32 /* 2^32, arbitralrily chosen */
+ 	/* wait for irq slice */
+- 	if (vxtime.hpet_address && hpet_use_timer) {
++ 	if (hpet_address && hpet_use_timer) {
+  		int trigger = hpet_readl(HPET_T0_CMP);
+  		while (hpet_readl(HPET_COUNTER) >= trigger)
+  			/* do nothing */ ;
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 9f05bc9..af9b072 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -67,6 +67,7 @@ #define US_SCALE	32 /* 2^32, arbitralril
  
--extern struct vxtime_data vxtime;
- extern void mark_tsc_unstable(void);
- extern void set_cyc2ns_scale(unsigned long khz);
- #endif
-Index: 2.6-mm/include/asm-x86_64/vsyscall.h
-===================================================================
---- 2.6-mm.orig/include/asm-x86_64/vsyscall.h	2006-12-20 12:19:27.000000000 -0800
-+++ 2.6-mm/include/asm-x86_64/vsyscall.h	2006-12-20 12:32:03.000000000 -0800
-@@ -16,46 +16,27 @@ enum vsyscall_num {
- #ifdef __KERNEL__
- #include <linux/seqlock.h>
+ unsigned int cpu_khz;					/* TSC clocks / usec, not used here */
+ EXPORT_SYMBOL(cpu_khz);
++unsigned long hpet_address;
+ static unsigned long hpet_period;			/* fsecs / HPET clock */
+ unsigned long hpet_tick;				/* HPET clocks / interrupt */
+ int hpet_use_timer;				/* Use counter of hpet for time keeping, otherwise PIT */
+@@ -316,7 +317,7 @@ static noinline void handle_lost_ticks(i
+ 		       KERN_WARNING "Your time source seems to be instable or "
+ 		   		"some driver is hogging interupts\n");
+ 		print_symbol("rip %s\n", get_irq_regs()->rip);
+-		if (vxtime.mode == VXTIME_TSC && vxtime.hpet_address) {
++		if (vxtime.mode == VXTIME_TSC && hpet_address) {
+ 			printk(KERN_WARNING "Falling back to HPET\n");
+ 			if (hpet_use_timer)
+ 				vxtime.last = hpet_readl(HPET_T0_CMP) - 
+@@ -324,6 +325,7 @@ static noinline void handle_lost_ticks(i
+ 			else
+ 				vxtime.last = hpet_readl(HPET_COUNTER);
+ 			vxtime.mode = VXTIME_HPET;
++			vxtime.hpet_address = hpet_address;
+ 			do_gettimeoffset = do_gettimeoffset_hpet;
+ 		}
+ 		/* else should fall back to PIT, but code missing. */
+@@ -354,7 +356,7 @@ void main_timer_handler(void)
  
--#define __section_vxtime __attribute__ ((unused, __section__ (".vxtime"), aligned(16)))
- #define __section_vgetcpu_mode __attribute__ ((unused, __section__ (".vgetcpu_mode"), aligned(16)))
- #define __section_jiffies __attribute__ ((unused, __section__ (".jiffies"), aligned(16)))
--#define __section_sys_tz __attribute__ ((unused, __section__ (".sys_tz"), aligned(16)))
--#define __section_sysctl_vsyscall __attribute__ ((unused, __section__ (".sysctl_vsyscall"), aligned(16)))
--#define __section_xtime __attribute__ ((unused, __section__ (".xtime"), aligned(16)))
--#define __section_xtime_lock __attribute__ ((unused, __section__ (".xtime_lock"), aligned(16)))
+ 	write_seqlock(&xtime_lock);
+ 
+-	if (vxtime.hpet_address)
++	if (hpet_address)
+ 		offset = hpet_readl(HPET_COUNTER);
+ 
+ 	if (hpet_use_timer) {
+@@ -717,7 +719,7 @@ static __init int late_hpet_init(void)
+ 	struct hpet_data	hd;
+ 	unsigned int 		ntimer;
+ 
+-	if (!vxtime.hpet_address)
++	if (!hpet_address)
+         	return 0;
+ 
+ 	memset(&hd, 0, sizeof (hd));
+@@ -730,7 +732,7 @@ static __init int late_hpet_init(void)
+ 	 * Register with driver.
+ 	 * Timer0 and Timer1 is used by platform.
+ 	 */
+-	hd.hd_phys_address = vxtime.hpet_address;
++	hd.hd_phys_address = hpet_address;
+ 	hd.hd_address = (void __iomem *)fix_to_virt(FIX_HPET_BASE);
+ 	hd.hd_nirqs = ntimer;
+ 	hd.hd_flags = HPET_DATA_PLATFORM;
+@@ -799,10 +801,10 @@ static int hpet_init(void)
+ {
+ 	unsigned int id;
+ 
+-	if (!vxtime.hpet_address)
++	if (!hpet_address)
+ 		return -1;
+-	set_fixmap_nocache(FIX_HPET_BASE, vxtime.hpet_address);
+-	__set_fixmap(VSYSCALL_HPET, vxtime.hpet_address, PAGE_KERNEL_VSYSCALL_NOCACHE);
++	set_fixmap_nocache(FIX_HPET_BASE, hpet_address);
++	__set_fixmap(VSYSCALL_HPET, hpet_address, PAGE_KERNEL_VSYSCALL_NOCACHE);
+ 
+ /*
+  * Read the period, compute tick and quotient.
+@@ -856,7 +858,7 @@ void __init pit_stop_interrupt(void)
+ void __init stop_timer_interrupt(void)
+ {
+ 	char *name;
+-	if (vxtime.hpet_address) {
++	if (hpet_address) {
+ 		name = "HPET";
+ 		hpet_timer_stop_set_go(0);
+ 	} else {
+@@ -879,8 +881,7 @@ static struct irqaction irq0 = {
+ void __init time_init(void)
+ {
+ 	if (nohpet)
+-		vxtime.hpet_address = 0;
 -
--#define VXTIME_TSC	1
--#define VXTIME_HPET	2
--#define VXTIME_PMTMR	3
-+
-+/* Definitions for CONFIG_GENERIC_TIME definitions */
-+#define __section_vsyscall_gtod_data __attribute__ \
-+	((unused, __section__ (".vsyscall_gtod_data"),aligned(16)))
-+#define __vsyscall_fn __attribute__ ((unused,__section__(".vsyscall_fn")))
++		hpet_address = 0;
+ 	xtime.tv_sec = get_cmos_time();
+ 	xtime.tv_nsec = 0;
  
- #define VGETCPU_RDTSCP	1
- #define VGETCPU_LSL	2
+@@ -890,7 +891,7 @@ void __init time_init(void)
+ 	if (!hpet_init())
+                 vxtime_hz = (FSEC_PER_SEC + hpet_period / 2) / hpet_period;
+ 	else
+-		vxtime.hpet_address = 0;
++		hpet_address = 0;
  
--struct vxtime_data {
--	long hpet_address;	/* HPET base address */
--	int last;
--	unsigned long last_tsc;
--	long quot;
--	long tsc_quot;
--	int mode;
--};
--
- #define hpet_readl(a)           readl((const void __iomem *)fix_to_virt(FIX_HPET_BASE) + a)
- #define hpet_writel(d,a)        writel(d, (void __iomem *)fix_to_virt(FIX_HPET_BASE) + a)
+ 	if (hpet_use_timer) {
+ 		/* set tick_nsec to use the proper rate for HPET */
+@@ -898,7 +899,7 @@ void __init time_init(void)
+ 		cpu_khz = hpet_calibrate_tsc();
+ 		timename = "HPET";
+ #ifdef CONFIG_X86_PM_TIMER
+-	} else if (pmtmr_ioport && !vxtime.hpet_address) {
++	} else if (pmtmr_ioport && !hpet_address) {
+ 		vxtime_hz = PM_TIMER_FREQUENCY;
+ 		timename = "PM";
+ 		pit_init();
+@@ -957,23 +958,24 @@ void time_init_gtod(void)
+ 	if (unsynchronized_tsc())
+ 		notsc = 1;
  
--/* vsyscall space (readonly) */
--extern struct vxtime_data __vxtime;
- extern int __vgetcpu_mode;
--extern struct timespec __xtime;
- extern volatile unsigned long __jiffies;
--extern struct timezone __sys_tz;
--extern seqlock_t __xtime_lock;
+- 	if (cpu_has(&boot_cpu_data, X86_FEATURE_RDTSCP))
++	if (cpu_has(&boot_cpu_data, X86_FEATURE_RDTSCP))
+ 		vgetcpu_mode = VGETCPU_RDTSCP;
+ 	else
+ 		vgetcpu_mode = VGETCPU_LSL;
  
- /* kernel space (writeable) */
--extern struct vxtime_data vxtime;
- extern int vgetcpu_mode;
- extern struct timezone sys_tz;
--extern int sysctl_vsyscall;
-+extern struct vsyscall_gtod_data_t vsyscall_gtod_data;
+-	if (vxtime.hpet_address && notsc) {
++	if (hpet_address && notsc) {
+ 		timetype = hpet_use_timer ? "HPET" : "PIT/HPET";
+ 		if (hpet_use_timer)
+ 			vxtime.last = hpet_readl(HPET_T0_CMP) - hpet_tick;
+ 		else
+ 			vxtime.last = hpet_readl(HPET_COUNTER);
+ 		vxtime.mode = VXTIME_HPET;
++		vxtime.hpet_address = hpet_address;
+ 		do_gettimeoffset = do_gettimeoffset_hpet;
+ #ifdef CONFIG_X86_PM_TIMER
+ 	/* Using PM for gettimeofday is quite slow, but we have no other
+ 	   choice because the TSC is too unreliable on some systems. */
+-	} else if (pmtmr_ioport && !vxtime.hpet_address && notsc) {
++	} else if (pmtmr_ioport && !hpet_address && notsc) {
+ 		timetype = "PM";
+ 		do_gettimeoffset = do_gettimeoffset_pm;
+ 		vxtime.mode = VXTIME_PMTMR;
+@@ -1033,7 +1035,7 @@ static int timer_resume(struct sys_devic
+ 		sleep_length = 0;
+ 		ctime = sleep_start;
+ 	}
+-	if (vxtime.hpet_address)
++	if (hpet_address)
+ 		hpet_reenable();
+ 	else
+ 		i8254_timer_resume();
+@@ -1117,7 +1119,7 @@ static unsigned int hpet_t1_cmp; /* cach
  
- #endif /* __KERNEL__ */
+ int is_hpet_enabled(void)
+ {
+-	return vxtime.hpet_address != 0;
++	return hpet_address != 0;
+ }
  
+ /*
+diff --git a/include/asm-x86_64/hpet.h b/include/asm-x86_64/hpet.h
+index b390984..60d5127 100644
+--- a/include/asm-x86_64/hpet.h
++++ b/include/asm-x86_64/hpet.h
+@@ -58,6 +58,7 @@ extern int hpet_rtc_timer_init(void);
+ extern int apic_is_clustered_box(void);
+ 
+ extern int hpet_use_timer;
++extern unsigned long hpet_address;
+ 
+ #ifdef CONFIG_HPET_EMULATE_RTC
+ extern int hpet_mask_rtc_irq_bit(unsigned long bit_mask);

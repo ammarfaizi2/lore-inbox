@@ -1,124 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965039AbWLTMpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965040AbWLTMxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbWLTMpU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 07:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWLTMpE
+	id S965040AbWLTMxe (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 07:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWLTMxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 07:45:04 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:6452 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965019AbWLTMnm (ORCPT
+	Wed, 20 Dec 2006 07:53:34 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:41848 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965024AbWLTMxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 07:43:42 -0500
-From: Divy Le Ray <None@chelsio.com>
-Subject: [PATCH 10/10] cxgb3 - build files and versioning
-Date: Wed, 20 Dec 2006 04:43:35 -0800
-To: jeff@garzik.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       swise@opengridcomputing.com
-Message-Id: <20061220124335.6403.50726.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
+	Wed, 20 Dec 2006 07:53:33 -0500
+Date: Wed, 20 Dec 2006 12:53:14 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-ID: <20061220125314.GA24188@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166601025.3365.1345.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Network drivers that don't suspend on interface down
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Divy Le Ray <divy@chelsio.com>
+On Wed, Dec 20, 2006 at 08:50:24AM +0100, Arjan van de Ven wrote:
 
-This patch implements build files and versioning for the 
-Chelsio T3 network adapter's driver.
+(Adding netdev - context is the altering of the runtime power 
+management interface, with the effect that it's no longer possible for 
+userspace to request that drivers suspend a device, so Arjan has 
+suggested that we do it via other existing interfaces)
 
-Signed-off-by: Divy Le Ray <divy@chelsio.com>
----
+> > Seriously. How many pieces of userspace-visible functionality have 
+> > recently been removed without there being any sort of alternative?
+> 
+> There IS an alternative, you're using it for networking:
+>  
+> You *down the interface*.
+> 
+> If there's a NIC that doesn't support that let us (or preferably netdev)
+> know and it'll get fixed quickly I'm sure.
 
- drivers/net/Kconfig         |   18 ++++++++++++++++++
- drivers/net/Makefile        |    1 +
- drivers/net/cxgb3/Makefile  |    8 ++++++++
- drivers/net/cxgb3/version.h |   24 ++++++++++++++++++++++++
- 4 files changed, 51 insertions(+), 0 deletions(-)
+As far as I can tell, the following network devices don't put the 
+hardware into D3 on interface down:
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 8aa8dd0..f8742f1 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2392,6 +2392,24 @@ config CHELSIO_T1_NAPI
- 	  NAPI is a driver API designed to reduce CPU and interrupt load
- 	  when the driver is receiving lots of packets from the card.
- 
-+config CHELSIO_T3
-+        tristate "Chelsio Communications T3 10Gb Ethernet support"
-+        depends on PCI
-+        help
-+          This driver supports Chelsio T3-based gigabit and 10Gb Ethernet
-+          adapters.
-+
-+          For general information about Chelsio and our products, visit
-+          our website at <http://www.chelsio.com>.
-+
-+          For customer support, please visit our customer support page at
-+          <http://www.chelsio.com/support.htm>.
-+
-+          Please send feedback to <linux-bugs@chelsio.com>.
-+
-+          To compile this driver as a module, choose M here: the module
-+          will be called cxgb3.
-+
- config EHEA
- 	tristate "eHEA Ethernet support"
- 	depends on IBMEBUS
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 4c0d4e5..5c66643 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -6,6 +6,7 @@ obj-$(CONFIG_E1000) += e1000/
- obj-$(CONFIG_IBM_EMAC) += ibm_emac/
- obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3/
- obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
-diff --git a/drivers/net/cxgb3/Makefile b/drivers/net/cxgb3/Makefile
-new file mode 100755
-index 0000000..3434679
---- /dev/null
-+++ b/drivers/net/cxgb3/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Chelsio T3 driver
-+#
-+
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3.o
-+
-+cxgb3-objs := cxgb3_main.o ael1002.o vsc8211.o t3_hw.o mc5.o \
-+	      xgmac.o sge.o l2t.o cxgb3_offload.o
-diff --git a/drivers/net/cxgb3/version.h b/drivers/net/cxgb3/version.h
-new file mode 100755
-index 0000000..1413ea3
---- /dev/null
-+++ b/drivers/net/cxgb3/version.h
-@@ -0,0 +1,24 @@
-+/*****************************************************************************
-+ *                                                                           *
-+ * File:                                                                     *
-+ *  version.h                                                                *
-+ *                                                                           *
-+ * Description:                                                              *
-+ *  Chelsio driver version defines.                                          *
-+ *                                                                           *
-+ * Copyright (c) 2003 - 2006 Chelsio Communications, Inc.                    *
-+ * All rights reserved.                                                      *
-+ *                                                                           *
-+ * Maintainers: maintainers@chelsio.com                                      *
-+ *                                                                           *
-+ * http://www.chelsio.com                                                    *
-+ *                                                                           *
-+ ****************************************************************************/
-+/* $Date: 2006/10/31 18:57:51 $ $RCSfile: version.h,v $ $Revision: 1.3 $ */
-+#ifndef __CHELSIO_VERSION_H
-+#define __CHELSIO_VERSION_H
-+#define DRV_DESC "Chelsio T3 Network Driver"
-+#define DRV_NAME "cxgb3"
-+/* Driver version */
-+#define DRV_VERSION "1.0"
-+#endif				/* __CHELSIO_VERSION_H */
+3c59x
+8139too
+acenic
+amd8111e
+b44
+cassini
+defxx
+dl2k
+e100
+e1000
+epic100
+fealnx
+forcedeth
+hamachi
+hp100
+ioc3-eth
+natsemi
+ne2k-pci
+ns83820
+pcnet32
+qla3xxx
+rtl8169
+rrunner
+s2io
+saa9730
+sis190
+sis900
+skge
+sky2
+spider_net
+starfire
+sundance
+sungem
+sunhme
+tc35815
+tlan
+via-rhine
+yellowfin
+
+while these ones do:
+
+bnx2
+tg3
+typhoon
+via-velocity
+
+tulip is somewhere in between - it puts the chip in a lower power state, 
+but not D3. It's possible that some of the other drivers do something 
+similar, but nothing leapt out at me.
+
+The situation is more complicated for wireless. Userspace expects to be 
+able to get scan results from the card even if the interface is down. In 
+that case, I'm pretty sure we need a third state rather than just "up" 
+or "down".
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

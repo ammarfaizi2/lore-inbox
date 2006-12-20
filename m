@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754807AbWLTPsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965140AbWLTPvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754807AbWLTPsP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 10:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754812AbWLTPsP
+	id S965140AbWLTPvn (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 10:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754813AbWLTPvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 10:48:15 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:61014 "EHLO
-	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754807AbWLTPsP (ORCPT
+	Wed, 20 Dec 2006 10:51:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47198 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754812AbWLTPvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 10:48:15 -0500
-Date: Wed, 20 Dec 2006 17:48:09 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch] x86_64: fix boot time hang in detect_calgary()
-Message-ID: <20061220154809.GL30145@rhun.ibm.com>
-References: <20061220105332.GA20922@elte.hu> <20061220152828.GF31335@redhat.com>
+	Wed, 20 Dec 2006 10:51:42 -0500
+Subject: Re: Network drivers that don't suspend on interface down
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20061220143134.GA25462@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org>
+	 <200612191959.43019.david-b@pacbell.net>
+	 <20061220042648.GA19814@srcf.ucam.org>
+	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
+	 <20061220055209.GA20483@srcf.ucam.org>
+	 <1166601025.3365.1345.camel@laptopd505.fenrus.org>
+	 <20061220125314.GA24188@srcf.ucam.org>
+	 <1166621931.3365.1384.camel@laptopd505.fenrus.org>
+	 <20061220143134.GA25462@srcf.ucam.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 20 Dec 2006 16:51:39 +0100
+Message-Id: <1166629900.3365.1428.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061220152828.GF31335@redhat.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 10:28:28AM -0500, Dave Jones wrote:
 
-> Good job tracking this down.  I saw someone get bit by probably this
-> same bug a few days ago.  Whilst on the subject though, can we do
-> something about the printk ?
+> Yeah, I guess that's a problem. From a user perspective, the 
+> functionality is only really useful if the latency is very small. I 
+> think where possible we'd want to power down the chip while keeping the 
+> phy up, but it would be nice to know how much power that would actually 
+> cost us.
 
-Calgary can't be built as a module. I agree that being quiet when we
-don't find the HW is the appropriate thing to do. I'll push a patch to
-make this KERN_DEBUG in the next batch of updates.
 
-Cheers,
-Muli
+I'm no expert but afaik the PHY is the power hungry part, the rest is
+peanuts. So if we can get the PHY to sleep most of the time that would
+be great.
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

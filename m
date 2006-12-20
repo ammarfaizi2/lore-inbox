@@ -1,266 +1,626 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964977AbWLTMDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964986AbWLTMDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbWLTMDB (ORCPT <rfc822;w@1wt.eu>);
+	id S964986AbWLTMDB (ORCPT <rfc822;w@1wt.eu>);
 	Wed, 20 Dec 2006 07:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWLTMCv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWLTMCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 07:02:51 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1644 "EHLO
+	Wed, 20 Dec 2006 07:02:48 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1655 "EHLO
 	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754803AbWLTMC0 (ORCPT
+	with ESMTP id S964977AbWLTMCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 07:02:26 -0500
-Date: Wed, 20 Dec 2006 12:02:22 +0000 (GMT)
+	Wed, 20 Dec 2006 07:02:32 -0500
+Date: Wed, 20 Dec 2006 12:02:27 +0000 (GMT)
 From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>, Antonino Daplas <adaplas@pol.net>
+To: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com
 cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH 2.6.20-rc1 09/10] pmagb-b-fb: Convert to the driver model
-Message-ID: <Pine.LNX.4.64N.0612201122510.11005@blysk.ds.pg.gda.pl>
+       linux-scsi@vger.kernel.org
+Subject: [PATCH 2.6.20-rc1 10/10] dec_esp: Driver model for the PMAZ-A
+Message-ID: <Pine.LNX.4.64N.0612201123520.11005@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- This is a set of changes to convert the driver to the driver model.  As a 
-side-effect the driver now supports building as a module.
+ This is a set of changes that converts the PMAZ-A support to the driver
+model.
 
 Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 ---
+
+ The use of the driver model required switching to the hotplug SCSI 
+initialization model, which in turn required a change to the core NCR53C9x 
+driver.  I decided not to break all the frontend drivers and introduced an 
+additional parameter for esp_allocate() to select between the old and the 
+new model.  I hope this is OK, but I would be fine with converting 
+NCR53C9x to the new model unconditionally as long as I do not have to fix 
+all the other frontends (OK, perhaps I could do some of them ;-) ).
 
  Please apply.
 
   Maciej
 
-patch-mips-2.6.18-20060920-tc-pmagb-b-6
-diff -up --recursive --new-file linux-mips-2.6.18-20060920.macro/drivers/video/Kconfig linux-mips-2.6.18-20060920/drivers/video/Kconfig
---- linux-mips-2.6.18-20060920.macro/drivers/video/Kconfig	2006-08-21 04:55:25.000000000 +0000
-+++ linux-mips-2.6.18-20060920/drivers/video/Kconfig	2006-12-16 15:01:26.000000000 +0000
-@@ -1452,8 +1452,8 @@ config FB_PMAG_BA
- 	  used mainly in the MIPS-based DECstation series.
- 
- config FB_PMAGB_B
--	bool "PMAGB-B TURBOchannel framebuffer support"
--	depends on (FB = y) && TC
-+	tristate "PMAGB-B TURBOchannel framebuffer support"
-+	depends on TC
-  	select FB_CFB_FILLRECT
-  	select FB_CFB_COPYAREA
-  	select FB_CFB_IMAGEBLIT
-diff -up --recursive --new-file linux-mips-2.6.18-20060920.macro/drivers/video/pmagb-b-fb.c linux-mips-2.6.18-20060920/drivers/video/pmagb-b-fb.c
---- linux-mips-2.6.18-20060920.macro/drivers/video/pmagb-b-fb.c	2006-05-30 17:03:12.000000000 +0000
-+++ linux-mips-2.6.18-20060920/drivers/video/pmagb-b-fb.c	2006-12-19 23:48:52.000000000 +0000
-@@ -11,7 +11,7 @@
-  *	Michael Engel <engel@unix-ag.org>,
-  *	Karsten Merker <merker@linuxtag.org> and
-  *	Harald Koerfgen.
-- *	Copyright (c) 2005  Maciej W. Rozycki
-+ *	Copyright (c) 2005, 2006  Maciej W. Rozycki
-  *
-  *	This file is subject to the terms and conditions of the GNU General
-  *	Public License.  See the file COPYING in the main directory of this
-@@ -25,18 +25,16 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/tc.h>
- #include <linux/types.h>
- 
- #include <asm/io.h>
- #include <asm/system.h>
- 
--#include <asm/dec/tc.h>
--
- #include <video/pmagb-b-fb.h>
- 
- 
- struct pmagbbfb_par {
--	struct fb_info *next;
- 	volatile void __iomem *mmio;
- 	volatile void __iomem *smem;
- 	volatile u32 __iomem *sfb;
-@@ -47,8 +45,6 @@ struct pmagbbfb_par {
- };
- 
- 
--static struct fb_info *root_pmagbbfb_dev;
--
- static struct fb_var_screeninfo pmagbbfb_defined __initdata = {
- 	.bits_per_pixel	= 8,
- 	.red.length	= 8,
-@@ -190,8 +186,9 @@ static void __init pmagbbfb_osc_setup(st
- 		69197, 66000, 65000, 50350, 36000, 32000, 25175
- 	};
- 	struct pmagbbfb_par *par = info->par;
-+	struct tc_bus *tbus = to_tc_dev(info->device)->bus;
- 	u32 count0 = 8, count1 = 8, counttc = 16 * 256 + 8;
--	u32 freq0, freq1, freqtc = get_tc_speed() / 250;
-+	u32 freq0, freq1, freqtc = tc_get_speed(tbus) / 250;
- 	int i, j;
- 
- 	gp0_write(par, 0);				/* select Osc0 */
-@@ -249,26 +246,21 @@ static void __init pmagbbfb_osc_setup(st
- };
- 
- 
--static int __init pmagbbfb_init_one(int slot)
-+static int __init pmagbbfb_probe(struct device *dev)
+patch-2.6.20-rc1-tc-pmaz-a-5
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/NCR53C9x.c linux-2.6.20-rc1/drivers/scsi/NCR53C9x.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/NCR53C9x.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/NCR53C9x.c	2006-12-18 21:29:38.000000000 +0000
+@@ -528,12 +528,16 @@ void esp_bootup_reset(struct NCR_ESP *es
+ /* Allocate structure and insert basic data such as SCSI chip frequency
+  * data and a pointer to the device
+  */
+-struct NCR_ESP* esp_allocate(struct scsi_host_template *tpnt, void *esp_dev)
++struct NCR_ESP* esp_allocate(struct scsi_host_template *tpnt, void *esp_dev,
++			     int hotplug)
  {
--	char freq0[12], freq1[12];
-+	struct tc_dev *tdev = to_tc_dev(dev);
+ 	struct NCR_ESP *esp, *elink;
+ 	struct Scsi_Host *esp_host;
+ 
+-	esp_host = scsi_register(tpnt, sizeof(struct NCR_ESP));
++	if (hotplug)
++		esp_host = scsi_host_alloc(tpnt, sizeof(struct NCR_ESP));
++	else
++		esp_host = scsi_register(tpnt, sizeof(struct NCR_ESP));
+ 	if(!esp_host)
+ 		panic("Cannot register ESP SCSI host");
+ 	esp = (struct NCR_ESP *) esp_host->hostdata;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/NCR53C9x.h linux-2.6.20-rc1/drivers/scsi/NCR53C9x.h
+--- linux-2.6.20-rc1.macro/drivers/scsi/NCR53C9x.h	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/NCR53C9x.h	2006-12-18 21:29:38.000000000 +0000
+@@ -652,7 +652,7 @@ extern int nesps, esps_in_use, esps_runn
+ 
+ /* External functions */
+ extern void esp_bootup_reset(struct NCR_ESP *esp, struct ESP_regs *eregs);
+-extern struct NCR_ESP *esp_allocate(struct scsi_host_template *, void *);
++extern struct NCR_ESP *esp_allocate(struct scsi_host_template *, void *, int);
+ extern void esp_deallocate(struct NCR_ESP *);
+ extern void esp_release(void);
+ extern void esp_initialize(struct NCR_ESP *);
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/blz1230.c linux-2.6.20-rc1/drivers/scsi/blz1230.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/blz1230.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/blz1230.c	2006-12-18 21:29:38.000000000 +0000
+@@ -121,7 +121,8 @@ int __init blz1230_esp_detect(struct scs
+ 		 */
+ 		address = ZTWO_VADDR(board);
+ 		eregs = (struct ESP_regs *)(address + REAL_BLZ1230_ESP_ADDR);
+-		esp = esp_allocate(tpnt, (void *)board+REAL_BLZ1230_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + REAL_BLZ1230_ESP_ADDR,
++				   0);
+ 
+ 		esp_write(eregs->esp_cfg1, (ESP_CONFIG1_PENABLE | 7));
+ 		udelay(5);
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/blz2060.c linux-2.6.20-rc1/drivers/scsi/blz2060.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/blz2060.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/blz2060.c	2006-12-18 21:29:38.000000000 +0000
+@@ -100,7 +100,7 @@ int __init blz2060_esp_detect(struct scs
+ 	    unsigned long board = z->resource.start;
+ 	    if (request_mem_region(board+BLZ2060_ESP_ADDR,
+ 				   sizeof(struct ESP_regs), "NCR53C9x")) {
+-		esp = esp_allocate(tpnt, (void *)board+BLZ2060_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + BLZ2060_ESP_ADDR, 0);
+ 
+ 		/* Do command transfer with programmed I/O */
+ 		esp->do_pio_cmds = 1;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/cyberstorm.c linux-2.6.20-rc1/drivers/scsi/cyberstorm.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/cyberstorm.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/cyberstorm.c	2006-12-18 21:29:38.000000000 +0000
+@@ -126,7 +126,7 @@ int __init cyber_esp_detect(struct scsi_
+ 					   sizeof(struct ESP_regs));
+ 			return 0;
+ 		}
+-		esp = esp_allocate(tpnt, (void *)board+CYBER_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + CYBER_ESP_ADDR, 0);
+ 
+ 		/* Do command transfer with programmed I/O */
+ 		esp->do_pio_cmds = 1;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/cyberstormII.c linux-2.6.20-rc1/drivers/scsi/cyberstormII.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/cyberstormII.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/cyberstormII.c	2006-12-18 21:29:38.000000000 +0000
+@@ -98,7 +98,7 @@ int __init cyberII_esp_detect(struct scs
+ 		address = (unsigned long)ZTWO_VADDR(board);
+ 		eregs = (struct ESP_regs *)(address + CYBERII_ESP_ADDR);
+ 
+-		esp = esp_allocate(tpnt, (void *)board+CYBERII_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + CYBERII_ESP_ADDR, 0);
+ 
+ 		esp_write(eregs->esp_cfg1, (ESP_CONFIG1_PENABLE | 7));
+ 		udelay(5);
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/dec_esp.c linux-2.6.20-rc1/drivers/scsi/dec_esp.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/dec_esp.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/dec_esp.c	2006-12-18 21:29:38.000000000 +0000
+@@ -18,7 +18,7 @@
+  * 20001005	- Initialization fixes for 2.4.0-test9
+  * 			  Florian Lohoff <flo@rfc822.org>
+  *
+- *	Copyright (C) 2002, 2003, 2005  Maciej W. Rozycki
++ *	Copyright (C) 2002, 2003, 2005, 2006  Maciej W. Rozycki
+  */
+ 
+ #include <linux/kernel.h>
+@@ -30,6 +30,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/spinlock.h>
+ #include <linux/stat.h>
++#include <linux/tc.h>
+ 
+ #include <asm/dma.h>
+ #include <asm/irq.h>
+@@ -42,7 +43,6 @@
+ #include <asm/dec/ioasic_ints.h>
+ #include <asm/dec/machtype.h>
+ #include <asm/dec/system.h>
+-#include <asm/dec/tc.h>
+ 
+ #define DEC_SCSI_SREG 0
+ #define DEC_SCSI_DMAREG 0x40000
+@@ -98,51 +98,33 @@ static irqreturn_t scsi_dma_merr_int(int
+ static irqreturn_t scsi_dma_err_int(int, void *);
+ static irqreturn_t scsi_dma_int(int, void *);
+ 
+-static int dec_esp_detect(struct scsi_host_template * tpnt);
+-
+-static int dec_esp_release(struct Scsi_Host *shost)
+-{
+-	if (shost->irq)
+-		free_irq(shost->irq, NULL);
+-	if (shost->io_port && shost->n_io_port)
+-		release_region(shost->io_port, shost->n_io_port);
+-	scsi_unregister(shost);
+-	return 0;
+-}
+-
+-static struct scsi_host_template driver_template = {
+-	.proc_name		= "dec_esp",
+-	.proc_info		= esp_proc_info,
++static struct scsi_host_template dec_esp_template = {
++	.module			= THIS_MODULE,
+ 	.name			= "NCR53C94",
+-	.detect			= dec_esp_detect,
+-	.slave_alloc		= esp_slave_alloc,
+-	.slave_destroy		= esp_slave_destroy,
+-	.release		= dec_esp_release,
+ 	.info			= esp_info,
+ 	.queuecommand		= esp_queue,
+ 	.eh_abort_handler	= esp_abort,
+ 	.eh_bus_reset_handler	= esp_reset,
++	.slave_alloc		= esp_slave_alloc,
++	.slave_destroy		= esp_slave_destroy,
++	.proc_info		= esp_proc_info,
++	.proc_name		= "dec_esp",
+ 	.can_queue		= 7,
+-	.this_id		= 7,
+ 	.sg_tablesize		= SG_ALL,
+ 	.cmd_per_lun		= 1,
+ 	.use_clustering		= DISABLE_CLUSTERING,
+ };
+ 
+-
+-#include "scsi_module.c"
++static struct NCR_ESP *dec_esp_platform;
+ 
+ /***************************************************************** Detection */
+-static int dec_esp_detect(struct scsi_host_template * tpnt)
++static int dec_esp_platform_probe(void)
+ {
+ 	struct NCR_ESP *esp;
+-	struct ConfigDev *esp_dev;
+-	int slot;
+-	unsigned long mem_start;
++	int err = 0;
+ 
+ 	if (IOASIC) {
+-		esp_dev = 0;
+-		esp = esp_allocate(tpnt, (void *) esp_dev);
++		esp = esp_allocate(&dec_esp_template, NULL, 1);
+ 
+ 		/* Do command transfer with programmed I/O */
+ 		esp->do_pio_cmds = 1;
+@@ -200,112 +182,175 @@ static int dec_esp_detect(struct scsi_ho
+ 		/* Check for differential SCSI-bus */
+ 		esp->diff = 0;
+ 
++		err = request_irq(esp->irq, esp_intr, IRQF_DISABLED,
++				  "ncr53c94", esp->ehost);
++		if (err)
++			goto err_alloc;
++		err = request_irq(dec_interrupt[DEC_IRQ_ASC_MERR],
++				  scsi_dma_merr_int, IRQF_DISABLED,
++				  "ncr53c94 error", esp->ehost);
++		if (err)
++			goto err_irq;
++		err = request_irq(dec_interrupt[DEC_IRQ_ASC_ERR],
++				  scsi_dma_err_int, IRQF_DISABLED,
++				  "ncr53c94 overrun", esp->ehost);
++		if (err)
++			goto err_irq_merr;
++		err = request_irq(dec_interrupt[DEC_IRQ_ASC_DMA], scsi_dma_int,
++				  IRQF_DISABLED, "ncr53c94 dma", esp->ehost);
++		if (err)
++			goto err_irq_err;
++
+ 		esp_initialize(esp);
+ 
+-		if (request_irq(esp->irq, esp_intr, IRQF_DISABLED,
+-				"ncr53c94", esp->ehost))
+-			goto err_dealloc;
+-		if (request_irq(dec_interrupt[DEC_IRQ_ASC_MERR],
+-				scsi_dma_merr_int, IRQF_DISABLED,
+-				"ncr53c94 error", esp->ehost))
+-			goto err_free_irq;
+-		if (request_irq(dec_interrupt[DEC_IRQ_ASC_ERR],
+-				scsi_dma_err_int, IRQF_DISABLED,
+-				"ncr53c94 overrun", esp->ehost))
+-			goto err_free_irq_merr;
+-		if (request_irq(dec_interrupt[DEC_IRQ_ASC_DMA],
+-				scsi_dma_int, IRQF_DISABLED,
+-				"ncr53c94 dma", esp->ehost))
+-			goto err_free_irq_err;
++		err = scsi_add_host(esp->ehost, NULL);
++		if (err) {
++			printk(KERN_ERR "ESP: Unable to register adapter\n");
++			goto err_irq_dma;
++ 		}
+ 
+-	}
++		scsi_scan_host(esp->ehost);
+ 
+-	if (TURBOCHANNEL) {
+-		while ((slot = search_tc_card("PMAZ-AA")) >= 0) {
+-			claim_tc_card(slot);
+-
+-			esp_dev = 0;
+-			esp = esp_allocate(tpnt, (void *) esp_dev);
+-
+-			mem_start = get_tc_base_addr(slot);
+-
+-			/* Store base addr into esp struct */
+-			esp->slot = CPHYSADDR(mem_start);
+-
+-			esp->dregs = 0;
+-			esp->eregs = (void *)CKSEG1ADDR(mem_start +
+-							DEC_SCSI_SREG);
+-			esp->do_pio_cmds = 1;
+-
+-			/* Set the command buffer */
+-			esp->esp_command = (volatile unsigned char *) pmaz_cmd_buffer;
+-
+-			/* get virtual dma address for command buffer */
+-			esp->esp_command_dvma = virt_to_phys(pmaz_cmd_buffer);
+-
+-			esp->cfreq = get_tc_speed();
+-
+-			esp->irq = get_tc_irq_nr(slot);
+-
+-			/* Required functions */
+-			esp->dma_bytes_sent = &dma_bytes_sent;
+-			esp->dma_can_transfer = &dma_can_transfer;
+-			esp->dma_dump_state = &dma_dump_state;
+-			esp->dma_init_read = &pmaz_dma_init_read;
+-			esp->dma_init_write = &pmaz_dma_init_write;
+-			esp->dma_ints_off = &pmaz_dma_ints_off;
+-			esp->dma_ints_on = &pmaz_dma_ints_on;
+-			esp->dma_irq_p = &dma_irq_p;
+-			esp->dma_ports_p = &dma_ports_p;
+-			esp->dma_setup = &pmaz_dma_setup;
+-
+-			/* Optional functions */
+-			esp->dma_barrier = 0;
+-			esp->dma_drain = &pmaz_dma_drain;
+-			esp->dma_invalidate = 0;
+-			esp->dma_irq_entry = 0;
+-			esp->dma_irq_exit = 0;
+-			esp->dma_poll = 0;
+-			esp->dma_reset = 0;
+-			esp->dma_led_off = 0;
+-			esp->dma_led_on = 0;
+-
+-			esp->dma_mmu_get_scsi_one = pmaz_dma_mmu_get_scsi_one;
+-			esp->dma_mmu_get_scsi_sgl = 0;
+-			esp->dma_mmu_release_scsi_one = 0;
+-			esp->dma_mmu_release_scsi_sgl = 0;
+-			esp->dma_advance_sg = 0;
+-
+- 			if (request_irq(esp->irq, esp_intr, IRQF_DISABLED,
+- 					 "PMAZ_AA", esp->ehost)) {
+- 				esp_deallocate(esp);
+- 				release_tc_card(slot);
+- 				continue;
+- 			}
+-			esp->scsi_id = 7;
+-			esp->diff = 0;
+-			esp_initialize(esp);
+-		}
++		dec_esp_platform = esp;
+ 	}
+ 
+-	if(nesps) {
+-		printk("ESP: Total of %d ESP hosts found, %d actually in use.\n", nesps, esps_in_use);
+-		esps_running = esps_in_use;
+-		return esps_in_use;
+-	}
+ 	return 0;
+ 
+-err_free_irq_err:
+-	free_irq(dec_interrupt[DEC_IRQ_ASC_ERR], scsi_dma_err_int);
+-err_free_irq_merr:
+-	free_irq(dec_interrupt[DEC_IRQ_ASC_MERR], scsi_dma_merr_int);
+-err_free_irq:
+-	free_irq(esp->irq, esp_intr);
+-err_dealloc:
++err_irq_dma:
++	free_irq(dec_interrupt[DEC_IRQ_ASC_DMA], esp->ehost);
++err_irq_err:
++	free_irq(dec_interrupt[DEC_IRQ_ASC_ERR], esp->ehost);
++err_irq_merr:
++	free_irq(dec_interrupt[DEC_IRQ_ASC_MERR], esp->ehost);
++err_irq:
++	free_irq(esp->irq, esp->ehost);
++err_alloc:
+ 	esp_deallocate(esp);
++	scsi_host_put(esp->ehost);
++	return err;
++}
++
++static int __init dec_esp_probe(struct device *dev)
++{
++	struct NCR_ESP *esp;
 +	resource_size_t start, len;
- 	struct fb_info *info;
- 	struct pmagbbfb_par *par;
--	unsigned long base_addr;
-+	char freq0[12], freq1[12];
- 	u32 vid_base;
- 
--	info = framebuffer_alloc(sizeof(struct pmagbbfb_par), NULL);
-+	info = framebuffer_alloc(sizeof(struct pmagbbfb_par), dev);
- 	if (!info)
- 		return -ENOMEM;
- 
- 	par = info->par;
--	par->slot = slot;
--	claim_tc_card(par->slot);
--
--	base_addr = get_tc_base_addr(par->slot);
--
--	par->next = root_pmagbbfb_dev;
--	root_pmagbbfb_dev = info;
-+	dev_set_drvdata(dev, info);
- 
- 	if (fb_alloc_cmap(&info->cmap, 256, 0) < 0)
- 		goto err_alloc;
-@@ -278,16 +270,22 @@ static int __init pmagbbfb_init_one(int 
- 	info->var = pmagbbfb_defined;
- 	info->flags = FBINFO_DEFAULT;
- 
-+	/* Request the I/O MEM resource.  */
-+	start = tdev->resource.start;
-+	len = tdev->resource.end - start + 1;
-+	if (!request_mem_region(start, len, dev->bus_id))
-+		goto err_cmap;
++	int err;
 +
- 	/* MMIO mapping setup.  */
--	info->fix.mmio_start = base_addr;
-+	info->fix.mmio_start = start;
- 	par->mmio = ioremap_nocache(info->fix.mmio_start, info->fix.mmio_len);
- 	if (!par->mmio)
--		goto err_cmap;
++	esp = esp_allocate(&dec_esp_template,  NULL, 1);
++
++	dev_set_drvdata(dev, esp);
++
++	start = to_tc_dev(dev)->resource.start;
++	len = to_tc_dev(dev)->resource.end - start + 1;
++
++	if (!request_mem_region(start, len, dev->bus_id)) {
++		printk(KERN_ERR "%s: Unable to reserve MMIO resource\n",
++		       dev->bus_id);
++		err = -EBUSY;
++		goto err_alloc;
++	}
++
++	/* Store base addr into esp struct.  */
++	esp->slot = start;
++
++	esp->dregs = 0;
++	esp->eregs = (void *)CKSEG1ADDR(start + DEC_SCSI_SREG);
++	esp->do_pio_cmds = 1;
++
++	/* Set the command buffer.  */
++	esp->esp_command = (volatile unsigned char *)pmaz_cmd_buffer;
++
++	/* Get virtual dma address for command buffer.  */
++	esp->esp_command_dvma = virt_to_phys(pmaz_cmd_buffer);
++
++	esp->cfreq = tc_get_speed(to_tc_dev(dev)->bus);
++
++	esp->irq = to_tc_dev(dev)->interrupt;
++
++	/* Required functions.  */
++	esp->dma_bytes_sent = &dma_bytes_sent;
++	esp->dma_can_transfer = &dma_can_transfer;
++	esp->dma_dump_state = &dma_dump_state;
++	esp->dma_init_read = &pmaz_dma_init_read;
++	esp->dma_init_write = &pmaz_dma_init_write;
++	esp->dma_ints_off = &pmaz_dma_ints_off;
++	esp->dma_ints_on = &pmaz_dma_ints_on;
++	esp->dma_irq_p = &dma_irq_p;
++	esp->dma_ports_p = &dma_ports_p;
++	esp->dma_setup = &pmaz_dma_setup;
++
++	/* Optional functions.  */
++	esp->dma_barrier = 0;
++	esp->dma_drain = &pmaz_dma_drain;
++	esp->dma_invalidate = 0;
++	esp->dma_irq_entry = 0;
++	esp->dma_irq_exit = 0;
++	esp->dma_poll = 0;
++	esp->dma_reset = 0;
++	esp->dma_led_off = 0;
++	esp->dma_led_on = 0;
++
++	esp->dma_mmu_get_scsi_one = pmaz_dma_mmu_get_scsi_one;
++	esp->dma_mmu_get_scsi_sgl = 0;
++	esp->dma_mmu_release_scsi_one = 0;
++	esp->dma_mmu_release_scsi_sgl = 0;
++	esp->dma_advance_sg = 0;
++
++ 	err = request_irq(esp->irq, esp_intr, IRQF_DISABLED, "PMAZ_AA",
++			  esp->ehost);
++	if (err) {
++		printk(KERN_ERR "%s: Unable to get IRQ %d\n",
++		       dev->bus_id, esp->irq);
 +		goto err_resource;
- 	par->sfb = par->mmio + PMAGB_B_SFB;
- 	par->dac = par->mmio + PMAGB_B_BT459;
- 
- 	/* Frame buffer mapping setup.  */
--	info->fix.smem_start = base_addr + PMAGB_B_FBMEM;
-+	info->fix.smem_start = start + PMAGB_B_FBMEM;
- 	par->smem = ioremap_nocache(info->fix.smem_start, info->fix.smem_len);
- 	if (!par->smem)
- 		goto err_mmio_map;
-@@ -302,13 +300,15 @@ static int __init pmagbbfb_init_one(int 
- 	if (register_framebuffer(info) < 0)
- 		goto err_smem_map;
- 
-+	get_device(dev);
++ 	}
 +
- 	snprintf(freq0, sizeof(freq0), "%u.%03uMHz",
- 		 par->osc0 / 1000, par->osc0 % 1000);
- 	snprintf(freq1, sizeof(freq1), "%u.%03uMHz",
- 		 par->osc1 / 1000, par->osc1 % 1000);
- 
--	pr_info("fb%d: %s frame buffer device in slot %d\n",
--		info->node, info->fix.id, par->slot);
-+	pr_info("fb%d: %s frame buffer device at %s\n",
-+		info->node, info->fix.id, dev->bus_id);
- 	pr_info("fb%d: Osc0: %s, Osc1: %s, Osc%u selected\n",
- 		info->node, freq0, par->osc1 ? freq1 : "disabled",
- 		par->osc1 != 0);
-@@ -322,54 +322,68 @@ err_smem_map:
- err_mmio_map:
- 	iounmap(par->mmio);
- 
++	esp->scsi_id = 7;
++	esp->diff = 0;
++	esp_initialize(esp);
++
++	err = scsi_add_host(esp->ehost, dev);
++	if (err) {
++		printk(KERN_ERR "%s: Unable to register adapter\n",
++		       dev->bus_id);
++		goto err_irq;
++ 	}
++
++	scsi_scan_host(esp->ehost);
++
+ 	return 0;
++
++err_irq:
++	free_irq(esp->irq, esp->ehost);
++
 +err_resource:
 +	release_mem_region(start, len);
 +
- err_cmap:
- 	fb_dealloc_cmap(&info->cmap);
- 
- err_alloc:
--	root_pmagbbfb_dev = par->next;
--	release_tc_card(par->slot);
- 	framebuffer_release(info);
- 	return -ENXIO;
++err_alloc:
++	esp_deallocate(esp);
++	scsi_host_put(esp->ehost);
++ 	return err;
  }
  
--static void __exit pmagbbfb_exit_one(void)
-+static int __exit pmagbbfb_remove(struct device *dev)
++static void __exit dec_esp_platform_remove(void)
++{
++	struct NCR_ESP *esp = dec_esp_platform;
++
++	free_irq(esp->irq, esp->ehost);
++	esp_deallocate(esp);
++	scsi_host_put(esp->ehost);
++	dec_esp_platform = NULL;
++}
++
++static void __exit dec_esp_remove(struct device *dev)
++{
++	struct NCR_ESP *esp = dev_get_drvdata(dev);
++
++	free_irq(esp->irq, esp->ehost);
++	esp_deallocate(esp);
++	scsi_host_put(esp->ehost);
++}
++
++
+ /************************************************************* DMA Functions */
+ static irqreturn_t scsi_dma_merr_int(int irq, void *dev_id)
  {
--	struct fb_info *info = root_pmagbbfb_dev;
-+	struct tc_dev *tdev = to_tc_dev(dev);
-+	struct fb_info *info = dev_get_drvdata(dev);
- 	struct pmagbbfb_par *par = info->par;
-+	resource_size_t start, len;
- 
+@@ -576,3 +621,67 @@ static void pmaz_dma_mmu_get_scsi_one(st
+ {
+ 	sp->SCp.ptr = (char *)virt_to_phys(sp->request_buffer);
+ }
++
++
++#ifdef CONFIG_TC
++static int __init dec_esp_tc_probe(struct device *dev);
++static int __exit dec_esp_tc_remove(struct device *dev);
++
++static const struct tc_device_id dec_esp_tc_table[] = {
++        { "DEC     ", "PMAZ-AA " },
++        { }
++};
++MODULE_DEVICE_TABLE(tc, dec_esp_tc_table);
++
++static struct tc_driver dec_esp_tc_driver = {
++        .id_table       = dec_esp_tc_table,
++        .driver         = {
++                .name   = "dec_esp",
++                .bus    = &tc_bus_type,
++                .probe  = dec_esp_tc_probe,
++                .remove = __exit_p(dec_esp_tc_remove),
++        },
++};
++
++static int __init dec_esp_tc_probe(struct device *dev)
++{
++	int status = dec_esp_probe(dev);
++	if (!status)
++		get_device(dev);
++	return status;
++}
++
++static int __exit dec_esp_tc_remove(struct device *dev)
++{
 +	put_device(dev);
- 	unregister_framebuffer(info);
- 	iounmap(par->smem);
- 	iounmap(par->mmio);
-+	start = tdev->resource.start;
-+	len = tdev->resource.end - start + 1;
-+	release_mem_region(start, len);
- 	fb_dealloc_cmap(&info->cmap);
--	root_pmagbbfb_dev = par->next;
--	release_tc_card(par->slot);
- 	framebuffer_release(info);
++	dec_esp_remove(dev);
 +	return 0;
- }
- 
- 
- /*
-- * Initialise the framebuffer.
-+ * Initialize the framebuffer.
-  */
-+static const struct tc_device_id pmagbbfb_tc_table[] = {
-+	{ "DEC     ", "PMAGB-BA" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(tc, pmagbbfb_tc_table);
-+
-+static struct tc_driver pmagbbfb_driver = {
-+	.id_table	= pmagbbfb_tc_table,
-+	.driver		= {
-+		.name	= "pmagbbfb",
-+		.bus	= &tc_bus_type,
-+		.probe	= pmagbbfb_probe,
-+		.remove	= __exit_p(pmagbbfb_remove),
-+	},
-+};
-+
- static int __init pmagbbfb_init(void)
- {
--	int count = 0;
--	int slot;
--
-+#ifndef MODULE
- 	if (fb_get_options("pmagbbfb", NULL))
- 		return -ENXIO;
--
--	while ((slot = search_tc_card("PMAGB-BA")) >= 0) {
--		if (pmagbbfb_init_one(slot) < 0)
--			break;
--		count++;
--	}
--	return (count > 0) ? 0 : -ENXIO;
++}
 +#endif
-+	return tc_register_driver(&pmagbbfb_driver);
- }
++
++static int __init dec_esp_init(void)
++{
++	int status;
++
++	status = tc_register_driver(&dec_esp_tc_driver);
++	if (!status)
++		dec_esp_platform_probe();
++
++	if (nesps) {
++		pr_info("ESP: Total of %d ESP hosts found, "
++			"%d actually in use.\n", nesps, esps_in_use);
++		esps_running = esps_in_use;
++	}
++
++	return status;
++}
++
++static void __exit dec_esp_exit(void)
++{
++	dec_esp_platform_remove();
++	tc_unregister_driver(&dec_esp_tc_driver);
++}
++
++
++module_init(dec_esp_init);
++module_exit(dec_esp_exit);
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/fastlane.c linux-2.6.20-rc1/drivers/scsi/fastlane.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/fastlane.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/fastlane.c	2006-12-18 21:29:38.000000000 +0000
+@@ -142,7 +142,7 @@ int __init fastlane_esp_detect(struct sc
+ 		if (board < 0x1000000) {
+ 			goto err_release;
+ 		}
+-		esp = esp_allocate(tpnt, (void *)board+FASTLANE_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + FASTLANE_ESP_ADDR, 0);
  
- static void __exit pmagbbfb_exit(void)
- {
--	while (root_pmagbbfb_dev)
--		pmagbbfb_exit_one();
-+	tc_unregister_driver(&pmagbbfb_driver);
- }
+ 		/* Do command transfer with programmed I/O */
+ 		esp->do_pio_cmds = 1;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/jazz_esp.c linux-2.6.20-rc1/drivers/scsi/jazz_esp.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/jazz_esp.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/jazz_esp.c	2006-12-18 21:29:38.000000000 +0000
+@@ -75,7 +75,7 @@ static int jazz_esp_detect(struct scsi_h
+      */
+     if (1) {
+ 	esp_dev = NULL;
+-	esp = esp_allocate(tpnt, (void *) esp_dev);
++	esp = esp_allocate(tpnt, esp_dev, 0);
+ 	
+ 	/* Do command transfer with programmed I/O */
+ 	esp->do_pio_cmds = 1;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/mac_esp.c linux-2.6.20-rc1/drivers/scsi/mac_esp.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/mac_esp.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/mac_esp.c	2006-12-18 21:29:38.000000000 +0000
+@@ -351,7 +351,7 @@ int mac_esp_detect(struct scsi_host_temp
+ 	for (chipnum = 0; chipnum < chipspresent; chipnum ++) {
+ 		struct NCR_ESP * esp;
  
+-		esp = esp_allocate(tpnt, (void *) NULL);
++		esp = esp_allocate(tpnt, NULL, 0);
+ 		esp->eregs = (struct ESP_regs *) get_base(chipnum);
  
+ 		esp->dma_irq_p = &esp_dafb_dma_irq_p;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/mca_53c9x.c linux-2.6.20-rc1/drivers/scsi/mca_53c9x.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/mca_53c9x.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/mca_53c9x.c	2006-12-18 21:29:38.000000000 +0000
+@@ -122,7 +122,7 @@ static int mca_esp_detect(struct scsi_ho
+ 		if ((slot = mca_find_adapter(*id_to_check, 0)) !=
+ 		  MCA_NOTFOUND) 
+ 		{
+-			esp = esp_allocate(tpnt, (void *) NULL);
++			esp = esp_allocate(tpnt, NULL, 0);
+ 
+ 			pos[0] = mca_read_stored_pos(slot, 2);
+ 			pos[1] = mca_read_stored_pos(slot, 3);
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/oktagon_esp.c linux-2.6.20-rc1/drivers/scsi/oktagon_esp.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/oktagon_esp.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/oktagon_esp.c	2006-12-18 21:29:38.000000000 +0000
+@@ -133,7 +133,7 @@ int oktagon_esp_detect(struct scsi_host_
+ 		eregs = (struct ESP_regs *)(address + OKTAGON_ESP_ADDR);
+ 
+ 		/* This line was 5 lines lower */
+-		esp = esp_allocate(tpnt, (void *)board+OKTAGON_ESP_ADDR);
++		esp = esp_allocate(tpnt, (void *)board + OKTAGON_ESP_ADDR, 0);
+ 
+ 		/* we have to shift the registers only one bit for oktagon */
+ 		esp->shift = 1;
+diff -up --recursive --new-file linux-2.6.20-rc1.macro/drivers/scsi/sun3x_esp.c linux-2.6.20-rc1/drivers/scsi/sun3x_esp.c
+--- linux-2.6.20-rc1.macro/drivers/scsi/sun3x_esp.c	2006-12-14 01:14:23.000000000 +0000
++++ linux-2.6.20-rc1/drivers/scsi/sun3x_esp.c	2006-12-18 21:29:38.000000000 +0000
+@@ -53,7 +53,7 @@ int sun3x_esp_detect(struct scsi_host_te
+ 	struct ConfigDev *esp_dev;
+ 
+ 	esp_dev = 0;
+-	esp = esp_allocate(tpnt, (void *) esp_dev);
++	esp = esp_allocate(tpnt, esp_dev, 0);
+ 
+ 	/* Do command transfer with DMA */
+ 	esp->do_pio_cmds = 0;

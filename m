@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964891AbWLTHJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964894AbWLTHKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWLTHJa (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 02:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWLTHJa
+	id S964894AbWLTHKU (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 02:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWLTHKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 02:09:30 -0500
-Received: from mail.gmx.net ([213.165.64.20]:48959 "HELO mail.gmx.net"
+	Wed, 20 Dec 2006 02:10:20 -0500
+Received: from mail.gmx.net ([213.165.64.20]:50576 "HELO mail.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S964891AbWLTHJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 02:09:29 -0500
+	id S964894AbWLTHKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 02:10:19 -0500
 X-Authenticated: #14349625
-Subject: Re: BUG: wedged processes, test program supplied
+Subject: Re: problem with signal delivery SIGCHLD
 From: Mike Galbraith <efault@gmx.de>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <787b0d920612192205v2d650361r4f737c41aa1d3a92@mail.gmail.com>
-References: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
-	 <1166593200.1614.8.camel@Homer.simpson.net>
-	 <787b0d920612192205v2d650361r4f737c41aa1d3a92@mail.gmail.com>
+To: Nicholas Mc Guire <der.herr@hofr.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
+References: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
 Content-Type: text/plain
-Date: Wed, 20 Dec 2006 08:09:25 +0100
-Message-Id: <1166598565.1614.53.camel@Homer.simpson.net>
+Date: Wed, 20 Dec 2006 08:10:15 +0100
+Message-Id: <1166598615.1614.55.camel@Homer.simpson.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
@@ -28,32 +26,61 @@ X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 01:05 -0500, Albert Cahalan wrote:
-> On 12/20/06, Mike Galbraith <efault@gmx.de> wrote:
-> > On Tue, 2006-12-19 at 21:46 -0500, Albert Cahalan wrote:
-> > > Somebody PLEASE try this...
-> >
-> > I was having enough fun with cloninator (which was whitespace munged
-> > btw).
+On Mon, 2006-12-18 at 20:05 +0100, Nicholas Mc Guire wrote:
 > 
-> Anything stuck? Besides refusing to die, that beast slays debuggers
-> left and right. I just need to add execve of /proc/self/exe and a massive
-> storm of signals on the alternate stack.
-
-Usually, I can kill the misbehaving strace or abandoned cloninators if
-it decides to take a hike, but sometimes it leaves corpses lying around.
-
-> Oh. I wanted to be sure you'd see the problem. Did you have
-> some... difficulty? A plain old ^C should make things stop.
-> The second test program is like the first, but missing SIGCHLD
-> >from the clone flags, and hopefully not whitespace-mangled.
+> Hi !
 > 
-> Note that the test program is not normally a fork bomb.
-> It self-limits itself to 42 tasks via a lock in shared memory.
-> If things are working OK, you should see no more than
-> about 60 tasks.
+>   I have a phenomena that I don't quite understand. gdbserver forks and 
+> after setting ptrace (PTRACE_TRACEME, 0, 0, 0); it then execv 
+> (program, allargs); when this child process hits ptrace_stoped (breakpoint
+> it does the following in kernel space:
+> 
+> pid 1242 = child process
+> pid 1241 = gdbserver
+> pid 0    = kernel
+> pid -1   = interrupt
+>                                      pid
+>           1        559          5    1242 ptrace_stop
+>           3          6          2    1242 |  do_notify_parent_cldstop
+>           4          3          2    1242 |  |  __group_send_sig_info
+>           5          1          1    1242 |  |  |  handle_stop_signal
+>           7          0          0    1242 |  |  |  sig_ignored
+>           8          1          0    1242 |  |  __wake_up_sync
+>           8          1          1    1242 |  |  |  __wake_up_common
+>          10        547        541    1242 |  schedule
+>          10          2          2    1242 |  |  profile_hit
+>          13          1          1    1242 |  |  sched_clock
+>          15          1          0    1242 |  |  deactivate_task
+>          15          1          1    1242 |  |  |  dequeue_task
+>          19          2          2       0 |  |  __switch_to
+> ----------- !!!! start --------------
+>          24        574        574       0 default_idle
+> ----------- $$$$ end ----------------
+> ----------- //// start --------------
+>         780         41         12       0 do_IRQ
+>         780         29          2      -1 /  __do_IRQ
+>         ...
+>         807          2          2      -1 /  /  /  enable_8259A_irq
+> ----------- //// end ----------------
+> ----------- {{{{ start --------------
+>         810         11          0       0 do_softirq
+>         ...
+>         820          0          0      -1 {  {  {  preempt_schedule
+> ----------- {{{{ end ----------------
+> ----------- %%%% start --------------
+>         822        358          1       0 preempt_schedule_irq
+>         ...
+>         827          1          1    1241 %  %  __switch_to
+> ----------- %%%% end ----------------
+>         829          1          1    1241 (  (  (  del_timer
+> ----------- (((( end ----------------
+> ----------- ]]]] start --------------
+>         837          8          2    1241 sys_waitpid
+> 
+> So basically child signals -> delayed to next tick -> parent wakes up.
 
-I didn't take any countermeasures.. had ~27000 zombies.
+Hm.  What does the trace of gdbserver look like prior to the clild doing
+do_notify_parent_cldstop()?  Sleeping someplace other than wait4?
 
 	-Mike
 

@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965153AbWLTRWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030210AbWLTR1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbWLTRWW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWLTRWW
+	id S1030210AbWLTR1U (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWLTR1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:22:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44139 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965153AbWLTRWV (ORCPT
+	Wed, 20 Dec 2006 12:27:20 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:43651 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965152AbWLTR1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:22:21 -0500
-Subject: Re: Network drivers that don't suspend on interface down
-From: Arjan van de Ven <arjan@infradead.org>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20061220164054.GA27938@dspnet.fr.eu.org>
-References: <200612191959.43019.david-b@pacbell.net>
-	 <20061220042648.GA19814@srcf.ucam.org>
-	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
-	 <20061220055209.GA20483@srcf.ucam.org>
-	 <1166601025.3365.1345.camel@laptopd505.fenrus.org>
-	 <20061220125314.GA24188@srcf.ucam.org>
-	 <1166621931.3365.1384.camel@laptopd505.fenrus.org>
-	 <20061220152701.GA22928@dspnet.fr.eu.org>
-	 <1166628858.3365.1425.camel@laptopd505.fenrus.org>
-	 <20061220164054.GA27938@dspnet.fr.eu.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 20 Dec 2006 18:21:39 +0100
-Message-Id: <1166635300.3365.1442.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Wed, 20 Dec 2006 12:27:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PFaQaiXSv0bn75VlgaNCMBDPEyZWL0mtSqfrl+636zj6YlMftkPwfsxXZle/0TUlbUm5iJthbChdJVicMPlNpC39PvolN2K3CI/KSmSs85i+qMJ1GqQGJyLE4Khd/cFXr4gAZ5PU3WtYRAhSO00SYnY1BnBnvRsDjFWkoTiwIjk=
+Message-ID: <787b0d920612200927u61e08288o1728ff6433bd92b@mail.gmail.com>
+Date: Wed, 20 Dec 2006 12:27:15 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: util-linux: orphan
+Cc: kzak@redhat.com, hvogel@suse.de, olh@suse.de, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, arekm@maven.pl,
+       util-linux-ng@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0612201712190.15218@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
+	 <Pine.LNX.4.61.0612201712190.15218@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 17:40 +0100, Olivier Galibert wrote:
-> On Wed, Dec 20, 2006 at 04:34:17PM +0100, Arjan van de Ven wrote:
-> > 5 seconds is unfair and unrealistic though. The *hardware* negotiation
-> > before link is seen can easily take upto 45 seconds already.
-> > That's a network topology/hardware issue (spanning tree fun) that
-> > software or even the hardware in your PC can do nothing about.
-> 
-> It's about ergonomics, not technical capabilities or fairness.
-not entirely.
+On 12/20/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>
+> >> I've originally thought about util-linux upstream fork,
+> >> but as usually an fork is bad step. So.. I'd like to start
+> >> some discussion before this step.
+> > ...
+> >> after few weeks I'm pleased to announce a new "util-linux-ng"
+> >> project. This project is a fork of the original util-linux (2.13-pre7).
+> >
+> > Well, how about giving me a chunk of it? I'd like /bin/kill please.
+> > I already ship a nicer one in procps anyway, so you can just delete
+> > the files and call that done. (just today I was working on a Fedora
+> > system and /bin/kill annoyed me)
+>
+> How can you ship a "nicer" kill, given that its sole purpose is to accept
+>
+>   kill { -l | -t | {-s SIGNUM | -SIGNAME } somepid [morepids] }
+>
+> ?
 
-> 
-> 
-> > this means that the "power up time" needs to be at least 45 seconds, if
-> > it's then down 5 seconds inbetween... that's not real power savings.
-> 
-> Then that means you can't have usable autodetection and power savings
-> at the same time. 
+I checked compatibility with Solaris, Tru64, probably a few BSDs,
+and man pages of many others.
 
-even if you have NO power savings you still don't meet your criteria.
-That's basic ethernet for you....
+Fedora Core 5 doesn't seem to like this command:
 
-That's what I was trying to say; your criteria is unrealistic regardless
-of what the kernel does, ethernet already dictates 30 to 45 seconds
-there.
+/bin/kill -l 17 19
 
+(which reminds me, I need to add sigqueue support and
+maybe tgkill support)
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> What about merging util-linux and procps?
 
+How? Which way?
+
+As I mentioned before, I was twice disappointed in missing
+announcements of util-linux maintainership being up for grabs.
+I certainly have a track record for keeping things stable.
+
+Prior to me, procps has a history of being abandoned and
+broken. Procps is a fork of the long-dead kmem-ps project.
+Procps was then passed to someone who added color and
+then disappeared. The prior maintainer picked up the old
+code again, no doubt under influence of his employer Red Hat.
+I rewrote much of it then, but had trouble getting in all of
+my changes. Debian started using my code, which slowly
+turned into a fork. Maintainership was passed to somebody
+else, without even telling me. That person and his immediate
+successor added numerous serious bugs. Inexperience with
+the code and the lack of a test suite soon led to that group
+being bogged down in problems. One by one, the various
+Linux distributions switched over to my version of the code.
+
+So as you may imagine, I'd be rather nervous about letting
+procps get into that situation again. Bugs are yucky. Having
+multiple committers and no testing is a sure path to ruin.

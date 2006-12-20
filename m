@@ -1,99 +1,186 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030337AbWLTUB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030340AbWLTUCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWLTUB1 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWLTUB1
+	id S1030340AbWLTUCG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWLTUCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:01:27 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:58576 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030337AbWLTUB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:01:26 -0500
-X-Sasl-enc: Ta11tn3rLQ+ZcsmAlhe8kc5i1piQIPbvi9mqS/iyNI+P 1166644876
-Message-ID: <45899772.9000401@imap.cc>
-Date: Wed, 20 Dec 2006 21:05:06 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6 Mnenhy/0.7.4.666
+	Wed, 20 Dec 2006 15:02:06 -0500
+Received: from cantor.suse.de ([195.135.220.2]:48665 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030340AbWLTUCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:02:04 -0500
+Date: Wed, 20 Dec 2006 12:01:29 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] USB patches for 2.6.20-rc1
+Message-ID: <20061220200129.GA1698@kroah.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] hrtimers: add state tracking, fix
-References: <20061214225913.3338f677.akpm@osdl.org> <200612191815.kBJIFF4O018306@lx1.pxnet.com> <20061219195650.GA8797@elte.hu>
-In-Reply-To: <20061219195650.GA8797@elte.hu>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig352EFD0D515D1FDA93DB1BBC"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig352EFD0D515D1FDA93DB1BBC
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Here are some USB patches for 2.6.20-rc1
 
-Am 19.12.2006 20:56 schrieb Ingo Molnar:
-> Could you try the fix below, does it fix your problem?
+They include:
+	- lots of device id updates
+	- lots of tiny bugfixes
+	- removal of improper tty ioctl code
+	- gadget driver updates
 
-The system has been running for a whole day now without freezing,
-convincing me that your patch does indeed fix my problem.
+They have all been in the -mm tree for a while.
 
-> -------------------------->
-> Subject: [patch] hrtimers: add state tracking, fix
-> From: Ingo Molnar <mingo@elte.hu>
->=20
-> fix bug in hrtimer_is_queued(), introduced by a cleanup during
-> the recent refactoring.
->=20
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Please pull from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-Acked-by: Tilman Schmidt <tilman@imap.cc>
+The full patches will be sent to the linux-usb-devel mailing list, if
+anyone wants to see them.
 
-> ---
->  kernel/hrtimer.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> Index: linux/kernel/hrtimer.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux.orig/kernel/hrtimer.c
-> +++ linux/kernel/hrtimer.c
-> @@ -157,7 +157,7 @@ static void hrtimer_get_softirq_time(str
->  static inline int hrtimer_is_queued(struct hrtimer *timer)
->  {
->  	return timer->state &
-> -		(HRTIMER_STATE_ENQUEUED || HRTIMER_STATE_PENDING);
-> +		(HRTIMER_STATE_ENQUEUED | HRTIMER_STATE_PENDING);
->  }
-> =20
->  /*
+thanks,
 
-Thanks again
-Tilman
+greg k-h
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+ Documentation/kernel-parameters.txt |    8 +
+ MAINTAINERS                         |    8 +-
+ drivers/bluetooth/hci_usb.c         |    1 +
+ drivers/usb/class/usblp.c           |   54 ++--
+ drivers/usb/core/devio.c            |    6 +-
+ drivers/usb/gadget/at91_udc.c       |  236 ++++++++------
+ drivers/usb/gadget/at91_udc.h       |    7 +-
+ drivers/usb/gadget/dummy_hcd.c      |    7 +-
+ drivers/usb/gadget/file_storage.c   |    2 +-
+ drivers/usb/gadget/gmidi.c          |   12 +-
+ drivers/usb/gadget/goku_udc.c       |   12 +-
+ drivers/usb/gadget/lh7a40x_udc.c    |   13 +-
+ drivers/usb/gadget/net2280.c        |   11 +-
+ drivers/usb/gadget/omap_udc.c       |   13 +-
+ drivers/usb/gadget/pxa2xx_udc.c     |    7 +-
+ drivers/usb/gadget/serial.c         |    2 +-
+ drivers/usb/host/ohci-at91.c        |    3 +-
+ drivers/usb/host/ohci-au1xxx.c      |    4 +-
+ drivers/usb/host/ohci-dbg.c         |    8 +-
+ drivers/usb/host/ohci-ep93xx.c      |    2 +-
+ drivers/usb/host/ohci-hcd.c         |  110 ++-----
+ drivers/usb/host/ohci-hub.c         |   21 +-
+ drivers/usb/host/ohci-lh7a404.c     |    8 +-
+ drivers/usb/host/ohci-mem.c         |   10 +-
+ drivers/usb/host/ohci-omap.c        |    4 +-
+ drivers/usb/host/ohci-pci.c         |   16 +-
+ drivers/usb/host/ohci-pnx4008.c     |    4 +-
+ drivers/usb/host/ohci-pnx8550.c     |  258 +++++++++++++++
+ drivers/usb/host/ohci-ppc-soc.c     |    8 +-
+ drivers/usb/host/ohci-pxa27x.c      |   10 +-
+ drivers/usb/host/ohci-q.c           |  103 +++---
+ drivers/usb/host/ohci-s3c2410.c     |    4 +-
+ drivers/usb/host/ohci-sa1111.c      |    8 +-
+ drivers/usb/host/ohci.h             |   92 +++---
+ drivers/usb/host/u132-hcd.c         |   92 ++----
+ drivers/usb/host/uhci-hcd.c         |   13 +-
+ drivers/usb/host/uhci-hub.c         |   14 +-
+ drivers/usb/input/wacom_sys.c       |    4 +-
+ drivers/usb/input/wacom_wac.c       |   26 +-
+ drivers/usb/misc/auerswald.c        |    6 +-
+ drivers/usb/misc/ftdi-elan.c        |  592 +++++++++++++++++++++++------------
+ drivers/usb/misc/phidgetservo.c     |    1 +
+ drivers/usb/misc/trancevibrator.c   |    2 +-
+ drivers/usb/net/gl620a.c            |  154 ---------
+ drivers/usb/net/rtl8150.c           |    6 +-
+ drivers/usb/serial/airprime.c       |    3 +
+ drivers/usb/serial/cp2101.c         |    1 +
+ drivers/usb/serial/cypress_m8.c     |   15 -
+ drivers/usb/serial/ftdi_sio.c       |    1 +
+ drivers/usb/serial/ftdi_sio.h       |    5 +-
+ drivers/usb/serial/funsoft.c        |   27 ++
+ drivers/usb/serial/kl5kusb105.c     |   68 ----
+ drivers/usb/serial/mos7840.c        |    6 -
+ drivers/usb/serial/option.c         |    3 +
+ drivers/usb/storage/unusual_devs.h  |   16 +
+ 55 files changed, 1195 insertions(+), 932 deletions(-)
+ create mode 100644 drivers/usb/host/ohci-pnx8550.c
 
+---------------
 
---------------enig352EFD0D515D1FDA93DB1BBC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Alan (1):
+      usb serial: Eliminate bogus ioctl code
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Alan Stern (1):
+      UHCI: module parameter to ignore overcurrent changes
 
-iD8DBQFFiZd6MdB4Whm86/kRAhVDAJsEj6iFUnjP3m93mLNqAhNYaDDPewCdEAf2
-E83QHAv8UeaWGLxFs6ccMNI=
-=ephh
------END PGP SIGNATURE-----
+Andrew Morton (2):
+      USB: Nokia E70 is an unusual device
+      USB: Nokia E70 is an unusual device
 
---------------enig352EFD0D515D1FDA93DB1BBC--
+Andrew Victor (3):
+      USB: ohci at91 warning fix
+      USB: at91 udc, support at91sam926x addresses
+      USB: at91_udc, misc fixes
+
+Burman Yan (1):
+      USB AUERSWALD: replace kmalloc+memset with kzalloc
+
+Chris Frey (1):
+      USB: fix to usbfs_snoop logging of user defined control urbs
+
+David Brownell (3):
+      USB: gadget driver unbind() is optional; section fixes; misc
+      USB: MAINTAINERS update, EHCI and OHCI
+      USB: ohci whitespace/comment fixups
+
+David Clare (1):
+      USB: Prevent the funsoft serial device from entering raw mode
+
+Eagle Jones (1):
+      USB: airprime: add device id for dell wireless 5500 hsdpa card
+
+Eric Smith (1):
+      usb serial: add support for Novatel S720/U720 CDMA/EV-DO modems
+
+Greg Kroah-Hartman (1):
+      USB Storage: remove duplicate Nokia entry in unusual_devs.h
+
+Jan Capek (1):
+      USB: ftdi_sio - MachX product ID added
+
+Jeff Garzik (1):
+      USB: fix ohci.h over-use warnings
+
+Johann Wilhelm (2):
+      usb-storage: Ignore the virtual cd-drive of the Huawei E220 USB Modem
+      usb-gsm-driver: Added VendorId and ProductId for Huawei E220 USB Modem
+
+Johannes Hoelzl (1):
+      Add Baltech Reader ID to CP2101 driver
+
+Oliver Neukum (3):
+      USB: fix transvibrator disconnect race
+      USB: removing ifdefed code from gl620a
+      USB: mutexification of usblp
+
+Olivier Galibert (1):
+      bluetooth: add support for another Kensington dongle
+
+Petko Manolov (1):
+      USB: rtl8150 new device id
+
+Ping Cheng (1):
+      USB: fix Wacom Intuos3 4x6 bugs
+
+Sean Young (1):
+      USB: Fix oops in PhidgetServo
+
+Takamasa Ohtake (1):
+      USB: ohci handles hardware faults during root port resets
+
+Tony Olech (1):
+      USB: u132-hcd/ftdi-elan: add support for Option GT 3G Quad card
+
+Vitaly Wool (1):
+      USB: OHCI support for PNX8550
+
+Wojtek Kaniewski (3):
+      USB: at91_udc: allow drivers that support high speed
+      USB: at91_udc: Cleanup variables after failure in usb_gadget_register_driver()
+      USB: at91_udc: Additional checks
+

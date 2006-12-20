@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030412AbWLTWjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030413AbWLTWoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbWLTWjl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 17:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWLTWjl
+	id S1030413AbWLTWoY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 17:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWLTWoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:39:41 -0500
-Received: from web32914.mail.mud.yahoo.com ([209.191.69.114]:46548 "HELO
-	web32914.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030412AbWLTWjk (ORCPT
+	Wed, 20 Dec 2006 17:44:24 -0500
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:60362 "EHLO
+	fed1rmmtao12.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030408AbWLTWoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:39:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=up9KV3SWby3zFqQ0RRFKWmr8NAoUgOvaL9RhVsfudOwu86MtlsXyz5xU2alJKMB4KeUsO6vC/YW8AXY3zL5Z7MybjvEgi7nc3lzBqTKtSzO4VDRfgcRpzBGJRaaNhrBP5kNrU/LLtmnkk7Ni8Px1s1HVPFY0NezW/cn/kyT8w3s=;
-X-YMail-OSG: 1ygg2OsVM1mjOaj5lE6FD_rSgi8Nel19OjBey76gAI8bKlzh6_Fgar7b1CQUTBK_8hzY6gDJgXW5qGIbNmrK3z2m6ZkRaQq3IICCXDxS.yp0aDYfJqkqr5jc7MbIq87RCyEzCorCCguMidrzSfoobVXwyKNxmIHDxNmqsTOCZVWOpzrfKbsvEM.BBvyt
-Date: Wed, 20 Dec 2006 14:39:39 -0800 (PST)
-From: J <jhnlmn@yahoo.com>
-Subject: Re: Possible race condition in usb-serial.c
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20061220204354.GA4039@kroah.com>
+	Wed, 20 Dec 2006 17:44:23 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: merlyn@stonehenge.com (Randal L. Schwartz)
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] daemon.c blows up on OSX
+References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
+	<86vek6z0k2.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+	<86irg6yzt1.fsf_-_@blue.stonehenge.com>
+	<7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net>
+	<86ejquyz4v.fsf@blue.stonehenge.com>
+Date: Wed, 20 Dec 2006 14:44:14 -0800
+In-Reply-To: <86ejquyz4v.fsf@blue.stonehenge.com> (Randal L. Schwartz's
+	message of "20 Dec 2006 14:35:12 -0800")
+Message-ID: <7vhcvq6vcx.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <718383.57861.qm@web32914.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your reply.
+merlyn@stonehenge.com (Randal L. Schwartz) writes:
 
-> Which usb-serial driver are you having problems
-> with?  What is the oops trace?  
-> What version of the 2.4 kernel are you using?
+> Lemme see if it breaks on OpenBSD as well.
+>
+> Oddly enough - it didn't. :)
 
-I was told to fix an old embedded device, which my
-company bought from somebody many years ago. 
-It appears to have kernel 2.4.9 and a patched version
-of visor.c.
+Of course it didn't.  I was a bit more careful than usual with
+this and fired up an OpenBSD bochs on my wife's machine to test
+it before pushing out.
 
-However, I would't bother you with my antiquated
-setup. I posted this message only when I started
-to think that 2.6 may have race conditions as well.
+> running "git version 1.4.4.3.g5485" on my openbsd box, but I can't get
+> there on my OSX box.
 
-And I don't have any oops. All I have is a monitor
-with 30 lines worse of printk messages. This is
-enough,
-however, to discover races if printk are in the right
-places.
+Sorry, I cannot be of immediate help -- I do not have one.
 
-> And why are you taking the linux-usb-devel list out
-> of the cc:?  :)
 
-This is because it is my first post on linux.kernel.
-I spent time reading FAQs on http://www.tux.org/lkml/.
-It wastes many pages explaining netiquette, but does
-not really explain how to post other then 
-"send to linux-kernel@vger.kernel.org". That's what I
-did.
-
-Thank you
-John
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

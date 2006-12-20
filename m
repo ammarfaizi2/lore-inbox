@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030296AbWLTTVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030301AbWLTTV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWLTTVA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWLTTU7
+	id S1030301AbWLTTV3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:21:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWLTTV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:20:59 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40852 "EHLO
+	Wed, 20 Dec 2006 14:21:29 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40858 "EHLO
 	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030319AbWLTTU4 (ORCPT
+	by vger.kernel.org with ESMTP id S1030301AbWLTTV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:20:56 -0500
+	Wed, 20 Dec 2006 14:21:27 -0500
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v5 06/13] iw_cxgb3 Completion Queues
-Date: Wed, 20 Dec 2006 13:20:55 -0600
+Subject: [PATCH  v5 07/13] iw_cxgb3 Async Event Handler
+Date: Wed, 20 Dec 2006 13:21:25 -0600
 To: rdreier@cisco.com
 Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org, jeff@garzik.org
-Message-Id: <20061220192055.19316.62329.stgit@dell3.ogc.int>
+Message-Id: <20061220192125.19316.92319.stgit@dell3.ogc.int>
 In-Reply-To: <20061220191754.19316.4914.stgit@dell3.ogc.int>
 References: <20061220191754.19316.4914.stgit@dell3.ogc.int>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,19 +26,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Functions to manipulate CQs.
+Code to handle async events coming from the T3 RDMA Core.
 
 Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 ---
 
- drivers/infiniband/hw/cxgb3/iwch_cq.c |  231 +++++++++++++++++++++++++++++++++
+ drivers/infiniband/hw/cxgb3/iwch_ev.c |  231 +++++++++++++++++++++++++++++++++
  1 files changed, 231 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_cq.c b/drivers/infiniband/hw/cxgb3/iwch_cq.c
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_ev.c b/drivers/infiniband/hw/cxgb3/iwch_ev.c
 new file mode 100644
-index 0000000..ff09509
+index 0000000..646f612
 --- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_cq.c
++++ b/drivers/infiniband/hw/cxgb3/iwch_ev.c
 @@ -0,0 +1,231 @@
 +/*
 + * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
@@ -72,202 +72,202 @@ index 0000000..ff09509
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + */
++#include <linux/slab.h>
++#include <linux/mman.h>
++#include <net/sock.h>
 +#include "iwch_provider.h"
 +#include "iwch.h"
++#include "iwch_cm.h"
++#include "cxio_hal.h"
++#include "cxio_wr.h"
 +
-+/*
-+ * Get one cq entry from cxio and map it to openib.
-+ *
-+ * Returns:
-+ * 	0 			EMPTY;
-+ *	1			cqe returned
-+ *	-EAGAIN 		caller must try again
-+ * 	any other -errno	fatal error
-+ */
-+int iwch_poll_cq_one(struct iwch_dev *rhp, struct iwch_cq *chp,
-+		     struct ib_wc *wc)
++static void post_qp_event(struct iwch_dev *rnicp, struct iwch_cq *chp,
++			  struct respQ_msg_t *rsp_msg,
++			  enum ib_event_type ib_event,
++			  int send_term)
 +{
-+	struct iwch_qp *qhp = NULL;
-+	struct t3_cqe cqe, *rd_cqe;
-+	struct t3_wq *wq;
-+	u32 credit = 0;
-+	u8 cqe_flushed;
-+	u64 cookie;
-+	int ret = 1;
++	struct ib_event event;
++	struct iwch_qp_attributes attrs;
++	struct iwch_qp *qhp;
 +
-+	rd_cqe = cxio_next_cqe(&chp->cq);
++	printk(KERN_ERR "%s - AE qpid 0x%x opcode %d status 0x%x "
++	       "type %d wrid.hi 0x%x wrid.lo 0x%x \n", __FUNCTION__,
++	       CQE_QPID(rsp_msg->cqe), CQE_OPCODE(rsp_msg->cqe),
++	       CQE_STATUS(rsp_msg->cqe), CQE_TYPE(rsp_msg->cqe),
++	       CQE_WRID_HI(rsp_msg->cqe), CQE_WRID_LOW(rsp_msg->cqe));
 +
-+	if (!rd_cqe)
-+		return 0;
++	spin_lock(&rnicp->lock);
++	qhp = get_qhp(rnicp, CQE_QPID(rsp_msg->cqe));
 +
-+	qhp = get_qhp(rhp, CQE_QPID(*rd_cqe));
-+	if (!qhp)
-+		wq = NULL;
-+	else {
-+		spin_lock(&qhp->lock);
-+		wq = &(qhp->wq);
-+	}
-+	ret = cxio_poll_cq(wq, &(chp->cq), &cqe, &cqe_flushed, &cookie,
-+				   &credit);
-+	if (t3a_device(chp->rhp) && credit) {
-+		PDBG("%s updating %d cq credits on id %d\n", __FUNCTION__,
-+		     credit, chp->cq.cqid);
-+		cxio_hal_cq_op(&rhp->rdev, &chp->cq, CQ_CREDIT_UPDATE, credit);
++	if (!qhp) {
++		printk(KERN_ERR "%s unaffiliated error 0x%x qpid 0x%x\n",
++		       __FUNCTION__, CQE_STATUS(rsp_msg->cqe),
++		       CQE_QPID(rsp_msg->cqe));
++		spin_unlock(&rnicp->lock);
++		return;
 +	}
 +
-+	if (ret) {
-+		ret = -EAGAIN;
++	if ((qhp->attr.state == IWCH_QP_STATE_ERROR) ||
++	    (qhp->attr.state == IWCH_QP_STATE_TERMINATE)) {
++		PDBG("%s AE received after RTS - "
++		     "qp state %d qpid 0x%x status 0x%x\n", __FUNCTION__,
++		     qhp->attr.state, qhp->wq.qpid, CQE_STATUS(rsp_msg->cqe));
++		spin_unlock(&rnicp->lock);
++		return;
++	}
++
++	atomic_inc(&qhp->refcnt);
++	spin_unlock(&rnicp->lock);
++
++	event.event = ib_event;
++	event.device = chp->ibcq.device;
++	if (ib_event == IB_EVENT_CQ_ERR)
++		event.element.cq = &chp->ibcq;
++	else
++		event.element.qp = &qhp->ibqp;
++
++	if (qhp->ibqp.event_handler)
++		(*qhp->ibqp.event_handler)(&event, qhp->ibqp.qp_context);
++
++	if (qhp->attr.state == IWCH_QP_STATE_RTS) {
++		attrs.next_state = IWCH_QP_STATE_TERMINATE;
++		iwch_modify_qp(qhp->rhp, qhp, IWCH_QP_ATTR_NEXT_STATE,
++			       &attrs, 1);
++		if (send_term)
++			iwch_post_terminate(qhp, rsp_msg);
++	}
++
++	if (atomic_dec_and_test(&qhp->refcnt))
++		wake_up(&qhp->wait);
++}
++
++void iwch_ev_dispatch(struct cxio_rdev *rdev_p, struct sk_buff *skb)
++{
++	struct iwch_dev *rnicp;
++	struct respQ_msg_t *rsp_msg = (struct respQ_msg_t *) skb->data;
++	struct iwch_cq *chp;
++	struct iwch_qp *qhp;
++	u32 cqid = RSPQ_CQID(rsp_msg);
++
++	rnicp = (struct iwch_dev *) rdev_p->ulp;
++	spin_lock(&rnicp->lock);
++	chp = get_chp(rnicp, cqid);
++	qhp = get_qhp(rnicp, CQE_QPID(rsp_msg->cqe));
++	if (!chp || !qhp) {
++		printk(KERN_ERR MOD "BAD AE cqid 0x%x qpid 0x%x opcode %d "
++		       "status 0x%x type %d wrid.hi 0x%x wrid.lo 0x%x \n",
++		       cqid, CQE_QPID(rsp_msg->cqe),
++		       CQE_OPCODE(rsp_msg->cqe), CQE_STATUS(rsp_msg->cqe),
++		       CQE_TYPE(rsp_msg->cqe), CQE_WRID_HI(rsp_msg->cqe),
++		       CQE_WRID_LOW(rsp_msg->cqe));
++		spin_unlock(&rnicp->lock);
 +		goto out;
 +	}
-+	ret = 1;
++	iwch_qp_add_ref(&qhp->ibqp);
++	atomic_inc(&chp->refcnt);
++	spin_unlock(&rnicp->lock);
 +
-+	wc->wr_id = cookie;
-+	wc->qp_num = qhp->wq.qpid;
-+	wc->vendor_err = CQE_STATUS(cqe);
-+
-+	PDBG("%s qpid 0x%x type %d opcode %d status 0x%x wrid hi 0x%x "
-+	     "lo 0x%x cookie 0x%llx\n", __FUNCTION__,
-+	     CQE_QPID(cqe), CQE_TYPE(cqe),
-+	     CQE_OPCODE(cqe), CQE_STATUS(cqe), CQE_WRID_HI(cqe),
-+	     CQE_WRID_LOW(cqe), cookie);
-+
-+	if (CQE_TYPE(cqe) == 0) {
-+		if (!CQE_STATUS(cqe))
-+			wc->byte_len = CQE_LEN(cqe);
-+		else
-+			wc->byte_len = 0;
-+		wc->opcode = IB_WC_RECV;
-+	} else {
-+		switch (CQE_OPCODE(cqe)) {
-+		case T3_RDMA_WRITE:
-+			wc->opcode = IB_WC_RDMA_WRITE;
-+			break;
-+		case T3_READ_REQ:
-+			wc->opcode = IB_WC_RDMA_READ;
-+			wc->byte_len = CQE_LEN(cqe);
-+			break;
-+		case T3_SEND:
-+		case T3_SEND_WITH_SE:
-+			wc->opcode = IB_WC_SEND;
-+			break;
-+		case T3_BIND_MW:
-+			wc->opcode = IB_WC_BIND_MW;
-+			break;
-+
-+		/* these aren't supported yet */
-+		case T3_SEND_WITH_INV:
-+		case T3_SEND_WITH_SE_INV:
-+		case T3_LOCAL_INV:
-+		case T3_FAST_REGISTER:
-+		default:
-+			printk(KERN_ERR MOD "Unexpected opcode %d "
-+			       "in the CQE received for QPID=0x%0x\n",
-+			       CQE_OPCODE(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+			goto out;
++	/*
++	 * 1) completion of our sending a TERMINATE.
++	 * 2) incoming TERMINATE message.
++	 */
++	if ((CQE_OPCODE(rsp_msg->cqe) == T3_TERMINATE) &&
++	    (CQE_STATUS(rsp_msg->cqe) == 0)) {
++		if (SQ_TYPE(rsp_msg->cqe)) {
++			PDBG("%s QPID 0x%x ep %p disconnecting\n",
++			     __FUNCTION__, qhp->wq.qpid, qhp->ep);
++			iwch_ep_disconnect(qhp->ep, 0, GFP_ATOMIC);
++		} else {
++			PDBG("%s post REQ_ERR AE QPID 0x%x\n", __FUNCTION__,
++			     qhp->wq.qpid);
++			post_qp_event(rnicp, chp, rsp_msg,
++				      IB_EVENT_QP_REQ_ERR, 0);
++			iwch_ep_disconnect(qhp->ep, 0, GFP_ATOMIC);
 +		}
++		goto done;
 +	}
 +
-+	if (cqe_flushed)
-+		wc->status = IB_WC_WR_FLUSH_ERR;
-+	else {
-+		
-+		switch (CQE_STATUS(cqe)) {
-+		case TPT_ERR_SUCCESS:
-+			wc->status = IB_WC_SUCCESS;
-+			break;
-+		case TPT_ERR_STAG:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_PDID:
-+			wc->status = IB_WC_LOC_PROT_ERR;
-+			break;
-+		case TPT_ERR_QPID:
-+		case TPT_ERR_ACCESS:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_WRAP:
-+			wc->status = IB_WC_GENERAL_ERR;
-+			break;
-+		case TPT_ERR_BOUND:
-+			wc->status = IB_WC_LOC_LEN_ERR;
-+			break;
-+		case TPT_ERR_INVALIDATE_SHARED_MR:
-+		case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
-+			wc->status = IB_WC_MW_BIND_ERR;
-+			break;
-+		case TPT_ERR_CRC:
-+		case TPT_ERR_MARKER:
-+		case TPT_ERR_PDU_LEN_ERR:
-+		case TPT_ERR_OUT_OF_RQE:
-+		case TPT_ERR_DDP_VERSION:
-+		case TPT_ERR_RDMA_VERSION:
-+		case TPT_ERR_DDP_QUEUE_NUM:
-+		case TPT_ERR_MSN:
-+		case TPT_ERR_TBIT:
-+		case TPT_ERR_MO:
-+		case TPT_ERR_MSN_RANGE:
-+		case TPT_ERR_IRD_OVERFLOW:
-+		case TPT_ERR_OPCODE:
-+			wc->status = IB_WC_FATAL_ERR;
-+			break;
-+		case TPT_ERR_SWFLUSH:
-+			wc->status = IB_WC_WR_FLUSH_ERR;
-+			break;
-+		default:
-+			printk(KERN_ERR MOD "Unexpected cqe_status 0x%x for "
-+			       "QPID=0x%0x\n", CQE_STATUS(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+		}
++	/* Bad incoming Read request */
++	if (SQ_TYPE(rsp_msg->cqe) &&
++	    (CQE_OPCODE(rsp_msg->cqe) == T3_READ_RESP)) {
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_REQ_ERR, 1);
++		goto done;
 +	}
-+out:
-+	if (wq)
-+		spin_unlock(&qhp->lock);
-+	return ret;
-+}
 +
-+int iwch_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
-+{
-+	struct iwch_dev *rhp;
-+	struct iwch_cq *chp;
-+	unsigned long flags;
-+	int npolled;
-+	int err = 0;
++	/* Bad incoming write */
++	if (RQ_TYPE(rsp_msg->cqe) &&
++	    (CQE_OPCODE(rsp_msg->cqe) == T3_RDMA_WRITE)) {
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_REQ_ERR, 1);
++		goto done;
++	}
 +
-+	chp = to_iwch_cq(ibcq);
-+	rhp = chp->rhp;
++	switch (CQE_STATUS(rsp_msg->cqe)) {
 +
-+	spin_lock_irqsave(&chp->lock, flags);
-+	for (npolled = 0; npolled < num_entries; ++npolled) {
-+#ifdef DEBUG
-+		int i=0;
-+#endif
++	/* Completion Events */
++	case TPT_ERR_SUCCESS:
 +
 +		/*
-+	 	 * Because T3 can post CQEs that are _not_ associated
-+	 	 * with a WR, we might have to poll again after removing
-+	 	 * one of these.
++		 * Confirm the destination entry if this is a RECV completion.
 +		 */
-+		do {
-+			err = iwch_poll_cq_one(rhp, chp, wc + npolled);
-+#ifdef DEBUG
-+			BUG_ON(++i > 1000);
-+#endif
-+		} while (err == -EAGAIN);
-+		if (err <= 0)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&chp->lock, flags);
++		if (qhp->ep && SQ_TYPE(rsp_msg->cqe))
++			dst_confirm(qhp->ep->dst);
++		(*chp->ibcq.comp_handler)(&chp->ibcq, chp->ibcq.cq_context);
++		break;
 +
-+	if (err < 0)
-+		return err;
-+	else {
-+		return npolled;
-+	}
-+}
++	case TPT_ERR_STAG:
++	case TPT_ERR_PDID:
++	case TPT_ERR_QPID:
++	case TPT_ERR_ACCESS:
++	case TPT_ERR_WRAP:
++	case TPT_ERR_BOUND:
++	case TPT_ERR_INVALIDATE_SHARED_MR:
++	case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
++		printk(KERN_ERR "%s - CQE Err qpid 0x%x opcode %d status 0x%x "
++		       "type %d wrid.hi 0x%x wrid.lo 0x%x \n", __FUNCTION__,
++		       CQE_QPID(rsp_msg->cqe), CQE_OPCODE(rsp_msg->cqe),
++		       CQE_STATUS(rsp_msg->cqe), CQE_TYPE(rsp_msg->cqe),
++		       CQE_WRID_HI(rsp_msg->cqe), CQE_WRID_LOW(rsp_msg->cqe));
++		(*chp->ibcq.comp_handler)(&chp->ibcq, chp->ibcq.cq_context);
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_ACCESS_ERR, 1);
++		break;
 +
-+int iwch_modify_cq(struct ib_cq *cq, int cqe)
-+{
-+	PDBG("iwch_modify_cq: TBD\n");
-+	return 0;
++	/* Device Fatal Errors */
++	case TPT_ERR_ECC:
++	case TPT_ERR_ECC_PSTAG:
++	case TPT_ERR_INTERNAL_ERR:
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_DEVICE_FATAL, 1);
++		break;
++	
++	/* QP Fatal Errors */
++	case TPT_ERR_OUT_OF_RQE:
++	case TPT_ERR_PBL_ADDR_BOUND:
++	case TPT_ERR_CRC:
++	case TPT_ERR_MARKER:
++	case TPT_ERR_PDU_LEN_ERR:
++	case TPT_ERR_DDP_VERSION:
++	case TPT_ERR_RDMA_VERSION:
++	case TPT_ERR_OPCODE:
++	case TPT_ERR_DDP_QUEUE_NUM:
++	case TPT_ERR_MSN:
++	case TPT_ERR_TBIT:
++	case TPT_ERR_MO:
++	case TPT_ERR_MSN_GAP:
++	case TPT_ERR_MSN_RANGE:
++	case TPT_ERR_RQE_ADDR_BOUND:
++	case TPT_ERR_IRD_OVERFLOW:
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_FATAL, 1);
++		break;
++
++	default:
++		printk(KERN_ERR MOD "Unknown T3 status 0x%x QPID 0x%x\n",
++		       CQE_STATUS(rsp_msg->cqe), qhp->wq.qpid);
++		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_FATAL, 1);
++		break;
++	}
++done:
++	if (atomic_dec_and_test(&chp->refcnt))
++                wake_up(&chp->wait);
++	iwch_qp_rem_ref(&qhp->ibqp);
++out:
++	dev_kfree_skb_irq(skb);
 +}

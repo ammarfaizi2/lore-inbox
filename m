@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030396AbWLTWYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030403AbWLTWZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbWLTWYf (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 17:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWLTWYf
+	id S1030403AbWLTWZZ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 17:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWLTWZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:24:35 -0500
-Received: from blue.stonehenge.com ([209.223.236.162]:17727 "EHLO
-	blue.stonehenge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030396AbWLTWYd (ORCPT
+	Wed, 20 Dec 2006 17:25:24 -0500
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:41454 "EHLO
+	fed1rmmtao10.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030401AbWLTWZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:24:33 -0500
-To: Junio C Hamano <junkio@cox.net>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: What's in git.git (stable), and Announcing GIT 1.4.4.3
+	Wed, 20 Dec 2006 17:25:23 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: merlyn@stonehenge.com (Randal L. Schwartz)
+Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] daemon.c blows up on OSX
 References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
-x-mayan-date: Long count = 12.19.13.16.7; tzolkin = 8 Manik; haab = 0 Kankin
-From: merlyn@stonehenge.com (Randal L. Schwartz)
-Date: 20 Dec 2006 14:04:29 -0800
-In-Reply-To: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
-Message-ID: <86vek6z0k2.fsf@blue.stonehenge.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	<86vek6z0k2.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+	<86irg6yzt1.fsf_-_@blue.stonehenge.com>
+Date: Wed, 20 Dec 2006 14:25:21 -0800
+In-Reply-To: <86irg6yzt1.fsf_-_@blue.stonehenge.com> (Randal L. Schwartz's
+	message of "20 Dec 2006 14:20:42 -0800")
+Message-ID: <7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Junio" == Junio C Hamano <junkio@cox.net> writes:
+merlyn@stonehenge.com (Randal L. Schwartz) writes:
 
-Junio> * The 'master' branch has these since the last announcement.
-Junio>   They are NOT in 1.4.4.3.
+> Nope... can't compile:
+> ...
+>     daemon.c:970: warning: implicit declaration of function 'initgroups'
+>     make: *** [daemon.o] Error 1
+>
+> This smells like we've seen this before.  Regression introduced with
+> some of the cleanup?
 
-Junio>       index-pack usage of mmap() is unacceptably slower on many OSes
-Junio>          other than Linux
+Most likely.  You were CC'ed on these messages:
 
-Is this really in master?  I'm still seeing one-hour times on
-my Mac, using 8336afa563fbeff35e531396273065161181f04c.
+	<7v7iwnnzed.fsf@assigned-by-dhcp.cox.net>
+	<7vbqlye2zz.fsf@assigned-by-dhcp.cox.net>
 
--- 
-Randal L. Schwartz - Stonehenge Consulting Services, Inc. - +1 503 777 0095
-<merlyn@stonehenge.com> <URL:http://www.stonehenge.com/merlyn/>
-Perl/Unix/security consulting, Technical writing, Comedy, etc. etc.
-See PerlTraining.Stonehenge.com for onsite and open-enrollment Perl training!
+

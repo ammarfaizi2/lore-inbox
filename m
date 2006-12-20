@@ -1,273 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030301AbWLTTV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030321AbWLTTVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWLTTV3 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:21:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWLTTV3
+	id S1030321AbWLTTVv (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWLTTVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:21:29 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40858 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030301AbWLTTV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:21:27 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v5 07/13] iw_cxgb3 Async Event Handler
-Date: Wed, 20 Dec 2006 13:21:25 -0600
-To: rdreier@cisco.com
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org, jeff@garzik.org
-Message-Id: <20061220192125.19316.92319.stgit@dell3.ogc.int>
-In-Reply-To: <20061220191754.19316.4914.stgit@dell3.ogc.int>
-References: <20061220191754.19316.4914.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 20 Dec 2006 14:21:51 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:34974 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030321AbWLTTVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:21:47 -0500
+Message-ID: <45898D48.8020800@pobox.com>
+Date: Wed, 20 Dec 2006 14:21:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: David Milburn <dmilburn@redhat.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] libata-scsi: ata_task_ioctl should return ATA registers
+ from sense data
+References: <458702D9.6080800@redhat.com>
+In-Reply-To: <458702D9.6080800@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Milburn wrote:
+> User applications using the HDIO_DRIVE_TASK ioctl through libata
+> expect specific ATA registers to be returned to userspace. Verified
+> that ata_task_ioctl correctly returns register values to the
+> smartctl application.
+> 
+> Signed-off-by: David Milburn <dmilburn@redhat.com>
 
-Code to handle async events coming from the T3 RDMA Core.
+ACK, but fails to apply to libata-dev.git#upstream-fixes:
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
 
- drivers/infiniband/hw/cxgb3/iwch_ev.c |  231 +++++++++++++++++++++++++++++++++
- 1 files changed, 231 insertions(+), 0 deletions(-)
+[jgarzik@pretzel libata-dev]$ git-applymbox /g/tmp/mbox ~/info/signoff.txt
+1 patch(es) to process.
 
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_ev.c b/drivers/infiniband/hw/cxgb3/iwch_ev.c
-new file mode 100644
-index 0000000..646f612
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_ev.c
-@@ -0,0 +1,231 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include <linux/slab.h>
-+#include <linux/mman.h>
-+#include <net/sock.h>
-+#include "iwch_provider.h"
-+#include "iwch.h"
-+#include "iwch_cm.h"
-+#include "cxio_hal.h"
-+#include "cxio_wr.h"
-+
-+static void post_qp_event(struct iwch_dev *rnicp, struct iwch_cq *chp,
-+			  struct respQ_msg_t *rsp_msg,
-+			  enum ib_event_type ib_event,
-+			  int send_term)
-+{
-+	struct ib_event event;
-+	struct iwch_qp_attributes attrs;
-+	struct iwch_qp *qhp;
-+
-+	printk(KERN_ERR "%s - AE qpid 0x%x opcode %d status 0x%x "
-+	       "type %d wrid.hi 0x%x wrid.lo 0x%x \n", __FUNCTION__,
-+	       CQE_QPID(rsp_msg->cqe), CQE_OPCODE(rsp_msg->cqe),
-+	       CQE_STATUS(rsp_msg->cqe), CQE_TYPE(rsp_msg->cqe),
-+	       CQE_WRID_HI(rsp_msg->cqe), CQE_WRID_LOW(rsp_msg->cqe));
-+
-+	spin_lock(&rnicp->lock);
-+	qhp = get_qhp(rnicp, CQE_QPID(rsp_msg->cqe));
-+
-+	if (!qhp) {
-+		printk(KERN_ERR "%s unaffiliated error 0x%x qpid 0x%x\n",
-+		       __FUNCTION__, CQE_STATUS(rsp_msg->cqe),
-+		       CQE_QPID(rsp_msg->cqe));
-+		spin_unlock(&rnicp->lock);
-+		return;
-+	}
-+
-+	if ((qhp->attr.state == IWCH_QP_STATE_ERROR) ||
-+	    (qhp->attr.state == IWCH_QP_STATE_TERMINATE)) {
-+		PDBG("%s AE received after RTS - "
-+		     "qp state %d qpid 0x%x status 0x%x\n", __FUNCTION__,
-+		     qhp->attr.state, qhp->wq.qpid, CQE_STATUS(rsp_msg->cqe));
-+		spin_unlock(&rnicp->lock);
-+		return;
-+	}
-+
-+	atomic_inc(&qhp->refcnt);
-+	spin_unlock(&rnicp->lock);
-+
-+	event.event = ib_event;
-+	event.device = chp->ibcq.device;
-+	if (ib_event == IB_EVENT_CQ_ERR)
-+		event.element.cq = &chp->ibcq;
-+	else
-+		event.element.qp = &qhp->ibqp;
-+
-+	if (qhp->ibqp.event_handler)
-+		(*qhp->ibqp.event_handler)(&event, qhp->ibqp.qp_context);
-+
-+	if (qhp->attr.state == IWCH_QP_STATE_RTS) {
-+		attrs.next_state = IWCH_QP_STATE_TERMINATE;
-+		iwch_modify_qp(qhp->rhp, qhp, IWCH_QP_ATTR_NEXT_STATE,
-+			       &attrs, 1);
-+		if (send_term)
-+			iwch_post_terminate(qhp, rsp_msg);
-+	}
-+
-+	if (atomic_dec_and_test(&qhp->refcnt))
-+		wake_up(&qhp->wait);
-+}
-+
-+void iwch_ev_dispatch(struct cxio_rdev *rdev_p, struct sk_buff *skb)
-+{
-+	struct iwch_dev *rnicp;
-+	struct respQ_msg_t *rsp_msg = (struct respQ_msg_t *) skb->data;
-+	struct iwch_cq *chp;
-+	struct iwch_qp *qhp;
-+	u32 cqid = RSPQ_CQID(rsp_msg);
-+
-+	rnicp = (struct iwch_dev *) rdev_p->ulp;
-+	spin_lock(&rnicp->lock);
-+	chp = get_chp(rnicp, cqid);
-+	qhp = get_qhp(rnicp, CQE_QPID(rsp_msg->cqe));
-+	if (!chp || !qhp) {
-+		printk(KERN_ERR MOD "BAD AE cqid 0x%x qpid 0x%x opcode %d "
-+		       "status 0x%x type %d wrid.hi 0x%x wrid.lo 0x%x \n",
-+		       cqid, CQE_QPID(rsp_msg->cqe),
-+		       CQE_OPCODE(rsp_msg->cqe), CQE_STATUS(rsp_msg->cqe),
-+		       CQE_TYPE(rsp_msg->cqe), CQE_WRID_HI(rsp_msg->cqe),
-+		       CQE_WRID_LOW(rsp_msg->cqe));
-+		spin_unlock(&rnicp->lock);
-+		goto out;
-+	}
-+	iwch_qp_add_ref(&qhp->ibqp);
-+	atomic_inc(&chp->refcnt);
-+	spin_unlock(&rnicp->lock);
-+
-+	/*
-+	 * 1) completion of our sending a TERMINATE.
-+	 * 2) incoming TERMINATE message.
-+	 */
-+	if ((CQE_OPCODE(rsp_msg->cqe) == T3_TERMINATE) &&
-+	    (CQE_STATUS(rsp_msg->cqe) == 0)) {
-+		if (SQ_TYPE(rsp_msg->cqe)) {
-+			PDBG("%s QPID 0x%x ep %p disconnecting\n",
-+			     __FUNCTION__, qhp->wq.qpid, qhp->ep);
-+			iwch_ep_disconnect(qhp->ep, 0, GFP_ATOMIC);
-+		} else {
-+			PDBG("%s post REQ_ERR AE QPID 0x%x\n", __FUNCTION__,
-+			     qhp->wq.qpid);
-+			post_qp_event(rnicp, chp, rsp_msg,
-+				      IB_EVENT_QP_REQ_ERR, 0);
-+			iwch_ep_disconnect(qhp->ep, 0, GFP_ATOMIC);
-+		}
-+		goto done;
-+	}
-+
-+	/* Bad incoming Read request */
-+	if (SQ_TYPE(rsp_msg->cqe) &&
-+	    (CQE_OPCODE(rsp_msg->cqe) == T3_READ_RESP)) {
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_REQ_ERR, 1);
-+		goto done;
-+	}
-+
-+	/* Bad incoming write */
-+	if (RQ_TYPE(rsp_msg->cqe) &&
-+	    (CQE_OPCODE(rsp_msg->cqe) == T3_RDMA_WRITE)) {
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_REQ_ERR, 1);
-+		goto done;
-+	}
-+
-+	switch (CQE_STATUS(rsp_msg->cqe)) {
-+
-+	/* Completion Events */
-+	case TPT_ERR_SUCCESS:
-+
-+		/*
-+		 * Confirm the destination entry if this is a RECV completion.
-+		 */
-+		if (qhp->ep && SQ_TYPE(rsp_msg->cqe))
-+			dst_confirm(qhp->ep->dst);
-+		(*chp->ibcq.comp_handler)(&chp->ibcq, chp->ibcq.cq_context);
-+		break;
-+
-+	case TPT_ERR_STAG:
-+	case TPT_ERR_PDID:
-+	case TPT_ERR_QPID:
-+	case TPT_ERR_ACCESS:
-+	case TPT_ERR_WRAP:
-+	case TPT_ERR_BOUND:
-+	case TPT_ERR_INVALIDATE_SHARED_MR:
-+	case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
-+		printk(KERN_ERR "%s - CQE Err qpid 0x%x opcode %d status 0x%x "
-+		       "type %d wrid.hi 0x%x wrid.lo 0x%x \n", __FUNCTION__,
-+		       CQE_QPID(rsp_msg->cqe), CQE_OPCODE(rsp_msg->cqe),
-+		       CQE_STATUS(rsp_msg->cqe), CQE_TYPE(rsp_msg->cqe),
-+		       CQE_WRID_HI(rsp_msg->cqe), CQE_WRID_LOW(rsp_msg->cqe));
-+		(*chp->ibcq.comp_handler)(&chp->ibcq, chp->ibcq.cq_context);
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_ACCESS_ERR, 1);
-+		break;
-+
-+	/* Device Fatal Errors */
-+	case TPT_ERR_ECC:
-+	case TPT_ERR_ECC_PSTAG:
-+	case TPT_ERR_INTERNAL_ERR:
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_DEVICE_FATAL, 1);
-+		break;
-+	
-+	/* QP Fatal Errors */
-+	case TPT_ERR_OUT_OF_RQE:
-+	case TPT_ERR_PBL_ADDR_BOUND:
-+	case TPT_ERR_CRC:
-+	case TPT_ERR_MARKER:
-+	case TPT_ERR_PDU_LEN_ERR:
-+	case TPT_ERR_DDP_VERSION:
-+	case TPT_ERR_RDMA_VERSION:
-+	case TPT_ERR_OPCODE:
-+	case TPT_ERR_DDP_QUEUE_NUM:
-+	case TPT_ERR_MSN:
-+	case TPT_ERR_TBIT:
-+	case TPT_ERR_MO:
-+	case TPT_ERR_MSN_GAP:
-+	case TPT_ERR_MSN_RANGE:
-+	case TPT_ERR_RQE_ADDR_BOUND:
-+	case TPT_ERR_IRD_OVERFLOW:
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_FATAL, 1);
-+		break;
-+
-+	default:
-+		printk(KERN_ERR MOD "Unknown T3 status 0x%x QPID 0x%x\n",
-+		       CQE_STATUS(rsp_msg->cqe), qhp->wq.qpid);
-+		post_qp_event(rnicp, chp, rsp_msg, IB_EVENT_QP_FATAL, 1);
-+		break;
-+	}
-+done:
-+	if (atomic_dec_and_test(&chp->refcnt))
-+                wake_up(&chp->wait);
-+	iwch_qp_rem_ref(&qhp->ibqp);
-+out:
-+	dev_kfree_skb_irq(skb);
-+}
+Applying 'libata-scsi: ata_task_ioctl should return ATA registers from 
+sense data'
+
+fatal: corrupt patch at line 83
+

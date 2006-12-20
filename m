@@ -1,82 +1,184 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932926AbWLTBfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932904AbWLTBgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932926AbWLTBfA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 20:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWLTBfA
+	id S932904AbWLTBgP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 20:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932918AbWLTBgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 20:35:00 -0500
-Received: from sp604002mt.neufgp.fr ([84.96.92.61]:53566 "EHLO sMtp.neuf.fr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932926AbWLTBe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 20:34:59 -0500
-X-Greylist: delayed 3601 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 20:34:59 EST
-Date: Wed, 20 Dec 2006 01:34:55 +0100
-From: Vincent Legoll <vlegoll@9online.fr>
-Subject: [patch 1/4] Add <linux/klog.h>
-To: zackw@panix.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <4588852F.4070703@9online.fr>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)"
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Tue, 19 Dec 2006 20:36:15 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39294 "EHLO e4.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932904AbWLTBgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 20:36:14 -0500
+Subject: Re: [RFC] HZ free ntp
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0612132125450.1867@scrub.home>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	 <Pine.LNX.4.64.0612060348150.1868@scrub.home>
+	 <20061205203013.7073cb38.akpm@osdl.org>
+	 <1165393929.24604.222.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0612061334230.1867@scrub.home>
+	 <20061206131155.GA8558@elte.hu>
+	 <Pine.LNX.4.64.0612061422190.1867@scrub.home>
+	 <1165956021.20229.10.camel@localhost>
+	 <Pine.LNX.4.64.0612131338420.1867@scrub.home>
+	 <1166037549.6425.21.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0612132125450.1867@scrub.home>
+Content-Type: text/plain
+Date: Tue, 19 Dec 2006 17:32:36 -0800
+Message-Id: <1166578357.5594.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, 2006-12-13 at 21:40 +0100, Roman Zippel wrote:
+> On Wed, 13 Dec 2006, john stultz wrote:
+> > > You cannot choose arbitrary intervals otherwise you get other problems,
+> > > e.g. with your patch time_offset handling is broken.
+> >
+> > I'm not seeing this yet. Any more details?
+> 
+> time_offset is scaled to HZ in do_adjtimex, which needs to be changed as
+> well.
 
---Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
+Ah, thanks! Fixed.
 
-Hello,
+> > > You don't have to introduce anything new, it's tick_length that changes
+> > > and HZ that becomes a variable in this function.
+> >
+> > So, forgive me for rehashing this, but it seems we're cross talking
+> > again. The context here is the dynticks code. Where HZ doesn't change,
+> > but we get interrupts at much reduced rates.
+> 
+> I know and all you have to change in the ntp and some related code is to
+> replace HZ there with a variable, thus make it changable, so you can
+> increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
 
-what about something along the lines of the following,
-on top of your patch ?
+Untested patch below. Does this vibe better with you are suggesting?
 
-Or should the kernel-doc be put on another function
-instead of that one ?
+Any other suggestions or feedback?
 
--- 
-Vincent Legoll
+thanks
+-john
 
---Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)
-Content-type: text/plain; name=do-syslog-kernel-doc
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=do-syslog-kernel-doc
 
-Add do_syslog() kernel-doc
-
----
-commit 95b0721d8b4b46ddf83113fe49492810d7d92060
-tree e2715a8cf7eb0d71b3bee2185a5cf98639d79d90
-parent de794d2dfd6dd0c38dd552020ac00c46e1df5293
-author Vincent Legoll <vincent.legoll@gmail.com> Wed, 20 Dec 2006 01:29:34 +0100
-committer Vincent Legoll <vincent.legoll@gmail.com> Wed, 20 Dec 2006 01:29:34 +0100
-
- kernel/printk.c |   11 ++++++++++-
- 1 files changed, 10 insertions(+), 1 deletions(-)
-
-diff --git a/kernel/printk.c b/kernel/printk.c
-index 232467e..5416d07 100644
---- a/kernel/printk.c
-+++ b/kernel/printk.c
-@@ -164,7 +164,16 @@ out:
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+index db501dc..8241e6e 100644
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -286,6 +286,9 @@ #endif /* !CONFIG_TIME_INTERPOLATION */
  
- __setup("log_buf_len=", log_buf_len_setup);
+ #define TICK_LENGTH_SHIFT	32
  
--/* See linux/klog.h for the command numbers passed as the first argument.  */
-+/**
-+ * do_syslog - operate on kernel messages log
-+ * @type: operation to perform
-+ * @buf: user-space buffer to copy data into
-+ * @len: length of data to copy from log into @buf
-+ *
-+ * See include/linux/klog.h for the command numbers passed as @type.
-+ * Parameters @buf & @len are only used for operations of type %KLOG_READ,
-+ * %KLOG_READ_HIST and %KLOG_READ_CLEAR_HIST.
-+ */
- int do_syslog(int type, char __user *buf, int len)
++#define NTP_INTERVAL_FREQ  (HZ)
++#define NTP_INTERVAL_LENGTH (NSEC_PER_SEC/NTP_INTERVAL_FREQ)
++
+ /* Returns how long ticks are at present, in ns / 2^(SHIFT_SCALE-10). */
+ extern u64 current_tick_length(void);
+ 
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index 3afeaa3..eb12509 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -24,7 +24,7 @@ static u64 tick_length, tick_length_base
+ 
+ #define MAX_TICKADJ		500		/* microsecs */
+ #define MAX_TICKADJ_SCALED	(((u64)(MAX_TICKADJ * NSEC_PER_USEC) << \
+-				  TICK_LENGTH_SHIFT) / HZ)
++				  TICK_LENGTH_SHIFT) / NTP_INTERVAL_FREQ)
+ 
+ /*
+  * phase-lock loop variables
+@@ -46,13 +46,17 @@ #define CLOCK_TICK_ADJUST	(((s64)CLOCK_T
+ 
+ static void ntp_update_frequency(void)
  {
- 	unsigned long i, j, limit, count;
+-	tick_length_base = (u64)(tick_usec * NSEC_PER_USEC * USER_HZ) << TICK_LENGTH_SHIFT;
+-	tick_length_base += (s64)CLOCK_TICK_ADJUST << TICK_LENGTH_SHIFT;
+-	tick_length_base += (s64)time_freq << (TICK_LENGTH_SHIFT - SHIFT_NSEC);
++	u64 second_length = (u64)(tick_usec * NSEC_PER_USEC * USER_HZ)
++				<< TICK_LENGTH_SHIFT;
++	second_length += (s64)CLOCK_TICK_ADJUST << TICK_LENGTH_SHIFT;
++	second_length += (s64)time_freq << (TICK_LENGTH_SHIFT - SHIFT_NSEC);
+ 
+-	do_div(tick_length_base, HZ);
++	tick_length_base = second_length;
+ 
+-	tick_nsec = tick_length_base >> TICK_LENGTH_SHIFT;
++	do_div(second_length, HZ);
++	tick_nsec = second_length >> TICK_LENGTH_SHIFT;
++
++	do_div(tick_length_base, NTP_INTERVAL_FREQ);
+ }
+ 
+ /**
+@@ -162,7 +166,7 @@ void second_overflow(void)
+ 			tick_length -= MAX_TICKADJ_SCALED;
+ 		} else {
+ 			tick_length += (s64)(time_adjust * NSEC_PER_USEC /
+-					     HZ) << TICK_LENGTH_SHIFT;
++					NTP_INTERVAL_FREQ) << TICK_LENGTH_SHIFT;
+ 			time_adjust = 0;
+ 		}
+ 	}
+@@ -239,7 +243,8 @@ #endif
+ 		    result = -EINVAL;
+ 		    goto leave;
+ 		}
+-		time_freq = ((s64)txc->freq * NSEC_PER_USEC) >> (SHIFT_USEC - SHIFT_NSEC);
++		time_freq = ((s64)txc->freq * NSEC_PER_USEC)
++				>> (SHIFT_USEC - SHIFT_NSEC);
+ 	    }
+ 
+ 	    if (txc->modes & ADJ_MAXERROR) {
+@@ -309,7 +314,8 @@ #endif
+ 		    freq_adj += time_freq;
+ 		    freq_adj = min(freq_adj, (s64)MAXFREQ_NSEC);
+ 		    time_freq = max(freq_adj, (s64)-MAXFREQ_NSEC);
+-		    time_offset = (time_offset / HZ) << SHIFT_UPDATE;
++		    time_offset = (time_offset / NTP_INTERVAL_FREQ)
++		    			<< SHIFT_UPDATE;
+ 		} /* STA_PLL */
+ 	    } /* txc->modes & ADJ_OFFSET */
+ 	    if (txc->modes & ADJ_TICK)
+@@ -324,8 +330,10 @@ leave:	if ((time_status & (STA_UNSYNC|ST
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+ 	    txc->offset	   = save_adjust;
+ 	else
+-	    txc->offset    = shift_right(time_offset, SHIFT_UPDATE) * HZ / 1000;
+-	txc->freq	   = (time_freq / NSEC_PER_USEC) << (SHIFT_USEC - SHIFT_NSEC);
++	    txc->offset    = shift_right(time_offset, SHIFT_UPDATE)
++	    			* NTP_INTERVAL_FREQ / 1000;
++	txc->freq	   = (time_freq / NSEC_PER_USEC)
++				<< (SHIFT_USEC - SHIFT_NSEC);
+ 	txc->maxerror	   = time_maxerror;
+ 	txc->esterror	   = time_esterror;
+ 	txc->status	   = time_status;
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 0256ab4..616b7fd 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -890,7 +890,7 @@ void __init timekeeping_init(void)
+ 	ntp_clear();
+ 
+ 	clock = clocksource_get_next();
+-	clocksource_calculate_interval(clock, tick_nsec);
++	clocksource_calculate_interval(clock, NTP_INTERVAL_LENGTH);
+ 	clock->cycle_last = clocksource_read(clock);
+ 
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+@@ -1092,7 +1092,7 @@ #endif
+ 	if (change_clocksource()) {
+ 		clock->error = 0;
+ 		clock->xtime_nsec = 0;
+-		clocksource_calculate_interval(clock, tick_nsec);
++		clocksource_calculate_interval(clock, NTP_INTERVAL_LENGTH);
+ 	}
+ }
+ 
 
---Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)--
+

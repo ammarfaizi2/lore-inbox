@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932665AbWLTAGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932707AbWLTAJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932665AbWLTAGf (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 19:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWLTAGe
+	id S932707AbWLTAJ0 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 19:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbWLTAJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 19:06:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60498 "EHLO mx1.redhat.com"
+	Tue, 19 Dec 2006 19:09:26 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47665 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932665AbWLTAGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 19:06:34 -0500
-To: davids@webmaster.com
-Cc: "Linux-Kernel\@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: GPL only modules
-References: <MDEHLPKNGKAHNMBLJOLKKEDMAHAC.davids@webmaster.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Tue, 19 Dec 2006 22:06:27 -0200
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEDMAHAC.davids@webmaster.com> (David Schwartz's message of "Mon\, 18 Dec 2006 13\:23\:59 -0800")
-Message-ID: <ormz5j2zy4.fsf@redhat.com>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S932674AbWLTAJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 19:09:24 -0500
+Date: Tue, 19 Dec 2006 16:08:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ltuikov@yahoo.com
+Cc: Jurriaan <thunder7@xs4all.nl>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       Tejun Heo <htejun@gmail.com>, Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: sata badness in 2.6.20-rc1? [Was: Re: md patches in -mm]
+Message-Id: <20061219160840.bb6b155f.akpm@osdl.org>
+In-Reply-To: <362582.18476.qm@web31811.mail.mud.yahoo.com>
+References: <20061217160056.GA3555@amd64.of.nowhere>
+	<362582.18476.qm@web31811.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 18, 2006, "David Schwartz" <davids@webmaster.com> wrote:
+On Tue, 19 Dec 2006 15:26:00 -0800 (PST)
+Luben Tuikov <ltuikov@yahoo.com> wrote:
 
-> No automated, mechanical process can create a derivative work of software.
-> (With a few exceptions not relevant here.)
+> The reason was that my dev tree was tainted by this bug:
+> 
+>         if (good_bytes &&
+> -           scsi_end_request(cmd, 1, good_bytes, !!result) == NULL)
+> +           scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
+>                 return;
+> 
+> in scsi_io_completion().  I had there !!result which is wrong, and when
+> I diffed against master, it produced a bad patch.
 
-Can you explain what mechanisms are involved in copyright monopolies
-over object code, then?
-(there's a hint at http://www.fsfla.org/?q=en/node/128#1 )
+Oh.  I thought that got sorted out.  It's a shame this wasn't made clear to
+me..
 
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-FSF Latin America Board Member         http://www.fsfla.org/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+> As James mentioned one of the chunks is good and can go in.
+
+Please send a new patch, not referential to any previous patch or email,
+including full changelogging.
+

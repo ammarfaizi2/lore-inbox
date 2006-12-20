@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1160997AbWLTWz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161000AbWLTW72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160997AbWLTWz4 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 17:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbWLTWz4
+	id S1161000AbWLTW72 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 17:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWLTW72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:55:56 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:60812 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1160997AbWLTWzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:55:55 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4589BF62.4050105@s5r6.in-berlin.de>
-Date: Wed, 20 Dec 2006 23:55:30 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>,
-       Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/4] Add core firewire stack.
-References: <20061220005827.GC11746@devserv.devel.redhat.com>
-In-Reply-To: <20061220005827.GC11746@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 20 Dec 2006 17:59:28 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:39964 "EHLO e5.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161000AbWLTW70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 17:59:26 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Michlmayr <tbm@cyrius.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+In-Reply-To: <Pine.LNX.4.64.0612201420140.3576@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	 <1166605296.10372.191.camel@twins>
+	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	 <1166614001.10372.205.camel@twins>
+	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	 <1166622979.10372.224.camel@twins>
+	 <20061220170323.GA12989@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	 <20061220175309.GT30106@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+	 <1166651735.10211.9.camel@kleikamp.austin.ibm.com>
+	 <Pine.LNX.4.64.0612201420140.3576@woody.osdl.org>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 16:59:13 -0600
+Message-Id: <1166655553.9726.9.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Høgsberg wrote:
-> Signed-off-by: Kristian Hoegsberg <krh@redhat.com>
-> ---
->  drivers/Kconfig                   |    2 
->  drivers/Makefile                  |    1 
->  drivers/firewire/Kconfig          |   23 +
->  drivers/firewire/Makefile         |    7 
->  drivers/firewire/fw-card.c        |  384 +++++++++++++++++++
->  drivers/firewire/fw-iso.c         |  136 +++++++
->  drivers/firewire/fw-topology.c    |  446 +++++++++++++++++++++++
->  drivers/firewire/fw-topology.h    |   84 ++++
->  drivers/firewire/fw-transaction.c |  730 +++++++++++++++++++++++++++++++++++++
->  drivers/firewire/fw-transaction.h |  422 +++++++++++++++++++++
->  10 files changed, 2235 insertions(+), 0 deletions(-)
+On Wed, 2006-12-20 at 14:25 -0800, Linus Torvalds wrote:
 > 
-> diff --git a/drivers/Kconfig b/drivers/Kconfig
-> index e7da9fa..c651556 100644
-> --- a/drivers/Kconfig
-> +++ b/drivers/Kconfig
-> @@ -30,6 +30,8 @@ source "drivers/md/Kconfig"
->  
->  source "drivers/message/fusion/Kconfig"
->  
-> +source "drivers/firewire/Kconfig"
-> +
->  source "drivers/ieee1394/Kconfig"
->  
->  source "drivers/message/i2o/Kconfig"
-[...]
+> On Wed, 20 Dec 2006, Dave Kleikamp wrote:
+> >
+> > This patch removes some questionable code that attempted to make a
+> > no-longer-used page easier to reclaim.
+> 
+> If so, "cancel_dirty_page()" may actually be the right thing to use, but
+> only if you can guarantee that the page isn't mapped anywhere (and from
+> the name of the function I guess it's not something that you'll ever map?)
 
-Would anybody mind if I pick this up for linux1394-2.6.git's master
-branch? --- This would mean it appears in the next -mm.
+That's correct.  It can't be mapped.  It's a private mapping only used
+for metadata.
 
+I'm really not sure the code in question is having the intended effect.
+Maybe one of the gurus on cc: can take a look at the code and tell me if
+it's worth keeping.  I apologize in advance if it makes anyone lose
+their lunch.
 
-(Personally, I would prefer it being stuffed into drivers/ieee1394, thus
-preparing for a _potential_ point in time when the kernel config option
-of old stack vs. new stack vs. both stacks condenses to a radio button
-in a single IEEE 1394 config menu, and for a potential brief period
-during which both stacks live in mainline together that way. But if
-nobody else complains, I'll include it as drivers/firewire.)
+> So the JFS code _looks_ like you could just replace the
+> 
+> 	clear_page_dirty(page);
+> 
+> with
+> 
+> 	cancel_dirty_page(page, PAGE_CACHE_SIZE);
+> 
+> (where that second parameter is just used for statistics - it updates the
+> "cancelled IO" byte-counts if CONFIG_TASK_IO_ACCOUNTING is set - so the
+> number doesn't really matter, you could make it zero if you never want the
+> thing to show up in the IO accounting).
+
+I'm not sure whether zero or PAGE_CACHE_SIZE would be better.  The
+situation is where some page of metadata is no longer used, say
+shrinking a directory tree or truncating a file and throwing out the
+extent tree.
+
+Thanks,
+Shaggy
 -- 
-Stefan Richter
--=====-=-==- ==-- =-=--
-http://arcgraph.de/sr/
+David Kleikamp
+IBM Linux Technology Center
+

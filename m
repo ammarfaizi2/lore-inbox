@@ -1,83 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030320AbWLTT3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030292AbWLTTcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWLTT3j (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWLTT3j
+	id S1030292AbWLTTcZ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWLTTcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:29:39 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:1110 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030305AbWLTT3i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:29:38 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Marek Wawrzyczny" <marekw1977@yahoo.com.au>, <valdis.kletnietks@vt.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Date: Wed, 20 Dec 2006 11:29:00 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Wed, 20 Dec 2006 14:32:24 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:36857 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030292AbWLTTcX (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:32:23 -0500
+Message-Id: <200612201926.kBKJQoqN020967@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH 0/5][time][x86_64] GENERIC_TIME patchset for x86_64
+In-Reply-To: Your message of "Tue, 19 Dec 2006 20:20:39 EST."
+             <20061220011707.25341.6522.sendpatchset@localhost>
+From: Valdis.Kletnieks@vt.edu
+References: <20061220011707.25341.6522.sendpatchset@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1166642810_3391P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200612200511.kBK5BFo4019459@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 20 Dec 2006 12:32:04 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 20 Dec 2006 12:32:06 -0800
+Date: Wed, 20 Dec 2006 14:26:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1166642810_3391P
+Content-Type: text/plain; charset=us-ascii
 
-> This is a can of worms, and then some.  For instance, let's consider this
-> Latitude.  *THIS* one has an NVidia Quadro NVS 110M in it.
-> However, that's
-> not the default graphics card on a Latitude D820.  So what number do you
-> put in?  Do you use:
+On Tue, 19 Dec 2006 20:20:39 EST, john stultz said:
+> 	I didn't hear any objections (or really, any comments) on my 
+> last release, so as I mentioned then, I want to go ahead and push this 
+> to Andrew for a bit of testing in -mm. Hopefully targeting for 
+> inclusion in 2.6.21 or 2.6.22.
 
-> a) the *default* graphics card
-> b) the one *I* have with the open-source driver
-> c) the same one, but with the NVidia binary driver?
+Am running it on a Dell Latitude D820 (Core2 T7200 cpu).  I had to un-do
+4 conflicting patches in -rc1-mm1 and then it applied and ran clean, I still
+need to look at re-merging them:
 
+hpet-avoid-warning-message-livelock.patch
+clockevents-i386-hpet-driver.patch
+get-rid-of-arch_have_xtime_lock.patch
+x86_64-mm-amd-tsc-sync.patch
 
-> Similar issues are involved with the wireless card - the Intel 3945 I
-> have isn't the default.  Repeat for several different disk options, and
-> at least 4 or 5 different CD/ROM/DVD options.  Add in the fact that Dell
-> often changes suppliers for disk and CD/DVD drives, and you have
-> a nightmare
-> coming...
+It *looks* like all the pieces are there except a few lines of Kconfig
+magic to wire up the dynticks/NO_HZ stuff - or did I miss something crucial?
 
-> And then there's stuff on this machine that are *not* options, but don't
-> matter to me.  I see an 'O2 Micro' Firewire in the 'lspci' output.  I have
-> no idea how well it works.  I don't care what it contributes to the score.
-> On the other hand, somebody who uses external Firewire disk enclosures may
-> be *very* concerned about it, but not care in the slightest about
-> the wireless
-> card.
->
-> Bonus points for figuring out what to do with systems that have some chip
-> that's a supported XYZ driver, but wired up behind a squirrely bridge with
-> some totally bizarre IRQ allocation, so you end up with something that's
-> visible on lspci but not actually *usable* in any real sense of
-> the term...
+--==_Exmh_1166642810_3391P
+Content-Type: application/pgp-signature
 
-Let's not let the perfect be the enemy of the good. Remember, the goal is to
-allow consumers to know whether or not their system's hardware
-specifications are available. It's not about driver availability -- if the
-hardware specifications are available and a driver is not, that's not the
-hardware manufacturer's fault.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Linux is about *allowing* people to do things.
+iD8DBQFFiY56cC3lWbTT17ARAjbSAJ9gIiEwUW6RFg3c9o4zuwwC/AFSKwCdFRv6
+snWQu6MTeeRgHdFAZkbQsWw=
+=Ryt4
+-----END PGP SIGNATURE-----
 
-DS
-
-
+--==_Exmh_1166642810_3391P--

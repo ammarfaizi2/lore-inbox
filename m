@@ -1,82 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964784AbWLTKke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964770AbWLTKmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWLTKke (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 05:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWLTKkd
+	id S964770AbWLTKmz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 05:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWLTKmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 05:40:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53183 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964784AbWLTKkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 05:40:33 -0500
-Date: Wed, 20 Dec 2006 02:37:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: "Yinghai Lu" <yinghai.lu@amd.com>,
-       "ard@telegraafnet.nl" <ard@telegraafnet.nl>, take@libero.it,
-       agalanin@mera.ru, linux-kernel@vger.kernel.org,
-       bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Zhang Yanmin" <yanmin.zhang@intel.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-Id: <20061220023734.863825e1.akpm@osdl.org>
-In-Reply-To: <200612200502_MC3-1-D5AF-1674@compuserve.com>
-References: <200612200502_MC3-1-D5AF-1674@compuserve.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Dec 2006 05:42:55 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:34308 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964770AbWLTKmy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 05:42:54 -0500
+Message-ID: <458913AC.7080300@s5r6.in-berlin.de>
+Date: Wed, 20 Dec 2006 11:42:52 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/4] New firewire stack - updated patches
+References: <20061220005822.GB11746@devserv.devel.redhat.com>
+In-Reply-To: <20061220005822.GB11746@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 04:59:19 -0500
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
-
-> > On 12/19/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> > > So an external interrupt occurred, the system tried to use interrupt
-> > > descriptor #39 decimal (irq 7), but the descriptor was invalid.
-> > 
-> > but the irq is disabled at that time.
-> > 
-> > can you use attached diff to verify if the irq is enable somehow?
+Kristian Høgsberg wrote:
+...
+> to sum up the changes:
 > 
-> But it seems interrupts are on--look at the flags:
+>  - Got rid of bitfields.
 > 
->         RSP: 0018:ffffffff803cdf68  EFLAGS: 00010246
+>  - Tested on ppc, ppc64 x86-64 and x86.
 > 
+>  - ioctl interface tested on 32-bit userspace / 64-bit kernels.
+> 
+>  - ASCIIfied sources.
+> 
+>  - Incorporated Jeff Garziks comments.
+> 
+>  - Updated to work with the new workqueue API changes.
+> 
+>  - Moved subsystem to drivers/firewire from drivers/fw.
+> 
+> plus a number of bug fixes.
 
-down_write()->__down_write()->__down_write_nested()->spin_unlock_irq()->dead
+Congrats. WRT the 1st, 3rd, and 5th item you are now ahead of mainline's
+stack. :-)
 
-Could someone please test this?
+> As mentioned last time, the stack still lacks isochronous receive
+> functionality to be on par with the old stack, feature-wise.  This is
+> the one remaining piece of feature work kernel-side.  When that is
+> done, I have a couple of TODO items in user space:
 
+Actually there are also eth1394 and pcilynx to be pulled over. Eth1394
+should be quite easy to do for anybody after iso reception is settled in
+your stack. Pcilynx could follow depending on developer interest. It's
+increasingly rare hardware and the few old machines which have it can be
+cheaply upgraded to OHCI (which performs better for SBP-2 anyway).
 
---- a/lib/rwsem-spinlock.c~a
-+++ a/lib/rwsem-spinlock.c
-@@ -195,13 +195,14 @@ void fastcall __sched __down_write_neste
- {
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk;
-+	unsigned long flags;
- 
--	spin_lock_irq(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (sem->activity == 0 && list_empty(&sem->wait_list)) {
- 		/* granted */
- 		sem->activity = -1;
--		spin_unlock_irq(&sem->wait_lock);
-+		spin_unlock_irqrestore(&sem->wait_lock, flags);
- 		goto out;
- 	}
- 
-@@ -216,7 +217,7 @@ void fastcall __sched __down_write_neste
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
- 	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock_irq(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-_
+>  - Make a libraw1394 compatibility library
 
+Consider using libraw1394 right from the start of this porting project.
+If there is only one libraw1394 (which works with raw1394 and with
+fw-device-cdev), enthusiasts might have an easier time to test your stack.
+
+>  - Port libdv1394 to new isochronous API.
+> 
+> which will allow us to move most user space applications to the new
+> stack.
+...
+
+-- 
+Stefan Richter
+-=====-=-==- ==-- =-=--
+http://arcgraph.de/sr/

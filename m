@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964897AbWLTF45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964900AbWLTGF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWLTF45 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 00:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWLTF45
+	id S964900AbWLTGF5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 01:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWLTGF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 00:56:57 -0500
-Received: from wx-out-0506.google.com ([66.249.82.224]:62258 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964897AbWLTF44 (ORCPT
+	Wed, 20 Dec 2006 01:05:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:7081 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964900AbWLTGFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 00:56:56 -0500
+	Wed, 20 Dec 2006 01:05:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k4qPkSM9X1vvEYUCkn5VvyzfKYfsTPsyp72LkPvRtq7fAd7PclHqfon70GtN/8aYdcZvd8a7buHMxaKRhP/TWdLh/+eamEH1FfNHdnBJNsp+anEH3WErV1LWqbm30sNVmMUVMJxo66ta0uioAwMZd/oR8z4EyPthjxcnPsmPZZk=
-Message-ID: <b3f268590612192156oce50b07g379f312146c7389e@mail.gmail.com>
-Date: Wed, 20 Dec 2006 14:56:55 +0900
-From: "Jari Sundell" <sundell.software@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: 2.6.19 file content corruption on ext3
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Andrew Morton" <akpm@osdl.org>, andrei.popa@i-neo.ro,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
-       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
-       "Martin Michlmayr" <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
+        b=c+3/6xtmY1oQZNT4ft2WXbR1KGgBmeL5PJO/PJVXUq6GZGffZyHmi+gFTdy9npd1rTgkGJ8Oda3qTUIC/+fB4nuoqe40RB7Zrag0sjyEzU8ZM2GA2a9IHN+6ZOtTiLUCpTq40XG80dUI7eVosjyjKOz9NrkhoDP73S7BFxrgNa8=
+Message-ID: <787b0d920612192205v2d650361r4f737c41aa1d3a92@mail.gmail.com>
+Date: Wed, 20 Dec 2006 01:05:54 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Mike Galbraith" <efault@gmx.de>
+Subject: Re: BUG: wedged processes, test program supplied
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1166593200.1614.8.camel@Homer.simpson.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1166314399.7018.6.camel@localhost> <45876C65.7010301@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	 <45878BE8.8010700@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-	 <4587B762.2030603@yahoo.com.au>
-	 <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-	 <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
+References: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
+	 <1166593200.1614.8.camel@Homer.simpson.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/20/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> On Tue, 19 Dec 2006, Linus Torvalds wrote:
-> >
-> >  here's a totally new tangent on this: it's possible that user code is
-> > simply BUGGY.
+On 12/20/06, Mike Galbraith <efault@gmx.de> wrote:
+> On Tue, 2006-12-19 at 21:46 -0500, Albert Cahalan wrote:
+> > Somebody PLEASE try this...
 >
-> Btw, here's a simpler test-program that actually shows the difference
-> between 2.6.18 and 2.6.19 in action, and why it could explain why a
-> program like rtorrent might show corruption behavious that it didn't show
-> before.
+> I was having enough fun with cloninator (which was whitespace munged
+> btw).
 
-Kinda late to the discussion, but I guess I could summarize what
-rtorrent actually does, or should be doing.
+Anything stuck? Besides refusing to die, that beast slays debuggers
+left and right. I just need to add execve of /proc/self/exe and a massive
+storm of signals on the alternate stack.
 
-When downloading a new torrent, it will create the files and truncate
-them to the final size. It will never call truncate after this and the
-files will remain sparse until data is downloaded. A 'piece' is mapped
-to memory using MAP_SHARED, which will be page aligned on single file
-torrents but unlikely to be so on multi-file torrents.
+In the original post, I also mangled the recommended ps command:
+ps -Ccloninator
+-mwostat,ppid,pid,tid,nlwp,pending,sigmask,sigignore,caught,wchan
 
-So on multi-file torrents it'll often end up with two mappings
-overlapping with one page, each of which only write to their own part
-the page. These will then be sync'ed with MS_ASYNC, or MS_SYNC if low
-on disk space. After that it might be unmapped, then mapped as
-read-only.
+Leave out pid,tid,nlwp if you need to save screen space, like so:
+ps -Ccloninator -mwostat,ppid,pending,sigmask,sigignore,caught,wchan
 
-I haven't thought of asking if single file torrents are ok.
+(note: procps versions prior to 3.2.7 are mostly fine, but will mess
+up the PENDING column for any single-threaded processes you get)
 
-Rakshasa
+This is fun to look at:
+watch ps -Ccloninator fostat,ppid,wchan:9,comm
+
+> > Normally, when a process dies it becomes a zombie.
+> > If the parent dies (before or after the child), the child
+> > is adopted by init. Init will reap the child.
+> >
+> > The program included below DOES NOT get reaped.
+>
+> While true wasn't a great test recommendation :)
+
+Oh. I wanted to be sure you'd see the problem. Did you have
+some... difficulty? A plain old ^C should make things stop.
+The second test program is like the first, but missing SIGCHLD
+from the clone flags, and hopefully not whitespace-mangled.
+
+Note that the test program is not normally a fork bomb.
+It self-limits itself to 42 tasks via a lock in shared memory.
+If things are working OK, you should see no more than
+about 60 tasks.

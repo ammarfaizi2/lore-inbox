@@ -1,120 +1,239 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964779AbWLTCRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbWLTCWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWLTCRG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 21:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWLTCRG
+	id S964786AbWLTCWL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 21:22:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWLTCWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 21:17:06 -0500
-Received: from dorf.mancill.com ([207.162.210.177]:42027 "EHLO
-	dorf.mancill.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964779AbWLTCRF (ORCPT
+	Tue, 19 Dec 2006 21:22:11 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:34306 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964781AbWLTCWJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 21:17:05 -0500
-X-Greylist: delayed 1628 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 21:17:04 EST
-Message-ID: <45889687.5050609@mancill.com>
-Date: Tue, 19 Dec 2006 17:48:55 -0800
-From: tony mancill <tony@mancill.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Tue, 19 Dec 2006 21:22:09 -0500
+Message-ID: <45889E4B.7050406@in.ibm.com>
+Date: Tue, 19 Dec 2006 18:22:03 -0800
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Linux Technology Center
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060413 Red Hat/1.7.13-1.4.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       alsa-devel <alsa-devel@alsa-project.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] HDA Intel sound driver fails on Acer notebook
-References: <200612030233_MC3-1-D3BB-DE9@compuserve.com> <s5hfybcfbz8.wl%tiwai@suse.de>
-In-Reply-To: <s5hfybcfbz8.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-ext4@vger.kernel.org,
+       cmm@us.ibm.com, amit <amitarora@in.ibm.com>, jack@suse.cz
+Subject: Re: [RFC] [PATCH] Fix kmalloc flags used in ext3 with an active	journal
+ handle
+References: <458898B4.5010805@in.ibm.com> <20061219180358.bfda00f0.akpm@osdl.org>
+In-Reply-To: <20061219180358.bfda00f0.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------080403020708000803020002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FWIW, using pci=noacpi seems to break the USB controller on this laptop.  
-I get "device not accepting address xx, error -110.
+This is a multi-part message in MIME format.
+--------------080403020708000803020002
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-In addition, neither the onboard nor the wireless NIC work anymore with
-this option.  For the onboard, you see that the link is up, but then
-get "NETDEV WATCHDOG: eth0: transmit timed out."
 
-acpi=off is worse - the boot hangs trying to load acpi/thermal.ko.
-
-I've tested with both 1.0.13 and and 1.0.14rc1.  I don't get exactly
-the same kernel logging (I'm using a Debian 2.6.18 kernel), but kern.log
-contains:
-
-Dec 19 17:39:43 maus kernel: : hda_codec: invalid dep_range_val 0:7fff
-Dec 19 17:39:43 maus kernel: ALSA /home/tony/alsa-driver-1.0.14rc1/pci/hda/hda_codec.c:216: hda_codec: invalid dep_range_val 0:7fff
-Dec 19 17:39:43 maus last message repeated 279 times
-Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0xd
-Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0x9
-Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0xd
-Dec 19 17:39:43 maus last message repeated 20 times
-Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0x9
-
-Thanks in advance for any assistance.  I hope you enjoyed your
-vacation.
-
-Thanks,
-tony
-
-Takashi Iwai wrote:
-> Hi,
+Andrew Morton wrote:
+> On Tue, 19 Dec 2006 17:58:12 -0800
+> Suzuki <suzuki@in.ibm.com> wrote:
 > 
-> sorry for the late reply since I've been on vacation.
 > 
-> At Sun, 3 Dec 2006 02:30:34 -0500,
-> Chuck Ebbert wrote:
->> The HDA Intel sound driver still fails to load on my Acer Aspire 5102
->> notebook (Turion64 X2, ATI chipset):
+>>* Fix the kmalloc flags used from within ext3, when we have an active journal handle
 >>
->> Here is the PCI info while running x86_64.  I tried i386 and x86_64 and it fails
->> on both:
->>
->> 00:14.2 Audio device: ATI Technologies Inc Unknown device 437b (rev 01)
->>         Subsystem: Acer Incorporated [ALI] Unknown device 009f
->>         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->>         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->>         Latency: 64, Cache Line Size 08
->>         Interrupt: pin ? routed to IRQ 16
->>         Region 0: Memory at c0000000 (64-bit, non-prefetchable) [size=16K]
->>         Capabilities: [50] Power Management version 2
->>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
->>         Capabilities: [60] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
->>                 Address: 0000000000000000  Data: 0000
->> 00: 02 10 7b 43 06 00 10 04 01 00 03 04 08 40 00 00
->> 10: 04 00 00 c0 00 00 00 00 00 00 00 00 00 00 00 00
->> 20: 00 00 00 00 00 00 00 00 00 00 00 00 25 10 9f 00
->> 30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 00 00 00
->> 40: 00 00 02 40 00 00 00 00 00 00 00 00 00 00 00 00
->> 50: 01 60 42 c8 00 00 00 00 00 00 00 00 00 00 00 00
->> 60: 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->>
->> On i386 I get this after doing
->>         insmod snd-hda-codec.ko ;  insmod snd-hda-intel.ko
->>
->> Dec  1 17:38:29 ac kernel: ACPI: PCI Interrupt 0000:00:14.2[A] -> GSI 16 (level, low) -> IRQ 18
->> Dec  1 17:38:29 ac kernel: codec_mask = 0xb
->> Dec  1 17:38:30 ac kernel: hda_codec: PCI 1025:9f, codec config 5 is selected
->> Dec  1 17:38:31 ac kernel: hda_intel: azx_get_response timeout, switching to polling mode...
->> Dec  1 17:38:32 ac kernel: hda_intel: azx_get_response timeout, switching to single_cmd mode...
-> 
-> These messages are scary.  It means that the communication between the
-> controller chip and the codec chip doesn't work, usually incorrect IRQ
-> handling, and often due to broken BIOS or ACPI support.  Any change if
-> you pass pci=noacpi or acpi=off boot option?
-> 
-> Anyway, you can try alsa-git patch in mm tree.  It's a better support
-> code for Acer laptops, and this might work slightly differently.
+>>	If we do a kmalloc with GFP_KERNEL on system running low on memory, with an active journal handle, we might end up in cleaning up the fs cache flushing dirty inodes for some other filesystem. This would cause hitting a J_ASSERT() in :
 > 
 > 
-> Takashi
+> The change might be needed (haven't looked at it yet).  But I'd like to see
+> the full BUG trace, please.  To see the callchain.
+
+Here is the call trace which was hit by one of our test teams. This was 
+from fs/ext3/xattr.c. While looking for similar calls I found the others 
+described in the patch.
+
+Assertion failure in journal_start() at fs/jbd/transaction.c:274: "handle-
+ >h_transaction->t_journal == journal"
+kernel BUG at fs/jbd/transaction.c:274!
+illegal operation: 0001 [#1]
+CPU:    0    Not tainted (2.6.5-7.282-s390x SLES9_SP3_BRANCH-20061031152356)
+Process dbench (pid: 14070, task: 00000000025617f0, ksp: 0000000001057630)
+Krnl PSW : 0700000180000000 0000000008837b38 (journal_start+0x90/0x15c 
+[jbd])
+Krnl GPRS: 0000000000000000 0000000000507fc0 000000000000002b 
+0000000001056d80
+            0000000008837b36 0000000000002885 0000000008841da6 
+0000000000000000
+            00000000001bfaa0 0000000003483d08 0000000000000002 
+0000000007a8bda0
+            0000000008833000 00000000088a7d08 0000000008837b36 
+0000000001056e80
+Krnl Code: 00 00 58 10 b0 0c a7 1a 00 01 b9 04 00 2b 50 10 b0 0c e3 40
+Call Trace:
+  [<00000000088a30fc>] ext3_journal_start+0x8c/0xa4 [ext3]
+  [<0000000008896822>] ext3_dirty_inode+0x3a/0xe0 [ext3]
+  [<00000000001ca362>] __mark_inode_dirty+0x1ae/0x1c8
+  [<00000000001bfaa0>] iput+0xbc/0xf0
+  [<00000000001bdcca>] prune_dcache+0x29e/0x584
+  [<00000000001bdfe4>] shrink_dcache_memory+0x34/0x54
+  [<000000000017b100>] shrink_slab+0x15c/0x250
+  [<000000000017b6e4>] try_to_free_pages+0x1c0/0x2a4
+  [<0000000000170276>] __alloc_pages+0x2ba/0x4e0
+  [<000000000017059a>] __get_free_pages+0x4e/0x8c
+  [<0000000000174ea2>] cache_alloc_refill+0x2a6/0x868
+  [<0000000000175540>] __kmalloc+0xdc/0xe0
+  [<00000000088a4e62>] ext3_xattr_set_handle+0x114a/0x174c [ext3]
+  [<00000000088a54e4>] ext3_xattr_set+0x80/0xd0 [ext3]
+  [<00000000088a6312>] ext3_xattr_user_set+0xce/0xe4 [ext3]
+  [<00000000088a5f1e>] ext3_setxattr+0x17e/0x18c [ext3]
+  [<00000000001c88e6>] setxattr+0x14a/0x234
+  [<00000000001c8a80>] sys_fsetxattr+0xb0/0x110
+  [<000000000011fc10>] sysc_noemu+0x10/0x16
+> 
+> Always include the trace...
+
+Will take care of it from now onwards.
+> 
+> Thanks.
+
+
+--------------080403020708000803020002
+Content-Type: text/x-patch;
+ name="fix-ext3-kmalloc-flags-with-journal-handle.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-ext3-kmalloc-flags-with-journal-handle.diff"
+
+* Fix the kmalloc flags used from within ext3, when we have an active journal handle
+
+	If we do a kmalloc with GFP_KERNEL on system running low on memory, with an active journal handle, we might end up in cleaning up the fs cache flushing dirty inodes for some other filesystem. This would cause hitting a J_ASSERT() in :
+
+handle_t *journal_start(journal_t *journal, int nblocks)
+{
+	handle_t *handle = journal_current_handle();
+	int err;
+[...]
+
+	if (handle) {
+		J_ASSERT(handle->h_transaction->t_journal == journal);
+
+
+Here are the places where we do kmalloc or may end up doing kmalloc, with __GFP_FS (through GFP_KERNEL) from ext3, while holding a journal handle. 
+
+1) fs/ext3/xattr.c :: ext3_xattr_block_set() : 2 occurences 
+
+2) fs/ext3/resize.c :: reserve_backup_gdb()
+3) fs/ext3/resize.c :: add_new_gdb()
+
+
+4) fs/ext3/acl.c :: ext3_init_acl() :
+    There are quite a few points where we may endup calling the kmalloc() from ext3_init_acl() which is called with a handle() from ext3_new_inode():
+
+ a)   Called direclty within ext3_init_acl() as:
+          clone = posix_acl_clone(acl, GFP_KERNEL);
+ b) With the following code path:    
+    ext3_init_acl()-> ext3_get_acl()-> ext3_acl_from_disk() -> posix_acl_alloc(GFP_KERNEL)
+
+ c) Also  ext3_init_acl()-> ext3_get_acl()-> kmalloc() also might call kmalloc() directly.
+
+
+5) fs/ext3/acl.c :: ext3_acl_to_disk() which is called from ext3_set_acl().
+
+
+Among these 4.b & 4.c may be called from a with or without handle case. 
+
+There was a similar issue reported sometime back, early this year.
+
+http://lkml.org/lkml/2006/1/31/54
+
+Attached patch fixes all the above invocatins to make use of GFP_NOFS instead of GFP_KERNEL.
+
+
+Signed-off-by: Suzuki K P <suzuki@in.ibm.com>
+
+Index: linux-2.6.20-rc1/fs/ext3/xattr.c
+===================================================================
+--- linux-2.6.20-rc1.orig/fs/ext3/xattr.c	2006-12-13 17:14:23.000000000 -0800
++++ linux-2.6.20-rc1/fs/ext3/xattr.c	2006-12-19 11:41:35.000000000 -0800
+@@ -718,7 +718,7 @@
+ 				ce = NULL;
+ 			}
+ 			ea_bdebug(bs->bh, "cloning");
+-			s->base = kmalloc(bs->bh->b_size, GFP_KERNEL);
++			s->base = kmalloc(bs->bh->b_size, GFP_NOFS);
+ 			error = -ENOMEM;
+ 			if (s->base == NULL)
+ 				goto cleanup;
+@@ -730,7 +730,7 @@
+ 		}
+ 	} else {
+ 		/* Allocate a buffer where we construct the new block. */
+-		s->base = kmalloc(sb->s_blocksize, GFP_KERNEL);
++		s->base = kmalloc(sb->s_blocksize, GFP_NOFS);
+ 		/* assert(header == s->base) */
+ 		error = -ENOMEM;
+ 		if (s->base == NULL)
+Index: linux-2.6.20-rc1/fs/ext3/resize.c
+===================================================================
+--- linux-2.6.20-rc1.orig/fs/ext3/resize.c	2006-12-13 17:14:23.000000000 -0800
++++ linux-2.6.20-rc1/fs/ext3/resize.c	2006-12-19 11:42:39.000000000 -0800
+@@ -440,7 +440,7 @@
+ 		goto exit_dindj;
+ 
+ 	n_group_desc = kmalloc((gdb_num + 1) * sizeof(struct buffer_head *),
+-			GFP_KERNEL);
++			GFP_NOFS);
+ 	if (!n_group_desc) {
+ 		err = -ENOMEM;
+ 		ext3_warning (sb, __FUNCTION__,
+@@ -524,7 +524,7 @@
+ 	int res, i;
+ 	int err;
+ 
+-	primary = kmalloc(reserved_gdb * sizeof(*primary), GFP_KERNEL);
++	primary = kmalloc(reserved_gdb * sizeof(*primary), GFP_NOFS);
+ 	if (!primary)
+ 		return -ENOMEM;
+ 
+Index: linux-2.6.20-rc1/fs/ext3/acl.c
+===================================================================
+--- linux-2.6.20-rc1.orig/fs/ext3/acl.c	2006-12-13 17:14:23.000000000 -0800
++++ linux-2.6.20-rc1/fs/ext3/acl.c	2006-12-19 11:45:35.000000000 -0800
+@@ -37,7 +37,7 @@
+ 		return ERR_PTR(-EINVAL);
+ 	if (count == 0)
+ 		return NULL;
+-	acl = posix_acl_alloc(count, GFP_KERNEL);
++	acl = posix_acl_alloc(count, GFP_NOFS);
+ 	if (!acl)
+ 		return ERR_PTR(-ENOMEM);
+ 	for (n=0; n < count; n++) {
+@@ -91,7 +91,7 @@
+ 
+ 	*size = ext3_acl_size(acl->a_count);
+ 	ext_acl = kmalloc(sizeof(ext3_acl_header) + acl->a_count *
+-			sizeof(ext3_acl_entry), GFP_KERNEL);
++			sizeof(ext3_acl_entry), GFP_NOFS);
+ 	if (!ext_acl)
+ 		return ERR_PTR(-ENOMEM);
+ 	ext_acl->a_version = cpu_to_le32(EXT3_ACL_VERSION);
+@@ -187,7 +187,7 @@
+ 	}
+ 	retval = ext3_xattr_get(inode, name_index, "", NULL, 0);
+ 	if (retval > 0) {
+-		value = kmalloc(retval, GFP_KERNEL);
++		value = kmalloc(retval, GFP_NOFS);
+ 		if (!value)
+ 			return ERR_PTR(-ENOMEM);
+ 		retval = ext3_xattr_get(inode, name_index, "", value, retval);
+@@ -335,7 +335,7 @@
+ 			if (error)
+ 				goto cleanup;
+ 		}
+-		clone = posix_acl_clone(acl, GFP_KERNEL);
++		clone = posix_acl_clone(acl, GFP_NOFS);
+ 		error = -ENOMEM;
+ 		if (!clone)
+ 			goto cleanup;
+
+--------------080403020708000803020002--

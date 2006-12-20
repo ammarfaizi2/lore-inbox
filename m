@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932771AbWLTBG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932839AbWLTBUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932771AbWLTBG5 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 20:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWLTBG5
+	id S932839AbWLTBUp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 20:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932849AbWLTBUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 20:06:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55962 "EHLO mx1.redhat.com"
+	Tue, 19 Dec 2006 20:20:45 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:47548 "EHLO e2.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932771AbWLTBG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 20:06:56 -0500
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Ricardo Galli <gallir@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules
-References: <200612191309.kBJD9aRk021171@laptop13.inf.utfsm.cl>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Tue, 19 Dec 2006 23:06:15 -0200
-In-Reply-To: <200612191309.kBJD9aRk021171@laptop13.inf.utfsm.cl> (Horst H. von Brand's message of "Tue\, 19 Dec 2006 10\:09\:36 -0300")
-Message-ID: <or64c72x6g.fsf@redhat.com>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S932839AbWLTBUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 20:20:44 -0500
+Date: Tue, 19 Dec 2006 20:20:39 -0500
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Message-Id: <20061220011707.25341.6522.sendpatchset@localhost>
+Subject: [PATCH 0/5][time][x86_64] GENERIC_TIME patchset for x86_64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 19, 2006, "Horst H. von Brand" <vonbrand@inf.utfsm.cl> wrote:
+Andrew, Andi,
 
-> Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk> wrote:
+	I didn't hear any objections (or really, any comments) on my 
+last release, so as I mentioned then, I want to go ahead and push this 
+to Andrew for a bit of testing in -mm. Hopefully targeting for 
+inclusion in 2.6.21 or 2.6.22.
 
->> This License acknowledges your rights of "fair use" or other
->> equivalent, as provided by copyright law. 
+Here's the performance data from the last release:
 
->> By choosing 'acknowledges' as the verb, the licensee says explicitly
->> that fair-use rights are already yours, not that they are being given
->> to you.
+Vanilla TSC:
+149 nsecs per gtod call
+367 nsecs per CLOCK_MONOTONIC call
+288 nsecs per CLOCK_REALTIME call
+Vanilla ACPI PM:
+1272 nsecs per gtod call
+1335 nsecs per CLOCK_MONOTONIC call
+1273 nsecs per CLOCK_REALTIME call
 
-> Pure noise, a license can't take them away in any case.
+GENERIC_TIME TSC:
+149 nsecs per gtod call
+304 nsecs per CLOCK_MONOTONIC call
+275 nsecs per CLOCK_REALTIME call
+GENERIC_TIME ACPI PM:
+1273 nsecs per gtod call
+1275 nsecs per CLOCK_MONOTONIC call
+1273 nsecs per CLOCK_REALTIME call
 
-Yeah, that's merely informative, indeed.  Point is to ensure people
-know their rights, while at the same time avoiding giving impressions
-such the one Linus somehow got.
+So almost no performance change.
 
-> [That is my pet pevee with GPL: It has a bit of legally binding text, and
->  lots of "explanation" and "philosophy" that don't add anything but
->  confusion. A clear-cut license plus an explanation/comment would have been
->  better. IMHO, IANAL. HAND.]
+New in the current C8 release:
+o Synced up w/ 2.6.20-rc1
+o Added a few small cleanups from Ingo
 
-This bit would probably fit better in the spirit (preamble) than in
-the letter.  That's why I filed the comment about it in the preamble.
+Let me know if you have any thoughts or comments!
 
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-FSF Latin America Board Member         http://www.fsfla.org/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+thanks again!
+-john

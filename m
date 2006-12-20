@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965135AbWLTP1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965136AbWLTP2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbWLTP1F (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 10:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWLTP1E
+	id S965136AbWLTP2i (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 10:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbWLTP2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 10:27:04 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2681 "EHLO dspnet.fr.eu.org"
+	Wed, 20 Dec 2006 10:28:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46188 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965136AbWLTP1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 10:27:03 -0500
-Date: Wed, 20 Dec 2006 16:27:01 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network drivers that don't suspend on interface down
-Message-ID: <20061220152701.GA22928@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <1166621931.3365.1384.camel@laptopd505.fenrus.org>
+	id S965136AbWLTP2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 10:28:37 -0500
+Date: Wed, 20 Dec 2006 10:28:28 -0500
+From: Dave Jones <davej@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch] x86_64: fix boot time hang in detect_calgary()
+Message-ID: <20061220152828.GF31335@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Andi Kleen <ak@suse.de>
+References: <20061220105332.GA20922@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1166621931.3365.1384.camel@laptopd505.fenrus.org>
+In-Reply-To: <20061220105332.GA20922@elte.hu>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 02:38:51PM +0100, Arjan van de Ven wrote:
-> [1] What kind of latency would be allowed? Would an implementation be
-> allowed to power up the phy say once per minute or once per 5 minutes to
-> see if there is link? The implementation could do this progressively;
-> first poll every X seconds, then after an hour, every minute etc.
+On Wed, Dec 20, 2006 at 11:53:32AM +0100, Ingo Molnar wrote:
 
-I suspect that the hard maximum latency is the time needed by the user
-to start the network himself, be it opening a root xterm and doing the
-appropriate invocation or pulling up and clicking where appropriate in
-a GUI.  That's probably around 5 seconds.  Over that, and they won't
-even notice there is an autodetection running.
+ > the patch below fixes the boot hang by trusting the BIOS-supplied data 
+ > structure a bit less: the parser always has to make forward progress, 
+ > and if it doesnt, we break out of the loop and i get the expected kernel 
+ > message:
+ > 
+ >   Calgary: Unable to locate Rio Grande Table in EBDA - bailing!
 
-But still, 5 seconds is probably too much too, because it's going to
-look like it's unreliable.  The user has to see something happen
-within half-a-second or so, otherwise he's going to start doing it by
-hand.  The "see" part is distribution/desktop-dependant and not the
-kernel problem, but the top chrono happens when the rj45 is plugged
-in.
+Good job tracking this down.  I saw someone get bit by probably this
+same bug a few days ago.  Whilst on the subject though, can we do
+something about the printk ?
+It always bothered me that some drivers print something when
+a) built-in, and b) they don't find something.
+For kitchen sink kernels, this makes for a really noisy bootup.
 
-  OG.
+So you didn't find hardware I know I don't have. Big deal, move on.
+dmesg spam these days is getting really out of hand.
+
+hmm, maybe a mod_printk, to only printk something when built as
+a module ?
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

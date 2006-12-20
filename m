@@ -1,142 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161011AbWLTX2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161013AbWLTXav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWLTX2T (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWLTX2T
+	id S1161013AbWLTXav (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:30:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWLTXav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:28:19 -0500
-Received: from wr-out-0506.google.com ([64.233.184.225]:34146 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161011AbWLTX2S (ORCPT
+	Wed, 20 Dec 2006 18:30:51 -0500
+Received: from an-out-0708.google.com ([209.85.132.244]:26230 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161013AbWLTXau (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:28:18 -0500
+	Wed, 20 Dec 2006 18:30:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GTTC84w4se6a24zuzyh0/vC7vrI+fV+70P8OOMLouSKRa7uz/zaVHH1P6utIc3hkpiAIuWH957DNcZWHj+bekHtnTBY/s1AlboDiHJiwDX0aL3DALXm+eaDfVgkIQwGqSOD/diqOa63gHWoyvsf/1gdpYq23ojB3yxzsMKkNhSk=
-Message-ID: <7b69d1470612201528w7d855875q17f9b3e2b5869018@mail.gmail.com>
-Date: Wed, 20 Dec 2006 17:28:16 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Alexandre Oliva" <aoliva@redhat.com>
-Subject: Re: GPL only modules
-Cc: "D. Hazelton" <dhazelton@enter.net>, "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Ricardo Galli" <gallir@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <orac1j2xcm.fsf@redhat.com>
+        b=Ow/hR7h5bM+n2V8kH/44bpfQr96ApVBgZZjTD00h37cJEq0IcM4HzaeK6x/F8oeKrTuyhBAkA6LHRrPUCo6IrRAaQWWT2/sJQBmYi0SIIB7sukBTrnUuY9Hnal57ON3EEFscNEMWSjPdGid6F4gWVTDvb6K2g6RttS6BMdSXvlg=
+Message-ID: <1defaf580612201530x4708cc5cs37801bf7d00a598b@mail.gmail.com>
+Date: Thu, 21 Dec 2006 00:30:49 +0100
+From: "=?ISO-8859-1?Q?H=E5vard_Skinnemoen?=" <hskinnemoen@gmail.com>
+To: "David Brownell" <david-b@pacbell.net>
+Subject: Re: [patch 2.6.20-rc1 0/6] arch-neutral GPIO calls
+Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Andrew Victor" <andrew@sanpeople.com>,
+       "Bill Gatliff" <bgat@billgatliff.com>,
+       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Tony Lindgren" <tony@atomide.com>,
+       "pHilipp Zabel" <philipp.zabel@gmail.com>
+In-Reply-To: <200612201304.03912.david-b@pacbell.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200612161927.13860.gallir@gmail.com>
-	 <86C272DA-23BA-4901-994D-6CABCC87A2DE@mac.com>
-	 <orlkl56lgi.fsf@redhat.com> <200612182242.33759.dhazelton@enter.net>
-	 <orac1j2xcm.fsf@redhat.com>
+References: <200611111541.34699.david-b@pacbell.net>
+	 <200612201304.03912.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/19/06, Alexandre Oliva <aoliva@redhat.com> wrote:
-> On Dec 19, 2006, "D. Hazelton" <dhazelton@enter.net> wrote:
+On 12/20/06, David Brownell <david-b@pacbell.net> wrote:
+> Based on earlier discussion, I'm sending a refresh of the generic GPIO
+> patch, with several (ARM based) implementations in separate patches:
 >
-> > However I have a feeling that the lawyers in the employ of the
-> > companies that ship BLOB drivers say that all they need to do to
-> > comply with the GPL is to ship the glue-code in source form.
+>  - Core patch, doc + <asm-arm/gpio.h> + <asm-generic/gpio.h>
+>  - OMAP implementation
+>  - AT91 implementation
+>  - PXA implementation
+>  - SA1100 implementation
+>  - S3C2410 implementation
 >
-> > And I have to admit that this does seem to comply with the GPL - to the
-> > letter, if not the spirit.
->
-> I don't see that it does comply even with the letter.  Consider this:
->
->   These requirements apply to the modified work as a whole.  If
->   identifiable sections of that work are not derived from the Program,
->   and can be reasonably considered independent and separate works in
->   themselves, then this License, and its terms, do not apply to those
->   sections when you distribute them as separate works.  But when you
->   distribute the same sections as part of a whole which is a work
->   based on the Program, the distribution of the whole must be on the
->   terms of this License, whose permissions for other licensees extend
->   to the entire whole, and thus to each and every part regardless of
->   who wrote it.
->
-> The work, in this case, is the GPLed glue code, in source form, and
-> the binary blob, without sources.  See that, even though the binary
-> blob is an independent and separate work in itself, and so it can
-> indeed be distributed separaly under a different license, when it's
-> distributed as part of a whole, then the whole must be on the terms of
-> the GPL.
----
+> I know there's an AVR32 implementation too; and there's been interest
+> in this for some PPC support as well.
 
-The question is what "the whole work" is. If the binary is not a
-derived work, and is not prelinked with the work, then it seems likely
-to be considered merely an aggregation, not requiring GPL licensing.
-Note that there's some difficulty in the language, in that the GPL
-uses "work based on the work" to mean something that it defines
-specifically, while the Copyright Act defines "derived work" as "work
-based on the work". THere is no equivalence there - The GPL's "work
-based on the work" includes cases that do not fit the Act's
-definition.
+Great, thanks Dave. Unfortunately, I'm going to be more or less
+offline for the rest of the year, but FWIW, the AVR32 implementation
+is already in -mm as part of git-avr32.patch. I guess I should check
+and see if it's in sync with the rest.
 
-So, the GPL's requirement for licensing under the GPL clearly applies
-to prelinked binaries, but it is not at all clear that it would apply
-to a binary object, not derived from the kernel, shipped on the same
-media. That is, the aggregation is NOT a modification of the original
-work, it's just an aggregation (work of colective authorship).
+I'll refresh the atmel_spi patch when I get back to work in january.
 
----
-> ...
-> Let's assume they're not intentionally violating the GPL, but rather
-> that they believe they're entitled to do what they're doing, i.e.,
-> that they believe (a) their glue code is not a derived work from
-> Linux.
->
-> In this case, they *can* distribute the glue source code under the GPL
-> along with their binary blob.  But can anyone else?
->
-> Methinks anyone else would be entitled to pass the same whole along
-> under the GPL, per section 1, but wouldn't be entitled to distribute
-> modified versions, because this would require the derived work to be
-> licensed under the GPL, and nobody else is able to provide the source
-> code to the binary blob.
----
-
-I'm confused here.  If the glue code is not a derived work, then they
-don't need to use the GPL at all. If they DO ue the GPL, then (as you
-note) if they didn't include the source code, nobody else could
-redistribute it because nobody else would be able to meet the license
-terms. I would expect that if they were going to GPL the glue code,
-they would also provide the source for it.
-
----
->...
-> Well...  Not quite.  For one, even if enabling others to distribute
-> glue code + binary blobs were a good thing, using somebody else's glue
-> code means you're bound by the GPL requirements, so you can't ship the
-> combination of the glue code with your binary blob.
----
-
-Only if you assume that using the glue code would make your blob a
-derived work of the glue code. In many cases the point of the glue
-code is to be an adapter between Linux and an existing interface. In
-such a case, any binary blob using that interface would not be a
-derived work of the glue code.
-
-As before, though, if you linked the binary blob with the glue code
-object, then the combined object probably would be a derived work and
-have to conform to the GPL.
-
----
-> ...
-> So, even if condoning binary blobs were morally acceptable, we still
-> wouldn't be gaining anything from this relationship, we'd only be
-> enabling vendors to sell us their undocumented hardware while denying
-> us our freedoms.
->
-> Why should we do this?
----
-
-To enable the use of the hardware in Linux systems? Most people would
-prefer well-documented hardware with free drivers, but when that isn't
-available, many people might still like to be able to use the
-hardware. It's less than ideal, but so is having no way at all to use
-the hardware.
-
-scott
+Haavard

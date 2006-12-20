@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030222AbWLTSCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030226AbWLTSJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWLTSCi (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 13:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWLTSCi
+	id S1030226AbWLTSJ5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 13:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWLTSJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 13:02:38 -0500
-Received: from smtpauth03.prod.mesa1.secureserver.net ([64.202.165.183]:33104
-	"HELO smtpauth03.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030222AbWLTSCh (ORCPT
+	Wed, 20 Dec 2006 13:09:57 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:12851 "EHLO
+	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030226AbWLTSJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 13:02:37 -0500
-Message-ID: <45897ABA.3080304@seclark.us>
-Date: Wed, 20 Dec 2006 13:02:34 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-References: <1166314399.7018.6.camel@localhost>	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>	 <45876C65.7010301@yahoo.com.au>	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>	 <45878BE8.8010700@yahoo.com.au>	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>	 <4587B762.2030603@yahoo.com.au>	 <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>	 <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>	 <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org> <1166563828.10372.162.camel@twins>
-In-Reply-To: <1166563828.10372.162.camel@twins>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Dec 2006 13:09:56 -0500
+Date: Wed, 20 Dec 2006 20:09:53 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] x86_64: fix boot hang caused by CALGARY_IOMMU_ENABLED_BY_DEFAULT
+Message-ID: <20061220180953.GM30145@rhun.ibm.com>
+References: <20061220102846.GA17139@elte.hu> <20061220113052.GA30145@rhun.ibm.com> <20061220162338.GC11804@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220162338.GC11804@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
+On Wed, Dec 20, 2006 at 05:23:38PM +0100, Ingo Molnar wrote:
 
->On Tue, 2006-12-19 at 10:59 -0800, Linus Torvalds wrote:
->  
->
->>On Tue, 19 Dec 2006, Linus Torvalds wrote:
->>    
->>
->>> here's a totally new tangent on this: it's possible that user code is 
->>>simply BUGGY. 
->>>      
->>>
->
->I'm sad to say this doesn't trigger :-(
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi all,
+> > I think that it makes sense to have it default y for the mainline 
+> > kernel and default n for the distro kernels, which is why I added the 
+> > option to make it possible to compile Calgary in but only enable it if 
+> > you want to use it. Previously if you compiled it in it would be used, 
+> > period. You may disagree, but fundamentally I think the mainline 
+> > kernel should be fairly experimental, which means enabling new code by 
+> > default.
+> 
+> that's a totally wrong attitude - the mainline kernel is /not/
+> experimental. A distro might or might not enable the new option, but
+> we just dont enable experimental platform support code via "default
+> y"...
 
-I ran it a number of times on 2.6.16-1.2115_FC4 and always got
- ./a.out | od -x
-0000000 aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa
-0000020 aaaa aaaa 5555 5555 5555 5555 5555 5555
-0000040 5555 5555 5555 5555
+I disagree, it seems to me most "experimental platform support code"
+is simply enabled because it doesn't even have a CONFIG option (c.f.,
+recent genirq and IO-APIC breakage on x86-64). With regards to this
+specific option, you might even say that not defaulting to 'y' here
+would be a regression in behaviour against previous released kernels,
+which used Calgary if it was compiled in, no questions asked. So at
+least in that sense, instructing the user to select y if unsure and
+default y are appropriate.
 
-but running it on 2.6.19-rc5 I always get zeros in the middle.
+> The other problem is that the changelog entry says that it's off by
+> default, while in reality the new option switched this code on for
+> my box, and broke it.
 
-Steve
+Sorry about that (both the wrong changelog entry and the fact that it
+broke your box).
 
--- 
+> > As to what actually happened, I'm betting your machine has both 
+> > Calgary and CalIOC2, the PCI-e version of Calgary, which is not yet 
+> > supported by pci-calgary.c. [...]
+> 
+> no, what happened is what i described in my second patch. That 'new 
+> code' which was default-enabled had a bug which locked up my box.
 
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
+Yes, I realized that once I've read your other mail.
 
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+Cheers,
+Muli

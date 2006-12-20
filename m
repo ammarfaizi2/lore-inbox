@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964900AbWLTGF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964902AbWLTGK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWLTGF5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 01:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWLTGF4
+	id S964902AbWLTGK2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 01:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWLTGK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 01:05:56 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:7081 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964900AbWLTGFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 01:05:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c+3/6xtmY1oQZNT4ft2WXbR1KGgBmeL5PJO/PJVXUq6GZGffZyHmi+gFTdy9npd1rTgkGJ8Oda3qTUIC/+fB4nuoqe40RB7Zrag0sjyEzU8ZM2GA2a9IHN+6ZOtTiLUCpTq40XG80dUI7eVosjyjKOz9NrkhoDP73S7BFxrgNa8=
-Message-ID: <787b0d920612192205v2d650361r4f737c41aa1d3a92@mail.gmail.com>
-Date: Wed, 20 Dec 2006 01:05:54 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Mike Galbraith" <efault@gmx.de>
-Subject: Re: BUG: wedged processes, test program supplied
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1166593200.1614.8.camel@Homer.simpson.net>
+	Wed, 20 Dec 2006 01:10:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34514 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964902AbWLTGK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 01:10:26 -0500
+Date: Tue, 19 Dec 2006 22:09:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Hans J. Koch" <hjk@linutronix.de>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benedikt Spranger <b.spranger@linutronix.de>
+Subject: Re: [-mm patch] make uio_irq_handler() static
+Message-ID: <20061220060959.GB31524@kroah.com>
+References: <20061214225913.3338f677.akpm@osdl.org> <20061216135654.GB3388@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
-	 <1166593200.1614.8.camel@Homer.simpson.net>
+In-Reply-To: <20061216135654.GB3388@stusta.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/20/06, Mike Galbraith <efault@gmx.de> wrote:
-> On Tue, 2006-12-19 at 21:46 -0500, Albert Cahalan wrote:
-> > Somebody PLEASE try this...
->
-> I was having enough fun with cloninator (which was whitespace munged
-> btw).
+On Sat, Dec 16, 2006 at 02:56:54PM +0100, Adrian Bunk wrote:
+> On Thu, Dec 14, 2006 at 10:59:13PM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.19-mm1:
+> >...
+> > +gregkh-driver-uio-irq.patch
+> > 
+> >  driver tree updates
+> >...
+> 
+> This patch makes the needlessly global uio_irq_handler() static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.20-rc1-mm1/drivers/uio/uio_irq.c.old	2006-12-15 22:23:23.000000000 +0100
+> +++ linux-2.6.20-rc1-mm1/drivers/uio/uio_irq.c	2006-12-15 22:33:40.000000000 +0100
+> @@ -22,7 +22,7 @@
+>  
+>  static struct uio_device *uio_irq_idev;
+>  
+> -irqreturn_t uio_irq_handler(int irq, void *dev_id)
+> +static irqreturn_t uio_irq_handler(int irq, void *dev_id)
+>  {
+>  	return IRQ_HANDLED;
+>  }
 
-Anything stuck? Besides refusing to die, that beast slays debuggers
-left and right. I just need to add execve of /proc/self/exe and a massive
-storm of signals on the alternate stack.
+Thanks, I've applied this to my tree.
 
-In the original post, I also mangled the recommended ps command:
-ps -Ccloninator
--mwostat,ppid,pid,tid,nlwp,pending,sigmask,sigignore,caught,wchan
-
-Leave out pid,tid,nlwp if you need to save screen space, like so:
-ps -Ccloninator -mwostat,ppid,pending,sigmask,sigignore,caught,wchan
-
-(note: procps versions prior to 3.2.7 are mostly fine, but will mess
-up the PENDING column for any single-threaded processes you get)
-
-This is fun to look at:
-watch ps -Ccloninator fostat,ppid,wchan:9,comm
-
-> > Normally, when a process dies it becomes a zombie.
-> > If the parent dies (before or after the child), the child
-> > is adopted by init. Init will reap the child.
-> >
-> > The program included below DOES NOT get reaped.
->
-> While true wasn't a great test recommendation :)
-
-Oh. I wanted to be sure you'd see the problem. Did you have
-some... difficulty? A plain old ^C should make things stop.
-The second test program is like the first, but missing SIGCHLD
-from the clone flags, and hopefully not whitespace-mangled.
-
-Note that the test program is not normally a fork bomb.
-It self-limits itself to 42 tasks via a lock in shared memory.
-If things are working OK, you should see no more than
-about 60 tasks.
+greg k-h

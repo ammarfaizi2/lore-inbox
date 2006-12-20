@@ -1,133 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965054AbWLTNkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965058AbWLTNrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbWLTNkl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 08:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWLTNkl
+	id S965058AbWLTNrF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 08:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWLTNrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 08:40:41 -0500
-Received: from kagl.donpac.ru ([80.254.111.32]:38368 "EHLO donpac.ru"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965054AbWLTNkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 08:40:40 -0500
-X-Greylist: delayed 445 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 08:40:39 EST
-Date: Wed, 20 Dec 2006 16:33:10 +0300
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Add support for Korenix 16C950-based PCI cards
-Message-ID: <20061220133310.GA28555@pazke.donpac.ru>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20061213144546.GA23951@dyn-67.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
+	Wed, 20 Dec 2006 08:47:05 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:29090 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965058AbWLTNrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 08:47:02 -0500
+Date: Wed, 20 Dec 2006 14:48:49 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+Cc: agk@redhat.com, mchristi@redhat.com, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, j-nomura@ce.jp.nec.com
+Subject: Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request() to be called  from interrupt context
+Message-ID: <20061220134848.GF10535@kernel.dk>
+References: <20061219.171119.18572687.k-ueda@ct.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061213144546.GA23951@dyn-67.arm.linux.org.uk>
-X-Uname: Linux 2.6.18-1-amd64 x86_64
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Andrey Panin <pazke@donpac.ru>
+In-Reply-To: <20061219.171119.18572687.k-ueda@ct.jp.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On 347, 12 13, 2006 at 02:45:46PM +0000, Russell King wrote:
-> Linus, Andrew,
+On Tue, Dec 19 2006, Kiyoshi Ueda wrote:
+> Currently, blk_get_request() is not ready for being called from
+> interrupt context because it enables interrupt forcibly in it.
 > 
-> This patch adds initial support to 8250-pci for the Korenix Jetcard PCI
-> serial cards.  The JC12xx cards are standard RS232-based serial cards
-> utilising the Oxford 16C950 device.
+> Request-based device-mapper sometimes needs to get a request
+> in interrupt context to create a clone.
+> Calling blk_get_request() from interrupt context should be OK
+> because blk_get_request() returns NULL without sleep if no memory
+> unless __GFP_WAIT mask is specified, and then the interrupt context
+> can plug queue to retry after and return immediately.
 > 
-> The JC14xx are RS422/RS485-based cards, but in order for these to be
-> supported natively, we will need additional tweaks to the 8250 layers
-> so we can specify some values for the 950's registers.  Hence, these
-> two entries are commented out.
-
-IIRC 16c950 just need two bits in ACR set properly. Will attached patch 
-do the trick ?
-
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> So this patch allows blk_get_request() to be called from interrupt
+> context by save/restore current state of irq.
 > 
->  drivers/serial/8250_pci.c |   24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
 > 
-> diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
-> index 4d0ff8f..89c3f2c 100644
-> --- a/drivers/serial/8250_pci.c
-> +++ b/drivers/serial/8250_pci.c
-> @@ -2239,6 +2239,30 @@ static struct pci_device_id serial_pci_t
->  		pbn_b0_bt_1_460800 },
+> Signed-off-by: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+> Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+> 
+> diff -rupN 2.6.19.1/block/ll_rw_blk.c 1-blk-get-request-irqrestore/block/ll_rw_blk.c
+> --- 2.6.19.1/block/ll_rw_blk.c	2006-12-11 14:32:53.000000000 -0500
+> +++ 1-blk-get-request-irqrestore/block/ll_rw_blk.c	2006-12-15 10:21:29.000000000 -0500
+> @@ -2064,9 +2064,10 @@ static void freed_request(request_queue_
+>   * Get a free request, queue_lock must be held.
+>   * Returns NULL on failure, with queue_lock held.
+>   * Returns !NULL on success, with queue_lock *not held*.
+> + * If flags is given, the irq state is kept when unlocking the queue_lock.
+>   */
+>  static struct request *get_request(request_queue_t *q, int rw, struct bio *bio,
+> -				   gfp_t gfp_mask)
+> +				   gfp_t gfp_mask, unsigned long *flags)
+>  {
+>  	struct request *rq = NULL;
+>  	struct request_list *rl = &q->rq;
+> @@ -2119,7 +2120,10 @@ static struct request *get_request(reque
+>  	if (priv)
+>  		rl->elvpriv++;
 >  
->  	/*
-> +	 * Korenix Jetcard F0/F1 cards (JC1204, JC1208, JC1404, JC1408).
-> +	 * Cards are identified by their subsystem vendor IDs, which
-> +	 * (in hex) match the model number.
-> +	 *
-> +	 * Note that JC140x are RS422/485 cards which require ox950
-> +	 * ACR = 0x10, and as such are not currently fully supported.
-> +	 */
-> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
-> +		0x1204, 0x0004, 0, 0,
-> +		pbn_b0_4_921600 },
-> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
-> +		0x1208, 0x0004, 0, 0,
-> +		pbn_b0_4_921600 },
-> +/*	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
-> +		0x1402, 0x0002, 0, 0,
-> +		pbn_b0_2_921600 }, */
-> +/*	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
-> +		0x1404, 0x0004, 0, 0,
-> +		pbn_b0_4_921600 }, */
-> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF1,
-> +		0x1208, 0x0004, 0, 0,
-> +		pbn_b0_4_921600 },
-> +
-> +	/*
->  	 * Dell Remote Access Card 4 - Tim_T_Murphy@Dell.com
->  	 */
->  	{	PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_RAC4,
+> -	spin_unlock_irq(q->queue_lock);
+> +	if (flags)
+> +		spin_unlock_irqrestore(q->queue_lock, *flags);
+> +	else
+> +		spin_unlock_irq(q->queue_lock);
+
+Big NACK on this - it's not only really ugly, it's also buggy to pass
+interrupt flags as function arguments. As you also mention in the 0/1
+mail, this also breaks CFQ.
+
+Why do you need in-interrupt request allocation?
 
 -- 
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+Jens Axboe
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-ACR
-
-diff -urdpNX /usr/share/dontdiff -x Makefile linux-2.6.19.vanilla/drivers/serial/8250.c linux-2.6.19/drivers/serial/8250.c
---- linux-2.6.19.vanilla/drivers/serial/8250.c	2006-12-19 20:18:26.000000000 +0300
-+++ linux-2.6.19/drivers/serial/8250.c	2006-12-19 19:53:04.000000000 +0300
-@@ -1548,7 +1548,7 @@ static int serial8250_startup(struct uar
- 
- 	if (up->port.type == PORT_16C950) {
- 		/* Wake up and initialize UART */
--		up->acr = 0;
-+		up->acr = port->initial_acr;
- 		serial_outp(up, UART_LCR, 0xBF);
- 		serial_outp(up, UART_EFR, UART_EFR_ECB);
- 		serial_outp(up, UART_IER, 0);
-@@ -2599,6 +2599,7 @@ int serial8250_register_port(struct uart
- 		uart->port.iotype   = port->iotype;
- 		uart->port.flags    = port->flags | UPF_BOOT_AUTOCONF;
- 		uart->port.mapbase  = port->mapbase;
-+		uart->port.initial_acr = port->initial_acr;
- 		if (port->dev)
- 			uart->port.dev = port->dev;
- 
-diff -urdpNX /usr/share/dontdiff -x Makefile linux-2.6.19.vanilla/drivers/serial/8250.h linux-2.6.19/drivers/serial/8250.h
---- linux-2.6.19.vanilla/drivers/serial/8250.h	2006-12-19 20:44:12.000000000 +0300
-+++ linux-2.6.19/drivers/serial/8250.h	2006-12-19 20:28:29.000000000 +0300
-@@ -29,6 +29,8 @@ struct old_serial_port {
- 	unsigned short iomem_reg_shift;
- };
- 
-+#define initial_acr unused[0]
-+
- /*
-  * This replaces serial_uart_config in include/linux/serial.h
-  */
-
---mP3DRpeJDSE+ciuQ--

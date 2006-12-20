@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964894AbWLTHKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964901AbWLTHKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWLTHKU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 02:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWLTHKU
+	id S964901AbWLTHKX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 02:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWLTHKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 02:10:20 -0500
-Received: from mail.gmx.net ([213.165.64.20]:50576 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S964894AbWLTHKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 02:10:19 -0500
-X-Authenticated: #14349625
-Subject: Re: problem with signal delivery SIGCHLD
-From: Mike Galbraith <efault@gmx.de>
-To: Nicholas Mc Guire <der.herr@hofr.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
-References: <Pine.LNX.4.60.0612181924470.2560@rtl14.hofr.at>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 08:10:15 +0100
-Message-Id: <1166598615.1614.55.camel@Homer.simpson.net>
+	Wed, 20 Dec 2006 02:10:23 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:38340 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964901AbWLTHKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 02:10:21 -0500
+Date: Tue, 19 Dec 2006 23:10:19 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, tali <tali@admingilde.org>, davem@davemloft.net
+Subject: [PATCH] kernel-doc: allow unnamed structs/unions
+Message-Id: <20061219231019.6df16e1c.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-18 at 20:05 +0100, Nicholas Mc Guire wrote:
-> 
-> Hi !
-> 
->   I have a phenomena that I don't quite understand. gdbserver forks and 
-> after setting ptrace (PTRACE_TRACEME, 0, 0, 0); it then execv 
-> (program, allargs); when this child process hits ptrace_stoped (breakpoint
-> it does the following in kernel space:
-> 
-> pid 1242 = child process
-> pid 1241 = gdbserver
-> pid 0    = kernel
-> pid -1   = interrupt
->                                      pid
->           1        559          5    1242 ptrace_stop
->           3          6          2    1242 |  do_notify_parent_cldstop
->           4          3          2    1242 |  |  __group_send_sig_info
->           5          1          1    1242 |  |  |  handle_stop_signal
->           7          0          0    1242 |  |  |  sig_ignored
->           8          1          0    1242 |  |  __wake_up_sync
->           8          1          1    1242 |  |  |  __wake_up_common
->          10        547        541    1242 |  schedule
->          10          2          2    1242 |  |  profile_hit
->          13          1          1    1242 |  |  sched_clock
->          15          1          0    1242 |  |  deactivate_task
->          15          1          1    1242 |  |  |  dequeue_task
->          19          2          2       0 |  |  __switch_to
-> ----------- !!!! start --------------
->          24        574        574       0 default_idle
-> ----------- $$$$ end ----------------
-> ----------- //// start --------------
->         780         41         12       0 do_IRQ
->         780         29          2      -1 /  __do_IRQ
->         ...
->         807          2          2      -1 /  /  /  enable_8259A_irq
-> ----------- //// end ----------------
-> ----------- {{{{ start --------------
->         810         11          0       0 do_softirq
->         ...
->         820          0          0      -1 {  {  {  preempt_schedule
-> ----------- {{{{ end ----------------
-> ----------- %%%% start --------------
->         822        358          1       0 preempt_schedule_irq
->         ...
->         827          1          1    1241 %  %  __switch_to
-> ----------- %%%% end ----------------
->         829          1          1    1241 (  (  (  del_timer
-> ----------- (((( end ----------------
-> ----------- ]]]] start --------------
->         837          8          2    1241 sys_waitpid
-> 
-> So basically child signals -> delayed to next tick -> parent wakes up.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Hm.  What does the trace of gdbserver look like prior to the clild doing
-do_notify_parent_cldstop()?  Sleeping someplace other than wait4?
+Make kernel-doc support unnamed (anonymous) structs and unions.
+There is one (union) in include/linux/skbuff.h (inside struct sk_buff)
+that is currently generating a kernel-doc warning, so this
+fixes that warning.
 
-	-Mike
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ scripts/kernel-doc |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
+--- linux-2.6.20-rc1-git7.orig/scripts/kernel-doc
++++ linux-2.6.20-rc1-git7/scripts/kernel-doc
+@@ -1469,6 +1469,7 @@ sub push_parameter($$$) {
+ 	my $param = shift;
+ 	my $type = shift;
+ 	my $file = shift;
++	my $anon = 0;
+ 
+ 	my $param_name = $param;
+ 	$param_name =~ s/\[.*//;
+@@ -1484,9 +1485,20 @@ sub push_parameter($$$) {
+ 	    $param="void";
+ 	    $parameterdescs{void} = "no arguments";
+ 	}
++	elsif ($type eq "" && ($param eq "struct" or $param eq "union"))
++	# handle unnamed (anonymous) union or struct:
++	{
++		$type = $param;
++		$param = "{unnamed_" . $param. "}";
++		$parameterdescs{$param} = "anonymous\n";
++		$anon = 1;
++	}
++
+ 	# warn if parameter has no description
+-	# (but ignore ones starting with # as these are no parameters
+-	# but inline preprocessor statements
++	# (but ignore ones starting with # as these are not parameters
++	# but inline preprocessor statements);
++	# also ignore unnamed structs/unions;
++	if (!$anon) {
+ 	if (!defined $parameterdescs{$param_name} && $param_name !~ /^#/) {
+ 
+ 	    $parameterdescs{$param_name} = $undescribed;
+@@ -1500,6 +1512,7 @@ sub push_parameter($$$) {
+ 	                 " No description found for parameter '$param'\n";
+ 	    ++$warnings;
+         }
++        }
+ 
+ 	push @parameterlist, $param;
+ 	$parametertypes{$param} = $type;
+
+
+---

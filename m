@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030283AbWLTTCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030278AbWLTTGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbWLTTCW (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWLTTCV
+	id S1030278AbWLTTGH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWLTTGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:02:21 -0500
-Received: from py-out-1112.google.com ([64.233.166.176]:35233 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030283AbWLTTCU (ORCPT
+	Wed, 20 Dec 2006 14:06:07 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4002 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030278AbWLTTGG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:02:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:content-transfer-encoding:date:message-id:mime-version:x-mailer;
-        b=PWxZyrbQFvmIPb43hVtxVGwT1pLnfvl/xnD8ztmSsxjOPZlYSbH3g9qQ3wmTiSXUF7vyW0NEsdu+RnHF4qBvvKMM0rnTHiNm5a37BRFiSNC8BNLBE0MO1yP1qCG8DPe3XmYneIcVsTvjWGz9AQCmGpIXNN6M+eReptxq3ZwCkv8=
-Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda
-	changes (was Re: BUG on 2.6.20-rc1 when using gdb)
-From: "Andrew J. Barr" <andrew.james.barr@gmail.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       walt <w41ter@gmail.com>
-In-Reply-To: <20061220183521.GA28900@slug>
-References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org>
-	 <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org>
-	 <20061220183521.GA28900@slug>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Dec 2006 14:02:15 -0500
-Message-Id: <1166641335.4017.0.camel@r51.oakcourt.dyndns.org>
+	Wed, 20 Dec 2006 14:06:06 -0500
+Date: Wed, 20 Dec 2006 19:05:57 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Add support for Korenix 16C950-based PCI cards
+Message-ID: <20061220190557.GA13129@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20061213144546.GA23951@dyn-67.arm.linux.org.uk> <20061220133310.GA28555@pazke.donpac.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220133310.GA28555@pazke.donpac.ru>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 18:35 +0000, Frederik Deweerdt wrote:
-> On Wed, Dec 20, 2006 at 03:21:53AM -0800, Jeremy Fitzhardinge wrote:
-> > "walt" <w41ter@gmail.com> reported a similar problem which he bisected
-> > down to the PDA changeset which touches ptrace
-> > (66e10a44d724f1464b5e8b5a3eae1e2cbbc2cca6).  I haven't managed to repo
-> > the problem, but I guess there's something nasty going on in ptrace -
-> > maybe its screwing up eflags on the stack or something.  Need to
-> > double-check all the conversions from kernel<->usermode registers.  Hm,
-> > wonder if its fixed with the %gs->%fs conversion patch applied?
+On Wed, Dec 20, 2006 at 04:33:10PM +0300, Andrey Panin wrote:
+> On 347, 12 13, 2006 at 02:45:46PM +0000, Russell King wrote:
+> > Linus, Andrew,
 > > 
-> Hi Jeremy,
+> > This patch adds initial support to 8250-pci for the Korenix Jetcard PCI
+> > serial cards.  The JC12xx cards are standard RS232-based serial cards
+> > utilising the Oxford 16C950 device.
+> > 
+> > The JC14xx are RS422/RS485-based cards, but in order for these to be
+> > supported natively, we will need additional tweaks to the 8250 layers
+> > so we can specify some values for the 950's registers.  Hence, these
+> > two entries are commented out.
 > 
-> Same problems here with 2.6.20-rc1-mm1 (ie with the %gs->%fs patch).
-> It seems to me that the problem comes from the EFL_OFFSET no longer
-> beeing accurate.
-> The following patch fixes the problem for me.
+> IIRC 16c950 just need two bits in ACR set properly. Will attached patch 
+> do the trick ?
 
-Me too. Thanks.
+I, too, also have a patch which does something similar.  I'm going to
+hold off on that until post 2.6.20 though, especially as I have no
+way to test it.
 
-Andrew
-
-> Regards,
-> Frederik
-> 
-> Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-> 
-> diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
-> index 7f7d830..00d8a5a 100644
-> --- a/arch/i386/kernel/ptrace.c
-> +++ b/arch/i386/kernel/ptrace.c
-> @@ -45,7 +45,7 @@
->  /*
->   * Offset of eflags on child stack..
->   */
-> -#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs))
-> +#define EFL_OFFSET ((EFL-1)*4-sizeof(struct pt_regs))
->  
->  static inline struct pt_regs *get_child_regs(struct task_struct *task)
->  {
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

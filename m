@@ -1,67 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030198AbWLTVJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030359AbWLTVKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWLTVJX (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 16:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWLTVJW
+	id S1030359AbWLTVKU (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 16:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWLTVKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 16:09:22 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:5008 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030198AbWLTVJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 16:09:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=WKtnDfr5xC5QgsF2LM6VYxSqEbtHbyj/SiicIGnk9BPcuiFdPkY7tQuLV8MQKhTcTOdU/j2CuAPekhCY7YXAwxaHEcxMF25p3XTQsahc+wsl+G088Yj0Vu6dG6YRxlFfg6ak5iYbDB0azU7Av81rHIjae2Yk21bYYRzz8yfbRno=
-Date: Wed, 20 Dec 2006 21:07:36 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Andrew J. Barr" <andrew.james.barr@gmail.com>,
-       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       walt <w41ter@gmail.com>
-Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda changes (was Re: BUG on 2.6.20-rc1 when using gdb)
-Message-ID: <20061220210736.GC28900@slug>
-References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org> <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org> <20061220183521.GA28900@slug> <45898D4E.1030507@goop.org> <20061220204226.GB28900@slug> <4589A2CD.2020108@goop.org>
+	Wed, 20 Dec 2006 16:10:20 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:38705 "EHLO
+	clueserver.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030359AbWLTVKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 16:10:19 -0500
+Date: Wed, 20 Dec 2006 13:10:18 -0800 (PST)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Valdis.Kletnieks@vt.edu
+cc: davids@webmaster.com, Marek Wawrzyczny <marekw1977@yahoo.com.au>,
+       valdis.kletnietks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+In-Reply-To: <200612202052.kBKKqCYr023771@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.64.0612201259010.23352@blackbox.fnordora.org>
+References: <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
+ <200612202052.kBKKqCYr023771@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4589A2CD.2020108@goop.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 12:53:33PM -0800, Jeremy Fitzhardinge wrote:
-> Frederik Deweerdt wrote:
-> > It works too, thanks. BTW, I wondered if the "case GS:" in getreg() made
-> > sense now?
-> 
-> Sorry, what do you mean?  It looks OK to me, but I'm not sure what
-> you're referring to.
-My bad, that's the code I'm referring to:
+On Wed, 20 Dec 2006, Valdis.Kletnieks@vt.edu wrote:
 
-121 static unsigned long getreg(struct task_struct *child,
-122         unsigned long regno)
-[...]
-126         switch (regno >> 2) {
-127                 case GS:
-128                         retval = child->thread.gs;
-129                         break;
+> On Wed, 20 Dec 2006 11:29:00 PST, David Schwartz said:
+>
+>> Let's not let the perfect be the enemy of the good. Remember, the goal is to
+>> allow consumers to know whether or not their system's hardware
+>> specifications are available. It's not about driver availability -- if the
+>> hardware specifications are available and a driver is not, that's not the
+>> hardware manufacturer's fault.
+>
+> My point was "their system's hardware specifications" is, for some popular
+> vendors, a *very* fuzzy notion. You can't (for instance) say "specs are
+> available for a Dell Latitude D820" - there are configurations that specs are
+> available for, and configs that aren't.  My D820 has an NVidia card in it - we
+> know the answer there.  Do you give a different answer for a D820 that has the
+> Intel i950 graphics chipset instead?
+>
+> Even more annoying, Dell often *changes* the vendor - the line item for the DVD
+> drive says "8X DVD+/-RW" (other choices include 24X CD-ROM and 24X CD-RW/DVD).
+> Mine showed up with a Philips SDVD8820 - but it's possible that some other D820
+> will get some other vendor's DVD (I've seen 2 C820's ordered at the same time,
+> they showed up with 2 different vendor's "24X CD-RW/DVD").  It's possible that
+> some poor guy is going to get a D820 that has a DVD that we have a known
+> buggy driver for - what do we tell *them*?
+>
+> It's *easy* to do a "semi-good" that tells you if there's drivers for the
+> hardware config you're running the program on. But there's 2 problems:
+>
+> a) You probably already know the answer
+> b) By the time you can run the program, it's often too late....
+>
+> So given those 2 points, what actual value-added info does this *give*, over
+> and above 'lspci' and friends?  I suppose maybe for a install CD, it gives
+> a quick way to cleanly abort the install with a "Don't bother continuing
+> unless it's OK that your graphics/wireless/whatever won't work".  On the
+> other hand, the installer should have a grasp on this *already*....
+>
+> Perfect may be the enemy of the good, but the good is also the enemy of
+> stuff claiming to be good but misses on an important design goal...
 
-What seem weird to me is that putreg(GS) will end up putting 'value' in:
-child->thread.esp0 - sizeof(struct pt_regs) + (GS - 1)*4
-whereas getreg(GS) will return the value of child->thread.gs
-I must miss something, but the symetry seemed odd to me.
+Valid points, but they are almost more for the distribution than they are 
+for the kernel.
 
-Regards,
-Frederik
-> 
->     J
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I have considered designing a routine for use in Annaconda or some other 
+installer that lists all the known hardware and how much of it will 
+actually work with that particular distro.  I know some people will not 
+care, but many will.  (Especially the people who ask "Will my machine work 
+with Linux".)
+
+Many people do not know what they have in the way of hardware.  They 
+bought a machine.  What they were sold (or requested) and what they got 
+are usually two different things.  They may know a few specifics, but they 
+are probably missing important details.  (How many people know the model 
+of PCI chip in their machine?  Or who made the IDE chipset?  Or the 
+ethernet chipset on the motherboard?)  For those of us that deal with 
+hardware every day, this is not as big of an issue as those who bought 
+something from Dell or HP and it arrived in a big box pre-assembled.
+
+Is there some way to look at a kernel and determine what drivers are 
+"good" and those that are "less good"?  (Other than ordering Alan Cox's 
+brain in a jar...)  What needs to be known is the state of the driver for 
+kernel X where X maybe something current or woefully out of date.
+
+Maybe instead of an EXPORT_GPL symbol we need a 
+EXPORT_THIS_DRIVER_IS_CRAP symbol.
+
+-- 
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25

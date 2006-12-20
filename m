@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752903AbWLTAUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753051AbWLTAWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752903AbWLTAUx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 19:20:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752963AbWLTAUx
+	id S1753051AbWLTAWR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 19:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753022AbWLTAWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 19:20:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35937 "EHLO mx1.redhat.com"
+	Tue, 19 Dec 2006 19:22:17 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:48536 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752420AbWLTAUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 19:20:52 -0500
-To: davids@webmaster.com
-Cc: "Linux-Kernel\@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: GPL only modules
-References: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Tue, 19 Dec 2006 22:20:42 -0200
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEEOAHAC.davids@webmaster.com> (David Schwartz's message of "Mon\, 18 Dec 2006 17\:35\:23 -0800")
-Message-ID: <orejqv2zad.fsf@redhat.com>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.90 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S1753052AbWLTAWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 19:22:16 -0500
+Date: Tue, 19 Dec 2006 16:22:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Michal Sabala <lkml@saahbs.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 mmap hangs unrelated apps
+Message-Id: <20061219162208.f96e2fef.akpm@osdl.org>
+In-Reply-To: <1166573863.5768.10.camel@lade.trondhjem.org>
+References: <20061215023014.GC2721@prosiaczek>
+	<1166199855.5761.34.camel@lade.trondhjem.org>
+	<20061215175030.GG6220@prosiaczek>
+	<1166211884.5761.49.camel@lade.trondhjem.org>
+	<20061215210642.GI6220@prosiaczek>
+	<1166219054.5761.56.camel@lade.trondhjem.org>
+	<20061219142624.230b28c0.akpm@osdl.org>
+	<1166570378.5760.52.camel@lade.trondhjem.org>
+	<20061219160315.ea83ca38.akpm@osdl.org>
+	<1166573863.5768.10.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 18, 2006, "David Schwartz" <davids@webmaster.com> wrote:
+On Tue, 19 Dec 2006 19:17:43 -0500
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> It makes no difference whether the "mere aggregation" paragraph kicks in
-> because the "mere aggregation" paragraph is *explaining* the *law*. What
-> matters is what the law actually *says*.
+> > (We were supposed to stop doing that about four years ago - change it so
+> > that all a_ops must implement ->releasepage, but nobody got around to it).
+> 
+> Would you still be interested in seeing this done?
 
-You mean "mere aggregation" is defined in copyright law?  I don't
-think so, otherwise the term 'aggregate' probably wouldn't have
-been used in GPLv3.
+Sure, when things calm down.  It's just a cleanup.
 
-AFAIK it's perfectly legitimate (even if immoral) for a copyright
-license to prohibit the distribution of the software governed by the
-license with anything else the author establishes.  E.g., some Java
-virtual machine's license used to establish that you couldn't ship it
-along with other implementations of Java that didn't pass some
-comformance test.
-
-Now, the GPL doesn't do this.  It doesn't say you can't distribute
-GPLed software along with any other software.  It only says that, when
-you distribute together works that don't constitute mere aggregation
-(providing its own definition of mere aggregation), then the whole
-must be licensed under the GPL.
-
-> The GPL could say that if you ever see the source code to a GPL'd work,
-> every work you ever write must be placed under the GPL. But that wouldn't
-> make it true, because that would be a requirement outside the GPL's scope.
-
-It is indeed possible that this would fall outside the scope of
-copyright law in the US, and it would not be morally acceptable for
-the GPL to impose such a condition.  But then, since nobody can be
-forced to see the source code of a GPLed work, or any work for that
-matter, acceptance is voluntary, and one shouldn't enter an agreement
-one's not willing to abide by.
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-FSF Latin America Board Member         http://www.fsfla.org/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+There are various places where we got lazy and did this.  ->set_page_dirty,
+->page_mkwrite, many others.  With varying degrees of consequential ugliness.

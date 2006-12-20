@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932626AbWLTA0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753172AbWLTAdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbWLTA0A (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 19:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWLTA0A
+	id S1753172AbWLTAdE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 19:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753273AbWLTAdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 19:26:00 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:39687 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932626AbWLTAZ7 (ORCPT
+	Tue, 19 Dec 2006 19:33:04 -0500
+Received: from nz-out-0506.google.com ([64.233.162.234]:38805 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753172AbWLTAdB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 19:25:59 -0500
-Date: Wed, 20 Dec 2006 00:25:46 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Message-ID: <20061220002546.GA17378@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <1166559785.3365.1276.camel@laptopd505.fenrus.org> <20061219203251.GA14648@srcf.ucam.org> <200612191334.49760.david-b@pacbell.net>
+	Tue, 19 Dec 2006 19:33:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=AZapLEgoJj3HQuBew6vrrL1GWy+yUmr3bM/o8biAtkp14K74pORUMTGAJGpO82qlsbaEZ/3Mpt4TeFYvV8oxnVotP3tPfPB89TZIw6q8yeUUk99mxb3B+FytZ+EmbyBbIxVNW3CM/mqcrm3gGlLrSufoHpyd+OMI0yhY7LFqklo=
+Message-ID: <458884B2.9080802@gmail.com>
+Date: Wed, 20 Dec 2006 09:32:50 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612191334.49760.david-b@pacbell.net>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: Changes to sysfs PM layer break userspace
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Alan <alan@lxorguk.ukuu.org.uk>, David Shirley <tephra@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SATA DMA problem (sata_uli)
+References: <f0e65c090612122102o327ac693u2f24a74a9ba973ef@mail.gmail.com> <20061213112004.59cb186c@localhost.localdomain> <45841B20.9030402@pobox.com>
+In-Reply-To: <45841B20.9030402@pobox.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 01:34:49PM -0800, David Brownell wrote:
+Jeff Garzik wrote:
+> Alan wrote:
+>>> I tracked it down to one of the drives being forced into PIO4 mode
+>>> rather than UDMA mode; dmesg bits:
+>>> ata4.00: ATA-7, max UDMA/133, 586072368 sectors: LBA48 NCQ (depth 0/32)
+>>> ata4.00: ata4: dev 0 multi count 16
+>>> ata4.00: simplex DMA is claimed by other device, disabling DMA
+>>
+>> Your ULi controller is reporting that it supports UDMA upon only one
+>> channel at a time. The kernel is honouring this information. The older
+>> ULi (was ALi) PATA devices report simplex but let you turn it off so
+>> see if the following does the trick. Test carefully as always with
+>> disk driver
+>> changes.
+>>
+>> (Jeff probably best to check the docs before merging this but I believe
+>> it is sane)
+>>
+>> Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> My Uli SATA docs do not appear to cover the bmdma registers :(  Only the
+> PCI config registers.
+> 
+> But regardless, I think the better fix is to never set ATA_HOST_SIMPLEX
+> if ATA_FLAG_NO_LEGACY is set.
+> 
+> None of the SATA controllers I've ever encountered has been simplex.
 
-> Documentation/feature-removal-schedule.txt has warned about this since
-> August, and the PM list has discussed how broken that model is numerous
-> times over the past several years.  (I'm pretty sure that discussion has
-> leaked out to LKML on occasion.)  It shouldn't be news today.
+Just another data point.  The same problem is reported by bug #7590.
 
-1) feature-removal-schedule.txt says that it'll be removed in July 2007. 
-This isn't July 2007.
+http://bugzilla.kernel.org/show_bug.cgi?id=7590
 
-2) The functionality was disabled in 2.6.19. The addition to 
-feature-removal-schedule.txt was in, uh, 2.6.19.
-
-3) "The whole _point_ of a kernel is to act as a abstraction layer and 
-resource management between user programs and hardware/outside world. 
-That's why kernels _exist_. Breaking user-land API's is thus by 
-definition something totally idiotic.
-
-If you need to break something, you create a new interface, and try to 
-translate between the two, and maybe you deprecate the old one so that 
-it can be removed once it's not in use any more. If you can't see that 
-this is how a kernel should work, you're missing the point of having a 
-kernel in the first place."
-
-Linus, http://lkml.org/lkml/2006/10/4/327
+Is somebody brewing a patch?
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+tejun

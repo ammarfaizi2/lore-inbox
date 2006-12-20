@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030211AbWLTRun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030221AbWLTRx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWLTRun (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWLTRun
+	id S1030221AbWLTRx1 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:53:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWLTRx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:50:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60392 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030211AbWLTRum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:50:42 -0500
-Date: Wed, 20 Dec 2006 12:50:02 -0500 (EST)
-Message-Id: <20061220.125002.71083198.k-ueda@ct.jp.nec.com>
-To: jens.axboe@oracle.com
-Cc: agk@redhat.com, mchristi@redhat.com, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
-Subject: Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request() to be
- called from interrupt context
-From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-In-Reply-To: <20061220134848.GF10535@kernel.dk>
-References: <20061219.171119.18572687.k-ueda@ct.jp.nec.com>
-	<20061220134848.GF10535@kernel.dk>
-X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
- =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Dec 2006 12:53:27 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:48533 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030221AbWLTRx0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 12:53:26 -0500
+Date: Wed, 20 Dec 2006 18:53:09 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Message-ID: <20061220175309.GT30106@deprecation.cyrius.com>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> <1166571749.10372.178.camel@twins> <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org> <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org> <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+* Linus Torvalds <torvalds@osdl.org> [2006-12-20 09:35]:
+> Can you remind us:
+>  - your ARM is UP, right? Do you have PREEMPT on?
 
-Thank you for the comment.
+It's UP and PREEMPT is not set.  I used 2.6.19 plus the patch that has
+been posted.
 
-On Wed, 20 Dec 2006 14:48:49 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
-> >  static struct request *get_request(request_queue_t *q, int rw, struct bio *bio,
-> > -				   gfp_t gfp_mask)
-> > +				   gfp_t gfp_mask, unsigned long *flags)
-> >  {
-> >  	struct request *rq = NULL;
-> >  	struct request_list *rl = &q->rq;
-> > @@ -2119,7 +2120,10 @@ static struct request *get_request(reque
-> >  	if (priv)
-> >  		rl->elvpriv++;
-> >  
-> > -	spin_unlock_irq(q->queue_lock);
-> > +	if (flags)
-> > +		spin_unlock_irqrestore(q->queue_lock, *flags);
-> > +	else
-> > +		spin_unlock_irq(q->queue_lock);
-> 
-> Big NACK on this - it's not only really ugly, it's also buggy to pass
-> interrupt flags as function arguments. As you also mention in the 0/1
-> mail, this also breaks CFQ.
-> 
-> Why do you need in-interrupt request allocation?
- 
-Because I'd like to use blk_get_request() in q->request_fn()
-which can be called from interrupt context like below:
-  scsi_io_completion -> scsi_end_request -> scsi_next_command
-  -> scsi_run_queue -> blk_run_queue -> q->request_fn
+>  - This is probably a stupid question, but you did make sure that the
+>    database was ok (with some rebuild command) and that you didn't have
+>    preexisting corruption?
 
-Generally, device-mapper (dm) clones an original I/O and dispatches
-the clones to underlying destination devices.
-In the request-based dm patch, the clone creation and the dispatch
-are done in q->request_fn().  To create the clone, blk_get_request()
-is used to get a request from underlying destination device's queue.
-By doing that in q->request_fn(), dm can deal with struct request
-after bios are merged by __make_request().
+Yes, my test case is to install Debian on the ARM machine so the
+database is created fresh.  While the corruption always triggers
+during a fresh installation, it's much harder to see in a running
+system.  Some people see it on their system but I haven't found a 100%
+working recipe to reproduce it yet given a working system; doing a new
+installation seems to trigger it all the time though.
 
-Do you think creating another function like blk_get_request_nowait()
-is acceptable?
-Or request should not be allocated in q->request_fn() anyway?
-Do you have any other ideas?
+> Anyway, the page_mkclean_one() fixes (along with _most_ things we've
+> looked at) shouldn't matter on UP, at least certainly not without
+> PREEMPT.
 
-> -- 
-> Jens Axboe
+Hmm.  So what about UP without PREEMPT then...
 
-Thanks,
-Kiyoshi Ueda
+Maybe the following information is helpful in some way: remember how I
+said that we have applied 6 mm patches to 2.6.18 in Debian?  According
+to Gordon Farquharson, who's helping me a great deal with testing
+installation on this ARM machine (Linksys NSLU2), the corruption
+doesn't always show up when you only apply
+mm-tracking-shared-dirty-pages.patch to 2.6.18 but it shows up all the
+time with all six patches applied.  As a reminder, the 6 patches we
+apply are:
 
+mm-tracking-shared-dirty-pages.patch
+mm-balance-dirty-pages.patch
+mm-optimize-mprotect.patch
+mm-install_page-cleanup.patch
+mm-do_wp_page-fixup.patch
+mm-msync-cleanup.patch
+
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

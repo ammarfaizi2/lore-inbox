@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964955AbWLTJOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964946AbWLTJRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWLTJOp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 04:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWLTJOp
+	id S964946AbWLTJRL (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 04:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWLTJRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 04:14:45 -0500
-Received: from [202.112.49.247] ([202.112.49.247]:62686 "EHLO
-	netarchlab.tsinghua.edu.cn" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S964946AbWLTJOo (ORCPT
+	Wed, 20 Dec 2006 04:17:10 -0500
+Received: from stinky.trash.net ([213.144.137.162]:38193 "EHLO
+	stinky.trash.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964946AbWLTJRJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 04:14:44 -0500
-Date: Wed, 20 Dec 2006 17:13:56 +0800
-From: "xlz" <xlz@netarchlab.tsinghua.edu.cn>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "netfilter-devel" <netfilter-devel@lists.netfilter.org>
-References: <200612201622446099344@netarchlab.tsinghua.edu.cn>
-Subject: A problem of netfilter HOOK point
-Message-ID: <200612201713511406550@netarchlab.tsinghua.edu.cn>
-X-mailer: Foxmail 6, 5, 104, 21 [cn]
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 20 Dec 2006 04:17:09 -0500
+Message-ID: <4588FF92.9050607@trash.net>
+Date: Wed, 20 Dec 2006 10:17:06 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Netfilter Developer Mailing List 
+	<netfilter-devel@lists.netfilter.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] xt_request_find_match
+References: <Pine.LNX.4.61.0612161851180.30896@yvahk01.tjqt.qr> <4587D227.1000003@trash.net> <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr> <4587E91A.2020903@trash.net> <Pine.LNX.4.61.0612191623490.10396@yvahk01.tjqt.qr> <4588F175.8060109@trash.net> <Pine.LNX.4.61.0612201009540.26276@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0612201009540.26276@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I have a problem of the netfilter HOOK point. I load my handle function in HOOK point NF_IP6_LOCAL_OUT. But, its behavior is likely to be in the HOOK point NF_IP6_POST_ROUTING. The detail is shown as follows:
+Jan Engelhardt wrote:
+>>Make sure the user specifies the match on the command line before
+>>your match. Look at the TCPMSS or REJECT targets for examples for
+>>this.
+> 
+> 
+> That would mean I'd have to
+> 
+>   -p tcp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
+> lotsofothers -j TARGET
+>   -p udp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
+> lotsofothers -j TARGET
 
-I configrue a 6to4 tunnel between two linux hosts (2.6 kernel) by adding a interface "6to4tun". The route table in one of the host is:
-2002:c0a8:101::/48   dev 6to4tun
-default              via   3ffe:250:cccc::1  dev eth0
-The 6to4 tunnel works well before I load my own handle function in the hook point NF_IP6_LOCAL_OUT.
-
-In the hook point NF_IP6_LOCAL_OUT, my handle funtion changes the destination address of the packet from global ipv6 address (ex. 3ffe:250:cccd::2) to 6to4 address (ex. 2002:c0a8:101::1). In my expection, after changing the destination address in hook point NF_IP6_LOCAL_OUT, the host will look up the route table according the destination address, which is a 6to4 address. And then the host will send the packet from the interface "6to4tun". However, the experiment result is: the packets are sent from the interface eth0. It seems that the host looks up the route table according the global address. That means my own function seems to work in the hook point  NF_IP6_POST_ROUTING.
-What is the problem?
-Thank you in advance for any help!
-
-Lizhong Xie
-2006-12-20
+I don't see any match that would depend on an other match in
+your example. How about your start explaining what you would
+like to do, ideally with some code.
 

@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030201AbWLTQg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030200AbWLTQh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWLTQg7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 11:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWLTQg7
+	id S1030200AbWLTQh4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 11:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWLTQh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 11:36:59 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:41058 "EHLO
-	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030198AbWLTQg6 (ORCPT
+	Wed, 20 Dec 2006 11:37:56 -0500
+Received: from amsfep20-int.chello.nl ([62.179.120.15]:38857 "EHLO
+	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030200AbWLTQhz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 11:36:58 -0500
-Date: Wed, 20 Dec 2006 17:36:57 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.64.0612201732040.6115@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
- <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 20 Dec 2006 11:37:55 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: andrei.popa@i-neo.ro
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+In-Reply-To: <1166632234.7654.0.camel@localhost>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
+	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	 <1166466272.10372.96.camel@twins>
+	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+	 <1166468651.6983.6.camel@localhost>
+	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
+	 <1166471069.6940.4.camel@localhost>
+	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>  <1166624117.6891.8.camel@localhost>
+	 <1166624635.10372.229.camel@twins>  <1166632234.7654.0.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 17:36:27 +0100
+Message-Id: <1166632587.10372.235.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I've came across this problem: how can a userspace program (such as for
->> example "cp -a") tell that two files form a hardlink? Comparing inode
->> number will break on filesystems that can have more than 2^32 files (NFS3,
->> OCFS, SpadFS; kernel developers already implemented iget5_locked for the
->> case of colliding inode numbers). Other possibilities:
->>
->> --- compare not only ino, but all stat entries and make sure that
->>  	i_nlink > 1?
->>  	--- is not 100% reliable either, only lowers failure probability
->> --- create a hardlink and watch if i_nlink is increased on both files?
->>  	--- doesn't work on read-only filesystems
->> --- compare file content?
->>  	--- "cp -a" won't then corrupt data at least, but will create
->>  	hardlinks where they shouldn't be.
->>
->> Is there some reliable way how should "cp -a" command determine that?
->> Finding in kernel whether two dentries point to the same inode is trivial
->> but I am not sure how to let userspace know ... am I missing something?
->
-> The stat64.st_ino field is 64bit, so AFAICS you'd only need to extend
-> the kstat.ino field to 64bit and fix those filesystems to fill in
-> kstat correctly.
+On Wed, 2006-12-20 at 18:30 +0200, Andrei Popa wrote:
+> On Wed, 2006-12-20 at 15:23 +0100, Peter Zijlstra wrote:
+> > On Wed, 2006-12-20 at 16:15 +0200, Andrei Popa wrote:
+> > > On Wed, 2006-12-20 at 00:42 +0100, Peter Zijlstra wrote:
+> > > > On Mon, 2006-12-18 at 12:14 -0800, Linus Torvalds wrote:
+> > > > 
+> > > > > OR:
+> > > > > 
+> > > > >  - page_mkclean_one() is simply buggy.
+> > > > 
+> > > > GOLD!
+> > > > 
+> > > > it seems to work with all this (full diff against current git).
+> > > > 
+> > > > /me rebuilds full kernel to make sure...
+> > > > reboot...
+> > > > test...      pff the tension...
+> > > > yay, still good!
+> > > > 
+> > > > Andrei; would you please verify.
+> > > 
+> > > I have corrupted files.
+> > 
+> > drad; and with this patch:
+> >   http://lkml.org/lkml/2006/12/20/112
+> 
+> Hash check on download completion found bad chunks, consider using
+> "safe_sync".
 
-There is 32-bit __st_ino and 64-bit st_ino --- what is their purpose? Some 
-old compatibility code?
+*sigh* back to square 1.
 
-> SUSv3 requires st_ino/st_dev to be unique within a system so the
-> application shouldn't need to bend over backwards.
+and I need to look at my reproduction case ;-(
 
-I see but kernel needs to be fixed for that. Would patches for changing 
-kstat be accepted?
+Thanks for testing.
 
-Mikulas
-
-> Miklos
->

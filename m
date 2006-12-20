@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964970AbWLTLxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964965AbWLTLx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWLTLxt (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 06:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWLTLxt
+	id S964965AbWLTLx7 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 06:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWLTLx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 06:53:49 -0500
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:42035 "EHLO
-	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964958AbWLTLxs (ORCPT
+	Wed, 20 Dec 2006 06:53:59 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:53605 "EHLO
+	mtagate1.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964965AbWLTLx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 06:53:48 -0500
-X-Greylist: delayed 533 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 06:53:47 EST
-To: mikulas@artax.karlin.mff.cuni.cz
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	(message from Mikulas Patocka on Wed, 20 Dec 2006 10:03:33 +0100
-	(CET))
-Subject: Re: Finding hardlinks
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-Message-Id: <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 20 Dec 2006 12:44:42 +0100
+	Wed, 20 Dec 2006 06:53:58 -0500
+Date: Wed, 20 Dec 2006 13:53:55 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [patch] x86_64: fix boot time hang in detect_calgary()
+Message-ID: <20061220115355.GC30145@rhun.ibm.com>
+References: <20061220105332.GA20922@elte.hu> <20061220113415.GB30145@rhun.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220113415.GB30145@rhun.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've came across this problem: how can a userspace program (such as for 
-> example "cp -a") tell that two files form a hardlink? Comparing inode 
-> number will break on filesystems that can have more than 2^32 files (NFS3, 
-> OCFS, SpadFS; kernel developers already implemented iget5_locked for the 
-> case of colliding inode numbers). Other possibilities:
-> 
-> --- compare not only ino, but all stat entries and make sure that
->  	i_nlink > 1?
->  	--- is not 100% reliable either, only lowers failure probability
-> --- create a hardlink and watch if i_nlink is increased on both files?
->  	--- doesn't work on read-only filesystems
-> --- compare file content?
->  	--- "cp -a" won't then corrupt data at least, but will create
->  	hardlinks where they shouldn't be.
-> 
-> Is there some reliable way how should "cp -a" command determine that? 
-> Finding in kernel whether two dentries point to the same inode is trivial 
-> but I am not sure how to let userspace know ... am I missing something?
+On Wed, Dec 20, 2006 at 01:34:15PM +0200, Muli Ben-Yehuda wrote:
+> On Wed, Dec 20, 2006 at 11:53:32AM +0100, Ingo Molnar wrote:
 
-The stat64.st_ino field is 64bit, so AFAICS you'd only need to extend
-the kstat.ino field to 64bit and fix those filesystems to fill in
-kstat correctly.
+[snipped patch]
 
-SUSv3 requires st_ino/st_dev to be unique within a system so the
-application shouldn't need to bend over backwards.
+> Patch looks good to me, thanks. I'll give it a spin to verify.
 
-Miklos
+Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+
+Andi, I assume you'll push it to mainline?
+
+This should go into -stable too.
+
+Cheers,
+Muli

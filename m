@@ -1,107 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965040AbWLTMxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965043AbWLTNAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbWLTMxe (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 07:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWLTMxe
+	id S965043AbWLTNAn (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 08:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWLTNAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 07:53:34 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:41848 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965024AbWLTMxd (ORCPT
+	Wed, 20 Dec 2006 08:00:42 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:59365 "EHLO
+	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965043AbWLTNAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 07:53:33 -0500
-Date: Wed, 20 Dec 2006 12:53:14 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-ID: <20061220125314.GA24188@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org>
+	Wed, 20 Dec 2006 08:00:41 -0500
+X-AuditID: d80ac21c-a0b71bb0000050d2-eb-458933f87244 
+Date: Wed, 20 Dec 2006 13:00:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1166614001.10372.205.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+References: <1166314399.7018.6.camel@localhost>  <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost>  <20061217154026.219b294f.akpm@osdl.org>
+ <1166460945.10372.84.camel@twins>  <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+  <1166466272.10372.96.camel@twins>  <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+  <1166468651.6983.6.camel@localhost>  <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
+  <1166471069.6940.4.camel@localhost>  <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+  <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+ <1166614001.10372.205.camel@twins>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166601025.3365.1345.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Network drivers that don't suspend on interface down
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 20 Dec 2006 13:00:40.0423 (UTC) FILETIME=[D9CC5770:01C72436]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 08:50:24AM +0100, Arjan van de Ven wrote:
-
-(Adding netdev - context is the altering of the runtime power 
-management interface, with the effect that it's no longer possible for 
-userspace to request that drivers suspend a device, so Arjan has 
-suggested that we do it via other existing interfaces)
-
-> > Seriously. How many pieces of userspace-visible functionality have 
-> > recently been removed without there being any sort of alternative?
+On Wed, 20 Dec 2006, Peter Zijlstra wrote:
 > 
-> There IS an alternative, you're using it for networking:
->  
-> You *down the interface*.
+> fix page_mkclean_one()
+
+Congratulations on getting to the bottom of it, Peter (if you have:
+I haven't digested enough of the thread to tell).  I'm mostly offline at
+present, no time for dialogue, I'll throw out a few remarks and run...
+
 > 
-> If there's a NIC that doesn't support that let us (or preferably netdev)
-> know and it'll get fixed quickly I'm sure.
+> it had several issues:
+>  - it failed to flush the cache
 
-As far as I can tell, the following network devices don't put the 
-hardware into D3 on interface down:
+It's unclear to me why it should need to flush the cache, but I don't
+know much about that, and mprotect does flush the cache in advance -
+I think others will tell you that if it does need to be flushed, it must
+be flushed while there's still a valid pte (on some arches at least).
 
-3c59x
-8139too
-acenic
-amd8111e
-b44
-cassini
-defxx
-dl2k
-e100
-e1000
-epic100
-fealnx
-forcedeth
-hamachi
-hp100
-ioc3-eth
-natsemi
-ne2k-pci
-ns83820
-pcnet32
-qla3xxx
-rtl8169
-rrunner
-s2io
-saa9730
-sis190
-sis900
-skge
-sky2
-spider_net
-starfire
-sundance
-sungem
-sunhme
-tc35815
-tlan
-via-rhine
-yellowfin
+>  - it failed to flush the tlb
 
-while these ones do:
+Eh?  It flushed the TLB inside ptep_establish, didn't it?
+I guess you mean you've found a race before it flushed the TLB.
 
-bnx2
-tg3
-typhoon
-via-velocity
+>  - it failed to do s390 (s390 guys, please verify this is now correct)
 
-tulip is somewhere in between - it puts the chip in a lower power state, 
-but not D3. It's possible that some of the other drivers do something 
-similar, but nothing leapt out at me.
+Hmm, I thought we cleared it with them back at the time.
 
-The situation is more complicated for wireless. Userspace expects to be 
-able to get scan results from the card even if the interface is down. In 
-that case, I'm pretty sure we need a third state rather than just "up" 
-or "down".
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> 
+> Also, clear in a loop to ensure SMP safeness as suggested by Arjan.
+
+Yikes.  Well, please compare with mprotect's change_pte_range.  I think
+I took that as the relevant standard when checking your implementation,
+and back then satisfied myself that what you were doing was equivalent.
+If page_mkclean_one is now agreed to be significantly defective, then
+I suspect change_pte_range is also; perhaps others too.
+
+(But I haven't found time to do more than skim through the thread,
+I've not thought through the issues at all: I am surprised that it's
+now found defective, we looked at it long and hard back then.)
+
+And trivial point: please undo those distracting "pte" to "ptep" mods:
+if you want to call pte pointers ptep, throughout rmap.c and throughout
+mm, that's another patch entirely (which I won't welcome, but others may).
+
+Hugh

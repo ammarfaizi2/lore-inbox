@@ -1,144 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965151AbWLTRUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965153AbWLTRWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWLTRUs (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWLTRUs
+	id S965153AbWLTRWW (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWLTRWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:20:48 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:32460 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965151AbWLTRUr (ORCPT
+	Wed, 20 Dec 2006 12:22:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44139 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965153AbWLTRWV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:20:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=XM9/yf4czHyqqsQDwIVyNcJYCiPr6saEts+ImxV+y3fu1A4v/vfFa6e1neNpeaV6ys4y26UCgqEsjNq/Ti06Sv0sdqIBMP547bRx9dW24AzFyMCDVGMKTtZLHqW3VXeXaOQWi9+0Aaj50syHQ0Tewm5z2HKRDrQR4RRRpeIPSZg=
-Message-ID: <e13597370612200920k5d593863o6ba8580cf3e3c72e@mail.gmail.com>
-Date: Wed, 20 Dec 2006 20:20:45 +0300
-From: "Eugene Ilkov" <e.ilkov@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] alsa soc wm8750 fix 2.6.20-rc1-mm1
-Cc: akpm@osdl.org, perex@suse.cz
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_32030_21379289.1166635245397"
+	Wed, 20 Dec 2006 12:22:21 -0500
+Subject: Re: Network drivers that don't suspend on interface down
+From: Arjan van de Ven <arjan@infradead.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20061220164054.GA27938@dspnet.fr.eu.org>
+References: <200612191959.43019.david-b@pacbell.net>
+	 <20061220042648.GA19814@srcf.ucam.org>
+	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
+	 <20061220055209.GA20483@srcf.ucam.org>
+	 <1166601025.3365.1345.camel@laptopd505.fenrus.org>
+	 <20061220125314.GA24188@srcf.ucam.org>
+	 <1166621931.3365.1384.camel@laptopd505.fenrus.org>
+	 <20061220152701.GA22928@dspnet.fr.eu.org>
+	 <1166628858.3365.1425.camel@laptopd505.fenrus.org>
+	 <20061220164054.GA27938@dspnet.fr.eu.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 20 Dec 2006 18:21:39 +0100
+Message-Id: <1166635300.3365.1442.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_32030_21379289.1166635245397
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, 2006-12-20 at 17:40 +0100, Olivier Galibert wrote:
+> On Wed, Dec 20, 2006 at 04:34:17PM +0100, Arjan van de Ven wrote:
+> > 5 seconds is unfair and unrealistic though. The *hardware* negotiation
+> > before link is seen can easily take upto 45 seconds already.
+> > That's a network topology/hardware issue (spanning tree fun) that
+> > software or even the hardware in your PC can do nothing about.
+> 
+> It's about ergonomics, not technical capabilities or fairness.
+not entirely.
 
- There was some INIT_WORK related changes, here is patch against
-wm8750 codec driver. Tested on sharp sl-c1000
+> 
+> 
+> > this means that the "power up time" needs to be at least 45 seconds, if
+> > it's then down 5 seconds inbetween... that's not real power savings.
+> 
+> Then that means you can't have usable autodetection and power savings
+> at the same time. 
 
+even if you have NO power savings you still don't meet your criteria.
+That's basic ethernet for you....
 
---- linux-2.6.20-rc1-mm1/sound/soc/codecs/wm8750.c	2006-12-20
-19:23:27.000000000 +0300
-+++ linux-2.6.20-rc1-mm.z1/sound/soc/codecs/wm8750.c	2006-12-20
-19:27:28.000000000 +0300
-@@ -52,7 +52,6 @@
- 	printk(KERN_WARNING AUDIO_NAME ": " format "\n" , ## arg)
-  static struct workqueue_struct *wm8750_workq = NULL;
--static struct work_struct wm8750_dapm_work;
-  /*
-  * wm8750 register cache
-@@ -1001,9 +1000,11 @@
- };
- EXPORT_SYMBOL_GPL(wm8750_dai);
- -static void wm8750_work(void *data)
-+static void wm8750_work(struct work_struct *work)
- {
--	struct snd_soc_codec *codec = (struct snd_soc_codec *)data;
-+	struct snd_soc_device *socdev =
-+		container_of(work, struct snd_soc_device, delayed_work.work);
-+	struct snd_soc_codec *codec = socdev->codec;
- 	wm8750_dapm_event(codec, codec->dapm_state);
- }
- @@ -1039,7 +1040,7 @@
- 	if (codec->suspend_dapm_state == SNDRV_CTL_POWER_D0) {
- 		wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
- 		codec->dapm_state = SNDRV_CTL_POWER_D0;
--		queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
-+		queue_delayed_work(wm8750_workq, &socdev->delayed_work,
- 			 msecs_to_jiffies(1000));
- 	}
- @@ -1084,7 +1085,7 @@
- 	/* charge output caps */
- 	wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
- 	codec->dapm_state = SNDRV_CTL_POWER_D3hot;
--	queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
-+	queue_delayed_work(wm8750_workq, &socdev->delayed_work,
- 		msecs_to_jiffies(1000));
-  	/* set the update bits */
-@@ -1227,7 +1228,7 @@
- 	INIT_LIST_HEAD(&codec->dapm_widgets);
- 	INIT_LIST_HEAD(&codec->dapm_paths);
- 	wm8750_socdev = socdev;
--	INIT_WORK(&wm8750_dapm_work, wm8750_work, codec);
-+	INIT_DELAYED_WORK(&socdev->delayed_work, wm8750_work);
- 	wm8750_workq = create_workqueue("wm8750");
- 	if (wm8750_workq == NULL) {
- 		kfree(codec);
-
-------=_Part_32030_21379289.1166635245397
-Content-Type: message/rfc822; name="wm8750-2.6.20-rc1-mm1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="wm8750-2.6.20-rc1-mm1.patch"
-X-Attachment-Id: f_evxznoiz
+That's what I was trying to say; your criteria is unrealistic regardless
+of what the kernel does, ethernet already dictates 30 to 45 seconds
+there.
 
 
-+++ linux-2.6.20-rc1-mm.z1/sound/soc/codecs/wm8750.c	2006-12-20 19:27:28.000000000 +0300
-@@ -52,7 +52,6 @@
- 	printk(KERN_WARNING AUDIO_NAME ": " format "\n" , ## arg)
- 
- static struct workqueue_struct *wm8750_workq = NULL;
--static struct work_struct wm8750_dapm_work;
- 
- /*
-  * wm8750 register cache
-@@ -1001,9 +1000,11 @@
- };
- EXPORT_SYMBOL_GPL(wm8750_dai);
- 
--static void wm8750_work(void *data)
-+static void wm8750_work(struct work_struct *work)
- {
--	struct snd_soc_codec *codec = (struct snd_soc_codec *)data;
-+	struct snd_soc_device *socdev = 
-+		container_of(work, struct snd_soc_device, delayed_work.work);
-+	struct snd_soc_codec *codec = socdev->codec;
- 	wm8750_dapm_event(codec, codec->dapm_state);
- }
- 
-@@ -1039,7 +1040,7 @@
- 	if (codec->suspend_dapm_state == SNDRV_CTL_POWER_D0) {
- 		wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
- 		codec->dapm_state = SNDRV_CTL_POWER_D0;
--		queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
-+		queue_delayed_work(wm8750_workq, &socdev->delayed_work,
- 			 msecs_to_jiffies(1000));
- 	}
- 
-@@ -1084,7 +1085,7 @@
- 	/* charge output caps */
- 	wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
- 	codec->dapm_state = SNDRV_CTL_POWER_D3hot;
--	queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
-+	queue_delayed_work(wm8750_workq, &socdev->delayed_work,
- 		msecs_to_jiffies(1000));
- 
- 	/* set the update bits */
-@@ -1227,7 +1228,7 @@
- 	INIT_LIST_HEAD(&codec->dapm_widgets);
- 	INIT_LIST_HEAD(&codec->dapm_paths);
- 	wm8750_socdev = socdev;
--	INIT_WORK(&wm8750_dapm_work, wm8750_work, codec);
-+	INIT_DELAYED_WORK(&socdev->delayed_work, wm8750_work);
- 	wm8750_workq = create_workqueue("wm8750");
- 	if (wm8750_workq == NULL) {
- 		kfree(codec);
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-------=_Part_32030_21379289.1166635245397--

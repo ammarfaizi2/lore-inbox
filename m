@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964922AbWLTGmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964923AbWLTGsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbWLTGmP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 01:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWLTGmP
+	id S964923AbWLTGsl (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 01:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWLTGsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 01:42:15 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:50107 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964922AbWLTGmO (ORCPT
+	Wed, 20 Dec 2006 01:48:41 -0500
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:55664 "EHLO
+	liaag2aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964923AbWLTGsk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 01:42:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PfBZf7mb1ocxoOx0vXElwHclyJv1UDH4gRQ5472lTUzmQvyMHbvKb11Fdzi8NEAXbY5O06BWYWOMPvPHdH7HJx+2zskRbBTVfBKD5rev0utYPJWaMBx2k7ywFUyR3NrNQe9OGeKJjV2qfyD4EBNvecPTutNOPXrpt0QDapbNbcg=
-Message-ID: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
-Date: Wed, 20 Dec 2006 01:42:13 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: kzak@redhat.com, hvogel@suse.de, olh@suse.de, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de, arekm@maven.pl,
-       util-linux-ng@vger.kernel.org
-Subject: Re: util-linux: orphan
+	Wed, 20 Dec 2006 01:48:40 -0500
+Date: Wed, 20 Dec 2006 01:42:48 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zhang Yanmin <yanmin.zhang@intel.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <200612200145_MC3-1-D5AF-61E@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Zak writes:
+In-Reply-To: <20061219172900.37312b38.akpm@osdl.org>
 
-> I've originally thought about util-linux upstream fork,
-> but as usually an fork is bad step. So.. I'd like to start
-> some discussion before this step.
-...
-> after few weeks I'm pleased to announce a new "util-linux-ng"
-> project. This project is a fork of the original util-linux (2.13-pre7).
+On Tue, 19 Dec 2006 17:29:00 -0800, Andrew Morton wrote:
 
-Aw damn, I missed it again. LKML gets about 300 posts/day. The last
-time util-linux was offered, I missed out. Bummer.
+> Quoting the bug report:
 
-Well, how about giving me a chunk of it? I'd like /bin/kill please.
-I already ship a nicer one in procps anyway, so you can just delete
-the files and call that done. (just today I was working on a Fedora
-system and /bin/kill annoyed me)
+> general protection fault: 013b [1] PREEMPT 
 
-VERY STRONG SUGGESTION: build a full test suite before you mess with
-the source. This isn't some cute toy like xeyes or a silly game.
-This is util-linux, which MUST work.
+That '013b' is critical information.
+
+Bit 0: 1: exception source is external to the processor
+Bit 1: 1: there is a problem with an interrupt descriptor in the IDT
+Bit 2: n/a
+Bits 15-3: index of the problem descriptor
+
+So an external interrupt occurred, the system tried to use interrupt
+descriptor #39 decimal (irq 7), but the descriptor was invalid.
+-- 
+MBTI: IXTP
+

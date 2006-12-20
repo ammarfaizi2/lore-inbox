@@ -1,85 +1,144 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965150AbWLTRFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965151AbWLTRUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWLTRFO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWLTRFN
+	id S965151AbWLTRUs (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWLTRUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:05:13 -0500
-Received: from waste.org ([66.93.16.53]:44492 "EHLO waste.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965150AbWLTRFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:05:12 -0500
-X-Greylist: delayed 881 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 12:05:11 EST
-Date: Wed, 20 Dec 2006 10:40:46 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Keiichi KII <k-keiichi@bx.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.19 2/6] support multiple logging agents
-Message-ID: <20061220164046.GW13687@waste.org>
-References: <457E498C.1050806@bx.jp.nec.com> <457E4C65.6030802@bx.jp.nec.com> <20061212184250.GJ13687@waste.org> <458903ED.9040207@bx.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <458903ED.9040207@bx.jp.nec.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 20 Dec 2006 12:20:48 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:32460 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965151AbWLTRUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 12:20:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=XM9/yf4czHyqqsQDwIVyNcJYCiPr6saEts+ImxV+y3fu1A4v/vfFa6e1neNpeaV6ys4y26UCgqEsjNq/Ti06Sv0sdqIBMP547bRx9dW24AzFyMCDVGMKTtZLHqW3VXeXaOQWi9+0Aaj50syHQ0Tewm5z2HKRDrQR4RRRpeIPSZg=
+Message-ID: <e13597370612200920k5d593863o6ba8580cf3e3c72e@mail.gmail.com>
+Date: Wed, 20 Dec 2006 20:20:45 +0300
+From: "Eugene Ilkov" <e.ilkov@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] alsa soc wm8750 fix 2.6.20-rc1-mm1
+Cc: akpm@osdl.org, perex@suse.cz
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_32030_21379289.1166635245397"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 06:35:41PM +0900, Keiichi KII wrote:
-> >>  static struct netpoll np = {
-> >> >      .name = "netconsole",
-> >> >      .dev_name = "eth0",
-> >> > @@ -69,23 +84,91 @@ static struct netpoll np = {
-> >> >      .drop = netpoll_queue,
-> >> >  };
-> >
-> > Shouldn't this piece get dropped in this patch?
-> >
-> 
-> This piece isn't in -mm tree, but this piece is in 2.6.19.
-> Which version should I follow ?
+------=_Part_32030_21379289.1166635245397
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--mm, probably.
+ There was some INIT_WORK related changes, here is patch against
+wm8750 codec driver. Tested on sharp sl-c1000
 
-> >> -static int configured = 0;
-> >> +static int add_netcon_dev(const char* target_opt)
-> >> +{
-> >> +    static atomic_t netcon_dev_count = ATOMIC_INIT(0);
-> >
-> > Hiding this inside a function seems wrong. Why do we need a count? If
-> > we've already got a spinlock, why does it need to be atomic?
-> >
-> 
-> We don't have a spinlock for add_netcon_dev, because we don't need
-> to get a spinlock for add_netcon_dev except for list operation.
-> So, it must be atomic.
 
-Or you can just increment the list counter inside the lock.
+--- linux-2.6.20-rc1-mm1/sound/soc/codecs/wm8750.c	2006-12-20
+19:23:27.000000000 +0300
++++ linux-2.6.20-rc1-mm.z1/sound/soc/codecs/wm8750.c	2006-12-20
+19:27:28.000000000 +0300
+@@ -52,7 +52,6 @@
+ 	printk(KERN_WARNING AUDIO_NAME ": " format "\n" , ## arg)
+  static struct workqueue_struct *wm8750_workq = NULL;
+-static struct work_struct wm8750_dapm_work;
+  /*
+  * wm8750 register cache
+@@ -1001,9 +1000,11 @@
+ };
+ EXPORT_SYMBOL_GPL(wm8750_dai);
+ -static void wm8750_work(void *data)
++static void wm8750_work(struct work_struct *work)
+ {
+-	struct snd_soc_codec *codec = (struct snd_soc_codec *)data;
++	struct snd_soc_device *socdev =
++		container_of(work, struct snd_soc_device, delayed_work.work);
++	struct snd_soc_codec *codec = socdev->codec;
+ 	wm8750_dapm_event(codec, codec->dapm_state);
+ }
+ @@ -1039,7 +1040,7 @@
+ 	if (codec->suspend_dapm_state == SNDRV_CTL_POWER_D0) {
+ 		wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
+ 		codec->dapm_state = SNDRV_CTL_POWER_D0;
+-		queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
++		queue_delayed_work(wm8750_workq, &socdev->delayed_work,
+ 			 msecs_to_jiffies(1000));
+ 	}
+ @@ -1084,7 +1085,7 @@
+ 	/* charge output caps */
+ 	wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
+ 	codec->dapm_state = SNDRV_CTL_POWER_D3hot;
+-	queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
++	queue_delayed_work(wm8750_workq, &socdev->delayed_work,
+ 		msecs_to_jiffies(1000));
+  	/* set the update bits */
+@@ -1227,7 +1228,7 @@
+ 	INIT_LIST_HEAD(&codec->dapm_widgets);
+ 	INIT_LIST_HEAD(&codec->dapm_paths);
+ 	wm8750_socdev = socdev;
+-	INIT_WORK(&wm8750_dapm_work, wm8750_work, codec);
++	INIT_DELAYED_WORK(&socdev->delayed_work, wm8750_work);
+ 	wm8750_workq = create_workqueue("wm8750");
+ 	if (wm8750_workq == NULL) {
+ 		kfree(codec);
 
-> 
-> >>      local_irq_save(flags);
-> >> +    spin_lock(&netconsole_dev_list_lock);
-> >>      for(left = len; left; ) {
-> >>          frag = min(left, MAX_PRINT_CHUNK);
-> >> -        netpoll_send_udp(&np, msg, frag);
-> >> +        list_for_each_entry(dev, &active_netconsole_dev, list) {
-> >> +            spin_lock(&dev->netpoll_lock);
-> >> +            netpoll_send_udp(&dev->np, msg, frag);
-> >> +            spin_unlock(&dev->netpoll_lock);
-> >
-> > Why do we need a lock here? Why isn't the list lock sufficient? What
-> > happens if either lock is held when we get here?
-> >
-> 
-> The netpoll_lock is for each structure containing information related to 
-> netpoll
-> (remote IP address and port, local IP address and port and so on).
-> If we don't take a spinlock for each structure, the target IP address and 
-> port
-> number are subject to change on the way sending packets.
+------=_Part_32030_21379289.1166635245397
+Content-Type: message/rfc822; name="wm8750-2.6.20-rc1-mm1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="wm8750-2.6.20-rc1-mm1.patch"
+X-Attachment-Id: f_evxznoiz
 
-Why can't you simply define the list lock as protecting all the
-structures on the list?
 
--- 
-Mathematics is the supreme nostalgia of our time.
++++ linux-2.6.20-rc1-mm.z1/sound/soc/codecs/wm8750.c	2006-12-20 19:27:28.000000000 +0300
+@@ -52,7 +52,6 @@
+ 	printk(KERN_WARNING AUDIO_NAME ": " format "\n" , ## arg)
+ 
+ static struct workqueue_struct *wm8750_workq = NULL;
+-static struct work_struct wm8750_dapm_work;
+ 
+ /*
+  * wm8750 register cache
+@@ -1001,9 +1000,11 @@
+ };
+ EXPORT_SYMBOL_GPL(wm8750_dai);
+ 
+-static void wm8750_work(void *data)
++static void wm8750_work(struct work_struct *work)
+ {
+-	struct snd_soc_codec *codec = (struct snd_soc_codec *)data;
++	struct snd_soc_device *socdev = 
++		container_of(work, struct snd_soc_device, delayed_work.work);
++	struct snd_soc_codec *codec = socdev->codec;
+ 	wm8750_dapm_event(codec, codec->dapm_state);
+ }
+ 
+@@ -1039,7 +1040,7 @@
+ 	if (codec->suspend_dapm_state == SNDRV_CTL_POWER_D0) {
+ 		wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
+ 		codec->dapm_state = SNDRV_CTL_POWER_D0;
+-		queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
++		queue_delayed_work(wm8750_workq, &socdev->delayed_work,
+ 			 msecs_to_jiffies(1000));
+ 	}
+ 
+@@ -1084,7 +1085,7 @@
+ 	/* charge output caps */
+ 	wm8750_dapm_event(codec, SNDRV_CTL_POWER_D2);
+ 	codec->dapm_state = SNDRV_CTL_POWER_D3hot;
+-	queue_delayed_work(wm8750_workq, &wm8750_dapm_work,
++	queue_delayed_work(wm8750_workq, &socdev->delayed_work,
+ 		msecs_to_jiffies(1000));
+ 
+ 	/* set the update bits */
+@@ -1227,7 +1228,7 @@
+ 	INIT_LIST_HEAD(&codec->dapm_widgets);
+ 	INIT_LIST_HEAD(&codec->dapm_paths);
+ 	wm8750_socdev = socdev;
+-	INIT_WORK(&wm8750_dapm_work, wm8750_work, codec);
++	INIT_DELAYED_WORK(&socdev->delayed_work, wm8750_work);
+ 	wm8750_workq = create_workqueue("wm8750");
+ 	if (wm8750_workq == NULL) {
+ 		kfree(codec);
+
+------=_Part_32030_21379289.1166635245397--

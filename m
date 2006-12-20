@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964916AbWLTHul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964919AbWLTICJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWLTHul (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 02:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754431AbWLTHul
+	id S964919AbWLTICJ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 03:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753556AbWLTICJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 02:50:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:43019 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753556AbWLTHuk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 02:50:40 -0500
-Subject: Re: Changes to PM layer break userspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Greg KH <gregkh@suse.de>, David Brownell <david-b@pacbell.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061220055209.GA20483@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org>
-	 <200612191959.43019.david-b@pacbell.net>
-	 <20061220042648.GA19814@srcf.ucam.org>
-	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
-	 <20061220055209.GA20483@srcf.ucam.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 20 Dec 2006 08:50:24 +0100
-Message-Id: <1166601025.3365.1345.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 20 Dec 2006 03:02:09 -0500
+Received: from mx1.suse.de ([195.135.220.2]:53027 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753539AbWLTICI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 03:02:08 -0500
+Date: Wed, 20 Dec 2006 00:01:33 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jean Delvare <khali@linux-fr.org>,
+       Olivier Galibert <galibert@pobox.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sysfs file creation result nightmare
+Message-ID: <20061220080133.GA4325@kroah.com>
+References: <1165694351.1103.133.camel@localhost.localdomain> <20061209123817.f0117ad6.akpm@osdl.org> <20061209214453.GA69320@dspnet.fr.eu.org> <20061209135829.86038f32.akpm@osdl.org> <20061209223418.GA76069@dspnet.fr.eu.org> <20061209145303.3d5fe141.akpm@osdl.org> <1165712131.1103.166.camel@localhost.localdomain> <20061215154751.86a2dbdd.khali@linux-fr.org> <1166213773.31351.96.camel@localhost.localdomain> <20061215123103.adfbd78b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061215123103.adfbd78b.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 15, 2006 at 12:31:03PM -0800, Andrew Morton wrote:
+> On Sat, 16 Dec 2006 07:16:13 +1100
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > > Beware that sysfs_remove_bin_file() will complain loudly if you later
+> > > attempt to delete that file that was never created.
+> > 
+> > That's another problem... what is a driver that creates 15 files
+> > supposed to do ? Have 15 booleans to remember which files where
+> > successfully created and then test all of them on cleanup ? That sounds
+> > like even more bloat to me...
+> 
+> That's the sort of thing which should be done inside sysfs_create_group()
+> and sysfs_remove_group().
 
-> Seriously. How many pieces of userspace-visible functionality have 
-> recently been removed without there being any sort of alternative?
+sysfs_create_group() and remove_group() handles this just fine right
+now.  Or it should, if not, please let me know and I'll fix it.
 
-There IS an alternative, you're using it for networking:
- 
-You *down the interface*.
+As for the bin_file stuff, those are very rare.  And I'll gladly take
+patches that keep bad things from happening if you try to remove a file
+that isn't there.
 
-If there's a NIC that doesn't support that let us (or preferably netdev)
-know and it'll get fixed quickly I'm sure.
+thanks,
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+greg k-h

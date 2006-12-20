@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932949AbWLTFQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932960AbWLTFbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932949AbWLTFQV (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 00:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932960AbWLTFQU
+	id S932960AbWLTFbc (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 00:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932962AbWLTFbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 00:16:20 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:41114
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932949AbWLTFQU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 00:16:20 -0500
-Date: Tue, 19 Dec 2006 21:15:51 -0800 (PST)
-Message-Id: <20061219.211551.112620476.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: herbert@gondor.apana.org.au, mingo@elte.hu, akpm@osdl.org, wenji@fnal.gov,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061219211124.061b5c2d@localhost.localdomain>
-References: <E1Gwokt-00050T-00@gondolin.me.apana.org.au>
-	<20061219.185525.41636407.davem@davemloft.net>
-	<20061219211124.061b5c2d@localhost.localdomain>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 20 Dec 2006 00:31:32 -0500
+Received: from ozlabs.org ([203.10.76.45]:35470 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932960AbWLTFbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 00:31:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17800.51667.417655.209432@cargo.ozlabs.ibm.com>
+Date: Wed, 20 Dec 2006 16:27:47 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Kumar Gala <galak@kernel.crashing.org>, Adrian Bunk <bunk@stusta.de>,
+       Kumar Gala <galak@freescale.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] powerpc: remove the broken Gemini support
+In-Reply-To: <Pine.LNX.4.64.0612191826260.1867@scrub.home>
+References: <20061124234935.GJ28363@stusta.de>
+	<20061219041254.GB6993@stusta.de>
+	<3B7827F6-D6CA-481F-B6DE-0F0B2AB4F632@kernel.crashing.org>
+	<Pine.LNX.4.64.0612191826260.1867@scrub.home>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Tue, 19 Dec 2006 21:11:24 -0800
+Roman Zippel writes:
 
-> It was the realtime/normal comments that piqued my interest.
-> Perhaps we should either tweak process priority or remove
-> the comments.
+> Well, there are still patches umerged for over a year, they probably still 
+> apply mostly.
 
-I mentioned that to Linus once and he said the entire
-idea was bogus.
+Please rebase and repost them, if you want them to go in.
 
-With the recent tcp_recvmsg() preemption issue thread,
-I agree with his sentiments even more than I did previously.
-
-What needs to happen is to liberate the locking so that
-input packet processing can occur in parallel with
-tcp_recvmsg(), instead of doing this bogus backlog thing
-which can wedge TCP ACK processing for an entire quantum
-if we take a kernel preemption while the process has the
-socket lock held.
+Paul.

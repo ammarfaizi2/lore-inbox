@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030400AbWLTWa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030407AbWLTWfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWLTWa5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 17:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWLTWa5
+	id S1030407AbWLTWfS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 17:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWLTWfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:30:57 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45125 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030400AbWLTWa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:30:56 -0500
-Date: Wed, 20 Dec 2006 14:25:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-cc: Martin Michlmayr <tbm@cyrius.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
- corruption on ext3)
-In-Reply-To: <1166651735.10211.9.camel@kleikamp.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0612201420140.3576@woody.osdl.org>
-References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> 
- <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
-  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
-  <1166614001.10372.205.camel@twins>  <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
-  <1166622979.10372.224.camel@twins>  <20061220170323.GA12989@deprecation.cyrius.com>
-  <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> 
- <20061220175309.GT30106@deprecation.cyrius.com>  <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
-  <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
- <1166651735.10211.9.camel@kleikamp.austin.ibm.com>
+	Wed, 20 Dec 2006 17:35:18 -0500
+Received: from blue.stonehenge.com ([209.223.236.162]:22737 "EHLO
+	blue.stonehenge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030405AbWLTWfQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 17:35:16 -0500
+To: Junio C Hamano <junkio@cox.net>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] daemon.c blows up on OSX
+References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
+	<86vek6z0k2.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+	<86irg6yzt1.fsf_-_@blue.stonehenge.com>
+	<7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net>
+x-mayan-date: Long count = 12.19.13.16.7; tzolkin = 8 Manik; haab = 0 Kankin
+From: merlyn@stonehenge.com (Randal L. Schwartz)
+Date: 20 Dec 2006 14:35:12 -0800
+In-Reply-To: <7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net>
+Message-ID: <86ejquyz4v.fsf@blue.stonehenge.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Junio" == Junio C Hamano <junkio@cox.net> writes:
 
+Junio> merlyn@stonehenge.com (Randal L. Schwartz) writes:
+>> Nope... can't compile:
+>> ...
+>> daemon.c:970: warning: implicit declaration of function 'initgroups'
+>> make: *** [daemon.o] Error 1
+>> 
+>> This smells like we've seen this before.  Regression introduced with
+>> some of the cleanup?
 
-On Wed, 20 Dec 2006, Dave Kleikamp wrote:
-> 
-> This patch removes some questionable code that attempted to make a
-> no-longer-used page easier to reclaim.
+Junio> Most likely.  You were CC'ed on these messages:
 
-If so, "cancel_dirty_page()" may actually be the right thing to use, but 
-only if you can guarantee that the page isn't mapped anywhere (and from 
-the name of the function I guess it's not something that you'll ever map?)
+Junio> 	<7v7iwnnzed.fsf@assigned-by-dhcp.cox.net>
+Junio> 	<7vbqlye2zz.fsf@assigned-by-dhcp.cox.net>
 
-So the JFS code _looks_ like you could just replace the
+I see in 979e32fa1483a32faa4ec331e29b357e5eb5ef25 that I had to change
+some things for OpenBSD... I bet those are generic BSD things.
 
-	clear_page_dirty(page);
+Lemme see if it breaks on OpenBSD as well.
 
-with
+Oddly enough - it didn't. :)
 
-	cancel_dirty_page(page, PAGE_CACHE_SIZE);
+running "git version 1.4.4.3.g5485" on my openbsd box, but I can't get
+there on my OSX box.
 
-(where that second parameter is just used for statistics - it updates the 
-"cancelled IO" byte-counts if CONFIG_TASK_IO_ACCOUNTING is set - so the 
-number doesn't really matter, you could make it zero if you never want the 
-thing to show up in the IO accounting).
-
-			Linus
+-- 
+Randal L. Schwartz - Stonehenge Consulting Services, Inc. - +1 503 777 0095
+<merlyn@stonehenge.com> <URL:http://www.stonehenge.com/merlyn/>
+Perl/Unix/security consulting, Technical writing, Comedy, etc. etc.
+See PerlTraining.Stonehenge.com for onsite and open-enrollment Perl training!

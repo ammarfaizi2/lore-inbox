@@ -1,212 +1,116 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030323AbWLTTWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030332AbWLTTW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbWLTTWA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWLTTV7
+	id S1030332AbWLTTW2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWLTTWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:21:59 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40864 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030323AbWLTTV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:21:57 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v5 08/13] iw_cxgb3 Memory Registration
-Date: Wed, 20 Dec 2006 13:21:55 -0600
-To: rdreier@cisco.com
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org, jeff@garzik.org
-Message-Id: <20061220192155.19316.73702.stgit@dell3.ogc.int>
-In-Reply-To: <20061220191754.19316.4914.stgit@dell3.ogc.int>
-References: <20061220191754.19316.4914.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 20 Dec 2006 14:22:25 -0500
+Received: from gw.goop.org ([64.81.55.164]:46285 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030331AbWLTTWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:22:04 -0500
+Message-ID: <45898D4E.1030507@goop.org>
+Date: Wed, 20 Dec 2006 11:21:50 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Frederik Deweerdt <deweerdt@free.fr>
+CC: Andrew Morton <akpm@osdl.org>,
+       "Andrew J. Barr" <andrew.james.barr@gmail.com>,
+       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       walt <w41ter@gmail.com>
+Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda
+ changes (was Re: BUG on 2.6.20-rc1 when using gdb)
+References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org> <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org> <20061220183521.GA28900@slug>
+In-Reply-To: <20061220183521.GA28900@slug>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frederik Deweerdt wrote:
+> Same problems here with 2.6.20-rc1-mm1 (ie with the %gs->%fs patch).
+> It seems to me that the problem comes from the EFL_OFFSET no longer
+> beeing accurate.
+> The following patch fixes the problem for me.
+>   
 
-Functions to register memory regions.
+Thanks Frederik; that's exactly the kind of thing I thought it might
+be.  I wonder if there's some way we can make this more robust
+though...  Does this work for you?  I did a slightly larger cleanup
+which should make it less fragile and more comprehensible.
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
+    J
 
- drivers/infiniband/hw/cxgb3/iwch_mem.c |  170 ++++++++++++++++++++++++++++++++
- 1 files changed, 170 insertions(+), 0 deletions(-)
+diff -r e775f6e42258 arch/i386/kernel/ptrace.c
+--- a/arch/i386/kernel/ptrace.c	Tue Dec 19 10:32:40 2006 -0800
++++ b/arch/i386/kernel/ptrace.c	Wed Dec 20 11:18:56 2006 -0800
+@@ -45,7 +45,7 @@
+ /*
+  * Offset of eflags on child stack..
+  */
+-#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs))
++#define EFL_OFFSET offsetof(struct pt_regs, eflags)
+ 
+ static inline struct pt_regs *get_child_regs(struct task_struct *task)
+ {
+@@ -54,24 +54,24 @@ static inline struct pt_regs *get_child_
+ }
+ 
+ /*
+- * this routine will get a word off of the processes privileged stack. 
+- * the offset is how far from the base addr as stored in the TSS.  
+- * this routine assumes that all the privileged stacks are in our
++ * This routine will get a word off of the processes privileged stack. 
++ * the offset is bytes into the pt_regs structure on the stack.
++ * This routine assumes that all the privileged stacks are in our
+  * data space.
+  */   
+ static inline int get_stack_long(struct task_struct *task, int offset)
+ {
+ 	unsigned char *stack;
+ 
+-	stack = (unsigned char *)task->thread.esp0;
++	stack = (unsigned char *)task->thread.esp0 - sizeof(struct pt_regs);
+ 	stack += offset;
+ 	return (*((int *)stack));
+ }
+ 
+ /*
+- * this routine will put a word on the processes privileged stack. 
+- * the offset is how far from the base addr as stored in the TSS.  
+- * this routine assumes that all the privileged stacks are in our
++ * This routine will put a word on the processes privileged stack. 
++ * the offset is bytes into the pt_regs structure on the stack.
++ * This routine assumes that all the privileged stacks are in our
+  * data space.
+  */
+ static inline int put_stack_long(struct task_struct *task, int offset,
+@@ -79,7 +79,7 @@ static inline int put_stack_long(struct 
+ {
+ 	unsigned char * stack;
+ 
+-	stack = (unsigned char *) task->thread.esp0;
++	stack = (unsigned char *)task->thread.esp0 - sizeof(struct pt_regs);
+ 	stack += offset;
+ 	*(unsigned long *) stack = data;
+ 	return 0;
+@@ -114,7 +114,7 @@ static int putreg(struct task_struct *ch
+ 	}
+ 	if (regno > ES*4)
+ 		regno -= 1*4;
+-	put_stack_long(child, regno - sizeof(struct pt_regs), value);
++	put_stack_long(child, regno, value);
+ 	return 0;
+ }
+ 
+@@ -137,7 +137,6 @@ static unsigned long getreg(struct task_
+ 		default:
+ 			if (regno > ES*4)
+ 				regno -= 1*4;
+-			regno = regno - sizeof(struct pt_regs);
+ 			retval &= get_stack_long(child, regno);
+ 	}
+ 	return retval;
 
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_mem.c b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-new file mode 100644
-index 0000000..5909ec5
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_mem.c
-@@ -0,0 +1,170 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include <asm/byteorder.h>
-+
-+#include <rdma/iw_cm.h>
-+#include <rdma/ib_verbs.h>
-+
-+#include "cxio_hal.h"
-+#include "iwch.h"
-+#include "iwch_provider.h"
-+
-+int iwch_register_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	if (cxio_register_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid);
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int iwch_reregister_mem(struct iwch_dev *rhp, struct iwch_pd *php,
-+					struct iwch_mr *mhp,
-+					int shift,
-+					__be64 *page_list,
-+					int npages)
-+{
-+	u32 stag;
-+	u32 mmid;
-+
-+
-+	/* We could support this... */
-+	if (npages > mhp->attr.pbl_size)
-+		return -ENOMEM;
-+
-+	stag = mhp->attr.stag;
-+	if (cxio_reregister_phys_mem(&rhp->rdev,
-+				   &stag, mhp->attr.pdid,
-+				   mhp->attr.perms,
-+				   mhp->attr.zbva,
-+				   mhp->attr.va_fbo,
-+				   mhp->attr.len,
-+				   shift-12,
-+				   page_list,
-+				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
-+		return -ENOMEM;
-+	mhp->attr.state = 1;
-+	mhp->attr.stag = stag;
-+	mmid = stag >> 8;
-+	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-+	insert_handle(rhp, &rhp->mmidr, mhp, mmid);
-+	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
-+	return 0;
-+}
-+
-+int build_phys_page_list(struct ib_phys_buf *buffer_list,
-+					int num_phys_buf,
-+					u64 *iova_start,
-+					u64 *total_size,
-+					int *npages,
-+					int *shift,
-+					__be64 **page_list)
-+{
-+	u64 mask;
-+	int i, j, n;
-+
-+	mask = 0;
-+	*total_size = 0;
-+	for (i = 0; i < num_phys_buf; ++i) {
-+		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
-+			return -EINVAL;
-+		if (i != 0 && i != num_phys_buf - 1 &&
-+		    (buffer_list[i].size & ~PAGE_MASK))
-+			return -EINVAL;
-+		*total_size += buffer_list[i].size;
-+		if (i > 0)
-+			mask |= buffer_list[i].addr;
-+	}
-+
-+	if (*total_size > 0xFFFFFFFFULL)
-+		return -ENOMEM;
-+
-+	/* Find largest page shift we can use to cover buffers */
-+	for (*shift = PAGE_SHIFT; *shift < 27; ++(*shift))
-+		if (num_phys_buf > 1) {
-+			if ((1ULL << *shift) & mask)
-+				break;
-+		} else
-+			if (1ULL << *shift >=
-+			    buffer_list[0].size +
-+			    (buffer_list[0].addr & ((1ULL << *shift) - 1)))
-+				break;
-+
-+	buffer_list[0].size += buffer_list[0].addr & ((1ULL << *shift) - 1);
-+	buffer_list[0].addr &= ~0ull << *shift;
-+
-+	*npages = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		*npages += (buffer_list[i].size +
-+			(1ULL << *shift) - 1) >> *shift;
-+
-+	if (!*npages)
-+		return -EINVAL;
-+
-+	*page_list = kmalloc(sizeof(u64) * *npages, GFP_KERNEL);
-+	if (!*page_list)
-+		return -ENOMEM;
-+
-+	n = 0;
-+	for (i = 0; i < num_phys_buf; ++i)
-+		for (j = 0;
-+		     j < (buffer_list[i].size + (1ULL << *shift) - 1) >> *shift;
-+		     ++j)
-+			(*page_list)[n++] = cpu_to_be64(buffer_list[i].addr +
-+			    ((u64) j << *shift));
-+
-+	PDBG("%s va 0x%llx mask 0x%llx shift %d len %lld pbl_size %d\n",
-+	     __FUNCTION__, *iova_start, mask, *shift, *total_size, *npages);
-+
-+	return 0;
-+
-+}

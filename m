@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030371AbWLTVxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030376AbWLTVyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWLTVxA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 16:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWLTVw7
+	id S1030376AbWLTVyf (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 16:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWLTVye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 16:52:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46424 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030371AbWLTVw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 16:52:58 -0500
-Date: Wed, 20 Dec 2006 16:52:46 -0500 (EST)
-Message-Id: <20061220.165246.85417944.k-ueda@ct.jp.nec.com>
-To: jens.axboe@oracle.com
-Cc: agk@redhat.com, mchristi@redhat.com, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
-Subject: Re: [RFC PATCH 2/8] rqbased-dm: add block layer hook
-From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-In-Reply-To: <20061220134924.GG10535@kernel.dk>
-References: <20061219.171150.75425661.k-ueda@ct.jp.nec.com>
-	<20061220134924.GG10535@kernel.dk>
-X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
- =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 20 Dec 2006 16:54:34 -0500
+Received: from 85.189.5.98 ([85.189.5.98]:38502 "EHLO zombie.undead"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030373AbWLTVyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 16:54:33 -0500
+X-Greylist: delayed 1800 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 16:54:33 EST
+Message-ID: <45899FBD.9070803@hayter.me.uk>
+Date: Wed, 20 Dec 2006 20:40:29 +0000
+From: Steven Hayter <steven@hayter.me.uk>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Dan Aloni <da-x@monatomic.org>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [PATCH] scsi_execute_async() should add to the tail of the queue
+References: <20061219000234.GA5330@localdomain>
+In-Reply-To: <20061219000234.GA5330@localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 10.3.0.179
+X-SA-Exim-Mail-From: steven@hayter.me.uk
+X-SA-Exim-Scanned: No (on zombie.undead); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-
-Sorry for the less explanation.
-
-On Wed, 20 Dec 2006 14:49:24 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
-> On Tue, Dec 19 2006, Kiyoshi Ueda wrote:
-> > This patch adds new "end_io_first" hook in __end_that_request_first()
-> > for request-based device-mapper.
+Dan Aloni wrote:
+> Hello,
 > 
-> What's this for, lack of stacking?
+> scsi_execute_async() has replaced scsi_do_req() a few versions ago, 
+> but it also incurred a change of behavior. I noticed that over-queuing 
+> a SCSI device using that function causes I/Os to be starved from 
+> low-level queuing for no justified reason.
+>  
+> I think it makes much more sense to perserve the original behaviour 
+> of scsi_do_req() and add the request to the tail of the queue.
 
-I don't understand the meaning of "lack of stacking" well but
-I guess that it means "Is the existing hook in end_that_request_last()
-not enough?"  If so, the answer is no.
-(If the geuss is wrong, please let me know.)
+As far as I'm aware the way in which scsi_do_req() was to insert at the 
+head of the queue, leading to projects like SCST to come up with 
+scsi_do_req_fifo() as queuing multiple commands using scsi_do_req() with 
+constant head insertion might lead to out of order execution.
 
-The new hook is needed for error handling in dm.
-For example, when an error occurred on a request, dm-multipath
-wants to try another path before returning EIO to application.
-Without the new hook, at the point of end_that_request_last(),
-the bios are already finished with error and can't be retried.
+Just thought I'd throw some light on the history and what others have 
+done in the past.
 
-Thanks,
-Kiyoshi Ueda
-
+Steve

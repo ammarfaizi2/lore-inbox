@@ -1,85 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751949AbWLTAR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752724AbWLTATN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751949AbWLTAR5 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 19:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752420AbWLTAR5
+	id S1752724AbWLTATN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 19:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752903AbWLTATN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 19:17:57 -0500
-Received: from pat.uio.no ([129.240.10.15]:47648 "EHLO pat.uio.no"
+	Tue, 19 Dec 2006 19:19:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:48308 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751949AbWLTAR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 19:17:56 -0500
-Subject: Re: 2.6.18 mmap hangs unrelated apps
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michal Sabala <lkml@saahbs.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061219160315.ea83ca38.akpm@osdl.org>
-References: <20061215023014.GC2721@prosiaczek>
-	 <1166199855.5761.34.camel@lade.trondhjem.org>
-	 <20061215175030.GG6220@prosiaczek>
-	 <1166211884.5761.49.camel@lade.trondhjem.org>
-	 <20061215210642.GI6220@prosiaczek>
-	 <1166219054.5761.56.camel@lade.trondhjem.org>
-	 <20061219142624.230b28c0.akpm@osdl.org>
-	 <1166570378.5760.52.camel@lade.trondhjem.org>
-	 <20061219160315.ea83ca38.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 19:17:43 -0500
-Message-Id: <1166573863.5768.10.camel@lade.trondhjem.org>
+	id S1752420AbWLTATM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 19:19:12 -0500
+Date: Tue, 19 Dec 2006 16:18:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-Id: <20061219161834.5466ecf6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612191553140.6766@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>
+	<20061217040620.91dac272.akpm@osdl.org>
+	<1166362772.8593.2.camel@localhost>
+	<20061217154026.219b294f.akpm@osdl.org>
+	<1166460945.10372.84.camel@twins>
+	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	<45876C65.7010301@yahoo.com.au>
+	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+	<45878BE8.8010700@yahoo.com.au>
+	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
+	<4587B762.2030603@yahoo.com.au>
+	<Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
+	<Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
+	<1166563828.10372.162.camel@twins>
+	<Pine.LNX.4.64.0612191451410.3483@woody.osdl.org>
+	<20061219145818.5b36381c.akpm@osdl.org>
+	<1166569582.10372.165.camel@twins>
+	<Pine.LNX.4.64.0612191553140.6766@woody.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=no, UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-SPAM-Test: UIO-GREYLIST 69.242.210.120 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 1 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 16:03 -0800, Andrew Morton wrote:
-> On Tue, 19 Dec 2006 18:19:38 -0500
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+On Tue, 19 Dec 2006 16:03:49 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
+
 > 
-> >     NFS: Fix race in nfs_release_page()
-> >     
-> >     invalidate_inode_pages2() may set the dirty bit on a page owing to the call
-> >     to unmap_mapping_range() after the page was locked. In order to fix this,
-> >     NFS has hooked the releasepage() method. This, however leads to deadlocks
-> >     in other parts of the VM.
 > 
-> hmm, subtle.
+> On Wed, 20 Dec 2006, Peter Zijlstra wrote:
 > 
-> >     Fix is to add a new callback: flushpage(), which will write out a dirty
-> >     page that is under the page lock.
-> >     
+> > On Tue, 2006-12-19 at 14:58 -0800, Andrew Morton wrote:
+> > 
+> > > Well... we'd need to see (corruption && this-not-triggering) to be sure.
+> > > 
+> > > Peter, have you been able to trigger the corruption?
+> > 
+> > Yes; however the mail I send describing that seems to be lost in space.
 > 
-> I guess this might permit us to clean up some of the nasties in
-> invalidate_inode_pages2() - if the page comes dirty again, write it again. 
-> But the requirement that the page remain locked makes it hard.  Need to
-> think about it some more.
-
-This was one of the reasons why I had to introduce
-nfs_writepage_locked() for 2.6.20 (the other reason being readpage()).
-
-The problem is that you can only protect against redirtying of the page
-by holding the page lock across the call to unmap_mapping_range(), the
-page writeout and the page removal.
-
-> Are you sure this is the cause of the NFS problem?
+> Btw, can somebody actually explain the mess that is ext3 "dirtying".
 > 
-> >  	.prepare_write = nfs_prepare_write,
-> >  	.commit_write = nfs_commit_write,
-> >  	.invalidatepage = nfs_invalidate_page,
-> > -	.releasepage = nfs_release_page,
+> Ext3 does NOT use __set_page_dirty_buffers. It does
 > 
-> A NULL ->releasepage means that try_to_release_page() will call
-> try_to_free_buffers() if PagePrivate().  I suspect you'll need a stub to
-> prevent this.
+> 	static int ext3_journalled_set_page_dirty(struct page *page)
+> 	{
+> 	        SetPageChecked(page);
+> 	        return __set_page_dirty_nobuffers(page);
+> 	}
+> 
+> and uses that "Checked" bit as a "whole page is dirty" bit (which it tests 
+> in "writepage()".
 
-Ack, I'll add one in. If PagePrivate() is set during the call to
-try_to_release_page(), then the page should never be freeable.
+This is purely for data=journal, which is rarely used.
 
-> (We were supposed to stop doing that about four years ago - change it so
-> that all a_ops must implement ->releasepage, but nobody got around to it).
+In journalled-data mode, write(), write-fault, etc are not allowed to dirty
+the pages and buffers, because the data has to be written to the journal
+first.  After the data has been written to the journal we only then mark
+buffers (and hence pages) dirty as far as the VFS is concerned.  For
+checkpointing the data back to its real place on the disk.
 
-Would you still be interested in seeing this done?
 
+For MAP_SHARED pages ext3 cheats madly and doesn't journal the data at all.
+In all journalling modes, MAP_SHARED data follows the regular ext2-style
+handling.  Which is a bit of a wart.
 

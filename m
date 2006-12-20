@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030311AbWLTTqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030328AbWLTTsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030311AbWLTTqu (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWLTTqt
+	id S1030328AbWLTTsF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWLTTsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:46:49 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:52761 "EHLO
-	ms-smtp-01.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030311AbWLTTqt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:46:49 -0500
-Subject: Lord of the code! [was: GPL only modules [was Re: [GIT PATCH] more
-	Driver core patches for 2.6.19]]
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, karderio <karderio@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061216012721.47be92f3@localhost.localdomain>
-References: <1166226982.12721.78.camel@localhost>
-	 <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org>
-	 <20061216012721.47be92f3@localhost.localdomain>
+	Wed, 20 Dec 2006 14:48:04 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:37094 "EHLO e6.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030314AbWLTTsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:48:03 -0500
+Subject: Re: [PATCH 0/5][time][x86_64] GENERIC_TIME patchset for x86_64
+From: john stultz <johnstul@us.ibm.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu
+In-Reply-To: <200612201926.kBKJQoqN020967@turing-police.cc.vt.edu>
+References: <20061220011707.25341.6522.sendpatchset@localhost>
+	 <200612201926.kBKJQoqN020967@turing-police.cc.vt.edu>
 Content-Type: text/plain
-Date: Wed, 20 Dec 2006 14:46:39 -0500
-Message-Id: <1166643999.852.2.camel@localhost.localdomain>
+Date: Wed, 20 Dec 2006 11:47:57 -0800
+Message-Id: <1166644078.5996.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-12-16 at 01:27 +0000, Alan wrote:
-
-> > blather and idiotic hogwash. "Information" doesn't want to be free,
-> nor is 
-> > it somethign you should fight for or necessarily even encourage.
+On Wed, 2006-12-20 at 14:26 -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 19 Dec 2006 20:20:39 EST, john stultz said:
+> > 	I didn't hear any objections (or really, any comments) on my
+> > last release, so as I mentioned then, I want to go ahead and push this
+> > to Andrew for a bit of testing in -mm. Hopefully targeting for
+> > inclusion in 2.6.21 or 2.6.22.
 > 
-> As a pedant that is the one item I have to pick you up on Linus.
-> Information wants to be free, the natural efficient economic state of
-> information is generally free in both senses.
+> Am running it on a Dell Latitude D820 (Core2 T7200 cpu).  I had to un-do
+> 4 conflicting patches in -rc1-mm1 and then it applied and ran clean, I still
+> need to look at re-merging them:
 
-"Remember Frodo, It wants to be free^Wfound"
+Doh. Oh right, I should have checked against -mm for conflicts.
 
-Sorry, couldn't resist...
+> hpet-avoid-warning-message-livelock.patch
+> clockevents-i386-hpet-driver.patch
+> get-rid-of-arch_have_xtime_lock.patch
+> x86_64-mm-amd-tsc-sync.patch
+> 
+> It *looks* like all the pieces are there except a few lines of Kconfig
+> magic to wire up the dynticks/NO_HZ stuff - or did I miss something crucial?
 
--- Steve
+Yea, I will rework the patches ontop of -mm.
+
+thanks
+-john
 
 

@@ -1,461 +1,151 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964823AbWLTCqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964810AbWLTCrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWLTCqV (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 21:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWLTCqV
+	id S964810AbWLTCrS (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 21:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWLTCrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 21:46:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:35780 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964823AbWLTCqT (ORCPT
+	Tue, 19 Dec 2006 21:47:18 -0500
+Received: from mail.enter.net ([216.193.128.40]:17645 "EHLO mmail.enter.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964810AbWLTCrR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 21:46:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=AwRnjq9Kgj5w0Iwz5455XEaJScng5iBUcTOWf1fxEb8hv5Fyil+15q+Gf0eW72VIrXxcjGG08vO0C5QjQayaiachCjEm+BWg/a4RjGoazgEjC5ncAX0TzIVKKrl7OEUXhKs0juhBws3mxQbHHycCv1C/D62iBLWXPaQ8zvtIFhQ=
-Message-ID: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
-Date: Tue, 19 Dec 2006 21:46:18 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: BUG: wedged processes, test program supplied
+	Tue, 19 Dec 2006 21:47:17 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: tony mancill <tony@mancill.com>
+Subject: Re: [Alsa-devel] HDA Intel sound driver fails on Acer notebook
+Date: Tue, 19 Dec 2006 21:47:12 -0500
+User-Agent: KMail/1.9.5
+Cc: Takashi Iwai <tiwai@suse.de>, Chuck Ebbert <76306.1226@compuserve.com>,
+       alsa-devel <alsa-devel@alsa-project.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200612030233_MC3-1-D3BB-DE9@compuserve.com> <s5hfybcfbz8.wl%tiwai@suse.de> <45889687.5050609@mancill.com>
+In-Reply-To: <45889687.5050609@mancill.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+Message-Id: <200612192147.12670.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somebody PLEASE try this...
+On Tuesday 19 December 2006 20:48, tony mancill wrote:
+> FWIW, using pci=noacpi seems to break the USB controller on this laptop.
+> I get "device not accepting address xx, error -110.
 
-Normally, when a process dies it becomes a zombie.
-If the parent dies (before or after the child), the child
-is adopted by init. Init will reap the child.
+Strange. I'm using an Acer Aspire 1640Z and the sound works perfectly. Of 
+course Kubuntu was the only distro I could find that did OOB, but that's 
+besides the point. In a quick look through /etc on my laptop I wasn't able to 
+see how they do this. But after doing a quick check on Google the reports 
+vary from this being a patched bug in ALSA to being easily solved by ensuring 
+that the needed sound modules are loaded in the proper order.
 
-The program included below DOES NOT get reaped.
+An alternate solution to this is to load the snd-hda-intel module with the 
+parameter "model=laptop"
 
-Do like so:
+> In addition, neither the onboard nor the wireless NIC work anymore with
+> this option.  For the onboard, you see that the link is up, but then
+> get "NETDEV WATCHDOG: eth0: transmit timed out."
+>
+> acpi=off is worse - the boot hangs trying to load acpi/thermal.ko.
 
-gcc -m32 -O2 -std=gnu99 -o foo foo.c
-while true; do killall -9 foo; ./foo; sleep 1; done
+>From personal experience I can say that ACPI is needed for Acer notebooks with 
+the centrino chipset to function properly.
 
-BTW, it gets even better if you start playing with ptrace.
-Use the "strace" program (following children) and/or start
-sending rapid-fire SIGKILL to all the various _threads_ in
-the processes. You can get processes wedged in a wide
-variety of interesting states. I've seen "X" state, processes
-sitting around with pending SIGKILL, a process stuck in
-"D" state supposedly core dumping despite ulimit 0 on
-the core size, etc.
+> I've tested with both 1.0.13 and and 1.0.14rc1.  I don't get exactly
+> the same kernel logging (I'm using a Debian 2.6.18 kernel), but kern.log
+> contains:
 
-/////////////////////////////////
+I had the same problem when I tried Debian on this laptop. I don't recommend 
+it for laptops, since there are several common pieces of hardware found on 
+laptops that need firmware not shipped by Debian. This includes the ipw2200 
+firmware - which most Acer laptops need, because they ship with that wireless 
+card.
 
-#include <sys/mman.h>
-#include <signal.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
-#include <asm/unistd.h>
-
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
-#include <stdbool.h>
-
-static void early_write(int fd, const void *buf, size_t count)
-{
-#if 0
-        unsigned long eax = __NR_write;
-        /* push and pop because -fPIC probably
-           needs ebx for the GOT base pointer */
-        __asm__ __volatile__(
-                "push %%ebx ; "
-                "push %1 ; pop %%ebx ; int $0x80"
-                "; pop %%ebx"
-                :"=a"(eax)
-                :"r"(fd),"c"(buf),"d"(count),"0"(eax)
-                :"memory"
-        );
-#endif
-}
-
-static void p_str(char *s)
-{
-        size_t count = strlen(s);
-        early_write(STDERR_FILENO,s,count);
-}
-
-static void p_hex(unsigned long u)
-{
-        char buf[9];
-        char x[] = "0123456789abcdef";
-        char *s = buf;
-        s[8] = '\0';
-        int i = 8;
-        while(i--)
-                buf[7-i] = x[(u>>(i*4))&15];
-        early_write(STDERR_FILENO,buf,8);
-}
-
-static void p_dec(unsigned long u)
-{
-        char buf[11];
-        char *s = buf+10;
-        *s-- = '\0';
-        int count = 0;
-        while(u || !count)
-        {
-                *s-- = u%10 + '0';
-                u /= 10;
-                count++;
-        }
-        early_write(STDERR_FILENO,s+1,count);
-}
-
-#define FUTEX_WAIT              0
-#define FUTEX_WAKE              1
-
-
-typedef int lock_t;
-
-#define LOCK_INITIALIZER 0
-
-static inline void init_lock(lock_t* l) { *l = 0; }
-
-// lock_add performs an atomic add
-// and returns the resulting value
-static inline int lock_add(lock_t* l, int val)
-{
-        int result = val;
-        __asm__ __volatile__ (
-                "lock; xaddl %1, %0;"
-                : "=m" (*l), "=r" (result)
-                : "1" (result), "m" (*l)
-                : "memory");
-        return result + val;
-        // Returns the value written to memory
-}
-
-// lock_bts_high_bit atomically tests and
-// sets the high bit and returns
-// true if the bit was clear initially
-static inline bool lock_bts_high_bit(lock_t* l)
-{
-        bool result;
-        __asm__ __volatile__ (
-                "lock; btsl $31, %0;\n\t"
-                "setnc %1;"
-                : "=m" (*l), "=q" (result)
-                : "m" (*l)
-                : "memory");
-        return result;
-}
-
-static int futex(int* uaddr, int op, int val,
-const struct timespec*timeout, int*uaddr2, int val3)
-{
-        (void)timeout;
-        (void)uaddr2;
-        (void)val3;
-        int eax = __NR_futex;
-        __asm__ __volatile__(
-                "push %%ebx ; push %1 ; pop %%ebx"
-                " ; int $0x80; pop %%ebx"
-                :"=a"(eax)
-                :"r"(uaddr),"c"(op),"d"(val),"0"(eax)
-                :"memory"
-        );
-        return eax;
-}
-
-// lock will wait for and lock a mutex
-static void lock(lock_t* l)
-{
-        // Check the mutex and set held bit
-        if (lock_bts_high_bit(l))
-        {
-                // Got the mutex
-                return;
-        }
-
-        // Increment wait count
-        lock_add(l, 1);
-
-        while (true)
-        {
-                // Check the mutex and set held bit
-                if (lock_bts_high_bit(l))
-                {
-                        // Got mutex, decrement wait count
-                        lock_add(l, -1);
-                        return;
-                }
-
-                int val = *l;
-                // Ensure mutex not given up since check
-                if (!(val & 0x80000000))
-                        continue;
-
-                // Wait for the mutex
-                futex(l, FUTEX_WAIT, val, NULL, NULL, 0);
-        }
-}
-
-// unlock will release a mutex
-static void unlock(lock_t* l)
-{
-        // Turn off lock held bit and check for waiters
-        if (lock_add(l, 0x80000000) == 0)
-        {
-                // No waiters
-                return;
-        }
-
-        // Waiters found, wake up one of them
-        futex(l, FUTEX_WAKE, 1, NULL, NULL, 0);
-}
-
-unsigned toomany = 42;
-
-struct data {
-        unsigned nprocs;
-        lock_t lock;
-        unsigned count;
-};
-
-struct data *data;
-
-static struct data *get_shm(void)
-{
-        void *addr;
-        int shmid;
-
-        // create
-        shmid = shmget(IPC_PRIVATE,42,IPC_CREAT|0666);
-        // attach
-        addr = shmat(shmid, NULL, 0);
-        // don't want it to stay around
-        shmctl(shmid, IPC_RMID, NULL);
-
-        return addr;
-}
-
-static int
-__attribute__((noreturn,regparm(3),used,unused))
-do_stuff(void *arg)
-{
-        lock(&data->lock);
-        data->nprocs++;
-        unlock(&data->lock);
-        srand((unsigned long)arg);
-
-        int time_to_die;
-
-        for(;;)
-        {
-                time_to_die = 0;
-                lock(&data->lock);
-                if(data->nprocs > toomany)
-                {
-                        data->nprocs--;
-                        time_to_die = 1;
-                }
-                unlock(&data->lock);
-                if(time_to_die)
-                {
-                        p_str("exiting\n");
-                        /* don't even think of getting hit
-                         * by a signal while the stack is
-                         * getting freed */
-                        __asm__ __volatile__(
-                                "mov %%esp,%%ebx;"
-                                "andl $0xfffff000,%%ebx;"
-                                "int $0x80;"
-                                "mov %0,%%eax;"
-                                "int $0x80"
-                                :
-                                :"n"(__NR_exit),"c"(4096),"a"(__NR_munmap)
-                                :"memory"
-                        );
-                }
-
-                char *msg = "cloning\n";
-                int clone_flags = CLONE_VM|CLONE_FS|CLONE_FILES;
-                switch((int) (10.0 * (rand() / (RAND_MAX + 1.0))))
-                {
-                        int ret;
-                default:
-                        sched_yield();
-                        break;
-                case 1 ... 3:
-                        p_str("forking\n");
-                        __asm__ __volatile__(
-                                "int $0x80"
-                                :"=a"(ret)
-                                :"0"(__NR_fork)
-                                :"memory"
-                        );
-                        if(!ret)
-                        {
-                                // child of a fork
-                                lock(&data->lock);
-                                data->nprocs++;
-                                unlock(&data->lock);
-                                unsigned t1,t2;
-                                __asm__ __volatile__(
-                                        "rdtsc"
-                                        :"=a"(t1),"=d"(t2)
-                                );
-                                srand(t1^t2);
-                                continue;
-                        }
-                        if(ret<0)
-                        {
-                                char ec[80];
-                                snprintf(
-                                        ec,
-                                        sizeof ec,
-                                        "fork error %d (%s)\n",
-                                        -ret,
-                                        strerror(-ret)
-                                );
-                                p_str(ec);
-                        }
-                        break;
-                case 4 ... 5:
-                        msg = "threading\n";
-                        clone_flags |= (CLONE_THREAD|CLONE_SIGHAND);
-                        // FALL THROUGH
-                case 6 ... 9:
-                        p_str(msg);
-                        ;
-                        char *stack = mmap(
-                                0,
-                                4096,
-                                PROT_READ|PROT_WRITE,
-                                MAP_PRIVATE|MAP_ANONYMOUS,
-                                0,
-                                0
-                        );
-                        __asm__ __volatile__(
-                                "pushl %%ebx\n\t"
-                                "movl %[clone_flags],%%ebx\n\t"
-                                "int $0x80\n\t"
-                                "mov %%eax,%%ecx\n\t"
-                                "jecxz 1f\n\t"
-                                "jmp 2f\n"
-                                "1:\n\t"
-                                // child (ecx is 0)
-                                "rdtsc\n\t"
-                                "xorl %%edx,%%eax\n\t"
-                                "jmp *%[do_stuff]\n"
-                                // parent
-                                "2:\n\t"
-                                "popl %%ebx\n"
-                                :"=c"(ret)
-                                :"a"(__NR_clone)
-                                ,"0"(stack+4096)
-                                ,[do_stuff]"D"(do_stuff)
-                                ,[clone_flags]"d"(clone_flags)
-                                :"memory"
-                        );
-                        if(ret<0)
-                        {
-                                munmap(stack,4096);
-                                char ec[80];
-                                snprintf(
-                                        ec,
-                                        sizeof ec,
-                                        "thread error %d (%s)\n",
-                                        -ret,
-                                        strerror(-ret)
-                                );
-                                p_str(ec);
-                        }
-                        break;
-                }
-        }
-}
-
-extern const char * const sys_siglist[];
-
-static void signal_handler(int signo){
-        char mb[80];
-        snprintf(
-                mb,
-                sizeof mb,
-                "dying with signal %d (%s)\n",
-                signo,
-                sys_siglist[signo]
-        );
-        p_str(mb);
-        __asm__ __volatile__(
-                "mov %0,%%ebx; int $0x80"
-                :
-                :"r"(signo+128),"a"(__NR_exit)
-                :"memory"
-        );
-}
-
-
-static char stack[10240];
-
-int main(int argc, char *argv[])
-{
-        if(sizeof(void*)>4)
-                return 7;
-        nice(19);
-
-#if  0
-        stack_t ss = {
-                .ss_sp = stack,
-                .ss_flags = 0,
-                .ss_size = sizeof stack,
-        };
-        sigaltstack(&ss,NULL);
-
-        struct sigaction sa;
-        int i = 32;
-        memset(&sa, 0, sizeof(sa));
-        sa.sa_handler = signal_handler;
-        sigfillset(&sa.sa_mask);
-
-        while(i--) switch(i){
-        default:
-                sigaction(i,&sa,NULL);
-        case 0:
-        case SIGINT:   /* ^C */
-        case SIGTSTP:  /* ^Z */
-        case SIGTTOU:  /* see stty(1) man page */
-        case SIGQUIT:  /* ^\ */
-        case SIGPROF:  /* profiling */
-        case SIGKILL:  /* can not catch */
-        case SIGSTOP:  /* can not catch */
-        case SIGWINCH: /* don't care if window size changes */
-                ;
-        }
-#endif
-        data = get_shm();
-        data->nprocs = 1;
-        signal(SIGCHLD,SIG_IGN);
-        char *stack = mmap(
-                0,
-                4096,
-                PROT_READ|PROT_WRITE,
-                MAP_PRIVATE|MAP_ANONYMOUS,
-                0,
-                0
-        );
-        __asm__ __volatile__(
-                "mov %0, %%esp ; jmp *%1"
-                :
-                :"r"(stack+4096), "r"(do_stuff)
-                :"memory"
-        );
-        return 0;
-}
+> Dec 19 17:39:43 maus kernel: : hda_codec: invalid dep_range_val 0:7fff
+> Dec 19 17:39:43 maus kernel: ALSA
+> /home/tony/alsa-driver-1.0.14rc1/pci/hda/hda_codec.c:216: hda_codec:
+> invalid dep_range_val 0:7fff Dec 19 17:39:43 maus last message repeated 279
+> times
+> Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0xd
+> Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0x9
+> Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0xd
+> Dec 19 17:39:43 maus last message repeated 20 times
+> Dec 19 17:39:43 maus kernel: hda_codec: num_steps = 0 for NID=0x9
+>
+> Thanks in advance for any assistance.  I hope you enjoyed your
+> vacation.
+>
+> Thanks,
+> tony
+>
+> Takashi Iwai wrote:
+> > Hi,
+> >
+> > sorry for the late reply since I've been on vacation.
+> >
+> > At Sun, 3 Dec 2006 02:30:34 -0500,
+> >
+> > Chuck Ebbert wrote:
+> >> The HDA Intel sound driver still fails to load on my Acer Aspire 5102
+> >> notebook (Turion64 X2, ATI chipset):
+> >>
+> >> Here is the PCI info while running x86_64.  I tried i386 and x86_64 and
+> >> it fails on both:
+> >>
+> >> 00:14.2 Audio device: ATI Technologies Inc Unknown device 437b (rev 01)
+> >>         Subsystem: Acer Incorporated [ALI] Unknown device 009f
+> >>         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+> >> ParErr- Stepping- SERR- FastB2B- Status: Cap+ 66MHz- UDF- FastB2B-
+> >> ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR- Latency:
+> >> 64, Cache Line Size 08
+> >>         Interrupt: pin ? routed to IRQ 16
+> >>         Region 0: Memory at c0000000 (64-bit, non-prefetchable)
+> >> [size=16K] Capabilities: [50] Power Management version 2
+> >>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA
+> >> PME(D0+,D1-,D2-,D3hot+,D3cold+) Status: D0 PME-Enable- DSel=0 DScale=0
+> >> PME-
+> >>         Capabilities: [60] Message Signalled Interrupts: 64bit+
+> >> Queue=0/0 Enable- Address: 0000000000000000  Data: 0000
+> >> 00: 02 10 7b 43 06 00 10 04 01 00 03 04 08 40 00 00
+> >> 10: 04 00 00 c0 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 20: 00 00 00 00 00 00 00 00 00 00 00 00 25 10 9f 00
+> >> 30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 00 00 00
+> >> 40: 00 00 02 40 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 50: 01 60 42 c8 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 60: 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>
+> >> On i386 I get this after doing
+> >>         insmod snd-hda-codec.ko ;  insmod snd-hda-intel.ko
+> >>
+> >> Dec  1 17:38:29 ac kernel: ACPI: PCI Interrupt 0000:00:14.2[A] -> GSI 16
+> >> (level, low) -> IRQ 18 Dec  1 17:38:29 ac kernel: codec_mask = 0xb
+> >> Dec  1 17:38:30 ac kernel: hda_codec: PCI 1025:9f, codec config 5 is
+> >> selected Dec  1 17:38:31 ac kernel: hda_intel: azx_get_response timeout,
+> >> switching to polling mode... Dec  1 17:38:32 ac kernel: hda_intel:
+> >> azx_get_response timeout, switching to single_cmd mode...
+> >
+> > These messages are scary.  It means that the communication between the
+> > controller chip and the codec chip doesn't work, usually incorrect IRQ
+> > handling, and often due to broken BIOS or ACPI support.  Any change if
+> > you pass pci=noacpi or acpi=off boot option?
+> >
+> > Anyway, you can try alsa-git patch in mm tree.  It's a better support
+> > code for Acer laptops, and this might work slightly differently.
+> >
+> >
+> > Takashi
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

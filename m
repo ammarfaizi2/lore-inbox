@@ -1,49 +1,212 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030321AbWLTTVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030323AbWLTTWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbWLTTVv (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWLTTVv
+	id S1030323AbWLTTWA (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWLTTV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:21:51 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:34974 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030321AbWLTTVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:21:47 -0500
-Message-ID: <45898D48.8020800@pobox.com>
-Date: Wed, 20 Dec 2006 14:21:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: David Milburn <dmilburn@redhat.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata-scsi: ata_task_ioctl should return ATA registers
- from sense data
-References: <458702D9.6080800@redhat.com>
-In-Reply-To: <458702D9.6080800@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 20 Dec 2006 14:21:59 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40864 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1030323AbWLTTV5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:21:57 -0500
+From: Steve Wise <swise@opengridcomputing.com>
+Subject: [PATCH  v5 08/13] iw_cxgb3 Memory Registration
+Date: Wed, 20 Dec 2006 13:21:55 -0600
+To: rdreier@cisco.com
+Cc: netdev@vger.kernel.org, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, jeff@garzik.org
+Message-Id: <20061220192155.19316.73702.stgit@dell3.ogc.int>
+In-Reply-To: <20061220191754.19316.4914.stgit@dell3.ogc.int>
+References: <20061220191754.19316.4914.stgit@dell3.ogc.int>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Milburn wrote:
-> User applications using the HDIO_DRIVE_TASK ioctl through libata
-> expect specific ATA registers to be returned to userspace. Verified
-> that ata_task_ioctl correctly returns register values to the
-> smartctl application.
-> 
-> Signed-off-by: David Milburn <dmilburn@redhat.com>
 
-ACK, but fails to apply to libata-dev.git#upstream-fixes:
+Functions to register memory regions.
 
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+---
 
-[jgarzik@pretzel libata-dev]$ git-applymbox /g/tmp/mbox ~/info/signoff.txt
-1 patch(es) to process.
+ drivers/infiniband/hw/cxgb3/iwch_mem.c |  170 ++++++++++++++++++++++++++++++++
+ 1 files changed, 170 insertions(+), 0 deletions(-)
 
-Applying 'libata-scsi: ata_task_ioctl should return ATA registers from 
-sense data'
-
-fatal: corrupt patch at line 83
-
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_mem.c b/drivers/infiniband/hw/cxgb3/iwch_mem.c
+new file mode 100644
+index 0000000..5909ec5
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/iwch_mem.c
+@@ -0,0 +1,170 @@
++/*
++ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
++ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++#include <asm/byteorder.h>
++
++#include <rdma/iw_cm.h>
++#include <rdma/ib_verbs.h>
++
++#include "cxio_hal.h"
++#include "iwch.h"
++#include "iwch_provider.h"
++
++int iwch_register_mem(struct iwch_dev *rhp, struct iwch_pd *php,
++					struct iwch_mr *mhp,
++					int shift,
++					__be64 *page_list)
++{
++	u32 stag;
++	u32 mmid;
++
++
++	if (cxio_register_phys_mem(&rhp->rdev,
++				   &stag, mhp->attr.pdid,
++				   mhp->attr.perms,
++				   mhp->attr.zbva,
++				   mhp->attr.va_fbo,
++				   mhp->attr.len,
++				   shift-12,
++				   page_list,
++				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
++		return -ENOMEM;
++	mhp->attr.state = 1;
++	mhp->attr.stag = stag;
++	mmid = stag >> 8;
++	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
++	insert_handle(rhp, &rhp->mmidr, mhp, mmid);
++	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
++	return 0;
++}
++
++int iwch_reregister_mem(struct iwch_dev *rhp, struct iwch_pd *php,
++					struct iwch_mr *mhp,
++					int shift,
++					__be64 *page_list,
++					int npages)
++{
++	u32 stag;
++	u32 mmid;
++
++
++	/* We could support this... */
++	if (npages > mhp->attr.pbl_size)
++		return -ENOMEM;
++
++	stag = mhp->attr.stag;
++	if (cxio_reregister_phys_mem(&rhp->rdev,
++				   &stag, mhp->attr.pdid,
++				   mhp->attr.perms,
++				   mhp->attr.zbva,
++				   mhp->attr.va_fbo,
++				   mhp->attr.len,
++				   shift-12,
++				   page_list,
++				   &mhp->attr.pbl_size, &mhp->attr.pbl_addr))
++		return -ENOMEM;
++	mhp->attr.state = 1;
++	mhp->attr.stag = stag;
++	mmid = stag >> 8;
++	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
++	insert_handle(rhp, &rhp->mmidr, mhp, mmid);
++	PDBG("%s mmid 0x%x mhp %p\n", __FUNCTION__, mmid, mhp);
++	return 0;
++}
++
++int build_phys_page_list(struct ib_phys_buf *buffer_list,
++					int num_phys_buf,
++					u64 *iova_start,
++					u64 *total_size,
++					int *npages,
++					int *shift,
++					__be64 **page_list)
++{
++	u64 mask;
++	int i, j, n;
++
++	mask = 0;
++	*total_size = 0;
++	for (i = 0; i < num_phys_buf; ++i) {
++		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
++			return -EINVAL;
++		if (i != 0 && i != num_phys_buf - 1 &&
++		    (buffer_list[i].size & ~PAGE_MASK))
++			return -EINVAL;
++		*total_size += buffer_list[i].size;
++		if (i > 0)
++			mask |= buffer_list[i].addr;
++	}
++
++	if (*total_size > 0xFFFFFFFFULL)
++		return -ENOMEM;
++
++	/* Find largest page shift we can use to cover buffers */
++	for (*shift = PAGE_SHIFT; *shift < 27; ++(*shift))
++		if (num_phys_buf > 1) {
++			if ((1ULL << *shift) & mask)
++				break;
++		} else
++			if (1ULL << *shift >=
++			    buffer_list[0].size +
++			    (buffer_list[0].addr & ((1ULL << *shift) - 1)))
++				break;
++
++	buffer_list[0].size += buffer_list[0].addr & ((1ULL << *shift) - 1);
++	buffer_list[0].addr &= ~0ull << *shift;
++
++	*npages = 0;
++	for (i = 0; i < num_phys_buf; ++i)
++		*npages += (buffer_list[i].size +
++			(1ULL << *shift) - 1) >> *shift;
++
++	if (!*npages)
++		return -EINVAL;
++
++	*page_list = kmalloc(sizeof(u64) * *npages, GFP_KERNEL);
++	if (!*page_list)
++		return -ENOMEM;
++
++	n = 0;
++	for (i = 0; i < num_phys_buf; ++i)
++		for (j = 0;
++		     j < (buffer_list[i].size + (1ULL << *shift) - 1) >> *shift;
++		     ++j)
++			(*page_list)[n++] = cpu_to_be64(buffer_list[i].addr +
++			    ((u64) j << *shift));
++
++	PDBG("%s va 0x%llx mask 0x%llx shift %d len %lld pbl_size %d\n",
++	     __FUNCTION__, *iova_start, mask, *shift, *total_size, *npages);
++
++	return 0;
++
++}

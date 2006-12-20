@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161130AbWLUBvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161135AbWLUByv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161130AbWLUBvL (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 20:51:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWLUBvK
+	id S1161135AbWLUByv (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 20:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161133AbWLUByt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 20:51:10 -0500
-Received: from toq3-srv.bellnexxia.net ([209.226.175.16]:37004 "EHLO
-	toq3-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161130AbWLUBvJ (ORCPT
+	Wed, 20 Dec 2006 20:54:49 -0500
+Received: from blue.stonehenge.com ([209.223.236.162]:24770 "EHLO
+	blue.stonehenge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161131AbWLUBys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 20:51:09 -0500
-Date: Wed, 20 Dec 2006 18:52:16 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Douglas Niehaus <niehaus@eecs.ku.edu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 0/4] Linux Kernel Markers
-Message-ID: <20061220235216.GA28643@Krystal>
-Mime-Version: 1.0
+	Wed, 20 Dec 2006 20:54:48 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: What's in git.git (stable), and Announcing GIT 1.4.4.3
+References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
+	<86vek6z0k2.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+x-mayan-date: Long count = 12.19.13.16.7; tzolkin = 8 Manik; haab = 0 Kankin
+From: merlyn@stonehenge.com (Randal L. Schwartz)
+Date: 20 Dec 2006 15:58:38 -0800
+In-Reply-To: <Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+Message-ID: <86ejquxgpd.fsf@blue.stonehenge.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 18:46:55 up 119 days, 20:54,  6 users,  load average: 0.65, 0.76, 0.63
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-You will find, in the following posts, the latest revision of the Linux Kernel
-Markers. Due to the need some tracing projects (LTTng, SystemTAP) has of this
-kind of mechanism, it could be nice to consider it for mainstream inclusion.
+Linus> Master right  now is at 54851157ac.
 
-The following patches apply on 2.6.20-rc1-git7.
+On a more positive note, with my local (unacceptable) changes to muck with
+headers, the 54 release does in fact make git-index-pack take
+under a minute for 313037 objects on OSX.  Yeay!
 
-Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-- 
+Randal L. Schwartz - Stonehenge Consulting Services, Inc. - +1 503 777 0095
+<merlyn@stonehenge.com> <URL:http://www.stonehenge.com/merlyn/>
+Perl/Unix/security consulting, Technical writing, Comedy, etc. etc.
+See PerlTraining.Stonehenge.com for onsite and open-enrollment Perl training!

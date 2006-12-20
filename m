@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965038AbWLTNfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965048AbWLTNg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWLTNfM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 08:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWLTNfM
+	id S965048AbWLTNg3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 08:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWLTNg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 08:35:12 -0500
-Received: from iona.labri.fr ([147.210.8.143]:50428 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965038AbWLTNfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 08:35:11 -0500
-X-Greylist: delayed 1425 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 08:35:11 EST
-Message-ID: <45893679.8030604@ens-lyon.org>
-Date: Wed, 20 Dec 2006 14:11:21 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Wed, 20 Dec 2006 08:36:29 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:43168 "EHLO
+	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965048AbWLTNg3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 08:36:29 -0500
+Message-ID: <45893C1C.60305@gmail.com>
+Date: Wed, 20 Dec 2006 14:35:24 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] speedstep-centrino: missing space and bracket
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: locking issue (hardirq+softirq+user)
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A space and a bracket are missing (and indentation is wrong).
+Hi!
 
-Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
----
- arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+an user still gets NMI watchdog warning, that the machine deadlocked.
 
-Index: linux-rc/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-===================================================================
---- linux-rc.orig/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-12-20 13:35:56.000000000 +0100
-+++ linux-rc/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-12-20 13:41:44.000000000 +0100
-@@ -533,9 +533,9 @@
- 
- 	/* notify BIOS that we exist */
- 	acpi_processor_notify_smm(THIS_MODULE);
--	printk("speedstep-centrino with X86_SPEEDSTEP_CENTRINO_ACPI"
--			"config is deprecated.\n "
--			"Use X86_ACPI_CPUFREQ (acpi-cpufreq instead.\n" );
-+	printk("speedstep-centrino with X86_SPEEDSTEP_CENTRINO_ACPI "
-+	       "config is deprecated.\n "
-+	       "Use X86_ACPI_CPUFREQ (acpi-cpufreq) instead.\n" );
- 
- 	return 0;
- 
+The code is something like this:
 
+DEFINE_SPINLOCK(lock);
 
+isr() /* i.e. hardirq context */
+{
+spin_lock(&lock);
+...
+spin_unlock(&lock);
+}
+
+timer() /* i.e. softirq context */
+{
+unsigned int f;
+spin_lock_irqsave(&lock, f) /* stack shows, that it locks here */
+...
+spin_unlock_irqrestore(&lock, f)
+...
+mod_timer();
+}
+
+tty_open_or_whatever() /* i.e. user context */
+{
+unsigned int f;
+spin_lock_irqsave(&lock, f)
+...
+spin_unlock_irqrestore(&lock, f)
+}
+
+init()
+{
+mod_timer();
+request_irq();
+register_that_open_with_something();
+}
+
+What's the correct locking approach in this situation? Is that correct (I tried
+to go through Rusty Russel's guide to locking, but I didn't get it in this
+case)? There were many spin_lock recursions in the driver
+(drivers/char/isicom.c), which I removed, but it still deadlocks on SMP.
+
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

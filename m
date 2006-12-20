@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964965AbWLTLx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754627AbWLTMB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWLTLx7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 06:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWLTLx7
+	id S1754627AbWLTMB2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 07:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754453AbWLTMB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 06:53:59 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:53605 "EHLO
-	mtagate1.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964965AbWLTLx6 (ORCPT
+	Wed, 20 Dec 2006 07:01:28 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1528 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754614AbWLTMB2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 06:53:58 -0500
-Date: Wed, 20 Dec 2006 13:53:55 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch] x86_64: fix boot time hang in detect_calgary()
-Message-ID: <20061220115355.GC30145@rhun.ibm.com>
-References: <20061220105332.GA20922@elte.hu> <20061220113415.GB30145@rhun.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061220113415.GB30145@rhun.ibm.com>
-User-Agent: Mutt/1.5.11
+	Wed, 20 Dec 2006 07:01:28 -0500
+Date: Wed, 20 Dec 2006 12:01:19 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, Ralf Baechle <ralf@linux-mips.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Antonino Daplas <adaplas@pol.net>,
+       James.Bottomley@SteelEye.com
+cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org
+Subject: [PATCH 2.6.20-rc1 00/10] TURBOchannel update to the driver model
+Message-ID: <Pine.LNX.4.64N.0612182115550.10069@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 01:34:15PM +0200, Muli Ben-Yehuda wrote:
-> On Wed, Dec 20, 2006 at 11:53:32AM +0100, Ingo Molnar wrote:
+Hello,
 
-[snipped patch]
+ It has been much longer than expected, but finally it is here!  This 
+series of patches converts support for the TURBOchannel bus to the driver 
+model.  As a nice side effect, the generic part of the code is now really 
+generic, that is no more dependencies on MIPS specifics under drivers/tc/ 
+and platform specific code for MIPS got moved where it belongs.  As to 
+whether other relevant platforms will add TURBOchannel support or not I 
+cannot tell right now. ;-)
 
-> Patch looks good to me, thanks. I'll give it a spin to verify.
+ All the changes have been successfully tested with a DECstation 5000/133 
+and the necessary bits of additional hardware as appropriate.  Where 
+drivers supporting different bus attachments were concerned, they were 
+built for configurations enabling all the other buses supported and 
+run-time checked if possible.
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+ And last but not least, thanks to James Simmons for beginning this work a 
+while ago as his code was great to start with.
 
-Andi, I assume you'll push it to mainline?
-
-This should go into -stable too.
-
-Cheers,
-Muli
+  Maciej

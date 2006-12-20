@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965143AbWLTQEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030191AbWLTQVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWLTQEI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 11:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWLTQEI
+	id S1030191AbWLTQVG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 11:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWLTQVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 11:04:08 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:3990 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965143AbWLTQEH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 11:04:07 -0500
-Date: Wed, 20 Dec 2006 16:04:00 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network drivers that don't suspend on interface down
-In-Reply-To: <20061220125314.GA24188@srcf.ucam.org>
-Message-ID: <Pine.LNX.4.64N.0612201558250.11005@blysk.ds.pg.gda.pl>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net>
- <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net>
- <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org>
- <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org>
+	Wed, 20 Dec 2006 11:21:05 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:39839 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030191AbWLTQVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 11:21:04 -0500
+Date: Wed, 20 Dec 2006 17:13:47 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Albert Cahalan <acahalan@gmail.com>
+cc: kzak@redhat.com, hvogel@suse.de, olh@suse.de, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, arekm@maven.pl,
+       util-linux-ng@vger.kernel.org
+Subject: Re: util-linux: orphan
+In-Reply-To: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612201712190.15218@yvahk01.tjqt.qr>
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006, Matthew Garrett wrote:
 
-> As far as I can tell, the following network devices don't put the 
-> hardware into D3 on interface down:
-[...]
-> defxx
+>> I've originally thought about util-linux upstream fork,
+>> but as usually an fork is bad step. So.. I'd like to start
+>> some discussion before this step.
+> ...
+>> after few weeks I'm pleased to announce a new "util-linux-ng"
+>> project. This project is a fork of the original util-linux (2.13-pre7).
+>
+> Well, how about giving me a chunk of it? I'd like /bin/kill please.
+> I already ship a nicer one in procps anyway, so you can just delete
+> the files and call that done. (just today I was working on a Fedora
+> system and /bin/kill annoyed me)
 
- No support in the hardware for that.  Even revision 3 of the board which 
-is the last one and the only to support PCI 2.2 says:
+How can you ship a "nicer" kill, given that its sole purpose is to accept
 
-Capabilities: [50] Power Management version 2
-        Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-        Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+  kill { -l | -t | {-s SIGNUM | -SIGNAME } somepid [morepids] }
 
-;-)
+?
 
-  Maciej
+What about merging util-linux and procps?
+
+
+	-`J'
+-- 

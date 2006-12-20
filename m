@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964988AbWLTLCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964989AbWLTLCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWLTLCK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 06:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWLTLCK
+	id S964989AbWLTLCT (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 06:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWLTLCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 06:02:10 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:54739 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964988AbWLTLCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 06:02:09 -0500
-Date: Wed, 20 Dec 2006 03:02:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: + down_write-preserve-local-irqs.patch added to -mm tree
-Message-Id: <20061220030204.d070c807.akpm@osdl.org>
-In-Reply-To: <1166612063.3365.1367.camel@laptopd505.fenrus.org>
-References: <200612201038.kBKAcN4L026466@shell0.pdx.osdl.net>
-	<1166612063.3365.1367.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Dec 2006 06:02:19 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:4169 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964989AbWLTLCS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 06:02:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NFm36KU87RDhJIOe8Zug8HA6OjQC0zk6WvvgKIcMO7cKjjAxyfFyF7exv/iTPJVwr4ElIrYWoJPWw1XBTi3XJ72bWU5hwB1ZeVFV519iuRJrqDTi8apqS1ABdUS3XA1RKkAGM09BmafHNGJIsLb2cNLjh8Pbm+YRXK3FAHOL82Y=
+Message-ID: <5157576d0612200302j556694bfsfdc6cb0c37b054c@mail.gmail.com>
+Date: Wed, 20 Dec 2006 14:02:15 +0300
+From: "Tomasz Kvarsin" <kvarsin@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Alexander Viro" <viro@zeniv.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: [BUG] garbage instead of zeroes in UFS
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 11:54:23 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
+I have some problems with write support of UFS.
+Here is script which demonstrate problem:
 
-> On Wed, 2006-12-20 at 02:38 -0800, akpm@osdl.org wrote:
-> > The patch titled
-> >      down_write(): preserve local irqs
-> > has been added to the -mm tree.  Its filename is
-> >      down_write-preserve-local-irqs.patch
-> > 
-> > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
-> > out what to do about this
-> > 
-> > ------------------------------------------------------
-> > Subject: down_write(): preserve local irqs
-> 
-> excuse me? Am I missing something here?
+#create image
+mkdir /tmp/ufs-expirements && cd /tmp/ufs-expirements/
+for ((i=0; i<1024*1024*2; ++i)); do printf "z"; done > image
 
-Lots.
+#build ufs tools
+wget 'http://heanet.dl.sourceforge.net/sourceforge/ufs-linux/ufs-tools-0.1.tar.bz2'
+&& tar xjf ufs-tools-0.1.tar.bz2 && cd ufs-tools-0.1
+wget http://lkml.org/lkml/diff/2006/5/20/48/1 -O build.patch
+patch -p1 < build.patch && make
 
-> down_write() is a sleeping function, right? what business does it have
-> to be *ever* called with irqs off?
-> 
-> if the answer is "none whatsoever", what good is saving irq state then?
-> 
+#create UFS file system on image
+./mkufs -O 1 -b 16384 -f 2048 ../image
+cd .. && mkdir root
+mount -t ufs image root -o loop,ufstype=44bsd
+cd root/
+touch a.txt
+echo "END" > end.txt
+dd if=./end.txt of=./a.txt bs=16384 seek=1
 
-a) this patch is for testers to confirm that this fixes the hangs
+and at the end content of "a.txt" not only  "END" and zeroes,
+"a.txt" also contains "z".
 
-b) there's plenty of precendent for this - powerpc won't boot if
-   mutex_lock() enables interrupts, for example.  We just assume that
-   during early boot these sleeping locks aren't contended.
-
-yes, it does suck.
+The real situation happened when I deleted big file,
+and create new one with holes. This script just easy way to reproduce bug.

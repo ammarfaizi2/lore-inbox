@@ -1,129 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965149AbWLTUsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964890AbWLTUwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWLTUsq (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWLTUsq
+	id S964890AbWLTUwO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWLTUwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:48:46 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:33334 "EHLO
-	fed1rmmtao03.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964890AbWLTUso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:48:44 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: What's in git.git (stable), and Announcing GIT 1.4.4.3
-cc: linux-kernel@vger.kernel.org
-X-maint-at: 851a911024481f6759bce337b8dc50241070db81
-X-master-at: 54851157acf707eb953eada2a84830897dde5c1d
-Date: Wed, 20 Dec 2006 12:48:41 -0800
-Message-ID: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Dec 2006 15:52:14 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:51305 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964890AbWLTUwN (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:52:13 -0500
+Message-Id: <200612202052.kBKKqCYr023771@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: davids@webmaster.com
+Cc: Marek Wawrzyczny <marekw1977@yahoo.com.au>, valdis.kletnietks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+In-Reply-To: Your message of "Wed, 20 Dec 2006 11:29:00 PST."
+             <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKMEOHAHAC.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1166647932_3391P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Dec 2006 15:52:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.4.4.3 is available at the
-usual places:
+--==_Exmh_1166647932_3391P
+Content-Type: text/plain; charset=us-ascii
 
-  http://www.kernel.org/pub/software/scm/git/
+On Wed, 20 Dec 2006 11:29:00 PST, David Schwartz said:
 
-  git-1.4.4.3.tar.{gz,bz2}			(tarball)
-  git-htmldocs-1.4.4.3.tar.{gz,bz2}		(preformatted docs)
-  git-manpages-1.4.4.3.tar.{gz,bz2}		(preformatted docs)
-  RPMS/$arch/git-*-1.4.4.3-1.$arch.rpm	(RPM)
+> Let's not let the perfect be the enemy of the good. Remember, the goal is to
+> allow consumers to know whether or not their system's hardware
+> specifications are available. It's not about driver availability -- if the
+> hardware specifications are available and a driver is not, that's not the
+> hardware manufacturer's fault.
 
-This release contains merge-recursive corner case fix; it also
-fixes git-cvsserver (when used with newer Perl) and Mac OS build
-(when you use config.mak), among other things.
+My point was "their system's hardware specifications" is, for some popular
+vendors, a *very* fuzzy notion. You can't (for instance) say "specs are
+available for a Dell Latitude D820" - there are configurations that specs are
+available for, and configs that aren't.  My D820 has an NVidia card in it - we
+know the answer there.  Do you give a different answer for a D820 that has the
+Intel i950 graphics chipset instead?
 
-To let people who only follow the 'maint' releases know what's
-happening in the larger picture...
+Even more annoying, Dell often *changes* the vendor - the line item for the DVD
+drive says "8X DVD+/-RW" (other choices include 24X CD-ROM and 24X CD-RW/DVD).
+Mine showed up with a Philips SDVD8820 - but it's possible that some other D820
+will get some other vendor's DVD (I've seen 2 C820's ordered at the same time,
+they showed up with 2 different vendor's "24X CD-RW/DVD").  It's possible that
+some poor guy is going to get a D820 that has a DVD that we have a known
+buggy driver for - what do we tell *them*?
 
-We have just started talking about the next feature release
-v1.5.0 on the 'master' branch side.  If we are lucky we could do
-a -rc1 around Christmas, emperor's birthday in Japan, or perhaps
-emperor's birthday in the Penguin land, but in any case the real
-release is not expected to happen by mid January.
+It's *easy* to do a "semi-good" that tells you if there's drivers for the
+hardware config you're running the program on. But there's 2 problems:
 
-The new release will have many end-user level changes since the
-last feature release v1.4.4, both at the UI level and at the
-documentation level, based on previous discussions on the list.
+a) You probably already know the answer
+b) By the time you can run the program, it's often too late....
 
-It is strongly encouraged and very much appreciated to review
-and to fill gaps you would find in today's 'master' and what's
-cooking in 'next', if you were involved in the discussions
-and/or if you are interested in the theme of v1.5.0: "usability
-and teachability".
+So given those 2 points, what actual value-added info does this *give*, over
+and above 'lspci' and friends?  I suppose maybe for a install CD, it gives
+a quick way to cleanly abort the install with a "Don't bother continuing
+unless it's OK that your graphics/wireless/whatever won't work".  On the
+other hand, the installer should have a grasp on this *already*....
 
-Thanks.
+Perfect may be the enemy of the good, but the good is also the enemy of
+stuff claiming to be good but misses on an important design goal...
 
--jc.
+--==_Exmh_1166647932_3391P
+Content-Type: application/pgp-signature
 
-----------------------------------------------------------------
-* The 'maint' branch is at v1.4.4.3 and has these fixes since
-  v1.4.4.2:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-   Alex Riesen (1):
-      Clarify fetch error for missing objects.
+iD8DBQFFiaJ8cC3lWbTT17ARAh9iAJ4kkAwey+wLYC8iytLJZj4f4wBWkgCg+Yv/
+VJFchJaWSgmrwn9t2/n2Xwc=
+=DnSB
+-----END PGP SIGNATURE-----
 
-   Brian Gernhardt (1):
-      Move Fink and Ports check to after config file
-
-   Chris Wright (1):
-      no need to install manpages as executable
-
-   Eric Wong (2):
-      git-svn: exit with status 1 for test failures
-      git-svn: correctly display fatal() error messages
-
-   Jim Meyering (1):
-      Don't use memcpy when source and dest. buffers may overlap
-
-   Junio C Hamano (1):
-      GIT 1.4.4.3
-
-   Martin Langhoff (1):
-      cvsserver: Avoid miscounting bytes in Perl v5.8.x
-
-   Shawn Pearce (2):
-      Make sure the empty tree exists when needed in merge-recursive.
-      Bypass expensive content comparsion during rename detection.
-
-* The 'master' branch has these since the last announcement.
-  They are NOT in 1.4.4.3.
-
-   Aneesh Kumar K.V (1):
-      Add config example with respect to branch
-
-   Brian Gernhardt (2):
-      Add documentation for show-branch --topics
-      Remove COLLISION_CHECK from Makefile since it's not used.
-
-   Eric Wong (1):
-      git-cvsserver: fix breakage when calling git merge-file
-
-   Jeff King (1):
-      vim syntax: follow recent changes to commit template
-
-   Junio C Hamano (8):
-      parse-remote::expand_refs_wildcard()
-      show-ref: fix --exclude-existing
-      racy-git: documentation updates.
-      rerere: fix breakage of resolving.
-      fix populate-filespec
-      config_rename_section: fix FILE* leak
-      simplify inclusion of system header files.
-      GIT 1.4.4.3
-
-   Nicolas Pitre (4):
-      make patch_delta() error cases a bit more verbose
-      make git a bit less cryptic on fetch errors
-      index-pack usage of mmap() is unacceptably slower on many OSes
-         other than Linux
-      clarify some error messages wrt unknown object types
-
-   Robert Fitzsimons (1):
-      gitweb: Show '...' links in "summary" view only if there are more items
-
-
+--==_Exmh_1166647932_3391P--

@@ -1,116 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964934AbWLTL2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964976AbWLTLa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWLTL2H (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 06:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWLTL2H
+	id S964976AbWLTLa4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 06:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWLTLa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 06:28:07 -0500
-Received: from amsfep19-int.chello.nl ([62.179.120.14]:58737 "EHLO
-	amsfep19-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964934AbWLTL2F (ORCPT
+	Wed, 20 Dec 2006 06:30:56 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:53891 "EHLO
+	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964976AbWLTLaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 06:28:05 -0500
-Subject: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
-	corruption on ext3)
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrei Popa <andrei.popa@i-neo.ro>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-In-Reply-To: <1166607554.3365.1354.camel@laptopd505.fenrus.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <1166466272.10372.96.camel@twins>
-	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <1166571749.10372.178.camel@twins>
-	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
-	 <1166605296.10372.191.camel@twins>
-	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 12:26:41 +0100
-Message-Id: <1166614001.10372.205.camel@twins>
+	Wed, 20 Dec 2006 06:30:55 -0500
+Date: Wed, 20 Dec 2006 13:30:52 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] x86_64: fix boot hang caused by CALGARY_IOMMU_ENABLED_BY_DEFAULT
+Message-ID: <20061220113052.GA30145@rhun.ibm.com>
+References: <20061220102846.GA17139@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220102846.GA17139@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 20, 2006 at 11:28:46AM +0100, Ingo Molnar wrote:
 
-fix page_mkclean_one()
+>  config CALGARY_IOMMU_ENABLED_BY_DEFAULT
+>         bool "Should Calgary be enabled by default?"
+>         default y
+>         depends on CALGARY_IOMMU
+>         help
+>           Should Calgary be enabled by default? if you choose 'y', Calgary
+>           will be used (if it exists). If you choose 'n', Calgary will not be
+>           used even if it exists. If you choose 'n' and would like to use
+>           Calgary anyway, pass 'iommu=calgary' on the kernel command line.
+>           If unsure, say Y.
+> 
+> it's both 'default y', and says "If unsure, say Y". Clearly not a
+> typo.
 
-it had several issues:
- - it failed to flush the cache
- - it failed to flush the tlb
- - it failed to do s390 (s390 guys, please verify this is now correct)
+I think that it makes sense to have it default y for the mainline
+kernel and default n for the distro kernels, which is why I added the
+option to make it possible to compile Calgary in but only enable it if
+you want to use it. Previously if you compiled it in it would be used,
+period. You may disagree, but fundamentally I think the mainline
+kernel should be fairly experimental, which means enabling new code by
+default.
 
-Also, clear in a loop to ensure SMP safeness as suggested by Arjan.
+As to what actually happened, I'm betting your machine has both
+Calgary and CalIOC2, the PCI-e version of Calgary, which is not yet
+supported by pci-calgary.c. I have a patch for CalIOC2 which is work
+in progress and not ready for inclusion yet. Can you please send lspci
+-v to confirm?
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- mm/rmap.c |   29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
-
-Index: linux-2.6/mm/rmap.c
-===================================================================
---- linux-2.6.orig/mm/rmap.c
-+++ linux-2.6/mm/rmap.c
-@@ -432,7 +432,7 @@ static int page_mkclean_one(struct page 
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pte_t *pte, entry;
-+	pte_t *ptep;
- 	spinlock_t *ptl;
- 	int ret = 0;
- 
-@@ -440,22 +440,23 @@ static int page_mkclean_one(struct page 
- 	if (address == -EFAULT)
- 		goto out;
- 
--	pte = page_check_address(page, mm, address, &ptl);
--	if (!pte)
-+	ptep = page_check_address(page, mm, address, &ptl);
-+	if (!ptep)
- 		goto out;
- 
--	if (!pte_dirty(*pte) && !pte_write(*pte))
--		goto unlock;
--
--	entry = ptep_get_and_clear(mm, address, pte);
--	entry = pte_mkclean(entry);
--	entry = pte_wrprotect(entry);
--	ptep_establish(vma, address, pte, entry);
--	lazy_mmu_prot_update(entry);
--	ret = 1;
-+	while (pte_dirty(*ptep) || pte_write(*ptep)) {
-+		pte_t entry = ptep_get_and_clear(mm, address, ptep);
-+		flush_cache_page(vma, address, pte_pfn(entry));
-+		flush_tlb_page(vma, address);
-+		(void)page_test_and_clear_dirty(page); /* do the s390 thing */
-+		entry = pte_wrprotect(entry);
-+		entry = pte_mkclean(entry);
-+		set_pte_at(vma, address, ptep, entry);
-+		lazy_mmu_prot_update(entry);
-+		ret = 1;
-+	}
- 
--unlock:
--	pte_unmap_unlock(pte, ptl);
-+	pte_unmap_unlock(ptep, ptl);
- out:
- 	return ret;
- }
-
-
+Cheers,
+Muli

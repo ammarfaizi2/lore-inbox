@@ -1,134 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161084AbWLUA06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161075AbWLUA1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbWLUA06 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 19:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWLUA06
+	id S1161075AbWLUA1E (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 19:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWLUA1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 19:26:58 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:38576 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161083AbWLUA05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 19:26:57 -0500
-Date: Wed, 20 Dec 2006 16:27:43 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, David Rientjes <rientjes@cs.washington.edu>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [Patch](memory hotplug) fix compile error for i386 with NUMA
- config (take 3).
-Message-Id: <20061220162743.d6feb823.randy.dunlap@oracle.com>
-In-Reply-To: <20061220225927.F016.Y-GOTO@jp.fujitsu.com>
-References: <20061220225927.F016.Y-GOTO@jp.fujitsu.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 20 Dec 2006 19:27:03 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52674 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161075AbWLUA07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 19:26:59 -0500
+Date: Tue, 19 Dec 2006 16:26:08 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network drivers that don't suspend on interface down
+Message-ID: <20061219162608.6085d8aa@freekitty>
+In-Reply-To: <20061221001111.GA4016@electric-eye.fr.zoreil.com>
+References: <20061220042648.GA19814@srcf.ucam.org>
+	<200612192114.49920.david-b@pacbell.net>
+	<20061220053417.GA29877@suse.de>
+	<20061220055209.GA20483@srcf.ucam.org>
+	<1166601025.3365.1345.camel@laptopd505.fenrus.org>
+	<20061220125314.GA24188@srcf.ucam.org>
+	<1166621931.3365.1384.camel@laptopd505.fenrus.org>
+	<20061220143134.GA25462@srcf.ucam.org>
+	<1166629900.3365.1428.camel@laptopd505.fenrus.org>
+	<20061220144906.7863bcd3@dxpl.pdx.osdl.net>
+	<20061221001111.GA4016@electric-eye.fr.zoreil.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 23:09:58 +0900 Yasunori Goto wrote:
+On Thu, 21 Dec 2006 01:11:12 +0100
+Francois Romieu <romieu@fr.zoreil.com> wrote:
 
-> Hello.
+> Stephen Hemminger <shemminger@osdl.org> :
+> [...]
+> >    IMHO:
+> > 	When device is down, it should:
+> > 	 a) use as few resources as possible:
+> > 	       - not grab memory for buffers
+> > 	       - not assign IRQ unless it could get one
+> > 	       - turn off all power consumption possible
+> > 	 b) allow setting parameters like speed/duplex/autonegotiation,
+> >             ring buffers, ... with ethtool, and remember the state
+> > 	 c) not accept data coming in, and drop packets queued
 > 
-> This is take 3 patch to fix compile error when config
-> memory hotplug with numa on i386.
+> <nit>
+> Imho speed/duplex/autoneg is not the business of the device: they belong
+> to the phy and it's up to it to decide if its state allows to set the
+> requested parameters or not.
+> </nit>
 > 
-> The cause of compile error was missing of arch_add_memory(), remove_memory(),
-> and memory_add_physaddr_to_nid().
-> 
-> I fixed some bad points, and tested no compile error of it.
-> 
-> This is for 2.6.20-rc1. 
-> 
-> Please apply.
-> 
-> Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+We need to allow ethtool setting to be done before device has been brought
+up and started autonegotiation. The current MII library doesn't really support
+it.
 
-after also using the register_memory() patch.
-
-
-> ---
->  arch/i386/mm/discontig.c |   28 ++++++++++++++++++++++++++++
->  arch/i386/mm/init.c      |   10 ++--------
->  2 files changed, 30 insertions(+), 8 deletions(-)
-> 
-> Index: linux-2.6.20-rc1/arch/i386/mm/init.c
-> ===================================================================
-> --- linux-2.6.20-rc1.orig/arch/i386/mm/init.c	2006-12-20 22:12:07.000000000 +0900
-> +++ linux-2.6.20-rc1/arch/i386/mm/init.c	2006-12-20 22:12:09.000000000 +0900
-> @@ -673,16 +673,10 @@
->  #endif
->  }
->  
-> -/*
-> - * this is for the non-NUMA, single node SMP system case.
-> - * Specifically, in the case of x86, we will always add
-> - * memory to the highmem for now.
-> - */
->  #ifdef CONFIG_MEMORY_HOTPLUG
-> -#ifndef CONFIG_NEED_MULTIPLE_NODES
->  int arch_add_memory(int nid, u64 start, u64 size)
->  {
-> -	struct pglist_data *pgdata = &contig_page_data;
-> +	struct pglist_data *pgdata = NODE_DATA(nid);
->  	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
->  	unsigned long start_pfn = start >> PAGE_SHIFT;
->  	unsigned long nr_pages = size >> PAGE_SHIFT;
-> @@ -694,7 +688,7 @@
->  {
->  	return -EINVAL;
->  }
-> -#endif
-> +EXPORT_SYMBOL_GPL(remove_memory);
->  #endif
->  
->  struct kmem_cache *pgd_cache;
-> Index: linux-2.6.20-rc1/arch/i386/mm/discontig.c
-> ===================================================================
-> --- linux-2.6.20-rc1.orig/arch/i386/mm/discontig.c	2006-12-20 22:12:07.000000000 +0900
-> +++ linux-2.6.20-rc1/arch/i386/mm/discontig.c	2006-12-20 22:37:54.000000000 +0900
-> @@ -405,3 +405,31 @@
->  	totalram_pages += totalhigh_pages;
->  #endif
->  }
-> +
-> +#ifdef CONFIG_MEMORY_HOTPLUG
-> +int paddr_to_nid(u64 addr)
-> +{
-> +	int nid;
-> +	unsigned long pfn = PFN_DOWN(addr);
-> +
-> +	for_each_node(nid)
-> +		if (node_start_pfn[nid] <= pfn &&
-> +		    pfn < node_end_pfn[nid])
-> +			return nid;
-> +
-> +	return -1;
-> +}
-> +
-> +/*
-> + * This function is used to ask node id BEFORE memmap and mem_section's
-> + * initialization (pfn_to_nid() can't be used yet).
-> + * If _PXM is not defined on ACPI's DSDT, node id must be found by this.
-> + */
-> +int memory_add_physaddr_to_nid(u64 addr)
-> +{
-> +	int nid = paddr_to_nid(addr);
-> +	return (nid >= 0) ? nid : 0;
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
-> +#endif
-> 
-> -- 
-
----
-~Randy
+-- 
+Stephen Hemminger <shemminger@osdl.org>

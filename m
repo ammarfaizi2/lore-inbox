@@ -1,112 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965051AbWLTNjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965054AbWLTNkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWLTNjG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 08:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWLTNjG
+	id S965054AbWLTNkl (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 08:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWLTNkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 08:39:06 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:39905 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965051AbWLTNjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 08:39:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=jXqX/VTw0D1LhUuOKbndyfitfkJN1L2DGO2Hnu6ycUoQA3lF6TVp9FDEP6X18rG3fSFiS9kblfjyLRiqUA0Q/K0BtB5eolpma2PYeY5BC/uLe7ukNmLmhA+OgWomdoh5G+TkvrXM/yGfYFpkKdCabrgAdriRtF1dqnXmqij+pXM=
-Message-ID: <45893CAD.9050909@gmail.com>
-Date: Wed, 20 Dec 2006 14:37:49 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Wed, 20 Dec 2006 08:40:41 -0500
+Received: from kagl.donpac.ru ([80.254.111.32]:38368 "EHLO donpac.ru"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965054AbWLTNkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 08:40:40 -0500
+X-Greylist: delayed 445 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 08:40:39 EST
+Date: Wed, 20 Dec 2006 16:33:10 +0300
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Add support for Korenix 16C950-based PCI cards
+Message-ID: <20061220133310.GA28555@pazke.donpac.ru>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20061213144546.GA23951@dyn-67.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: PATA -- pata_amd on 2.6.19 fails to IDENTIFY my DVD-ROM 
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
+Content-Disposition: inline
+In-Reply-To: <20061213144546.GA23951@dyn-67.arm.linux.org.uk>
+X-Uname: Linux 2.6.18-1-amd64 x86_64
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day.
 
-I just tried the PATA driver for my AMD756 chip. During boot, it hangs 
-for 3 minutes failing to identify my DVD-ROM (secondary slave) and does 
-not give me access to it after it timed out.
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Situation is AMD756 (a UDMA66 chipset), both channels 80w cables:
+On 347, 12 13, 2006 at 02:45:46PM +0000, Russell King wrote:
+> Linus, Andrew,
+> 
+> This patch adds initial support to 8250-pci for the Korenix Jetcard PCI
+> serial cards.  The JC12xx cards are standard RS232-based serial cards
+> utilising the Oxford 16C950 device.
+> 
+> The JC14xx are RS422/RS485-based cards, but in order for these to be
+> supported natively, we will need additional tweaks to the 8250 layers
+> so we can specify some values for the 950's registers.  Hence, these
+> two entries are commented out.
 
-1. Primary Master	: UDMA133 disk, works fine
-2. Primary Slave	: Empty
-3. Secondary Master	: Plextor Premium CD-RW (UDMA33), works fine
-4. Secondary Slave	: Plextor PX-116A DVD-ROM (UDMA66), does not
+IIRC 16c950 just need two bits in ACR set properly. Will attached patch 
+do the trick ?
 
-All are using cable select and work fine with the old IDE driver and 
-also with an earlier version of the PATA code; I used 2.6.17-rc4-ide1 
-(which I see is still the latest standalone patch) without problems before.
+> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+>  drivers/serial/8250_pci.c |   24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
+> index 4d0ff8f..89c3f2c 100644
+> --- a/drivers/serial/8250_pci.c
+> +++ b/drivers/serial/8250_pci.c
+> @@ -2239,6 +2239,30 @@ static struct pci_device_id serial_pci_t
+>  		pbn_b0_bt_1_460800 },
+>  
+>  	/*
+> +	 * Korenix Jetcard F0/F1 cards (JC1204, JC1208, JC1404, JC1408).
+> +	 * Cards are identified by their subsystem vendor IDs, which
+> +	 * (in hex) match the model number.
+> +	 *
+> +	 * Note that JC140x are RS422/485 cards which require ox950
+> +	 * ACR = 0x10, and as such are not currently fully supported.
+> +	 */
+> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
+> +		0x1204, 0x0004, 0, 0,
+> +		pbn_b0_4_921600 },
+> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
+> +		0x1208, 0x0004, 0, 0,
+> +		pbn_b0_4_921600 },
+> +/*	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
+> +		0x1402, 0x0002, 0, 0,
+> +		pbn_b0_2_921600 }, */
+> +/*	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF0,
+> +		0x1404, 0x0004, 0, 0,
+> +		pbn_b0_4_921600 }, */
+> +	{	PCI_VENDOR_ID_KORENIX, PCI_DEVICE_ID_KORENIX_JETCARDF1,
+> +		0x1208, 0x0004, 0, 0,
+> +		pbn_b0_4_921600 },
+> +
+> +	/*
+>  	 * Dell Remote Access Card 4 - Tim_T_Murphy@Dell.com
+>  	 */
+>  	{	PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_RAC4,
 
-The 2.6.17-rc4-ide pata_amd version was 0.1.7 and current is 0.2.4. Did 
-try a quick diff between them, but it seems the difference is mostly 
-infrastructural, so the problem is probably further on up.
+-- 
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-Excerpt from boot-log (this takes 3 minutes):
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-ACR
 
-===
-pata_amd 0000:00:07.1: version 0.2.4
-ata1: PATA max UDMA/66 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-ata2: PATA max UDMA/66 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-scsi0 : pata_amd
-ata1.00: ATA-7, max UDMA/133, 240121728 sectors: LBA
-ata1.00: ata1: dev 0 multi count 16
-ata1.00: configured for UDMA/66
-scsi1 : pata_amd
-ata2.00: ATAPI, max UDMA/33
-ata2.01: qc timeout (cmd 0xa1)
-ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata2: failed to recover some devices, retrying in 5 secs
-ata2: port is slow to respond, please be patient (Status 0xd8)
-ata2: port failed to respond (30 secs, Status 0xd8)
-ata2.01: qc timeout (cmd 0xa1)
-ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata2: failed to recover some devices, retrying in 5 secs
-ata2: port is slow to respond, please be patient (Status 0xd8)
-ata2: port failed to respond (30 secs, Status 0xd8)
-ata2.01: qc timeout (cmd 0xa1)
-ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata2: failed to recover some devices, retrying in 5 secs
-ata2: port is slow to respond, please be patient (Status 0xd8)
-ata2: port failed to respond (30 secs, Status 0xd8)
-ata2.00: configured for UDMA/33
-scsi 0:0:0:0: Direct-Access     ATA      Maxtor 6Y120P0   YAR4 PQ: 0 ANSI: 5
-SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-  sda: sda1 < sda5 sda6 sda7 sda8 > sda2 sda3 sda4
-  sda2: <minix: sda9 sda10 >
-sd 0:0:0:0: Attached scsi disk sda
-sd 0:0:0:0: Attached scsi generic sg0 type 0
-scsi 1:0:0:0: CD-ROM            PLEXTOR  CD-R   PREMIUM   1.07 PQ: 0 ANSI: 5
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.20
-sr 1:0:0:0: Attached scsi CD-ROM sr0
-sr 1:0:0:0: Attached scsi generic sg1 type 5
-===
+diff -urdpNX /usr/share/dontdiff -x Makefile linux-2.6.19.vanilla/drivers/serial/8250.c linux-2.6.19/drivers/serial/8250.c
+--- linux-2.6.19.vanilla/drivers/serial/8250.c	2006-12-19 20:18:26.000000000 +0300
++++ linux-2.6.19/drivers/serial/8250.c	2006-12-19 19:53:04.000000000 +0300
+@@ -1548,7 +1548,7 @@ static int serial8250_startup(struct uar
+ 
+ 	if (up->port.type == PORT_16C950) {
+ 		/* Wake up and initialize UART */
+-		up->acr = 0;
++		up->acr = port->initial_acr;
+ 		serial_outp(up, UART_LCR, 0xBF);
+ 		serial_outp(up, UART_EFR, UART_EFR_ECB);
+ 		serial_outp(up, UART_IER, 0);
+@@ -2599,6 +2599,7 @@ int serial8250_register_port(struct uart
+ 		uart->port.iotype   = port->iotype;
+ 		uart->port.flags    = port->flags | UPF_BOOT_AUTOCONF;
+ 		uart->port.mapbase  = port->mapbase;
++		uart->port.initial_acr = port->initial_acr;
+ 		if (port->dev)
+ 			uart->port.dev = port->dev;
+ 
+diff -urdpNX /usr/share/dontdiff -x Makefile linux-2.6.19.vanilla/drivers/serial/8250.h linux-2.6.19/drivers/serial/8250.h
+--- linux-2.6.19.vanilla/drivers/serial/8250.h	2006-12-19 20:44:12.000000000 +0300
++++ linux-2.6.19/drivers/serial/8250.h	2006-12-19 20:28:29.000000000 +0300
+@@ -29,6 +29,8 @@ struct old_serial_port {
+ 	unsigned short iomem_reg_shift;
+ };
+ 
++#define initial_acr unused[0]
++
+ /*
+  * This replaces serial_uart_config in include/linux/serial.h
+  */
 
-By the way -- PATA interfaces (ata1, ata2) start counting at 1 while 
-their devices (.00, .01) start counting at 0 which sort of sucks. While 
-looking at "ata2.01" during boot (with the rest scrolled away) I thought 
-I was looking at secondary master initially. If they can still be named 
-ata0 and ata1, I'd consider that better.
-
-Anyways, as said, all worked fine on 2.6.17-rc4-ide1 including I believe 
-with secondary master tuned to UDMA33 and slave to UDMA66 according to 
-their device capabilities.
-
-Happy to provide more or other information if needed.
-
-Rene.
-
+--mP3DRpeJDSE+ciuQ--

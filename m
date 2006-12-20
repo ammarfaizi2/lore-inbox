@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030200AbWLTQh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030205AbWLTQk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWLTQh4 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 11:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWLTQh4
+	id S1030205AbWLTQk5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 11:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWLTQk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 11:37:56 -0500
-Received: from amsfep20-int.chello.nl ([62.179.120.15]:38857 "EHLO
-	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030200AbWLTQhz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 11:37:55 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: andrei.popa@i-neo.ro
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <1166632234.7654.0.camel@localhost>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <1166466272.10372.96.camel@twins>
-	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <1166571749.10372.178.camel@twins>  <1166624117.6891.8.camel@localhost>
-	 <1166624635.10372.229.camel@twins>  <1166632234.7654.0.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 17:36:27 +0100
-Message-Id: <1166632587.10372.235.camel@twins>
+	Wed, 20 Dec 2006 11:40:57 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:3034 "EHLO dspnet.fr.eu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030205AbWLTQk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 11:40:56 -0500
+Date: Wed, 20 Dec 2006 17:40:54 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network drivers that don't suspend on interface down
+Message-ID: <20061220164054.GA27938@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <1166621931.3365.1384.camel@laptopd505.fenrus.org> <20061220152701.GA22928@dspnet.fr.eu.org> <1166628858.3365.1425.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166628858.3365.1425.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 18:30 +0200, Andrei Popa wrote:
-> On Wed, 2006-12-20 at 15:23 +0100, Peter Zijlstra wrote:
-> > On Wed, 2006-12-20 at 16:15 +0200, Andrei Popa wrote:
-> > > On Wed, 2006-12-20 at 00:42 +0100, Peter Zijlstra wrote:
-> > > > On Mon, 2006-12-18 at 12:14 -0800, Linus Torvalds wrote:
-> > > > 
-> > > > > OR:
-> > > > > 
-> > > > >  - page_mkclean_one() is simply buggy.
-> > > > 
-> > > > GOLD!
-> > > > 
-> > > > it seems to work with all this (full diff against current git).
-> > > > 
-> > > > /me rebuilds full kernel to make sure...
-> > > > reboot...
-> > > > test...      pff the tension...
-> > > > yay, still good!
-> > > > 
-> > > > Andrei; would you please verify.
-> > > 
-> > > I have corrupted files.
-> > 
-> > drad; and with this patch:
-> >   http://lkml.org/lkml/2006/12/20/112
-> 
-> Hash check on download completion found bad chunks, consider using
-> "safe_sync".
+On Wed, Dec 20, 2006 at 04:34:17PM +0100, Arjan van de Ven wrote:
+> 5 seconds is unfair and unrealistic though. The *hardware* negotiation
+> before link is seen can easily take upto 45 seconds already.
+> That's a network topology/hardware issue (spanning tree fun) that
+> software or even the hardware in your PC can do nothing about.
 
-*sigh* back to square 1.
+It's about ergonomics, not technical capabilities or fairness.
 
-and I need to look at my reproduction case ;-(
 
-Thanks for testing.
+> this means that the "power up time" needs to be at least 45 seconds, if
+> it's then down 5 seconds inbetween... that's not real power savings.
 
+Then that means you can't have usable autodetection and power savings
+at the same time.  That's a pefectly acceptable answer, you just have
+to give the choice between the two to the user.  From the kernel
+p.o.v, it just means that you probably need 3 modes:
+1- active and exchanging packets
+
+2- inactive but waiting for plugging and able to tell something is
+   going on fast (like 0.5s fast)
+
+3- powered off
+
+and they probably already exist (UP+addr/procmisc. set, UP and DOWN).
+And if the second mode can't be lower power than the first, that's
+just life.  An hypothetical mode 4 identical to 2 without the "fast"
+part is just not worth bothering with.
+
+  OG.

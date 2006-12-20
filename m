@@ -1,451 +1,198 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932874AbWLTBVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932917AbWLTBW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932874AbWLTBVw (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 20:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWLTBV1
+	id S932917AbWLTBW1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 20:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932894AbWLTBVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 20:21:27 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:48768 "EHLO e2.ny.us.ibm.com"
+	Tue, 19 Dec 2006 20:21:54 -0500
+Received: from pat.uio.no ([129.240.10.15]:55451 "EHLO pat.uio.no"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932897AbWLTBVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 20:21:11 -0500
-Date: Tue, 19 Dec 2006 20:21:09 -0500
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu
-Message-Id: <20061220011737.25341.40577.sendpatchset@localhost>
-In-Reply-To: <20061220011707.25341.6522.sendpatchset@localhost>
-References: <20061220011707.25341.6522.sendpatchset@localhost>
-Subject: [PATCH 5/5][time][x86_64] Re-enable vsyscall support for x86_64
+	id S964770AbWLTBVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 20:21:25 -0500
+Subject: Re: 2.6.18 mmap hangs unrelated apps
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michal Sabala <lkml@saahbs.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1166573863.5768.10.camel@lade.trondhjem.org>
+References: <20061215023014.GC2721@prosiaczek>
+	 <1166199855.5761.34.camel@lade.trondhjem.org>
+	 <20061215175030.GG6220@prosiaczek>
+	 <1166211884.5761.49.camel@lade.trondhjem.org>
+	 <20061215210642.GI6220@prosiaczek>
+	 <1166219054.5761.56.camel@lade.trondhjem.org>
+	 <20061219142624.230b28c0.akpm@osdl.org>
+	 <1166570378.5760.52.camel@lade.trondhjem.org>
+	 <20061219160315.ea83ca38.akpm@osdl.org>
+	 <1166573863.5768.10.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Tue, 19 Dec 2006 20:21:15 -0500
+Message-Id: <1166577675.5768.19.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=no, UIO_MAIL_IS_INTERNAL=-5)
+X-UiO-SPAM-Test: UIO-GREYLIST 69.242.210.120 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 1 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup and re-enable vsyscall gettimeofday using the generic 
-clocksource infrastructure.
+On Tue, 2006-12-19 at 19:17 -0500, Trond Myklebust wrote:
+> Ack, I'll add one in. If PagePrivate() is set during the call to
+> try_to_release_page(), then the page should never be freeable.
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
+OK. This one actually compiles, and eliminates a few logic bugs. Note
+that I renamed the callback to ->launder_page() for clarity (and for
+histerical reasons).
 
- arch/x86_64/Kconfig              |    4 +
- arch/x86_64/kernel/hpet.c        |    6 +
- arch/x86_64/kernel/time.c        |    6 -
- arch/x86_64/kernel/tsc.c         |    7 ++
- arch/x86_64/kernel/vmlinux.lds.S |   28 +++------
- arch/x86_64/kernel/vsyscall.c    |  121 +++++++++++++++++++++++----------------
- include/asm-x86_64/proto.h       |    2 
- include/asm-x86_64/timex.h       |    1 
- include/asm-x86_64/vsyscall.h    |   33 +---------
- 9 files changed, 105 insertions(+), 103 deletions(-)
+Cheers
+  Trond
 
-linux-2.6.20-rc1_timeofday-arch-x86-64-vsyscall-reenablement_C7.patch
-============================================
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-index e1d044c..98b11c6 100644
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -28,6 +28,10 @@ config GENERIC_TIME
- 	bool
- 	default y
+----------------------------------------------------------------
+commit 85a5b844c56706a5e3f47cde8b82109d325ad609
+Author: Trond Myklebust <Trond.Myklebust@netapp.com>
+Date:   Tue Dec 19 20:18:55 2006 -0500
+
+    NFS: Fix race in nfs_release_page()
+    
+    invalidate_inode_pages2() may find the dirty bit has been set on a page
+    owing to the fact that the page may still be mapped after it was locked.
+    Only after the call to unmap_mapping_range() are we sure that the page
+    can no longer be dirtied.
+    In order to fix this, NFS has hooked the releasepage() method and tries
+    to write the page out between the call to unmap_mapping_range() and the
+    call to remove_mapping(). This, however leads to deadlocks in the page
+    reclaim code, where the page may be locked without holding a reference
+    to the inode or dentry.
+    
+    Fix is to add a new address_space_operation, launder_page(), which will
+    attempt to write out a dirty page without releasing the page lock.
+    
+    Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+ Documentation/filesystems/Locking |    8 ++++++++
+ fs/nfs/file.c                     |   16 ++++++++--------
+ include/linux/fs.h                |    1 +
+ mm/truncate.c                     |   23 ++++++++++++++++++-----
+ 4 files changed, 35 insertions(+), 13 deletions(-)
+
+diff --git a/Documentation/filesystems/Locking b/Documentation/filesystems/Locking
+index 790ef6f..28bfea7 100644
+--- a/Documentation/filesystems/Locking
++++ b/Documentation/filesystems/Locking
+@@ -171,6 +171,7 @@ prototypes:
+ 	int (*releasepage) (struct page *, int);
+ 	int (*direct_IO)(int, struct kiocb *, const struct iovec *iov,
+ 			loff_t offset, unsigned long nr_segs);
++	int (*launder_page) (struct page *);
  
-+config GENERIC_TIME_VSYSCALL
-+	bool
-+	default y
+ locking rules:
+ 	All except set_page_dirty may block
+@@ -188,6 +189,7 @@ bmap:			yes
+ invalidatepage:		no	yes
+ releasepage:		no	yes
+ direct_IO:		no
++launder_page:		no	yes
+ 
+ 	->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
+ may be called from the request handler (/dev/loop).
+@@ -281,6 +283,12 @@ buffers from the page in preparation for
+ indicate that the buffers are (or may be) freeable.  If ->releasepage is zero,
+ the kernel assumes that the fs has no private interest in the buffers.
+ 
++	->launder_page() may be called prior to releasing a page if
++it is still found to be dirty. It returns zero if the page was successfully
++cleaned, or an error value if not. Note that in order to prevent the page
++getting mapped back in and redirtied, it needs to be kept locked
++across the entire operation.
 +
- config ZONE_DMA32
- 	bool
- 	default y
-diff --git a/arch/x86_64/kernel/hpet.c b/arch/x86_64/kernel/hpet.c
-index 74d95d0..cd834cc 100644
---- a/arch/x86_64/kernel/hpet.c
-+++ b/arch/x86_64/kernel/hpet.c
-@@ -442,6 +442,11 @@ static cycle_t read_hpet(void)
- 	return (cycle_t)readl(hpet_ptr);
- }
+ 	Note: currently almost all instances of address_space methods are
+ using BKL for internal serialization and that's one of the worst sources
+ of contention. Normally they are calling library functions (in fs/buffer.c)
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 0dd6be3..fab20d0 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -315,14 +315,13 @@ static void nfs_invalidate_page(struct p
  
-+static cycle_t __vsyscall_fn vread_hpet(void)
-+{
-+	return (cycle_t)readl((void *)fix_to_virt(VSYSCALL_HPET) + 0xf0);
+ static int nfs_release_page(struct page *page, gfp_t gfp)
+ {
+-	/*
+-	 * Avoid deadlock on nfs_wait_on_request().
+-	 */
+-	if (!(gfp & __GFP_FS))
+-		return 0;
+-	/* Hack... Force nfs_wb_page() to write out the page */
+-	SetPageDirty(page);
+-	return !nfs_wb_page(page->mapping->host, page);
++	/* If PagePrivate() is set, then the page is not freeable */
++	return 0;
 +}
 +
- struct clocksource clocksource_hpet = {
- 	.name		= "hpet",
- 	.rating		= 250,
-@@ -450,6 +455,7 @@ struct clocksource clocksource_hpet = {
- 	.mult		= 0, /* set below */
- 	.shift		= HPET_SHIFT,
- 	.is_continuous	= 1,
-+	.vread		= vread_hpet,
++static int nfs_launder_page(struct page *page)
++{
++	return nfs_wb_page(page->mapping->host, page);
+ }
+ 
+ const struct address_space_operations nfs_file_aops = {
+@@ -338,6 +337,7 @@ const struct address_space_operations nf
+ #ifdef CONFIG_NFS_DIRECTIO
+ 	.direct_IO = nfs_direct_IO,
+ #endif
++	.launder_page = nfs_launder_page,
  };
  
- static int __init init_hpet_clocksource(void)
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 4bc737c..17bb7de 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -53,13 +53,7 @@ DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
- DEFINE_SPINLOCK(i8253_lock);
- 
--unsigned long vxtime_hz = PIT_TICK_RATE;
--
--struct vxtime_data __vxtime __section_vxtime;	/* for vsyscalls */
--
- volatile unsigned long __jiffies __section_jiffies = INITIAL_JIFFIES;
--struct timespec __xtime __section_xtime;
--struct timezone __sys_tz __section_sys_tz;
- 
- unsigned long profile_pc(struct pt_regs *regs)
- {
-diff --git a/arch/x86_64/kernel/tsc.c b/arch/x86_64/kernel/tsc.c
-index 958ec0a..f16733e 100644
---- a/arch/x86_64/kernel/tsc.c
-+++ b/arch/x86_64/kernel/tsc.c
-@@ -185,6 +185,12 @@ static cycle_t read_tsc(void)
- 	return ret;
- }
- 
-+static cycle_t __vsyscall_fn vread_tsc(void)
-+{
-+	cycle_t ret = (cycle_t)get_cycles_sync();
-+	return ret;
-+}
-+
- static struct clocksource clocksource_tsc = {
- 	.name			= "tsc",
- 	.rating			= 300,
-@@ -194,6 +200,7 @@ static struct clocksource clocksource_ts
- 	.shift			= 22,
- 	.update_callback	= tsc_update_callback,
- 	.is_continuous		= 1,
-+	.vread			= vread_tsc,
+ static ssize_t nfs_file_write(struct kiocb *iocb, const struct iovec *iov,
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 186da81..14a337c 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -426,6 +426,7 @@ struct address_space_operations {
+ 	/* migrate the contents of a page to the specified target */
+ 	int (*migratepage) (struct address_space *,
+ 			struct page *, struct page *);
++	int (*launder_page) (struct page *);
  };
  
- static int tsc_update_callback(void)
-diff --git a/arch/x86_64/kernel/vmlinux.lds.S b/arch/x86_64/kernel/vmlinux.lds.S
-index 1e54ddf..adb4263 100644
---- a/arch/x86_64/kernel/vmlinux.lds.S
-+++ b/arch/x86_64/kernel/vmlinux.lds.S
-@@ -88,31 +88,25 @@ #define VVIRT(x) (ADDR(x) - VVIRT_OFFSET
-   __vsyscall_0 = VSYSCALL_VIRT_ADDR;
- 
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
--  .xtime_lock : AT(VLOAD(.xtime_lock)) { *(.xtime_lock) }
--  xtime_lock = VVIRT(.xtime_lock);
--
--  .vxtime : AT(VLOAD(.vxtime)) { *(.vxtime) }
--  vxtime = VVIRT(.vxtime);
-+  .vsyscall_fn : AT(VLOAD(.vsyscall_fn)) { *(.vsyscall_fn) }
-+  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
-+  .vsyscall_gtod_data : AT(VLOAD(.vsyscall_gtod_data))
-+		{ *(.vsyscall_gtod_data) }
-+  vsyscall_gtod_data = VVIRT(.vsyscall_gtod_data);
- 
-   .vgetcpu_mode : AT(VLOAD(.vgetcpu_mode)) { *(.vgetcpu_mode) }
-   vgetcpu_mode = VVIRT(.vgetcpu_mode);
- 
--  .sys_tz : AT(VLOAD(.sys_tz)) { *(.sys_tz) }
--  sys_tz = VVIRT(.sys_tz);
--
--  .sysctl_vsyscall : AT(VLOAD(.sysctl_vsyscall)) { *(.sysctl_vsyscall) }
--  sysctl_vsyscall = VVIRT(.sysctl_vsyscall);
--
--  .xtime : AT(VLOAD(.xtime)) { *(.xtime) }
--  xtime = VVIRT(.xtime);
--
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
-   .jiffies : AT(VLOAD(.jiffies)) { *(.jiffies) }
-   jiffies = VVIRT(.jiffies);
- 
--  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1)) { *(.vsyscall_1) }
--  .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2)) { *(.vsyscall_2) }
--  .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3)) { *(.vsyscall_3) }
-+  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1))
-+		{ *(.vsyscall_1) }
-+  .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2))
-+		{ *(.vsyscall_2) }
-+  .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3))
-+		{ *(.vsyscall_3) }
- 
-   . = VSYSCALL_VIRT_ADDR + 4096;
- 
-diff --git a/arch/x86_64/kernel/vsyscall.c b/arch/x86_64/kernel/vsyscall.c
-index 2433d6f..9814bf8 100644
---- a/arch/x86_64/kernel/vsyscall.c
-+++ b/arch/x86_64/kernel/vsyscall.c
-@@ -26,6 +26,7 @@ #include <linux/timer.h>
- #include <linux/seqlock.h>
- #include <linux/jiffies.h>
- #include <linux/sysctl.h>
-+#include <linux/clocksource.h>
- #include <linux/getcpu.h>
- #include <linux/cpu.h>
- #include <linux/smp.h>
-@@ -34,6 +35,7 @@ #include <linux/notifier.h>
- #include <asm/vsyscall.h>
- #include <asm/pgtable.h>
- #include <asm/page.h>
-+#include <asm/unistd.h>
- #include <asm/fixmap.h>
- #include <asm/errno.h>
- #include <asm/io.h>
-@@ -44,56 +46,41 @@ #include <asm/topology.h>
- #define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr)))
- #define __syscall_clobber "r11","rcx","memory"
- 
--int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
--seqlock_t __xtime_lock __section_xtime_lock = SEQLOCK_UNLOCKED;
-+struct vsyscall_gtod_data_t {
-+	seqlock_t lock;
-+	int sysctl_enabled;
-+	struct timeval wall_time_tv;
-+	struct timezone sys_tz;
-+	cycle_t offset_base;
-+	struct clocksource clock;
-+};
- int __vgetcpu_mode __section_vgetcpu_mode;
- 
--#include <asm/unistd.h>
--
--static __always_inline void timeval_normalize(struct timeval * tv)
-+struct vsyscall_gtod_data_t __vsyscall_gtod_data __section_vsyscall_gtod_data =
- {
--	time_t __sec;
--
--	__sec = tv->tv_usec / 1000000;
--	if (__sec) {
--		tv->tv_usec %= 1000000;
--		tv->tv_sec += __sec;
--	}
--}
-+	.lock = SEQLOCK_UNLOCKED,
-+	.sysctl_enabled = 1,
-+};
- 
--static __always_inline void do_vgettimeofday(struct timeval * tv)
-+void update_vsyscall(struct timespec *wall_time, struct clocksource *clock)
- {
--	long sequence, t;
--	unsigned long sec, usec;
--
--	do {
--		sequence = read_seqbegin(&__xtime_lock);
--		
--		sec = __xtime.tv_sec;
--		usec = __xtime.tv_nsec / 1000;
--
--		if (__vxtime.mode != VXTIME_HPET) {
--			t = get_cycles_sync();
--			if (t < __vxtime.last_tsc)
--				t = __vxtime.last_tsc;
--			usec += ((t - __vxtime.last_tsc) *
--				 __vxtime.tsc_quot) >> 32;
--			/* See comment in x86_64 do_gettimeofday. */
--		} else {
--			usec += ((readl((void __iomem *)
--				   fix_to_virt(VSYSCALL_HPET) + 0xf0) -
--				  __vxtime.last) * __vxtime.quot) >> 32;
--		}
--	} while (read_seqretry(&__xtime_lock, sequence));
--
--	tv->tv_sec = sec + usec / 1000000;
--	tv->tv_usec = usec % 1000000;
-+	unsigned long flags;
-+
-+	write_seqlock_irqsave(&vsyscall_gtod_data.lock, flags);
-+	/* copy vsyscall data */
-+	vsyscall_gtod_data.clock = *clock;
-+	vsyscall_gtod_data.wall_time_tv.tv_sec = wall_time->tv_sec;
-+	vsyscall_gtod_data.wall_time_tv.tv_usec = wall_time->tv_nsec/1000;
-+	vsyscall_gtod_data.sys_tz = sys_tz;
-+	write_sequnlock_irqrestore(&vsyscall_gtod_data.lock, flags);
+ struct backing_dev_info;
+diff --git a/mm/truncate.c b/mm/truncate.c
+index 9bfb8e8..d4811dc 100644
+--- a/mm/truncate.c
++++ b/mm/truncate.c
+@@ -321,6 +321,16 @@ failed:
+ 	return 0;
  }
  
--/* RED-PEN may want to readd seq locking, but then the variable should be write-once. */
-+/* RED-PEN may want to readd seq locking, but then the variable should be
-+ * write-once.
-+ */
- static __always_inline void do_get_tz(struct timezone * tz)
- {
--	*tz = __sys_tz;
-+	*tz = __vsyscall_gtod_data.sys_tz;
- }
- 
- static __always_inline int gettimeofday(struct timeval *tv, struct timezone *tz)
-@@ -101,7 +88,8 @@ static __always_inline int gettimeofday(
- 	int ret;
- 	asm volatile("vsysc2: syscall"
- 		: "=a" (ret)
--		: "0" (__NR_gettimeofday),"D" (tv),"S" (tz) : __syscall_clobber );
-+		: "0" (__NR_gettimeofday),"D" (tv),"S" (tz)
-+		: __syscall_clobber );
- 	return ret;
- }
- 
-@@ -114,10 +102,44 @@ static __always_inline long time_syscall
- 	return secs;
- }
- 
-+static __always_inline void do_vgettimeofday(struct timeval * tv)
++static int
++do_launder_page(struct address_space *mapping, struct page *page)
 +{
-+	cycle_t now, base, mask, cycle_delta;
-+	unsigned long seq, mult, shift, nsec_delta;
-+	cycle_t (*vread)(void);
-+	do {
-+		seq = read_seqbegin(&__vsyscall_gtod_data.lock);
-+
-+		vread = __vsyscall_gtod_data.clock.vread;
-+		if (unlikely(!__vsyscall_gtod_data.sysctl_enabled || !vread)) {
-+			gettimeofday(tv,0);
-+			return;
-+		}
-+		now = vread();
-+		base = __vsyscall_gtod_data.clock.cycle_last;
-+		mask = __vsyscall_gtod_data.clock.mask;
-+		mult = __vsyscall_gtod_data.clock.mult;
-+		shift = __vsyscall_gtod_data.clock.shift;
-+
-+		*tv = __vsyscall_gtod_data.wall_time_tv;
-+
-+	} while (read_seqretry(&__vsyscall_gtod_data.lock, seq));
-+
-+	/* calculate interval: */
-+	cycle_delta = (now - base) & mask;
-+	/* convert to nsecs: */
-+	nsec_delta = (cycle_delta * mult) >> shift;
-+
-+	/* convert to usecs and add to timespec: */
-+	tv->tv_usec += nsec_delta / NSEC_PER_USEC;
-+	while (tv->tv_usec > USEC_PER_SEC) {
-+		tv->tv_sec += 1;
-+		tv->tv_usec -= USEC_PER_SEC;
-+	}
++	if (!PageDirty(page))
++		return 0;
++	if (page->mapping != mapping || mapping->a_ops->launder_page == NULL)
++		return 0;
++	return mapping->a_ops->launder_page(page);
 +}
 +
- int __vsyscall(0) vgettimeofday(struct timeval * tv, struct timezone * tz)
- {
--	if (!__sysctl_vsyscall)
--		return gettimeofday(tv,tz);
- 	if (tv)
- 		do_vgettimeofday(tv);
- 	if (tz)
-@@ -129,11 +151,11 @@ int __vsyscall(0) vgettimeofday(struct t
-  * unlikely */
- time_t __vsyscall(1) vtime(time_t *t)
- {
--	if (!__sysctl_vsyscall)
-+	if (unlikely(!__vsyscall_gtod_data.sysctl_enabled))
- 		return time_syscall(t);
- 	else if (t)
--		*t = __xtime.tv_sec;		
--	return __xtime.tv_sec;
-+		*t = __vsyscall_gtod_data.wall_time_tv.tv_sec;
-+	return __vsyscall_gtod_data.wall_time_tv.tv_sec;
- }
- 
- /* Fast way to get current CPU and node.
-@@ -210,7 +232,7 @@ static int vsyscall_sysctl_change(ctl_ta
- 		ret = -ENOMEM;
- 		goto out;
- 	}
--	if (!sysctl_vsyscall) {
-+	if (!vsyscall_gtod_data.sysctl_enabled) {
- 		writew(SYSCALL, map1);
- 		writew(SYSCALL, map2);
- 	} else {
-@@ -232,7 +254,8 @@ static int vsyscall_sysctl_nostrat(ctl_t
- 
- static ctl_table kernel_table2[] = {
- 	{ .ctl_name = 99, .procname = "vsyscall64",
--	  .data = &sysctl_vsyscall, .maxlen = sizeof(int), .mode = 0644,
-+	  .data = &vsyscall_gtod_data.sysctl_enabled, .maxlen = sizeof(int),
-+	  .mode = 0644,
- 	  .strategy = vsyscall_sysctl_nostrat,
- 	  .proc_handler = vsyscall_sysctl_change },
- 	{ 0, }
-diff --git a/include/asm-x86_64/proto.h b/include/asm-x86_64/proto.h
-index 914b5f6..25d5415 100644
---- a/include/asm-x86_64/proto.h
-+++ b/include/asm-x86_64/proto.h
-@@ -45,9 +45,7 @@ extern u32 pmtmr_ioport;
- #else
- #define pmtmr_ioport 0
- #endif
--extern int sysctl_vsyscall;
- extern int nohpet;
--extern unsigned long vxtime_hz;
- 
- extern void early_printk(const char *fmt, ...) __attribute__((format(printf,1,2)));
- 
-diff --git a/include/asm-x86_64/timex.h b/include/asm-x86_64/timex.h
-index a4d0066..a73d535 100644
---- a/include/asm-x86_64/timex.h
-+++ b/include/asm-x86_64/timex.h
-@@ -51,7 +51,6 @@ #define FSEC_PER_TICK (FSEC_PER_SEC / HZ
- #define NS_SCALE        10 /* 2^10, carefully chosen */
- #define US_SCALE        32 /* 2^32, arbitralrily chosen */
- 
--extern struct vxtime_data vxtime;
- extern void mark_tsc_unstable(void);
- extern void set_cyc2ns_scale(unsigned long khz);
- #endif
-diff --git a/include/asm-x86_64/vsyscall.h b/include/asm-x86_64/vsyscall.h
-index 05cb8dd..1899a8d 100644
---- a/include/asm-x86_64/vsyscall.h
-+++ b/include/asm-x86_64/vsyscall.h
-@@ -16,51 +16,28 @@ #define VSYSCALL_ADDR(vsyscall_nr) (VSYS
- #ifdef __KERNEL__
- #include <linux/seqlock.h>
- 
--#define __section_vxtime __attribute__ ((unused, __section__ (".vxtime"), aligned(16)))
- #define __section_vgetcpu_mode __attribute__ ((unused, __section__ (".vgetcpu_mode"), aligned(16)))
- #define __section_jiffies __attribute__ ((unused, __section__ (".jiffies"), aligned(16)))
--#define __section_sys_tz __attribute__ ((unused, __section__ (".sys_tz"), aligned(16)))
--#define __section_sysctl_vsyscall __attribute__ ((unused, __section__ (".sysctl_vsyscall"), aligned(16)))
--#define __section_xtime __attribute__ ((unused, __section__ (".xtime"), aligned(16)))
--#define __section_xtime_lock __attribute__ ((unused, __section__ (".xtime_lock"), aligned(16)))
- 
--#define VXTIME_TSC	1
--#define VXTIME_HPET	2
--#define VXTIME_PMTMR	3
-+/* Definitions for CONFIG_GENERIC_TIME definitions */
-+#define __section_vsyscall_gtod_data __attribute__ \
-+	((unused, __section__ (".vsyscall_gtod_data"),aligned(16)))
-+#define __vsyscall_fn __attribute__ ((unused,__section__(".vsyscall_fn")))
- 
- #define VGETCPU_RDTSCP	1
- #define VGETCPU_LSL	2
- 
--struct vxtime_data {
--	long hpet_address;	/* HPET base address */
--	int last;
--	unsigned long last_tsc;
--	long quot;
--	long tsc_quot;
--	int mode;
--};
--
- #define hpet_readl(a)           readl((const void __iomem *)fix_to_virt(FIX_HPET_BASE) + a)
- #define hpet_writel(d,a)        writel(d, (void __iomem *)fix_to_virt(FIX_HPET_BASE) + a)
- 
--/* vsyscall space (readonly) */
--extern struct vxtime_data __vxtime;
- extern int __vgetcpu_mode;
--extern struct timespec __xtime;
- extern volatile unsigned long __jiffies;
--extern struct timezone __sys_tz;
--extern seqlock_t __xtime_lock;
- 
- /* kernel space (writeable) */
--extern struct vxtime_data vxtime;
- extern int vgetcpu_mode;
- extern struct timezone sys_tz;
--extern int sysctl_vsyscall;
- extern seqlock_t xtime_lock;
--
--extern int sysctl_vsyscall;
--
--#define ARCH_HAVE_XTIME_LOCK 1
-+extern struct vsyscall_gtod_data_t vsyscall_gtod_data;
- 
- #endif /* __KERNEL__ */
- 
+ /**
+  * invalidate_inode_pages2_range - remove range of pages from an address_space
+  * @mapping: the address_space
+@@ -386,11 +396,14 @@ int invalidate_inode_pages2_range(struct
+ 					  PAGE_CACHE_SIZE, 0);
+ 				}
+ 			}
+-			was_dirty = test_clear_page_dirty(page);
+-			if (!invalidate_complete_page2(mapping, page)) {
+-				if (was_dirty)
+-					set_page_dirty(page);
+-				ret = -EIO;
++			ret = do_launder_page(mapping, page);
++			if (ret == 0) {
++				was_dirty = test_clear_page_dirty(page);
++				if (!invalidate_complete_page2(mapping, page)) {
++					if (was_dirty)
++						set_page_dirty(page);
++					ret = -EIO;
++				}
+ 			}
+ 			unlock_page(page);
+ 		}
+
+

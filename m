@@ -1,85 +1,116 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161016AbWLTXlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965159AbWLTXni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbWLTXlk (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWLTXlj
+	id S965159AbWLTXni (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWLTXni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:41:39 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:49098 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964931AbWLTXli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:41:38 -0500
-Date: Wed, 20 Dec 2006 15:41:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Randal L. Schwartz" <merlyn@stonehenge.com>
-cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] daemon.c blows up on OSX
-In-Reply-To: <86wt4mximh.fsf@blue.stonehenge.com>
-Message-ID: <Pine.LNX.4.64.0612201524230.3576@woody.osdl.org>
-References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net> <86vek6z0k2.fsf@blue.stonehenge.com>
- <Pine.LNX.4.64.0612201412250.3576@woody.osdl.org> <86irg6yzt1.fsf_-_@blue.stonehenge.com>
- <7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net> <86ejquyz4v.fsf@blue.stonehenge.com>
- <86ac1iyyla.fsf@blue.stonehenge.com> <Pine.LNX.4.64.0612201502090.3576@woody.osdl.org>
- <86wt4mximh.fsf@blue.stonehenge.com>
+	Wed, 20 Dec 2006 18:43:38 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:32151 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965159AbWLTXnh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 18:43:37 -0500
+Message-ID: <4589CA9C.80007@chelsio.com>
+Date: Wed, 20 Dec 2006 15:43:24 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Divy Le Ray <None@chelsio.com>, jeff@garzik.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
+Subject: Re: [PATCH 2/10] cxgb3 - main source file
+References: <20061220124134.6299.29373.stgit@localhost.localdomain> <1166623330.3365.1397.camel@laptopd505.fenrus.org>
+In-Reply-To: <1166623330.3365.1397.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2006 23:43:26.0514 (UTC) FILETIME=[A4FAD120:01C72490]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan,
 
+Thanks for the review. Please see my replies inline.
 
-On Wed, 20 Dec 2006, Randal L. Schwartz wrote:
-> 
-> What I do know is (a) it worked before the header changes and (b)
-> the patch I just gave you works.  If the patch doesn't break others,
-> can we just leave it in?
+Arjan van de Ven wrote:
+>> +/*
+>> + * Interrupt handler for asynchronous events used with MSI-X.
+>> + */
+>> +static irqreturn_t t3_async_intr_handler(int irq, void *cookie)
+>> +{
+>> +	t3_slow_intr_handler(cookie);
+>> +	return IRQ_HANDLED;
+>> +}
+>
+> this looks very wrong; why is t3_slow_intr_handler a void rather than
+> returning IRQ_HANDLED etc? And why wrap around it ?
+t3_slow_intr_handler() processes non-data events such as board errors.
+In line interupt and MSI mode, the intr handler deals with both data
+and non-data events and calls t3_slow_intr_handler for the latter.
+In MSI-X mode, t3_async_intr_handler() is registered to deal with these
+non-data interrupts exclusively.
 
-Well, at some point it probably _will_ break on other systems, exactly 
-because other systems want to have the extended declarations.
+>> +
+>> +static ssize_t attr_show(struct class_device *cd, char *buf,
+>> +			 ssize_t(*format) (struct adapter *, char *))
+>> +{
+>> +	ssize_t len;
+>> +	struct adapter *adap = to_net_dev(cd)->priv;
+>> +
+>> +	/* Synchronize with ioctls that may shut down the device */
+>> +	rtnl_lock();
+>> +	len = (*format) (adap, buf);
+>> +	rtnl_unlock();
+>> +	return len;
+>> +}
+>
+> I'm usually kind of nervous with drivers taking the rtnl_lock; to me
+> that sounds like a layering violation.. why shouldn't your attributes
+> etc live in the net layer instead?
 
-It would be much better to have all the weird system dependencies solved 
-in ONE place, rather than have each file (depending on just what they 
-happen to need) have their own hacks for each weird system header file 
-situation.
+These attributes are really device specific.
+The net layer does not support device specific attributes.
 
-So it really would be a hell of a lot better to figure out _why_ strings.h 
-doesn't "just work" when _XOPEN_SOURCE_EXTENDED is set. Or if there are 
-better alternatives that work on HP-UX.. 
+>> +#ifdef ETHTOOL_GPERMADDR
+>> +	.get_perm_addr = ethtool_op_get_perm_addr
+>> +#endif
+>
+> what is this ifdef for?
+it will be removed.
+>> +static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
+>> +{
+>> +	int ret;
+>> +	u32 cmd;
+>> +	struct adapter *adapter = dev->priv;
+>> +
+>> +	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
+>> +		return -EFAULT;
+>> +
+>> +	switch (cmd) {
+>> +	case CHELSIO_SETREG:{
+>
+> what are these for ?
+They are used to parameter the HW:
+register access, configuration of queue sets, on board memory 
+configuration,
+firmware load, etc ...
+>> +
+>> +	/*
+>> +	 * Can't use pci_request_regions() here because some kernels want to
+>> +	 * request the MSI-X BAR in pci_enable_msix.
+>
+> are these "some kernels" actual current mainline kernels?
+Will fix both comment and related code.
+>> +	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
+>> +		pci_using_dac = 1;
+>> +		err = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
+>> +		if (err) {
+>> +			dev_err(&pdev->dev, "unable to obtain 64-bit DMA for "
+>> +			       "coherent allocations\n");
+>> +			goto out_release_regions;
+>
+> this looks wrong; if you can't get 64 bit coherent allocs but can get 32
+> bit ones.. why error out ?
+This is how most of the existing drivers behave.
 
-Does adding a
-
-	#define _SVID_SOURCE 1
-
-help? Also, we should probably make the _GNU_SOURCE and _BSD_SOURCE 
-defines define to 1 (which is the way they'd be if we used -D_GNU_SOURCE 
-on the compiler command line)
-
-IOW, the appended ...
-
-The really sad part is that this seems to be an OS X _bug_. 
-"strncasecmp()" is part of the standard Open UNIX definitions, it's not 
-something that should be shut off by _XOPEN_SOURCE, afaik.
-
-There were apparently some OS X developers on the git list, mind 
-commenting on this?
-
-		Linus
-
----
-diff --git a/git-compat-util.h b/git-compat-util.h
-index bc296b3..1400905 100644
---- a/git-compat-util.h
-+++ b/git-compat-util.h
-@@ -13,8 +13,9 @@
- 
- #define _XOPEN_SOURCE 600 /* glibc2 and AIX 5.3L need 500, OpenBSD needs 600 for S_ISLNK() */
- #define _XOPEN_SOURCE_EXTENDED 1 /* AIX 5.3L needs this */
--#define _GNU_SOURCE
--#define _BSD_SOURCE
-+#define _GNU_SOURCE 1
-+#define _BSD_SOURCE 1
-+#define _SVID_SOURCE 1
- 
- #include <unistd.h>
- #include <stdio.h>
+Cheers,
+Divy

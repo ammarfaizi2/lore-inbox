@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932661AbWLTUeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932750AbWLTUgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbWLTUeo (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWLTUen
+	id S932750AbWLTUgB (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWLTUgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:34:43 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:56517 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932661AbWLTUen (ORCPT
+	Wed, 20 Dec 2006 15:36:01 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:17104 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932735AbWLTUgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:34:43 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <45899E4B.2060401@s5r6.in-berlin.de>
-Date: Wed, 20 Dec 2006 21:34:19 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
+	Wed, 20 Dec 2006 15:36:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BJg5YTz0iFjbUsJyVV6W/ELpMpxayZd7LwkwruNllA9p7Tt2rMqZzuZiCMfXs70iSq8m5OShLaPq5VmjU9nb1p4BMaaFiRjObKpTMrlo6oq0rPVXDvPY/BEAtreQP1vhSFMhCmKtN7T8VFbo40oG0n3kEKKMbFuAWImQTGU9lf4=
+Message-ID: <45899EFF.8010906@gmail.com>
+Date: Wed, 20 Dec 2006 12:37:19 -0800
+From: walt <w41ter@gmail.com>
+Organization: none
+User-Agent: Thunderbird 3.0a1 (X11/20061220)
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/4] New firewire stack - updated patches
-References: <20061220005822.GB11746@devserv.devel.redhat.com> <458913AC.7080300@s5r6.in-berlin.de> <45897478.6070308@redhat.com> <45898785.4000209@s5r6.in-berlin.de>
-In-Reply-To: <45898785.4000209@s5r6.in-berlin.de>
-X-Enigmail-Version: 0.94.0.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Frederik Deweerdt <deweerdt@free.fr>, Andrew Morton <akpm@osdl.org>,
+       "Andrew J. Barr" <andrew.james.barr@gmail.com>,
+       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda
+ changes (was Re: BUG on 2.6.20-rc1 when using gdb)
+References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org> <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org> <20061220183521.GA28900@slug> <45898D4E.1030507@goop.org>
+In-Reply-To: <45898D4E.1030507@goop.org>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> Kristian Høgsberg wrote:
-[eth1394]
->> The only thing I've ever heard people say about it is that it's
->> annoying because it screws up their network interface ordering.
+Jeremy Fitzhardinge wrote:
+> Frederik Deweerdt wrote:
+>> Same problems here with 2.6.20-rc1-mm1 (ie with the %gs->%fs patch).
+>> It seems to me that the problem comes from the EFL_OFFSET no longer
+>> beeing accurate.
+>> The following patch fixes the problem for me.
+>>   
 > 
-> Yeah, the same way hot-pluggable SCSI devices screw up device naming of
+> Thanks Frederik; that's exactly the kind of thing I thought it might
+> be.  I wonder if there's some way we can make this more robust
+> though...  Does this work for you?  I did a slightly larger cleanup
+> which should make it less fragile and more comprehensible.
+<patch snipped>
 
-(I forgot to complete the post.) ... fixed SCSI devices and among
-themselves. That's old and continues to become apparent with more and
-more types of hardware. The solution is old too; distributors should be
-aware of it.
+Hi Jeremy,
 
-That said, the way how eth1394 is married with ieee1394 could stand
-improvement. There should be an option (and it should be the default) to
-let eth1394 load its ROM entries == don't automatically modprobe eth1394
-as soon as the low level set up a host adapter.
--- 
-Stefan Richter
--=====-=-==- ==-- =-=--
-http://arcgraph.de/sr/
+Your patch works fine for me.  (I didn't try the first patch, but I
+will if anyone wants.)  Thanks!

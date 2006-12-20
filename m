@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964966AbWLTJkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964964AbWLTJpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWLTJkP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 04:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWLTJkP
+	id S964964AbWLTJpj (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 04:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWLTJpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 04:40:15 -0500
-Received: from TYO200.gate.nec.co.jp ([210.143.35.50]:49006 "EHLO
-	tyo200.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964966AbWLTJkN (ORCPT
+	Wed, 20 Dec 2006 04:45:39 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:39109 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964964AbWLTJpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 04:40:13 -0500
-Message-ID: <458903ED.9040207@bx.jp.nec.com>
-Date: Wed, 20 Dec 2006 18:35:41 +0900
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Wed, 20 Dec 2006 04:45:38 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: J <jhnlmn@yahoo.com>, linux-usb-devel@lists.sourceforge.net,
+       Greg KH <gregkh@suse.de>
+Subject: Re: Possible race condition in usb-serial.c
+Date: Wed, 20 Dec 2006 10:47:20 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <695571.36956.qm@web32904.mail.mud.yahoo.com>
+In-Reply-To: <695571.36956.qm@web32904.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.19 2/6] support multiple logging agents
-References: <457E498C.1050806@bx.jp.nec.com> <457E4C65.6030802@bx.jp.nec.com> <20061212184250.GJ13687@waste.org>
-In-Reply-To: <20061212184250.GJ13687@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612201047.20842.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >>  static struct netpoll np = {
- >> >      .name = "netconsole",
- >> >      .dev_name = "eth0",
- >> > @@ -69,23 +84,91 @@ static struct netpoll np = {
- >> >      .drop = netpoll_queue,
- >> >  };
- >
- > Shouldn't this piece get dropped in this patch?
- >
+Am Dienstag, 19. Dezember 2006 23:33 schrieb J:
+> Thank you for the response.
+> 
+> > This code depends on protection from BKL.
+> 
+> Really? I cannot find many lock_kernel calls in 
+> USB directory and those, which I can find, 
+> don't appear to protect usb_serial_disconnect
+> and serial_close from being called at the same time.
 
-This piece isn't in -mm tree, but this piece is in 2.6.19.
-Which version should I follow ?
+serial_close is safe because serial_disconnect lowers the refcount
+by one. usb_serial_probe() and usb_serial_open() both increment
+the refcount; the former implicitly.
 
- >> -static int configured = 0;
- >> +static int add_netcon_dev(const char* target_opt)
- >> +{
- >> +    static atomic_t netcon_dev_count = ATOMIC_INIT(0);
- >
- > Hiding this inside a function seems wrong. Why do we need a count? If
- > we've already got a spinlock, why does it need to be atomic?
- >
+> May be the protection is at a higher level? 
+> Personally I don't beleive it.
+> If you know how this thing is supposed to work,
+> please, tell me.
 
-We don't have a spinlock for add_netcon_dev, because we don't need
-to get a spinlock for add_netcon_dev except for list operation.
-So, it must be atomic.
+The data structure to protect is serial_table. Everything else is
+protected by refcounts. Therefore the interesting race is between
+open and disconnect. Open is called with BKL (fs/char_dev.c::chrdev_open)
 
- >>      local_irq_save(flags);
- >> +    spin_lock(&netconsole_dev_list_lock);
- >>      for(left = len; left; ) {
- >>          frag = min(left, MAX_PRINT_CHUNK);
- >> -        netpoll_send_udp(&np, msg, frag);
- >> +        list_for_each_entry(dev, &active_netconsole_dev, list) {
- >> +            spin_lock(&dev->netpoll_lock);
- >> +            netpoll_send_udp(&dev->np, msg, frag);
- >> +            spin_unlock(&dev->netpoll_lock);
- >
- > Why do we need a lock here? Why isn't the list lock sufficient? What
- > happens if either lock is held when we get here?
- >
+Now, regarding disconnect. It used to be called with BKL held. I haven't been
+able to verify that this is still the case. If not, then there's a race.
 
-The netpoll_lock is for each structure containing information related to netpoll
-(remote IP address and port, local IP address and port and so on).
-If we don't take a spinlock for each structure, the target IP address and port
-number are subject to change on the way sending packets.
+In addition usb_serial_probe() uses get_free_serial() early in the process
+before the device is ready. Without BKL, this too, races with open.
 
--- 
-Keiichi KII
-NEC Corporation OSS Promotion Center
-E-mail: k-keiichi@bx.jp.nec.com
+People, do we take BKL in khubd?
+
+	Regards
+		Oliver

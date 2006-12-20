@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbWLTJ2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964953AbWLTJdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWLTJ2I (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 04:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWLTJ2H
+	id S964953AbWLTJdy (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 04:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWLTJdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 04:28:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:42953 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964947AbWLTJ2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 04:28:06 -0500
-Subject: Re: sysfs file creation result nightmare
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>,
-       Olivier Galibert <galibert@pobox.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061220080133.GA4325@kroah.com>
-References: <1165694351.1103.133.camel@localhost.localdomain>
-	 <20061209123817.f0117ad6.akpm@osdl.org>
-	 <20061209214453.GA69320@dspnet.fr.eu.org>
-	 <20061209135829.86038f32.akpm@osdl.org>
-	 <20061209223418.GA76069@dspnet.fr.eu.org>
-	 <20061209145303.3d5fe141.akpm@osdl.org>
-	 <1165712131.1103.166.camel@localhost.localdomain>
-	 <20061215154751.86a2dbdd.khali@linux-fr.org>
-	 <1166213773.31351.96.camel@localhost.localdomain>
-	 <20061215123103.adfbd78b.akpm@osdl.org>  <20061220080133.GA4325@kroah.com>
+	Wed, 20 Dec 2006 04:33:54 -0500
+Received: from amsfep20-int.chello.nl ([62.179.120.15]:36469 "EHLO
+	amsfep20-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964953AbWLTJdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 04:33:53 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+In-Reply-To: <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost>
+	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
+	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
+	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	 <1166466272.10372.96.camel@twins>
+	 <Pine.LNX.4.64.0612181030330.3479@woody.osdl.org>
+	 <1166468651.6983.6.camel@localhost>
+	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
+	 <1166471069.6940.4.camel@localhost>
+	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
 Content-Type: text/plain
-Date: Wed, 20 Dec 2006 20:27:28 +1100
-Message-Id: <1166606848.5144.0.camel@localhost.localdomain>
+Date: Wed, 20 Dec 2006 10:32:32 +0100
+Message-Id: <1166607152.10372.199.camel@twins>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-12-19 at 16:23 -0800, Linus Torvalds wrote:
 
-> sysfs_create_group() and remove_group() handles this just fine right
-> now.  Or it should, if not, please let me know and I'll fix it.
+> Pls test.
 
-Ok, I didn't know about these. I'll have a look. Thanks !
+Is good. Only s390 remains a question.
 
-> As for the bin_file stuff, those are very rare.  And I'll gladly take
-> patches that keep bad things from happening if you try to remove a file
-> that isn't there.
+Another point, change_protection() also does a cache flush, should we
+too?
 
-Ben.
-
+> ----
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index d8a842a..eec8706 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -448,9 +448,10 @@ static int page_mkclean_one(struct page *page, struct vm_area_struct *vma)
+>  		goto unlock;
+>  
+>  	entry = ptep_get_and_clear(mm, address, pte);
+          flush_cache_page(vma, address, pte_pfn(entry));
+> +	flush_tlb_page(vma, address);
+>  	entry = pte_mkclean(entry);
+>  	entry = pte_wrprotect(entry);
+> -	ptep_establish(vma, address, pte, entry);
+> +	set_pte_at(mm, address, pte, entry);
+>  	lazy_mmu_prot_update(entry);
+>  	ret = 1;
+>  
+> 
 

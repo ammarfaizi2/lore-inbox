@@ -1,144 +1,151 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964854AbWLTDjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964859AbWLTDl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbWLTDjH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 22:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWLTDjH
+	id S964859AbWLTDl3 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 22:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWLTDl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 22:39:07 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:62002 "EHLO
-	relais.videotron.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964854AbWLTDjF (ORCPT
+	Tue, 19 Dec 2006 22:41:29 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:18453 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964855AbWLTDl2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 22:39:05 -0500
-X-Greylist: delayed 3600 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 22:39:05 EST
-Date: Tue, 19 Dec 2006 21:39:03 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: [PATCH] add .mailmap for proper git-shortlog output
-X-X-Sender: nico@xanadu.home
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0612192116000.18171@xanadu.home>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_XeWThRSIE4QE3RmRbBwVFg)"
+	Tue, 19 Dec 2006 22:41:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OgYJrOvct3fBPjPZWuTqHG4gtwLi7Oq7NocLTIqNeZkrT+SOMwZUoXlPW3TA9aj0qW2HRi438yWxBHM3nCYDtjGXruYZViSIIzIrlDCuQaMVRsWTiyB1eU3h3OIuIqERFMXHJ/cqDCLlusx09JEV3rAvETHzYtxk8hJA52Vur+I=
+Message-ID: <5767b9100612191941n461f2b39k93d2cec43a31205a@mail.gmail.com>
+Date: Wed, 20 Dec 2006 11:41:26 +0800
+From: "Conke Hu" <conke.hu@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>, Alan <alan@lxorguk.ukuu.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] Add pci class code for SATA
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <5767b9100612191913p29675249v18803c65f536bda4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
+	 <1166551886.2977.5.camel@localhost.localdomain>
+	 <45883E64.20400@garzik.org>
+	 <5767b9100612191913p29675249v18803c65f536bda4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 12/20/06, Conke Hu <conke.hu@gmail.com> wrote:
+> On 12/20/06, Jeff Garzik <jeff@garzik.org> wrote:
+> > Conke Hu wrote:
+> > > Add pci class code 0x0106 for SATA to pci_ids.h
+> > >
+> > > signed-off-by: conke.hu@gmail.com
+> > > --------------------
+> > > --- linux-2.6.20-rc1/include/linux/pci_ids.h.orig     2006-12-20
+> > > 01:58:30.000000000 +0800
+> > > +++ linux-2.6.20-rc1/include/linux/pci_ids.h  2006-12-20
+> > > 01:59:07.000000000 +0800
+> > > @@ -15,6 +15,7 @@
+> > >  #define PCI_CLASS_STORAGE_FLOPPY     0x0102
+> > >  #define PCI_CLASS_STORAGE_IPI                0x0103
+> > >  #define PCI_CLASS_STORAGE_RAID               0x0104
+> > > +#define PCI_CLASS_STORAGE_SATA               0x0106
+> > >  #define PCI_CLASS_STORAGE_SAS                0x0107
+> > >  #define PCI_CLASS_STORAGE_OTHER              0x0180
+> >
+> > Two comments:
+> >
+> > 1) I think "_SATA" is an inaccurate description.  It should be _AHCI AFAICS.
+> >
+> > 2) Typically we don't add constants unless they are used somewhere...
+> >
+> >         Jeff
+> >
+>
+> Hi Jeff,
+>     According to PCI spec 3.0, 0x0106 means SATA controller, 0x010601
+> means AHCI and 0x010600 means vendor specific SATA controller. Pls see
+> the following table (PCI spec 3.0 P296):
+>
+> Base Class      Sub-Class       Interface       Meaning
+> --------------------------------------------------------
+>                 00h             00h             SCSI bus controller
+>                 ------------------------------------------------
+>                 01h             xxh             IDE controller
+>                 -----------------------------------------------
+>                 02h             00h             Floppy disk controller
+>                 -----------------------------------------------------
+>                 03h             00h             IPI bus controller
+>                 --------------------------------------------------
+>                 04h             00h             RAID controller
+> 01h             ------------------------------------------------
+>                                 20h             ATA controller with ADMA interface
+>                 05h             ---------------------------------------------------
+>                                 30h             ATA controller with ADMA interface
+>                 -------------------------------------------------------------------
+>                                 00h             Serial ATA controller�vendor specific interface
+>                 06h             -----------------------------------------------------------------
+>                                 01h             Serial ATA controller�AHCI 1.0 interface
+>                 -------------------------------------------------------------------------
+>                 07h             00h             Serial Attached SCSI (SAS) controller
+>                 ---------------------------------------------------------------------
+>                 80h             00h             Other mass storage controller
+> ------------------------------------------------------------------------------
+>
+>
+> So, I think, the following macro is correct:
+> #define PCI_CLASS_STORAGE_SATA               0x0106
+> If you would define AHCI class code, it should be 0x010601, not 0x0106:
+> #define PCI_CLASS_STORAGE_SATA_AHCI               0x010601
+>
+> And, I think that PCI_CLASS_STORAGE_SATA had better be added to
+> pci_ids.h since the class code 0x0106 is used more than once. e.g.
+> ahci.c uses the magic number 0x0106 twice, and it might be used more
+> in future.
+>
+> Best regards,
+> Conke
+>
 
---Boundary_(ID_XeWThRSIE4QE3RmRbBwVFg)
-Content-type: TEXT/PLAIN; charset=UTF-8
-Content-transfer-encoding: 8BIT
 
-This list has been ripped out of the latest git-shortlog tool. It can be 
-maintained separately so this is what this patch does. A couple more 
-entries were added to the original list as well.
+Here is a patch to show more details:
+-----------------------------------
+diff -Nur linux-2.6.20-rc1.orig/drivers/ata/ahci.c
+linux-2.6.20-rc1/drivers/ata/ahci.c
+--- linux-2.6.20-rc1.orig/drivers/ata/ahci.c	2006-12-20 10:25:00.000000000 +0800
++++ linux-2.6.20-rc1/drivers/ata/ahci.c	2006-12-20 10:13:24.000000000 +0800
+@@ -418,7 +418,7 @@
 
-Signed-off-by: Nicolas Pitre <nico@cam.org>
+ 	/* Generic, PCI class code for AHCI */
+ 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+-	  0x010601, 0xffffff, board_ahci },
++	  PCI_CLASS_STORAGE_SATA<<8|1, 0xffffff, board_ahci },
 
----
+ 	{ }	/* terminate list */
+ };
+@@ -1586,11 +1586,11 @@
+ 		speed_s = "?";
 
-diff --git a/.mailmap b/.mailmap
-new file mode 100644
-index 0000000..016b861
---- /dev/null
-+++ b/.mailmap
-@@ -0,0 +1,96 @@
-+#
-+# This list is used by git-shortlog to fix a few botched name translations
-+# in the git archive, either because the author's full name was messed up
-+# and/or not always written the same way, making contributions from the
-+# same person appearing not to be so or badly displayed.
-+#
-+# repo-abbrev: /pub/scm/linux/kernel/git/
-+#
-+
-+Aaron Durbin <adurbin@google.com>
-+Adam Oldham <oldhamca@gmail.com>
-+Adam Radford <aradford@gmail.com>
-+Adrian Bunk <bunk@stusta.de>
-+Alan Cox <alan@lxorguk.ukuu.org.uk>
-+Alan Cox <root@hraefn.swansea.linux.org.uk>
-+Aleksey Gorelov <aleksey_gorelov@phoenix.com>
-+Al Viro <viro@ftp.linux.org.uk>
-+Al Viro <viro@zenIV.linux.org.uk>
-+Andreas Herrmann <aherrman@de.ibm.com>
-+Andrew Morton <akpm@osdl.org>
-+Andrew Vasquez <andrew.vasquez@qlogic.com>
-+Andy Adamson <andros@citi.umich.edu>
-+Arnaud Patard <arnaud.patard@rtp-net.org>
-+Arnd Bergmann <arnd@arndb.de>
-+Axel Dyks <xl@xlsigned.net>
-+Ben Gardner <bgardner@wabtec.com>
-+Ben M Cahill <ben.m.cahill@intel.com>
-+Björn Steinbrink <B.Steinbrink@gmx.de>
-+Brian Avery <b.avery@hp.com>
-+Brian King <brking@us.ibm.com>
-+Christoph Hellwig <hch@lst.de>
-+Corey Minyard <minyard@acm.org>
-+David Brownell <david-b@pacbell.net>
-+David Woodhouse <dwmw2@shinybook.infradead.org>
-+Domen Puncer <domen@coderock.org>
-+Douglas Gilbert <dougg@torque.net>
-+Ed L. Cashin <ecashin@coraid.com>
-+Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+Felipe W Damasio <felipewd@terra.com.br>
-+Felix Kuhling <fxkuehl@gmx.de>
-+Felix Moeller <felix@derklecks.de>
-+Filipe Lautert <filipe@icewall.org>
-+Franck Bui-Huu <vagabon.xyz@gmail.com>
-+Frank Zago <fzago@systemfabricworks.com>
-+Greg Kroah-Hartman <greg@echidna.(none)>
-+Greg Kroah-Hartman <gregkh@suse.de>
-+Greg Kroah-Hartman <greg@kroah.com>
-+Henk Vergonet <Henk.Vergonet@gmail.com>
-+Henrik Kretzschmar <henne@nachtwindheim.de>
-+Herbert Xu <herbert@gondor.apana.org.au>
-+Jacob Shin <Jacob.Shin@amd.com>
-+James Bottomley <jejb@mulgrave.(none)>
-+James Bottomley <jejb@titanic.il.steeleye.com>
-+James E Wilson <wilson@specifix.com>
-+James Ketrenos <jketreno@io.(none)>
-+Jean Tourrilhes <jt@hpl.hp.com>
-+Jeff Garzik <jgarzik@pretzel.yyz.us>
-+Jens Axboe <axboe@suse.de>
-+Jens Osterkamp <Jens.Osterkamp@de.ibm.com>
-+John Stultz <johnstul@us.ibm.com>
-+Juha Yrjola <at solidboot.com>
-+Juha Yrjola <juha.yrjola@nokia.com>
-+Juha Yrjola <juha.yrjola@solidboot.com>
-+Kay Sievers <kay.sievers@vrfy.org>
-+Kenneth W Chen <kenneth.w.chen@intel.com>
-+Koushik <raghavendra.koushik@neterion.com>
-+Leonid I Ananiev <leonid.i.ananiev@intel.com>
-+Linas Vepstas <linas@austin.ibm.com>
-+Matthieu CASTET <castet.matthieu@free.fr>
-+Michel Dänzer <michel@tungstengraphics.com>
-+Mitesh shah <mshah@teja.com>
-+Morten Welinder <terra@gnome.org>
-+Morten Welinder <welinder@anemone.rentec.com>
-+Morten Welinder <welinder@darter.rentec.com>
-+Morten Welinder <welinder@troll.com>
-+Nguyen Anh Quynh <aquynh@gmail.com>
-+Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-+Patrick Mochel <mochel@digitalimplant.org>
-+Peter A Jonsson <pj@ludd.ltu.se>
-+Praveen BP <praveenbp@ti.com>
-+Rajesh Shah <rajesh.shah@intel.com>
-+Ralf Baechle <ralf@linux-mips.org>
-+Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
-+Rémi Denis-Courmont <rdenis@simphalempin.com>
-+Rudolf Marek <R.Marek@sh.cvut.cz>
-+Rui Saraiva <rmps@joel.ist.utl.pt>
-+Sachin P Sant <ssant@in.ibm.com>
-+Sam Ravnborg <sam@mars.ravnborg.org>
-+Simon Kelley <simon@thekelleys.org.uk>
-+Stéphane Witzmann <stephane.witzmann@ubpmes.univ-bpclermont.fr>
-+Stephen Hemminger <shemminger@osdl.org>
-+Tejun Heo <htejun@gmail.com>
-+Thomas Graf <tgraf@suug.ch>
-+Tony Luck <tony.luck@intel.com>
-+Tsuneo Yoshioka <Tsuneo.Yoshioka@f-secure.com>
-+Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-
---Boundary_(ID_XeWThRSIE4QE3RmRbBwVFg)--
+ 	pci_read_config_word(pdev, 0x0a, &cc);
+-	if (cc == 0x0101)
++	if (cc == PCI_CLASS_STORAGE_IDE)
+ 		scc_s = "IDE";
+-	else if (cc == 0x0106)
++	else if (cc == PCI_CLASS_STORAGE_SATA)
+ 		scc_s = "SATA";
+-	else if (cc == 0x0104)
++	else if (cc == PCI_CLASS_STORAGE_RAID)
+ 		scc_s = "RAID";
+ 	else
+ 		scc_s = "unknown";
+diff -Nur linux-2.6.20-rc1.orig/include/linux/pci_ids.h
+linux-2.6.20-rc1/include/linux/pci_ids.h
+--- linux-2.6.20-rc1.orig/include/linux/pci_ids.h	2006-12-20
+10:24:51.000000000 +0800
++++ linux-2.6.20-rc1/include/linux/pci_ids.h	2006-12-20 10:08:15.000000000 +0800
+@@ -15,6 +15,7 @@
+ #define PCI_CLASS_STORAGE_FLOPPY	0x0102
+ #define PCI_CLASS_STORAGE_IPI		0x0103
+ #define PCI_CLASS_STORAGE_RAID		0x0104
++#define PCI_CLASS_STORAGE_SATA		0x0106
+ #define PCI_CLASS_STORAGE_SAS		0x0107
+ #define PCI_CLASS_STORAGE_OTHER		0x018

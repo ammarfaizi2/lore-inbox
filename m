@@ -1,57 +1,114 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964902AbWLTGK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964915AbWLTGfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWLTGK2 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 01:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWLTGK2
+	id S964915AbWLTGfA (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 01:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWLTGfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 01:10:28 -0500
-Received: from mx2.suse.de ([195.135.220.15]:34514 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964902AbWLTGK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 01:10:26 -0500
-Date: Tue, 19 Dec 2006 22:09:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, "Hans J. Koch" <hjk@linutronix.de>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Benedikt Spranger <b.spranger@linutronix.de>
-Subject: Re: [-mm patch] make uio_irq_handler() static
-Message-ID: <20061220060959.GB31524@kroah.com>
-References: <20061214225913.3338f677.akpm@osdl.org> <20061216135654.GB3388@stusta.de>
+	Wed, 20 Dec 2006 01:35:00 -0500
+Received: from nz-out-0506.google.com ([64.233.162.231]:44983 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964915AbWLTGe7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 01:34:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=q5mKBddsn694nJ1z8YoIExbNRXXfFmLU1vyoMRPdLJT0GBddYqEcvNuil5okS4BENz7ncGX99vN3ZebO7OVTgQsoeuh8IflW+X8t9HSV+F+0JQv6viDljzFKY2ZzU7CvLOQsAKb5I8RZtyXM1wbJsnZxVa0r1VRk9VWgVi+1rJU=
+Message-ID: <66a17a7e0612192234o7a66668et58c11afd131c3554@mail.gmail.com>
+Date: Wed, 20 Dec 2006 01:34:59 -0500
+From: "meta link" <m3talink@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: downloading kernels w/ metalink (mirrors, checksums, signatures)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061216135654.GB3388@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2006 at 02:56:54PM +0100, Adrian Bunk wrote:
-> On Thu, Dec 14, 2006 at 10:59:13PM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-mm1:
-> >...
-> > +gregkh-driver-uio-irq.patch
-> > 
-> >  driver tree updates
-> >...
-> 
-> This patch makes the needlessly global uio_irq_handler() static.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.20-rc1-mm1/drivers/uio/uio_irq.c.old	2006-12-15 22:23:23.000000000 +0100
-> +++ linux-2.6.20-rc1-mm1/drivers/uio/uio_irq.c	2006-12-15 22:33:40.000000000 +0100
-> @@ -22,7 +22,7 @@
->  
->  static struct uio_device *uio_irq_idev;
->  
-> -irqreturn_t uio_irq_handler(int irq, void *dev_id)
-> +static irqreturn_t uio_irq_handler(int irq, void *dev_id)
->  {
->  	return IRQ_HANDLED;
->  }
+Hi,
 
-Thanks, I've applied this to my tree.
+This may not be as nice for kernels as for other downloads because of
+how nicely organized the kernel mirrors are, but maybe some people
+will be interested.
 
-greg k-h
+Metalink is a system which attempts to improve the download process by
+increasing availability and guaranteeing integrity. It can give your
+users a more reliable download by providing multiple links to the same
+file, which can be switched to if one server is down or fails during
+transmission. It can also make downloads faster by using multiple
+resources at once.
+
+Metalink lists mirrors with machine readable information on priority
+and location so their efficient use can be automated by download
+programs. It can list mirrors around the world, but will automatically
+default to mirrors closer to you and by priority. The checksum
+verification process, usually manual and arcane to most people, is
+automated with Metalink, so files are guaranteed to be an exact copy
+of the file you downloaded, free of errors. Metalinks can also contain
+publisher information, Operating System and architecture, language,
+file descriptions, mutliple files (to be added to a download queue),
+partial file checksums, and so on. All this extra information allows
+download programs to do interesting things.
+
+Linux Kernel Metalink downloads (All):
+http://download.packages.ro/metalink/kernel/
+More details..."Downloading bliss with Metalink":
+http://www.linux.com/article.pl?sid=06/11/01/1641247
+
+Partial example .metalink:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<metalink version="3.0" xmlns="http://www.metalinker.org/"
+  origin="http://prog.infosnel.nl/metalinks/kernel.php/kernel/v2.6/linux-2.6.19.tar.bz2.metalink"
+  generator="http://prog.infosnel.nl/metalinks/kernel.php">
+  <publisher>
+  	<name>Kernel.org</name>
+  	<url>http://kernel.org/</url>
+  </publisher>
+<files>
+	<file name="linux-2.6.19.tar.bz2">
+        <version>2.6.19</version>
+		<verification>
+                  <hash type="md5">443c265b57e87eadc0c677c3acc37e20</hash>
+			<signature type="pgp" file="linux-2.6.19.tar.bz2.sign" />
+		</verification>
+		<resources>
+			<url type="http" location="al"
+preference="10">http://www.al.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2</url>
+			<url type="ftp" location="al"
+preference="20">ftp://ftp.al.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2</url>
+			<url type="http" location="aq"
+preference="10">http://www.aq.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2</url>
+			<url type="http" location="ag"
+preference="10">http://www.ag.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2</url
+		</resources>
+	</file>
+	<file name="linux-2.6.19.tar.bz2.sign">
+		<resources>
+			<url type="http" location="al"
+preference="10">http://www.al.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2.sign</url>
+			<url type="ftp" location="al"
+preference="20">ftp://ftp.al.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2.sign</url>
+			<url type="http" location="aq"
+preference="10">http://www.aq.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2.sign</url>
+			<url type="http" location="ag"
+preference="10">http://www.ag.kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2.sign</url>
+		</resources>
+	</file>
+</files>
+</metalink>
+
+A real .metalink would list all mirrors.
+
+Metalink is supported by download managers on Mac, Unix, and Windows.
+
+aria2 ( http://aria2.sourceforge.net/ ) is a really nice command line
+client. You can use command line options to default to mirrors in a
+certain country (--metalink-location=XX) and other things.
+
+The main users of metalink are OpenOffice.org, openSUSE, Arch Linux,
+and other Linux distributions for ISO downloads.
+
+(( Anthony Bryan
+ )) Metalink [ http://www.metalinker.org ]

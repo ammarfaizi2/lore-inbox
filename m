@@ -1,107 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030363AbWLTVTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030326AbWLTVTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030363AbWLTVTl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 16:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWLTVTS
+	id S1030326AbWLTVTm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 16:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbWLTVTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 16:19:18 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41261 "HELO
+	Wed, 20 Dec 2006 16:19:41 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41349 "HELO
 	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965162AbWLTVTQ (ORCPT
+	by vger.kernel.org with SMTP id S1030326AbWLTVTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 16:19:16 -0500
+	Wed, 20 Dec 2006 16:19:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=UEI6E7T82z6N15Yc4tYl1v/ftP/9sHotOWdpUEevMo+w1ScwTxEixWo6uJaQ0iazVzUyL9r87oZ+pFS8t1jtoX4n6YOQh6pkcF+3aOFZX04TC84gTOY0UmHH8fsPN3U5nN130RgIgKR4k6lViu4rkZifh8b+vz/i3ILmuxmJTfo=  ;
-X-YMail-OSG: EYHwHCEVM1kHuaO1aoK_8eUAPvECHY0cKdpau3mcCaw2z__6HyU6VKJmkAoPLektilb2Zn75Jty999xIPKvE4Ry7LBzyLv4ul.NuFFTajBwuNepBsQqSiiL_AKP0lK2yUCkISfV5QiMoNiE-
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=b2gEuGh7VN2u4T2M6cQz1SuyaK9V1nnFD1YOY81wqlI8Ykf2eZMjLvNd/T7HmlFVyit66tPl/6w5+/ZKxcHQZ+/BgdB3sUWehvS86080WpAdNKmxtpSpMi5z006894IV+exmoC3ja3e2vY5WFuIuBSCVZKdXC3+KcvejYQQwTAw=  ;
+X-YMail-OSG: 2pwbXdsVM1mJBwK.Qw8OFvaxSK8gDCQzcQBoN2Pf6kIbNpNdle3d923RU2ztg5_VkQqHH3qQNppDLc2oYYfWP6LVBoyetnBCyv_ovFa2322U1X0Jm4JKMBtJC8hRUK35khVnHjXSyzQ58pg-
 From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.20-rc1 2/6] OMAP GPIO wrappers
-Date: Wed, 20 Dec 2006 13:09:44 -0800
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
+Date: Wed, 20 Dec 2006 13:18:06 -0800
 User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
-       pHilipp Zabel <philipp.zabel@gmail.com>
-References: <200611111541.34699.david-b@pacbell.net> <200612201304.03912.david-b@pacbell.net>
-In-Reply-To: <200612201304.03912.david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612192015.14587.david-b@pacbell.net> <20061220045604.GA20234@srcf.ucam.org>
+In-Reply-To: <20061220045604.GA20234@srcf.ucam.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612201309.45366.david-b@pacbell.net>
+Message-Id: <200612201318.06976.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This teaches OMAP how to implement the cross-platform GPIO interfaces.
+On Tuesday 19 December 2006 8:56 pm, Matthew Garrett wrote:
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> --- a/drivers/base/power/sysfs.c
+> +++ b/drivers/base/power/sysfs.c
+> @@ -46,7 +46,8 @@ static ssize_t state_store(struct device * dev, struct device_attribute *attr, c
+>  	int error = -EINVAL;
+>  
+>  	/* disallow incomplete suspend sequences */
+> -	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
+> +	if (dev->bus && dev->bus->pm_has_noirq_stage 
+> +	    && dev->bus->pm_has_noirq_stage(dev))
+>  		return error;
+>  
 
+I'm suspecting these two patches won't be merged, but this fragment has
+two bugs.  One is the whitespace bug already mentioned.  The other is that
+the original test must still be used if that bus primitve doesn't exist.
 
-Index: at91/include/asm-arm/arch-omap/gpio.h
-===================================================================
---- at91.orig/include/asm-arm/arch-omap/gpio.h	2006-12-19 01:45:33.000000000 -0800
-+++ at91/include/asm-arm/arch-omap/gpio.h	2006-12-19 02:06:11.000000000 -0800
-@@ -76,4 +76,58 @@ extern void omap_set_gpio_direction(int 
- extern void omap_set_gpio_dataout(int gpio, int enable);
- extern int omap_get_gpio_datain(int gpio);
- 
-+/*-------------------------------------------------------------------------*/
-+
-+/* wrappers for "new style" GPIO calls. the old OMAP-specfic ones should
-+ * eventually be removed (along with this errno.h inclusion), and maybe
-+ * gpios should put MPUIOs last too.
-+ */
-+
-+#include <asm/errno.h>
-+
-+static inline int gpio_request(unsigned gpio, const char *label)
-+	{ return omap_request_gpio(gpio); }
-+
-+static inline void gpio_free(unsigned gpio)
-+	{ omap_free_gpio(gpio); }
-+
-+
-+static inline int __gpio_set_direction(unsigned gpio, int is_input)
-+{
-+	if (cpu_class_is_omap2()) {
-+		if (gpio > OMAP_MAX_GPIO_LINES)
-+			return -EINVAL;
-+	} else {
-+		if (gpio > (OMAP_MAX_GPIO_LINES + 16 /* MPUIO */))
-+			return -EINVAL;
-+	}
-+	omap_set_gpio_direction(gpio, is_input);
-+	return 0;
-+}
-+
-+static inline int gpio_direction_input(unsigned gpio)
-+	{ return __gpio_set_direction(gpio, 1); }
-+
-+static inline int gpio_direction_output(unsigned gpio)
-+	{ return __gpio_set_direction(gpio, 0); }
-+
-+
-+static inline int gpio_get_value(unsigned gpio)
-+	{ return omap_get_gpio_datain(gpio); }
-+
-+static inline void gpio_set_value(unsigned gpio, int value)
-+	{ omap_set_gpio_dataout(gpio, value); }
-+
-+#include <asm-generic/gpio.h>		/* cansleep wrappers */
-+
-+static inline int gpio_to_irq(unsigned gpio)
-+	{ return OMAP_GPIO_IRQ(gpio); }
-+
-+static inline int irq_to_gpio(unsigned irq)
-+{
-+	if (cpu_class_is_omap1() && (irq < (IH_MPUIO_BASE + 16)))
-+		return (irq - IH_MPUIO_BASE) + OMAP_MAX_GPIO_LINES;
-+	return irq - IH_GPIO_BASE;
-+}
-+
- #endif
+And in a different vein, I'm a bit surprised that the update to the
+feature-removal-schedule.txt file is a separate patch, but:
+
+> +       bus->pm_has_noirq_stage()
+> -When:  July 2007
+> +When:  Once alternative functionality has been implemented
+
+The "When" shouldn't change.

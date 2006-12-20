@@ -1,214 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964865AbWLTD5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964869AbWLTD7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWLTD5W (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 22:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWLTD5V
+	id S964869AbWLTD7s (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 22:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWLTD7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 22:57:21 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:35848 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964865AbWLTD5V (ORCPT
+	Tue, 19 Dec 2006 22:59:48 -0500
+Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:26507 "HELO
+	smtp108.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964871AbWLTD7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 22:57:21 -0500
-Date: Tue, 19 Dec 2006 19:58:17 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Conke Hu" <conke.hu@gmail.com>
-Cc: "Jeff Garzik" <jeff@garzik.org>, Alan <alan@lxorguk.ukuu.org.uk>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add pci class code for SATA
-Message-Id: <20061219195817.c5db84c8.randy.dunlap@oracle.com>
-In-Reply-To: <5767b9100612191952o593a4c48w50f0d483533a3a09@mail.gmail.com>
-References: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
-	<1166551886.2977.5.camel@localhost.localdomain>
-	<45883E64.20400@garzik.org>
-	<5767b9100612191913p29675249v18803c65f536bda4@mail.gmail.com>
-	<5767b9100612191941n461f2b39k93d2cec43a31205a@mail.gmail.com>
-	<5767b9100612191952o593a4c48w50f0d483533a3a09@mail.gmail.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Tue, 19 Dec 2006 22:59:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=4UiSrwAOaE+ZZLp4w1Ijnd0W+AjZIPHnX9PDDNT3bgNdeXwGg/rOLgD6hMdWjVYDlOdBT6hWyDsmJfREcl2Z0uR1/2bZ4ILe8bfTanWdFEWXWc/H/i2Kic3cAbtifIpjCKyVc52CWJovm327PZ7mgWkaT/KiUmRpYI0/M2gVNXA=  ;
+X-YMail-OSG: YgoX7p8VM1ktTj_F6SOjSWk.Y8.LbN2lPvZExJK70QzNNYttxNo58lav6o1ypEv.6FIPsMlgkzZd4PlxZlxT.zEhcMKwxtCW00o5OuYPT5g5j1EOG_zKkCZZVPY7WbcM1wNsNycajbrv_Y1h2I7cQjiHA1fk.nS_CbVoM82fFiiY2Bo.pRPTT2qgCrJbQSeDsbX0xUsr8NOSqdk-
+From: David Brownell <david-b@pacbell.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: Changes to PM layer break userspace
+Date: Tue, 19 Dec 2006 19:59:42 -0800
+User-Agent: KMail/1.7.1
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191334.49760.david-b@pacbell.net> <20061220002546.GA17378@srcf.ucam.org>
+In-Reply-To: <20061220002546.GA17378@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612191959.43019.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 11:52:44 +0800 Conke Hu wrote:
+On Tuesday 19 December 2006 4:25 pm, Matthew Garrett wrote:
+> On Tue, Dec 19, 2006 at 01:34:49PM -0800, David Brownell wrote:
+> 
+> > Documentation/feature-removal-schedule.txt has warned about this since
+> > August, and the PM list has discussed how broken that model is numerous
+> > times over the past several years.  (I'm pretty sure that discussion has
+> > leaked out to LKML on occasion.)  It shouldn't be news today.
+> 
+> 1) feature-removal-schedule.txt says that it'll be removed in July 2007. 
+> This isn't July 2007.
 
-> On 12/20/06, Conke Hu <conke.hu@gmail.com> wrote:
-> > On 12/20/06, Conke Hu <conke.hu@gmail.com> wrote:
-> > > On 12/20/06, Jeff Garzik <jeff@garzik.org> wrote:
-> > > > Conke Hu wrote:
-> > > > > Add pci class code 0x0106 for SATA to pci_ids.h
-> > > > >
-> > > > > signed-off-by: conke.hu@gmail.com
-> > > > > --------------------
-> > > > > --- linux-2.6.20-rc1/include/linux/pci_ids.h.orig     2006-12-20
-> > > > > 01:58:30.000000000 +0800
-> > > > > +++ linux-2.6.20-rc1/include/linux/pci_ids.h  2006-12-20
-> > > > > 01:59:07.000000000 +0800
-> > > > > @@ -15,6 +15,7 @@
-> > > > >  #define PCI_CLASS_STORAGE_FLOPPY     0x0102
-> > > > >  #define PCI_CLASS_STORAGE_IPI                0x0103
-> > > > >  #define PCI_CLASS_STORAGE_RAID               0x0104
-> > > > > +#define PCI_CLASS_STORAGE_SATA               0x0106
-> > > > >  #define PCI_CLASS_STORAGE_SAS                0x0107
-> > > > >  #define PCI_CLASS_STORAGE_OTHER              0x0180
-> > > >
-> > > > Two comments:
-> > > >
-> > > > 1) I think "_SATA" is an inaccurate description.  It should be _AHCI AFAICS.
-> > > >
-> > > > 2) Typically we don't add constants unless they are used somewhere...
-> > > >
-> > > >         Jeff
-> > > >
-> > >
-> > > Hi Jeff,
-> > >     According to PCI spec 3.0, 0x0106 means SATA controller, 0x010601
-> > > means AHCI and 0x010600 means vendor specific SATA controller. Pls see
-> > > the following table (PCI spec 3.0 P296):
-> > >
-> > > Base Class      Sub-Class       Interface       Meaning
-> > > --------------------------------------------------------
-> > >                 00h             00h             SCSI bus controller
-> > >                 ------------------------------------------------
-> > >                 01h             xxh             IDE controller
-> > >                 -----------------------------------------------
-> > >                 02h             00h             Floppy disk controller
-> > >                 -----------------------------------------------------
-> > >                 03h             00h             IPI bus controller
-> > >                 --------------------------------------------------
-> > >                 04h             00h             RAID controller
-> > > 01h             ------------------------------------------------
-> > >                                 20h             ATA controller with ADMA interface
-> > >                 05h             ---------------------------------------------------
-> > >                                 30h             ATA controller with ADMA interface
-> > >                 -------------------------------------------------------------------
-> > >                                 00h             Serial ATA controller–vendor specific interface
-> > >                 06h             -----------------------------------------------------------------
-> > >                                 01h             Serial ATA controller–AHCI 1.0 interface
-> > >                 -------------------------------------------------------------------------
-> > >                 07h             00h             Serial Attached SCSI (SAS) controller
-> > >                 ---------------------------------------------------------------------
-> > >                 80h             00h             Other mass storage controller
-> > > ------------------------------------------------------------------------------
-> > >
-> > >
-> > > So, I think, the following macro is correct:
-> > > #define PCI_CLASS_STORAGE_SATA               0x0106
-> > > If you would define AHCI class code, it should be 0x010601, not 0x0106:
-> > > #define PCI_CLASS_STORAGE_SATA_AHCI               0x010601
-> > >
-> > > And, I think that PCI_CLASS_STORAGE_SATA had better be added to
-> > > pci_ids.h since the class code 0x0106 is used more than once. e.g.
-> > > ahci.c uses the magic number 0x0106 twice, and it might be used more
-> > > in future.
-> > >
-> > > Best regards,
-> > > Conke
-> > >
-> >
-> >
-> > Here is a patch to show more details:
-> > -----------------------------------
-> > diff -Nur linux-2.6.20-rc1.orig/drivers/ata/ahci.c
-> > linux-2.6.20-rc1/drivers/ata/ahci.c
-> > --- linux-2.6.20-rc1.orig/drivers/ata/ahci.c    2006-12-20 10:25:00.000000000 +0800
-> > +++ linux-2.6.20-rc1/drivers/ata/ahci.c 2006-12-20 10:13:24.000000000 +0800
-> > @@ -418,7 +418,7 @@
-> >
-> >         /* Generic, PCI class code for AHCI */
-> >         { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-> > -         0x010601, 0xffffff, board_ahci },
-> > +         PCI_CLASS_STORAGE_SATA<<8|1, 0xffffff, board_ahci },
-> >
-> >         { }     /* terminate list */
-> >  };
-> > @@ -1586,11 +1586,11 @@
-> >                 speed_s = "?";
-> >
-> >         pci_read_config_word(pdev, 0x0a, &cc);
-> > -       if (cc == 0x0101)
-> > +       if (cc == PCI_CLASS_STORAGE_IDE)
-> >                 scc_s = "IDE";
-> > -       else if (cc == 0x0106)
-> > +       else if (cc == PCI_CLASS_STORAGE_SATA)
-> >                 scc_s = "SATA";
-> > -       else if (cc == 0x0104)
-> > +       else if (cc == PCI_CLASS_STORAGE_RAID)
-> >                 scc_s = "RAID";
-> >         else
-> >                 scc_s = "unknown";
-> > diff -Nur linux-2.6.20-rc1.orig/include/linux/pci_ids.h
-> > linux-2.6.20-rc1/include/linux/pci_ids.h
-> > --- linux-2.6.20-rc1.orig/include/linux/pci_ids.h       2006-12-20
-> > 10:24:51.000000000 +0800
-> > +++ linux-2.6.20-rc1/include/linux/pci_ids.h    2006-12-20 10:08:15.000000000 +0800
-> > @@ -15,6 +15,7 @@
-> >  #define PCI_CLASS_STORAGE_FLOPPY       0x0102
-> >  #define PCI_CLASS_STORAGE_IPI          0x0103
-> >  #define PCI_CLASS_STORAGE_RAID         0x0104
-> > +#define PCI_CLASS_STORAGE_SATA         0x0106
-> >  #define PCI_CLASS_STORAGE_SAS          0x0107
-> >  #define PCI_CLASS_STORAGE_OTHER                0x018
-> >
-> 
-> 
-> or, pls see this one:
-> ------------------------
-> diff -Nur linux-2.6.20-rc1.orig/drivers/ata/ahci.c
-> linux-2.6.20-rc1/drivers/ata/ahci.c
-> --- linux-2.6.20-rc1.orig/drivers/ata/ahci.c	2006-12-20 10:25:00.000000000 +0800
-> +++ linux-2.6.20-rc1/drivers/ata/ahci.c	2006-12-20 11:45:45.000000000 +0800
-> @@ -418,7 +418,7 @@
-> 
->  	/* Generic, PCI class code for AHCI */
->  	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-> -	  0x010601, 0xffffff, board_ahci },
-> +	  PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci },
-> 
->  	{ }	/* terminate list */
->  };
-> @@ -1586,11 +1586,11 @@
->  		speed_s = "?";
-> 
->  	pci_read_config_word(pdev, 0x0a, &cc);
-> -	if (cc == 0x0101)
-> +	if (cc == PCI_CLASS_STORAGE_IDE)
->  		scc_s = "IDE";
-> -	else if (cc == 0x0106)
-> +	else if (cc == PCI_CLASS_STORAGE_SATA)
->  		scc_s = "SATA";
-> -	else if (cc == 0x0104)
-> +	else if (cc == PCI_CLASS_STORAGE_RAID)
->  		scc_s = "RAID";
->  	else
->  		scc_s = "unknown";
-> diff -Nur linux-2.6.20-rc1.orig/include/linux/pci_ids.h
-> linux-2.6.20-rc1/include/linux/pci_ids.h
-> --- linux-2.6.20-rc1.orig/include/linux/pci_ids.h	2006-12-20
-> 10:24:51.000000000 +0800
-> +++ linux-2.6.20-rc1/include/linux/pci_ids.h	2006-12-20 11:45:07.000000000 +0800
-> @@ -15,6 +15,8 @@
->  #define PCI_CLASS_STORAGE_FLOPPY	0x0102
->  #define PCI_CLASS_STORAGE_IPI		0x0103
->  #define PCI_CLASS_STORAGE_RAID		0x0104
-> +#define PCI_CLASS_STORAGE_SATA		0x0106
-> +#define PCI_CLASS_STORAGE_SATA_AHCI	0x010601
->  #define PCI_CLASS_STORAGE_SAS		0x0107
->  #define PCI_CLASS_STORAGE_OTHER		0x0180
-> 
-> 
-> BTW, the 2 patches above are just my suggestion, not formal patch. If
-> either of them is acceptible, I will send out a formal patch. Thanks!
+Which is why the functionality is still there.
 
-I prefer these changes...
 
-Thanks.
----
-~Randy
+> 2) The functionality was disabled in 2.6.19. The addition to 
+> feature-removal-schedule.txt was in, uh, 2.6.19.
+
+Please respond to the technical explanation I provided, and stop
+referring to the functionality ** which is still there and works **
+as being disabled.
+
+The fact that PCI exposes a mechanism that conflicts with that is
+a separate issue.
+
+Whining does not help.
+
+I can't help it if that schedule.txt patch took until 2.6.19 to get
+upstream; ISTR it was available before 2.6.18 shipped.  Maybe patches
+to that file should be accelerated, even into the stable series.
+
+ 
+> 3) "The whole _point_ of a kernel is to act as a abstraction layer and 
+> resource management between user programs and hardware/outside world. 
+> That's why kernels _exist_. Breaking user-land API's is thus by 
+> definition something totally idiotic.
+> 
+> If you need to break something, you create a new interface, and try to 
+> translate between the two, and maybe you deprecate the old one so that 
+> it can be removed once it's not in use any more. If you can't see that 
+> this is how a kernel should work, you're missing the point of having a 
+> kernel in the first place."
+> 
+> Linus, http://lkml.org/lkml/2006/10/4/327
+
+So I'm amused that the problem you refer to is the direct consequence
+of Linus' patch to add the suspend_late()/resume_early() mechanism
+into the PCI driver framework.  (Again, see the technical explanation;
+and please try to have a technical discussion, not a flamefest.)
+
+
+One of the missing steps in Linus' formulation there is that not all
+interfaces are equivalent in terms of support guarantee.  Bugs are
+interfaces, for example, and sometimes folk wrongly depend on them
+when they persist for a long time (like, cough, this one).
+
+His comment was specifically about breaking a widely used API that
+many people have been relying on since, oh, about 1996, and had been
+well proven in that time.  And the change was a "system doesn't work"
+level change.
+
+In contrast, the /sys/devices/.../power/state API has never had many
+users beyond developers trying to test their drivers (without taking
+the whole system into a low power state, which probably didn't work
+in any case), and has *always* been problematic.  And the change you
+object to doesn't "break" anything fundamental, either.  Everything
+still works.
+
+In terms of any reasonable expectations about support, those two
+changes aren't comparable.
+
+- Dave

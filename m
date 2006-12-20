@@ -1,90 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030352AbWLTUEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030344AbWLTUEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbWLTUEa (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWLTUEa
+	id S1030344AbWLTUEm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWLTUEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:04:30 -0500
-Received: from ns.suse.de ([195.135.220.2]:48913 "EHLO mx1.suse.de"
+	Wed, 20 Dec 2006 15:04:42 -0500
+Received: from ns2.suse.de ([195.135.220.15]:52876 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030343AbWLTUE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:04:29 -0500
+	id S1030344AbWLTUEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:04:41 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 1/3] kref refcnt and false positives
-Date: Wed, 20 Dec 2006 12:03:55 -0800
-Message-Id: <11666450372548-git-send-email-greg@kroah.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 3/3] Driver core: proper prototype for drivers/base/init.c:driver_init()
+Date: Wed, 20 Dec 2006 12:03:57 -0800
+Message-Id: <11666450471497-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.4.2
-In-Reply-To: <20061220200151.GC1698@kroah.com>
-References: <20061220200151.GC1698@kroah.com>
+In-Reply-To: <11666450412291-git-send-email-greg@kroah.com>
+References: <20061220200151.GC1698@kroah.com> <11666450372548-git-send-email-greg@kroah.com> <11666450412291-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+From: Adrian Bunk <bunk@stusta.de>
 
-With WARN_ON addition to kobject_init()
-[ http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19/2.6.19-mm1/dont-use/broken-out/gregkh-driver-kobject-warn.patch ]
+Add a prototype for driver_init() in include/linux/device.h.
 
-I started seeing following WARNING on CPU offline followed by online on my
-x86_64 system.
+Also remove a static function of the same name in drivers/acpi/ibm_acpi.c to
+ibm_acpi_driver_init() to fix the namespace collision.
 
-WARNING at lib/kobject.c:172 kobject_init()
-
-Call Trace:
- [<ffffffff8020ab45>] dump_trace+0xaa/0x3ef
- [<ffffffff8020aec4>] show_trace+0x3a/0x50
- [<ffffffff8020b0f6>] dump_stack+0x15/0x17
- [<ffffffff80350abc>] kobject_init+0x3f/0x8a
- [<ffffffff80350be1>] kobject_register+0x1a/0x3e
- [<ffffffff803bbd89>] sysdev_register+0x5b/0xf9
- [<ffffffff80211d0b>] mce_create_device+0x77/0xf4
- [<ffffffff80211dc2>] mce_cpu_callback+0x3a/0xe5
- [<ffffffff805632fd>] notifier_call_chain+0x26/0x3b
- [<ffffffff8023f6f3>] raw_notifier_call_chain+0x9/0xb
- [<ffffffff802519bf>] _cpu_up+0xb4/0xdc
- [<ffffffff80251a12>] cpu_up+0x2b/0x42
- [<ffffffff803bef00>] store_online+0x4a/0x72
- [<ffffffff803bb6ce>] sysdev_store+0x24/0x26
- [<ffffffff802baaa2>] sysfs_write_file+0xcf/0xfc
- [<ffffffff8027fc6f>] vfs_write+0xae/0x154
- [<ffffffff80280418>] sys_write+0x47/0x6f
- [<ffffffff8020963e>] system_call+0x7e/0x83
-DWARF2 unwinder stuck at system_call+0x7e/0x83
-Leftover inexact backtrace:
-
-This is a false positive as mce.c is unregistering/registering sysfs
-interfaces cleanly on hotplug.
-
-kref_put() and conditional decrement of refcnt seems to be the root cause
-for this and the patch below resolves the issue for me.
-
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- lib/kref.c |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
+ drivers/acpi/ibm_acpi.c |    4 ++--
+ include/linux/device.h  |    2 ++
+ init/main.c             |    2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/lib/kref.c b/lib/kref.c
-index 4a467fa..0d07cc3 100644
---- a/lib/kref.c
-+++ b/lib/kref.c
-@@ -52,12 +52,7 @@ int kref_put(struct kref *kref, void (*release)(struct kref *kref))
- 	WARN_ON(release == NULL);
- 	WARN_ON(release == (void (*)(struct kref *))kfree);
+diff --git a/drivers/acpi/ibm_acpi.c b/drivers/acpi/ibm_acpi.c
+index 003a987..5a84459 100644
+--- a/drivers/acpi/ibm_acpi.c
++++ b/drivers/acpi/ibm_acpi.c
+@@ -352,7 +352,7 @@ static char *next_cmd(char **cmds)
+ 	return start;
+ }
  
--	/*
--	 * if current count is one, we are the last user and can release object
--	 * right now, avoiding an atomic operation on 'refcount'
--	 */
--	if ((atomic_read(&kref->refcount) == 1) ||
--	    (atomic_dec_and_test(&kref->refcount))) {
-+	if (atomic_dec_and_test(&kref->refcount)) {
- 		release(kref);
- 		return 1;
- 	}
+-static int driver_init(void)
++static int ibm_acpi_driver_init(void)
+ {
+ 	printk(IBM_INFO "%s v%s\n", IBM_DESC, IBM_VERSION);
+ 	printk(IBM_INFO "%s\n", IBM_URL);
+@@ -1605,7 +1605,7 @@ static int fan_write(char *buf)
+ static struct ibm_struct ibms[] = {
+ 	{
+ 	 .name = "driver",
+-	 .init = driver_init,
++	 .init = ibm_acpi_driver_init,
+ 	 .read = driver_read,
+ 	 },
+ 	{
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 49ab53c..f44247f 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -433,6 +433,8 @@ static inline int device_is_registered(struct device *dev)
+ 	return dev->is_registered;
+ }
+ 
++void driver_init(void);
++
+ /*
+  * High level routines for use by the bus drivers
+  */
+diff --git a/init/main.c b/init/main.c
+index e3f0bb2..2b1cdaa 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -53,6 +53,7 @@
+ #include <linux/utsrelease.h>
+ #include <linux/pid_namespace.h>
+ #include <linux/compile.h>
++#include <linux/device.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -94,7 +95,6 @@ extern void pidmap_init(void);
+ extern void prio_tree_init(void);
+ extern void radix_tree_init(void);
+ extern void free_initmem(void);
+-extern void driver_init(void);
+ extern void prepare_namespace(void);
+ #ifdef	CONFIG_ACPI
+ extern void acpi_early_init(void);
 -- 
 1.4.4.2
 

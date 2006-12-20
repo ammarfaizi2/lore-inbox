@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932962AbWLTFey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932972AbWLTFkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932962AbWLTFey (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 00:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932972AbWLTFey
+	id S932972AbWLTFkG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 00:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932979AbWLTFkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 00:34:54 -0500
-Received: from mx1.suse.de ([195.135.220.2]:45410 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932962AbWLTFex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 00:34:53 -0500
-Date: Tue, 19 Dec 2006 21:34:17 -0800
-From: Greg KH <gregkh@suse.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Changes to PM layer break userspace
-Message-ID: <20061220053417.GA29877@suse.de>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612192114.49920.david-b@pacbell.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 20 Dec 2006 00:40:05 -0500
+Received: from mail.gmx.net ([213.165.64.20]:58526 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S932972AbWLTFkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 00:40:04 -0500
+X-Authenticated: #14349625
+Subject: Re: BUG: wedged processes, test program supplied
+From: Mike Galbraith <efault@gmx.de>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
+References: <787b0d920612191846t5a51a2e4ld4101b26ca7a8413@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 06:40:00 +0100
+Message-Id: <1166593200.1614.8.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 09:14:49PM -0800, David Brownell wrote:
-> On Tuesday 19 December 2006 8:26 pm, Matthew Garrett wrote:
-> > On Tue, Dec 19, 2006 at 07:59:42PM -0800, David Brownell wrote:
-> > It's perfectly reasonable to  
-> > refer to it as a flawed interface, or perhaps even a buggy one. But in 
-> > itself, it's clearly not a bug.
+On Tue, 2006-12-19 at 21:46 -0500, Albert Cahalan wrote:
+> Somebody PLEASE try this...
+
+I was having enough fun with cloninator (which was whitespace munged
+btw).
+
+> Normally, when a process dies it becomes a zombie.
+> If the parent dies (before or after the child), the child
+> is adopted by init. Init will reap the child.
 > 
-> This class of bug is also called a "design bug" or sometimes "mistake".
+> The program included below DOES NOT get reaped.
 
-Exactly, those "power" files actually pre-date the actual tree of
-devices itself.  They were just holders for what the original developer
-thought was going to be needed, but was never properly implemented due
-to some job changes (note, this was not myself...)
+While true wasn't a great test recommendation :)
 
-> > > In contrast, the /sys/devices/.../power/state API has never had many
-> > > users beyond developers trying to test their drivers (without taking
-> > > the whole system into a low power state, which probably didn't work
-> > > in any case), and has *always* been problematic.  And the change you
-> > > object to doesn't "break" anything fundamental, either.  Everything
-> > > still works.
-> > 
-> > It's used on every Ubuntu and Suse system,
-> 
-> Odd how the relevant Suse developers didn't mention any issues with
-> those files going away, any of the times problems with them were
-> discussed on the PM list.  Also, I have a Suse system that doesn't
-> use those files for anything ... maybe only newer release use it.
+	-Mike
 
-I would be very interested to see any newer SuSE programs using that
-interface.  Just point them out to me and I'll quickly fix them.
-
-And yes, as a SuSE developer (and one of the people in charge of the
-SuSE kernels), I have no problem with these files just going away.
-Because, as David keeps repeating, they are broken and wrong.
-
-thanks,
-
-greg k-h

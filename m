@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161022AbWLUB3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161130AbWLUBvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWLUB3m (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 20:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWLUB3m
+	id S1161130AbWLUBvL (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 20:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWLUBvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 20:29:42 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:46009 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161022AbWLUB3l (ORCPT
+	Wed, 20 Dec 2006 20:51:10 -0500
+Received: from toq3-srv.bellnexxia.net ([209.226.175.16]:37004 "EHLO
+	toq3-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161130AbWLUBvJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 20:29:41 -0500
-Date: Thu, 21 Dec 2006 01:29:24 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Message-ID: <20061221012924.GC32625@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612192015.14587.david-b@pacbell.net> <20061220045604.GA20234@srcf.ucam.org> <200612201318.06976.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 20 Dec 2006 20:51:09 -0500
+Date: Wed, 20 Dec 2006 18:52:16 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>
+Cc: ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 0/4] Linux Kernel Markers
+Message-ID: <20061220235216.GA28643@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200612201318.06976.david-b@pacbell.net>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 18:46:55 up 119 days, 20:54,  6 users,  load average: 0.65, 0.76, 0.63
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 01:18:06PM -0800, David Brownell wrote:
-> >  	/* disallow incomplete suspend sequences */
-> > -	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
-> > +	if (dev->bus && dev->bus->pm_has_noirq_stage 
-> > +	    && dev->bus->pm_has_noirq_stage(dev))
-> >  		return error;
-> >  
-> 
-> I'm suspecting these two patches won't be merged, but this fragment has
-> two bugs.  One is the whitespace bug already mentioned.
+Hi,
 
-I'm a bit curious about the whitespace issue - CodingStyle doesn't seem 
-to discuss what to do with if statements that end up longer than 80 
-characters, which is (I think) what you're talking about?
+You will find, in the following posts, the latest revision of the Linux Kernel
+Markers. Due to the need some tracing projects (LTTng, SystemTAP) has of this
+kind of mechanism, it could be nice to consider it for mainstream inclusion.
 
-> The other is that
-> the original test must still be used if that bus primitve doesn't exist.
+The following patches apply on 2.6.20-rc1-git7.
 
-I dislike that. We're asking to suspend an individual device - whether 
-the bus supports devices that need to suspend with interrupts disabled 
-is irrelevent, it's the device that we care about. We should just make 
-it necessary for every bus to support this method until the interface is 
-removed.
+Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
-> And in a different vein, I'm a bit surprised that the update to the
-> feature-removal-schedule.txt file is a separate patch, but:
-
-It seemed like a logically distinct change, but I'm happy to merge them.
-
-> > +       bus->pm_has_noirq_stage()
-> > -When:  July 2007
-> > +When:  Once alternative functionality has been implemented
-> 
-> The "When" shouldn't change.
-
-We shouldn't remove interfaces that userland uses until there's been a 
-replacement for long enough that userland can switch over. Setting a 
-date for removing this interface when most drivers don't implement the 
-replacement isn't reasonable.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

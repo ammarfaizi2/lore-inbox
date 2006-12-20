@@ -1,116 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1160996AbWLTXZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030418AbWLTX1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160996AbWLTXZx (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWLTXZx
+	id S1030418AbWLTX1a (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWLTX1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:25:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41265 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1030418AbWLTXZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:25:52 -0500
-Date: Thu, 21 Dec 2006 10:24:01 +1100
-From: David Chinner <dgc@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Martin Michlmayr <tbm@cyrius.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061220232401.GB44411608@melbourne.sgi.com>
-References: <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org> <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com> <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 20 Dec 2006 18:27:30 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:4264 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030418AbWLTX13 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 18:27:29 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL only modules
+Date: Wed, 20 Dec 2006 15:26:28 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEPOAHAC.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <7b69d1470612201508y609cd65fr8bfb007f667f4215@mail.gmail.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 20 Dec 2006 16:29:04 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 20 Dec 2006 16:29:05 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 11:50:50AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 20 Dec 2006, Linus Torvalds wrote:
-> > 
-> > So that's why I've been harping on the fact that I think we simply do 
-> > really wrong things with PG_dirty at times [ ... ]
-> 
-> Ok, I'll just put my money where my mouth is, and suggest a patch like 
-> THIS instead.
-> 
-> This one clears up all the issues I find irritating:
-> 
->  - "test_clear_page_dirty()" is insane, both conceptually and as an 
->    implementation. "Give me a 'C', give me an 'R', give me an 'A', give me 
->    a 'P'".
-> 
->    So rip out that mindfart entirely.
-> 
->  - "clear_page_dirty()" is badly named, and should be about CANCELLING the 
->    dirty bit, and must never be called with pages mapped anyway. So throw 
->    that out too, and replace it with a new function:
-> 
-> 	void cancel_dirty_page(struct page *page, unsigned int accounting_size);
-> 
->  - "clear_page_dirty_for_io()" is fine.
-> 
-> And with that, I then either rip out any old users of 
-> "test_clear_page_dirty()" or "clear_page_dirty()", and if appropriate (and 
-> it's realy lonly appropriate for "truncate()", I replace them with the new 
-> "cancel_dirty_page()". Most of the time, they should just be deleted 
-> entirely.
-> 
-> NOTE NOTE NOTE! I _only_ did enough to make things compile for my 
-> particular configuration. That means that right now the following 
-> filesystems are broken with this patch (because they use the totally 
-> broken old crap):
-> 
-> 	CIFS, FUSE, JFS, ReiserFS, XFS
+
+> > However, those restrictions do not affect those who did not
+> > agree to them.
+> > For example, if I buy such a JVM and don't agree to the license
+> > (assuming I
+> > don't have to agree to the license to lawfully acquire the
+> > JVM), I can give
+> > it to a friend along with any other software I want.
+
+> No
+
+Yes.
+
+> as with the language in the GPL, your right to distribute is
+> provided by the license you received with the JVM, so if you don't
+> accept it, you can't distribute.
+
+This is flat out self-contradiction. If my right is provided by the license,
+then I can distribute. If I don't accept the license, then how is my right
+to distribute provided by it?
+
+The paragraph you are saying "No" to is completely correct and your response
+is complete double-speak.
+
+> However, the first sale doctrine
+> provides a limited exception;
+
+Exactly. So the idea that you can't distribute a work unless you agree to
+its license is nonsense. With a license like the GPL, that is something that
+is not a shrink-wrap, click-through, or EULA, the license does not apply to
+anyone who does not agree to it. The GPL makes this totally clear in section
+5.
+
+If you don't accept the license, you simply don't get the additional rights
+the license offers. You still have all the rights you originally had.
+
+> if you got the JVM through an
+> unrestricted sale, then you would normally have the right to sell that
+> particular copy without any further license (though possibly not to
+> someone in a different part of the world).
+
+Your license to distribute is provided by the license if and only if you
+agree to the license. Otherwise, it's as if the license doesn't exist. You
+can get the right to distribute the work any other way that may be available
+to you. First sale is just one example.
+
+DS
 
 
-XFS appears to call clear_page_dirty to get the mapping tree dirty
-tag set correctly at the same time the page dirty flag is cleared. I
-note that this can be done by set_page_writeback() if we clear the
-dirty flag on the page first when we are writing back the entire page.
-
-Hence it seems to me that the XFS call to clear_page_dirty() could
-easily be substituted by clear_page_dirty_for_io() followed by a
-call to set_page_writeback() to get the mapping tree tags set
-correctly after the page has been marked clean.
-
-Does this make sense (even without the posted patch)?
-
----
- fs/xfs/linux-2.6/xfs_aops.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_aops.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/xfs/linux-2.6/xfs_aops.c	2006-12-19 12:22:47.000000000 +1100
-+++ 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_aops.c	2006-12-21 10:15:04.545375877 +1100
-@@ -340,9 +340,9 @@ xfs_start_page_writeback(
- {
- 	ASSERT(PageLocked(page));
- 	ASSERT(!PageWriteback(page));
--	set_page_writeback(page);
- 	if (clear_dirty)
--		clear_page_dirty(page);
-+		clear_page_dirty_for_io(page);
-+	set_page_writeback(page);
- 	unlock_page(page);
- 	if (!buffers) {
- 		end_page_writeback(page);
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group

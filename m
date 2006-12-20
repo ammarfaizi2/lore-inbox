@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964877AbWLTE13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964875AbWLTE3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWLTE13 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 23:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWLTE13
+	id S964875AbWLTE3I (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 23:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWLTE3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 23:27:29 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:46205 "EHLO
-	ms-smtp-03.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964878AbWLTE11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 23:27:27 -0500
-Subject: RE: GPL only modules [was Re: [GIT PATCH] more Driver core patches
-	for 2.6.19]
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
-References: <MDEHLPKNGKAHNMBLJOLKCEAPAGAC.davids@webmaster.com>
-	 <Pine.LNX.4.62.0612171109180.27120@pademelon.sonytel.be>
-Content-Type: text/plain
-Date: Tue, 19 Dec 2006 23:27:23 -0500
-Message-Id: <1166588843.17734.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Tue, 19 Dec 2006 23:29:08 -0500
+Received: from hera.kernel.org ([140.211.167.34]:56139 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964875AbWLTE3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 23:29:06 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Subject: Re: [patch 0/2] more patches for removable drive bay
+Date: Tue, 19 Dec 2006 23:28:32 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20061216144042.a994bf91.kristen.c.accardi@intel.com>
+In-Reply-To: <20061216144042.a994bf91.kristen.c.accardi@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612192328.32595.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-17 at 11:11 +0100, Geert Uytterhoeven wrote:
-> On Thu, 14 Dec 2006, David Schwartz wrote:
+Thanks for removing the new procfs code Kristen.
 
-> > That makes it clear that it's not about giving us the fruits of years of
-> > your own work but that it's about enabling us to do our own work. (I would
-> > have no objection to also requiring them to provide a minimal open-source
-> > driver. I'm not trying to work out the exact terms here, just get the idea
-> > out.)
+applied.
+-Len
+
+On Saturday 16 December 2006 17:40, Kristen Carlson Accardi wrote:
+> Hi Len,
+> Here's a set of patches for changing the removable drive bay driver
+> (drivers/acpi/bay) from using the old proc interface to using a sysfs
+> interface instead.  I made the bay driver a platform driver, and 
+> so it's entries will now be located in /sys/devices/platform/bay.X.
+> There are still 2 entries - one for checking whether the bay is
+> present (present) that is read only, and one that is write only for
+> ejecting the bay (eject).  Let me know if you would prefer me to fold
+> these into the original bay driver patch.
 > 
-> Since `works with' may sound a bit too vague, something like
-> `LinuxFriendly(tm)', with a happy penguin logo?
+> Thanks,
+> Kristen
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-
-I've bought a couple of products lately that had the happy penguin logo
-on it. Just to find out that they only applied a bare minimum
-functionality of the device for Linux. If you want more, you need to
-plug it into a Windows box.
-
-Funny, if you own a Mac, it had the same problem. It had a little more
-functionality than the Linux port, but still far from what they give for
-Windows.
-
-I like the Open Hardware thing that Paolo mentioned.
-
--- Steve
-

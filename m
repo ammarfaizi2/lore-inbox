@@ -1,102 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932865AbWLTBel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932926AbWLTBfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932865AbWLTBel (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 20:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWLTBel
+	id S932926AbWLTBfA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 20:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWLTBfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 20:34:41 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:55664 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932865AbWLTBek (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 20:34:40 -0500
-X-Sasl-enc: NIXXFP79KZDAXjoTV96ZJKpAeeTdcqvcxg8i7jDaoC4r 1166578474
-Message-ID: <4588940B.2020604@imap.cc>
-Date: Wed, 20 Dec 2006 02:38:19 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] hrtimers: add state tracking, fix
-References: <20061214225913.3338f677.akpm@osdl.org> <200612191815.kBJIFF4O018306@lx1.pxnet.com> <20061219195650.GA8797@elte.hu>
-In-Reply-To: <20061219195650.GA8797@elte.hu>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4E810FE41CC294C085C6043C"
+	Tue, 19 Dec 2006 20:35:00 -0500
+Received: from sp604002mt.neufgp.fr ([84.96.92.61]:53566 "EHLO sMtp.neuf.fr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932926AbWLTBe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Dec 2006 20:34:59 -0500
+X-Greylist: delayed 3601 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Dec 2006 20:34:59 EST
+Date: Wed, 20 Dec 2006 01:34:55 +0100
+From: Vincent Legoll <vlegoll@9online.fr>
+Subject: [patch 1/4] Add <linux/klog.h>
+To: zackw@panix.com
+Cc: linux-kernel@vger.kernel.org
+Message-id: <4588852F.4070703@9online.fr>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)"
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4E810FE41CC294C085C6043C
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
 
-Am 19.12.2006 20:56 schrieb Ingo Molnar:
-> thanks for the report - this made me review the hrtimer state engine=20
-> logic, and bingo, it indeed has a nasty typo! Could you try the fix=20
-> below, does it fix your problem? It might explain the crash you are=20
-> seeing, because the typo means we'd ignore HRTIMER_STATE_PENDING state =
+--Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
 
-> (which is rare but possible).
+Hello,
 
-Ok, the machine has been running for a couple of hours with that patch
-and so far hasn't frozen again. I'll watch it some more but it looks
-like your patch did indeed fix my problem.
+what about something along the lines of the following,
+on top of your patch ?
 
-Thanks
-Tilman
+Or should the kernel-doc be put on another function
+instead of that one ?
 
-> -------------------------->
-> Subject: [patch] hrtimers: add state tracking, fix
-> From: Ingo Molnar <mingo@elte.hu>
->=20
-> fix bug in hrtimer_is_queued(), introduced by a cleanup during
-> the recent refactoring.
->=20
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  kernel/hrtimer.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> Index: linux/kernel/hrtimer.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux.orig/kernel/hrtimer.c
-> +++ linux/kernel/hrtimer.c
-> @@ -157,7 +157,7 @@ static void hrtimer_get_softirq_time(str
->  static inline int hrtimer_is_queued(struct hrtimer *timer)
->  {
->  	return timer->state &
-> -		(HRTIMER_STATE_ENQUEUED || HRTIMER_STATE_PENDING);
-> +		(HRTIMER_STATE_ENQUEUED | HRTIMER_STATE_PENDING);
->  }
-> =20
->  /*
+-- 
+Vincent Legoll
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+--Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)
+Content-type: text/plain; name=do-syslog-kernel-doc
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=do-syslog-kernel-doc
 
+Add do_syslog() kernel-doc
 
---------------enig4E810FE41CC294C085C6043C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+---
+commit 95b0721d8b4b46ddf83113fe49492810d7d92060
+tree e2715a8cf7eb0d71b3bee2185a5cf98639d79d90
+parent de794d2dfd6dd0c38dd552020ac00c46e1df5293
+author Vincent Legoll <vincent.legoll@gmail.com> Wed, 20 Dec 2006 01:29:34 +0100
+committer Vincent Legoll <vincent.legoll@gmail.com> Wed, 20 Dec 2006 01:29:34 +0100
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+ kernel/printk.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
 
-iD8DBQFFiJQLMdB4Whm86/kRAgZ2AJ92+/OlIHxgoQDm3fcbbsgPXYQunACggkVH
-sEqoDKFjBRkC0F2lF1l/p8A=
-=E5g4
------END PGP SIGNATURE-----
+diff --git a/kernel/printk.c b/kernel/printk.c
+index 232467e..5416d07 100644
+--- a/kernel/printk.c
++++ b/kernel/printk.c
+@@ -164,7 +164,16 @@ out:
+ 
+ __setup("log_buf_len=", log_buf_len_setup);
+ 
+-/* See linux/klog.h for the command numbers passed as the first argument.  */
++/**
++ * do_syslog - operate on kernel messages log
++ * @type: operation to perform
++ * @buf: user-space buffer to copy data into
++ * @len: length of data to copy from log into @buf
++ *
++ * See include/linux/klog.h for the command numbers passed as @type.
++ * Parameters @buf & @len are only used for operations of type %KLOG_READ,
++ * %KLOG_READ_HIST and %KLOG_READ_CLEAR_HIST.
++ */
+ int do_syslog(int type, char __user *buf, int len)
+ {
+ 	unsigned long i, j, limit, count;
 
---------------enig4E810FE41CC294C085C6043C--
+--Boundary_(ID_02ZJNXwipOrTDjHjsA1odQ)--

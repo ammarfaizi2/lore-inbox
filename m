@@ -1,126 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964997AbWLTLjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965002AbWLTLmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWLTLjL (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 06:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWLTLjL
+	id S965002AbWLTLmB (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 06:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWLTLmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 06:39:11 -0500
-Received: from wx-out-0506.google.com ([66.249.82.225]:29328 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964997AbWLTLjJ (ORCPT
+	Wed, 20 Dec 2006 06:42:01 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:46370 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965002AbWLTLmA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 06:39:09 -0500
+	Wed, 20 Dec 2006 06:42:00 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bcmsFrN/qFV3YMhOpMFrRN9aIZ9KWmTUpvEH3147ImThJP7vSstRPbPr0d5LyNwh5PkaMZXlNjsvFIHmhk58DNAlh8k5lUf7MXxhKxCtsOfOeqiXN/5gx66W2JiAF8YpKwArXqmcsIeS4zeW91I6pk4l4PGok6ZcPt15iJObQ7k=
-Message-ID: <9a8748490612200339x4b50f0e1i3da4313bea85fbc6@mail.gmail.com>
-Date: Wed, 20 Dec 2006 12:39:09 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrei Popa" <andrei.popa@i-neo.ro>, "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
-       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
-       "Martin Michlmayr" <tbm@cyrius.com>,
-       "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
-       "Heiko Carstens" <heiko.carstens@de.ibm.com>,
-       "Arnd Bergmann" <arnd.bergmann@de.ibm.com>
-In-Reply-To: <1166614001.10372.205.camel@twins>
+        b=s7tPIlD41qu12F9uUWitDchA2waQD4uPS/RjVBAk9uUYat0N6Tkq6p0lDzpU5g6bqGOxiyenFfSxdknawzYMwzACQOQOLkxQvN9AaLKdzDUBMLIlkSK5qFC4Uc2Axn5sABU1z9WrK4j19Y+8EOe1B9jBI6u28AiKD6e3OWWDBr4=
+Message-ID: <5157576d0612200341r12358fcai17cd7315402a666b@mail.gmail.com>
+Date: Wed, 20 Dec 2006 14:41:58 +0300
+From: "Tomasz Kvarsin" <kvarsin@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [BUG] garbage instead of zeroes in UFS
+Cc: "Alexander Viro" <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org,
+       "Evgeniy Dushistov" <dushistov@mail.ru>
+In-Reply-To: <20061220030955.bd3acdbc.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1166314399.7018.6.camel@localhost>
-	 <1166468651.6983.6.camel@localhost>
-	 <Pine.LNX.4.64.0612181114160.3479@woody.osdl.org>
-	 <1166471069.6940.4.camel@localhost>
-	 <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <1166571749.10372.178.camel@twins>
-	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
-	 <1166605296.10372.191.camel@twins>
-	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
-	 <1166614001.10372.205.camel@twins>
+References: <5157576d0612200302j556694bfsfdc6cb0c37b054c@mail.gmail.com>
+	 <5157576d0612200304n7123157vc47c3c7c1a645527@mail.gmail.com>
+	 <20061220030955.bd3acdbc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20/12/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+On 12/20/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, 20 Dec 2006 14:04:06 +0300
+> "Tomasz Kvarsin" <kvarsin@gmail.com> wrote:
 >
-> fix page_mkclean_one()
+> > Forgot to say I use linux-2.6.20-rc1-mm1
+> >
+> > On 12/20/06, Tomasz Kvarsin <kvarsin@gmail.com> wrote:
+> > > I have some problems with write support of UFS.
+> > > Here is script which demonstrate problem:
+> > >
+> > > #create image
+> > > mkdir /tmp/ufs-expirements && cd /tmp/ufs-expirements/
+> > > for ((i=0; i<1024*1024*2; ++i)); do printf "z"; done > image
+> > >
+> > > #build ufs tools
+> > > wget 'http://heanet.dl.sourceforge.net/sourceforge/ufs-linux/ufs-tools-0.1.tar.bz2'
+> > > && tar xjf ufs-tools-0.1.tar.bz2 && cd ufs-tools-0.1
+> > > wget http://lkml.org/lkml/diff/2006/5/20/48/1 -O build.patch
+> > > patch -p1 < build.patch && make
+> > >
+> > > #create UFS file system on image
+> > > ./mkufs -O 1 -b 16384 -f 2048 ../image
+> > > cd .. && mkdir root
+> > > mount -t ufs image root -o loop,ufstype=44bsd
+> > > cd root/
+> > > touch a.txt
+> > > echo "END" > end.txt
+> > > dd if=./end.txt of=./a.txt bs=16384 seek=1
+> > >
+> > > and at the end content of "a.txt" not only  "END" and zeroes,
+> > > "a.txt" also contains "z".
+> > >
+> > > The real situation happened when I deleted big file,
+> > > and create new one with holes. This script just easy way to reproduce bug.
+> > >
 >
-> it had several issues:
->  - it failed to flush the cache
->  - it failed to flush the tlb
->  - it failed to do s390 (s390 guys, please verify this is now correct)
->
-> Also, clear in a loop to ensure SMP safeness as suggested by Arjan.
->
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> ---
->  mm/rmap.c |   29 +++++++++++++++--------------
->  1 file changed, 15 insertions(+), 14 deletions(-)
->
-> Index: linux-2.6/mm/rmap.c
-> ===================================================================
-> --- linux-2.6.orig/mm/rmap.c
-> +++ linux-2.6/mm/rmap.c
-> @@ -432,7 +432,7 @@ static int page_mkclean_one(struct page
->  {
->         struct mm_struct *mm = vma->vm_mm;
->         unsigned long address;
-> -       pte_t *pte, entry;
-> +       pte_t *ptep;
->         spinlock_t *ptl;
->         int ret = 0;
->
-> @@ -440,22 +440,23 @@ static int page_mkclean_one(struct page
->         if (address == -EFAULT)
->                 goto out;
->
-> -       pte = page_check_address(page, mm, address, &ptl);
-> -       if (!pte)
-> +       ptep = page_check_address(page, mm, address, &ptl);
-> +       if (!ptep)
->                 goto out;
->
-> -       if (!pte_dirty(*pte) && !pte_write(*pte))
-> -               goto unlock;
-> -
-> -       entry = ptep_get_and_clear(mm, address, pte);
-> -       entry = pte_mkclean(entry);
-> -       entry = pte_wrprotect(entry);
-> -       ptep_establish(vma, address, pte, entry);
-> -       lazy_mmu_prot_update(entry);
-> -       ret = 1;
-> +       while (pte_dirty(*ptep) || pte_write(*ptep)) {
-> +               pte_t entry = ptep_get_and_clear(mm, address, ptep);
-> +               flush_cache_page(vma, address, pte_pfn(entry));
-> +               flush_tlb_page(vma, address);
-> +               (void)page_test_and_clear_dirty(page); /* do the s390 thing */
-> +               entry = pte_wrprotect(entry);
-> +               entry = pte_mkclean(entry);
-> +               set_pte_at(vma, address, ptep, entry);
-> +               lazy_mmu_prot_update(entry);
-> +               ret = 1;
-> +       }
->
-Having the assignment of "ret = 1;" inside the loop seems a little
-pointless. Perhaps gcc can optimize it, but still, that assignment
-really only needs to happen once outside the loop.
-
-
-> -unlock:
-> -       pte_unmap_unlock(pte, ptl);
-> +       pte_unmap_unlock(ptep, ptl);
->  out:
->         return ret;
->  }
+> Does 2.6.20-rc1 have the same problem?
 >
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yes.
+Actually, if it is important,
+I start my searching of stable UFS write support from 2.6.10 + RH patches.
+It just hang up time to time,
+I try 2.6.19, it is pretty stable, but has this bug,
+2.6.20-rc1 has it.

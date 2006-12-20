@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964937AbWLTIut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964940AbWLTIvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWLTIut (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 03:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWLTIut
+	id S964940AbWLTIvn (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 03:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWLTIvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 03:50:49 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:38537 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964937AbWLTIut (ORCPT
+	Wed, 20 Dec 2006 03:51:43 -0500
+Received: from [202.112.49.247] ([202.112.49.247]:61425 "EHLO
+	netarchlab.tsinghua.edu.cn" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S964940AbWLTIvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 03:50:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qo2N2mLdJfE9uOIu8gQH3WE0x4ZVsRynViH0AYkiWeOXfth4fY/pdND3vBjGElxpWgZsqJxsu4dJwlkUjA9o2OTALfZ7JmcY4x0TVi4f8MjDRuXhwK6n/3UFiM8TCtZMS2Z84UB5aDGWqFbEsz1BWkJWAXBaef9LCU3IXC8UU8Q=
-Message-ID: <cda58cb80612200050h6def9866nf1798753da9d842d@mail.gmail.com>
-Date: Wed, 20 Dec 2006 09:50:46 +0100
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "Jaya Kumar" <jayakumar.lkml@gmail.com>
-Subject: Re: [RFC 2.6.19 1/1] fbdev,mm: hecuba/E-Ink fbdev driver v2
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <45a44e480612162025n5d7c77bdkc825e94f1fb37904@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Dec 2006 03:51:42 -0500
+X-Greylist: delayed 1706 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 03:51:41 EST
+Date: Wed, 20 Dec 2006 16:22:49 +0800
+From: "xlz" <xlz@netarchlab.tsinghua.edu.cn>
+To: "netfilter-devel" <netfilter-devel@lists.netfilter.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: A problem of netfilter HOOK point
+Message-ID: <200612201622446099344@netarchlab.tsinghua.edu.cn>
+X-mailer: Foxmail 6, 5, 104, 21 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612111046.kBBAkV8Y029087@localhost.localdomain>
-	 <457D895D.4010500@innova-card.com>
-	 <45a44e480612111554j1450f35ub4d9932e5cd32d4@mail.gmail.com>
-	 <cda58cb80612130038x6b81a00dv813d10726d495eda@mail.gmail.com>
-	 <45a44e480612162025n5d7c77bdkc825e94f1fb37904@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/17/06, Jaya Kumar <jayakumar.lkml@gmail.com> wrote:
-> Ok. I now see what you mean. In typical cases, only one path is used
-> to write. Meaning an app will decide to use the mmap path or the slow
-> write path and the kernel only ever reads from its pte entry (unless
-> fbcon is used which is not suited for this type of display).
+Hi,
+    I have a problem of the netfilter HOOK point. I load my handle function in HOOK point NF_IP6_LOCAL_OUT. But, its behavior is likely to be in the HOOK point NF_IP6_POST_ROUTING. The detail is shown as follows:
 
-Even if the kernel does only reads, you can be in trouble. For
-example, the kernel access (by reading) to a data A through the cache
-line 1. The application access (by writing a new value) data A through
-the cahe line 5. Now it's time to update your frame buffer, so the
-kernel access to data A through the cache line 1 which still contains
-the _stall_ value.
+	I configrue a 6to4 tunnel between two linux hosts (2.6 kernel) by adding a interface "6to4tun". The route table in one of the host is:
+		2002:c0a8:101::/48   dev 6to4tun
+		default              via   3ffe:250:cccc::1  dev eth0
+	The 6to4 tunnel works well before I load my own handle function in the hook point NF_IP6_LOCAL_OUT.
 
-Note that flushing data  before the kernel access it does not solve
-any problems. If the kernel is allowed to write into the frame buffer,
-the kernel don't know which line stores the up to date data...
+	In the hook point NF_IP6_LOCAL_OUT, my handle funtion changes the destination address of the packet from global ipv6 address (ex. 3ffe:250:cccd::2) to 6to4 address (ex. 2002:c0a8:101::1). In my expection, after changing the destination address in hook point NF_IP6_LOCAL_OUT, the host will look up the route table according the destination address, which is a 6to4 address. And then the host will send the packet from the interface "6to4tun". However, the experiment result is: the packets are sent from the interface eth0. It seems that the host looks up the route table according the global address. That means my own function seems to work in the hook point  NF_IP6_POST_ROUTING.
+	What is the problem?
+	
+	Thank you in advance for any help!
 
-> But you
-> are right that it is possible for a situation to arise where one app
-> does mmap and another is doing write.
+Lizhong Xie
+2006-12-20
 
-I would say that should be a safe case. Nornally the kernel takes care
-to flush caches between context switches (depending on your cache
-architecture). But it's only a guess, I haven't checked the code...
-
-> My hope is that something takes
-> care of flushing the data cache for me in this case. Do you recommend
-> I add something to force that?
-
-Well I'm not the right person to answer this question. I haven't
-looked at how Linux handles cache consistency yet. Knowing that I can
-give you only 2 recommandations:
-
-    - disable the cache when accessing your frame buffer (kernel and
-applications).
-
-    - when mmaping your frame buffer , be sure that the virtual
-address returned by
-      mmap() to the application shares the same cache lines than the
-ones the kernel
-      is using.
-
-Hoping it helps,
--- 
-               Franck

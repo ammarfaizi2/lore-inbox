@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965008AbWLTUxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030353AbWLTUxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbWLTUxG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWLTUxG
+	id S1030353AbWLTUxi (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWLTUxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:53:06 -0500
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:59611 "EHLO
-	clueserver.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965012AbWLTUxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:53:04 -0500
-X-Greylist: delayed 1534 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 15:53:03 EST
-Date: Wed, 20 Dec 2006 12:27:28 -0800 (PST)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@blackbox.fnordora.org
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Alan <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lord of the code! [was: GPL only modules [was Re: [GIT PATCH]
- more Driver core patches for 2.6.19]]
-In-Reply-To: <1166643999.852.2.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0612201226380.23352@blackbox.fnordora.org>
-References: <1166226982.12721.78.camel@localhost> 
- <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> 
- <20061216012721.47be92f3@localhost.localdomain> <1166643999.852.2.camel@localhost.localdomain>
+	Wed, 20 Dec 2006 15:53:37 -0500
+Received: from gw.goop.org ([64.81.55.164]:59101 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030353AbWLTUxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:53:36 -0500
+Message-ID: <4589A2CD.2020108@goop.org>
+Date: Wed, 20 Dec 2006 12:53:33 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Frederik Deweerdt <deweerdt@free.fr>
+CC: Andrew Morton <akpm@osdl.org>,
+       "Andrew J. Barr" <andrew.james.barr@gmail.com>,
+       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       walt <w41ter@gmail.com>
+Subject: Re: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda
+ changes (was Re: BUG on 2.6.20-rc1 when using gdb)
+References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org> <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org> <20061220183521.GA28900@slug> <45898D4E.1030507@goop.org> <20061220204226.GB28900@slug>
+In-Reply-To: <20061220204226.GB28900@slug>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006, Steven Rostedt wrote:
+Frederik Deweerdt wrote:
+> It works too, thanks. BTW, I wondered if the "case GS:" in getreg() made
+> sense now?
 
-> On Sat, 2006-12-16 at 01:27 +0000, Alan wrote:
->
->>> blather and idiotic hogwash. "Information" doesn't want to be free,
->> nor is
->>> it somethign you should fight for or necessarily even encourage.
->>
->> As a pedant that is the one item I have to pick you up on Linus.
->> Information wants to be free, the natural efficient economic state of
->> information is generally free in both senses.
->
-> "Remember Frodo, It wants to be free^Wfound"
+Sorry, what do you mean?  It looks OK to me, but I'm not sure what
+you're referring to.
 
-"Information does not want to be free. It wants to be tied up and 
-spanked."
-
-> Sorry, couldn't resist...
-
-Neither could I. ]:>
-
--- 
-Q: Why do programmers confuse Halloween and Christmas?
-A: Because OCT 31 == DEC 25
+    J

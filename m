@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965164AbWLTVUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030317AbWLTVVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbWLTVUQ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 16:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWLTVTr
+	id S1030317AbWLTVVH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 16:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWLTVTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 16:19:47 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41296 "HELO
+	Wed, 20 Dec 2006 16:19:43 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:41333 "HELO
 	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030290AbWLTVTT (ORCPT
+	by vger.kernel.org with SMTP id S1030324AbWLTVTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 16:19:19 -0500
+	Wed, 20 Dec 2006 16:19:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Nm7BDR0H9hG2sLick8BEXUAYX4/CojXwqPQME8JeJRo+4ApYIKcME8NkTugghaxheWoTz53Zh+Y8RjWcqroNrgJNlPlJWsfqrtpOXZI2HA965wmaAK3wE/wQigWSw9Z3pS/FTSVKTwNdM10GM4McdkllS4jY03unrOo+2LiPcHg=  ;
-X-YMail-OSG: crbOizQVM1lnj2GsaLFAacdAQToRCGp5zGQ14ODA5ZqXukDYMorWz0FZx2L1qa.gI3rXY3pv_hIJFjfACSbGLEozVGqLuF9W96DJNMyqRzSgPIPnXlhtdG13MJfs43MS07L0hMNCs.qdAwAy46XVJ9m0nKOGng3gzEA-
+  b=fg1JIapLvQ0SIiNBmlzFYdVtBboJQLrlpDu+/wEbZFbvZrkKcN2ABDdz+YMHzXVkGY3fTJ6cTusz2Kyukc2JY6+Ur31a2Dfbf72w9x1k4qMqC4Wq8CMHPvrCzyU6GrBYy2YyYcQIfoeaBN44kOwNHbyIfeCAH8cbzeb9P8zBXJo=  ;
+X-YMail-OSG: VlX9R6EVM1kU9lJI8npb90o1i8CAUrLsryUaVUVgygNculC0qk1bUOuTq2srxamk3oxiZdgbdFKCi27k.9unLQ1KBH0sz.00ToHhpZZCUFXmEHAjeUFYcP4Riwf.0zY6brQHpH7gbmvNZm7_hJ27SI6I_gE_3KsLi.d3
 From: David Brownell <david-b@pacbell.net>
 To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
-Date: Wed, 20 Dec 2006 13:12:35 -0800
+Subject: [patch 2.6.20-rc1 6/6] S3C2410 GPIO wrappers
+Date: Wed, 20 Dec 2006 13:14:18 -0800
 User-Agent: KMail/1.7.1
 Cc: Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
        Bill Gatliff <bgat@billgatliff.com>,
@@ -33,23 +33,23 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612201312.36616.david-b@pacbell.net>
+Message-Id: <200612201314.19905.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arch-neutral GPIO calls for PXA.
+Arch-neutral GPIO calls for S3C24xx.
 
 From: Philipp Zabel <philipp.zabel@gmail.com>
 
-Index: at91/include/asm-arm/arch-pxa/gpio.h
+Index: at91/include/asm-arm/arch-s3c2410/gpio.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ at91/include/asm-arm/arch-pxa/gpio.h	2006-12-19 02:06:39.000000000 -0800
-@@ -0,0 +1,72 @@
++++ at91/include/asm-arm/arch-s3c2410/gpio.h	2006-12-19 02:05:52.000000000 -0800
+@@ -0,0 +1,65 @@
 +/*
 + * linux/include/asm-arm/arch-pxa/gpio.h
 + *
-+ * PXA GPIO wrappers for arch-neutral GPIO calls
++ * S3C2400 GPIO wrappers for arch-neutral GPIO calls
 + *
 + * Written by Philipp Zabel <philipp.zabel@gmail.com>
 + *
@@ -90,31 +90,24 @@ Index: at91/include/asm-arm/arch-pxa/gpio.h
 +
 +static inline int gpio_direction_input(unsigned gpio)
 +{
-+	if (gpio > PXA_LAST_GPIO)
-+		return -EINVAL;
-+	pxa_gpio_mode(gpio | GPIO_IN);
++	s3c2410_gpio_cfgpin(gpio, S3C2410_GPIO_INPUT);
++	return 0;
 +}
 +
 +static inline int gpio_direction_output(unsigned gpio)
 +{
-+	if (gpio > PXA_LAST_GPIO)
-+		return -EINVAL;
-+	pxa_gpio_mode(gpio | GPIO_OUT);
++	s3c2410_gpio_cfgpin(gpio, S3C2410_GPIO_OUTPUT);
++	return 0;
 +}
 +
-+/* REVISIT these macros are correct, but suffer code explosion
-+ * for non-constant parameters.  Provide out-line versions too.
-+ */
-+#define gpio_get_value(gpio) \
-+	(GPLR(gpio) & GPIO_bit(gpio))
-+
-+#define gpio_set_value(gpio,value) \
-+	((value) ? (GPSR(gpio) = GPIO_bit(gpio)):(GPCR(gpio) = GPIO_bit(gpio)))
++#define gpio_get_value(gpio)		s3c2410_gpio_getpin(gpio)
++#define gpio_set_value(gpio,value)	s3c2410_gpio_setpin(gpio, value)
 +
 +#include <asm-generic/gpio.h>			/* cansleep wrappers */
 +
-+#define gpio_to_irq(gpio)	IRQ_GPIO(gpio)
-+#define irq_to_gpio(irq)	IRQ_TO_GPIO(irq)
++/* FIXME or maybe s3c2400_gpio_getirq() ... */
++#define gpio_to_irq(gpio)		s3c2410_gpio_getirq(gpio)
 +
++/* FIXME implement irq_to_gpio() */
 +
 +#endif

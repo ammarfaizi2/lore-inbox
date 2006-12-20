@@ -1,62 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030394AbWLTWUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030185AbWLTWWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbWLTWUp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 17:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWLTWUp
+	id S1030185AbWLTWWJ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 17:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWLTWWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 17:20:45 -0500
-Received: from blue.stonehenge.com ([209.223.236.162]:31875 "EHLO
-	blue.stonehenge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030382AbWLTWUo (ORCPT
+	Wed, 20 Dec 2006 17:22:09 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:29517 "EHLO
+	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1030185AbWLTWWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 17:20:44 -0500
-X-Greylist: delayed 925 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 17:20:44 EST
+	Wed, 20 Dec 2006 17:22:07 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [BUG] daemon.c blows up on OSX (was Re: What's in git.git (stable), and Announcing GIT 1.4.4.3)
-References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
-	<86vek6z0k2.fsf@blue.stonehenge.com>
-	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
-x-mayan-date: Long count = 12.19.13.16.7; tzolkin = 8 Manik; haab = 0 Kankin
-From: merlyn@stonehenge.com (Randal L. Schwartz)
-Date: 20 Dec 2006 14:20:42 -0800
-In-Reply-To: <Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
-Message-ID: <86irg6yzt1.fsf_-_@blue.stonehenge.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Martin Michlmayr <tbm@cyrius.com>, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+In-Reply-To: <1166652901.30008.1.camel@twins>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	 <1166605296.10372.191.camel@twins>
+	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	 <1166614001.10372.205.camel@twins>
+	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	 <1166622979.10372.224.camel@twins>
+	 <20061220170323.GA12989@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	 <20061220175309.GT30106@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+	 <1166652901.30008.1.camel@twins>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 23:20:34 +0100
+Message-Id: <1166653234.30008.4.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
+On Wed, 2006-12-20 at 23:15 +0100, Peter Zijlstra wrote:
+> I think this is also needed:
 
->> Is this really in master?  I'm still seeing one-hour times on
->> my Mac, using 8336afa563fbeff35e531396273065161181f04c.
+See also:
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=116603599904278&w=2
 
-Linus> Master right  now is at 54851157ac.
+> ---
+>  mm/truncate.c |    7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+> 
+> Index: linux-2.6/mm/truncate.c
+> ===================================================================
+> --- linux-2.6.orig/mm/truncate.c
+> +++ linux-2.6/mm/truncate.c
+> @@ -320,19 +320,14 @@ invalidate_complete_page2(struct address
+>  	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
+>  		return 0;
+>  
+> +	cancel_dirty_page(page, PAGE_CACHE_SIZE);
+>  	lock_page_ref_irq(page);
+> -	if (PageDirty(page))
+> -		goto failed;
+> -
+>  	BUG_ON(PagePrivate(page));
+>  	__remove_from_page_cache(page);
+>  	unlock_page_ref_irq(page);
+>  	ClearPageUptodate(page);
+>  	page_cache_release(page);	/* pagecache ref */
+>  	return 1;
+> -failed:
+> -	unlock_page_ref_irq(page);
+> -	return 0;
+>  }
+>  
+>  /**
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Yeah, 54 objects just pulled down.  Here we go.  Time for a test...
-
-Nope... can't compile:
-
-    gcc -o daemon.o -c -g -O2 -Wall  -I/sw/include -I/opt/local/include -DSHA1_HEADER='<openssl/sha.h>' -DNO_STRLCPY daemon.c
-    daemon.c: In function 'parse_extra_args':
-    daemon.c:414: warning: implicit declaration of function 'strncasecmp'
-    daemon.c: In function 'socksetup':
-    daemon.c:766: error: 'NI_MAXSERV' undeclared (first use in this function)
-    daemon.c:766: error: (Each undeclared identifier is reported only once
-    daemon.c:766: error: for each function it appears in.)
-    daemon.c:766: warning: unused variable 'pbuf'
-    daemon.c: In function 'serve':
-    daemon.c:970: warning: implicit declaration of function 'initgroups'
-    make: *** [daemon.o] Error 1
-
-This smells like we've seen this before.  Regression introduced with
-some of the cleanup?
-
--- 
-Randal L. Schwartz - Stonehenge Consulting Services, Inc. - +1 503 777 0095
-<merlyn@stonehenge.com> <URL:http://www.stonehenge.com/merlyn/>
-Perl/Unix/security consulting, Technical writing, Comedy, etc. etc.
-See PerlTraining.Stonehenge.com for onsite and open-enrollment Perl training!

@@ -1,116 +1,134 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965159AbWLTXni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965166AbWLTXqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965159AbWLTXni (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWLTXni
+	id S965166AbWLTXqm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWLTXqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:43:38 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:32151 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965159AbWLTXnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:43:37 -0500
-Message-ID: <4589CA9C.80007@chelsio.com>
-Date: Wed, 20 Dec 2006 15:43:24 -0800
-From: Divy Le Ray <divy@chelsio.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Divy Le Ray <None@chelsio.com>, jeff@garzik.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
-Subject: Re: [PATCH 2/10] cxgb3 - main source file
-References: <20061220124134.6299.29373.stgit@localhost.localdomain> <1166623330.3365.1397.camel@laptopd505.fenrus.org>
-In-Reply-To: <1166623330.3365.1397.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Dec 2006 23:43:26.0514 (UTC) FILETIME=[A4FAD120:01C72490]
+	Wed, 20 Dec 2006 18:46:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42379 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965166AbWLTXql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 18:46:41 -0500
+Date: Thu, 21 Dec 2006 10:46:02 +1100
+From: David Chinner <dgc@sgi.com>
+To: "Mr. Berkley Shands" <bshands@exegy.com>
+Cc: linux-kernel@vger.kernel.org, Dave Lloyd <dlloyd@exegy.com>,
+       xfs@oss.sgi.com
+Subject: Re: 2.6.19 xfs crash spawns tcp reclen errors off nfs
+Message-ID: <20061220234602.GC44411608@melbourne.sgi.com>
+References: <4589A32A.7030802@exegy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4589A32A.7030802@exegy.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
+On Wed, Dec 20, 2006 at 02:55:06PM -0600, Mr. Berkley Shands wrote:
+> We have had several really strange NFS issues, reported out of
+> net/sunrpc/svcsock.c in
+> 
+> static int
+> svc_tcp_recvfrom(struct svc_rqst *rqstp)
+> 
+>        svsk->sk_reclen &= 0x7fffffff;
+>        dprintk("svc: TCP record, %d bytes\n", svsk->sk_reclen);
+>        if (svsk->sk_reclen > serv->sv_bufsz) {
+>            printk(KERN_NOTICE "RPC: bad TCP reclen 0x%08lx (large)\n",
+>                   (unsigned long) svsk->sk_reclen);
+>            printk(KERN_NOTICE "sockaddr_in 0x%04x port 0x%04x max 
+> 0x%08lx\n",
+>               rqstp->rq_addr.sin_addr.s_addr,
+>               rqstp->rq_addr.sin_port, (long) serv->sv_bufsz);
+>            goto err_delete;
+>        }
+> 
+> The size reported grows, and grows, and...
+> 
+> the server runs 2.6.19 when XFS has its issues (as follows)
+> 2TB partition, NFS exported. All machines are x86_64 AMD 275's with 16GB
+> and running redhat AS 4.4 (Centos 4.4)
+> 
+> a typical crash under 2.6.19 is
+> 
+> Dec 14 09:13:48 sanandreas kernel: Filesystem "sdb1": XFS internal error 
+> xfs_trans_cancel at line 1138 of file fs/xfs/xfs_trans.c.  Caller 
+> 0xffffffff881ceaa8
 
-Thanks for the review. Please see my replies inline.
+Hmmmm - that is showing up up a lot more frequently in 2.6.18 and 2.6.19
+that we've ever seen before. Kind of strange given we haven't
+changed anything the create transaction code for quite some time.
 
-Arjan van de Ven wrote:
->> +/*
->> + * Interrupt handler for asynchronous events used with MSI-X.
->> + */
->> +static irqreturn_t t3_async_intr_handler(int irq, void *cookie)
->> +{
->> +	t3_slow_intr_handler(cookie);
->> +	return IRQ_HANDLED;
->> +}
->
-> this looks very wrong; why is t3_slow_intr_handler a void rather than
-> returning IRQ_HANDLED etc? And why wrap around it ?
-t3_slow_intr_handler() processes non-data events such as board errors.
-In line interupt and MSI mode, the intr handler deals with both data
-and non-data events and calls t3_slow_intr_handler for the latter.
-In MSI-X mode, t3_async_intr_handler() is registered to deal with these
-non-data interrupts exclusively.
+However, a machine named "sanandreas" is bound to go kaboom
+at some point in time ;)
 
->> +
->> +static ssize_t attr_show(struct class_device *cd, char *buf,
->> +			 ssize_t(*format) (struct adapter *, char *))
->> +{
->> +	ssize_t len;
->> +	struct adapter *adap = to_net_dev(cd)->priv;
->> +
->> +	/* Synchronize with ioctls that may shut down the device */
->> +	rtnl_lock();
->> +	len = (*format) (adap, buf);
->> +	rtnl_unlock();
->> +	return len;
->> +}
->
-> I'm usually kind of nervous with drivers taking the rtnl_lock; to me
-> that sounds like a layering violation.. why shouldn't your attributes
-> etc live in the net layer instead?
+> this then causes the heavy write clients to write garbage NFS request that
+> grow...
 
-These attributes are really device specific.
-The net layer does not support device specific attributes.
+XFS will be returning an EUCLEAN or EIO to indicate the filesystem
+has been shut down to all these write calls. Sounds like the clients
+aren't handling the errors properly....
 
->> +#ifdef ETHTOOL_GPERMADDR
->> +	.get_perm_addr = ethtool_op_get_perm_addr
->> +#endif
->
-> what is this ifdef for?
-it will be removed.
->> +static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
->> +{
->> +	int ret;
->> +	u32 cmd;
->> +	struct adapter *adapter = dev->priv;
->> +
->> +	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
->> +		return -EFAULT;
->> +
->> +	switch (cmd) {
->> +	case CHELSIO_SETREG:{
->
-> what are these for ?
-They are used to parameter the HW:
-register access, configuration of queue sets, on board memory 
-configuration,
-firmware load, etc ...
->> +
->> +	/*
->> +	 * Can't use pci_request_regions() here because some kernels want to
->> +	 * request the MSI-X BAR in pci_enable_msix.
->
-> are these "some kernels" actual current mainline kernels?
-Will fix both comment and related code.
->> +	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
->> +		pci_using_dac = 1;
->> +		err = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
->> +		if (err) {
->> +			dev_err(&pdev->dev, "unable to obtain 64-bit DMA for "
->> +			       "coherent allocations\n");
->> +			goto out_release_regions;
->
-> this looks wrong; if you can't get 64 bit coherent allocs but can get 32
-> bit ones.. why error out ?
-This is how most of the existing drivers behave.
+> Neil Brown indicated that this NFS packet growth should have been fixed in
+> 2.6.18-rc5, but it still happens, easily triggered by the XFS shutdown.
+> the packet sizes reported can grow to > 1GB.
+> Dropping back to 2.6.18.1 stops the XFS crashing, and hence stops the 
+> NFS mess.
+
+Do you have any idea of the workload that is triggering the XFS shutdown?
+
+We need more error reporting traps in the create transaction so we can
+track this down. As a first pass to narrowing down which code path
+is failing, can you run this quick patch - we should get an extra line
+in the kernel output just before the shutdown indicating what the error
+was and which branch returned it.
 
 Cheers,
-Divy
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group
+
+---
+ fs/xfs/xfs_vnodeops.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+Index: 2.6.x-xfs-new/fs/xfs/xfs_vnodeops.c
+===================================================================
+--- 2.6.x-xfs-new.orig/fs/xfs/xfs_vnodeops.c	2006-12-12 12:05:21.000000000 +1100
++++ 2.6.x-xfs-new/fs/xfs/xfs_vnodeops.c	2006-12-21 10:40:22.341657119 +1100
+@@ -1932,6 +1932,7 @@ xfs_create(
+ 	error = xfs_trans_reserve(tp, resblks, XFS_CREATE_LOG_RES(mp), 0,
+ 			XFS_TRANS_PERM_LOG_RES, XFS_CREATE_LOG_COUNT);
+ 	if (error == ENOSPC) {
++		printk(KERN_WARNING "xfs_create: resv at enospc\n");
+ 		resblks = 0;
+ 		error = xfs_trans_reserve(tp, 0, XFS_CREATE_LOG_RES(mp), 0,
+ 				XFS_TRANS_PERM_LOG_RES, XFS_CREATE_LOG_COUNT);
+@@ -1962,6 +1963,7 @@ xfs_create(
+ 			rdev, credp, prid, resblks > 0,
+ 			&ip, &committed);
+ 	if (error) {
++		printk(KERN_WARNING "xfs_create: dir_ialloc error %d\n", error);
+ 		if (error == ENOSPC)
+ 			goto error_return;
+ 		goto abort_return;
+@@ -1991,6 +1993,7 @@ xfs_create(
+ 					resblks - XFS_IALLOC_SPACE_RES(mp) : 0);
+ 	if (error) {
+ 		ASSERT(error != ENOSPC);
++		printk(KERN_WARNING "xfs_create: dir_createname error %d\n", error);
+ 		goto abort_return;
+ 	}
+ 	xfs_ichgtime(dp, XFS_ICHGTIME_MOD | XFS_ICHGTIME_CHG);
+@@ -2025,6 +2028,7 @@ xfs_create(
+ 	error = xfs_bmap_finish(&tp, &free_list, first_block, &committed);
+ 	if (error) {
+ 		xfs_bmap_cancel(&free_list);
++		printk(KERN_WARNING "xfs_create: xfs_bmap_finish error %d\n", error);
+ 		goto abort_rele;
+ 	}
+ 

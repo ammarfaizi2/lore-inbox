@@ -1,17 +1,16 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161036AbWLTX6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965170AbWLTX7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWLTX6H (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWLTX6G
+	id S965170AbWLTX7g (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWLTX7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:58:06 -0500
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:57501 "EHLO
-	tomts43-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161038AbWLTX6E (ORCPT
+	Wed, 20 Dec 2006 18:59:36 -0500
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:59220 "EHLO
+	tomts20-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965160AbWLTX7f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:58:04 -0500
-X-Greylist: delayed 346 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 18:58:04 EST
-Date: Wed, 20 Dec 2006 18:57:57 -0500
+	Wed, 20 Dec 2006 18:59:35 -0500
+Date: Wed, 20 Dec 2006 18:59:30 -0500
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
@@ -20,8 +19,8 @@ Cc: ltt-dev@shafik.org, systemtap@sources.redhat.com,
        Douglas Niehaus <niehaus@eecs.ku.edu>,
        "Martin J. Bligh" <mbligh@mbligh.org>,
        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 1/4] Linux Kernel Markers : Architecture agnostic code.
-Message-ID: <20061220235757.GB28643@Krystal>
+Subject: [PATCH 2/4] Linux Kernel Markers : kconfig menus
+Message-ID: <20061220235930.GC28643@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -30,515 +29,372 @@ In-Reply-To: <20061220235216.GA28643@Krystal>
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 18:56:35 up 119 days, 21:04,  6 users,  load average: 0.63, 0.92, 0.80
+X-Uptime: 18:57:59 up 119 days, 21:05,  6 users,  load average: 1.07, 0.98, 0.83
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Markers, architecture independant code.
-
-This patch also includes non-optimized default behavior from asm-generic in each
-architecture where the optimised support is not implemented.
+Linux Kernel Markers : kconfig menus
 
 Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -118,6 +118,14 @@ #define RODATA								\
-         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
- 		*(__ksymtab_strings)					\
- 	}								\
-+	/* Kernel markers : pointers */					\
-+	.markers : AT(ADDR(.markers) - LOAD_OFFSET) {			\
-+		VMLINUX_SYMBOL(__start___markers) = .;			\
-+		*(.markers)						\
-+		VMLINUX_SYMBOL(__stop___markers) = .;			\
-+	}								\
-+	__end_rodata = .;						\
-+	. = ALIGN(4096);						\
- 									\
- 	/* Built-in module parameters. */				\
- 	__param : AT(ADDR(__param) - LOAD_OFFSET) {			\
---- /dev/null
-+++ b/kernel/Kconfig.marker
-@@ -0,0 +1,17 @@
-+# Code markers configuration
-+
-+config MARKERS
-+	bool "Activate markers"
-+	select MODULES
-+	default n
-+	help
-+	  Place an empty function call at each marker site. Can be
-+	  dynamically changed for a probe function.
-+
-+config MARKERS_DISABLE_OPTIMIZATION
-+	bool "Disable architecture specific marker optimization"
-+	depends EMBEDDED
-+	default n
-+	help
-+	  Disable code replacement jump optimisations. Especially useful if your
-+	  code is in a read-only rom/flash.
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -356,6 +356,9 @@ #endif
- 	/* The command line arguments (may be mangled).  People like
- 	   keeping pointers to this stuff */
- 	char *args;
-+
-+	const struct __mark_marker *markers;
-+	unsigned int num_markers;
- };
+--- a/Makefile
++++ b/Makefile
+@@ -308,7 +308,8 @@ # Use LINUXINCLUDE when you must referen
+ # Needed to be compatible with the O= option
+ LINUXINCLUDE    := -Iinclude \
+                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+-		   -include include/linux/autoconf.h
++		   -include include/linux/autoconf.h \
++		   -include linux/marker.h
  
- /* FIXME: It'd be nice to isolate modules during init, too, so they
-@@ -469,6 +472,7 @@ extern void print_modules(void);
- struct device_driver;
- void module_add_driver(struct module *, struct device_driver *);
- void module_remove_driver(struct device_driver *);
-+extern void list_modules(void);
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
  
- #else /* !CONFIG_MODULES... */
- #define EXPORT_SYMBOL(sym)
---- /dev/null
-+++ b/include/linux/marker.h
-@@ -0,0 +1,65 @@
-+#ifndef _LINUX_MARKER_H
-+#define _LINUX_MARKER_H
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -638,6 +638,12 @@ source "fs/Kconfig"
+ 
+ source "arch/alpha/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing.
-+ *
-+ * Example :
-+ *
-+ * MARK(subsystem_event, "%d %s", someint, somestring);
-+ * Where :
-+ * - Subsystem is the name of your subsystem.
-+ * - event is the name of the event to mark.
-+ * - "%d %s" is the formatted string for printk.
-+ * - someint is an integer.
-+ * - somestring is a char *.
-+ *
-+ * - Dynamically overridable function call based on marker mechanism
-+ *   from Frank Ch. Eigler <fche@redhat.com>.
-+ * - Thanks to Jeremy Fitzhardinge <jeremy@goop.org> for his constructive
-+ *   criticism about gcc optimization related issues.
-+ *
-+ * The marker mechanism supports multiple instances of the same marker.
-+ * Markers can be put in inline functions, inlined static functions and
-+ * unrolled loops.
-+ *
-+ * (C) Copyright 2006 Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#ifndef __ASSEMBLY__
++endmenu
 +
-+typedef void marker_probe_func(const char *fmt, ...);
+ source "arch/alpha/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/cris/Kconfig
++++ b/arch/cris/Kconfig
+@@ -191,6 +191,12 @@ source "sound/Kconfig"
+ 
+ source "drivers/usb/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#ifndef CONFIG_MARKERS_DISABLE_OPTIMIZATION
-+#include <asm/marker.h>
-+#else
-+#include <asm-generic/marker.h>
-+#endif
++source "kernel/Kconfig.marker"
 +
-+#define MARK_NOARGS " "
-+#define MARK_MAX_FORMAT_LEN	1024
++endmenu
 +
-+#ifndef CONFIG_MARKERS
-+#define MARK(name, format, args...) \
-+		__mark_check_format(format, ## args)
-+#endif
+ source "arch/cris/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/frv/Kconfig
++++ b/arch/frv/Kconfig
+@@ -375,6 +375,12 @@ source "drivers/Kconfig"
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+static inline __attribute__ ((format (printf, 1, 2)))
-+void __mark_check_format(const char *fmt, ...)
-+{ }
++source "kernel/Kconfig.marker"
 +
-+extern marker_probe_func __mark_empty_function;
++endmenu
 +
-+extern int marker_set_probe(const char *name, const char *format,
-+				marker_probe_func *probe);
+ source "arch/frv/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/h8300/Kconfig
++++ b/arch/h8300/Kconfig
+@@ -205,6 +205,12 @@ endmenu
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+extern int marker_remove_probe(marker_probe_func *probe);
-+extern int marker_list_probe(marker_probe_func *probe);
++source "kernel/Kconfig.marker"
 +
-+#endif
-+#endif
---- /dev/null
-+++ b/include/asm-arm/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-cris/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/h8300/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -1169,6 +1169,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-frv/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-generic/marker.h
-@@ -0,0 +1,49 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Generic header.
-+ * 
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ *
-+ * Note : the empty asm volatile with read constraint is used here instead of a
-+ * "used" attribute to fix a gcc 4.1.x bug.
-+ */
+ endmenu
+ 
+ source "arch/i386/Kconfig.debug"
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -564,6 +564,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
 +
-+struct __mark_marker_c {
-+	const char *name;
-+	marker_probe_func **call;
-+	const char *format;
-+} __attribute__((packed));
++source "kernel/Kconfig.marker"
 +
-+struct __mark_marker {
-+	const struct __mark_marker_c *cmark;
-+	volatile char *enable;
-+} __attribute__((packed));
+ endmenu
+ 
+ source "arch/ia64/Kconfig.debug"
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -394,6 +394,12 @@ source "fs/Kconfig"
+ 
+ source "arch/m32r/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#ifdef CONFIG_MARKERS
++source "kernel/Kconfig.marker"
 +
-+#define MARK(name, format, args...) \
-+	do { \
-+		static marker_probe_func *__mark_call_##name = \
-+					__mark_empty_function; \
-+		volatile static char __marker_enable_##name = 0; \
-+		static const struct __mark_marker_c __mark_c_##name \
-+			__attribute__((section(".markers.c"))) = \
-+			{ #name, &__mark_call_##name, format } ; \
-+		static const struct __mark_marker __mark_##name \
-+			__attribute__((section(".markers"))) = \
-+			{ &__mark_c_##name, &__marker_enable_##name } ; \
-+		asm volatile ( "" : : "i" (&__mark_##name)); \
-+		__mark_check_format(format, ## args); \
-+		if (unlikely(__marker_enable_##name)) { \
-+			preempt_disable(); \
-+			(*__mark_call_##name)(format, ## args); \
-+			preempt_enable_no_resched(); \
-+		} \
-+	} while (0)
++endmenu
 +
+ source "arch/m32r/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -660,6 +660,12 @@ endmenu
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#define MARK_ENABLE_IMMEDIATE_OFFSET 0
++source "kernel/Kconfig.marker"
 +
-+#endif
---- /dev/null
-+++ b/include/asm-h8300/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-ia64/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/m68k/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/m68knommu/Kconfig
++++ b/arch/m68knommu/Kconfig
+@@ -669,6 +669,12 @@ source "drivers/Kconfig"
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-m32r/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-m68k/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-m68knommu/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/m68knommu/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/ppc/Kconfig
++++ b/arch/ppc/Kconfig
+@@ -1443,8 +1443,14 @@ source "lib/Kconfig"
+ 
+ source "arch/powerpc/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-mips/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-parisc/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-ppc/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/ppc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+ 
+ source "crypto/Kconfig"
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -1185,6 +1185,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-s390/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-sh64/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ endmenu
+ 
+ source "arch/powerpc/Kconfig.debug"
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -263,6 +263,12 @@ source "fs/Kconfig"
+ 
+ source "arch/parisc/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-sh/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-sparc64/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-sparc/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/parisc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -968,6 +968,12 @@ source "fs/Kconfig"
+ 
+ source "arch/arm/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-um/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-v850/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++endmenu
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-x86_64/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
+ source "arch/arm/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/arm26/Kconfig
++++ b/arch/arm26/Kconfig
+@@ -240,6 +240,12 @@ source "drivers/misc/Kconfig"
+ 
+ source "drivers/usb/Kconfig"
+ 
++menu "Instrumentation Support"
 +
-+#include <asm-generic/marker.h>
---- /dev/null
-+++ b/include/asm-xtensa/marker.h
-@@ -0,0 +1,13 @@
-+/*
-+ * marker.h
-+ *
-+ * Code markup for dynamic and static tracing. Architecture specific
-+ * optimisations.
-+ * 
-+ * No optimisation implemented.
-+ *
-+ * This file is released under the GPLv2.
-+ * See the file COPYING for more details.
-+ */
++source "kernel/Kconfig.marker"
 +
-+#include <asm-generic/marker.h>
++endmenu
++
+ source "arch/arm26/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2068,6 +2068,12 @@ source "fs/Kconfig"
+ 
+ source "arch/mips/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/mips/Kconfig.debug"
+ 
+ source "security/Kconfig"
+@@ -2075,3 +2081,7 @@ source "security/Kconfig"
+ source "crypto/Kconfig"
+ 
+ source "lib/Kconfig"
++
++menu "Instrumentation Support"
++
++endmenu
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -518,6 +518,8 @@ config KPROBES
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
+ 
++source "kernel/Kconfig.marker"
++
+ endmenu
+ 
+ source "arch/s390/Kconfig.debug"
+--- a/arch/sh64/Kconfig
++++ b/arch/sh64/Kconfig
+@@ -284,6 +284,12 @@ source "fs/Kconfig"
+ 
+ source "arch/sh64/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/sh64/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -707,6 +707,12 @@ source "fs/Kconfig"
+ 
+ source "arch/sh/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/sh/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/sparc64/Kconfig
++++ b/arch/sparc64/Kconfig
+@@ -443,6 +443,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
+ endmenu
+ 
+ source "arch/sparc64/Kconfig.debug"
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -302,6 +302,8 @@ menu "Instrumentation Support"
+ 
+ source "arch/sparc/oprofile/Kconfig"
+ 
++source "kernel/Kconfig.marker"
++
+ endmenu
+ 
+ source "arch/sparc/Kconfig.debug"
+--- a/arch/um/Kconfig
++++ b/arch/um/Kconfig
+@@ -344,4 +344,10 @@ config INPUT
+ 	bool
+ 	default n
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/um/Kconfig.debug"
+--- a/arch/v850/Kconfig
++++ b/arch/v850/Kconfig
+@@ -332,6 +332,12 @@ source "sound/Kconfig"
+ 
+ source "drivers/usb/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/v850/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -244,6 +244,12 @@ config EMBEDDED_RAMDISK_IMAGE
+ 	  provide one yourself.
+ endmenu
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/xtensa/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -731,6 +731,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
+ endmenu
+ 
+ source "arch/x86_64/Kconfig.debug"
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

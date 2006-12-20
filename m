@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965060AbWLTOAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965067AbWLTOBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbWLTOAw (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 09:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWLTOAw
+	id S965067AbWLTOBI (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 09:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWLTOBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 09:00:52 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:55168 "EHLO
-	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965060AbWLTOAw (ORCPT
+	Wed, 20 Dec 2006 09:01:08 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56786 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965067AbWLTOBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 09:00:52 -0500
-Message-ID: <458941D1.7070301@gmail.com>
-Date: Wed, 20 Dec 2006 14:59:45 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Wed, 20 Dec 2006 09:01:06 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+Date: Wed, 20 Dec 2006 07:00:11 -0700
+In-Reply-To: <20061220141808.e4b8c0ea.khali@linux-fr.org> (Jean Delvare's
+	message of "Wed, 20 Dec 2006 14:18:08 +0100")
+Message-ID: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: locking issue (hardirq+softirq+user)
-References: <45893C1C.60305@gmail.com> <1166622618.3365.1389.camel@laptopd505.fenrus.org>
-In-Reply-To: <1166622618.3365.1389.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-12-20 at 14:35 +0100, Jiri Slaby wrote:
->> Hi!
->>
->> an user still gets NMI watchdog warning, that the machine deadlocked.
-> 
-> have you tried enabling LOCKDEP ?
+Jean Delvare <khali@linux-fr.org> writes:
 
-No, only PROVE_LOCKING, I apply him to turn this on too.
+> Hi Eric, Vivek, Andi,
+>
+> One of my test machines (i586, Asus P4P800-X) reboots instantly when I
+> try to boot a 2.6.20-rc1 kernel. 2.6.19 and 2.6.19.1 boot OK. I ran a
+> git bisect and it pointed me to this patch:
 
->> isr() /* i.e. hardirq context */
->> {
->> spin_lock(&lock);
->> ...
->> spin_unlock(&lock);
->> }
-> 
-> this is ok if you are 100% sure that this never gets called in any other
-> way
+I don't think this is a know issue.
 
-It holds. Only in request_irq isr function name occurs.
+The most straight forward way to debug this is to put infinite
+loops in arch/i386/boot/compressed/head.S moving progressively farther
+in until you find where the line in head.S that the machine reboots
+on you is.
 
->> timer() /* i.e. softirq context */
->> {
->> unsigned int f;
->> spin_lock_irqsave(&lock, f) /* stack shows, that it locks here */
-> 
-> this is a bug, the flags are an "unsigned long" not "unsigned int"!
-> It may do really bad stuff!
+Although it is possible the problem falls in misc.c as well.
 
-Aah, sorry, I misread the code, I saw flags, but it was port->flags;
-board->flags, which is used in irq{save,restore} functions, is ulong.
+If you have a serial console setup we can probably make this
+process a little easier.
 
-thanks for the quick reply,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+One hunch is that we did something stupid, and have an instruction
+that only executes on an i686 in there somewhere.
+
+> After that the machine boots OK again. Note that I did _not_ enable
+> RELOCATABLE. This is admitedly an old system with an old boot loader
+> (lilo 22.5.7.2), so if that's a known issue, I'll be happy to install
+> something newer. If not, I am willing to provide all the information
+> needed to fix the bug.
+
+Thanks.
+
+Eric

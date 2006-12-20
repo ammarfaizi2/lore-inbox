@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030327AbWLTTWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030336AbWLTTXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbWLTTWi (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:22:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWLTTWc
+	id S1030336AbWLTTXF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWLTTXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:22:32 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40871 "EHLO
+	Wed, 20 Dec 2006 14:23:04 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:40876 "EHLO
 	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030330AbWLTTW1 (ORCPT
+	by vger.kernel.org with ESMTP id S1030336AbWLTTW6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:22:27 -0500
+	Wed, 20 Dec 2006 14:22:58 -0500
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v5 09/13] iw_cxgb3 Core WQE/CQE Types
-Date: Wed, 20 Dec 2006 13:22:25 -0600
+Subject: [PATCH  v5 10/13] iw_cxgb3 Core HAL
+Date: Wed, 20 Dec 2006 13:22:55 -0600
 To: rdreier@cisco.com
 Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org, jeff@garzik.org
-Message-Id: <20061220192225.19316.33284.stgit@dell3.ogc.int>
+Message-Id: <20061220192255.19316.19320.stgit@dell3.ogc.int>
 In-Reply-To: <20061220191754.19316.4914.stgit@dell3.ogc.int>
 References: <20061220191754.19316.4914.stgit@dell3.ogc.int>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,20 +26,22 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-T3 WQE and CQE structures, defines, etc...
+The RDMA Core interfaces with the T3 HW and ULLD providing a low level
+RDMA interface.
 
 Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 ---
 
- drivers/infiniband/hw/cxgb3/core/cxio_wr.h |  685 ++++++++++++++++++++++++++++
- 1 files changed, 685 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/cxgb3/core/cxio_hal.c | 1302 +++++++++++++++++++++++++++
+ drivers/infiniband/hw/cxgb3/core/cxio_hal.h |  201 ++++
+ 2 files changed, 1503 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_wr.h b/drivers/infiniband/hw/cxgb3/core/cxio_wr.h
+diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_hal.c b/drivers/infiniband/hw/cxgb3/core/cxio_hal.c
 new file mode 100644
-index 0000000..234a084
+index 0000000..5e31816
 --- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_wr.h
-@@ -0,0 +1,685 @@
++++ b/drivers/infiniband/hw/cxgb3/core/cxio_hal.c
+@@ -0,0 +1,1302 @@
 +/*
 + * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
 + * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
@@ -72,656 +74,1480 @@ index 0000000..234a084
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + */
-+#ifndef __CXIO_WR_H__
-+#define __CXIO_WR_H__
++#include <asm/semaphore.h>
++#include <asm/delay.h>
 +
-+#include <asm/io.h>
++#include <linux/netdevice.h>
++#include <linux/sched.h>
++#include <linux/spinlock.h>
 +#include <linux/pci.h>
-+#include <linux/timer.h>
-+#include "firmware_exports.h"
 +
-+#define T3_MAX_SGE      4
++#include "cxio_resource.h"
++#include "cxio_hal.h"
++#include "cxgb3_offload.h"
++#include "sge_defs.h"
 +
-+#define Q_EMPTY(rptr,wptr) ((rptr)==(wptr))
-+#define Q_FULL(rptr,wptr,size_log2)  ( (((wptr)-(rptr))>>(size_log2)) && \
-+				       ((rptr)!=(wptr)) )
-+#define Q_GENBIT(ptr,size_log2) (!(((ptr)>>size_log2)&0x1))
-+#define Q_FREECNT(rptr,wptr,size_log2) ((1UL<<size_log2)-((wptr)-(rptr)))
-+#define Q_COUNT(rptr,wptr) ((wptr)-(rptr))
-+#define Q_PTR2IDX(ptr,size_log2) (ptr & ((1UL<<size_log2)-1))
++static struct cxio_rdev *rdev_tbl[T3_MAX_NUM_RNIC];
++static cxio_hal_ev_callback_func_t cxio_ev_cb = NULL;
 +
-+static inline void ring_doorbell(void __iomem *doorbell, u32 qpid)
++static inline struct cxio_rdev *cxio_hal_find_rdev_by_name(char *dev_name)
 +{
-+	writel(((1<<31) | qpid), doorbell);
++	int i;
++	for (i = 0; i < T3_MAX_NUM_RNIC; i++)
++		if (rdev_tbl[i])
++			if (!strcmp(rdev_tbl[i]->dev_name, dev_name))
++				return rdev_tbl[i];
++	return NULL;
 +}
 +
-+#define SEQ32_GE(x,y) (!( (((u32) (x)) - ((u32) (y))) & 0x80000000 ))
-+
-+enum t3_wr_flags {
-+	T3_COMPLETION_FLAG = 0x01,
-+	T3_NOTIFY_FLAG = 0x02,
-+	T3_SOLICITED_EVENT_FLAG = 0x04,
-+	T3_READ_FENCE_FLAG = 0x08,
-+	T3_LOCAL_FENCE_FLAG = 0x10
-+} __attribute__ ((packed));
-+
-+enum t3_wr_opcode {
-+	T3_WR_BP = FW_WROPCODE_RI_BYPASS,
-+	T3_WR_SEND = FW_WROPCODE_RI_SEND,
-+	T3_WR_WRITE = FW_WROPCODE_RI_RDMA_WRITE,
-+	T3_WR_READ = FW_WROPCODE_RI_RDMA_READ,
-+	T3_WR_INV_STAG = FW_WROPCODE_RI_LOCAL_INV,
-+	T3_WR_BIND = FW_WROPCODE_RI_BIND_MW,
-+	T3_WR_RCV = FW_WROPCODE_RI_RECEIVE,
-+	T3_WR_INIT = FW_WROPCODE_RI_RDMA_INIT,
-+	T3_WR_QP_MOD = FW_WROPCODE_RI_MODIFY_QP
-+} __attribute__ ((packed));
-+
-+enum t3_rdma_opcode {
-+	T3_RDMA_WRITE,		/* IETF RDMAP v1.0 ... */
-+	T3_READ_REQ,
-+	T3_READ_RESP,
-+	T3_SEND,
-+	T3_SEND_WITH_INV,
-+	T3_SEND_WITH_SE,
-+	T3_SEND_WITH_SE_INV,
-+	T3_TERMINATE,
-+	T3_RDMA_INIT,		/* CHELSIO RI specific ... */
-+	T3_BIND_MW,
-+	T3_FAST_REGISTER,
-+	T3_LOCAL_INV,
-+	T3_QP_MOD,
-+	T3_BYPASS
-+} __attribute__ ((packed));
-+
-+static inline enum t3_rdma_opcode wr2opcode(enum t3_wr_opcode wrop)
++static inline struct cxio_rdev *cxio_hal_find_rdev_by_t3cdev(struct t3cdev
++							     *tdev)
 +{
-+	switch (wrop) {
-+		case T3_WR_BP: return T3_BYPASS;
-+		case T3_WR_SEND: return T3_SEND;
-+		case T3_WR_WRITE: return T3_RDMA_WRITE;
-+		case T3_WR_READ: return T3_READ_REQ;
-+		case T3_WR_INV_STAG: return T3_LOCAL_INV;
-+		case T3_WR_BIND: return T3_BIND_MW;
-+		case T3_WR_INIT: return T3_RDMA_INIT;
-+		case T3_WR_QP_MOD: return T3_QP_MOD;
-+		default: break;
-+	}
-+	return -1;
++	int i;
++	for (i = 0; i < T3_MAX_NUM_RNIC; i++)
++		if (rdev_tbl[i])
++			if (rdev_tbl[i]->t3cdev_p == tdev)
++				return rdev_tbl[i];
++	return NULL;
 +}
 +
-+
-+/* Work request id */
-+union t3_wrid {
-+	struct {
-+		u32 hi;
-+		u32 low;
-+	} id0;
-+	u64 id1;
-+};
-+
-+#define WRID(wrid)      	(wrid.id1)
-+#define WRID_GEN(wrid)		(wrid.id0.wr_gen)
-+#define WRID_IDX(wrid)		(wrid.id0.wr_idx)
-+#define WRID_LO(wrid)		(wrid.id0.wr_lo)
-+
-+struct fw_riwrh {
-+	__be32 op_seop_flags;
-+	__be32 gen_tid_len;
-+};
-+
-+#define S_FW_RIWR_OP		24
-+#define M_FW_RIWR_OP		0xff
-+#define V_FW_RIWR_OP(x)		((x) << S_FW_RIWR_OP)
-+#define G_FW_RIWR_OP(x)   	((((x) >> S_FW_RIWR_OP)) & M_FW_RIWR_OP)
-+
-+#define S_FW_RIWR_SOPEOP	22
-+#define M_FW_RIWR_SOPEOP	0x3
-+#define V_FW_RIWR_SOPEOP(x)	((x) << S_FW_RIWR_SOPEOP)
-+
-+#define S_FW_RIWR_FLAGS		8
-+#define M_FW_RIWR_FLAGS		0x3fffff
-+#define V_FW_RIWR_FLAGS(x)	((x) << S_FW_RIWR_FLAGS)
-+#define G_FW_RIWR_FLAGS(x)   	((((x) >> S_FW_RIWR_FLAGS)) & M_FW_RIWR_FLAGS)
-+
-+#define S_FW_RIWR_TID		8
-+#define V_FW_RIWR_TID(x)	((x) << S_FW_RIWR_TID)
-+
-+#define S_FW_RIWR_LEN		0
-+#define V_FW_RIWR_LEN(x)	((x) << S_FW_RIWR_LEN)
-+
-+#define S_FW_RIWR_GEN           31
-+#define V_FW_RIWR_GEN(x)        ((x)  << S_FW_RIWR_GEN)
-+
-+struct t3_sge {
-+	__be32 stag;
-+	__be32 len;
-+	__be64 to;
-+};
-+
-+/* If num_sgle is zero, flit 5+ contains immediate data.*/
-+struct t3_send_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+
-+	u8 rdmaop;		/* 2 */
-+	u8 reserved[3];
-+	__be32 rem_stag;	
-+	__be32 plen;		/* 3 */
-+	__be32 num_sgle;
-+	struct t3_sge sgl[T3_MAX_SGE];	/* 4+ */
-+};
-+
-+struct t3_local_inv_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	__be32 stag;		/* 2 */
-+	__be32 reserved3;
-+};
-+
-+struct t3_rdma_write_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	u8 rdmaop;		/* 2 */
-+	u8 reserved[3];
-+	__be32 stag_sink;
-+	__be64 to_sink;		/* 3 */
-+	__be32 plen;		/* 4 */
-+	__be32 num_sgle;
-+	struct t3_sge sgl[T3_MAX_SGE];	/* 5+ */
-+};
-+
-+struct t3_rdma_read_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	u8 rdmaop;		/* 2 */
-+	u8 reserved[3];
-+	__be32 rem_stag;
-+	__be64 rem_to;		/* 3 */
-+	__be32 local_stag;	/* 4 */
-+	__be32 local_len;
-+	__be64 local_to;	/* 5 */
-+};
-+
-+enum t3_addr_type {
-+	T3_VA_BASED_TO = 0x0,
-+	T3_ZERO_BASED_TO = 0x1
-+} __attribute__ ((packed));
-+
-+enum t3_mem_perms {
-+	T3_MEM_ACCESS_LOCAL_READ = 0x1,
-+	T3_MEM_ACCESS_LOCAL_WRITE = 0x2,
-+	T3_MEM_ACCESS_REM_READ = 0x4,
-+	T3_MEM_ACCESS_REM_WRITE = 0x8
-+} __attribute__ ((packed));
-+
-+struct t3_bind_mw_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	u16 reserved;		/* 2 */
-+	u8 type;
-+	u8 perms;
-+	__be32 mr_stag;
-+	__be32 mw_stag;		/* 3 */
-+	__be32 mw_len;
-+	__be64 mw_va;		/* 4 */
-+	__be32 mr_pbl_addr;	/* 5 */
-+	u8 reserved2[3];
-+	u8 mr_pagesz;
-+};
-+
-+struct t3_receive_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	u8 pagesz[T3_MAX_SGE];
-+	__be32 num_sgle;		/* 2 */
-+	struct t3_sge sgl[T3_MAX_SGE];	/* 3+ */
-+	__be32 pbl_addr[T3_MAX_SGE];
-+};
-+
-+struct t3_bypass_wr {
-+	struct fw_riwrh wrh;
-+	union t3_wrid wrid;	/* 1 */
-+};
-+
-+struct t3_modify_qp_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	__be32 flags;		/* 2 */
-+	__be32 quiesce;		/* 2 */
-+	__be32 max_ird;		/* 3 */
-+	__be32 max_ord;		/* 3 */
-+	__be64 sge_cmd;		/* 4 */
-+	__be64 ctx1;		/* 5 */
-+	__be64 ctx0;		/* 6 */
-+};
-+
-+enum t3_modify_qp_flags {
-+	MODQP_QUIESCE  = 0x01,
-+	MODQP_MAX_IRD  = 0x02,
-+	MODQP_MAX_ORD  = 0x04,
-+	MODQP_WRITE_EC = 0x08,
-+	MODQP_READ_EC  = 0x10,
-+};
-+	
-+
-+enum t3_mpa_attrs {
-+	uP_RI_MPA_RX_MARKER_ENABLE = 0x1,
-+	uP_RI_MPA_TX_MARKER_ENABLE = 0x2,
-+	uP_RI_MPA_CRC_ENABLE = 0x4,
-+	uP_RI_MPA_IETF_ENABLE = 0x8
-+} __attribute__ ((packed));
-+
-+enum t3_qp_caps {
-+	uP_RI_QP_RDMA_READ_ENABLE = 0x01,
-+	uP_RI_QP_RDMA_WRITE_ENABLE = 0x02,
-+	uP_RI_QP_BIND_ENABLE = 0x04,
-+	uP_RI_QP_FAST_REGISTER_ENABLE = 0x08,
-+	uP_RI_QP_STAG0_ENABLE = 0x10
-+} __attribute__ ((packed));
-+
-+struct t3_rdma_init_attr {
-+	u32 tid;
-+	u32 qpid;
-+	u32 pdid;
-+	u32 scqid;
-+	u32 rcqid;
-+	u32 rq_addr;
-+	u32 rq_size;
-+	enum t3_mpa_attrs mpaattrs;
-+	enum t3_qp_caps qpcaps;
-+	u16 tcp_emss;
-+	u32 ord;
-+	u32 ird;
-+	u64 qp_dma_addr;
-+	u32 qp_dma_size;
-+	u32 flags;
-+};
-+
-+struct t3_rdma_init_wr {
-+	struct fw_riwrh wrh;	/* 0 */
-+	union t3_wrid wrid;	/* 1 */
-+	__be32 qpid;		/* 2 */
-+	__be32 pdid;
-+	__be32 scqid;		/* 3 */
-+	__be32 rcqid;
-+	__be32 rq_addr;		/* 4 */
-+	__be32 rq_size;
-+	u8 mpaattrs;		/* 5 */
-+	u8 qpcaps;
-+	__be16 ulpdu_size;
-+	__be32 flags;		/* bits 31-1 - reservered */
-+				/* bit     0 - set if RECV posted */
-+	__be32 ord;		/* 6 */
-+	__be32 ird;
-+	__be64 qp_dma_addr;	/* 7 */
-+	__be32 qp_dma_size;	/* 8 */
-+	u32 rsvd;
-+};
-+
-+struct t3_genbit {
-+	u64 flit[15];
-+	__be64 genbit;
-+};
-+
-+enum rdma_init_wr_flags {
-+	RECVS_POSTED = 1,
-+};
-+
-+union t3_wr {
-+	struct t3_send_wr send;
-+	struct t3_rdma_write_wr write;
-+	struct t3_rdma_read_wr read;
-+	struct t3_receive_wr recv;
-+	struct t3_local_inv_wr local_inv;
-+	struct t3_bind_mw_wr bind;
-+	struct t3_bypass_wr bypass;
-+	struct t3_rdma_init_wr init;
-+	struct t3_modify_qp_wr qp_mod;
-+	struct t3_genbit genbit;
-+	u64 flit[16];
-+};
-+
-+#define T3_SQ_CQE_FLIT 	  13
-+#define T3_SQ_COOKIE_FLIT 14
-+
-+#define T3_RQ_COOKIE_FLIT 13
-+#define T3_RQ_CQE_FLIT 	  14
-+
-+static inline enum t3_wr_opcode fw_riwrh_opcode(struct fw_riwrh *wqe)
++static inline int cxio_hal_add_rdev(struct cxio_rdev *rdev_p)
 +{
-+	return G_FW_RIWR_OP(be32_to_cpu(wqe->op_seop_flags));
++	int i;
++	for (i = 0; i < T3_MAX_NUM_RNIC; i++)
++		if (!rdev_tbl[i]) {
++			rdev_tbl[i] = rdev_p;
++			break;
++		}
++	return (i == T3_MAX_NUM_RNIC);
 +}
 +
-+static inline void build_fw_riwrh(struct fw_riwrh *wqe, enum t3_wr_opcode op,
-+				  enum t3_wr_flags flags, u8 genbit, u32 tid,
-+				  u8 len)
++static inline void cxio_hal_delete_rdev(struct cxio_rdev *rdev_p)
 +{
-+	wqe->op_seop_flags = cpu_to_be32(V_FW_RIWR_OP(op) |
-+					 V_FW_RIWR_SOPEOP(M_FW_RIWR_SOPEOP) |
-+					 V_FW_RIWR_FLAGS(flags));
-+	wmb();
-+	wqe->gen_tid_len = cpu_to_be32(V_FW_RIWR_GEN(genbit) |
-+				       V_FW_RIWR_TID(tid) |
-+				       V_FW_RIWR_LEN(len));
-+	/* 2nd gen bit... */
-+        ((union t3_wr *)wqe)->genbit.genbit = cpu_to_be64(genbit);
++	int i;
++	for (i = 0; i < T3_MAX_NUM_RNIC; i++)
++		if (rdev_tbl[i] == rdev_p) {
++			rdev_tbl[i] = NULL;
++			break;
++		}
 +}
 +
-+/*
-+ * T3 ULP2_TX commands
-+ */
-+enum t3_utx_mem_op {
-+	T3_UTX_MEM_READ = 2,
-+	T3_UTX_MEM_WRITE = 3
-+};
-+
-+/* T3 MC7 RDMA TPT entry format */
-+
-+enum tpt_mem_type {
-+	TPT_NON_SHARED_MR = 0x0,
-+	TPT_SHARED_MR = 0x1,
-+	TPT_MW = 0x2,
-+	TPT_MW_RELAXED_PROTECTION = 0x3
-+};
-+
-+enum tpt_addr_type {
-+	TPT_ZBTO = 0,
-+	TPT_VATO = 1
-+};
-+
-+enum tpt_mem_perm {
-+	TPT_LOCAL_READ = 0x8,
-+	TPT_LOCAL_WRITE = 0x4,
-+	TPT_REMOTE_READ = 0x2,
-+	TPT_REMOTE_WRITE = 0x1
-+};
-+
-+struct tpt_entry {
-+	__be32 valid_stag_pdid;
-+	__be32 flags_pagesize_qpid;
-+
-+	__be32 rsvd_pbl_addr;
-+	__be32 len;
-+	__be32 va_hi;
-+	__be32 va_low_or_fbo;
-+
-+	__be32 rsvd_bind_cnt_or_pstag;
-+	__be32 rsvd_pbl_size;
-+};
-+
-+#define S_TPT_VALID		31
-+#define V_TPT_VALID(x)		((x) << S_TPT_VALID)
-+#define F_TPT_VALID		V_TPT_VALID(1U)
-+
-+#define S_TPT_STAG_KEY		23
-+#define M_TPT_STAG_KEY		0xFF
-+#define V_TPT_STAG_KEY(x)	((x) << S_TPT_STAG_KEY)
-+#define G_TPT_STAG_KEY(x)	(((x) >> S_TPT_STAG_KEY) & M_TPT_STAG_KEY)
-+
-+#define S_TPT_STAG_STATE	22
-+#define V_TPT_STAG_STATE(x)	((x) << S_TPT_STAG_STATE)
-+#define F_TPT_STAG_STATE	V_TPT_STAG_STATE(1U)
-+
-+#define S_TPT_STAG_TYPE		20
-+#define M_TPT_STAG_TYPE		0x3
-+#define V_TPT_STAG_TYPE(x)	((x) << S_TPT_STAG_TYPE)
-+#define G_TPT_STAG_TYPE(x)	(((x) >> S_TPT_STAG_TYPE) & M_TPT_STAG_TYPE)
-+
-+#define S_TPT_PDID		0
-+#define M_TPT_PDID		0xFFFFF
-+#define V_TPT_PDID(x)		((x) << S_TPT_PDID)
-+#define G_TPT_PDID(x)		(((x) >> S_TPT_PDID) & M_TPT_PDID)
-+
-+#define S_TPT_PERM		28
-+#define M_TPT_PERM		0xF
-+#define V_TPT_PERM(x)		((x) << S_TPT_PERM)
-+#define G_TPT_PERM(x)		(((x) >> S_TPT_PERM) & M_TPT_PERM)
-+
-+#define S_TPT_REM_INV_DIS	27
-+#define V_TPT_REM_INV_DIS(x)	((x) << S_TPT_REM_INV_DIS)
-+#define F_TPT_REM_INV_DIS	V_TPT_REM_INV_DIS(1U)
-+
-+#define S_TPT_ADDR_TYPE		26
-+#define V_TPT_ADDR_TYPE(x)	((x) << S_TPT_ADDR_TYPE)
-+#define F_TPT_ADDR_TYPE		V_TPT_ADDR_TYPE(1U)
-+
-+#define S_TPT_MW_BIND_ENABLE	25
-+#define V_TPT_MW_BIND_ENABLE(x)	((x) << S_TPT_MW_BIND_ENABLE)
-+#define F_TPT_MW_BIND_ENABLE    V_TPT_MW_BIND_ENABLE(1U)
-+
-+#define S_TPT_PAGE_SIZE		20
-+#define M_TPT_PAGE_SIZE		0x1F
-+#define V_TPT_PAGE_SIZE(x)	((x) << S_TPT_PAGE_SIZE)
-+#define G_TPT_PAGE_SIZE(x)	(((x) >> S_TPT_PAGE_SIZE) & M_TPT_PAGE_SIZE)
-+
-+#define S_TPT_PBL_ADDR		0
-+#define M_TPT_PBL_ADDR		0x1FFFFFFF
-+#define V_TPT_PBL_ADDR(x)	((x) << S_TPT_PBL_ADDR)
-+#define G_TPT_PBL_ADDR(x)       (((x) >> S_TPT_PBL_ADDR) & M_TPT_PBL_ADDR)
-+
-+#define S_TPT_QPID		0
-+#define M_TPT_QPID		0xFFFFF
-+#define V_TPT_QPID(x)		((x) << S_TPT_QPID)
-+#define G_TPT_QPID(x)		(((x) >> S_TPT_QPID) & M_TPT_QPID)
-+
-+#define S_TPT_PSTAG		0
-+#define M_TPT_PSTAG		0xFFFFFF
-+#define V_TPT_PSTAG(x)		((x) << S_TPT_PSTAG)
-+#define G_TPT_PSTAG(x)		(((x) >> S_TPT_PSTAG) & M_TPT_PSTAG)
-+
-+#define S_TPT_PBL_SIZE		0
-+#define M_TPT_PBL_SIZE		0xFFFFF
-+#define V_TPT_PBL_SIZE(x)	((x) << S_TPT_PBL_SIZE)
-+#define G_TPT_PBL_SIZE(x)	(((x) >> S_TPT_PBL_SIZE) & M_TPT_PBL_SIZE)
-+
-+/*
-+ * CQE defs
-+ */
-+struct t3_cqe {
-+	__be32 header;
-+	__be32 len;
-+	union {
-+		struct {
-+			__be32 stag;
-+			__be32 msn;
-+		} rcqe;
-+		struct {
-+			u32 wrid_hi;	
-+			u32 wrid_low;
-+		} scqe;
-+	} u;
-+};
-+
-+#define S_CQE_OOO	  31
-+#define M_CQE_OOO	  0x1
-+#define G_CQE_OOO(x)	  ((((x) >> S_CQE_OOO)) & M_CQE_OOO)
-+#define V_CEQ_OOO(x)	  ((x)<<S_CQE_OOO)
-+
-+#define S_CQE_QPID        12
-+#define M_CQE_QPID        0x7FFFF
-+#define G_CQE_QPID(x)     ((((x) >> S_CQE_QPID)) & M_CQE_QPID)
-+#define V_CQE_QPID(x) 	  ((x)<<S_CQE_QPID)
-+
-+#define S_CQE_SWCQE       11
-+#define M_CQE_SWCQE       0x1
-+#define G_CQE_SWCQE(x)    ((((x) >> S_CQE_SWCQE)) & M_CQE_SWCQE)
-+#define V_CQE_SWCQE(x) 	  ((x)<<S_CQE_SWCQE)
-+
-+#define S_CQE_GENBIT      10
-+#define M_CQE_GENBIT      0x1
-+#define G_CQE_GENBIT(x)   (((x) >> S_CQE_GENBIT) & M_CQE_GENBIT)
-+#define V_CQE_GENBIT(x)	  ((x)<<S_CQE_GENBIT)
-+
-+#define S_CQE_STATUS      5
-+#define M_CQE_STATUS      0x1F
-+#define G_CQE_STATUS(x)   ((((x) >> S_CQE_STATUS)) & M_CQE_STATUS)
-+#define V_CQE_STATUS(x)   ((x)<<S_CQE_STATUS)
-+
-+#define S_CQE_TYPE        4
-+#define M_CQE_TYPE        0x1
-+#define G_CQE_TYPE(x)     ((((x) >> S_CQE_TYPE)) & M_CQE_TYPE)
-+#define V_CQE_TYPE(x)     ((x)<<S_CQE_TYPE)
-+
-+#define S_CQE_OPCODE      0
-+#define M_CQE_OPCODE      0xF
-+#define G_CQE_OPCODE(x)   ((((x) >> S_CQE_OPCODE)) & M_CQE_OPCODE)
-+#define V_CQE_OPCODE(x)   ((x)<<S_CQE_OPCODE)
-+
-+#define SW_CQE(x)         (G_CQE_SWCQE(be32_to_cpu((x).header)))
-+#define CQE_OOO(x)        (G_CQE_OOO(be32_to_cpu((x).header)))
-+#define CQE_QPID(x)       (G_CQE_QPID(be32_to_cpu((x).header)))
-+#define CQE_GENBIT(x)     (G_CQE_GENBIT(be32_to_cpu((x).header)))
-+#define CQE_TYPE(x)       (G_CQE_TYPE(be32_to_cpu((x).header)))
-+#define SQ_TYPE(x)	  (CQE_TYPE((x)))
-+#define RQ_TYPE(x)	  (!CQE_TYPE((x)))
-+#define CQE_STATUS(x)     (G_CQE_STATUS(be32_to_cpu((x).header)))
-+#define CQE_OPCODE(x)     (G_CQE_OPCODE(be32_to_cpu((x).header)))
-+
-+#define CQE_LEN(x)        (be32_to_cpu((x).len))
-+
-+/* used for RQ completion processing */
-+#define CQE_WRID_STAG(x)  (be32_to_cpu((x).u.rcqe.stag))
-+#define CQE_WRID_MSN(x)   (be32_to_cpu((x).u.rcqe.msn))
-+
-+/* used for SQ completion processing */
-+#define CQE_WRID_SQ_WPTR(x)	((x).u.scqe.wrid_hi)
-+#define CQE_WRID_WPTR(x)   	((x).u.scqe.wrid_low)
-+
-+/* generic accessor macros */
-+#define CQE_WRID_HI(x)		((x).u.scqe.wrid_hi)
-+#define CQE_WRID_LOW(x) 	((x).u.scqe.wrid_low)
-+
-+#define TPT_ERR_SUCCESS                     0x0
-+#define TPT_ERR_STAG                        0x1	 /* STAG invalid: either the */
-+						 /* STAG is offlimt, being 0, */
-+						 /* or STAG_key mismatch */
-+#define TPT_ERR_PDID                        0x2	 /* PDID mismatch */
-+#define TPT_ERR_QPID                        0x3	 /* QPID mismatch */
-+#define TPT_ERR_ACCESS                      0x4	 /* Invalid access right */
-+#define TPT_ERR_WRAP                        0x5	 /* Wrap error */
-+#define TPT_ERR_BOUND                       0x6	 /* base and bounds voilation */
-+#define TPT_ERR_INVALIDATE_SHARED_MR        0x7	 /* attempt to invalidate a  */
-+						 /* shared memory region */
-+#define TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND 0x8	 /* attempt to invalidate a  */
-+						 /* shared memory region */
-+#define TPT_ERR_ECC                         0x9	 /* ECC error detected */
-+#define TPT_ERR_ECC_PSTAG                   0xA	 /* ECC error detected when  */
-+						 /* reading PSTAG for a MW  */
-+						 /* Invalidate */
-+#define TPT_ERR_PBL_ADDR_BOUND              0xB	 /* pbl addr out of bounds:  */
-+						 /* software error */
-+#define TPT_ERR_SWFLUSH			    0xC	 /* SW FLUSHED */
-+#define TPT_ERR_CRC                         0x10 /* CRC error */
-+#define TPT_ERR_MARKER                      0x11 /* Marker error */
-+#define TPT_ERR_PDU_LEN_ERR                 0x12 /* invalid PDU length */
-+#define TPT_ERR_OUT_OF_RQE                  0x13 /* out of RQE */
-+#define TPT_ERR_DDP_VERSION                 0x14 /* wrong DDP version */
-+#define TPT_ERR_RDMA_VERSION                0x15 /* wrong RDMA version */
-+#define TPT_ERR_OPCODE                      0x16 /* invalid rdma opcode */
-+#define TPT_ERR_DDP_QUEUE_NUM               0x17 /* invalid ddp queue number */
-+#define TPT_ERR_MSN                         0x18 /* MSN error */
-+#define TPT_ERR_TBIT                        0x19 /* tag bit not set correctly */
-+#define TPT_ERR_MO                          0x1A /* MO not 0 for TERMINATE  */
-+						 /* or READ_REQ */
-+#define TPT_ERR_MSN_GAP                     0x1B
-+#define TPT_ERR_MSN_RANGE                   0x1C
-+#define TPT_ERR_IRD_OVERFLOW                0x1D
-+#define TPT_ERR_RQE_ADDR_BOUND              0x1E /* RQE addr out of bounds:  */
-+						 /* software error */
-+#define TPT_ERR_INTERNAL_ERR                0x1F /* internal error (opcode  */
-+						 /* mismatch) */
-+
-+struct t3_swsq {
-+	__u64 			wr_id;
-+	struct t3_cqe 		cqe;
-+	__u32			sq_wptr;
-+	__be32			read_len;
-+	int 			opcode;
-+	int			complete;
-+	int			signaled;	
-+};
-+
-+/*
-+ * A T3 WQ implements both the SQ and RQ.
-+ */
-+struct t3_wq {
-+	union t3_wr *queue;		/* DMA accessable memory */
-+	dma_addr_t dma_addr;		/* DMA address for HW */
-+	DECLARE_PCI_UNMAP_ADDR(mapping)	/* unmap kruft */
-+	u32 error;			/* 1 once we go to ERROR */
-+	u32 qpid;
-+	u32 wptr;			/* idx to next available WR slot */
-+	u32 size_log2;			/* total wq size */
-+	struct t3_swsq *sq;		/* SW SQ */
-+	struct t3_swsq *oldest_read;	/* tracks oldest pending read */
-+	u32 sq_wptr;			/* sq_wptr - sq_rptr == count of */
-+	u32 sq_rptr;			/* pending wrs */
-+	u32 sq_size_log2;		/* sq size */
-+	u64 *rq;			/* SW RQ (holds consumer wr_ids */
-+	u32 rq_wptr;			/* rq_wptr - rq_rptr == count of */
-+	u32 rq_rptr;			/* pending wrs */
-+	u64 *rq_oldest_wr;		/* oldest wr on the SW RQ */
-+	u32 rq_size_log2;		/* rq size */
-+	u32 rq_addr;			/* rq adapter address */
-+	void __iomem *doorbell;		/* kernel db */
-+	u64 udb;			/* user db if any */
-+};
-+
-+struct t3_cq {
-+	u32 cqid;
++int cxio_hal_cq_op(struct cxio_rdev *rdev_p, struct t3_cq *cq,
++		   enum t3_cq_opcode op, u32 credit)
++{
++	int ret;
++	struct t3_cqe *cqe;
 +	u32 rptr;
++
++	struct rdma_cq_op setup;
++	setup.id = cq->cqid;
++	setup.credits = (op == CQ_CREDIT_UPDATE) ? credit : 0;
++	setup.op = op;
++	ret = rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_CQ_OP, &setup);
++
++	if ((ret < 0) || (op == CQ_CREDIT_UPDATE))
++		return ret;
++
++	/*
++	 * If the rearm returned an index other than our current index,
++	 * then there might be CQE's in flight (being DMA'd).  We must wait
++	 * here for them to complete or the consumer can miss a notification.
++	 */
++	if (Q_PTR2IDX((cq->rptr), cq->size_log2) != ret) {
++		int i=0;
++
++		rptr = cq->rptr;
++
++		/*
++		 * Keep the generation correct by bumping rptr until it
++		 * matches the index returned by the rearm - 1.
++	 	 */
++		while (Q_PTR2IDX((rptr+1), cq->size_log2) != ret)
++			rptr++;
++
++		/*
++		 * Now rptr is the index for the (last) cqe that was
++	 	 * in-flight at the time the HW rearmed the CQ.  We
++		 * spin until that CQE is valid.
++	 	 */
++		cqe = cq->queue + Q_PTR2IDX(rptr, cq->size_log2);
++		while (!CQ_VLD_ENTRY(rptr, cq->size_log2, cqe)) {
++			udelay(1);
++			if (i++ > 1000000) {
++				BUG_ON(1);
++				printk(KERN_ERR "%s: stalled rnic\n",
++				       rdev_p->dev_name);
++				return -EIO;
++			}
++		}
++	}
++	return 0;
++}
++
++static inline int cxio_hal_clear_cq_ctx(struct cxio_rdev *rdev_p, u32 cqid)
++{
++	struct rdma_cq_setup setup;
++	setup.id = cqid;
++	setup.base_addr = 0;	/* NULL address */
++	setup.size = 0;		/* disaable the CQ */
++	setup.credits = 0;
++	setup.credit_thres = 0;
++	setup.ovfl_mode = 0;
++	return (rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_CQ_SETUP, &setup));
++}
++
++int cxio_hal_clear_qp_ctx(struct cxio_rdev *rdev_p, u32 qpid)
++{
++	u64 sge_cmd;
++	struct t3_modify_qp_wr *wqe;
++	struct sk_buff *skb = alloc_skb(sizeof(*wqe), GFP_KERNEL);
++	if (!skb) {
++		PDBG("%s alloc_skb failed\n", __FUNCTION__);
++		return -ENOMEM;
++	}
++	wqe = (struct t3_modify_qp_wr *) skb_put(skb, sizeof(*wqe));
++	memset(wqe, 0, sizeof(*wqe));
++	build_fw_riwrh((struct fw_riwrh *) wqe, T3_WR_QP_MOD, 3, 1, qpid, 7);
++	wqe->flags = cpu_to_be32(MODQP_WRITE_EC);
++	sge_cmd = qpid << 8 | 3;
++	wqe->sge_cmd = cpu_to_be64(sge_cmd);
++	skb->priority = CPL_PRIORITY_CONTROL;
++	return (cxgb3_ofld_send(rdev_p->t3cdev_p, skb));
++}
++
++int cxio_create_cq(struct cxio_rdev *rdev_p, struct t3_cq *cq)
++{
++	struct rdma_cq_setup setup;
++	int size = (1UL << (cq->size_log2)) * sizeof(struct t3_cqe);
++
++	cq->cqid = cxio_hal_get_cqid(rdev_p->rscp);
++	if (!cq->cqid)
++		return -ENOMEM;
++	cq->sw_queue = kzalloc(size, GFP_KERNEL);
++	if (!cq->sw_queue)
++		return -ENOMEM;
++	cq->queue = dma_alloc_coherent(&(rdev_p->rnic_info.pdev->dev),
++					     (1UL << (cq->size_log2)) *
++					     sizeof(struct t3_cqe),
++					     &(cq->dma_addr), GFP_KERNEL);
++	if (!cq->queue) {
++		kfree(cq->sw_queue);
++		return -ENOMEM;
++	}
++	pci_unmap_addr_set(cq, mapping, cq->dma_addr);
++	memset(cq->queue, 0, size);
++	setup.id = cq->cqid;
++	setup.base_addr = (u64) (cq->dma_addr);
++	setup.size = 1UL << cq->size_log2;
++	setup.credits = 65535;
++	setup.credit_thres = 1;
++	if (rdev_p->t3cdev_p->type == T3B)
++		setup.ovfl_mode = 0;
++	else
++		setup.ovfl_mode = 1;
++	return (rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_CQ_SETUP, &setup));
++}
++
++int cxio_resize_cq(struct cxio_rdev *rdev_p, struct t3_cq *cq)
++{
++	struct rdma_cq_setup setup;
++	setup.id = cq->cqid;
++	setup.base_addr = (u64) (cq->dma_addr);
++	setup.size = 1UL << cq->size_log2;
++	setup.credits = setup.size;
++	setup.credit_thres = setup.size;	/* TBD: overflow recovery */
++	setup.ovfl_mode = 1;
++	return (rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_CQ_SETUP, &setup));
++}
++
++static u32 get_qpid(struct cxio_rdev *rdev_p, struct cxio_ucontext *uctx)
++{
++	struct cxio_qpid_list *entry;
++	u32 qpid;
++	int i;
++
++	mutex_lock(&uctx->lock);
++	if (!list_empty(&uctx->qpids)) {
++		entry = list_entry(uctx->qpids.next, struct cxio_qpid_list,
++				   entry);
++		list_del(&entry->entry);
++		qpid = entry->qpid;
++		kfree(entry);
++	} else {
++		qpid = cxio_hal_get_qpid(rdev_p->rscp);
++		if (!qpid)
++			goto out;
++		for (i = qpid+1; i & rdev_p->qpmask; i++) {
++			entry = kmalloc(sizeof *entry, GFP_KERNEL);
++			if (!entry)
++				break;
++			entry->qpid = i;
++			list_add_tail(&entry->entry, &uctx->qpids);
++		}
++	}
++out:
++	mutex_unlock(&uctx->lock);
++	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
++	return qpid;
++}
++
++static void put_qpid(struct cxio_rdev *rdev_p, u32 qpid,
++		     struct cxio_ucontext *uctx)
++{
++	struct cxio_qpid_list *entry;
++	
++	entry = kmalloc(sizeof *entry, GFP_KERNEL);
++	if (!entry)
++		return;
++	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
++	entry->qpid = qpid;
++	mutex_lock(&uctx->lock);
++	list_add_tail(&entry->entry, &uctx->qpids);
++	mutex_unlock(&uctx->lock);
++}
++
++void cxio_release_ucontext(struct cxio_rdev *rdev_p, struct cxio_ucontext *uctx)
++{
++	struct list_head *pos, *nxt;
++	struct cxio_qpid_list *entry;
++
++	mutex_lock(&uctx->lock);
++	list_for_each_safe(pos, nxt, &uctx->qpids) {
++		entry = list_entry(pos, struct cxio_qpid_list, entry);
++		list_del_init(&entry->entry);
++		if (!(entry->qpid & rdev_p->qpmask))
++			cxio_hal_put_qpid(rdev_p->rscp, entry->qpid);
++		kfree(entry);
++	}
++	mutex_unlock(&uctx->lock);
++}
++
++void cxio_init_ucontext(struct cxio_rdev *rdev_p, struct cxio_ucontext *uctx)
++{
++	INIT_LIST_HEAD(&uctx->qpids);
++	mutex_init(&uctx->lock);
++}
++
++int cxio_create_qp(struct cxio_rdev *rdev_p, u32 kernel_domain,
++		   struct t3_wq *wq, struct cxio_ucontext *uctx)
++{
++	int depth = 1UL << wq->size_log2;
++	int rqsize = 1UL << wq->rq_size_log2;
++
++	wq->qpid = get_qpid(rdev_p, uctx);
++	if (!wq->qpid)
++		return -ENOMEM;
++
++	wq->rq = kzalloc(depth * sizeof(u64), GFP_KERNEL);
++	if (!wq->rq)
++		goto err1;
++
++	wq->rq_addr = cxio_hal_rqtpool_alloc(rdev_p, rqsize);
++	if (!wq->rq_addr)
++		goto err2;
++
++	wq->sq = kzalloc(depth * sizeof(struct t3_swsq), GFP_KERNEL);
++	if (!wq->sq)
++		goto err3;
++	
++	wq->queue = dma_alloc_coherent(&(rdev_p->rnic_info.pdev->dev),
++					     depth * sizeof(union t3_wr),
++					     &(wq->dma_addr), GFP_KERNEL);
++	if (!wq->queue)
++		goto err4;
++
++	memset(wq->queue, 0, depth * sizeof(union t3_wr));
++	pci_unmap_addr_set(wq, mapping, wq->dma_addr);
++	wq->doorbell = (void __iomem *)rdev_p->rnic_info.kdb_addr;
++	if (!kernel_domain)
++		wq->udb = (u64)rdev_p->rnic_info.udbell_physbase +
++					(wq->qpid << rdev_p->qpshift);
++	PDBG("%s qpid 0x%x doorbell 0x%p udb 0x%llx\n", __FUNCTION__,
++	     wq->qpid, wq->doorbell, wq->udb);
++	return 0;
++err4:
++	kfree(wq->sq);
++err3:
++	cxio_hal_rqtpool_free(rdev_p, wq->rq_addr, rqsize);
++err2:
++	kfree(wq->rq);
++err1:
++	put_qpid(rdev_p, wq->qpid, uctx);
++	return -ENOMEM;
++}
++
++int cxio_destroy_cq(struct cxio_rdev *rdev_p, struct t3_cq *cq)
++{
++	int err;
++	err = cxio_hal_clear_cq_ctx(rdev_p, cq->cqid);
++	kfree(cq->sw_queue);
++	dma_free_coherent(&(rdev_p->rnic_info.pdev->dev),
++			  (1UL << (cq->size_log2))
++			  * sizeof(struct t3_cqe), cq->queue,
++			  pci_unmap_addr(cq, mapping));
++	cxio_hal_put_cqid(rdev_p->rscp, cq->cqid);
++	return err;
++}
++
++int cxio_destroy_qp(struct cxio_rdev *rdev_p, struct t3_wq *wq,
++		    struct cxio_ucontext *uctx)
++{
++	dma_free_coherent(&(rdev_p->rnic_info.pdev->dev),
++			  (1UL << (wq->size_log2))
++			  * sizeof(union t3_wr), wq->queue,
++			  pci_unmap_addr(wq, mapping));
++	kfree(wq->sq);
++	cxio_hal_rqtpool_free(rdev_p, wq->rq_addr, (1UL << wq->rq_size_log2));
++	kfree(wq->rq);
++	put_qpid(rdev_p, wq->qpid, uctx);
++	return 0;
++}
++
++static void insert_recv_cqe(struct t3_wq *wq, struct t3_cq *cq)
++{
++	struct t3_cqe cqe;
++
++	PDBG("%s wq %p cq %p sw_rptr 0x%x sw_wptr 0x%x\n", __FUNCTION__,
++	     wq, cq, cq->sw_rptr, cq->sw_wptr);
++	memset(&cqe, 0, sizeof(cqe));
++	cqe.header = cpu_to_be32(V_CQE_STATUS(TPT_ERR_SWFLUSH) |
++			         V_CQE_OPCODE(T3_SEND) |
++		         	 V_CQE_TYPE(0) |
++		         	 V_CQE_SWCQE(1) |
++		         	 V_CQE_QPID(wq->qpid) |
++		         	 V_CQE_GENBIT(Q_GENBIT(cq->sw_wptr,
++						       cq->size_log2)));
++	*(cq->sw_queue + Q_PTR2IDX(cq->sw_wptr, cq->size_log2)) = cqe;
++	cq->sw_wptr++;
++}
++
++void cxio_flush_rq(struct t3_wq *wq, struct t3_cq *cq, int count)
++{
++	u32 ptr;
++
++	PDBG("%s wq %p cq %p\n", __FUNCTION__, wq, cq);
++
++	/* flush RQ */
++	PDBG("%s rq_rptr %u rq_wptr %u skip count %u\n", __FUNCTION__,
++	    wq->rq_rptr, wq->rq_wptr, count);
++	ptr = wq->rq_rptr + count;
++	while (ptr++ != wq->rq_wptr)
++		insert_recv_cqe(wq, cq);
++}
++
++static void insert_sq_cqe(struct t3_wq *wq, struct t3_cq *cq,
++		          struct t3_swsq *sqp)
++{
++	struct t3_cqe cqe;
++
++	PDBG("%s wq %p cq %p sw_rptr 0x%x sw_wptr 0x%x\n", __FUNCTION__,
++	     wq, cq, cq->sw_rptr, cq->sw_wptr);
++	memset(&cqe, 0, sizeof(cqe));
++	cqe.header = cpu_to_be32(V_CQE_STATUS(TPT_ERR_SWFLUSH) |
++			         V_CQE_OPCODE(sqp->opcode) |
++			         V_CQE_TYPE(1) |
++			         V_CQE_SWCQE(1) |
++			         V_CQE_QPID(wq->qpid) |
++			         V_CQE_GENBIT(Q_GENBIT(cq->sw_wptr,
++						       cq->size_log2)));
++	cqe.u.scqe.wrid_hi = sqp->sq_wptr;
++
++	*(cq->sw_queue + Q_PTR2IDX(cq->sw_wptr, cq->size_log2)) = cqe;
++	cq->sw_wptr++;
++}
++
++void cxio_flush_sq(struct t3_wq *wq, struct t3_cq *cq, int count)
++{
++	__u32 ptr;
++	struct t3_swsq *sqp = wq->sq + Q_PTR2IDX(wq->sq_rptr, wq->sq_size_log2);
++
++	ptr = wq->sq_rptr + count;
++	sqp += count;
++	while (ptr != wq->sq_wptr) {
++		insert_sq_cqe(wq, cq, sqp);
++		sqp++;
++		ptr++;
++	}
++}
++
++/*
++ * Move all CQEs from the HWCQ into the SWCQ.
++ */
++void cxio_flush_hw_cq(struct t3_cq *cq)
++{
++	struct t3_cqe *cqe, *swcqe;
++
++	PDBG("%s cq %p cqid 0x%x\n", __FUNCTION__, cq, cq->cqid);
++	cqe = cxio_next_hw_cqe(cq);
++	while (cqe) {
++		PDBG("%s flushing hwcq rptr 0x%x to swcq wptr 0x%x\n",
++		     __FUNCTION__, cq->rptr, cq->sw_wptr);
++		swcqe = cq->sw_queue + Q_PTR2IDX(cq->sw_wptr, cq->size_log2);
++		*swcqe = *cqe;
++		swcqe->header |= cpu_to_be32(V_CQE_SWCQE(1));
++		cq->sw_wptr++;
++		cq->rptr++;
++		cqe = cxio_next_hw_cqe(cq);
++	}
++}
++
++static inline int cqe_completes_wr(struct t3_cqe *cqe, struct t3_wq *wq)
++{
++	if (CQE_OPCODE(*cqe) == T3_TERMINATE)
++		return 0;
++
++	if ((CQE_OPCODE(*cqe) == T3_RDMA_WRITE) && RQ_TYPE(*cqe))
++		return 0;
++
++	if ((CQE_OPCODE(*cqe) == T3_READ_RESP) && SQ_TYPE(*cqe))
++		return 0;
++
++	if ((CQE_OPCODE(*cqe) == T3_SEND) && RQ_TYPE(*cqe) &&
++	    Q_EMPTY(wq->rq_rptr, wq->rq_wptr))
++		return 0;
++
++	return 1;
++}
++
++void cxio_count_scqes(struct t3_cq *cq, struct t3_wq *wq, int *count)
++{
++	struct t3_cqe *cqe;
++	u32 ptr;
++
++	*count = 0;
++	ptr = cq->sw_rptr;
++	while (!Q_EMPTY(ptr, cq->sw_wptr)) {
++		cqe = cq->sw_queue + (Q_PTR2IDX(ptr, cq->size_log2));
++		if ((SQ_TYPE(*cqe) || (CQE_OPCODE(*cqe) == T3_READ_RESP)) &&
++		    (CQE_QPID(*cqe) == wq->qpid))
++			(*count)++;
++		ptr++;
++	}	
++	PDBG("%s cq %p count %d\n", __FUNCTION__, cq, *count);
++}
++
++void cxio_count_rcqes(struct t3_cq *cq, struct t3_wq *wq, int *count)
++{
++	struct t3_cqe *cqe;
++	u32 ptr;
++
++	*count = 0;
++	PDBG("%s count zero %d\n", __FUNCTION__, *count);
++	ptr = cq->sw_rptr;
++	while (!Q_EMPTY(ptr, cq->sw_wptr)) {
++		cqe = cq->sw_queue + (Q_PTR2IDX(ptr, cq->size_log2));
++		if (RQ_TYPE(*cqe) && (CQE_OPCODE(*cqe) != T3_READ_RESP) &&
++		    (CQE_QPID(*cqe) == wq->qpid) && cqe_completes_wr(cqe, wq))
++			(*count)++;
++		ptr++;
++	}	
++	PDBG("%s cq %p count %d\n", __FUNCTION__, cq, *count);
++}
++
++static int cxio_hal_init_ctrl_cq(struct cxio_rdev *rdev_p)
++{
++	struct rdma_cq_setup setup;
++	setup.id = 0;
++	setup.base_addr = 0;	/* NULL address */
++	setup.size = 1;		/* enable the CQ */
++	setup.credits = 0;
++
++	/* force SGE to redirect to RspQ and interrupt */
++	setup.credit_thres = 0;	
++	setup.ovfl_mode = 1;
++	return (rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_CQ_SETUP, &setup));
++}
++
++static int cxio_hal_init_ctrl_qp(struct cxio_rdev *rdev_p)
++{
++	int err;
++	u64 sge_cmd, ctx0, ctx1;
++	u64 base_addr;
++	struct t3_modify_qp_wr *wqe;
++	struct sk_buff *skb = alloc_skb(sizeof(*wqe), GFP_KERNEL);
++
++
++	if (!skb) {
++		PDBG("%s alloc_skb failed\n", __FUNCTION__);
++		return -ENOMEM;
++	}
++	err = cxio_hal_init_ctrl_cq(rdev_p);
++	if (err) {
++		PDBG("%s err %d initializing ctrl_cq\n", __FUNCTION__, err);
++		return err;
++	}
++	rdev_p->ctrl_qp.workq = dma_alloc_coherent(
++					&(rdev_p->rnic_info.pdev->dev),
++					(1 << T3_CTRL_QP_SIZE_LOG2) *
++					sizeof(union t3_wr),
++					&(rdev_p->ctrl_qp.dma_addr),
++					GFP_KERNEL);
++	if (!rdev_p->ctrl_qp.workq) {
++		PDBG("%s dma_alloc_coherent failed\n", __FUNCTION__);
++		return -ENOMEM;
++	}
++	pci_unmap_addr_set(&rdev_p->ctrl_qp, mapping,
++			   rdev_p->ctrl_qp.dma_addr);
++	rdev_p->ctrl_qp.doorbell = (void __iomem *)rdev_p->rnic_info.kdb_addr;
++	memset(rdev_p->ctrl_qp.workq, 0,
++	       (1 << T3_CTRL_QP_SIZE_LOG2) * sizeof(union t3_wr));
++
++	init_MUTEX(&rdev_p->ctrl_qp.sem);
++	init_waitqueue_head(&rdev_p->ctrl_qp.waitq);
++
++	/* update HW Ctrl QP context */
++	base_addr = rdev_p->ctrl_qp.dma_addr;
++	base_addr >>= 12;
++	ctx0 = (V_EC_SIZE((1 << T3_CTRL_QP_SIZE_LOG2)) |
++		V_EC_BASE_LO((u32) base_addr & 0xffff));
++	ctx0 <<= 32;
++	ctx0 |= V_EC_CREDITS(FW_WR_NUM);
++	base_addr >>= 16;
++	ctx1 = (u32) base_addr;
++	base_addr >>= 32;
++	ctx1 |= ((u64) (V_EC_BASE_HI((u32) base_addr & 0xf) | V_EC_RESPQ(0) |
++			V_EC_TYPE(0) | V_EC_GEN(1) |
++			V_EC_UP_TOKEN(T3_CTL_QP_TID) | F_EC_VALID)) << 32;
++	wqe = (struct t3_modify_qp_wr *) skb_put(skb, sizeof(*wqe));
++	memset(wqe, 0, sizeof(*wqe));
++	build_fw_riwrh((struct fw_riwrh *) wqe, T3_WR_QP_MOD, 0, 1,
++		       T3_CTL_QP_TID, 7);
++	wqe->flags = cpu_to_be32(MODQP_WRITE_EC);
++	sge_cmd = (3ULL << 56) | FW_RI_SGEEC_START << 8 | 3;
++	wqe->sge_cmd = cpu_to_be64(sge_cmd);
++	wqe->ctx1 = cpu_to_be64(ctx1);
++	wqe->ctx0 = cpu_to_be64(ctx0);
++	PDBG("CtrlQP dma_addr 0x%llx workq %p size %d\n",
++	     (u64) rdev_p->ctrl_qp.dma_addr, rdev_p->ctrl_qp.workq,
++	     1 << T3_CTRL_QP_SIZE_LOG2);
++	skb->priority = CPL_PRIORITY_CONTROL;
++	return (cxgb3_ofld_send(rdev_p->t3cdev_p, skb));
++}
++
++static int cxio_hal_destroy_ctrl_qp(struct cxio_rdev *rdev_p)
++{
++	dma_free_coherent(&(rdev_p->rnic_info.pdev->dev),
++			  (1UL << T3_CTRL_QP_SIZE_LOG2)
++			  * sizeof(union t3_wr), rdev_p->ctrl_qp.workq,
++			  pci_unmap_addr(&rdev_p->ctrl_qp, mapping));
++	return cxio_hal_clear_qp_ctx(rdev_p, T3_CTRL_QP_ID);
++}
++
++/* write len bytes of data into addr (32B aligned address)
++ * If data is NULL, clear len byte of memory to zero.
++ * caller aquires the sem before the call
++ */
++static int cxio_hal_ctrl_qp_write_mem(struct cxio_rdev *rdev_p, u32 addr,
++				      u32 len, void *data, int completion)
++{
++	u32 i, nr_wqe, copy_len;
++	u8 *copy_data;
++	u8 wr_len, utx_len;	/* lenght in 8 byte flit */
++	enum t3_wr_flags flag;
++	__be64 *wqe;
++	u64 utx_cmd;
++	addr &= 0x7FFFFFF;
++	nr_wqe = len % 96 ? len / 96 + 1 : len / 96;	/* 96B max per WQE */
++	PDBG("%s wptr 0x%x rptr 0x%x len %d, nr_wqe %d data %p addr 0x%0x\n",
++	     __FUNCTION__, rdev_p->ctrl_qp.wptr, rdev_p->ctrl_qp.rptr, len,
++	     nr_wqe, data, addr);
++	utx_len = 3;		/* in 32B unit */
++	for (i = 0; i < nr_wqe; i++) {
++		if (Q_FULL(rdev_p->ctrl_qp.rptr, rdev_p->ctrl_qp.wptr,
++		           T3_CTRL_QP_SIZE_LOG2)) {
++			PDBG("%s ctrl_qp full wtpr 0x%0x rptr 0x%0x, "
++			     "wait for more space i %d\n", __FUNCTION__,
++			     rdev_p->ctrl_qp.wptr, rdev_p->ctrl_qp.rptr, i);
++			if (wait_event_interruptible(rdev_p->ctrl_qp.waitq,
++					     !Q_FULL(rdev_p->ctrl_qp.rptr,
++						     rdev_p->ctrl_qp.wptr,
++						     T3_CTRL_QP_SIZE_LOG2))) {
++				PDBG("%s ctrl_qp workq interrupted\n",
++				     __FUNCTION__);
++				return -ERESTARTSYS;
++			}
++			PDBG("%s ctrl_qp wakeup, continue posting work request "
++			     "i %d\n", __FUNCTION__, i);
++		}
++		wqe = (__be64 *)(rdev_p->ctrl_qp.workq + (rdev_p->ctrl_qp.wptr %
++						(1 << T3_CTRL_QP_SIZE_LOG2)));
++		flag = 0;
++		if (i == (nr_wqe - 1)) {
++			/* last WQE */
++			flag = completion ? T3_COMPLETION_FLAG : 0;
++			if (len % 32)
++				utx_len = len / 32 + 1;
++			else
++				utx_len = len / 32;
++		}
++
++		/*
++		 * Force a CQE to return the credit to the workq in case
++		 * we posted more than half the max QP size of WRs
++		 */
++		if ((i != 0) &&
++		    (i % (((1 << T3_CTRL_QP_SIZE_LOG2)) >> 1) == 0)) {
++			flag = T3_COMPLETION_FLAG;
++			PDBG("%s force completion at i %d\n", __FUNCTION__, i);
++		}
++
++		/* build the utx mem command */
++		wqe += (sizeof(struct t3_bypass_wr) >> 3);
++		utx_cmd = (T3_UTX_MEM_WRITE << 28) | (addr + i * 3);
++		utx_cmd <<= 32;
++		utx_cmd |= (utx_len << 28) | ((utx_len << 2) + 1);
++		*wqe = cpu_to_be64(utx_cmd);
++		wqe++;
++		copy_data = (u8 *) data + i * 96;
++		copy_len = len > 96 ? 96 : len;
++
++		/* clear memory content if data is NULL */
++		if (data)
++			memcpy(wqe, copy_data, copy_len);
++		else
++			memset(wqe, 0, copy_len);
++		if (copy_len % 32)
++			memset(((u8 *) wqe) + copy_len, 0,
++			       32 - (copy_len % 32));
++		wr_len = ((sizeof(struct t3_bypass_wr)) >> 3) + 1 +
++			 (utx_len << 2);
++		wqe = (__be64 *)(rdev_p->ctrl_qp.workq + (rdev_p->ctrl_qp.wptr %
++			      (1 << T3_CTRL_QP_SIZE_LOG2)));
++
++		/* wptr in the WRID[31:0] */
++		((union t3_wrid *)(wqe+1))->id0.low = rdev_p->ctrl_qp.wptr;
++
++		/*
++		 * This must be the last write with a memory barrier
++		 * for the genbit
++		 */
++		build_fw_riwrh((struct fw_riwrh *) wqe, T3_WR_BP, flag,
++			       Q_GENBIT(rdev_p->ctrl_qp.wptr,
++					T3_CTRL_QP_SIZE_LOG2), T3_CTRL_QP_ID,
++			       wr_len);
++		if (flag == T3_COMPLETION_FLAG)
++			ring_doorbell(rdev_p->ctrl_qp.doorbell, T3_CTRL_QP_ID);
++		len -= 96;
++		rdev_p->ctrl_qp.wptr++;
++	}
++	return 0;
++}
++
++/* IN: stag key, pdid, perm, zbva, to, len, page_size, pbl, and pbl_size
++ * OUT: stag index, actual pbl_size, pbl_addr allocated.
++ * TBD: shared memory region support
++ */
++static int __cxio_tpt_op(struct cxio_rdev *rdev_p, u32 reset_tpt_entry,
++			 u32 *stag, u8 stag_state, u32 pdid,
++			 enum tpt_mem_type type, enum tpt_mem_perm perm,
++			 u32 zbva, u64 to, u32 len, u8 page_size, __be64 *pbl,
++			 u32 *pbl_size, u32 *pbl_addr)
++{
++	int err;
++	struct tpt_entry tpt;
++	u32 stag_idx;
 +	u32 wptr;
-+	u32 size_log2;
-+	dma_addr_t dma_addr;
++	int rereg = (*stag != T3_STAG_UNSET);
++
++	stag_state = stag_state > 0;
++	stag_idx = (*stag) >> 8;
++
++	if ((!reset_tpt_entry) && !(*stag != T3_STAG_UNSET)) {
++		stag_idx = cxio_hal_get_stag(rdev_p->rscp);
++		if (!stag_idx)
++			return -ENOMEM;
++		*stag = (stag_idx << 8) | ((*stag) & 0xFF);
++	}
++	PDBG("%s stag_state 0x%0x type 0x%0x pdid 0x%0x, stag_idx 0x%x\n",
++	     __FUNCTION__, stag_state, type, pdid, stag_idx);
++	
++	if (reset_tpt_entry)
++		cxio_hal_pblpool_free(rdev_p, *pbl_addr, *pbl_size << 3);
++	else if (!rereg) {
++		*pbl_addr = cxio_hal_pblpool_alloc(rdev_p, *pbl_size << 3);
++		if (!*pbl_addr) {
++			return -ENOMEM;
++		}
++	}
++
++	down_interruptible(&rdev_p->ctrl_qp.sem);
++
++	/* write PBL first if any - update pbl only if pbl list exist */
++	if (pbl) {
++
++		PDBG("%s *pdb_addr 0x%x, pbl_base 0x%x, pbl_size %d\n",
++		     __FUNCTION__, *pbl_addr, rdev_p->rnic_info.pbl_base,
++		     *pbl_size);
++		err = cxio_hal_ctrl_qp_write_mem(rdev_p,
++				(*pbl_addr >> 5),
++				(*pbl_size << 3), pbl, 0);
++		if (err)
++			goto ret;
++	}
++
++	/* write TPT entry */
++	if (reset_tpt_entry)
++		memset(&tpt, 0, sizeof(tpt));
++	else {
++		tpt.valid_stag_pdid = cpu_to_be32(F_TPT_VALID |
++				V_TPT_STAG_KEY((*stag) & M_TPT_STAG_KEY) |
++				V_TPT_STAG_STATE(stag_state) |
++				V_TPT_STAG_TYPE(type) | V_TPT_PDID(pdid));
++		BUG_ON(page_size >= 28);
++		tpt.flags_pagesize_qpid = cpu_to_be32(V_TPT_PERM(perm) |
++			    	F_TPT_MW_BIND_ENABLE |
++				V_TPT_ADDR_TYPE((zbva ? TPT_ZBTO : TPT_VATO)) |
++				V_TPT_PAGE_SIZE(page_size));
++		tpt.rsvd_pbl_addr = reset_tpt_entry ? 0 :
++				    cpu_to_be32(V_TPT_PBL_ADDR(PBL_OFF(rdev_p, *pbl_addr)>>3));
++		tpt.len = cpu_to_be32(len);
++		tpt.va_hi = cpu_to_be32((u32) (to >> 32));
++		tpt.va_low_or_fbo = cpu_to_be32((u32) (to & 0xFFFFFFFFULL));
++		tpt.rsvd_bind_cnt_or_pstag = 0;
++		tpt.rsvd_pbl_size = reset_tpt_entry ? 0 :
++				  cpu_to_be32(V_TPT_PBL_SIZE((*pbl_size) >> 2));
++	}
++	err = cxio_hal_ctrl_qp_write_mem(rdev_p,
++				       stag_idx +
++				       (rdev_p->rnic_info.tpt_base >> 5),
++				       sizeof(tpt), &tpt, 1);
++
++	/* release the stag index to free pool */
++	if (reset_tpt_entry)
++		cxio_hal_put_stag(rdev_p->rscp, stag_idx);
++ret:	
++	wptr = rdev_p->ctrl_qp.wptr;
++	up(&rdev_p->ctrl_qp.sem);
++	if (!err)
++		if (wait_event_interruptible(rdev_p->ctrl_qp.waitq,
++					     SEQ32_GE(rdev_p->ctrl_qp.rptr,
++						      wptr)))
++			return -ERESTARTSYS;
++	return err;
++}
++
++/* IN : stag key, pdid, pbl_size
++ * Out: stag index, actaul pbl_size, and pbl_addr allocated.
++ */
++int cxio_allocate_stag(struct cxio_rdev *rdev_p, u32 * stag, u32 pdid,
++		       enum tpt_mem_perm perm, u32 * pbl_size, u32 * pbl_addr)
++{
++	*stag = T3_STAG_UNSET;
++	return (__cxio_tpt_op(rdev_p, 0, stag, 0, pdid, TPT_NON_SHARED_MR,
++			      perm, 0, 0ULL, 0, 0, NULL, pbl_size, pbl_addr));
++}
++
++int cxio_register_phys_mem(struct cxio_rdev *rdev_p, u32 *stag, u32 pdid,
++			   enum tpt_mem_perm perm, u32 zbva, u64 to, u32 len,
++			   u8 page_size, __be64 *pbl, u32 *pbl_size,
++			   u32 *pbl_addr)
++{
++	*stag = T3_STAG_UNSET;
++	return __cxio_tpt_op(rdev_p, 0, stag, 1, pdid, TPT_NON_SHARED_MR, perm,
++			     zbva, to, len, page_size, pbl, pbl_size, pbl_addr);
++}
++
++int cxio_reregister_phys_mem(struct cxio_rdev *rdev_p, u32 *stag, u32 pdid,
++			   enum tpt_mem_perm perm, u32 zbva, u64 to, u32 len,
++			   u8 page_size, __be64 *pbl, u32 *pbl_size,
++			   u32 *pbl_addr)
++{
++	return __cxio_tpt_op(rdev_p, 0, stag, 1, pdid, TPT_NON_SHARED_MR, perm,
++			     zbva, to, len, page_size, pbl, pbl_size, pbl_addr);
++}
++
++int cxio_dereg_mem(struct cxio_rdev *rdev_p, u32 stag, u32 pbl_size,
++		   u32 pbl_addr)
++{
++	return __cxio_tpt_op(rdev_p, 1, &stag, 0, 0, 0, 0, 0, 0ULL, 0, 0, NULL,
++			     &pbl_size, &pbl_addr);
++}
++
++int cxio_allocate_window(struct cxio_rdev *rdev_p, u32 * stag, u32 pdid)
++{
++	u32 pbl_size = 0;
++	*stag = T3_STAG_UNSET;
++	return __cxio_tpt_op(rdev_p, 0, stag, 0, pdid, TPT_MW, 0, 0, 0ULL, 0, 0,
++			     NULL, &pbl_size, NULL);
++}
++
++int cxio_deallocate_window(struct cxio_rdev *rdev_p, u32 stag)
++{
++	return __cxio_tpt_op(rdev_p, 1, &stag, 0, 0, 0, 0, 0, 0ULL, 0, 0, NULL,
++			     NULL, NULL);
++}
++
++int cxio_rdma_init(struct cxio_rdev *rdev_p, struct t3_rdma_init_attr *attr)
++{
++	struct t3_rdma_init_wr *wqe;
++	struct sk_buff *skb = alloc_skb(sizeof(*wqe), GFP_ATOMIC);
++	if (!skb)
++		return -ENOMEM;
++	PDBG("%s rdev_p %p\n", __FUNCTION__, rdev_p);
++	wqe = (struct t3_rdma_init_wr *) __skb_put(skb, sizeof(*wqe));
++	wqe->wrh.op_seop_flags = cpu_to_be32(V_FW_RIWR_OP(T3_WR_INIT));
++	wqe->wrh.gen_tid_len = cpu_to_be32(V_FW_RIWR_TID(attr->tid) |
++					   V_FW_RIWR_LEN(sizeof(*wqe) >> 3));
++	wqe->wrid.id1 = 0;
++	wqe->qpid = cpu_to_be32(attr->qpid);
++	wqe->pdid = cpu_to_be32(attr->pdid);
++	wqe->scqid = cpu_to_be32(attr->scqid);
++	wqe->rcqid = cpu_to_be32(attr->rcqid);
++	wqe->rq_addr = cpu_to_be32(attr->rq_addr - rdev_p->rnic_info.rqt_base);
++	wqe->rq_size = cpu_to_be32(attr->rq_size);
++	wqe->mpaattrs = attr->mpaattrs;
++	wqe->qpcaps = attr->qpcaps;
++	wqe->ulpdu_size = cpu_to_be16(attr->tcp_emss);
++	wqe->flags = cpu_to_be32(attr->flags);
++	wqe->ord = cpu_to_be32(attr->ord);
++	wqe->ird = cpu_to_be32(attr->ird);
++	wqe->qp_dma_addr = cpu_to_be64(attr->qp_dma_addr);
++	wqe->qp_dma_size = cpu_to_be32(attr->qp_dma_size);
++	wqe->rsvd = 0;
++	skb->priority = 0;	/* 0=>ToeQ; 1=>CtrlQ */
++	return (cxgb3_ofld_send(rdev_p->t3cdev_p, skb));
++}
++
++void cxio_register_ev_cb(cxio_hal_ev_callback_func_t ev_cb)
++{
++	cxio_ev_cb = ev_cb;
++}
++
++void cxio_unregister_ev_cb(cxio_hal_ev_callback_func_t ev_cb)
++{
++	cxio_ev_cb = NULL;
++}
++
++static int cxio_hal_ev_handler(struct t3cdev *t3cdev_p, struct sk_buff *skb)
++{
++	static int cnt;
++	struct cxio_rdev *rdev_p = NULL;
++	struct respQ_msg_t *rsp_msg = (struct respQ_msg_t *) skb->data;
++	PDBG("%d: %s cq_id 0x%x cq_ptr 0x%x genbit %0x overflow %0x an %0x"
++	     " se %0x notify %0x cqbranch %0x creditth %0x\n",
++	     cnt, __FUNCTION__, RSPQ_CQID(rsp_msg), RSPQ_CQPTR(rsp_msg),
++	     RSPQ_GENBIT(rsp_msg), RSPQ_OVERFLOW(rsp_msg), RSPQ_AN(rsp_msg),
++	     RSPQ_SE(rsp_msg), RSPQ_NOTIFY(rsp_msg), RSPQ_CQBRANCH(rsp_msg),
++	     RSPQ_CREDIT_THRESH(rsp_msg));
++	PDBG("CQE: QPID 0x%0x genbit %0x type 0x%0x status 0x%0x opcode %d "
++	     "len 0x%0x wrid_hi_stag 0x%x wrid_low_msn 0x%x\n",
++	     CQE_QPID(rsp_msg->cqe), CQE_GENBIT(rsp_msg->cqe),
++	     CQE_TYPE(rsp_msg->cqe), CQE_STATUS(rsp_msg->cqe),
++	     CQE_OPCODE(rsp_msg->cqe), CQE_LEN(rsp_msg->cqe),
++	     CQE_WRID_HI(rsp_msg->cqe), CQE_WRID_LOW(rsp_msg->cqe));
++	rdev_p = (struct cxio_rdev *)t3cdev_p->ulp;
++	if (!rdev_p) {
++		PDBG("%s called by t3cdev %p with null ulp\n", __FUNCTION__,
++		     t3cdev_p);
++		return 0;
++	}
++	if (CQE_QPID(rsp_msg->cqe) == T3_CTRL_QP_ID) {
++		rdev_p->ctrl_qp.rptr = CQE_WRID_LOW(rsp_msg->cqe) + 1;
++		wake_up_interruptible(&rdev_p->ctrl_qp.waitq);
++		dev_kfree_skb_irq(skb);
++	} else if (CQE_QPID(rsp_msg->cqe) == 0xfff8)
++		dev_kfree_skb_irq(skb);
++	else if (cxio_ev_cb)
++		(*cxio_ev_cb) (rdev_p, skb);
++	else
++		dev_kfree_skb_irq(skb);
++	cnt++;
++	return 0;
++}
++
++/* Caller takes care of locking if needed */
++int cxio_rdev_open(struct cxio_rdev *rdev_p)
++{
++	struct net_device *netdev_p = NULL;
++	int err = 0;
++	if (strlen(rdev_p->dev_name)) {
++		if (cxio_hal_find_rdev_by_name(rdev_p->dev_name)) {
++			return -EBUSY;
++		}
++		netdev_p = dev_get_by_name(rdev_p->dev_name);
++		if (!netdev_p) {
++			return -EINVAL;
++		}
++		dev_put(netdev_p);
++	} else if (rdev_p->t3cdev_p) {
++		if (cxio_hal_find_rdev_by_t3cdev(rdev_p->t3cdev_p)) {
++			return -EBUSY;
++		}
++		netdev_p = rdev_p->t3cdev_p->lldev;
++		strncpy(rdev_p->dev_name, rdev_p->t3cdev_p->name,
++			T3_MAX_DEV_NAME_LEN);
++	} else {
++		PDBG("%s t3cdev_p or dev_name must be set\n", __FUNCTION__);
++		return -EINVAL;
++	}
++
++	if (cxio_hal_add_rdev(rdev_p))
++		return -ENOMEM;
++
++	PDBG("%s opening rnic dev %s\n", __FUNCTION__, rdev_p->dev_name);
++	memset(&rdev_p->ctrl_qp, 0, sizeof(rdev_p->ctrl_qp));
++	if (!rdev_p->t3cdev_p)
++		rdev_p->t3cdev_p = T3CDEV(netdev_p);
++	rdev_p->t3cdev_p->ulp = (void *) rdev_p;
++	err = rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, RDMA_GET_PARAMS,
++					 &(rdev_p->rnic_info));
++	if (err) {
++		printk(KERN_ERR "%s t3cdev_p(%p)->ctl returned error %d.\n",
++		     __FUNCTION__, rdev_p->t3cdev_p, err);
++		goto err1;
++	}
++	err = rdev_p->t3cdev_p->ctl(rdev_p->t3cdev_p, GET_PORTS,
++				    &(rdev_p->port_info));
++	if (err) {
++		printk(KERN_ERR "%s t3cdev_p(%p)->ctl returned error %d.\n",
++		     __FUNCTION__, rdev_p->t3cdev_p, err);
++		goto err1;
++	}
++
++	/*
++	 * qpshift is the number of bits to shift the qpid left in order
++	 * to get the correct address of the doorbell for that qp.
++	 */
++	cxio_init_ucontext(rdev_p, &rdev_p->uctx);
++	rdev_p->qpshift = PAGE_SHIFT -
++			  ilog2(65536 >>
++			            ilog2(rdev_p->rnic_info.udbell_len >>
++					      PAGE_SHIFT));
++	rdev_p->qpnr = rdev_p->rnic_info.udbell_len >> PAGE_SHIFT;
++	rdev_p->qpmask = (65536 >> ilog2(rdev_p->qpnr)) - 1;
++	PDBG("%s rnic %s info: tpt_base 0x%0x tpt_top 0x%0x num stags %d "
++	     "pbl_base 0x%0x pbl_top 0x%0x rqt_base 0x%0x, rqt_top 0x%0x\n",
++	     __FUNCTION__, rdev_p->dev_name, rdev_p->rnic_info.tpt_base,
++  	     rdev_p->rnic_info.tpt_top, cxio_num_stags(rdev_p),
++  	     rdev_p->rnic_info.pbl_base,
++  	     rdev_p->rnic_info.pbl_top, rdev_p->rnic_info.rqt_base,
++  	     rdev_p->rnic_info.rqt_top);
++	PDBG("udbell_len 0x%0x udbell_physbase 0x%lx kdb_addr %p qpshift %lu "
++	     "qpnr %d qpmask 0x%x\n",
++	     rdev_p->rnic_info.udbell_len,
++	     rdev_p->rnic_info.udbell_physbase, rdev_p->rnic_info.kdb_addr,
++	     rdev_p->qpshift, rdev_p->qpnr, rdev_p->qpmask);
++
++	err = cxio_hal_init_ctrl_qp(rdev_p);
++	if (err) {
++		printk(KERN_ERR "%s error %d initializing ctrl_qp.\n",
++		       __FUNCTION__, err);
++		goto err1;
++	}
++ 	err = cxio_hal_init_resource(rdev_p, cxio_num_stags(rdev_p), 0,
++				     0, T3_MAX_NUM_QP, T3_MAX_NUM_CQ,
++				     T3_MAX_NUM_PD);
++	if (err) {
++		printk(KERN_ERR "%s error %d initializing hal resources.\n",
++		       __FUNCTION__, err);
++		goto err2;
++	}
++ 	err = cxio_hal_pblpool_create(rdev_p);
++ 	if (err) {
++ 		printk(KERN_ERR "%s error %d initializing pbl mem pool.\n",
++ 		       __FUNCTION__, err);
++ 		goto err3;
++ 	}
++ 	err = cxio_hal_rqtpool_create(rdev_p);
++ 	if (err) {
++ 		printk(KERN_ERR "%s error %d initializing rqt mem pool.\n",
++ 		       __FUNCTION__, err);
++ 		goto err4;
++ 	}
++  	return 0;
++err4:
++ 	cxio_hal_pblpool_destroy(rdev_p);
++err3:
++ 	cxio_hal_destroy_resource(rdev_p->rscp);
++err2:
++	cxio_hal_destroy_ctrl_qp(rdev_p);
++err1:
++	cxio_hal_delete_rdev(rdev_p);
++	return err;
++}
++
++void cxio_rdev_close(struct cxio_rdev *rdev_p)
++{
++	if (rdev_p) {
++		cxio_hal_pblpool_destroy(rdev_p);
++		cxio_hal_rqtpool_destroy(rdev_p);
++		cxio_hal_delete_rdev(rdev_p);
++		rdev_p->t3cdev_p->ulp = NULL;
++		cxio_hal_destroy_ctrl_qp(rdev_p);
++		cxio_hal_destroy_resource(rdev_p->rscp);
++	}
++}
++
++int __init cxio_hal_init(void)
++{
++	if (cxio_hal_init_rhdl_resource(T3_MAX_NUM_RI))
++		return -ENOMEM;
++	memset(rdev_tbl, 0, T3_MAX_NUM_RNIC * sizeof(void *));
++	t3_register_cpl_handler(CPL_ASYNC_NOTIF, cxio_hal_ev_handler);
++	return 0;
++}
++
++void __exit cxio_hal_exit(void)
++{
++	int i;
++	t3_register_cpl_handler(CPL_ASYNC_NOTIF, NULL);
++	for (i = 0; i < T3_MAX_NUM_RNIC; i++)
++		cxio_rdev_close(rdev_tbl[i]);
++	cxio_hal_destroy_rhdl_resource();
++}
++
++static inline void flush_completed_wrs(struct t3_wq *wq, struct t3_cq *cq)
++{
++	struct t3_swsq *sqp;
++	__u32 ptr = wq->sq_rptr;
++	int count = Q_COUNT(wq->sq_rptr, wq->sq_wptr);
++	
++	sqp = wq->sq + Q_PTR2IDX(ptr, wq->sq_size_log2);
++	while (count--)
++		if (!sqp->signaled) {
++			ptr++;
++			sqp = wq->sq + Q_PTR2IDX(ptr,  wq->sq_size_log2);
++		} else if (sqp->complete) {
++
++			/*
++			 * Insert this completed cqe into the swcq.
++			 */
++			PDBG("%s moving cqe into swcq sq idx %ld cq idx %ld\n",
++			     __FUNCTION__, Q_PTR2IDX(ptr,  wq->sq_size_log2),
++			     Q_PTR2IDX(cq->sw_wptr, cq->size_log2));
++			sqp->cqe.header |= htonl(V_CQE_SWCQE(1));
++			*(cq->sw_queue + Q_PTR2IDX(cq->sw_wptr, cq->size_log2))
++				= sqp->cqe;
++			cq->sw_wptr++;
++			sqp->signaled = 0;
++			break;
++		} else
++			break;
++}
++
++static inline void create_read_req_cqe(struct t3_wq *wq,
++				       struct t3_cqe *hw_cqe,
++				       struct t3_cqe *read_cqe)
++{
++	read_cqe->u.scqe.wrid_hi = wq->oldest_read->sq_wptr;
++	read_cqe->len = wq->oldest_read->read_len;
++	read_cqe->header = htonl(V_CQE_QPID(CQE_QPID(*hw_cqe)) |
++				 V_CQE_SWCQE(SW_CQE(*hw_cqe)) |
++				 V_CQE_OPCODE(T3_READ_REQ) |
++				 V_CQE_TYPE(1));
++}
++
++/*
++ * Return a ptr to the next read wr in the SWSQ or NULL.
++ */
++static inline void advance_oldest_read(struct t3_wq *wq)
++{
++
++	u32 rptr = wq->oldest_read - wq->sq + 1;
++	u32 wptr = Q_PTR2IDX(wq->sq_wptr, wq->sq_size_log2);
++
++	while (Q_PTR2IDX(rptr, wq->sq_size_log2) != wptr) {
++		wq->oldest_read = wq->sq + Q_PTR2IDX(rptr, wq->sq_size_log2);
++
++		if (wq->oldest_read->opcode == T3_READ_REQ)
++			return;
++		rptr++;
++	}
++	wq->oldest_read = NULL;
++}
++
++/*
++ * cxio_poll_cq
++ *
++ * Caller must:
++ *     check the validity of the first CQE,
++ *     supply the wq assicated with the qpid.
++ *
++ * credit: cq credit to return to sge.
++ * cqe_flushed: 1 iff the CQE is flushed.
++ * cqe: copy of the polled CQE.
++ *
++ * return value:
++ *     0       CQE returned,
++ *    -1       CQE skipped, try again.
++ */
++int cxio_poll_cq(struct t3_wq *wq, struct t3_cq *cq, struct t3_cqe *cqe,
++		     u8 *cqe_flushed, u64 *cookie, u32 *credit)
++{
++	int ret = 0;
++	struct t3_cqe *hw_cqe, read_cqe;
++
++	*cqe_flushed = 0;
++	*credit = 0;
++	hw_cqe = cxio_next_cqe(cq);
++
++	PDBG("%s CQE OOO %d qpid 0x%0x genbit %d type %d status 0x%0x"
++	     " opcode 0x%0x len 0x%0x wrid_hi_stag 0x%x wrid_low_msn 0x%x\n",
++	     __FUNCTION__, CQE_OOO(*hw_cqe), CQE_QPID(*hw_cqe),
++	     CQE_GENBIT(*hw_cqe), CQE_TYPE(*hw_cqe), CQE_STATUS(*hw_cqe),
++	     CQE_OPCODE(*hw_cqe), CQE_LEN(*hw_cqe), CQE_WRID_HI(*hw_cqe),
++	     CQE_WRID_LOW(*hw_cqe));
++
++	/*
++	 * skip cqe's not affiliated with a QP.
++	 */
++	if (wq == NULL) {
++		ret = -1;
++		goto skip_cqe;
++	}
++
++	/*
++	 * Gotta tweak READ completions:
++	 * 	1) the cqe doesn't contain the sq_wptr from the wr.
++	 *	2) opcode not reflected from the wr.
++	 *	3) read_len not reflected from the wr.
++	 *	4) cq_type is RQ_TYPE not SQ_TYPE.
++	 */
++	if (RQ_TYPE(*hw_cqe) && (CQE_OPCODE(*hw_cqe) == T3_READ_RESP)) {
++		
++		/*
++	 	 * Don't write to the HWCQ, so create a new read req CQE
++		 * in local memory.
++		 */
++		create_read_req_cqe(wq, hw_cqe, &read_cqe);
++		hw_cqe = &read_cqe;
++		advance_oldest_read(wq);
++	}
++
++	/*
++ 	 * T3A: Discard TERMINATE CQEs.
++	 */
++	if (CQE_OPCODE(*hw_cqe) == T3_TERMINATE) {
++		ret = -1;
++		wq->error = 1;
++		goto skip_cqe;
++	}
++
++	if (CQE_STATUS(*hw_cqe) || wq->error) {
++		*cqe_flushed = wq->error;
++		wq->error = 1;
++	
++		/*
++		 * T3A inserts errors into the CQE.  We cannot return
++	 	 * these as work completions.
++	 	 */
++		/* incoming write failures */
++		if ((CQE_OPCODE(*hw_cqe) == T3_RDMA_WRITE)
++		     && RQ_TYPE(*hw_cqe)) {
++			ret = -1;
++			goto skip_cqe;
++		}
++		/* incoming read request failures */
++		if ((CQE_OPCODE(*hw_cqe) == T3_READ_RESP) && SQ_TYPE(*hw_cqe)) {
++			ret = -1;
++			goto skip_cqe;
++		}
++
++		/* incoming SEND with no receive posted failures */
++		if ((CQE_OPCODE(*hw_cqe) == T3_SEND) && RQ_TYPE(*hw_cqe) &&
++		    Q_EMPTY(wq->rq_rptr, wq->rq_wptr)) {
++			ret = -1;
++			goto skip_cqe;
++		}
++		goto proc_cqe;
++	}
++
++	/*
++	 * RECV completion.
++	 */
++	if (RQ_TYPE(*hw_cqe)) {
++
++		/*
++		 * HW only validates 4 bits of MSN.  So we must validate that
++		 * the MSN in the SEND is the next expected MSN.  If its not,
++		 * then we complete this with TPT_ERR_MSN and mark the wq in
++		 * error.
++		 */
++		if (unlikely((CQE_WRID_MSN(*hw_cqe) != (wq->rq_rptr + 1)))) {
++			wq->error = 1;
++			hw_cqe->header |= htonl(V_CQE_STATUS(TPT_ERR_MSN));
++			goto proc_cqe;
++		}
++		goto proc_cqe;
++	}
++
++	/*
++ 	 * If we get here its a send completion.
++	 *
++	 * Handle out of order completion. These get stuffed
++	 * in the SW SQ. Then the SW SQ is walked to move any
++	 * now in-order completions into the SW CQ.  This handles
++	 * 2 cases:
++	 * 	1) reaping unsignaled WRs when the first subsequent
++	 *	   signaled WR is completed.
++	 *	2) out of order read completions.
++	 */
++	if (!SW_CQE(*hw_cqe) && (CQE_WRID_SQ_WPTR(*hw_cqe) != wq->sq_rptr)) {
++		struct t3_swsq *sqp;
++
++		PDBG("%s out of order completion going in swsq at idx %ld\n",
++		     __FUNCTION__,
++		     Q_PTR2IDX(CQE_WRID_SQ_WPTR(*hw_cqe), wq->sq_size_log2));
++		sqp = wq->sq +
++		      Q_PTR2IDX(CQE_WRID_SQ_WPTR(*hw_cqe), wq->sq_size_log2);
++		sqp->cqe = *hw_cqe;
++		sqp->complete = 1;
++		ret = -1;
++		goto flush_wq;
++	}
++	
++proc_cqe:
++	*cqe = *hw_cqe;
++
++	/*
++	 * Reap the associated WR(s) that are freed up with this
++	 * completion.
++	 */
++	if (SQ_TYPE(*hw_cqe)) {
++		wq->sq_rptr = CQE_WRID_SQ_WPTR(*hw_cqe);
++		PDBG("%s completing sq idx %ld\n", __FUNCTION__,
++		     Q_PTR2IDX(wq->sq_rptr, wq->sq_size_log2));
++		*cookie = (wq->sq +
++			   Q_PTR2IDX(wq->sq_rptr, wq->sq_size_log2))->wr_id;
++		wq->sq_rptr++;
++	} else {
++		PDBG("%s completing rq idx %ld\n", __FUNCTION__,
++		     Q_PTR2IDX(wq->rq_rptr, wq->rq_size_log2));
++		*cookie = *(wq->rq + Q_PTR2IDX(wq->rq_rptr, wq->rq_size_log2));
++		wq->rq_rptr++;
++	}
++
++flush_wq:
++	/*
++	 * Flush any completed cqes that are now in-order.
++	 */
++	flush_completed_wrs(wq, cq);
++
++skip_cqe:
++	if (SW_CQE(*hw_cqe)) {
++		PDBG("%s cq %p cqid 0x%x skip sw cqe sw_rptr 0x%x\n",
++		     __FUNCTION__, cq, cq->cqid, cq->sw_rptr);
++		++cq->sw_rptr;
++	} else {
++		PDBG("%s cq %p cqid 0x%x skip hw cqe rptr 0x%x\n",
++		     __FUNCTION__, cq, cq->cqid, cq->rptr);
++		++cq->rptr;
++
++		/*
++		 * T3A: compute credits.
++		 */
++		if (((cq->rptr - cq->wptr) > (1 << (cq->size_log2 - 1)))
++		    || ((cq->rptr - cq->wptr) >= 128)) {
++			*credit = cq->rptr - cq->wptr;
++			cq->wptr = cq->rptr;
++		}
++	}
++	return ret;
++}
+diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_hal.h b/drivers/infiniband/hw/cxgb3/core/cxio_hal.h
+new file mode 100644
+index 0000000..e5e702d
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/core/cxio_hal.h
+@@ -0,0 +1,201 @@
++/*
++ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
++ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++#ifndef  __CXIO_HAL_H__
++#define  __CXIO_HAL_H__
++
++#include <linux/list.h>
++#include <linux/mutex.h>
++
++#include "t3_cpl.h"
++#include "t3cdev.h"
++#include "cxgb3_ctl_defs.h"
++#include "cxio_wr.h"
++
++#define T3_CTRL_QP_ID    FW_RI_SGEEC_START
++#define T3_CTL_QP_TID	 FW_RI_TID_START
++#define T3_CTRL_QP_SIZE_LOG2  8
++#define T3_CTRL_CQ_ID    0
++
++/* TBD */
++#define T3_MAX_NUM_RNIC  8
++#define T3_MAX_NUM_RI (1<<15)
++#define T3_MAX_NUM_QP (1<<15)
++#define T3_MAX_NUM_CQ (1<<15)
++#define T3_MAX_NUM_PD (1<<15)
++#define T3_MAX_PBL_SIZE 256
++#define T3_MAX_RQ_SIZE 1024
++#define T3_MAX_NUM_STAG (1<<15)
++
++#define T3_STAG_UNSET 0xffffffff
++
++#define T3_MAX_DEV_NAME_LEN 32
++
++struct cxio_hal_ctrl_qp {
++	u32 wptr;
++	u32 rptr;
++	struct semaphore sem;	/* for the wtpr, can sleep */
++	wait_queue_head_t waitq;	/* wait for RspQ/CQE msg */
++	union t3_wr *workq;	/* the work request queue */
++	dma_addr_t dma_addr;	/* pci bus address of the workq */
 +	DECLARE_PCI_UNMAP_ADDR(mapping)
-+	struct t3_cqe *queue;
-+	struct t3_cqe *sw_queue;
-+	u32 sw_rptr;
-+	u32 sw_wptr;
++	void __iomem *doorbell;
 +};
 +
-+#define CQ_VLD_ENTRY(ptr,size_log2,cqe) (Q_GENBIT(ptr,size_log2) == \
-+					 CQE_GENBIT(*cqe))
++struct cxio_hal_resource {
++	struct kfifo *tpt_fifo;
++	spinlock_t tpt_fifo_lock;
++	struct kfifo *qpid_fifo;
++	spinlock_t qpid_fifo_lock;
++	struct kfifo *cqid_fifo;
++	spinlock_t cqid_fifo_lock;
++	struct kfifo *pdid_fifo;
++	spinlock_t pdid_fifo_lock;
++};
 +
-+static inline void cxio_set_wq_in_error(struct t3_wq *wq)
++struct cxio_qpid_list {
++	struct list_head entry;
++	u32 qpid;
++};
++
++struct cxio_ucontext {
++	struct list_head qpids;
++	struct mutex lock;
++};
++
++struct cxio_rdev {
++	char dev_name[T3_MAX_DEV_NAME_LEN];
++	struct t3cdev *t3cdev_p;
++	struct rdma_info rnic_info;
++	struct adap_ports port_info;
++	struct cxio_hal_resource *rscp;
++	struct cxio_hal_ctrl_qp ctrl_qp;
++	void *ulp;
++	unsigned long qpshift;
++	u32 qpnr;
++	u32 qpmask;
++	struct cxio_ucontext uctx;
++	struct gen_pool *pbl_pool;
++	struct gen_pool *rqt_pool;
++};
++
++static inline int cxio_num_stags(struct cxio_rdev *rdev_p)
 +{
-+	wq->queue->flit[13] = 1;
++	return min((int)T3_MAX_NUM_STAG, (int)((rdev_p->rnic_info.tpt_top - rdev_p->rnic_info.tpt_base) >> 5));
 +}
 +
-+static inline struct t3_cqe *cxio_next_hw_cqe(struct t3_cq *cq)
-+{
-+	struct t3_cqe *cqe;
++typedef void (*cxio_hal_ev_callback_func_t) (struct cxio_rdev * rdev_p,
++					     struct sk_buff * skb);
 +
-+	cqe = cq->queue + (Q_PTR2IDX(cq->rptr, cq->size_log2));
-+	if (CQ_VLD_ENTRY(cq->rptr, cq->size_log2, cqe))
-+		return cqe;
-+	return NULL;
-+}
++#define RSPQ_CQID(rsp) (be32_to_cpu(rsp->cq_ptrid) & 0xffff)
++#define RSPQ_CQPTR(rsp) ((be32_to_cpu(rsp->cq_ptrid) >> 16) & 0xffff)
++#define RSPQ_GENBIT(rsp) ((be32_to_cpu(rsp->flags) >> 16) & 1)
++#define RSPQ_OVERFLOW(rsp) ((be32_to_cpu(rsp->flags) >> 17) & 1)
++#define RSPQ_AN(rsp) ((be32_to_cpu(rsp->flags) >> 18) & 1)
++#define RSPQ_SE(rsp) ((be32_to_cpu(rsp->flags) >> 19) & 1)
++#define RSPQ_NOTIFY(rsp) ((be32_to_cpu(rsp->flags) >> 20) & 1)
++#define RSPQ_CQBRANCH(rsp) ((be32_to_cpu(rsp->flags) >> 21) & 1)
++#define RSPQ_CREDIT_THRESH(rsp) ((be32_to_cpu(rsp->flags) >> 22) & 1)
 +
-+static inline struct t3_cqe *cxio_next_sw_cqe(struct t3_cq *cq)
-+{
-+	struct t3_cqe *cqe;
++struct respQ_msg_t {
++	__be32 flags;		/* flit 0 */
++	__be32 cq_ptrid;
++	__be64 rsvd;		/* flit 1 */
++	struct t3_cqe cqe;	/* flits 2-3 */
++};
 +
-+	if (!Q_EMPTY(cq->sw_rptr, cq->sw_wptr)) {
-+		cqe = cq->sw_queue + (Q_PTR2IDX(cq->sw_rptr, cq->size_log2));
-+		return cqe;
-+	}
-+	return NULL;
-+}
++enum t3_cq_opcode {
++	CQ_ARM_AN = 0x2,
++	CQ_ARM_SE = 0x6,
++	CQ_FORCE_AN = 0x3,
++	CQ_CREDIT_UPDATE = 0x7
++};
 +
-+static inline struct t3_cqe *cxio_next_cqe(struct t3_cq *cq)
-+{
-+	struct t3_cqe *cqe;
++int cxio_rdev_open(struct cxio_rdev *rdev);
++void cxio_rdev_close(struct cxio_rdev *rdev);
++int cxio_hal_cq_op(struct cxio_rdev *rdev, struct t3_cq *cq,
++	 	   enum t3_cq_opcode op, u32 credit);
++int cxio_hal_clear_qp_ctx(struct cxio_rdev *rdev, u32 qpid);
++int cxio_create_cq(struct cxio_rdev *rdev, struct t3_cq *cq);
++int cxio_destroy_cq(struct cxio_rdev *rdev, struct t3_cq *cq);
++int cxio_resize_cq(struct cxio_rdev *rdev, struct t3_cq *cq);
++void cxio_release_ucontext(struct cxio_rdev *rdev, struct cxio_ucontext *uctx);
++void cxio_init_ucontext(struct cxio_rdev *rdev, struct cxio_ucontext *uctx);
++int cxio_create_qp(struct cxio_rdev *rdev, u32 kernel_domain, struct t3_wq *wq,
++		   struct cxio_ucontext *uctx);
++int cxio_destroy_qp(struct cxio_rdev *rdev, struct t3_wq *wq,
++		    struct cxio_ucontext *uctx);
++int cxio_peek_cq(struct t3_wq *wr, struct t3_cq *cq, int opcode);
++int cxio_allocate_stag(struct cxio_rdev *rdev, u32 * stag, u32 pdid,
++		       enum tpt_mem_perm perm, u32 * pbl_size, u32 * pbl_addr);
++int cxio_register_phys_mem(struct cxio_rdev *rdev, u32 * stag, u32 pdid,
++			   enum tpt_mem_perm perm, u32 zbva, u64 to, u32 len,
++			   u8 page_size, __be64 *pbl, u32 *pbl_size,
++			   u32 *pbl_addr);
++int cxio_reregister_phys_mem(struct cxio_rdev *rdev, u32 * stag, u32 pdid,
++			   enum tpt_mem_perm perm, u32 zbva, u64 to, u32 len,
++			   u8 page_size, __be64 *pbl, u32 *pbl_size,
++			   u32 *pbl_addr);
++int cxio_dereg_mem(struct cxio_rdev *rdev, u32 stag, u32 pbl_size,
++		   u32 pbl_addr);
++int cxio_allocate_window(struct cxio_rdev *rdev, u32 * stag, u32 pdid);
++int cxio_deallocate_window(struct cxio_rdev *rdev, u32 stag);
++int cxio_rdma_init(struct cxio_rdev *rdev, struct t3_rdma_init_attr *attr);
++void cxio_register_ev_cb(cxio_hal_ev_callback_func_t ev_cb);
++void cxio_unregister_ev_cb(cxio_hal_ev_callback_func_t ev_cb);
++u32 cxio_hal_get_rhdl(void);
++void cxio_hal_put_rhdl(u32 rhdl);
++u32 cxio_hal_get_pdid(struct cxio_hal_resource *rscp);
++void cxio_hal_put_pdid(struct cxio_hal_resource *rscp, u32 pdid);
++int __init cxio_hal_init(void);
++void __exit cxio_hal_exit(void);
++void cxio_flush_rq(struct t3_wq *wq, struct t3_cq *cq, int count);
++void cxio_flush_sq(struct t3_wq *wq, struct t3_cq *cq, int count);
++void cxio_count_rcqes(struct t3_cq *cq, struct t3_wq *wq, int *count);
++void cxio_count_scqes(struct t3_cq *cq, struct t3_wq *wq, int *count);
++void cxio_flush_hw_cq(struct t3_cq *cq);
++int cxio_poll_cq(struct t3_wq *wq, struct t3_cq *cq, struct t3_cqe *cqe,
++		     u8 *cqe_flushed, u64 *cookie, u32 *credit);
 +
-+	if (!Q_EMPTY(cq->sw_rptr, cq->sw_wptr)) {
-+		cqe = cq->sw_queue + (Q_PTR2IDX(cq->sw_rptr, cq->size_log2));
-+		return cqe;
-+	}
-+	cqe = cq->queue + (Q_PTR2IDX(cq->rptr, cq->size_log2));
-+	if (CQ_VLD_ENTRY(cq->rptr, cq->size_log2, cqe))
-+		return cqe;
-+	return NULL;
-+}
++#define MOD "iw_cxgb3: "
++#define PDBG(fmt, args...) pr_debug(MOD fmt, ## args)
++
++#ifdef DEBUG
++void cxio_dump_tpt(struct cxio_rdev *rev, u32 stag);
++void cxio_dump_pbl(struct cxio_rdev *rev, u32 pbl_addr, uint len, u8 shift);
++void cxio_dump_wqe(union t3_wr *wqe);
++void cxio_dump_wce(struct t3_cqe *wce);
++void cxio_dump_rqt(struct cxio_rdev *rdev, u32 hwtid, int nents);
++void cxio_dump_tcb(struct cxio_rdev *rdev, u32 hwtid);
++#endif
 +
 +#endif

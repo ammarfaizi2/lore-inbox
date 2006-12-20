@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965116AbWLTOvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964908AbWLTOzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbWLTOvt (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 09:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWLTOvt
+	id S964908AbWLTOzG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 09:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWLTOzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 09:51:49 -0500
-Received: from smtp.saahbs.net ([70.235.213.234]:34957 "HELO smtp.saahbs.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S965116AbWLTOvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 09:51:47 -0500
-Date: Wed, 20 Dec 2006 08:51:45 -0600
-From: Michal Sabala <lkml@saahbs.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 mmap hangs unrelated apps
-Message-ID: <20061220145145.GA14676@prosiaczek>
-Reply-To: Michael Sabala <lkml@saahbs.net>
-References: <20061215023014.GC2721@prosiaczek> <1166199855.5761.34.camel@lade.trondhjem.org> <20061215175030.GG6220@prosiaczek> <1166211884.5761.49.camel@lade.trondhjem.org> <20061215210642.GI6220@prosiaczek> <1166219054.5761.56.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1166219054.5761.56.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 20 Dec 2006 09:55:05 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:59186 "EHLO
+	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964908AbWLTOzE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 09:55:04 -0500
+X-Sasl-enc: fagu+hWQbZLMONXgjY856nwIXyS6PCpkqnLQilUZV+QW 1166626495
+Subject: Re: [ANNOUNCE] util-linux-ng
+From: Ian Kent <raven@themaw.net>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Arkadiusz Miskiewicz <arekm@maven.pl>, Karel Zak <kzak@redhat.com>,
+       util-linux-ng@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, bunk@stusta.de
+In-Reply-To: <20061220121959.GR5010@kernel.dk>
+References: <20061218075210.GB5217@petra.dvoda.cz>
+	 <200612181055.05585.arekm@maven.pl>
+	 <Pine.LNX.4.64.0612181938340.3552@raven.themaw.net>
+	 <20061220121959.GR5010@kernel.dk>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 23:55:03 +0900
+Message-Id: <1166626503.4264.2.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-21.el5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006/12/15 at 15:44:14 Trond Myklebust <trond.myklebust@fys.uio.no> wrote
-> On Fri, 2006-12-15 at 15:06 -0600, Michal Sabala wrote:
-> >
-> > What nfs_debug information would be useful in tracking this
-> > problem? Is there any other information I can provide you?
+On Wed, 2006-12-20 at 13:19 +0100, Jens Axboe wrote:
+> On Mon, Dec 18 2006, Ian Kent wrote:
+> > On Mon, 18 Dec 2006, Arkadiusz Miskiewicz wrote:
+> > 
+> > > On Monday 18 December 2006 08:52, Karel Zak wrote:
+> > > >  I'm pleased to announce a new "util-linux-ng" project. This project
+> > > >  is a fork of the original util-linux (2.13-pre7).
+> > > 
+> > > Fork? Are you saying that you just didn't take over maintainership and now we 
+> > > will have two versions of util-linux!? :/
+> > > 
+> > 
+> > We tried, believe me, but couldn't get agreement (or a response from 
+> > current maintainer).
 > 
-> Could you just out of interest try 2.6.20-rc1?
+> That's ridiculous. Adrian, why don't you just sign over maintainership
+> of util-linux, if you don't have time to cater for it? At least answer
+> emails on the subject, you seem to be busy here on lkml all the time, so
+> I'm sure you can find 2 minutes to wrap this up.
+> 
 
-Hello Trond, Andrew,
+Or even accept the offer of help and co-maintainer ship in the spirit
+that was given.
 
-For what it's worth, after running 2.6.20-rc1 for ~12 hours, I did not
-observe the uninterruptible sleep condition.
+Unfortunately we ended up having to fork.
 
-Thanks, Michal
+Ian
 
--- 
-Michal "Saahbs" Sabala
+

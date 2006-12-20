@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964982AbWLTUwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965008AbWLTUxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbWLTUwX (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 15:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWLTUwX
+	id S965008AbWLTUxG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 15:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWLTUxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 15:52:23 -0500
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:58794 "EHLO
-	liaag2aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964982AbWLTUwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 15:52:22 -0500
-Date: Wed, 20 Dec 2006 15:48:27 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Oops in 2.6.19.1
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200612201550_MC3-1-D5C7-74C6@compuserve.com>
+	Wed, 20 Dec 2006 15:53:06 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:59611 "EHLO
+	clueserver.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965012AbWLTUxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 15:53:04 -0500
+X-Greylist: delayed 1534 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Dec 2006 15:53:03 EST
+Date: Wed, 20 Dec 2006 12:27:28 -0800 (PST)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Alan <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       karderio <karderio@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lord of the code! [was: GPL only modules [was Re: [GIT PATCH]
+ more Driver core patches for 2.6.19]]
+In-Reply-To: <1166643999.852.2.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0612201226380.23352@blackbox.fnordora.org>
+References: <1166226982.12721.78.camel@localhost> 
+ <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> 
+ <20061216012721.47be92f3@localhost.localdomain> <1166643999.852.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200612201421.03514.s0348365@sms.ed.ac.uk>
+On Wed, 20 Dec 2006, Steven Rostedt wrote:
 
-On Wed, 20 Dec 2006 14:21:03 +0000, Alistair John Strachan wrote:
+> On Sat, 2006-12-16 at 01:27 +0000, Alan wrote:
+>
+>>> blather and idiotic hogwash. "Information" doesn't want to be free,
+>> nor is
+>>> it somethign you should fight for or necessarily even encourage.
+>>
+>> As a pedant that is the one item I have to pick you up on Linus.
+>> Information wants to be free, the natural efficient economic state of
+>> information is generally free in both senses.
+>
+> "Remember Frodo, It wants to be free^Wfound"
 
-> Any ideas?
-> 
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 
-> 00000009
+"Information does not want to be free. It wants to be tied up and 
+spanked."
 
-    83 ca 10                  or     $0x10,%edx
-    3b                        .byte 0x3b
-    87 68 01                  xchg   %ebp,0x1(%eax)   <=====
-    00 00                     add    %al,(%eax)
+> Sorry, couldn't resist...
 
-Somehow it is trying to execute code in the middle of an instruction.
-That almost never works, even when the resulting fragment is a legal
-opcode. :)
+Neither could I. ]:>
 
-The real instruction is:
-
-    3b 87 68 01 00 00 00        cmp    0x168(%edi),%eax
-
-I'd guess you have some kind of hardware problem.  It could also be
-a kernel problem where the saved address was corrupted during an
-interrupt, but that's not likely.
 -- 
-MBTI: IXTP
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25

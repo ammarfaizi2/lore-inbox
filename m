@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030210AbWLTR1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030215AbWLTRg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWLTR1U (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 12:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWLTR1U
+	id S1030215AbWLTRg0 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 12:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWLTRg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 12:27:20 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:43651 "EHLO
+	Wed, 20 Dec 2006 12:36:26 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:60539 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965152AbWLTR1T (ORCPT
+	with ESMTP id S1030215AbWLTRgZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 12:27:19 -0500
+	Wed, 20 Dec 2006 12:36:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PFaQaiXSv0bn75VlgaNCMBDPEyZWL0mtSqfrl+636zj6YlMftkPwfsxXZle/0TUlbUm5iJthbChdJVicMPlNpC39PvolN2K3CI/KSmSs85i+qMJ1GqQGJyLE4Khd/cFXr4gAZ5PU3WtYRAhSO00SYnY1BnBnvRsDjFWkoTiwIjk=
-Message-ID: <787b0d920612200927u61e08288o1728ff6433bd92b@mail.gmail.com>
-Date: Wed, 20 Dec 2006 12:27:15 -0500
+        b=AgtfKR40hAtkszgS5ifZfignpSBkBtIWtq40IixYLhr9Q+fDGwEW9l5eM81Jnakvx5LnhveS++MnO2JHUaPDbtSD7zQ/ouw8dpRG4fx/WALd+Wj/e4dY7i8Gnkp71ibCWAQ51cLbY9LfjkfANqK9VT0wIwXhSd9UqxdqDyjab4k=
+Message-ID: <787b0d920612200936w186a783aj81d10384c54dfc7e@mail.gmail.com>
+Date: Wed, 20 Dec 2006 12:36:23 -0500
 From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: util-linux: orphan
-Cc: kzak@redhat.com, hvogel@suse.de, olh@suse.de, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, arekm@maven.pl,
-       util-linux-ng@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0612201712190.15218@yvahk01.tjqt.qr>
+To: "David Wragg" <david@wragg.org>
+Subject: Re: [PATCH] procfs: export context switch counts in /proc/*/stat
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <878xh2aelz.fsf@wragg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
-	 <Pine.LNX.4.61.0612201712190.15218@yvahk01.tjqt.qr>
+References: <787b0d920612192140o37a28e8fnccdd51670cb9a766@mail.gmail.com>
+	 <878xh2aelz.fsf@wragg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/20/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> >> I've originally thought about util-linux upstream fork,
-> >> but as usually an fork is bad step. So.. I'd like to start
-> >> some discussion before this step.
-> > ...
-> >> after few weeks I'm pleased to announce a new "util-linux-ng"
-> >> project. This project is a fork of the original util-linux (2.13-pre7).
+On 12/20/06, David Wragg <david@wragg.org> wrote:
+> "Albert Cahalan" <acahalan@gmail.com> writes:
+> > On Mon, Dec 18, 2006 at 11:50:08PM +0000, David Wragg wrote:
+> >> This patch (against 2.6.19/2.6.19.1) adds the four context
+> >> switch values (voluntary context switches, involuntary
+> >> context switches, and the same values accumulated from
+> >> terminated child processes) to the end of /proc/*/stat,
+> >> similarly to min_flt, maj_flt and the time used values.
 > >
-> > Well, how about giving me a chunk of it? I'd like /bin/kill please.
-> > I already ship a nicer one in procps anyway, so you can just delete
-> > the files and call that done. (just today I was working on a Fedora
-> > system and /bin/kill annoyed me)
+> > Hmmm, OK, do people have a use for these values?
 >
-> How can you ship a "nicer" kill, given that its sole purpose is to accept
->
->   kill { -l | -t | {-s SIGNUM | -SIGNAME } somepid [morepids] }
->
-> ?
+> My reason for writing the patch was to track which processes are
+> active (i.e. got scheduled to run) by polling these context switch
+> values.  The time used values are not a reliable way to detect process
+> activity on fast machines.  So for example, when sorting by %CPU, top
+> often shows many processes using 0% CPU, despite the fact that these
+> processes are running occasionally.  If top sorted by (%CPU, context
+> switch count delta), it might give a more useful display of which
+> processes are active on the system.
 
-I checked compatibility with Solaris, Tru64, probably a few BSDs,
-and man pages of many others.
+Oh, that'd be great.
 
-Fedora Core 5 doesn't seem to like this command:
-
-/bin/kill -l 17 19
-
-(which reminds me, I need to add sigqueue support and
-maybe tgkill support)
-
-> What about merging util-linux and procps?
-
-How? Which way?
-
-As I mentioned before, I was twice disappointed in missing
-announcements of util-linux maintainership being up for grabs.
-I certainly have a track record for keeping things stable.
-
-Prior to me, procps has a history of being abandoned and
-broken. Procps is a fork of the long-dead kmem-ps project.
-Procps was then passed to someone who added color and
-then disappeared. The prior maintainer picked up the old
-code again, no doubt under influence of his employer Red Hat.
-I rewrote much of it then, but had trouble getting in all of
-my changes. Debian started using my code, which slowly
-turned into a fork. Maintainership was passed to somebody
-else, without even telling me. That person and his immediate
-successor added numerous serious bugs. Inexperience with
-the code and the lack of a test suite soon led to that group
-being bogged down in problems. One by one, the various
-Linux distributions switched over to my version of the code.
-
-So as you may imagine, I'd be rather nervous about letting
-procps get into that situation again. Bugs are yucky. Having
-multiple committers and no testing is a sure path to ruin.
+The cumulative ones are still not justified though, and I fear they
+may be 64-bit even on i386. It turns out that an i386 procps spends
+much of its time doing 64-bit division to parse the damn ASCII crap.
+I suppose I could just skip those fields, but generating them isn't
+too cheap and probably I'd get stuck parsing them for some other
+reason -- having them separate is probably a good idea.

@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964899AbWLTFwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964897AbWLTF45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbWLTFwZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 00:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWLTFwZ
+	id S964897AbWLTF45 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 00:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWLTF45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 00:52:25 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:34253 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964899AbWLTFwY (ORCPT
+	Wed, 20 Dec 2006 00:56:57 -0500
+Received: from wx-out-0506.google.com ([66.249.82.224]:62258 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964897AbWLTF44 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 00:52:24 -0500
-Date: Wed, 20 Dec 2006 05:52:09 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Greg KH <gregkh@suse.de>
-Cc: David Brownell <david-b@pacbell.net>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Message-ID: <20061220055209.GA20483@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
+	Wed, 20 Dec 2006 00:56:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k4qPkSM9X1vvEYUCkn5VvyzfKYfsTPsyp72LkPvRtq7fAd7PclHqfon70GtN/8aYdcZvd8a7buHMxaKRhP/TWdLh/+eamEH1FfNHdnBJNsp+anEH3WErV1LWqbm30sNVmMUVMJxo66ta0uioAwMZd/oR8z4EyPthjxcnPsmPZZk=
+Message-ID: <b3f268590612192156oce50b07g379f312146c7389e@mail.gmail.com>
+Date: Wed, 20 Dec 2006 14:56:55 +0900
+From: "Jari Sundell" <sundell.software@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: 2.6.19 file content corruption on ext3
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Andrew Morton" <akpm@osdl.org>, andrei.popa@i-neo.ro,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Hugh Dickins" <hugh@veritas.com>, "Florian Weimer" <fw@deneb.enyo.de>,
+       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
+       "Martin Michlmayr" <tbm@cyrius.com>
+In-Reply-To: <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061220053417.GA29877@suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: Changes to PM layer break userspace
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+References: <1166314399.7018.6.camel@localhost> <45876C65.7010301@yahoo.com.au>
+	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+	 <45878BE8.8010700@yahoo.com.au>
+	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
+	 <4587B762.2030603@yahoo.com.au>
+	 <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
+	 <Pine.LNX.4.64.0612191037291.3483@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 09:34:17PM -0800, Greg KH wrote:
+On 12/20/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> On Tue, 19 Dec 2006, Linus Torvalds wrote:
+> >
+> >  here's a totally new tangent on this: it's possible that user code is
+> > simply BUGGY.
+>
+> Btw, here's a simpler test-program that actually shows the difference
+> between 2.6.18 and 2.6.19 in action, and why it could explain why a
+> program like rtorrent might show corruption behavious that it didn't show
+> before.
 
-> I would be very interested to see any newer SuSE programs using that
-> interface.  Just point them out to me and I'll quickly fix them.
+Kinda late to the discussion, but I guess I could summarize what
+rtorrent actually does, or should be doing.
 
-As far as I can tell, powersaved still uses these.. I'm not quite sure 
-how you can fix it without just removing the functionality from it...
+When downloading a new torrent, it will create the files and truncate
+them to the final size. It will never call truncate after this and the
+files will remain sparse until data is downloaded. A 'piece' is mapped
+to memory using MAP_SHARED, which will be page aligned on single file
+torrents but unlikely to be so on multi-file torrents.
 
-> And yes, as a SuSE developer (and one of the people in charge of the
-> SuSE kernels), I have no problem with these files just going away.
-> Because, as David keeps repeating, they are broken and wrong.
+So on multi-file torrents it'll often end up with two mappings
+overlapping with one page, each of which only write to their own part
+the page. These will then be sync'ed with MS_ASYNC, or MS_SYNC if low
+on disk space. After that it might be unmapped, then mapped as
+read-only.
 
-In the common case, it works perfectly well for the management of 
-individual PCI devices. Yes it's "wrong", in much the same way as (say) 
-the IDE bus registration/unregistration code. But we keep that around 
-because despite it being even more broken than devices/.../power/state, 
-people are still actually using it and we haven't provided any sort of 
-alternative.
+I haven't thought of asking if single file torrents are ok.
 
-Seriously. How many pieces of userspace-visible functionality have 
-recently been removed without there being any sort of alternative?
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Rakshasa

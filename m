@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030271AbWLTShH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030274AbWLTSn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030271AbWLTShH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 13:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWLTShH
+	id S1030274AbWLTSn7 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 13:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030273AbWLTSn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 13:37:07 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:23787 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030276AbWLTShF (ORCPT
+	Wed, 20 Dec 2006 13:43:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55798 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030274AbWLTSn6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 13:37:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=E1nMo2xN7D6GvlcmvaxUtmNkJK3JfITHZ88gXzHlOApaI6eZWW4f2iSnm9Efa8h9dIG5sB4SRtmNJs4XojI6Cu5usEGjI9Y2ZXVFp6rrqkSCIeDkzBvvuhzjCF1QHQx+CmNDibFp2Pmaco0aOOCOh8A99PfbtkhCyfh1qDNvbM4=
-Date: Wed, 20 Dec 2006 18:35:21 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Andrew J. Barr" <andrew.james.barr@gmail.com>,
-       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       walt <w41ter@gmail.com>
-Subject: [-mm patch] ptrace: Fix EFL_OFFSET value according to i386 pda changes (was Re: BUG on 2.6.20-rc1 when using gdb)
-Message-ID: <20061220183521.GA28900@slug>
-References: <1166406918.17143.5.camel@r51.oakcourt.dyndns.org> <20061219164214.4bc92d77.akpm@osdl.org> <45891CD1.4050506@goop.org>
+	Wed, 20 Dec 2006 13:43:58 -0500
+Message-ID: <45898359.9020303@redhat.com>
+Date: Wed, 20 Dec 2006 13:39:21 -0500
+From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45891CD1.4050506@goop.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Pieter Palmers <pieterp@joow.be>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/4] New firewire stack - updated patches
+References: <20061220005822.GB11746@devserv.devel.redhat.com> <458956CB.7060004@joow.be>
+In-Reply-To: <458956CB.7060004@joow.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 03:21:53AM -0800, Jeremy Fitzhardinge wrote:
-> "walt" <w41ter@gmail.com> reported a similar problem which he bisected
-> down to the PDA changeset which touches ptrace
-> (66e10a44d724f1464b5e8b5a3eae1e2cbbc2cca6).  I haven't managed to repo
-> the problem, but I guess there's something nasty going on in ptrace -
-> maybe its screwing up eflags on the stack or something.  Need to
-> double-check all the conversions from kernel<->usermode registers.  Hm,
-> wonder if its fixed with the %gs->%fs conversion patch applied?
+Pieter Palmers wrote:
+> Kristian Høgsberg wrote:
+>> Hi,
+>>
+>> Here's a new set of patches for the new firewire stack.  The changes
+>> since the last set of patches address the issues that were raised on
+>> the list and can be reviewed in detail here:
+> .. for some reason I didn't get patch 3/4 and 4/4 on the linux1394-devel 
+> list, so I'll reply to this one.
 > 
-Hi Jeremy,
+> I would suggest a reordering of the interrupt flag checks. Currently the 
+> interrupts that are least likely to occur are checked first. I don't see 
+> why. I would reorder the check such that ISO interrupts are checked 
+> first, as they have the most stringent timing constraints and are most 
+> likely to occur (when using ISO traffic).
 
-Same problems here with 2.6.20-rc1-mm1 (ie with the %gs->%fs patch).
-It seems to me that the problem comes from the EFL_OFFSET no longer
-beeing accurate.
-The following patch fixes the problem for me.
+All the interrupt handler does is schedule tasklets and they are all handled 
+before returning to userspace.  So not matter how you order them it's going to 
+take the same time.  If you want to defer handling of async traffic to after 
+your userspace handler has run, you need to schedule a work_struct for 
+handling the async events.
 
-Regards,
-Frederik
+Having said that, I doubt that the latency between iso interrupt and user 
+space handler imposed by the irq handler and the tasklets will be a problem. 
+All the async tasklets do is copy the data out of the DMA buffers, possibly 
+lookup a corresponding request and eventually call complete() on some struct 
+completion.  The worst case is the bus reset tasklet which does the topology 
+walk, but even that is pretty fast.
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+> After processing the ISO interrupts (and maybe the Async ones), a bypass 
+> could be inserted to exit the interrupt handler when there are no other 
+> interrupts to be handled. All other interrupts are to report relatively 
+> rare events or errors (error handling still to be added I assume). The 
+> effective run-length of the interrupt handler would be shorter using 
+> such a bypass, especially in the case where there is a lot of ISO traffic.
+> 
+> I'm looking forward to your ISO implementation, and I hope to 
+> incorporate it into FreeBob really fast.
 
-diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
-index 7f7d830..00d8a5a 100644
---- a/arch/i386/kernel/ptrace.c
-+++ b/arch/i386/kernel/ptrace.c
-@@ -45,7 +45,7 @@
- /*
-  * Offset of eflags on child stack..
-  */
--#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs))
-+#define EFL_OFFSET ((EFL-1)*4-sizeof(struct pt_regs))
- 
- static inline struct pt_regs *get_child_regs(struct task_struct *task)
- {
+Sounds great, I'll get to the isochronous receive feature as soon as possible. 
+  I'm open to changing the interrupt handling if we can acheive lower latency, 
+but we need to be able to measure it before we start making changes.
+
+cheers,
+Kristian
+

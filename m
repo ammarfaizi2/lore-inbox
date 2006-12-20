@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161013AbWLTXav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161015AbWLTXaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbWLTXav (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 18:30:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWLTXav
+	id S1161015AbWLTXaz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 18:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbWLTXaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 18:30:51 -0500
-Received: from an-out-0708.google.com ([209.85.132.244]:26230 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161013AbWLTXau (ORCPT
+	Wed, 20 Dec 2006 18:30:55 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:43790 "EHLO
+	fed1rmmtao03.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161015AbWLTXay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 18:30:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ow/hR7h5bM+n2V8kH/44bpfQr96ApVBgZZjTD00h37cJEq0IcM4HzaeK6x/F8oeKrTuyhBAkA6LHRrPUCo6IrRAaQWWT2/sJQBmYi0SIIB7sukBTrnUuY9Hnal57ON3EEFscNEMWSjPdGid6F4gWVTDvb6K2g6RttS6BMdSXvlg=
-Message-ID: <1defaf580612201530x4708cc5cs37801bf7d00a598b@mail.gmail.com>
-Date: Thu, 21 Dec 2006 00:30:49 +0100
-From: "=?ISO-8859-1?Q?H=E5vard_Skinnemoen?=" <hskinnemoen@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: [patch 2.6.20-rc1 0/6] arch-neutral GPIO calls
-Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Andrew Victor" <andrew@sanpeople.com>,
-       "Bill Gatliff" <bgat@billgatliff.com>,
-       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Tony Lindgren" <tony@atomide.com>,
-       "pHilipp Zabel" <philipp.zabel@gmail.com>
-In-Reply-To: <200612201304.03912.david-b@pacbell.net>
+	Wed, 20 Dec 2006 18:30:54 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: merlyn@stonehenge.com (Randal L. Schwartz)
+Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] daemon.c blows up on OSX
+References: <7vmz5ib8eu.fsf@assigned-by-dhcp.cox.net>
+	<86vek6z0k2.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201412250.3576@woody.osdl.org>
+	<86irg6yzt1.fsf_-_@blue.stonehenge.com>
+	<7vr6uu6w8e.fsf@assigned-by-dhcp.cox.net>
+	<86ejquyz4v.fsf@blue.stonehenge.com>
+	<86ac1iyyla.fsf@blue.stonehenge.com>
+	<Pine.LNX.4.64.0612201502090.3576@woody.osdl.org>
+	<86wt4mximh.fsf@blue.stonehenge.com>
+Date: Wed, 20 Dec 2006 15:30:50 -0800
+In-Reply-To: <86wt4mximh.fsf@blue.stonehenge.com> (Randal L. Schwartz's
+	message of "20 Dec 2006 15:17:10 -0800")
+Message-ID: <7v64c65emt.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200611111541.34699.david-b@pacbell.net>
-	 <200612201304.03912.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/20/06, David Brownell <david-b@pacbell.net> wrote:
-> Based on earlier discussion, I'm sending a refresh of the generic GPIO
-> patch, with several (ARM based) implementations in separate patches:
+merlyn@stonehenge.com (Randal L. Schwartz) writes:
+
+> But yes, _XOPEN_SOURCE_EXTENDED definitely does some damage to
+> curses.h.  However, I don't see how that's relevant to strings.h
+> or the others I need.  There's no "config" for "compatibility".
+> Welcome to Linux vs Unix. :)
 >
->  - Core patch, doc + <asm-arm/gpio.h> + <asm-generic/gpio.h>
->  - OMAP implementation
->  - AT91 implementation
->  - PXA implementation
->  - SA1100 implementation
->  - S3C2410 implementation
->
-> I know there's an AVR32 implementation too; and there's been interest
-> in this for some PPC support as well.
+> What I do know is (a) it worked before the header changes and (b)
+> the patch I just gave you works.  If the patch doesn't break others,
+> can we just leave it in?
 
-Great, thanks Dave. Unfortunately, I'm going to be more or less
-offline for the rest of the year, but FWIW, the AVR32 implementation
-is already in -mm as part of git-avr32.patch. I guess I should check
-and see if it's in sync with the rest.
+That would lead to maintenance nightmare in the longer term.  We
+cannot do that unless we know more or less what is going on.
+Including only some system headers in a random order before
+feature macros are defined, and doing so in only some source
+files randomly until it starts compiling, is not a solution
+maintainable in the longer term.
 
-I'll refresh the atmel_spi patch when I get back to work in january.
+The _EXTENDED stuff is minimally commented that AIX wants it;
+otherwise we would have been tempted to say, "remove it, if it
+breaks OSX" without thinking, and would have ended up breaking
+AIX.
 
-Haavard
+No matter what we do, I would really want a clear description of
+in what way OSX headers are broken and what needs to be done to
+avoid the breakage in git-compat-util.h where it sets up feature
+macros and includes system headers.
+
+

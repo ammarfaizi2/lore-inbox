@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964901AbWLTHKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753273AbWLTHuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWLTHKX (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 02:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWLTHKX
+	id S1753273AbWLTHuS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 02:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753539AbWLTHuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 02:10:23 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:38340 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964901AbWLTHKV (ORCPT
+	Wed, 20 Dec 2006 02:50:18 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:12618 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753273AbWLTHuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 02:10:21 -0500
-Date: Tue, 19 Dec 2006 23:10:19 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, tali <tali@admingilde.org>, davem@davemloft.net
-Subject: [PATCH] kernel-doc: allow unnamed structs/unions
-Message-Id: <20061219231019.6df16e1c.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 20 Dec 2006 02:50:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=GB+Uc+YhIJtnv6izuzQfKMJMIQbzQC1+nBTEbAWwGshgvCFpBADcThEFDcddYWnh0ZdQ/pGaqS4JwtrdsJR6F5myRVx6Px+601ZMmhZpyWxZ2MbkiiHICH3tCzrhwTjJwX8zzfzwV1FCWsMPJ+MCrGGeCDHgpX00FZ57RYX0xqg=
+Date: Wed, 20 Dec 2006 16:49:17 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH] powerpc: use is_init()
+Message-ID: <20061220074917.GA4038@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+	Anton Blanchard <anton@samba.org>
+References: <20061219083549.GA4025@APFDCB5C> <17800.46811.966114.640221@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17800.46811.966114.640221@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Wed, Dec 20, 2006 at 03:06:51PM +1100, Paul Mackerras wrote:
+> Akinobu Mita writes:
+> 
+> > Use is_init() rather than hard coded pid comparison.
+> 
+> What's the context of this patch?  Why is this a good thing to do?
+> 
 
-Make kernel-doc support unnamed (anonymous) structs and unions.
-There is one (union) in include/linux/skbuff.h (inside struct sk_buff)
-that is currently generating a kernel-doc warning, so this
-fixes that warning.
+This is just minor cleanup patch.
+is_init() is available on 2.6.20-rc1 (include/linux/sched.h):
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- scripts/kernel-doc |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+/**
+ * is_init - check if a task structure is init
+ * @tsk: Task structure to be checked.
+ *
+ * Check if a task structure is the first user space task the kernel created.
+ */
+static inline int is_init(struct task_struct *tsk)
+{
+        return tsk->pid == 1;
+}
 
---- linux-2.6.20-rc1-git7.orig/scripts/kernel-doc
-+++ linux-2.6.20-rc1-git7/scripts/kernel-doc
-@@ -1469,6 +1469,7 @@ sub push_parameter($$$) {
- 	my $param = shift;
- 	my $type = shift;
- 	my $file = shift;
-+	my $anon = 0;
- 
- 	my $param_name = $param;
- 	$param_name =~ s/\[.*//;
-@@ -1484,9 +1485,20 @@ sub push_parameter($$$) {
- 	    $param="void";
- 	    $parameterdescs{void} = "no arguments";
- 	}
-+	elsif ($type eq "" && ($param eq "struct" or $param eq "union"))
-+	# handle unnamed (anonymous) union or struct:
-+	{
-+		$type = $param;
-+		$param = "{unnamed_" . $param. "}";
-+		$parameterdescs{$param} = "anonymous\n";
-+		$anon = 1;
-+	}
-+
- 	# warn if parameter has no description
--	# (but ignore ones starting with # as these are no parameters
--	# but inline preprocessor statements
-+	# (but ignore ones starting with # as these are not parameters
-+	# but inline preprocessor statements);
-+	# also ignore unnamed structs/unions;
-+	if (!$anon) {
- 	if (!defined $parameterdescs{$param_name} && $param_name !~ /^#/) {
- 
- 	    $parameterdescs{$param_name} = $undescribed;
-@@ -1500,6 +1512,7 @@ sub push_parameter($$$) {
- 	                 " No description found for parameter '$param'\n";
- 	    ++$warnings;
-         }
-+        }
- 
- 	push @parameterlist, $param;
- 	$parametertypes{$param} = $type;
-
-
----

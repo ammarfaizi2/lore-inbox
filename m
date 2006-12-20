@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964832AbWLTDTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964839AbWLTD3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWLTDTk (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 22:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWLTDTk
+	id S964839AbWLTD3R (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 22:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWLTD3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 22:19:40 -0500
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:31613 "HELO
-	smtp106.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S964832AbWLTDTj (ORCPT
+	Tue, 19 Dec 2006 22:29:17 -0500
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:40921 "HELO
+	smtp102.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964835AbWLTD3R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 22:19:39 -0500
+	Tue, 19 Dec 2006 22:29:17 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=BctSqHlvrdcgFBuvhZ61KXbug83B1RQKtK5JCBdMxIRCnwE976KExFOnmrNp2Nii20mTI/R6J5u73YQkFUDw2HeqFWUY+LMnsLlWO3JszlF+vMS0ff1fZdWtaBI2+sBRHu9zmK0W4atBBVOSKZwuYt1HaZi2LA/MSHUZ8Nqi8c8=  ;
-X-YMail-OSG: DenAamwVM1lHmURTliHNip4iwLzBZmGe5dmOERD2XDwdevE__Ynx4mW6k5CGNzhUbPTLPelmIe16YfS54ExhTbJC1ZoDjdAwWVPXkDuq.YGdpFV.t1d_XqB8NWzJTN4mM.kTupsYj9Ot_0R1_LQGMbFFZYHafElU8jBOJ.krnBkkIzUHs1w_Vps4562W
+  b=ARshs3uwXTjLqAiLOQ+Sn3ek6SrdW1oF5rzluVm8grRqjeCNIb7GUggyaAyzAsSc/bvPf5dgroyUig5lVTzm/JAF74Qrq0LcyaJcrX942jw/IFeCULRWthqjPO9WgaN5lDFF7vWja0bWPqE6OxtHkfsxLIPFhTsl1bnhieI5BDE=  ;
+X-YMail-OSG: pCKgQcIVM1koCj4kYrzZKb1wf1PFT8Eg6VNG3v4yg0yUFOohc5DZ7omq1SWKMnRR6clfgalHLn5USievMr6Xu0JkA7bcF2EXEK6BdNMRen1DvHtaTod6dT.0LIgdJgZ3q0TwTxd.qk6rCgO0b0DWTH8ml1DUB5kGYIN2v4RWayfreqSS1o8p2NNd0q48
 From: David Brownell <david-b@pacbell.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: Changes to PM layer break userspace
-Date: Tue, 19 Dec 2006 19:19:36 -0800
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Changes to sysfs PM layer break userspace
+Date: Tue, 19 Dec 2006 19:29:13 -0800
 User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191536.28998.david-b@pacbell.net> <20061220000955.GA17231@srcf.ucam.org>
-In-Reply-To: <20061220000955.GA17231@srcf.ucam.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191334.49760.david-b@pacbell.net> <20061219181524.c15c02af.akpm@osdl.org>
+In-Reply-To: <20061219181524.c15c02af.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612191919.36813.david-b@pacbell.net>
+Message-Id: <200612191929.14524.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 December 2006 4:09 pm, Matthew Garrett wrote:
-> On Tue, Dec 19, 2006 at 03:36:28PM -0800, David Brownell wrote:
-> > On Tuesday 19 December 2006 2:57 pm, Matthew Garrett wrote:
-> > > The fact that something is scheduled to be removed in July 2007 does 
-> > > *not* mean it's acceptable to break it in 2006. We need to find a way to 
-> > > fix this functionality in the meantime.
-> > 
-> > The disconnect here is analagous to:  I tell you the alleged perpetual
-> > motion machine never worked, and can't ever work; and you push back and
-> > say that you need a perpetual motion machine that works, NOW please,
-> > because you need something that pushes those widgets around.  (There are
-> > better ways to push widgets than side effects of a broken machine...)
+On Tuesday 19 December 2006 6:15 pm, Andrew Morton wrote:
+> On Tue, 19 Dec 2006 13:34:49 -0800
+> David Brownell <david-b@pacbell.net> wrote:
 > 
-> But it *did* work. 
-
-Having been on the other side ... I can testify that if you
-think it actually worked, it's because you're ignoring all
-the nasty failure modes.
-
-
-> > I'd not be keen on reverting Linus' patch [1] myself, even though few
-> > drivers have started to use that mechanism yet; that would be a step
-> > backwards, and would perpetuate users of that broken sysfs file.
+> > Documentation/feature-removal-schedule.txt has warned about this since
+> > August
 > 
-> I'm sorry, which bit of "Don't break userspace API without adequate 
-> prior warning and with a workable replacement" is difficult to 
-> understand?
-
-What part of "it was already broken" do YOU not understand?  The
-whole notion is unsustainable.  It doesn't work cross-platform, or
-for multiple bus types.  It confuses system-wide suspend mechanisms
-with runtime mechanisms.  It breaks guaranteed parent/child ordering
-of suspend/resume calls.  (And more...)
+> Nobody reads that.
+> 
+> Please, wherever possible, put a nice printk("this is going away") in the code
+> when planning these things.
 
 
-Let us know when you get tired of whining and want to move on to
-getting a real solution to the set of problems here.  I've pointed
-out that reverting Linus' patch would be one option to get your
-short term issue rsolved ... that would remove a capability from
-PCI drivers, but you could then use that deprecated mechanism.
-I've also pointed out that you could start working towards a real
-long term solution.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Do you have an alternate solution?
-
-- Dave
-
+Index: g26/drivers/base/power/sysfs.c
+===================================================================
+--- g26.orig/drivers/base/power/sysfs.c	2006-09-27 16:19:00.000000000 -0700
++++ g26/drivers/base/power/sysfs.c	2006-12-19 19:27:25.000000000 -0800
+@@ -42,9 +42,17 @@ static ssize_t state_show(struct device 
+ 
+ static ssize_t state_store(struct device * dev, struct device_attribute *attr, const char * buf, size_t n)
+ {
++	static int warned;
+ 	pm_message_t state;
+ 	int error = -EINVAL;
+ 
++	if (!warned) {
++		printk(KERN_WARNING
++			"*** WARNING *** sysfs devices/.../power/state files "
++			"are only for testing, and will be removed\n");
++		warned = error;
++	}
++
+ 	/* disallow incomplete suspend sequences */
+ 	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
+ 		return error;

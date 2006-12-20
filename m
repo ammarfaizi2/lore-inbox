@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030292AbWLTTcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030325AbWLTTcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030292AbWLTTcZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 14:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWLTTcY
+	id S1030325AbWLTTcd (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 14:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWLTTcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 14:32:24 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36857 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030292AbWLTTcX (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 14:32:23 -0500
-Message-Id: <200612201926.kBKJQoqN020967@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu
-Subject: Re: [PATCH 0/5][time][x86_64] GENERIC_TIME patchset for x86_64
-In-Reply-To: Your message of "Tue, 19 Dec 2006 20:20:39 EST."
-             <20061220011707.25341.6522.sendpatchset@localhost>
-From: Valdis.Kletnieks@vt.edu
-References: <20061220011707.25341.6522.sendpatchset@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166642810_3391P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Dec 2006 14:26:50 -0500
+	Wed, 20 Dec 2006 14:32:33 -0500
+Received: from web32911.mail.mud.yahoo.com ([209.191.69.111]:25121 "HELO
+	web32911.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1030325AbWLTTcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 14:32:32 -0500
+Message-ID: <20061220193231.39261.qmail@web32911.mail.mud.yahoo.com>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=Em+rLavLD0kQEz6BtYDy9pqN6G5ZJVN9mOXtKNfcFC3YW86mH5C+mVpFZQUzrKrd84B/ycGdy3nO0R4zabPAsm5U//F/UXlxdE+tf1bvE2H+T9xuenak2ioOVh2fZoF0BI12bW78JMed5wGXfAhh8wfF03C/zu4rfGIjhDEPS58=;
+X-YMail-OSG: 1RmayXAVM1ljoPBULkQJBmNTBpd8XQcEwNWUGt2m4adqQC1CCHt5PpAFpZ7b3lDn0zbmhIyi5H7jaU2bjZpNyPnK2s.E26Eg2yzYi97jpOeI.m66EsX0Dk6TlX.YGMNuhco2ra8KUuHmDpvefPdVmof9O_3tkvWG4BDgPGNkuXoEVzmpkREGN_eHZKSZ
+Date: Wed, 20 Dec 2006 11:32:31 -0800 (PST)
+From: J <jhnlmn@yahoo.com>
+Subject: Re: Possible race condition in usb-serial.c
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200612201047.20842.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166642810_3391P
-Content-Type: text/plain; charset=us-ascii
+Thank you for the explanation.
 
-On Tue, 19 Dec 2006 20:20:39 EST, john stultz said:
-> 	I didn't hear any objections (or really, any comments) on my 
-> last release, so as I mentioned then, I want to go ahead and push this 
-> to Andrew for a bit of testing in -mm. Hopefully targeting for 
-> inclusion in 2.6.21 or 2.6.22.
+> serial_close is safe because serial_disconnect
+> lowers the refcount
 
-Am running it on a Dell Latitude D820 (Core2 T7200 cpu).  I had to un-do
-4 conflicting patches in -rc1-mm1 and then it applied and ran clean, I still
-need to look at re-merging them:
+Sorry, I meant serial_open, as in my original example.
 
-hpet-avoid-warning-message-livelock.patch
-clockevents-i386-hpet-driver.patch
-get-rid-of-arch_have_xtime_lock.patch
-x86_64-mm-amd-tsc-sync.patch
+I am currently trying to fix a legacy 2.4 based USB
+driver and I am having various races, 
+serial_open/usb_serial_disconnect is the most lively.
+I am not asking your help in fixing this old 2.4 junk
+(in fact I already fixed it using a global semaphore
+to protect serial_table).
 
-It *looks* like all the pieces are there except a few lines of Kconfig
-magic to wire up the dynticks/NO_HZ stuff - or did I miss something crucial?
+But I still want to understand how the latest and
+greatest 2.6 driver is supposed to work so I can
+adopt some of the changes. At first I thought that
+the ref-counting will help, but then found that 
+it does not fix much! The race is as lively 
+as ever.
 
---==_Exmh_1166642810_3391P
-Content-Type: application/pgp-signature
+Also I found that BKL/lock_kernel is compiled out in
+my configuration because it is not an SMP build.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I see that in 2.6 BKL/lock_kernel are also optional
+for non-SMP builds. Is it true?
+If yes, then again, how this is supposed to work
+and avoid races?
 
-iD8DBQFFiY56cC3lWbTT17ARAjbSAJ9gIiEwUW6RFg3c9o4zuwwC/AFSKwCdFRv6
-snWQu6MTeeRgHdFAZkbQsWw=
-=Ryt4
------END PGP SIGNATURE-----
 
---==_Exmh_1166642810_3391P--
+Thank you
+John
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964837AbWLTCz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964829AbWLTDNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWLTCz1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 19 Dec 2006 21:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWLTCz1
+	id S964829AbWLTDNF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 19 Dec 2006 22:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWLTDNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Dec 2006 21:55:27 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:43283
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S964794AbWLTCz0 (ORCPT
+	Tue, 19 Dec 2006 22:13:05 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:44037 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964829AbWLTDND convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Dec 2006 21:55:26 -0500
-Date: Tue, 19 Dec 2006 18:55:25 -0800 (PST)
-Message-Id: <20061219.185525.41636407.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: shemminger@osdl.org, mingo@elte.hu, akpm@osdl.org, wenji@fnal.gov,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <E1Gwokt-00050T-00@gondolin.me.apana.org.au>
-References: <20061219103756.38f7426c@freekitty>
-	<E1Gwokt-00050T-00@gondolin.me.apana.org.au>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Dec 2006 22:13:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NQYM4Cvuk+NXvPI2Cavlif40lmS8reRXuYe/vKrHaZgWDUvomi51FqlmBCHDFwxgrVScM+26DQXL0L8lXWbq7vOC9+Mb24H45/w5WtusJOILCq+j9WjS+NQ79jdPRA0ir/Iw8IvHqcIJ0POQNj9bFhNexzplZteKEJbF5bIGMss=
+Message-ID: <5767b9100612191913p29675249v18803c65f536bda4@mail.gmail.com>
+Date: Wed, 20 Dec 2006 11:13:02 +0800
+From: "Conke Hu" <conke.hu@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>, Alan <alan@lxorguk.ukuu.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] Add pci class code for SATA
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <45883E64.20400@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0612171409340.9120@localhost.localdomain>
+	 <1166551886.2977.5.camel@localhost.localdomain>
+	 <45883E64.20400@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Wed, 20 Dec 2006 10:52:19 +1100
+On 12/20/06, Jeff Garzik <jeff@garzik.org> wrote:
+> Conke Hu wrote:
+> > Add pci class code 0x0106 for SATA to pci_ids.h
+> >
+> > signed-off-by: conke.hu@gmail.com
+> > --------------------
+> > --- linux-2.6.20-rc1/include/linux/pci_ids.h.orig     2006-12-20
+> > 01:58:30.000000000 +0800
+> > +++ linux-2.6.20-rc1/include/linux/pci_ids.h  2006-12-20
+> > 01:59:07.000000000 +0800
+> > @@ -15,6 +15,7 @@
+> >  #define PCI_CLASS_STORAGE_FLOPPY     0x0102
+> >  #define PCI_CLASS_STORAGE_IPI                0x0103
+> >  #define PCI_CLASS_STORAGE_RAID               0x0104
+> > +#define PCI_CLASS_STORAGE_SATA               0x0106
+> >  #define PCI_CLASS_STORAGE_SAS                0x0107
+> >  #define PCI_CLASS_STORAGE_OTHER              0x0180
+>
+> Two comments:
+>
+> 1) I think "_SATA" is an inaccurate description.  It should be _AHCI AFAICS.
+>
+> 2) Typically we don't add constants unless they are used somewhere...
+>
+>         Jeff
+>
 
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> > I noticed this bit of discussion in tcp_recvmsg. It implies that a better
-> > queuing policy would be good. But it is confusing English (Alexey?) so
-> > not sure where to start.
-> 
-> Actually I think the comment says that the current code isn't the
-> most elegant but is more efficient.
+Hi Jeff,
+    According to PCI spec 3.0, 0x0106 means SATA controller, 0x010601
+means AHCI and 0x010600 means vendor specific SATA controller. Pls see
+the following table (PCI spec 3.0 P296):
 
-It's just explaining the hierarchy of queues that need to
-be purged, and in what order, for correctness.
+Base Class 	Sub-Class 	Interface 	Meaning
+--------------------------------------------------------
+ 		00h		00h 		SCSI bus controller
+		------------------------------------------------
+		01h 		xxh 		IDE controller
+		-----------------------------------------------
+		02h 		00h 		Floppy disk controller
+		-----------------------------------------------------
+		03h 		00h 		IPI bus controller
+		--------------------------------------------------
+		04h 		00h 		RAID controller
+01h		------------------------------------------------
+				20h 		ATA controller with ADMA interface
+		05h		---------------------------------------------------
+				30h 		ATA controller with ADMA interface
+		-------------------------------------------------------------------
+				00h 		Serial ATA controller–vendor specific interface
+		06h		-----------------------------------------------------------------
+		 		01h 		Serial ATA controller–AHCI 1.0 interface
+		-------------------------------------------------------------------------
+		07h 		00h 		Serial Attached SCSI (SAS) controller
+		---------------------------------------------------------------------
+		80h 		00h 		Other mass storage controller
+------------------------------------------------------------------------------
 
-Alexey added that code when I mentioned to him, right after
-we added the prequeue, that it was possible process the
-normal backlog before the prequeue, which is illegal.
-In fixing that bug, he added the comment we are discussing.
+
+So, I think, the following macro is correct:
+#define PCI_CLASS_STORAGE_SATA               0x0106
+If you would define AHCI class code, it should be 0x010601, not 0x0106:
+#define PCI_CLASS_STORAGE_SATA_AHCI               0x010601
+
+And, I think that PCI_CLASS_STORAGE_SATA had better be added to
+pci_ids.h since the class code 0x0106 is used more than once. e.g.
+ahci.c uses the magic number 0x0106 twice, and it might be used more
+in future.
+
+Best regards,
+Conke

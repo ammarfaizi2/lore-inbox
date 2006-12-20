@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932983AbWLTFlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964899AbWLTFwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932983AbWLTFlA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 00:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932981AbWLTFlA
+	id S964899AbWLTFwZ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 00:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWLTFwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 00:41:00 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:42353 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932986AbWLTFk7 (ORCPT
+	Wed, 20 Dec 2006 00:52:25 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:34253 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964899AbWLTFwY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 00:40:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C9IgrUFdxE3LxU2Q+MTmBPzE8DENsSvt/pGAw0z+w/7qAQhMuWow7apenKdCMvLC1qlYlfu0Dpop1VbAc2c1m5RE6uc0jw2Cpv/HNPLccgE6SLRPrqzusDBX49A9PnH9jq0TlHn9bspv8BJH9r3AaJ0GDUtkTvgbFIsLie9KkK0=
-Message-ID: <787b0d920612192140o37a28e8fnccdd51670cb9a766@mail.gmail.com>
-Date: Wed, 20 Dec 2006 00:40:57 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: david@wragg.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
-Subject: Re: [PATCH] procfs: export context switch counts in /proc/*/stat
+	Wed, 20 Dec 2006 00:52:24 -0500
+Date: Wed, 20 Dec 2006 05:52:09 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Greg KH <gregkh@suse.de>
+Cc: David Brownell <david-b@pacbell.net>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Message-ID: <20061220055209.GA20483@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061220053417.GA29877@suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Re: Changes to PM layer break userspace
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wragg writes:
-> Benjamin LaHaise <bcrl@kvack.org> writes:
->> On Mon, Dec 18, 2006 at 11:50:08PM +0000, David Wragg wrote:
+On Tue, Dec 19, 2006 at 09:34:17PM -0800, Greg KH wrote:
 
->>> This patch (against 2.6.19/2.6.19.1) adds the four context
->>> switch values (voluntary context switches, involuntary
->>> context switches, and the same values accumulated from
->>> terminated child processes) to the end of /proc/*/stat,
->>> similarly to min_flt, maj_flt and the time used values.
+> I would be very interested to see any newer SuSE programs using that
+> interface.  Just point them out to me and I'll quickly fix them.
 
-Hmmm, OK, do people have a use for these values?
+As far as I can tell, powersaved still uses these.. I'm not quite sure 
+how you can fix it without just removing the functionality from it...
 
->> Please put these into new files, as the stat files in /proc are
->> horribly overloaded and have always been somewhat problematic
->> when it comes to changing how things are reported due to internal
->> changes to the kernel.  Cheers,
+> And yes, as a SuSE developer (and one of the people in charge of the
+> SuSE kernels), I have no problem with these files just going away.
+> Because, as David keeps repeating, they are broken and wrong.
 
-No thanks. Yours truly, the maintainer of "ps", "top", "vmstat", etc.
+In the common case, it works perfectly well for the management of 
+individual PCI devices. Yes it's "wrong", in much the same way as (say) 
+the IDE bus registration/unregistration code. But we keep that around 
+because despite it being even more broken than devices/.../power/state, 
+people are still actually using it and we haven't provided any sort of 
+alternative.
 
-> The delay accounting value was added to the end of /proc/pid/stat back
-> in July without discussion, so I assumed this approach was still
-> considered satisfactory.
-
-/proc/*/stat is the very best place in /proc for any per-process
-data that will be commonly needed. Unlike /proc/*/status, few
-people are tempted to screw with the formatting and/or spelling.
-Unlike the /sys crap, it doesn't take 3 syscalls PER VALUE to
-get at the data.
-
-The things to ask are of course: will this really be used, and
-does it really belong in /proc at all?
-
-> Putting just these four values into a new file would seem a little
-> odd, since they have a lot in common with the other getrusage values
-> that are already in /proc/pid/stat.  One possibility is to add
-> /proc/pid/rusage, mirroring the full struct rusage in text form, since
-> struct rusage is already part of the kernel ABI (though Linux doesn't
-> fill in half of the values).
-
-Since we already have a struct defined and all...
-
-sys_get_rusage(int pid)
-
-> Or perhaps it makes sense to reorganize all the values from
-> /proc/pid/stat and its siblings into a sysfs-like one-value-per-file
-> structure, though that might introduce atomicity and efficiency issues
-> (calculating some of the values involves iterating over the threads in
-> the process; with everything in one file, these loops are folded
-> together).
-
-Yeah, big time. Things are quite bad in /proc, but /sys is a joke.
+Seriously. How many pieces of userspace-visible functionality have 
+recently been removed without there being any sort of alternative?
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423018AbWLUSah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423020AbWLUSbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423018AbWLUSah (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWLUSah
+	id S1423020AbWLUSbP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWLUSbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:30:37 -0500
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:38066 "EHLO
-	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423020AbWLUSaf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:30:35 -0500
-To: rmk+lkml@arm.linux.org.uk
-CC: miklos@szeredi.hu, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-reply-to: <20061221181156.GG3958@flint.arm.linux.org.uk> (message from
-	Russell King on Thu, 21 Dec 2006 18:11:56 +0000)
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu> <20061221181156.GG3958@flint.arm.linux.org.uk>
-Message-Id: <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 21 Dec 2006 19:30:11 +0100
+	Thu, 21 Dec 2006 13:31:14 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:56932 "EHLO sabe.cs.wisc.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423020AbWLUSbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:31:14 -0500
+Message-ID: <458AD2E0.40807@cs.wisc.edu>
+Date: Thu, 21 Dec 2006 12:30:56 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: device-mapper development <dm-devel@redhat.com>, mchristi@redhat.com,
+       linux-kernel@vger.kernel.org, agk@redhat.com
+Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request()
+  to be called from interrupt context
+References: <20061220134848.GF10535@kernel.dk> <20061220.125002.71083198.k-ueda@ct.jp.nec.com> <20061220184917.GJ10535@kernel.dk> <20061220.165549.39151582.k-ueda@ct.jp.nec.com> <20061221075305.GD17199@kernel.dk> <458ACB69.8000603@cs.wisc.edu> <458ACEB1.3030406@cs.wisc.edu> <20061221182432.GB17199@kernel.dk>
+In-Reply-To: <20061221182432.GB17199@kernel.dk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
-> > > > could be replaced by the flush_kernel_dcache_page() (added by James
-> > > > Bottomley together with flush_anon_page()) when all relevant
-> > > > architectures have defined it.
-> > > 
-> > > I should say that flush_anon_page() in its current form is going to be
-> > > problematic for ARM.  It is passed:
-> > > 
-> > > 1. the struct page
-> > > 2. the virtual address in process memory for the page
-> > > 
-> > > It is not passed the mm or vma.  This means that we have no idea whether
-> > > the virtual address is in the currently mapped VM space or not.  The
-> > > common use of get_area_pages() is to get pages from other address
-> > > spaces.
-> > 
-> > I'm not sure I understand.  flush_anon_page() needs only to flush the
-> > mapping for the given virtual address, no?
+Jens Axboe wrote:
+> On Thu, Dec 21 2006, Mike Christie wrote:
+>> Or the block layer code could set up the clone too. elv_next_request
+>> could prep a clone based on the orignal request for the driver then dm
+>> would not have to worry about that part.
 > 
-> Yes, but that virtual /user/ address is meaningless without knowing
-> which process address space it belongs to.
+> It really can't, since it doesn't know how to allocate the clone
+> request. I'd rather export this functionality as helpers.
 > 
-> > It's always mapped at that address (since it was just accessed through
-> > that).
-> 
-> No.  Consider ptrace() (invoked by gdb) reading data from another
-> processes address space to obtain structure data or instructions.
-> 
-> > Any other mappings
-> > of the anonymous page are irrelevant, they don't need to be flushed.
-> 
-> Again, incorrect.  Consider if the page you're accessing is a file-
-> backed page, and is mapped into a process using a shared mapping.
-> Because you've written to the file, those shared mappings need to see
-> that write, and the interface for achieving that is flush_dcache_page().
-> If not, data loss can occur.
 
-Yes, for file backed pages.  But flush_anon_page() only needs to deal
-with anonymous (not file backed) pages.
+What do you think about dm's plan to break up make_request into a
+mapping function and in to the part the builds the bio into a request.
+This would fit well with them being helpers and being able to allocate
+the request from the correct context.
 
-> > > If we use the supplied virtual address to perform cache maintainence of
-> > > the userspace mapping, we might end up hitting a completely different
-> > > processes address space, which may contain some page sensitive to such
-> > > operations, or may not contain any page and thereby could cause a page
-> > > fault on some ARM CPUs.
-> > 
-> > I think calling get_user_pages() from a different process' address
-> > space simply doesn't make any sense.
-> 
-> That was it's main use - to implement ptrace() to read other processes
-> address spaces.  Why do you think it takes a task_struct and mm_struct?
-
-Right, I missed that.
-
-Miklos
+I see patches for that did not get posted, but I thought Joe and
+Alasdair used to talk about that a lot and in the dm code I think there
+is sill comments about doing it. Maybe the dm comments mentioned the
+merge_fn, but I guess the merge_fn did not fit what they wanted to do or
+something. I think Alasdair talked about this at one of his talks at OLS
+or it was in a proposal for the kernel summit. I can dig up the mail if
+you want.

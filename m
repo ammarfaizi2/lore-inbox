@@ -1,25 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422694AbWLUEHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422698AbWLUE0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422694AbWLUEHg (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 23:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422698AbWLUEHf
+	id S1422698AbWLUE0v (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 23:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422703AbWLUE0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 23:07:35 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36007 "EHLO smtp.osdl.org"
+	Wed, 20 Dec 2006 23:26:51 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:36615 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422694AbWLUEHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 23:07:34 -0500
-Date: Wed, 20 Dec 2006 20:05:35 -0800
+	id S1422698AbWLUE0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 23:26:50 -0500
+Date: Wed, 20 Dec 2006 20:26:21 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Cc: "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
-       "'xb'" <xavier.bru@bull.net>, "'Zach Brown'" <zach.brown@oracle.com>,
-       <linux-kernel@vger.kernel.org>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] aio: fix buggy put_ioctx call in aio_complete
-Message-Id: <20061220200535.211a3dda.akpm@osdl.org>
-In-Reply-To: <000001c723b7$89257830$e834030a@amr.corp.intel.com>
-References: <000001c723b7$89257830$e834030a@amr.corp.intel.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] HZ free ntp
+Message-Id: <20061220202621.8e147b1d.akpm@osdl.org>
+In-Reply-To: <1166579658.5594.6.camel@localhost>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	<Pine.LNX.4.64.0612060348150.1868@scrub.home>
+	<20061205203013.7073cb38.akpm@osdl.org>
+	<1165393929.24604.222.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0612061334230.1867@scrub.home>
+	<20061206131155.GA8558@elte.hu>
+	<Pine.LNX.4.64.0612061422190.1867@scrub.home>
+	<1165956021.20229.10.camel@localhost>
+	<Pine.LNX.4.64.0612131338420.1867@scrub.home>
+	<1166037549.6425.21.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0612132125450.1867@scrub.home>
+	<1166578357.5594.3.camel@localhost>
+	<1166579658.5594.6.camel@localhost>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,89 +37,31 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006 13:49:18 -0800
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+On Tue, 19 Dec 2006 17:54:18 -0800
+john stultz <johnstul@us.ibm.com> wrote:
 
-> Regarding to a bug report on:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116599593200888&w=2
+> On Tue, 2006-12-19 at 17:32 -0800, john stultz wrote:
+> > On Wed, 2006-12-13 at 21:40 +0100, Roman Zippel wrote:
+> > > On Wed, 13 Dec 2006, john stultz wrote:
+> > > > > You don't have to introduce anything new, it's tick_length that changes
+> > > > > and HZ that becomes a variable in this function.
+> > > >
+> > > > So, forgive me for rehashing this, but it seems we're cross talking
+> > > > again. The context here is the dynticks code. Where HZ doesn't change,
+> > > > but we get interrupts at much reduced rates.
+> > > 
+> > > I know and all you have to change in the ntp and some related code is to
+> > > replace HZ there with a variable, thus make it changable, so you can
+> > > increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
+> > 
+> > Untested patch below. Does this vibe better with you are suggesting?
 > 
-> flush_workqueue() is not allowed to be called in the softirq context.
-> However, aio_complete() called from I/O interrupt can potentially call
-> put_ioctx with last ref count on ioctx and trigger a bug warning.  It
-> is simply incorrect to perform ioctx freeing from aio_complete.
-> 
-> This patch removes all duplicate ref counting for each kiocb as
-> reqs_active already used as a request ref count for each active ioctx.
-> This also ensures that buggy call to flush_workqueue() in softirq
-> context is eliminated. wait_for_all_aios currently will wait on last
-> active kiocb.  However, it is racy.  This patch also tighten it up
-> by utilizing rcu synchronization mechanism to ensure no further
-> reference to ioctx before put_ioctx function is run.
-> 
+> And here would be the follow on patch (again *untested*) for
+> CONFIG_NO_HZ slowing the time accumulation down to once per second.
 
-hrm, maybe.  Does this count as "abuse of the RCU interfaces".  Or "reuse"?
+I'm still awaiting a final-looking version of this patch, fyi.
 
-> 
-> 
-> --- ./fs/aio.c.orig	2006-12-19 08:35:01.000000000 -0800
-> +++ ./fs/aio.c	2006-12-19 08:46:34.000000000 -0800
-> @@ -308,6 +308,7 @@ static void wait_for_all_aios(struct kio
->  		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
->  	}
->  	__set_task_state(tsk, TASK_RUNNING);
-> +	synchronize_rcu();
->  	remove_wait_queue(&ctx->wait, &wait);
->  }
+I don't understand whether this is a theoretical might-happen thing,
+or if NTP problems have actually been observed in the field?
 
-argh.  Pity the poor fresh-faced wannabe kernel developer who stumbles
-across a stray synchronize_rcu() in the AIO code and wonders what the hell
-that's doing there.
-
-Please, this needs good commenting.   More than zero, anyway.
-
-> @@ -425,7 +426,6 @@ static struct kiocb fastcall *__aio_get_
->  	ring = kmap_atomic(ctx->ring_info.ring_pages[0], KM_USER0);
->  	if (ctx->reqs_active < aio_ring_avail(&ctx->ring_info, ring)) {
->  		list_add(&req->ki_list, &ctx->active_reqs);
-> -		get_ioctx(ctx);
->  		ctx->reqs_active++;
->  		okay = 1;
->  	}
-> @@ -538,8 +538,6 @@ int fastcall aio_put_req(struct kiocb *r
->  	spin_lock_irq(&ctx->ctx_lock);
->  	ret = __aio_put_req(ctx, req);
->  	spin_unlock_irq(&ctx->ctx_lock);
-> -	if (ret)
-> -		put_ioctx(ctx);
->  	return ret;
->  }
->  
-> @@ -795,8 +793,7 @@ static int __aio_run_iocbs(struct kioctx
->  		 */
->  		iocb->ki_users++;       /* grab extra reference */
->  		aio_run_iocb(iocb);
-> -		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
-> -			put_ioctx(ctx);
-> +		__aio_put_req(ctx, iocb);
->   	}
->  	if (!list_empty(&ctx->run_list))
->  		return 1;
-> @@ -1012,6 +1009,7 @@ int fastcall aio_complete(struct kiocb *
->  		iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes);
->  put_rq:
->  	/* everything turned out well, dispose of the aiocb. */
-> +	rcu_read_lock();
->  	ret = __aio_put_req(ctx, iocb);
->  
->  	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
-> @@ -1019,9 +1017,7 @@ put_rq:
->  	if (waitqueue_active(&ctx->wait))
->  		wake_up(&ctx->wait);
->  
-> -	if (ret)
-> -		put_ioctx(ctx);
-> -
-> +	rcu_read_unlock();
->  	return ret;
->  }
->  
+Either way, I'm sure the final changelog will clear that up ;)

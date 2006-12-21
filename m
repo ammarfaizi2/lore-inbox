@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161160AbWLUCpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161161AbWLUCwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161160AbWLUCpw (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 21:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWLUCpv
+	id S1161161AbWLUCwN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 21:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWLUCwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 21:45:51 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:48932 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161153AbWLUCpu (ORCPT
+	Wed, 20 Dec 2006 21:52:13 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:7733 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161161AbWLUCwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 21:45:50 -0500
-Date: Thu, 21 Dec 2006 02:45:33 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Michael Wu <flamingice@sourmilk.net>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Message-ID: <20061221024533.GA1025@srcf.ucam.org>
-References: <20061220042648.GA19814@srcf.ucam.org> <20061220144906.7863bcd3@dxpl.pdx.osdl.net> <20061221011209.GA32625@srcf.ucam.org> <200612202105.31093.flamingice@sourmilk.net> <20061221021832.GA723@srcf.ucam.org> <4589F39C.7010201@gentoo.org>
+	Wed, 20 Dec 2006 21:52:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MriH0/wdcr2ULOfvrucQhsCV2cRu+oWBm0aMXTdOJESz8hvYaBmW+RLVo+iyoz2H/LBM7bdcg3LRz1yrp+WM3wRlZeIth/Cz2D7Uq4ILWc7FqjHetM5uiy08zb+Z7JXZtYkpDiXbjpsjQgayvsQukK3rjS6VdremoNVGM0/A2Eo=
+Message-ID: <787b0d920612201852u62bb43ebs82d9129a849b0e50@mail.gmail.com>
+Date: Wed, 20 Dec 2006 21:52:09 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: junkio@cox.net, merlyn@stonehenge.com, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] daemon.c blows up on OSX
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4589F39C.7010201@gentoo.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: Network drivers that don't suspend on interface down
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 09:38:20PM -0500, Daniel Drake wrote:
+Linus Torvalds writes:
 
-> I don't think that supporting scanning when the interface is supposed to 
-> be disabled is sensible. If you want to scan, you are simply sending and 
-> receiving frames, it's no different from having the interface up and 
-> sending/receiving data frames.
+> So it would appear that for OS X, the
+>
+>       #define _XOPEN_SOURCE_EXTENDED 1 /* AIX 5.3L needs this */
+>       #define _GNU_SOURCE
+>       #define _BSD_SOURCE
+> sequence actually _disables_ those things.
 
->From a usability point of view, it's helpful to power the card down as 
-much as possible while it's not being actively used. However, it's also 
-helpful to be able to provide a list of available wireless networks, 
-though some degree of latency would be acceptable in that. These two 
-desires are obviously not entirely compatible with one another, so it 
-would be helpful if there was some means of providing an intermediate 
-state.
+Yes, of course. The odd one here is glibc.
 
-> There are additional implementation problems: scanning requires 2 
-> different ioctl calls: siwscan, then several giwscan. If you want the 
-> driver to effectively temporarily bring the interface up when userspace 
-> requests a scan but the interface was down, then how does the driver 
-> know when to bring it down again?
+Normal systems enable everything by default. As soon as you
+specify a feature define, you get ONLY what you asked for.
+I'm not sure why glibc is broken, but I suspect that somebody
+wants to make everyone declare their code to be GNU source.
+(despite many "GNU" things not working on the HURD at all)
 
-Hm. Does the spec not set any upper bound on how long it might take for 
-APs to respond? I'm afraid that my 802.11 knowledge is pretty slim. 
-Picking a number out of thin air would be one answer, but clearly less 
-than ideal. This may be a case of us not being able to satisfy everyone, 
-and so just having to force the user to choose between low power or 
-wireless scanning.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Define _APPLE_C_SOURCE to make MacOS X give you everything.

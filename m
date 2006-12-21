@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423079AbWLUUkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423081AbWLUUk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423079AbWLUUkN (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 15:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423081AbWLUUkM
+	id S1423081AbWLUUk0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 15:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423083AbWLUUk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 15:40:12 -0500
-Received: from mail.gmx.net ([213.165.64.20]:48882 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1423079AbWLUUkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 15:40:11 -0500
-X-Authenticated: #20450766
-Date: Thu, 21 Dec 2006 21:40:05 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated Kernel Hacker's guide to git
-In-Reply-To: <4589F9B1.2020405@garzik.org>
-Message-ID: <Pine.LNX.4.60.0612212135230.5551@poirot.grange>
-References: <4589F9B1.2020405@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Thu, 21 Dec 2006 15:40:26 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38573 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423081AbWLUUkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 15:40:24 -0500
+Date: Thu, 21 Dec 2006 12:40:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+Message-Id: <20061221124003.d19d4fe7.akpm@osdl.org>
+In-Reply-To: <1166706200.32117.14.camel@twins>
+References: <1166314399.7018.6.camel@localhost>
+	<20061217040620.91dac272.akpm@osdl.org>
+	<1166362772.8593.2.camel@localhost>
+	<20061217154026.219b294f.akpm@osdl.org>
+	<1166460945.10372.84.camel@twins>
+	<Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
+	<45876C65.7010301@yahoo.com.au>
+	<Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
+	<45878BE8.8010700@yahoo.com.au>
+	<Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
+	<4587B762.2030603@yahoo.com.au>
+	<Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
+	<Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
+	<1166706200.32117.14.camel@twins>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006, Jeff Garzik wrote:
+On Thu, 21 Dec 2006 14:03:20 +0100
+Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 
-> I refreshed my git intro/cookbook for kernel hackers, at
-> http://linux.yyz.us/git-howto.html
+> On Tue, 2006-12-19 at 09:43 -0800, Linus Torvalds wrote:
+> > 
+> > Btw,
+> >  here's a totally new tangent on this: it's possible that user code is 
+> > simply BUGGY. 
+> 
+> depmod: BADNESS: written outside isize 22183
 
-Very nice, thanks! A couple of remarks from an absolute git newbie:
+akpm:/usr/src/module-init-tools-3.3-pre1> grep -r mmap .
+./zlibsupport.c:        map = mmap(0, *size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 
-1. I heard "git am" is supposed to supersede apply-mbox
+So presumably it's in a library.
 
-2. What I often have problems with is - what to do if git spits at me a 
-bunch of conflict messages after a seemingly safe pull or similar. Don't 
-know if you want to cover those points but "git troubleshooting" would 
-definitely be a valuable document.
+akpm:/usr/src/25> ldd /sbin/depmod
+        linux-gate.so.1 =>  (0xffffe000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0x46afa000)
+        /lib/ld-linux.so.2 (0x4631d000)
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+worrisome.

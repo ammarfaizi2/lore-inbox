@@ -1,114 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423125AbWLUXas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423129AbWLUXcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423125AbWLUXas (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 18:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423129AbWLUXar
+	id S1423129AbWLUXcK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 18:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423130AbWLUXcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 18:30:47 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:53438 "EHLO tmailer.gwdg.de"
+	Thu, 21 Dec 2006 18:32:10 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:58276 "EHLO ogre.sisk.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423125AbWLUXar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 18:30:47 -0500
-Date: Fri, 22 Dec 2006 00:29:52 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joe Perches <joe@perches.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: my handy-dandy, "coding style" script
-In-Reply-To: <1166741599.27218.7.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0612220019260.3720@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
- <20061219164146.GI25461@redhat.com>  <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
-  <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>  <4589BC6E.7040209@tmr.com>
-  <Pine.LNX.4.61.0612212151450.3720@yvahk01.tjqt.qr> <1166741599.27218.7.camel@localhost>
+	id S1423129AbWLUXcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 18:32:09 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: bcm43xx-dev@lists.berlios.de
+Subject: bcm43xx from 2.6.20-rc1-mm1 on HPC nx6325 (x86_64)
+Date: Fri, 22 Dec 2006 00:33:37 +0100
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612220033.37927.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Dec 21 2006 14:53, Joe Perches wrote:
->On Thu, 2006-12-21 at 21:52 +0100, Jan Engelhardt wrote:
->> http://lkml.org/lkml/2006/9/30/208
->
->@@ -1302,7 +1302,7 @@ static int acpi_battery_add(struct acpi_
-> 		battery->init_state = 1;
-> 	}
-> 
->-	(void)sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
->+	sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
->
->These casts can eliminate "return value unused" warnings.
+I'm trying to make the bcm43xx driver out of the 2.6.20-rc1-mm1 kernel work on
+an HPC nx6325, with no luck, so far, although I'm using a firmware that has
+been reported to work with these boxes
+(http://gentoo-wiki.com/HARDWARE_Gentoo_on_HP_Compaq_nx6325#Onboard_Wireless_.28802.11.29).
 
-But only when functions are tagged __must_check, and sprintf is not. 
-cmpxchg is one where (void) is 'needed', __as I wrote__ in a cxgb3 
-comment.
+The driver loads and seems to operate the hardware to some extent, but there
+seems to be a problem with interrupts.  Namely, the chip doesn't seem to
+generate any.
 
-After applying this patch, there are no additional warnings:
+Right after a fresh 'modprobe bcm43xx' I get the following messages in dmesg:
 
-00:19 ichi:/erk/kernel/linux-2.6.20-rc1 > make drivers/acpi/sbs.o
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CC [M]  drivers/acpi/sbs.o
-00:21 ichi:/erk/kernel/linux-2.6.20-rc1 > grep MUST .config
-CONFIG_ENABLE_MUST_CHECK=y
+bcm43xx driver
+ACPI: PCI Interrupt 0000:30:00.0[A] -> GSI 18 (level, low) -> IRQ 18
+PCI: Setting latency timer of device 0000:30:00.0 to 64
+bcm43xx: Chip ID 0x4311, rev 0x1
+bcm43xx: Number of cores: 4
+bcm43xx: Core 0: ID 0x800, rev 0x11, vendor 0x4243
+bcm43xx: Core 1: ID 0x812, rev 0xa, vendor 0x4243
+bcm43xx: Core 2: ID 0x817, rev 0x3, vendor 0x4243
+bcm43xx: Core 3: ID 0x820, rev 0x1, vendor 0x4243
+bcm43xx: PHY connected
+bcm43xx: Detected PHY: Version: 4, Type 2, Revision 8
+bcm43xx: Detected Radio: ID: 2205017f (Manuf: 17f Ver: 2050 Rev: 2)
+bcm43xx: Radio turned off
+bcm43xx: Radio turned off
+PM: Adding info for No Bus:eth1
+printk: 3 messages suppressed.
+SoftMAC: ASSERTION FAILED (0) at: net/ieee80211/softmac/ieee80211softmac_wx.c:306:ieee80211softmac_wx_get_rate()
 
-akpm, please include.
+but, strangely enough, eth1 does not appear, but eth2 appears instead:
 
----
+# ifconfig eth1 up
+eth1: unknown interface: No such device
+# ifconfig eth2 up
+#
 
-Remove some unnecessary (void) casts.
+Now there are lots of
 
-Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+SoftMAC: ASSERTION FAILED (0) at: net/ieee80211/softmac/ieee80211softmac_wx.c:306:ieee80211softmac_wx_get_rate()
 
-Index: linux-2.6.20-rc1/drivers/acpi/sbs.c
-===================================================================
---- linux-2.6.20-rc1.orig/drivers/acpi/sbs.c
-+++ linux-2.6.20-rc1/drivers/acpi/sbs.c
-@@ -1160,14 +1160,14 @@ acpi_battery_write_alarm(struct file *fi
- 	if (result) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
- 				  "acpi_battery_set_alarm() failed\n"));
--		(void)acpi_battery_set_alarm(battery, old_alarm);
-+		acpi_battery_set_alarm(battery, old_alarm);
- 		goto end;
- 	}
- 	result = acpi_battery_get_alarm(battery);
- 	if (result) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
- 				  "acpi_battery_get_alarm() failed\n"));
--		(void)acpi_battery_set_alarm(battery, old_alarm);
-+		acpi_battery_set_alarm(battery, old_alarm);
- 		goto end;
- 	}
- 
-@@ -1302,7 +1302,7 @@ static int acpi_battery_add(struct acpi_
- 		battery->init_state = 1;
- 	}
- 
--	(void)sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
-+	sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
- 
- 	result = acpi_sbs_generic_add_fs(&battery->battery_entry,
- 					 acpi_battery_dir,
-@@ -1485,7 +1485,7 @@ static int acpi_sbs_update_run(struct ac
- 		}
- 
- 		if (old_battery_present != new_battery_present) {
--			(void)sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
-+			sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
- 			result = acpi_sbs_generate_event(sbs->device,
- 							 ACPI_SBS_BATTERY_NOTIFY_STATUS,
- 							 new_battery_present,
-@@ -1498,7 +1498,7 @@ static int acpi_sbs_update_run(struct ac
- 			}
- 		}
- 		if (old_remaining_capacity != battery->state.remaining_capacity) {
--			(void)sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
-+			sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
- 			result = acpi_sbs_generate_event(sbs->device,
- 							 ACPI_SBS_BATTERY_NOTIFY_STATUS,
- 							 new_battery_present,
+messages in dmesg followed by
+
+bcm43xx: PHY connected
+PM: Adding info for No Bus:0000:30:00.0
+PM: Removing info for No Bus:0000:30:00.0
+PM: Adding info for No Bus:0000:30:00.0
+PM: Removing info for No Bus:0000:30:00.0
+PM: Adding info for No Bus:0000:30:00.0
+PM: Removing info for No Bus:0000:30:00.0
+PM: Adding info for No Bus:0000:30:00.0
+PM: Removing info for No Bus:0000:30:00.0
+bcm43xx: Microcode rev 0x122, pl 0x98 (2004-11-16  07:21:20)
+bcm43xx: Radio turned on
+bcm43xx: Chip initialized
+bcm43xx: 32-bit DMA initialized
+bcm43xx: Keys cleared
+bcm43xx: Selected 802.11 core (phytype 2)
+PM: Adding info for No Bus:hw_random
+ADDRCONF(NETDEV_UP): eth2: link is not ready
+
+Now, if I run iwconfig on it, I get
+
+eth2      IEEE 802.11b/g  ESSID:off/any  Nickname:"Broadcom 4311"
+          Mode:Managed  Frequency=2.437 GHz  Access Point: Invalid
+          Bit Rate=1 Mb/s   Tx-Power=18 dBm
+          RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Link Quality=0/100  Signal level=-256 dBm  Noise level=-256 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
+and 'iwlist eth2 scan' says 'eth2      No scan results', although a working
+access point is standing next to the box and the following line appears in
+dmesg:
+
+SoftMAC: Scanning finished: scanned 14 channels starting with channel 1
+
+_But_ if I do 'cat /proc/interrupts' now, I get:
+
+           CPU0       CPU1
+  0:    1247596          0    <NULL>-edge      timer
+  1:       3939       1170   IO-APIC-edge      i8042
+  8:          0          0   IO-APIC-edge      rtc
+ 12:        150        170   IO-APIC-edge      i8042
+ 14:      38129       6047   IO-APIC-edge      ide0
+ 16:      99585      18389   IO-APIC-fasteoi   libata, HDA Intel
+ 18:          0          0   IO-APIC-fasteoi   bcm43xx
+ 19:      48003       9582   IO-APIC-fasteoi   ohci_hcd:usb1, ohci_hcd:usb2, ehci_hcd:usb3
+ 20:          0          3   IO-APIC-fasteoi   yenta, tifm_7xx1, ohci1394, sdhci:slot0
+ 21:      11522       2467   IO-APIC-fasteoi   acpi
+ 23:      68971      11663   IO-APIC-fasteoi   eth0
+NMI:          0          0
+LOC:    1247662    1247039
+ERR:         10
+
+so apparently there's something wrong.
+
+Greetings,
+Rafael
 
 
+-- 
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

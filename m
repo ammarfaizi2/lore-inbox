@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423106AbWLUXAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423089AbWLUXDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423106AbWLUXAF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 18:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423107AbWLUXAF
+	id S1423089AbWLUXDU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 18:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423108AbWLUXDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 18:00:05 -0500
-Received: from www.nabble.com ([72.21.53.35]:34712 "EHLO talk.nabble.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423106AbWLUXAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 18:00:04 -0500
-Message-ID: <8016586.post@talk.nabble.com>
-Date: Thu, 21 Dec 2006 15:00:02 -0800 (PST)
-From: business1 <coreyu@bsgteamsite.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 2/8] rqbased-dm: add block layer hook
-In-Reply-To: <20061220.165246.85417944.k-ueda@ct.jp.nec.com>
+	Thu, 21 Dec 2006 18:03:20 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:36463 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423089AbWLUXDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 18:03:19 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <458B12A4.5000402@s5r6.in-berlin.de>
+Date: Fri, 22 Dec 2006 00:03:00 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Nabble-From: coreyu@bsgteamsite.com
-References: <20061219.171150.75425661.k-ueda@ct.jp.nec.com> <20061220134924.GG10535@kernel.dk> <20061220.165246.85417944.k-ueda@ct.jp.nec.com>
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/4] New firewire stack - updated patches
+References: <20061220005822.GB11746@devserv.devel.redhat.com>
+In-Reply-To: <20061220005822.GB11746@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kristian Høgsberg wrote:
+> Here's a new set of patches for the new firewire stack.
+...
+> It is still work in progress, but at least now it should work across
+> all architectures and endianesses.
 
+Committed to linux1394-2.6.git.
 
-
-Kiyoshi Ueda wrote:
-> 
-> Hi Jens,
-> 
-> Sorry for the less explanation.
-> 
-> On Wed, 20 Dec 2006 14:49:24 +0100, Jens Axboe <jens.axboe@oracle.com>
-> wrote:
->> On Tue, Dec 19 2006, Kiyoshi Ueda wrote:
->> > This patch adds new "end_io_first" hook in __end_that_request_first()
->> > for request-based device-mapper.
->> 
->> What's this for, lack of stacking?
-> 
-> I don't understand the meaning of "lack of stacking" well but
-> I guess that it means "Is the existing hook in end_that_request_last()
-> not enough?"  If so, the answer is no.
-> (If the geuss is wrong, please let me know.)
-> 
-> The new hook is needed for error handling in dm.
-> For example, when an error occurred on a request, dm-multipath
-> wants to try another path before returning EIO to application.
-> Without the new hook, at the point of end_that_request_last(),
-> the bios are already finished with error and can't be retried.
-> 
-> Thanks,
-> Kiyoshi Ueda
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
->   Look at me im boolin  
-> http://www.thebusinesssuccessgroup.com/Real-Estate-Investment-training.html
+BTW, I prepended "ieee1394:" to the titles of most of the commits to
+this tree. From now on I will always do this on commits affecting
+mainline's FireWire stack, and prepend "firewire:" to the titles of
+commits affecting the JUJU stack. It's redundant but IMO helpful when
+reading changelogs.
 -- 
-View this message in context: http://www.nabble.com/-RFC-PATCH-2-8--rqbased-dm%3A-add-block-layer-hook-tf2848786.html#a8016586
-Sent from the linux-kernel mailing list archive at Nabble.com.
-
+Stefan Richter
+-=====-=-==- ==-- =-=-=
+http://arcgraph.de/sr/

@@ -1,57 +1,144 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161113AbWLUBPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161102AbWLUBUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbWLUBPm (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 20:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWLUBPl
+	id S1161102AbWLUBUg (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 20:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWLUBUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 20:15:41 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:40984 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161113AbWLUBPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 20:15:40 -0500
-Date: Thu, 21 Dec 2006 01:15:26 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Dan Williams <dcbw@redhat.com>
-Cc: Jiri Benc <jbenc@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-ID: <20061221011526.GB32625@srcf.ucam.org>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <20061220150009.1d697f15@griffin.suse.cz> <1166638371.2798.26.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166638371.2798.26.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-Subject: Re: Network drivers that don't suspend on interface down
-X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
-X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
+	Wed, 20 Dec 2006 20:20:36 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55801 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161102AbWLUBUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 20:20:35 -0500
+Date: Wed, 20 Dec 2006 17:20:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Michlmayr <tbm@cyrius.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+Message-Id: <20061220172009.b0e4246b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612201633300.3576@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	<1166571749.10372.178.camel@twins>
+	<Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	<1166605296.10372.191.camel@twins>
+	<1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	<1166614001.10372.205.camel@twins>
+	<Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	<1166622979.10372.224.camel@twins>
+	<20061220170323.GA12989@deprecation.cyrius.com>
+	<Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	<20061220175309.GT30106@deprecation.cyrius.com>
+	<Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	<Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+	<20061220153207.b2a0a27f.akpm@osdl.org>
+	<Pine.LNX.4.64.0612201548410.3576@woody.osdl.org>
+	<20061220161158.acb77ce6.akpm@osdl.org>
+	<Pine.LNX.4.64.0612201615590.3576@woody.osdl.org>
+	<Pine.LNX.4.64.0612201633300.3576@woody.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 01:12:51PM -0500, Dan Williams wrote:
+On Wed, 20 Dec 2006 16:43:31 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Entirely correct.  If the card is DOWN, the radio should be off (both TX
-> & RX) and it should be in max power save mode.  If userspace expects to
-> be able to get the card to do _anything_ when it's down, that's just
-> 110% wrong.  You can't get link events for many wired cards when they
-> are down, so I fail to see where userspace could expect to do anything
-> with a wireless card when it's down too.
+> 
+> 
+> On Wed, 20 Dec 2006, Linus Torvalds wrote:
+> > > 
+> > > There's also redirty_page_for_writepage().
+> > 
+> > _dirtying_ a page makes sense in any situation. You can always dirty them. 
+> > I'm just saying that you can't just mark them *clean*.
+> > 
+> > If your point was that the filesystem had better be able to take care of 
+> > "redirty_page_for_writepage()", then yes, of course. But since it's the 
+> > filesystem itself that does it, it had _better_ be able to take care of 
+> > the situation it puts itself into.
+> 
+> Btw, as an example of something where this may NOT be ok, look at 
+> migrate_page_copy().
+> 
+> I'm not at all convinced that "migrate_page_copy()" can work at all. It 
+> does:
+> 
+> 	...
+>         if (PageDirty(page)) {
+>                 clear_page_dirty_for_io(page);
+>                 set_page_dirty(newpage);
 
-Because it works on the common hardware? If there's documentation about 
-what userspace can legitimately expect, then I'm happy to defer to that. 
-But in the absence of any indication as to what functionality users can 
-depend on, deciding that existing functionality is a bug is, well, 
-impolite.
+Note that this is referring to different pages.
 
-> Also, how does rfkill fit into this?  rfkill implies killing TX, but do
-> we have the granularity to still receive while the transmit paths are
-> powered down?
+>         }
+> 	...
+> 
+> which is an example of what NOT to do, because it claims to clear the page 
+> for IO, but doesn't actually _do_ any IO.
+> 
+> And this is wrong, for many reasons. 
+>
+> For example, it's very possible that the old page is not actually 
+> up-to-date, and is only partially dirty using some FS-specific dirty data 
+> queues (like NFS does with its dirty data, or buffer-heads can do for 
+> local filesystems).
 
-Is rfkill not just primarily an interface for us getting events when the 
-radio changes state? Every time I read up on it I get a little more 
-confused - some time I really need to make sense of it...
+afaict the code copes with those things.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> When you do
+> 
+> 	if (clear_dirty(page))
+> 		set_page_dirty(page);
+> 
+> in generic VM code, that is a BUG. It's an insane operation. It cannot 
+> work. It's exactly what I'm trying to avoid.
+
+These are different pages.
+
+We could view the copy_highpage() in migrate_page_copy() as an "io"
+operation, only the backing store is a new pagecache page.
+
+It'd be more logical if that copy_highpage() was occurring after the
+clear_page_dirty_for_io().
+
+I'm not sure why migrate_page_copy() is playing with
+PageWriteback(newpage).  Surely newpage is locked, in which case nobody
+will be starting writeback on it.
+
+> So page migration is probably broken, but it's no less broken than it 
+> always has been. And I don't think many people use it anyway. It might 
+> work "by accident" in a lot of situations, but to actually be solid, it 
+> really would need to do something fundamentally different, like:
+> 
+>  - have a per-mapping "migrate()" function that actually knows HOW to 
+>    migrate the dirty state from one page to another.
+
+That is how it's presently implemented.  You're looking at helper functions
+which fileystems may point their address_space_operations.migratepage at.
+
+>  - or, preferably, by just not migrating dirty pages, and just actually 
+>    doing the writeback on them first.
+> 
+> Again, this is an example of just _incorrect_ code, that thinks that it 
+> can "just clear the dirty bit". You can't do that. It's wrong. And it is 
+> not wrong just because I say so, but because the operations itself simply 
+> is FUNDAMENTALLY not a sensible one.
+
+The dirty state is being transferred to the new page.  The tricky part is
+handling the cases where these pages are mapped into pagetables.  That's
+what the special migration ptes are there for.  I'll let Christoph explain
+that lot ;)
+

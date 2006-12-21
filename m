@@ -1,112 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965209AbWLUKjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965205AbWLUKls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbWLUKjh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 05:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWLUKjg
+	id S965205AbWLUKls (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 05:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWLUKls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 05:39:36 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38110 "EHLO mx2.mail.elte.hu"
+	Thu, 21 Dec 2006 05:41:48 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:41456 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965203AbWLUKjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 05:39:36 -0500
-Date: Thu, 21 Dec 2006 11:37:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] x86_64: fix boot hang caused by CALGARY_IOMMU_ENABLED_BY_DEFAULT
-Message-ID: <20061221103702.GA19451@elte.hu>
-References: <20061220102846.GA17139@elte.hu> <20061220113052.GA30145@rhun.ibm.com> <20061220162338.GC11804@elte.hu> <20061220180953.GM30145@rhun.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061220180953.GM30145@rhun.ibm.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S965195AbWLUKlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 05:41:47 -0500
+Message-ID: <458A64E5.4050703@garzik.org>
+Date: Thu, 21 Dec 2006 05:41:41 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
+References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru> <20061221103539.GA4099@2ka.mipt.ru>
+In-Reply-To: <20061221103539.GA4099@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-
-> > > it would be used, period. You may disagree, but fundamentally I 
-> > > think the mainline kernel should be fairly experimental, which 
-> > > means enabling new code by default.
-> > 
-> > that's a totally wrong attitude - the mainline kernel is /not/ 
-> > experimental. A distro might or might not enable the new option, but 
-> > we just dont enable experimental platform support code via "default 
-> > y"...
+Evgeniy Polyakov wrote:
+> On Thu, Dec 21, 2006 at 12:14:17PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+>> Generic event handling mechanism.
+>>
+>> Kevent is a generic subsytem which allows to handle event notifications.
+>> It supports both level and edge triggered events. It is similar to
+>> poll/epoll in some cases, but it is more scalable, it is faster and
+>> allows to work with essentially eny kind of events.
+>>
+>> Events are provided into kernel through control syscall and can be read
+>> back through ring buffer or using usual syscalls.
+>> Kevent update (i.e. readiness switching) happens directly from internals
+>> of the appropriate state machine of the underlying subsytem (like
+>> network, filesystem, timer or any other).
+>>
+>> Homepage:
+>> http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+>>
+>> Documentation page:
+>> http://linux-net.osdl.org/index.php/Kevent
+>>
+>> Consider for inclusion.
 > 
-> I disagree, it seems to me most "experimental platform support code" 
-> is simply enabled because it doesn't even have a CONFIG option (c.f., 
-> recent genirq and IO-APIC breakage on x86-64). With regards to this 
-> specific option, you might even say that not defaulting to 'y' here 
-> would be a regression in behaviour against previous released kernels, 
-> which used Calgary if it was compiled in, no questions asked. So at 
-> least in that sense, instructing the user to select y if unsure and 
-> default y are appropriate.
-
-i still disagree. We should be /a lot/ more careful in adding patches 
-that change platform behavior.
-
-i happen to run a distro kernel, and in fact i'm maintaining the -rt yum 
-repository which offers a distro kernel and which also tracks mainline 
-very closely.
-
-i agree with you that Calgary support, if it was enabled (which it is in 
-my config), would run through the calgary_detect() function. The 
-breakage was not caused by the default-y patch, it was caused by the 
-other patch preceding it:
-
-   commit b34e90b8f0f30151349134f87b5dc6ef75a5218c
-   Date:   Thu Dec 7 02:14:06 2006 +0100
-
-   [PATCH] Calgary: use BIOS supplied BBARs and topology information
-
-I think in the future it would be better to annotate the introduction of 
-new, widely used codepaths via KERN_DEBUG printouts, something along the 
-lines of:
-
-	printk(KERN_DEBUG "calgary: running new EBDA code.\n");
-	...
-	printk(KERN_DEBUG "calgary: done.\n");
-
-That way "debug ignore_loglevel console=tty" bootopions would have 
-uncovered the source of this hang. Just like i can use the 
-initcall_debug boot option to figure out where the bootup hangs.
-
-but i still /strongly/ disagree with your attitude that mainline is 
-'experimental' and hence there's nothing to see here, move over.
-
-> > The other problem is that the changelog entry says that it's off by 
-> > default, while in reality the new option switched this code on for 
-> > my box, and broke it.
+> Due to this stall kevent inclusion into lighttpd CVS tree is postponed.
 > 
-> Sorry about that (both the wrong changelog entry and the fact that it 
-> broke your box).
+> The last version will be released saturday or sunday, and looking into
+> overhelming flow of feedback comments on this feature, project will not
+> be released to linux-kernel@, after this I will
+> complete netchannels support and start kevent based AIO project - mostly
+> network AIO with new design, which is based on set of entities, which
+> can describe set of tasks which should be performed
+> asynchronously (from user point of view, although read and write
+> obviously must be done after open and before close), for example syscall
 
-there's really no need to apologize, i probably broke your box a few 
-orders of magnitude more times than you broke mine ;)
+kevent is being considered for inclusion, but there is no need to get 
+impatient.  Once kevent code stops getting revised rapidly, Andrew 
+Morton can pick it up for -mm, for wide dissemination, testing and 
+review.  After that phase, it can be pushed to mainline.
 
-Nevertheless my point is that we /have/ to be more supportive of early 
-adopter distro kernels (Dave Jones says that the same bug has hit Fedora 
-rawhide too), and have to be doubly careful about anything that goes 
-into code that is run by /everyone/. Especially if it's in a hard to 
-debug place like early bootup code.
+The feeling I get from other kernel hackers is that you are demanding 
+inclusion "now! now! now!" rather than giving all stakeholders a chance 
+to give input, and let your design sink into the collective brain.
 
-This incident i think shows that bisection and testing in -mm doesnt 
-always cut it (bisection-testing is quite laborous with a large distro 
-kernel), and i think we could do more technological measures in this 
-area to lower the bar of entry for users to help us narrow down such 
-bugs. Such as a KERN_DEBUG policy for annotating new code in the bootup 
-path.
+This isn't just an optional feature but a key new addition to the 
+kernel.  So we should intentionally take more time and consideration 
+than normal.  We don't want to go back and have to change fundamental 
+kevent details due to design flaws, we want to get it right.
 
-	Ingo
+	Jeff
+
+
+

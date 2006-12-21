@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423030AbWLUTGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423034AbWLUTGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423030AbWLUTGG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:06:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423036AbWLUTGF
+	id S1423034AbWLUTGm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423038AbWLUTGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:06:05 -0500
-Received: from mail-gw3.sa.ew.hu ([212.108.200.82]:55919 "EHLO
-	mail-gw3.sa.ew.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423030AbWLUTGE (ORCPT
+	Thu, 21 Dec 2006 14:06:42 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:64697 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423034AbWLUTGl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:06:04 -0500
-To: rmk+lkml@arm.linux.org.uk
-CC: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-reply-to: <20061221185512.GH3958@flint.arm.linux.org.uk> (message from
-	Russell King on Thu, 21 Dec 2006 18:55:12 +0000)
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu> <20061221181156.GG3958@flint.arm.linux.org.uk> <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu> <20061221185512.GH3958@flint.arm.linux.org.uk>
-Message-Id: <E1GxTED-0000yy-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 21 Dec 2006 20:05:17 +0100
+	Thu, 21 Dec 2006 14:06:41 -0500
+Date: Thu, 21 Dec 2006 11:05:49 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>
+Subject: Re: [PATCH] ext2: skip pages past number of blocks in
+ ext2_find_entry
+Message-Id: <20061221110549.bf336c02.randy.dunlap@oracle.com>
+In-Reply-To: <458AD954.7020904@redhat.com>
+References: <458AD954.7020904@redhat.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
-> > > > > > could be replaced by the flush_kernel_dcache_page() (added by James
-> > > > > > Bottomley together with flush_anon_page()) when all relevant
-> > > > > > architectures have defined it.
-> > > > > 
-> > > > > I should say that flush_anon_page() in its current form is going to be
-> > > > > problematic for ARM.  It is passed:
-> > > > > 
-> > > > > 1. the struct page
-> > > > > 2. the virtual address in process memory for the page
-> > > > > 
-> > > > > It is not passed the mm or vma.  This means that we have no idea whether
-> > > > > the virtual address is in the currently mapped VM space or not.  The
-> > > > > common use of get_area_pages() is to get pages from other address
-> > > > > spaces.
-> > > > 
-> > > > I'm not sure I understand.  flush_anon_page() needs only to flush the
-> > > > mapping for the given virtual address, no?
-> > > 
-> > > Yes, but that virtual /user/ address is meaningless without knowing
-> > > which process address space it belongs to.
-> > > 
-> > > > It's always mapped at that address (since it was just accessed through
-> > > > that).
-> > > 
-> > > No.  Consider ptrace() (invoked by gdb) reading data from another
-> > > processes address space to obtain structure data or instructions.
-> > > 
-> > > > Any other mappings
-> > > > of the anonymous page are irrelevant, they don't need to be flushed.
-> > > 
-> > > Again, incorrect.  Consider if the page you're accessing is a file-
-> > > backed page, and is mapped into a process using a shared mapping.
-> > > Because you've written to the file, those shared mappings need to see
-> > > that write, and the interface for achieving that is flush_dcache_page().
-> > > If not, data loss can occur.
-> > 
-> > Yes, for file backed pages.  But flush_anon_page() only needs to deal
-> > with anonymous (not file backed) pages.
-> 
-> Ignore my final paragraph, it was clearly wrong; I was thinking about
-> the flush after you've written to the page.
-> 
-> However, I continue to assert that I require the VMA to implement
-> flush_anon_page() since a userspace address without knowing which
-> userspace it corresponds with is utterly useless for cache maintainence
-> purposes.
+On Thu, 21 Dec 2006 12:58:28 -0600 Eric Sandeen wrote:
 
-I understand now.  I'm not sure how the PARISC implementation can be
-correct in this light.
+> This one was pointed out on the MOKB site:
+> http://kernelfun.blogspot.com/2006/11/mokb-09-11-2006-linux-26x-ext2checkpage.html
+> 
+> If a directory's i_size is corrupted, ext2_find_entry() will keep processing
+> pages until the i_size is reached, even if there are no more blocks associated
+> with the directory inode.  This patch puts in some minimal sanity-checking
+> so that we don't keep checking pages (and issuing errors) if we know there
+> can be no more data to read, based on the block count of the directory inode.
+> 
+> This is somewhat similar in approach to the ext3 patch I sent earlier this
+> year.
+> 
+> Thanks,
+> 
+> -Eric
+> 
+> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+> 
+> Index: linux-2.6.19/fs/ext2/dir.c
+> ===================================================================
+> --- linux-2.6.19.orig/fs/ext2/dir.c
+> +++ linux-2.6.19/fs/ext2/dir.c
+> @@ -368,6 +368,14 @@ struct ext2_dir_entry_2 * ext2_find_entr
+>  		}
+>  		if (++n >= npages)
+>  			n = 0;
+> +		/* next page is past the blocks we've got */
+> +		if (unlikely(n > (dir->i_blocks >> (PAGE_CACHE_SHIFT - 9)))) {
+> +			ext2_error(dir->i_sb, __FUNCTION__,
+> +				"dir %lu size %lld exceeds block count %llu",
+> +				dir->i_ino, dir->i_size,
+> +				(unsigned long long)dir->i_blocks);
+> +				goto out;
 
-Miklos
+Please don't hide the goto; un-indent 1 tab stop.
+
+> +		}
+>  	} while (n != start);
+>  out:
+>  	return NULL;
+
+
+---
+~Randy

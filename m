@@ -1,85 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422996AbWLUSLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423002AbWLUSMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422996AbWLUSLm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWLUSLm
+	id S1423002AbWLUSMI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423004AbWLUSMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:11:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45084 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422996AbWLUSLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:11:41 -0500
-Date: Thu, 21 Dec 2006 13:11:18 -0500 (EST)
-Message-Id: <20061221.131118.39151032.k-ueda@ct.jp.nec.com>
-To: jens.axboe@oracle.com
-Cc: agk@redhat.com, mchristi@redhat.com, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, j-nomura@ce.jp.nec.com
-Subject: Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request() to be
- called from interrupt context
-From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-In-Reply-To: <20061221075305.GD17199@kernel.dk>
-References: <20061220184917.GJ10535@kernel.dk>
-	<20061220.165549.39151582.k-ueda@ct.jp.nec.com>
-	<20061221075305.GD17199@kernel.dk>
-X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
- =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
+	Thu, 21 Dec 2006 13:12:07 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2969 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423002AbWLUSMF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:12:05 -0500
+Date: Thu, 21 Dec 2006 18:11:56 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
+Message-ID: <20061221181156.GG3958@flint.arm.linux.org.uk>
+Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-
-OK, I understand that.
-But I think that the block layer assumption (depending on "current")
-is not ideal.
-Anyway, thank you for the information.
-
-Thanks,
-Kiyoshi Ueda
-
-
-On Thu, 21 Dec 2006 08:53:05 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
-> On Wed, Dec 20 2006, Kiyoshi Ueda wrote:
-> > Hi Jens,
+On Thu, Dec 21, 2006 at 06:55:47PM +0100, Miklos Szeredi wrote:
+> > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
+> > > could be replaced by the flush_kernel_dcache_page() (added by James
+> > > Bottomley together with flush_anon_page()) when all relevant
+> > > architectures have defined it.
 > > 
-> > On Wed, 20 Dec 2006 19:49:17 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > > > > Big NACK on this - it's not only really ugly, it's also buggy to pass
-> > > > > interrupt flags as function arguments. As you also mention in the 0/1
-> > > > > mail, this also breaks CFQ.
-> > > > > 
-> > > > > Why do you need in-interrupt request allocation?
-> > > >  
-> > > > Because I'd like to use blk_get_request() in q->request_fn()
-> > > > which can be called from interrupt context like below:
-> > > >   scsi_io_completion -> scsi_end_request -> scsi_next_command
-> > > >   -> scsi_run_queue -> blk_run_queue -> q->request_fn
-> > > > 
-> > > > Generally, device-mapper (dm) clones an original I/O and dispatches
-> > > > the clones to underlying destination devices.
-> > > > In the request-based dm patch, the clone creation and the dispatch
-> > > > are done in q->request_fn().  To create the clone, blk_get_request()
-> > > > is used to get a request from underlying destination device's queue.
-> > > > By doing that in q->request_fn(), dm can deal with struct request
-> > > > after bios are merged by __make_request().
-> > > > 
-> > > > Do you think creating another function like blk_get_request_nowait()
-> > > > is acceptable?
-> > > > Or request should not be allocated in q->request_fn() anyway?
-> > > 
-> > > You should not be allocating requests from that path, for a number of
-> > > reasons.
+> > I should say that flush_anon_page() in its current form is going to be
+> > problematic for ARM.  It is passed:
 > > 
-> > Could I hear the reasons for my further work if possible?
-> > Because of breaking current CFQ?  And is there any reason?
+> > 1. the struct page
+> > 2. the virtual address in process memory for the page
+> > 
+> > It is not passed the mm or vma.  This means that we have no idea whether
+> > the virtual address is in the currently mapped VM space or not.  The
+> > common use of get_area_pages() is to get pages from other address
+> > spaces.
 > 
-> Mainly I just don't like the design, there are better ways to achieve
-> what you need. The block layer has certain assumptions on the context
-> from which rq allocation happens, and this breaks it. As I also
-> mentioned, you cannot pass flags around as arguments. So the patch is
-> even broken as-is.
-> 
-> -- 
-> Jens Axboe
+> I'm not sure I understand.  flush_anon_page() needs only to flush the
+> mapping for the given virtual address, no?
 
+Yes, but that virtual /user/ address is meaningless without knowing
+which process address space it belongs to.
+
+> It's always mapped at that address (since it was just accessed through
+> that).
+
+No.  Consider ptrace() (invoked by gdb) reading data from another
+processes address space to obtain structure data or instructions.
+
+> Any other mappings
+> of the anonymous page are irrelevant, they don't need to be flushed.
+
+Again, incorrect.  Consider if the page you're accessing is a file-
+backed page, and is mapped into a process using a shared mapping.
+Because you've written to the file, those shared mappings need to see
+that write, and the interface for achieving that is flush_dcache_page().
+If not, data loss can occur.
+
+> > If we use the supplied virtual address to perform cache maintainence of
+> > the userspace mapping, we might end up hitting a completely different
+> > processes address space, which may contain some page sensitive to such
+> > operations, or may not contain any page and thereby could cause a page
+> > fault on some ARM CPUs.
+> 
+> I think calling get_user_pages() from a different process' address
+> space simply doesn't make any sense.
+
+That was it's main use - to implement ptrace() to read other processes
+address spaces.  Why do you think it takes a task_struct and mm_struct?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

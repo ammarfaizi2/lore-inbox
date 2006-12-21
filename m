@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752877AbWLVLeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754803AbWLVLej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752877AbWLVLeh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 06:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754811AbWLVLeh
+	id S1754803AbWLVLej (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 06:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754806AbWLVLej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 06:34:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4228 "EHLO spitz.ucw.cz"
+	Fri, 22 Dec 2006 06:34:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4227 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752877AbWLVLeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 06:34:36 -0500
-Date: Thu, 21 Dec 2006 19:39:03 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Willy Tarreau <w@1wt.eu>, karderio <karderio@gmail.com>,
+	id S1754803AbWLVLei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 06:34:38 -0500
+Date: Thu, 21 Dec 2006 15:38:29 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061221193902.GA4268@ucw.cz>
-References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org> <20061216064344.GF24090@1wt.eu> <Pine.LNX.4.64.0612160820240.3557@woody.osdl.org> <20061216164947.GB31013@1wt.eu> <Pine.LNX.4.64.0612160858100.3557@woody.osdl.org> <20061216183301.GA14286@redhat.com>
+Message-ID: <20061221153828.GA4038@ucw.cz>
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <20061214161750.GB3388@stusta.de> <20061214163347.4f1be668@localhost.localdomain> <20061214171749.GA29982@thunk.org> <20061214195136.GD3388@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061216183301.GA14286@redhat.com>
+In-Reply-To: <20061214195136.GD3388@stusta.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu 14-12-06 20:51:36, Adrian Bunk wrote:
+> On Thu, Dec 14, 2006 at 12:17:49PM -0500, Theodore Tso wrote:
+> > On Thu, Dec 14, 2006 at 04:33:47PM +0000, Alan wrote:
+> > > > The trick is to let a lawyer send cease and desist letters to people 
+> > > > distributing the infringing software for 1 Euro at Ebay.
+> > > 
+> > > Doesn't that sound even more like the music industry ? Pick on Grandma,
+> > > and people who've no clue about the issue. It's not the way to solve such
+> > > problems. The world does not need "The war on binary modules". Educate
+> > > people instead, and talk to vendors.
+> > 
+> > .... or like Microsoft, who is threatening to make war on end-users
+> > instead of settling things with vendors.  (One of the reasons why I
+> > personally find the Microsoft promise not to sue _Novell_'s end users
+> > so nasty.  Microsoft shouldn't be threatening anyone's users; if they
+> > have a problem, they should be taking it up with the relevant vendor,
+> > not sueing innocent and relatively shallow-pocketed end-users and
+> > distributors.)
+> > 
+> > One of the things that I find so interesting about how rabid people
+> > get about enforcing GPL-only modules is how they start acting more and
+> > more like the RIAA, MPAA, and Microsoft every day....
+> 
+> Please don't think or imply I'd plan to do this, I'm only saying that 
+> there's a risk for users in such grey areas.
+> 
+> It could be that someone who wants to harm Linux starts suing people 
+> distributing Linux. If your goal is to harm Linux, suing users can 
+> simply be much more effective than suing vendors...
+> 
+> It could even be that people distributing Linux could receive cease and 
+> desist letters from people without any real interest in the issue
+> itself - "cease and desist letter"s are so frequent in Germany because 
+> the people who have to sign them have to pay the lawyers' costs that are 
+> usually > 1000 Euro, and that's a good business for the lawyers.
 
->  > Anything else, you have to make some really scary decisions. Can a judge 
->  > decide that a binary module is a derived work even though you didn't 
->  > actually use any code? The real answer is: HELL YES. It's _entirely_ 
->  > possible that a judge would find NVidia and ATI in violation of the GPLv2 
->  > with their modules.
-> 
-> ATI in particular, I'm amazed their lawyers OK'd stuff like..
-> 
-> +ifdef STANDALONE
->  MODULE_LICENSE(GPL);
-> +endif
-> 
-> This a paraphrased diff, it's been a while since I've seen it.
-> It's GPL if you build their bundled copy of the AGPGART code as agpgart.ko,
-> but the usual use case is that it's built-in to fglrx.ko, which sounds
-> incredibly dubious.
-> 
-> Now, AGPGART has a murky past wrt licenses.  It initally was imported
-> into the tree with the license "GPL plus additional rights".
-> Nowhere was it actually documented what those rights were, but I'm
-> fairly certain it wasn't to enable nonsense like the above.
-> As it came from the XFree86 folks, it's more likely they really meant
-> "Dual GPL/MIT" or similar.
-> 
-> When I took over, any new code I wrote I explicitly set out to mark as GPL
-> code, as my modifications weren't being contributed back to X, they were
-> going back to the Linux kernel.  ATI took those AGPv3 modifications from
-> a 2.5 kernel, backported them to their 2.4 driver, and when time came
+Something is very wrong with German legal system, I'm afraid.
 
-Do they actually distribute that AGPv3 + binary blob? In such case,
-you should simply ask them for the binary blob sources, and take them
-to the court if they refuse. RedHat should be big enough, and ATI
-certainly makes enough money...
-
-They'll probably resolve the problem fast if they feel legal actions
-are pending.
 							Pavel
-
 -- 
 Thanks for all the (sleeping) penguins.

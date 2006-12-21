@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752313AbWLVLdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752877AbWLVLeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752313AbWLVLdN (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 06:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752877AbWLVLdM
+	id S1752877AbWLVLeh (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 06:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754811AbWLVLeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 06:33:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:61875 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751749AbWLVLdM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 06:33:12 -0500
-X-Greylist: delayed 322 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 06:33:11 EST
-From: Martin Williges <kernel@zut.de>
-To: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH 1/1] usblp.c - add Kyocera Mita FS 820 to list of "quirky" printers
-Date: Fri, 22 Dec 2006 12:27:18 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, dsd@gentoo.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 22 Dec 2006 06:34:37 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4228 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752877AbWLVLeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 06:34:36 -0500
+Date: Thu, 21 Dec 2006 19:39:03 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Willy Tarreau <w@1wt.eu>, karderio <karderio@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061221193902.GA4268@ucw.cz>
+References: <1166226982.12721.78.camel@localhost> <Pine.LNX.4.64.0612151615550.3849@woody.osdl.org> <1166236356.12721.142.camel@localhost> <Pine.LNX.4.64.0612151841570.3557@woody.osdl.org> <20061216064344.GF24090@1wt.eu> <Pine.LNX.4.64.0612160820240.3557@woody.osdl.org> <20061216164947.GB31013@1wt.eu> <Pine.LNX.4.64.0612160858100.3557@woody.osdl.org> <20061216183301.GA14286@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612221227.18870.kernel@zut.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:0e8a1abe8b7b166fb6ca785a477f557f
+In-Reply-To: <20061216183301.GA14286@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-from: Martin Williges <kernel@zut.de>
+Hi!
 
-this patch gets the Kyocera FS 820 working with cups 1.2 via usb again. It
-adds the printer to the list of "quirky" printers. Patch is based on
-linux-2.6.19.
+>  > Anything else, you have to make some really scary decisions. Can a judge 
+>  > decide that a binary module is a derived work even though you didn't 
+>  > actually use any code? The real answer is: HELL YES. It's _entirely_ 
+>  > possible that a judge would find NVidia and ATI in violation of the GPLv2 
+>  > with their modules.
+> 
+> ATI in particular, I'm amazed their lawyers OK'd stuff like..
+> 
+> +ifdef STANDALONE
+>  MODULE_LICENSE(GPL);
+> +endif
+> 
+> This a paraphrased diff, it's been a while since I've seen it.
+> It's GPL if you build their bundled copy of the AGPGART code as agpgart.ko,
+> but the usual use case is that it's built-in to fglrx.ko, which sounds
+> incredibly dubious.
+> 
+> Now, AGPGART has a murky past wrt licenses.  It initally was imported
+> into the tree with the license "GPL plus additional rights".
+> Nowhere was it actually documented what those rights were, but I'm
+> fairly certain it wasn't to enable nonsense like the above.
+> As it came from the XFree86 folks, it's more likely they really meant
+> "Dual GPL/MIT" or similar.
+> 
+> When I took over, any new code I wrote I explicitly set out to mark as GPL
+> code, as my modifications weren't being contributed back to X, they were
+> going back to the Linux kernel.  ATI took those AGPv3 modifications from
+> a 2.5 kernel, backported them to their 2.4 driver, and when time came
 
-Signed-off-by: Martin Williges <kernel@zut.de>
+Do they actually distribute that AGPv3 + binary blob? In such case,
+you should simply ask them for the binary blob sources, and take them
+to the court if they refuse. RedHat should be big enough, and ATI
+certainly makes enough money...
 
----
+They'll probably resolve the problem fast if they feel legal actions
+are pending.
+							Pavel
 
-Background:
-I have little knowledge of usb, the following is based on my observations and
-assumptions. With cups 1.2.6 going stable in gentoo, the usb backend does not
-find the printer and thus users are not able to add the printer if it´s
-connected via usb. In cups 1.1.x, the backend just reported a default bunch
-of devices a printer might be connected to.
-As far as I could see, cups detects the printer (/dev/usb/lp0) and sends an
-ioctl which times out. I traced the timeout:
-usblp.c calls usb_control_msg() (in message.c)
-->usb_internal_control_msg()
-->usb_start_wait_urb()
-this function times out, the printer does not answer (0/1023 chars read).
-
-Funny thing is, reading the identification works directly after plugging the
-printer in, but not some seconds after. The patch lets the cups usb backend
-find the printer again. So maybe the patch is a little crude. If someone has
-a better idea, I may be able provide straces, syslog with DEBUG on,...
-
---- usblp.c.orig        2006-11-29 22:57:37.000000000 +0100
-+++ usblp.c     2006-12-22 12:08:00.000000000 +0100
-@@ -217,6 +217,7 @@ static const struct quirk_printer_struct
-        { 0x0409, 0xbef4, USBLP_QUIRK_BIDIR }, /* NEC Picty760 (HP OEM) */
-        { 0x0409, 0xf0be, USBLP_QUIRK_BIDIR }, /* NEC Picty920 (HP OEM) */
-        { 0x0409, 0xf1be, USBLP_QUIRK_BIDIR }, /* NEC Picty800 (HP OEM) */
-+       { 0x0482, 0x0010, USBLP_QUIRK_BIDIR }, /* Kyocera Mita FS 820, by zut <kernel@zut.de> */
-        { 0, 0 }
- };
+-- 
+Thanks for all the (sleeping) penguins.

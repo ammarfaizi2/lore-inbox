@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422973AbWLUQ6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422977AbWLUQ7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422973AbWLUQ6H (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 11:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422975AbWLUQ6G
+	id S1422977AbWLUQ7I (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 11:59:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWLUQ7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 11:58:06 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4921 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422973AbWLUQ6F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 11:58:05 -0500
-Date: Thu, 21 Dec 2006 16:57:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-Message-ID: <20061221165744.GD3958@flint.arm.linux.org.uk>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Dec 2006 11:59:08 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:51122 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422977AbWLUQ7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 11:59:07 -0500
+Date: Thu, 21 Dec 2006 08:58:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrei Popa <andrei.popa@i-neo.ro>
+cc: Andrew Morton <akpm@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1166716081.6901.1.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612210853420.3394@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> 
+ <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+  <1166614001.10372.205.camel@twins>  <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+  <1166622979.10372.224.camel@twins>  <20061220170323.GA12989@deprecation.cyrius.com>
+  <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> 
+ <20061220175309.GT30106@deprecation.cyrius.com>  <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+  <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>  <20061220153207.b2a0a27f.akpm@osdl.org>
+  <Pine.LNX.4.64.0612201548410.3576@woody.osdl.org>  <20061220161158.acb77ce6.akpm@osdl.org>
+  <Pine.LNX.4.64.0612201615590.3576@woody.osdl.org> 
+ <Pine.LNX.4.64.0612201622480.3576@woody.osdl.org> <1166716081.6901.1.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 04:53:56PM +0100, Miklos Szeredi wrote:
-> I'll first answer the last paragraph.
+
+
+On Thu, 21 Dec 2006, Andrei Popa wrote:
+
+> On Wed, 2006-12-20 at 16:24 -0800, Linus Torvalds wrote:
+> > 
+> > Martin, Peter, Andrei, pls give it a try. (Martin and Andrei may be 
+> > talking about different bugs, so _both_ of your experiences definitely 
+> > matter here).
 > 
-> > I suggest that in order for fuse to work reliably on ARM, it is modified
-> > to behave more like a reasonable device driver, and use the functions
-> > defined in asm/uaccess.h when it wants to access the current processes
-> > VM space.
-> 
-> Fuse needs to use get_user_pages() to work around certain deadlock
-> scenarios (see Documentation/filesystems/fuse.txt), that are
-> problematic with copy_*_user().
+> with http://lkml.org/lkml/diff/2006/12/20/204/1
+> I have corruption: Hash check on download completion found bad chunks,
+> consider using "safe_sync".
 
-Hmm, okay (though the documentation doesn't really provide enough
-explaination for me to get a grasp of exactly what's going on.)
+Gaah. Martin Michlmayr reported that it apparently fixes his ARM 
+corruption.
 
-> > However, and this is the problem, we need cache maintainence _after_
-> > that memcpy() has completed - with a write allocate VIVT cache, the
-> > memcpy() itself will allocate cache lines in the kernel mapping of
-> > the page which will need to be written back for the user process to
-> > see that data.
-> 
-> Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
-> could be replaced by the flush_kernel_dcache_page() (added by James
-> Bottomley together with flush_anon_page()) when all relevant
-> architectures have defined it.
+Now, admittedly I already suspected the issues might be different (if only 
+because of the UP vs SMP/PREEMPT case), but I really had my hopes up after 
+Martin's report, because if anything, _his_ issue might have been a 
+superset of your problem (while obviously any subtle SMP races you might 
+be seeing are definitely not an issue in his case).
 
-I'm not entirely convinced that it can be replaced.  What if the page
-is in the page cache and is shared with other processes?  That quite
-clearly falls under flush_dcache_page()'s remit.
+Oh well. I think the ARM case is enough of a reason to apply those patches 
+(if it hadn't made any difference at all, I'd have waited until after 
+2.6.20), and we'll just have to continue on the SMP PREEMPT angle.
 
-> > Now, throw in SMP or preempt with a multi-threaded userspace program
-> > touching the page in question, and the problem just gets much much
-> > worse.  In such a scenario, we can not guarantee, no matter how much
-> > cache maintainence is applied to the kernel, that this API comes
-> > anywhere near to being safe.
-> 
-> This is only problematic if multiple threads are touching the same
-> page, no?  If the page(s) used for reading/writing requests are
-> exclusive to each thread, then there should be no problem.  This is a
-> reasonable requirement towards the userspace filesystem I think.
-
-Such a restriction needs to be clearly documented against get_user_pages()
-so that users don't expect something from it which it can't deliver.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+			Linus

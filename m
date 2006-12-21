@@ -1,108 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422668AbWLUDbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422660AbWLUDe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422668AbWLUDbU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:31:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422665AbWLUDbT
+	id S1422660AbWLUDe0 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422662AbWLUDe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:31:19 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:31348 "HELO
-	smtp107.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1422668AbWLUDbS (ORCPT
+	Wed, 20 Dec 2006 22:34:26 -0500
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:61980 "EHLO
+	tomts40-srv.bellnexxia.net" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1422660AbWLUDeZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:31:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=QE9kMCdW7Pfuc+g6NkpsI1UzFzHMVJHdqVQcRcyDfz/pO1vjvjzLlu/wicrQ3G0rYnomaxkrcIjL7OecYi2kxq5CmwjrkI/WKRjmmAwbI5mc+bP7aC7kuJcUeVr7xxWxaiS6z+66MkcfIeoYViKnVRr6c01QiXg/yROgEsa05+Y=  ;
-X-YMail-OSG: cOf8YAUVM1lpw5Knem7mPsch1fBAPAuPDWca0c7dArhpuvbcWLvxmV2S.E.7bZocQBaUJtJMbXn49.NpemmvNtNYC.IIopojuzeF2ZtVOh8NJhZL5QEI7vMWMbeiP9CgyrTrNhLBYp7WU9.q99LLNiILGVjiVnjNrbzeNuM4GKm6KmAaJVC9Af9q3vmA
-From: David Brownell <david-b@pacbell.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
-Date: Wed, 20 Dec 2006 19:04:28 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-References: <20061219185223.GA13256@srcf.ucam.org> <200612201318.06976.david-b@pacbell.net> <20061221012924.GC32625@srcf.ucam.org>
-In-Reply-To: <20061221012924.GC32625@srcf.ucam.org>
-MIME-Version: 1.0
+	Wed, 20 Dec 2006 22:34:25 -0500
+Date: Wed, 20 Dec 2006 22:34:23 -0500
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, paulus@samba.org
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, linuxppc-dev@ozlabs.org,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Ltt-dev] [PATCH 7/10] local_t : powerpc
+Message-ID: <20061221033423.GC14930@Krystal>
+References: <20061221001545.GP28643@Krystal> <20061221002705.GW28643@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612201904.28681.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061221002705.GW28643@Krystal>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 22:29:51 up 120 days, 37 min,  4 users,  load average: 0.72, 0.68, 0.59
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 December 2006 5:29 pm, Matthew Garrett wrote:
-> On Wed, Dec 20, 2006 at 01:18:06PM -0800, David Brownell wrote:
-> > >  	/* disallow incomplete suspend sequences */
-> > > -	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
-> > > +	if (dev->bus && dev->bus->pm_has_noirq_stage 
-> > > +	    && dev->bus->pm_has_noirq_stage(dev))
-> > >  		return error;
-> > >  
-> > 
-> > I'm suspecting these two patches won't be merged,
+* Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca) wrote:
+> --- a/include/asm-powerpc/local.h
+> +++ b/include/asm-powerpc/local.h
+> +/**
+> + * local_add_unless - add unless the number is a given value
+> + * @l: pointer of type local_t
+> + * @a: the amount to add to l...
+> + * @u: ...unless l is equal to u.
+> + *
+> + * Atomically adds @a to @l, so long as it was not @u.
+> + * Returns non-zero if @l was not @u, and zero otherwise.
+> + */
+> +static __inline__ int local_add_unless(local_t *l, long a, long u)
+> +{
+> +	long t;
+> +
+> +	__asm__ __volatile__ (
+> +"1:	ldarx	%0,0,%1		# local_add_unless\n\
+> +	cmpd	0,%0,%3 \n\
+> +	beq-	2f \n\
+> +	add	%0,%2,%0 \n"
+> +	PPC405_ERR77(0,%2)
 
-Make that "strongly suspecting" given what Greg said ... he normally
-gets the final say over drivers/core/* things, and you seem alone in
-wanting to help those sysfs files extend their withered existence.
+Sorry, the previous line is unnecessary : PPC405 is a 32 bits arch errata and
+this code is compiled on 64 bits arch only.
 
+> +"	stdcx.	%0,0,%1 \n\
+> +	bne-	1b \n"
+> +"	subf	%0,%2,%0 \n\
+> +2:"
+> +	: "=&r" (t)
+> +	: "r" (&(l->a.counter)), "r" (a), "r" (u)
+> +	: "cc", "memory");
+> +
+> +	return t != u;
+> +}
+> +
 
-> > but this fragment has 
-> > two bugs.  One is the whitespace bug already mentioned.
-> 
-> I'm a bit curious about the whitespace issue - CodingStyle doesn't seem 
-> to discuss what to do with if statements that end up longer than 80 
-> characters, which is (I think) what you're talking about?
+Mathieu
 
-It does say that indents must use only tabs, which that clearly doesn't.
-I think you'll find that
-
-	if (some_very_long_condition
-			&& probably_not_quite_as_long
-			&& or_too_long_for_one_line) {
-		do_this;
-		and_this;
-	}
-
-is widely accepted.  (The conditions get an extra indent so they don't
-look like they're part of the block executing if the test is true.)
-
-
-> 
-> > The other is that
-> > the original test must still be used if that bus primitve doesn't exist.
-> 
-> I dislike that.
-
-Tough noogies, as they say.  In a tradeoff between correctness and your
-personal taste (or even mine, sigh!), the normal tradeoff is in favor
-of correctness.
-
-
-> We're asking to suspend an individual device - whether  
-> the bus supports devices that need to suspend with interrupts disabled 
-> is irrelevent, it's the device that we care about. We should just make 
-> it necessary for every bus to support this method until the interface is 
-> removed.
-
-But you _didn't_ do anything to "make it necessary".  Which means that
-your patch *WILL* cause bugs whenever a driver uses those calls, and
-courtesy of your patch userspace tries to suspend that device ... 
-
-
-> > > +       bus->pm_has_noirq_stage()
-> > > -When:  July 2007
-> > > +When:  Once alternative functionality has been implemented
-> > 
-> > The "When" shouldn't change.
-> 
-> We shouldn't remove interfaces that userland uses until there's been a 
-> replacement for long enough that userland can switch over.
-
-Userland can stop using this **TODAY** and just "ifdown", so that
-argument seems weak.  For all your examples, the userland interface
-is already available.
-
-- Dave
-
+-- 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

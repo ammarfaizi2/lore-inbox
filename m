@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422979AbWLURUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422980AbWLURUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422979AbWLURUR (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 12:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWLURUR
+	id S1422980AbWLURUY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 12:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWLURUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 12:20:17 -0500
-Received: from colo.lackof.org ([198.49.126.79]:58667 "EHLO colo.lackof.org"
+	Thu, 21 Dec 2006 12:20:24 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52845 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422979AbWLURUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 12:20:15 -0500
-Date: Thu, 21 Dec 2006 10:20:13 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Greg KH <gregkh@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [GIT PATCH] PCI patches for 2.6.20-rc1
-Message-ID: <20061221172013.GA23590@colo.lackof.org>
-References: <20061220200142.GB1698@kroah.com> <20061221073609.GA6989@colo.lackof.org> <20061221000410.6db0b5af.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061221000410.6db0b5af.akpm@osdl.org>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	id S1422980AbWLURUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 12:20:22 -0500
+Date: Thu, 21 Dec 2006 09:19:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Andrew Morton <akpm@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1166669683.5909.52.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0612210915570.3394@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> 
+ <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+  <1166614001.10372.205.camel@twins>  <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+  <1166622979.10372.224.camel@twins>  <20061220170323.GA12989@deprecation.cyrius.com>
+  <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> 
+ <20061220175309.GT30106@deprecation.cyrius.com>  <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+  <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>  <20061220153207.b2a0a27f.akpm@osdl.org>
+  <Pine.LNX.4.64.0612201548410.3576@woody.osdl.org> <1166669683.5909.52.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 12:04:10AM -0800, Andrew Morton wrote:
-> On Thu, 21 Dec 2006 00:36:09 -0700
-> Grant Grundler <grundler@parisc-linux.org> wrote:
-> > Any reasons why the Documentation/pci.txt patch isn't included?
-> > Did I botch something?
+
+
+On Wed, 20 Dec 2006, Trond Myklebust wrote:
 > 
-> I saw about 88,000 of them fly past, none of which looked like a final patch
+> I can't see that it is the business of invalidate_inode_pages2() to
+> resolve races between ->direct_IO() and pages that are redirtied by
+> mmap(). All it needs to ensure is that pages that clean are discarded,
+> since those are neither consistent with data that the ->directIO() call
+> wrote to the disk nor are they scheduled to be written to disk.
 
-Isn't that normal for patches? :)
+Sure, we could happily just remove the -EIO. Alternatively, we could still 
+do all the invalidates over the whole range, and return -EIO at the end of 
+any of the pages weren't invalidated because they had to be written back. 
 
-> (sane Subject:, changelog and s-o-b).
+I don't personally care whether we should just return success or something 
+to indicate that there were busy pages, but somebody who _uses_ direct-IO 
+might want to know that the thing didn't throw away everything. If you 
+know such users, can you ask them?
 
-This is the 'droid you are looking for:
-	http://lkml.org/lkml/2006/12/18/15
+(Maybe "-EAGAIN" is better than "-EIO", since it's not really even a fatal 
+error).
 
-AFAIK, the only thing missing is the s-o-b line from gregkh
-and/or Hidetoshi Seto (who should also get credit for some
-of the new content). But I think they could reply to that
-email with their s-o-b line.
-
-> > Should I resubmit?
-> 
-> s/re// ;)
-> 
-> Yes please.
-
-thanks!
-grant
+		Linus

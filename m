@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423122AbWLUVbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423022AbWLUVju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423122AbWLUVbO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 16:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423121AbWLUVbO
+	id S1423022AbWLUVju (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423028AbWLUVju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 16:31:14 -0500
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:39418 "EHLO
-	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423118AbWLUVbN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:31:13 -0500
-To: jengelh@linux01.gwdg.de
-CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-reply-to: <Pine.LNX.4.61.0612212203510.3720@yvahk01.tjqt.qr> (message from
-	Jan Engelhardt on Thu, 21 Dec 2006 22:04:53 +0100 (MET))
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
- that again
-References: <20061221152621.GB3958@flint.arm.linux.org.uk>
- <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221165744.GD3958@flint.arm.linux.org.uk>
- <E1GxS4e-0000pb-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.61.0612212203510.3720@yvahk01.tjqt.qr>
-Message-Id: <E1GxVV8-0001Jz-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 21 Dec 2006 22:30:54 +0100
+	Thu, 21 Dec 2006 16:39:50 -0500
+Received: from mga09.intel.com ([134.134.136.24]:29309 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423022AbWLUVjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 16:39:49 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,200,1165219200"; 
+   d="scan'208"; a="29686737:sNHT20311821"
+Subject: Re: 2.6.19-rt14 e1000 shutdown problem
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       suresh.b.siddha@intel.com
+In-Reply-To: <20061221201351.GA11625@elte.hu>
+References: <1166547279.28359.23.camel@localhost.localdomain>
+	 <20061221201351.GA11625@elte.hu>
+Content-Type: text/plain
+Organization: Intel
+Date: Thu, 21 Dec 2006 12:49:30 -0800
+Message-Id: <1166734170.28359.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> >The root of the problem is that copy_to_user() may cause page faults
-> >on the userspace buffer, and the page fault might (in case of a
-> >maliciously crafted filesystem) recurse into the filesystem itself.
+
+On Thu, 2006-12-21 at 21:13 +0100, Ingo Molnar wrote:
+> * Tim Chen <tim.c.chen@linux.intel.com> wrote:
 > 
-> Would it be worthwhile to mlock the page? I know that needs root
-> privs or some capability, but a static buffer could be put aside when
-> fusermount is run.
+> > Ingo,
+> > 
+> > While trying out the 2.6.19.1-rt14 kernel with a x86_64 system with 
+> > Clovertown processor, it hung when it was shutting down e1000 ethernet 
+> > interface running the command:
+> > 
+> > /sbin/ip link set dev eth0 down
+> 
+> does the patch below solve it for you?
+> 
+> 	Ingo
+> 
 
-And how would the kernel ensure, that the buffer supplied by userspace
-is mlocked and stays mlocked during the memory copy?  I don't think
-that would simplify the kerel side much, and would complicate the
-userspace side considerably.
+Yes, the patch took care of the problem.  Thanks.
 
-Miklos
+Tim

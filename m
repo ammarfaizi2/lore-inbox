@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422962AbWLUOKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964776AbWLUOSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422962AbWLUOKi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422963AbWLUOKi
+	id S964776AbWLUOSs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753239AbWLUOSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:10:38 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:50496 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422962AbWLUOKh (ORCPT
+	Thu, 21 Dec 2006 09:18:48 -0500
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:48737 "EHLO
+	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753052AbWLUOSr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:10:37 -0500
-Date: Thu, 21 Dec 2006 09:10:29 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-ID: <20061221034029.GD30299@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221102232.5a10bece.khali@linux-fr.org> <m164c5pmim.fsf@ebiederm.dsl.xmission.com> <20061221145401.07bfe408.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061221145401.07bfe408.khali@linux-fr.org>
-User-Agent: Mutt/1.5.11
+	Thu, 21 Dec 2006 09:18:47 -0500
+To: akpm@osdl.org
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch] fuse: remove clear_page_dirty() call
+Message-Id: <E1GxOkZ-0000YX-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 21 Dec 2006 15:18:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 02:54:01PM +0100, Jean Delvare wrote:
-> On Thu, 21 Dec 2006 03:32:33 -0700, Eric W. Biederman wrote:
-> > Ok.  There is almost enough for inference but here is a patch of stops
-> > for setup.S let's see if one of those will stop the reboots.
-> >
-> > I have a strong feeling that we are going to find a tool chain issue,
-> > but I'd like to find where we ware having problems before we declare
-> > that to be the case.
-> > (...)
-> > diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
-> > index 06edf1c..2868020 100644
-> > --- a/arch/i386/boot/setup.S
-> > +++ b/arch/i386/boot/setup.S
-> > @@ -795,6 +795,7 @@ a20_done:
-> >
-> >  #endif /* CONFIG_X86_VOYAGER */
-> >  # set up gdt and idt and 32bit start address
-> > +10: jmp	10b
+> And with that, I then either rip out any old users of 
+> "test_clear_page_dirty()" or "clear_page_dirty()", and if appropriate (and 
+> it's realy lonly appropriate for "truncate()", I replace them with the new 
+> "cancel_dirty_page()". Most of the time, they should just be deleted 
+> entirely.
 > 
-> Locked here, removed.
+> NOTE NOTE NOTE! I _only_ did enough to make things compile for my 
+> particular configuration. That means that right now the following 
+> filesystems are broken with this patch (because they use the totally 
+> broken old crap):
 > 
-> Out of curiosity, what does the "b" stand for?
-> 
+> 	CIFS, FUSE, JFS, ReiserFS, XFS
 
-I think one can have multiple labels named as 10: so we need to specify
-which one do you want to jump to. Either forward one (f) or backward
-one (b).
+The use by FUSE was just a remnant of an optimization from the time
+when writable mappings were supported.
+
+Now FUSE never actually allows the creation of dirty pages, so this
+invocation of clear_page_dirty() is effectively a no-op.
+
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+---
+
+Index: linux/fs/fuse/file.c
+===================================================================
+--- linux.orig/fs/fuse/file.c	2006-12-21 15:06:32.000000000 +0100
++++ linux/fs/fuse/file.c	2006-12-21 15:07:02.000000000 +0100
+@@ -483,10 +483,8 @@ static int fuse_commit_write(struct file
+ 			i_size_write(inode, pos);
+ 		spin_unlock(&fc->lock);
  
-[..]
-> 
-> Locked here, removed.
-> 
-> >  	# Jump to the 32bit entry point
-> >  	jmpl *(code32_start - start + (DELTA_INITSEG << 4))(%esi)
-> >  .code16
-> 
-> Which brought me to the original situation, where unsurprisingly the
-> reboot happened. So the problem is located after label 14. Does it help?
->
+-		if (offset == 0 && to == PAGE_CACHE_SIZE) {
+-			clear_page_dirty(page);
++		if (offset == 0 && to == PAGE_CACHE_SIZE)
+ 			SetPageUptodate(page);
+-		}
+ 	}
+ 	fuse_invalidate_attr(inode);
+ 	return err;
 
-Ok. so indirect jump seems to be having problem. On my machine disassembly
-of setup.o show following.
-
-ff a6 14 02 00 00       jmp    *0x214(%esi)
-
-This seems to be fine as 0x14 is the offset of code32_start, and 
-((DELTA_INITSEG) << 4) is 0x200. How does it look like on your machine?
-
-Thanks
-Vivek
-  

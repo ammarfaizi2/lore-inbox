@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753210AbWLUOWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964973AbWLUO0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753210AbWLUOWo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753539AbWLUOWo
+	id S964973AbWLUO0V (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWLUO0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:22:44 -0500
-Received: from smtp.nildram.co.uk ([195.112.4.54]:3343 "EHLO
-	smtp.nildram.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753210AbWLUOWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:22:43 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Oops in 2.6.19.1
-Date: Thu, 21 Dec 2006 14:22:32 +0000
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <200612210308_MC3-1-D5D4-3328@compuserve.com>
-In-Reply-To: <200612210308_MC3-1-D5D4-3328@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 09:26:20 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:54296 "EHLO e4.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964973AbWLUO0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 09:26:19 -0500
+Date: Thu, 21 Dec 2006 09:24:58 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-ID: <20061221035458.GE30299@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221102232.5a10bece.khali@linux-fr.org> <m164c5pmim.fsf@ebiederm.dsl.xmission.com> <20061221010814.GA30299@in.ibm.com> <m1vek5o2dj.fsf@ebiederm.dsl.xmission.com> <20061221022601.GB30299@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612211422.32650.s0348365@sms.ed.ac.uk>
+In-Reply-To: <20061221022601.GB30299@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 December 2006 08:05, Chuck Ebbert wrote:
-> In-Reply-To: <200612202215.50315.s0348365@sms.ed.ac.uk>
->
-> On Wed, 20 Dec 2006 22:15:50 +0000, Alistair John Strachan wrote:
-> > > I'd guess you have some kind of hardware problem.  It could also be
-> > > a kernel problem where the saved address was corrupted during an
-> > > interrupt, but that's not likely.
-> >
-> > Seems pretty unlikely on a 4 year old Via Epia. Never had any problems
-> > with it before now.
-> >
-> > Maybe a cosmic ray event? ;-)
->
-> The low byte of eip should be 5f and it changed to 60, so that's
-> probably not it.  And the oops report is consistent with that being
-> the instruction that was really executed, so it's not the kernel
-> misreporting the address after it happened.
->
-> You weren't trying kprobes or something, were you? Have you ever
-> had another unexplained oops with this machine?
+On Thu, Dec 21, 2006 at 07:56:01AM +0530, Vivek Goyal wrote:
+[..]
+> >  #      Manual, Mixing 16-bit and 32-bit code, page 16-6)
+> > 
+> >         .byte 0x66, 0xea                        # prefix + jmpi-opcode
+> > -code32:        .long   0x1000                          # will be set to 0x100000
+> > -                                               # for big kernels
+> > +code32:        .long   startup_32                      # will be set to %cs+startup_32
+> >         .word   __BOOT_CS
+> > +.code32
+> > +startup_32:
+> > +       movl $(__BOOT_DS), %eax
+> > +       movl %eax, %ds
+> > +       movl %eax, %es
+> > +       movl %eax, %fs
+> > +       movl %eax, %gs
+> > +       movl %eax, %ss
+> > +
+> > +       xorl %eax, %eax
+> > +1:     incl %eax                               # check that A20 really IS enabled
+> > +       movl %eax, 0x00000000                   # loop forever if it isn't
+> > +       cmpl %eax, 0x00100000
+> > +       je 1b
+> > +
+> > +       # Jump to the 32bit entry point
+> > +       jmpl *(code32_start - start + (DELTA_INITSEG << 4))(%esi)
+> 
+> Hi Eric,
+> 
+> I got a basic query. Why have we introduced this additional jump to 
+> startup_32 in the same file? Won't it work if we stick to old method of
+> enabling protected mode and then directly taking a jmp to startup_32 in
+> arch/i386/kernel/head.S. Am I missing something obivious? 
+> 
 
-Nope, it's a stock kernel and it's running on a server, kprobes isn't in use.
+Sorry, I meant arch/i386/boot/compressed/head.S and not arch/i386/kernel/head.S
 
-And no, to my knowledge there's not been another "unexplained" oops. I've had 
-crashes, but they've always been known issues or BIOS trouble.
-
-The machine was recently tampered with to install additional HDDs, but the 
-memory was memtest'ed when it was installed and passed several times without 
-issue. I'm rather puzzled.
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Thanks
+Vivek

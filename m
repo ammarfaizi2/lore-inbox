@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423096AbWLUU6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423098AbWLUU7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423096AbWLUU6x (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 15:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423101AbWLUU6x
+	id S1423098AbWLUU7S (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 15:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423105AbWLUU7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 15:58:53 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:37495
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1423096AbWLUU6w (ORCPT
+	Thu, 21 Dec 2006 15:59:18 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:62154 "HELO
+	warden.diginsite.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with SMTP id S1423099AbWLUU7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 15:58:52 -0500
-Date: Thu, 21 Dec 2006 12:58:50 -0800 (PST)
-Message-Id: <20061221.125850.125884789.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: netdev@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       uberlord@gentoo.org, linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 7724] New: asm/types.h should define __u64 if
- isoc99
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061221124954.6bb415e9.akpm@osdl.org>
-References: <200612211617.kBLGHAAg028181@fire-2.osdl.org>
-	<20061221124954.6bb415e9.akpm@osdl.org>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 15:59:17 -0500
+Date: Thu, 21 Dec 2006 12:58:52 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: David Schwartz <davids@webmaster.com>
+cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Binary Drivers
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.63.0612211256170.20339@qynat.qvtvafvgr.pbz>
+References: <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Thu, 21 Dec 2006 12:49:54 -0800
+On Thu, 21 Dec 2006, David Schwartz wrote:
 
-> >            Summary: asm/types.h should define __u64 if isoc99
+>> You say "It's rude to not play by our rules". They say "It's rude of
+>> you to expect us to change our business model to support your niche
+>> market differently from the way we support everyone else." Neither is
+>> wrong...
+>
+> Honestly, I think it *is* wrong to sell someone a physical product and then
+> not tell them how to make it work. If you're not actually selling them the
+> physical product but selling them a way to get a particular thing done, then
+> don't represent that you're selling them physical product because that would
+> presumably include the right to use it any way they wanted provided it was
+> lawful.
+>
+> How would you feel if you bought a car and then discovered that the
+> manufacturer had welded the hood shut? How many people still do their own
+> oil changes anyway?
 
-Platform specific bug, and has nothing to do with networking.
+there are cars out there where the owner cannot change or add transmission fluid 
+(I had a rental car spring a leak and found this out the hard way)
 
-This problem will occur with any user visible interface definition
-that uses __u64, and there are several both in and outside the
-networking.
+some people like this, some don't. vote with your money
 
-x86 and perhaps others protect the __u64 definition with:
-
-	defined(__GNUC__) && !defined(__STRICT_ANSI__)
-
-for whatever reason, probably to avoid "long long" or something like
-that.  But even that theory makes no sense.
-
-I do not make this protection on any of the sparc ports, even 32-bit
-sparc, for example, so I find it really strange that x86 does this.
+David Lang

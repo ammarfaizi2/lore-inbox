@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161098AbWLUNOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422800AbWLUNWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161098AbWLUNOe (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 08:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWLUNOe
+	id S1422800AbWLUNWx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 08:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWLUNWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 08:14:34 -0500
-Received: from nz-out-0506.google.com ([64.233.162.236]:37806 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161100AbWLUNOc (ORCPT
+	Thu, 21 Dec 2006 08:22:53 -0500
+Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:2905 "EHLO
+	smtp-vbr2.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422800AbWLUNWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 08:14:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
-        b=EhDm4jG++ITUDRPcFjt6sE2XXaIOgqIftnmKCfRTLKPE+MRvRsQWq76PtjQ6LK5RPPfMTrr0LiLla1ehD+5m2Z6rox0cypJ4hJC1YRPTkoQbnwScgxQadAmjPdIOwY5yWYBaGCfnipdNvMWCKNEm+MXYowbjjAFUYs4SXd0wRnU=
-Subject: Re: Network drivers that don't suspend on interface down
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Dan Williams <dcbw@redhat.com>
-Cc: stefan@loplof.de, Matthew Garrett <mjg59@srcf.ucam.org>,
-       Michael Wu <flamingice@sourmilk.net>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <1166670848.23168.21.camel@localhost.localdomain>
-References: <20061220042648.GA19814@srcf.ucam.org>
-	 <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
-	 <20061221011209.GA32625@srcf.ucam.org>
-	 <200612202105.31093.flamingice@sourmilk.net>
-	 <20061221021832.GA723@srcf.ucam.org>
-	 <1166670848.23168.21.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 21 Dec 2006 08:14:29 -0500
-Message-Id: <1166706869.3749.29.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 08:22:52 -0500
+Date: Thu, 21 Dec 2006 14:22:41 +0100
+From: Erik Mouw <mouw@nl.linux.org>
+To: Manish Regmi <regmi.manish@gmail.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: Linux disk performance.
+Message-ID: <20061221132241.GA15226@gateway.home>
+References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com> <1166431020.3365.931.camel@laptopd505.fenrus.org> <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com> <4589B92F.2030006@tmr.com> <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-20-12 at 22:14 -0500, Dan Williams wrote:
-...
-....
-> Simple == good.  Down == down.  Lets just agree on that and save
-> ourselves a lot of pain.
+On Thu, Dec 21, 2006 at 11:48:42AM +0545, Manish Regmi wrote:
+> Yes... my application does large amount of I/O. It actually writes
+> video data received from ethernet(IP camera) to the disk using 128 K
+> chunks.
 
-netdevices have well defined operational and administrative state
-machines. And very well defined relationship between operational and
-administrative status. IOW, care should be invoked not to reinvent.
+Bursty video traffic is really an application that could take advantage
+from the kernel buffering. Unless you want to reinvent the wheel and do
+the buffering yourself (it is possible though, I've done it on IRIX).
 
-Power management to me seems like an operational state.
-A link could only transition to operational or down depending on 
-whether it is "powered" up or down.
+BTW, why are you so keen on smooth-at-the-microlevel writeout? With
+real time video applications it's only important not to drop frames.
+How fast those frames will go to the disk isn't really an issue, as
+long as you don't overflow the intermediate buffer.
 
-To be complete, since a netdevice is a generic construct, nota bene:
-- a link could be a wireless association or ethernet cable or a PPP
-session or a ATM PVC, or an infrared channel etc. 
-- events that result in operational link transitions could be anything
-from powering up an ethernet phy with an active cable plugged to an
-802.1x auth on a wireless association to a on-demand ppp link seeing an
-outgoing packet.
 
-IMO, for this discussion to be meaningful, it would be useful to read
-Documentation/networking/operstates.txt
-And if you are keen you can then read RFC 2863...
+Erik
 
-cheers,
-jamal
-
+-- 
+They're all fools. Don't worry. Darwin may be slow, but he'll
+eventually get them. -- Matthew Lammers in alt.sysadmin.recovery

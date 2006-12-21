@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423090AbWLUUvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423076AbWLUUyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423090AbWLUUvh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 15:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423091AbWLUUvh
+	id S1423076AbWLUUyY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 15:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423091AbWLUUyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 15:51:37 -0500
-Received: from smtp2.mtco.com ([207.179.226.205]:44320 "EHLO smtp2.mtco.com"
+	Thu, 21 Dec 2006 15:54:24 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:40609 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423090AbWLUUvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 15:51:36 -0500
-X-Greylist: delayed 1153 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 15:51:36 EST
-Message-ID: <458AEF79.5030600@billgatliff.com>
-Date: Thu, 21 Dec 2006 14:32:57 -0600
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20060926)
-X-Accept-Language: en-us, en
+	id S1423076AbWLUUyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 15:54:23 -0500
+Date: Thu, 21 Dec 2006 21:52:49 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Dave Jones <davej@redhat.com>, "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+In-Reply-To: <4589BC6E.7040209@tmr.com>
+Message-ID: <Pine.LNX.4.61.0612212151450.3720@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
+ <20061219164146.GI25461@redhat.com> <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
+ <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr> <4589BC6E.7040209@tmr.com>
 MIME-Version: 1.0
-To: Nicolas Pitre <nico@cam.org>
-CC: pHilipp Zabel <philipp.zabel@gmail.com>,
-       David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Victor <andrew@sanpeople.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       Kevin Hilman <khilman@mvista.com>, Russell King <rmk@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
-References: <200611111541.34699.david-b@pacbell.net> <200612201312.36616.david-b@pacbell.net> <20061220221252.732f4e97.akpm@osdl.org> <200612202244.03351.david-b@pacbell.net> <Pine.LNX.4.64.0612210925130.18171@xanadu.home> <74d0deb30612210703y735e53kf14e7c800dae7140@mail.gmail.com> <Pine.LNX.4.64.0612211205530.18171@xanadu.home> <74d0deb30612211132j6186ad00te536eb420636e7c8@mail.gmail.com> <Pine.LNX.4.64.0612211457390.18171@xanadu.home>
-In-Reply-To: <Pine.LNX.4.64.0612211457390.18171@xanadu.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys:
 
->>Probably? What I am wondering is this: can the compiler
->>optimize away the range check that is duplicated in GPSR/GPCR
->>and  GPIO_bit for __gpio_set/get_value? Or could we optimize
->>this case by expanding the macros in place (which would mean
->>duplicating code from pxa-regs.h)...
->>    
->>
+On Dec 20 2006 17:42, Bill Davidsen wrote:
+>
+> Bearing in mind that some casts may have been put in when struct
+> members had other values, may be needed on some hardware but not
+> others, etc. Cleanups are good, but may not be as obvious as they
+> appear.
+>
+> Not that there's a lack of places to remove visual cruft, but
+> perhaps someone could look at casts and ask if each hides a real
+> type mismatch.
 
-Who cares?  :)
+http://lkml.org/lkml/2006/9/30/208
 
-I don't think there's much point in optimizing here, since these 
-functions won't be hot paths anyway.  Yes, they'll be called in 
-interrupt handlers and so we don't want them to be _too_ heavy, but 
-compared to the overhead of an interrupt handler, a few extra 
-instructions in the GPIO access will get lost in the noise.
-
-Inlines generally seem to be more maintainable, give you a symbol that 
-you can disassemble and breakpoint, etc.  I'll take them over the macro 
-implementations any day, in this case even if there's a cost of a few 
-instructions.
-
-All IMHO, of course.
+As much as I would like to go through the whole kernel tree, it's a
+task quite big.
 
 
-b.g.
-
+	-`J'
 -- 
-Bill Gatliff
-bgat@billgatliff.com
-

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422915AbWLUJQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422927AbWLUJQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422915AbWLUJQH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 04:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422914AbWLUJPO
+	id S1422927AbWLUJQ7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 04:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422916AbWLUJQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 04:15:14 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:47304 "EHLO
+	Thu, 21 Dec 2006 04:16:26 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:47326 "EHLO
 	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1422901AbWLUJPE convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1422910AbWLUJPP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 04:15:04 -0500
+	Thu, 21 Dec 2006 04:15:15 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,11 +17,11 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
-Subject: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
-In-Reply-To: <3154985aa0591036@2ka.mipt.ru>
+Subject: [take28-resend_1->0 8/8] kevent: Kevent posix timer notifications.
+In-Reply-To: <11666924573716@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 21 Dec 2006 12:14:17 +0300
-Message-Id: <11666924573643@2ka.mipt.ru>
+Message-Id: <1166692457514@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -32,256 +32,334 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Generic event handling mechanism.
+Kevent posix timer notifications.
 
-Kevent is a generic subsytem which allows to handle event notifications.
-It supports both level and edge triggered events. It is similar to
-poll/epoll in some cases, but it is more scalable, it is faster and
-allows to work with essentially eny kind of events.
+Simple extensions to POSIX timers which allows
+to deliver notification of the timer expiration
+through kevent queue.
 
-Events are provided into kernel through control syscall and can be read
-back through ring buffer or using usual syscalls.
-Kevent update (i.e. readiness switching) happens directly from internals
-of the appropriate state machine of the underlying subsytem (like
-network, filesystem, timer or any other).
-
-Homepage:
-http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
-
-Documentation page:
-http://linux-net.osdl.org/index.php/Kevent
-
-Consider for inclusion.
-
-New benchmark, which can be a hoax though, can be found at 
-http://tservice.net.ru/~s0mbre/blog/2006/11/30#2006_11_30
-where kevent on amd64 with 1gb of ram can handle more than 7200 events per 
-second with 8000 requests concurrency with 'ab' benchmark and lighttpd.
-Although I tought it should not be published due to possible errors,
-I decided to send it for review.
-
-With this release I start 3 days resending timeout - i.e. each third day I 
-will send either new version (if something new was requested and agreed to 
-be implemented) or resending with back counter started from three. 
-When back counter hits zero after three resending I consider there is no 
-interest in subsystem and I will stop further sending.
-
-Thanks for understanding and your time.
-
-Changes from 'take27' patchset:
- * made kevent default yes in non embedded case.
- * added falgs to callback structures - currently used to check if kevent
- 	can be requested from kernelspace only (posix timers) or 
-	userspace (all others)
-
-Changes from 'take26' patchset:
- * made kevent visible in config only in case of embedded setup.
- * added comment about KEVENT_MAX number.
- * spell fix.
-
-Changes from 'take25' patchset:
- * use timespec as timeout parameter.
- * added high-resolution timer to handle absolute timeouts.
- * added flags to waiting and initialization syscalls.
- * kevent_commit() has new_uidx parameter.
- * kevent_wait() has old_uidx parameter, which, if not equal to u->uidx,
- 	results in immediate wakeup (usefull for the case when entries
-	are added asynchronously from kernel (not supported for now)).
- * added interface to mark any event as ready.
- * event POSIX timers support.
- * return -ENOSYS if there is no registered event type.
- * provided file descriptor must be checked for fifo type (spotted by Eric Dumazet).
- * signal notifications.
- * documentation update.
- * lighttpd patch updated (the latest benchmarks with lighttpd patch can be found in blog).
-
-Changes from 'take24' patchset:
- * new (old (new)) ring buffer implementation with kernel and user indexes.
- * added initialization syscall instead of opening /dev/kevent
- * kevent_commit() syscall to commit ring buffer entries
- * changed KEVENT_REQ_WAKEUP_ONE flag to KEVENT_REQ_WAKEUP_ALL, kevent wakes
-   only first thread always if that flag is not set
- * KEVENT_REQ_ALWAYS_QUEUE flag. If set, kevent will be queued into ready queue
-   instead of copying back to userspace when kevent is ready immediately when
-   it is added.
- * lighttpd patch (Hail! Although nothing really outstanding compared to epoll)
-
-Changes from 'take23' patchset:
- * kevent PIPE notifications
- * KEVENT_REQ_LAST_CHECK flag, which allows to perform last check at dequeueing time
- * fixed poll/select notifications (were broken due to tree manipulations)
- * made Documentation/kevent.txt look nice in 80-col terminal
- * fix for copy_to_user() failure report for the first kevent (Andrew Morton)
- * minor function renames
-
-Changes from 'take22' patchset:
- * new ring buffer implementation in process' memory
- * wakeup-one-thread flag
- * edge-triggered behaviour
-
-Changes from 'take21' patchset:
- * minor cleanups (different return values, removed unneded variables, whitespaces and so on)
- * fixed bug in kevent removal in case when kevent being removed
-   is the same as overflow_kevent (spotted by Eric Dumazet)
-
-Changes from 'take20' patchset:
- * new ring buffer implementation
- * removed artificial limit on possible number of kevents
-
-Changes from 'take19' patchset:
- * use __init instead of __devinit
- * removed 'default N' from config for user statistic
- * removed kevent_user_fini() since kevent can not be unloaded
- * use KERN_INFO for statistic output
-
-Changes from 'take18' patchset:
- * use __init instead of __devinit
- * removed 'default N' from config for user statistic
- * removed kevent_user_fini() since kevent can not be unloaded
- * use KERN_INFO for statistic output
-
-Changes from 'take17' patchset:
- * Use RB tree instead of hash table. 
-	At least for a web sever, frequency of addition/deletion of new kevent 
-	is comparable with number of search access, i.e. most of the time events 
-	are added, accesed only couple of times and then removed, so it justifies 
-	RB tree usage over AVL tree, since the latter does have much slower deletion 
-	time (max O(log(N)) compared to 3 ops), 
-	although faster search time (1.44*O(log(N)) vs. 2*O(log(N))). 
-	So for kevents I use RB tree for now and later, when my AVL tree implementation 
-	is ready, it will be possible to compare them.
- * Changed readiness check for socket notifications.
-
-With both above changes it is possible to achieve more than 3380 req/second compared to 2200, 
-sometimes 2500 req/second for epoll() for trivial web-server and httperf client on the same
-hardware.
-It is possible that above kevent limit is due to maximum allowed kevents in a time limit, which is
-4096 events.
-
-Changes from 'take16' patchset:
- * misc cleanups (__read_mostly, const ...)
- * created special macro which is used for mmap size (number of pages) calculation
- * export kevent_socket_notify(), since it is used in network protocols which can be 
-	built as modules (IPv6 for example)
-
-Changes from 'take15' patchset:
- * converted kevent_timer to high-resolution timers, this forces timer API update at
-	http://linux-net.osdl.org/index.php/Kevent
- * use struct ukevent* instead of void * in syscalls (documentation has been updated)
- * added warning in kevent_add_ukevent() if ring has broken index (for testing)
-
-Changes from 'take14' patchset:
- * added kevent_wait()
-    This syscall waits until either timeout expires or at least one event
-    becomes ready. It also commits that @num events from @start are processed
-    by userspace and thus can be be removed or rearmed (depending on it's flags).
-    It can be used for commit events read by userspace through mmap interface.
-    Example userspace code (evtest.c) can be found on project's homepage.
- * added socket notifications (send/recv/accept)
-
-Changes from 'take13' patchset:
- * do not get lock aroung user data check in __kevent_search()
- * fail early if there were no registered callbacks for given type of kevent
- * trailing whitespace cleanup
-
-Changes from 'take12' patchset:
- * remove non-chardev interface for initialization
- * use pointer to kevent_mring instead of unsigned longs
- * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
- * simplified enqueue/dequeue callbacks and kevent initialization
- * use nanoseconds for timeout
- * put number of milliseconds into timer's return data
- * move some definitions into user-visible header
- * removed filenames from comments
-
-Changes from 'take11' patchset:
- * include missing headers into patchset
- * some trivial code cleanups (use goto instead of if/else games and so on)
- * some whitespace cleanups
- * check for ready_callback() callback before main loop which should save us some ticks
-
-Changes from 'take10' patchset:
- * removed non-existent prototypes
- * added helper function for kevent_registered_callbacks
- * fixed 80 lines comments issues
- * added shared between userspace and kernelspace header instead of embedd them in one
- * core restructuring to remove forward declarations
- * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
- * use vm_insert_page() instead of remap_pfn_range()
-
-Changes from 'take9' patchset:
- * fixed ->nopage method
-
-Changes from 'take8' patchset:
- * fixed mmap release bug
- * use module_init() instead of late_initcall()
- * use better structures for timer notifications
-
-Changes from 'take7' patchset:
- * new mmap interface (not tested, waiting for other changes to be acked)
-	- use nopage() method to dynamically substitue pages
-	- allocate new page for events only when new added kevent requres it
-	- do not use ugly index dereferencing, use structure instead
-	- reduced amount of data in the ring (id and flags), 
-		maximum 12 pages on x86 per kevent fd
-
-Changes from 'take6' patchset:
- * a lot of comments!
- * do not use list poisoning for detection of the fact, that entry is in the list
- * return number of ready kevents even if copy*user() fails
- * strict check for number of kevents in syscall
- * use ARRAY_SIZE for array size calculation
- * changed superblock magic number
- * use SLAB_PANIC instead of direct panic() call
- * changed -E* return values
- * a lot of small cleanups and indent fixes
-
-Changes from 'take5' patchset:
- * removed compilation warnings about unused wariables when lockdep is not turned on
- * do not use internal socket structures, use appropriate (exported) wrappers instead
- * removed default 1 second timeout
- * removed AIO stuff from patchset
-
-Changes from 'take4' patchset:
- * use miscdevice instead of chardevice
- * comments fixes
-
-Changes from 'take3' patchset:
- * removed serializing mutex from kevent_user_wait()
- * moved storage list processing to RCU
- * removed lockdep screaming - all storage locks are initialized in the same function, so it was
-learned 
-	to differentiate between various cases
- * remove kevent from storage if is marked as broken after callback
- * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
-
-Changes from 'take2' patchset:
- * split kevent_finish_user() to locked and unlocked variants
- * do not use KEVENT_STAT ifdefs, use inline functions instead
- * use array of callbacks of each type instead of each kevent callback initialization
- * changed name of ukevent guarding lock
- * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
- * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
- * various indent cleanups
- * added optimisation, which is aimed to help when a lot of kevents are being copied from
-userspace
- * mapped buffer (initial) implementation (no userspace yet)
-
-Changes from 'take1' patchset:
- - rebased against 2.6.18-git tree
- - removed ioctl controlling
- - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
-			unsigned int timeout, void __user *buf, unsigned flags)
- - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
-	initialization
- - use mutuxes instead of semaphores
- - added file descriptor check and return error if provided descriptor does not match
-	kevent file operations
- - various indent fixes
- - removed aio_sendfile() declarations.
-
-Thank you.
+Example application posix_timer.c can be found
+in archive on project homepage.
 
 Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
+
+diff --git a/include/asm-generic/siginfo.h b/include/asm-generic/siginfo.h
+index 8786e01..3768746 100644
+--- a/include/asm-generic/siginfo.h
++++ b/include/asm-generic/siginfo.h
+@@ -235,6 +235,7 @@ typedef struct siginfo {
+ #define SIGEV_NONE	1	/* other notification: meaningless */
+ #define SIGEV_THREAD	2	/* deliver via thread creation */
+ #define SIGEV_THREAD_ID 4	/* deliver to thread */
++#define SIGEV_KEVENT	8	/* deliver through kevent queue */
+ 
+ /*
+  * This works because the alignment is ok on all current architectures
+@@ -260,6 +261,8 @@ typedef struct sigevent {
+ 			void (*_function)(sigval_t);
+ 			void *_attribute;	/* really pthread_attr_t */
+ 		} _sigev_thread;
++
++		int kevent_fd;
+ 	} _sigev_un;
+ } sigevent_t;
+ 
+diff --git a/include/linux/posix-timers.h b/include/linux/posix-timers.h
+index a7dd38f..4b9deb4 100644
+--- a/include/linux/posix-timers.h
++++ b/include/linux/posix-timers.h
+@@ -4,6 +4,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/sched.h>
++#include <linux/kevent_storage.h>
+ 
+ union cpu_time_count {
+ 	cputime_t cpu;
+@@ -49,6 +50,9 @@ struct k_itimer {
+ 	sigval_t it_sigev_value;	/* value word of sigevent struct */
+ 	struct task_struct *it_process;	/* process to send signal to */
+ 	struct sigqueue *sigq;		/* signal queue entry. */
++#ifdef CONFIG_KEVENT_TIMER
++	struct kevent_storage st;
++#endif
+ 	union {
+ 		struct {
+ 			struct hrtimer timer;
+diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
+index e5ebcc1..74270f8 100644
+--- a/kernel/posix-timers.c
++++ b/kernel/posix-timers.c
+@@ -48,6 +48,8 @@
+ #include <linux/wait.h>
+ #include <linux/workqueue.h>
+ #include <linux/module.h>
++#include <linux/kevent.h>
++#include <linux/file.h>
+ 
+ /*
+  * Management arrays for POSIX timers.	 Timers are kept in slab memory
+@@ -224,6 +226,100 @@ static int posix_ktime_get_ts(clockid_t which_clock, struct timespec *tp)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_KEVENT_TIMER
++static int posix_kevent_enqueue(struct kevent *k)
++{
++	/*
++	 * It is not ugly - there is no pointer in the id field union, 
++	 * but its size is 64bits, which is ok for any known pointer size.
++	 */
++	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
++	return kevent_storage_enqueue(&tmr->st, k);
++}
++static int posix_kevent_dequeue(struct kevent *k)
++{
++	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
++	kevent_storage_dequeue(&tmr->st, k);
++	return 0;
++}
++static int posix_kevent_callback(struct kevent *k)
++{
++	return 1;
++}
++static int posix_kevent_init(void)
++{
++	struct kevent_callbacks tc = {
++		.callback = &posix_kevent_callback,
++		.enqueue = &posix_kevent_enqueue,
++		.dequeue = &posix_kevent_dequeue,
++		.flags = KEVENT_CALLBACKS_KERNELONLY};
++
++	return kevent_add_callbacks(&tc, KEVENT_POSIX_TIMER);
++}
++
++extern struct file_operations kevent_user_fops;
++
++static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
++{
++	struct ukevent uk;
++	struct file *file;
++	struct kevent_user *u;
++	int err;
++
++	file = fget(fd);
++	if (!file) {
++		err = -EBADF;
++		goto err_out;
++	}
++
++	if (file->f_op != &kevent_user_fops) {
++		err = -EINVAL;
++		goto err_out_fput;
++	}
++
++	u = file->private_data;
++
++	memset(&uk, 0, sizeof(struct ukevent));
++
++	uk.event = KEVENT_MASK_ALL;
++	uk.type = KEVENT_POSIX_TIMER;
++	uk.id.raw_u64 = (unsigned long)(tmr); /* Just cast to something unique */
++	uk.req_flags = KEVENT_REQ_ONESHOT | KEVENT_REQ_ALWAYS_QUEUE;
++	uk.ptr = tmr->it_sigev_value.sival_ptr;
++
++	err = kevent_user_add_ukevent(&uk, u);
++	if (err)
++		goto err_out_fput;
++
++	fput(file);
++
++	return 0;
++
++err_out_fput:
++	fput(file);
++err_out:
++	return err;
++}
++
++static void posix_kevent_fini_timer(struct k_itimer *tmr)
++{
++	kevent_storage_fini(&tmr->st);
++}
++#else
++static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
++{
++	return -ENOSYS;
++}
++static int posix_kevent_init(void)
++{
++	return 0;
++}
++static void posix_kevent_fini_timer(struct k_itimer *tmr)
++{
++}
++#endif
++
++
+ /*
+  * Initialize everything, well, just everything in Posix clocks/timers ;)
+  */
+@@ -241,6 +337,11 @@ static __init int init_posix_timers(void)
+ 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
+ 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
+ 
++	if (posix_kevent_init()) {
++		printk(KERN_ERR "Failed to initialize kevent posix timers.\n");
++		BUG();
++	}
++
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
+ 	idr_init(&posix_timers_id);
+@@ -343,23 +444,29 @@ static int posix_timer_fn(struct hrtimer *timer)
+ 
+ 	timr = container_of(timer, struct k_itimer, it.real.timer);
+ 	spin_lock_irqsave(&timr->it_lock, flags);
++	
++	if (timr->it_sigev_notify == SIGEV_KEVENT) {
++#ifdef CONFIG_KEVENT_TIMER
++		kevent_storage_ready(&timr->st, NULL, KEVENT_MASK_ALL);
++#endif
++	} else {
++		if (timr->it.real.interval.tv64 != 0)
++			si_private = ++timr->it_requeue_pending;
+ 
+-	if (timr->it.real.interval.tv64 != 0)
+-		si_private = ++timr->it_requeue_pending;
+-
+-	if (posix_timer_event(timr, si_private)) {
+-		/*
+-		 * signal was not sent because of sig_ignor
+-		 * we will not get a call back to restart it AND
+-		 * it should be restarted.
+-		 */
+-		if (timr->it.real.interval.tv64 != 0) {
+-			timr->it_overrun +=
+-				hrtimer_forward(timer,
+-						timer->base->softirq_time,
+-						timr->it.real.interval);
+-			ret = HRTIMER_RESTART;
+-			++timr->it_requeue_pending;
++		if (posix_timer_event(timr, si_private)) {
++			/*
++			 * signal was not sent because of sig_ignor
++			 * we will not get a call back to restart it AND
++			 * it should be restarted.
++			 */
++			if (timr->it.real.interval.tv64 != 0) {
++				timr->it_overrun +=
++					hrtimer_forward(timer,
++							timer->base->softirq_time,
++							timr->it.real.interval);
++				ret = HRTIMER_RESTART;
++				++timr->it_requeue_pending;
++			}
+ 		}
+ 	}
+ 
+@@ -407,6 +514,9 @@ static struct k_itimer * alloc_posix_timer(void)
+ 		kmem_cache_free(posix_timers_cache, tmr);
+ 		tmr = NULL;
+ 	}
++#ifdef CONFIG_KEVENT_TIMER
++	kevent_storage_init(tmr, &tmr->st);
++#endif
+ 	return tmr;
+ }
+ 
+@@ -424,6 +534,7 @@ static void release_posix_timer(struct k_itimer *tmr, int it_id_set)
+ 	if (unlikely(tmr->it_process) &&
+ 	    tmr->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
+ 		put_task_struct(tmr->it_process);
++	posix_kevent_fini_timer(tmr);
+ 	kmem_cache_free(posix_timers_cache, tmr);
+ }
+ 
+@@ -496,40 +607,52 @@ sys_timer_create(const clockid_t which_clock,
+ 		new_timer->it_sigev_signo = event.sigev_signo;
+ 		new_timer->it_sigev_value = event.sigev_value;
+ 
+-		read_lock(&tasklist_lock);
+-		if ((process = good_sigevent(&event))) {
+-			/*
+-			 * We may be setting up this process for another
+-			 * thread.  It may be exiting.  To catch this
+-			 * case the we check the PF_EXITING flag.  If
+-			 * the flag is not set, the siglock will catch
+-			 * him before it is too late (in exit_itimers).
+-			 *
+-			 * The exec case is a bit more invloved but easy
+-			 * to code.  If the process is in our thread
+-			 * group (and it must be or we would not allow
+-			 * it here) and is doing an exec, it will cause
+-			 * us to be killed.  In this case it will wait
+-			 * for us to die which means we can finish this
+-			 * linkage with our last gasp. I.e. no code :)
+-			 */
++		if (event.sigev_notify == SIGEV_KEVENT) {
++			error = posix_kevent_init_timer(new_timer, event._sigev_un.kevent_fd);
++			if (error)
++				goto out;
++
++			process = current->group_leader;
+ 			spin_lock_irqsave(&process->sighand->siglock, flags);
+-			if (!(process->flags & PF_EXITING)) {
+-				new_timer->it_process = process;
+-				list_add(&new_timer->list,
+-					 &process->signal->posix_timers);
+-				spin_unlock_irqrestore(&process->sighand->siglock, flags);
+-				if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
+-					get_task_struct(process);
+-			} else {
+-				spin_unlock_irqrestore(&process->sighand->siglock, flags);
+-				process = NULL;
++			new_timer->it_process = process;
++			list_add(&new_timer->list, &process->signal->posix_timers);
++			spin_unlock_irqrestore(&process->sighand->siglock, flags);
++		} else {
++			read_lock(&tasklist_lock);
++			if ((process = good_sigevent(&event))) {
++				/*
++				 * We may be setting up this process for another
++				 * thread.  It may be exiting.  To catch this
++				 * case the we check the PF_EXITING flag.  If
++				 * the flag is not set, the siglock will catch
++				 * him before it is too late (in exit_itimers).
++				 *
++				 * The exec case is a bit more invloved but easy
++				 * to code.  If the process is in our thread
++				 * group (and it must be or we would not allow
++				 * it here) and is doing an exec, it will cause
++				 * us to be killed.  In this case it will wait
++				 * for us to die which means we can finish this
++				 * linkage with our last gasp. I.e. no code :)
++				 */
++				spin_lock_irqsave(&process->sighand->siglock, flags);
++				if (!(process->flags & PF_EXITING)) {
++					new_timer->it_process = process;
++					list_add(&new_timer->list,
++						 &process->signal->posix_timers);
++					spin_unlock_irqrestore(&process->sighand->siglock, flags);
++					if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
++						get_task_struct(process);
++				} else {
++					spin_unlock_irqrestore(&process->sighand->siglock, flags);
++					process = NULL;
++				}
++			}
++			read_unlock(&tasklist_lock);
++			if (!process) {
++				error = -EINVAL;
++				goto out;
+ 			}
+-		}
+-		read_unlock(&tasklist_lock);
+-		if (!process) {
+-			error = -EINVAL;
+-			goto out;
+ 		}
+ 	} else {
+ 		new_timer->it_sigev_notify = SIGEV_SIGNAL;
 

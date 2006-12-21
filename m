@@ -1,95 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422961AbWLUOKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422962AbWLUOKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422961AbWLUOKa (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422962AbWLUOKa
+	id S1422962AbWLUOKi (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422963AbWLUOKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:10:30 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:58509 "HELO
-	mail.dev.rtsoft.ru" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-	with SMTP id S1422961AbWLUOKa (ORCPT
+	Thu, 21 Dec 2006 09:10:38 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:50496 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422962AbWLUOKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:10:30 -0500
-Date: Thu, 21 Dec 2006 17:11:04 +0300
-From: Vitaly Wool <vitalywool@gmail.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] pnx8xxx-uart: irq and ktermios fixes
-Message-Id: <20061221171104.b8186ee8.vitalywool@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Thu, 21 Dec 2006 09:10:37 -0500
+Date: Thu, 21 Dec 2006 09:10:29 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-ID: <20061221034029.GD30299@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221102232.5a10bece.khali@linux-fr.org> <m164c5pmim.fsf@ebiederm.dsl.xmission.com> <20061221145401.07bfe408.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061221145401.07bfe408.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+On Thu, Dec 21, 2006 at 02:54:01PM +0100, Jean Delvare wrote:
+> On Thu, 21 Dec 2006 03:32:33 -0700, Eric W. Biederman wrote:
+> > Ok.  There is almost enough for inference but here is a patch of stops
+> > for setup.S let's see if one of those will stop the reboots.
+> >
+> > I have a strong feeling that we are going to find a tool chain issue,
+> > but I'd like to find where we ware having problems before we declare
+> > that to be the case.
+> > (...)
+> > diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
+> > index 06edf1c..2868020 100644
+> > --- a/arch/i386/boot/setup.S
+> > +++ b/arch/i386/boot/setup.S
+> > @@ -795,6 +795,7 @@ a20_done:
+> >
+> >  #endif /* CONFIG_X86_VOYAGER */
+> >  # set up gdt and idt and 32bit start address
+> > +10: jmp	10b
+> 
+> Locked here, removed.
+> 
+> Out of curiosity, what does the "b" stand for?
+> 
 
-this patch adds irq 2.6.19 changes and 2.6.20 ktermios changes to pnx8xxx-uart.c (which was added to -mm tree with pnx8550-uart-driver.patch).
+I think one can have multiple labels named as 10: so we need to specify
+which one do you want to jump to. Either forward one (f) or backward
+one (b).
+ 
+[..]
+> 
+> Locked here, removed.
+> 
+> >  	# Jump to the 32bit entry point
+> >  	jmpl *(code32_start - start + (DELTA_INITSEG << 4))(%esi)
+> >  .code16
+> 
+> Which brought me to the original situation, where unsurprisingly the
+> reboot happened. So the problem is located after label 14. Does it help?
+>
 
- drivers/serial/pnx8xxx_uart.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+Ok. so indirect jump seems to be having problem. On my machine disassembly
+of setup.o show following.
 
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
+ff a6 14 02 00 00       jmp    *0x214(%esi)
 
-Index: linux-2.6/drivers/serial/pnx8xxx_uart.c
-===================================================================
---- linux-2.6.orig/drivers/serial/pnx8xxx_uart.c
-+++ linux-2.6/drivers/serial/pnx8xxx_uart.c
-@@ -179,8 +179,7 @@ static void pnx8xxx_enable_ms(struct uar
- 	mod_timer(&sport->timer, jiffies);
- }
- 
--static void
--pnx8xxx_rx_chars(struct pnx8xxx_port *sport, struct pt_regs *regs)
-+static void pnx8xxx_rx_chars(struct pnx8xxx_port *sport)
- {
- 	struct tty_struct *tty = sport->port.info->tty;
- 	unsigned int status, ch, flg;
-@@ -220,7 +219,7 @@ pnx8xxx_rx_chars(struct pnx8xxx_port *sp
- #endif
- 		}
- 
--		if (uart_handle_sysrq_char(&sport->port, ch, regs))
-+		if (uart_handle_sysrq_char(&sport->port, ch))
- 			goto ignore_char;
- 
- 		uart_insert_char(&sport->port, status,
-@@ -276,7 +275,7 @@ static void pnx8xxx_tx_chars(struct pnx8
- 		pnx8xxx_stop_tx(&sport->port);
- }
- 
--static irqreturn_t pnx8xxx_int(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t pnx8xxx_int(int irq, void *dev_id)
- {
- 	struct pnx8xxx_port *sport = dev_id;
- 	unsigned int status;
-@@ -293,7 +292,7 @@ static irqreturn_t pnx8xxx_int(int irq, 
- 
- 	/* Byte received */
- 	if (status & PNX8XXX_UART_INT_RX)
--		pnx8xxx_rx_chars(sport, regs);
-+		pnx8xxx_rx_chars(sport);
- 
- 	/* TX holding register empty - transmit a byte */
- 	if (status & PNX8XXX_UART_INT_TX)
-@@ -429,8 +428,8 @@ static void pnx8xxx_shutdown(struct uart
- }
- 
- static void
--pnx8xxx_set_termios(struct uart_port *port, struct termios *termios,
--		   struct termios *old)
-+pnx8xxx_set_termios(struct uart_port *port, struct ktermios *termios,
-+		   struct ktermios *old)
- {
- 	struct pnx8xxx_port *sport = (struct pnx8xxx_port *)port;
- 	unsigned long flags;
-@@ -727,7 +726,7 @@ pnx8xxx_console_setup(struct console *co
- 	return uart_set_options(&sport->port, co, baud, parity, bits, flow);
- }
- 
--extern struct uart_driver pnx8xxx_reg;
-+static struct uart_driver pnx8xxx_reg;
- static struct console pnx8xxx_console = {
- 	.name		= "ttyS",
- 	.write		= pnx8xxx_console_write,
+This seems to be fine as 0x14 is the offset of code32_start, and 
+((DELTA_INITSEG) << 4) is 0x200. How does it look like on your machine?
+
+Thanks
+Vivek
+  

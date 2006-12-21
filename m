@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422631AbWLUDh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422665AbWLUDhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422631AbWLUDh2 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWLUDh2
+	id S1422665AbWLUDhh (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWLUDhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:37:28 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34386 "EHLO smtp.osdl.org"
+	Wed, 20 Dec 2006 22:37:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55203 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422631AbWLUDh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:37:27 -0500
-Date: Wed, 20 Dec 2006 19:36:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>, linux-kernel@vger.kernel.org,
-       trivial@kernel.org
-Subject: Re: [PATCH] ppc : Use syslog macro for the printk log level.
-Message-Id: <20061220193642.76a25dbf.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64N.0612181434220.3836@attu4.cs.washington.edu>
-References: <Pine.LNX.4.64.0612181658070.8277@localhost.localdomain>
-	<Pine.LNX.4.64N.0612181434220.3836@attu4.cs.washington.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	id S1422647AbWLUDhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:37:34 -0500
+Subject: Re: Network drivers that don't suspend on interface down
+From: Dan Williams <dcbw@redhat.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Daniel Drake <dsd@gentoo.org>, Michael Wu <flamingice@sourmilk.net>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20061221032547.GB1277@srcf.ucam.org>
+References: <20061220042648.GA19814@srcf.ucam.org>
+	 <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
+	 <20061221011209.GA32625@srcf.ucam.org>
+	 <200612202105.31093.flamingice@sourmilk.net>
+	 <20061221021832.GA723@srcf.ucam.org> <4589F39C.7010201@gentoo.org>
+	 <20061221024533.GA1025@srcf.ucam.org> <4589FAA6.509@gentoo.org>
+	 <20061221032547.GB1277@srcf.ucam.org>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 22:37:57 -0500
+Message-Id: <1166672277.23168.48.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2006 14:36:23 -0800 (PST)
-David Rientjes <rientjes@cs.washington.edu> wrote:
+On Thu, 2006-12-21 at 03:25 +0000, Matthew Garrett wrote:
+> On Wed, Dec 20, 2006 at 10:08:22PM -0500, Daniel Drake wrote:
+> > Matthew Garrett wrote:
+> > >Hm. Does the spec not set any upper bound on how long it might take for 
+> > >APs to respond? I'm afraid that my 802.11 knowledge is pretty slim. 
+> > 
+> > I'm not sure, but thats not entirely relevant either.  The time it takes 
+> > for the AP to respond is not related to the delay between userspace 
+> > sending the siwscan and giwscan ioctls (unless you're thinking of 
+> > userspace being too quick, but GIWSCAN already returns -EINPROGRESS when 
+> > appropriate so this is detectable)
+> 
+> Ah - I've mostly been looking at the ipw* drivers, where giwscan just 
+> seems to return information cached by the ieee80211 layer. A quick scan 
+> suggests that most cards behave like this, but prism54 seems to refer to 
+> the hardware. I can see why that would cause problems.
 
-> --- a/arch/arm/vfp/vfphw.S
-> +++ b/arch/arm/vfp/vfphw.S
-> @@ -18,13 +18,15 @@ #include <asm/thread_info.h>
->  #include <asm/vfpmacros.h>
->  #include "../kernel/entry-header.S"
->  
-> +#define KERN_DEBUG	"<7>"
-> +
+Prism54 (fullmac) does background scanning all the time when the
+interface is up.  You can't turn it off AFAIK.  If you look at SIWSCAN,
+you'll see that it's essentially a NOP since the firmware is always
+scanning, and you'll always have up-to-date scan results.  Ideally, all
+drivers would do it like prism54 does (and some later ipw versions, I
+think).
 
-These definitions should be available to assembly code via inclusion of
-kernel.h?
+Dan
+
+> 
+> > I think it's reasonable to keep the interface down, but then when the 
+> > user does want to connect, bring the interface up, scan, present scan 
+> > results. Scanning is quick, there would be minimal wait needed here.
+> 
+> Yeah, that's true.
+> 
+

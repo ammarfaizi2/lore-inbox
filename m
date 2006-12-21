@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422711AbWLUEvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422721AbWLUEy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422711AbWLUEvL (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 23:51:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWLUEvL
+	id S1422721AbWLUEy1 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 23:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbWLUEy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 23:51:11 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:28767 "HELO
-	smtp107.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1422711AbWLUEvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 23:51:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=S708eBmJaHz+w/caKebGD+I1z3Ln7hmfsAkEW90G5JSpD/wApZODCj5VOUtorPpQx+/18ASuWws4nuQvDWDdQdJue+j8lOCnRZhDnOmcBzF2dSu4N2geHuYYt9/FsosVB5fLo6S0oUoiRxayOoLH+EKbuh5hdRWmQ72lNRTCYOU=  ;
-X-YMail-OSG: uHGGLlEVM1kn5u928DwpYfbKFdDlrKdQUWY1UgDWmzkZACNJfXLeGs_Eu1aSIzyVHN4s2kukWK6AAABC.Dy0Xpl8F8uFnxVE9mOzRVnPzPPCZgIkx0P2Ar41OPW8VletuQ_.HoumtoZhsbP_cj6ImbVI1WoaiQuCmQRP8K7nIeLhEINAd85JR9PvEK1T
-From: David Brownell <david-b@pacbell.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
-Date: Wed, 20 Dec 2006 20:51:05 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-References: <20061219185223.GA13256@srcf.ucam.org> <200612201904.28681.david-b@pacbell.net> <20061221040648.GA1499@srcf.ucam.org>
-In-Reply-To: <20061221040648.GA1499@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 20 Dec 2006 23:54:27 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:37888 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422712AbWLUEyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 23:54:25 -0500
+Date: Wed, 20 Dec 2006 20:54:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Antonino Daplas <adaplas@pol.net>, James.Bottomley@SteelEye.com,
+       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc1 01/10] TURBOchannel update to the driver
+ model
+Message-Id: <20061220205406.0061081c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64N.0612201139080.11005@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.64N.0612201139080.11005@blysk.ds.pg.gda.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612202051.06623.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 December 2006 8:06 pm, Matthew Garrett wrote:
-> On Wed, Dec 20, 2006 at 07:04:28PM -0800, David Brownell wrote:
-> > On Wednesday 20 December 2006 5:29 pm, Matthew Garrett wrote:
-> > > I dislike that.
-> > 
-> > Tough noogies, as they say.  In a tradeoff between correctness and your
-> > personal taste (or even mine, sigh!), the normal tradeoff is in favor
-> > of correctness.
-> 
-> But it's not correct - the test prohibits suspending devices even if 
-> it would be safe to do so.
+On Wed, 20 Dec 2006 12:01:30 +0000 (GMT)
+"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
 
-It prohibits suspending them unless it's known to be safe.  What your
-patch does is add some more ways to know it's safe.  My comment was
-that while adding ways is safe, it's incorrect to allow things which
-aren't known to be safe.
+> +/**
+> + * tc_register_driver - register a new TC driver
+> + * @drv: the driver structure to register
+> + *
+> + * Adds the driver structure to the list of registered drivers
+> + * Returns a negative value on error, otherwise 0.
+> + * If no error occurred, the driver remains registered even if
+> + * no device was claimed during registration.
+> + */
+> +int tc_register_driver(struct tc_driver *tdrv)
+> +{
+> +	return driver_register(&tdrv->driver);
+> +}
+> +EXPORT_SYMBOL(tc_register_driver);
+> +
+> +/**
+> + * tc_unregister_driver - unregister a TC driver
+> + * @drv: the driver structure to unregister
+> + *
+> + * Deletes the driver structure from the list of registered TC drivers,
+> + * gives it a chance to clean up by calling its remove() function for
+> + * each device it was responsible for, and marks those devices as
+> + * driverless.
+> + */
+> +void tc_unregister_driver(struct tc_driver *tdrv)
+> +{
+> +	driver_unregister(&tdrv->driver);
+> +}
+> +EXPORT_SYMBOL(tc_unregister_driver);
 
-
-> > > We're asking to suspend an individual device - whether  
-> > > the bus supports devices that need to suspend with interrupts disabled 
-> > > is irrelevent, it's the device that we care about. We should just make 
-> > > it necessary for every bus to support this method until the interface is 
-> > > removed.
-> > 
-> > But you _didn't_ do anything to "make it necessary".  Which means that
-> > your patch *WILL* cause bugs whenever a driver uses those calls, and
-> > courtesy of your patch userspace tries to suspend that device ... 
-> 
-> New patch attached.
-
-I'll have a look at it after I get past some other stuff.  I take it that
-you tested this by now?  I assume it'd work, but you know how that goes.
-
-- Dave
+I spose making these inline would save a bit of code, stack space and 
+a couple of exports.

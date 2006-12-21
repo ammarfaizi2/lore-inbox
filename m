@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422636AbWLUDME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422637AbWLUDOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWLUDME (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWLUDME
+	id S1422637AbWLUDOb (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWLUDOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:12:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48803 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422632AbWLUDMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:12:01 -0500
+	Wed, 20 Dec 2006 22:14:31 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:36769 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422633AbWLUDOa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:14:30 -0500
+Date: Thu, 21 Dec 2006 03:14:18 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Dan Williams <dcbw@redhat.com>
+Cc: Jiri Benc <jbenc@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-ID: <20061221031418.GA1277@srcf.ucam.org>
+References: <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <20061220150009.1d697f15@griffin.suse.cz> <1166638371.2798.26.camel@localhost.localdomain> <20061221011526.GB32625@srcf.ucam.org> <1166670411.23168.13.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1166670411.23168.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
 Subject: Re: Network drivers that don't suspend on interface down
-From: Dan Williams <dcbw@redhat.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Michael Wu <flamingice@sourmilk.net>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20061221021832.GA723@srcf.ucam.org>
-References: <20061220042648.GA19814@srcf.ucam.org>
-	 <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
-	 <20061221011209.GA32625@srcf.ucam.org>
-	 <200612202105.31093.flamingice@sourmilk.net>
-	 <20061221021832.GA723@srcf.ucam.org>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 22:14:08 -0500
-Message-Id: <1166670848.23168.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-21 at 02:18 +0000, Matthew Garrett wrote:
-> On Wed, Dec 20, 2006 at 09:05:27PM -0500, Michael Wu wrote:
+On Wed, Dec 20, 2006 at 10:06:51PM -0500, Dan Williams wrote:
+
+> a) tied to the wireless hardware, switch kills hardware directly
+> b) tied to wireless hardware, but driver handles the kill request
+> c) just another key, a separate key driver handles the event and asks
+> the wireless driver to kill the card
 > 
-> > Softmac isn't the only wireless code that likes to be configured after going 
-> > up first. Configuring after the card goes up has generally been more 
-> > reliable, though that should not be necessary and is a bug IMHO. 
-> 
-> Ok, that's nice to know. 
-> 
-> > In order to scan, we need to have the radio on and we need to be able to send 
-> > and receive. What are you gonna turn off?
-> 
-> The obvious route would be to power the card down, but come back up 
-> every two minutes to perform a scan, or if userspace explicitly requests 
-> one. Would this cause problems in some cases?
+> It's also complicated because some switches are supposed to rfkill both
+> an 802.11 module _and_ a bluetooth module at the same time, or I guess
+> some laptops may even have one rfkill switch for each wireless device.
+> Furthermore, some people want to 'softkill' the hardware via software
+> without pushing the key, which is a subset of (b) or (c) above.
 
-Seriously, having all these different capabilities when the card is
-"down" is just madness.  Down == Down!!!  Furthermore, every card is
-going to support some other subset of capabilities when it's "down".
-When you bring "up" prism54 fullmac card, you have to power up the
-hardware, reload the firmware, let the firmware boot, and then talk to
-it.  Doing that every 2 minutes is just a waste of time, effort, and
-power.
+If we define interface down as meaning that the device is powered down 
+and the radio switched off, then (b) and (c) would presumably just need 
+to ensure that the interface is downed. (a) is a slightly more special 
+case - if the switch disables the radio, I guess we then want the driver 
+to down the interface as well.
 
-If you want to scan, just bring the darn card up to do it.  It's so much
-simpler that way, and I just don't see what having all this "every 2
-minutes do a scan" policy really buys us.  That doesn't belong in the
-kernel.  If something wants to scan, userspace can wake the card up and
-do the scan.  It's userspace that's using the scan results to configure
-the card anyway, so userspace can do the scan.
-
-Simple == good.  Down == down.  Lets just agree on that and save
-ourselves a lot of pain.
-
-Dan
-
-
+In the (a) case, drivers should presumably refuse to bring the interface 
+up if the radio is disabled?
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

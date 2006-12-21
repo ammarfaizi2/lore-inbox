@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422965AbWLUQnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422971AbWLUQxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422965AbWLUQnR (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 11:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWLUQnR
+	id S1422971AbWLUQxI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 11:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWLUQxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 11:43:17 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:34497 "EHLO inti.inf.utfsm.cl"
+	Thu, 21 Dec 2006 11:53:08 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:48521 "EHLO 2ka.mipt.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422965AbWLUQnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 11:43:16 -0500
-Message-Id: <200612211643.kBLGh6cE028211@laptop13.inf.utfsm.cl>
-To: Marek Wawrzyczny <marekw1977@yahoo.com.au>
-cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19] 
-In-Reply-To: Message from Marek Wawrzyczny <marekw1977@yahoo.com.au> 
-   of "Fri, 22 Dec 2006 02:34:54 +1100." <200612220234.55313.marekw1977@yahoo.com.au> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Thu, 21 Dec 2006 13:43:06 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 21 Dec 2006 13:43:06 -0300 (CLST)
+	id S1422973AbWLUQxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 11:53:06 -0500
+Date: Thu, 21 Dec 2006 19:51:43 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: jamal <hadi@cyberus.ca>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
+Message-ID: <20061221165143.GA322@2ka.mipt.ru>
+References: <458A64E5.4050703@garzik.org> <20061221104918.GA16744@2ka.mipt.ru> <1166708885.3749.49.camel@localhost> <20061221140429.GA25214@2ka.mipt.ru> <1166710867.3749.56.camel@localhost> <20061221142337.GA17204@2ka.mipt.ru> <20061221143621.GA32706@2ka.mipt.ru> <1166712026.3749.60.camel@localhost> <20061221144644.GA4735@2ka.mipt.ru> <1166719324.3863.1.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1166719324.3863.1.camel@localhost>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 21 Dec 2006 19:51:44 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marek Wawrzyczny <marekw1977@yahoo.com.au> wrote:
+On Thu, Dec 21, 2006 at 11:42:04AM -0500, jamal (hadi@cyberus.ca) wrote:
+> > > > Things like sockets/pipes can only benefit from direct kevent usage 
+> > > > instead of ->poll() and wrappers.
+> > > 
+> > > You should be able change it to use those schemes when it detects
+> > > that the kernel supports them.
+> > 
+> > I.e. stat() for each new file descriptor - note, that _you_ asked it :)
+> 
+> Didnt follow. Is there some issue with libevent you mean? 
 
-[...]
+libevent provides file descriptor without any additional info about it -
+so when it is added into the waiting subsystem, userspace must select
+different usage cases (i.e. different kevent notifications for different
+types of file descriptor - socket notifications for sockets and pipes,
+poll/select for all others), this requires stat() call per provided file
+descriptor.
 
-> No, no, no...  I was never proposing that. I was thinking of something more 
-> along the lines of reporting back on open-source friendliness of 
-> manufacturers of devices, and perhaps on the availability of open source 
-> drivers for the devices. I am talking only about "detected" devices. The 
-> database would never try and guess the vendor, model and variation of the 
-> system.
+Event addition/waiting itself is the same - only parameters (type and
+requested event) are changed.
 
-This is a /massive/ ammount of effort, and the data required is hard to
-come by before buying, so it is rather useless. What chip is in NetworkCard
-675? In 675a? (yes, I've seen dLink cards called <foo> and <foo>+ which
-were /radically/ different!). Yes, here you go to the computer store and
-ask them to build you a machine from parts you specify. But it is far from
-the common way to get a PC (those stores mostly cater to heavy-weight
-gamers, many pieces have to be special ordered), and building a machine
-that works OK with Linux is a two or three day exercise in hunting down
-specifications for compatible pieces. Most folks wander into the next
-department store and buy a PC. Mostly terrible crap, BTW.
+> cheers,
+> jamal
 
-Where this makes sense (printers!) the data is there, mostly up to date,
-and accurate.
-
-[...]
-
-> I actually find that trying to obtain information about what hardware
-> is/isn't supported in Linux is actually quite difficult to obtain. The
-> information that's on the internet is either outdated or has not yet been
-> written.  I was hoping to analyze the system's device information
-> together with driver/device information obtained from the kernel source
-> itself to give users a better (but not perhaps not as authoritative as
-> I'd like to) picture of what to expect.
-
-There is just way too much hardware out there, and new pieces come out
-every day. Then there are lots of integrators that buy chips and build PCI
-cards. Sometimes cards with supported chips just don't work at all. Etc. It
-is all over the map.
-
-Besides, many times you don't find information on some piece of hardware it
-is because it is dirt cheap stuff that has no chance of working, so nobody
-even tried.
-
-[...]
-
-> > Bonus points for figuring out what to do with systems that have some chip
-> > that's a supported XYZ driver, but wired up behind a squirrely bridge with
-> > some totally bizarre IRQ allocation, so you end up with something that's
-> > visible on lspci but not actually *usable* in any real sense of the term...
-
-> Hmmm... does this happen often? False results are definedly a show
-> stopper.
-
-Not just for systems, even for individual cards.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+	Evgeniy Polyakov

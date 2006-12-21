@@ -1,84 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423008AbWLUSNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423007AbWLUSRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423008AbWLUSNP (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423010AbWLUSNO
+	id S1423007AbWLUSRU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423005AbWLUSRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:13:14 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:56871 "EHLO sabe.cs.wisc.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423005AbWLUSNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:13:13 -0500
-X-Greylist: delayed 837 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 13:13:13 EST
-Message-ID: <458ACEB1.3030406@cs.wisc.edu>
-Date: Thu, 21 Dec 2006 12:13:05 -0600
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: device-mapper development <dm-devel@redhat.com>
-CC: mchristi@redhat.com, linux-kernel@vger.kernel.org, agk@redhat.com
-Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request()
- to be called from interrupt context
-References: <20061220134848.GF10535@kernel.dk>	<20061220.125002.71083198.k-ueda@ct.jp.nec.com>	<20061220184917.GJ10535@kernel.dk>	<20061220.165549.39151582.k-ueda@ct.jp.nec.com>	<20061221075305.GD17199@kernel.dk> <458ACB69.8000603@cs.wisc.edu>
-In-Reply-To: <458ACB69.8000603@cs.wisc.edu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 21 Dec 2006 13:17:20 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55259 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422999AbWLUSRU (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:17:20 -0500
+Message-Id: <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+In-Reply-To: Your message of "Wed, 20 Dec 2006 23:06:43 +0100."
+             <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
+From: Valdis.Kletnieks@vt.edu
+References: <loom.20061215T220806-362@post.gmane.org> <200612162007.32110.marekw1977@yahoo.com.au> <4587097D.5070501@opensound.com>
+            <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1166724975_12674P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Dec 2006 13:16:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Christie wrote:
-> Jens Axboe wrote:
->> On Wed, Dec 20 2006, Kiyoshi Ueda wrote:
->>> Hi Jens,
->>>
->>> On Wed, 20 Dec 2006 19:49:17 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
->>>>>> Big NACK on this - it's not only really ugly, it's also buggy to pass
->>>>>> interrupt flags as function arguments. As you also mention in the 0/1
->>>>>> mail, this also breaks CFQ.
->>>>>>
->>>>>> Why do you need in-interrupt request allocation?
->>>>>  
->>>>> Because I'd like to use blk_get_request() in q->request_fn()
->>>>> which can be called from interrupt context like below:
->>>>>   scsi_io_completion -> scsi_end_request -> scsi_next_command
->>>>>   -> scsi_run_queue -> blk_run_queue -> q->request_fn
->>>>>
->>>>> Generally, device-mapper (dm) clones an original I/O and dispatches
->>>>> the clones to underlying destination devices.
->>>>> In the request-based dm patch, the clone creation and the dispatch
->>>>> are done in q->request_fn().  To create the clone, blk_get_request()
->>>>> is used to get a request from underlying destination device's queue.
->>>>> By doing that in q->request_fn(), dm can deal with struct request
->>>>> after bios are merged by __make_request().
->>>>>
->>>>> Do you think creating another function like blk_get_request_nowait()
->>>>> is acceptable?
->>>>> Or request should not be allocated in q->request_fn() anyway?
->>>> You should not be allocating requests from that path, for a number of
->>>> reasons.
->>> Could I hear the reasons for my further work if possible?
->>> Because of breaking current CFQ?  And is there any reason?
->> Mainly I just don't like the design, there are better ways to achieve
->> what you need. The block layer has certain assumptions on the context
->> from which rq allocation happens, and this breaks it. As I also
->> mentioned, you cannot pass flags around as arguments. So the patch is
->> even broken as-is.
->>
-> 
-> 
-> I was thinking that since this was going to be hooked into dm which has
-> the make_request hook in code, could we just allocate the cloned request
-> when from dm's make_request callout. The dm queue would call
-> __make_request, and if it detected that the bio started a new request it
-> would just allocate a second request which would be used as a clone or
-> maybe the block layer could allocate the clone request for us. On the
-> request_fn callout side, DM could then setup the cloned rq based on the
-> original fields and pass it down to the dm-multipath request_fn. The
-> dm-mutlipath request_fn then just decides which path to use based on the
-> path-selector modules and then we send it off.
-> 
+--==_Exmh_1166724975_12674P
+Content-Type: text/plain; charset=us-ascii
 
-Or the block layer code could set up the clone too. elv_next_request
-could prep a clone based on the orignal request for the driver then dm
-would not have to worry about that part.
+On Wed, 20 Dec 2006 23:06:43 +0100, Giuseppe Bilotta said:
+
+> So while what you say is perfectly sensible for *software* developers,
+> it has absolutely nothing to do with the closed source drivers
+> *hardware* companies distribute.
+
+The problem is that the software drivers reveal an awful lot about the
+innards of the hardware, which is something the hardware companies *do*
+want to protect.
+
+> This all being said, I think that the only thing that can shake
+> companies such as nVidia and ATI is a project such as the Open
+> Graphics Card
+
+At least nVidia *does* actually Get It, they just don't have a choice in
+implementing it, because all their current hardware includes patents that
+they licensed from other companies (I believe some of the OpenGL stuff that
+originated at SGI and got bought by Microsoft is involved, but I have no
+hard references for actual patent numbers).  And then they have the big
+problem - do they keep using the patent in order to boost performance,
+or no?
+
+If they produce a blazing-fast card and they manage to sell to 30% of the
+Windows users, they've sold to about 27% of all computer users.  If they
+skip the patent and produce a slower card to please the Linux users, even if
+they sell to half the Linux users, that's only 5-6% of the market.
+
+Which course of action is any CFO going to choose?
+
+(And let's not underestimate the possibility that some yet-undisclosed
+submarine patent will torpedo the Open Graphics Card if they unwittingly
+re-invent something owned by a company that wants the card to fail....)
+
+--==_Exmh_1166724975_12674P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFis9vcC3lWbTT17ARAimzAKCU8mhvQEOWQwhdervMau931pb35gCg7Q67
+w9U6y7YBseM7kMjgdRmS4uI=
+=SJjX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1166724975_12674P--

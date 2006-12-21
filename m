@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964836AbWLULUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964904AbWLULVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWLULUJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 06:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWLULUJ
+	id S964904AbWLULVY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 06:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWLULVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 06:20:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42042 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964836AbWLULUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 06:20:07 -0500
-Date: Thu, 21 Dec 2006 12:15:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] x86_64: fix boot hang caused by CALGARY_IOMMU_ENABLED_BY_DEFAULT
-Message-ID: <20061221111533.GA31433@elte.hu>
-References: <20061220102846.GA17139@elte.hu> <20061220113052.GA30145@rhun.ibm.com> <20061220162338.GC11804@elte.hu> <20061220180953.GM30145@rhun.ibm.com> <20061221103702.GA19451@elte.hu> <20061221110914.GY30145@rhun.ibm.com>
-Mime-Version: 1.0
+	Thu, 21 Dec 2006 06:21:24 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:50948 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964904AbWLULVX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 06:21:23 -0500
+Date: Thu, 21 Dec 2006 12:21:14 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Message-ID: <20061221112114.GO19098@deprecation.cyrius.com>
+References: <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org> <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com> <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061221110914.GY30145@rhun.ibm.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Linus Torvalds <torvalds@osdl.org> [2006-12-20 11:50]:
+> Martin, Andrei, does this make any difference for your corruption
+> cases?
 
-* Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-
-> > but i still /strongly/ disagree with your attitude that mainline is 
-> > 'experimental' and hence there's nothing to see here, move over.
-> 
-> We can agree to disagree about how "experimental" mainline should be. 
-> [...]
-
-there's not much to disagree about. Mainline early bootup _must not 
-break_, and if it breaks, it must be easy for the tester to figure it 
-out. Simple as that. If it ever breaks and the user cannot give us other 
-feedback but: "my laptop hung", we screwed up the process!
-
-once the system has booted up into a minimal state, up to the stage 
-where say netconsole works, we've got an exponentially increasing number 
-of measures to find /all the other bugs/. But early bootup is like 
-sacred. It's not experimental at all. Really. Having a system that 
-doesnt even boot and gives no feedback at all is an absolute showstopper 
-and a lost tester to us.
-
-if we need draconian measures such as having two versions of early 
-bootup code present in the kernel and a runtime boot switch to trigger 
-between the old-trusted and the new-unknown one [perhaps even 
-automatically, via the help of Grub] then so it be - but we cannot 
-tolerate hung bootups.
-
-	Ingo
+Works for me.
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

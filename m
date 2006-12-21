@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423040AbWLUTPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423045AbWLUTRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423040AbWLUTPU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423043AbWLUTPU
+	id S1423045AbWLUTRV (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423044AbWLUTRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:15:20 -0500
-Received: from yumi.tdiedrich.de ([85.10.210.183]:4070 "EHLO yumi.tdiedrich.de"
+	Thu, 21 Dec 2006 14:17:20 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:22973 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423040AbWLUTPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:15:18 -0500
-Date: Thu, 21 Dec 2006 20:15:13 +0100
-From: Tobias Diedrich <ranma+kernel@tdiedrich.de>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: IO-APIC + timer doesn't work
-Message-ID: <20061221191513.GA5824@melchior.yamamaya.is-a-geek.org>
-Mail-Followup-To: Tobias Diedrich <ranma+kernel@tdiedrich.de>,
-	Yinghai Lu <yinghai.lu@amd.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-References: <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org> <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org> <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org> <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org> <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com> <20061218152333.GA2400@melchior.yamamaya.is-a-geek.org> <m1tzztqkev.fsf@ebiederm.dsl.xmission.com> <86802c440612190000k7eb5e68et9c0a776ef85b5177@mail.gmail.com> <m1ac1kqg6b.fsf@ebiederm.dsl.xmission.com> <86802c440612192250l50805d40h71baa7ce6f99a3e5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	id S1423045AbWLUTRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 14:17:20 -0500
+Date: Thu, 21 Dec 2006 20:19:11 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: device-mapper development <dm-devel@redhat.com>, mchristi@redhat.com,
+       linux-kernel@vger.kernel.org, agk@redhat.com
+Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request()   to be called from interrupt context
+Message-ID: <20061221191910.GE17199@kernel.dk>
+References: <20061220184917.GJ10535@kernel.dk> <20061220.165549.39151582.k-ueda@ct.jp.nec.com> <20061221075305.GD17199@kernel.dk> <458ACB69.8000603@cs.wisc.edu> <458ACEB1.3030406@cs.wisc.edu> <20061221182432.GB17199@kernel.dk> <458AD2E0.40807@cs.wisc.edu> <458AD43C.3050603@cs.wisc.edu> <20061221184203.GD17199@kernel.dk> <458AD92D.5000901@cs.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <86802c440612192250l50805d40h71baa7ce6f99a3e5@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <458AD92D.5000901@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yinghai Lu wrote:
-> On 12/19/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> >So the pin2 case should be tested right after the pin1 case as we do
-> >currently.  On most new boards that will be a complete noop.
-> >
-> >But it is better than our current blind guess at using ExtINT mode.
-> >
-> >I figure after we try what the BIOS has told us about and that
-> >has failed we should first try the common irq 0 apic mappings,
-> >and then try the common ExtINT mappings.
+On Thu, Dec 21 2006, Mike Christie wrote:
+> Jens Axboe wrote:
+> > On Thu, Dec 21 2006, Mike Christie wrote:
+> >> Mike Christie wrote:
+> >>> Jens Axboe wrote:
+> >>>> On Thu, Dec 21 2006, Mike Christie wrote:
+> >>>>> Or the block layer code could set up the clone too. elv_next_request
+> >>>>> could prep a clone based on the orignal request for the driver then dm
+> >>>>> would not have to worry about that part.
+> >>>> It really can't, since it doesn't know how to allocate the clone
+> >>>> request. I'd rather export this functionality as helpers.
+> >>>>
+> >>> What do you think about dm's plan to break up make_request into a
+> >>> mapping function and in to the part the builds the bio into a request.
+> >>> This would fit well with them being helpers and being able to allocate
+> >>> the request from the correct context.
+> >>>
+> >>> I see patches for that did not get posted, but I thought Joe and
+> >>> Alasdair used to talk about that a lot and in the dm code I think there
+> >>> is sill comments about doing it. Maybe the dm comments mentioned the
+> >>> merge_fn, but I guess the merge_fn did not fit what they wanted to do or
+> >>> something. I think Alasdair talked about this at one of his talks at OLS
+> >>> or it was in a proposal for the kernel summit. I can dig up the mail if
+> >>> you want.
+> >>>
+> >> Ignore that. The problem would be that we may not want to decide which
+> >> path to use at map time.
+> > 
+> > Latter part, or both paragraphs? Dipping into ->make_request_fn() for
+> > some parts do seem to make sense to me. It'll be cheaper than at
+> > potential soft irq time (from elv_next_request()).
+> > 
 > 
-> Please check if this one is ok.
+> I think we got crisscrossed.
+> 
+> The original idea but using your helper suggestion would have been this:
+> 
+> dm->make_request_fn(bio)
+> {
+> 	rq = __make_request(bio)
+> 	if (this is a new request) {
+> 		allocate clone from either a real device/path specific mempool() or a
+> dm q mempool
+> }
+> 
+> 
+> dm->prep_fn(rq)
+> {
+> 	setup clone rq fields based on orig request fields.
+> }
+> 
+> dm->request_fn(rq)
+> {
+> 	figure out which path to use;
+> 	set rq->q;
+> 	send cloned rq to real device;
+> }
 
-Works fine for me.
+This'll work nicely, much better.
 
-FYI I'm off to my parents from Saturday onward, so after that I
-can't test any patches for the next one or two weeks.
+> The second idea based on Joe and Alasdair to break up make_request would
+> just have been a more formal break up of the dm->make_request_fn above,
+> because I thought your comment about not knowing how to allocate the
+> clone request meant that we did not know which q's mempool to take the
+> request from if we were going to take the cloned request from the real
+> device/path's mempool. I guess this does not really matter since we can
+> have just a dm q mempool of requests to use for cloned requests.
+
+Either approach is fine with me. Note that you need to be careful with
+foreign requests on a queue, see the elevator drain logic for barriers
+and scheduler switching.
 
 -- 
-Tobias						PGP: http://9ac7e0bc.uguu.de
-このメールは十割再利用されたビットで作られています。
+Jens Axboe
+

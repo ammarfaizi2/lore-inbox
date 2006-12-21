@@ -1,110 +1,115 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423124AbWLUWWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423123AbWLUWXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423124AbWLUWWO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 17:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423125AbWLUWWO
+	id S1423123AbWLUWXf (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 17:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423127AbWLUWXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 17:22:14 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:57264 "EHLO sabe.cs.wisc.edu"
+	Thu, 21 Dec 2006 17:23:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59220 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423124AbWLUWWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 17:22:13 -0500
-Message-ID: <458B090D.4080807@cs.wisc.edu>
-Date: Thu, 21 Dec 2006 16:22:05 -0600
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: device-mapper development <dm-devel@redhat.com>
-CC: mchristi@redhat.com, linux-kernel@vger.kernel.org, agk@redhat.com
-Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow	blk_get_request()
- to be called from interrupt context
-References: <20061220184917.GJ10535@kernel.dk>	<20061220.165549.39151582.k-ueda@ct.jp.nec.com>	<20061221075305.GD17199@kernel.dk>	<458ACB69.8000603@cs.wisc.edu> <458ACEB1.3030406@cs.wisc.edu>	<20061221182432.GB17199@kernel.dk> <458AD2E0.40807@cs.wisc.edu>	<458AD43C.3050603@cs.wisc.edu> <20061221184203.GD17199@kernel.dk>	<458AD92D.5000901@cs.wisc.edu> <20061221191910.GE17199@kernel.dk>
-In-Reply-To: <20061221191910.GE17199@kernel.dk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	id S1423123AbWLUWXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 17:23:34 -0500
+Date: Thu, 21 Dec 2006 17:22:46 -0500 (EST)
+Message-Id: <20061221.172246.21934588.k-ueda@ct.jp.nec.com>
+To: jens.axboe@oracle.com
+Cc: agk@redhat.com, mchristi@redhat.com, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
+Subject: Re: [RFC PATCH 2/8] rqbased-dm: add block layer hook
+From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+In-Reply-To: <20061221074947.GC17199@kernel.dk>
+References: <20061220134924.GG10535@kernel.dk>
+	<20061220.165246.85417944.k-ueda@ct.jp.nec.com>
+	<20061221074947.GC17199@kernel.dk>
+X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
+ =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Dec 21 2006, Mike Christie wrote:
->> Jens Axboe wrote:
->>> On Thu, Dec 21 2006, Mike Christie wrote:
->>>> Mike Christie wrote:
->>>>> Jens Axboe wrote:
->>>>>> On Thu, Dec 21 2006, Mike Christie wrote:
->>>>>>> Or the block layer code could set up the clone too. elv_next_request
->>>>>>> could prep a clone based on the orignal request for the driver then dm
->>>>>>> would not have to worry about that part.
->>>>>> It really can't, since it doesn't know how to allocate the clone
->>>>>> request. I'd rather export this functionality as helpers.
->>>>>>
->>>>> What do you think about dm's plan to break up make_request into a
->>>>> mapping function and in to the part the builds the bio into a request.
->>>>> This would fit well with them being helpers and being able to allocate
->>>>> the request from the correct context.
->>>>>
->>>>> I see patches for that did not get posted, but I thought Joe and
->>>>> Alasdair used to talk about that a lot and in the dm code I think there
->>>>> is sill comments about doing it. Maybe the dm comments mentioned the
->>>>> merge_fn, but I guess the merge_fn did not fit what they wanted to do or
->>>>> something. I think Alasdair talked about this at one of his talks at OLS
->>>>> or it was in a proposal for the kernel summit. I can dig up the mail if
->>>>> you want.
->>>>>
->>>> Ignore that. The problem would be that we may not want to decide which
->>>> path to use at map time.
->>> Latter part, or both paragraphs? Dipping into ->make_request_fn() for
->>> some parts do seem to make sense to me. It'll be cheaper than at
->>> potential soft irq time (from elv_next_request()).
->>>
->> I think we got crisscrossed.
->>
->> The original idea but using your helper suggestion would have been this:
->>
->> dm->make_request_fn(bio)
->> {
->> 	rq = __make_request(bio)
->> 	if (this is a new request) {
->> 		allocate clone from either a real device/path specific mempool() or a
->> dm q mempool
->> }
->>
->>
->> dm->prep_fn(rq)
->> {
->> 	setup clone rq fields based on orig request fields.
->> }
->>
->> dm->request_fn(rq)
->> {
->> 	figure out which path to use;
->> 	set rq->q;
->> 	send cloned rq to real device;
->> }
-> 
-> This'll work nicely, much better.
-> 
->> The second idea based on Joe and Alasdair to break up make_request would
->> just have been a more formal break up of the dm->make_request_fn above,
->> because I thought your comment about not knowing how to allocate the
->> clone request meant that we did not know which q's mempool to take the
->> request from if we were going to take the cloned request from the real
->> device/path's mempool. I guess this does not really matter since we can
->> have just a dm q mempool of requests to use for cloned requests.
-> 
-> Either approach is fine with me. Note that you need to be careful with
-> foreign requests on a queue, see the elevator drain logic for barriers
-> and scheduler switching.
-> 
+Hi Jens,
 
-What I proposed may not work so nicely as is. I remember when we tried
-this before, that because __make_request lets go of the q lock, the q
-can then be unplugged or it can be unplugged from __make_request if you
-hit the unplug threshold so we would not be able to easily allocate a
-cloned request from the dm make request callout and set it to the
-request that is allocated in make_request. You have to do some surgery
-to the make_request function to make this work.
+On Thu, 21 Dec 2006 08:49:47 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > The new hook is needed for error handling in dm.
+> > For example, when an error occurred on a request, dm-multipath
+> > wants to try another path before returning EIO to application.
+> > Without the new hook, at the point of end_that_request_last(),
+> > the bios are already finished with error and can't be retried.
+> 
+> Ok, I see what you are getting at. The current ->end_io() is called when
+> the request has fully completed, you want notification for each chunk
+> potentially completed.
+> 
+> I think a better design here would be to use ->end_io() as the full
+> completion handler, similar to how bio->bi_end_io() works. A request
+> originating from __make_request() would set something ala:
+> 
+> int fs_end_io(struct request *rq, int error, unsigned int nr_bytes)
+> {
+>         if (!__end_that_request_first(rq, err, nr_bytes)) {
+>                 end_that_request_last(rq, error);
+>                 return 0;
+>         }
+> 
+>         return 1;
+> }
+> 
+> and normal io completion from a driver would use a helper:
+> 
+> int blk_complete_io(struct request *rq, int error, unsigned int nr_bytes)
+> {
+>         return rq->end_io(rq, error, nr_bytes);
+> }
+> 
+> instead of calling the functions manually. That would allow you to get
+> notification right at the beginning and do what you need, without adding
+> a special hook for this.
 
-Maybe your preallocted requests that are used from the request_fn is a
-better idea.
+I'm not confident about what you mean.
+Something like this?
+  - __make_request() sets fs_end_io() to req->end_io()
+  - The driver calls blk_complete_io()
+       * if it succeeds, the request is done
+       * if it fails, the request is not completed
+         and the driver needs retry or something
+  - Current users of req->end_io() have to update/rewrite thier end_io.
+  - Features like mine will set its own end_io.
+    It checks error and decides whether calling fs_end_io() or not.
+
+Depending on drivers, there are some functions called between
+__end_that_request_first() and end_that_request_last().
+For example:
+  - add_disk_randomness()
+  - blk_queue_end_tag()
+  - floppy_off()
+So they might prevent such generalization.
+
+
+In addition to the suggested approach, what do you think about
+adding a new flag to req->cmd_flags which lets the end_io() handler
+not to return bio to upper layer?
+It will be useful for multipathing and can be done even within
+the current __end_that_request_first().
+For example,
+
+static int __end_that_request_first()
+{
+	.....
+	error = 0;
+	if (end_io_error(uptodate))
+		error = !uptodate ? -EIO : uptodate;
+	.....
+	if (error && (req->cmd_flags & "NEW_FLAG"))
+		return 0; /* Tell the driver to call end_that_request_last() */
+
+	total_types = bio_nbytes = 0;
+	while ((bio = req->bio) != NULL) {
+		..... /* process of finishing bios */
+	}
+	.....
+}
+
+Thanks,
+Kiyoshi Ueda
+

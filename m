@@ -1,101 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422942AbWLUKOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965197AbWLUKVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422942AbWLUKOA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 05:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422934AbWLUKOA
+	id S965197AbWLUKVs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 05:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWLUKVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 05:14:00 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:64736 "EHLO
-	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422939AbWLUKN7 (ORCPT
+	Thu, 21 Dec 2006 05:21:48 -0500
+Received: from aa014msr.fastwebnet.it ([85.18.95.74]:45732 "EHLO
+	aa014msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965197AbWLUKVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 05:13:59 -0500
-Message-ID: <458A5E5D.4020505@bx.jp.nec.com>
-Date: Thu, 21 Dec 2006 19:13:49 +0900
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 2.6.19 take2 5/5] add "add" element in /sys/class/misc/netconsole
-References: <458A5AAE.30209@bx.jp.nec.com>
-In-Reply-To: <458A5AAE.30209@bx.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+	Thu, 21 Dec 2006 05:21:48 -0500
+Date: Thu, 21 Dec 2006 11:20:00 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: "Sorin Manolache" <sorinm@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: newbie questions about while (1) in kernel mode and spinlocks
+Message-ID: <20061221112000.67722190@localhost>
+In-Reply-To: <20170a030612210141y6578602eo525e6df5f324747d@mail.gmail.com>
+References: <20170a030612210141y6578602eo525e6df5f324747d@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.6; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+On Thu, 21 Dec 2006 10:41:44 +0100
+"Sorin Manolache" <sorinm@gmail.com> wrote:
 
-This patch contains the following changes.
+> spin_lock(&lck);
+> down(&sem); /* I know that one shouldn't sleep when holding a lock */
+>                     /* but I want to understand why */
 
-To add port dynamically, create "add" element in /sys/class/misc/netconsole.
+I suppose because the lock is held for an indefinite amount of time and
+any other process that try to get that lock will "spin" and burn CPU
+without doing anything useful (locking the process in kernel mode and
+preventing the execution of other processes on that CPU if there
+isn't any type of PREEMPTION).
 
-ex)
-   echo "@/eth0,@192.168.0.1/" > /sys/class/misc/netconsole/add
-   then the port is added with the settings sending kernel messages
-   to 192.168.0.1 using eth0 device.
+:)
 
--+- /sys/class/misc/
- |-+- netconsole/
-   |--- add       [-w-------]  If you write parameter(network interface name
-   |                           or one config parameter of netconsole), The
-   |                            port related its config is added
-   |--- port1/
-   |--- port2/
-   ...
-
-Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
----
-[changes]
-1. remove unneccesary cast.
-2. change config parameter for "add" element.
-
---- linux-2.6.19/drivers/net/netconsole.c	2006-12-21 18:39:12.719185750 +0900
-+++ enhanced-netconsole/drivers/net/netconsole.c.add	2006-12-21 18:39:05.046706250 +0900
-@@ -338,6 +338,30 @@ static struct miscdevice netconsole_misc
- 	.name = "netconsole",
- };
- 
-+static ssize_t store_miscdev_add(struct class_device *cdev,
-+					const char *buf, size_t count)
-+{
-+	char *target_param;
-+
-+	target_param = kmalloc(count+1, GFP_KERNEL);
-+	if (!target_param) {
-+		printk(KERN_ERR "netconsole: kmalloc() failed!\n");
-+		return -ENOMEM;
-+	}
-+
-+	strcpy(target_param, buf);
-+	if (target_param[count - 1] == '\n')
-+		target_param[count - 1] = '\0';
-+
-+	printk(KERN_INFO "netconsole: config = [%s]\n", target_param);
-+	add_target(target_param);
-+	kfree(target_param);
-+
-+	return count;
-+}
-+
-+static CLASS_DEVICE_ATTR(add, S_IWUSR, NULL, store_miscdev_add);
-+
- static struct netpoll np = {
- 	.name = "netconsole",
- 	.dev_name = "eth0",
-@@ -467,6 +491,9 @@ static int __init init_netconsole(void)
- 
- 	register_console(&netconsole);
- 
-+	class_device_create_file(netconsole_miscdev.class,
-+				 &class_device_attr_add);
-+
- 	if(!strlen(config)) {
- 		printk(KERN_ERR "netconsole: not configured\n");
- 		return 0;
+spin_lock is a "while(1) {...}" thing...
 
 -- 
-Keiichi KII
-NEC Corporation OSS Promotion Center
-E-mail: k-keiichi@bx.jp.nec.com
+	Paolo Ornati
+	Linux 2.6.20-rc1-g99f5e971 on x86_64

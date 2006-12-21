@@ -1,72 +1,118 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161021AbWLUAnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161054AbWLUAoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161021AbWLUAnx (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 19:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWLUAnx
+	id S1161054AbWLUAoT (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 19:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161093AbWLUAoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 19:43:53 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:8339 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161021AbWLUAnw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 19:43:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Q7887ygl0ZNsCto8USADwTSamFvnlOTlW3p9GrEkASb4MBTZXgtZh32Ork9xnPfNQJuWtsgeq5vq9x2OSMgamjyKl/KR32BUSfd16K072auZqs0vQWatSuSrgBl+R5YX4xb0sZvtWMvA6DLX7+w2dSNh0DeE9y3QOO7gIV1kxBE=
-Message-ID: <21d7e9970612201643t6aca1d1eoc090f832f521555b@mail.gmail.com>
-Date: Thu, 21 Dec 2006 11:43:49 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: LCA 2007 Kernel Miniconf CFP (better late than never...)
+	Wed, 20 Dec 2006 19:44:19 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53838 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161054AbWLUAoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 19:44:18 -0500
+Date: Wed, 20 Dec 2006 16:43:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Martin Michlmayr <tbm@cyrius.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <Pine.LNX.4.64.0612201615590.3576@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612201633300.3576@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+ <1166571749.10372.178.camel@twins> <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+ <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+ <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+ <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com>
+ <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com>
+ <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+ <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org> <20061220153207.b2a0a27f.akpm@osdl.org>
+ <Pine.LNX.4.64.0612201548410.3576@woody.osdl.org> <20061220161158.acb77ce6.akpm@osdl.org>
+ <Pine.LNX.4.64.0612201615590.3576@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Kernel miniconference at LCA 20007 is finally being organised and
-this is the call for participation:
 
-http://lca2007.linux.org.au/Miniconfs/Kernel
 
-The current schedule gives us 6 slots.
+On Wed, 20 Dec 2006, Linus Torvalds wrote:
+> > 
+> > There's also redirty_page_for_writepage().
+> 
+> _dirtying_ a page makes sense in any situation. You can always dirty them. 
+> I'm just saying that you can't just mark them *clean*.
+> 
+> If your point was that the filesystem had better be able to take care of 
+> "redirty_page_for_writepage()", then yes, of course. But since it's the 
+> filesystem itself that does it, it had _better_ be able to take care of 
+> the situation it puts itself into.
 
-One slot is reserved for 5 minute lightning talks - this gives us 8
-lightning talks, where people working on kernel project and give a
-quick spiel on their current project. All these slots are currently
-open, remember 5 mins is one-two slides, but it might be enough to give a
-status update or drum up some interest.
+Btw, as an example of something where this may NOT be ok, look at 
+migrate_page_copy().
 
-Slot 4 has been reserved for a Suspend to RAM workshop, where people
-can bring their laptops and we will have hopefully a few kernel
-hackers on hand to investigate suspend/resume problems. We don't
-promise anything, and we will have a few slides with pointers on how
-to debug these issues.
+I'm not at all convinced that "migrate_page_copy()" can work at all. It 
+does:
 
-I think Slot 5 should be reserved for a hacking session of some sort
-but I'm open to ideas on what this could be, we could do a live hack
-on some code or just get a bunch of kernel developers who are
-interested to fix something.
+	...
+        if (PageDirty(page)) {
+                clear_page_dirty_for_io(page);
+                set_page_dirty(newpage);
+        }
+	...
 
-The other 3 slots are currently open, and this is the call for presentations,
-We'd like some presentations targetting kernel hacking, kernel
-janitors, kernel newbies, and perhaps a using git to maintain a kernel
-tree type of presentation. We'd rather avoid any papers that mention
-Xen or that are being presented at the main conference.
+which is an example of what NOT to do, because it claims to clear the page 
+for IO, but doesn't actually _do_ any IO.
 
-I know this is late but I'm sure some of you nice kernel developers
-that were a bit bored last year will relish the chance to talk to what
-looks like a large interest group (it surprised me how many ppl are
-interested in this stream..)
+And this is wrong, for many reasons. 
 
-The CFP will close when I get a few ideas of what people are
-submitting, and how interested people are, don't hang about, please
-contact me ASAP, as time is running out..
+For example, it's very possible that the old page is not actually 
+up-to-date, and is only partially dirty using some FS-specific dirty data 
+queues (like NFS does with its dirty data, or buffer-heads can do for 
+local filesystems). When you do
 
-So can anyone interested in doing a full slot presentation or a lightning
-talk send me a short proposal at (airlied at gmail.com), and I'll
-discuss them with Matthew Wilcox the other half of the team...
+	if (clear_dirty(page))
+		set_page_dirty(page);
 
-Dave Airlie.
+in generic VM code, that is a BUG. It's an insane operation. It cannot 
+work. It's exactly what I'm trying to avoid.
+
+So page migration is probably broken, but it's no less broken than it 
+always has been. And I don't think many people use it anyway. It might 
+work "by accident" in a lot of situations, but to actually be solid, it 
+really would need to do something fundamentally different, like:
+
+ - have a per-mapping "migrate()" function that actually knows HOW to 
+   migrate the dirty state from one page to another.
+
+ - or, preferably, by just not migrating dirty pages, and just actually 
+   doing the writeback on them first.
+
+Again, this is an example of just _incorrect_ code, that thinks that it 
+can "just clear the dirty bit". You can't do that. It's wrong. And it is 
+not wrong just because I say so, but because the operations itself simply 
+is FUNDAMENTALLY not a sensible one.
+
+This is why I keep harping on this issue: there are two cases, and two 
+cases only, when you can clear a page. And no, "migrating the data to 
+another page" was not one of those two cases. The cases are, and will 
+_always_ be: (a) full writeback IO of _all_ the dirty data on the page 
+(and that can only be done by the low-level filesystem, since it's the 
+only one that knows what rules it has followed for marking things dirty) 
+and (b) cancelling dirty data that got truncated and literally removed 
+from the filesystem.
+
+So I don't claim that I fixed all the cases. mm/migrate.c is still broken. 
+Maybe somebody else also uses "clear_page_dirty_for_io()" even though the 
+name very clearly says FOR IO. I didn't check, but I think they're mostly 
+right now.
+
+		Linus

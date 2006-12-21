@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161096AbWLUNNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161098AbWLUNOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbWLUNNx (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 08:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWLUNNx
+	id S1161098AbWLUNOe (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 08:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWLUNOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 08:13:53 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:3267 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161096AbWLUNNw (ORCPT
+	Thu, 21 Dec 2006 08:14:34 -0500
+Received: from nz-out-0506.google.com ([64.233.162.236]:37806 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161100AbWLUNOc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 08:13:52 -0500
-Date: Thu, 21 Dec 2006 14:13:54 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-Id: <20061221141354.6d9ec3e6.khali@linux-fr.org>
-In-Reply-To: <20061221010814.GA30299@in.ibm.com>
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
-	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
-	<20061220214340.f6b037b1.khali@linux-fr.org>
-	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
-	<20061221101240.f7e8f107.khali@linux-fr.org>
-	<20061221102232.5a10bece.khali@linux-fr.org>
-	<m164c5pmim.fsf@ebiederm.dsl.xmission.com>
-	<20061221010814.GA30299@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+	Thu, 21 Dec 2006 08:14:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
+        b=EhDm4jG++ITUDRPcFjt6sE2XXaIOgqIftnmKCfRTLKPE+MRvRsQWq76PtjQ6LK5RPPfMTrr0LiLla1ehD+5m2Z6rox0cypJ4hJC1YRPTkoQbnwScgxQadAmjPdIOwY5yWYBaGCfnipdNvMWCKNEm+MXYowbjjAFUYs4SXd0wRnU=
+Subject: Re: Network drivers that don't suspend on interface down
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Dan Williams <dcbw@redhat.com>
+Cc: stefan@loplof.de, Matthew Garrett <mjg59@srcf.ucam.org>,
+       Michael Wu <flamingice@sourmilk.net>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <1166670848.23168.21.camel@localhost.localdomain>
+References: <20061220042648.GA19814@srcf.ucam.org>
+	 <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
+	 <20061221011209.GA32625@srcf.ucam.org>
+	 <200612202105.31093.flamingice@sourmilk.net>
+	 <20061221021832.GA723@srcf.ucam.org>
+	 <1166670848.23168.21.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 21 Dec 2006 08:14:29 -0500
+Message-Id: <1166706869.3749.29.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2006 06:38:14 +0530, Vivek Goyal wrote:
-> On Thu, Dec 21, 2006 at 03:32:33AM -0700, Eric W. Biederman wrote:
-> > Grr.  I guessed the problem was to late in the game it seems the problem
-> > is in setup.S  Before we switch to 32bit mode.
-> > 
-> > Ok.  There is almost enough for inference but here is a patch of stops
-> > for setup.S let's see if one of those will stop the reboots.
-> > 
-> > I have a strong feeling that we are going to find a tool chain issue,
-> > but I'd like to find where we ware having problems before we declare
-> > that to be the case.
-> 
-> Looks like it might be a tool chain issue. I took Jean's config file and
-> built my own kernel and I am able to boot the kernel. But I can't boot
-> his bzImage. I observed the same behaviour as jean is experiencing. It jumps
-> back to BIOS.
+On Wed, 2006-20-12 at 22:14 -0500, Dan Williams wrote:
+...
+....
+> Simple == good.  Down == down.  Lets just agree on that and save
+> ourselves a lot of pain.
 
-I can only confirm that. I installed a more recent system on the same
-hardware, rebuilt a kernel from the same config file, and now it boots
-OK. So it's not related to the hardware. It has to be a compilation-time
-issue.
+netdevices have well defined operational and administrative state
+machines. And very well defined relationship between operational and
+administrative status. IOW, care should be invoked not to reinvent.
 
--- 
-Jean Delvare
+Power management to me seems like an operational state.
+A link could only transition to operational or down depending on 
+whether it is "powered" up or down.
+
+To be complete, since a netdevice is a generic construct, nota bene:
+- a link could be a wireless association or ethernet cable or a PPP
+session or a ATM PVC, or an infrared channel etc. 
+- events that result in operational link transitions could be anything
+from powering up an ethernet phy with an active cable plugged to an
+802.1x auth on a wireless association to a on-demand ppp link seeing an
+outgoing packet.
+
+IMO, for this discussion to be meaningful, it would be useful to read
+Documentation/networking/operstates.txt
+And if you are keen you can then read RFC 2863...
+
+cheers,
+jamal
+

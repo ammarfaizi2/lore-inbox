@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422787AbWLUHP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422790AbWLUHSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422787AbWLUHP5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 02:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422788AbWLUHP4
+	id S1422790AbWLUHSX (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 02:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422798AbWLUHSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 02:15:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:42482 "EHLO ciao.gmane.org"
+	Thu, 21 Dec 2006 02:18:23 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44870 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422787AbWLUHP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 02:15:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Daniel Cheng <gmane@sdiz.net>
-Subject: Re: Linux disk performance.
-Date: Thu, 21 Dec 2006 15:15:39 +0800
-Message-ID: <emdcar$7a0$1@sea.gmane.org>
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com>	 <1166431020.3365.931.camel@laptopd505.fenrus.org>	 <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com>	 <4589B92F.2030006@tmr.com> <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
+	id S1422790AbWLUHSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 02:18:22 -0500
+Date: Wed, 20 Dec 2006 23:18:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH update9] drivers: add LCD support
+Message-Id: <20061220231819.185c5236.akpm@osdl.org>
+In-Reply-To: <20061220151000.27602c37.maxextreme@gmail.com>
+References: <20061220151000.27602c37.maxextreme@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: n219078109167.netvigator.com
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
-In-Reply-To: <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
-Cc: kernelnewbies@nl.linux.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manish Regmi wrote:
-[...]
->>
->> If you upgrade to a newer kernel you can try other i/o scheduler
->> options, default cfq or even deadline might be helpful.
+On Wed, 20 Dec 2006 15:10:00 +0100
+Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
+
+> --- a/drivers/auxdisplay/Kconfig
+> +++ b/drivers/auxdisplay/Kconfig
+> @@ -65,6 +65,7 @@ config KS0108_DELAY
+>  config CFAG12864B
+>         tristate "CFAG12864B LCD"
+>         depends on X86
+> +       depends on FB
+>         depends on KS0108
+>         default n
+>         ---help---
+> @@ -74,6 +75,8 @@ config CFAG12864B
+>           For help about how to wire your LCD to the parallel port,
+>           check Documentation/auxdisplay/cfag12864b
 > 
-> I tried all disk schedulers but all had timing bumps. :(
-> 
+> +         Depends on the x86 arch and the framebuffer support.
 
-Did you try to disable the on disk write cache?
+heh, that was clever.
 
-man hdparm(8)
+scripts/kconfig/conf -m arch/i386/Kconfig
+drivers/auxdisplay/Kconfig:81:warning: multi-line strings not supported
+drivers/auxdisplay/Kconfig:78: unknown option "Depends"
+drivers/auxdisplay/Kconfig:80: unknown option "The"
+drivers/auxdisplay/Kconfig:81: unknown option "It"
+drivers/auxdisplay/Kconfig:82: unknown option "of"
+drivers/auxdisplay/Kconfig:84: unknown option "To"
+drivers/auxdisplay/Kconfig:85: unknown option "the"
+drivers/auxdisplay/Kconfig:87: unknown option "If"
+make[1]: *** [allmodconfig] Error 1
 
-   -W     Disable/enable the IDE drive´s write-caching
-          feature
+you broke Roman's parser.
 
 
--- 
+Oh, your patch used spaces where tabs should have been.  Please don't do
+that.
 

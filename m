@@ -1,42 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423044AbWLUTVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423047AbWLUTWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423044AbWLUTVk (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWLUTVk
+	id S1423047AbWLUTWK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423046AbWLUTWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:21:40 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:54700 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423044AbWLUTVj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:21:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=U9onQ3X/RY7rGEDm1Tj+GVnqhHuscFvbFnJTXtK2m8QYFHw2vdQHScMfPl2yKpPQLbLcLZSb2XKi1Z0sPrR0gLydbyJye9gr53eXmhF/3gXYh5QOGKjqxhTQGnQEb6pUt7EWa7mqpr5toCBe1gGkJUQQAkN4PDztH2vce19r2Fk=
-Message-ID: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
-Date: Thu, 21 Dec 2006 21:21:38 +0200
-From: "saeed bishara" <saeed.bishara@gmail.com>
-To: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: using splice/vmsplice to improve file receive performance
+	Thu, 21 Dec 2006 14:22:10 -0500
+Received: from gw.goop.org ([64.81.55.164]:56991 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423047AbWLUTWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 14:22:09 -0500
+Message-ID: <458ADEDD.8010903@goop.org>
+Date: Thu, 21 Dec 2006 11:22:05 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Frederik Deweerdt <deweerdt@free.fr>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] ptrace: make {put,get}reg work again for gs and fs
+References: <20061214225913.3338f677.akpm@osdl.org> <20061221183518.GA18827@slug>
+In-Reply-To: <20061221183518.GA18827@slug>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm trying to use the splice/vmsplice system calls to improve the
-samba server write throughput, but before touching the smbd, I started
-to improve the ttcp tool since it simple and has the same flow. I'm
-expecting to avoid the "copy_from_user" path when using those
-syscalls.
-so far, I couldn't make any improvement, actually the throughput get
-worst. the new receive flow looks like this (code also attached):
-1. read tcp packet (64 pages) to page aligned buffer.
-2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
-3. splice the pipe to the file, also with SPLICE_F_MOVE.
+Frederik Deweerdt wrote:
+> Following the i386 pda patches, it's not possible to set gs or fs value
+> from gdb anymore. The following patch restores the old behaviour of
+> getting and setting thread.gs of thread.fs respectively.
+> Here's a gdb session *before* the patch:
+> (gdb) info reg
+> [...]
+> fs             0x33     51
+> gs             0x33     51
+> (gdb) set $fs=0xffff
+> (gdb) info reg
+> [...]
+> fs             0x33     51
+> gs             0x33     51
+> (gdb) set $gs=0xffffffff
+> (gdb) info reg
+> [...]
+> fs             0xffff   65535
+> gs             0x33     51
+>
+> Another one *after* the patch:
+> (gdb) info reg
+> [...]
+> fs             0xd8     216
+>   
 
-the strace shows that the splice takes a lot of time. also when
-profiling the kernel, I found that the memcpy() called to often !!
+This doesn't look right.  This is the kernel's %fs, not usermode's
+(which should be 0).
+
+> gs             0x33     51
+> (gdb) set $fs=0xffff
+> (gdb) info reg
+> [...]
+> fs             0xffff   65535
+> gs             0x33     51
+> (gdb) set $gs=0xffff
+> (gdb) info reg
+> [...]
+> fs             0xffff   65535
+> gs             0xffff   65535
+>   
+Hm.  This shouldn't be possible since this is a bad selector, but I
+guess ptrace/gdb doesn't really know that.  If you run the target (even
+single step it), these should revert to 0.
+
+> Andrew, this goes on top of ptrace-fix-efl_offset-value-according-to-i386-pda-changes.patch
+> sent by Jeremy yesterday.
+>   
+
+Don't think this is quite right yet.  Assuming the %gs->%fs patch has
+been applied, then the target %fs should be on its stack, and target %gs
+will be in thread.gs.  I'm not sure that thread.fs has any use, but I'd
+want to double check vm86 to be sure.
+
+    J

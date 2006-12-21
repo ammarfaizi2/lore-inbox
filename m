@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422750AbWLUGLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422751AbWLUGN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422750AbWLUGLf (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 01:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWLUGLe
+	id S1422751AbWLUGN1 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 01:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWLUGN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 01:11:34 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41423 "EHLO smtp.osdl.org"
+	Thu, 21 Dec 2006 01:13:27 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41489 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422750AbWLUGLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 01:11:34 -0500
-Date: Wed, 20 Dec 2006 22:10:32 -0800
+	id S1422751AbWLUGN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 01:13:26 -0500
+Date: Wed, 20 Dec 2006 22:12:52 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: David Brownell <david-b@pacbell.net>
 Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
@@ -19,12 +19,12 @@ Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
        Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
        Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
        pHilipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [patch 2.6.20-rc1 3/6] AT91 GPIO wrappers
-Message-Id: <20061220221032.2f30dd72.akpm@osdl.org>
-In-Reply-To: <200612201311.20517.david-b@pacbell.net>
+Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
+Message-Id: <20061220221252.732f4e97.akpm@osdl.org>
+In-Reply-To: <200612201312.36616.david-b@pacbell.net>
 References: <200611111541.34699.david-b@pacbell.net>
 	<200612201304.03912.david-b@pacbell.net>
-	<200612201311.20517.david-b@pacbell.net>
+	<200612201312.36616.david-b@pacbell.net>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -32,25 +32,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 13:11:19 -0800
+On Wed, 20 Dec 2006 13:12:35 -0800
 David Brownell <david-b@pacbell.net> wrote:
 
-> +static inline int gpio_get_value(unsigned gpio)
-> +	{ return at91_get_gpio_value(gpio); }
+> +/* REVISIT these macros are correct, but suffer code explosion
+> + * for non-constant parameters.  Provide out-line versions too.
+> + */
+> +#define gpio_get_value(gpio) \
+> +	(GPLR(gpio) & GPIO_bit(gpio))
 > +
-> +static inline void gpio_set_value(unsigned gpio, int value)
-> +	{ (void) at91_set_gpio_value(gpio, value); }
+> +#define gpio_set_value(gpio,value) \
+> +	((value) ? (GPSR(gpio) = GPIO_bit(gpio)):(GPCR(gpio) = GPIO_bit(gpio)))
 
-whaa?  Where'd we pull that coding style from?
+Why not implement them as inline functions?
 
-Please,
+Or non-inline functions, come to that.
 
-static inline int gpio_get_value(unsigned gpio)
-{
-	return at91_get_gpio_value(gpio);
-}
-
-static inline void gpio_set_value(unsigned gpio, int value)
-{
-	at91_set_gpio_value(gpio, value);
-}
+Either way, programming in C is preferable to this ;)

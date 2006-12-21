@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422698AbWLUE0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422677AbWLUElk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422698AbWLUE0v (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 23:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422703AbWLUE0v
+	id S1422677AbWLUElk (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 23:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422695AbWLUElk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 23:26:51 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36615 "EHLO smtp.osdl.org"
+	Wed, 20 Dec 2006 23:41:40 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52543 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422698AbWLUE0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 23:26:50 -0500
-Date: Wed, 20 Dec 2006 20:26:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HZ free ntp
-Message-Id: <20061220202621.8e147b1d.akpm@osdl.org>
-In-Reply-To: <1166579658.5594.6.camel@localhost>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<Pine.LNX.4.64.0612060348150.1868@scrub.home>
-	<20061205203013.7073cb38.akpm@osdl.org>
-	<1165393929.24604.222.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0612061334230.1867@scrub.home>
-	<20061206131155.GA8558@elte.hu>
-	<Pine.LNX.4.64.0612061422190.1867@scrub.home>
-	<1165956021.20229.10.camel@localhost>
-	<Pine.LNX.4.64.0612131338420.1867@scrub.home>
-	<1166037549.6425.21.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0612132125450.1867@scrub.home>
-	<1166578357.5594.3.camel@localhost>
-	<1166579658.5594.6.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	id S1422677AbWLUElj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 23:41:39 -0500
+Date: Thu, 21 Dec 2006 10:11:26 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-ID: <20061221044125.GA5921@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220214340.f6b037b1.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006 17:54:18 -0800
-john stultz <johnstul@us.ibm.com> wrote:
-
-> On Tue, 2006-12-19 at 17:32 -0800, john stultz wrote:
-> > On Wed, 2006-12-13 at 21:40 +0100, Roman Zippel wrote:
-> > > On Wed, 13 Dec 2006, john stultz wrote:
-> > > > > You don't have to introduce anything new, it's tick_length that changes
-> > > > > and HZ that becomes a variable in this function.
-> > > >
-> > > > So, forgive me for rehashing this, but it seems we're cross talking
-> > > > again. The context here is the dynticks code. Where HZ doesn't change,
-> > > > but we get interrupts at much reduced rates.
-> > > 
-> > > I know and all you have to change in the ntp and some related code is to
-> > > replace HZ there with a variable, thus make it changable, so you can
-> > > increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
-> > 
-> > Untested patch below. Does this vibe better with you are suggesting?
+On Wed, Dec 20, 2006 at 09:43:40PM +0100, Jean Delvare wrote:
+> Hi Eric,
 > 
-> And here would be the follow on patch (again *untested*) for
-> CONFIG_NO_HZ slowing the time accumulation down to once per second.
+> On Wed, 20 Dec 2006 07:00:11 -0700, Eric W. Biederman wrote:
+> > Jean Delvare writes:
+> > > One of my test machines (i586, Asus P4P800-X) reboots instantly when I
+> > > try to boot a 2.6.20-rc1 kernel. 2.6.19 and 2.6.19.1 boot OK. I ran a
+> > > git bisect and it pointed me to this patch:
+> >
+> > I don't think this is a know issue.
+> >
+> > The most straight forward way to debug this is to put infinite
+> > loops in arch/i386/boot/compressed/head.S moving progressively farther
+> > in until you find where the line in head.S that the machine reboots
+> > on you is.
+> 
+> I could try that with some guidance. What instructions should I insert
+> to create an infinite loop?
+> 
+> > Although it is possible the problem falls in misc.c as well.
+> >
+> > If you have a serial console setup we can probably make this
+> > process a little easier.
+> 
+> I can setup a serial console if needed, what are we looking for? Just
+> to know where exactly the reboot happens?
+> 
+> > One hunch is that we did something stupid, and have an instruction
+> > that only executes on an i686 in there somewhere.
+> 
+> This is a Pentium 4, I'm compiling for i586 for compatibility with my
+> another test systems. So an i686 instruction would work fine, it has to
+> be something else.
+> 
 
-I'm still awaiting a final-looking version of this patch, fyi.
+Hi Jean,
 
-I don't understand whether this is a theoretical might-happen thing,
-or if NTP problems have actually been observed in the field?
+What's the value of CONFIG_PHYSICAL_ALIGN? How much RAM is present in your
+system? Though very unlikely, just trying to find that we are not running
+short of RAM while trying to align the kernel to a large value.
 
-Either way, I'm sure the final changelog will clear that up ;)
+Can you please provide your config file. Is it possible to provide your
+bzImage? Can you upload it somewhere? Will try to boot it on my box just
+to find out if it could be in some way related to compiler/linker.
+
+Thanks
+Vivek

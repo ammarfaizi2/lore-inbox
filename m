@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423111AbWLUVWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423113AbWLUVZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423111AbWLUVWI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 16:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423113AbWLUVWI
+	id S1423113AbWLUVZI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423114AbWLUVZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 16:22:08 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:49813 "EHLO
-	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423111AbWLUVWG (ORCPT
+	Thu, 21 Dec 2006 16:25:08 -0500
+Received: from rollcage.inittab.de ([62.146.34.202]:33010 "EHLO
+	rollcage.inittab.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423113AbWLUVZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:22:06 -0500
-Date: Thu, 21 Dec 2006 22:22:02 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Hoang-Nam Nguyen <hnguyen@de.ibm.com>,
-       Christoph Raisch <raisch@de.ibm.com>
-Subject: Re: [PATCH] ehca: fix kthread_create() error check
-Message-ID: <20061221212202.GA23157@osiris.ibm.com>
-References: <20061219084248.GF4049@APFDCB5C>
+	Thu, 21 Dec 2006 16:25:07 -0500
+X-Greylist: delayed 1631 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 16:25:07 EST
+Date: Thu, 21 Dec 2006 21:57:50 +0100
+From: Norbert Tretkowski <norbert@tretkowski.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Enable Elektor ISA card on SMP
+Message-ID: <20061221205750.GC2945@kyllikki.home.inittab.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061219084248.GF4049@APFDCB5C>
-User-Agent: mutt-ng/devel-r804 (Linux)
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Index: 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
-> ===================================================================
-> --- 2.6-mm.orig/drivers/infiniband/hw/ehca/ehca_irq.c
-> +++ 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
-> @@ -670,11 +670,13 @@ static int comp_pool_callback(struct not
->  {
->  	unsigned int cpu = (unsigned long)hcpu;
->  	struct ehca_cpu_comp_task *cct;
-> +	struct task_struct *task;
-> 
->  	switch (action) {
->  	case CPU_UP_PREPARE:
->  		ehca_gen_dbg("CPU: %x (CPU_PREPARE)", cpu);
-> -		if(!create_comp_task(pool, cpu)) {
-> +		task = create_comp_task(pool, cpu);
-> +		if (IS_ERR(task)) {
->  			ehca_gen_err("Can't create comp_task for cpu: %x", cpu);
->  			return NOTIFY_BAD;
->  		}
+The Elektor ISA card works fine on SMP, the patch below removes the
+BROKEN_ON_SMP dependency.
 
-If this fails then the code will crash on CPU_UP_CANCELED. Because of
-kthread_bind(cct->task,...). cct->task would be just the encoded error
-number.
+                Norbert
 
-> @@ -730,7 +732,7 @@ int ehca_create_comp_pool(void)
-> 
->  	for_each_online_cpu(cpu) {
->  		task = create_comp_task(pool, cpu);
-> -		if (task) {
-> +		if (!IS_ERR(task)) {
->  			kthread_bind(task, cpu);
->  			wake_up_process(task);
->  		}
 
-So you silently ignore errors and the module loads anyway?
+--- a/drivers/i2c/busses/Kconfig        2006-12-21 21:31:27.000000000 +0100
++++ b/drivers/i2c/busses/Kconfig        2006-12-21 21:32:27.000000000 +0100
+@@ -86,7 +86,7 @@
+ 
+ config I2C_ELEKTOR
+        tristate "Elektor ISA card"
+-       depends on I2C && ISA && BROKEN_ON_SMP
++       depends on I2C && ISA
+        select I2C_ALGOPCF
+        help
+          This supports the PCF8584 ISA bus I2C adapter.  Say Y if you own

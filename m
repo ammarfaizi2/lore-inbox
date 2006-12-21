@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423028AbWLUWgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423097AbWLUWlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423028AbWLUWgs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 17:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423089AbWLUWgs
+	id S1423097AbWLUWlv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 17:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423026AbWLUWlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 17:36:48 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:25713 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423028AbWLUWgr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 17:36:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=gezsEjO1feOQViWKFKnR3CMlPdW9XLJUVbvuS/k+OaFOYAykobRknUi/cRJ7++f8rZUT1sgXVjmwm7jBP07eGLAsNHCEjZSodMc1jbcYdGnWZTB0wsRyemT/HLXmGEteBl6k9ft7TMo8U2So+6vHwzAuhlC3Cwquy+7D454kdSE=
-Message-ID: <161717d50612211436s4595c873j95d4091ba622d4bc@mail.gmail.com>
-Date: Thu, 21 Dec 2006 17:36:45 -0500
-From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-To: "Tomas Carnecky" <tom@dbservice.com>
-Subject: Re: Binary Drivers
-Cc: "James Porter" <jameslporter@gmail.com>,
-       "Erik Mouw" <erik@harddisk-recovery.com>,
-       "Scott Preece" <sepreece@gmail.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Alexey Dobriyan" <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <458AE3B7.8080302@dbservice.com>
+	Thu, 21 Dec 2006 17:41:51 -0500
+Received: from ozlabs.org ([203.10.76.45]:39659 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423097AbWLUWlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 17:41:51 -0500
+X-Greylist: delayed 1124 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 17:41:51 EST
+Date: Fri, 22 Dec 2006 09:23:03 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       libhugetlbfs-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org
+Subject: [powerpc] Fix bogus BUG_ON() in in hugetlb_get_unmapped_area()
+Message-ID: <20061221222303.GA6418@localhost.localdomain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	William Lee Irwin <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org,
+	libhugetlbfs-devel@lists.sourceforge.net,
+	Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <loom.20061215T220806-362@post.gmane.org>
-	 <20061215220117.GA24819@martell.zuzino.mipt.ru>
-	 <4583527D.4000903@dbservice.com>
-	 <m13b7ds25w.fsf@ebiederm.dsl.xmission.com>
-	 <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com>
-	 <20061221174346.GN3073@harddisk-recovery.com>
-	 <458ADC37.9070608@dbservice.com>
-	 <f0e2c5070612211120wa6e3402p2ffb6e1d579a485a@mail.gmail.com>
-	 <458AE3B7.8080302@dbservice.com>
-X-Google-Sender-Auth: 0ba8b2dc4e54fa3f
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/21/06, Tomas Carnecky <tom@dbservice.com> wrote:
-> James Porter wrote:
-> > I'm pretty sure Linus has decided, basically he said the patches to
-> > prevent non-gpl binary drivers are not going into his tree unless every
-> > other tree adopts it. Of course the few supporting won't get off their
-> > high horse and try it on a different tree.
->
-> .. unfortunately, that doesn't make the legal status any clearer.
+Andrew, Paulus, please apply
 
-Well, FWIW, neither does some "decision" from the kernel authors; it
-hinges on what is and what is not a derived work of the kernel, and
-the only parties whose opinion matters here (the courts in the various
-jurisdictions) haven't ruled on that yet, and won't until such time as
-a copyright holder in the kernel sues someone for copyright
-infringement.
+The powerpc specific version of hugetlb_get_unmapped_area() makes some
+unwarranted assumptions about what checks have been made to its
+parameters by its callers.  This will lead to a BUG_ON() if a 32-bit
+process attempts to make a hugepage mapping which extends above
+TASK_SIZE (4GB).
 
-Dave
+I'm not sure if these assumptions came about because they were valid
+with earlier versions of the get_unmapped_area() path, or if it was
+always broken.  Nonetheless this patch fixes the logic, and removes
+the crash.
+
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2006-12-21 14:54:15.000000000 +1100
++++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2006-12-21 14:57:35.000000000 +1100
+@@ -744,7 +744,8 @@ static int htlb_check_hinted_area(unsign
+ 	struct vm_area_struct *vma;
+ 
+ 	vma = find_vma(current->mm, addr);
+-	if (!vma || ((addr + len) <= vma->vm_start))
++	if (TASK_SIZE - len >= addr &&
++	    (!vma || ((addr + len) <= vma->vm_start)))
+ 		return 0;
+ 
+ 	return -ENOMEM;
+@@ -815,6 +816,8 @@ unsigned long hugetlb_get_unmapped_area(
+ 		return -EINVAL;
+ 	if (len & ~HPAGE_MASK)
+ 		return -EINVAL;
++	if (len > TASK_SIZE)
++		return -ENOMEM;
+ 
+ 	if (!cpu_has_feature(CPU_FTR_16M_PAGE))
+ 		return -EINVAL;
+@@ -823,9 +826,6 @@ unsigned long hugetlb_get_unmapped_area(
+ 	BUG_ON((addr + len)  < addr);
+ 
+ 	if (test_thread_flag(TIF_32BIT)) {
+-		/* Paranoia, caller should have dealt with this */
+-		BUG_ON((addr + len) > 0x100000000UL);
+-
+ 		curareas = current->mm->context.low_htlb_areas;
+ 
+ 		/* First see if we can use the hint address */
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

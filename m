@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423110AbWLUVUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423111AbWLUVWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423110AbWLUVUo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 16:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423113AbWLUVUo
+	id S1423111AbWLUVWI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423113AbWLUVWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 16:20:44 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:46650 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423110AbWLUVUn (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:20:43 -0500
-Message-Id: <200612212120.kBLLKg7p030475@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: davids@webmaster.com
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Binary Drivers
-In-Reply-To: Your message of "Thu, 21 Dec 2006 12:50:00 PST."
-             <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166736042_12674P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 21 Dec 2006 16:20:42 -0500
+	Thu, 21 Dec 2006 16:22:08 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:49813 "EHLO
+	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423111AbWLUVWG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 16:22:06 -0500
+Date: Thu, 21 Dec 2006 22:22:02 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
+       Hoang-Nam Nguyen <hnguyen@de.ibm.com>,
+       Christoph Raisch <raisch@de.ibm.com>
+Subject: Re: [PATCH] ehca: fix kthread_create() error check
+Message-ID: <20061221212202.GA23157@osiris.ibm.com>
+References: <20061219084248.GF4049@APFDCB5C>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061219084248.GF4049@APFDCB5C>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166736042_12674P
-Content-Type: text/plain; charset=us-ascii
+> Index: 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
+> ===================================================================
+> --- 2.6-mm.orig/drivers/infiniband/hw/ehca/ehca_irq.c
+> +++ 2.6-mm/drivers/infiniband/hw/ehca/ehca_irq.c
+> @@ -670,11 +670,13 @@ static int comp_pool_callback(struct not
+>  {
+>  	unsigned int cpu = (unsigned long)hcpu;
+>  	struct ehca_cpu_comp_task *cct;
+> +	struct task_struct *task;
+> 
+>  	switch (action) {
+>  	case CPU_UP_PREPARE:
+>  		ehca_gen_dbg("CPU: %x (CPU_PREPARE)", cpu);
+> -		if(!create_comp_task(pool, cpu)) {
+> +		task = create_comp_task(pool, cpu);
+> +		if (IS_ERR(task)) {
+>  			ehca_gen_err("Can't create comp_task for cpu: %x", cpu);
+>  			return NOTIFY_BAD;
+>  		}
 
-On Thu, 21 Dec 2006 12:50:00 PST, David Schwartz said:
-> How would you feel if you bought a car and then discovered that the
-> manufacturer had welded the hood shut? How many people still do their own
-> oil changes anyway?
+If this fails then the code will crash on CPU_UP_CANCELED. Because of
+kthread_bind(cct->task,...). cct->task would be just the encoded error
+number.
 
-I know of at least one use case where a car *has* to have the doors welded
-shut - stock car racing.  And there's requirements regarding how the hood
-is fastened as well...
+> @@ -730,7 +732,7 @@ int ehca_create_comp_pool(void)
+> 
+>  	for_each_online_cpu(cpu) {
+>  		task = create_comp_task(pool, cpu);
+> -		if (task) {
+> +		if (!IS_ERR(task)) {
+>  			kthread_bind(task, cpu);
+>  			wake_up_process(task);
+>  		}
 
---==_Exmh_1166736042_12674P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFivqqcC3lWbTT17ARAlpqAJ4rLTLxyHIDeoQyVCbKuLHyyRDwwACgjN5U
-qSwD4xEuIeOrx9NUp2mhdjY=
-=9WFX
------END PGP SIGNATURE-----
-
---==_Exmh_1166736042_12674P--
+So you silently ignore errors and the module loads anyway?

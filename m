@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423137AbWLUXsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423141AbWLUXto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423137AbWLUXsL (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 18:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423136AbWLUXsL
+	id S1423141AbWLUXto (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 18:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423139AbWLUXto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 18:48:11 -0500
-Received: from web55606.mail.re4.yahoo.com ([206.190.58.230]:43083 "HELO
-	web55606.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1423139AbWLUXsK (ORCPT
+	Thu, 21 Dec 2006 18:49:44 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:33656 "EHLO
+	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423138AbWLUXtn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 18:48:10 -0500
-X-Greylist: delayed 402 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 18:48:10 EST
-Message-ID: <20061221234127.29189.qmail@web55606.mail.re4.yahoo.com>
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=0Rfm+TLMnWoMjzoURlJhenQTGiyymLYb84xryyuD9hC4vMLUke9Okw0sOnLYbRs1lnss9p/FgxokdjqoDCERwvHfSR3Q60+b7itzAMmr9EcafsE5WJbyXR/YBIIBFy80Ki7XFmsjTXjay/YQVTswYMRWRKBNl/UeBiEDQRUPTKg=;
-X-YMail-OSG: N4lh8lsVM1n6PQnbOjqsws_VTJrCmgb.K2cF8EU4FY4M4tW7TyUFhIlWJ1wjhdsacXTktXRqBIUQcOfwQOq9F3OK7fsBg2HwadnRw3qkdDWSzT7a1jKCABrYbLHb_aR_nLTmrglsH9GPCh8-
-Date: Thu, 21 Dec 2006 15:41:27 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 21 Dec 2006 18:49:43 -0500
+Date: Fri, 22 Dec 2006 00:49:42 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Finding hardlinks
+In-Reply-To: <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+Message-ID: <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
+ <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu> <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 21 Dec 2006, Jan Harkes wrote:
 
-Was just wondering if the _var_ in kfree(_var_) could be set to NULL after its freed. It may solve
-the problem of accessing some freed memory as the kernel will crash since _var_ was set to NULL.
+> On Wed, Dec 20, 2006 at 12:44:42PM +0100, Miklos Szeredi wrote:
+>> The stat64.st_ino field is 64bit, so AFAICS you'd only need to extend
+>> the kstat.ino field to 64bit and fix those filesystems to fill in
+>> kstat correctly.
+>
+> Coda actually uses 128-bit file identifiers internally, so 64-bits
+> really doesn't cut it. Since the 128-bit space is used pretty sparsely
+> there is a hash which avoids most collistions in 32-bit i_ino space, but
+> not completely. I can also imagine that at some point someone wants to
+> implement a git-based filesystem where it would be more natural to use
+> 160-bit SHA1 hashes as unique object identifiers.
+>
+> But Coda only allow hardlinks within a single directory and if someone
+> renames a hardlinked file and one of the names ends up in a different
+> directory we implicitly create a copy of the object. This actually
+> leverages off of the way we handle volume snapshots and the fact that we
+> use whole file caching and writes, so we only copy the metadata while
+> the data is 'copy-on-write'.
 
-Does this make sense? If yes, then how about renaming kfree to something else and providing a
-kfree macro that would do the following:
+The problem is that if inode number collision happens occasionally, you 
+get data corruption with cp -a command --- it will just copy one file and 
+hardlink the other.
 
-#define kfree(x) do { \
-                      new_kfree(x); \
-                      x = NULL; \
-                    } while(0)
+> Any application that tries to be smart enough to keep track of which
+> files are hardlinked should (in my opinion) also have a way to disable
+> this behaviour.
 
-There might be other better ways too.
+If user (or script) doesn't specify that flag, it doesn't help. I think 
+the best solution for these filesystems would be either to add new syscall
+ 	int is_hardlink(char *filename1, char *filename2)
+(but I know adding syscall bloat may be objectionable)
+or add new field in statvfs ST_HAS_BROKEN_INO_T, that applications can 
+test and disable hardlink processing.
 
-Regards,
-Amit
+Mikulas
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> Jan
+>

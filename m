@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422971AbWLUQxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422960AbWLUQyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422971AbWLUQxI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 11:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWLUQxI
+	id S1422960AbWLUQyc (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 11:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422970AbWLUQyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 11:53:08 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:48521 "EHLO 2ka.mipt.ru"
+	Thu, 21 Dec 2006 11:54:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45130 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422973AbWLUQxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 11:53:06 -0500
-Date: Thu, 21 Dec 2006 19:51:43 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: jamal <hadi@cyberus.ca>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
-Message-ID: <20061221165143.GA322@2ka.mipt.ru>
-References: <458A64E5.4050703@garzik.org> <20061221104918.GA16744@2ka.mipt.ru> <1166708885.3749.49.camel@localhost> <20061221140429.GA25214@2ka.mipt.ru> <1166710867.3749.56.camel@localhost> <20061221142337.GA17204@2ka.mipt.ru> <20061221143621.GA32706@2ka.mipt.ru> <1166712026.3749.60.camel@localhost> <20061221144644.GA4735@2ka.mipt.ru> <1166719324.3863.1.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1166719324.3863.1.camel@localhost>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 21 Dec 2006 19:51:44 +0300 (MSK)
+	id S1422960AbWLUQyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 11:54:31 -0500
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
+       "'xb'" <xavier.bru@bull.net>, "'Zach Brown'" <zach.brown@oracle.com>,
+       <linux-kernel@vger.kernel.org>, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch] aio: fix buggy put_ioctx call in aio_complete
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <000101c724de$1c81d980$1b80030a@amr.corp.intel.com>
+From: jmoyer@redhat.com
+Date: Thu, 21 Dec 2006 11:55:38 -0500
+In-Reply-To: <000101c724de$1c81d980$1b80030a@amr.corp.intel.com> (Kenneth W. Chen's message of "Thu, 21 Dec 2006 00:57:57 -0800")
+Message-ID: <m3vek5xk6t.fsf@redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 11:42:04AM -0500, jamal (hadi@cyberus.ca) wrote:
-> > > > Things like sockets/pipes can only benefit from direct kevent usage 
-> > > > instead of ->poll() and wrappers.
-> > > 
-> > > You should be able change it to use those schemes when it detects
-> > > that the kernel supports them.
-> > 
-> > I.e. stat() for each new file descriptor - note, that _you_ asked it :)
-> 
-> Didnt follow. Is there some issue with libevent you mean? 
+==> Regarding RE: [patch] aio: fix buggy put_ioctx call in aio_complete; "Chen, Kenneth W" <kenneth.w.chen@intel.com> adds:
 
-libevent provides file descriptor without any additional info about it -
-so when it is added into the waiting subsystem, userspace must select
-different usage cases (i.e. different kevent notifications for different
-types of file descriptor - socket notifications for sockets and pipes,
-poll/select for all others), this requires stat() call per provided file
-descriptor.
+kenneth.w.chen> I think I'm going to abandon this whole synchronize thing
+kenneth.w.chen> and going to put the wake up call inside ioctx_lock spin
+kenneth.w.chen> lock along with the other patch you mentioned above in the
+kenneth.w.chen> waiter path.  On top of that, I have another patch attempts
+kenneth.w.chen> to perform wake-up only when the waiter can truly proceed
+kenneth.w.chen> in aio_read_evt so dribbling I/O completion doesn't
+kenneth.w.chen> inefficiently waking up waiter too frequently and only to
+kenneth.w.chen> have waiter put back to sleep again. I will dig that up and
+kenneth.w.chen> experiment.
 
-Event addition/waiting itself is the same - only parameters (type and
-requested event) are changed.
+In the mean time, can't we simply take the context lock in
+wait_for_all_aios?  Unless I missed something, I think that will address
+the reference count problem.
 
-> cheers,
-> jamal
+Thanks,
 
--- 
-	Evgeniy Polyakov
+Jeff

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422852AbWLUI1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422806AbWLUIel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422852AbWLUI1Z (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 03:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWLUI1Z
+	id S1422806AbWLUIel (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 03:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWLUIel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 03:27:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37373 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422852AbWLUI1Y (ORCPT
+	Thu, 21 Dec 2006 03:34:41 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:64661 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422806AbWLUIek (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 03:27:24 -0500
-Subject: Re: Changes to sysfs PM layer break userspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <20061220210214.f9b94889.akpm@osdl.org>
-References: <20061219185223.GA13256@srcf.ucam.org>
-	 <200612191929.14524.david-b@pacbell.net>
-	 <20061220195117.4d12dee7.akpm@osdl.org>
-	 <200612202056.28177.david-b@pacbell.net>
-	 <20061220210214.f9b94889.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 21 Dec 2006 09:27:17 +0100
-Message-Id: <1166689637.3365.1475.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Thu, 21 Dec 2006 03:34:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding:from;
+        b=to4uSIMJcqJGsVnKqbRK7ZnRl4pTsajxJ7ky+Uohpas4w8bSdTaJtty3ukmkM/qq1l1YgPuUyrJOps8o5U0Bdmc5sOfmg5Jv595P/aJmzwgEQQ5qMSH1gT6YbgnrNhA28uh2tifvEBmBYb1K+ODYDGRy9hjy9XIkWQdOloARENI=
+Message-ID: <458A471C.3090402@gmail.com>
+Date: Thu, 21 Dec 2006 09:34:36 +0100
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: tglx@linutronix.de, mingo@elte.hu
+Subject: [PATCH -rt 0/4] ARM: OMAP: Add clocksource and clockevent driver
+ for OMAP
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Dirk Behme <dirk.behme@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> > 
-> > > What we should do is to revert 047bda36150d11422b2c7bacca1df324c909c0b3 and
-> > 
-> > Bad answer
-> 
-> Is better than breaking stuff.
+the following patches for CONFIG PREEMPT RT add clocksource
+and clockevent driver for ARM based TI OMAP devices.
 
-.. stuff that made assumptions about something and did stuff it probably
-shouldn't have been doing for the intent it had ;)
+They are against linux-2.6.19 + patch-2.6.20-rc1 +
+patch-2.6.20-rc1-rt1. The clocksource patch went through
+several review cycles on OMAP list.
 
-the semantics of this thing were clear as mud, and actually
-disfunctional.... (and the user of it that "broke" actually wanted
-something else, but didn't because a few drivers didn't implement it
-quite the right way)
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Dirk
 
+Btw: What's about
+
+[PATCH -rt][RESEND] fix preempt hardirqs on OMAP
+http://www.ussg.iu.edu/hypermail/linux/kernel/0612.1/0642.html
+
+?

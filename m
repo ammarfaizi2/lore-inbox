@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423042AbWLUTOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423040AbWLUTPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423042AbWLUTOs (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423040AbWLUTOs
+	id S1423040AbWLUTPU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423043AbWLUTPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:14:48 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:13130 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423037AbWLUTOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:14:45 -0500
-X-Greylist: delayed 484 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 14:14:45 EST
-Date: Thu, 21 Dec 2006 11:14:22 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Eric Sandeen <sandeen@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>
-Subject: Re: [PATCH] ext2: skip pages past number of blocks in
- ext2_find_entry
-Message-Id: <20061221111422.38c58e5f.randy.dunlap@oracle.com>
-In-Reply-To: <458ADC45.3050308@redhat.com>
-References: <458AD954.7020904@redhat.com>
-	<20061221110549.bf336c02.randy.dunlap@oracle.com>
-	<458ADC45.3050308@redhat.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
+	Thu, 21 Dec 2006 14:15:20 -0500
+Received: from yumi.tdiedrich.de ([85.10.210.183]:4070 "EHLO yumi.tdiedrich.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423040AbWLUTPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 14:15:18 -0500
+Date: Thu, 21 Dec 2006 20:15:13 +0100
+From: Tobias Diedrich <ranma+kernel@tdiedrich.de>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: IO-APIC + timer doesn't work
+Message-ID: <20061221191513.GA5824@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+	Yinghai Lu <yinghai.lu@amd.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+References: <20061216225338.GA2616@melchior.yamamaya.is-a-geek.org> <20061216230605.GA2789@melchior.yamamaya.is-a-geek.org> <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org> <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org> <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com> <20061218152333.GA2400@melchior.yamamaya.is-a-geek.org> <m1tzztqkev.fsf@ebiederm.dsl.xmission.com> <86802c440612190000k7eb5e68et9c0a776ef85b5177@mail.gmail.com> <m1ac1kqg6b.fsf@ebiederm.dsl.xmission.com> <86802c440612192250l50805d40h71baa7ce6f99a3e5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <86802c440612192250l50805d40h71baa7ce6f99a3e5@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2006 13:11:01 -0600 Eric Sandeen wrote:
-
-> Randy Dunlap wrote:
+Yinghai Lu wrote:
+> On 12/19/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >So the pin2 case should be tested right after the pin1 case as we do
+> >currently.  On most new boards that will be a complete noop.
+> >
+> >But it is better than our current blind guess at using ExtINT mode.
+> >
+> >I figure after we try what the BIOS has told us about and that
+> >has failed we should first try the common irq 0 apic mappings,
+> >and then try the common ExtINT mappings.
 > 
-> > Please don't hide the goto; un-indent 1 tab stop.
-> Whoops, thanks Randy - it wasn't intentional. :)
+> Please check if this one is ok.
 
-Yeah, I didn't think it was.  Sorry if it sounded like that.
+Works fine for me.
 
----
-~Randy
+FYI I'm off to my parents from Saturday onward, so after that I
+can't test any patches for the next one or two weeks.
+
+-- 
+Tobias						PGP: http://9ac7e0bc.uguu.de
+このメールは十割再利用されたビットで作られています。

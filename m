@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422992AbWLUSwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423027AbWLUSzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422992AbWLUSwq (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423026AbWLUSwq
+	id S1423027AbWLUSzW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423029AbWLUSzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:52:46 -0500
-Received: from neopsis.com ([213.239.204.14]:33286 "EHLO
-	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1422992AbWLUSwp (ORCPT
+	Thu, 21 Dec 2006 13:55:22 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4089 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423027AbWLUSzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:52:45 -0500
-Message-ID: <458ADC37.9070608@dbservice.com>
-Date: Thu, 21 Dec 2006 19:10:47 +0000
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Thunderbird 2.0b1 (X11/20061212)
-MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-CC: Scott Preece <sepreece@gmail.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       James Porter <jameslporter@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary Drivers
-References: <loom.20061215T220806-362@post.gmane.org> <20061215220117.GA24819@martell.zuzino.mipt.ru> <4583527D.4000903@dbservice.com> <m13b7ds25w.fsf@ebiederm.dsl.xmission.com> <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com> <20061221174346.GN3073@harddisk-recovery.com>
-In-Reply-To: <20061221174346.GN3073@harddisk-recovery.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
-X-Neopsis-MailScanner: Found to be clean
-X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.309,
-	required 5, autolearn=spam, AWL 0.15, BAYES_00 -2.60,
-	FORGED_RCVD_HELO 0.14)
-X-MailScanner-From: tom@dbservice.com
+	Thu, 21 Dec 2006 13:55:21 -0500
+Date: Thu, 21 Dec 2006 18:55:12 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
+Message-ID: <20061221185512.GH3958@flint.arm.linux.org.uk>
+Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu> <20061221181156.GG3958@flint.arm.linux.org.uk> <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+On Thu, Dec 21, 2006 at 07:30:11PM +0100, Miklos Szeredi wrote:
+> > > > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
+> > > > > could be replaced by the flush_kernel_dcache_page() (added by James
+> > > > > Bottomley together with flush_anon_page()) when all relevant
+> > > > > architectures have defined it.
+> > > > 
+> > > > I should say that flush_anon_page() in its current form is going to be
+> > > > problematic for ARM.  It is passed:
+> > > > 
+> > > > 1. the struct page
+> > > > 2. the virtual address in process memory for the page
+> > > > 
+> > > > It is not passed the mm or vma.  This means that we have no idea whether
+> > > > the virtual address is in the currently mapped VM space or not.  The
+> > > > common use of get_area_pages() is to get pages from other address
+> > > > spaces.
+> > > 
+> > > I'm not sure I understand.  flush_anon_page() needs only to flush the
+> > > mapping for the given virtual address, no?
+> > 
+> > Yes, but that virtual /user/ address is meaningless without knowing
+> > which process address space it belongs to.
+> > 
+> > > It's always mapped at that address (since it was just accessed through
+> > > that).
+> > 
+> > No.  Consider ptrace() (invoked by gdb) reading data from another
+> > processes address space to obtain structure data or instructions.
+> > 
+> > > Any other mappings
+> > > of the anonymous page are irrelevant, they don't need to be flushed.
+> > 
+> > Again, incorrect.  Consider if the page you're accessing is a file-
+> > backed page, and is mapped into a process using a shared mapping.
+> > Because you've written to the file, those shared mappings need to see
+> > that write, and the interface for achieving that is flush_dcache_page().
+> > If not, data loss can occur.
 > 
-> "However, we thought the legal and technical expense involved in
->  writing this binary driver and possibly violating the Linux kernel
->  copyright was well spend."
-> 
+> Yes, for file backed pages.  But flush_anon_page() only needs to deal
+> with anonymous (not file backed) pages.
 
-So Microsoft is right, the legal status of Linux software _is_ unclear. 
-You just gave them every reason to continue their campaign against 
-Linux. <Don't use Linux, its legal status is unclear, you may get sued>.
+Ignore my final paragraph, it was clearly wrong; I was thinking about
+the flush after you've written to the page.
 
-The problem is, nobody wants to decide what to do with closed source 
-software in Linux. I don't care how you decide, for or against binary 
-drivers (well, actually I do but my opinion doesn't matter), just decide 
-already!
+However, I continue to assert that I require the VMA to implement
+flush_anon_page() since a userspace address without knowing which
+userspace it corresponds with is utterly useless for cache maintainence
+purposes.
 
-tom
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

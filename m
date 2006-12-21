@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423073AbWLUU0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423075AbWLUU2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423073AbWLUU0m (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 15:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423075AbWLUU0m
+	id S1423075AbWLUU2Q (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 15:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423077AbWLUU2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 15:26:42 -0500
-Received: from smtp1.telegraaf.nl ([217.196.45.193]:56106 "EHLO
-	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423073AbWLUU0l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 15:26:41 -0500
-X-Greylist: delayed 2038 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 15:26:41 EST
-Date: Thu, 21 Dec 2006 20:52:40 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
-To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-ID: <20061221195240.GS31882@telegraafnet.nl>
-References: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Dec 2006 15:28:16 -0500
+Received: from smtp3.nextra.sk ([195.168.1.142]:3917 "EHLO mailhub3.nextra.sk"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1423075AbWLUU2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 15:28:16 -0500
+X-Greylist: delayed 358 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 15:28:15 EST
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [Alsa-devel] sound/isa/cmi8330.c: dead ENABLE_SB_MIXER code
+Date: Thu, 21 Dec 2006 21:22:05 +0100
+User-Agent: KMail/1.9.4
+Cc: Adrian Bunk <bunk@stusta.de>, George Talusan <gstalusan@uwaterloo.ca>,
+       perex@suse.cz, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org
+References: <20061204160434.GF30290@stusta.de> <s5hac1kfbpo.wl%tiwai@suse.de>
+In-Reply-To: <s5hac1kfbpo.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+Message-Id: <200612212122.06376.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tuesday 19 December 2006 10:59, you wrote:
+> At Mon, 4 Dec 2006 17:04:34 +0100,
+>
+> Adrian Bunk wrote:
+> > In sound/isa/cmi8330.c, the ENABLE_SB_MIXER code is currently never
+> > used.
+> >
+> > What's the story behind this?
+> > Should ENABLE_SB_MIXER be enabled?
+> > Or the code be removed?
+>
+> CMI8330 has a dual interface for SB and Adlib modes.  The mixer can
+> also behave differently according to the mode.  The current code has
+> mixer elements corresponding to both modes.
 
-On Thu, Dec 21, 2006 at 04:04:04PM +0800, Zhang, Yanmin wrote:
-> I couldn't reproduce it on my EM64T machine. I instrumented function start_kernel and
-> didn't find irq was enabled before calling init_IRQ. It'll be better if the reporter could
-> instrument function start_kernel to capture which function enables irq.
-Just diving into the sources.
-Is that something like:
-if(!raw_irqs_disabled_flags) printk "irqs are enabled";
+CMI8330 (and also CMI8329) appears like SB16 and WSS
 
-(At that moment it might have crashed already.. :-)).
+> However, these mixer elements _seem_ to interactive with each other,
+> and cannot be controlled individually.  That's why ENABLE_SB_MIXER is
+> disabled.  I cannot check this issue any longer since the test board
+> got broken long time ago...
 
-I don't see the complete context yet, but I hope the irq is
-triggered after the irq is somehow enabled.
+The mixer is a bit weird - and probably different between CMI8329 and CMI8330. 
+At least on my CMI8329A, the master volume does not work. And there are also 
+some problems with PCM volume - I can decrease it in alsamixer but not 
+increase - but it works both ways in XMMS...
+I have also some boards with integrated CMI8330 - so I might test it 
+sometimes.
 
-BTW: the panic occurs on half of my boards on tyan S2891 with 2
-opterons, of which the only difference seems to be the purchase
-date (and hence probably the motherboard revisions). (Haven't got
-time yet to pull them out of the rack and compare the
-motherboards).
-
+> I don't think we would get many gain by changing this old code.
+> (and the relevant part isn't so big.)
+> Let's keep as it is.
+>
+>
+> Takashi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-program signature;
-begin  { telegraaf.com
-} writeln("<ard@telegraafnet.nl> TEM2");
-end
-.
+Ondrej Zary

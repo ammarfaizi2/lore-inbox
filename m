@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161148AbWLUCW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161144AbWLUC2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbWLUCW3 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 21:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWLUCW3
+	id S1161144AbWLUC2x (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 21:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWLUC2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 21:22:29 -0500
-Received: from smtp.rutgers.edu ([128.6.72.243]:30495 "EHLO
-	annwn14.rutgers.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161148AbWLUCW3 (ORCPT
+	Wed, 20 Dec 2006 21:28:53 -0500
+Received: from smtp131.iad.emailsrvr.com ([207.97.245.131]:41479 "EHLO
+	smtp131.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161144AbWLUC2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 21:22:29 -0500
-From: Michael Wu <flamingice@sourmilk.net>
+	Wed, 20 Dec 2006 21:28:52 -0500
+Message-ID: <4589F18F.1090703@gentoo.org>
+Date: Wed, 20 Dec 2006 21:29:35 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
+MIME-Version: 1.0
 To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: Network drivers that don't suspend on interface down
-Date: Wed, 20 Dec 2006 20:57:05 -0500
-User-Agent: KMail/1.9.1
-Cc: Dan Williams <dcbw@redhat.com>, Jiri Benc <jbenc@suse.cz>,
+CC: Stephen Hemminger <shemminger@osdl.org>,
        Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
-References: <20061219185223.GA13256@srcf.ucam.org> <1166638371.2798.26.camel@localhost.localdomain> <20061221011526.GB32625@srcf.ucam.org>
-In-Reply-To: <20061221011526.GB32625@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12965929.GjvsYcSQMa";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Subject: Re: Network drivers that don't suspend on interface down
+References: <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <1166621931.3365.1384.camel@laptopd505.fenrus.org> <20061220143134.GA25462@srcf.ucam.org> <1166629900.3365.1428.camel@laptopd505.fenrus.org> <20061220144906.7863bcd3@dxpl.pdx.osdl.net> <20061221011209.GA32625@srcf.ucam.org>
+In-Reply-To: <20061221011209.GA32625@srcf.ucam.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200612202057.09545.flamingice@sourmilk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart12965929.GjvsYcSQMa
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Matthew Garrett wrote:
+> Veering off at something of a tangent - how much of this should be true 
+> for wireless devices? Softmac seems to be unhappy about setting the 
+> essid unless the card is up, which breaks various assumptions...
 
-On Wednesday 20 December 2006 20:15, Matthew Garrett wrote:
-> Because it works on the common hardware? If there's documentation about
-> what userspace can legitimately expect, then I'm happy to defer to that.
-> But in the absence of any indication as to what functionality users can
-> depend on, deciding that existing functionality is a bug is, well,
-> impolite.
->
-No, it's absolutely a bug. It just so happens that some drivers incorrectly=
-=20
-allowed it.
+You might regard that as a bug - I agree it probably makes sense for you 
+to be able to set certain configuration variables before the interface 
+is up, within reason.
 
-=2DMichael Wu
+However, the mentality adopted by most wireless drivers is the SIWESSID 
+wireless extension ioctl means *associate*, something which obviously 
+shouldn't be possible when the interface is down (radio off, etc).
 
---nextPart12965929.GjvsYcSQMa
-Content-Type: application/pgp-signature
+While you might blame drivers for this possible misinterpretation, it 
+can also be viewed as a design flaw in WE: the drivers have to handle 
+the ioctl's directly, meaning that if you want some kind of 
+configuration management then you have to do it on the driver level, and 
+this doesn't feel right.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+The situation is also made worse due to WE generally being hard to 
+implement, and also the lack of documentation (really the only source 
+here is the iwconfig man page).
 
-iD8DBQBFien1T3Oqt9AH4aERAidHAKCekXO7SiOHvqXnZRyoRABKTiXnkgCfeI2g
-rgqrbYoK7HmyZ7V0cmoEPT0=
-=swlF
------END PGP SIGNATURE-----
+This screams out for an 802.11-centric configuration system, and it 
+looks like we have one on the way: cfg80211
+ From reading some mails, it looks like the drivers will simply have to 
+provide functions for "associate", "scan", etc, and the configuration 
+management will be offloaded to the upper layers.
 
---nextPart12965929.GjvsYcSQMa--
+For the time being, I suggest you bring the interface up before setting 
+the configuration. Regardless of the inconsistency of the current 
+situation, and lack documentation saying which way it should be done, 
+you are at least playing it safe and guaranteeing it works on all drivers.
+
+Daniel

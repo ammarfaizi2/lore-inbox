@@ -1,50 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423098AbWLUU7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423094AbWLUVFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423098AbWLUU7S (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 15:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423105AbWLUU7S
+	id S1423094AbWLUVFn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423110AbWLUVFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 15:59:18 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:62154 "HELO
-	warden.diginsite.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S1423099AbWLUU7R (ORCPT
+	Thu, 21 Dec 2006 16:05:43 -0500
+Received: from smtp1.telegraaf.nl ([217.196.45.193]:59973 "EHLO
+	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423094AbWLUVFm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 15:59:17 -0500
-Date: Thu, 21 Dec 2006 12:58:52 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: David Schwartz <davids@webmaster.com>
-cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: Binary Drivers
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.63.0612211256170.20339@qynat.qvtvafvgr.pbz>
-References: <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 21 Dec 2006 16:05:42 -0500
+Date: Thu, 21 Dec 2006 22:05:38 +0100
+From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
+       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+Message-ID: <20061221210538.GU31882@telegraafnet.nl>
+References: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
+X-telegraaf-MailScanner-From: ard@telegraafnet.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2006, David Schwartz wrote:
+On Thu, Dec 21, 2006 at 04:04:04PM +0800, Zhang, Yanmin wrote:
+> I couldn't reproduce it on my EM64T machine. I instrumented function start_kernel and
+> didn't find irq was enabled before calling init_IRQ. It'll be better if the reporter could
+> instrument function start_kernel to capture which function enables irq.
 
->> You say "It's rude to not play by our rules". They say "It's rude of
->> you to expect us to change our business model to support your niche
->> market differently from the way we support everyone else." Neither is
->> wrong...
->
-> Honestly, I think it *is* wrong to sell someone a physical product and then
-> not tell them how to make it work. If you're not actually selling them the
-> physical product but selling them a way to get a particular thing done, then
-> don't represent that you're selling them physical product because that would
-> presumably include the right to use it any way they wanted provided it was
-> lawful.
->
-> How would you feel if you bought a car and then discovered that the
-> manufacturer had welded the hood shut? How many people still do their own
-> oil changes anyway?
+Editing init/main.c:
+        preempt_disable();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT17");
+        build_all_zonelists();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT18");
+        page_alloc_init();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT19");
+        printk(KERN_NOTICE "Kernel command line: %s\n", saved_command_line);
+        parse_early_param();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT20");
+        parse_args("Booting kernel", command_line, __start___param,
+                   __stop___param - __start___param,
+                   &unknown_bootoption);
+                printk("BLAAT21");
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+        sort_main_extable();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT22");
+        trap_init();
+        if (!irqs_disabled())
+                printk("start_kernel(): bug: interrupts were enabled early\n");
+                printk("BLAAT23");
 
-there are cars out there where the owner cannot change or add transmission fluid 
-(I had a rental car spring a leak and found this out the hard way)
+Results in:
+^MAllocating PCI resources starting at 88000000 (gap: 80000000:60000000)
+^MBLAAT12BLAAT13<6>PERCPU: Allocating 32960 bytes of per cpu data
+^MBLAAT14BLAAT15BLAAT16BLAAT17Built 2 zonelists.  Total pages: 1032635
+^MBLAAT18BLAAT19<5>Kernel command line: console=tty0 console=ttyS0,115200 hdb=noprobe hdc=noprobe hdd=noprobe root=/dev/md0 ro panic=30 earlyprintk=serial,ttyS0,115200 
+^MBLAAT20<6>ide_setup: hdb=noprobe
+^Mide_setup: hdc=noprobe
+^Mide_setup: hdd=noprobe
+^MBLAAT21start_kernel(): bug: interrupts were enabled early
+^Mstart_kernel(): bug: interrupts were enabled early
+^MBLAAT22Initializing CPU#0
 
-some people like this, some don't. vote with your money
-
-David Lang
+Hmmm, that actually doesn't make sense to me (unless parse_args is able to enable irq's).
+-- 
+program signature;
+begin  { telegraaf.com
+} writeln("<ard@telegraafnet.nl> TEM2");
+end
+.

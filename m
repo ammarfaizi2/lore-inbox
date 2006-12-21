@@ -1,92 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422709AbWLUEuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422711AbWLUEvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422709AbWLUEuh (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 23:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWLUEuh
+	id S1422711AbWLUEvL (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 23:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWLUEvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 23:50:37 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:37685 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422709AbWLUEuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 23:50:35 -0500
-Date: Wed, 20 Dec 2006 20:35:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Suzuki <suzuki@in.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ext4@vger.kernel.org,
-       cmm@us.ibm.com, amit <amitarora@in.ibm.com>, jack@suse.cz
-Subject: Re: [RFC] [PATCH] Fix kmalloc flags used in ext3 with an active
- journal handle
-Message-Id: <20061220203520.ccbbffd9.akpm@osdl.org>
-In-Reply-To: <45889E4B.7050406@in.ibm.com>
-References: <458898B4.5010805@in.ibm.com>
-	<20061219180358.bfda00f0.akpm@osdl.org>
-	<45889E4B.7050406@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Dec 2006 23:51:11 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:28767 "HELO
+	smtp107.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1422711AbWLUEvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 23:51:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=S708eBmJaHz+w/caKebGD+I1z3Ln7hmfsAkEW90G5JSpD/wApZODCj5VOUtorPpQx+/18ASuWws4nuQvDWDdQdJue+j8lOCnRZhDnOmcBzF2dSu4N2geHuYYt9/FsosVB5fLo6S0oUoiRxayOoLH+EKbuh5hdRWmQ72lNRTCYOU=  ;
+X-YMail-OSG: uHGGLlEVM1kn5u928DwpYfbKFdDlrKdQUWY1UgDWmzkZACNJfXLeGs_Eu1aSIzyVHN4s2kukWK6AAABC.Dy0Xpl8F8uFnxVE9mOzRVnPzPPCZgIkx0P2Ar41OPW8VletuQ_.HoumtoZhsbP_cj6ImbVI1WoaiQuCmQRP8K7nIeLhEINAd85JR9PvEK1T
+From: David Brownell <david-b@pacbell.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
+Date: Wed, 20 Dec 2006 20:51:05 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612201904.28681.david-b@pacbell.net> <20061221040648.GA1499@srcf.ucam.org>
+In-Reply-To: <20061221040648.GA1499@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612202051.06623.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2006 18:22:03 -0800
-Suzuki <suzuki@in.ibm.com> wrote:
-
+On Wednesday 20 December 2006 8:06 pm, Matthew Garrett wrote:
+> On Wed, Dec 20, 2006 at 07:04:28PM -0800, David Brownell wrote:
+> > On Wednesday 20 December 2006 5:29 pm, Matthew Garrett wrote:
+> > > I dislike that.
+> > 
+> > Tough noogies, as they say.  In a tradeoff between correctness and your
+> > personal taste (or even mine, sigh!), the normal tradeoff is in favor
+> > of correctness.
 > 
-> Andrew Morton wrote:
-> > On Tue, 19 Dec 2006 17:58:12 -0800
-> > Suzuki <suzuki@in.ibm.com> wrote:
-> > 
-> > 
-> >>* Fix the kmalloc flags used from within ext3, when we have an active journal handle
-> >>
-> >>	If we do a kmalloc with GFP_KERNEL on system running low on memory, with an active journal handle, we might end up in cleaning up the fs cache flushing dirty inodes for some other filesystem. This would cause hitting a J_ASSERT() in :
-> > 
-> > 
-> > The change might be needed (haven't looked at it yet).  But I'd like to see
-> > the full BUG trace, please.  To see the callchain.
-> 
-> Here is the call trace which was hit by one of our test teams. This was 
-> from fs/ext3/xattr.c. While looking for similar calls I found the others 
-> described in the patch.
-> 
-> Assertion failure in journal_start() at fs/jbd/transaction.c:274: "handle-
->  >h_transaction->t_journal == journal"
-> kernel BUG at fs/jbd/transaction.c:274!
-> illegal operation: 0001 [#1]
-> CPU:    0    Not tainted (2.6.5-7.282-s390x SLES9_SP3_BRANCH-20061031152356)
-> Process dbench (pid: 14070, task: 00000000025617f0, ksp: 0000000001057630)
-> Krnl PSW : 0700000180000000 0000000008837b38 (journal_start+0x90/0x15c 
-> [jbd])
-> Krnl GPRS: 0000000000000000 0000000000507fc0 000000000000002b 
-> 0000000001056d80
->             0000000008837b36 0000000000002885 0000000008841da6 
-> 0000000000000000
->             00000000001bfaa0 0000000003483d08 0000000000000002 
-> 0000000007a8bda0
->             0000000008833000 00000000088a7d08 0000000008837b36 
-> 0000000001056e80
-> Krnl Code: 00 00 58 10 b0 0c a7 1a 00 01 b9 04 00 2b 50 10 b0 0c e3 40
-> Call Trace:
->   [<00000000088a30fc>] ext3_journal_start+0x8c/0xa4 [ext3]
->   [<0000000008896822>] ext3_dirty_inode+0x3a/0xe0 [ext3]
->   [<00000000001ca362>] __mark_inode_dirty+0x1ae/0x1c8
->   [<00000000001bfaa0>] iput+0xbc/0xf0
->   [<00000000001bdcca>] prune_dcache+0x29e/0x584
->   [<00000000001bdfe4>] shrink_dcache_memory+0x34/0x54
->   [<000000000017b100>] shrink_slab+0x15c/0x250
->   [<000000000017b6e4>] try_to_free_pages+0x1c0/0x2a4
->   [<0000000000170276>] __alloc_pages+0x2ba/0x4e0
->   [<000000000017059a>] __get_free_pages+0x4e/0x8c
->   [<0000000000174ea2>] cache_alloc_refill+0x2a6/0x868
->   [<0000000000175540>] __kmalloc+0xdc/0xe0
->   [<00000000088a4e62>] ext3_xattr_set_handle+0x114a/0x174c [ext3]
->   [<00000000088a54e4>] ext3_xattr_set+0x80/0xd0 [ext3]
->   [<00000000088a6312>] ext3_xattr_user_set+0xce/0xe4 [ext3]
->   [<00000000088a5f1e>] ext3_setxattr+0x17e/0x18c [ext3]
->   [<00000000001c88e6>] setxattr+0x14a/0x234
->   [<00000000001c8a80>] sys_fsetxattr+0xb0/0x110
->   [<000000000011fc10>] sysc_noemu+0x10/0x16
+> But it's not correct - the test prohibits suspending devices even if 
+> it would be safe to do so.
 
-How did we get from iput() into __mark_inode_dirty()?  I can't see it in
-mainline, nor in 2.6.5 which you appear to be using...
+It prohibits suspending them unless it's known to be safe.  What your
+patch does is add some more ways to know it's safe.  My comment was
+that while adding ways is safe, it's incorrect to allow things which
+aren't known to be safe.
 
+
+> > > We're asking to suspend an individual device - whether  
+> > > the bus supports devices that need to suspend with interrupts disabled 
+> > > is irrelevent, it's the device that we care about. We should just make 
+> > > it necessary for every bus to support this method until the interface is 
+> > > removed.
+> > 
+> > But you _didn't_ do anything to "make it necessary".  Which means that
+> > your patch *WILL* cause bugs whenever a driver uses those calls, and
+> > courtesy of your patch userspace tries to suspend that device ... 
+> 
+> New patch attached.
+
+I'll have a look at it after I get past some other stuff.  I take it that
+you tested this by now?  I assume it'd work, but you know how that goes.
+
+- Dave

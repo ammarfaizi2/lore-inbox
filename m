@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422800AbWLUNWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422757AbWLUNat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422800AbWLUNWx (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 08:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWLUNWx
+	id S1422757AbWLUNat (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 08:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWLUNat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 08:22:53 -0500
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:2905 "EHLO
-	smtp-vbr2.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422800AbWLUNWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 08:22:52 -0500
-Date: Thu, 21 Dec 2006 14:22:41 +0100
-From: Erik Mouw <mouw@nl.linux.org>
-To: Manish Regmi <regmi.manish@gmail.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: Linux disk performance.
-Message-ID: <20061221132241.GA15226@gateway.home>
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com> <1166431020.3365.931.camel@laptopd505.fenrus.org> <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com> <4589B92F.2030006@tmr.com> <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
-MIME-Version: 1.0
+	Thu, 21 Dec 2006 08:30:49 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35106 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422757AbWLUNas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 08:30:48 -0500
+Date: Thu, 21 Dec 2006 14:27:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Dirk Behme <dirk.behme@googlemail.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH -rt 1/4] ARM: Include compilation and warning fixes
+Message-ID: <20061221132732.GA25861@elte.hu>
+References: <458A4742.3060204@gmail.com> <20061221095239.GB1994@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <652016d30612202203h16331f96o2147872db3cb2d43@mail.gmail.com>
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061221095239.GB1994@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 11:48:42AM +0545, Manish Regmi wrote:
-> Yes... my application does large amount of I/O. It actually writes
-> video data received from ethernet(IP camera) to the disk using 128 K
-> chunks.
 
-Bursty video traffic is really an application that could take advantage
-from the kernel buffering. Unless you want to reinvent the wheel and do
-the buffering yourself (it is possible though, I've done it on IRIX).
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-BTW, why are you so keen on smooth-at-the-microlevel writeout? With
-real time video applications it's only important not to drop frames.
-How fast those frames will go to the disk isn't really an issue, as
-long as you don't overflow the intermediate buffer.
+> On Thu, Dec 21, 2006 at 09:35:14AM +0100, Dirk Behme wrote:
+> > 
+> > ARM: Fix compilation issues and warnings for CONFIG PREEMPT
+> > RT for ARM in include/asm-arm/system.h.
+> > 
+> > Signed-off-by: Dirk Behme <dirk.behme_at_gmail.com>
+> 
+> Patches like this have been flying around for over a week now, but the 
+> bug's been fixed using a different approach.  Unfortunately, Linus 
+> hasn't pulled the fixes yet, presumably due to being engrossed in 
+> fixing this data corruption issue.
 
+update: it just into upstream -git to which i rebase daily, so i dropped 
+the first patch and i'm relying on your fix now in -rt.
 
-Erik
-
--- 
-They're all fools. Don't worry. Darwin may be slow, but he'll
-eventually get them. -- Matthew Lammers in alt.sysadmin.recovery
+	Ingo

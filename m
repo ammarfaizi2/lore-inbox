@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422716AbWLUNFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422640AbWLUNKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWLUNFH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 08:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWLUNFH
+	id S1422640AbWLUNKZ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 08:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWLUNKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 08:05:07 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:5684 "EHLO
-	amsfep14-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1422728AbWLUNFE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 08:05:04 -0500
-Subject: Re: 2.6.19 file content corruption on ext3
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-In-Reply-To: <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost>
-	 <20061217040620.91dac272.akpm@osdl.org> <1166362772.8593.2.camel@localhost>
-	 <20061217154026.219b294f.akpm@osdl.org> <1166460945.10372.84.camel@twins>
-	 <Pine.LNX.4.64.0612180933560.3479@woody.osdl.org>
-	 <45876C65.7010301@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182230301.3479@woody.osdl.org>
-	 <45878BE8.8010700@yahoo.com.au>
-	 <Pine.LNX.4.64.0612182313550.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612182342030.3479@woody.osdl.org>
-	 <4587B762.2030603@yahoo.com.au>
-	 <Pine.LNX.4.64.0612190847270.3479@woody.osdl.org>
-	 <Pine.LNX.4.64.0612190929240.3483@woody.osdl.org>
-Content-Type: text/plain
-Date: Thu, 21 Dec 2006 14:03:20 +0100
-Message-Id: <1166706200.32117.14.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 08:10:25 -0500
+Received: from mail.atmel.fr ([81.80.104.162]:39497 "EHLO atmel-es2.atmel.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422640AbWLUNKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 08:10:24 -0500
+Message-ID: <458A875D.3000801@rfo.atmel.com>
+Date: Thu, 21 Dec 2006 14:08:45 +0100
+From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
+Organization: atmel
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Patrice Vilchez <patrice.vilchez@rfo.atmel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] input/spi: add ads7843 support to ads7846 touchscreen driver
+References: <4582BD29.4020203@rfo.atmel.com> <200612201513.09705.david-b@pacbell.net>
+In-Reply-To: <200612201513.09705.david-b@pacbell.net>
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: 8bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-19 at 09:43 -0800, Linus Torvalds wrote:
+David Brownell a écrit :
+> On Friday 15 December 2006 7:20 am, Nicolas FERRE wrote:
+>> Add support for the ads7843 touchscreen controller to the ads7846 driver code.
 > 
-> Btw,
->  here's a totally new tangent on this: it's possible that user code is 
-> simply BUGGY. 
+> Glad to see this!  Is this for AT91sam9261-EK board support, maybe?
 
-depmod: BADNESS: written outside isize 22183
+Indeed ! An also for the AT91sam9263-EK which has the same touchscreen chip.
 
----
-diff --git a/fs/buffer.c b/fs/buffer.c
-index d1f1b54..5db9fd9 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2393,6 +2393,17 @@ int nobh_commit_write(struct file *file, struct page *page,
- }
- EXPORT_SYMBOL(nobh_commit_write);
- 
-+static void __check_tail_zero(char *kaddr, unsigned int offset)
-+{
-+	unsigned int check = 0;
-+	do {
-+		check += kaddr[offset++];
-+	} while (offset < PAGE_CACHE_SIZE);
-+	if (check)
-+		printk(KERN_ERR "%s: BADNESS: written outside isize %u\n",
-+				current->comm, check);
-+}
-+
- /*
-  * nobh_writepage() - based on block_full_write_page() except
-  * that it tries to operate without attaching bufferheads to
-@@ -2437,6 +2448,7 @@ int nobh_writepage(struct page *page, get_block_t *get_block,
- 	 * writes to that region are not written out to the file."
- 	 */
- 	kaddr = kmap_atomic(page, KM_USER0);
-+	__check_tail_zero(kaddr, offset);
- 	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
- 	flush_dcache_page(page);
- 	kunmap_atomic(kaddr, KM_USER0);
-@@ -2604,6 +2616,7 @@ int block_write_full_page(struct page *page, get_block_t *get_block,
- 	 * writes to that region are not written out to the file."
- 	 */
- 	kaddr = kmap_atomic(page, KM_USER0);
-+	__check_tail_zero(kaddr, offset);
- 	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
- 	flush_dcache_page(page);
- 	kunmap_atomic(kaddr, KM_USER0);
+> Let me try to sort out the mess with those updates, and ask you to refresh
+> this ads7843 support against that more-current ads7846 code.
+
+Ok, let me know when you have a newer code. I will try to adapt my
+ads7843 support then.
+
+>> As the SPI underlying code behaves quite differently from a controller driver
+>> to another whan not having a tx_buf filled, I have add a zerroed buffer to give
+>> to the spi layer while receiving data.
+> 
+> You must be working with a buggy controller driver then.  That part of
+> this patch should never be needed.  It's expected that rx-only transfers
+> will omit a tx buf; all controller drivers must handle that case.
+
+I said that because it is true that most of spi controller drivers 
+manage rx only transactions filling the tx buffer with zerros but the 
+spi_s3c24xx.c driver seems to fill with ones (line 177 hw_txbyte())
+
+Anyway, I will check in our controller driver to sort this out.
+
+Regards,
+-- 
+Nicolas Ferre
+
 
 

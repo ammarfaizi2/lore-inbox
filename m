@@ -1,111 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965199AbWLUKdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965202AbWLUKhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbWLUKdi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 05:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWLUKdi
+	id S965202AbWLUKhn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 05:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWLUKhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 05:33:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40560 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965199AbWLUKdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 05:33:37 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
-	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
-	<20061220214340.f6b037b1.khali@linux-fr.org>
-	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
-	<20061221101240.f7e8f107.khali@linux-fr.org>
-	<20061221102232.5a10bece.khali@linux-fr.org>
-Date: Thu, 21 Dec 2006 03:32:33 -0700
-In-Reply-To: <20061221102232.5a10bece.khali@linux-fr.org> (Jean Delvare's
-	message of "Thu, 21 Dec 2006 10:22:32 +0100")
-Message-ID: <m164c5pmim.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Dec 2006 05:37:42 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:35832 "EHLO 2ka.mipt.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965202AbWLUKhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 05:37:41 -0500
+Date: Thu, 21 Dec 2006 13:35:39 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
+Message-ID: <20061221103539.GA4099@2ka.mipt.ru>
+References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <11666924573643@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 21 Dec 2006 13:35:44 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> writes:
+On Thu, Dec 21, 2006 at 12:14:17PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> 
+> Generic event handling mechanism.
+> 
+> Kevent is a generic subsytem which allows to handle event notifications.
+> It supports both level and edge triggered events. It is similar to
+> poll/epoll in some cases, but it is more scalable, it is faster and
+> allows to work with essentially eny kind of events.
+> 
+> Events are provided into kernel through control syscall and can be read
+> back through ring buffer or using usual syscalls.
+> Kevent update (i.e. readiness switching) happens directly from internals
+> of the appropriate state machine of the underlying subsytem (like
+> network, filesystem, timer or any other).
+> 
+> Homepage:
+> http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+> 
+> Documentation page:
+> http://linux-net.osdl.org/index.php/Kevent
+> 
+> Consider for inclusion.
 
-> On Thu, 21 Dec 2006 10:12:40 +0100, Jean Delvare wrote:
->> On Wed, 20 Dec 2006 15:22:20 -0700, Eric W. Biederman wrote:
->> > Ok.  Here is a small diff that inserts the infinite loops, between
->> > each section of code in head.S  Procedurally please trying booting
->> > this unmodified and see if it boots, then remove the infinite loop
->> > until you come to the one where the system reboots instead of hangs.
->> > 
->> > That should at least give me a good idea of where to look.
->> > If 20 hangs and 21 still reboots we are into misc.c and the
->> > decompressor.  And I will have to ask something different.
->> 
->> OK, I'll start the tests now, I'll let you know the outcome when I'm
->> done.
->
-> Hm, that was quick... Even with your unmodified patch, the machine
-> still reboots. Does that make any sense to you?
->
-> I can try installing a more recent system on the same hardware if it
-> helps.
+Due to this stall kevent inclusion into lighttpd CVS tree is postponed.
 
-Grr.  I guessed the problem was to late in the game it seems the problem
-is in setup.S  Before we switch to 32bit mode.
+The last version will be released saturday or sunday, and looking into
+overhelming flow of feedback comments on this feature, project will not
+be released to linux-kernel@, after this I will
+complete netchannels support and start kevent based AIO project - mostly
+network AIO with new design, which is based on set of entities, which
+can describe set of tasks which should be performed
+asynchronously (from user point of view, although read and write
+obviously must be done after open and before close), for example syscall
+which gets as parameter destination socket and local filename (with
+optional offset and length fields), which will asynchronously from user
+point of view open a file and transfer requested part to the destination
+socket and then return opened file descriptor (or it can be closed if
+requested). Similar mechanism can be done for read/write calls.
 
-Ok.  There is almost enough for inference but here is a patch of stops
-for setup.S let's see if one of those will stop the reboots.
+Interested parties will be able to apply patches for theirs own kernels.
 
-I have a strong feeling that we are going to find a tool chain issue,
-but I'd like to find where we ware having problems before we declare
-that to be the case.
-
-
-Eric
-
-diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
-index 06edf1c..2868020 100644
---- a/arch/i386/boot/setup.S
-+++ b/arch/i386/boot/setup.S
-@@ -795,6 +795,7 @@ a20_done:
- 
- #endif /* CONFIG_X86_VOYAGER */
- # set up gdt and idt and 32bit start address
-+10: jmp	10b
- 	lidt	idt_48				# load idt with 0,0
- 	xorl	%eax, %eax			# Compute gdt_base
- 	movw	%ds, %ax			# (Convert %ds:gdt to a linear ptr)
-@@ -846,6 +847,7 @@ flush_instr:
- 	subw	$DELTA_INITSEG, %si
- 	shll	$4, %esi			# Convert to 32-bit pointer
- 
-+11: jmp	11b
- # jump to startup_32 in arch/i386/boot/compressed/head.S
- #	
- # NOTE: For high loaded big kernels we need a
-@@ -862,6 +864,7 @@ code32:	.long	startup_32			# will be set to %cs+startup_32
- 	.word	__BOOT_CS
- .code32
- startup_32:
-+12: jmp	12b
- 	movl $(__BOOT_DS), %eax
- 	movl %eax, %ds
- 	movl %eax, %es
-@@ -869,12 +872,14 @@ startup_32:
- 	movl %eax, %gs
- 	movl %eax, %ss
- 
-+13: jmp	13b
- 	xorl %eax, %eax
- 1:	incl %eax				# check that A20 really IS enabled
- 	movl %eax, 0x00000000			# loop forever if it isn't
- 	cmpl %eax, 0x00100000
- 	je 1b
- 
-+14: jmp	14b
- 	# Jump to the 32bit entry point
- 	jmpl *(code32_start - start + (DELTA_INITSEG << 4))(%esi)
- .code16
+-- 
+	Evgeniy Polyakov

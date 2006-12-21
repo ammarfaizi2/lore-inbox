@@ -1,62 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423019AbWLUSaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423018AbWLUSah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423019AbWLUSaJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423014AbWLUSaI
+	id S1423018AbWLUSah (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWLUSah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:30:08 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:34012 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423019AbWLUSaH (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:30:07 -0500
-Message-Id: <200612211827.kBLIRtqC025054@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Dan Williams <dcbw@redhat.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Jiri Benc <jbenc@suse.cz>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network drivers that don't suspend on interface down
-In-Reply-To: Your message of "Wed, 20 Dec 2006 22:06:51 EST."
-             <1166670411.23168.13.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <20061220150009.1d697f15@griffin.suse.cz> <1166638371.2798.26.camel@localhost.localdomain> <20061221011526.GB32625@srcf.ucam.org>
-            <1166670411.23168.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1166725675_12674P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 21 Dec 2006 13:27:55 -0500
+	Thu, 21 Dec 2006 13:30:37 -0500
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:38066 "EHLO
+	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423020AbWLUSaf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:30:35 -0500
+To: rmk+lkml@arm.linux.org.uk
+CC: miklos@szeredi.hu, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+In-reply-to: <20061221181156.GG3958@flint.arm.linux.org.uk> (message from
+	Russell King on Thu, 21 Dec 2006 18:11:56 +0000)
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
+References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu> <20061221181156.GG3958@flint.arm.linux.org.uk>
+Message-Id: <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 21 Dec 2006 19:30:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1166725675_12674P
-Content-Type: text/plain; charset=us-ascii
+> > > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
+> > > > could be replaced by the flush_kernel_dcache_page() (added by James
+> > > > Bottomley together with flush_anon_page()) when all relevant
+> > > > architectures have defined it.
+> > > 
+> > > I should say that flush_anon_page() in its current form is going to be
+> > > problematic for ARM.  It is passed:
+> > > 
+> > > 1. the struct page
+> > > 2. the virtual address in process memory for the page
+> > > 
+> > > It is not passed the mm or vma.  This means that we have no idea whether
+> > > the virtual address is in the currently mapped VM space or not.  The
+> > > common use of get_area_pages() is to get pages from other address
+> > > spaces.
+> > 
+> > I'm not sure I understand.  flush_anon_page() needs only to flush the
+> > mapping for the given virtual address, no?
+> 
+> Yes, but that virtual /user/ address is meaningless without knowing
+> which process address space it belongs to.
+> 
+> > It's always mapped at that address (since it was just accessed through
+> > that).
+> 
+> No.  Consider ptrace() (invoked by gdb) reading data from another
+> processes address space to obtain structure data or instructions.
+> 
+> > Any other mappings
+> > of the anonymous page are irrelevant, they don't need to be flushed.
+> 
+> Again, incorrect.  Consider if the page you're accessing is a file-
+> backed page, and is mapped into a process using a shared mapping.
+> Because you've written to the file, those shared mappings need to see
+> that write, and the interface for achieving that is flush_dcache_page().
+> If not, data loss can occur.
 
-On Wed, 20 Dec 2006 22:06:51 EST, Dan Williams said:
-> It's also complicated because some switches are supposed to rfkill both
-> an 802.11 module _and_ a bluetooth module at the same time, or I guess
-> some laptops may even have one rfkill switch for each wireless device.
+Yes, for file backed pages.  But flush_anon_page() only needs to deal
+with anonymous (not file backed) pages.
 
-On my Dell D820, it's bios-selectable if the switch is enabled, or if
-it controls just the 802.11 card, or 802.11 and bluetooth, or just bluetooth,
-or 802.11 and mobile broadband, or ...
+> > > If we use the supplied virtual address to perform cache maintainence of
+> > > the userspace mapping, we might end up hitting a completely different
+> > > processes address space, which may contain some page sensitive to such
+> > > operations, or may not contain any page and thereby could cause a page
+> > > fault on some ARM CPUs.
+> > 
+> > I think calling get_user_pages() from a different process' address
+> > space simply doesn't make any sense.
+> 
+> That was it's main use - to implement ptrace() to read other processes
+> address spaces.  Why do you think it takes a task_struct and mm_struct?
 
-This way lies madness. :)
+Right, I missed that.
 
-(Oddest part - said bios config screen offers the choices for bluetooth
-and mobile broadband even though the hardware config doesn't include it. ;)
-
---==_Exmh_1166725675_12674P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFitIrcC3lWbTT17ARAmxaAKDaqP5WCL22hXx/TKkLUzP65rrkXgCg6jtv
-Pq2mF9jGpOFxCv3vsP2cFc8=
-=+ohu
------END PGP SIGNATURE-----
-
---==_Exmh_1166725675_12674P--
+Miklos

@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161158AbWLUDBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161170AbWLUDEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161158AbWLUDBJ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbWLUDBJ
+	id S1161170AbWLUDEU (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbWLUDEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:01:09 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:49602 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161158AbWLUDBH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:01:07 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Wed, 20 Dec 2006 22:04:20 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:38278 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161167AbWLUDET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:04:19 -0500
+Message-ID: <4589F9B1.2020405@garzik.org>
+Date: Wed, 20 Dec 2006 22:04:17 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Git Mailing List <git@vger.kernel.org>
+Subject: Updated Kernel Hacker's guide to git
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17801.57293.790405.25052@gargle.gargle.HOWL>
-Date: Wed, 20 Dec 2006 19:13:49 -0600
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-       Tom Zanussi <zanussi@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] Relay CPU Hotplug support
-In-Reply-To: <20061221003101.GA28643@Krystal>
-References: <20061221003101.GA28643@Krystal>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers writes:
- > Hi,
- > 
- > Here is a patch, result of the combined work of Tom Zanussi and myself, to add
- > CPU hotplug support to Relay.
- > 
- > This patch applies on 2.6.20-rc1-git7.
- > 
- > Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
- > 
+I refreshed my git intro/cookbook for kernel hackers, at 
+http://linux.yyz.us/git-howto.html
 
-Hi Mathieu,
+This describes most of the commands I use in day-to-day kernel hacking. 
+  Let me know if there are glaring errors or missing key commands.
 
-It looks like you forgot to include the Documentation update with
-this.  Other than that, it looks fine to me.
-
-Acked-by: Tom Zanussi <zanussi@us.ibm.com>
+	Jeff
 
 

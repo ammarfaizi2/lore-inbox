@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161110AbWLUBV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161022AbWLUB3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161110AbWLUBV5 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 20:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWLUBV4
+	id S1161022AbWLUB3m (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 20:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWLUB3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 20:21:56 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46894 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1161110AbWLUBV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 20:21:56 -0500
-Date: Thu, 21 Dec 2006 12:20:39 +1100
-From: David Chinner <dgc@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, Martin Michlmayr <tbm@cyrius.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061221012039.GD44411608@melbourne.sgi.com>
-References: <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com> <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org> <20061220232401.GB44411608@melbourne.sgi.com> <Pine.LNX.4.64.0612201543540.3576@woody.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Dec 2006 20:29:42 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:46009 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161022AbWLUB3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 20:29:41 -0500
+Date: Thu, 21 Dec 2006 01:29:24 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+Message-ID: <20061221012924.GC32625@srcf.ucam.org>
+References: <20061219185223.GA13256@srcf.ucam.org> <200612192015.14587.david-b@pacbell.net> <20061220045604.GA20234@srcf.ucam.org> <200612201318.06976.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612201543540.3576@woody.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200612201318.06976.david-b@pacbell.net>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
+X-SA-Exim-Version: 4.2.1 (built Tue, 20 Jun 2006 01:35:45 +0000)
+X-SA-Exim-Scanned: Yes (on vavatch.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 03:55:25PM -0800, Linus Torvalds wrote:
-> On Thu, 21 Dec 2006, David Chinner wrote:
-> > 
-> > XFS appears to call clear_page_dirty to get the mapping tree dirty
-> > tag set correctly at the same time the page dirty flag is cleared. I
-> > note that this can be done by set_page_writeback() if we clear the
-> > dirty flag on the page first when we are writing back the entire page.
+On Wed, Dec 20, 2006 at 01:18:06PM -0800, David Brownell wrote:
+> >  	/* disallow incomplete suspend sequences */
+> > -	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
+> > +	if (dev->bus && dev->bus->pm_has_noirq_stage 
+> > +	    && dev->bus->pm_has_noirq_stage(dev))
+> >  		return error;
+> >  
 > 
-> Yes. I think the XFS routine should just use "clear_page_dirty_fir_io()", 
-> since that matches what it actually wants to do (surprise surprise, it's 
-> going to write it out).
+> I'm suspecting these two patches won't be merged, but this fragment has
+> two bugs.  One is the whitespace bug already mentioned.
 
-Yup ;)
+I'm a bit curious about the whitespace issue - CodingStyle doesn't seem 
+to discuss what to do with if statements that end up longer than 80 
+characters, which is (I think) what you're talking about?
 
-> HOWEVER. Why is it conditional? Can somebody who understands XFS tell me 
-> why "clear_dirty" would ever be 0? I can grep the sources, and I see that 
-> it's an unconditional 1 in one call-site, but then in the other one it 
-> does
+> The other is that
+> the original test must still be used if that bus primitve doesn't exist.
+
+I dislike that. We're asking to suspend an individual device - whether 
+the bus supports devices that need to suspend with interrupts disabled 
+is irrelevent, it's the device that we care about. We should just make 
+it necessary for every bus to support this method until the interface is 
+removed.
+
+> And in a different vein, I'm a bit surprised that the update to the
+> feature-removal-schedule.txt file is a separate patch, but:
+
+It seemed like a logically distinct change, but I'm happy to merge them.
+
+> > +       bus->pm_has_noirq_stage()
+> > -When:  July 2007
+> > +When:  Once alternative functionality has been implemented
 > 
-> 	xfs_start_page_writeback(page, wbc, !page_dirty, count);
+> The "When" shouldn't change.
 
-page dirty starts at the number of dirty buffers on the page, and as
-we map each dirty buffer into the I/O we decrement the page dirty count.
+We shouldn't remove interfaces that userland uses until there's been a 
+replacement for long enough that userland can switch over. Setting a 
+date for removing this interface when most drivers don't implement the 
+replacement isn't reasonable.
 
-Hence if we map all of the buffers into the I/O, we are cleaning
-the entire page and hence we can clear the dirty state on the page.
-
-> and that part just blows my mind. Why would you do a 
-> xfs_start_page_writeback() and _not_ write the page out? Is this for a 
-> partial-page-only case?
-
-Yes, partial-page-only case when doing speculative write clustering. We'll hit
-this when an extent boundary is not page aligned (fs block size < page size
-case) and we need to issue at least two separate I/Os to clean the page.
-Because we leave the page dirty and we are working ahead of the index in
-generic_writepages() we'll get the rest of the page flushed when we return
-back to generic_writepages() as the page is still dirty in the mapping
-tree....
-
-> Anyway, your patch looks fine. It seems to be the right thing to do.
-
-Ok, thanks, Linus.
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Matthew Garrett | mjg59@srcf.ucam.org

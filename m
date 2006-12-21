@@ -1,117 +1,101 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422654AbWLUD1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422652AbWLUD3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWLUD1L (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWLUD1K
+	id S1422652AbWLUD3b (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWLUD3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:27:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52082 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422654AbWLUD1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:27:09 -0500
-Subject: Re: Network drivers that don't suspend on interface down
-From: Dan Williams <dcbw@redhat.com>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Michael Wu <flamingice@sourmilk.net>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <4589FAA6.509@gentoo.org>
-References: <20061220042648.GA19814@srcf.ucam.org>
-	 <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
-	 <20061221011209.GA32625@srcf.ucam.org>
-	 <200612202105.31093.flamingice@sourmilk.net>
-	 <20061221021832.GA723@srcf.ucam.org> <4589F39C.7010201@gentoo.org>
-	 <20061221024533.GA1025@srcf.ucam.org>  <4589FAA6.509@gentoo.org>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 22:29:09 -0500
-Message-Id: <1166671750.23168.35.camel@localhost.localdomain>
+	Wed, 20 Dec 2006 22:29:31 -0500
+Received: from tomts22.bellnexxia.net ([209.226.175.184]:55102 "EHLO
+	tomts22-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1422652AbWLUD3a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:29:30 -0500
+Date: Wed, 20 Dec 2006 22:29:28 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, paulus@samba.org,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linuxppc-dev@ozlabs.org,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 7/9] atomic.h : powerpc
+Message-ID: <20061221032928.GB14930@Krystal>
+References: <20061221001204.GM28643@Krystal> <1166670905.6673.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1166670905.6673.33.camel@localhost.localdomain>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 22:25:18 up 120 days, 32 min,  4 users,  load average: 1.21, 0.74, 0.58
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 22:08 -0500, Daniel Drake wrote:
-> Matthew Garrett wrote:
-> >> There are additional implementation problems: scanning requires 2 
-> >> different ioctl calls: siwscan, then several giwscan. If you want the 
-> >> driver to effectively temporarily bring the interface up when userspace 
-> >> requests a scan but the interface was down, then how does the driver 
-> >> know when to bring it down again?
-> > 
-> > Hm. Does the spec not set any upper bound on how long it might take for 
-> > APs to respond? I'm afraid that my 802.11 knowledge is pretty slim. 
+* Benjamin Herrenschmidt (benh@kernel.crashing.org) wrote:
 > 
-> I'm not sure, but thats not entirely relevant either.  The time it takes 
-> for the AP to respond is not related to the delay between userspace 
-> sending the siwscan and giwscan ioctls (unless you're thinking of 
-> userspace being too quick, but GIWSCAN already returns -EINPROGRESS when 
-> appropriate so this is detectable)
-
-Channel dwell time for a passive scan is usually around 100ms - 250ms,
-depending on how accurate you want your scan results (== wait longer),
-and how much power you want to save (== don't wait long).
-
-Correct userspace apps should:
-
-1) Set a timer for, say, 8 seconds
-2) Issue an SIWSCAN command
-3) Wait for the GIWSCAN netlink event from the card, get results via
-GIWSCAN command when it comes; cancel the timer from (2)
-4) If the timer fires because no GIWSCAN event was received, try to get
-scan results via GIWSCAN command from the driver anyway
-
-<rant>
-Note that NDIS requires a driver to return _something_ within 2 seconds
-of a scan request.  Even if you're an 802.11a card (madwifi *cough*, I'm
-starting a new thing where I cough after...).  So it's certainly
-possible to return scan results in a timely manner, since the Windows
-drivers for these cards are obviously doing it just fine.
-
-Drivers should buffer scan results from past scans, age them
-appropriately, and purge them when they get too old.  Drivers should
-never, ever, clear the scan result list when SIWSCAN or GIWSCAN is
-called, because that means there's a window when a scan result request
-from some other app could illegitimately return no BSSID records.
-</rant>
-
-> > Picking a number out of thin air would be one answer, but clearly less 
-> > than ideal. This may be a case of us not being able to satisfy everyone, 
-> > and so just having to force the user to choose between low power or 
-> > wireless scanning.
+> > +
+> > +/**
+> > + * atomic64_add_unless - add unless the number is a given value
+> > + * @v: pointer of type atomic64_t
+> > + * @a: the amount to add to v...
+> > + * @u: ...unless v is equal to u.
+> > + *
+> > + * Atomically adds @a to @v, so long as it was not @u.
+> > + * Returns non-zero if @v was not @u, and zero otherwise.
+> > + */
+> > +static __inline__ int atomic64_add_unless(atomic64_t *v, long a, long u)
+> > +{
+> > +	long t;
+> > +
+> > +	__asm__ __volatile__ (
+> > +	LWSYNC_ON_SMP
+> > +"1:	ldarx	%0,0,%1		# atomic_add_unless\n\
+> > +	cmpd	0,%0,%3 \n\
+> > +	beq-	2f \n\
+> > +	add	%0,%2,%0 \n"
+> > +	PPC405_ERR77(0,%2)
+> > +"	stdcx.	%0,0,%1 \n\
+> > +	bne-	1b \n"
+> > +	ISYNC_ON_SMP
+> > +"	subf	%0,%2,%0 \n\
+> > +2:"
+> > +	: "=&r" (t)
+> > +	: "r" (&v->counter), "r" (a), "r" (u)
+> > +	: "cc", "memory");
+> > +
+> > +	return t != u;
+> > +}
+> > +
 > 
-> I think it's reasonable to keep the interface down, but then when the 
-> user does want to connect, bring the interface up, scan, present scan 
-> results. Scanning is quick, there would be minimal wait needed here.
-
-Unless you're madwifi *cough* and then you may have to wait up to _14_
-seconds for a full scan of all a/bg channels.  That's just insane.  I
-have no idea why that's the case (or at least was up to earlier this
-year) but it's just unacceptable.
-
-> Alternatively, if you do want to prepare scan results in the background 
-> every 2 minutes, use a sequence something like:
+> You shouldn't try to define those when building 32 bits code... Also,
+> the PPC405 errata, as it's name implies, is specific to 405 cores which
+> are all 32 bits.
 > 
-> - bring interface up
-> - siwscan
-> - giwscan [...]
-> - bring interface down
-> - repeat after 2 mins
+> Ben.
 > 
-> If this kind of thing was implemented at the driver level, in most cases 
-> it would be identical to doing the above anyway.
+> 
 
-Right.  It should 100% be in userspace and not in the drivers.  Who says
-2 minutes is the right interval?  Putting that stuff, and the get/set
-commands for changing that interval, in the driver is just plain wrong.
+Hi Ben,
 
-Dan
+It is within a 
+#ifdef __powerpc64__
+...
+#endif /* __powerpc64__ */
 
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+so it should only build on 64 bits.
 
+You are right about the PPC405 errata, it seems unnecessary.
+
+The same is true for my asm-powerpc/local.h modification.
+
+Thanks,
+
+Mathieu
+
+-- 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

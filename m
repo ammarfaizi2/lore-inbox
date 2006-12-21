@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965190AbWLUJ6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965175AbWLUJ7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbWLUJ6Z (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 04:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWLUJ6Z
+	id S965175AbWLUJ7L (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 04:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWLUJ7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 04:58:25 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:57842 "EHLO
-	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965187AbWLUJ6Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 04:58:24 -0500
-X-Greylist: delayed 87733 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 04:58:24 EST
-Message-ID: <458A5AAE.30209@bx.jp.nec.com>
-Date: Thu, 21 Dec 2006 18:58:06 +0900
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 21 Dec 2006 04:59:11 -0500
+Received: from mail.atmel.fr ([81.80.104.162]:48659 "EHLO atmel-es2.atmel.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965175AbWLUJ7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 04:59:09 -0500
+Message-ID: <458A5A8B.9030900@rfo.atmel.com>
+Date: Thu, 21 Dec 2006 10:57:31 +0100
+From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
+Organization: atmel
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 2.6.19 take2 0/5] proposal for dynamic configurable netconsole
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] input/spi: add ads7843 support to ads7846 touchscreen driver
+References: <4582B4F4.2050106@rfo.atmel.com> <20061220140304.af85754c.akpm@osdl.org>
+In-Reply-To: <20061220140304.af85754c.akpm@osdl.org>
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: 8bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Andrew Morton a écrit :
+> On Fri, 15 Dec 2006 15:45:08 +0100
+> Nicolas FERRE <nicolas.ferre@rfo.atmel.com> wrote:
+> 
+>> Add support for the ads7843 touchscreen controller to the ads7846
+>> driver code.
+> 
+> Generates a lot of errors when applied to the current mainline kernel. 
+> Please prepare and test patches against Linus's current git tree.
 
-The netconsole is a very useful module for collecting kernel message under
-certain circumstances(e.g. disk logging fails, serial port is unavailable).
+Hi,
 
-But current netconsole is not flexible. For example, if you want to change ip
-address for logging agent, in the case of built-in netconsole, you can't change
-config except for changing boot parameter and rebooting your system, or in the
-case of module netconsole, you need to reload netconsole module.
+David Brownell told me to take into account code written by
+the omap/N770 guys.
+I will then refresh my patch against those bits and produce
+an up-to-date patch.
 
-So, I propose the following extended features for netconsole.
+Follow-up for this thread @
+http://lkml.org/lkml/2006/12/20/293
 
-1) support for multiple logging agents.
-2) add interface to access each parameter of netconsole
-   using sysfs.
-
-This patch is for linux-2.6.19 and is divided to each function.
-Your comments are very welcome.
-
-Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
----
+Regards,
 -- 
-Keiichi KII
-NEC Corporation OSS Promotion Center
-E-mail: k-keiichi@bx.jp.nec.com
+Nicolas Ferre
+
 

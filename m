@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423115AbWLUV1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423037AbWLUV2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423115AbWLUV1w (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 16:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423037AbWLUV1w
+	id S1423037AbWLUV2L (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423117AbWLUV2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 16:27:52 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:56994 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1423033AbWLUV1v convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:27:51 -0500
-X-Greylist: delayed 1478 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 16:27:51 EST
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: David Miller <davem@davemloft.net>
-Subject: Re: [Bugme-new] [Bug 7724] New: asm/types.h should define __u64 if isoc99
-Date: Thu, 21 Dec 2006 23:03:15 +0200
-User-Agent: KMail/1.9.5
-Cc: akpm@osdl.org, netdev@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       uberlord@gentoo.org, linux-kernel@vger.kernel.org
-References: <200612211617.kBLGHAAg028181@fire-2.osdl.org> <20061221124954.6bb415e9.akpm@osdl.org> <20061221.125850.125884789.davem@davemloft.net>
-In-Reply-To: <20061221.125850.125884789.davem@davemloft.net>
+	Thu, 21 Dec 2006 16:28:11 -0500
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:19916 "EHLO
+	outbound2-cpk-R.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1423037AbWLUV2I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 16:28:08 -0500
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
+Subject: RE: IO-APIC + timer doesn't work
+Date: Thu, 21 Dec 2006 13:24:44 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA490731A@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: IO-APIC + timer doesn't work
+Thread-Index: AcclQYMfFz5zux7sRZW3UVIhfs7r5gABGzWw
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: ebiederm@xmission.com
+cc: "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 21 Dec 2006 21:24:45.0630 (UTC)
+ FILETIME=[6FC26DE0:01C72546]
+X-WSS-ID: 699424170T03326298-01-01
 Content-Type: text/plain;
-  charset="utf-8"
+ charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612212303.16136.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-21 Ara 2006 Per 22:58 tarihinde, David Miller şunları yazmıştı: 
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Thu, 21 Dec 2006 12:49:54 -0800
->
-> > >            Summary: asm/types.h should define __u64 if isoc99
->
-> Platform specific bug, and has nothing to do with networking.
->
-> This problem will occur with any user visible interface definition
-> that uses __u64, and there are several both in and outside the
-> networking.
+-----Original Message-----
+From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
+Sent: Thursday, December 21, 2006 12:47 PM
+To: Lu, Yinghai
+>> +static int add_irq_entry(int type, int irqflag, int bus, int irq,
+int apic, int
+>> pin)
 
-This bug hit KDE modules (kdebase/kdemultimedia/kdetv/...) many times, I 
-workarounded with #undef ing __STRICT_ANSI__ before including kernel headers 
-which is well ugly but works.
+>This is fairly sane but probably belongs in mptable.c as a helper.
 
-> x86 and perhaps others protect the __u64 definition with:
->
-> 	defined(__GNUC__) && !defined(__STRICT_ANSI__)
->
-> for whatever reason, probably to avoid "long long" or something like
-> that.  But even that theory makes no sense.
+mparse.c?
 
-Indeed this restriction just breaks userspace apps.
 
-Regards,
-ismail
+>I am still trying to understand this enable_8259A_irq(0) case.
+>As far as I can tell this is a very backwards way of enabling
+>an ExtINT, as such it shouldn't be used until later.
 
--- 
-Bir gün yolda yürüyordum... Bir şarkı duydum... Kalbim acıdı... Bu kadar...
+>YH do you have any insight why on some Nvidia chipsets we apic 0 pin 2
+doesn't
+>work for the timer interrupt.  I thought that was what we were using in
+LinuxBIOS
+>for the mptable.
+
+CK804's has problem. But later one seems fixed that problem.
+
+YH
+
+
+

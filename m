@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161103AbWLUOjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965169AbWLUOkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbWLUOjI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWLUOjI
+	id S965169AbWLUOkb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWLUOkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:39:08 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8410 "EHLO
-	pd5mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965144AbWLUOjH (ORCPT
+	Thu, 21 Dec 2006 09:40:31 -0500
+Received: from nz-out-0506.google.com ([64.233.162.234]:63623 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965169AbWLUOka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:39:07 -0500
-Date: Thu, 21 Dec 2006 08:36:39 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [PATCH] Unbreak MSI on ATI devices
-In-reply-to: <fa.yZrxrHh1AWLcv/+D2xYZ1VhVYb8@ifi.uio.no>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Petr Vandrovec <petr@vandrovec.name>, jeff@garzik.org
-Message-id: <458A9BF7.6030303@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.yZrxrHh1AWLcv/+D2xYZ1VhVYb8@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Thu, 21 Dec 2006 09:40:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
+        b=paIN7R+tBloQVBdPRnLbB+76RuVoO8BRskXFBsQFvWQ+rsmp8Zj0oLoFyHCpN4WbIqX+7WMoLg149+BFCWSqeiKY9nhAmc7iarcIY3zN31RQqX+iiLV7MB5sBRKorwuXsQu8HtLB+K8tturTWvKpKZVwgGURCFJ0XLp+1QUfcxw=
+Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling
+	mechanism.
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+In-Reply-To: <20061221143621.GA32706@2ka.mipt.ru>
+References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru>
+	 <20061221103539.GA4099@2ka.mipt.ru> <458A64E5.4050703@garzik.org>
+	 <20061221104918.GA16744@2ka.mipt.ru> <1166708885.3749.49.camel@localhost>
+	 <20061221140429.GA25214@2ka.mipt.ru> <1166710867.3749.56.camel@localhost>
+	 <20061221142337.GA17204@2ka.mipt.ru>  <20061221143621.GA32706@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Thu, 21 Dec 2006 09:40:26 -0500
+Message-Id: <1166712026.3749.60.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Hello Jeff,
->   I'm using second patch below for couple of months to get MSI on all
-> devices present on my notebook which are MSI capable (except IDE - notebook
-> uses IDE in legacy mode and seems unhappy with transition to native MSI-based
-> mode; maybe I could try do the job with libata now when I switched; and VGA, I 
-> do not use dri...).  All worked nicely until last sync, when I noticed that my 
-> USB devices suddenly stopped working (it took me few weeks as I do not use USB
-> regulary). 
-> 
-> After poking around I've found that problem is that at least ATI USB-HCDs
-> apply INTX enable even for MSI, despite warning in the PCI specification that
-> it should apply only to MSI (actually I have feeling that on these USB devices 
-> disabling INTX in MSI mode drives their INTA# line active as when ohci1394 
-> module got loaded kernel complained about interrupt being continuously 
-> activated for no good reason (TI's 7421 is one of few MSI-incapable devices
-> in my box).
-> 
-> So my question is - what is real reason for disabling INTX when in MSI mode?
-> According to PCI spec it should not be needed, and it hurts at least chips
-> listed below:
-> 
-> 00:13.0 0c03: 1002:4374 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-> 00:13.1 0c03: 1002:4375 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-> 00:13.2 0c03: 1002:4373 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller 
-> 
-> I believe that these devices from same vendor accept disabling INTX while in MSI
-> fine (I did not notice problems with them even with INTX disabling code in msi.c):
-> 
-> 00:14.5 0401: 1002:4370 (rev 02) Multimedia audio controller: ATI Technologies Inc IXP SB400 AC'97 Audio Controller (rev 02)
-> 00:14.6 0703: 1002:4378 (rev 02) Modem: ATI Technologies Inc ATI SB400 - AC'97 Modem Controller (rev 02)
-> 
-> None of devices in the box assert INTX while in MSI even if INTX is enabled.
-> 
-> 
-> So I'd like to see first patch below accepted.  If there are some devices which
-> require INTX disabling, then apparently decision whether to disable it or no
-> has to be moved to device drivers, or some blacklist/whitelist must be created...
+On Thu, 2006-21-12 at 17:36 +0300, Evgeniy Polyakov wrote:
 
-Linus' original position on this issue was that any devices which broke 
-from disabling INTX when going into MSI mode were just broken and we 
-should blacklist MSI entirely for these devices. The reason this change 
-went in is that some devices don't automatically disable INTX when MSI 
-is turned on (somewhat contrary to the PCI spec apparently).
+> Btw, it uses only read/write/signal on fd events, so it must use
+> ->poll() and thus be as fast as epoll. 
+> 
 
-This whole issue might need to be reopened though..
+It is supposed to "detect" the best mechanism in the kernel and switch
+to that.
+At the moment for example in my app it defaults to epoll.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> Things like sockets/pipes can only benefit from direct kevent usage 
+> instead of ->poll() and wrappers.
+
+You should be able change it to use those schemes when it detects
+that the kernel supports them.
+
+cheers,
+jamal
 

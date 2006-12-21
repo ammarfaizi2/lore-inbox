@@ -1,127 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422819AbWLUH2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422801AbWLUHcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422819AbWLUH2A (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 02:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422821AbWLUH2A
+	id S1422801AbWLUHcl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 02:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422802AbWLUHcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 02:28:00 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45368 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422819AbWLUH17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 02:27:59 -0500
-Date: Wed, 20 Dec 2006 23:23:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-       Tom Zanussi <zanussi@us.ibm.com>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] Relay CPU Hotplug support
-Message-Id: <20061220232350.eb4b6a46.akpm@osdl.org>
-In-Reply-To: <20061221003101.GA28643@Krystal>
-References: <20061221003101.GA28643@Krystal>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Dec 2006 02:32:41 -0500
+Received: from nz-out-0506.google.com ([64.233.162.235]:24503 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422801AbWLUHck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 02:32:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oojC75iRsq02WKFomLWFyDdJ4nht0vl5DJJu2CJVpeUrVnN5886HyU8dGfu03Lwol7ULSbJiP67T2lwyC68SRsYSkK9R40TsAkW8twKAIZOD+y9ivFQX0scxcjQwqUyP0Bof3BHvZxCi/vlmq/OdWpP9QcK1Qgtx6Uc1alHKWp8=
+Message-ID: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
+Date: Thu, 21 Dec 2006 00:32:39 -0700
+From: "Gordon Farquharson" <gordonfarquharson@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Cc: "Martin Michlmayr" <tbm@cyrius.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Hugh Dickins" <hugh@veritas.com>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Andrei Popa" <andrei.popa@i-neo.ro>, "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Florian Weimer" <fw@deneb.enyo.de>,
+       "Marc Haber" <mh+linux-kernel@zugschlus.de>,
+       "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
+       "Heiko Carstens" <heiko.carstens@de.ibm.com>,
+       "Arnd Bergmann" <arnd.bergmann@de.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	 <1166614001.10372.205.camel@twins>
+	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	 <1166622979.10372.224.camel@twins>
+	 <20061220170323.GA12989@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	 <20061220175309.GT30106@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 19:31:01 -0500
-Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+On 12/20/06, Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Hi,
-> 
-> Here is a patch, result of the combined work of Tom Zanussi and myself, to add
-> CPU hotplug support to Relay.
-> 
-> ...
->
-> +
-> +	lock_cpu_hotplug();
-> +	for_each_online_cpu(i)
-> +		if (chan->buf[i])
-> +			__relay_reset(chan->buf[i], 0);
-> +	unlock_cpu_hotplug();
+> Ok, I'll just put my money where my mouth is, and suggest a patch like
+> THIS instead.
 
-__relay_reset() runs flush_scheduled_work().  If one of the queued works
-takes lock_cpu_hoplug() (and some do), thou art most deadest meat.
+> Martin, Andrei, does this make any difference for your corruption cases?
 
-I think the core design problem you have here is that you are using
-cpu_online_map to record the presence or absence of resources which belong
-to the relay driver.  Why do that - you don't own cpu_online_map (but you
-do get some notifications when it wants to change, that's all).
+Unfortunately, I cannot get the latest git version of the kernel to
+boot on the ARM machine on which Martin and I are experiencing the apt
+segfault. After the kernel is finished uncompressing it prints "done,
+booting the kernel." as expected, but nothing more happens. I have
+tried both with and without the patch. Hopefully either Andrei or
+Martin will have better luck at testing this patch than I have had.
 
-Perhaps a better approach would be to teach the relay driver to maintain
-its own resources (already there, in chan->buf[]).  So relay.c has a record
-of which per-cpu buffers are present and which are not.  That information
-gets changed under a lock which the relay driver owns and controls.
+Gordon
 
-You already have such a lock: relay_channels_mutex.  So some code in here
-is using lock_cpu_hotplug() to protect relay's resources while other code
-is using relay_channels_mutex.    Which is it?
-
-
-Your proposed change apparently chooses to not release per-cpu resources on
-cpu-hotunplug.  I think.  That's the sort of thing which should be
-communicated in the (presently non-existent) patch changelog.
-
-The changelog should also tell us *why* this patch was written.  Right now
-it's in "why on earth should we merge this" territory.
-
-
-
-
-Meanwhile, let's shrink 10% off of relay.o's .text, shall we?
-
-
---- a/kernel/relay.c~relay-remove-inlining
-+++ a/kernel/relay.c
-@@ -322,7 +322,7 @@ static void wakeup_readers(struct work_s
-  *
-  *	See relay_reset for description of effect.
-  */
--static inline void __relay_reset(struct rchan_buf *buf, unsigned int init)
-+static void __relay_reset(struct rchan_buf *buf, unsigned int init)
- {
- 	size_t i;
- 
-@@ -418,7 +418,7 @@ static struct rchan_buf *relay_open_buf(
-  *	The channel buffer and channel buffer data structure are then freed
-  *	automatically when the last reference is given up.
-  */
--static inline void relay_close_buf(struct rchan_buf *buf)
-+static void relay_close_buf(struct rchan_buf *buf)
- {
- 	buf->finalized = 1;
- 	cancel_delayed_work(&buf->wake_readers);
-@@ -426,7 +426,7 @@ static inline void relay_close_buf(struc
- 	kref_put(&buf->kref, relay_remove_buf);
- }
- 
--static inline void setup_callbacks(struct rchan *chan,
-+static void setup_callbacks(struct rchan *chan,
- 				   struct rchan_callbacks *cb)
- {
- 	if (!cb) {
-@@ -946,11 +946,10 @@ typedef int (*subbuf_actor_t) (size_t re
- /*
-  *	relay_file_read_subbufs - read count bytes, bridging subbuf boundaries
-  */
--static inline ssize_t relay_file_read_subbufs(struct file *filp,
--					      loff_t *ppos,
--					      subbuf_actor_t subbuf_actor,
--					      read_actor_t actor,
--					      read_descriptor_t *desc)
-+static ssize_t relay_file_read_subbufs(struct file *filp, loff_t *ppos,
-+					subbuf_actor_t subbuf_actor,
-+					read_actor_t actor,
-+					read_descriptor_t *desc)
- {
- 	struct rchan_buf *buf = filp->private_data;
- 	size_t read_start, avail;
-_
-
+-- 
+Gordon Farquharson

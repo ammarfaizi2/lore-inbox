@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422838AbWLUIMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422846AbWLUIQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422838AbWLUIMS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 03:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422832AbWLUIMS
+	id S1422846AbWLUIQd (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 03:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422842AbWLUIQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 03:12:18 -0500
-Received: from amsfep15-int.chello.nl ([62.179.120.10]:63676 "EHLO
-	amsfep15-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1422838AbWLUIMR (ORCPT
+	Thu, 21 Dec 2006 03:16:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35660 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422839AbWLUIQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 03:12:17 -0500
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
-	corruption on ext3)
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linus Torvalds <torvalds@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-In-Reply-To: <1166668598.5909.38.camel@lade.trondhjem.org>
-References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
-	 <1166571749.10372.178.camel@twins>
-	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
-	 <1166605296.10372.191.camel@twins>
-	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
-	 <1166614001.10372.205.camel@twins>
-	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
-	 <1166622979.10372.224.camel@twins>
-	 <20061220170323.GA12989@deprecation.cyrius.com>
-	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
-	 <20061220175309.GT30106@deprecation.cyrius.com>
-	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
-	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
-	 <1166652901.30008.1.camel@twins>
-	 <1166668598.5909.38.camel@lade.trondhjem.org>
+	Thu, 21 Dec 2006 03:16:32 -0500
+Subject: Re: [PATCH 2/10] cxgb3 - main source file
+From: Arjan van de Ven <arjan@infradead.org>
+To: Divy Le Ray <divy@chelsio.com>
+Cc: Divy Le Ray <None@chelsio.com>, jeff@garzik.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
+In-Reply-To: <4589CA9C.80007@chelsio.com>
+References: <20061220124134.6299.29373.stgit@localhost.localdomain>
+	 <1166623330.3365.1397.camel@laptopd505.fenrus.org>
+	 <4589CA9C.80007@chelsio.com>
 Content-Type: text/plain
-Date: Thu, 21 Dec 2006 09:10:38 +0100
-Message-Id: <1166688638.30008.22.camel@twins>
+Organization: Intel International BV
+Date: Thu, 21 Dec 2006 09:16:18 +0100
+Message-Id: <1166688978.3365.1472.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-20 at 21:36 -0500, Trond Myklebust wrote:
-> On Wed, 2006-12-20 at 23:15 +0100, Peter Zijlstra wrote:
-> > I think this is also needed:
-> 
-> NAK
-> 
-> invalidate_inode_pages2() should _not_ be pretending that dirty pages
-> are clean. This patch is incorrect both for the NFS usage and for the
-> directIO usage.
-> 
-> In the latter case, if someone has the page mmapped, resulting in the
-> page getting marked as dirty _after_ a directIO write, then it would be
-> wrong to discard that data. Only dirty data from _before_ the directIO
-> write should needs to be discarded (and that is achieved by unmapping,
-> then cleaning the page prior to the directIO call)...
-> 
-> For the NFS case, the race is a bit more tricky, since you have the
-> "unstable write" case which means that the page is neither marked as
-> dirty, nor is entirely clean ('cos we don't know that the server has
-> committed the data to permanent storage yet).
 
-Then this patch:
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc1/2.6.20-rc1-mm1/broken-out/nfs-fix-nr_file_dirty-underflow.patch
+> They are used to parameter the HW:
+> register access,
 
-is equally wrong, right?
+ethtool supports that, so shouldn't be an ioctl for sure
+
+>  configuration of queue sets, on board memory 
+> configuration,
+
+I'm sure ethtool can do that too
+
+> firmware load, etc ...
+
+and for this we have request_firmware() interface. 
+
+adding device specific ioctl that duplicate functionality that exists or
+should exist in a generic way isn't really acceptable for 2.6 kernels
+anymore....
+
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

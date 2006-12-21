@@ -1,401 +1,296 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423053AbWLUTwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423058AbWLUUCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423053AbWLUTwo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423063AbWLUTwo
+	id S1423058AbWLUUCs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 15:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423075AbWLUUCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:52:44 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:51070 "EHLO
-	mailout06.sul.t-online.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1423053AbWLUTwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:52:43 -0500
-Message-ID: <458AE5FB.7080607@t-online.de>
-Date: Thu, 21 Dec 2006 20:52:27 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Thu, 21 Dec 2006 15:02:47 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35850 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423058AbWLUUCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 15:02:46 -0500
+Date: Thu, 21 Dec 2006 12:01:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: schwidefsky@de.ibm.com, Martin Michlmayr <tbm@cyrius.com>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1166692812.32117.2.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612211134370.3536@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> 
+ <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+  <1166614001.10372.205.camel@twins>  <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+  <1166622979.10372.224.camel@twins>  <20061220170323.GA12989@deprecation.cyrius.com>
+  <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> 
+ <20061220175309.GT30106@deprecation.cyrius.com>  <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+  <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>  <1166652901.30008.1.camel@twins>
+  <Pine.LNX.4.64.0612201441030.3576@woody.osdl.org>  <1166655805.30008.18.camel@twins>
+  <1166692586.27750.4.camel@localhost> <1166692812.32117.2.camel@twins>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19.1, sata_sil: sata dvd writer doesn't work
-References: <45841710.9040900@t-online.de> <4587F87C.2050100@gmail.com> <45883299.2050209@t-online.de> <45887CD8.5090100@gmail.com>
-In-Reply-To: <45887CD8.5090100@gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBE1ECA949D0F80DFBD63E291"
-X-ID: ZBK-EaZCoezR9Q6bf4S1cm5xIs4vx6xiHOvd8VyZIuvLhw9HNSZ08K
-X-TOI-MSGID: 85167af0-b691-4202-aff5-6c393e0c4e10
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBE1ECA949D0F80DFBD63E291
-Content-Type: multipart/mixed;
- boundary="------------020601070104030903040209"
-
-This is a multi-part message in MIME format.
---------------020601070104030903040209
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Hi Tejun,
-
-Tejun Heo wrote:
-> * dmesg is truncated, please post the content of file /var/log/boot.msg=
-=2E
->=20
-> * Please post the result of 'lspci -nnvvv'
->=20
-> * Please try the attached patch and see if it makes any difference and
-> post the result of 'dmesg' after trying to play a problematic dvd.
->=20
-
-It still doesn't work, but the dmesg output looks less
-weird. See attachments.
 
 
-Hope this helps. Please mail.
+On Thu, 21 Dec 2006, Peter Zijlstra wrote:
+> 
+> Also, I'm dubious about the while thing and stuck a WARN_ON(ret) thing
+> at the beginning of the loop. flush_tlb_page() does IPI the other cpus
+> to flush their tlb too, so there should not be a SMP race, Arjan?
 
+Now, the reason I think the loop may be needed is:
 
-Regards
+	CPU#0				CPU#1
+	-----				-----
+					load old PTE entry
+	clear dirty and WP bits
+					write to page using old PTE
+					NOT CHECKING that the new one
+					is write-protected, and just
+					setting the dirty bit blindly
+					(but atomically)
+	flush_tlb_page()
+					TLB flushed, but we now have a
+					page that is marked dirty and
+					unwritable in the page tables,
+					and we will mark it clean in
+					"struct page *"
 
-Harri
+Now, the scary thing is, IF a CPU does this, then the way we do all this, 
+we may actually have the following sequence:
 
+	CPU#0				CPU#1
+	-----				-----
+					load old PTE entry
+	ptep_clear_flush():
+					atomic "set dirty bit" sequence
+					PTEP now contains 0000040 !!!
+	flush_tlb_page();
+					TLB flushed, but PTEP is still 
+					"dirty zero"
+	write the clear/readonly PTE
+					THE DIRTY BIT WAS LOST!
 
---------------020601070104030903040209
-Content-Type: application/x-tar;
- name="kern.log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="kern.log.gz"
+which might actually explain this bug.
 
-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
-rc/+Bc2DpvSwjwAA
---------------020601070104030903040209
-Content-Type: application/x-tar;
- name="lspci.txt.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="lspci.txt.gz"
+I personally _thought_ that Intel CPU's don't actually do an "set dirty 
+bit atomically" sequence, but more of a "set dirty bit but trap if the TLB 
+is nonpresent" thing, but I have absolutely no proof for that.
 
-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
-qW9AUXjJt6VbPwL9Fy6e6RjrMAAA
---------------020601070104030903040209
-Content-Type: application/x-tar;
- name="kern.log.patched.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="kern.log.patched.gz"
+Anyway, IF this is the case, then the following patch may or may not fix 
+things. It avoids things by never overwriting a PTE entry, not even the 
+"cleared" one. It always does an atomic "xchg()" with a valid new entry, 
+and looks at the old bits.
 
-H4sICLHjikUAA2tlcm4ubG9nLnBhdGNoZWQA7Fzrc+JIkv9+f0XG7G407gGsksRLt54YjO1u
-phubMbjn4nwdvkIqQGshafTwY/76yyyJhzF0CRp37IejZzAI1S+rsjKzMrOydCZs0BnomsVM
-i7Ug9NIkgHsR+cKz4N4LJg6wqlllf9O1MuBXiIM0sgWcwHEYBfbx/SzGawmPEuFU/+Psm3D1
-X85EImy8E5heNesN6H38C9r9bgcSdyYiVftExInrT+Cy14VHnthTB/tTrVbh6pOqqT0V9j21
-dcfgzvhEgBuD67tJxGfjmDDcBC8pUC4iISQINXRgJmZB9GzhYOraPYzxR0cBcHk+tOBaTNw4
-ERGyAVmYBHbgwZjPXO8ZWF0B0O70uxaM0hiS51BAaLsQLeAUbfsdbHoT0wDswB+7kzTiiRv4
-GRQrRLnrI6UwwmmMQPh85CmpZu0yst0rOdnjIEIWIkSUhglEQUqzWggGhwDXQZDAaeQ6OIm3
-eEH7CiUNX5amHRXhQD8KRtQZwpryyHnkkYASsVQNcEq0H1xHBOCIB9eWYpQR15F+VSs8iu5i
-/NfZ+GFI3ITb/7kbnN5VaVzVu/718OtBET/enL4FbPtD/3Rv2M+ufw+3ny8/MZzI7vXvMRhg
-Qg3q0IAWMA0YQw0DZgKrHcF7NEOOG0vJUyn9N6npP5Sa8Zra+1fkvoeAuWU47w9FoLZK4P0W
-hu1P4Oa0/bYjuDk9fVsCvXZnE4H3B2NRu3/zA2W23enOqb3/Brnv4NeSwA8YzqC3cfoPNzs3
-p9ssyoHk66J7/QP5ZXR6P5Ba9+z8R8pC9+zHUWv3O4uF7T2rHx0IU19iNg6FaSwxm4fCNJeY
-rUNh1t6AnxdzTF2TEPoB5//DG2J/fEPs7hti//aG2J/eEHuwkD3dOJTsfX7D/vbeDtvovGG/
-//vtsAffKdeIkz5B30snwH0HP/BnGKRhGEQYG2rVVgNK9hG0HT6DU4E/KuBCP8Se+n3ZZ5la
-2KWBhdF0ir1gRh6RqnIYK1kASZCCcWRGwTBctu6Ogc/jXycQsf8ugccgui9DEj3DT6HtnhCa
-cKM/f6oC3e4mMBVeGJchDOIEW0eC2FWEWIf7Pgbd3PMCmycCW+YZKMp7BD5oEIznncnTAEUi
-cT4JJzxKLFikpDCIhVGWVijceCASGRKnIVwiI21hEIxKgBbNiSQPRZSkkcwk1M0e/Arak9PU
-5EvNn8pZr41jkJKbZVh6vRsVfSlAGafADaTcRtyncT+ZSLVCfxpjsIPUc4CYP5JsF9GDMtvz
-TehmBj0ew5THCCr8Q8CaWY/NxoFhs96a48Mzopn1uHngHjezHjf34K/UtCynZi21iCu1CJX7
-Ch5d3wkeLWiR7PDxeKxs1DvvLVo5IpP1ijPOXsrW/evzi/Nh5+MCoqblEPihCMTm0Y52G23R
-1WJttPZ8tM6+o3Xmo3UahSDkaOeGykMT6tvPWb59k+XEOQdsXDe/M5OtK9p3+3LFEWBzeypI
-YKeQyMSi8JPIFbEFht6oN6EURI6ILKiXQa/rzDRh9JyIWBVIDzt9EDEhuvEU+7eJADOY1tAX
-FJplDAHNZq1RL05ihJOyEbteqxn1BXSjDDXd1JvNwsgWfFygxot8PQ6ktDqqfASyF5JikT5H
-wg+K7xp8uRjIBeYe/kyDBO2KQ3/v6tVaVbVlcEZ3VrZPcI3NmQ/ofplaqyDj3QBixHRSD1v6
-QRAWH82LptxPXNsNeRKg27KEgJIjxjz1kp364Qju4BIs9uyLPf6zeMsHEfPxCF2/iM/EKB2P
-aTAJOQ65bSjDjIchDgUbaU9kJGxd/tDMfk2l/1dHbSKnDafVy0XpviDlWeBIj4VpuvmEavpk
-6GWg4XvCnyTTE5pMdPb4RMQnKjGZY8Z2FHjkxVjICSfijwXbDaNUoOUJUM9i9y9x0rTkvzLE
-U3ecnOjYtI4XVNa9E/hx4OGKED+6iT0lBuGvBJxGGachZ3VuM5nexNVWgToe4Ur95XzQhi8f
-2ptgCgUbuceY7ZqNORLHQINpTEYaZ/xBwG+Br3T9b51o9hUDIjdxuYeccgAvAKsiFDbRagxn
-UwFx3e6ddQefsKH7ICIZreRYaE7r9DMtjPcxLS3SIH2ScyLlBEbowt/TV9WKdYnmrz841mlO
-EhIKJHWLVzVDM6z+QP9Upi9jJr9ghCtlv66V8c0EjDqAlZlqJOgXuQEqYVMzdfh0egbSmXqN
-tAtM++a/tsGoukOG2U5Hrl3cCqiWYJVoKpfwYruZpTiLfWMYaDBgMDBhoMxzz3fSUz+NkXR2
-ebGhrmvNYvvpM1SgXFRmASLNVdMOZjOMDSm2xcBR3qZAGnQGXYjTUfyM3JitCrbKivthSqHc
-EO0Q92NysBxyt0DHW55HAY8cwFXz2PZ4HB/Lu7N3FXc9d8QTjlYuiinO1auaBl7AHbXLGWO7
-u9j1cq+OWVqjqlmrSN+Z0c13/knMKXXAWnvgrfbttv0VKr+8IIFfP+CMIFTJEw/Co+KTxyO6
-XIjiFha0w9B7Jrm7vju/vgZkBsbPwO3EfaDcwkV3ANg9YvvYfVJF8QlnKDftYRsX2ye4QaRj
-hnNkzxxU/gt8dbI1l7Vx2QU78V5fbsNo5sz4qx8QRloN1TCxD3rRPnQ296GztQ/NYn2I7djV
-YMny4mzzaL7TEFegGnwYhTGUBoOEJym6FcxAjcyMP6BjojInBFqlmBhhK43yghn4EcNio9Vg
-GEnEwkZPD/3Oz6dtswmXnd/J0wuTKWjHhl6YRDYANDSgwQy9RJfyA36irt1ZIKx482Sh5rNW
-gM9sJz7rb8Fnfc7nfnfJ52PDKNpy0+CVrWnsgHos/2E0EuFUVtq2LeIY6EWjlK9Buze4ufwA
-g75e08wOwJch06D/O8b50L4coBWqFSHF5qQ6Z5Xrqx6svIaDwdAOohB/Oj77cvYHDD5WBqxp
-tGFwig7ZLqTkmpOvWLHDrRVZxdCoQrEQTJ3HaC65UMJBabUW9E5VEyXh/ohcROjjso7tyVsP
-lMkC2a5Hzv1A+LFMj4DB6V0pn69GI33ELL634FH2ZcRtVYTx/0zZlAaSbfGN0ZtObwa9mfBP
-+lODX1RhRCAjvjjA8AOD3ntZ8rhaFNnp35DH9Wcq00P2lJKKakfDWSplO0loUE6mQBQEUM9U
-4YRw0YGmDAONbb6XEcmr45gMxAx9jJ+Mav0nwKhsSpWmvkMu1b8wKvO5ygiu42dxr0w5UPRD
-Cz1Fsjui5LQxvMVwLrZW5peVs3CnyVoYD8/vG7tRnGTRD7BmZjUTchYBo2UZGmXXRlTTSmnU
-7Cs5sS7GEhMBhrbaKruyY6cXky0xyOVB74cKekv0u0p11tGyDaSolud1ApQsDHt8jG5VQaiy
-BFYlc5GWGWmjMpvZmT6RkXg6xv8zjcLQ+sGp4NyA7RxHj/DEj0mSdPzqcBq/akvuxnepwdz6
-58HuNU4zOdAWGFVlbBRHy0XkpWrkoDiOvbVrInwMO22IJ1pWvLt/b5ZQLINSLVppPMLlT1ir
-CTNfPK6kJnJ24Y1jlTAUBpumoz2h5vuUi06pEja0jeeIZFq1SU4paBJw7k9cX2SYF3QD4A3U
-IMmBq/Alj660aq3xvRUda/GVrkoebI+v8L/a6/jq4yK+0vVFfDV1J9NFgKUkuduuQq3grkIw
-td27qe1QCkCrQzudpGg5NRNuBqfovjJ4dxUK/x18pF3kleRQ6epjp3sEZ9kkl7BzytxtFrb3
-OzAIBb+nBOqmIF1ljeaWokeBQKWPjJBfzyvds/PXdgNjUI174ZSruOs6KMjtOE5nxF7DoHMS
-eWaCCtXjUOTuc797JVew+D8hQFoRNswWSvyAd548qaLYa4EL1BDnDTpyfcpZ+IDM1rmtyuKc
-ddDZRR+Ky339Cmu1GDR1rdFQuUVoczj+baLvdszqtZo2Z9bfl9xi1ZYGfwdTptTispTLeMoj
-YkmxswexJENELEiS54EmNer4CmNdY9yEEsW3J2AeZUOQ/WgrIEmaWwdDc4UQzGiZ1ousbBYi
-QRTM5F7JM/yvG9Jd71SbwzwiVsnikNPu1WB+AdUxq3FQFgZk92ukF5U4efZElsk0Gui10PAa
-dOJi0O+Xh9fdwbA9PFcV/KOZ1NZs6iLJhsxkeqthcZr+kfT8aLtixWZ8jxm9eG1Gix1x2WJG
-9ddm9GJpRtkWM6oiuZsZ1Xc0oy9aWkBGct107odECyuZZDJGy/W2jDY0dic+spx+8NPZCMeh
-YsEWEiRuOvrTbkBpYRRCqhPQ1UUxuMLT/8xaO+T0N4YucBCjwz0mxZLf1Glh9DuAVfA36hKN
-mC7IKGWXhkZmwhZ6WHBtGug//4yR2wRdWowLejLBvXGV2sc/WK1OXVeUfRRvZfbY7elLRfmw
-VBRti6IUqHXaSVHY3orCDqYobDdFUc3iFhJSUbQ1RTEKK4p+OEXR91UUfU9FoSGwSs7mcep5
-uWdE9HORyCP+OeuoYJM7TkSJQ6UTptt33OEhBZT4uUJ2Tzr/Ogx6pzhv8x/lGmnaSo6vAzIF
-oPldC+DnA8cRelW/7bzU688/Oo7APhTSa7FBVVDQz3fX6y1Iu+i1Krm9hQQ58JNsO7mQF5HV
-2cgSFJmDoh14k3xRKlzM92ipY8+buLpfF6Xp0ddMj6k2PVvgiKHk4uTHycvZfNGeSXkeHjAN
-JDSSKWbejMOZN2Mf87YwUfM8hIjtyA0TjN0iwZ1j7qHKoKrh90pdNQ0velHfzVaqTv6s7+mq
-qge+uadbf+0sG8s93ebmPV0VRTLiWbA0fqzgFCa5S1uhiyQmWeBvEdrJLWt+Bej1ulcnt85Y
-01hWYoofGuMx/cKfoM/te5Gc3OqaSTd3r4+7Q5KWRDwl8cmtedzc/zxzdsTloBHIBqb+9qMj
-kHrBCIQSeF7zSbubCR6nkbjjdqtxZ1OKwYL8mgM1rWXoqCLCViUK53iozYSRF2eZDbOhsjWX
-F1fXnXOjwigJQFkZe5k2wmkhXsdesMLmpjLufAFpT90wFglqc5a3oMB/l/ZknVE4//EP8NFA
-PQiZzrHg0UVvJoyCkSArG8uZUa1VL3BXxwMl7B3w2pHcbmWGscIE1c4TvlxHIOBpryKLJcg3
-GWfHBPBPowwy1RBnEhSjkXK4hTeiHDoj+lCMAHtFoJkRGG8gYM8JOAUIzJ/3QHO/zCvTmKpV
-VUKErLcxdzBJr7Y5mGIfB3OBnid82OrqQCX8DMST3OOmXU9cZid+EKnP6KzBft/Cl4Hpe3JA
-5fos0A/R1a0TzYpOtLHnMJXWcJHmk84nNqN6ye6ZdXozuEVFwlaajgskfLjpnt1S9MZGI0PW
-6+oto0COLQOnDwh7fn6eLYnd/oMp08Igv57PtyxK8/VTlSRfcOVwklTbk8UFtqUy9AN1tdi2
-lOein58qt6Fp/puaztidHT2HyQtc7k1QqZPpDN5d3nz+rMrxLqAsaFL8z+Qu9vGM+3wiZsJP
-jnPTTl60fV+GiZtUWBX/qXRxBbkThM8RzhCKSudIOtsVqg+WTomHv1KWOOPvP/+FHhQdKPjV
-o0Llqlynq3YwUxUkLPLdNOMkAj0MnWCAlo92t/NNNaXa0hamDnmZhZilXtYrWVj0CrPQ8Uic
-+kqctVj47FlVAq5LBQz6svEjd6VPRZ3JgWifHJcxT8BI4GUM1Gzu+2qLLre7f9wwC1jtNxum
-eehhFt6sng9JteO33pM8tF4hUWCx2c78AnHtmzD/L4eh7keP0orKAHPsRjP5cKx54bBZ11Rm
-+DVKdkW6yaAhxy359cE0DC1bBdCTZKwyrsP1hd6qte6uLyDkGlTwtTMxXAEL6GgxkZijq0I2
-x6EZYK0aazab9xA/8pAKi49xPo6pWKsK6Jm4ZOOfrQp5dBhiJbHFgNtREOOHvGWRukR9ewlk
-t6PXhlpdg/awM9BqFW1Rsag12cu6xCKVpmBsJ6V4rZLSodMZ7FQjN7KAsYZOVVHatoq/Oobx
-eqGCv1H21ED4ow9j7np5ii6dibwO8LzYPjLh8Pl2/IYSvmQaBelkqi7oMb5ZLqfab98OsCzj
-0YtVBL0h06k/5nbpQQNKST6ADo+ca8Hp+F/nAq7/AK2q/bKToG4ypGTuqHQu9ESisuX/ZvKR
-4eCbsgbOWVqCjYKkKnLaDrAUJKOYIH3/HCyF5WVXIjELHuSJ0XxU6mnYBrUclVmwYG4pxKyw
-EAezUbC7EC96zZQMKMzLV1BLBtR+zLQuQ954FGKAn9cVZZUgmZMSZfUusoSmtPh65wYnynLU
-dfRh9AwvEDTpEo3QEUKiIS7sVEnsKwO/MHjET8Fj5b5pwUX2YBVo986Qm1Mv8EvJ7Ig2VfpR
-QJKAFAyMi36mPF32Hc3k6nmtqvqJoi8ouv4DjsCRhdjzY9JgtOSJHLj/+Bc8xFV5rLKWX9gF
-nDwBIK+OjgYJKOnYdXoA71GZnmiK11Se0zoaW6DZiKatoalOw6yj6Qs0DiXWXENTFZKvoxkL
-NB3R1vumPI3p430ul8ecU4821Wwq/McI/Uv3rNt+BwlHdzHOb//eZ5mt77wUewbwpk2C7Bm0
-65sEteXOS33zzouK4uWX654lDx/Kxy9LJuQnk5+a9TvUiE/yTjokQfyizZhKq24wgOE0hcvg
-Aej5eg3LqFl6A/qDISUVVFTdpNmgGhpNd1DDp2go9M6Km453dofNxtPTxfIxvrPAdxOZI83y
-8rT96YgQrTcdy6xC3xM8FvnTh+jYw3OQQpxQrj0S3jP57W6imk/q19w6UA+YfpGFNzJzrbe0
-8nIzQBUvZZa1Ik/rR/RIADvBq2aV4TxW5DepWvWK1qowKi3M0yYxJRCdWcWh2fwVY5gpTyjt
-oiD3ooy/9sbnLWoHOW9R+9Z5i9q/6XmLmuK8hfJ89Dra/uct3PAue4iINU/maRVZXH0pkrHr
-JdJxQdUZCq6SnmULJBvTsx3QnnI60fG5e/mJHklgaErlCe/swMeljePkLNdKE0qm1qrBKKUt
-2bgsH/6i0RyglYLFg1NoKYdFe1V3VSdNlFXKwTjptTsWUNE5tNNkKuiJIVlWau4HOZmikPm1
-LZNZLcfSuaU80VgwJTz81O2rUsJ0D7UP6UF082oA7P2wffKqV8gEVJ4gjWE46IC2fOkIYAv0
-0ZxXv2wh73FUslwQiLqQJ99rcu94TSh1bfMSRos2nKZJgvwsXVwcwW3/j+uLr3s07vSyxqeq
-xgdhVn0rs+pbyG9mlr4Dsy7Q9769aF9+hVLgHxVq8n/lXd1P2zAQf99f4cfyAHXipPmQkDag
-CB6GpoEmbXuY8omqdg1KC4P99btL2gg7OeIJe5oE4iHV9e53OV/su7NzhTUT5vMV+1atC/b9
-5uIzNoOEBP9UZffVaApW0O0yZmCC7knHMifuxPTKmz1uEyb2BGViT4zAX65h0Wr6yLDluoSU
-aJJJ2xlOFM1YtVzU7yFaSPKjza/0KC8Oxu7q6vz6bD8PTx+SerpapFOQP33wQFPcZXvCw7kw
-R+BXHzxcOpt2hTta3uSQVf2khdMcgUKoiB9uQASs0rc1Rj132G9ESYTdkBg/x9cZP5XbxPgF
-BTV+gbT6+40MCb7rjthGWOD22CZRQLbdTLmLZL3dRwDJs2MbEDAd6Ur+dN8ed0HBXwQhDUPN
-ioWPvYjlFZLdlyXPYt8lhhJGaWwoB7hNDGURUUNZRG8APiPhMwJee663pXJOqpz/A/iSU/Al
-V+A9G/Ckv5Sqv1iBJ/2lVP3FCnxJwktdDgKYi6iZho/ONAPcBpR3BLVoAEVT+fGAxZLuPuX1
-QFHgA0L3aHy1HuA2oLwbJYTyQJHhHcrwWsr3uA0ojz8jNqw8UBR4Kk7Scvketwnlc59SPvdl
-eGEhk/FK6okDin14n8w6fSnrFCIWatLb9RPCE5J3TUY+/5lslow/cnb9Idu2F/O6bi529Rcs
-B5d19btY64qfnHzEQ6kYzGPh+ECXDztwJXyKh+F59z99do0fE862yS2DyDZPsci9K5G5HBbm
-xZiK3R94K/Na2eIlqL19PDbBUKS632rfzenZCXzKY1lo++YG42HMvThTSezuOJDle6oPtT2q
-NlW5bRpVt6Gz0hie5ntFbytKaHOz7UZwU18+m1/dXJ5/xT5hTSDfFo43bLFaFbeQWeNWWvP6
-xg+07TF4mjYKPBG417M74tRCTkDSujo+dF1tMfs21FoWm18Mbd8Nfb/LIMcmxiHmk7a/Ke7r
-tW+2wB3ua7Z1+zOSiwys11ZouVFpjlFprlFpQpHmGLXb66RJe0D/nzg3JOTpJlvCg8TdwhI2
-o0InoCjwMwvwIZXtAEWGt1EJnXlUtgMUBd5CtjNLqUwXKAq8hbA5EJTxgfIG4FMSPpXhhfrw
-m4An8/ygjOzDh5zKOoCiwFvw/DByKPjIUeAtpC0RCB2GB4oM76mlUv3IYoDZhO4FZTqgKPC9
-UyZ/o7uFbbokobwOKDK8rzp9l+tq6N5jNqE7WUlNCmWt8KkKyUxHdwtzXVpSCw1QnsP7Mafs
-PlqZGmI2oHuWULuVQFHgqfqIp6O7hXkmTyifyaXeZABPFqbG/X2A2YDuhUvZHSjv/gDmkAg3
-eH8AAA==
---------------020601070104030903040209--
+What do you guys think? Does something like this work out for S/390 too? I 
+tried to make that "ptep_flush_dirty()" concept work for architectures 
+that hide the dirty bit somewhere else too, but..
 
---------------enigBE1ECA949D0F80DFBD63E291
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+It actually simplifies the architecture-specific code (you just need to 
+implement a trivial "ptep_exchange()" and "ptep_flush_dirty()" macro), but 
+I only did x86-64 and i386, and while I've booted with this, I haven't 
+really given the thing a lot of really _deep_ thought.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+But I think this might be safer, as per above.. And it _might_ actually 
+explain the problem. Exactly because the "ptep_clear() + blindly assign to 
+ptep" might lose a dirty bit that was written by another CPU.
 
-iD8DBQFFiuYBUTlbRTxpHjcRAmwgAJ9MsEVtwuOf06Uasdy2mlJk/hF9FgCfYMaq
-yFCmtDh09I8lwcU2jc1b51A=
-=6/Ih
------END PGP SIGNATURE-----
+But this really does depend on what a CPU does when it marks a page dirty. 
+Does it just blindly write the dirty bit? Or does it actually _validate_ 
+that the old page table entry was still present and writable?
 
---------------enigBE1ECA949D0F80DFBD63E291--
+This patch makes no assumptions. It should work even if a CPU just writes 
+the dirty bit blindly, and the only expectation is that the page tables 
+can be accessed atomically (which had _better_ be true on any SMP 
+architecture)
+
+Arjan, can you please check within Intel, and ask what the "proper" 
+sequence for doing something like this is?
+
+			Linus
+
+----
+commit 301d2d53ca0e5d2f61b1c1c259da410c7ee6d6a7
+Author: Linus Torvalds <torvalds@woody.osdl.org>
+Date:   Thu Dec 21 11:11:05 2006 -0800
+
+    Rewrite the page table "clear dirty and writable" accesses
+    
+    This is much simpler for most architectures, and allows us to do the
+    dirty and writable clear in a single operation without any races or any
+    double flushes.
+    
+    It's also much more careful: we never overwrite the old dirty bits at
+    any time, and always make sure to do atomic memory ops to exchange and
+    see the old value.
+    
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
+index 9d774d0..8879f1d 100644
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -61,31 +61,6 @@ do {				  					  \
+ })
+ #endif
+ 
+-#ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+-#define ptep_test_and_clear_dirty(__vma, __address, __ptep)		\
+-({									\
+-	pte_t __pte = *__ptep;						\
+-	int r = 1;							\
+-	if (!pte_dirty(__pte))						\
+-		r = 0;							\
+-	else								\
+-		set_pte_at((__vma)->vm_mm, (__address), (__ptep),	\
+-			   pte_mkclean(__pte));				\
+-	r;								\
+-})
+-#endif
+-
+-#ifndef __HAVE_ARCH_PTEP_CLEAR_DIRTY_FLUSH
+-#define ptep_clear_flush_dirty(__vma, __address, __ptep)		\
+-({									\
+-	int __dirty;							\
+-	__dirty = ptep_test_and_clear_dirty(__vma, __address, __ptep);	\
+-	if (__dirty)							\
+-		flush_tlb_page(__vma, __address);			\
+-	__dirty;							\
+-})
+-#endif
+-
+ #ifndef __HAVE_ARCH_PTEP_GET_AND_CLEAR
+ #define ptep_get_and_clear(__mm, __address, __ptep)			\
+ ({									\
+diff --git a/include/asm-i386/pgtable.h b/include/asm-i386/pgtable.h
+index e6a4723..b61d6f9 100644
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -300,18 +300,20 @@ do {									\
+ 	flush_tlb_page(vma, address);					\
+ } while (0)
+ 
+-#define __HAVE_ARCH_PTEP_CLEAR_DIRTY_FLUSH
+-#define ptep_clear_flush_dirty(vma, address, ptep)			\
+-({									\
+-	int __dirty;							\
+-	__dirty = pte_dirty(*(ptep));					\
+-	if (__dirty) {							\
+-		clear_bit(_PAGE_BIT_DIRTY, &(ptep)->pte_low);		\
+-		pte_update_defer((vma)->vm_mm, (address), (ptep));	\
+-		flush_tlb_page(vma, address);				\
+-	}								\
+-	__dirty;							\
+-})
++/*
++ * "ptep_exchange()" can be used to atomically change a set of
++ * page table protection bits, returning the old ones (the dirty
++ * and accessed bits in particular, since they are set by hw).
++ *
++ * "ptep_flush_dirty()" then returns the dirty status of the
++ * page (on x86-64, we just look at the dirty bit in the returned
++ * pte, but some other architectures have the dirty bits in
++ * other places than the page tables).
++ */
++#define ptep_exchange(vma, address, ptep, old, new) \
++	(old).pte_low = xchg(&(ptep)->pte_low, (new).pte_low);
++#define ptep_flush_dirty(vma, address, ptep, old) \
++	pte_dirty(old)
+ 
+ #define __HAVE_ARCH_PTEP_CLEAR_YOUNG_FLUSH
+ #define ptep_clear_flush_young(vma, address, ptep)			\
+diff --git a/include/asm-x86_64/pgtable.h b/include/asm-x86_64/pgtable.h
+index 59901c6..07754b5 100644
+--- a/include/asm-x86_64/pgtable.h
++++ b/include/asm-x86_64/pgtable.h
+@@ -283,12 +283,20 @@ static inline pte_t pte_clrhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) &
+ 
+ struct vm_area_struct;
+ 
+-static inline int ptep_test_and_clear_dirty(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep)
+-{
+-	if (!pte_dirty(*ptep))
+-		return 0;
+-	return test_and_clear_bit(_PAGE_BIT_DIRTY, &ptep->pte);
+-}
++/*
++ * "ptep_exchange()" can be used to atomically change a set of
++ * page table protection bits, returning the old ones (the dirty
++ * and accessed bits in particular, since they are set by hw).
++ *
++ * "ptep_flush_dirty()" then returns the dirty status of the
++ * page (on x86-64, we just look at the dirty bit in the returned
++ * pte, but some other architectures have the dirty bits in
++ * other places than the page tables).
++ */
++#define ptep_exchange(vma, address, ptep, old, new) \
++	(old).pte = xchg(&(ptep)->pte, (new).pte);
++#define ptep_flush_dirty(vma, address, ptep, old) \
++	pte_dirty(old)
+ 
+ static inline int ptep_test_and_clear_young(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep)
+ {
+diff --git a/mm/rmap.c b/mm/rmap.c
+index d8a842a..a028803 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -432,7 +432,7 @@ static int page_mkclean_one(struct page *page, struct vm_area_struct *vma)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+-	pte_t *pte, entry;
++	pte_t *ptep;
+ 	spinlock_t *ptl;
+ 	int ret = 0;
+ 
+@@ -440,22 +440,24 @@ static int page_mkclean_one(struct page *page, struct vm_area_struct *vma)
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	pte = page_check_address(page, mm, address, &ptl);
+-	if (!pte)
+-		goto out;
+-
+-	if (!pte_dirty(*pte) && !pte_write(*pte))
+-		goto unlock;
+-
+-	entry = ptep_get_and_clear(mm, address, pte);
+-	entry = pte_mkclean(entry);
+-	entry = pte_wrprotect(entry);
+-	ptep_establish(vma, address, pte, entry);
+-	lazy_mmu_prot_update(entry);
+-	ret = 1;
+-
+-unlock:
+-	pte_unmap_unlock(pte, ptl);
++	ptep = page_check_address(page, mm, address, &ptl);
++	if (ptep) {
++		pte_t old, new;
++
++		old = *ptep;
++		new = pte_wrprotect(pte_mkclean(old));
++		if (!pte_same(old, new)) {
++			for (;;) {
++				flush_cache_page(vma, address, page_to_pfn(page));
++				ptep_exchange(vma, address, ptep, old, new);
++				if (pte_same(old, new))
++					break;
++				ret |= ptep_flush_dirty(vma, address, ptep, old);
++				flush_tlb_page(vma, address);
++			}
++		}
++		pte_unmap_unlock(pte, ptl);
++	}
+ out:
+ 	return ret;
+ }

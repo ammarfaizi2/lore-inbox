@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423127AbWLUXPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422975AbWLUX2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423127AbWLUXPw (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 18:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423128AbWLUXPw
+	id S1422975AbWLUX2w (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 18:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423125AbWLUX2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 18:15:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:55522 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423127AbWLUXPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 18:15:51 -0500
-Date: Fri, 22 Dec 2006 00:13:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] mm: export cancel_dirty_page()
-Message-ID: <20061221231328.GA21217@elte.hu>
-Mime-Version: 1.0
+	Thu, 21 Dec 2006 18:28:52 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2789 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1422975AbWLUX2w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 18:28:52 -0500
+Date: Fri, 22 Dec 2006 00:28:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm: export cancel_dirty_page()
+Message-ID: <20061221232850.GJ6993@stusta.de>
+References: <20061221231328.GA21217@elte.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <20061221231328.GA21217@elte.hu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Subject: [patch] export cancel_dirty_page()
+On Fri, Dec 22, 2006 at 12:13:28AM +0100, Ingo Molnar wrote:
+> From: Ingo Molnar <mingo@elte.hu>
+> Subject: [patch] export cancel_dirty_page()
+> 
+> export cancel_dirty_page() - it's used by hugetlbfs which can be 
+> modular. (This makes my -git based kernel yum repository build again.)
+>...
 
-export cancel_dirty_page() - it's used by hugetlbfs which can be 
-modular. (This makes my -git based kernel yum repository build again.)
+No, it can't be:
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+config HUGETLBFS
+        bool "HugeTLB file system support"
+        ^^^^
 
-Index: linux/mm/truncate.c
-===================================================================
---- linux.orig/mm/truncate.c
-+++ linux/mm/truncate.c
-@@ -65,6 +65,7 @@ void cancel_dirty_page(struct page *page
- 		task_io_account_cancelled_write(account_size);
- 	}
- }
-+EXPORT_SYMBOL(cancel_dirty_page);
- 
- /*
-  * If truncate cannot remove the fs-private metadata from the page, the page
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

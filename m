@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422948AbWLUJAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422894AbWLUJNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422948AbWLUJAt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 04:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423001AbWLUJAs
+	id S1422894AbWLUJNS (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 04:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422886AbWLUJNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 04:00:48 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:50803 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423003AbWLUJAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 04:00:46 -0500
-Date: Thu, 21 Dec 2006 00:59:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Martin Michlmayr <tbm@cyrius.com>
-cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
- corruption on ext3)
-In-Reply-To: <20061221083801.GB4674@deprecation.cyrius.com>
-Message-ID: <Pine.LNX.4.64.0612210058510.3394@woody.osdl.org>
-References: <1166614001.10372.205.camel@twins>
- <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
- <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com>
- <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com>
- <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
- <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
- <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
- <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <20061221083801.GB4674@deprecation.cyrius.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Dec 2006 04:13:17 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59614 "EHLO
+	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422894AbWLUJNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 04:13:16 -0500
+Date: Thu, 21 Dec 2006 01:12:42 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] add i386 idle notifier (take 3)
+Message-ID: <20061221091242.GA32601@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220210514.42ed08cc.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
-
-On Thu, 21 Dec 2006, Martin Michlmayr wrote:
+On Wed, Dec 20, 2006 at 09:05:14PM -0800, Andrew Morton wrote:
+> On Wed, 20 Dec 2006 06:05:00 -0800
+> Stephane Eranian <eranian@hpl.hp.com> wrote:
 > 
-> This is a known issue.  The following patch has been proposed
-> http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=4030/1
-> although I just notice that it has been marked as "discarded".
-> Apparently Russell King commited a better patch so this should be
-> fixed in git when he sends his next pull request.
+> > Hello,
+> > 
+> > Here is the latest version of the idle notifier for i386.
+> > This patch is against 2.6.20-rc1 (GIT). In this kernel, the idle
+> > loop code was modified such that the lowest level idle
+> > routines do not have loops anymore (e.g., poll_idle). As such,
+> > we do not need to call enter_idle() in all the interrupt handlers.
+> > 
+> > This patch also duplicates the x86-64 bug fix for a race condition
+> > as posted by Venkatesh Pallipadi from Intel.
+> > 
+> > changelog:
+> > 	- add idle notification mechanism to i386
+> > 
+> 
+> None of the above text is actually usable as a changelog entry.  We are
+> left wondering:
+> 
+> - why is this patch needed?
+> 
+> - what does it do?
+> 
+> - how does it do it?
+> 
+> The three questions which all changelogs should answer ;)
 
-Ahh, ok. Then it might even be in the set of merges I did earlier today 
-(and which should mirror out soon enough, hopefully).
+Sorry about that. Here is a new changelog:
 
-		Linus
+changelog:
+	- add a notifier mechanism to the low level idle loop. You can
+	  register a callback function which gets invoked on entry and exit
+	  from the low level idle loop. The low level idle loop is defined as
+	  the polling loop, low-power call, or the mwait instruction. Interrupts
+	  processed by the idle thread are not considered part of the low level
+	  loop. The notifier can be used to measure precisely how much is spent
+	  in useless execution (or low power mode). The perfmon subsystem uses it
+	  to turn on/off monitoring.
+
+-- 
+-Stephane

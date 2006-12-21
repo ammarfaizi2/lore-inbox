@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422900AbWLUJTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422906AbWLUJTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422900AbWLUJTK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 04:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422899AbWLUJSj
+	id S1422906AbWLUJTW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 04:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422923AbWLUJSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 04:18:39 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:47316 "EHLO
+	Thu, 21 Dec 2006 04:18:36 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:47322 "EHLO
 	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1422906AbWLUJPM convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1422900AbWLUJPN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 04:15:12 -0500
+	Thu, 21 Dec 2006 04:15:13 -0500
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
@@ -17,11 +17,11 @@ Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
-Subject: [take28-resend_1->0 6/8] kevent: Pipe notifications.
-In-Reply-To: <1166692457438@2ka.mipt.ru>
+Subject: [take28-resend_1->0 4/8] kevent: Socket notifications.
+In-Reply-To: <11666924573876@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 21 Dec 2006 12:14:17 +0300
-Message-Id: <1166692457991@2ka.mipt.ru>
+Message-Id: <11666924572041@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -32,69 +32,131 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Pipe notifications.
+Socket notifications.
 
+This patch includes socket send/recv/accept notifications.
+Using trivial web server based on kevent and this features
+instead of epoll it's performance increased more than noticebly.
+More details about various benchmarks and server itself 
+(evserver_kevent.c) can be found on project's homepage.
 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index f3b6f71..aeaee9c 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -16,6 +16,7 @@
- #include <linux/uio.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
+
+diff --git a/fs/inode.c b/fs/inode.c
+index ada7643..2740617 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -21,6 +21,7 @@
+ #include <linux/cdev.h>
+ #include <linux/bootmem.h>
+ #include <linux/inotify.h>
++#include <linux/kevent.h>
+ #include <linux/mount.h>
+ 
+ /*
+@@ -164,12 +165,18 @@ static struct inode *alloc_inode(struct super_block *sb)
+ 		}
+ 		inode->i_private = 0;
+ 		inode->i_mapping = mapping;
++#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
++		kevent_storage_init(inode, &inode->st);
++#endif
+ 	}
+ 	return inode;
+ }
+ 
+ void destroy_inode(struct inode *inode) 
+ {
++#if defined CONFIG_KEVENT_SOCKET || defined CONFIG_KEVENT_PIPE
++	kevent_storage_fini(&inode->st);
++#endif
+ 	BUG_ON(inode_has_buffers(inode));
+ 	security_inode_free(inode);
+ 	if (inode->i_sb->s_op->destroy_inode)
+diff --git a/include/net/sock.h b/include/net/sock.h
+index edd4d73..d48ded8 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -48,6 +48,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>	/* struct sk_buff */
+ #include <linux/security.h>
 +#include <linux/kevent.h>
  
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
-@@ -312,6 +313,7 @@ redo:
- 			break;
- 		}
- 		if (do_wakeup) {
-+			kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
- 			wake_up_interruptible_sync(&pipe->wait);
-  			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 		}
-@@ -321,6 +323,7 @@ redo:
+ #include <linux/filter.h>
  
- 	/* Signal writers asynchronously that there is more room. */
- 	if (do_wakeup) {
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
- 		wake_up_interruptible(&pipe->wait);
- 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+@@ -450,6 +451,21 @@ static inline int sk_stream_memory_free(struct sock *sk)
+ 
+ extern void sk_stream_rfree(struct sk_buff *skb);
+ 
++struct socket_alloc {
++	struct socket socket;
++	struct inode vfs_inode;
++};
++
++static inline struct socket *SOCKET_I(struct inode *inode)
++{
++	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
++}
++
++static inline struct inode *SOCK_INODE(struct socket *socket)
++{
++	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
++}
++
+ static inline void sk_stream_set_owner_r(struct sk_buff *skb, struct sock *sk)
+ {
+ 	skb->sk = sk;
+@@ -477,6 +493,7 @@ static inline void sk_add_backlog(struct sock *sk, struct sk_buff *skb)
+ 		sk->sk_backlog.tail = skb;
  	}
-@@ -490,6 +493,7 @@ redo2:
- 			break;
- 		}
- 		if (do_wakeup) {
-+			kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
- 			wake_up_interruptible_sync(&pipe->wait);
- 			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 			do_wakeup = 0;
-@@ -501,6 +505,7 @@ redo2:
- out:
- 	mutex_unlock(&inode->i_mutex);
- 	if (do_wakeup) {
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
- 		wake_up_interruptible(&pipe->wait);
- 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 	}
-@@ -605,6 +610,7 @@ pipe_release(struct inode *inode, int decr, int decw)
- 		free_pipe_info(inode);
- 	} else {
- 		wake_up_interruptible(&pipe->wait);
-+		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
- 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 	}
-diff --git a/kernel/kevent/kevent_pipe.c b/kernel/kevent/kevent_pipe.c
+ 	skb->next = NULL;
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
+ }
+ 
+ #define sk_wait_event(__sk, __timeo, __condition)		\
+@@ -679,21 +696,6 @@ static inline struct kiocb *siocb_to_kiocb(struct sock_iocb *si)
+ 	return si->kiocb;
+ }
+ 
+-struct socket_alloc {
+-	struct socket socket;
+-	struct inode vfs_inode;
+-};
+-
+-static inline struct socket *SOCKET_I(struct inode *inode)
+-{
+-	return &container_of(inode, struct socket_alloc, vfs_inode)->socket;
+-}
+-
+-static inline struct inode *SOCK_INODE(struct socket *socket)
+-{
+-	return &container_of(socket, struct socket_alloc, socket)->vfs_inode;
+-}
+-
+ extern void __sk_stream_mem_reclaim(struct sock *sk);
+ extern int sk_stream_mem_schedule(struct sock *sk, int size, int kind);
+ 
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 7a093d0..69f4ad2 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -857,6 +857,7 @@ static inline int tcp_prequeue(struct sock *sk, struct sk_buff *skb)
+ 			tp->ucopy.memory = 0;
+ 		} else if (skb_queue_len(&tp->ucopy.prequeue) == 1) {
+ 			wake_up_interruptible(sk->sk_sleep);
++			kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ 			if (!inet_csk_ack_scheduled(sk))
+ 				inet_csk_reset_xmit_timer(sk, ICSK_TIME_DACK,
+ 						          (3 * TCP_RTO_MIN) / 4,
+diff --git a/kernel/kevent/kevent_socket.c b/kernel/kevent/kevent_socket.c
 new file mode 100644
-index 0000000..91dc1eb
+index 0000000..1798092
 --- /dev/null
-+++ b/kernel/kevent/kevent_pipe.c
-@@ -0,0 +1,123 @@
++++ b/kernel/kevent/kevent_socket.c
+@@ -0,0 +1,144 @@
 +/*
-+ * 	kevent_pipe.c
++ * 	kevent_socket.c
 + * 
 + * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 + * All rights reserved.
@@ -116,51 +178,45 @@ index 0000000..91dc1eb
 +
 +#include <linux/kernel.h>
 +#include <linux/types.h>
++#include <linux/list.h>
 +#include <linux/slab.h>
 +#include <linux/spinlock.h>
++#include <linux/timer.h>
 +#include <linux/file.h>
-+#include <linux/fs.h>
++#include <linux/tcp.h>
 +#include <linux/kevent.h>
-+#include <linux/pipe_fs_i.h>
 +
-+static int kevent_pipe_callback(struct kevent *k)
++#include <net/sock.h>
++#include <net/request_sock.h>
++#include <net/inet_connection_sock.h>
++
++static int kevent_socket_callback(struct kevent *k)
 +{
 +	struct inode *inode = k->st->origin;
-+	struct pipe_inode_info *pipe = inode->i_pipe;
-+	int nrbufs = pipe->nrbufs;
++	unsigned int events = SOCKET_I(inode)->ops->poll(SOCKET_I(inode)->file, SOCKET_I(inode), NULL);
 +
-+	if (k->event.event & KEVENT_SOCKET_RECV && nrbufs > 0) {
-+		if (!pipe->writers)
-+			return -1;
++	if ((events & (POLLIN | POLLRDNORM)) && (k->event.event & (KEVENT_SOCKET_RECV | KEVENT_SOCKET_ACCEPT)))
 +		return 1;
-+	}
-+	
-+	if (k->event.event & KEVENT_SOCKET_SEND && nrbufs < PIPE_BUFFERS) {
-+		if (!pipe->readers)
-+			return -1;
++	if ((events & (POLLOUT | POLLWRNORM)) && (k->event.event & KEVENT_SOCKET_SEND))
 +		return 1;
-+	}
-+
++	if (events & (POLLERR | POLLHUP))
++		return -1;
 +	return 0;
 +}
 +
-+int kevent_pipe_enqueue(struct kevent *k)
++int kevent_socket_enqueue(struct kevent *k)
 +{
-+	struct file *pipe;
-+	int err = -EBADF;
 +	struct inode *inode;
++	struct socket *sock;
++	int err = -EBADF;
 +
-+	pipe = fget(k->event.id.raw[0]);
-+	if (!pipe)
++	sock = sockfd_lookup(k->event.id.raw[0], &err);
++	if (!sock)
 +		goto err_out_exit;
 +
-+	inode = igrab(pipe->f_dentry->d_inode);
++	inode = igrab(SOCK_INODE(sock));
 +	if (!inode)
 +		goto err_out_fput;
-+
-+	err = -EINVAL;
-+	if (!S_ISFIFO(inode->i_mode))
-+		goto err_out_iput;
 +
 +	err = kevent_storage_enqueue(&inode->st, k);
 +	if (err)
@@ -175,8 +231,6 @@ index 0000000..91dc1eb
 +			goto err_out_dequeue;
 +	}
 +
-+	fput(pipe);
-+
 +	return err;
 +
 +err_out_dequeue:
@@ -184,36 +238,187 @@ index 0000000..91dc1eb
 +err_out_iput:
 +	iput(inode);
 +err_out_fput:
-+	fput(pipe);
++	sockfd_put(sock);
 +err_out_exit:
 +	return err;
 +}
 +
-+int kevent_pipe_dequeue(struct kevent *k)
++int kevent_socket_dequeue(struct kevent *k)
 +{
 +	struct inode *inode = k->st->origin;
++	struct socket *sock;
 +
 +	kevent_storage_dequeue(k->st, k);
++
++	sock = SOCKET_I(inode);
 +	iput(inode);
++	sockfd_put(sock);
 +
 +	return 0;
 +}
 +
-+void kevent_pipe_notify(struct inode *inode, u32 event)
++void kevent_socket_notify(struct sock *sk, u32 event)
 +{
-+	kevent_storage_ready(&inode->st, NULL, event);
++	if (sk->sk_socket)
++		kevent_storage_ready(&SOCK_INODE(sk->sk_socket)->st, NULL, event);
 +}
 +
-+static int __init kevent_init_pipe(void)
++/*
++ * It is required for network protocols compiled as modules, like IPv6.
++ */
++EXPORT_SYMBOL_GPL(kevent_socket_notify);
++
++#ifdef CONFIG_LOCKDEP
++static struct lock_class_key kevent_sock_key;
++
++void kevent_socket_reinit(struct socket *sock)
++{
++	struct inode *inode = SOCK_INODE(sock);
++
++	lockdep_set_class(&inode->st.lock, &kevent_sock_key);
++}
++
++void kevent_sk_reinit(struct sock *sk)
++{
++	if (sk->sk_socket) {
++		struct inode *inode = SOCK_INODE(sk->sk_socket);
++
++		lockdep_set_class(&inode->st.lock, &kevent_sock_key);
++	}
++}
++#endif
++static int __init kevent_init_socket(void)
 +{
 +	struct kevent_callbacks sc = {
-+		.callback = &kevent_pipe_callback,
-+		.enqueue = &kevent_pipe_enqueue,
-+		.dequeue = &kevent_pipe_dequeue,
++		.callback = &kevent_socket_callback,
++		.enqueue = &kevent_socket_enqueue,
++		.dequeue = &kevent_socket_dequeue,
 +		.flags = 0,
 +	};
 +
-+	return kevent_add_callbacks(&sc, KEVENT_PIPE);
++	return kevent_add_callbacks(&sc, KEVENT_SOCKET);
 +}
-+module_init(kevent_init_pipe);
++module_init(kevent_init_socket);
+diff --git a/net/core/sock.c b/net/core/sock.c
+index b77e155..7d5fa3e 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1402,6 +1402,7 @@ static void sock_def_wakeup(struct sock *sk)
+ 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
+ 		wake_up_interruptible_all(sk->sk_sleep);
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
+ 
+ static void sock_def_error_report(struct sock *sk)
+@@ -1411,6 +1412,7 @@ static void sock_def_error_report(struct sock *sk)
+ 		wake_up_interruptible(sk->sk_sleep);
+ 	sk_wake_async(sk,0,POLL_ERR); 
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
+ 
+ static void sock_def_readable(struct sock *sk, int len)
+@@ -1420,6 +1422,7 @@ static void sock_def_readable(struct sock *sk, int len)
+ 		wake_up_interruptible(sk->sk_sleep);
+ 	sk_wake_async(sk,1,POLL_IN);
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
+ }
+ 
+ static void sock_def_write_space(struct sock *sk)
+@@ -1439,6 +1442,7 @@ static void sock_def_write_space(struct sock *sk)
+ 	}
+ 
+ 	read_unlock(&sk->sk_callback_lock);
++	kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ }
+ 
+ static void sock_def_destruct(struct sock *sk)
+@@ -1489,6 +1493,8 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 	sk->sk_state		=	TCP_CLOSE;
+ 	sk->sk_socket		=	sock;
+ 
++	kevent_sk_reinit(sk);
++
+ 	sock_set_flag(sk, SOCK_ZAPPED);
+ 
+ 	if(sock)
+@@ -1555,8 +1561,10 @@ void fastcall release_sock(struct sock *sk)
+ 	if (sk->sk_backlog.tail)
+ 		__release_sock(sk);
+ 	sk->sk_lock.owner = NULL;
+-	if (waitqueue_active(&sk->sk_lock.wq))
++	if (waitqueue_active(&sk->sk_lock.wq)) {
+ 		wake_up(&sk->sk_lock.wq);
++		kevent_socket_notify(sk, KEVENT_SOCKET_RECV|KEVENT_SOCKET_SEND);
++	}
+ 	spin_unlock_bh(&sk->sk_lock.slock);
+ }
+ EXPORT_SYMBOL(release_sock);
+diff --git a/net/core/stream.c b/net/core/stream.c
+index d1d7dec..2878c2a 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -36,6 +36,7 @@ void sk_stream_write_space(struct sock *sk)
+ 			wake_up_interruptible(sk->sk_sleep);
+ 		if (sock->fasync_list && !(sk->sk_shutdown & SEND_SHUTDOWN))
+ 			sock_wake_async(sock, 2, POLL_OUT);
++		kevent_socket_notify(sk, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ 	}
+ }
+ 
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 3f884ce..e7dd989 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3119,6 +3119,7 @@ static void tcp_ofo_queue(struct sock *sk)
+ 
+ 		__skb_unlink(skb, &tp->out_of_order_queue);
+ 		__skb_queue_tail(&sk->sk_receive_queue, skb);
++		kevent_socket_notify(sk, KEVENT_SOCKET_RECV);
+ 		tp->rcv_nxt = TCP_SKB_CB(skb)->end_seq;
+ 		if(skb->h.th->fin)
+ 			tcp_fin(skb, sk, skb->h.th);
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index c83938b..b0dd70d 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -61,6 +61,7 @@
+ #include <linux/jhash.h>
+ #include <linux/init.h>
+ #include <linux/times.h>
++#include <linux/kevent.h>
+ 
+ #include <net/icmp.h>
+ #include <net/inet_hashtables.h>
+@@ -870,6 +871,7 @@ int tcp_v4_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	   	reqsk_free(req);
+ 	} else {
+ 		inet_csk_reqsk_queue_hash_add(sk, req, TCP_TIMEOUT_INIT);
++		kevent_socket_notify(sk, KEVENT_SOCKET_ACCEPT);
+ 	}
+ 	return 0;
+ 
+diff --git a/net/socket.c b/net/socket.c
+index 1bc4167..5582b4a 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -85,6 +85,7 @@
+ #include <linux/kmod.h>
+ #include <linux/audit.h>
+ #include <linux/wireless.h>
++#include <linux/kevent.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -490,6 +491,8 @@ static struct socket *sock_alloc(void)
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+ 
++	kevent_socket_reinit(sock);
++
+ 	get_cpu_var(sockets_in_use)++;
+ 	put_cpu_var(sockets_in_use);
+ 	return sock;
 

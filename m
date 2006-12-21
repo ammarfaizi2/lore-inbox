@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423043AbWLUTY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423049AbWLUTZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423043AbWLUTY6 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWLUTY6
+	id S1423049AbWLUTZx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423054AbWLUTZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:24:58 -0500
-Received: from neopsis.com ([213.239.204.14]:33832 "EHLO
-	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1423043AbWLUTY5 (ORCPT
+	Thu, 21 Dec 2006 14:25:53 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:31495 "HELO
+	smtp106.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1423049AbWLUTZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:24:57 -0500
-Message-ID: <458AE3B7.8080302@dbservice.com>
-Date: Thu, 21 Dec 2006 19:42:47 +0000
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Thunderbird 2.0b1 (X11/20061212)
+	Thu, 21 Dec 2006 14:25:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=wMXIa/fd/sWhaPkwMrjpQJuXMxSEFs3Ya2Qb6jAYt8FEXHqNqMAFlVcoeQGc7RhkAzbUjZxGL0kXSQB/7twC+NoB69bcX9E1ytX8z8sN/79ewe1J/sGBBSK1i/pCPEMfg6F9MFIlAb7H2J4pbLl8cGXYy4S4soyes1Jc7PJjTA0=  ;
+X-YMail-OSG: 8bDpq3oVM1ms7Q3SGXFCg8PEInrJLoVbMr0GvUQAxVB1.TVn6sB7E2g8bJGYKzsRefYOiTl8KpA5xRBeerEwKrW0hfsdGNPFWU4w3IWdPs0Ftx1pzhXqdwyAJDLw8B86Z_4MNgiR1td85JdtUZ4HOZHHrFKnYy1VRpx1ZwU6Y0Ecgd4auPJ9FVz1DHVH
+From: David Brownell <david-b@pacbell.net>
+To: "pHilipp Zabel" <philipp.zabel@gmail.com>
+Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
+Date: Thu, 21 Dec 2006 11:25:47 -0800
+User-Agent: KMail/1.7.1
+Cc: "Nicolas Pitre" <nico@cam.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       "Andrew Victor" <andrew@sanpeople.com>,
+       "Bill Gatliff" <bgat@billgatliff.com>,
+       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       "Kevin Hilman" <khilman@mvista.com>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Tony Lindgren" <tony@atomide.com>
+References: <200611111541.34699.david-b@pacbell.net> <Pine.LNX.4.64.0612210925130.18171@xanadu.home> <74d0deb30612210703y735e53kf14e7c800dae7140@mail.gmail.com>
+In-Reply-To: <74d0deb30612210703y735e53kf14e7c800dae7140@mail.gmail.com>
 MIME-Version: 1.0
-To: James Porter <jameslporter@gmail.com>
-CC: Erik Mouw <erik@harddisk-recovery.com>, Scott Preece <sepreece@gmail.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary Drivers
-References: <loom.20061215T220806-362@post.gmane.org>	 <20061215220117.GA24819@martell.zuzino.mipt.ru>	 <4583527D.4000903@dbservice.com>	 <m13b7ds25w.fsf@ebiederm.dsl.xmission.com>	 <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com>	 <20061221174346.GN3073@harddisk-recovery.com>	 <458ADC37.9070608@dbservice.com> <f0e2c5070612211120wa6e3402p2ffb6e1d579a485a@mail.gmail.com>
-In-Reply-To: <f0e2c5070612211120wa6e3402p2ffb6e1d579a485a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
-X-Neopsis-MailScanner: Found to be clean
-X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.311,
-	required 5, autolearn=spam, AWL 0.15, BAYES_00 -2.60,
-	FORGED_RCVD_HELO 0.14)
-X-MailScanner-From: tom@dbservice.com
+Content-Disposition: inline
+Message-Id: <200612211125.49226.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Porter wrote:
-> I'm pretty sure Linus has decided, basically he said the patches to 
-> prevent non-gpl binary drivers are not going into his tree unless every 
-> other tree adopts it. Of course the few supporting won't get off their 
-> high horse and try it on a different tree.
+On Thursday 21 December 2006 7:03 am, pHilipp Zabel wrote:
+> On 12/21/06, Nicolas Pitre <nico@cam.org> wrote:
 
-.. unfortunately, that doesn't make the legal status any clearer.
+> +static inline void __gpio_set_value(unsigned gpio, int value)
+> +{
+> +	if (value)
+> +		GPSR(gpio) = GPIO_bit(gpio);
+> +	else
+> +		GPCR(gpio) = GPIO_bit(gpio);
+> +}
+> +
+> +#define gpio_set_value(gpio,value)		\
+> +	(__builtin_constant_p(gpio) ?		\
 
-tom
+Should that be testing for _both_ gpio and value being constant?
+I tend to think it should (assuming nonconstant 'variable' means
+this costs more than a function call) ...
+
+> +	 __gpio_set_value(gpio, value) :	\
+> +	 pxa_gpio_set_value(gpio, value))

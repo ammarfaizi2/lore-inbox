@@ -1,144 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423142AbWLUXyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423146AbWLUX5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423142AbWLUXyi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 18:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423139AbWLUXyi
+	id S1423146AbWLUX5Q (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 18:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423153AbWLUX5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 18:54:38 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37630 "EHLO
-	ms-smtp-03.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423140AbWLUXyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 18:54:37 -0500
-Subject: Re: newbie questions about while (1) in kernel mode and spinlocks
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Sorin Manolache <sorinm@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20170a030612210141y6578602eo525e6df5f324747d@mail.gmail.com>
-References: <20170a030612210141y6578602eo525e6df5f324747d@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 21 Dec 2006 18:54:33 -0500
-Message-Id: <1166745273.852.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 18:57:16 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:40637 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423146AbWLUX5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 18:57:15 -0500
+Date: Fri, 22 Dec 2006 00:56:51 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joe Perches <joe@perches.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+In-Reply-To: <1166744416.14803.1.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0612220051050.3720@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain> 
+ <20061219164146.GI25461@redhat.com>  <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com>
+  <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>  <4589BC6E.7040209@tmr.com>
+  <Pine.LNX.4.61.0612212151450.3720@yvahk01.tjqt.qr>  <1166741599.27218.7.camel@localhost>
+  <Pine.LNX.4.61.0612220019260.3720@yvahk01.tjqt.qr> <1166744416.14803.1.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 2006-12-21 at 10:41 +0100, Sorin Manolache wrote:
-> Dear list,
-> 
-> I am in the process of learning how to write linux device drivers.
-> 
-> I have a 2.6.16.5 kernel running on a monoprocessor machine.
+On Dec 21 2006 15:40, Joe Perches wrote:
+>On Fri, 2006-12-22 at 00:29 +0100, Jan Engelhardt wrote:
+>> On Dec 21 2006 14:53, Joe Perches wrote:
+>> >On Thu, 2006-12-21 at 21:52 +0100, Jan Engelhardt wrote:
+>> >> http://lkml.org/lkml/2006/9/30/208
+>> >@@ -1302,7 +1302,7 @@ static int acpi_battery_add(struct acpi_
+>> > 		battery->init_state = 1;
+>> > 	}
+>> >-	(void)sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
+>> >+	sprintf(dir_name, ACPI_BATTERY_DIR_NAME, id);
+>> >These casts can eliminate "return value unused" warnings.
+>> 
+>> But only when functions are tagged __must_check, and sprintf is not.
+>
+>or where -Wall is used.
 
-We usually call that a Uniprocessor or just UP.
+00:50 takeshi:/dev/shm > cat bla.c
+#include <stdio.h>
+int main(void) {
+    char foo[42];
+    sprintf(foo, "bar");
+    return 0;
+}
+00:52 takeshi:/dev/shm > cc bla.c -Wall
+(no warnings)
 
-> #CONFIG_SMP is not set
-> CONFIG_DEBUG_SPINLOCK=y.
-> CONFIG_PREEMPT=y
-> CONFIG_PREEMPT_BKL=y
-> 
-> First question:
-> 
-> I wrote
-> 
-> while (1)
->     ;
-> 
-> in the read function of a test device driver. I expect the calling
-> process to freeze, and then a timer interrupt to preempt the kernel
-> and to schedule another process. This does not happen, the whole
-> system freezes. I see no effect from pressing keys or moving the
-> mouse. Why? The hardware interrupts are not disabled, are they? Why do
-> the interrupt handlers not get executed?
+In case you were talking about kernel code, the same (i.e. no warnings) 
+happens:
 
-Matters what you have in that code. Are you sure interrupts are not
-handled? The can be, and you just don't notice, because the programs
-that get affected by the interrupts are not able to run.
+00:54 takeshi:/dev/shm > make -C /lib/modules/2.6.18.5-jen40b-default/build M=$PWD
+make: Entering directory `/usr/src/linux-2.6.18.5-jen40b-obj/i386/default'
+make -C ../../../linux-2.6.18.5-jen40b O=../linux-2.6.18.5-jen40b-obj/i386/default
+  CC [M]  /dev/shm/bla2.o
+  Building modules, stage 2.
+  MODPOST
+  LD [M]  /dev/shm/bla2.ko
+make: Leaving directory `/usr/src/linux-2.6.18.5-jen40b-obj/i386/default'
+00:54 takeshi:/dev/shm > cat Makefile
+EXTRA_CFLAGS += -Wall
+obj-m += bla2.o
 
-I don't know what your read function looks like, or how you got there,
-but a while(1) would only slow the system down quite a bit. It shouldn't
-lock it up. (/me goes to try it out on a dummy driver after writing
-this).
 
-> 
-> Second question:
-> 
-> I wrote
-> 
-> spin_lock(&lck);
-> down(&sem); /* I know that one shouldn't sleep when holding a lock */
->                     /* but I want to understand why */
 
-Well a spin_lock is just that. It spins.  What happens if you schedule,
-and the next process that goes to run tries to grab that same spin_lock.
-It spins, thinking the lock holder is on another CPU and it will be
-released shortly. But then, the other CPU (assuming a 2x system) has a
-process that tries to grab this same spin_lock, now the system is truely
-dead locked. All CPUS are spinning waiting for the non-running process
-to let go of the spin lock.
 
-> spin_unlock(&lck);
-> 
-> in the read function and
-> 
-> up(&sem)
-> 
-> in the write function. The semaphore is initially locked, so the first
-> process invoking down will sleep.
-> 
-> I invoke
-> 
-> cat /dev/test
-> 
-> and the process sleeps on the semaphore. Then I invoke
-> 
-> echo 1 > /dev/test
-> 
-> and I wake up the "cat" process.
-> 
-> Then I intend to invoke _two_ cat processes. I expect the first one to
-> sleep on the semaphore and the second on to spin at the spin_lock.
-> Then I expect to wake up the first process by invoking an echo, the
-> first process to release the lock and the second process to sleep on
-> the semaphore. What I get is that the system freezes as soon as I
-> invoke the second "cat" process. Again, no effect from key presses or
-> mouse movements. Why? Shouldn't the timer interrupt preempt the second
-> "cat" process that spins on the spinlock and give control to something
-> else, for example to the console where I could wake up the first "cat"
-> process? Why do I not see any effect from mouse movements? Hardware
-> interrupts are not disabled, are they?
-
-A spin_lock will not preempt. So if you are doing this on a UP system, a
-spin lock will only be a preempt disable (with CONFIG_PREEMPT=y).
-There's no need for spin_locks for UP.
-
-I'd have to take a look at the actual code to explain exactly what mess
-you are making for yourself ;)
-
-> 
-> Third question:
-> 
-> The Linux Device Drivers book says that a spin_lock should not be
-> shared between a process and an interrupt handler. The explanation is
-> that the process may hold the lock, an interrupt occurs, the interrupt
-> handler spins on the lock held by the process and the system freezes.
-> Why should it freeze? Isn't it possible for the interrupt handler to
-> re-enable interrupts as its first thing, then to spin at the lock, the
-> timer interrupt to preempt the interrupt handler and to relinquish
-> control to the process which in turn will finish its critical section
-> and release the lock, making way for the interrupt handler to
-> continue.
-
-I believe that Paolo explained this, but I can go into more details if
-you need.
-
-> 
-> Thank you very much for clarifying these issues.
-
-No prob.
-
--- Steve
-
+	-`J'
+-- 

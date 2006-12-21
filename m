@@ -1,94 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422827AbWLUIfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422808AbWLUIfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422827AbWLUIfT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 03:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422830AbWLUIfT
+	id S1422808AbWLUIfb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 03:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422828AbWLUIfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 03:35:19 -0500
+	Thu, 21 Dec 2006 03:35:31 -0500
 Received: from nf-out-0910.google.com ([64.233.182.189]:65192 "EHLO
 	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422827AbWLUIfR (ORCPT
+	with ESMTP id S1422808AbWLUIfa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 03:35:17 -0500
+	Thu, 21 Dec 2006 03:35:30 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=googlemail.com;
         h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:from;
-        b=t9NEZ21dwwWZ1ryC6gnlC894U+Ml1zk3VpakOA1MrNmb4l592UxMGxrTgcVGOmq6r71+VEUvfrFKqUds13cgKgdkrrAXGgCGG4F7uHZFZTpIbPFsY8Gxhg1h4ixfH4qjc00BSsN9czjA8n0yWSQrQt1IGVLTLtKBeS6yYUSkfI4=
-Message-ID: <458A4742.3060204@gmail.com>
-Date: Thu, 21 Dec 2006 09:35:14 +0100
+        b=mJNUKC9cfRxnFWjD3s5CKi/6U1WenXNhx+BwpW+c1DP9BrDsJx6JXBF0XpAVe1Kb/ye6lM+wevQlGVNv/agspm5OQ394MWJ+Z6xdsQ8KNfg6MVkGcLM4r6lxoP0nunC0Xwch4CHM7782wUGajmOD5Fx0wwQYvxfrikTKrezua1c=
+Message-ID: <458A474F.2060007@gmail.com>
+Date: Thu, 21 Dec 2006 09:35:27 +0100
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
 CC: tglx@linutronix.de, mingo@elte.hu
-Subject: [PATCH -rt 1/4] ARM: Include compilation and warning fixes
+Subject: [PATCH -rt 2/4] ARM: NO_HZ support
 Content-Type: multipart/mixed;
- boundary="------------010702050500080503060601"
+ boundary="------------000101010104040508050002"
 From: Dirk Behme <dirk.behme@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010702050500080503060601
+--------------000101010104040508050002
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+ARM: NO_HZ support
 
-ARM: Fix compilation issues and warnings for CONFIG PREEMPT
-RT for ARM in include/asm-arm/system.h.
+This is an update of the initial patch from Daniel Walker
+and Kevin Hilman.
 
 Signed-off-by: Dirk Behme <dirk.behme_at_gmail.com>
 
 
---------------010702050500080503060601
+--------------000101010104040508050002
 Content-Type: text/plain;
- name="arm_include_fixes_patch.txt"
+ name="arm-no-hz-patch.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="arm_include_fixes_patch.txt"
+ filename="arm-no-hz-patch.txt"
 
-Index: linux-2.6.20-rc1/include/asm-arm/system.h
+Index: linux-2.6.20-rc1/arch/arm/Kconfig
 ===================================================================
---- linux-2.6.20-rc1.orig/include/asm-arm/system.h
-+++ linux-2.6.20-rc1/include/asm-arm/system.h
-@@ -173,23 +173,25 @@ static inline void set_copro_access(unsi
- extern unsigned long cr_no_alignment;	/* defined in entry-armv.S */
- extern unsigned long cr_alignment;	/* defined in entry-armv.S */
+--- linux-2.6.20-rc1.orig/arch/arm/Kconfig
++++ linux-2.6.20-rc1/arch/arm/Kconfig
+@@ -529,6 +529,7 @@ source kernel/Kconfig.preempt
  
-+#include <linux/irqflags.h>
-+
- #ifndef CONFIG_SMP
- static inline void adjust_cr(unsigned long mask, unsigned long set)
- {
--	unsigned long flags, cr;
-+	unsigned long flags;
- 
- 	mask &= ~CR_A;
- 
- 	set &= mask;
- 
--	local_irq_save(flags);
-+	raw_local_irq_save(flags);
- 
- 	cr_no_alignment = (cr_no_alignment & ~mask) | set;
- 	cr_alignment = (cr_alignment & ~mask) | set;
- 
- 	set_cr((get_cr() & ~mask) | set);
- 
--	local_irq_restore(flags);
-+	raw_local_irq_restore(flags);
- }
- #endif
- 
-@@ -248,8 +250,6 @@ static inline void sched_cacheflush(void
- {
- }
- 
--#include <linux/irqflags.h>
--
- #ifdef CONFIG_SMP
- 
- #define smp_mb()		mb()
+ config NO_IDLE_HZ
+ 	bool "Dynamic tick timer"
++	depends on !GENERIC_CLOCKEVENTS
+ 	help
+ 	  Select this option if you want to disable continuous timer ticks
+ 	  and have them programmed to occur as required. This option saves
 
 
---------------010702050500080503060601--
+--------------000101010104040508050002--

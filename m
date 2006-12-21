@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753052AbWLUOVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964781AbWLUOWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753052AbWLUOVM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754434AbWLUOVM
+	id S964781AbWLUOWj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753539AbWLUOWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:21:12 -0500
-Received: from nz-out-0506.google.com ([64.233.162.236]:57259 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753052AbWLUOVL (ORCPT
+	Thu, 21 Dec 2006 09:22:39 -0500
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:3219 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753210AbWLUOWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:21:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
-        b=LmCMV2sPLRLDbVFz8+50vYNuv/0m79sIJVM1Ws46Pqaoog8OSt8BgzGR43BKn1sYbTap9aisBn9iKrgtNfcSIk22XnA2XXPp8XR6ksNEO3wrOeYPtu0zAdEX3IooakoHMymdjFQO7FSjbtIli3UsQ+zMxs0mQozKIHhoa7+cx8I=
-Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling
-	mechanism.
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-In-Reply-To: <20061221140429.GA25214@2ka.mipt.ru>
-References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru>
-	 <20061221103539.GA4099@2ka.mipt.ru> <458A64E5.4050703@garzik.org>
-	 <20061221104918.GA16744@2ka.mipt.ru> <1166708885.3749.49.camel@localhost>
-	 <20061221140429.GA25214@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Thu, 21 Dec 2006 09:21:07 -0500
-Message-Id: <1166710867.3749.56.camel@localhost>
+	Thu, 21 Dec 2006 09:22:38 -0500
+Date: Thu, 21 Dec 2006 15:22:39 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-Id: <20061221152239.6af2d443.khali@linux-fr.org>
+In-Reply-To: <20061221034029.GD30299@in.ibm.com>
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+	<20061220214340.f6b037b1.khali@linux-fr.org>
+	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
+	<20061221101240.f7e8f107.khali@linux-fr.org>
+	<20061221102232.5a10bece.khali@linux-fr.org>
+	<m164c5pmim.fsf@ebiederm.dsl.xmission.com>
+	<20061221145401.07bfe408.khali@linux-fr.org>
+	<20061221034029.GD30299@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-21-12 at 17:04 +0300, Evgeniy Polyakov wrote:
-
-> I modified world-wide used web server lighttpd and ran a lot of tests
-> with it (compared to epoll version with major performance win).
+On Thu, 21 Dec 2006 09:10:29 +0530, Vivek Goyal wrote:
+> Ok. so indirect jump seems to be having problem. On my machine disassembly
+> of setup.o show following.
 > 
-> I was asked yesterday by Jan Kneschke (lighttpd main developer) if
-> kevent API is ready so he could include my patch into mainline lighttpd 
-> tree, but I answered 'I do not know if kevent will be or not included, 
-> everyone keeps silence'.
+> ff a6 14 02 00 00       jmp    *0x214(%esi)
 > 
+> This seems to be fine as 0x14 is the offset of code32_start, and 
+> ((DELTA_INITSEG) << 4) is 0x200. How does it look like on your machine?
 
-Ok, so you are building the momentum then. People like Jan are the users
-of such API and should be speaking up. Then kernel people will be forced
-to look at it.
+    1110:	ff a6 14 02 00 00    	jmp    *0x214(%esi)
 
-> I just do not know _what_ else should be done not even for inclusion - 
-> but at least for some progress.
+So exactly the same.
 
-I know you are frustrated but stop doing the above like a broken vinyl
-record, it doesnt help your case. 
-
-> You want libevent to be patched? Its site is currently down, but ok, I
-> will create a patch.
-> 
-
-I promise in 2 weeks to migrate an app or two that i have that use
-libevent to your version if you have it by then. I will then test and
-give you my opinion. 
-
-cheers,
-jamal
-
+-- 
+Jean Delvare

@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422768AbWLUHIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422786AbWLUHKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422768AbWLUHIH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 02:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422777AbWLUHIH
+	id S1422786AbWLUHKx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 02:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWLUHKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 02:08:07 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:44555 "EHLO smtp.osdl.org"
+	Thu, 21 Dec 2006 02:10:53 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44578 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422768AbWLUHIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 02:08:06 -0500
-Date: Wed, 20 Dec 2006 23:07:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Markus Rechberger <mrechberger@gmail.com>, linux-kernel@vger.kernel.org,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: [solved] Yenta Cardbus allocation failure
-In-Reply-To: <20061220194003.b0db1844.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612202302240.3576@woody.osdl.org>
-References: <d9def9db0612120004r45fa1b1dx270a2e9e5be57246@mail.gmail.com>
- <d9def9db0612181612v657197ees925609243fc1ef65@mail.gmail.com>
- <20061220194003.b0db1844.akpm@osdl.org>
+	id S1422787AbWLUHKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 02:10:52 -0500
+Message-ID: <458A32FF.1010700@osdl.org>
+Date: Wed, 20 Dec 2006 23:08:47 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: Network drivers that don't suspend on interface down
+References: <200612202125.10865.david-b@pacbell.net>
+In-Reply-To: <200612202125.10865.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Brownell wrote:
+> Hmm, this reminds me of a thread from last summer, following up on
+> some PM discussions at OLS.  Thread "Runtime power management for
+> network interfaces", at the end of July.
+>
+>
+>   
+>> 2) Network device infrastructure should make it easier for devices:
+>>     bring interface down on suspend and bring it up after resume
+>>     (if it was running when suspended). This would allow many devices to
+>>     have no suspend/resume hook; except those that have some better power
+>>     control over hardware.
+>>     
+>
+> The _intent_ of the class suspend() and resume() methods is to let
+> infrastructure (the network stack was explicitly mentioned!) handle
+> pretty much everything except putting the hardware in low power
+> modes ... which last step might, for PCI devices at least, most
+> naturally be done in suspend_late().  That way it'd be decoupled
+> cleanly from anything else.
+>   
+The class methods don't work right for that because the physical class 
+(PCI) gets
+called before the virtual class  (network devices).
 
+> Now, I recently tried refreshing a patch that used those class
+> suspend() and resume() methods, and for some reason they're not
+> getting called.  I believe they used to get called, although it's
+> true their parameter wasn't very useful ... it was called with the
+> underlying device, not the class_device holding state that the
+> class driver manages.
+>
+> I just wanted to point out that yes, this ground has been covered
+> before, with some agreement on that approach.  It'd be good to see
+> it pursued.  :)
+>
+> - Dave
+>
+>   
 
-On Wed, 20 Dec 2006, Andrew Morton wrote:
-> 
-> Linus has wondered "how much does Windows use"?  How might we determine
-> that?
-
-Google knows everything, and finds, on MS own site no less:
-
-  "Windows 2000 default resources:
-
-   One 4K memory window
-
-   One 2 MB memory window
-
-   Two 256-byte I/O windows"
-
-which is clearly utterly bogus and insufficient. But Microsoft apparently 
-realized this, and:
-
-  "Windows XP default resources:
-
-   Because one memory window of 4K and one window of 2 MB are not 
-   sufficient for CardBus controllers in many configurations, Windows XP 
-   allocates larger memory windows to CardBus controllers where possible. 
-   However, resource windows are static (that is, the operating system 
-   does not dynamically allocate larger memory windows if new devices 
-   appear.) Under Windows XP, CardBus controllers will be assigned the 
-   following resources:
-
-   One 4K memory window, as in Windows 2000
-
-   64 MB memory, if that amount of memory is available. If 64 MB is not 
-   available the controller will receive 32 MB; if 32 MB is not available, 
-   the controller will receive 16 MB; if 16 MB is not available, the 
-   bridge will receive 8 MB; and so on down to a minimum assignment of 1 
-   MB in configurations where memory is too constrained for the operating 
-   system to provide a larger window.
-
-   Two 256-byte I/O windows"
-
-So I think we have our answer. Windows uses one 4k window, and one 64MB 
-window. And they are no more dynamic than we are (we _could_ try to do it 
-dynamically, but let's face it, it's fairly painful to dynamically expand 
-PCI bus resources - you may need to reprogram everything up to the root, 
-so it would be absolutely crazy to do that unless you have some serious 
-masochistic tendencies).
-
-So let's just increase our default value to 64M too.
-
-		Linus

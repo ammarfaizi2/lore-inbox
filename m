@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422991AbWLURfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422974AbWLURiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422991AbWLURfo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 12:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWLURfo
+	id S1422974AbWLURiH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 12:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWLURiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 12:35:44 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2799 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422991AbWLURfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 12:35:42 -0500
-Date: Thu, 21 Dec 2006 17:35:33 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-arch <linux-arch@vger.kernel.org>,
-       Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-Message-ID: <20061221173532.GF3958@flint.arm.linux.org.uk>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-arch <linux-arch@vger.kernel.org>,
-	Miklos Szeredi <miklos@szeredi.hu>
-References: <20061221152621.GB3958@flint.arm.linux.org.uk> <1166718582.3365.1509.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Thu, 21 Dec 2006 12:38:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60591 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422974AbWLURiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 12:38:06 -0500
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
+       "'xb'" <xavier.bru@bull.net>, "'Zach Brown'" <zach.brown@oracle.com>,
+       <linux-kernel@vger.kernel.org>, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch] aio: fix buggy put_ioctx call in aio_complete
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <000601c72521$ab1d4880$fe80030a@amr.corp.intel.com>
+From: jmoyer@redhat.com
+Date: Thu, 21 Dec 2006 12:34:52 -0500
+In-Reply-To: <000601c72521$ab1d4880$fe80030a@amr.corp.intel.com> (Kenneth W. Chen's message of "Thu, 21 Dec 2006 09:01:28 -0800")
+Message-ID: <m3odpxxidf.fsf@redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166718582.3365.1509.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 05:29:42PM +0100, Arjan van de Ven wrote:
-> 
-> > So, given all this additional complexity _and_ that it would only be
-> > safe on non-preempt UP, the question becomes: is using get_user_pages()
-> > to access the current processes memory space legal?  Given the above,
-> > I would say not.
-> 
-> I'd say that copy_from_user is the right api for this, not
-> get_user_pages + kmap hacks...
+==> Regarding RE: [patch] aio: fix buggy put_ioctx call in aio_complete; "Chen, Kenneth W" <kenneth.w.chen@intel.com> adds:
 
-I would tend to agree.
+kenneth.w.chen> jmoyer@redhat.com wrote on Thursday, December 21, 2006 8:56
+kenneth.w.chen> AM I think I'm going to abandon this whole synchronize
+kenneth.w.chen> thing and going to put the wake up call inside ioctx_lock
+kenneth.w.chen> spin lock along with the other patch you mentioned above in
+kenneth.w.chen> the waiter path.  On top of that, I have another patch
+kenneth.w.chen> attempts to perform wake-up only when the waiter can truly
+kenneth.w.chen> proceed in aio_read_evt so dribbling I/O completion doesn't
+kenneth.w.chen> inefficiently waking up waiter too frequently and only to
+kenneth.w.chen> have waiter put back to sleep again. I will dig that up and
+kenneth.w.chen> experiment.
+>> In the mean time, can't we simply take the context lock in
+>> wait_for_all_aios?  Unless I missed something, I think that will address
+>> the reference count problem.
 
-So the question then comes down to: is there really an issue with using
-copy_*_user in fuse.
+kenneth.w.chen> Take ioctx_lock is one part, the other part is to move
 
-Bearing in mind that get_user_pages() simulates page faults in the
-memory it is trying to access, we're going to either take simulated
-page faults at that time, or real page faults in copy_*_user.
+kenneth.w.chen> 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
 
-(I was just about to test a hacked up implementation of flush_anon_page()
-on my test system, but it seems its ethernet interface has warmed up
-too much and won't obtain a link with my switch... which makes download
-of kernels impossible.  Hence it's going to have to wait a few hours for
-it to cool down.)
+kenneth.w.chen> in aio_complete all the way down to the end of the
+kenneth.w.chen> function, after wakeup and put_ioctx.  But then the ref
+kenneth.w.chen> counting on ioctx in aio_complete path is Meaningless,
+kenneth.w.chen> which is the thing I'm trying to remove.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+OK, right.  But are we simply papering over the real problem?  Earlier in
+this thread, you stated:
+
+> flush_workqueue() is not allowed to be called in the softirq context.
+> However, aio_complete() called from I/O interrupt can potentially call
+> put_ioctx with last ref count on ioctx and trigger a bug warning.  It
+> is simply incorrect to perform ioctx freeing from aio_complete.
+
+But how do we end up with the last reference to the ioctx in the aio
+completion path?  That's a question I haven't seen answered.
+
+-Jeff

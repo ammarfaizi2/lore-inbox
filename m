@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422974AbWLURiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422994AbWLURnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422974AbWLURiH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 12:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWLURiH
+	id S1422994AbWLURnt (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 12:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWLURnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 12:38:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60591 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422974AbWLURiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 12:38:06 -0500
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
-       "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
-       "'xb'" <xavier.bru@bull.net>, "'Zach Brown'" <zach.brown@oracle.com>,
-       <linux-kernel@vger.kernel.org>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] aio: fix buggy put_ioctx call in aio_complete
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-References: <000601c72521$ab1d4880$fe80030a@amr.corp.intel.com>
-From: jmoyer@redhat.com
-Date: Thu, 21 Dec 2006 12:34:52 -0500
-In-Reply-To: <000601c72521$ab1d4880$fe80030a@amr.corp.intel.com> (Kenneth W. Chen's message of "Thu, 21 Dec 2006 09:01:28 -0800")
-Message-ID: <m3odpxxidf.fsf@redhat.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+	Thu, 21 Dec 2006 12:43:49 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:39940 "HELO abra2.bitwizard.nl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1422994AbWLURns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 12:43:48 -0500
+Date: Thu, 21 Dec 2006 18:43:46 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Scott Preece <sepreece@gmail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Tomas Carnecky <tom@dbservice.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       James Porter <jameslporter@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers
+Message-ID: <20061221174346.GN3073@harddisk-recovery.com>
+References: <loom.20061215T220806-362@post.gmane.org> <20061215220117.GA24819@martell.zuzino.mipt.ru> <4583527D.4000903@dbservice.com> <m13b7ds25w.fsf@ebiederm.dsl.xmission.com> <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding RE: [patch] aio: fix buggy put_ioctx call in aio_complete; "Chen, Kenneth W" <kenneth.w.chen@intel.com> adds:
+On Thu, Dec 21, 2006 at 10:33:10AM -0600, Scott Preece wrote:
+> (b) "Thank you for requesting a driver to support our hardware on
+> Linux. Unfortunately, we don't have time either to provide such a
+> driver or write the documentation that would allow you do so. The
+> Linux market is not big enough to justify the legal and technical
+> expense involved. However, we can provide you with this binary driver
+> that we believe will allow you to use the hardware in your system,
+> just as we provide binary drivers for other hardware platforms."
 
-kenneth.w.chen> jmoyer@redhat.com wrote on Thursday, December 21, 2006 8:56
-kenneth.w.chen> AM I think I'm going to abandon this whole synchronize
-kenneth.w.chen> thing and going to put the wake up call inside ioctx_lock
-kenneth.w.chen> spin lock along with the other patch you mentioned above in
-kenneth.w.chen> the waiter path.  On top of that, I have another patch
-kenneth.w.chen> attempts to perform wake-up only when the waiter can truly
-kenneth.w.chen> proceed in aio_read_evt so dribbling I/O completion doesn't
-kenneth.w.chen> inefficiently waking up waiter too frequently and only to
-kenneth.w.chen> have waiter put back to sleep again. I will dig that up and
-kenneth.w.chen> experiment.
->> In the mean time, can't we simply take the context lock in
->> wait_for_all_aios?  Unless I missed something, I think that will address
->> the reference count problem.
+You forgot to add:
 
-kenneth.w.chen> Take ioctx_lock is one part, the other part is to move
+"However, we thought the legal and technical expense involved in
+ writing this binary driver and possibly violating the Linux kernel
+ copyright was well spend."
 
-kenneth.w.chen> 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+My 0.02 EUR.
 
-kenneth.w.chen> in aio_complete all the way down to the end of the
-kenneth.w.chen> function, after wakeup and put_ioctx.  But then the ref
-kenneth.w.chen> counting on ioctx in aio_complete path is Meaningless,
-kenneth.w.chen> which is the thing I'm trying to remove.
 
-OK, right.  But are we simply papering over the real problem?  Earlier in
-this thread, you stated:
+Erik
 
-> flush_workqueue() is not allowed to be called in the softirq context.
-> However, aio_complete() called from I/O interrupt can potentially call
-> put_ioctx with last ref count on ioctx and trigger a bug warning.  It
-> is simply incorrect to perform ioctx freeing from aio_complete.
-
-But how do we end up with the last reference to the ioctx in the aio
-completion path?  That's a question I haven't seen answered.
-
--Jeff
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422929AbWLUKBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422932AbWLUKDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422929AbWLUKBE (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 05:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422932AbWLUKBE
+	id S1422932AbWLUKDa (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 05:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422933AbWLUKDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 05:01:04 -0500
-Received: from eazy.amigager.de ([213.239.192.238]:52548 "EHLO
-	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422929AbWLUKBD (ORCPT
+	Thu, 21 Dec 2006 05:03:30 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:60203 "EHLO
+	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422932AbWLUKD3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 05:01:03 -0500
-Date: Thu, 21 Dec 2006 11:01:01 +0100
-From: Tino Keitel <tino.keitel@tikei.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to interpret PM_TRACE output
-Message-ID: <20061221100101.GA23386@dose.home.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061213212258.GA9879@dose.home.local> <20061216085748.GE4049@ucw.cz> <20061219085616.GA2053@dose.home.local> <20061220161903.GB4261@ucw.cz>
+	Thu, 21 Dec 2006 05:03:29 -0500
+X-Greylist: delayed 306 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 05:03:29 EST
+Message-ID: <458A5BEB.8090400@bx.jp.nec.com>
+Date: Thu, 21 Dec 2006 19:03:23 +0900
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061220161903.GB4261@ucw.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 2.6.19 take2 1/5] marking __init and remove drop initialization
+References: <458A5AAE.30209@bx.jp.nec.com>
+In-Reply-To: <458A5AAE.30209@bx.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 16:19:04 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > > I tried PM_TRACE to find the driver that breaks resume from suspend.
-> > > > I got working resume until I switched to the sk98lin driver
-> > > > (because sky2 doesn't support wake on LAN). That's why I was quite sure that
-> > > > sk98lin is the culprit, but I tried PM_TRACE anymay.
-> > > 
-> > > See Doc*/power/*.
-> > 
-> > There is a nice mixture of documentation about swusp, video stuff,
-> > developer documentation, and one short paragraph about PM_TRACE that
-> > tells me nothing new. Could you point me to the documentation part that
-> > you are referring to, and that tells me what to do if PM_TRACE shows
-> > the usb device but the failure only occurs when I load the sk98lin
-> > driver?
-> 
-> Hmmm, so it fails somewhere in usb only if sk98lin is loaded? If you
-> unload it again, resume works? Are usb interrupts shared? Where
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
 
-Yes, it works with sky2. Yes, the USB device that is reported to fail
-by PM_TRACE shares the interrupt with eth0, which is sk98lin (see my
-original posting in this thread).
+This patch contains the following cleanups.
+ - add __init for initialization functions(option_setup() and
+   init_netconsole()).
+ - remove "drop" initialization in the netpoll structure.
 
-> exactly in the usb does it fail?
+Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+---
+[changes]
+1. stop to use anoymous enum.
+2. remove unrelated changes(formatting changes).
 
-I don't know, all I have is the PM_TRACE output.
+--- linux-2.6.19/drivers/net/netconsole.c	2006-12-21 18:26:04.017895000 +0900
++++ enhanced-netconsole/drivers/net/netconsole.c.cleanup	2006-12-21 18:38:34.080771000 +0900
+@@ -60,7 +60,6 @@ static struct netpoll np = {
+ 	.local_port = 6665,
+ 	.remote_port = 6666,
+ 	.remote_mac = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+-	.drop = netpoll_queue,
+ };
+ static int configured = 0;
+ 
+@@ -92,7 +91,7 @@ static struct console netconsole = {
+ 	.write = write_msg
+ };
+ 
+-static int option_setup(char *opt)
++static int __init option_setup(char *opt)
+ {
+ 	configured = !netpoll_parse_options(&np, opt);
+ 	return 1;
+@@ -100,7 +99,7 @@ static int option_setup(char *opt)
+ 
+ __setup("netconsole=", option_setup);
+ 
+-static int init_netconsole(void)
++static int __init init_netconsole(void)
+ {
+ 	if(strlen(config))
+ 		option_setup(config);
 
-Meanwhile, tried to remove uhci_hcd before suspend, and wakeup works
-then. However, my DVB-T box is dead after resume (reloading the driver
-doesn't work, only unplug/replug the device helps). It works with
-suspend to disk, though.
-
-Regards,
-Tino
+-- 
+Keiichi KII
+NEC Corporation OSS Promotion Center
+E-mail: k-keiichi@bx.jp.nec.com

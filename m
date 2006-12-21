@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422634AbWLUDRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422635AbWLUDTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422634AbWLUDRM (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422639AbWLUDRM
+	id S1422635AbWLUDTR (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422639AbWLUDTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:17:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:52878 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422634AbWLUDRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:17:12 -0500
-Subject: Re: [PATCH 7/9] atomic.h : powerpc
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, paulus@samba.org,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linuxppc-dev@ozlabs.org,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20061221001204.GM28643@Krystal>
-References: <20061221001204.GM28643@Krystal>
+	Wed, 20 Dec 2006 22:19:17 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:45030 "EHLO
+	ms-smtp-01.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422635AbWLUDTR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:19:17 -0500
+Subject: Re: 2.6.19.1-rt15: BUG in __tasklet_action at kernel/softirq.c:568
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Robert Crocombe <rcrocomb@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061220195008.GB14316@elte.hu>
+References: <e6babb600612180948n7820c038k148a5a514d541b2e@mail.gmail.com>
+	 <20061219175728.GA20262@elte.hu>
+	 <e6babb600612200437n6c5ff4d4lf86e60c309dd1b6e@mail.gmail.com>
+	 <20061220195008.GB14316@elte.hu>
 Content-Type: text/plain
-Date: Thu, 21 Dec 2006 14:15:05 +1100
-Message-Id: <1166670905.6673.33.camel@localhost.localdomain>
+Date: Wed, 20 Dec 2006 22:19:11 -0500
+Message-Id: <1166671151.852.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-12-20 at 20:50 +0100, Ingo Molnar wrote:
+> * Robert Crocombe <rcrocomb@gmail.com> wrote:
+> 
+> > On 12/19/06, Ingo Molnar <mingo@elte.hu> wrote:
+> > >yeah. This is something that triggers very rarely on certain boxes. Not
+> > >fixed yet, and it's been around for some time.
+> > 
+> > Is there anything you would like me to do to help diagnose this?
+> 
+> to figure out what the bug is :-/ Below is the tasklet redesign patch - 
+> the bug must be in there somewhere.
 
-> +
-> +/**
-> + * atomic64_add_unless - add unless the number is a given value
-> + * @v: pointer of type atomic64_t
-> + * @a: the amount to add to v...
-> + * @u: ...unless v is equal to u.
-> + *
-> + * Atomically adds @a to @v, so long as it was not @u.
-> + * Returns non-zero if @v was not @u, and zero otherwise.
-> + */
-> +static __inline__ int atomic64_add_unless(atomic64_t *v, long a, long u)
+> +static inline int tasklet_tryunlock(struct tasklet_struct *t)
 > +{
-> +	long t;
-> +
-> +	__asm__ __volatile__ (
-> +	LWSYNC_ON_SMP
-> +"1:	ldarx	%0,0,%1		# atomic_add_unless\n\
-> +	cmpd	0,%0,%3 \n\
-> +	beq-	2f \n\
-> +	add	%0,%2,%0 \n"
-> +	PPC405_ERR77(0,%2)
-> +"	stdcx.	%0,0,%1 \n\
-> +	bne-	1b \n"
-> +	ISYNC_ON_SMP
-> +"	subf	%0,%2,%0 \n\
-> +2:"
-> +	: "=&r" (t)
-> +	: "r" (&v->counter), "r" (a), "r" (u)
-> +	: "cc", "memory");
-> +
-> +	return t != u;
+> +	return cmpxchg(&t->state, TASKLET_STATEF_RUN, 0) == TASKLET_STATEF_RUN;
 > +}
 > +
 
-You shouldn't try to define those when building 32 bits code... Also,
-the PPC405 errata, as it's name implies, is specific to 405 cores which
-are all 32 bits.
+This probably isn't it, but is cmpxchg available on all archs now?
 
-Ben.
+-- Steve
 
 

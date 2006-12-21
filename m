@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965169AbWLUOkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965154AbWLUOlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965169AbWLUOkb (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWLUOkb
+	id S965154AbWLUOlz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWLUOlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:40:31 -0500
-Received: from nz-out-0506.google.com ([64.233.162.234]:63623 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965169AbWLUOka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:40:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
-        b=paIN7R+tBloQVBdPRnLbB+76RuVoO8BRskXFBsQFvWQ+rsmp8Zj0oLoFyHCpN4WbIqX+7WMoLg149+BFCWSqeiKY9nhAmc7iarcIY3zN31RQqX+iiLV7MB5sBRKorwuXsQu8HtLB+K8tturTWvKpKZVwgGURCFJ0XLp+1QUfcxw=
-Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling
-	mechanism.
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-In-Reply-To: <20061221143621.GA32706@2ka.mipt.ru>
-References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru>
-	 <20061221103539.GA4099@2ka.mipt.ru> <458A64E5.4050703@garzik.org>
-	 <20061221104918.GA16744@2ka.mipt.ru> <1166708885.3749.49.camel@localhost>
-	 <20061221140429.GA25214@2ka.mipt.ru> <1166710867.3749.56.camel@localhost>
-	 <20061221142337.GA17204@2ka.mipt.ru>  <20061221143621.GA32706@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Thu, 21 Dec 2006 09:40:26 -0500
-Message-Id: <1166712026.3749.60.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 09:41:55 -0500
+Received: from mail.atmel.fr ([81.80.104.162]:54722 "EHLO atmel-es2.atmel.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965154AbWLUOly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 09:41:54 -0500
+Message-ID: <458A9CCB.5050108@rfo.atmel.com>
+Date: Thu, 21 Dec 2006 15:40:11 +0100
+From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
+Organization: atmel
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Haavard Skinnemoen <hskinnemoen@atmel.com>,
+       Patrice Vilchez <patrice.vilchez@rfo.atmel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] input/spi: add ads7843 support to ads7846 touchscreen driver
+References: <4582BD29.4020203@rfo.atmel.com> <200612201513.09705.david-b@pacbell.net> <458A875D.3000801@rfo.atmel.com>
+In-Reply-To: <458A875D.3000801@rfo.atmel.com>
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: 8bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-21-12 at 17:36 +0300, Evgeniy Polyakov wrote:
-
-> Btw, it uses only read/write/signal on fd events, so it must use
-> ->poll() and thus be as fast as epoll. 
+Nicolas Ferre a écrit :
+>>> As the SPI underlying code behaves quite differently from a 
+>>> controller driver
+>>> to another whan not having a tx_buf filled, I have add a zerroed 
+>>> buffer to give
+>>> to the spi layer while receiving data.
+>>
+>> You must be working with a buggy controller driver then.  That part of
+>> this patch should never be needed.  It's expected that rx-only transfers
+>> will omit a tx buf; all controller drivers must handle that case.
 > 
+> I said that because it is true that most of spi controller drivers 
+> manage rx only transactions filling the tx buffer with zerros but the 
+> spi_s3c24xx.c driver seems to fill with ones (line 177 hw_txbyte())
+> 
+> Anyway, I will check in our controller driver to sort this out.
 
-It is supposed to "detect" the best mechanism in the kernel and switch
-to that.
-At the moment for example in my app it defaults to epoll.
+I dug a bit into this.
+Well, in the atmel_spi driver code, we use previous rx buffer if we do 
+not provide a tx_buf (as it is said that in struct spi_transfer 
+comments,  "If the transmit buffer is null, undefined data will be 
+shifted out while filling rx_buf").
+So, the touchscreen controller sees sometimes a "start" condition (bit 7 
+of a control byte). It then takes the control byte and sets trash bits 
+as a configuration. I ran into those troubles and add a zerroed buffer 
+as tx.
 
-> Things like sockets/pipes can only benefit from direct kevent usage 
-> instead of ->poll() and wrappers.
+Do you think that shifting zerros out when a tx_buf is not specified is 
+the desired behavior ?
 
-You should be able change it to use those schemes when it detects
-that the kernel supports them.
+Regards,
+-- 
+Nicolas Ferre
 
-cheers,
-jamal
 

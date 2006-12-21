@@ -1,102 +1,143 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422982AbWLURZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422984AbWLUR0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422982AbWLURZJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 12:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWLURZJ
+	id S1422984AbWLUR0R (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 12:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422988AbWLUR0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 12:25:09 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:54315 "EHLO
-	relais.videotron.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422982AbWLURZH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 12:25:07 -0500
-Date: Thu, 21 Dec 2006 12:25:06 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
-In-reply-to: <74d0deb30612210703y735e53kf14e7c800dae7140@mail.gmail.com>
-X-X-Sender: nico@xanadu.home
-To: pHilipp Zabel <philipp.zabel@gmail.com>
-Cc: David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Russell King <rmk@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-Message-id: <Pine.LNX.4.64.0612211205530.18171@xanadu.home>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <200611111541.34699.david-b@pacbell.net>
- <200612201312.36616.david-b@pacbell.net>
- <20061220221252.732f4e97.akpm@osdl.org>
- <200612202244.03351.david-b@pacbell.net>
- <Pine.LNX.4.64.0612210925130.18171@xanadu.home>
- <74d0deb30612210703y735e53kf14e7c800dae7140@mail.gmail.com>
+	Thu, 21 Dec 2006 12:26:17 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:62171 "EHLO smtp.mba.ocn.ne.jp"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422984AbWLUR0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 12:26:16 -0500
+X-Greylist: delayed 1511 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 12:26:16 EST
+Date: Fri, 22 Dec 2006 02:01:02 +0900 (JST)
+Message-Id: <20061222.020102.11963437.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, ralf@linux-mips.org
+Subject: [PATCH] serial: serial_txx9 driver update
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2006, pHilipp Zabel wrote:
+Update the serial_txx9 driver.
 
-> David suggested to have both inline and non-inline functions depending
-> on whether gpio is constant. How is this patch?
+ * Configurable manumum port number. (SERIAL_TXX9_NR_UARTS)
+ * Remove some code which is unneeded if CONFIG_PM=n.
+ * Use PCI_DEVICE() for pci device id table and make it const.
+ * Do not include <asm/irq.h>
 
-More comments below.
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+---
+ Kconfig       |    5 +++++
+ serial_txx9.c |   23 +++++++++++------------
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6/include/asm-arm/arch-pxa/gpio.h	2006-12-21
-> 07:57:12.000000000 +0100
-> @@ -0,0 +1,86 @@
-[...]
-> +static inline int gpio_direction_input(unsigned gpio)
-> +{
-> +	if (gpio > PXA_LAST_GPIO)
-> +		return -EINVAL;
-> +	pxa_gpio_mode(gpio | GPIO_IN);
-> +}
-> +
-> +static inline int gpio_direction_output(unsigned gpio)
-> +{
-> +	if (gpio > PXA_LAST_GPIO)
-> +		return -EINVAL;
-> +	pxa_gpio_mode(gpio | GPIO_OUT);
-> +}
-
-Please push this test against PXA_LAST_GPIO inside pxa_gpio_mode().  It 
-has no advantage to be inline if you're about to call a function anyway.  
-That would make pxa_gpio_mode() more reliable for those not calling it 
-through the generic API wrt that kind of error as well.
-
-> --- linux-2.6.orig/arch/arm/mach-pxa/generic.c	2006-12-16
-> +++ linux-2.6/arch/arm/mach-pxa/generic.c	2006-12-16 16:47:45.000000000
-> @@ -129,6 +129,29 @@
-> EXPORT_SYMBOL(pxa_gpio_mode);
-> 
-> /*
-> + * Return GPIO level, nonzero means high, zero is low
-> + */
-> +int pxa_gpio_get_value(unsigned gpio)
-> +{
-> +	return GPLR(gpio) & GPIO_bit(gpio);
-> +}
-> +
-> +EXPORT_SYMBOL(pxa_gpio_get_value);
-> +
-> +/*
-> + * Set output GPIO level
-> + */
-> +void pxa_gpio_set_value(unsigned gpio, int value)
-> +{
-> +	if (value)
-> +		GPSR(gpio) = GPIO_bit(gpio);
-> +	else
-> +		GPCR(gpio) = GPIO_bit(gpio);
-> +}
-> +
-> +EXPORT_SYMBOL(pxa_gpio_set_value);
-
-Instead of duplicating code here, you probably should just reuse 
-__gpio_set_value() and __gpio_get_value() inside those functions.
-
-
-Nicolas
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index 2978c09..5cc6b91 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -916,6 +916,11 @@ config SERIAL_TXX9
+ config HAS_TXX9_SERIAL
+ 	bool
+ 
++config SERIAL_TXX9_NR_UARTS
++	int "Maximum number of TMPTX39XX/49XX SIO ports"
++	depends on SERIAL_TXX9
++	default "6"
++
+ config SERIAL_TXX9_CONSOLE
+ 	bool "TMPTX39XX/49XX SIO Console support"
+ 	depends on SERIAL_TXX9=y
+diff --git a/drivers/serial/serial_txx9.c b/drivers/serial/serial_txx9.c
+index 7186a82..f4440d3 100644
+--- a/drivers/serial/serial_txx9.c
++++ b/drivers/serial/serial_txx9.c
+@@ -37,6 +37,7 @@
+  *	1.06	Do not insert a char caused previous overrun.
+  *		Fix some spin_locks.
+  *		Do not call uart_add_one_port for absent ports.
++ *	1.07	Use CONFIG_SERIAL_TXX9_NR_UARTS.  Cleanup.
+  */
+ 
+ #if defined(CONFIG_SERIAL_TXX9_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
+@@ -58,9 +59,8 @@ #include <linux/serial.h>
+ #include <linux/mutex.h>
+ 
+ #include <asm/io.h>
+-#include <asm/irq.h>
+ 
+-static char *serial_version = "1.06";
++static char *serial_version = "1.07";
+ static char *serial_name = "TX39/49 Serial driver";
+ 
+ #define PASS_LIMIT	256
+@@ -88,12 +88,7 @@ #endif
+ /*
+  * Number of serial ports
+  */
+-#ifdef ENABLE_SERIAL_TXX9_PCI
+-#define NR_PCI_BOARDS	4
+-#define UART_NR  (4 + NR_PCI_BOARDS)
+-#else
+-#define UART_NR  4
+-#endif
++#define UART_NR  CONFIG_SERIAL_TXX9_NR_UARTS
+ 
+ #define HIGH_BITS_OFFSET	((sizeof(long)-sizeof(int))*8)
+ 
+@@ -987,6 +982,7 @@ int __init early_serial_txx9_setup(struc
+ }
+ 
+ #ifdef ENABLE_SERIAL_TXX9_PCI
++#ifdef CONFIG_PM
+ /**
+  *	serial_txx9_suspend_port - suspend one serial port
+  *	@line:  serial line number
+@@ -1008,6 +1004,7 @@ static void serial_txx9_resume_port(int 
+ {
+ 	uart_resume_port(&serial_txx9_reg, &serial_txx9_ports[line].port);
+ }
++#endif
+ 
+ static DEFINE_MUTEX(serial_txx9_mutex);
+ 
+@@ -1118,6 +1115,7 @@ static void __devexit pciserial_txx9_rem
+ 	}
+ }
+ 
++#ifdef CONFIG_PM
+ static int pciserial_txx9_suspend_one(struct pci_dev *dev, pm_message_t state)
+ {
+ 	int line = (int)(long)pci_get_drvdata(dev);
+@@ -1142,11 +1140,10 @@ static int pciserial_txx9_resume_one(str
+ 	}
+ 	return 0;
+ }
++#endif
+ 
+-static struct pci_device_id serial_txx9_pci_tbl[] = {
+-	{	PCI_VENDOR_ID_TOSHIBA_2, PCI_DEVICE_ID_TOSHIBA_TC86C001_MISC,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		0, 0, 0 },
++static const struct pci_device_id serial_txx9_pci_tbl[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_TOSHIBA_2, PCI_DEVICE_ID_TOSHIBA_TC86C001_MISC) },
+ 	{ 0, }
+ };
+ 
+@@ -1154,8 +1151,10 @@ static struct pci_driver serial_txx9_pci
+ 	.name		= "serial_txx9",
+ 	.probe		= pciserial_txx9_init_one,
+ 	.remove		= __devexit_p(pciserial_txx9_remove_one),
++#ifdef CONFIG_PM
+ 	.suspend	= pciserial_txx9_suspend_one,
+ 	.resume		= pciserial_txx9_resume_one,
++#endif
+ 	.id_table	= serial_txx9_pci_tbl,
+ };
+ 

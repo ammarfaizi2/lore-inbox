@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964793AbWLULJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964836AbWLULUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWLULJT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 06:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWLULJS
+	id S964836AbWLULUJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 06:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWLULUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 06:09:18 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:33030 "EHLO
-	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964793AbWLULJS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 06:09:18 -0500
-Date: Thu, 21 Dec 2006 13:09:14 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
+	Thu, 21 Dec 2006 06:20:09 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42042 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964836AbWLULUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 06:20:07 -0500
+Date: Thu, 21 Dec 2006 12:15:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
 Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
        Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [patch] x86_64: fix boot hang caused by CALGARY_IOMMU_ENABLED_BY_DEFAULT
-Message-ID: <20061221110914.GY30145@rhun.ibm.com>
-References: <20061220102846.GA17139@elte.hu> <20061220113052.GA30145@rhun.ibm.com> <20061220162338.GC11804@elte.hu> <20061220180953.GM30145@rhun.ibm.com> <20061221103702.GA19451@elte.hu>
+Message-ID: <20061221111533.GA31433@elte.hu>
+References: <20061220102846.GA17139@elte.hu> <20061220113052.GA30145@rhun.ibm.com> <20061220162338.GC11804@elte.hu> <20061220180953.GM30145@rhun.ibm.com> <20061221103702.GA19451@elte.hu> <20061221110914.GY30145@rhun.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061221103702.GA19451@elte.hu>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061221110914.GY30145@rhun.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 11:37:02AM +0100, Ingo Molnar wrote:
 
-> I think in the future it would be better to annotate the introduction of 
-> new, widely used codepaths via KERN_DEBUG printouts, something along the 
-> lines of:
+* Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+
+> > but i still /strongly/ disagree with your attitude that mainline is 
+> > 'experimental' and hence there's nothing to see here, move over.
 > 
-> 	printk(KERN_DEBUG "calgary: running new EBDA code.\n");
-> 	...
-> 	printk(KERN_DEBUG "calgary: done.\n");
-> 
-> That way "debug ignore_loglevel console=tty" bootopions would have 
-> uncovered the source of this hang. Just like i can use the 
-> initcall_debug boot option to figure out where the bootup hangs.
-> 
-> but i still /strongly/ disagree with your attitude that mainline is 
-> 'experimental' and hence there's nothing to see here, move over.
+> We can agree to disagree about how "experimental" mainline should be. 
+> [...]
 
-We can agree to disagree about how "experimental" mainline should
-be. The bottom line is that the patch that broke your boot was the
-"obviously correct" thing to do, and even if mainline was "rock
-stable", whatever that means, we still would've put it in because it
-fixed boot on a different set of machines... Basically we have to
-query the BIOS for Calgary register window and bus setup informationn,
-what we had before was a brittle hack (replicate what the BIOS did to
-get the same values) that eventually broke when the BIOS - surprise,
-surprise - did something differently. Of course that doesn't mean the
-bug you ran into shouldn't have been caught earlier.
+there's not much to disagree about. Mainline early bootup _must not 
+break_, and if it breaks, it must be easy for the tester to figure it 
+out. Simple as that. If it ever breaks and the user cannot give us other 
+feedback but: "my laptop hung", we screwed up the process!
 
-> > > The other problem is that the changelog entry says that it's off by 
-> > > default, while in reality the new option switched this code on for 
-> > > my box, and broke it.
-> > 
-> > Sorry about that (both the wrong changelog entry and the fact that it 
-> > broke your box).
-> 
-> there's really no need to apologize, i probably broke your box a few 
-> orders of magnitude more times than you broke mine ;)
+once the system has booted up into a minimal state, up to the stage 
+where say netconsole works, we've got an exponentially increasing number 
+of measures to find /all the other bugs/. But early bootup is like 
+sacred. It's not experimental at all. Really. Having a system that 
+doesnt even boot and gives no feedback at all is an absolute showstopper 
+and a lost tester to us.
 
-You got that right :-) but still, I should've caught the potential
-infinite loop with bad BIOS inputs when reviewing the patch. For that
-I do apologize.
+if we need draconian measures such as having two versions of early 
+bootup code present in the kernel and a runtime boot switch to trigger 
+between the old-trusted and the new-unknown one [perhaps even 
+automatically, via the help of Grub] then so it be - but we cannot 
+tolerate hung bootups.
 
-> Nevertheless my point is that we /have/ to be more supportive of
-> early adopter distro kernels (Dave Jones says that the same bug has
-> hit Fedora rawhide too), and have to be doubly careful about
-> anything that goes into code that is run by /everyone/. Especially
-> if it's in a hard to debug place like early bootup code.
-
-No argument about this.
-
-> This incident i think shows that bisection and testing in -mm doesnt
-> always cut it (bisection-testing is quite laborous with a large
-> distro kernel), and i think we could do more technological measures
-> in this area to lower the bar of entry for users to help us narrow
-> down such bugs. Such as a KERN_DEBUG policy for annotating new code
-> in the bootup path.
-
-Agreed.
-
-Cheers,
-Muli
+	Ingo

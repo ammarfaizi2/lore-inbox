@@ -1,114 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423015AbWLUSgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423017AbWLUShP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423015AbWLUSgy (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423014AbWLUSgx
+	id S1423017AbWLUShP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWLUShP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:36:53 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:52568 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423015AbWLUSgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:36:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=TKIp8ftDzIr6EKp2hUpBumu3pA53FhgGyij6THpv5qYBMgRoGfUIZEf28FSdwPONJhGV2I9Hm3tIE1yjg6UlKu2yg3e5gXU/8dRBIGL9LrQ6boVryqk8D2/io8p2bR411AkPobs8T6FbkXlyGi2iM3AOxVOZKxB/JCpDLkJ04kc=
-Date: Thu, 21 Dec 2006 18:35:18 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jeremy@goop.org
-Subject: [-mm patch] ptrace: make {put,get}reg work again for gs and fs
-Message-ID: <20061221183518.GA18827@slug>
-References: <20061214225913.3338f677.akpm@osdl.org>
+	Thu, 21 Dec 2006 13:37:15 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:56944 "EHLO sabe.cs.wisc.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423021AbWLUShN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:37:13 -0500
+Message-ID: <458AD43C.3050603@cs.wisc.edu>
+Date: Thu, 21 Dec 2006 12:36:44 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214225913.3338f677.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: device-mapper development <dm-devel@redhat.com>
+CC: Jens Axboe <jens.axboe@oracle.com>, mchristi@redhat.com,
+       linux-kernel@vger.kernel.org, agk@redhat.com
+Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request()
+ to be called from interrupt context
+References: <20061220134848.GF10535@kernel.dk>	<20061220.125002.71083198.k-ueda@ct.jp.nec.com>	<20061220184917.GJ10535@kernel.dk>	<20061220.165549.39151582.k-ueda@ct.jp.nec.com>	<20061221075305.GD17199@kernel.dk>	<458ACB69.8000603@cs.wisc.edu> <458ACEB1.3030406@cs.wisc.edu>	<20061221182432.GB17199@kernel.dk> <458AD2E0.40807@cs.wisc.edu>
+In-Reply-To: <458AD2E0.40807@cs.wisc.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2006 at 10:59:13PM -0800, Andrew Morton wrote:
-> 	http://userweb.kernel.org/~akpm/2.6.20-rc1-mm1/
+Mike Christie wrote:
+> Jens Axboe wrote:
+>> On Thu, Dec 21 2006, Mike Christie wrote:
+>>> Or the block layer code could set up the clone too. elv_next_request
+>>> could prep a clone based on the orignal request for the driver then dm
+>>> would not have to worry about that part.
+>> It really can't, since it doesn't know how to allocate the clone
+>> request. I'd rather export this functionality as helpers.
+>>
 > 
-Hi all,
+> What do you think about dm's plan to break up make_request into a
+> mapping function and in to the part the builds the bio into a request.
+> This would fit well with them being helpers and being able to allocate
+> the request from the correct context.
+> 
+> I see patches for that did not get posted, but I thought Joe and
+> Alasdair used to talk about that a lot and in the dm code I think there
+> is sill comments about doing it. Maybe the dm comments mentioned the
+> merge_fn, but I guess the merge_fn did not fit what they wanted to do or
+> something. I think Alasdair talked about this at one of his talks at OLS
+> or it was in a proposal for the kernel summit. I can dig up the mail if
+> you want.
+> 
 
-Following the i386 pda patches, it's not possible to set gs or fs value
-from gdb anymore. The following patch restores the old behaviour of
-getting and setting thread.gs of thread.fs respectively.
-Here's a gdb session *before* the patch:
-(gdb) info reg
-[...]
-fs             0x33     51
-gs             0x33     51
-(gdb) set $fs=0xffff
-(gdb) info reg
-[...]
-fs             0x33     51
-gs             0x33     51
-(gdb) set $gs=0xffffffff
-(gdb) info reg
-[...]
-fs             0xffff   65535
-gs             0x33     51
-
-Another one *after* the patch:
-(gdb) info reg
-[...]
-fs             0xd8     216
-gs             0x33     51
-(gdb) set $fs=0xffff
-(gdb) info reg
-[...]
-fs             0xffff   65535
-gs             0x33     51
-(gdb) set $gs=0xffff
-(gdb) info reg
-[...]
-fs             0xffff   65535
-gs             0xffff   65535
-
-Andrew, this goes on top of ptrace-fix-efl_offset-value-according-to-i386-pda-changes.patch
-sent by Jeremy yesterday.
-
-Regards,
-Frederik
-
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-
-diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
-index a803a49..7af494e 100644
---- a/arch/i386/kernel/ptrace.c
-+++ b/arch/i386/kernel/ptrace.c
-@@ -94,9 +94,13 @@ static int putreg(struct task_struct *child,
- 				return -EIO;
- 			child->thread.fs = value;
- 			return 0;
-+		case GS:
-+			if (value && (value & 3) != 3)
-+				return -EIO;
-+			child->thread.gs = value;
-+			return 0;
- 		case DS:
- 		case ES:
--		case GS:
- 			if (value && (value & 3) != 3)
- 				return -EIO;
- 			value &= 0xffff;
-@@ -124,12 +128,14 @@ static unsigned long getreg(struct task_struct *child,
- 	unsigned long retval = ~0UL;
- 
- 	switch (regno >> 2) {
-+		case FS:
-+			retval = child->thread.fs;
-+			break;
- 		case GS:
- 			retval = child->thread.gs;
- 			break;
- 		case DS:
- 		case ES:
--		case FS:
- 		case SS:
- 		case CS:
- 			retval = 0xffff;
+Ignore that. The problem would be that we may not want to decide which
+path to use at map time.

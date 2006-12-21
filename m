@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422874AbWLUIyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422870AbWLUIzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422874AbWLUIyS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 03:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422870AbWLUIyS
+	id S1422870AbWLUIzy (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 03:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWLUIzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 03:54:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60259 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422863AbWLUIyR (ORCPT
+	Thu, 21 Dec 2006 03:55:54 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:2510 "EHLO
+	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1422870AbWLUIzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 03:54:17 -0500
-Subject: Re: Network drivers that don't suspend on interface down
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <4807377b0612201810t66218e4u4089df818129f1ce@mail.gmail.com>
-References: <20061219185223.GA13256@srcf.ucam.org>
-	 <20061220042648.GA19814@srcf.ucam.org>
-	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
-	 <20061220055209.GA20483@srcf.ucam.org>
-	 <1166601025.3365.1345.camel@laptopd505.fenrus.org>
-	 <20061220125314.GA24188@srcf.ucam.org>
-	 <1166621931.3365.1384.camel@laptopd505.fenrus.org>
-	 <20061220143134.GA25462@srcf.ucam.org>
-	 <1166629900.3365.1428.camel@laptopd505.fenrus.org>
-	 <4807377b0612201810t66218e4u4089df818129f1ce@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 21 Dec 2006 09:54:13 +0100
-Message-Id: <1166691253.3365.1480.camel@laptopd505.fenrus.org>
+	Thu, 21 Dec 2006 03:55:53 -0500
+Date: Thu, 21 Dec 2006 09:55:54 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-Id: <20061221095554.2f06767e.khali@linux-fr.org>
+In-Reply-To: <20061221044125.GA5921@in.ibm.com>
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+	<20061220214340.f6b037b1.khali@linux-fr.org>
+	<20061221044125.GA5921@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Vivek,
 
-> Is there some reason why we can't have the OS just do the D3
-> transition for all drivers that register support?  I mean, this power
-> management using D states is actually driver *independent* and at
-> least way back in the day was supposed to be implemented for "OS power
-> management"
+On Thu, 21 Dec 2006 10:11:26 +0530, Vivek Goyal wrote:
+> What's the value of CONFIG_PHYSICAL_ALIGN? How much RAM is present in your
+> system? Though very unlikely, just trying to find that we are not running
+> short of RAM while trying to align the kernel to a large value.
 
-all you need to do is 1 function call from your interface down code.. so
-it's really not a big deal to just do that call ;)
-(well and you want the D0 call in the up code, but that's ok)
+CONFIG_PHYSICAL_ALIGN=0x100000
+(which is the default as far as I know)
+The system has 512 MB RAM.
 
+> Can you please provide your config file. Is it possible to provide your
+> bzImage? Can you upload it somewhere? Will try to boot it on my box just
+> to find out if it could be in some way related to compiler/linker.
+
+http://jdelvare.pck.nerim.net/linux/relocatable-bug/
+
+gcc version is 3.2.3
+ld version is 2.14.90.0.6
+
+Thanks,
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Jean Delvare

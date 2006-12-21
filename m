@@ -1,87 +1,134 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161082AbWLUA0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161084AbWLUA06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161082AbWLUA0E (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 19:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWLUA0D
+	id S1161084AbWLUA06 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 19:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWLUA06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 19:26:03 -0500
-Received: from tomts25.bellnexxia.net ([209.226.175.188]:38041 "EHLO
-	tomts25-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161083AbWLUA0A (ORCPT
+	Wed, 20 Dec 2006 19:26:58 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:38576 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161083AbWLUA05 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 19:26:00 -0500
-Date: Wed, 20 Dec 2006 19:25:58 -0500
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Douglas Niehaus <niehaus@eecs.ku.edu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 6/10] local_t : parisc
-Message-ID: <20061221002558.GV28643@Krystal>
+	Wed, 20 Dec 2006 19:26:57 -0500
+Date: Wed, 20 Dec 2006 16:27:43 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Rientjes <rientjes@cs.washington.edu>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [Patch](memory hotplug) fix compile error for i386 with NUMA
+ config (take 3).
+Message-Id: <20061220162743.d6feb823.randy.dunlap@oracle.com>
+In-Reply-To: <20061220225927.F016.Y-GOTO@jp.fujitsu.com>
+References: <20061220225927.F016.Y-GOTO@jp.fujitsu.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20061221001545.GP28643@Krystal>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:25:10 up 119 days, 21:32,  6 users,  load average: 1.80, 1.98, 1.82
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-parisc architecture local_t cleanup : use asm-generic/local.h.
+On Wed, 20 Dec 2006 23:09:58 +0900 Yasunori Goto wrote:
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+> Hello.
+> 
+> This is take 3 patch to fix compile error when config
+> memory hotplug with numa on i386.
+> 
+> The cause of compile error was missing of arch_add_memory(), remove_memory(),
+> and memory_add_physaddr_to_nid().
+> 
+> I fixed some bad points, and tested no compile error of it.
+> 
+> This is for 2.6.20-rc1. 
+> 
+> Please apply.
+> 
+> Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
---- a/include/asm-parisc/local.h
-+++ b/include/asm-parisc/local.h
-@@ -1,40 +1 @@
--#ifndef _ARCH_PARISC_LOCAL_H
--#define _ARCH_PARISC_LOCAL_H
--
--#include <linux/percpu.h>
--#include <asm/atomic.h>
--
--typedef atomic_long_t local_t;
--
--#define LOCAL_INIT(i)	ATOMIC_LONG_INIT(i)
--#define local_read(v)	atomic_long_read(v)
--#define local_set(v,i)	atomic_long_set(v,i)
--
--#define local_inc(v)	atomic_long_inc(v)
--#define local_dec(v)	atomic_long_dec(v)
--#define local_add(i, v)	atomic_long_add(i, v)
--#define local_sub(i, v)	atomic_long_sub(i, v)
--
--#define __local_inc(v)		((v)->counter++)
--#define __local_dec(v)		((v)->counter--)
--#define __local_add(i,v)	((v)->counter+=(i))
--#define __local_sub(i,v)	((v)->counter-=(i))
--
--/* Use these for per-cpu local_t variables: on some archs they are
-- * much more efficient than these naive implementations.  Note they take
-- * a variable, not an address.
-- */
--#define cpu_local_read(v)	local_read(&__get_cpu_var(v))
--#define cpu_local_set(v, i)	local_set(&__get_cpu_var(v), (i))
--
--#define cpu_local_inc(v)	local_inc(&__get_cpu_var(v))
--#define cpu_local_dec(v)	local_dec(&__get_cpu_var(v))
--#define cpu_local_add(i, v)	local_add((i), &__get_cpu_var(v))
--#define cpu_local_sub(i, v)	local_sub((i), &__get_cpu_var(v))
--
--#define __cpu_local_inc(v)	__local_inc(&__get_cpu_var(v))
--#define __cpu_local_dec(v)	__local_dec(&__get_cpu_var(v))
--#define __cpu_local_add(i, v)	__local_add((i), &__get_cpu_var(v))
--#define __cpu_local_sub(i, v)	__local_sub((i), &__get_cpu_var(v))
--
--#endif /* _ARCH_PARISC_LOCAL_H */
-+#include <asm-generic/local.h>
+Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+after also using the register_memory() patch.
+
+
+> ---
+>  arch/i386/mm/discontig.c |   28 ++++++++++++++++++++++++++++
+>  arch/i386/mm/init.c      |   10 ++--------
+>  2 files changed, 30 insertions(+), 8 deletions(-)
+> 
+> Index: linux-2.6.20-rc1/arch/i386/mm/init.c
+> ===================================================================
+> --- linux-2.6.20-rc1.orig/arch/i386/mm/init.c	2006-12-20 22:12:07.000000000 +0900
+> +++ linux-2.6.20-rc1/arch/i386/mm/init.c	2006-12-20 22:12:09.000000000 +0900
+> @@ -673,16 +673,10 @@
+>  #endif
+>  }
+>  
+> -/*
+> - * this is for the non-NUMA, single node SMP system case.
+> - * Specifically, in the case of x86, we will always add
+> - * memory to the highmem for now.
+> - */
+>  #ifdef CONFIG_MEMORY_HOTPLUG
+> -#ifndef CONFIG_NEED_MULTIPLE_NODES
+>  int arch_add_memory(int nid, u64 start, u64 size)
+>  {
+> -	struct pglist_data *pgdata = &contig_page_data;
+> +	struct pglist_data *pgdata = NODE_DATA(nid);
+>  	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
+>  	unsigned long start_pfn = start >> PAGE_SHIFT;
+>  	unsigned long nr_pages = size >> PAGE_SHIFT;
+> @@ -694,7 +688,7 @@
+>  {
+>  	return -EINVAL;
+>  }
+> -#endif
+> +EXPORT_SYMBOL_GPL(remove_memory);
+>  #endif
+>  
+>  struct kmem_cache *pgd_cache;
+> Index: linux-2.6.20-rc1/arch/i386/mm/discontig.c
+> ===================================================================
+> --- linux-2.6.20-rc1.orig/arch/i386/mm/discontig.c	2006-12-20 22:12:07.000000000 +0900
+> +++ linux-2.6.20-rc1/arch/i386/mm/discontig.c	2006-12-20 22:37:54.000000000 +0900
+> @@ -405,3 +405,31 @@
+>  	totalram_pages += totalhigh_pages;
+>  #endif
+>  }
+> +
+> +#ifdef CONFIG_MEMORY_HOTPLUG
+> +int paddr_to_nid(u64 addr)
+> +{
+> +	int nid;
+> +	unsigned long pfn = PFN_DOWN(addr);
+> +
+> +	for_each_node(nid)
+> +		if (node_start_pfn[nid] <= pfn &&
+> +		    pfn < node_end_pfn[nid])
+> +			return nid;
+> +
+> +	return -1;
+> +}
+> +
+> +/*
+> + * This function is used to ask node id BEFORE memmap and mem_section's
+> + * initialization (pfn_to_nid() can't be used yet).
+> + * If _PXM is not defined on ACPI's DSDT, node id must be found by this.
+> + */
+> +int memory_add_physaddr_to_nid(u64 addr)
+> +{
+> +	int nid = paddr_to_nid(addr);
+> +	return (nid >= 0) ? nid : 0;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
+> +#endif
+> 
+> -- 
+
+---
+~Randy

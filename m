@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422758AbWLUGcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422764AbWLUGiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422758AbWLUGcS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 01:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbWLUGcS
+	id S1422764AbWLUGiH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 01:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422765AbWLUGiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 01:32:18 -0500
-Received: from wilanta.cranessoftware.net.in ([59.163.89.36]:2101 "EHLO
-	wilanta.cranessoftware.net.in" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1422758AbWLUGcR (ORCPT
+	Thu, 21 Dec 2006 01:38:07 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:36314 "HELO
+	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1422764AbWLUGiG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 01:32:17 -0500
-X-Greylist: delayed 394 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 01:32:16 EST
-From: "vimal.raj" <vimal.raj@cranessoftware.com>
-Reply-To: vimal.raj@cranessoftware.com
-Organization: cranessoftware
-Subject: Fwd: sk buffer to user space
-Date: Thu, 21 Dec 2006 11:51:13 +0530
-User-Agent: KMail/1.5
-To: kernelnewbies@nl.linux.org
+	Thu, 21 Dec 2006 01:38:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=ZHNlZkTdLERipYzKU2gzhL0y+49++XkU1FzUHjzQ/akG5H9lFSFyyrkkaoaf4fQbAJGEptL6iuDz87Rfv6a4EHpHLA4g72yrbGCYVJCKvEB7JY3ZWBG77HIjYLtL2gV1cJXEXgi5c6Iz8NSa1sGlilgnoDyHib+qs3BYopvGLyk=  ;
+X-YMail-OSG: 8YABeWsVM1kBjNtINCXEpptQszCPbONdBQ9daZ.qG2fScZiict94zbAezX.z8HcPkSctYOr2jM2ZqK9Zknj_.M7yD0KsZoVyqKzvNVky8ht9JtO3TvKxRn3qpfk0Z_tZTYl7C6517DSsxtfdDL.3TF6uT_V61KQUeAKJWnLrhjS.0BqBvX4Whww5Ngvm
+From: David Brownell <david-b@pacbell.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Network drivers that don't suspend on interface down
+Date: Wed, 20 Dec 2006 21:25:10 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Matthew Garrett <mjg59@srcf.ucam.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612211151.13750.vimal.raj@cranessoftware.com>
-X-MDRemoteIP: 10.0.0.217
-X-Return-Path: vimal.raj@cranessoftware.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Message-Id: <200612202125.10865.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmm, this reminds me of a thread from last summer, following up on
+some PM discussions at OLS.  Thread "Runtime power management for
+network interfaces", at the end of July.
 
-Hi kernel experts,
 
-	I'm a newbie to linux kernel.
- I need to take the sk buffer and directly pass to the
-application which is in the user space.
+> 2) Network device infrastructure should make it easier for devices:
+>     bring interface down on suspend and bring it up after resume
+>     (if it was running when suspended). This would allow many devices to
+>     have no suspend/resume hook; except those that have some better power
+>     control over hardware.
 
- How can i do it (my project want to read data packets from driver and give
- it to application without the help of socket mechanism.)  I saw that there
- is a system call  skb_copy_datagram_iovec() which can be used to send skb to
- userspace. Can i use it? Can anyone please help me by giving a procedure to
- implement this...
+The _intent_ of the class suspend() and resume() methods is to let
+infrastructure (the network stack was explicitly mentioned!) handle
+pretty much everything except putting the hardware in low power
+modes ... which last step might, for PCI devices at least, most
+naturally be done in suspend_late().  That way it'd be decoupled
+cleanly from anything else.
 
-Thanks in advance,
+Now, I recently tried refreshing a patch that used those class
+suspend() and resume() methods, and for some reason they're not
+getting called.  I believe they used to get called, although it's
+true their parameter wasn't very useful ... it was called with the
+underlying device, not the class_device holding state that the
+class driver manages.
 
-regards,
-vimal
+I just wanted to point out that yes, this ground has been covered
+before, with some agreement on that approach.  It'd be good to see
+it pursued.  :)
 
--------------------------------------------------------
-
+- Dave
 

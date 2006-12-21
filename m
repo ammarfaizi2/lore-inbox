@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422640AbWLUNKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161096AbWLUNNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWLUNKZ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 08:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWLUNKZ
+	id S1161096AbWLUNNx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 08:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWLUNNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 08:10:25 -0500
-Received: from mail.atmel.fr ([81.80.104.162]:39497 "EHLO atmel-es2.atmel.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422640AbWLUNKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 08:10:24 -0500
-Message-ID: <458A875D.3000801@rfo.atmel.com>
-Date: Thu, 21 Dec 2006 14:08:45 +0100
-From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
-Organization: atmel
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Patrice Vilchez <patrice.vilchez@rfo.atmel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] input/spi: add ads7843 support to ads7846 touchscreen driver
-References: <4582BD29.4020203@rfo.atmel.com> <200612201513.09705.david-b@pacbell.net>
-In-Reply-To: <200612201513.09705.david-b@pacbell.net>
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: 8bit
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Thu, 21 Dec 2006 08:13:53 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:3267 "EHLO
+	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161096AbWLUNNw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 08:13:52 -0500
+Date: Thu, 21 Dec 2006 14:13:54 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-Id: <20061221141354.6d9ec3e6.khali@linux-fr.org>
+In-Reply-To: <20061221010814.GA30299@in.ibm.com>
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+	<20061220214340.f6b037b1.khali@linux-fr.org>
+	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
+	<20061221101240.f7e8f107.khali@linux-fr.org>
+	<20061221102232.5a10bece.khali@linux-fr.org>
+	<m164c5pmim.fsf@ebiederm.dsl.xmission.com>
+	<20061221010814.GA30299@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell a écrit :
-> On Friday 15 December 2006 7:20 am, Nicolas FERRE wrote:
->> Add support for the ads7843 touchscreen controller to the ads7846 driver code.
+On Thu, 21 Dec 2006 06:38:14 +0530, Vivek Goyal wrote:
+> On Thu, Dec 21, 2006 at 03:32:33AM -0700, Eric W. Biederman wrote:
+> > Grr.  I guessed the problem was to late in the game it seems the problem
+> > is in setup.S  Before we switch to 32bit mode.
+> > 
+> > Ok.  There is almost enough for inference but here is a patch of stops
+> > for setup.S let's see if one of those will stop the reboots.
+> > 
+> > I have a strong feeling that we are going to find a tool chain issue,
+> > but I'd like to find where we ware having problems before we declare
+> > that to be the case.
 > 
-> Glad to see this!  Is this for AT91sam9261-EK board support, maybe?
+> Looks like it might be a tool chain issue. I took Jean's config file and
+> built my own kernel and I am able to boot the kernel. But I can't boot
+> his bzImage. I observed the same behaviour as jean is experiencing. It jumps
+> back to BIOS.
 
-Indeed ! An also for the AT91sam9263-EK which has the same touchscreen chip.
+I can only confirm that. I installed a more recent system on the same
+hardware, rebuilt a kernel from the same config file, and now it boots
+OK. So it's not related to the hardware. It has to be a compilation-time
+issue.
 
-> Let me try to sort out the mess with those updates, and ask you to refresh
-> this ads7843 support against that more-current ads7846 code.
-
-Ok, let me know when you have a newer code. I will try to adapt my
-ads7843 support then.
-
->> As the SPI underlying code behaves quite differently from a controller driver
->> to another whan not having a tx_buf filled, I have add a zerroed buffer to give
->> to the spi layer while receiving data.
-> 
-> You must be working with a buggy controller driver then.  That part of
-> this patch should never be needed.  It's expected that rx-only transfers
-> will omit a tx buf; all controller drivers must handle that case.
-
-I said that because it is true that most of spi controller drivers 
-manage rx only transactions filling the tx buffer with zerros but the 
-spi_s3c24xx.c driver seems to fill with ones (line 177 hw_txbyte())
-
-Anyway, I will check in our controller driver to sort this out.
-
-Regards,
 -- 
-Nicolas Ferre
-
-
-
+Jean Delvare

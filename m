@@ -1,76 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422663AbWLUDao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422668AbWLUDbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWLUDao (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 22:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422662AbWLUDao
+	id S1422668AbWLUDbU (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 22:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422665AbWLUDbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 22:30:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53427 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422656AbWLUDan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 22:30:43 -0500
-Subject: Re: Network drivers that don't suspend on interface down
-From: Dan Williams <dcbw@redhat.com>
+	Wed, 20 Dec 2006 22:31:19 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:31348 "HELO
+	smtp107.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1422668AbWLUDbS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 22:31:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=QE9kMCdW7Pfuc+g6NkpsI1UzFzHMVJHdqVQcRcyDfz/pO1vjvjzLlu/wicrQ3G0rYnomaxkrcIjL7OecYi2kxq5CmwjrkI/WKRjmmAwbI5mc+bP7aC7kuJcUeVr7xxWxaiS6z+66MkcfIeoYViKnVRr6c01QiXg/yROgEsa05+Y=  ;
+X-YMail-OSG: cOf8YAUVM1lpw5Knem7mPsch1fBAPAuPDWca0c7dArhpuvbcWLvxmV2S.E.7bZocQBaUJtJMbXn49.NpemmvNtNYC.IIopojuzeF2ZtVOh8NJhZL5QEI7vMWMbeiP9CgyrTrNhLBYp7WU9.q99LLNiILGVjiVnjNrbzeNuM4GKm6KmAaJVC9Af9q3vmA
+From: David Brownell <david-b@pacbell.net>
 To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Jiri Benc <jbenc@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20061221031418.GA1277@srcf.ucam.org>
-References: <20061220042648.GA19814@srcf.ucam.org>
-	 <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de>
-	 <20061220055209.GA20483@srcf.ucam.org>
-	 <1166601025.3365.1345.camel@laptopd505.fenrus.org>
-	 <20061220125314.GA24188@srcf.ucam.org>
-	 <20061220150009.1d697f15@griffin.suse.cz>
-	 <1166638371.2798.26.camel@localhost.localdomain>
-	 <20061221011526.GB32625@srcf.ucam.org>
-	 <1166670411.23168.13.camel@localhost.localdomain>
-	 <20061221031418.GA1277@srcf.ucam.org>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 22:32:47 -0500
-Message-Id: <1166671967.23168.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/2] Fix /sys/device/.../power/state
+Date: Wed, 20 Dec 2006 19:04:28 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612201318.06976.david-b@pacbell.net> <20061221012924.GC32625@srcf.ucam.org>
+In-Reply-To: <20061221012924.GC32625@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200612201904.28681.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-21 at 03:14 +0000, Matthew Garrett wrote:
-> On Wed, Dec 20, 2006 at 10:06:51PM -0500, Dan Williams wrote:
-> 
-> > a) tied to the wireless hardware, switch kills hardware directly
-> > b) tied to wireless hardware, but driver handles the kill request
-> > c) just another key, a separate key driver handles the event and asks
-> > the wireless driver to kill the card
+On Wednesday 20 December 2006 5:29 pm, Matthew Garrett wrote:
+> On Wed, Dec 20, 2006 at 01:18:06PM -0800, David Brownell wrote:
+> > >  	/* disallow incomplete suspend sequences */
+> > > -	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
+> > > +	if (dev->bus && dev->bus->pm_has_noirq_stage 
+> > > +	    && dev->bus->pm_has_noirq_stage(dev))
+> > >  		return error;
+> > >  
 > > 
-> > It's also complicated because some switches are supposed to rfkill both
-> > an 802.11 module _and_ a bluetooth module at the same time, or I guess
-> > some laptops may even have one rfkill switch for each wireless device.
-> > Furthermore, some people want to 'softkill' the hardware via software
-> > without pushing the key, which is a subset of (b) or (c) above.
+> > I'm suspecting these two patches won't be merged,
+
+Make that "strongly suspecting" given what Greg said ... he normally
+gets the final say over drivers/core/* things, and you seem alone in
+wanting to help those sysfs files extend their withered existence.
+
+
+> > but this fragment has 
+> > two bugs.  One is the whitespace bug already mentioned.
 > 
-> If we define interface down as meaning that the device is powered down 
-> and the radio switched off, then (b) and (c) would presumably just need 
-> to ensure that the interface is downed. (a) is a slightly more special 
-> case - if the switch disables the radio, I guess we then want the driver 
-> to down the interface as well.
+> I'm a bit curious about the whitespace issue - CodingStyle doesn't seem 
+> to discuss what to do with if statements that end up longer than 80 
+> characters, which is (I think) what you're talking about?
 
-Correct.
+It does say that indents must use only tabs, which that clearly doesn't.
+I think you'll find that
 
-> In the (a) case, drivers should presumably refuse to bring the interface 
-> up if the radio is disabled?
+	if (some_very_long_condition
+			&& probably_not_quite_as_long
+			&& or_too_long_for_one_line) {
+		do_this;
+		and_this;
+	}
 
-Right; the driver simply can't do anything about it, because the switch
-is hardwired to the card and either the card's firmware takes care of
-it, or the chipset takes care of it.  The driver has no say whatsoever
-in the state of the card's radio for this case.  I tend to think this
-case is on it's way out in the same way that fullmac cards are falling
-out of favor (ie, do everything in software and save $$$), but they are
-around and we need to support them.
+is widely accepted.  (The conditions get an extra indent so they don't
+look like they're part of the block executing if the test is true.)
 
-In this case, down really does mean down too.  The driver cannot honor
-requests to set SSID, frequency, etc, because it's simply not possible
-at that time.
 
-Dan
+> 
+> > The other is that
+> > the original test must still be used if that bus primitve doesn't exist.
+> 
+> I dislike that.
 
+Tough noogies, as they say.  In a tradeoff between correctness and your
+personal taste (or even mine, sigh!), the normal tradeoff is in favor
+of correctness.
+
+
+> We're asking to suspend an individual device - whether  
+> the bus supports devices that need to suspend with interrupts disabled 
+> is irrelevent, it's the device that we care about. We should just make 
+> it necessary for every bus to support this method until the interface is 
+> removed.
+
+But you _didn't_ do anything to "make it necessary".  Which means that
+your patch *WILL* cause bugs whenever a driver uses those calls, and
+courtesy of your patch userspace tries to suspend that device ... 
+
+
+> > > +       bus->pm_has_noirq_stage()
+> > > -When:  July 2007
+> > > +When:  Once alternative functionality has been implemented
+> > 
+> > The "When" shouldn't change.
+> 
+> We shouldn't remove interfaces that userland uses until there's been a 
+> replacement for long enough that userland can switch over.
+
+Userland can stop using this **TODAY** and just "ifdown", so that
+argument seems weak.  For all your examples, the userland interface
+is already available.
+
+- Dave
 

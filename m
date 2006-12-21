@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965165AbWLUJyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965190AbWLUJ6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWLUJyz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 04:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWLUJyz
+	id S965190AbWLUJ6Z (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 04:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWLUJ6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 04:54:55 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4535 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965165AbWLUJyy (ORCPT
+	Thu, 21 Dec 2006 04:58:25 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:57842 "EHLO
+	tyo202.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965187AbWLUJ6Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 04:54:54 -0500
-Date: Thu, 21 Dec 2006 09:54:33 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrei Popa <andrei.popa@i-neo.ro>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061221095433.GC1994@flint.arm.linux.org.uk>
-Mail-Followup-To: Martin Michlmayr <tbm@cyrius.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Hugh Dickins <hugh@veritas.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Florian Weimer <fw@deneb.enyo.de>,
-	Marc Haber <mh+linux-kernel@zugschlus.de>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>,
-	Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-	gordonfarquharson@gmail.com
-References: <1166571749.10372.178.camel@twins> <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org> <1166605296.10372.191.camel@twins> <1166607554.3365.1354.camel@laptopd505.fenrus.org> <1166614001.10372.205.camel@twins> <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <20061220221141.GB13129@flint.arm.linux.org.uk> <20061221081845.GA4674@deprecation.cyrius.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061221081845.GA4674@deprecation.cyrius.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Dec 2006 04:58:24 -0500
+X-Greylist: delayed 87733 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 04:58:24 EST
+Message-ID: <458A5AAE.30209@bx.jp.nec.com>
+Date: Thu, 21 Dec 2006 18:58:06 +0900
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 2.6.19 take2 0/5] proposal for dynamic configurable netconsole
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 09:18:45AM +0100, Martin Michlmayr wrote:
-> * Russell King <rmk+lkml@arm.linux.org.uk> [2006-12-20 22:11]:
-> > > This patch doesn't fix my problem (apt segfaults on ARM because its
-> > > database is corrupted).
-> > 
-> > Are you using IDE in PIO mode?  If so, the bug probably lies there.
-> 
-> I'm using usb-storage.  It's used to access an external IDE drive in
-> an USB enclosure but I don't think it matters that it's IDE since
-> we're using the SCSI layer to talk to it, right?
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
 
-USB generally uses DMA so you're probably safe.
+The netconsole is a very useful module for collecting kernel message under
+certain circumstances(e.g. disk logging fails, serial port is unavailable).
 
+But current netconsole is not flexible. For example, if you want to change ip
+address for logging agent, in the case of built-in netconsole, you can't change
+config except for changing boot parameter and rebooting your system, or in the
+case of module netconsole, you need to reload netconsole module.
+
+So, I propose the following extended features for netconsole.
+
+1) support for multiple logging agents.
+2) add interface to access each parameter of netconsole
+   using sysfs.
+
+This patch is for linux-2.6.19 and is divided to each function.
+Your comments are very welcome.
+
+Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+---
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Keiichi KII
+NEC Corporation OSS Promotion Center
+E-mail: k-keiichi@bx.jp.nec.com
+

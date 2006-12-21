@@ -1,145 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422940AbWLUKoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964777AbWLUKvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422940AbWLUKoU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 05:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965207AbWLUKoU
+	id S964777AbWLUKvY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 05:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWLUKvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 05:44:20 -0500
-Received: from office-abk.mandriva.com ([84.55.162.90]:4148 "EHLO
-	office.mandriva.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965204AbWLUKoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 05:44:19 -0500
-X-Greylist: delayed 768 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 05:44:19 EST
-From: Arnaud Patard <apatard@mandriva.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
-       pHilipp Zabel <philipp.zabel@gmail.com>,
-       Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [patch 2.6.20-rc1 6/6] S3C2410 GPIO wrappers
-Organization: Mandriva
-References: <200611111541.34699.david-b@pacbell.net>
-	<200612201304.03912.david-b@pacbell.net>
-	<200612201314.19905.david-b@pacbell.net>
-Date: Thu, 21 Dec 2006 11:33:11 +0100
-In-Reply-To: <200612201314.19905.david-b@pacbell.net> (David Brownell's
-	message of "Wed, 20 Dec 2006 13:14:18 -0800")
-Message-ID: <m3ac1h7d3s.fsf@anduin.mandriva.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Dec 2006 05:51:24 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:36762 "EHLO 2ka.mipt.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964777AbWLUKvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 05:51:23 -0500
+Date: Thu, 21 Dec 2006 13:49:18 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take28-resend_1->0 0/8] kevent: Generic event handling mechanism.
+Message-ID: <20061221104918.GA16744@2ka.mipt.ru>
+References: <3154985aa0591036@2ka.mipt.ru> <11666924573643@2ka.mipt.ru> <20061221103539.GA4099@2ka.mipt.ru> <458A64E5.4050703@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <458A64E5.4050703@garzik.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 21 Dec 2006 13:49:23 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(adding Ben Dooks as he's taking care of s3c24xx stuff)
+On Thu, Dec 21, 2006 at 05:41:41AM -0500, Jeff Garzik (jeff@garzik.org) wrote:
+> Evgeniy Polyakov wrote:
+> >On Thu, Dec 21, 2006 at 12:14:17PM +0300, Evgeniy Polyakov 
+> >(johnpol@2ka.mipt.ru) wrote:
+> >>Generic event handling mechanism.
+> >>
+> >>Kevent is a generic subsytem which allows to handle event notifications.
+> >>It supports both level and edge triggered events. It is similar to
+> >>poll/epoll in some cases, but it is more scalable, it is faster and
+> >>allows to work with essentially eny kind of events.
+> >>
+> >>Events are provided into kernel through control syscall and can be read
+> >>back through ring buffer or using usual syscalls.
+> >>Kevent update (i.e. readiness switching) happens directly from internals
+> >>of the appropriate state machine of the underlying subsytem (like
+> >>network, filesystem, timer or any other).
+> >>
+> >>Homepage:
+> >>http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+> >>
+> >>Documentation page:
+> >>http://linux-net.osdl.org/index.php/Kevent
+> >>
+> >>Consider for inclusion.
+> >
+> >Due to this stall kevent inclusion into lighttpd CVS tree is postponed.
+> >
+> >The last version will be released saturday or sunday, and looking into
+> >overhelming flow of feedback comments on this feature, project will not
+> >be released to linux-kernel@, after this I will
+> >complete netchannels support and start kevent based AIO project - mostly
+> >network AIO with new design, which is based on set of entities, which
+> >can describe set of tasks which should be performed
+> >asynchronously (from user point of view, although read and write
+> >obviously must be done after open and before close), for example syscall
+> 
+> kevent is being considered for inclusion, but there is no need to get 
+> impatient.  Once kevent code stops getting revised rapidly, Andrew 
+> Morton can pick it up for -mm, for wide dissemination, testing and 
+> review.  After that phase, it can be pushed to mainline.
 
-David Brownell <david-b@pacbell.net> writes:
+I do not say 'hey, include it now, or I will cry', I just want to have
+_some_ progress. But I do not get _any_ feedback. What should I think?
+I doubt bothering people each third day with new resend is a good idea,
+so I plan to drop it.
 
+Btw, Andrew dropped 'take23' patchset from his tree, when it was
+obsoleted, but did not import later versions :)
 
-Note that I neither tested it nor build tested it. It's only remarks I
-have when I read the code.
+> The feeling I get from other kernel hackers is that you are demanding 
+> inclusion "now! now! now!" rather than giving all stakeholders a chance 
+> to give input, and let your design sink into the collective brain.
 
+No. I do not want immediate inclusion, I want progress, so I could setup
+my plans on it - if people keep silence, I stop this and work on my own
+kevent goals, since I like current state of hte kevent for my tasks.
 
-> Arch-neutral GPIO calls for S3C24xx.
->
-> From: Philipp Zabel <philipp.zabel@gmail.com>
->
-> Index: at91/include/asm-arm/arch-s3c2410/gpio.h
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ at91/include/asm-arm/arch-s3c2410/gpio.h	2006-12-19 02:05:52.000000000 -0800
-> @@ -0,0 +1,65 @@
-> +/*
-> + * linux/include/asm-arm/arch-pxa/gpio.h
+I do not hack for inclusion.
 
-arch-pxa ? forgot to change it ? :)
+> This isn't just an optional feature but a key new addition to the 
+> kernel.  So we should intentionally take more time and consideration 
+> than normal.  We don't want to go back and have to change fundamental 
+> kevent details due to design flaws, we want to get it right.
 
-> + *
-> + * S3C2400 GPIO wrappers for arch-neutral GPIO calls
+So comment on its bugs, its design, implementation, ask questions,
+request features, show interest (even with 'I have no time right now,
+but will loko at it after in a week after vacations').
 
-you meant S3C2410 ?
+No one does it, so no one cares, so my behaviour.
 
-> + *
-> + * Written by Philipp Zabel <philipp.zabel@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + *
-> + */
-> +
-> +#ifndef __ASM_ARCH_PXA_GPIO_H
-> +#define __ASM_ARCH_PXA_GPIO_H
+> 	Jeff
 
-pxa again :(
-
-> +
-> +#include <asm/arch/pxa-regs.h>
-
-That's annoying. include/asm-arm/arch-s3c2410/pxa-regs.h doesn't
-exist. Lack of build testing ?
-
-> +#include <asm/arch/irqs.h>
-
-imho, this is not needed. The user who will use irq will add it in his
-code anyway.
-
-> +#include <asm/arch/hardware.h>
-> +
-> +#include <asm/errno.h>
-
-Is it really needed ?
-
-> +
-> +static inline int gpio_request(unsigned gpio, const char *label)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline void gpio_free(unsigned gpio)
-> +{
-> +	return;
-> +}
-> +
-> +static inline int gpio_direction_input(unsigned gpio)
-> +{
-> +	s3c2410_gpio_cfgpin(gpio, S3C2410_GPIO_INPUT);
-> +	return 0;
-> +}
-> +
-> +static inline int gpio_direction_output(unsigned gpio)
-> +{
-> +	s3c2410_gpio_cfgpin(gpio, S3C2410_GPIO_OUTPUT);
-> +	return 0;
-> +}
-> +
-> +#define gpio_get_value(gpio)		s3c2410_gpio_getpin(gpio)
-> +#define gpio_set_value(gpio,value)	s3c2410_gpio_setpin(gpio, value)
-> +
-> +#include <asm-generic/gpio.h>			/* cansleep wrappers */
-> +
-> +/* FIXME or maybe s3c2400_gpio_getirq() ... */
-> +#define gpio_to_irq(gpio)		s3c2410_gpio_getirq(gpio)
-
-imho, this should be fixed even if the s3c2400 is not 100% supported in
-mainline.
-
-
-Regards,
-Arnaud
-
+-- 
+	Evgeniy Polyakov

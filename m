@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161072AbWLUAOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161076AbWLUAPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161072AbWLUAOb (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 20 Dec 2006 19:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWLUAOb
+	id S1161076AbWLUAPu (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 20 Dec 2006 19:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbWLUAPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Dec 2006 19:14:31 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:39088 "EHLO
-	fr.zoreil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161076AbWLUAO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Dec 2006 19:14:29 -0500
-Date: Thu, 21 Dec 2006 01:11:12 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network drivers that don't suspend on interface down
-Message-ID: <20061221001111.GA4016@electric-eye.fr.zoreil.com>
-References: <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <1166621931.3365.1384.camel@laptopd505.fenrus.org> <20061220143134.GA25462@srcf.ucam.org> <1166629900.3365.1428.camel@laptopd505.fenrus.org> <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
+	Wed, 20 Dec 2006 19:15:49 -0500
+Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:61347 "EHLO
+	tomts20-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161076AbWLUAPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Dec 2006 19:15:48 -0500
+Date: Wed, 20 Dec 2006 19:15:45 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>
+Cc: ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 0/10] local_t : adding and standardising atomic primitives
+Message-ID: <20061221001545.GP28643@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061220144906.7863bcd3@dxpl.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 19:14:24 up 119 days, 21:22,  6 users,  load average: 3.18, 2.26, 1.62
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger <shemminger@osdl.org> :
-[...]
->    IMHO:
-> 	When device is down, it should:
-> 	 a) use as few resources as possible:
-> 	       - not grab memory for buffers
-> 	       - not assign IRQ unless it could get one
-> 	       - turn off all power consumption possible
-> 	 b) allow setting parameters like speed/duplex/autonegotiation,
->             ring buffers, ... with ethtool, and remember the state
-> 	 c) not accept data coming in, and drop packets queued
+These patches extend and standardise local_t operations on each architectures,
+allowing a rich set of atomic operations to be done on per-cpu data with
+minimal performance impact. On some architectures, there seems to be no
+difference between the SMP and UP operation (same memory barriers, same
+LOCking), local.h simply includes asm-generic/local.h, which removes duplicated
+code.
 
-<nit>
-Imho speed/duplex/autoneg is not the business of the device: they belong
-to the phy and it's up to it to decide if its state allows to set the
-requested parameters or not.
-</nit>
+These patches applies on 2.6.20-rc1-git7.
+It depends on the patch "atomic.h : standardising atomic primitives"
 
--- 
-Ueimor
+Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

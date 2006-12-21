@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423060AbWLUTdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423056AbWLUTd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423060AbWLUTdz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423058AbWLUTdz
+	id S1423056AbWLUTd7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423058AbWLUTd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:33:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:44668 "EHLO ciao.gmane.org"
+	Thu, 21 Dec 2006 14:33:59 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:22174 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423057AbWLUTdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:33:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Akemi Yagi <amyagi@gmail.com>
-Subject: Re: Kernel panic in cifs_revalidate
-Date: Thu, 21 Dec 2006 11:32:58 -0800
-Message-ID: <pan.2006.12.21.19.32.54.182348@gmail.com>
-References: <92cbf19b0611210024j3c1e2c6cr4b6d47ed6aaf2925@mail.gmail.com> <pan.2006.11.21.14.58.30.968552@gmail.com>
+	id S1423056AbWLUTd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 14:33:58 -0500
+Date: Thu, 21 Dec 2006 20:35:50 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: performance regression from block merge
+Message-ID: <20061221193549.GF17199@kernel.dk>
+References: <20061221112540.e4ba58bc.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: energy.scripps.edu
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061221112540.e4ba58bc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 06:58:38 -0800, Akemi Yagi wrote:
-
-> On Tue, 21 Nov 2006 00:24:40 -0800, Chakri n wrote:
+On Thu, Dec 21 2006, Andrew Morton wrote:
 > 
->> Hi,
->> 
->> I am seeing a kernel panic in cifs module. It seems to be a result of
->> invalid inode entry in dentry for the file it is trying to validate.
->> 
->> The inode->i_ino is set zero and inode->i_mapping is set to NULL in
->> the inode pointer in the dentry (0xdf8ea200) structure. I went through
->> the cifs code and could not find any valid case that could trigger
->> this situation. Is there any case which can lead to this situation?
->> 
+> Jens, elapsed time for `mke2fs /dev/hdc5' with the anticipatory scheduler
+> (at least) has gone from nine seconds to sixty as a result of the recent
+> block merge.
 
-> 
-> I have been getting kernel oops caused by cifs mount starting with kernel
-> 2.6.18.  I filed a bug report to RedHat bugzilla at:
-> 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=211672
-> 
+About when? I'll double check and test here, I'm assuming you mean since
+2.6.19?
 
-A patch for this cifs problem has been posted on the Bugzilla (see the
-link above).
+> This is the enty enth time that block code has been slammed into mainline
+> without having had exposure to -mm testers or even to me personally, and it
+> it the second time (at least) that obvious regressions have occurred as a
+> result.  I have a New Year's resolution for you ;)
 
-Akemi
+I usually try and make sure that for-akpm is the same as for-linus, so
+if you pull that then it'll go to -mm as well. Sometimes the window
+isn't that big, I'll try and make sure it's seen at least one -mm before
+going upstream.
+
+-- 
+Jens Axboe
 

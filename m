@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423041AbWLUVkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423102AbWLUVtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423041AbWLUVkv (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 16:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423028AbWLUVkv
+	id S1423102AbWLUVtH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 16:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423097AbWLUVtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 16:40:51 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51328 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423041AbWLUVku (ORCPT
+	Thu, 21 Dec 2006 16:49:06 -0500
+Received: from fmmailgate09.web.de ([217.72.192.184]:53015 "EHLO
+	fmmailgate09.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423101AbWLUVtE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:40:50 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>
-Subject: Re: IO-APIC + timer doesn't work
-References: <5986589C150B2F49A46483AC44C7BCA490731A@ssvlexmb2.amd.com>
-Date: Thu, 21 Dec 2006 14:40:01 -0700
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA490731A@ssvlexmb2.amd.com>
-	(Yinghai Lu's message of "Thu, 21 Dec 2006 13:24:44 -0800")
-Message-ID: <m11wmtnd1q.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Thu, 21 Dec 2006 16:49:04 -0500
+X-Greylist: delayed 2013 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 16:49:04 EST
+Date: Thu, 21 Dec 2006 22:15:27 +0100
+Message-Id: <34142027@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Niklas Steinkamp <NiSteinkamp@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Binary Drivers
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lu, Yinghai" <yinghai.lu@amd.com> writes:
+David wrote: 
+> Honestly, I think it *is* wrong to sell someone a physical product and then
+> not tell them how to make it work. If you're not actually selling them the
+> physical product but selling them a way to get a particular thing done, then
+> don't represent that you're selling them physical product because that would
+> presumably include the right to use it any way they wanted provided it was
+> lawful.
+> 
+> How would you feel if you bought a car and then discovered that the
+> manufacturer had welded the hood shut? How many people still do their own
+> oil changes anyway?
 
-> -----Original Message-----
-> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
-> Sent: Thursday, December 21, 2006 12:47 PM
-> To: Lu, Yinghai
->>> +static int add_irq_entry(int type, int irqflag, int bus, int irq,
-> int apic, int
->>> pin)
->
->>This is fairly sane but probably belongs in mptable.c as a helper.
->
-> mparse.c?
+I think he is right. The linux kernel is free software and there should be no closed source in it.
+When Windows uses closed-source drivers, it doesn&#180;t matter, but the in the linux kernel should be only open-source.
 
-yep.
 
->>I am still trying to understand this enable_8259A_irq(0) case.
->>As far as I can tell this is a very backwards way of enabling
->>an ExtINT, as such it shouldn't be used until later.
->
->>YH do you have any insight why on some Nvidia chipsets we apic 0 pin 2
-> doesn't
->>work for the timer interrupt.  I thought that was what we were using in
-> LinuxBIOS
->>for the mptable.
->
-> CK804's has problem. But later one seems fixed that problem.
 
-Do you have any details?
 
-Eric
+______________________________________________________________________________
+"Ein Herz für Kinder" - Ihre Spende hilft! Aktion: www.deutschlandsegelt.de
+Unser Dankeschön: Ihr Name auf dem Segel der 1. deutschen America's Cup-Yacht!
+

@@ -1,83 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423002AbWLUSMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423006AbWLUSM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423002AbWLUSMI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423004AbWLUSMH
+	id S1423006AbWLUSM3 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWLUSM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:12:07 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2969 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423002AbWLUSMF (ORCPT
+	Thu, 21 Dec 2006 13:12:29 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:53855 "EHLO
+	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1423004AbWLUSM1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:12:05 -0500
-Date: Thu, 21 Dec 2006 18:11:56 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-Message-ID: <20061221181156.GG3958@flint.arm.linux.org.uk>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Dec 2006 13:12:27 -0500
+X-Greylist: delayed 1583 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 13:12:27 EST
+Message-Id: <1166723157.29546.281560884@webmail.messagingengine.com>
+X-Sasl-Enc: wkFqiNA2HnaY78KnZ4yegfVvkepnEpXgzn5ch6+DvBl1 1166723157
+From: "Alexander van Heukelum" <heukelum@fastmail.fm>
+To: "Jean Delvare" <khali@linux-fr.org>, "Vivek Goyal" <vgoyal@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, "Andi Kleen" <ak@suse.de>,
+       "LKML" <linux-kernel@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+   <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+   <20061220214340.f6b037b1.khali@linux-fr.org>
+   <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
+   <20061221101240.f7e8f107.khali@linux-fr.org>
+   <20061221102232.5a10bece.khali@li
+   <20061221145922.16ee8dd7.khali@linux-fr.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+In-Reply-To: <20061221145922.16ee8dd7.khali@linux-fr.org>
+Date: Thu, 21 Dec 2006 18:45:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 06:55:47PM +0100, Miklos Szeredi wrote:
-> > > Yes, note the flush_dcache_page() call in fuse_copy_finish().  That
-> > > could be replaced by the flush_kernel_dcache_page() (added by James
-> > > Bottomley together with flush_anon_page()) when all relevant
-> > > architectures have defined it.
-> > 
-> > I should say that flush_anon_page() in its current form is going to be
-> > problematic for ARM.  It is passed:
-> > 
-> > 1. the struct page
-> > 2. the virtual address in process memory for the page
-> > 
-> > It is not passed the mm or vma.  This means that we have no idea whether
-> > the virtual address is in the currently mapped VM space or not.  The
-> > common use of get_area_pages() is to get pages from other address
-> > spaces.
+On Thu, 21 Dec 2006 14:59:22 +0100, "Jean Delvare" <khali@linux-fr.org>
+said:
+> Hi Vivek,
 > 
-> I'm not sure I understand.  flush_anon_page() needs only to flush the
-> mapping for the given virtual address, no?
-
-Yes, but that virtual /user/ address is meaningless without knowing
-which process address space it belongs to.
-
-> It's always mapped at that address (since it was just accessed through
-> that).
-
-No.  Consider ptrace() (invoked by gdb) reading data from another
-processes address space to obtain structure data or instructions.
-
-> Any other mappings
-> of the anonymous page are irrelevant, they don't need to be flushed.
-
-Again, incorrect.  Consider if the page you're accessing is a file-
-backed page, and is mapped into a process using a shared mapping.
-Because you've written to the file, those shared mappings need to see
-that write, and the interface for achieving that is flush_dcache_page().
-If not, data loss can occur.
-
-> > If we use the supplied virtual address to perform cache maintainence of
-> > the userspace mapping, we might end up hitting a completely different
-> > processes address space, which may contain some page sensitive to such
-> > operations, or may not contain any page and thereby could cause a page
-> > fault on some ARM CPUs.
+> On Thu, 21 Dec 2006 08:43:26 +0530, Vivek Goyal wrote:
+> > On Thu, Dec 21, 2006 at 02:13:54PM +0100, Jean Delvare wrote:
+> > > On Thu, 21 Dec 2006 06:38:14 +0530, Vivek Goyal wrote:
+> > > > Looks like it might be a tool chain issue. I took Jean's config file and
+> > > > built my own kernel and I am able to boot the kernel. But I can't boot
+> > > > his bzImage. I observed the same behaviour as jean is experiencing. It jumps
+> > > > back to BIOS.
+> > > 
+> > > I can only confirm that. I installed a more recent system on the same
+> > > hardware, rebuilt a kernel from the same config file, and now it boots
+> > > OK. So it's not related to the hardware. It has to be a compilation-time
+> > > issue.
+> > 
+> > Looks like you have already trashed your setup. If not, is it possible to
 > 
-> I think calling get_user_pages() from a different process' address
-> space simply doesn't make any sense.
+> No, of course I didn't. I installed the new system on a different hard
+> disk drive.
+> 
+> > upload the output of "objdump -D arch/i386/boot/setup.o"? This will give
+> > some info regarding what assembler is doing.
+> 
+> Here you go:
+> http://jdelvare.pck.nerim.net/linux/relocatable-bug/setup.asm
 
-That was it's main use - to implement ptrace() to read other processes
-address spaces.  Why do you think it takes a task_struct and mm_struct?
+Hi,
+
+Hmm. taking a peek at the bzImage there...
+
+00001d80  41 00 56 45 53 41 00 56  69 64 65 6f 20 61 64 61 
+|A.VESA.Video ada|
+00001d90  70 74 65 72 3a 20 00 00  00 b8 00 00 55 aa 5a 5a  |pter:
+......U.ZZ|
+00001da0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00 
+|................|
+*
+00001e00  4e 35 13 00 1f 8b 08 00  23 a4 89 45 02 03 b4 fd 
+|N5......#..E....|
+          -- -- -- -- ^^ ^^ ^^
+
+This is the end of the realmode kernel, and it should be followed by the
+32-bit code that is to be executed at (normally) 0x100000, right? This
+is however not the case here. Where did arch/i386/boot/compressed/head.S
+go then? What is the significance of this value 0x0013354e? It is in
+fact
+exactly the size of the compressed kernel image.
+
+I have no idea what went wrong, but it went wrong in the build process
+of the bzImage.
+
+Hope this helps,
+    Alexander
+
+> -- 
+> Jean Delvare
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+  Alexander van Heukelum
+  heukelum@fastmail.fm
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+http://www.fastmail.fm - Send your email first class
+

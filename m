@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161012AbWLUMgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161026AbWLUMic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbWLUMgx (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 07:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWLUMgx
+	id S1161026AbWLUMic (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 07:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWLUMic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 07:36:53 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2544 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161012AbWLUMgw (ORCPT
+	Thu, 21 Dec 2006 07:38:32 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:2678 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161056AbWLUMic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 07:36:52 -0500
-Date: Thu, 21 Dec 2006 12:36:16 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Martin Michlmayr <tbm@cyrius.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061221123615.GB10775@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Gordon Farquharson <gordonfarquharson@gmail.com>,
-	Martin Michlmayr <tbm@cyrius.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Hugh Dickins <hugh@veritas.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Florian Weimer <fw@deneb.enyo.de>,
-	Marc Haber <mh+linux-kernel@zugschlus.de>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>,
-	Arnd Bergmann <arnd.bergmann@de.ibm.com>
-References: <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com> <1166622979.10372.224.camel@twins> <20061220170323.GA12989@deprecation.cyrius.com> <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> <20061220175309.GT30106@deprecation.cyrius.com> <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org> <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <20061221123022.GA10775@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061221123022.GA10775@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Dec 2006 07:38:32 -0500
+X-Greylist: delayed 325 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 07:38:31 EST
+Message-ID: <458A7F01.90901@webmaster.com>
+Date: Thu, 21 Dec 2006 04:33:05 -0800
+From: "Nikolaos D. Bougalis" <nikb@webmaster.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041206 Thunderbird/1.0 Mnenhy/0.7.3.0
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers
+References: <7ssWL-8rd-15@gated-at.bofh.it> <7sE1N-2Y4-5@gated-at.bofh.it> <7t39Q-Ru-9@gated-at.bofh.it>
+In-Reply-To: <7t39Q-Ru-9@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: nikb@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 21 Dec 2006 05:34:56 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 216.152.70.34
+X-Return-Path: nikb@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: nikb@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 21 Dec 2006 05:34:57 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 12:30:22PM +0000, Russell King wrote:
-> On Wed, Dec 20, 2006 at 11:53:25PM -0800, Linus Torvalds wrote:
-> > That's obviously a bug worth fixing on its own. Do you know when it 
-> > started?
-> 
-> My last merge, just before 2.6.19-rc1.
+Denis Vlasenko wrote:
 
-Obviously 2.6.20-rc1.
+> Why vendor has a right to restrict me to a few existing OSes?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+	Manufacturers design product as they see fit and offer it on the market; I 
+don't see nVidia or ATI thugs twisting your arm behind you as you walk down 
+the aisle of Fry's Electronics saying "buy this nice card we made or I'll 
+break your arm."
+
+	The bottom line is this: companies speak dollarese expertly. If you don't 
+like product X because it does not include specs or don't like the policies of 
+its manufacturer towards the community then vote with your wallet.
+
+	-n
+

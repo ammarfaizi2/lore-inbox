@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965154AbWLUOlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422778AbWLUOts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbWLUOlz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 09:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWLUOlz
+	id S1422778AbWLUOts (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 09:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422788AbWLUOts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 09:41:55 -0500
-Received: from mail.atmel.fr ([81.80.104.162]:54722 "EHLO atmel-es2.atmel.fr"
+	Thu, 21 Dec 2006 09:49:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52244 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965154AbWLUOly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 09:41:54 -0500
-Message-ID: <458A9CCB.5050108@rfo.atmel.com>
-Date: Thu, 21 Dec 2006 15:40:11 +0100
-From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
-Organization: atmel
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       Patrice Vilchez <patrice.vilchez@rfo.atmel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] input/spi: add ads7843 support to ads7846 touchscreen driver
-References: <4582BD29.4020203@rfo.atmel.com> <200612201513.09705.david-b@pacbell.net> <458A875D.3000801@rfo.atmel.com>
-In-Reply-To: <458A875D.3000801@rfo.atmel.com>
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: 8bit
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	id S1422778AbWLUOtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 09:49:47 -0500
+Subject: Re: Mutex debug lock failure [was Re: Bad gcc-4.1.0 leads to
+	Power4 crashes... and power5 too, actually
+From: Ingo Molnar <mingo@redhat.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, mingo@elte.hu
+In-Reply-To: <20061221010319.GE16860@austin.ibm.com>
+References: <20061220004653.GL5506@austin.ibm.com>
+	 <1166579210.4963.15.camel@otta> <20061220211931.GB16860@austin.ibm.com>
+	 <1166650134.6673.9.camel@localhost.localdomain>
+	 <20061220230342.GC16860@austin.ibm.com>
+	 <1166656195.6673.23.camel@localhost.localdomain>
+	 <20061220234647.GD16860@austin.ibm.com> <20061221003658.GB3048@krispykreme>
+	 <20061221010319.GE16860@austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 21 Dec 2006 15:41:39 +0100
+Message-Id: <1166712099.8869.16.camel@earth>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Ferre a écrit :
->>> As the SPI underlying code behaves quite differently from a 
->>> controller driver
->>> to another whan not having a tx_buf filled, I have add a zerroed 
->>> buffer to give
->>> to the spi layer while receiving data.
->>
->> You must be working with a buggy controller driver then.  That part of
->> this patch should never be needed.  It's expected that rx-only transfers
->> will omit a tx buf; all controller drivers must handle that case.
+On Wed, 2006-12-20 at 19:03 -0600, Linas Vepstas wrote:
+> Same kernel runs fine on power5. Although it does have patches
+> applied, those very same patches boot fine when applied to a slightly
+> older kernel (2.6.19-rc4).  I haven't been messing with buids or 
+> pci config space (at least not intentionaly).
 > 
-> I said that because it is true that most of spi controller drivers 
-> manage rx only transactions filling the tx buffer with zerros but the 
-> spi_s3c24xx.c driver seems to fill with ones (line 177 hw_txbyte())
-> 
-> Anyway, I will check in our controller driver to sort this out.
+> I'll try again with an unpatched, unmodified kernel.
 
-I dug a bit into this.
-Well, in the atmel_spi driver code, we use previous rx buffer if we do 
-not provide a tx_buf (as it is said that in struct spi_transfer 
-comments,  "If the transmit buffer is null, undefined data will be 
-shifted out while filling rx_buf").
-So, the touchscreen controller sees sometimes a "start" condition (bit 7 
-of a control byte). It then takes the control byte and sets trash bits 
-as a configuration. I ran into those troubles and add a zerroed buffer 
-as tx.
+there have been a number of fixes to lockdep recently - could you try
+the kernel/lockdep.c file from latest -mm, does that fail too?
 
-Do you think that shifting zerros out when a tx_buf is not specified is 
-the desired behavior ?
+one possibility would be a chain-hash collision.
 
-Regards,
--- 
-Nicolas Ferre
-
+	Ingo
 

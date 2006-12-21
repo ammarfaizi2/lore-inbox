@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423013AbWLUS1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423019AbWLUSaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423013AbWLUS1t (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 13:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423014AbWLUS1t
+	id S1423019AbWLUSaJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 13:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423014AbWLUSaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 13:27:49 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:56907 "EHLO sabe.cs.wisc.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423013AbWLUS1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 13:27:49 -0500
-Message-ID: <458ACB69.8000603@cs.wisc.edu>
-Date: Thu, 21 Dec 2006 11:59:05 -0600
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: device-mapper development <dm-devel@redhat.com>
-CC: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>, mchristi@redhat.com,
-       linux-kernel@vger.kernel.org, agk@redhat.com
-Subject: Re: [dm-devel] Re: [RFC PATCH 1/8] rqbased-dm: allow blk_get_request()
- to be called from interrupt context
-References: <20061220134848.GF10535@kernel.dk>	<20061220.125002.71083198.k-ueda@ct.jp.nec.com>	<20061220184917.GJ10535@kernel.dk>	<20061220.165549.39151582.k-ueda@ct.jp.nec.com> <20061221075305.GD17199@kernel.dk>
-In-Reply-To: <20061221075305.GD17199@kernel.dk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 21 Dec 2006 13:30:08 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:34012 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423019AbWLUSaH (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 13:30:07 -0500
+Message-Id: <200612211827.kBLIRtqC025054@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Dan Williams <dcbw@redhat.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Jiri Benc <jbenc@suse.cz>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network drivers that don't suspend on interface down
+In-Reply-To: Your message of "Wed, 20 Dec 2006 22:06:51 EST."
+             <1166670411.23168.13.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <20061220150009.1d697f15@griffin.suse.cz> <1166638371.2798.26.camel@localhost.localdomain> <20061221011526.GB32625@srcf.ucam.org>
+            <1166670411.23168.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1166725675_12674P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Dec 2006 13:27:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Dec 20 2006, Kiyoshi Ueda wrote:
->> Hi Jens,
->>
->> On Wed, 20 Dec 2006 19:49:17 +0100, Jens Axboe <jens.axboe@oracle.com> wrote:
->>>>> Big NACK on this - it's not only really ugly, it's also buggy to pass
->>>>> interrupt flags as function arguments. As you also mention in the 0/1
->>>>> mail, this also breaks CFQ.
->>>>>
->>>>> Why do you need in-interrupt request allocation?
->>>>  
->>>> Because I'd like to use blk_get_request() in q->request_fn()
->>>> which can be called from interrupt context like below:
->>>>   scsi_io_completion -> scsi_end_request -> scsi_next_command
->>>>   -> scsi_run_queue -> blk_run_queue -> q->request_fn
->>>>
->>>> Generally, device-mapper (dm) clones an original I/O and dispatches
->>>> the clones to underlying destination devices.
->>>> In the request-based dm patch, the clone creation and the dispatch
->>>> are done in q->request_fn().  To create the clone, blk_get_request()
->>>> is used to get a request from underlying destination device's queue.
->>>> By doing that in q->request_fn(), dm can deal with struct request
->>>> after bios are merged by __make_request().
->>>>
->>>> Do you think creating another function like blk_get_request_nowait()
->>>> is acceptable?
->>>> Or request should not be allocated in q->request_fn() anyway?
->>> You should not be allocating requests from that path, for a number of
->>> reasons.
->> Could I hear the reasons for my further work if possible?
->> Because of breaking current CFQ?  And is there any reason?
-> 
-> Mainly I just don't like the design, there are better ways to achieve
-> what you need. The block layer has certain assumptions on the context
-> from which rq allocation happens, and this breaks it. As I also
-> mentioned, you cannot pass flags around as arguments. So the patch is
-> even broken as-is.
-> 
+--==_Exmh_1166725675_12674P
+Content-Type: text/plain; charset=us-ascii
 
+On Wed, 20 Dec 2006 22:06:51 EST, Dan Williams said:
+> It's also complicated because some switches are supposed to rfkill both
+> an 802.11 module _and_ a bluetooth module at the same time, or I guess
+> some laptops may even have one rfkill switch for each wireless device.
 
-I was thinking that since this was going to be hooked into dm which has
-the make_request hook in code, could we just allocate the cloned request
-when from dm's make_request callout. The dm queue would call
-__make_request, and if it detected that the bio started a new request it
-would just allocate a second request which would be used as a clone or
-maybe the block layer could allocate the clone request for us. On the
-request_fn callout side, DM could then setup the cloned rq based on the
-original fields and pass it down to the dm-multipath request_fn. The
-dm-mutlipath request_fn then just decides which path to use based on the
-path-selector modules and then we send it off.
+On my Dell D820, it's bios-selectable if the switch is enabled, or if
+it controls just the 802.11 card, or 802.11 and bluetooth, or just bluetooth,
+or 802.11 and mobile broadband, or ...
 
+This way lies madness. :)
+
+(Oddest part - said bios config screen offers the choices for bluetooth
+and mobile broadband even though the hardware config doesn't include it. ;)
+
+--==_Exmh_1166725675_12674P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFitIrcC3lWbTT17ARAmxaAKDaqP5WCL22hXx/TKkLUzP65rrkXgCg6jtv
+Pq2mF9jGpOFxCv3vsP2cFc8=
+=+ohu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1166725675_12674P--

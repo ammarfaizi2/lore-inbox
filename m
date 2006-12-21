@@ -1,91 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422685AbWLUIL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422838AbWLUIMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422685AbWLUIL3 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 03:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422832AbWLUIL3
+	id S1422838AbWLUIMS (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 03:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422832AbWLUIMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 03:11:29 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:33680 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1422812AbWLUIL2 (ORCPT
+	Thu, 21 Dec 2006 03:12:18 -0500
+Received: from amsfep15-int.chello.nl ([62.179.120.10]:63676 "EHLO
+	amsfep15-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1422838AbWLUIMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 03:11:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=xl9R830pXf+mvaOc+LQOoGMHgmKL7uTV5paBhFZoUqyhIZ/f2VdSkF8XdOWtD+aotSAVkSjuIW4b1E5mENtROmTK0XMWqB4lOE1/5K7TwOB80hBWmb9xaterW7tICcxHIiXEWYQECyrNNpB2KoVNXacJyH6Lfe5mvT/y+FGwFjM=  ;
-X-YMail-OSG: 0YGuwKMVM1noZK9LxS2Q61YJSrDtzZT6gupBgTxnQQqobGV47d2j2mz1IipeV8w18rwS55XNza0L1dGqac4dlVx5SgmDA3mIH6HL7bgaFTTTubCHd1MSBLvAdmU_ObNu7IJqAJB09Qnfr2ZOVQsJZH1TZo5HfPGNdWM1E12Dn7o7F1vtxjewq9WloY0e
-From: David Brownell <david-b@pacbell.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Network drivers that don't suspend on interface down
-Date: Thu, 21 Dec 2006 00:11:24 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-References: <200612202125.10865.david-b@pacbell.net> <458A32FF.1010700@osdl.org>
-In-Reply-To: <458A32FF.1010700@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 21 Dec 2006 03:12:17 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linus Torvalds <torvalds@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+In-Reply-To: <1166668598.5909.38.camel@lade.trondhjem.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	 <1166605296.10372.191.camel@twins>
+	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	 <1166614001.10372.205.camel@twins>
+	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	 <1166622979.10372.224.camel@twins>
+	 <20061220170323.GA12989@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	 <20061220175309.GT30106@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+	 <1166652901.30008.1.camel@twins>
+	 <1166668598.5909.38.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Thu, 21 Dec 2006 09:10:38 +0100
+Message-Id: <1166688638.30008.22.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612210011.25229.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 December 2006 11:08 pm, Stephen Hemminger wrote:
-> David Brownell wrote:
-> > Hmm, this reminds me of a thread from last summer, following up on
-> > some PM discussions at OLS.  Thread "Runtime power management for
-> > network interfaces", at the end of July.
-> >
-> >
-> >   
-> >> 2) Network device infrastructure should make it easier for devices:
-> >>     bring interface down on suspend and bring it up after resume
-> >>     (if it was running when suspended). This would allow many devices to
-> >>     have no suspend/resume hook; except those that have some better power
-> >>     control over hardware.
-> >>     
-> >
-> > The _intent_ of the class suspend() and resume() methods is to let
-> > infrastructure (the network stack was explicitly mentioned!) handle
-> > pretty much everything except putting the hardware in low power
-> > modes ... which last step might, for PCI devices at least, most
-> > naturally be done in suspend_late().  That way it'd be decoupled
-> > cleanly from anything else.
-> >   
-> The class methods don't work right for that because the physical class 
-> (PCI) gets called before the virtual class  (network devices).
-
-I'd say they don't work just now because the virtual class code just
-doesn't get called ... at least, without someone setting up a field
-(device.class) that's flagged as "optional" and might be disappearing.
-
-But if you read the PM code, you'll observe that the class suspend
-method gets called BEFORE the bus/device suspend method.  And that's
-how it's documented in Documentation/power/devices.txt too.
-
-
-... However notice that "interface down" operations won't have that
-particular problem, they have net_device.class_dev.dev already ready
-for whatever PM operation is appropriate.
-
-- Dave
-
-
-> > Now, I recently tried refreshing a patch that used those class
-> > suspend() and resume() methods, and for some reason they're not
-> > getting called.  I believe they used to get called, although it's
-> > true their parameter wasn't very useful ... it was called with the
-> > underlying device, not the class_device holding state that the
-> > class driver manages.
-> >
-> > I just wanted to point out that yes, this ground has been covered
-> > before, with some agreement on that approach.  It'd be good to see
-> > it pursued.  :)
-> >
-> > - Dave
-> >
-> >   
+On Wed, 2006-12-20 at 21:36 -0500, Trond Myklebust wrote:
+> On Wed, 2006-12-20 at 23:15 +0100, Peter Zijlstra wrote:
+> > I think this is also needed:
 > 
+> NAK
+> 
+> invalidate_inode_pages2() should _not_ be pretending that dirty pages
+> are clean. This patch is incorrect both for the NFS usage and for the
+> directIO usage.
+> 
+> In the latter case, if someone has the page mmapped, resulting in the
+> page getting marked as dirty _after_ a directIO write, then it would be
+> wrong to discard that data. Only dirty data from _before_ the directIO
+> write should needs to be discarded (and that is achieved by unmapping,
+> then cleaning the page prior to the directIO call)...
+> 
+> For the NFS case, the race is a bit more tricky, since you have the
+> "unstable write" case which means that the page is neither marked as
+> dirty, nor is entirely clean ('cos we don't know that the server has
+> committed the data to permanent storage yet).
+
+Then this patch:
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc1/2.6.20-rc1-mm1/broken-out/nfs-fix-nr_file_dirty-underflow.patch
+
+is equally wrong, right?
+

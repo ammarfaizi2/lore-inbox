@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423051AbWLUTXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423043AbWLUTY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423051AbWLUTXf (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 14:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423050AbWLUTXf
+	id S1423043AbWLUTY6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 14:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWLUTY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 14:23:35 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:53070 "EHLO
-	delft.aura.cs.cmu.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423046AbWLUTXe (ORCPT
+	Thu, 21 Dec 2006 14:24:58 -0500
+Received: from neopsis.com ([213.239.204.14]:33832 "EHLO
+	matterhorn.dbservice.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1423043AbWLUTY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 14:23:34 -0500
-X-Greylist: delayed 1480 seconds by postgrey-1.27 at vger.kernel.org; Thu, 21 Dec 2006 14:23:33 EST
-Date: Thu, 21 Dec 2006 13:58:50 -0500
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: mikulas@artax.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Finding hardlinks
-Message-ID: <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
-	mikulas@artax.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
+	Thu, 21 Dec 2006 14:24:57 -0500
+Message-ID: <458AE3B7.8080302@dbservice.com>
+Date: Thu, 21 Dec 2006 19:42:47 +0000
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Thunderbird 2.0b1 (X11/20061212)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+To: James Porter <jameslporter@gmail.com>
+CC: Erik Mouw <erik@harddisk-recovery.com>, Scott Preece <sepreece@gmail.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers
+References: <loom.20061215T220806-362@post.gmane.org>	 <20061215220117.GA24819@martell.zuzino.mipt.ru>	 <4583527D.4000903@dbservice.com>	 <m13b7ds25w.fsf@ebiederm.dsl.xmission.com>	 <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com>	 <20061221174346.GN3073@harddisk-recovery.com>	 <458ADC37.9070608@dbservice.com> <f0e2c5070612211120wa6e3402p2ffb6e1d579a485a@mail.gmail.com>
+In-Reply-To: <f0e2c5070612211120wa6e3402p2ffb6e1d579a485a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Neopsis MailScanner using ClamAV and Spaassassin
+X-Neopsis-MailScanner: Found to be clean
+X-Neopsis-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.311,
+	required 5, autolearn=spam, AWL 0.15, BAYES_00 -2.60,
+	FORGED_RCVD_HELO 0.14)
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 12:44:42PM +0100, Miklos Szeredi wrote:
-> The stat64.st_ino field is 64bit, so AFAICS you'd only need to extend
-> the kstat.ino field to 64bit and fix those filesystems to fill in
-> kstat correctly.
+James Porter wrote:
+> I'm pretty sure Linus has decided, basically he said the patches to 
+> prevent non-gpl binary drivers are not going into his tree unless every 
+> other tree adopts it. Of course the few supporting won't get off their 
+> high horse and try it on a different tree.
 
-Coda actually uses 128-bit file identifiers internally, so 64-bits
-really doesn't cut it. Since the 128-bit space is used pretty sparsely
-there is a hash which avoids most collistions in 32-bit i_ino space, but
-not completely. I can also imagine that at some point someone wants to
-implement a git-based filesystem where it would be more natural to use
-160-bit SHA1 hashes as unique object identifiers.
+.. unfortunately, that doesn't make the legal status any clearer.
 
-But Coda only allow hardlinks within a single directory and if someone
-renames a hardlinked file and one of the names ends up in a different
-directory we implicitly create a copy of the object. This actually
-leverages off of the way we handle volume snapshots and the fact that we
-use whole file caching and writes, so we only copy the metadata while
-the data is 'copy-on-write'.
-
-I'm considering changing the way we handle hardlinks by having link(2)
-always create a new object with copy-on-write semantics (i.e. replacing
-link with some sort of a copyfile operation). This way we can get rid of
-several special cases like the cross-directory rename. It also avoids
-problems when the various replicas of an object are found to be
-inconsistent and we allow the user to expand the file. On expansion a
-file becomes a directory that contains all the objects on individual
-replicas. Handling the expansion in a dcache friendly way is nasty
-enough as is and complicated by the fact that we really don't want such
-an expansion to result in hard-linked directories, so we are forced to
-inventing new unique object identifiers, etc. Again, not having
-hardlinks would simplify things somewhat here.
-
-Any application that tries to be smart enough to keep track of which
-files are hardlinked should (in my opinion) also have a way to disable
-this behaviour.
-
-Jan
-
+tom

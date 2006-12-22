@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422728AbWLVL7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030187AbWLVMB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422728AbWLVL7Y (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 06:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWLVL7Y
+	id S1030187AbWLVMB3 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 07:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWLVMB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 06:59:24 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:26393 "HELO abra2.bitwizard.nl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1422728AbWLVL7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 06:59:23 -0500
-Date: Fri, 22 Dec 2006 12:59:21 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
-Message-ID: <20061222115921.GT3073@harddisk-recovery.com>
-References: <loom.20061215T220806-362@post.gmane.org> <200612162007.32110.marekw1977@yahoo.com.au> <4587097D.5070501@opensound.com> <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net> <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+	Fri, 22 Dec 2006 07:01:29 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:38013 "EHLO
+	tyo201.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964838AbWLVMB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 07:01:28 -0500
+Message-ID: <458BC905.7050003@bx.jp.nec.com>
+Date: Fri, 22 Dec 2006 21:01:09 +0900
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH -mm 0/5] proposal for dynamic configurable netconsole
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2006 at 01:16:15PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> At least nVidia *does* actually Get It, they just don't have a choice in
-> implementing it, because all their current hardware includes patents that
-> they licensed from other companies (I believe some of the OpenGL stuff that
-> originated at SGI and got bought by Microsoft is involved, but I have no
-> hard references for actual patent numbers).  And then they have the big
-> problem - do they keep using the patent in order to boost performance,
-> or no?
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
 
-Wasn't the whole idea about patents that you publish your invention?
+The netconsole is a very useful module for collecting kernel message under
+certain circumstances(e.g. disk logging fails, serial port is unavailable).
 
+But current netconsole is not flexible. For example, if you want to change ip
+address for logging agent, in the case of built-in netconsole, you can't change
+config except for changing boot parameter and rebooting your system, or in the
+case of module netconsole, you need to reload netconsole module.
 
-Erik
+So, I propose the following extended features for netconsole.
 
+1) support for multiple logging agents.
+2) add interface to access each parameter of netconsole
+   using sysfs.
+
+This patch is for linux-2.6.20-rc1-mm1 and is divided to each function.
+Your comments are very welcome.
+
+Signed-off-by: Keiichi KII <k-keiichi@bx.jp.nec.com>
+---
+[changes]
+1. change kernel base from 2.6.19 to 2.6.20-rc1-mm1.
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Keiichi KII
+NEC Corporation OSS Promotion Center
+E-mail: k-keiichi@bx.jp.nec.com

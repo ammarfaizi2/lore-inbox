@@ -1,98 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422719AbWLVL7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422728AbWLVL7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbWLVL7U (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 06:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWLVL7U
+	id S1422728AbWLVL7Y (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 06:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWLVL7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 06:59:20 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:54638 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422719AbWLVL7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 06:59:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ktOkzrh9mgN/JkOqxERZejsWe0haCi6FfweXEFA6rRLcyodcDKRd2jKjYQvUzfDQKNEA+YBuTAr8n9J6GVU5k7M78930LojbNFKLAhL97PyVYzZbmHfqKq5eGtJGk9cleEezPQCsSRMHI3EInGd33y4QAhl+rdXThP+adcZeBos=
-Message-ID: <c70ff3ad0612220359w3f568850qb720230bae76a698@mail.gmail.com>
-Date: Fri, 22 Dec 2006 13:59:18 +0200
-From: "saeed bishara" <saeed.bishara@gmail.com>
-To: "Jens Axboe" <jens.axboe@oracle.com>
-Subject: Re: using splice/vmsplice to improve file receive performance
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061222113917.GQ17199@kernel.dk>
+	Fri, 22 Dec 2006 06:59:24 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:26393 "HELO abra2.bitwizard.nl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1422728AbWLVL7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 06:59:23 -0500
+Date: Fri, 22 Dec 2006 12:59:21 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+Message-ID: <20061222115921.GT3073@harddisk-recovery.com>
+References: <loom.20061215T220806-362@post.gmane.org> <200612162007.32110.marekw1977@yahoo.com.au> <4587097D.5070501@opensound.com> <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net> <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
-	 <20061222094858.GP17199@kernel.dk>
-	 <c70ff3ad0612220318i54e7569fn161cf781d9bf0669@mail.gmail.com>
-	 <20061222113917.GQ17199@kernel.dk>
+In-Reply-To: <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> On Fri, Dec 22 2006, saeed bishara wrote:
-> > On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > >On Thu, Dec 21 2006, saeed bishara wrote:
-> > >> Hi,
-> > >> I'm trying to use the splice/vmsplice system calls to improve the
-> > >> samba server write throughput, but before touching the smbd, I started
-> > >> to improve the ttcp tool since it simple and has the same flow. I'm
-> > >> expecting to avoid the "copy_from_user" path when using those
-> > >> syscalls.
-> > >> so far, I couldn't make any improvement, actually the throughput get
-> > >> worst. the new receive flow looks like this (code also attached):
-> > >> 1. read tcp packet (64 pages) to page aligned buffer.
-> > >> 2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
-> > >> 3. splice the pipe to the file, also with SPLICE_F_MOVE.
-> > >>
-> > >> the strace shows that the splice takes a lot of time. also when
-> > >> profiling the kernel, I found that the memcpy() called to often !!
-> > >
-> > >(didn't see this until now, axboe@suse.de doesn't work anymore)
-> > >
-> > >I'm assuming that you mean you vmsplice with SPLICE_F_GIFT, to hand
-> > >ownership of the pages to the kernel (in which case SPLICE_F_MOVE will
-> > >work, otherwise you get a copy)? If not, that'll surely cost you a data
-> > >copy
-> >   I'll try the vmplice with SPLICE_F_GIFT and splice with MOVE. btw,
-> > I noticed that the  splice system call takes the bulk of the time,
-> > does it mean anything?
->
-> Hard to say without seeing some numbers :-)
-I'm out of the office, I'll send it later. btw, my test bed ( the
-receiver side ) is arm9. does it matter?
->
-> > >This sounds remarkably like a recent thread on lkml, you may want to
-> > >read up on that. Basically using splice for network receive is a bit of
-> > >a work-around now, since you do need the one copy and then vmsplice that
-> > >into a pipe. To realize the full potential of splice, we first need
-> > >socket receive support so you can skip that step (splice from socket to
-> > >pipe, splice pipe to file).
-> > Ashwini Kulkarni posted patches that implements that, see
-> > http://lkml.org/lkml/2006/9/20/272 .  is that right?
-> > >
-> > >There was no test code attached, btw.
-> > sorry, here it is.
-> > can you please add sample application to your test tools (splice,fio
-> > ,,) that demonstrates my flow; socket to file using read & vmsplice?
->
-> I didn't add such an example, since I had hoped that we would have
-> splice from socket support sooner rather than later. But I can do so, of
-> course.
-do you any preliminary patches? I can start playing with it.
->
-> I'll try your test. One thing that sticks out initially is that you
-> should be using full pages, the splice pipe will not merge page
-> segments. So don't use a buflen less than the page size.
-yes, actually I  run the ttcp with -l65536 ( 64KB ), and the buffer is
-always page aligned.also, the splice/vmsplice with MOVE or GIFT will
-fail if the buffer is not a whole pages. am I rigth?
+On Thu, Dec 21, 2006 at 01:16:15PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> At least nVidia *does* actually Get It, they just don't have a choice in
+> implementing it, because all their current hardware includes patents that
+> they licensed from other companies (I believe some of the OpenGL stuff that
+> originated at SGI and got bought by Microsoft is involved, but I have no
+> hard references for actual patent numbers).  And then they have the big
+> problem - do they keep using the patent in order to boost performance,
+> or no?
 
->
-> --
-> Jens Axboe
->
->
+Wasn't the whole idea about patents that you publish your invention?
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1946032AbWLVKkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946031AbWLVKnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946032AbWLVKkF (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 05:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946031AbWLVKkE
+	id S1946031AbWLVKnT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 05:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWLVKnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 05:40:04 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:36962 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946032AbWLVKkC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 05:40:02 -0500
-Date: Fri, 22 Dec 2006 16:10:56 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-ID: <20061222104056.GB7009@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org>
+	Fri, 22 Dec 2006 05:43:19 -0500
+Received: from madara.hpl.hp.com ([192.6.19.124]:57781 "EHLO madara.hpl.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946031AbWLVKnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 05:43:18 -0500
+Date: Fri, 22 Dec 2006 02:43:06 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: venkatesh.pallipadi@intel.com, suresh.b.siddha@intel.com,
+       kenneth.w.chen@intel.com, tony.luck@intel.com,
+       Stephane Eranian <eranian@hpl.hp.com>
+Subject: sched_clock() on i386
+Message-ID: <20061222104306.GC1895@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061222090806.3ae56579.khali@linux-fr.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2006 at 09:08:06AM +0100, Jean Delvare wrote:
-> Hi Vivek,
-> 
-> On Fri, 22 Dec 2006 02:14:08 +0530, Vivek Goyal wrote:
-> > Jean, can you please upload some more files. Should give some more idea
-> > about what happened in your environment.
-> >
-> > arch/i386/boot/vmlinux.bin
-> > arch/i386/boot/compressed/piggy.o
-> > arch/i386/boot/compressed/head.o
-> 
-> Sure, here they are:
-> http://jdelvare.pck.nerim.net/linux/relocatable-bug/
-> 
+Hello,
 
-Thanks Jean. Your compressed/head.o looks fine.
 
-Disassembly of section .text.head:
+The perfmon subsystems needs to compute per-CPU duration. It is using
+sched_clock() to provide this information. However, it seems they are
+big variations in the way sched_clock() is implemented for each architectures,
+especially in the accuracy of the returned value (going from TSC to jiffies).
 
-00000000 <startup_32>:
-   0:   fc                      cld
-   1:   fa                      cli
-   2:   b8 18 00 00 00          mov    $0x18,%eax
+Looking at the i386 implementation, it is not so clear to me what the
+actual goal of the function is. I was under the impression that this
+function was meant to compute per-CPU time deltas. This is how the
+scheduler seems to use it. 
 
-compressed/piggy.o also looks fine. In this relocatable object,
-compressed kernel size is present at office 0x34.
+The x86-64 and i386 implementations are quite different. The i386 comment
+about NUMA seems to contradict the initial goal of the function.
+Why is that?
 
-000000 464c457f 00010101 00000000 00000000
-000010 00030001 00000001 00000000 00000000
-000020 0013358c 00000000 00000034 00280000
-000030 00020005 00133526 00088b1f 458a914d
-                ^^^^^^^
+Does this come from the fact that sched_lock() is used for the time-stamping
+printk(). But in this case, like on IA-64, couldn't we define a specific
+timing function for printk?
 
-But vmlinux.bin is not good. It should have contained startup_32() code
-bytes from compressed/head.S but it seems to basically cotain piggy.o data
-at the beginning. Instead it should have had .text.head section in the
-beginning.
 
-000000 00133526 00088b1f 458a914d fdb40302
-       ^^^^^^^ (compressed kernel size. Same as piggy.o)
+Excerpt from arch/i386/kernel/tsc.c:
 
-boot/vmlinux.bin is made after stripping boot/compressed/vmlinux. And 
-boot/compressed/vmlinux is made with the linking of head.o, misc.o and
-piggy.o. So either objcopy did something wrong or linker itself did not
-generate a proper compressed/vmlinux. 
+unsigned long long sched_clock(void)
+{
+        unsigned long long this_offset;
 
-Can you please also upload boot/compressed/vmlinux.
+        /*
+         * in the NUMA case we dont use the TSC as they are not
+         * synchronized across all CPUs.
+         */
+#ifndef CONFIG_NUMA
+        if (!cpu_khz || check_tsc_unstable())
+#endif
+                /* no locking but a rare wrong value is not a big deal */
+                return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
 
-Another odd thing is that "file vmlinux.bin" shows following.
+        /* read the Time Stamp Counter: */
+        rdtscll(this_offset);
 
-vmlinux.bin: Sendmail frozen configuration  - version \015\024\322\216\356\222X\2306\032H\220\303\270\006\007\003
+        /* return the value in ns */
+        return cycles_2_ns(this_offset);
+}
 
-I am not sure what does it mean. I had expected it to be a data blob.
 
-"vmlinux.bin: data"
-
-Can you please also compile the kernel in verbose mode "make V=1" and
-upload the output. just wanted to make sure Makefiles are being
-interpreted properly.
-
-Thanks
-Vivek
+-- 
+-Stephane

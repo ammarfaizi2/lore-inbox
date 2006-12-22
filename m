@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754835AbWLVNVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754836AbWLVN3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754835AbWLVNVL (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 08:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754834AbWLVNVL
+	id S1754836AbWLVN3R (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 08:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754837AbWLVN3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 08:21:11 -0500
-Received: from smtpa2.aruba.it ([62.149.128.211]:45664 "HELO smtpa2.aruba.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1754835AbWLVNVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 08:21:10 -0500
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-From: Stefano Takekawa <take@libero.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ard -kwaak- van Breemen <ard@telegraafnet.nl>,
-       "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20061222014341.5ba33788.akpm@osdl.org>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com>
-	 <20061222082248.GY31882@telegraafnet.nl>
-	 <20061222003029.4394bd9a.akpm@osdl.org>
-	 <1166779971.16097.8.camel@proton.twominds.it>
-	 <20061222014341.5ba33788.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 22 Dec 2006 14:23:07 +0100
-Message-Id: <1166793787.11859.7.camel@proton.twominds.it>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+	Fri, 22 Dec 2006 08:29:17 -0500
+Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:35740 "EHLO
+	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754836AbWLVN3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 08:29:17 -0500
+Message-ID: <458BDDDE.8050201@gentoo.org>
+Date: Fri, 22 Dec 2006 08:30:06 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 2.0b1 (X11/20061221)
+MIME-Version: 1.0
+To: Marc Haber <mh+linux-kernel@zugschlus.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 file content corruption on ext3
+References: <20061207155740.GC1434@torres.l21.ma.zugschlus.de>
+In-Reply-To: <20061207155740.GC1434@torres.l21.ma.zugschlus.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Rating: smtpa2.aruba.it 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il giorno ven, 22/12/2006 alle 01.43 -0800, Andrew Morton ha scritto:
-> On Fri, 22 Dec 2006 10:32:51 +0100
-> Stefano Takekawa <take@libero.it> wrote:
-> 
-> > Applied to 2.6.19 it doesn't change anything. It still panics.
-> 
-> Really?
-> 
-> And you can confirm that converting pci_bus_sem back into a spinlock fixes
-> it?
-> 
-> > How can I have something similar to a serial console on a laptop without
-> > serial port but with a parallel one? Will netconsole work?
-> > 
-> 
-> No, netconsole isn't available for quite some time after the kernel starts.
-> 
-> Your best bet would be to boot with `earlyprintk=vga vga=N', where N is
-> something which gives lots of rows.  0F01, perhaps.
-> 
-> Then, take a digital photo of the display.
+Marc Haber wrote:
+> After updating to 2.6.19, Debian's apt control file
+> /var/cache/apt/pkgcache.bin corrupts pretty frequently - like in under
+> six hours. In that situation, "aptitude update" segfaults. When I
+> delete the file and have apt recreate it, things are fine again for a
+> few hours before the file is broken again and the segfault start over.
+> In all cases, umounting the file system and doing an fsck does not
+> show issues with the file system.
 
-I can't take any digital photo. Well I got this:
-2.6.19 + lib/rwsem-spinlock.c patched + hdc=ide-cd or idebus=66 >> panic
-2.6.19 + lib/rwsem-spinlock.c patched + no ide_setup calls >> works!!!
-2.6.19 + spinlock reversed >> always works
+Are you using wireless networking of any kind? If so which driver and 
+security key system? Might be useful if you could post 'dmesg' output so 
+that people can see the other hardware that you have.
 
--- 
-Stefano Takekawa
-take@libero.it
-
-Frank:  And why do days get longer in the summer?
-Ernest: Because heat makes things expand!
-
+Daniel
 

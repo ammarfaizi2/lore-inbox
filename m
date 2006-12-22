@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752651AbWLVVpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752880AbWLVVtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752651AbWLVVpO (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 16:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752879AbWLVVpO
+	id S1752880AbWLVVtA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 16:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752881AbWLVVtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 16:45:14 -0500
-Received: from styx.suse.cz ([82.119.242.94]:55023 "EHLO mail.suse.cz"
+	Fri, 22 Dec 2006 16:49:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43115 "EHLO amd.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750997AbWLVVpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 16:45:13 -0500
-Date: Fri, 22 Dec 2006 22:42:38 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] Fix some ARM builds due to HID brokenness
-In-Reply-To: <20061222170916.GA3320@dyn-67.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0612222237320.11292@jikos.suse.cz>
-References: <20061222170916.GA3320@dyn-67.arm.linux.org.uk>
+	id S1752879AbWLVVs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 16:48:59 -0500
+Date: Fri, 22 Dec 2006 22:48:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Vladimir Ananiev <vovan888@gmail.com>
+Subject: Re: omap compilation fixes
+Message-ID: <20061222214843.GA25475@elf.ucw.cz>
+References: <20061222105521.GA23683@elf.ucw.cz> <20061222211754.GU2449@atomide.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061222211754.GU2449@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2006, Russell King wrote:
+Hi!
 
-> The new location for HID is extremely annoying:
+> > This is not yet complete set. set_map() is missing in latest kernels.
+> > 
+> > Fix DECLARE_WORK()-change-related compilation problems. Please apply,
+> >
+> > --- a/drivers/mmc/omap.c
+> > +++ b/drivers/mmc/omap.c
+> > @@ -2,7 +2,7 @@
+> >   *  linux/drivers/media/mmc/omap.c
+> >   *
+> >   *  Copyright (C) 2004 Nokia Corporation
+> > - *  Written by Tuukka Tikkanen and Juha Yrjölä<juha.yrjola@nokia.com>
+> > + *  Written by Tuukka Tikkanen and Juha Yrjölä <juha.yrjola@nokia.com>
+> >   *  Misc hacks here and there by Tony Lindgren <tony@atomide.com>
+> >   *  Other hacks (DMA, SD, etc) by David Brownell
+> >   *
+> 
+> I already applied similar fixes to linux-omap for the workqueue changes,
+> so I only applied the MMC typo fix above.
 
-Hi Russell,
+I thought I got pretty recent -git:
 
-well, the location itself was a subject to various discussions. At the 
-end, drivers/hid won against drivers/input/hid, because, as Marcel 
-correctly pointed out, in case of embedded systems there might be a need 
-to have an abstraction for non-input devices and then we don't want to 
-bundle it to tightly to input. There is no such implementation yet, but 
-moving this code around is quite painful, so we don't want to do it more 
-than once.
+omap git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap-2.6.git
 
-> 1. the help text implies that you need to enable it for any
->    keyboard or mouse attached to the system.  This is not
->    correct.
+...should I use another tree?
 
-This help text has been there for ages, it was duplicated from previous 
-help text from usb hid implementation, but you are right that the wording 
-might confuse someone. Will change it eventually, thanks.
+Aha, I did another pull now and it seems to be better... no, it is
+not:
 
-> 2. it defaults to 'y'.  When you have input deselected, this
->    causes the kernel to fail to link:
-> Fix the second problem by making it depend on INPUT.
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Recovering from a previously interrupted fetch...
+Fetching pack (head and objects)...
+Fetching tags...
+Missing tag v2.6.20-rc1...
+Generating pack...
+Done counting 1 objects.
+Deltifying 1 objects.
+ 100% (1/1) done
+Total 1, written 1 (delta 0), reused 1 (delta 0)
+Unpacking 1 objects
+ 100% (1/1) done
+Up to date.
 
-Applied, thanks.
+Applying changes...
+Branch already fully merged.
+
+Plus it still does not compile:
+
+  LD      vmlinux
+arch/arm/plat-omap/built-in.o(.text+0xd470): In function
+`exmap_set_armmmu':
+: undefined reference to `set_pte'
+arch/arm/plat-omap/built-in.o(.text+0xd56c): In function
+`exmap_set_armmmu':
+: undefined reference to `set_pte'
+make: *** [vmlinux] Error 1
+
+									Pavel
 
 -- 
-Jiri Kosina
-SUSE Labs
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

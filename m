@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1946017AbWLVKIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946018AbWLVKLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946017AbWLVKIt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 05:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946018AbWLVKIt
+	id S1946018AbWLVKLG (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 05:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWLVKLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 05:08:49 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:57129 "EHLO madara.hpl.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946017AbWLVKIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 05:08:48 -0500
-Date: Fri, 22 Dec 2006 02:07:00 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] add i386 idle notifier (take 3)
-Message-ID: <20061222100700.GB1895@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de>
-Mime-Version: 1.0
+	Fri, 22 Dec 2006 05:11:06 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:53680 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1946018AbWLVKLF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 05:11:05 -0500
+Date: Fri, 22 Dec 2006 11:10:55 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Message-ID: <20061222101055.GA12230@deprecation.cyrius.com>
+References: <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org> <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> <20061221012721.68f3934b.akpm@osdl.org> <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com> <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com> <20061222100637.GA12105@deprecation.cyrius.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061222010641.GK6993@stusta.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+In-Reply-To: <20061222100637.GA12105@deprecation.cyrius.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrian,
+* Martin Michlmayr <tbm@cyrius.com> [2006-12-22 11:06]:
+> Okay, it's really weird.  So apt-get just hangs doing nothing and I
+> cannot even kill it.  I just tried to download strace via wget and
+> immediately when I started wget, the hanging apt-get process
+> continued.
 
-On Fri, Dec 22, 2006 at 02:06:41AM +0100, Adrian Bunk wrote:
-> > changelog:
-> > 	- add a notifier mechanism to the low level idle loop. You can
-> > 	  register a callback function which gets invoked on entry and exit
-> > 	  from the low level idle loop. The low level idle loop is defined as
-> > 	  the polling loop, low-power call, or the mwait instruction. Interrupts
-> > 	  processed by the idle thread are not considered part of the low level
-> > 	  loop. The notifier can be used to measure precisely how much is spent
-> > 	  in useless execution (or low power mode). The perfmon subsystem uses it
-> > 	  to turn on/off monitoring.
-> 
-> 
-> Why is this patch not submitted as part of the perfmon patch that also 
-> adds a user of this code?
-> 
+... and now that we've completed this step, the apt cache has suddenly
+been reduced (see Gordon's mail for an explanation) and it segfaults:
 
-If you look at the perfmon-new-base patch, you'll see a base.diff patch which
-includes this one. I am slowly getting rid of this requirement by pushing
-those "infrastructure patches" to mainline so that the perfmon patch gets
-smaller over time. Submitting smaller patches makes it easier for maintainers
-to integrate.
-
-> And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
-> perfmon-new-base-061204 doesn't seem to add any modular user?
-> 
-
-I have tried to stay as close as possible from the x86-64 implementation
-of this mechanism. The registration entry points are exported to modules,
-just like they are for x86-64. Also note that the x86-64 idle notifier does
-not have a user at this point, yet it is in the kernel. Perfmon will become
-the first user of this mechanism.
+sh-3.1# ls -l /var/cache/apt/
+total 12524
+drwxr-xr-x 3 root root   12288 Dec 22 04:41 archives
+-rw-r--r-- 1 root root 6426885 Dec 22 05:03 pkgcache.bin
+-rw-r--r-- 1 root root 6426835 Dec 22 05:03 srcpkgcache.bin
+sh-3.1# apt-get -f install
+Reading package lists... Done
+Segmentation faulty tree... 50%
 
 -- 
--Stephane
+Martin Michlmayr
+http://www.cyrius.com/

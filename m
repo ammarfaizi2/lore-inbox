@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423148AbWLVAbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423149AbWLVAiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423148AbWLVAbg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 19:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423147AbWLVAbg
+	id S1423149AbWLVAiW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 19:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423150AbWLVAiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 19:31:36 -0500
-Received: from mail-in-11.arcor-online.net ([151.189.21.51]:43873 "EHLO
-	mail-in-11.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1423148AbWLVAbf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 19:31:35 -0500
-In-Reply-To: <20061221222303.GA6418@localhost.localdomain>
-References: <20061221222303.GA6418@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <E5477CAE-3FE8-4441-9225-570DD0679765@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       libhugetlbfs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       William Lee Irwin <wli@holomorphy.com>, linuxppc-dev@ozlabs.org
+	Thu, 21 Dec 2006 19:38:22 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:47000 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423149AbWLVAiV (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 19:38:21 -0500
+Message-Id: <200612220038.kBM0cKbx004098@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Scott Preece <sepreece@gmail.com>
+Cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Binary Drivers
+In-Reply-To: Your message of "Thu, 21 Dec 2006 16:12:57 CST."
+             <7b69d1470612211412n6afbb9d6m523fdff1ce39bbc3@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <7b69d1470612210833k79c93617nba96dbc717113723@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKGEGDAIAC.davids@webmaster.com>
+            <7b69d1470612211412n6afbb9d6m523fdff1ce39bbc3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1166747899_12674P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [powerpc] Fix bogus BUG_ON() in in hugetlb_get_unmapped_area()
-Date: Fri, 22 Dec 2006 01:31:26 +0100
-To: David Gibson <david@gibson.dropbear.id.au>
-X-Mailer: Apple Mail (2.752.2)
+Date: Thu, 21 Dec 2006 19:38:20 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	if (len > TASK_SIZE)
-> +		return -ENOMEM;
+--==_Exmh_1166747899_12674P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Shouldn't that be addr+len instead?  The check looks incomplete
-otherwise.  And you meant ">=" I guess?
+On Thu, 21 Dec 2006 16:12:57 CST, Scott Preece said:
+> On 12/21/06, David Schwartz <davids=40webmaster.com> wrote:
 
-> -		/* Paranoia, caller should have dealt with this */
-> -		BUG_ON((addr + len) > 0x100000000UL);
-> -
+> > How would you feel if you bought a car and then discovered that the
+> > manufacturer had welded the hood shut? How many people still do their=
+ own
+> > oil changes anyway?
+> ---
+>=20
+> But there is no legal or moral obligation for the carmake to sell you
+> the service manual for the vehicle or provide you with their periodic
+> service bulletins...
 
-Any real reason to remove the paranoia check?  If it's trivially
-always satisfied, the compiler will get rid of it for you :-)
+As a matter of fact, at least in the US, the carmakers *do* have to suppl=
+y
+relevant information for emissions-control systems to alll repair shops:
 
-Cheers,
+42 U.S.C. =A7 7521(m)(5)
+
+http://www.law.cornell.edu/uscode/html/uscode42/usc_sec_42_00007521----00=
+0-.html
+
+Efforts to vastly expand that have been surfacing every Congressional ses=
+sion
+for the last few years.  The most recent incarnation:
+
+http://www.govtrack.us/congress/bill.xpd?bill=3Dh109-2048
 
 
-Segher
+--==_Exmh_1166747899_12674P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFiyj7cC3lWbTT17ARAtFWAJ9LFKdiHy0oGEWuB98OvMHbY1lM7ACg0ieD
+B2tNdWrijWb7CydhIYt7eoU=
+=Dr/f
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1166747899_12674P--

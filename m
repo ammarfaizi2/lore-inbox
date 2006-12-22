@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752638AbWLVUkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752663AbWLVUvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752638AbWLVUkY (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 15:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752636AbWLVUkY
+	id S1752663AbWLVUvk (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 15:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752672AbWLVUvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 15:40:24 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:29137 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752638AbWLVUkX (ORCPT
+	Fri, 22 Dec 2006 15:51:40 -0500
+Received: from moutng.kundenserver.de ([212.227.126.179]:62376 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752663AbWLVUvk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 15:40:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=JBtvyy1ED0+39FfrrYaeTWkiOvvLtKWcZX3aq9D+zCuRuUa9PME4tZa5EV5/AFcWiJO9gjZxoQ4PQvVTYbUr9JcugPkt11af5A26y3oEhfpx49UVtddhAK4j0D0QYevF4w9zfdSr+Oc4YQodTXrr5203apz6/SMIeqBnYya15TY=  ;
-X-YMail-OSG: Q9bDJisVM1mxG1uIBTEHvFsHtKcbxK8RTMnx7ZVf9CvKBhhOvgX3F2GXRMGVp29eizhiFQE7ntPSMrEBYEktHJMcjzXOJqNAq2Z9W9OOnQBpVf1FdLULTO0Hr1Vet2YHca3tWmNCZVNqWGw-
-From: David Brownell <david-b@pacbell.net>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.20-rc1 6/6] input: ads7846 directly senses PENUP state
-Date: Fri, 22 Dec 2006 12:40:20 -0800
-User-Agent: KMail/1.7.1
-Cc: nicolas.ferre@rfo.atmel.com, linux-kernel@vger.kernel.org,
-       imre.deak@solidboot.com
-References: <20061222192536.A206A1F0CDB@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <d120d5000612221235g3df0167bx9b1e6664dadf138d@mail.gmail.com>
-In-Reply-To: <d120d5000612221235g3df0167bx9b1e6664dadf138d@mail.gmail.com>
+	Fri, 22 Dec 2006 15:51:40 -0500
+X-Greylist: delayed 324 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 15:51:39 EST
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: two architectures,same source tree
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@lazybastard.org>,
+       Yakov Lerner <iler.ml@gmail.com>, Kernel <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 22 Dec 2006 21:45:26 +0100
+References: <7uewg-7Un-7@gated-at.bofh.it> <7ueZm-17M-25@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612221240.20768.david-b@pacbell.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1GxrGg-0001SL-3h@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 December 2006 12:35 pm, Dmitry Torokhov wrote:
-> On 12/22/06, David Brownell <david-b@pacbell.net> wrote:
-> >
-> > +static void ads7846_report_pen_state(struct ads7846 *ts, int down)
-> > +{
-> > +       struct input_dev        *input_dev = ts->input;
-> > +
-> > +       input_report_key(input_dev, BTN_TOUCH, down);
-> > +       if (!down)
-> > +               input_report_abs(input_dev, ABS_PRESSURE, 0);
-> > +#ifdef VERBOSE
-> > +       pr_debug("%s: %s\n", ts->spi->dev.bus_id, down ? "DOWN" : "UP");
-> > +#endif
-> > +}
-> > +
-> > +static void ads7846_report_pen_position(struct ads7846 *ts, int x, int y,
-> > +                                       int pressure)
-> > +{
-> > +       struct input_dev        *input_dev = ts->input;
-> > +
-> > +       input_report_abs(input_dev, ABS_X, x);
-> > +       input_report_abs(input_dev, ABS_Y, y);
-> > +       input_report_abs(input_dev, ABS_PRESSURE, pressure);
-> > +
-> > +#ifdef VERBOSE
-> > +       pr_debug("%s: %d/%d/%d\n", ts->spi->dev.bus_id, x, y, pressure);
-> > +#endif
-> > +}
-> > +
-> > +static void ads7846_sync_events(struct ads7846 *ts)
-> > +{
-> > +       struct input_dev        *input_dev = ts->input;
-> > +
-> > +       input_sync(input_dev);
-> > +}
-> 
-> I think these helpers just obfuscate the code, just call
-> input_report_*() and input_sync() drectly like you used to do.
+Jörn Engel <joern@lazybastard.org> wrote:
+> On Wed, 20 December 2006 20:32:20 +0200, Yakov Lerner wrote:
 
-Fair enough, I had a similar thought.  Imre, could you do that update?
-
-
+>> Is it easily possible to build two architectures in
+>> the same source tree (so that intermediate fles
+>> and resut files do not interfere ) ?
 > 
-> -- 
-> Dmitry
+> I'd try something like this:
+> make O=../foo ARCH=foo
+> make O=../bar ARCH=bar
 > 
+> But as I'm lazy I'll leave the debugging to you. :)
+
+IIRC You'll have to specify ARCH= on each make call, but O= is saved in
+../foo/Makefile.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

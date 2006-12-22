@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753046AbWLVWOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753103AbWLVWWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753046AbWLVWOo (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 17:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753056AbWLVWOo
+	id S1753103AbWLVWWw (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 17:22:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753130AbWLVWWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 17:14:44 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:41124 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752910AbWLVWOn (ORCPT
+	Fri, 22 Dec 2006 17:22:52 -0500
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:2151 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753103AbWLVWWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 17:14:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PmLWhhh2LDWdO+nwYpdxB5QpnqLMqHSh1lvQ394HnsRFMzSTsKTFKIOiUjTnq114xyPXJIlqS6eBhYZ/rin+dvqEQRogFN9PulM2GFtwNgVvctzidddUOCwNxz5bw6ic7fdjTHy9QZtlpd7swAtN51WQm0y8SJAl7Cy42gfiqT0=
-Message-ID: <7b69d1470612221414h7bca6dd3x89f52be55a47746d@mail.gmail.com>
-Date: Fri, 22 Dec 2006 16:14:41 -0600
-From: "Scott Preece" <sepreece@gmail.com>
-To: "Wolfgang Draxinger" <wdraxinger@darkstargames.de>
-Subject: Re: Binary Drivers
-Cc: LKML <linux-kernel@vger.kernel.org>, "Rok Markovic" <kernel@kanardia.eu>
-In-Reply-To: <200612222300.17463.wdraxinger@darkstargames.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 22 Dec 2006 17:22:52 -0500
+Date: Fri, 22 Dec 2006 23:22:56 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Alexander van Heukelum <heukelum@fastmail.fm>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-Id: <20061222232256.f950bfe2.khali@linux-fr.org>
+In-Reply-To: <20061222104056.GB7009@in.ibm.com>
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
+	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
+	<20061220214340.f6b037b1.khali@linux-fr.org>
+	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
+	<20061221101240.f7e8f107.khali@linux-fr.org>
+	<20061221145922.16ee8dd7.khali@linux-fr.org>
+	<1166723157.29546.281560884@webmail.messagingengine.com>
+	<20061221204408.GA7009@in.ibm.com>
+	<20061222090806.3ae56579.khali@linux-fr.org>
+	<20061222104056.GB7009@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <34142027@web.de> <458C308D.6070606@kanardia.eu>
-	 <200612222300.17463.wdraxinger@darkstargames.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/22/06, Wolfgang Draxinger <wdraxinger@darkstargames.de> wrote:
-> Am Freitag, 22. Dezember 2006 20:22 schrieb Rok Markovic:
-> > Hi!
-> >
-> > Maybe this does not belong to this thread, but I am wondering why
-> > manufactorers doesn't want to release specifications about drivers....
->
-> You're not alone, I think everybody who knows, how things in a
-> computer work shares this view.
----
+Hi Vivek,
 
-Two of the specific arguments I've heard are (a) that the board (and
-its hardware interfaces that the documentation would describe) involve
-IP licensed from a third party, which the board manufacturer does not
-have a legal right to disclose, or (b) that there is, in fact, no
-suitable documentation, because the boards are developed somewhat
-fluidly and the driver is developed directly from low-level knowledge
-that simply isn't written down in a form suitable for passing on.
+On Fri, 22 Dec 2006 16:10:56 +0530, Vivek Goyal wrote:
+> Another odd thing is that "file vmlinux.bin" shows following.
+> 
+> vmlinux.bin: Sendmail frozen configuration  - version \015\024\322\216\356\222X\2306\032H\220\303\270\006\007\003
+> 
+> I am not sure what does it mean. I had expected it to be a data blob.
+> 
+> "vmlinux.bin: data"
 
-If you're building products with no expectation of supporting outside
-driver developers, both of those are quite possible.
+The file command uses heuristics to attempt to identify files. Here a
+random sequence of bytes was simply misinterpreted as something
+completely different. You can tell from the version string which is
+totally broken. So, "file" could be improved to avoid this false
+positive, but that's about it.
 
-scott
+Now, what's still relevant is that my vmlinux.bin starts with a
+binary sequence which differs from all other vmlinux.bin files around.
+So it's a hint that it is corrupted, although a deeper analysis will be
+required to figure out how and why.
+
+-- 
+Jean Delvare

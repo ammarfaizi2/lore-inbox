@@ -1,112 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965144AbWLVJhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946010AbWLVJrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965144AbWLVJhh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 04:37:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946011AbWLVJhh
+	id S1946010AbWLVJrH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 04:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946002AbWLVJrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 04:37:37 -0500
-Received: from smtpa2.aruba.it ([62.149.128.211]:39291 "HELO smtpa2.aruba.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S965144AbWLVJhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 04:37:36 -0500
-X-Greylist: delayed 396 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 04:37:35 EST
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-From: Stefano Takekawa <take@libero.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ard -kwaak- van Breemen <ard@telegraafnet.nl>,
-       "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20061222003029.4394bd9a.akpm@osdl.org>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com>
-	 <20061222082248.GY31882@telegraafnet.nl>
-	 <20061222003029.4394bd9a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 22 Dec 2006 10:32:51 +0100
-Message-Id: <1166779971.16097.8.camel@proton.twominds.it>
+	Fri, 22 Dec 2006 04:47:07 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:13527 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946015AbWLVJrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 04:47:06 -0500
+Date: Fri, 22 Dec 2006 10:48:59 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: saeed bishara <saeed.bishara@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: using splice/vmsplice to improve file receive performance
+Message-ID: <20061222094858.GP17199@kernel.dk>
+References: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
-Content-Transfer-Encoding: 7bit
-X-Spam-Rating: smtpa2.aruba.it 1.6.2 0/1000/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il giorno ven, 22/12/2006 alle 00.30 -0800, Andrew Morton ha scritto:
-> On Fri, 22 Dec 2006 09:22:48 +0100
-> Ard -kwaak- van Breemen <ard@telegraafnet.nl> wrote:
+On Thu, Dec 21 2006, saeed bishara wrote:
+> Hi,
+> I'm trying to use the splice/vmsplice system calls to improve the
+> samba server write throughput, but before touching the smbd, I started
+> to improve the ttcp tool since it simple and has the same flow. I'm
+> expecting to avoid the "copy_from_user" path when using those
+> syscalls.
+> so far, I couldn't make any improvement, actually the throughput get
+> worst. the new receive flow looks like this (code also attached):
+> 1. read tcp packet (64 pages) to page aligned buffer.
+> 2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
+> 3. splice the pipe to the file, also with SPLICE_F_MOVE.
 > 
-> > Hello,
-> > On Fri, Dec 22, 2006 at 12:41:46PM +0800, Zhang, Yanmin wrote:
-> > > I think parse_args enables irq when it calls callbacks.
-> > > Could you try below?
-> > > 1) Test Andrew's patch of sema down_write;
-> > > 2) Apply below patch and see what the output is when booting. If the output has
-> > > "[BUG]..address.", Pls. map the address to function name by System.map.
-> > Without proof^H^H^H^H^Hpasting my dmesg and the "diff", I already
-> > concluded that ide_setup was the culprit. (I've debuged
-> > parse_one, and it barfed around the 3rd parameter which is
-> > hdb=noprobe).
-> > Anyway, a bad night of sleep reminds me that our EM64T boxes also
-> > have this line (which actually is a remainder of our VA1220 boxes
-> > ;-) ), and they don't barf, so it must be either the combination
-> > of the sata_nv together with the pata driver part, *or* just the
-> > pata driver part. (Our opteron != nforce chipsets also works).
-> > 
-> 
-> I expect that you'll find that the ide code ends up doing
-> down_write(pci_bus_sem), which will enable interrupts.
-> 
-> (We don't know which interrupt is pending this early - that'd be
-> interesting to find out, but we shouldn't be enabling interrupts in there).
-> 
-> To whom do I have to pay how much to get this darn patch tested?
-> 
-> 
-> 
-> --- a/lib/rwsem-spinlock.c~down_write-preserve-local-irqs
-> +++ a/lib/rwsem-spinlock.c
-> @@ -195,13 +195,14 @@ void fastcall __sched __down_write_neste
->  {
->  	struct rwsem_waiter waiter;
->  	struct task_struct *tsk;
-> +	unsigned long flags;
->  
-> -	spin_lock_irq(&sem->wait_lock);
-> +	spin_lock_irqsave(&sem->wait_lock, flags);
->  
->  	if (sem->activity == 0 && list_empty(&sem->wait_list)) {
->  		/* granted */
->  		sem->activity = -1;
-> -		spin_unlock_irq(&sem->wait_lock);
-> +		spin_unlock_irqrestore(&sem->wait_lock, flags);
->  		goto out;
->  	}
->  
-> @@ -216,7 +217,7 @@ void fastcall __sched __down_write_neste
->  	list_add_tail(&waiter.list, &sem->wait_list);
->  
->  	/* we don't need to touch the semaphore struct anymore */
-> -	spin_unlock_irq(&sem->wait_lock);
-> +	spin_unlock_irqrestore(&sem->wait_lock, flags);
->  
->  	/* wait to be given the lock */
->  	for (;;) {
-> _
-> 
-Applied to 2.6.19 it doesn't change anything. It still panics.
+> the strace shows that the splice takes a lot of time. also when
+> profiling the kernel, I found that the memcpy() called to often !!
 
-How can I have something similar to a serial console on a laptop without
-serial port but with a parallel one? Will netconsole work?
+(didn't see this until now, axboe@suse.de doesn't work anymore)
 
+I'm assuming that you mean you vmsplice with SPLICE_F_GIFT, to hand
+ownership of the pages to the kernel (in which case SPLICE_F_MOVE will
+work, otherwise you get a copy)? If not, that'll surely cost you a data
+copy.
 
+This sounds remarkably like a recent thread on lkml, you may want to
+read up on that. Basically using splice for network receive is a bit of
+a work-around now, since you do need the one copy and then vmsplice that
+into a pipe. To realize the full potential of splice, we first need
+socket receive support so you can skip that step (splice from socket to
+pipe, splice pipe to file).
+
+There was no test code attached, btw.
 
 -- 
-Stefano Takekawa
-take@libero.it
-
-Frank:  And why do days get longer in the summer?
-Ernest: Because heat makes things expand!
-
+Jens Axboe
 

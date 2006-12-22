@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422988AbWLVNE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754831AbWLVNJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422988AbWLVNE1 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 08:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754829AbWLVNE1
+	id S1754831AbWLVNJk (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 08:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWLVNJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 08:04:27 -0500
-Received: from mail.njl.fi ([193.184.55.66]:59419 "EHLO ns.njl.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754830AbWLVNE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 08:04:26 -0500
-X-Greylist: delayed 396 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 08:04:25 EST
-From: "binder" <enrico.binder@njl.ee>
-To: linux-kernel@vger.kernel.org
-Subject: bluetooth bug - mtu wrong
-Date: Fri, 22 Dec 2006 14:57:42 +0200
-Message-Id: <20061222125155.M20471@njl.ee>
-X-Mailer: NJL 2.52 20060502
-X-OriginatingIP: 213.35.238.251 (binder)
+	Fri, 22 Dec 2006 08:09:40 -0500
+Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:59183 "EHLO
+	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754825AbWLVNJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 08:09:39 -0500
+Message-ID: <458BD945.5020604@gentoo.org>
+Date: Fri, 22 Dec 2006 08:10:29 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 2.0b1 (X11/20061221)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-X-AntiVirus: scanned for viruses by NJL-FI
+To: Martin Williges <kernel@zut.de>
+CC: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] usblp.c - add Kyocera Mita FS 820 to list of "quirky"
+ printers
+References: <200612221227.18870.kernel@zut.de>
+In-Reply-To: <200612221227.18870.kernel@zut.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Martin Williges wrote:
+> --- usblp.c.orig        2006-11-29 22:57:37.000000000 +0100
+> +++ usblp.c     2006-12-22 12:08:00.000000000 +0100
+> @@ -217,6 +217,7 @@ static const struct quirk_printer_struct
 
-my included lenevo r60e bluetooth adapter does not work with headsets
-(bt-sco). only a small fix in linux soource helps !
+Your mailer has mangled tabs into whitespace. Also, your patch needs to 
+be applicable with -p1 from the root kernel dir.
 
-Linux version 2.6.19eb2619_1 (root@picard) (gcc version 3.4.6) #2 SMP Mon Dec
-4 22:04:52 EET 2006
+Given the description of the problem it is probably more worthwhile to 
+provide logs with USB debugging enabled, and usbmon logs, so that the 
+real problem can be found.
 
-i add to linux/driver/bluetooth/hci_usb.c at position after struct:
-
------------------8<.............................
-static struct usb_device_id blacklist_ids[] = {
-...
-{ USB_DEVICE(0x0a5c, 0x2110), .driver_info = HCI_RESET | HCI_WRONG_SCO_MTU },
-...
-}
-.................>8-----------------------------
-
-without it hciconfig shows wrong mtu value :
-BD Address: 00:16:CE:E9:A4:2F ACL MTU: 1017:8 SCO MTU: 64:0
-
-with the fix i get
-BD Address: 00:16:CE:E9:A4:2F ACL MTU: 1017:8 SCO MTU: 64:8
-
-after fix the headset works with receiving and sending voice !
-
-ciao
---
-With kind regards
-Nordic Jetline
-enrico binder
-
+Daniel

@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1945921AbWLVCyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1945922AbWLVDT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945921AbWLVCyz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 21:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945922AbWLVCyz
+	id S1945922AbWLVDT2 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 22:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945924AbWLVDT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 21:54:55 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:55584 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1945921AbWLVCyy (ORCPT
+	Thu, 21 Dec 2006 22:19:28 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:55333 "EHLO
+	fgwmail6.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1945922AbWLVDT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 21:54:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hVkqeWNrgXxqE5YYt9NB5QHENg8nQ8U5Xeu74EPk3n3ePwn1l8A4hxp+WmhilTKNsu7euXBjSjngimCBM0iRq4UrE344q1w/bmGruRKLOIxsXh0l5QwHtmAZwVhiWV3sWjUwdpQt07DaNMmQ38iuzIbz+K00KFwiULRQI70JU6E=
-Message-ID: <df47b87a0612211854w40f8ee3akb2a2721070878341@mail.gmail.com>
-Date: Thu, 21 Dec 2006 21:54:53 -0500
-From: "Ioan Ionita" <opslynx@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATA_SIS and SIS 5513
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Dec 2006 22:19:27 -0500
+Date: Fri, 22 Dec 2006 12:22:43 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, GOTO <y-goto@jp.fujitsu.com>,
+       npiggin@suse.de
+Subject: [BUG][PATCH] fix oom killer kills current every time if there is
+ memory-less-node
+Message-Id: <20061222122243.2a46de76.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pata_sis will not work with my CD-ROM
+constrained_alloc(), which is called to detect where oom is from,
+checks passed zone_list().
+If zone_list includes all nodes, it thinks oom is from mempolicy.
 
-dmesg output when trying to mount a cd-rom:
+But there is memory-less-node. contstrained_alloc() should get
+memory_less_node into count. Otherwise, current process will die
+at any time. This patch fix it.
 
-ata2.00: qc timeout (cmd 0xa0)
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x24)
-ata2.00: cmd a0/01:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x28 data 4096 in
-         res 51/51:03:00:00:00/00:00:00:00:00/a0 Emask 0x5 (timeout)
-ata2: port is slow to respond, please be patient (Status 0xd0)
-ata2: port failed to respond (30 secs, Status 0xd0)
-ata2: soft resetting port
-ata2.00: configured for UDMA/33
-ata2: EH complete
-ata2.00: qc timeout (cmd 0xa0)
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x24)
-ata2.00: cmd a0/01:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x28 data 4096 in
-         res 51/51:03:00:00:00/00:00:00:00:00/a0 Emask 0x5 (timeout)
-ata2: port is slow to respond, please be patient (Status 0xd0)
-ata2: port failed to respond (30 secs, Status 0xd0)
-ata2: soft resetting port
-ata2.00: configured for UDMA/33
-ata2: EH complete
-ata2.00: qc timeout (cmd 0xa0)
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x24)
-ata2.00: cmd a0/01:00:00:00:00/00:00:00:00:00/a0 tag 0 cdb 0x28 data 4096 in
-         res 51/51:03:00:00:00/00:00:00:00:00/a0 Emask 0x5 (timeout)
-root@section 21:52:39 ~/
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+
+
+ mm/oom_kill.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+Index: devel-2.6.20-rc1-mm1/mm/oom_kill.c
+===================================================================
+--- devel-2.6.20-rc1-mm1.orig/mm/oom_kill.c	2006-12-16 13:47:59.000000000 +0900
++++ devel-2.6.20-rc1-mm1/mm/oom_kill.c	2006-12-22 12:11:55.000000000 +0900
+@@ -174,7 +174,12 @@
+ {
+ #ifdef CONFIG_NUMA
+ 	struct zone **z;
+-	nodemask_t nodes = node_online_map;
++	nodemask_t nodes;
++	int node;
++	/* node has memory ? */
++	for_each_online_node(node)
++		if (NODE_DATA(node)->node_present_pages)
++			node_set(node, nodes);
+ 
+ 	for (z = zonelist->zones; *z; z++)
+ 		if (cpuset_zone_allowed_softwall(*z, gfp_mask))
+

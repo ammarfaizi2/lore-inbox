@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752486AbWLVT6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752433AbWLVT70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752486AbWLVT6H (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 14:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWLVT6F
+	id S1752433AbWLVT70 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 14:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWLVT70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 14:58:05 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:55657 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752433AbWLVT6D (ORCPT
+	Fri, 22 Dec 2006 14:59:26 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:41835 "EHLO
+	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752433AbWLVT7Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 14:58:03 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: J <jhnlmn@yahoo.com>
-Subject: Re: Possible race condition in usb-serial.c
-Date: Fri, 22 Dec 2006 20:59:50 +0100
-User-Agent: KMail/1.8
-Cc: Greg KH <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <20061222190800.3167.qmail@web32909.mail.mud.yahoo.com>
-In-Reply-To: <20061222190800.3167.qmail@web32909.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Dec 2006 14:59:25 -0500
+Date: Sat, 23 Dec 2006 01:31:13 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ego@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
+       Tom Zanussi <zanussi@us.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>, kiran@scalex86.org,
+       venkatesh.pallipadi@intel.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       torvalds@osdl.org, davej@redhat.com
+Subject: Re: [PATCH] Relay CPU Hotplug support
+Message-ID: <20061222200113.GA32482@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061221003101.GA28643@Krystal> <20061220232350.eb4b6a46.akpm@osdl.org> <20061222103724.GA29348@in.ibm.com> <20061222024458.322adffd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612222059.50652.oliver@neukum.org>
+In-Reply-To: <20061222024458.322adffd.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 22. Dezember 2006 20:08 schrieb J:
-> > This problem will need some deeper surgery probably
-> > involving
-> > removal of the refcounting.
+On Fri, Dec 22, 2006 at 02:44:58AM -0800, Andrew Morton wrote:
+> On Fri, 22 Dec 2006 16:07:24 +0530
+> Gautham R Shenoy <ego@in.ibm.com> wrote:
 > 
-> Refcounting may be OK if used consistently. 
-> It is not OK when some pointers are ref-counted, 
-> but other (in serial_table) are not (like it is
-> in the current version).
-
-No, this is a fundamental problem. You don't refcount
-a pointer, you refcount a data structure. But this is
-insufficient. We need to make sure the pointer points to valid
-memory.
-The problem with the current scheme is that serial_table
-needs a lock. It needs to be taken in four places
-- disconnect()
-- open()
-- probe()
-- read_proc()
-
-Refcounting solves only the race between disconnect() and close()
-There's little use in a second locking mechanism if you use it
-only in a minority of occasions.
-Refcounting is a great idea if the number of references follows
-a clear up -> maximum -> down -> free scheme, like for
-skbs, etc..
-
+> > While we are at this per-subsystem cpuhotplug "locking", here's a
+> > proposal that might put an end to the workqueue deadlock woes.
 > 
-> As for the deeper surgery, what do you think about my
-> earlier suggestion to start by rewriting
-> usb_serial_probe
-> to fully initialize usb_serial before it is added to 
-> serial_table? 
+> Oleg is working on some patches which will permit us to cancel or wait upon
+> a particular work_struct, rather than upon all pending work_structs.
+>
 
-Good suggestion. However, if done right, we'd go for a spin lock.
+Oh! I was refering to the other set of workqueue deadlock woes. The
+ones caused when subsystems (like cpufreq) try to create/destroy
+workqueue from the cpuhotplug callback path. 
 
-	Regards
-		Oliver
+Creation/destruction of workqueue requires us to take workqueue_mutex,
+which would have already been taken during CPU_LOCK_ACQUIRE.
+
+More often than not, the cpu hotplug protection that we need
+is while accessing either cpu_online_map OR one of it's persubsystem
+mirrors like policy->cpus. 
+So it makes more sense to have all the persubsystem 
+mutexes held only during the cpu-hotplug operation (i.e stop_machine_run
+and __cpu_up) and release them immediately after sending notifications to
+update the persubsystem online_cpu map.
+
+Thanks and Regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

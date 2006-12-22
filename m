@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423162AbWLVApK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423157AbWLVA4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423162AbWLVApK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 19:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423143AbWLVApK
+	id S1423157AbWLVA4K (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 19:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423173AbWLVA4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 19:45:10 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:60770 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423162AbWLVApJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 19:45:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=AIg3XW4W8qcoAi+UlG7gsnpMUI5al92M4FhmjPmEloM8xa2BZtt/65Uc71Gov31m61CD+hTdN9v7W51YdKYSDMJAqfQRDEuBXWMW6frgflpaAx2RoEfHP4TL64Z4ANlLc5QmmrVWOKH5Sv8gFUguhQYqZdIrc9U6JNlcn2wTEic=
-Date: Fri, 22 Dec 2006 01:45:51 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: "Please report the result to linux-kernel to fix this permanently"
-Message-Id: <20061222014551.e268f127.diegocg@gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Dec 2006 19:56:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59358 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423157AbWLVA4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Dec 2006 19:56:08 -0500
+Date: Thu, 21 Dec 2006 16:54:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm: export cancel_dirty_page()
+In-Reply-To: <20061221233018.GA28046@elte.hu>
+Message-ID: <Pine.LNX.4.64.0612211652580.3536@woody.osdl.org>
+References: <20061221231328.GA21217@elte.hu> <20061221232850.GJ6993@stusta.de>
+ <20061221233018.GA28046@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a bug in the bugzilla (http://bugzilla.kernel.org/show_bug.cgi?id=7531) that
-is asking to be reported here. The full dmesg (with and without 'pci=assign-busses')
-can be found in the link.
 
 
-[17179574.140000] Boot video device is 0000:01:05.0
-[17179574.140000] PCI: Transparent bridge - 0000:00:14.4
-[17179574.140000] PCI: Bus #06 (-#09) is hidden behind transparent bridge #05 (-#05) (try 'pci=assign-busses')
-[17179574.140000] Please report the result to linux-kernel to fix this permanently
-[17179574.140000] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-[17179574.144000] ACPI: PCI Interrupt Link [LNKA] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKB] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKC] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKD] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKE] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKF] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKG] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: PCI Interrupt Link [LNKH] (IRQs 10 11) *0, disabled.
-[17179574.144000] ACPI: Embedded Controller [EC0] (gpe 24) interrupt mode.
-[17179574.148000] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P2P_._PRT]
-[17179574.148000] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGP_._PRT]
+On Fri, 22 Dec 2006, Ingo Molnar wrote:
+> 
+> ah, indeed - but i dont see a fundamental reason why hugetlbfs is not 
+> modular. Nevertheless exporting this makes sense. My quick hack below to 
+> guess to convert reiserfs (just to make the rpm build) also needs it.
 
+Yes, it should be exported regardless.
+
+Hoiwever, I'm not sure your reiserfs change is valid: why was that old 
+code testing "PAGE_SIZE == bh->b_size"?
+
+(Not that I see why the _old_ code would be valid either, and why you'd 
+ever care about b_size being PAGE_SIZE, but I'm just wondering..)
+
+		Linus

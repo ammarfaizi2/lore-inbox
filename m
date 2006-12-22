@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752957AbWLWJhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752978AbWLWJh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752957AbWLWJhx (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 04:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753100AbWLWJhv
+	id S1752978AbWLWJh4 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 04:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753083AbWLWJhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 04:37:51 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1183 "EHLO spitz.ucw.cz"
+	Sat, 23 Dec 2006 04:37:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1165 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752793AbWLWJhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 04:37:32 -0500
-Date: Sat, 23 Dec 2006 08:54:59 +0000
+	id S1753027AbWLWJhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 04:37:20 -0500
+Date: Fri, 22 Dec 2006 21:09:37 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network drivers that don't suspend on interface down
-Message-ID: <20061223085458.GE3960@ucw.cz>
-References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061220053417.GA29877@suse.de> <20061220055209.GA20483@srcf.ucam.org> <1166601025.3365.1345.camel@laptopd505.fenrus.org> <20061220125314.GA24188@srcf.ucam.org> <1166621931.3365.1384.camel@laptopd505.fenrus.org> <20061220143134.GA25462@srcf.ucam.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: Changes to PM layer break userspace
+Message-ID: <20061222210937.GD3960@ucw.cz>
+References: <20061219185223.GA13256@srcf.ucam.org> <200612191959.43019.david-b@pacbell.net> <20061220042648.GA19814@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061220143134.GA25462@srcf.ucam.org>
+In-Reply-To: <200612192114.49920.david-b@pacbell.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > about your driver list;
-> > do you have an idea of what the top 5 relevant ones would be?
-> > I'd be surprised if the top 5 together had less than 95% market share,
-> > so if we fix those we'd be mostly done already.
-> 
-> In terms of what I've seen on vaguely modern hardware, I'd guess at 
-> e1000 and sky2 as the top ones. b44 is still common in cheaper hardware, 
+> > The existence of the power/state interface wasn't a bug - it was a 
+> > deliberate decision to add it. It's the only reason the 
+> > dpm_runtime_suspend() interface exists. 
 
-e1000 already powersaves when cable is not plugged in. Difference is
-~0.5W, IIRC.
-							Pavel
+Actually, if we noticed power/state during PM framework review, it
+would have been killed. It is just way too ugly.
+
+> > > In contrast, the /sys/devices/.../power/state API has never had many
+> > > users beyond developers trying to test their drivers (without taking
+> > > the whole system into a low power state, which probably didn't work
+> > > in any case), and has *always* been problematic.  And the change you
+> > > object to doesn't "break" anything fundamental, either.  Everything
+> > > still works.
+> > 
+> > It's used on every Ubuntu and Suse system,
+> 
+> Odd how the relevant Suse developers didn't mention any issues with
+> those files going away, any of the times problems with them were
+> discussed on the PM list.  Also, I have a Suse system that doesn't
+> use those files for anything ... maybe only newer release use it.
+
+Not on *every* suse system. power/state is known to oops kernels, so
+it is only enabled when user explicitely asks for 'dangerous aggresive
+experimental power saving' or something like that.
 -- 
 Thanks for all the (sleeping) penguins.

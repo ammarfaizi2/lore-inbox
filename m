@@ -1,1657 +1,3002 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1945988AbWLVHVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1945997AbWLVHVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945988AbWLVHVY (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 02:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945972AbWLVHVX
+	id S1945997AbWLVHVw (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 02:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945991AbWLVHVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 02:21:23 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:29559 "EHLO
+	Fri, 22 Dec 2006 02:21:40 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:13668 "EHLO
 	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1945982AbWLVHVG (ORCPT
+	with ESMTP id S1945986AbWLVHVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 02:21:06 -0500
-Date: Thu, 21 Dec 2006 23:20:50 -0800
-From: divy@chelsio.com
-Message-Id: <200612220720.kBM7Kouk012352@localhost.localdomain>
+	Fri, 22 Dec 2006 02:21:24 -0500
+From: Divy Le Ray <None@chelsio.com>
+Subject: [PATCH 5/10] cxgb3 - scatter gather engine
+Date: Thu, 21 Dec 2006 23:20:55 -0800
 To: jeff@garzik.org
-Subject: [PATCH 4/10] cxgb3 - HW access routines - part 2
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
        swise@opengridcomputing.com
+Message-Id: <20061222072055.12355.68097.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Divy Le Ray <divy@chelsio.com>
 
-This patch implements the HW access routines for the
+This path implements the scatter gather engine for the 
 Chelsio T3 network adapter's driver.
-This patch is split. This is the second part.
 
 Signed-off-by: Divy Le Ray <divy@chelsio.com>
 ---
-+/**
-+ * 	t3_sge_write_context - write an SGE context
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@type: the context type
+
+ drivers/net/cxgb3/sge.c      | 2702 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/cxgb3/sge_defs.h |  251 ++++
+ 2 files changed, 2953 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/cxgb3/sge.c b/drivers/net/cxgb3/sge.c
+new file mode 100755
+index 0000000..6c77f4b
+--- /dev/null
++++ b/drivers/net/cxgb3/sge.c
+@@ -0,0 +1,2702 @@
++/*
++ * This file is part of the Chelsio T3 Ethernet driver.
 + *
-+ * 	Program an SGE context with the values already loaded in the
-+ * 	CONTEXT_DATA? registers.
-+ */
-+static int t3_sge_write_context(struct adapter *adapter, unsigned int id,
-+				unsigned int type)
-+{
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, 0xffffffff);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0xffffffff);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0xffffffff);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0xffffffff);
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(1) | type | V_CONTEXT(id));
-+	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+			       0, 5, 1);
-+}
-+
-+/**
-+ *	t3_sge_init_ecntxt - initialize an SGE egress context
-+ *	@adapter: the adapter to configure
-+ *	@id: the context id
-+ *	@gts_enable: whether to enable GTS for the context
-+ *	@type: the egress context type
-+ *	@respq: associated response queue
-+ *	@base_addr: base address of queue
-+ *	@size: number of queue entries
-+ *	@token: uP token
-+ *	@gen: initial generation value for the context
-+ *	@cidx: consumer pointer
++ * Copyright (C) 2005-2006 Chelsio Communications.  All rights reserved.
 + *
-+ *	Initialize an SGE egress context and make it ready for use.  If the
-+ *	platform allows concurrent context operations, the caller is
-+ *	responsible for appropriate locking.
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the LICENSE file included in this
++ * release for licensing terms and conditions.
 + */
-+int t3_sge_init_ecntxt(struct adapter *adapter, unsigned int id, int gts_enable,
-+		       enum sge_context_type type, int respq, u64 base_addr,
-+		       unsigned int size, unsigned int token, int gen,
-+		       unsigned int cidx)
-+{
-+	unsigned int credits = type == SGE_CNTXT_OFLD ? 0 : FW_WR_NUM;
 +
-+	if (base_addr & 0xfff)	/* must be 4K aligned */
-+		return -EINVAL;
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
++#include <linux/skbuff.h>
++#include <linux/netdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/if_vlan.h>
++#include <linux/ip.h>
++#include <linux/tcp.h>
++#include <linux/dma-mapping.h>
++#include "common.h"
++#include "regs.h"
++#include "sge_defs.h"
++#include "t3_cpl.h"
++#include "firmware_exports.h"
 +
-+	base_addr >>= 12;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, V_EC_INDEX(cidx) |
-+		     V_EC_CREDITS(credits) | V_EC_GTS(gts_enable));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA1, V_EC_SIZE(size) |
-+		     V_EC_BASE_LO(base_addr & 0xffff));
-+	base_addr >>= 16;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA2, base_addr);
-+	base_addr >>= 32;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA3,
-+		     V_EC_BASE_HI(base_addr & 0xf) | V_EC_RESPQ(respq) |
-+		     V_EC_TYPE(type) | V_EC_GEN(gen) | V_EC_UP_TOKEN(token) |
-+		     F_EC_VALID);
-+	return t3_sge_write_context(adapter, id, F_EGRESS);
-+}
++#define USE_GTS 0
 +
-+/**
-+ *	t3_sge_init_flcntxt - initialize an SGE free-buffer list context
-+ *	@adapter: the adapter to configure
-+ *	@id: the context id
-+ *	@gts_enable: whether to enable GTS for the context
-+ *	@base_addr: base address of queue
-+ *	@size: number of queue entries
-+ *	@bsize: size of each buffer for this queue
-+ *	@cong_thres: threshold to signal congestion to upstream producers
-+ *	@gen: initial generation value for the context
-+ *	@cidx: consumer pointer
-+ *
-+ *	Initialize an SGE free list context and make it ready for use.  The
-+ *	caller is responsible for ensuring only one context operation occurs
-+ *	at a time.
-+ */
-+int t3_sge_init_flcntxt(struct adapter *adapter, unsigned int id,
-+			int gts_enable, u64 base_addr, unsigned int size,
-+			unsigned int bsize, unsigned int cong_thres, int gen,
-+			unsigned int cidx)
-+{
-+	if (base_addr & 0xfff)	/* must be 4K aligned */
-+		return -EINVAL;
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
++#define SGE_RX_SM_BUF_SIZE 1536
++#define SGE_RX_COPY_THRES  256
 +
-+	base_addr >>= 12;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, base_addr);
-+	base_addr >>= 32;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA1,
-+		     V_FL_BASE_HI((u32) base_addr) |
-+		     V_FL_INDEX_LO(cidx & M_FL_INDEX_LO));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA2, V_FL_SIZE(size) |
-+		     V_FL_GEN(gen) | V_FL_INDEX_HI(cidx >> 12) |
-+		     V_FL_ENTRY_SIZE_LO(bsize & M_FL_ENTRY_SIZE_LO));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA3,
-+		     V_FL_ENTRY_SIZE_HI(bsize >> (32 - S_FL_ENTRY_SIZE_LO)) |
-+		     V_FL_CONG_THRES(cong_thres) | V_FL_GTS(gts_enable));
-+	return t3_sge_write_context(adapter, id, F_FREELIST);
-+}
-+
-+/**
-+ *	t3_sge_init_rspcntxt - initialize an SGE response queue context
-+ *	@adapter: the adapter to configure
-+ *	@id: the context id
-+ *	@irq_vec_idx: MSI-X interrupt vector index, 0 if no MSI-X, -1 if no IRQ
-+ *	@base_addr: base address of queue
-+ *	@size: number of queue entries
-+ *	@fl_thres: threshold for selecting the normal or jumbo free list
-+ *	@gen: initial generation value for the context
-+ *	@cidx: consumer pointer
-+ *
-+ *	Initialize an SGE response queue context and make it ready for use.
-+ *	The caller is responsible for ensuring only one context operation
-+ *	occurs at a time.
-+ */
-+int t3_sge_init_rspcntxt(struct adapter *adapter, unsigned int id,
-+			 int irq_vec_idx, u64 base_addr, unsigned int size,
-+			 unsigned int fl_thres, int gen, unsigned int cidx)
-+{
-+	unsigned int intr = 0;
-+
-+	if (base_addr & 0xfff)	/* must be 4K aligned */
-+		return -EINVAL;
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	base_addr >>= 12;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, V_CQ_SIZE(size) |
-+		     V_CQ_INDEX(cidx));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA1, base_addr);
-+	base_addr >>= 32;
-+	if (irq_vec_idx >= 0)
-+		intr = V_RQ_MSI_VEC(irq_vec_idx) | F_RQ_INTR_EN;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA2,
-+		     V_CQ_BASE_HI((u32) base_addr) | intr | V_RQ_GEN(gen));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA3, fl_thres);
-+	return t3_sge_write_context(adapter, id, F_RESPONSEQ);
-+}
-+
-+/**
-+ *	t3_sge_init_cqcntxt - initialize an SGE completion queue context
-+ *	@adapter: the adapter to configure
-+ *	@id: the context id
-+ *	@base_addr: base address of queue
-+ *	@size: number of queue entries
-+ *	@rspq: response queue for async notifications
-+ *	@ovfl_mode: CQ overflow mode
-+ *	@credits: completion queue credits
-+ *	@credit_thres: the credit threshold
-+ *
-+ *	Initialize an SGE completion queue context and make it ready for use.
-+ *	The caller is responsible for ensuring only one context operation
-+ *	occurs at a time.
-+ */
-+int t3_sge_init_cqcntxt(struct adapter *adapter, unsigned int id, u64 base_addr,
-+			unsigned int size, int rspq, int ovfl_mode,
-+			unsigned int credits, unsigned int credit_thres)
-+{
-+	if (base_addr & 0xfff)	/* must be 4K aligned */
-+		return -EINVAL;
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	base_addr >>= 12;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, V_CQ_SIZE(size));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA1, base_addr);
-+	base_addr >>= 32;
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA2,
-+		     V_CQ_BASE_HI((u32) base_addr) | V_CQ_RSPQ(rspq) |
-+		     V_CQ_GEN(1) | V_CQ_OVERFLOW_MODE(ovfl_mode));
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA3, V_CQ_CREDITS(credits) |
-+		     V_CQ_CREDIT_THRES(credit_thres));
-+	return t3_sge_write_context(adapter, id, F_CQ);
-+}
-+
-+/**
-+ *	t3_sge_enable_ecntxt - enable/disable an SGE egress context
-+ *	@adapter: the adapter
-+ *	@id: the egress context id
-+ *	@enable: enable (1) or disable (0) the context
-+ *
-+ *	Enable or disable an SGE egress context.  The caller is responsible for
-+ *	ensuring only one context operation occurs at a time.
-+ */
-+int t3_sge_enable_ecntxt(struct adapter *adapter, unsigned int id, int enable)
-+{
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, F_EC_VALID);
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA3, V_EC_VALID(enable));
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(1) | F_EGRESS | V_CONTEXT(id));
-+	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+			       0, 5, 1);
-+}
-+
-+/**
-+ *	t3_sge_disable_fl - disable an SGE free-buffer list
-+ *	@adapter: the adapter
-+ *	@id: the free list context id
-+ *
-+ *	Disable an SGE free-buffer list.  The caller is responsible for
-+ *	ensuring only one context operation occurs at a time.
-+ */
-+int t3_sge_disable_fl(struct adapter *adapter, unsigned int id)
-+{
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, V_FL_SIZE(M_FL_SIZE));
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA2, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(1) | F_FREELIST | V_CONTEXT(id));
-+	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+			       0, 5, 1);
-+}
-+
-+/**
-+ *	t3_sge_disable_rspcntxt - disable an SGE response queue
-+ *	@adapter: the adapter
-+ *	@id: the response queue context id
-+ *
-+ *	Disable an SGE response queue.  The caller is responsible for
-+ *	ensuring only one context operation occurs at a time.
-+ */
-+int t3_sge_disable_rspcntxt(struct adapter *adapter, unsigned int id)
-+{
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, V_CQ_SIZE(M_CQ_SIZE));
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(1) | F_RESPONSEQ | V_CONTEXT(id));
-+	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+			       0, 5, 1);
-+}
-+
-+/**
-+ *	t3_sge_disable_cqcntxt - disable an SGE completion queue
-+ *	@adapter: the adapter
-+ *	@id: the completion queue context id
-+ *
-+ *	Disable an SGE completion queue.  The caller is responsible for
-+ *	ensuring only one context operation occurs at a time.
-+ */
-+int t3_sge_disable_cqcntxt(struct adapter *adapter, unsigned int id)
-+{
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, V_CQ_SIZE(M_CQ_SIZE));
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, 0);
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(1) | F_CQ | V_CONTEXT(id));
-+	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+			       0, 5, 1);
-+}
-+
-+/**
-+ *	t3_sge_cqcntxt_op - perform an operation on a completion queue context
-+ *	@adapter: the adapter
-+ *	@id: the context id
-+ *	@op: the operation to perform
-+ *
-+ *	Perform the selected operation on an SGE completion queue context.
-+ *	The caller is responsible for ensuring only one context operation
-+ *	occurs at a time.
-+ */
-+int t3_sge_cqcntxt_op(struct adapter *adapter, unsigned int id, unsigned int op,
-+		      unsigned int credits)
-+{
-+	u32 val;
-+
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, credits << 16);
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD, V_CONTEXT_CMD_OPCODE(op) |
-+		     V_CONTEXT(id) | F_CQ);
-+	if (t3_wait_op_done_val(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
-+				0, 5, 1, &val))
-+		return -EIO;
-+
-+	if (op >= 2 && op < 7) {
-+		if (adapter->params.rev > 0)
-+			return G_CQ_INDEX(val);
-+
-+		t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+			     V_CONTEXT_CMD_OPCODE(0) | F_CQ | V_CONTEXT(id));
-+		if (t3_wait_op_done(adapter, A_SG_CONTEXT_CMD,
-+				    F_CONTEXT_CMD_BUSY, 0, 5, 1))
-+			return -EIO;
-+		return G_CQ_INDEX(t3_read_reg(adapter, A_SG_CONTEXT_DATA0));
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * 	t3_sge_read_context - read an SGE context
-+ * 	@type: the context type
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@data: holds the retrieved context
-+ *
-+ * 	Read an SGE egress context.  The caller is responsible for ensuring
-+ * 	only one context operation occurs at a time.
-+ */
-+static int t3_sge_read_context(unsigned int type, struct adapter *adapter,
-+			       unsigned int id, u32 data[4])
-+{
-+	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
-+		return -EBUSY;
-+
-+	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
-+		     V_CONTEXT_CMD_OPCODE(0) | type | V_CONTEXT(id));
-+	if (t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY, 0,
-+			    5, 1))
-+		return -EIO;
-+	data[0] = t3_read_reg(adapter, A_SG_CONTEXT_DATA0);
-+	data[1] = t3_read_reg(adapter, A_SG_CONTEXT_DATA1);
-+	data[2] = t3_read_reg(adapter, A_SG_CONTEXT_DATA2);
-+	data[3] = t3_read_reg(adapter, A_SG_CONTEXT_DATA3);
-+	return 0;
-+}
-+
-+/**
-+ * 	t3_sge_read_ecntxt - read an SGE egress context
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@data: holds the retrieved context
-+ *
-+ * 	Read an SGE egress context.  The caller is responsible for ensuring
-+ * 	only one context operation occurs at a time.
-+ */
-+int t3_sge_read_ecntxt(struct adapter *adapter, unsigned int id, u32 data[4])
-+{
-+	if (id >= 65536)
-+		return -EINVAL;
-+	return t3_sge_read_context(F_EGRESS, adapter, id, data);
-+}
-+
-+/**
-+ * 	t3_sge_read_cq - read an SGE CQ context
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@data: holds the retrieved context
-+ *
-+ * 	Read an SGE CQ context.  The caller is responsible for ensuring
-+ * 	only one context operation occurs at a time.
-+ */
-+int t3_sge_read_cq(struct adapter *adapter, unsigned int id, u32 data[4])
-+{
-+	if (id >= 65536)
-+		return -EINVAL;
-+	return t3_sge_read_context(F_CQ, adapter, id, data);
-+}
-+
-+/**
-+ * 	t3_sge_read_fl - read an SGE free-list context
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@data: holds the retrieved context
-+ *
-+ * 	Read an SGE free-list context.  The caller is responsible for ensuring
-+ * 	only one context operation occurs at a time.
-+ */
-+int t3_sge_read_fl(struct adapter *adapter, unsigned int id, u32 data[4])
-+{
-+	if (id >= SGE_QSETS * 2)
-+		return -EINVAL;
-+	return t3_sge_read_context(F_FREELIST, adapter, id, data);
-+}
-+
-+/**
-+ * 	t3_sge_read_rspq - read an SGE response queue context
-+ * 	@adapter: the adapter
-+ * 	@id: the context id
-+ * 	@data: holds the retrieved context
-+ *
-+ * 	Read an SGE response queue context.  The caller is responsible for
-+ * 	ensuring only one context operation occurs at a time.
-+ */
-+int t3_sge_read_rspq(struct adapter *adapter, unsigned int id, u32 data[4])
-+{
-+	if (id >= SGE_QSETS)
-+		return -EINVAL;
-+	return t3_sge_read_context(F_RESPONSEQ, adapter, id, data);
-+}
-+
-+/**
-+ *	t3_config_rss - configure Rx packet steering
-+ *	@adapter: the adapter
-+ *	@rss_config: RSS settings (written to TP_RSS_CONFIG)
-+ *	@cpus: values for the CPU lookup table (0xff terminated)
-+ *	@rspq: values for the response queue lookup table (0xffff terminated)
-+ *
-+ *	Programs the receive packet steering logic.  @cpus and @rspq provide
-+ *	the values for the CPU and response queue lookup tables.  If they
-+ *	provide fewer values than the size of the tables the supplied values
-+ *	are used repeatedly until the tables are fully populated.
-+ */
-+void t3_config_rss(struct adapter *adapter, unsigned int rss_config,
-+		   const u8 * cpus, const u16 *rspq)
-+{
-+	int i, j, cpu_idx = 0, q_idx = 0;
-+
-+	if (cpus)
-+		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
-+			u32 val = i << 16;
-+
-+			for (j = 0; j < 2; ++j) {
-+				val |= (cpus[cpu_idx++] & 0x3f) << (8 * j);
-+				if (cpus[cpu_idx] == 0xff)
-+					cpu_idx = 0;
-+			}
-+			t3_write_reg(adapter, A_TP_RSS_LKP_TABLE, val);
-+		}
-+
-+	if (rspq)
-+		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
-+			t3_write_reg(adapter, A_TP_RSS_MAP_TABLE,
-+				     (i << 16) | rspq[q_idx++]);
-+			if (rspq[q_idx] == 0xffff)
-+				q_idx = 0;
-+		}
-+
-+	t3_write_reg(adapter, A_TP_RSS_CONFIG, rss_config);
-+}
-+
-+/**
-+ *	t3_read_rss - read the contents of the RSS tables
-+ *	@adapter: the adapter
-+ *	@lkup: holds the contents of the RSS lookup table
-+ *	@map: holds the contents of the RSS map table
-+ *
-+ *	Reads the contents of the receive packet steering tables.
-+ */
-+int t3_read_rss(struct adapter *adapter, u8 * lkup, u16 *map)
-+{
-+	int i;
-+	u32 val;
-+
-+	if (lkup)
-+		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
-+			t3_write_reg(adapter, A_TP_RSS_LKP_TABLE,
-+				     0xffff0000 | i);
-+			val = t3_read_reg(adapter, A_TP_RSS_LKP_TABLE);
-+			if (!(val & 0x80000000))
-+				return -EAGAIN;
-+			*lkup++ = val;
-+			*lkup++ = (val >> 8);
-+		}
-+
-+	if (map)
-+		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
-+			t3_write_reg(adapter, A_TP_RSS_MAP_TABLE,
-+				     0xffff0000 | i);
-+			val = t3_read_reg(adapter, A_TP_RSS_MAP_TABLE);
-+			if (!(val & 0x80000000))
-+				return -EAGAIN;
-+			*map++ = val;
-+		}
-+	return 0;
-+}
-+
-+/**
-+ *	t3_tp_set_offload_mode - put TP in NIC/offload mode
-+ *	@adap: the adapter
-+ *	@enable: 1 to select offload mode, 0 for regular NIC
-+ *
-+ *	Switches TP to NIC/offload mode.
-+ */
-+void t3_tp_set_offload_mode(struct adapter *adap, int enable)
-+{
-+	if (is_offload(adap) || !enable)
-+		t3_set_reg_field(adap, A_TP_IN_CONFIG, F_NICMODE,
-+				 V_NICMODE(!enable));
-+}
-+
-+/**
-+ *	pm_num_pages - calculate the number of pages of the payload memory
-+ *	@mem_size: the size of the payload memory
-+ *	@pg_size: the size of each payload memory page
-+ *
-+ *	Calculate the number of pages, each of the given size, that fit in a
-+ *	memory of the specified size, respecting the HW requirement that the
-+ *	number of pages must be a multiple of 24.
-+ */
-+static inline unsigned int pm_num_pages(unsigned int mem_size,
-+					unsigned int pg_size)
-+{
-+	unsigned int n = mem_size / pg_size;
-+
-+	return n - n % 24;
-+}
-+
-+#define mem_region(adap, start, size, reg) \
-+	t3_write_reg((adap), A_ ## reg, (start)); \
-+	start += size
++# define SGE_RX_DROP_THRES 16
 +
 +/*
-+ *	partition_mem - partition memory and configure TP memory settings
-+ *	@adap: the adapter
-+ *	@p: the TP parameters
-+ *
-+ *	Partitions context and payload memory and configures TP's memory
-+ *	registers.
++ * Period of the Tx buffer reclaim timer.  This timer does not need to run
++ * frequently as Tx buffers are usually reclaimed by new Tx packets.
 + */
-+static void partition_mem(struct adapter *adap, const struct tp_params *p)
-+{
-+	unsigned int m, pstructs, tids = t3_mc5_size(&adap->mc5);
-+	unsigned int timers = 0, timers_shift = 22;
++#define TX_RECLAIM_PERIOD (HZ / 4)
 +
-+	if (adap->params.rev > 0) {
-+		if (tids <= 16 * 1024) {
-+			timers = 1;
-+			timers_shift = 16;
-+		} else if (tids <= 64 * 1024) {
-+			timers = 2;
-+			timers_shift = 18;
-+		} else if (tids <= 256 * 1024) {
-+			timers = 3;
-+			timers_shift = 20;
-+		}
-+	}
-+
-+	t3_write_reg(adap, A_TP_PMM_SIZE,
-+		     p->chan_rx_size | (p->chan_tx_size >> 16));
-+
-+	t3_write_reg(adap, A_TP_PMM_TX_BASE, 0);
-+	t3_write_reg(adap, A_TP_PMM_TX_PAGE_SIZE, p->tx_pg_size);
-+	t3_write_reg(adap, A_TP_PMM_TX_MAX_PAGE, p->tx_num_pgs);
-+	t3_set_reg_field(adap, A_TP_PARA_REG3, V_TXDATAACKIDX(M_TXDATAACKIDX),
-+			 V_TXDATAACKIDX(fls(p->tx_pg_size) - 12));
-+
-+	t3_write_reg(adap, A_TP_PMM_RX_BASE, 0);
-+	t3_write_reg(adap, A_TP_PMM_RX_PAGE_SIZE, p->rx_pg_size);
-+	t3_write_reg(adap, A_TP_PMM_RX_MAX_PAGE, p->rx_num_pgs);
-+
-+	pstructs = p->rx_num_pgs + p->tx_num_pgs;
-+	/* Add a bit of headroom and make multiple of 24 */
-+	pstructs += 48;
-+	pstructs -= pstructs % 24;
-+	t3_write_reg(adap, A_TP_CMM_MM_MAX_PSTRUCT, pstructs);
-+
-+	m = tids * TCB_SIZE;
-+	mem_region(adap, m, (64 << 10) * 64, SG_EGR_CNTX_BADDR);
-+	mem_region(adap, m, (64 << 10) * 64, SG_CQ_CONTEXT_BADDR);
-+	t3_write_reg(adap, A_TP_CMM_TIMER_BASE, V_CMTIMERMAXNUM(timers) | m);
-+	m += ((p->ntimer_qs - 1) << timers_shift) + (1 << 22);
-+	mem_region(adap, m, pstructs * 64, TP_CMM_MM_BASE);
-+	mem_region(adap, m, 64 * (pstructs / 24), TP_CMM_MM_PS_FLST_BASE);
-+	mem_region(adap, m, 64 * (p->rx_num_pgs / 24), TP_CMM_MM_RX_FLST_BASE);
-+	mem_region(adap, m, 64 * (p->tx_num_pgs / 24), TP_CMM_MM_TX_FLST_BASE);
-+
-+	m = (m + 4095) & ~0xfff;
-+	t3_write_reg(adap, A_CIM_SDRAM_BASE_ADDR, m);
-+	t3_write_reg(adap, A_CIM_SDRAM_ADDR_SIZE, p->cm_size - m);
-+
-+	tids = (p->cm_size - m - (3 << 20)) / 3072 - 32;
-+	m = t3_mc5_size(&adap->mc5) - adap->params.mc5.nservers -
-+	    adap->params.mc5.nfilters - adap->params.mc5.nroutes;
-+	if (tids < m)
-+		adap->params.mc5.nservers += m - tids;
-+}
-+
-+static inline void tp_wr_indirect(struct adapter *adap, unsigned int addr,
-+				  u32 val)
-+{
-+	t3_write_reg(adap, A_TP_PIO_ADDR, addr);
-+	t3_write_reg(adap, A_TP_PIO_DATA, val);
-+}
-+
-+static void tp_config(struct adapter *adap, const struct tp_params *p)
-+{
-+	unsigned int v;
-+
-+	t3_write_reg(adap, A_TP_GLOBAL_CONFIG, F_TXPACINGENABLE | F_PATHMTU |
-+		     F_IPCHECKSUMOFFLOAD | F_UDPCHECKSUMOFFLOAD |
-+		     F_TCPCHECKSUMOFFLOAD | V_IPTTL(64));
-+	t3_write_reg(adap, A_TP_TCP_OPTIONS, V_MTUDEFAULT(576) |
-+		     F_MTUENABLE | V_WINDOWSCALEMODE(1) |
-+		     V_TIMESTAMPSMODE(1) | V_SACKMODE(1) | V_SACKRX(1));
-+	t3_write_reg(adap, A_TP_DACK_CONFIG, V_AUTOSTATE3(1) |
-+		     V_AUTOSTATE2(1) | V_AUTOSTATE1(0) |
-+		     V_BYTETHRESHOLD(16384) | V_MSSTHRESHOLD(2) |
-+		     F_AUTOCAREFUL | F_AUTOENABLE | V_DACK_MODE(1));
-+	t3_set_reg_field(adap, A_TP_IN_CONFIG, F_IPV6ENABLE | F_NICMODE,
-+			 F_IPV6ENABLE | F_NICMODE);
-+	t3_write_reg(adap, A_TP_TX_RESOURCE_LIMIT, 0x18141814);
-+	t3_write_reg(adap, A_TP_PARA_REG4, 0x5050105);
-+	t3_set_reg_field(adap, A_TP_PARA_REG6,
-+			 adap->params.rev > 0 ? F_ENABLEESND : F_T3A_ENABLEESND,
-+			 0);
-+
-+	v = t3_read_reg(adap, A_TP_PC_CONFIG);
-+	v &= ~(F_ENABLEEPCMDAFULL | F_ENABLEOCSPIFULL);
-+	t3_write_reg(adap, A_TP_PC_CONFIG, v | F_TXDEFERENABLE |
-+		     F_MODULATEUNIONMODE | F_HEARBEATDACK |
-+		     F_TXCONGESTIONMODE | F_RXCONGESTIONMODE);
-+
-+	v = t3_read_reg(adap, A_TP_PC_CONFIG2);
-+	v &= ~F_CHDRAFULL;
-+	t3_write_reg(adap, A_TP_PC_CONFIG2, v);
-+
-+	if (adap->params.rev > 0) {
-+		tp_wr_indirect(adap, A_TP_EGRESS_CONFIG, F_REWRITEFORCETOSIZE);
-+		t3_set_reg_field(adap, A_TP_PARA_REG3, F_TXPACEAUTO,
-+				 F_TXPACEAUTO);
-+		t3_set_reg_field(adap, A_TP_PC_CONFIG, F_LOCKTID, F_LOCKTID);
-+		t3_set_reg_field(adap, A_TP_PARA_REG3, 0, F_TXPACEAUTOSTRICT);
-+	} else
-+		t3_set_reg_field(adap, A_TP_PARA_REG3, 0, F_TXPACEFIXED);
-+
-+	t3_write_reg(adap, A_TP_TX_MOD_QUEUE_WEIGHT1, 0x12121212);
-+	t3_write_reg(adap, A_TP_TX_MOD_QUEUE_WEIGHT0, 0x12121212);
-+	t3_write_reg(adap, A_TP_MOD_CHANNEL_WEIGHT, 0x1212);
-+}
-+
-+/* Desired TP timer resolution in usec */
-+#define TP_TMR_RES 50
-+
-+/* TCP timer values in ms */
-+#define TP_DACK_TIMER 50
-+#define TP_RTO_MIN    250
-+
-+/**
-+ *	tp_set_timers - set TP timing parameters
-+ *	@adap: the adapter to set
-+ *	@core_clk: the core clock frequency in Hz
-+ *
-+ *	Set TP's timing parameters, such as the various timer resolutions and
-+ *	the TCP timer values.
-+ */
-+static void tp_set_timers(struct adapter *adap, unsigned int core_clk)
-+{
-+	unsigned int tre = fls(core_clk / (1000000 / TP_TMR_RES)) - 1;
-+	unsigned int dack_re = fls(core_clk / 5000) - 1;	/* 200us */
-+	unsigned int tstamp_re = fls(core_clk / 1000);	/* 1ms, at least */
-+	unsigned int tps = core_clk >> tre;
-+
-+	t3_write_reg(adap, A_TP_TIMER_RESOLUTION, V_TIMERRESOLUTION(tre) |
-+		     V_DELAYEDACKRESOLUTION(dack_re) |
-+		     V_TIMESTAMPRESOLUTION(tstamp_re));
-+	t3_write_reg(adap, A_TP_DACK_TIMER,
-+		     (core_clk >> dack_re) / (1000 / TP_DACK_TIMER));
-+	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG0, 0x3020100);
-+	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG1, 0x7060504);
-+	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG2, 0xb0a0908);
-+	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG3, 0xf0e0d0c);
-+	t3_write_reg(adap, A_TP_SHIFT_CNT, V_SYNSHIFTMAX(6) |
-+		     V_RXTSHIFTMAXR1(4) | V_RXTSHIFTMAXR2(15) |
-+		     V_PERSHIFTBACKOFFMAX(8) | V_PERSHIFTMAX(8) |
-+		     V_KEEPALIVEMAX(9));
-+
-+#define SECONDS * tps
-+
-+	t3_write_reg(adap, A_TP_MSL, adap->params.rev > 0 ? 0 : 2 SECONDS);
-+	t3_write_reg(adap, A_TP_RXT_MIN, tps / (1000 / TP_RTO_MIN));
-+	t3_write_reg(adap, A_TP_RXT_MAX, 64 SECONDS);
-+	t3_write_reg(adap, A_TP_PERS_MIN, 5 SECONDS);
-+	t3_write_reg(adap, A_TP_PERS_MAX, 64 SECONDS);
-+	t3_write_reg(adap, A_TP_KEEP_IDLE, 7200 SECONDS);
-+	t3_write_reg(adap, A_TP_KEEP_INTVL, 75 SECONDS);
-+	t3_write_reg(adap, A_TP_INIT_SRTT, 3 SECONDS);
-+	t3_write_reg(adap, A_TP_FINWAIT2_TIMER, 600 SECONDS);
-+
-+#undef SECONDS
-+}
-+
-+/**
-+ *	t3_tp_set_coalescing_size - set receive coalescing size
-+ *	@adap: the adapter
-+ *	@size: the receive coalescing size
-+ *	@psh: whether a set PSH bit should deliver coalesced data
-+ *
-+ *	Set the receive coalescing size and PSH bit handling.
-+ */
-+int t3_tp_set_coalescing_size(struct adapter *adap, unsigned int size, int psh)
-+{
-+	u32 val;
-+
-+	if (size > MAX_RX_COALESCING_LEN)
-+		return -EINVAL;
-+
-+	val = t3_read_reg(adap, A_TP_PARA_REG3);
-+	val &= ~(F_RXCOALESCEENABLE | F_RXCOALESCEPSHEN);
-+
-+	if (size) {
-+		val |= F_RXCOALESCEENABLE;
-+		if (psh)
-+			val |= F_RXCOALESCEPSHEN;
-+		t3_write_reg(adap, A_TP_PARA_REG2, V_RXCOALESCESIZE(size) |
-+			     V_MAXRXDATA(MAX_RX_COALESCING_LEN));
-+	}
-+	t3_write_reg(adap, A_TP_PARA_REG3, val);
-+	return 0;
-+}
-+
-+/**
-+ *	t3_tp_set_max_rxsize - set the max receive size
-+ *	@adap: the adapter
-+ *	@size: the max receive size
-+ *
-+ *	Set TP's max receive size.  This is the limit that applies when
-+ *	receive coalescing is disabled.
-+ */
-+void t3_tp_set_max_rxsize(struct adapter *adap, unsigned int size)
-+{
-+	t3_write_reg(adap, A_TP_PARA_REG7,
-+		     V_PMMAXXFERLEN0(size) | V_PMMAXXFERLEN1(size));
-+}
-+
-+static void __devinit init_mtus(unsigned short mtus[])
-+{
-+	/*
-+	 * See draft-mathis-plpmtud-00.txt for the values.  The min is 88 so
-+	 * it can accomodate max size TCP/IP headers when SACK and timestamps
-+	 * are enabled and still have at least 8 bytes of payload.
-+	 */
-+	mtus[0] = 88;
-+	mtus[1] = 256;
-+	mtus[2] = 512;
-+	mtus[3] = 576;
-+	mtus[4] = 808;
-+	mtus[5] = 1024;
-+	mtus[6] = 1280;
-+	mtus[7] = 1492;
-+	mtus[8] = 1500;
-+	mtus[9] = 2002;
-+	mtus[10] = 2048;
-+	mtus[11] = 4096;
-+	mtus[12] = 4352;
-+	mtus[13] = 8192;
-+	mtus[14] = 9000;
-+	mtus[15] = 9600;
-+}
++/* WR size in bytes */
++#define WR_LEN (WR_FLITS * 8)
 +
 +/*
-+ * Initial congestion control parameters.
++ * Types of Tx queues in each queue set.  Order here matters, do not change.
 + */
-+static void __devinit init_cong_ctrl(unsigned short *a, unsigned short *b)
-+{
-+	a[0] = a[1] = a[2] = a[3] = a[4] = a[5] = a[6] = a[7] = a[8] = 1;
-+	a[9] = 2;
-+	a[10] = 3;
-+	a[11] = 4;
-+	a[12] = 5;
-+	a[13] = 6;
-+	a[14] = 7;
-+	a[15] = 8;
-+	a[16] = 9;
-+	a[17] = 10;
-+	a[18] = 14;
-+	a[19] = 17;
-+	a[20] = 21;
-+	a[21] = 25;
-+	a[22] = 30;
-+	a[23] = 35;
-+	a[24] = 45;
-+	a[25] = 60;
-+	a[26] = 80;
-+	a[27] = 100;
-+	a[28] = 200;
-+	a[29] = 300;
-+	a[30] = 400;
-+	a[31] = 500;
++enum { TXQ_ETH, TXQ_OFLD, TXQ_CTRL };
 +
-+	b[0] = b[1] = b[2] = b[3] = b[4] = b[5] = b[6] = b[7] = b[8] = 0;
-+	b[9] = b[10] = 1;
-+	b[11] = b[12] = 2;
-+	b[13] = b[14] = b[15] = b[16] = 3;
-+	b[17] = b[18] = b[19] = b[20] = b[21] = 4;
-+	b[22] = b[23] = b[24] = b[25] = b[26] = b[27] = 5;
-+	b[28] = b[29] = 6;
-+	b[30] = b[31] = 7;
-+}
++/* Values for sge_txq.flags */
++enum {
++	TXQ_RUNNING = 1 << 0,	/* fetch engine is running */
++	TXQ_LAST_PKT_DB = 1 << 1,	/* last packet rang the doorbell */
++};
 +
-+/* The minimum additive increment value for the congestion control table */
-+#define CC_MIN_INCR 2U
++struct tx_desc {
++	u64 flit[TX_DESC_FLITS];
++};
 +
-+/**
-+ *	t3_load_mtus - write the MTU and congestion control HW tables
-+ *	@adap: the adapter
-+ *	@mtus: the unrestricted values for the MTU table
-+ *	@alphs: the values for the congestion control alpha parameter
-+ *	@beta: the values for the congestion control beta parameter
-+ *	@mtu_cap: the maximum permitted effective MTU
-+ *
-+ *	Write the MTU table with the supplied MTUs capping each at &mtu_cap.
-+ *	Update the high-speed congestion control table with the supplied alpha,
-+ * 	beta, and MTUs.
-+ */
-+void t3_load_mtus(struct adapter *adap, unsigned short mtus[NMTUS],
-+		  unsigned short alpha[NCCTRL_WIN],
-+		  unsigned short beta[NCCTRL_WIN], unsigned short mtu_cap)
-+{
-+	static const unsigned int avg_pkts[NCCTRL_WIN] = {
-+		2, 6, 10, 14, 20, 28, 40, 56, 80, 112, 160, 224, 320, 448, 640,
-+		896, 1281, 1792, 2560, 3584, 5120, 7168, 10240, 14336, 20480,
-+		28672, 40960, 57344, 81920, 114688, 163840, 229376
-+	};
++struct rx_desc {
++	__be32 addr_lo;
++	__be32 len_gen;
++	__be32 gen2;
++	__be32 addr_hi;
++};
 +
-+	unsigned int i, w;
++struct tx_sw_desc {		/* SW state per Tx descriptor */
++	struct sk_buff *skb;
++};
 +
-+	for (i = 0; i < NMTUS; ++i) {
-+		unsigned int mtu = min(mtus[i], mtu_cap);
-+		unsigned int log2 = fls(mtu);
++struct rx_sw_desc {		/* SW state per Rx descriptor */
++	struct sk_buff *skb;
++	 DECLARE_PCI_UNMAP_ADDR(dma_addr);
++};
 +
-+		if (!(mtu & ((1 << log2) >> 2)))	/* round */
-+			log2--;
-+		t3_write_reg(adap, A_TP_MTU_TABLE,
-+			     (i << 24) | (log2 << 16) | mtu);
++struct rsp_desc {		/* response queue descriptor */
++	struct rss_header rss_hdr;
++	__be32 flags;
++	__be32 len_cq;
++	u8 imm_data[47];
++	u8 intr_gen;
++};
 +
-+		for (w = 0; w < NCCTRL_WIN; ++w) {
-+			unsigned int inc;
-+
-+			inc = max(((mtu - 40) * alpha[w]) / avg_pkts[w],
-+				  CC_MIN_INCR);
-+
-+			t3_write_reg(adap, A_TP_CCTRL_TABLE, (i << 21) |
-+				     (w << 16) | (beta[w] << 13) | inc);
-+		}
-+	}
-+}
-+
-+/**
-+ *	t3_read_hw_mtus - returns the values in the HW MTU table
-+ *	@adap: the adapter
-+ *	@mtus: where to store the HW MTU values
-+ *
-+ *	Reads the HW MTU table.
-+ */
-+void t3_read_hw_mtus(struct adapter *adap, unsigned short mtus[NMTUS])
-+{
-+	int i;
-+
-+	for (i = 0; i < NMTUS; ++i) {
-+		unsigned int val;
-+
-+		t3_write_reg(adap, A_TP_MTU_TABLE, 0xff000000 | i);
-+		val = t3_read_reg(adap, A_TP_MTU_TABLE);
-+		mtus[i] = val & 0x3fff;
-+	}
-+}
-+
-+/**
-+ *	t3_get_cong_cntl_tab - reads the congestion control table
-+ *	@adap: the adapter
-+ *	@incr: where to store the alpha values
-+ *
-+ *	Reads the additive increments programmed into the HW congestion
-+ *	control table.
-+ */
-+void t3_get_cong_cntl_tab(struct adapter *adap,
-+			  unsigned short incr[NMTUS][NCCTRL_WIN])
-+{
-+	unsigned int mtu, w;
-+
-+	for (mtu = 0; mtu < NMTUS; ++mtu)
-+		for (w = 0; w < NCCTRL_WIN; ++w) {
-+			t3_write_reg(adap, A_TP_CCTRL_TABLE,
-+				     0xffff0000 | (mtu << 5) | w);
-+			incr[mtu][w] = t3_read_reg(adap, A_TP_CCTRL_TABLE) &
-+				       0x1fff;
-+		}
-+}
-+
-+/**
-+ *	t3_tp_get_mib_stats - read TP's MIB counters
-+ *	@adap: the adapter
-+ *	@tps: holds the returned counter values
-+ *
-+ *	Returns the values of TP's MIB counters.
-+ */
-+void t3_tp_get_mib_stats(struct adapter *adap, struct tp_mib_stats *tps)
-+{
-+	t3_read_indirect(adap, A_TP_MIB_INDEX, A_TP_MIB_RDATA, (u32 *) tps,
-+			 sizeof(*tps) / sizeof(u32), 0);
-+}
-+
-+#define ulp_region(adap, name, start, len) \
-+	t3_write_reg((adap), A_ULPRX_ ## name ## _LLIMIT, (start)); \
-+	t3_write_reg((adap), A_ULPRX_ ## name ## _ULIMIT, \
-+		     (start) + (len) - 1); \
-+	start += len
-+
-+#define ulptx_region(adap, name, start, len) \
-+	t3_write_reg((adap), A_ULPTX_ ## name ## _LLIMIT, (start)); \
-+	t3_write_reg((adap), A_ULPTX_ ## name ## _ULIMIT, \
-+		     (start) + (len) - 1)
-+
-+static void ulp_config(struct adapter *adap, const struct tp_params *p)
-+{
-+	unsigned int m = p->chan_rx_size;
-+
-+	ulp_region(adap, ISCSI, m, p->chan_rx_size / 8);
-+	ulp_region(adap, TDDP, m, p->chan_rx_size / 8);
-+	ulptx_region(adap, TPT, m, p->chan_rx_size / 4);
-+	ulp_region(adap, STAG, m, p->chan_rx_size / 4);
-+	ulp_region(adap, RQ, m, p->chan_rx_size / 4);
-+	ulptx_region(adap, PBL, m, p->chan_rx_size / 4);
-+	ulp_region(adap, PBL, m, p->chan_rx_size / 4);
-+	t3_write_reg(adap, A_ULPRX_TDDP_TAGMASK, 0xffffffff);
-+}
-+
-+void t3_config_trace_filter(struct adapter *adapter,
-+			    const struct trace_params *tp, int filter_index,
-+			    int invert, int enable)
-+{
-+	u32 addr, key[4], mask[4];
-+
-+	key[0] = tp->sport | (tp->sip << 16);
-+	key[1] = (tp->sip >> 16) | (tp->dport << 16);
-+	key[2] = tp->dip;
-+	key[3] = tp->proto | (tp->vlan << 8) | (tp->intf << 20);
-+
-+	mask[0] = tp->sport_mask | (tp->sip_mask << 16);
-+	mask[1] = (tp->sip_mask >> 16) | (tp->dport_mask << 16);
-+	mask[2] = tp->dip_mask;
-+	mask[3] = tp->proto_mask | (tp->vlan_mask << 8) | (tp->intf_mask << 20);
-+
-+	if (invert)
-+		key[3] |= (1 << 29);
-+	if (enable)
-+		key[3] |= (1 << 28);
-+
-+	addr = filter_index ? A_TP_RX_TRC_KEY0 : A_TP_TX_TRC_KEY0;
-+	tp_wr_indirect(adapter, addr++, key[0]);
-+	tp_wr_indirect(adapter, addr++, mask[0]);
-+	tp_wr_indirect(adapter, addr++, key[1]);
-+	tp_wr_indirect(adapter, addr++, mask[1]);
-+	tp_wr_indirect(adapter, addr++, key[2]);
-+	tp_wr_indirect(adapter, addr++, mask[2]);
-+	tp_wr_indirect(adapter, addr++, key[3]);
-+	tp_wr_indirect(adapter, addr, mask[3]);
-+	t3_read_reg(adapter, A_TP_PIO_DATA);
-+}
-+
-+/**
-+ *	t3_config_sched - configure a HW traffic scheduler
-+ *	@adap: the adapter
-+ *	@kbps: target rate in Kbps
-+ *	@sched: the scheduler index
-+ *
-+ *	Configure a HW scheduler for the target rate
-+ */
-+int t3_config_sched(struct adapter *adap, unsigned int kbps, int sched)
-+{
-+	unsigned int v, tps, cpt, bpt, delta, mindelta = ~0;
-+	unsigned int clk = adap->params.vpd.cclk * 1000;
-+	unsigned int selected_cpt = 0, selected_bpt = 0;
-+
-+	if (kbps > 0) {
-+		kbps *= 125;	/* -> bytes */
-+		for (cpt = 1; cpt <= 255; cpt++) {
-+			tps = clk / cpt;
-+			bpt = (kbps + tps / 2) / tps;
-+			if (bpt > 0 && bpt <= 255) {
-+				v = bpt * tps;
-+				delta = v >= kbps ? v - kbps : kbps - v;
-+				if (delta <= mindelta) {
-+					mindelta = delta;
-+					selected_cpt = cpt;
-+					selected_bpt = bpt;
-+				}
-+			} else if (selected_cpt)
-+				break;
-+		}
-+		if (!selected_cpt)
-+			return -EINVAL;
-+	}
-+	t3_write_reg(adap, A_TP_TM_PIO_ADDR,
-+		     A_TP_TX_MOD_Q1_Q0_RATE_LIMIT - sched / 2);
-+	v = t3_read_reg(adap, A_TP_TM_PIO_DATA);
-+	if (sched & 1)
-+		v = (v & 0xffff) | (selected_cpt << 16) | (selected_bpt << 24);
-+	else
-+		v = (v & 0xffff0000) | selected_cpt | (selected_bpt << 8);
-+	t3_write_reg(adap, A_TP_TM_PIO_DATA, v);
-+	return 0;
-+}
-+
-+static int tp_init(struct adapter *adap, const struct tp_params *p)
-+{
-+	int busy = 0;
-+
-+	tp_config(adap, p);
-+	t3_set_vlan_accel(adap, 3, 0);
-+
-+	if (is_offload(adap)) {
-+		tp_set_timers(adap, adap->params.vpd.cclk * 1000);
-+		t3_write_reg(adap, A_TP_RESET, F_FLSTINITENABLE);
-+		busy = t3_wait_op_done(adap, A_TP_RESET, F_FLSTINITENABLE,
-+				       0, 1000, 5);
-+		if (busy)
-+			CH_ERR(adap, "TP initialization timed out\n");
-+	}
-+
-+	if (!busy)
-+		t3_write_reg(adap, A_TP_RESET, F_TPRESET);
-+	return busy;
-+}
-+
-+int t3_mps_set_active_ports(struct adapter *adap, unsigned int port_mask)
-+{
-+	if (port_mask & ~((1 << adap->params.nports) - 1))
-+		return -EINVAL;
-+	t3_set_reg_field(adap, A_MPS_CFG, F_PORT1ACTIVE | F_PORT0ACTIVE,
-+			 port_mask << S_PORT0ACTIVE);
-+	return 0;
-+}
-+
-+/*
-+ * Perform the bits of HW initialization that are dependent on the number
-+ * of available ports.
-+ */
-+static void init_hw_for_avail_ports(struct adapter *adap, int nports)
-+{
-+	int i;
-+
-+	if (nports == 1) {
-+		t3_set_reg_field(adap, A_ULPRX_CTL, F_ROUND_ROBIN, 0);
-+		t3_set_reg_field(adap, A_ULPTX_CONFIG, F_CFG_RR_ARB, 0);
-+		t3_write_reg(adap, A_MPS_CFG, F_TPRXPORTEN | F_TPTXPORT0EN |
-+			     F_PORT0ACTIVE | F_ENFORCEPKT);
-+		t3_write_reg(adap, A_PM1_TX_CFG, 0xc000c000);
-+	} else {
-+		t3_set_reg_field(adap, A_ULPRX_CTL, 0, F_ROUND_ROBIN);
-+		t3_set_reg_field(adap, A_ULPTX_CONFIG, 0, F_CFG_RR_ARB);
-+		t3_write_reg(adap, A_ULPTX_DMA_WEIGHT,
-+			     V_D1_WEIGHT(16) | V_D0_WEIGHT(16));
-+		t3_write_reg(adap, A_MPS_CFG, F_TPTXPORT0EN | F_TPTXPORT1EN |
-+			     F_TPRXPORTEN | F_PORT0ACTIVE | F_PORT1ACTIVE |
-+			     F_ENFORCEPKT);
-+		t3_write_reg(adap, A_PM1_TX_CFG, 0x80008000);
-+		t3_set_reg_field(adap, A_TP_PC_CONFIG, 0, F_TXTOSQUEUEMAPMODE);
-+		t3_write_reg(adap, A_TP_TX_MOD_QUEUE_REQ_MAP,
-+			     V_TX_MOD_QUEUE_REQ_MAP(0xaa));
-+		for (i = 0; i < 16; i++)
-+			t3_write_reg(adap, A_TP_TX_MOD_QUE_TABLE,
-+				     (i << 16) | 0x1010);
-+	}
-+}
-+
-+static int calibrate_xgm(struct adapter *adapter)
-+{
-+	if (uses_xaui(adapter)) {
-+		unsigned int v, i;
-+
-+		for (i = 0; i < 5; ++i) {
-+			t3_write_reg(adapter, A_XGM_XAUI_IMP, 0);
-+			t3_read_reg(adapter, A_XGM_XAUI_IMP);
-+			msleep(1);
-+			v = t3_read_reg(adapter, A_XGM_XAUI_IMP);
-+			if (!(v & (F_XGM_CALFAULT | F_CALBUSY))) {
-+				t3_write_reg(adapter, A_XGM_XAUI_IMP,
-+					     V_XAUIIMP(G_CALIMP(v) >> 2));
-+				return 0;
-+			}
-+		}
-+		CH_ERR(adapter, "MAC calibration failed\n");
-+		return -1;
-+	} else {
-+		t3_write_reg(adapter, A_XGM_RGMII_IMP,
-+			     V_RGMIIIMPPD(2) | V_RGMIIIMPPU(3));
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_XGM_IMPSETUPDATE,
-+				 F_XGM_IMPSETUPDATE);
-+	}
-+	return 0;
-+}
-+
-+static void calibrate_xgm_t3b(struct adapter *adapter)
-+{
-+	if (!uses_xaui(adapter)) {
-+		t3_write_reg(adapter, A_XGM_RGMII_IMP, F_CALRESET |
-+			     F_CALUPDATE | V_RGMIIIMPPD(2) | V_RGMIIIMPPU(3));
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_CALRESET, 0);
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, 0,
-+				 F_XGM_IMPSETUPDATE);
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_XGM_IMPSETUPDATE,
-+				 0);
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_CALUPDATE, 0);
-+		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, 0, F_CALUPDATE);
-+	}
-+}
-+
-+struct mc7_timing_params {
-+	unsigned char ActToPreDly;
-+	unsigned char ActToRdWrDly;
-+	unsigned char PreCyc;
-+	unsigned char RefCyc[5];
-+	unsigned char BkCyc;
-+	unsigned char WrToRdDly;
-+	unsigned char RdToWrDly;
++struct unmap_info {		/* packet unmapping info, overlays skb->cb */
++	int sflit;		/* start flit of first SGL entry in Tx descriptor */
++	u16 fragidx;		/* first page fragment in current Tx descriptor */
++	u16 addr_idx;		/* buffer index of first SGL entry in descriptor */
++	u32 len;		/* mapped length of skb main body */
 +};
 +
 +/*
-+ * Write a value to a register and check that the write completed.  These
-+ * writes normally complete in a cycle or two, so one read should suffice.
-+ * The very first read exists to flush the posted write to the device.
-+ */
-+static int wrreg_wait(struct adapter *adapter, unsigned int addr, u32 val)
-+{
-+	t3_write_reg(adapter, addr, val);
-+	t3_read_reg(adapter, addr);	/* flush */
-+	if (!(t3_read_reg(adapter, addr) & F_BUSY))
-+		return 0;
-+	CH_ERR(adapter, "write to MC7 register 0x%x timed out\n", addr);
-+	return -EIO;
-+}
-+
-+static int mc7_init(struct mc7 *mc7, unsigned int mc7_clock, int mem_type)
-+{
-+	static const unsigned int mc7_mode[] = {
-+		0x632, 0x642, 0x652, 0x432, 0x442
-+	};
-+	static const struct mc7_timing_params mc7_timings[] = {
-+		{12, 3, 4, {20, 28, 34, 52, 0}, 15, 6, 4},
-+		{12, 4, 5, {20, 28, 34, 52, 0}, 16, 7, 4},
-+		{12, 5, 6, {20, 28, 34, 52, 0}, 17, 8, 4},
-+		{9, 3, 4, {15, 21, 26, 39, 0}, 12, 6, 4},
-+		{9, 4, 5, {15, 21, 26, 39, 0}, 13, 7, 4}
-+	};
-+
-+	u32 val;
-+	unsigned int width, density, slow, attempts;
-+	struct adapter *adapter = mc7->adapter;
-+	const struct mc7_timing_params *p = &mc7_timings[mem_type];
-+
-+	val = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);
-+	slow = val & F_SLOW;
-+	width = G_WIDTH(val);
-+	density = G_DEN(val);
-+
-+	t3_write_reg(adapter, mc7->offset + A_MC7_CFG, val | F_IFEN);
-+	val = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);	/* flush */
-+	msleep(1);
-+
-+	if (!slow) {
-+		t3_write_reg(adapter, mc7->offset + A_MC7_CAL, F_SGL_CAL_EN);
-+		t3_read_reg(adapter, mc7->offset + A_MC7_CAL);
-+		msleep(1);
-+		if (t3_read_reg(adapter, mc7->offset + A_MC7_CAL) &
-+		    (F_BUSY | F_SGL_CAL_EN | F_CAL_FAULT)) {
-+			CH_ERR(adapter, "%s MC7 calibration timed out\n",
-+			       mc7->name);
-+			goto out_fail;
-+		}
-+	}
-+
-+	t3_write_reg(adapter, mc7->offset + A_MC7_PARM,
-+		     V_ACTTOPREDLY(p->ActToPreDly) |
-+		     V_ACTTORDWRDLY(p->ActToRdWrDly) | V_PRECYC(p->PreCyc) |
-+		     V_REFCYC(p->RefCyc[density]) | V_BKCYC(p->BkCyc) |
-+		     V_WRTORDDLY(p->WrToRdDly) | V_RDTOWRDLY(p->RdToWrDly));
-+
-+	t3_write_reg(adapter, mc7->offset + A_MC7_CFG,
-+		     val | F_CLKEN | F_TERM150);
-+	t3_read_reg(adapter, mc7->offset + A_MC7_CFG);	/* flush */
-+
-+	if (!slow)
-+		t3_set_reg_field(adapter, mc7->offset + A_MC7_DLL, F_DLLENB,
-+				 F_DLLENB);
-+	udelay(1);
-+
-+	val = slow ? 3 : 6;
-+	if (wrreg_wait(adapter, mc7->offset + A_MC7_PRE, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE2, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE3, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val))
-+		goto out_fail;
-+
-+	if (!slow) {
-+		t3_write_reg(adapter, mc7->offset + A_MC7_MODE, 0x100);
-+		t3_set_reg_field(adapter, mc7->offset + A_MC7_DLL, F_DLLRST, 0);
-+		udelay(5);
-+	}
-+
-+	if (wrreg_wait(adapter, mc7->offset + A_MC7_PRE, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_REF, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_REF, 0) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_MODE,
-+		       mc7_mode[mem_type]) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val | 0x380) ||
-+	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val))
-+		goto out_fail;
-+
-+	/* clock value is in KHz */
-+	mc7_clock = mc7_clock * 7812 + mc7_clock / 2;	/* ns */
-+	mc7_clock /= 1000000;	/* KHz->MHz, ns->us */
-+
-+	t3_write_reg(adapter, mc7->offset + A_MC7_REF,
-+		     F_PERREFEN | V_PREREFDIV(mc7_clock));
-+	t3_read_reg(adapter, mc7->offset + A_MC7_REF);	/* flush */
-+
-+	t3_write_reg(adapter, mc7->offset + A_MC7_ECC, F_ECCGENEN | F_ECCCHKEN);
-+	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_DATA, 0);
-+	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_ADDR_BEG, 0);
-+	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_ADDR_END,
-+		     (mc7->size << width) - 1);
-+	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_OP, V_OP(1));
-+	t3_read_reg(adapter, mc7->offset + A_MC7_BIST_OP);	/* flush */
-+
-+	attempts = 50;
-+	do {
-+		msleep(250);
-+		val = t3_read_reg(adapter, mc7->offset + A_MC7_BIST_OP);
-+	} while ((val & F_BUSY) && --attempts);
-+	if (val & F_BUSY) {
-+		CH_ERR(adapter, "%s MC7 BIST timed out\n", mc7->name);
-+		goto out_fail;
-+	}
-+
-+	/* Enable normal memory accesses. */
-+	t3_set_reg_field(adapter, mc7->offset + A_MC7_CFG, 0, F_RDY);
-+	return 0;
-+
-+out_fail:
-+	return -1;
-+}
-+
-+static void config_pcie(struct adapter *adap)
-+{
-+	static const u16 ack_lat[4][6] = {
-+		{237, 416, 559, 1071, 2095, 4143},
-+		{128, 217, 289, 545, 1057, 2081},
-+		{73, 118, 154, 282, 538, 1050},
-+		{67, 107, 86, 150, 278, 534}
-+	};
-+	static const u16 rpl_tmr[4][6] = {
-+		{711, 1248, 1677, 3213, 6285, 12429},
-+		{384, 651, 867, 1635, 3171, 6243},
-+		{219, 354, 462, 846, 1614, 3150},
-+		{201, 321, 258, 450, 834, 1602}
-+	};
-+
-+	u16 val;
-+	unsigned int log2_width, pldsize;
-+	unsigned int fst_trn_rx, fst_trn_tx, acklat, rpllmt;
-+
-+	pci_read_config_word(adap->pdev,
-+			     adap->params.pci.pcie_cap_addr + PCI_EXP_DEVCTL,
-+			     &val);
-+	pldsize = (val & PCI_EXP_DEVCTL_PAYLOAD) >> 5;
-+	pci_read_config_word(adap->pdev,
-+			     adap->params.pci.pcie_cap_addr + PCI_EXP_LNKCTL,
-+			     &val);
-+
-+	fst_trn_tx = G_NUMFSTTRNSEQ(t3_read_reg(adap, A_PCIE_PEX_CTRL0));
-+	fst_trn_rx = adap->params.rev == 0 ? fst_trn_tx :
-+	    G_NUMFSTTRNSEQRX(t3_read_reg(adap, A_PCIE_MODE));
-+	log2_width = fls(adap->params.pci.width) - 1;
-+	acklat = ack_lat[log2_width][pldsize];
-+	if (val & 1)		/* check LOsEnable */
-+		acklat += fst_trn_tx * 4;
-+	rpllmt = rpl_tmr[log2_width][pldsize] + fst_trn_rx * 4;
-+
-+	if (adap->params.rev == 0)
-+		t3_set_reg_field(adap, A_PCIE_PEX_CTRL1,
-+				 V_T3A_ACKLAT(M_T3A_ACKLAT),
-+				 V_T3A_ACKLAT(acklat));
-+	else
-+		t3_set_reg_field(adap, A_PCIE_PEX_CTRL1, V_ACKLAT(M_ACKLAT),
-+				 V_ACKLAT(acklat));
-+
-+	t3_set_reg_field(adap, A_PCIE_PEX_CTRL0, V_REPLAYLMT(M_REPLAYLMT),
-+			 V_REPLAYLMT(rpllmt));
-+
-+	t3_write_reg(adap, A_PCIE_PEX_ERR, 0xffffffff);
-+	t3_set_reg_field(adap, A_PCIE_CFG, F_PCIE_CLIDECEN, F_PCIE_CLIDECEN);
-+}
-+
-+/*
-+ * Initialize and configure T3 HW modules.  This performs the
-+ * initialization steps that need to be done once after a card is reset.
-+ * MAC and PHY initialization is handled separarely whenever a port is enabled.
++ * Maps a number of flits to the number of Tx descriptors that can hold them.
++ * The formula is
 + *
-+ * fw_params are passed to FW and their value is platform dependent.  Only the
-+ * top 8 bits are available for use, the rest must be 0.
++ * desc = 1 + (flits - 2) / (WR_FLITS - 1).
++ *
++ * HW allows up to 4 descriptors to be combined into a WR.
 + */
-+int t3_init_hw(struct adapter *adapter, u32 fw_params)
++static u8 flit_desc_map[] = {
++	0,
++#if SGE_NUM_GENBITS == 1
++	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
++	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
++	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
++	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
++#elif SGE_NUM_GENBITS == 2
++	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
++	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
++	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
++	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
++#else
++# error "SGE_NUM_GENBITS must be 1 or 2"
++#endif
++};
++
++static inline struct sge_qset *fl_to_qset(const struct sge_fl *q, int qidx)
 +{
-+	int err = -EIO, attempts = 100;
-+	const struct vpd_params *vpd = &adapter->params.vpd;
++	return container_of(q, struct sge_qset, fl[qidx]);
++}
 +
-+	if (adapter->params.rev > 0)
-+		calibrate_xgm_t3b(adapter);
-+	else if (calibrate_xgm(adapter))
-+		goto out_err;
++static inline struct sge_qset *rspq_to_qset(const struct sge_rspq *q)
++{
++	return container_of(q, struct sge_qset, rspq);
++}
 +
-+	if (vpd->mclk) {
-+		partition_mem(adapter, &adapter->params.tp);
-+
-+		if (mc7_init(&adapter->pmrx, vpd->mclk, vpd->mem_timing) ||
-+		    mc7_init(&adapter->pmtx, vpd->mclk, vpd->mem_timing) ||
-+		    mc7_init(&adapter->cm, vpd->mclk, vpd->mem_timing) ||
-+		    t3_mc5_init(&adapter->mc5, adapter->params.mc5.nservers,
-+				adapter->params.mc5.nfilters,
-+				adapter->params.mc5.nroutes))
-+			goto out_err;
-+	}
-+
-+	if (tp_init(adapter, &adapter->params.tp))
-+		goto out_err;
-+
-+	t3_tp_set_coalescing_size(adapter,
-+				  min(adapter->params.sge.max_pkt_size,
-+				      MAX_RX_COALESCING_LEN), 1);
-+	t3_tp_set_max_rxsize(adapter,
-+			     min(adapter->params.sge.max_pkt_size, 16384U));
-+	ulp_config(adapter, &adapter->params.tp);
-+
-+	if (is_pcie(adapter))
-+		config_pcie(adapter);
-+	else
-+		t3_set_reg_field(adapter, A_PCIX_CFG, 0, F_CLIDECEN);
-+
-+	t3_write_reg(adapter, A_PM1_RX_CFG, 0xf000f000);
-+	init_hw_for_avail_ports(adapter, adapter->params.nports);
-+	t3_sge_init(adapter, &adapter->params.sge);
-+
-+	t3_write_reg(adapter, A_CIM_HOST_ACC_DATA, vpd->uclk | fw_params);
-+	t3_write_reg(adapter, A_CIM_BOOT_CFG,
-+		     V_BOOTADDR(FW_FLASH_BOOT_ADDR >> 2));
-+	t3_read_reg(adapter, A_CIM_BOOT_CFG);	/* flush */
-+
-+	do {			/* wait for uP to initialize */
-+		msleep(20);
-+	} while (t3_read_reg(adapter, A_CIM_HOST_ACC_DATA) && --attempts);
-+	if (!attempts)
-+		goto out_err;
-+
-+	err = 0;
-+out_err:
-+	return err;
++static inline struct sge_qset *txq_to_qset(const struct sge_txq *q, int qidx)
++{
++	return container_of(q, struct sge_qset, txq[qidx]);
 +}
 +
 +/**
-+ *	get_pci_mode - determine a card's PCI mode
++ *	refill_rspq - replenish an SGE response queue
 + *	@adapter: the adapter
-+ *	@p: where to store the PCI settings
++ *	@q: the response queue to replenish
++ *	@credits: how many new responses to make available
 + *
-+ *	Determines a card's PCI mode and associated parameters, such as speed
-+ *	and width.
++ *	Replenishes a response queue by making the supplied number of responses
++ *	available to HW.
 + */
-+static void __devinit get_pci_mode(struct adapter *adapter,
-+				   struct pci_params *p)
++static inline void refill_rspq(struct adapter *adapter,
++			       const struct sge_rspq *q, unsigned int credits)
 +{
-+	static unsigned short speed_map[] = { 33, 66, 100, 133 };
-+	u32 pci_mode, pcie_cap;
++	t3_write_reg(adapter, A_SG_RSPQ_CREDIT_RETURN,
++		     V_RSPQ(q->cntxt_id) | V_CREDITS(credits));
++}
 +
-+	pcie_cap = pci_find_capability(adapter->pdev, PCI_CAP_ID_EXP);
-+	if (pcie_cap) {
-+		u16 val;
++/**
++ *	need_skb_unmap - does the platform need unmapping of sk_buffs?
++ *
++ *	Returns true if the platfrom needs sk_buff unmapping.  The compiler
++ *	optimizes away unecessary code if this returns true.
++ */
++static inline int need_skb_unmap(void)
++{
++	/*
++	 * This structure is used to tell if the platfrom needs buffer
++	 * unmapping by checking if DECLARE_PCI_UNMAP_ADDR defines anything.
++	 */
++	struct dummy {
++		DECLARE_PCI_UNMAP_ADDR(addr);
++	};
 +
-+		p->variant = PCI_VARIANT_PCIE;
-+		p->pcie_cap_addr = pcie_cap;
-+		pci_read_config_word(adapter->pdev, pcie_cap + PCI_EXP_LNKSTA,
-+					&val);
-+		p->width = (val >> 4) & 0x3f;
++	return sizeof(struct dummy) != 0;
++}
++
++/**
++ *	unmap_skb - unmap a packet main body and its page fragments
++ *	@skb: the packet
++ *	@q: the Tx queue containing Tx descriptors for the packet
++ *	@cidx: index of Tx descriptor
++ *	@pdev: the PCI device
++ *
++ *	Unmap the main body of an sk_buff and its page fragments, if any.
++ *	Because of the fairly complicated structure of our SGLs and the desire
++ *	to conserve space for metadata, we keep the information necessary to
++ *	unmap an sk_buff partly in the sk_buff itself (in its cb), and partly
++ *	in the Tx descriptors (the physical addresses of the various data
++ *	buffers).  The send functions initialize the state in skb->cb so we
++ *	can unmap the buffers held in the first Tx descriptor here, and we
++ *	have enough information at this point to update the state for the next
++ *	Tx descriptor.
++ */
++static inline void unmap_skb(struct sk_buff *skb, struct sge_txq *q,
++			     unsigned int cidx, struct pci_dev *pdev)
++{
++	const struct sg_ent *sgp;
++	struct unmap_info *ui = (struct unmap_info *)skb->cb;
++	int nfrags, frag_idx, curflit, j = ui->addr_idx;
++
++	sgp = (struct sg_ent *)&q->desc[cidx].flit[ui->sflit];
++
++	if (ui->len) {
++		pci_unmap_single(pdev, be64_to_cpu(sgp->addr[0]), ui->len,
++				 PCI_DMA_TODEVICE);
++		ui->len = 0;	/* so we know for next descriptor for this skb */
++		j = 1;
++	}
++
++	frag_idx = ui->fragidx;
++	curflit = ui->sflit + 1 + j;
++	nfrags = skb_shinfo(skb)->nr_frags;
++
++	while (frag_idx < nfrags && curflit < WR_FLITS) {
++		pci_unmap_page(pdev, be64_to_cpu(sgp->addr[j]),
++			       skb_shinfo(skb)->frags[frag_idx].size,
++			       PCI_DMA_TODEVICE);
++		j ^= 1;
++		if (j == 0) {
++			sgp++;
++			curflit++;
++		}
++		curflit++;
++		frag_idx++;
++	}
++
++	if (frag_idx < nfrags) {	/* SGL continues into next Tx descriptor */
++		ui->fragidx = frag_idx;
++		ui->addr_idx = j;
++		ui->sflit = curflit - WR_FLITS - j;	/* sflit can be -1 */
++	}
++}
++
++/**
++ *	free_tx_desc - reclaims Tx descriptors and their buffers
++ *	@adapter: the adapter
++ *	@q: the Tx queue to reclaim descriptors from
++ *	@n: the number of descriptors to reclaim
++ *
++ *	Reclaims Tx descriptors from an SGE Tx queue and frees the associated
++ *	Tx buffers.  Called with the Tx queue lock held.
++ */
++static void free_tx_desc(struct adapter *adapter, struct sge_txq *q,
++			 unsigned int n)
++{
++	struct tx_sw_desc *d;
++	struct pci_dev *pdev = adapter->pdev;
++	unsigned int cidx = q->cidx;
++
++	d = &q->sdesc[cidx];
++	while (n--) {
++		if (d->skb) {	/* an SGL is present */
++			if (need_skb_unmap())
++				unmap_skb(d->skb, q, cidx, pdev);
++			if (d->skb->priority == cidx)
++				kfree_skb(d->skb);
++		}
++		++d;
++		if (++cidx == q->size) {
++			cidx = 0;
++			d = q->sdesc;
++		}
++	}
++	q->cidx = cidx;
++}
++
++/**
++ *	reclaim_completed_tx - reclaims completed Tx descriptors
++ *	@adapter: the adapter
++ *	@q: the Tx queue to reclaim completed descriptors from
++ *
++ *	Reclaims Tx descriptors that the SGE has indicated it has processed,
++ *	and frees the associated buffers if possible.  Called with the Tx
++ *	queue's lock held.
++ */
++static inline void reclaim_completed_tx(struct adapter *adapter,
++					struct sge_txq *q)
++{
++	unsigned int reclaim = q->processed - q->cleaned;
++
++	if (reclaim) {
++		free_tx_desc(adapter, q, reclaim);
++		q->cleaned += reclaim;
++		q->in_use -= reclaim;
++	}
++}
++
++/**
++ *	should_restart_tx - are there enough resources to restart a Tx queue?
++ *	@q: the Tx queue
++ *
++ *	Checks if there are enough descriptors to restart a suspended Tx queue.
++ */
++static inline int should_restart_tx(const struct sge_txq *q)
++{
++	unsigned int r = q->processed - q->cleaned;
++
++	return q->in_use - r < (q->size >> 1);
++}
++
++/**
++ *	free_rx_bufs - free the Rx buffers on an SGE free list
++ *	@pdev: the PCI device associated with the adapter
++ *	@rxq: the SGE free list to clean up
++ *
++ *	Release the buffers on an SGE free-buffer Rx queue.  HW fetching from
++ *	this queue should be stopped before calling this function.
++ */
++static void free_rx_bufs(struct pci_dev *pdev, struct sge_fl *q)
++{
++	unsigned int cidx = q->cidx;
++
++	while (q->credits--) {
++		struct rx_sw_desc *d = &q->sdesc[cidx];
++
++		pci_unmap_single(pdev, pci_unmap_addr(d, dma_addr),
++				 q->buf_size, PCI_DMA_FROMDEVICE);
++		kfree_skb(d->skb);
++		d->skb = NULL;
++		if (++cidx == q->size)
++			cidx = 0;
++	}
++}
++
++/**
++ *	add_one_rx_buf - add a packet buffer to a free-buffer list
++ *	@skb: the buffer to add
++ *	@len: the buffer length
++ *	@d: the HW Rx descriptor to write
++ *	@sd: the SW Rx descriptor to write
++ *	@gen: the generation bit value
++ *	@pdev: the PCI device associated with the adapter
++ *
++ *	Add a buffer of the given length to the supplied HW and SW Rx
++ *	descriptors.
++ */
++static inline void add_one_rx_buf(struct sk_buff *skb, unsigned int len,
++				  struct rx_desc *d, struct rx_sw_desc *sd,
++				  unsigned int gen, struct pci_dev *pdev)
++{
++	dma_addr_t mapping;
++
++	sd->skb = skb;
++	mapping = pci_map_single(pdev, skb->data, len, PCI_DMA_FROMDEVICE);
++	pci_unmap_addr_set(sd, dma_addr, mapping);
++
++	d->addr_lo = cpu_to_be32(mapping);
++	d->addr_hi = cpu_to_be32((u64) mapping >> 32);
++	wmb();
++	d->len_gen = cpu_to_be32(V_FLD_GEN1(gen));
++	d->gen2 = cpu_to_be32(V_FLD_GEN2(gen));
++}
++
++/**
++ *	refill_fl - refill an SGE free-buffer list
++ *	@adapter: the adapter
++ *	@q: the free-list to refill
++ *	@n: the number of new buffers to allocate
++ *	@gfp: the gfp flags for allocating new buffers
++ *
++ *	(Re)populate an SGE free-buffer list with up to @n new packet buffers,
++ *	allocated with the supplied gfp flags.  The caller must assure that
++ *	@n does not exceed the queue's capacity.
++ */
++static void refill_fl(struct adapter *adap, struct sge_fl *q, int n, gfp_t gfp)
++{
++	struct rx_sw_desc *sd = &q->sdesc[q->pidx];
++	struct rx_desc *d = &q->desc[q->pidx];
++
++	while (n--) {
++		struct sk_buff *skb = alloc_skb(q->buf_size, gfp);
++
++		if (!skb)
++			break;
++
++		add_one_rx_buf(skb, q->buf_size, d, sd, q->gen, adap->pdev);
++		d++;
++		sd++;
++		if (++q->pidx == q->size) {
++			q->pidx = 0;
++			q->gen ^= 1;
++			sd = q->sdesc;
++			d = q->desc;
++		}
++		q->credits++;
++	}
++
++	t3_write_reg(adap, A_SG_KDOORBELL, V_EGRCNTX(q->cntxt_id));
++}
++
++static inline void __refill_fl(struct adapter *adap, struct sge_fl *fl)
++{
++	refill_fl(adap, fl, min(16U, fl->size - fl->credits), GFP_ATOMIC);
++}
++
++/**
++ *	recycle_rx_buf - recycle a receive buffer
++ *	@adapter: the adapter
++ *	@q: the SGE free list
++ *	@idx: index of buffer to recycle
++ *
++ *	Recycles the specified buffer on the given free list by adding it at
++ *	the next available slot on the list.
++ */
++static void recycle_rx_buf(struct adapter *adap, struct sge_fl *q,
++			   unsigned int idx)
++{
++	struct rx_desc *from = &q->desc[idx];
++	struct rx_desc *to = &q->desc[q->pidx];
++
++	q->sdesc[q->pidx] = q->sdesc[idx];
++	to->addr_lo = from->addr_lo;	/* already big endian */
++	to->addr_hi = from->addr_hi;	/* likewise */
++	wmb();
++	to->len_gen = cpu_to_be32(V_FLD_GEN1(q->gen));
++	to->gen2 = cpu_to_be32(V_FLD_GEN2(q->gen));
++	q->credits++;
++
++	if (++q->pidx == q->size) {
++		q->pidx = 0;
++		q->gen ^= 1;
++	}
++	t3_write_reg(adap, A_SG_KDOORBELL, V_EGRCNTX(q->cntxt_id));
++}
++
++/**
++ *	alloc_ring - allocate resources for an SGE descriptor ring
++ *	@pdev: the PCI device
++ *	@nelem: the number of descriptors
++ *	@elem_size: the size of each descriptor
++ *	@sw_size: the size of the SW state associated with each ring element
++ *	@phys: the physical address of the allocated ring
++ *	@metadata: address of the array holding the SW state for the ring
++ *
++ *	Allocates resources for an SGE descriptor ring, such as Tx queues,
++ *	free buffer lists, or response queues.  Each SGE ring requires
++ *	space for its HW descriptors plus, optionally, space for the SW state
++ *	associated with each HW entry (the metadata).  The function returns
++ *	three values: the virtual address for the HW ring (the return value
++ *	of the function), the physical address of the HW ring, and the address
++ *	of the SW ring.
++ */
++static void *alloc_ring(struct pci_dev *pdev, size_t nelem, size_t elem_size,
++			size_t sw_size, dma_addr_t *phys, void *metadata)
++{
++	size_t len = nelem * elem_size;
++	void *s = NULL;
++	void *p = dma_alloc_coherent(&pdev->dev, len, phys, GFP_KERNEL);
++
++	if (!p)
++		return NULL;
++	if (sw_size) {
++		s = kcalloc(nelem, sw_size, GFP_KERNEL);
++
++		if (!s) {
++			dma_free_coherent(&pdev->dev, len, p, *phys);
++			return NULL;
++		}
++	}
++	if (metadata)
++		*(void **)metadata = s;
++	memset(p, 0, len);
++	return p;
++}
++
++/**
++ *	free_qset - free the resources of an SGE queue set
++ *	@adapter: the adapter owning the queue set
++ *	@q: the queue set
++ *
++ *	Release the HW and SW resources associated with an SGE queue set, such
++ *	as HW contexts, packet buffers, and descriptor rings.  Traffic to the
++ *	queue set must be quiesced prior to calling this.
++ */
++void t3_free_qset(struct adapter *adapter, struct sge_qset *q)
++{
++	int i;
++	struct pci_dev *pdev = adapter->pdev;
++
++	if (q->tx_reclaim_timer.function)
++		del_timer_sync(&q->tx_reclaim_timer);
++
++	for (i = 0; i < SGE_RXQ_PER_SET; ++i)
++		if (q->fl[i].desc) {
++			spin_lock(&adapter->sge.reg_lock);
++			t3_sge_disable_fl(adapter, q->fl[i].cntxt_id);
++			spin_unlock(&adapter->sge.reg_lock);
++			free_rx_bufs(pdev, &q->fl[i]);
++			kfree(q->fl[i].sdesc);
++			dma_free_coherent(&pdev->dev,
++					  q->fl[i].size *
++					  sizeof(struct rx_desc), q->fl[i].desc,
++					  q->fl[i].phys_addr);
++		}
++
++	for (i = 0; i < SGE_TXQ_PER_SET; ++i)
++		if (q->txq[i].desc) {
++			spin_lock(&adapter->sge.reg_lock);
++			t3_sge_enable_ecntxt(adapter, q->txq[i].cntxt_id, 0);
++			spin_unlock(&adapter->sge.reg_lock);
++			if (q->txq[i].sdesc) {
++				free_tx_desc(adapter, &q->txq[i],
++					     q->txq[i].in_use);
++				kfree(q->txq[i].sdesc);
++			}
++			dma_free_coherent(&pdev->dev,
++					  q->txq[i].size *
++					  sizeof(struct tx_desc),
++					  q->txq[i].desc, q->txq[i].phys_addr);
++			__skb_queue_purge(&q->txq[i].sendq);
++		}
++
++	if (q->rspq.desc) {
++		spin_lock(&adapter->sge.reg_lock);
++		t3_sge_disable_rspcntxt(adapter, q->rspq.cntxt_id);
++		spin_unlock(&adapter->sge.reg_lock);
++		dma_free_coherent(&pdev->dev,
++				  q->rspq.size * sizeof(struct rsp_desc),
++				  q->rspq.desc, q->rspq.phys_addr);
++	}
++
++	if (q->netdev)
++		q->netdev->atalk_ptr = NULL;
++
++	memset(q, 0, sizeof(*q));
++}
++
++/**
++ *	init_qset_cntxt - initialize an SGE queue set context info
++ *	@qs: the queue set
++ *	@id: the queue set id
++ *
++ *	Initializes the TIDs and context ids for the queues of a queue set.
++ */
++static void init_qset_cntxt(struct sge_qset *qs, unsigned int id)
++{
++	qs->rspq.cntxt_id = id;
++	qs->fl[0].cntxt_id = 2 * id;
++	qs->fl[1].cntxt_id = 2 * id + 1;
++	qs->txq[TXQ_ETH].cntxt_id = FW_TUNNEL_SGEEC_START + id;
++	qs->txq[TXQ_ETH].token = FW_TUNNEL_TID_START + id;
++	qs->txq[TXQ_OFLD].cntxt_id = FW_OFLD_SGEEC_START + id;
++	qs->txq[TXQ_CTRL].cntxt_id = FW_CTRL_SGEEC_START + id;
++	qs->txq[TXQ_CTRL].token = FW_CTRL_TID_START + id;
++}
++
++/**
++ *	sgl_len - calculates the size of an SGL of the given capacity
++ *	@n: the number of SGL entries
++ *
++ *	Calculates the number of flits needed for a scatter/gather list that
++ *	can hold the given number of entries.
++ */
++static inline unsigned int sgl_len(unsigned int n)
++{
++	/* alternatively: 3 * (n / 2) + 2 * (n & 1) */
++	return (3 * n) / 2 + (n & 1);
++}
++
++/**
++ *	flits_to_desc - returns the num of Tx descriptors for the given flits
++ *	@n: the number of flits
++ *
++ *	Calculates the number of Tx descriptors needed for the supplied number
++ *	of flits.
++ */
++static inline unsigned int flits_to_desc(unsigned int n)
++{
++	BUG_ON(n >= ARRAY_SIZE(flit_desc_map));
++	return flit_desc_map[n];
++}
++
++/**
++ *	get_packet - return the next ingress packet buffer from a free list
++ *	@adap: the adapter that received the packet
++ *	@fl: the SGE free list holding the packet
++ *	@len: the packet length including any SGE padding
++ *	@drop_thres: # of remaining buffers before we start dropping packets
++ *
++ *	Get the next packet from a free list and complete setup of the
++ *	sk_buff.  If the packet is small we make a copy and recycle the
++ *	original buffer, otherwise we use the original buffer itself.  If a
++ *	positive drop threshold is supplied packets are dropped and their
++ *	buffers recycled if (a) the number of remaining buffers is under the
++ *	threshold and the packet is too big to copy, or (b) the packet should
++ *	be copied but there is no memory for the copy.
++ */
++static struct sk_buff *get_packet(struct adapter *adap, struct sge_fl *fl,
++				  unsigned int len, unsigned int drop_thres)
++{
++	struct sk_buff *skb = NULL;
++	struct rx_sw_desc *sd = &fl->sdesc[fl->cidx];
++
++	prefetch(sd->skb->data);
++
++	if (len <= SGE_RX_COPY_THRES) {
++		skb = alloc_skb(len, GFP_ATOMIC);
++		if (likely(skb != NULL)) {
++			__skb_put(skb, len);
++			pci_dma_sync_single_for_cpu(adap->pdev,
++						    pci_unmap_addr(sd,
++								   dma_addr),
++						    len, PCI_DMA_FROMDEVICE);
++			memcpy(skb->data, sd->skb->data, len);
++			pci_dma_sync_single_for_device(adap->pdev,
++						       pci_unmap_addr(sd,
++								      dma_addr),
++						       len, PCI_DMA_FROMDEVICE);
++		} else if (!drop_thres)
++			goto use_orig_buf;
++	      recycle:
++		recycle_rx_buf(adap, fl, fl->cidx);
++		return skb;
++	}
++
++	if (unlikely(fl->credits < drop_thres))
++		goto recycle;
++
++      use_orig_buf:
++	pci_unmap_single(adap->pdev, pci_unmap_addr(sd, dma_addr),
++			 fl->buf_size, PCI_DMA_FROMDEVICE);
++	skb = sd->skb;
++	skb_put(skb, len);
++	__refill_fl(adap, fl);
++	return skb;
++}
++
++/**
++ *	get_imm_packet - return the next ingress packet buffer from a response
++ *	@resp: the response descriptor containing the packet data
++ *
++ *	Return a packet containing the immediate data of the given response.
++ */
++static inline struct sk_buff *get_imm_packet(const struct rsp_desc *resp)
++{
++	struct sk_buff *skb = alloc_skb(IMMED_PKT_SIZE, GFP_ATOMIC);
++
++	if (skb) {
++		__skb_put(skb, IMMED_PKT_SIZE);
++		memcpy(skb->data, resp->imm_data, IMMED_PKT_SIZE);
++	}
++	return skb;
++}
++
++/**
++ *	calc_tx_descs - calculate the number of Tx descriptors for a packet
++ *	@skb: the packet
++ *
++ * 	Returns the number of Tx descriptors needed for the given Ethernet
++ * 	packet.  Ethernet packets require addition of WR and CPL headers.
++ */
++static inline unsigned int calc_tx_descs(const struct sk_buff *skb)
++{
++	unsigned int flits;
++
++	if (skb->len <= WR_LEN - sizeof(struct cpl_tx_pkt))
++		return 1;
++
++	flits = sgl_len(skb_shinfo(skb)->nr_frags + 1) + 2;
++	if (skb_shinfo(skb)->gso_size)
++		flits++;
++	return flits_to_desc(flits);
++}
++
++/**
++ *	make_sgl - populate a scatter/gather list for a packet
++ *	@skb: the packet
++ *	@sgp: the SGL to populate
++ *	@start: start address of skb main body data to include in the SGL
++ *	@len: length of skb main body data to include in the SGL
++ *	@pdev: the PCI device
++ *
++ *	Generates a scatter/gather list for the buffers that make up a packet
++ *	and returns the SGL size in 8-byte words.  The caller must size the SGL
++ *	appropriately.
++ */
++static inline unsigned int make_sgl(const struct sk_buff *skb,
++				    struct sg_ent *sgp, unsigned char *start,
++				    unsigned int len, struct pci_dev *pdev)
++{
++	dma_addr_t mapping;
++	unsigned int i, j = 0, nfrags;
++
++	if (len) {
++		mapping = pci_map_single(pdev, start, len, PCI_DMA_TODEVICE);
++		sgp->len[0] = cpu_to_be32(len);
++		sgp->addr[0] = cpu_to_be64(mapping);
++		j = 1;
++	}
++
++	nfrags = skb_shinfo(skb)->nr_frags;
++	for (i = 0; i < nfrags; i++) {
++		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
++
++		mapping = pci_map_page(pdev, frag->page, frag->page_offset,
++				       frag->size, PCI_DMA_TODEVICE);
++		sgp->len[j] = cpu_to_be32(frag->size);
++		sgp->addr[j] = cpu_to_be64(mapping);
++		j ^= 1;
++		if (j == 0)
++			++sgp;
++	}
++	if (j)
++		sgp->len[j] = 0;
++	return ((nfrags + (len != 0)) * 3) / 2 + j;
++}
++
++/**
++ *	check_ring_tx_db - check and potentially ring a Tx queue's doorbell
++ *	@adap: the adapter
++ *	@q: the Tx queue
++ *
++ *	Ring the doorbel if a Tx queue is asleep.  There is a natural race,
++ *	where the HW is going to sleep just after we checked, however,
++ *	then the interrupt handler will detect the outstanding TX packet
++ *	and ring the doorbell for us.
++ *
++ *	When GTS is disabled we unconditionally ring the doorbell.
++ */
++static inline void check_ring_tx_db(struct adapter *adap, struct sge_txq *q)
++{
++#if USE_GTS
++	clear_bit(TXQ_LAST_PKT_DB, &q->flags);
++	if (test_and_set_bit(TXQ_RUNNING, &q->flags) == 0) {
++		set_bit(TXQ_LAST_PKT_DB, &q->flags);
++		t3_write_reg(adap, A_SG_KDOORBELL,
++			     F_SELEGRCNTX | V_EGRCNTX(q->cntxt_id));
++	}
++#else
++	wmb();			/* write descriptors before telling HW */
++	t3_write_reg(adap, A_SG_KDOORBELL,
++		     F_SELEGRCNTX | V_EGRCNTX(q->cntxt_id));
++#endif
++}
++
++static inline void wr_gen2(struct tx_desc *d, unsigned int gen)
++{
++#if SGE_NUM_GENBITS == 2
++	d->flit[TX_DESC_FLITS - 1] = cpu_to_be64(gen);
++#endif
++}
++
++/**
++ *	write_wr_hdr_sgl - write a WR header and, optionally, SGL
++ *	@ndesc: number of Tx descriptors spanned by the SGL
++ *	@skb: the packet corresponding to the WR
++ *	@d: first Tx descriptor to be written
++ *	@pidx: index of above descriptors
++ *	@q: the SGE Tx queue
++ *	@sgl: the SGL
++ *	@flits: number of flits to the start of the SGL in the first descriptor
++ *	@sgl_flits: the SGL size in flits
++ *	@gen: the Tx descriptor generation
++ *	@wr_hi: top 32 bits of WR header based on WR type (big endian)
++ *	@wr_lo: low 32 bits of WR header based on WR type (big endian)
++ *
++ *	Write a work request header and an associated SGL.  If the SGL is
++ *	small enough to fit into one Tx descriptor it has already been written
++ *	and we just need to write the WR header.  Otherwise we distribute the
++ *	SGL across the number of descriptors it spans.
++ */
++static void write_wr_hdr_sgl(unsigned int ndesc, struct sk_buff *skb,
++			     struct tx_desc *d, unsigned int pidx,
++			     const struct sge_txq *q,
++			     const struct sg_ent *sgl,
++			     unsigned int flits, unsigned int sgl_flits,
++			     unsigned int gen, unsigned int wr_hi,
++			     unsigned int wr_lo)
++{
++	struct work_request_hdr *wrp = (struct work_request_hdr *)d;
++	struct tx_sw_desc *sd = &q->sdesc[pidx];
++
++	sd->skb = skb;
++	if (need_skb_unmap()) {
++		struct unmap_info *ui = (struct unmap_info *)skb->cb;
++
++		ui->fragidx = 0;
++		ui->addr_idx = 0;
++		ui->sflit = flits;
++	}
++
++	if (likely(ndesc == 1)) {
++		skb->priority = pidx;
++		wrp->wr_hi = htonl(F_WR_SOP | F_WR_EOP | V_WR_DATATYPE(1) |
++				   V_WR_SGLSFLT(flits)) | wr_hi;
++		wmb();
++		wrp->wr_lo = htonl(V_WR_LEN(flits + sgl_flits) |
++				   V_WR_GEN(gen)) | wr_lo;
++		wr_gen2(d, gen);
++	} else {
++		unsigned int ogen = gen;
++		const u64 *fp = (const u64 *)sgl;
++		struct work_request_hdr *wp = wrp;
++
++		wrp->wr_hi = htonl(F_WR_SOP | V_WR_DATATYPE(1) |
++				   V_WR_SGLSFLT(flits)) | wr_hi;
++
++		while (sgl_flits) {
++			unsigned int avail = WR_FLITS - flits;
++
++			if (avail > sgl_flits)
++				avail = sgl_flits;
++			memcpy(&d->flit[flits], fp, avail * sizeof(*fp));
++			sgl_flits -= avail;
++			ndesc--;
++			if (!sgl_flits)
++				break;
++
++			fp += avail;
++			d++;
++			sd++;
++			if (++pidx == q->size) {
++				pidx = 0;
++				gen ^= 1;
++				d = q->desc;
++				sd = q->sdesc;
++			}
++
++			sd->skb = skb;
++			wrp = (struct work_request_hdr *)d;
++			wrp->wr_hi = htonl(V_WR_DATATYPE(1) |
++					   V_WR_SGLSFLT(1)) | wr_hi;
++			wrp->wr_lo = htonl(V_WR_LEN(min(WR_FLITS,
++							sgl_flits + 1)) |
++					   V_WR_GEN(gen)) | wr_lo;
++			wr_gen2(d, gen);
++			flits = 1;
++		}
++		skb->priority = pidx;
++		wrp->wr_hi |= htonl(F_WR_EOP);
++		wmb();
++		wp->wr_lo = htonl(V_WR_LEN(WR_FLITS) | V_WR_GEN(ogen)) | wr_lo;
++		wr_gen2((struct tx_desc *)wp, ogen);
++		WARN_ON(ndesc != 0);
++	}
++}
++
++/**
++ *	write_tx_pkt_wr - write a TX_PKT work request
++ *	@adap: the adapter
++ *	@skb: the packet to send
++ *	@pi: the egress interface
++ *	@pidx: index of the first Tx descriptor to write
++ *	@gen: the generation value to use
++ *	@q: the Tx queue
++ *	@ndesc: number of descriptors the packet will occupy
++ *	@compl: the value of the COMPL bit to use
++ *
++ *	Generate a TX_PKT work request to send the supplied packet.
++ */
++static void write_tx_pkt_wr(struct adapter *adap, struct sk_buff *skb,
++			    const struct port_info *pi,
++			    unsigned int pidx, unsigned int gen,
++			    struct sge_txq *q, unsigned int ndesc,
++			    unsigned int compl)
++{
++	unsigned int flits, sgl_flits, cntrl, tso_info;
++	struct sg_ent *sgp, sgl[MAX_SKB_FRAGS / 2 + 1];
++	struct tx_desc *d = &q->desc[pidx];
++	struct cpl_tx_pkt *cpl = (struct cpl_tx_pkt *)d;
++
++	cpl->len = htonl(skb->len | 0x80000000);
++	cntrl = V_TXPKT_INTF(pi->port_id);
++
++	if (vlan_tx_tag_present(skb) && pi->vlan_grp)
++		cntrl |= F_TXPKT_VLAN_VLD | V_TXPKT_VLAN(vlan_tx_tag_get(skb));
++
++	tso_info = V_LSO_MSS(skb_shinfo(skb)->gso_size);
++	if (tso_info) {
++		int eth_type;
++		struct cpl_tx_pkt_lso *hdr = (struct cpl_tx_pkt_lso *)cpl;
++
++		d->flit[2] = 0;
++		cntrl |= V_TXPKT_OPCODE(CPL_TX_PKT_LSO);
++		hdr->cntrl = htonl(cntrl);
++		eth_type = skb->nh.raw - skb->data == ETH_HLEN ?
++		    CPL_ETH_II : CPL_ETH_II_VLAN;
++		tso_info |= V_LSO_ETH_TYPE(eth_type) |
++		    V_LSO_IPHDR_WORDS(skb->nh.iph->ihl) |
++		    V_LSO_TCPHDR_WORDS(skb->h.th->doff);
++		hdr->lso_info = htonl(tso_info);
++		flits = 3;
++	} else {
++		cntrl |= V_TXPKT_OPCODE(CPL_TX_PKT);
++		cntrl |= F_TXPKT_IPCSUM_DIS;	/* SW calculates IP csum */
++		cntrl |= V_TXPKT_L4CSUM_DIS(skb->ip_summed != CHECKSUM_PARTIAL);
++		cpl->cntrl = htonl(cntrl);
++
++		if (skb->len <= WR_LEN - sizeof(*cpl)) {
++			q->sdesc[pidx].skb = NULL;
++			if (!skb->data_len)
++				memcpy(&d->flit[2], skb->data, skb->len);
++			else
++				skb_copy_bits(skb, 0, &d->flit[2], skb->len);
++
++			flits = (skb->len + 7) / 8 + 2;
++			cpl->wr.wr_hi = htonl(V_WR_BCNTLFLT(skb->len & 7) |
++					      V_WR_OP(FW_WROPCODE_TUNNEL_TX_PKT)
++					      | F_WR_SOP | F_WR_EOP | compl);
++			wmb();
++			cpl->wr.wr_lo = htonl(V_WR_LEN(flits) | V_WR_GEN(gen) |
++					      V_WR_TID(q->token));
++			wr_gen2(d, gen);
++			kfree_skb(skb);
++			return;
++		}
++
++		flits = 2;
++	}
++
++	sgp = ndesc == 1 ? (struct sg_ent *)&d->flit[flits] : sgl;
++	sgl_flits = make_sgl(skb, sgp, skb->data, skb_headlen(skb), adap->pdev);
++	if (need_skb_unmap())
++		((struct unmap_info *)skb->cb)->len = skb_headlen(skb);
++
++	write_wr_hdr_sgl(ndesc, skb, d, pidx, q, sgl, flits, sgl_flits, gen,
++			 htonl(V_WR_OP(FW_WROPCODE_TUNNEL_TX_PKT) | compl),
++			 htonl(V_WR_TID(q->token)));
++}
++
++/**
++ *	eth_xmit - add a packet to the Ethernet Tx queue
++ *	@skb: the packet
++ *	@dev: the egress net device
++ *
++ *	Add a packet to an SGE Tx queue.  Runs with softirqs disabled.
++ */
++int t3_eth_xmit(struct sk_buff *skb, struct net_device *dev)
++{
++	unsigned int ndesc, pidx, credits, gen, compl;
++	const struct port_info *pi = netdev_priv(dev);
++	struct adapter *adap = dev->priv;
++	struct sge_qset *qs = dev2qset(dev);
++	struct sge_txq *q = &qs->txq[TXQ_ETH];
++
++	/*
++	 * The chip min packet length is 9 octets but play safe and reject
++	 * anything shorter than an Ethernet header.
++	 */
++	if (unlikely(skb->len < ETH_HLEN)) {
++		dev_kfree_skb(skb);
++		return NETDEV_TX_OK;
++	}
++
++	spin_lock(&q->lock);
++	reclaim_completed_tx(adap, q);
++
++	credits = q->size - q->in_use;
++	ndesc = calc_tx_descs(skb);
++
++	if (unlikely(credits < ndesc)) {
++		if (!netif_queue_stopped(dev)) {
++			netif_stop_queue(dev);
++			set_bit(TXQ_ETH, &qs->txq_stopped);
++			q->stops++;
++			dev_err(&adap->pdev->dev,
++				"%s: Tx ring %u full while queue awake!\n",
++				dev->name, q->cntxt_id & 7);
++		}
++		spin_unlock(&q->lock);
++		return NETDEV_TX_BUSY;
++	}
++
++	q->in_use += ndesc;
++	if (unlikely(credits - ndesc < q->stop_thres)) {
++		q->stops++;
++		netif_stop_queue(dev);
++		set_bit(TXQ_ETH, &qs->txq_stopped);
++#if !USE_GTS
++		if (should_restart_tx(q) &&
++		    test_and_clear_bit(TXQ_ETH, &qs->txq_stopped)) {
++			q->restarts++;
++			netif_wake_queue(dev);
++		}
++#endif
++	}
++
++	gen = q->gen;
++	q->unacked += ndesc;
++	compl = (q->unacked & 8) << (S_WR_COMPL - 3);
++	q->unacked &= 7;
++	pidx = q->pidx;
++	q->pidx += ndesc;
++	if (q->pidx >= q->size) {
++		q->pidx -= q->size;
++		q->gen ^= 1;
++	}
++
++	/* update port statistics */
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		qs->port_stats[SGE_PSTAT_TX_CSUM]++;
++	if (skb_shinfo(skb)->gso_size)
++		qs->port_stats[SGE_PSTAT_TSO]++;
++	if (vlan_tx_tag_present(skb) && pi->vlan_grp)
++		qs->port_stats[SGE_PSTAT_VLANINS]++;
++
++	dev->trans_start = jiffies;
++	spin_unlock(&q->lock);
++
++	/*
++	 * We do not use Tx completion interrupts to free DMAd Tx packets.
++	 * This is good for performamce but means that we rely on new Tx
++	 * packets arriving to run the destructors of completed packets,
++	 * which open up space in their sockets' send queues.  Sometimes
++	 * we do not get such new packets causing Tx to stall.  A single
++	 * UDP transmitter is a good example of this situation.  We have
++	 * a clean up timer that periodically reclaims completed packets
++	 * but it doesn't run often enough (nor do we want it to) to prevent
++	 * lengthy stalls.  A solution to this problem is to run the
++	 * destructor early, after the packet is queued but before it's DMAd.
++	 * A cons is that we lie to socket memory accounting, but the amount
++	 * of extra memory is reasonable (limited by the number of Tx
++	 * descriptors), the packets do actually get freed quickly by new
++	 * packets almost always, and for protocols like TCP that wait for
++	 * acks to really free up the data the extra memory is even less.
++	 * On the positive side we run the destructors on the sending CPU
++	 * rather than on a potentially different completing CPU, usually a
++	 * good thing.  We also run them without holding our Tx queue lock,
++	 * unlike what reclaim_completed_tx() would otherwise do.
++	 *
++	 * Run the destructor before telling the DMA engine about the packet
++	 * to make sure it doesn't complete and get freed prematurely.
++	 */
++	if (likely(!skb_shared(skb)))
++		skb_orphan(skb);
++
++	write_tx_pkt_wr(adap, skb, pi, pidx, gen, q, ndesc, compl);
++	check_ring_tx_db(adap, q);
++	return NETDEV_TX_OK;
++}
++
++/**
++ *	write_imm - write a packet into a Tx descriptor as immediate data
++ *	@d: the Tx descriptor to write
++ *	@skb: the packet
++ *	@len: the length of packet data to write as immediate data
++ *	@gen: the generation bit value to write
++ *
++ *	Writes a packet as immediate data into a Tx descriptor.  The packet
++ *	contains a work request at its beginning.  We must write the packet
++ *	carefully so the SGE doesn't read accidentally before it's written in
++ *	its entirety.
++ */
++static inline void write_imm(struct tx_desc *d, struct sk_buff *skb,
++			     unsigned int len, unsigned int gen)
++{
++	struct work_request_hdr *from = (struct work_request_hdr *)skb->data;
++	struct work_request_hdr *to = (struct work_request_hdr *)d;
++
++	memcpy(&to[1], &from[1], len - sizeof(*from));
++	to->wr_hi = from->wr_hi | htonl(F_WR_SOP | F_WR_EOP |
++					V_WR_BCNTLFLT(len & 7));
++	wmb();
++	to->wr_lo = from->wr_lo | htonl(V_WR_GEN(gen) |
++					V_WR_LEN((len + 7) / 8));
++	wr_gen2(d, gen);
++	kfree_skb(skb);
++}
++
++/**
++ *	check_desc_avail - check descriptor availability on a send queue
++ *	@adap: the adapter
++ *	@q: the send queue
++ *	@skb: the packet needing the descriptors
++ *	@ndesc: the number of Tx descriptors needed
++ *	@qid: the Tx queue number in its queue set (TXQ_OFLD or TXQ_CTRL)
++ *
++ *	Checks if the requested number of Tx descriptors is available on an
++ *	SGE send queue.  If the queue is already suspended or not enough
++ *	descriptors are available the packet is queued for later transmission.
++ *	Must be called with the Tx queue locked.
++ *
++ *	Returns 0 if enough descriptors are available, 1 if there aren't
++ *	enough descriptors and the packet has been queued, and 2 if the caller
++ *	needs to retry because there weren't enough descriptors at the
++ *	beginning of the call but some freed up in the mean time.
++ */
++static inline int check_desc_avail(struct adapter *adap, struct sge_txq *q,
++				   struct sk_buff *skb, unsigned int ndesc,
++				   unsigned int qid)
++{
++	if (unlikely(!skb_queue_empty(&q->sendq))) {
++	      addq_exit:__skb_queue_tail(&q->sendq, skb);
++		return 1;
++	}
++	if (unlikely(q->size - q->in_use < ndesc)) {
++		struct sge_qset *qs = txq_to_qset(q, qid);
++
++		set_bit(qid, &qs->txq_stopped);
++		smp_mb__after_clear_bit();
++
++		if (should_restart_tx(q) &&
++		    test_and_clear_bit(qid, &qs->txq_stopped))
++			return 2;
++
++		q->stops++;
++		goto addq_exit;
++	}
++	return 0;
++}
++
++/**
++ *	reclaim_completed_tx_imm - reclaim completed control-queue Tx descs
++ *	@q: the SGE control Tx queue
++ *
++ *	This is a variant of reclaim_completed_tx() that is used for Tx queues
++ *	that send only immediate data (presently just the control queues) and
++ *	thus do not have any sk_buffs to release.
++ */
++static inline void reclaim_completed_tx_imm(struct sge_txq *q)
++{
++	unsigned int reclaim = q->processed - q->cleaned;
++
++	q->in_use -= reclaim;
++	q->cleaned += reclaim;
++}
++
++static inline int immediate(const struct sk_buff *skb)
++{
++	return skb->len <= WR_LEN && !skb->data_len;
++}
++
++/**
++ *	ctrl_xmit - send a packet through an SGE control Tx queue
++ *	@adap: the adapter
++ *	@q: the control queue
++ *	@skb: the packet
++ *
++ *	Send a packet through an SGE control Tx queue.  Packets sent through
++ *	a control queue must fit entirely as immediate data in a single Tx
++ *	descriptor and have no page fragments.
++ */
++static int ctrl_xmit(struct adapter *adap, struct sge_txq *q,
++		     struct sk_buff *skb)
++{
++	int ret;
++	struct work_request_hdr *wrp = (struct work_request_hdr *)skb->data;
++
++	if (unlikely(!immediate(skb))) {
++		WARN_ON(1);
++		dev_kfree_skb(skb);
++		return NET_XMIT_SUCCESS;
++	}
++
++	wrp->wr_hi |= htonl(F_WR_SOP | F_WR_EOP);
++	wrp->wr_lo = htonl(V_WR_TID(q->token));
++
++	spin_lock(&q->lock);
++      again:reclaim_completed_tx_imm(q);
++
++	ret = check_desc_avail(adap, q, skb, 1, TXQ_CTRL);
++	if (unlikely(ret)) {
++		if (ret == 1) {
++			spin_unlock(&q->lock);
++			return NET_XMIT_CN;
++		}
++		goto again;
++	}
++
++	write_imm(&q->desc[q->pidx], skb, skb->len, q->gen);
++
++	q->in_use++;
++	if (++q->pidx >= q->size) {
++		q->pidx = 0;
++		q->gen ^= 1;
++	}
++	spin_unlock(&q->lock);
++	wmb();
++	t3_write_reg(adap, A_SG_KDOORBELL,
++		     F_SELEGRCNTX | V_EGRCNTX(q->cntxt_id));
++	return NET_XMIT_SUCCESS;
++}
++
++/**
++ *	restart_ctrlq - restart a suspended control queue
++ *	@qs: the queue set cotaining the control queue
++ *
++ *	Resumes transmission on a suspended Tx control queue.
++ */
++static void restart_ctrlq(unsigned long data)
++{
++	struct sk_buff *skb;
++	struct sge_qset *qs = (struct sge_qset *)data;
++	struct sge_txq *q = &qs->txq[TXQ_CTRL];
++	struct adapter *adap = qs->netdev->priv;
++
++	spin_lock(&q->lock);
++      again:reclaim_completed_tx_imm(q);
++
++	while (q->in_use < q->size && (skb = __skb_dequeue(&q->sendq)) != NULL) {
++
++		write_imm(&q->desc[q->pidx], skb, skb->len, q->gen);
++
++		if (++q->pidx >= q->size) {
++			q->pidx = 0;
++			q->gen ^= 1;
++		}
++		q->in_use++;
++	}
++
++	if (!skb_queue_empty(&q->sendq)) {
++		set_bit(TXQ_CTRL, &qs->txq_stopped);
++		smp_mb__after_clear_bit();
++
++		if (should_restart_tx(q) &&
++		    test_and_clear_bit(TXQ_CTRL, &qs->txq_stopped))
++			goto again;
++		q->stops++;
++	}
++
++	spin_unlock(&q->lock);
++	t3_write_reg(adap, A_SG_KDOORBELL,
++		     F_SELEGRCNTX | V_EGRCNTX(q->cntxt_id));
++}
++
++/**
++ *	write_ofld_wr - write an offload work request
++ *	@adap: the adapter
++ *	@skb: the packet to send
++ *	@q: the Tx queue
++ *	@pidx: index of the first Tx descriptor to write
++ *	@gen: the generation value to use
++ *	@ndesc: number of descriptors the packet will occupy
++ *
++ *	Write an offload work request to send the supplied packet.  The packet
++ *	data already carry the work request with most fields populated.
++ */
++static void write_ofld_wr(struct adapter *adap, struct sk_buff *skb,
++			  struct sge_txq *q, unsigned int pidx,
++			  unsigned int gen, unsigned int ndesc)
++{
++	unsigned int sgl_flits, flits;
++	struct work_request_hdr *from;
++	struct sg_ent *sgp, sgl[MAX_SKB_FRAGS / 2 + 1];
++	struct tx_desc *d = &q->desc[pidx];
++
++	if (immediate(skb)) {
++		q->sdesc[pidx].skb = NULL;
++		write_imm(d, skb, skb->len, gen);
 +		return;
 +	}
 +
-+	pci_mode = t3_read_reg(adapter, A_PCIX_MODE);
-+	p->speed = speed_map[G_PCLKRANGE(pci_mode)];
-+	p->width = (pci_mode & F_64BIT) ? 64 : 32;
-+	pci_mode = G_PCIXINITPAT(pci_mode);
-+	if (pci_mode == 0)
-+		p->variant = PCI_VARIANT_PCI;
-+	else if (pci_mode < 4)
-+		p->variant = PCI_VARIANT_PCIX_MODE1_PARITY;
-+	else if (pci_mode < 8)
-+		p->variant = PCI_VARIANT_PCIX_MODE1_ECC;
-+	else
-+		p->variant = PCI_VARIANT_PCIX_266_MODE2;
++	/* Only TX_DATA builds SGLs */
++
++	from = (struct work_request_hdr *)skb->data;
++	memcpy(&d->flit[1], &from[1], skb->h.raw - skb->data - sizeof(*from));
++
++	flits = (skb->h.raw - skb->data) / 8;
++	sgp = ndesc == 1 ? (struct sg_ent *)&d->flit[flits] : sgl;
++	sgl_flits = make_sgl(skb, sgp, skb->h.raw, skb->tail - skb->h.raw,
++			     adap->pdev);
++	if (need_skb_unmap())
++		((struct unmap_info *)skb->cb)->len = skb->tail - skb->h.raw;
++
++	write_wr_hdr_sgl(ndesc, skb, d, pidx, q, sgl, flits, sgl_flits,
++			 gen, from->wr_hi, from->wr_lo);
 +}
 +
 +/**
-+ *	init_link_config - initialize a link's SW state
-+ *	@lc: structure holding the link state
-+ *	@ai: information about the current card
++ *	calc_tx_descs_ofld - calculate # of Tx descriptors for an offload packet
++ *	@skb: the packet
 + *
-+ *	Initializes the SW state maintained for each link, including the link's
-+ *	capabilities and default speed/duplex/flow-control/autonegotiation
-+ *	settings.
++ * 	Returns the number of Tx descriptors needed for the given offload
++ * 	packet.  These packets are already fully constructed.
 + */
-+static void __devinit init_link_config(struct link_config *lc,
-+				       unsigned int caps)
++static inline unsigned int calc_tx_descs_ofld(const struct sk_buff *skb)
 +{
-+	lc->supported = caps;
-+	lc->requested_speed = lc->speed = SPEED_INVALID;
-+	lc->requested_duplex = lc->duplex = DUPLEX_INVALID;
-+	lc->requested_fc = lc->fc = PAUSE_RX | PAUSE_TX;
-+	if (lc->supported & SUPPORTED_Autoneg) {
-+		lc->advertising = lc->supported;
-+		lc->autoneg = AUTONEG_ENABLE;
-+		lc->requested_fc |= PAUSE_AUTONEG;
-+	} else {
-+		lc->advertising = 0;
-+		lc->autoneg = AUTONEG_DISABLE;
-+	}
++	unsigned int flits, cnt = skb_shinfo(skb)->nr_frags;
++
++	if (skb->len <= WR_LEN && cnt == 0)
++		return 1;	/* packet fits as immediate data */
++
++	flits = (skb->h.raw - skb->data) / 8;	/* headers */
++	if (skb->tail != skb->h.raw)
++		cnt++;
++	return flits_to_desc(flits + sgl_len(cnt));
 +}
 +
 +/**
-+ *	mc7_calc_size - calculate MC7 memory size
-+ *	@cfg: the MC7 configuration
++ *	ofld_xmit - send a packet through an offload queue
++ *	@adap: the adapter
++ *	@q: the Tx offload queue
++ *	@skb: the packet
 + *
-+ *	Calculates the size of an MC7 memory in bytes from the value of its
-+ *	configuration register.
++ *	Send an offload packet through an SGE offload queue.
 + */
-+static unsigned int __devinit mc7_calc_size(u32 cfg)
-+{
-+	unsigned int width = G_WIDTH(cfg);
-+	unsigned int banks = !!(cfg & F_BKS) + 1;
-+	unsigned int org = !!(cfg & F_ORG) + 1;
-+	unsigned int density = G_DEN(cfg);
-+	unsigned int MBs = ((256 << density) * banks) / (org << width);
-+
-+	return MBs << 20;
-+}
-+
-+static void __devinit mc7_prep(struct adapter *adapter, struct mc7 *mc7,
-+			       unsigned int base_addr, const char *name)
-+{
-+	u32 cfg;
-+
-+	mc7->adapter = adapter;
-+	mc7->name = name;
-+	mc7->offset = base_addr - MC7_PMRX_BASE_ADDR;
-+	cfg = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);
-+	mc7->size = mc7_calc_size(cfg);
-+	mc7->width = G_WIDTH(cfg);
-+}
-+
-+void mac_prep(struct cmac *mac, struct adapter *adapter, int index)
-+{
-+	mac->adapter = adapter;
-+	mac->offset = (XGMAC0_1_BASE_ADDR - XGMAC0_0_BASE_ADDR) * index;
-+	mac->nucast = 1;
-+
-+	if (adapter->params.rev == 0 && uses_xaui(adapter)) {
-+		t3_write_reg(adapter, A_XGM_SERDES_CTRL + mac->offset,
-+			     is_10G(adapter) ? 0x2901c04 : 0x2301c04);
-+		t3_set_reg_field(adapter, A_XGM_PORT_CFG + mac->offset,
-+				 F_ENRGMII, 0);
-+	}
-+}
-+
-+void early_hw_init(struct adapter *adapter, const struct adapter_info *ai)
-+{
-+	u32 val = V_PORTSPEED(is_10G(adapter) ? 3 : 2);
-+
-+	mi1_init(adapter, ai);
-+	t3_write_reg(adapter, A_I2C_CFG,	/* set for 80KHz */
-+		     V_I2C_CLKDIV(adapter->params.vpd.cclk / 80 - 1));
-+	t3_write_reg(adapter, A_T3DBG_GPIO_EN,
-+		     ai->gpio_out | F_GPIO0_OEN | F_GPIO0_OUT_VAL);
-+
-+	if (adapter->params.rev == 0 || !uses_xaui(adapter))
-+		val |= F_ENRGMII;
-+
-+	/* Enable MAC clocks so we can access the registers */
-+	t3_write_reg(adapter, A_XGM_PORT_CFG, val);
-+	t3_read_reg(adapter, A_XGM_PORT_CFG);
-+
-+	val |= F_CLKDIVRESET_;
-+	t3_write_reg(adapter, A_XGM_PORT_CFG, val);
-+	t3_read_reg(adapter, A_XGM_PORT_CFG);
-+	t3_write_reg(adapter, XGM_REG(A_XGM_PORT_CFG, 1), val);
-+	t3_read_reg(adapter, A_XGM_PORT_CFG);
-+}
-+
-+/*
-+ * Reset the adapter.  PCIe cards lose their config space during reset, PCI-X
-+ * ones don't.
-+ */
-+int t3_reset_adapter(struct adapter *adapter)
-+{
-+	int i;
-+	uint16_t devid = 0;
-+
-+	if (is_pcie(adapter))
-+		pci_save_state(adapter->pdev);
-+	t3_write_reg(adapter, A_PL_RST, F_CRSTWRM | F_CRSTWRMMODE);
-+
-+	/*
-+	 * Delay. Give Some time to device to reset fully.
-+	 * XXX The delay time should be modified.
-+	 */
-+	for (i = 0; i < 10; i++) {
-+		msleep(50);
-+		pci_read_config_word(adapter->pdev, 0x00, &devid);
-+		if (devid == 0x1425)
-+			break;
-+	}
-+
-+	if (devid != 0x1425)
-+		return -1;
-+
-+	if (is_pcie(adapter))
-+		pci_restore_state(adapter->pdev);
-+	return 0;
-+}
-+
-+/*
-+ * Initialize adapter SW state for the various HW modules, set initial values
-+ * for some adapter tunables, take PHYs out of reset, and initialize the MDIO
-+ * interface.
-+ */
-+int __devinit t3_prep_adapter(struct adapter *adapter,
-+			      const struct adapter_info *ai, int reset)
++static int ofld_xmit(struct adapter *adap, struct sge_txq *q,
++		     struct sk_buff *skb)
 +{
 +	int ret;
-+	unsigned int i, j = 0;
++	unsigned int ndesc = calc_tx_descs_ofld(skb), pidx, gen;
 +
-+	get_pci_mode(adapter, &adapter->params.pci);
++	spin_lock(&q->lock);
++      again:reclaim_completed_tx(adap, q);
 +
-+	adapter->params.info = ai;
-+	adapter->params.nports = ai->nports;
-+	adapter->params.rev = t3_read_reg(adapter, A_PL_REV);
-+	adapter->params.linkpoll_period = 0;
-+	adapter->params.stats_update_period = is_10G(adapter) ?
-+	    MAC_STATS_ACCUM_SECS : (MAC_STATS_ACCUM_SECS * 10);
-+	adapter->params.pci.vpd_cap_addr =
-+	    pci_find_capability(adapter->pdev, PCI_CAP_ID_VPD);
-+	ret = get_vpd_params(adapter, &adapter->params.vpd);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (reset && t3_reset_adapter(adapter))
-+		return -1;
-+
-+	t3_sge_prep(adapter, &adapter->params.sge);
-+
-+	if (adapter->params.vpd.mclk) {
-+		struct tp_params *p = &adapter->params.tp;
-+
-+		mc7_prep(adapter, &adapter->pmrx, MC7_PMRX_BASE_ADDR, "PMRX");
-+		mc7_prep(adapter, &adapter->pmtx, MC7_PMTX_BASE_ADDR, "PMTX");
-+		mc7_prep(adapter, &adapter->cm, MC7_CM_BASE_ADDR, "CM");
-+
-+		p->nchan = ai->nports;
-+		p->pmrx_size = t3_mc7_size(&adapter->pmrx);
-+		p->pmtx_size = t3_mc7_size(&adapter->pmtx);
-+		p->cm_size = t3_mc7_size(&adapter->cm);
-+		p->chan_rx_size = p->pmrx_size / 2;	/* only 1 Rx channel */
-+		p->chan_tx_size = p->pmtx_size / p->nchan;
-+		p->rx_pg_size = 64 * 1024;
-+		p->tx_pg_size = is_10G(adapter) ? 64 * 1024 : 16 * 1024;
-+		p->rx_num_pgs = pm_num_pages(p->chan_rx_size, p->rx_pg_size);
-+		p->tx_num_pgs = pm_num_pages(p->chan_tx_size, p->tx_pg_size);
-+		p->ntimer_qs = p->cm_size >= (128 << 20) ||
-+		    adapter->params.rev > 0 ? 12 : 6;
-+
-+		adapter->params.mc5.nservers = DEFAULT_NSERVERS;
-+		adapter->params.mc5.nfilters = adapter->params.rev > 0 ?
-+		    DEFAULT_NFILTERS : 0;
-+		adapter->params.mc5.nroutes = 0;
-+		t3_mc5_prep(adapter, &adapter->mc5, MC5_MODE_144_BIT);
-+
-+		init_mtus(adapter->params.mtus);
-+		init_cong_ctrl(adapter->params.a_wnd, adapter->params.b_wnd);
++	ret = check_desc_avail(adap, q, skb, ndesc, TXQ_OFLD);
++	if (unlikely(ret)) {
++		if (ret == 1) {
++			skb->priority = ndesc;	/* save for restart */
++			spin_unlock(&q->lock);
++			return NET_XMIT_CN;
++		}
++		goto again;
 +	}
 +
-+	early_hw_init(adapter, ai);
++	gen = q->gen;
++	q->in_use += ndesc;
++	pidx = q->pidx;
++	q->pidx += ndesc;
++	if (q->pidx >= q->size) {
++		q->pidx -= q->size;
++		q->gen ^= 1;
++	}
++	spin_unlock(&q->lock);
 +
-+	for_each_port(adapter, i) {
-+		u8 hw_addr[6];
-+		struct port_info *p = adap2pinfo(adapter, i);
++	write_ofld_wr(adap, skb, q, pidx, gen, ndesc);
++	check_ring_tx_db(adap, q);
++	return NET_XMIT_SUCCESS;
++}
 +
-+		while (!adapter->params.vpd.port_type[j])
-+			++j;
++/**
++ *	restart_offloadq - restart a suspended offload queue
++ *	@qs: the queue set cotaining the offload queue
++ *
++ *	Resumes transmission on a suspended Tx offload queue.
++ */
++static void restart_offloadq(unsigned long data)
++{
++	struct sk_buff *skb;
++	struct sge_qset *qs = (struct sge_qset *)data;
++	struct sge_txq *q = &qs->txq[TXQ_OFLD];
++	struct adapter *adap = qs->netdev->priv;
 +
-+		p->port_type = &port_types[adapter->params.vpd.port_type[j]];
-+		p->port_type->phy_prep(&p->phy, adapter, ai->phy_base_addr + j,
-+				       ai->mdio_ops);
-+		mac_prep(&p->mac, adapter, j);
-+		++j;
++	spin_lock(&q->lock);
++      again:reclaim_completed_tx(adap, q);
 +
-+		/*
-+		 * The VPD EEPROM stores the base Ethernet address for the
-+		 * card.  A port's address is derived from the base by adding
-+		 * the port's index to the base's low octet.
-+		 */
-+		memcpy(hw_addr, adapter->params.vpd.eth_base, 5);
-+		hw_addr[5] = adapter->params.vpd.eth_base[5] + i;
++	while ((skb = skb_peek(&q->sendq)) != NULL) {
++		unsigned int gen, pidx;
++		unsigned int ndesc = skb->priority;
 +
-+		memcpy(adapter->port[i]->dev_addr, hw_addr,
-+		       ETH_ALEN);
-+		memcpy(adapter->port[i]->perm_addr, hw_addr,
-+		       ETH_ALEN);
-+		init_link_config(&p->link_config, p->port_type->caps);
-+		p->phy.ops->power_down(&p->phy, 1);
-+		if (!(p->port_type->caps & SUPPORTED_IRQ))
-+			adapter->params.linkpoll_period = 10;
++		if (unlikely(q->size - q->in_use < ndesc)) {
++			set_bit(TXQ_OFLD, &qs->txq_stopped);
++			smp_mb__after_clear_bit();
++
++			if (should_restart_tx(q) &&
++			    test_and_clear_bit(TXQ_OFLD, &qs->txq_stopped))
++				goto again;
++			q->stops++;
++			break;
++		}
++
++		gen = q->gen;
++		q->in_use += ndesc;
++		pidx = q->pidx;
++		q->pidx += ndesc;
++		if (q->pidx >= q->size) {
++			q->pidx -= q->size;
++			q->gen ^= 1;
++		}
++		__skb_unlink(skb, &q->sendq);
++		spin_unlock(&q->lock);
++
++		write_ofld_wr(adap, skb, q, pidx, gen, ndesc);
++		spin_lock(&q->lock);
++	}
++	spin_unlock(&q->lock);
++
++#if USE_GTS
++	set_bit(TXQ_RUNNING, &q->flags);
++	set_bit(TXQ_LAST_PKT_DB, &q->flags);
++#endif
++	t3_write_reg(adap, A_SG_KDOORBELL,
++		     F_SELEGRCNTX | V_EGRCNTX(q->cntxt_id));
++}
++
++/**
++ *	queue_set - return the queue set a packet should use
++ *	@skb: the packet
++ *
++ *	Maps a packet to the SGE queue set it should use.  The desired queue
++ *	set is carried in bits 1-3 in the packet's priority.
++ */
++static inline int queue_set(const struct sk_buff *skb)
++{
++	return skb->priority >> 1;
++}
++
++/**
++ *	is_ctrl_pkt - return whether an offload packet is a control packet
++ *	@skb: the packet
++ *
++ *	Determines whether an offload packet should use an OFLD or a CTRL
++ *	Tx queue.  This is indicated by bit 0 in the packet's priority.
++ */
++static inline int is_ctrl_pkt(const struct sk_buff *skb)
++{
++	return skb->priority & 1;
++}
++
++/**
++ *	t3_offload_tx - send an offload packet
++ *	@tdev: the offload device to send to
++ *	@skb: the packet
++ *
++ *	Sends an offload packet.  We use the packet priority to select the
++ *	appropriate Tx queue as follows: bit 0 indicates whether the packet
++ *	should be sent as regular or control, bits 1-3 select the queue set.
++ */
++int t3_offload_tx(struct t3cdev *tdev, struct sk_buff *skb)
++{
++	struct adapter *adap = tdev2adap(tdev);
++	struct sge_qset *qs = &adap->sge.qs[queue_set(skb)];
++
++	if (unlikely(is_ctrl_pkt(skb)))
++		return ctrl_xmit(adap, &qs->txq[TXQ_CTRL], skb);
++
++	return ofld_xmit(adap, &qs->txq[TXQ_OFLD], skb);
++}
++
++/**
++ *	offload_enqueue - add an offload packet to an SGE offload receive queue
++ *	@q: the SGE response queue
++ *	@skb: the packet
++ *
++ *	Add a new offload packet to an SGE response queue's offload packet
++ *	queue.  If the packet is the first on the queue it schedules the RX
++ *	softirq to process the queue.
++ */
++static inline void offload_enqueue(struct sge_rspq *q, struct sk_buff *skb)
++{
++	skb->next = skb->prev = NULL;
++	if (q->rx_tail)
++		q->rx_tail->next = skb;
++	else {
++		struct sge_qset *qs = rspq_to_qset(q);
++
++		if (__netif_rx_schedule_prep(qs->netdev))
++			__netif_rx_schedule(qs->netdev);
++		q->rx_head = skb;
++	}
++	q->rx_tail = skb;
++}
++
++/**
++ *	deliver_partial_bundle - deliver a (partial) bundle of Rx offload pkts
++ *	@tdev: the offload device that will be receiving the packets
++ *	@q: the SGE response queue that assembled the bundle
++ *	@skbs: the partial bundle
++ *	@n: the number of packets in the bundle
++ *
++ *	Delivers a (partial) bundle of Rx offload packets to an offload device.
++ */
++static inline void deliver_partial_bundle(struct t3cdev *tdev,
++					  struct sge_rspq *q,
++					  struct sk_buff *skbs[], int n)
++{
++	if (n) {
++		q->offload_bundles++;
++		tdev->recv(tdev, skbs, n);
++	}
++}
++
++/**
++ *	ofld_poll - NAPI handler for offload packets in interrupt mode
++ *	@dev: the network device doing the polling
++ *	@budget: polling budget
++ *
++ *	The NAPI handler for offload packets when a response queue is serviced
++ *	by the hard interrupt handler, i.e., when it's operating in non-polling
++ *	mode.  Creates small packet batches and sends them through the offload
++ *	receive handler.  Batches need to be of modest size as we do prefetches
++ *	on the packets in each.
++ */
++static int ofld_poll(struct net_device *dev, int *budget)
++{
++	struct adapter *adapter = dev->priv;
++	struct sge_qset *qs = dev2qset(dev);
++	struct sge_rspq *q = &qs->rspq;
++	int work_done, limit = min(*budget, dev->quota), avail = limit;
++
++	while (avail) {
++		struct sk_buff *head, *tail, *skbs[RX_BUNDLE_SIZE];
++		int ngathered;
++
++		spin_lock_irq(&q->lock);
++		head = q->rx_head;
++		if (!head) {
++			work_done = limit - avail;
++			*budget -= work_done;
++			dev->quota -= work_done;
++			__netif_rx_complete(dev);
++			spin_unlock_irq(&q->lock);
++			return 0;
++		}
++
++		tail = q->rx_tail;
++		q->rx_head = q->rx_tail = NULL;
++		spin_unlock_irq(&q->lock);
++
++		for (ngathered = 0; avail && head; avail--) {
++			prefetch(head->data);
++			skbs[ngathered] = head;
++			head = head->next;
++			skbs[ngathered]->next = NULL;
++			if (++ngathered == RX_BUNDLE_SIZE) {
++				q->offload_bundles++;
++				adapter->tdev.recv(&adapter->tdev, skbs,
++						   ngathered);
++				ngathered = 0;
++			}
++		}
++		if (head) {	/* splice remaining packets back onto Rx queue */
++			spin_lock_irq(&q->lock);
++			tail->next = q->rx_head;
++			if (!q->rx_head)
++				q->rx_tail = tail;
++			q->rx_head = head;
++			spin_unlock_irq(&q->lock);
++		}
++		deliver_partial_bundle(&adapter->tdev, q, skbs, ngathered);
++	}
++	work_done = limit - avail;
++	*budget -= work_done;
++	dev->quota -= work_done;
++	return 1;
++}
++
++/**
++ *	rx_offload - process a received offload packet
++ *	@tdev: the offload device receiving the packet
++ *	@rq: the response queue that received the packet
++ *	@skb: the packet
++ *	@rx_gather: a gather list of packets if we are building a bundle
++ *	@gather_idx: index of the next available slot in the bundle
++ *
++ *	Process an ingress offload pakcet and add it to the offload ingress
++ *	queue. 	Returns the index of the next available slot in the bundle.
++ */
++static inline int rx_offload(struct t3cdev *tdev, struct sge_rspq *rq,
++			     struct sk_buff *skb, struct sk_buff *rx_gather[],
++			     unsigned int gather_idx)
++{
++	rq->offload_pkts++;
++	skb->mac.raw = skb->nh.raw = skb->h.raw = skb->data;
++
++	if (rq->polling) {
++		rx_gather[gather_idx++] = skb;
++		if (gather_idx == RX_BUNDLE_SIZE) {
++			tdev->recv(tdev, rx_gather, RX_BUNDLE_SIZE);
++			gather_idx = 0;
++			rq->offload_bundles++;
++		}
++	} else
++		offload_enqueue(rq, skb);
++
++	return gather_idx;
++}
++
++/**
++ *	update_tx_completed - update the number of processed Tx descriptors
++ *	@qs: the queue set to update
++ *	@idx: which Tx queue within the set to update
++ *	@credits: number of new processed descriptors
++ *	@tx_completed: accumulates credits for the queues
++ *
++ *	Updates the number of completed Tx descriptors for a queue set's Tx
++ *	queue.  On UP systems we updated the information immediately but on
++ *	MP we accumulate the credits locally and update the Tx queue when we
++ *	reach a threshold to avoid cache-line bouncing.
++ */
++static inline void update_tx_completed(struct sge_qset *qs, int idx,
++				       unsigned int credits,
++				       unsigned int tx_completed[])
++{
++#ifdef CONFIG_SMP
++	tx_completed[idx] += credits;
++	if (tx_completed[idx] > 32) {
++		qs->txq[idx].processed += tx_completed[idx];
++		tx_completed[idx] = 0;
++	}
++#else
++	qs->txq[idx].processed += credits;
++#endif
++}
++
++/**
++ *	restart_tx - check whether to restart suspended Tx queues
++ *	@qs: the queue set to resume
++ *
++ *	Restarts suspended Tx queues of an SGE queue set if they have enough
++ *	free resources to resume operation.
++ */
++static void restart_tx(struct sge_qset *qs)
++{
++	if (test_bit(TXQ_ETH, &qs->txq_stopped) &&
++	    should_restart_tx(&qs->txq[TXQ_ETH]) &&
++	    test_and_clear_bit(TXQ_ETH, &qs->txq_stopped)) {
++		qs->txq[TXQ_ETH].restarts++;
++		if (netif_running(qs->netdev))
++			netif_wake_queue(qs->netdev);
 +	}
 +
++	if (test_bit(TXQ_OFLD, &qs->txq_stopped) &&
++	    should_restart_tx(&qs->txq[TXQ_OFLD]) &&
++	    test_and_clear_bit(TXQ_OFLD, &qs->txq_stopped)) {
++		qs->txq[TXQ_OFLD].restarts++;
++		tasklet_schedule(&qs->txq[TXQ_OFLD].qresume_tsk);
++	}
++	if (test_bit(TXQ_CTRL, &qs->txq_stopped) &&
++	    should_restart_tx(&qs->txq[TXQ_CTRL]) &&
++	    test_and_clear_bit(TXQ_CTRL, &qs->txq_stopped)) {
++		qs->txq[TXQ_CTRL].restarts++;
++		tasklet_schedule(&qs->txq[TXQ_CTRL].qresume_tsk);
++	}
++}
++
++/**
++ *	rx_eth - process an ingress ethernet packet
++ *	@adap: the adapter
++ *	@rq: the response queue that received the packet
++ *	@skb: the packet
++ *	@pad: amount of padding at the start of the buffer
++ *
++ *	Process an ingress ethernet pakcet and deliver it to the stack.
++ *	The padding is 2 if the packet was delivered in an Rx buffer and 0
++ *	if it was immediate data in a response.
++ */
++static void rx_eth(struct adapter *adap, struct sge_rspq *rq,
++		   struct sk_buff *skb, int pad)
++{
++	struct cpl_rx_pkt *p = (struct cpl_rx_pkt *)(skb->data + pad);
++	struct port_info *pi;
++
++	rq->eth_pkts++;
++	skb_pull(skb, sizeof(*p) + pad);
++	skb->dev = adap->port[p->iff];
++	skb->dev->last_rx = jiffies;
++	skb->protocol = eth_type_trans(skb, skb->dev);
++	pi = netdev_priv(skb->dev);
++	if (pi->rx_csum_offload && p->csum_valid && p->csum == 0xffff &&
++	    !p->fragment) {
++		rspq_to_qset(rq)->port_stats[SGE_PSTAT_RX_CSUM_GOOD]++;
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++	} else
++		skb->ip_summed = CHECKSUM_NONE;
++
++	if (unlikely(p->vlan_valid)) {
++		struct vlan_group *grp = pi->vlan_grp;
++
++		rspq_to_qset(rq)->port_stats[SGE_PSTAT_VLANEX]++;
++		if (likely(grp))
++			__vlan_hwaccel_rx(skb, grp, ntohs(p->vlan),
++					  rq->polling);
++		else
++			dev_kfree_skb_any(skb);
++	} else if (rq->polling)
++		netif_receive_skb(skb);
++	else
++		netif_rx(skb);
++}
++
++/**
++ *	handle_rsp_cntrl_info - handles control information in a response
++ *	@qs: the queue set corresponding to the response
++ *	@flags: the response control flags
++ *	@tx_completed: accumulates completion credits for the Tx queues
++ *
++ *	Handles the control information of an SGE response, such as GTS
++ *	indications and completion credits for the queue set's Tx queues.
++ */
++static inline void handle_rsp_cntrl_info(struct sge_qset *qs, u32 flags,
++					 unsigned int tx_completed[])
++{
++	unsigned int credits;
++
++#if USE_GTS
++	if (flags & F_RSPD_TXQ0_GTS)
++		clear_bit(TXQ_RUNNING, &qs->txq[TXQ_ETH].flags);
++#endif
++
++	/* ETH credits are already coalesced, return them immediately. */
++	credits = G_RSPD_TXQ0_CR(flags);
++	if (credits)
++		qs->txq[TXQ_ETH].processed += credits;
++
++# if USE_GTS
++	if (flags & F_RSPD_TXQ1_GTS)
++		clear_bit(TXQ_RUNNING, &qs->txq[TXQ_OFLD].flags);
++# endif
++	update_tx_completed(qs, TXQ_OFLD, G_RSPD_TXQ1_CR(flags), tx_completed);
++	update_tx_completed(qs, TXQ_CTRL, G_RSPD_TXQ2_CR(flags), tx_completed);
++}
++
++/**
++ *	flush_tx_completed - returns accumulated Tx completions to Tx queues
++ *	@qs: the queue set to update
++ *	@tx_completed: pending completion credits to return to Tx queues
++ *
++ *	Updates the number of completed Tx descriptors for a queue set's Tx
++ *	queues with the credits pending in @tx_completed.  This does something
++ *	only on MP systems as on UP systems we return the credits immediately.
++ */
++static inline void flush_tx_completed(struct sge_qset *qs,
++				      unsigned int tx_completed[])
++{
++#if defined(CONFIG_SMP)
++	if (tx_completed[TXQ_OFLD])
++		qs->txq[TXQ_OFLD].processed += tx_completed[TXQ_OFLD];
++	if (tx_completed[TXQ_CTRL])
++		qs->txq[TXQ_CTRL].processed += tx_completed[TXQ_CTRL];
++#endif
++}
++
++/**
++ *	check_ring_db - check if we need to ring any doorbells
++ *	@adapter: the adapter
++ *	@qs: the queue set whose Tx queues are to be examined
++ *	@sleeping: indicates which Tx queue sent GTS
++ *
++ *	Checks if some of a queue set's Tx queues need to ring their doorbells
++ *	to resume transmission after idling while they still have unprocessed
++ *	descriptors.
++ */
++static void check_ring_db(struct adapter *adap, struct sge_qset *qs,
++			  unsigned int sleeping)
++{
++	if (sleeping & F_RSPD_TXQ0_GTS) {
++		struct sge_txq *txq = &qs->txq[TXQ_ETH];
++
++		if (txq->cleaned + txq->in_use != txq->processed &&
++		    !test_and_set_bit(TXQ_LAST_PKT_DB, &txq->flags)) {
++			set_bit(TXQ_RUNNING, &txq->flags);
++			t3_write_reg(adap, A_SG_KDOORBELL, F_SELEGRCNTX |
++				     V_EGRCNTX(txq->cntxt_id));
++		}
++	}
++
++	if (sleeping & F_RSPD_TXQ1_GTS) {
++		struct sge_txq *txq = &qs->txq[TXQ_OFLD];
++
++		if (txq->cleaned + txq->in_use != txq->processed &&
++		    !test_and_set_bit(TXQ_LAST_PKT_DB, &txq->flags)) {
++			set_bit(TXQ_RUNNING, &txq->flags);
++			t3_write_reg(adap, A_SG_KDOORBELL, F_SELEGRCNTX |
++				     V_EGRCNTX(txq->cntxt_id));
++		}
++	}
++}
++
++/**
++ *	is_new_response - check if a response is newly written
++ *	@r: the response descriptor
++ *	@q: the response queue
++ *
++ *	Returns true if a response descriptor contains a yet unprocessed
++ *	response.
++ */
++static inline int is_new_response(const struct rsp_desc *r,
++				  const struct sge_rspq *q)
++{
++	return (r->intr_gen & F_RSPD_GEN2) == q->gen;
++}
++
++#define RSPD_GTS_MASK  (F_RSPD_TXQ0_GTS | F_RSPD_TXQ1_GTS)
++#define RSPD_CTRL_MASK (RSPD_GTS_MASK | \
++			V_RSPD_TXQ0_CR(M_RSPD_TXQ0_CR) | \
++			V_RSPD_TXQ1_CR(M_RSPD_TXQ1_CR) | \
++			V_RSPD_TXQ2_CR(M_RSPD_TXQ2_CR))
++
++/* How long to delay the next interrupt in case of memory shortage, in 0.1us. */
++#define NOMEM_INTR_DELAY 2500
++
++/**
++ *	process_responses - process responses from an SGE response queue
++ *	@adap: the adapter
++ *	@qs: the queue set to which the response queue belongs
++ *	@budget: how many responses can be processed in this round
++ *
++ *	Process responses from an SGE response queue up to the supplied budget.
++ *	Responses include received packets as well as credits and other events
++ *	for the queues that belong to the response queue's queue set.
++ *	A negative budget is effectively unlimited.
++ *
++ *	Additionally choose the interrupt holdoff time for the next interrupt
++ *	on this queue.  If the system is under memory shortage use a fairly
++ *	long delay to help recovery.
++ */
++static int process_responses(struct adapter *adap, struct sge_qset *qs,
++			     int budget)
++{
++	struct sge_rspq *q = &qs->rspq;
++	struct rsp_desc *r = &q->desc[q->cidx];
++	int budget_left = budget;
++	unsigned int sleeping = 0, tx_completed[3] = { 0, 0, 0 };
++	struct sk_buff *offload_skbs[RX_BUNDLE_SIZE];
++	int ngathered = 0;
++
++	q->next_holdoff = q->holdoff_tmr;
++
++	while (likely(budget_left && is_new_response(r, q))) {
++		int eth, ethpad = 0;
++		struct sk_buff *skb = NULL;
++		u32 len, flags = ntohl(r->flags);
++		u32 rss_hi = *(const u32 *)r, rss_lo = r->rss_hdr.rss_hash_val;
++
++		eth = r->rss_hdr.opcode == CPL_RX_PKT;
++
++		if (unlikely(flags & F_RSPD_ASYNC_NOTIF)) {
++			skb = alloc_skb(AN_PKT_SIZE, GFP_ATOMIC);
++			if (!skb)
++				goto no_mem;
++
++			memcpy(__skb_put(skb, AN_PKT_SIZE), r, AN_PKT_SIZE);
++			skb->data[0] = CPL_ASYNC_NOTIF;
++			rss_hi = htonl(CPL_ASYNC_NOTIF << 24);
++			q->async_notif++;
++		} else if (flags & F_RSPD_IMM_DATA_VALID) {
++			skb = get_imm_packet(r);
++			if (unlikely(!skb)) {
++			      no_mem:
++				q->next_holdoff = NOMEM_INTR_DELAY;
++				q->nomem++;
++				/* consume one credit since we tried */
++				budget_left--;
++				break;
++			}
++			q->imm_data++;
++		} else if ((len = ntohl(r->len_cq)) != 0) {
++			struct sge_fl *fl;
++
++			fl = (len & F_RSPD_FLQ) ? &qs->fl[1] : &qs->fl[0];
++			fl->credits--;
++			skb = get_packet(adap, fl, G_RSPD_LEN(len),
++					 eth ? SGE_RX_DROP_THRES : 0);
++			if (!skb)
++				q->rx_drops++;
++			else if (r->rss_hdr.opcode == CPL_TRACE_PKT)
++				__skb_pull(skb, 2);
++			ethpad = 2;
++			if (++fl->cidx == fl->size)
++				fl->cidx = 0;
++		} else
++			q->pure_rsps++;
++
++		if (flags & RSPD_CTRL_MASK) {
++			sleeping |= flags & RSPD_GTS_MASK;
++			handle_rsp_cntrl_info(qs, flags, tx_completed);
++		}
++
++		r++;
++		if (unlikely(++q->cidx == q->size)) {
++			q->cidx = 0;
++			q->gen ^= 1;
++			r = q->desc;
++		}
++		prefetch(r);
++
++		if (++q->credits >= (q->size / 4)) {
++			refill_rspq(adap, q, q->credits);
++			q->credits = 0;
++		}
++
++		if (likely(skb != NULL)) {
++			if (eth)
++				rx_eth(adap, q, skb, ethpad);
++			else {
++				/* Preserve the RSS info in csum & priority */
++				skb->csum = rss_hi;
++				skb->priority = rss_lo;
++				ngathered = rx_offload(&adap->tdev, q, skb,
++						       offload_skbs, ngathered);
++			}
++		}
++
++		--budget_left;
++	}
++
++	flush_tx_completed(qs, tx_completed);
++	deliver_partial_bundle(&adap->tdev, q, offload_skbs, ngathered);
++	if (sleeping)
++		check_ring_db(adap, qs, sleeping);
++
++	smp_mb();		/* commit Tx queue .processed updates */
++	if (unlikely(qs->txq_stopped != 0))
++		restart_tx(qs);
++
++	budget -= budget_left;
++	return budget;
++}
++
++static inline int is_pure_response(const struct rsp_desc *r)
++{
++	u32 n = ntohl(r->flags) & (F_RSPD_ASYNC_NOTIF | F_RSPD_IMM_DATA_VALID);
++
++	return (n | r->len_cq) == 0;
++}
++
++/**
++ *	napi_rx_handler - the NAPI handler for Rx processing
++ *	@dev: the net device
++ *	@budget: how many packets we can process in this round
++ *
++ *	Handler for new data events when using NAPI.
++ */
++static int napi_rx_handler(struct net_device *dev, int *budget)
++{
++	struct adapter *adap = dev->priv;
++	struct sge_qset *qs = dev2qset(dev);
++	int effective_budget = min(*budget, dev->quota);
++
++	int work_done = process_responses(adap, qs, effective_budget);
++	*budget -= work_done;
++	dev->quota -= work_done;
++
++	if (work_done >= effective_budget)
++		return 1;
++
++	netif_rx_complete(dev);
++
++	/*
++	 * Because we don't atomically flush the following write it is
++	 * possible that in very rare cases it can reach the device in a way
++	 * that races with a new response being written plus an error interrupt
++	 * causing the NAPI interrupt handler below to return unhandled status
++	 * to the OS.  To protect against this would require flushing the write
++	 * and doing both the write and the flush with interrupts off.  Way too
++	 * expensive and unjustifiable given the rarity of the race.
++	 *
++	 * The race cannot happen at all with MSI-X.
++	 */
++	t3_write_reg(adap, A_SG_GTS, V_RSPQ(qs->rspq.cntxt_id) |
++		     V_NEWTIMER(qs->rspq.next_holdoff) |
++		     V_NEWINDEX(qs->rspq.cidx));
 +	return 0;
 +}
 +
-+void t3_led_ready(struct adapter *adapter)
++/*
++ * Returns true if the device is already scheduled for polling.
++ */
++static inline int napi_is_scheduled(struct net_device *dev)
 +{
-+	t3_set_reg_field(adapter, A_T3DBG_GPIO_EN, F_GPIO0_OUT_VAL,
-+			 F_GPIO0_OUT_VAL);
++	return test_bit(__LINK_STATE_RX_SCHED, &dev->state);
 +}
++
++/**
++ *	process_pure_responses - process pure responses from a response queue
++ *	@adap: the adapter
++ *	@qs: the queue set owning the response queue
++ *	@r: the first pure response to process
++ *
++ *	A simpler version of process_responses() that handles only pure (i.e.,
++ *	non data-carrying) responses.  Such respones are too light-weight to
++ *	justify calling a softirq under NAPI, so we handle them specially in
++ *	the interrupt handler.  The function is called with a pointer to a
++ *	response, which the caller must ensure is a valid pure response.
++ *
++ *	Returns 1 if it encounters a valid data-carrying response, 0 otherwise.
++ */
++static int process_pure_responses(struct adapter *adap, struct sge_qset *qs,
++				  struct rsp_desc *r)
++{
++	struct sge_rspq *q = &qs->rspq;
++	unsigned int sleeping = 0, tx_completed[3] = { 0, 0, 0 };
++
++	do {
++		u32 flags = ntohl(r->flags);
++
++		r++;
++		if (unlikely(++q->cidx == q->size)) {
++			q->cidx = 0;
++			q->gen ^= 1;
++			r = q->desc;
++		}
++		prefetch(r);
++
++		if (flags & RSPD_CTRL_MASK) {
++			sleeping |= flags & RSPD_GTS_MASK;
++			handle_rsp_cntrl_info(qs, flags, tx_completed);
++		}
++
++		q->pure_rsps++;
++		if (++q->credits >= (q->size / 4)) {
++			refill_rspq(adap, q, q->credits);
++			q->credits = 0;
++		}
++	} while (is_new_response(r, q) && is_pure_response(r));
++
++	flush_tx_completed(qs, tx_completed);
++
++	if (sleeping)
++		check_ring_db(adap, qs, sleeping);
++
++	smp_mb();		/* commit Tx queue .processed updates */
++	if (unlikely(qs->txq_stopped != 0))
++		restart_tx(qs);
++
++	return is_new_response(r, q);
++}
++
++/**
++ *	handle_responses - decide what to do with new responses in NAPI mode
++ *	@adap: the adapter
++ *	@q: the response queue
++ *
++ *	This is used by the NAPI interrupt handlers to decide what to do with
++ *	new SGE responses.  If there are no new responses it returns -1.  If
++ *	there are new responses and they are pure (i.e., non-data carrying)
++ *	it handles them straight in hard interrupt context as they are very
++ *	cheap and don't deliver any packets.  Finally, if there are any data
++ *	signaling responses it schedules the NAPI handler.  Returns 1 if it
++ *	schedules NAPI, 0 if all new responses were pure.
++ *
++ *	The caller must ascertain NAPI is not already running.
++ */
++static inline int handle_responses(struct adapter *adap, struct sge_rspq *q)
++{
++	struct sge_qset *qs = rspq_to_qset(q);
++	struct rsp_desc *r = &q->desc[q->cidx];
++
++	if (!is_new_response(r, q))
++		return -1;
++	if (is_pure_response(r) && process_pure_responses(adap, qs, r) == 0) {
++		t3_write_reg(adap, A_SG_GTS, V_RSPQ(q->cntxt_id) |
++			     V_NEWTIMER(q->holdoff_tmr) | V_NEWINDEX(q->cidx));
++		return 0;
++	}
++	if (likely(__netif_rx_schedule_prep(qs->netdev)))
++		__netif_rx_schedule(qs->netdev);
++	return 1;
++}
++
++/*
++ * The MSI-X interrupt handler for an SGE response queue for the non-NAPI case
++ * (i.e., response queue serviced in hard interrupt).
++ */
++irqreturn_t t3_sge_intr_msix(int irq, void *cookie)
++{
++	struct sge_qset *qs = cookie;
++	struct adapter *adap = qs->netdev->priv;
++	struct sge_rspq *q = &qs->rspq;
++
++	spin_lock(&q->lock);
++	if (process_responses(adap, qs, -1) == 0)
++		q->unhandled_irqs++;
++	t3_write_reg(adap, A_SG_GTS, V_RSPQ(q->cntxt_id) |
++		     V_NEWTIMER(q->next_holdoff) | V_NEWINDEX(q->cidx));
++	spin_unlock(&q->lock);
++	return IRQ_HANDLED;
++}
++
++/*
++ * The MSI-X interrupt handler for an SGE response queue for the NAPI case
++ * (i.e., response queue serviced by NAPI polling).
++ */
++irqreturn_t t3_sge_intr_msix_napi(int irq, void *cookie)
++{
++	struct sge_qset *qs = cookie;
++	struct adapter *adap = qs->netdev->priv;
++	struct sge_rspq *q = &qs->rspq;
++
++	spin_lock(&q->lock);
++	BUG_ON(napi_is_scheduled(qs->netdev));
++
++	if (handle_responses(adap, q) < 0)
++		q->unhandled_irqs++;
++	spin_unlock(&q->lock);
++	return IRQ_HANDLED;
++}
++
++/*
++ * The non-NAPI MSI interrupt handler.  This needs to handle data events from
++ * SGE response queues as well as error and other async events as they all use
++ * the same MSI vector.  We use one SGE response queue per port in this mode
++ * and protect all response queues with queue 0's lock.
++ */
++static irqreturn_t t3_intr_msi(int irq, void *cookie)
++{
++	int new_packets = 0;
++	struct adapter *adap = cookie;
++	struct sge_rspq *q = &adap->sge.qs[0].rspq;
++
++	spin_lock(&q->lock);
++
++	if (process_responses(adap, &adap->sge.qs[0], -1)) {
++		t3_write_reg(adap, A_SG_GTS, V_RSPQ(q->cntxt_id) |
++			     V_NEWTIMER(q->next_holdoff) | V_NEWINDEX(q->cidx));
++		new_packets = 1;
++	}
++
++	if (adap->params.nports == 2 &&
++	    process_responses(adap, &adap->sge.qs[1], -1)) {
++		struct sge_rspq *q1 = &adap->sge.qs[1].rspq;
++
++		t3_write_reg(adap, A_SG_GTS, V_RSPQ(q1->cntxt_id) |
++			     V_NEWTIMER(q1->next_holdoff) |
++			     V_NEWINDEX(q1->cidx));
++		new_packets = 1;
++	}
++
++	if (!new_packets && t3_slow_intr_handler(adap) == 0)
++		q->unhandled_irqs++;
++
++	spin_unlock(&q->lock);
++	return IRQ_HANDLED;
++}
++
++static int rspq_check_napi(struct net_device *dev, struct sge_rspq *q)
++{
++	if (!napi_is_scheduled(dev) && is_new_response(&q->desc[q->cidx], q)) {
++		if (likely(__netif_rx_schedule_prep(dev)))
++			__netif_rx_schedule(dev);
++		return 1;
++	}
++	return 0;
++}
++
++/*
++ * The MSI interrupt handler for the NAPI case (i.e., response queues serviced
++ * by NAPI polling).  Handles data events from SGE response queues as well as
++ * error and other async events as they all use the same MSI vector.  We use
++ * one SGE response queue per port in this mode and protect all response
++ * queues with queue 0's lock.
++ */
++irqreturn_t t3_intr_msi_napi(int irq, void *cookie)
++{
++	int new_packets;
++	struct adapter *adap = cookie;
++	struct sge_rspq *q = &adap->sge.qs[0].rspq;
++
++	spin_lock(&q->lock);
++
++	new_packets = rspq_check_napi(adap->sge.qs[0].netdev, q);
++	if (adap->params.nports == 2)
++		new_packets += rspq_check_napi(adap->sge.qs[1].netdev,
++					       &adap->sge.qs[1].rspq);
++	if (!new_packets && t3_slow_intr_handler(adap) == 0)
++		q->unhandled_irqs++;
++
++	spin_unlock(&q->lock);
++	return IRQ_HANDLED;
++}
++
++/*
++ * A helper function that processes responses and issues GTS.
++ */
++static inline int process_responses_gts(struct adapter *adap,
++					struct sge_rspq *rq)
++{
++	int work;
++
++	work = process_responses(adap, rspq_to_qset(rq), -1);
++	t3_write_reg(adap, A_SG_GTS, V_RSPQ(rq->cntxt_id) |
++		     V_NEWTIMER(rq->next_holdoff) | V_NEWINDEX(rq->cidx));
++	return work;
++}
++
++/*
++ * The legacy INTx interrupt handler.  This needs to handle data events from
++ * SGE response queues as well as error and other async events as they all use
++ * the same interrupt pin.  We use one SGE response queue per port in this mode
++ * and protect all response queues with queue 0's lock.
++ */
++static irqreturn_t t3_intr(int irq, void *cookie)
++{
++	int work_done, w0, w1;
++	struct adapter *adap = cookie;
++	struct sge_rspq *q0 = &adap->sge.qs[0].rspq;
++	struct sge_rspq *q1 = &adap->sge.qs[1].rspq;
++
++	spin_lock(&q0->lock);
++
++	w0 = is_new_response(&q0->desc[q0->cidx], q0);
++	w1 = adap->params.nports == 2 &&
++	    is_new_response(&q1->desc[q1->cidx], q1);
++
++	if (likely(w0 | w1)) {
++		t3_write_reg(adap, A_PL_CLI, 0);
++		t3_read_reg(adap, A_PL_CLI);	/* flush */
++
++		if (likely(w0))
++			process_responses_gts(adap, q0);
++
++		if (w1)
++			process_responses_gts(adap, q1);
++
++		work_done = w0 | w1;
++	} else
++		work_done = t3_slow_intr_handler(adap);
++
++	spin_unlock(&q0->lock);
++	return IRQ_RETVAL(work_done != 0);
++}
++
++/*
++ * Interrupt handler for legacy INTx interrupts for T3B-based cards.
++ * Handles data events from SGE response queues as well as error and other
++ * async events as they all use the same interrupt pin.  We use one SGE
++ * response queue per port in this mode and protect all response queues with
++ * queue 0's lock.
++ */
++static irqreturn_t t3b_intr(int irq, void *cookie)
++{
++	u32 map;
++	struct adapter *adap = cookie;
++	struct sge_rspq *q0 = &adap->sge.qs[0].rspq;
++
++	t3_write_reg(adap, A_PL_CLI, 0);
++	map = t3_read_reg(adap, A_SG_DATA_INTR);
++
++	if (unlikely(!map))	/* shared interrupt, most likely */
++		return IRQ_NONE;
++
++	spin_lock(&q0->lock);
++
++	if (unlikely(map & F_ERRINTR))
++		t3_slow_intr_handler(adap);
++
++	if (likely(map & 1))
++		process_responses_gts(adap, q0);
++
++	if (map & 2)
++		process_responses_gts(adap, &adap->sge.qs[1].rspq);
++
++	spin_unlock(&q0->lock);
++	return IRQ_HANDLED;
++}
++
++/*
++ * NAPI interrupt handler for legacy INTx interrupts for T3B-based cards.
++ * Handles data events from SGE response queues as well as error and other
++ * async events as they all use the same interrupt pin.  We use one SGE
++ * response queue per port in this mode and protect all response queues with
++ * queue 0's lock.
++ */
++static irqreturn_t t3b_intr_napi(int irq, void *cookie)
++{
++	u32 map;
++	struct net_device *dev;
++	struct adapter *adap = cookie;
++	struct sge_rspq *q0 = &adap->sge.qs[0].rspq;
++
++	t3_write_reg(adap, A_PL_CLI, 0);
++	map = t3_read_reg(adap, A_SG_DATA_INTR);
++
++	if (unlikely(!map))	/* shared interrupt, most likely */
++		return IRQ_NONE;
++
++	spin_lock(&q0->lock);
++
++	if (unlikely(map & F_ERRINTR))
++		t3_slow_intr_handler(adap);
++
++	if (likely(map & 1)) {
++		dev = adap->sge.qs[0].netdev;
++
++		BUG_ON(napi_is_scheduled(dev));
++		if (likely(__netif_rx_schedule_prep(dev)))
++			__netif_rx_schedule(dev);
++	}
++	if (map & 2) {
++		dev = adap->sge.qs[1].netdev;
++
++		BUG_ON(napi_is_scheduled(dev));
++		if (likely(__netif_rx_schedule_prep(dev)))
++			__netif_rx_schedule(dev);
++	}
++
++	spin_unlock(&q0->lock);
++	return IRQ_HANDLED;
++}
++
++/**
++ *	t3_intr_handler - select the top-level interrupt handler
++ *	@adap: the adapter
++ *	@polling: whether using NAPI to service response queues
++ *
++ *	Selects the top-level interrupt handler based on the type of interrupts
++ *	(MSI-X, MSI, or legacy) and whether NAPI will be used to service the
++ *	response queues.
++ */
++intr_handler_t t3_intr_handler(struct adapter *adap, int polling)
++{
++	if (adap->flags & USING_MSIX)
++		return polling ? t3_sge_intr_msix_napi : t3_sge_intr_msix;
++	if (adap->flags & USING_MSI)
++		return polling ? t3_intr_msi_napi : t3_intr_msi;
++	if (adap->params.rev > 0)
++		return polling ? t3b_intr_napi : t3b_intr;
++	return t3_intr;
++}
++
++/**
++ *	t3_sge_err_intr_handler - SGE async event interrupt handler
++ *	@adapter: the adapter
++ *
++ *	Interrupt handler for SGE asynchronous (non-data) events.
++ */
++void t3_sge_err_intr_handler(struct adapter *adapter)
++{
++	unsigned int v, status = t3_read_reg(adapter, A_SG_INT_CAUSE);
++
++	if (status & F_RSPQCREDITOVERFOW)
++		CH_ALERT(adapter, "SGE response queue credit overflow\n");
++
++	if (status & F_RSPQDISABLED) {
++		v = t3_read_reg(adapter, A_SG_RSPQ_FL_STATUS);
++
++		CH_ALERT(adapter,
++			 "packet delivered to disabled response queue "
++			 "(0x%x)\n", (v >> S_RSPQ0DISABLED) & 0xff);
++	}
++
++	t3_write_reg(adapter, A_SG_INT_CAUSE, status);
++	if (status & (F_RSPQCREDITOVERFOW | F_RSPQDISABLED))
++		t3_fatal_err(adapter);
++}
++
++/**
++ *	sge_timer_cb - perform periodic maintenance of an SGE qset
++ *	@data: the SGE queue set to maintain
++ *
++ *	Runs periodically from a timer to perform maintenance of an SGE queue
++ *	set.  It performs two tasks:
++ *
++ *	a) Cleans up any completed Tx descriptors that may still be pending.
++ *	Normal descriptor cleanup happens when new packets are added to a Tx
++ *	queue so this timer is relatively infrequent and does any cleanup only
++ *	if the Tx queue has not seen any new packets in a while.  We make a
++ *	best effort attempt to reclaim descriptors, in that we don't wait
++ *	around if we cannot get a queue's lock (which most likely is because
++ *	someone else is queueing new packets and so will also handle the clean
++ *	up).  Since control queues use immediate data exclusively we don't
++ *	bother cleaning them up here.
++ *
++ *	b) Replenishes Rx queues that have run out due to memory shortage.
++ *	Normally new Rx buffers are added when existing ones are consumed but
++ *	when out of memory a queue can become empty.  We try to add only a few
++ *	buffers here, the queue will be replenished fully as these new buffers
++ *	are used up if memory shortage has subsided.
++ */
++static void sge_timer_cb(unsigned long data)
++{
++	spinlock_t *lock;
++	struct sge_qset *qs = (struct sge_qset *)data;
++	struct adapter *adap = qs->netdev->priv;
++
++	if (spin_trylock(&qs->txq[TXQ_ETH].lock)) {
++		reclaim_completed_tx(adap, &qs->txq[TXQ_ETH]);
++		spin_unlock(&qs->txq[TXQ_ETH].lock);
++	}
++	if (spin_trylock(&qs->txq[TXQ_OFLD].lock)) {
++		reclaim_completed_tx(adap, &qs->txq[TXQ_OFLD]);
++		spin_unlock(&qs->txq[TXQ_OFLD].lock);
++	}
++	lock = (adap->flags & USING_MSIX) ? &qs->rspq.lock :
++	    &adap->sge.qs[0].rspq.lock;
++	if (spin_trylock_irq(lock)) {
++		if (!napi_is_scheduled(qs->netdev)) {
++			if (qs->fl[0].credits < qs->fl[0].size)
++				__refill_fl(adap, &qs->fl[0]);
++			if (qs->fl[1].credits < qs->fl[1].size)
++				__refill_fl(adap, &qs->fl[1]);
++		}
++		spin_unlock_irq(lock);
++	}
++	mod_timer(&qs->tx_reclaim_timer, jiffies + TX_RECLAIM_PERIOD);
++}
++
++/**
++ *	t3_update_qset_coalesce - update coalescing settings for a queue set
++ *	@qs: the SGE queue set
++ *	@p: new queue set parameters
++ *
++ *	Update the coalescing settings for an SGE queue set.  Nothing is done
++ *	if the queue set is not initialized yet.
++ */
++void t3_update_qset_coalesce(struct sge_qset *qs, const struct qset_params *p)
++{
++	if (!qs->netdev)
++		return;
++
++	qs->rspq.holdoff_tmr = max(p->coalesce_usecs * 10, 1U);/* can't be 0 */
++	qs->rspq.polling = p->polling;
++	qs->netdev->poll = p->polling ? napi_rx_handler : ofld_poll;
++}
++
++/**
++ *	t3_sge_alloc_qset - initialize an SGE queue set
++ *	@adapter: the adapter
++ *	@id: the queue set id
++ *	@nports: how many Ethernet ports will be using this queue set
++ *	@irq_vec_idx: the IRQ vector index for response queue interrupts
++ *	@p: configuration parameters for this queue set
++ *	@ntxq: number of Tx queues for the queue set
++ *	@netdev: net device associated with this queue set
++ *
++ *	Allocate resources and initialize an SGE queue set.  A queue set
++ *	comprises a response queue, two Rx free-buffer queues, and up to 3
++ *	Tx queues.  The Tx queues are assigned roles in the order Ethernet
++ *	queue, offload queue, and control queue.
++ */
++int t3_sge_alloc_qset(struct adapter *adapter, unsigned int id, int nports,
++		      int irq_vec_idx, const struct qset_params *p,
++		      int ntxq, struct net_device *netdev)
++{
++	int i, ret = -ENOMEM;
++	struct sge_qset *q = &adapter->sge.qs[id];
++
++	init_qset_cntxt(q, id);
++	init_timer(&q->tx_reclaim_timer);
++	q->tx_reclaim_timer.data = (unsigned long)q;
++	q->tx_reclaim_timer.function = sge_timer_cb;
++
++	q->fl[0].desc = alloc_ring(adapter->pdev, p->fl_size,
++				   sizeof(struct rx_desc),
++				   sizeof(struct rx_sw_desc),
++				   &q->fl[0].phys_addr, &q->fl[0].sdesc);
++	if (!q->fl[0].desc)
++		goto err;
++
++	q->fl[1].desc = alloc_ring(adapter->pdev, p->jumbo_size,
++				   sizeof(struct rx_desc),
++				   sizeof(struct rx_sw_desc),
++				   &q->fl[1].phys_addr, &q->fl[1].sdesc);
++	if (!q->fl[1].desc)
++		goto err;
++
++	q->rspq.desc = alloc_ring(adapter->pdev, p->rspq_size,
++				  sizeof(struct rsp_desc), 0,
++				  &q->rspq.phys_addr, NULL);
++	if (!q->rspq.desc)
++		goto err;
++
++	for (i = 0; i < ntxq; ++i) {
++		/*
++		 * The control queue always uses immediate data so does not
++		 * need to keep track of any sk_buffs.
++		 */
++		size_t sz = i == TXQ_CTRL ? 0 : sizeof(struct tx_sw_desc);
++
++		q->txq[i].desc = alloc_ring(adapter->pdev, p->txq_size[i],
++					    sizeof(struct tx_desc), sz,
++					    &q->txq[i].phys_addr,
++					    &q->txq[i].sdesc);
++		if (!q->txq[i].desc)
++			goto err;
++
++		q->txq[i].gen = 1;
++		q->txq[i].size = p->txq_size[i];
++		spin_lock_init(&q->txq[i].lock);
++		skb_queue_head_init(&q->txq[i].sendq);
++	}
++
++	tasklet_init(&q->txq[TXQ_OFLD].qresume_tsk, restart_offloadq,
++		     (unsigned long)q);
++	tasklet_init(&q->txq[TXQ_CTRL].qresume_tsk, restart_ctrlq,
++		     (unsigned long)q);
++
++	q->fl[0].gen = q->fl[1].gen = 1;
++	q->fl[0].size = p->fl_size;
++	q->fl[1].size = p->jumbo_size;
++
++	q->rspq.gen = 1;
++	q->rspq.size = p->rspq_size;
++	spin_lock_init(&q->rspq.lock);
++
++	q->txq[TXQ_ETH].stop_thres = nports *
++	    flits_to_desc(sgl_len(MAX_SKB_FRAGS + 1) + 3);
++
++	if (ntxq == 1) {
++		q->fl[0].buf_size = SGE_RX_SM_BUF_SIZE + 2 +
++		    sizeof(struct cpl_rx_pkt);
++		q->fl[1].buf_size = MAX_FRAME_SIZE + 2 +
++		    sizeof(struct cpl_rx_pkt);
++	} else {
++		q->fl[0].buf_size = SGE_RX_SM_BUF_SIZE +
++		    sizeof(struct cpl_rx_data);
++		q->fl[1].buf_size = (16 * 1024) -
++		    SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++	}
++
++	spin_lock(&adapter->sge.reg_lock);
++
++	/* FL threshold comparison uses < */
++	ret = t3_sge_init_rspcntxt(adapter, q->rspq.cntxt_id, irq_vec_idx,
++				   q->rspq.phys_addr, q->rspq.size,
++				   q->fl[0].buf_size, 1, 0);
++	if (ret)
++		goto err_unlock;
++
++	for (i = 0; i < SGE_RXQ_PER_SET; ++i) {
++		ret = t3_sge_init_flcntxt(adapter, q->fl[i].cntxt_id, 0,
++					  q->fl[i].phys_addr, q->fl[i].size,
++					  q->fl[i].buf_size, p->cong_thres, 1,
++					  0);
++		if (ret)
++			goto err_unlock;
++	}
++
++	ret = t3_sge_init_ecntxt(adapter, q->txq[TXQ_ETH].cntxt_id, USE_GTS,
++				 SGE_CNTXT_ETH, id, q->txq[TXQ_ETH].phys_addr,
++				 q->txq[TXQ_ETH].size, q->txq[TXQ_ETH].token,
++				 1, 0);
++	if (ret)
++		goto err_unlock;
++
++	if (ntxq > 1) {
++		ret = t3_sge_init_ecntxt(adapter, q->txq[TXQ_OFLD].cntxt_id,
++					 USE_GTS, SGE_CNTXT_OFLD, id,
++					 q->txq[TXQ_OFLD].phys_addr,
++					 q->txq[TXQ_OFLD].size, 0, 1, 0);
++		if (ret)
++			goto err_unlock;
++	}
++
++	if (ntxq > 2) {
++		ret = t3_sge_init_ecntxt(adapter, q->txq[TXQ_CTRL].cntxt_id, 0,
++					 SGE_CNTXT_CTRL, id,
++					 q->txq[TXQ_CTRL].phys_addr,
++					 q->txq[TXQ_CTRL].size,
++					 q->txq[TXQ_CTRL].token, 1, 0);
++		if (ret)
++			goto err_unlock;
++	}
++
++	spin_unlock(&adapter->sge.reg_lock);
++	q->netdev = netdev;
++	t3_update_qset_coalesce(q, p);
++
++	/*
++	 * We use atalk_ptr as a backpointer to a qset.  In case a device is
++	 * associated with multiple queue sets only the first one sets
++	 * atalk_ptr.
++	 */
++	if (netdev->atalk_ptr == NULL)
++		netdev->atalk_ptr = q;
++
++	refill_fl(adapter, &q->fl[0], q->fl[0].size, GFP_KERNEL);
++	refill_fl(adapter, &q->fl[1], q->fl[1].size, GFP_KERNEL);
++	refill_rspq(adapter, &q->rspq, q->rspq.size - 1);
++
++	t3_write_reg(adapter, A_SG_GTS, V_RSPQ(q->rspq.cntxt_id) |
++		     V_NEWTIMER(q->rspq.holdoff_tmr));
++
++	mod_timer(&q->tx_reclaim_timer, jiffies + TX_RECLAIM_PERIOD);
++	return 0;
++
++      err_unlock:
++	spin_unlock(&adapter->sge.reg_lock);
++      err:
++	t3_free_qset(adapter, q);
++	return ret;
++}
++
++/**
++ *	t3_free_sge_resources - free SGE resources
++ *	@adap: the adapter
++ *
++ *	Frees resources used by the SGE queue sets.
++ */
++void t3_free_sge_resources(struct adapter *adap)
++{
++	int i;
++
++	for (i = 0; i < SGE_QSETS; ++i)
++		t3_free_qset(adap, &adap->sge.qs[i]);
++}
++
++/**
++ *	t3_sge_start - enable SGE
++ *	@adap: the adapter
++ *
++ *	Enables the SGE for DMAs.  This is the last step in starting packet
++ *	transfers.
++ */
++void t3_sge_start(struct adapter *adap)
++{
++	t3_set_reg_field(adap, A_SG_CONTROL, F_GLOBALENABLE, F_GLOBALENABLE);
++}
++
++/**
++ *	t3_sge_stop - disable SGE operation
++ *	@adap: the adapter
++ *
++ *	Disables the DMA engine.  This can be called in emeregencies (e.g.,
++ *	from error interrupts) or from normal process context.  In the latter
++ *	case it also disables any pending queue restart tasklets.  Note that
++ *	if it is called in interrupt context it cannot disable the restart
++ *	tasklets as it cannot wait, however the tasklets will have no effect
++ *	since the doorbells are disabled and the driver will call this again
++ *	later from process context, at which time the tasklets will be stopped
++ *	if they are still running.
++ */
++void t3_sge_stop(struct adapter *adap)
++{
++	t3_set_reg_field(adap, A_SG_CONTROL, F_GLOBALENABLE, 0);
++	if (!in_interrupt()) {
++		int i;
++
++		for (i = 0; i < SGE_QSETS; ++i) {
++			struct sge_qset *qs = &adap->sge.qs[i];
++
++			tasklet_kill(&qs->txq[TXQ_OFLD].qresume_tsk);
++			tasklet_kill(&qs->txq[TXQ_CTRL].qresume_tsk);
++		}
++	}
++}
++
++/**
++ *	t3_sge_init - initialize SGE
++ *	@adap: the adapter
++ *	@p: the SGE parameters
++ *
++ *	Performs SGE initialization needed every time after a chip reset.
++ *	We do not initialize any of the queue sets here, instead the driver
++ *	top-level must request those individually.  We also do not enable DMA
++ *	here, that should be done after the queues have been set up.
++ */
++void t3_sge_init(struct adapter *adap, struct sge_params *p)
++{
++	unsigned int ctrl, ups = ffs(pci_resource_len(adap->pdev, 2) >> 12);
++
++	ctrl = F_DROPPKT | V_PKTSHIFT(2) | F_FLMODE | F_AVOIDCQOVFL |
++	    F_CQCRDTCTRL |
++	    V_HOSTPAGESIZE(PAGE_SHIFT - 11) | F_BIGENDIANINGRESS |
++	    V_USERSPACESIZE(ups ? ups - 1 : 0) | F_ISCSICOALESCING;
++#if SGE_NUM_GENBITS == 1
++	ctrl |= F_EGRGENCTRL;
++#endif
++	if (adap->params.rev > 0) {
++		if (!(adap->flags & (USING_MSIX | USING_MSI)))
++			ctrl |= F_ONEINTMULTQ | F_OPTONEINTMULTQ;
++		ctrl |= F_CQCRDTCTRL | F_AVOIDCQOVFL;
++	}
++	t3_write_reg(adap, A_SG_CONTROL, ctrl);
++	t3_write_reg(adap, A_SG_EGR_RCQ_DRB_THRSH, V_HIRCQDRBTHRSH(512) |
++		     V_LORCQDRBTHRSH(512));
++	t3_write_reg(adap, A_SG_TIMER_TICK, core_ticks_per_usec(adap) / 10);
++	t3_write_reg(adap, A_SG_CMDQ_CREDIT_TH, V_THRESHOLD(32) |
++		     V_TIMEOUT(100 * core_ticks_per_usec(adap)));
++	t3_write_reg(adap, A_SG_HI_DRB_HI_THRSH, 1000);
++	t3_write_reg(adap, A_SG_HI_DRB_LO_THRSH, 256);
++	t3_write_reg(adap, A_SG_LO_DRB_HI_THRSH, 1000);
++	t3_write_reg(adap, A_SG_LO_DRB_LO_THRSH, 256);
++	t3_write_reg(adap, A_SG_OCO_BASE, V_BASE1(0xfff));
++	t3_write_reg(adap, A_SG_DRB_PRI_THRESH, 63 * 1024);
++}
++
++/**
++ *	t3_sge_prep - one-time SGE initialization
++ *	@adap: the associated adapter
++ *	@p: SGE parameters
++ *
++ *	Performs one-time initialization of SGE SW state.  Includes determining
++ *	defaults for the assorted SGE parameters, which admins can change until
++ *	they are used to initialize the SGE.
++ */
++void __devinit t3_sge_prep(struct adapter *adap, struct sge_params *p)
++{
++	int i;
++
++	p->max_pkt_size = (16 * 1024) - sizeof(struct cpl_rx_data) -
++	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++
++	for (i = 0; i < SGE_QSETS; ++i) {
++		struct qset_params *q = p->qset + i;
++
++		q->polling = adap->params.rev > 0;
++		q->coalesce_usecs = 5;
++		q->rspq_size = 1024;
++		q->fl_size = 4096;
++		q->jumbo_size = 512;
++		q->txq_size[TXQ_ETH] = 1024;
++		q->txq_size[TXQ_OFLD] = 1024;
++		q->txq_size[TXQ_CTRL] = 256;
++		q->cong_thres = 0;
++	}
++
++	spin_lock_init(&adap->sge.reg_lock);
++}
++
++/**
++ *	t3_get_desc - dump an SGE descriptor for debugging purposes
++ *	@qs: the queue set
++ *	@qnum: identifies the specific queue (0..2: Tx, 3:response, 4..5: Rx)
++ *	@idx: the descriptor index in the queue
++ *	@data: where to dump the descriptor contents
++ *
++ *	Dumps the contents of a HW descriptor of an SGE queue.  Returns the
++ *	size of the descriptor.
++ */
++int t3_get_desc(const struct sge_qset *qs, unsigned int qnum, unsigned int idx,
++		unsigned char *data)
++{
++	if (qnum >= 6)
++		return -EINVAL;
++
++	if (qnum < 3) {
++		if (!qs->txq[qnum].desc || idx >= qs->txq[qnum].size)
++			return -EINVAL;
++		memcpy(data, &qs->txq[qnum].desc[idx], sizeof(struct tx_desc));
++		return sizeof(struct tx_desc);
++	}
++
++	if (qnum == 3) {
++		if (!qs->rspq.desc || idx >= qs->rspq.size)
++			return -EINVAL;
++		memcpy(data, &qs->rspq.desc[idx], sizeof(struct rsp_desc));
++		return sizeof(struct rsp_desc);
++	}
++
++	qnum -= 4;
++	if (!qs->fl[qnum].desc || idx >= qs->fl[qnum].size)
++		return -EINVAL;
++	memcpy(data, &qs->fl[qnum].desc[idx], sizeof(struct rx_desc));
++	return sizeof(struct rx_desc);
++}
+diff --git a/drivers/net/cxgb3/sge_defs.h b/drivers/net/cxgb3/sge_defs.h
+new file mode 100755
+index 0000000..514869e
+--- /dev/null
++++ b/drivers/net/cxgb3/sge_defs.h
+@@ -0,0 +1,251 @@
++/*
++ * This file is automatically generated --- any changes will be lost.
++ */
++
++#ifndef _SGE_DEFS_H
++#define _SGE_DEFS_H
++
++#define S_EC_CREDITS    0
++#define M_EC_CREDITS    0x7FFF
++#define V_EC_CREDITS(x) ((x) << S_EC_CREDITS)
++#define G_EC_CREDITS(x) (((x) >> S_EC_CREDITS) & M_EC_CREDITS)
++
++#define S_EC_GTS    15
++#define V_EC_GTS(x) ((x) << S_EC_GTS)
++#define F_EC_GTS    V_EC_GTS(1U)
++
++#define S_EC_INDEX    16
++#define M_EC_INDEX    0xFFFF
++#define V_EC_INDEX(x) ((x) << S_EC_INDEX)
++#define G_EC_INDEX(x) (((x) >> S_EC_INDEX) & M_EC_INDEX)
++
++#define S_EC_SIZE    0
++#define M_EC_SIZE    0xFFFF
++#define V_EC_SIZE(x) ((x) << S_EC_SIZE)
++#define G_EC_SIZE(x) (((x) >> S_EC_SIZE) & M_EC_SIZE)
++
++#define S_EC_BASE_LO    16
++#define M_EC_BASE_LO    0xFFFF
++#define V_EC_BASE_LO(x) ((x) << S_EC_BASE_LO)
++#define G_EC_BASE_LO(x) (((x) >> S_EC_BASE_LO) & M_EC_BASE_LO)
++
++#define S_EC_BASE_HI    0
++#define M_EC_BASE_HI    0xF
++#define V_EC_BASE_HI(x) ((x) << S_EC_BASE_HI)
++#define G_EC_BASE_HI(x) (((x) >> S_EC_BASE_HI) & M_EC_BASE_HI)
++
++#define S_EC_RESPQ    4
++#define M_EC_RESPQ    0x7
++#define V_EC_RESPQ(x) ((x) << S_EC_RESPQ)
++#define G_EC_RESPQ(x) (((x) >> S_EC_RESPQ) & M_EC_RESPQ)
++
++#define S_EC_TYPE    7
++#define M_EC_TYPE    0x7
++#define V_EC_TYPE(x) ((x) << S_EC_TYPE)
++#define G_EC_TYPE(x) (((x) >> S_EC_TYPE) & M_EC_TYPE)
++
++#define S_EC_GEN    10
++#define V_EC_GEN(x) ((x) << S_EC_GEN)
++#define F_EC_GEN    V_EC_GEN(1U)
++
++#define S_EC_UP_TOKEN    11
++#define M_EC_UP_TOKEN    0xFFFFF
++#define V_EC_UP_TOKEN(x) ((x) << S_EC_UP_TOKEN)
++#define G_EC_UP_TOKEN(x) (((x) >> S_EC_UP_TOKEN) & M_EC_UP_TOKEN)
++
++#define S_EC_VALID    31
++#define V_EC_VALID(x) ((x) << S_EC_VALID)
++#define F_EC_VALID    V_EC_VALID(1U)
++
++#define S_RQ_MSI_VEC    20
++#define M_RQ_MSI_VEC    0x3F
++#define V_RQ_MSI_VEC(x) ((x) << S_RQ_MSI_VEC)
++#define G_RQ_MSI_VEC(x) (((x) >> S_RQ_MSI_VEC) & M_RQ_MSI_VEC)
++
++#define S_RQ_INTR_EN    26
++#define V_RQ_INTR_EN(x) ((x) << S_RQ_INTR_EN)
++#define F_RQ_INTR_EN    V_RQ_INTR_EN(1U)
++
++#define S_RQ_GEN    28
++#define V_RQ_GEN(x) ((x) << S_RQ_GEN)
++#define F_RQ_GEN    V_RQ_GEN(1U)
++
++#define S_CQ_INDEX    0
++#define M_CQ_INDEX    0xFFFF
++#define V_CQ_INDEX(x) ((x) << S_CQ_INDEX)
++#define G_CQ_INDEX(x) (((x) >> S_CQ_INDEX) & M_CQ_INDEX)
++
++#define S_CQ_SIZE    16
++#define M_CQ_SIZE    0xFFFF
++#define V_CQ_SIZE(x) ((x) << S_CQ_SIZE)
++#define G_CQ_SIZE(x) (((x) >> S_CQ_SIZE) & M_CQ_SIZE)
++
++#define S_CQ_BASE_HI    0
++#define M_CQ_BASE_HI    0xFFFFF
++#define V_CQ_BASE_HI(x) ((x) << S_CQ_BASE_HI)
++#define G_CQ_BASE_HI(x) (((x) >> S_CQ_BASE_HI) & M_CQ_BASE_HI)
++
++#define S_CQ_RSPQ    20
++#define M_CQ_RSPQ    0x3F
++#define V_CQ_RSPQ(x) ((x) << S_CQ_RSPQ)
++#define G_CQ_RSPQ(x) (((x) >> S_CQ_RSPQ) & M_CQ_RSPQ)
++
++#define S_CQ_ASYNC_NOTIF    26
++#define V_CQ_ASYNC_NOTIF(x) ((x) << S_CQ_ASYNC_NOTIF)
++#define F_CQ_ASYNC_NOTIF    V_CQ_ASYNC_NOTIF(1U)
++
++#define S_CQ_ARMED    27
++#define V_CQ_ARMED(x) ((x) << S_CQ_ARMED)
++#define F_CQ_ARMED    V_CQ_ARMED(1U)
++
++#define S_CQ_ASYNC_NOTIF_SOL    28
++#define V_CQ_ASYNC_NOTIF_SOL(x) ((x) << S_CQ_ASYNC_NOTIF_SOL)
++#define F_CQ_ASYNC_NOTIF_SOL    V_CQ_ASYNC_NOTIF_SOL(1U)
++
++#define S_CQ_GEN    29
++#define V_CQ_GEN(x) ((x) << S_CQ_GEN)
++#define F_CQ_GEN    V_CQ_GEN(1U)
++
++#define S_CQ_OVERFLOW_MODE    31
++#define V_CQ_OVERFLOW_MODE(x) ((x) << S_CQ_OVERFLOW_MODE)
++#define F_CQ_OVERFLOW_MODE    V_CQ_OVERFLOW_MODE(1U)
++
++#define S_CQ_CREDITS    0
++#define M_CQ_CREDITS    0xFFFF
++#define V_CQ_CREDITS(x) ((x) << S_CQ_CREDITS)
++#define G_CQ_CREDITS(x) (((x) >> S_CQ_CREDITS) & M_CQ_CREDITS)
++
++#define S_CQ_CREDIT_THRES    16
++#define M_CQ_CREDIT_THRES    0x1FFF
++#define V_CQ_CREDIT_THRES(x) ((x) << S_CQ_CREDIT_THRES)
++#define G_CQ_CREDIT_THRES(x) (((x) >> S_CQ_CREDIT_THRES) & M_CQ_CREDIT_THRES)
++
++#define S_FL_BASE_HI    0
++#define M_FL_BASE_HI    0xFFFFF
++#define V_FL_BASE_HI(x) ((x) << S_FL_BASE_HI)
++#define G_FL_BASE_HI(x) (((x) >> S_FL_BASE_HI) & M_FL_BASE_HI)
++
++#define S_FL_INDEX_LO    20
++#define M_FL_INDEX_LO    0xFFF
++#define V_FL_INDEX_LO(x) ((x) << S_FL_INDEX_LO)
++#define G_FL_INDEX_LO(x) (((x) >> S_FL_INDEX_LO) & M_FL_INDEX_LO)
++
++#define S_FL_INDEX_HI    0
++#define M_FL_INDEX_HI    0xF
++#define V_FL_INDEX_HI(x) ((x) << S_FL_INDEX_HI)
++#define G_FL_INDEX_HI(x) (((x) >> S_FL_INDEX_HI) & M_FL_INDEX_HI)
++
++#define S_FL_SIZE    4
++#define M_FL_SIZE    0xFFFF
++#define V_FL_SIZE(x) ((x) << S_FL_SIZE)
++#define G_FL_SIZE(x) (((x) >> S_FL_SIZE) & M_FL_SIZE)
++
++#define S_FL_GEN    20
++#define V_FL_GEN(x) ((x) << S_FL_GEN)
++#define F_FL_GEN    V_FL_GEN(1U)
++
++#define S_FL_ENTRY_SIZE_LO    21
++#define M_FL_ENTRY_SIZE_LO    0x7FF
++#define V_FL_ENTRY_SIZE_LO(x) ((x) << S_FL_ENTRY_SIZE_LO)
++#define G_FL_ENTRY_SIZE_LO(x) (((x) >> S_FL_ENTRY_SIZE_LO) & M_FL_ENTRY_SIZE_LO)
++
++#define S_FL_ENTRY_SIZE_HI    0
++#define M_FL_ENTRY_SIZE_HI    0x1FFFFF
++#define V_FL_ENTRY_SIZE_HI(x) ((x) << S_FL_ENTRY_SIZE_HI)
++#define G_FL_ENTRY_SIZE_HI(x) (((x) >> S_FL_ENTRY_SIZE_HI) & M_FL_ENTRY_SIZE_HI)
++
++#define S_FL_CONG_THRES    21
++#define M_FL_CONG_THRES    0x3FF
++#define V_FL_CONG_THRES(x) ((x) << S_FL_CONG_THRES)
++#define G_FL_CONG_THRES(x) (((x) >> S_FL_CONG_THRES) & M_FL_CONG_THRES)
++
++#define S_FL_GTS    31
++#define V_FL_GTS(x) ((x) << S_FL_GTS)
++#define F_FL_GTS    V_FL_GTS(1U)
++
++#define S_FLD_GEN1    31
++#define V_FLD_GEN1(x) ((x) << S_FLD_GEN1)
++#define F_FLD_GEN1    V_FLD_GEN1(1U)
++
++#define S_FLD_GEN2    0
++#define V_FLD_GEN2(x) ((x) << S_FLD_GEN2)
++#define F_FLD_GEN2    V_FLD_GEN2(1U)
++
++#define S_RSPD_TXQ1_CR    0
++#define M_RSPD_TXQ1_CR    0x7F
++#define V_RSPD_TXQ1_CR(x) ((x) << S_RSPD_TXQ1_CR)
++#define G_RSPD_TXQ1_CR(x) (((x) >> S_RSPD_TXQ1_CR) & M_RSPD_TXQ1_CR)
++
++#define S_RSPD_TXQ1_GTS    7
++#define V_RSPD_TXQ1_GTS(x) ((x) << S_RSPD_TXQ1_GTS)
++#define F_RSPD_TXQ1_GTS    V_RSPD_TXQ1_GTS(1U)
++
++#define S_RSPD_TXQ2_CR    8
++#define M_RSPD_TXQ2_CR    0x7F
++#define V_RSPD_TXQ2_CR(x) ((x) << S_RSPD_TXQ2_CR)
++#define G_RSPD_TXQ2_CR(x) (((x) >> S_RSPD_TXQ2_CR) & M_RSPD_TXQ2_CR)
++
++#define S_RSPD_TXQ2_GTS    15
++#define V_RSPD_TXQ2_GTS(x) ((x) << S_RSPD_TXQ2_GTS)
++#define F_RSPD_TXQ2_GTS    V_RSPD_TXQ2_GTS(1U)
++
++#define S_RSPD_TXQ0_CR    16
++#define M_RSPD_TXQ0_CR    0x7F
++#define V_RSPD_TXQ0_CR(x) ((x) << S_RSPD_TXQ0_CR)
++#define G_RSPD_TXQ0_CR(x) (((x) >> S_RSPD_TXQ0_CR) & M_RSPD_TXQ0_CR)
++
++#define S_RSPD_TXQ0_GTS    23
++#define V_RSPD_TXQ0_GTS(x) ((x) << S_RSPD_TXQ0_GTS)
++#define F_RSPD_TXQ0_GTS    V_RSPD_TXQ0_GTS(1U)
++
++#define S_RSPD_EOP    24
++#define V_RSPD_EOP(x) ((x) << S_RSPD_EOP)
++#define F_RSPD_EOP    V_RSPD_EOP(1U)
++
++#define S_RSPD_SOP    25
++#define V_RSPD_SOP(x) ((x) << S_RSPD_SOP)
++#define F_RSPD_SOP    V_RSPD_SOP(1U)
++
++#define S_RSPD_ASYNC_NOTIF    26
++#define V_RSPD_ASYNC_NOTIF(x) ((x) << S_RSPD_ASYNC_NOTIF)
++#define F_RSPD_ASYNC_NOTIF    V_RSPD_ASYNC_NOTIF(1U)
++
++#define S_RSPD_FL0_GTS    27
++#define V_RSPD_FL0_GTS(x) ((x) << S_RSPD_FL0_GTS)
++#define F_RSPD_FL0_GTS    V_RSPD_FL0_GTS(1U)
++
++#define S_RSPD_FL1_GTS    28
++#define V_RSPD_FL1_GTS(x) ((x) << S_RSPD_FL1_GTS)
++#define F_RSPD_FL1_GTS    V_RSPD_FL1_GTS(1U)
++
++#define S_RSPD_IMM_DATA_VALID    29
++#define V_RSPD_IMM_DATA_VALID(x) ((x) << S_RSPD_IMM_DATA_VALID)
++#define F_RSPD_IMM_DATA_VALID    V_RSPD_IMM_DATA_VALID(1U)
++
++#define S_RSPD_OFFLOAD    30
++#define V_RSPD_OFFLOAD(x) ((x) << S_RSPD_OFFLOAD)
++#define F_RSPD_OFFLOAD    V_RSPD_OFFLOAD(1U)
++
++#define S_RSPD_GEN1    31
++#define V_RSPD_GEN1(x) ((x) << S_RSPD_GEN1)
++#define F_RSPD_GEN1    V_RSPD_GEN1(1U)
++
++#define S_RSPD_LEN    0
++#define M_RSPD_LEN    0x7FFFFFFF
++#define V_RSPD_LEN(x) ((x) << S_RSPD_LEN)
++#define G_RSPD_LEN(x) (((x) >> S_RSPD_LEN) & M_RSPD_LEN)
++
++#define S_RSPD_FLQ    31
++#define V_RSPD_FLQ(x) ((x) << S_RSPD_FLQ)
++#define F_RSPD_FLQ    V_RSPD_FLQ(1U)
++
++#define S_RSPD_GEN2    0
++#define V_RSPD_GEN2(x) ((x) << S_RSPD_GEN2)
++#define F_RSPD_GEN2    V_RSPD_GEN2(1U)
++
++#define S_RSPD_INR_VEC    1
++#define M_RSPD_INR_VEC    0x7F
++#define V_RSPD_INR_VEC(x) ((x) << S_RSPD_INR_VEC)
++#define G_RSPD_INR_VEC(x) (((x) >> S_RSPD_INR_VEC) & M_RSPD_INR_VEC)
++
++#endif				/* _SGE_DEFS_H */

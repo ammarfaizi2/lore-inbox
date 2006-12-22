@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754827AbWLVM7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422988AbWLVNE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754827AbWLVM7i (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 07:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422985AbWLVM7i
+	id S1422988AbWLVNE1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 08:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754829AbWLVNE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 07:59:38 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:54056 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754825AbWLVM7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 07:59:38 -0500
-Date: Fri, 22 Dec 2006 13:59:20 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Andrei Popa <andrei.popa@i-neo.ro>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061222125920.GA16763@deprecation.cyrius.com>
-References: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> <20061221012721.68f3934b.akpm@osdl.org> <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com> <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com> <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost> <20061222123249.GG13727@deprecation.cyrius.com>
+	Fri, 22 Dec 2006 08:04:27 -0500
+Received: from mail.njl.fi ([193.184.55.66]:59419 "EHLO ns.njl.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754830AbWLVNE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 08:04:26 -0500
+X-Greylist: delayed 396 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 08:04:25 EST
+From: "binder" <enrico.binder@njl.ee>
+To: linux-kernel@vger.kernel.org
+Subject: bluetooth bug - mtu wrong
+Date: Fri, 22 Dec 2006 14:57:42 +0200
+Message-Id: <20061222125155.M20471@njl.ee>
+X-Mailer: NJL 2.52 20060502
+X-OriginatingIP: 213.35.238.251 (binder)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061222123249.GG13727@deprecation.cyrius.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset=iso-8859-1
+X-AntiVirus: scanned for viruses by NJL-FI
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin Michlmayr <tbm@cyrius.com> [2006-12-22 13:32]:
-> I've completed one installation with Linus' patch plus the two from
-> Andrew successfully, but I'm currently trying again...
+hi
 
-... and it failed.
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+my included lenevo r60e bluetooth adapter does not work with headsets
+(bt-sco). only a small fix in linux soource helps !
+
+Linux version 2.6.19eb2619_1 (root@picard) (gcc version 3.4.6) #2 SMP Mon Dec
+4 22:04:52 EET 2006
+
+i add to linux/driver/bluetooth/hci_usb.c at position after struct:
+
+-----------------8<.............................
+static struct usb_device_id blacklist_ids[] = {
+...
+{ USB_DEVICE(0x0a5c, 0x2110), .driver_info = HCI_RESET | HCI_WRONG_SCO_MTU },
+...
+}
+.................>8-----------------------------
+
+without it hciconfig shows wrong mtu value :
+BD Address: 00:16:CE:E9:A4:2F ACL MTU: 1017:8 SCO MTU: 64:0
+
+with the fix i get
+BD Address: 00:16:CE:E9:A4:2F ACL MTU: 1017:8 SCO MTU: 64:8
+
+after fix the headset works with receiving and sending voice !
+
+ciao
+--
+With kind regards
+Nordic Jetline
+enrico binder
+

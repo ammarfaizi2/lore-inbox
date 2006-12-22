@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754831AbWLVNJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754833AbWLVNQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754831AbWLVNJk (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 08:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWLVNJk
+	id S1754833AbWLVNQL (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 08:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754832AbWLVNQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 08:09:40 -0500
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:59183 "EHLO
-	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754825AbWLVNJj (ORCPT
+	Fri, 22 Dec 2006 08:16:11 -0500
+Received: from mercury.sdinet.de ([193.103.161.30]:46701 "EHLO
+	mercury.sdinet.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754835AbWLVNQK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 08:09:39 -0500
-Message-ID: <458BD945.5020604@gentoo.org>
-Date: Fri, 22 Dec 2006 08:10:29 -0500
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 2.0b1 (X11/20061221)
+	Fri, 22 Dec 2006 08:16:10 -0500
+Date: Fri, 22 Dec 2006 14:16:08 +0100 (CET)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19: File system corruption "stuck" until device is replugged
+In-Reply-To: <200612220759.11961.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.64.0612221410300.21828@mercury.sdinet.de>
+References: <200612220759.11961.arvidjaar@mail.ru>
 MIME-Version: 1.0
-To: Martin Williges <kernel@zut.de>
-CC: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] usblp.c - add Kyocera Mita FS 820 to list of "quirky"
- printers
-References: <200612221227.18870.kernel@zut.de>
-In-Reply-To: <200612221227.18870.kernel@zut.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Williges wrote:
-> --- usblp.c.orig        2006-11-29 22:57:37.000000000 +0100
-> +++ usblp.c     2006-12-22 12:08:00.000000000 +0100
-> @@ -217,6 +217,7 @@ static const struct quirk_printer_struct
+On Fri, 22 Dec 2006, Andrey Borzenkov wrote:
 
-Your mailer has mangled tabs into whitespace. Also, your patch needs to 
-be applicable with -p1 from the root kernel dir.
+> I had USB stick (fat32) that reported file system corruption on mount and
+> hence was mounted read-only. No amount of umount/dosfsck/mount could make it
+> rw again. dosfsck reported device as clean but it still would mount ro and I
+> continued to see directory that had been deleted by the very first dosfsck
+> run! I unplugged it, looked under Win2k - it was OK - and only then did I
+> notice that directory claimed as corrupted did not even exist. Replugging
+> it - mounted OK.
+>
+> I am not sure if this is a bug or "work as designed". May be this is specific
+> fat32 problem; still it does not look right?
 
-Given the description of the problem it is probably more worthwhile to 
-provide logs with USB debugging enabled, and usbmon logs, so that the 
-real problem can be found.
+I think at the first mount time there was a read error for an unknown 
+reason, and this turned the partition (not the filesystem) into read-only 
+mode. All further mount attempts only found a read-only medium, and thus 
+where only able to mount read-only. I've been bitten by this more than 
+once, too - there seems to be no way to avoid a reboot/replug when one of 
+your data disks has thrown a read error, taking (for me) the whole server 
+down, when just one unimportant data-disk thinks it has problems again (as 
+happens with my home-server about once every one or two weeks).
 
-Daniel
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

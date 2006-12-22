@@ -1,220 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751613AbWLVRqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751633AbWLVRuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751613AbWLVRqU (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 12:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWLVRqU
+	id S1751633AbWLVRuK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 12:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWLVRuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 12:46:20 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:24790 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751633AbWLVRqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 12:46:19 -0500
-Date: Fri, 22 Dec 2006 09:47:10 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Thomas Meyer <thomas@m3y3r.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Section mismatch on current git head
-Message-Id: <20061222094710.1f29b39a.randy.dunlap@oracle.com>
-In-Reply-To: <458BEAA9.6010503@m3y3r.de>
-References: <458BEAA9.6010503@m3y3r.de>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Fri, 22 Dec 2006 12:50:10 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34823 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751627AbWLVRuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 12:50:08 -0500
+From: John Keller <jpk@sgi.com>
+To: linux-acpi@vger.kernel.org
+Cc: ayoung@agi.com, jes@sgi.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, John Keller <jpk@sgi.com>
+Date: Fri, 22 Dec 2006 11:50:04 -0600
+Message-Id: <20061222175004.1603.74655.sendpatchset@attica.americas.sgi.com>
+Subject: [PATCH 1/1] - Altix: ACPI _PRT support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2006 15:24:41 +0100 Thomas Meyer wrote:
+Provide ACPI _PRT support for SN Altix systems.
 
-> Hello.
-> 
-> What kind of problem is this:
-> 1.) the one that should be fixed, but also can be ignored or
-> 2.) the one that have to be fixed and ignorance is a bad idea?
-> 
+The SN Altix platform does not conform to the 
+IOSAPIC IRQ routing model, so a new acpi_irq_model
+(ACPI_IRQ_MODEL_PLATFORM) has been defined. The SN
+platform specific code sets acpi_irq_model to
+this new value, and keys off of it in acpi_register_gsi()
+to avoid the iosapic code path.
 
-Is this with CONFIG_RELOCATABLE=y?
-There were some patches posted to address section mismatches
-with that config option.  I suppose that they will be in the
-next -mm release (?), so this needs to be retested with
-those patches applied.
-
-> WARNING: vmlinux - Section mismatch: reference to .init.data:boot_params 
-> from .text between '_text' (at offset 0xc0100029) and 'startup_32_smp'
-> WARNING: vmlinux - Section mismatch: reference to .init.data:boot_params 
-> from .text between '_text' (at offset 0xc0100037) and 'startup_32_smp'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:init_pg_tables_end from .text between '_text' (at offset 
-> 0xc0100099) and 'startup_32_smp'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100126) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100130) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc010014f) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100160) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100166) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc010016c) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100172) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100188) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc0100192) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc010019b) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'checkCPUtype' (at offset 
-> 0xc01001a1) and 'is486'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'check_x87' (at offset 
-> 0xc010021b) and 'setup_pda'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:new_cpu_data from .text between 'check_x87' (at offset 
-> 0xc010023a) and 'setup_pda'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:start_kernel from .text between 'is386' (at offset 
-> 0xc0100215) and 'check_x87'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:smp_prepare_cpus from .text between 'init' (at offset 
-> 0xc01003db) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:migration_init from .text between 'init' (at offset 
-> 0xc01003e0) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:spawn_ksoftirqd from .text between 'init' (at offset 
-> 0xc01003e5) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:smp_cpus_done from .text between 'init' (at offset 
-> 0xc0100459) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:sched_init_smp from .text between 'init' (at offset 
-> 0xc010045e) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:cpuset_init_smp from .text between 'init' (at offset 
-> 0xc0100463) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:usermodehelper_init from .text between 'init' (at offset 
-> 0xc010046d) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:driver_init 
-> from .text between 'init' (at offset 0xc0100472) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:sysctl_init 
-> from .text between 'init' (at offset 0xc0100477) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'init' (at offset 0xc010048c) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'init' (at offset 0xc01004ca) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:prepare_namespace from .text between 'init' (at offset 
-> 0xc010058d) and 'rest_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:efi_set_rtc_mmss from .text between 'sync_cmos_clock' (at 
-> offset 0xc0105987) and 'get_cmos_time'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:machine_specific_memory_setup from .text between 
-> 'memory_setup' (at offset 0xc01065d9) and 'i8259A_suspend'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:__alloc_bootmem from .text between 'init_gdt' (at offset 
-> 0xc0108869) and 'cpu_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:__alloc_bootmem from .text between 'init_gdt' (at offset 
-> 0xc010887f) and 'cpu_init'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:sysenter_setup from .text between 'identify_cpu' (at offset 
-> 0xc0108d43) and 'display_cacheinfo'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:mtrr_bp_init from .text between 'identify_cpu' (at offset 
-> 0xc0108d4d) and 'display_cacheinfo'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:acpi_sci_flags from .text between 'acpi_sci_ioapic_setup' (at 
-> offset 0xc010e020) and 'acpi_unmap_lsapic'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:acpi_sci_flags from .text between 'acpi_sci_ioapic_setup' (at 
-> offset 0xc010e04a) and 'acpi_unmap_lsapic'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:mp_override_legacy_irq from .text between 
-> 'acpi_sci_ioapic_setup' (at offset 0xc010e062) and 'acpi_unmap_lsapic'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:acpi_sci_override_gsi from .text between 
-> 'acpi_sci_ioapic_setup' (at offset 0xc010e068) and 'acpi_unmap_lsapic'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc01117ac) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc01117b8) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc01117c7) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc01117e6) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc01117ed) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc0111801) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'start_secondary' (at offset 0xc0111810) and 'initialize_secondary'
-> WARNING: vmlinux - Section mismatch: reference to .init.data:maxcpus 
-> from .text between 'MP_processor_info' (at offset 0xc0111d7e) and 
-> 'mp_register_lapic'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.text:__init_begin from .text between 'free_initmem' (at offset 
-> 0xc0116dd5) and 'do_test_wp_bit'
-> WARNING: vmlinux - Section mismatch: reference to .init.text: from .text 
-> between 'online_page' (at offset 0xc0116e3b) and 'page_is_ram'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_sinittext 
-> from .text between 'core_kernel_text' (at offset 0xc012de6e) and 
-> 'kernel_text_address'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_einittext 
-> from .text between 'core_kernel_text' (at offset 0xc012de77) and 
-> 'kernel_text_address'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_sinittext 
-> from .text between 'get_symbol_pos' (at offset 0xc0138e3a) and 'reset_iter'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_einittext 
-> from .text between 'get_symbol_pos' (at offset 0xc0138e41) and 'reset_iter'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_sinittext 
-> from .text between 'is_ksym_addr' (at offset 0xc01390c7) and 
-> 'kallsyms_lookup'
-> WARNING: vmlinux - Section mismatch: reference to .init.text:_einittext 
-> from .text between 'is_ksym_addr' (at offset 0xc01390cf) and 
-> 'kallsyms_lookup'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:initkmem_list3 from .text between 'set_up_list3s' (at offset 
-> 0xc015e54d) and 's_stop'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'asus_hides_smbus_lpc' (at offset 0xc01d38b6) and 'quirk_sis_503'
-> WARNING: vmlinux - Section mismatch: reference to .init.data: from .text 
-> between 'asus_hides_smbus_lpc_ich6' (at offset 0xc01d3de0) and 
-> 'quirk_cardbus_legacy'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:logo_linux_mono from .text between 'fb_find_logo' (at offset 
-> 0xc01e991e) and 'cfb_fillrect'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:logo_linux_clut224 from .text between 'fb_find_logo' (at 
-> offset 0xc01e9928) and 'cfb_fillrect'
-> WARNING: vmlinux - Section mismatch: reference to 
-> .init.data:logo_linux_vga16 from .text between 'fb_find_logo' (at offset 
-> 0xc01e992d) and 'cfb_fillrect'
-> Root device is (8, 2)
-> Boot sector 512 bytes.
-> Setup is 6887 bytes.
-> System is 1422 kB
-
+Signed-off-by: John Keller <jpk@sgi.com>
 ---
-~Randy
+
+To avoid future regression/backward compatibilty issues
+when _PRT support is added to our PROM, we'd like to
+see this pushed into 2.6.20, if at all possible.
+
+
+ arch/ia64/kernel/acpi.c            |    3 +++
+ arch/ia64/sn/kernel/io_acpi_init.c |    3 +++
+ drivers/acpi/bus.c                 |    3 +++
+ include/linux/acpi.h               |    1 +
+ 4 files changed, 10 insertions(+)
+
+
+Index: linux/arch/ia64/kernel/acpi.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/acpi.c	2006-10-24 02:38:54.000000000 -0500
++++ linux/arch/ia64/kernel/acpi.c	2006-12-22 10:54:36.930343639 -0600
+@@ -590,6 +590,9 @@ void __init acpi_numa_arch_fixup(void)
+  */
+ int acpi_register_gsi(u32 gsi, int triggering, int polarity)
+ {
++	if (acpi_irq_model == ACPI_IRQ_MODEL_PLATFORM)
++		return gsi;
++
+ 	if (has_8259 && gsi < 16)
+ 		return isa_irq_to_vector(gsi);
+ 
+Index: linux/arch/ia64/sn/kernel/io_acpi_init.c
+===================================================================
+--- linux.orig/arch/ia64/sn/kernel/io_acpi_init.c	2006-12-21 00:51:59.000000000 -0600
++++ linux/arch/ia64/sn/kernel/io_acpi_init.c	2006-12-22 10:53:45.504213484 -0600
+@@ -223,6 +223,9 @@ sn_io_acpi_init(void)
+ 	u64 result;
+ 	s64 status;
+ 
++	/* SN Altix does not follow the IOSAPIC IRQ routing model */
++	acpi_irq_model = ACPI_IRQ_MODEL_PLATFORM;
++
+ 	acpi_bus_register_driver(&acpi_sn_hubdev_driver);
+ 	status = sal_ioif_init(&result);
+ 	if (status || result)
+Index: linux/drivers/acpi/bus.c
+===================================================================
+--- linux.orig/drivers/acpi/bus.c	2006-08-28 20:40:10.000000000 -0500
++++ linux/drivers/acpi/bus.c	2006-12-22 10:52:32.155474439 -0600
+@@ -561,6 +561,9 @@ static int __init acpi_bus_init_irq(void
+ 	case ACPI_IRQ_MODEL_IOSAPIC:
+ 		message = "IOSAPIC";
+ 		break;
++	case ACPI_IRQ_MODEL_PLATFORM:
++		message = "platform specific model";
++		break;
+ 	default:
+ 		printk(KERN_WARNING PREFIX "Unknown interrupt routing model\n");
+ 		return -ENODEV;
+Index: linux/include/linux/acpi.h
+===================================================================
+--- linux.orig/include/linux/acpi.h	2006-10-24 02:38:54.000000000 -0500
++++ linux/include/linux/acpi.h	2006-12-22 10:52:53.337997675 -0600
+@@ -47,6 +47,7 @@ enum acpi_irq_model_id {
+ 	ACPI_IRQ_MODEL_PIC = 0,
+ 	ACPI_IRQ_MODEL_IOAPIC,
+ 	ACPI_IRQ_MODEL_IOSAPIC,
++	ACPI_IRQ_MODEL_PLATFORM,
+ 	ACPI_IRQ_MODEL_COUNT
+ };
+ 

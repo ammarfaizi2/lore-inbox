@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752663AbWLVUvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752672AbWLVUv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752663AbWLVUvk (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 15:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752672AbWLVUvk
+	id S1752672AbWLVUv6 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 15:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752674AbWLVUv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 15:51:40 -0500
-Received: from moutng.kundenserver.de ([212.227.126.179]:62376 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752663AbWLVUvk (ORCPT
+	Fri, 22 Dec 2006 15:51:58 -0500
+Received: from web32913.mail.mud.yahoo.com ([209.191.69.113]:27059 "HELO
+	web32913.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752672AbWLVUv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 15:51:40 -0500
-X-Greylist: delayed 324 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 15:51:39 EST
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: two architectures,same source tree
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@lazybastard.org>,
-       Yakov Lerner <iler.ml@gmail.com>, Kernel <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Fri, 22 Dec 2006 21:45:26 +0100
-References: <7uewg-7Un-7@gated-at.bofh.it> <7ueZm-17M-25@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 22 Dec 2006 15:51:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=V/J62QEfhpLZDGOU9LeoPgiugNB8adExCs1gQOONEvFXYYGaYPfNKvWoukjI8SdYSjEcOSkUk0RtIf1GpQQA3EPTO4Kpa0wkzulkyvz8hGbAdh3ONZSo43BFJFlsCUl1+BIBA+jyhCqdfnb6vvrwVbS8n7HxTgUQxCXGXwy20DE=;
+X-YMail-OSG: F7CjS9gVM1ncnslRwZJN.yND0_1oybRz2ThFwRL0if.lcfqWzKBPn4EMon5RXyeD4L4W0lSRQuKKlUJoD.wFhDu1f8fU9_OPs9vJVTflZQNvdzm8nxwpSNeqhXnAHBpW.ZJwVezfGMAZt4GGQcIKR_RxHEH06pDMceEDl5fiVpStLEA.rykD4Oimq1vd
+Date: Fri, 22 Dec 2006 12:51:56 -0800 (PST)
+From: J <jhnlmn@yahoo.com>
+Subject: Re: Possible race condition in usb-serial.c
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Greg KH <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200612222059.50652.oliver@neukum.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1GxrGg-0001SL-3h@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <567505.6711.qm@web32913.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@lazybastard.org> wrote:
-> On Wed, 20 December 2006 20:32:20 +0200, Yakov Lerner wrote:
+> No, this is a fundamental problem. You don't
+> refcount
+> a pointer, you refcount a data structure.
+> But this is insufficient. We need to make 
+> sure the pointer points to valid memory.
 
->> Is it easily possible to build two architectures in
->> the same source tree (so that intermediate fles
->> and resut files do not interfere ) ?
-> 
-> I'd try something like this:
-> make O=../foo ARCH=foo
-> make O=../bar ARCH=bar
-> 
-> But as I'm lazy I'll leave the debugging to you. :)
+I understand. But a typical definition of ref-count 
+requires the count in the data structure to be
+equal to the number of outstanding pointers to this
+data structure.
+Every time we create a new pointer, the ref count
+should be incremented. When pointer is erased, count
+is decremented. 
+This is what I meant as "ref counting a pointer".
+If we follow this rule, then each pointer will
+always point to a valid memory.
 
-IIRC You'll have to specify ARCH= on each make call, but O= is saved in
-../foo/Makefile.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+So, if we apply ref counting rules consistently,
+then each pointer in serial_table should be
+ref counted. This will completely break the current
+code, which erases serial_table from destroy_serial,
+which is called only when the ref count goes to 0,
+which will never happen if serial_table is ref
+counted.
+However, this can be fixed if usb_serial_disconnect
+will erase pointers in serial_table before
+calling usb_serial_put.
 
-http://david.woodhou.se/why-not-spf.html
+Now, I am not yet 100% convinced that ref counting
+will, indeed, work. Atomics are known to have
+problems on SMP CPUs, which can reorder operations.
+But I would not discard atomics yet.
+Global mutex is go ugly.
+
+John
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

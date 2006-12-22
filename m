@@ -1,41 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423178AbWLVBDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1945897AbWLVBGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423178AbWLVBDz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 21 Dec 2006 20:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423177AbWLVBDz
+	id S1945897AbWLVBGl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 21 Dec 2006 20:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945894AbWLVBGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Dec 2006 20:03:55 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:4871 "EHLO
-	arnor.apana.org.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1423175AbWLVBDy (ORCPT
+	Thu, 21 Dec 2006 20:06:41 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3005 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1945897AbWLVBGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Dec 2006 20:03:54 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: mjg59@srcf.ucam.org (Matthew Garrett)
-Subject: Re: Network drivers that don't suspend on interface down
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <20061220143134.GA25462@srcf.ucam.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1GxYoS-0003GL-00@gondolin.me.apana.org.au>
-Date: Fri, 22 Dec 2006 12:03:04 +1100
+	Thu, 21 Dec 2006 20:06:40 -0500
+Date: Fri, 22 Dec 2006 02:06:41 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] add i386 idle notifier (take 3)
+Message-ID: <20061222010641.GK6993@stusta.de>
+References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061221091242.GA32601@frankl.hpl.hp.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+On Thu, Dec 21, 2006 at 01:12:42AM -0800, Stephane Eranian wrote:
+> Andrew,
 > 
-> In terms of what I've seen on vaguely modern hardware, I'd guess at 
-> e1000 and sky2 as the top ones. b44 is still common in cheaper hardware, 
-> with via-rhine appearing at the very low end. I'll try to grep through 
-> our hardware database results to get a stronger idea about percentages.
+> On Wed, Dec 20, 2006 at 09:05:14PM -0800, Andrew Morton wrote:
+> > On Wed, 20 Dec 2006 06:05:00 -0800
+> > Stephane Eranian <eranian@hpl.hp.com> wrote:
+> > 
+> > > Hello,
+> > > 
+> > > Here is the latest version of the idle notifier for i386.
+> > > This patch is against 2.6.20-rc1 (GIT). In this kernel, the idle
+> > > loop code was modified such that the lowest level idle
+> > > routines do not have loops anymore (e.g., poll_idle). As such,
+> > > we do not need to call enter_idle() in all the interrupt handlers.
+> > > 
+> > > This patch also duplicates the x86-64 bug fix for a race condition
+> > > as posted by Venkatesh Pallipadi from Intel.
+> > > 
+> > > changelog:
+> > > 	- add idle notification mechanism to i386
+> > > 
+> > 
+> > None of the above text is actually usable as a changelog entry.  We are
+> > left wondering:
+> > 
+> > - why is this patch needed?
+> > 
+> > - what does it do?
+> > 
+> > - how does it do it?
+> > 
+> > The three questions which all changelogs should answer ;)
+> 
+> Sorry about that. Here is a new changelog:
+> 
+> changelog:
+> 	- add a notifier mechanism to the low level idle loop. You can
+> 	  register a callback function which gets invoked on entry and exit
+> 	  from the low level idle loop. The low level idle loop is defined as
+> 	  the polling loop, low-power call, or the mwait instruction. Interrupts
+> 	  processed by the idle thread are not considered part of the low level
+> 	  loop. The notifier can be used to measure precisely how much is spent
+> 	  in useless execution (or low power mode). The perfmon subsystem uses it
+> 	  to turn on/off monitoring.
 
-The Sony laptop that I bought a year ago still has an e100 chipset so
-that's probably worth fixing too.
 
-Cheers,
+Why is this patch not submitted as part of the perfmon patch that also 
+adds a user of this code?
+
+And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
+perfmon-new-base-061204 doesn't seem to add any modular user?
+
+
+> -Stephane
+
+cu
+Adrian
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751633AbWLVRuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751655AbWLVR4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbWLVRuK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 12:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWLVRuK
+	id S1751655AbWLVR4f (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 12:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWLVR4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 12:50:10 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34823 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751627AbWLVRuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 12:50:08 -0500
-From: John Keller <jpk@sgi.com>
-To: linux-acpi@vger.kernel.org
-Cc: ayoung@agi.com, jes@sgi.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, John Keller <jpk@sgi.com>
-Date: Fri, 22 Dec 2006 11:50:04 -0600
-Message-Id: <20061222175004.1603.74655.sendpatchset@attica.americas.sgi.com>
-Subject: [PATCH 1/1] - Altix: ACPI _PRT support
+	Fri, 22 Dec 2006 12:56:35 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:33259 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751636AbWLVR4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 12:56:34 -0500
+Date: Fri, 22 Dec 2006 09:56:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Martin Michlmayr <tbm@cyrius.com>, Andrei Popa <andrei.popa@i-neo.ro>,
+       Andrew Morton <akpm@osdl.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1166793952.32117.29.camel@twins>
+Message-ID: <Pine.LNX.4.64.0612220943360.3671@woody.osdl.org>
+References: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> 
+ <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> 
+ <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> 
+ <20061221012721.68f3934b.akpm@osdl.org>  <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
+  <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> 
+ <20061222100004.GC10273@deprecation.cyrius.com>  <20061222021714.6a83fcac.akpm@osdl.org>
+ <1166790275.6983.4.camel@localhost>  <20061222123249.GG13727@deprecation.cyrius.com>
+  <20061222125920.GA16763@deprecation.cyrius.com> <1166793952.32117.29.camel@twins>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provide ACPI _PRT support for SN Altix systems.
-
-The SN Altix platform does not conform to the 
-IOSAPIC IRQ routing model, so a new acpi_irq_model
-(ACPI_IRQ_MODEL_PLATFORM) has been defined. The SN
-platform specific code sets acpi_irq_model to
-this new value, and keys off of it in acpi_register_gsi()
-to avoid the iosapic code path.
-
-Signed-off-by: John Keller <jpk@sgi.com>
----
-
-To avoid future regression/backward compatibilty issues
-when _PRT support is added to our PROM, we'd like to
-see this pushed into 2.6.20, if at all possible.
 
 
- arch/ia64/kernel/acpi.c            |    3 +++
- arch/ia64/sn/kernel/io_acpi_init.c |    3 +++
- drivers/acpi/bus.c                 |    3 +++
- include/linux/acpi.h               |    1 +
- 4 files changed, 10 insertions(+)
+On Fri, 22 Dec 2006, Peter Zijlstra wrote:
+> 
+> fix page_mkclean_one()
+> 
+>  - add flush_cache_page() for all those virtual indexed cache
+>    architectures.
 
+I think the flush_cache_page() should be after we've actually flushed it 
+from the TLB and re-inserted it (this is one reason why I did the 
+"ptep_exchange()" version of this). Otherwise somebody can still write to 
+the page _after_ the cache flush..
 
-Index: linux/arch/ia64/kernel/acpi.c
-===================================================================
---- linux.orig/arch/ia64/kernel/acpi.c	2006-10-24 02:38:54.000000000 -0500
-+++ linux/arch/ia64/kernel/acpi.c	2006-12-22 10:54:36.930343639 -0600
-@@ -590,6 +590,9 @@ void __init acpi_numa_arch_fixup(void)
-  */
- int acpi_register_gsi(u32 gsi, int triggering, int polarity)
- {
-+	if (acpi_irq_model == ACPI_IRQ_MODEL_PLATFORM)
-+		return gsi;
-+
- 	if (has_8259 && gsi < 16)
- 		return isa_irq_to_vector(gsi);
- 
-Index: linux/arch/ia64/sn/kernel/io_acpi_init.c
-===================================================================
---- linux.orig/arch/ia64/sn/kernel/io_acpi_init.c	2006-12-21 00:51:59.000000000 -0600
-+++ linux/arch/ia64/sn/kernel/io_acpi_init.c	2006-12-22 10:53:45.504213484 -0600
-@@ -223,6 +223,9 @@ sn_io_acpi_init(void)
- 	u64 result;
- 	s64 status;
- 
-+	/* SN Altix does not follow the IOSAPIC IRQ routing model */
-+	acpi_irq_model = ACPI_IRQ_MODEL_PLATFORM;
-+
- 	acpi_bus_register_driver(&acpi_sn_hubdev_driver);
- 	status = sal_ioif_init(&result);
- 	if (status || result)
-Index: linux/drivers/acpi/bus.c
-===================================================================
---- linux.orig/drivers/acpi/bus.c	2006-08-28 20:40:10.000000000 -0500
-+++ linux/drivers/acpi/bus.c	2006-12-22 10:52:32.155474439 -0600
-@@ -561,6 +561,9 @@ static int __init acpi_bus_init_irq(void
- 	case ACPI_IRQ_MODEL_IOSAPIC:
- 		message = "IOSAPIC";
- 		break;
-+	case ACPI_IRQ_MODEL_PLATFORM:
-+		message = "platform specific model";
-+		break;
- 	default:
- 		printk(KERN_WARNING PREFIX "Unknown interrupt routing model\n");
- 		return -ENODEV;
-Index: linux/include/linux/acpi.h
-===================================================================
---- linux.orig/include/linux/acpi.h	2006-10-24 02:38:54.000000000 -0500
-+++ linux/include/linux/acpi.h	2006-12-22 10:52:53.337997675 -0600
-@@ -47,6 +47,7 @@ enum acpi_irq_model_id {
- 	ACPI_IRQ_MODEL_PIC = 0,
- 	ACPI_IRQ_MODEL_IOAPIC,
- 	ACPI_IRQ_MODEL_IOSAPIC,
-+	ACPI_IRQ_MODEL_PLATFORM,
- 	ACPI_IRQ_MODEL_COUNT
- };
- 
+>  - handle s390.
+
+Yeah, that looks like the proper way to handle that.
+
+That said, it looks like we still see corruption. You may not, but Martin 
+and Andrei still report problems, even with all the patches (including the 
+last one from Andrew that avoids "dirty" going negative under some 
+circumstances, and explains the "slow and/or never completed" case that 
+Gordon and Martin saw).
+
+The good news is that I think the code now is cleaner and more 
+understandable. The bad news is that nothing we've ever tried seems to 
+have fixed the _problem_.
+
+And I don't think it's page_mkclean(). Especially not since the ARM people 
+are seeing this under UP without PREEMPT. In that kind of schenario, the 
+only possible races tend to be from things that actually block: 
+"set_page_dirty()" (which blocks on IO in balancing), memory allocations, 
+and obviously doing actual IO.
+
+And it's not a virtual cache problem, since others see it on x86.
+
+Of course, since it's quite possibly two different issues, maybe the 
+virtual cache flush is required in order to force write-back to memory 
+(which in turn is required for the DMA for the actual write!). So the ARM 
+issue certainly could be due to the flush_cache_page() thing...
+
+		Linus

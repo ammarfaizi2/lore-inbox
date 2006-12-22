@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1945957AbWLVIMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1945973AbWLVIWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945957AbWLVIMo (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 03:12:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945958AbWLVIMo
+	id S1945973AbWLVIWz (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 03:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945978AbWLVIWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 03:12:44 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:40241 "EHLO
-	fgwmail6.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1945957AbWLVIMn (ORCPT
+	Fri, 22 Dec 2006 03:22:55 -0500
+Received: from smtp1.telegraaf.nl ([217.196.45.193]:39416 "EHLO
+	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1945973AbWLVIWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 03:12:43 -0500
-Date: Fri, 22 Dec 2006 17:15:28 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       y-goto@jp.fujitsu.com, npiggin@suse.de
-Subject: [BUG][PATCH] fix oom killer kills current every time if there is
- memory-less-node take2
-Message-Id: <20061222171528.cf31bad1.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061222142448.14836b59.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20061222122243.2a46de76.kamezawa.hiroyu@jp.fujitsu.com>
-	<20061221211812.4acaede5.pj@sgi.com>
-	<20061222142448.14836b59.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 22 Dec 2006 03:22:54 -0500
+Date: Fri, 22 Dec 2006 09:22:48 +0100
+From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
+       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+Message-ID: <20061222082248.GY31882@telegraafnet.nl>
+References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
+X-telegraaf-MailScanner-From: ard@telegraafnet.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed patch comment.
+Hello,
+On Fri, Dec 22, 2006 at 12:41:46PM +0800, Zhang, Yanmin wrote:
+> I think parse_args enables irq when it calls callbacks.
+> Could you try below?
+> 1) Test Andrew's patch of sema down_write;
+> 2) Apply below patch and see what the output is when booting. If the output has
+> "[BUG]..address.", Pls. map the address to function name by System.map.
+Without proof^H^H^H^H^Hpasting my dmesg and the "diff", I already
+concluded that ide_setup was the culprit. (I've debuged
+parse_one, and it barfed around the 3rd parameter which is
+hdb=noprobe).
+Anyway, a bad night of sleep reminds me that our EM64T boxes also
+have this line (which actually is a remainder of our VA1220 boxes
+;-) ), and they don't barf, so it must be either the combination
+of the sata_nv together with the pata driver part, *or* just the
+pata driver part. (Our opteron != nforce chipsets also works).
 
--Kame
-==
-constrained_alloc(), which is called to detect where oom is from,
-checks passed zone_list().
-If zone_list doesn't include all nodes, it thinks oom is from mempolicy.
+I will trace down the ide_setup today. First loads of coffee.
 
-But there is memory-less-node. memory-less-node's zones are never included in
-zonelist[].
-
-contstrained_alloc() should get memory_less_node into count. 
-Otherwise, it always thinks 'oom is from mempolicy'.
-This means that current process dies at any time. This patch fix it.
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-
-
- mm/oom_kill.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-
-Index: devel-2.6.20-rc1-mm1/mm/oom_kill.c
-===================================================================
---- devel-2.6.20-rc1-mm1.orig/mm/oom_kill.c	2006-12-16 13:47:59.000000000 +0900
-+++ devel-2.6.20-rc1-mm1/mm/oom_kill.c	2006-12-22 12:11:55.000000000 +0900
-@@ -174,7 +174,12 @@
- {
- #ifdef CONFIG_NUMA
- 	struct zone **z;
--	nodemask_t nodes = node_online_map;
-+	nodemask_t nodes;
-+	int node;
-+	/* node has memory ? */
-+	for_each_online_node(node)
-+		if (NODE_DATA(node)->node_present_pages)
-+			node_set(node, nodes);
- 
- 	for (z = zonelist->zones; *z; z++)
- 		if (cpuset_zone_allowed_softwall(*z, gfp_mask))
-
+-- 
+program signature;
+begin  { telegraaf.com
+} writeln("<ard@telegraafnet.nl> TEM2");
+end
+.

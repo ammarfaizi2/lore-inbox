@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751007AbWLVQzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750804AbWLVRD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWLVQzc (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 11:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWLVQzc
+	id S1750804AbWLVRD4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 12:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWLVRD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 11:55:32 -0500
-Received: from web56613.mail.re3.yahoo.com ([66.196.97.57]:23858 "HELO
-	web56613.mail.re3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751005AbWLVQzb (ORCPT
+	Fri, 22 Dec 2006 12:03:56 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:57185 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750804AbWLVRD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 11:55:31 -0500
-X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 11:55:31 EST
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=URxGA02YMQoRe+52mA/VsToShVxm5uguzbNEBLDS9BVbKw9AqAdj4XtKV7ACJA+KrKjiTkPCePIWygrjTRkAiHaok0PFTnsWpj+c+Rad3a8iddIkBsEyaiQXbckAuzIsQBkD2igqvtfyyuQGGPcExRgJyq5fJlxRwUCBm/vD51w=;
-Date: Fri, 22 Dec 2006 08:48:49 -0800 (PST)
-From: s s <situert@yahoo.com>
-Subject: [PATCH] Make mkcompile_h use LANG=C and LC_ALL=C for $CC -v
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
+	Fri, 22 Dec 2006 12:03:56 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: hot ejection of CardBus cards and ExpressCards
+Date: Fri, 22 Dec 2006 18:05:43 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <458BB6CA.4080203@s5r6.in-berlin.de>
+In-Reply-To: <458BB6CA.4080203@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <838466.99944.qm@web56613.mail.re3.yahoo.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612221805.43735.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Am Freitag, 22. Dezember 2006 11:43 schrieb Stefan Richter:
+> Would-be driver programmer's question #217:
+> How has a driver's remove routine to account for hot ejection of a PCI
+> device? Does it merely boil down to that writing to device registers
+> doesn't have side effects anymore or is there more to it?
 
-This patch fixes a minor bug in mkcompile_h.
-As one can see, the current locale is used while
-getting the version of gcc. This produces problems
-when a locale other than C or en_US is used.
-As an example, my /proc/version contains Turkish
-characters in iso-8859-9 encoding.
+Reading will return 0xFF. And you have to deregister the device and free
+resources from your disconnect() method.
 
-This patch fixes this issue by making sure that
-the C locale is used to get gcc's version.
-
-Regards,
-situert
-
---- linux-2.6.19.1/scripts/mkcompile_h.original	2006-12-22 18:31:22.000000000 +0200
-+++ linux-2.6.19.1/scripts/mkcompile_h	2006-12-22 18:31:39.000000000 +0200
-@@ -58,7 +58,7 @@
-     echo \#define LINUX_COMPILE_DOMAIN
-   fi
- 
--  echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
-+  echo \#define LINUX_COMPILER \"`LC_ALL=C LANG=C $CC -v 2>&1 | tail -n 1`\"
- ) > .tmpcompile
- 
- # Only replace the real compile.h if the new one is different,
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+	HTH
+		Oliver

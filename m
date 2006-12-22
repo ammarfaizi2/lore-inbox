@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751483AbWLVSds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751912AbWLVSga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWLVSds (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 13:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWLVSds
+	id S1751912AbWLVSga (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 13:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWLVSga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 13:33:48 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:61216 "EHLO
-	brmea-mail-4.sun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751483AbWLVSdr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 13:33:47 -0500
-X-Greylist: delayed 2790 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 13:33:47 EST
-Date: Fri, 22 Dec 2006 12:47:13 -0500
-From: James Puthukattukaran <James.Puthukattukaran@sun.com>
-Subject: [PATCH]: x86-64 system crashes when no memory populating Node 0
-To: linux-kernel@vger.kernel.org
-Message-id: <458C1A21.8090009@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Fri, 22 Dec 2006 13:36:30 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35095 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751786AbWLVSg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 13:36:29 -0500
+Date: Fri, 22 Dec 2006 10:36:15 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Keiichi KII <k-keiichi@bx.jp.nec.com>
+Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH -mm 0/5] proposal for dynamic configurable
+ netconsole
+Message-ID: <20061222103615.6e074f4e@localhost.localdomain>
+In-Reply-To: <458BC905.7050003@bx.jp.nec.com>
+References: <458BC905.7050003@bx.jp.nec.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 4 socket AMD Operton system. The 2.6.18 kernel I have crashes 
-when there is no memory in node0.
+On Fri, 22 Dec 2006 21:01:09 +0900
+Keiichi KII <k-keiichi@bx.jp.nec.com> wrote:
 
---James
+> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+> 
+> The netconsole is a very useful module for collecting kernel message under
+> certain circumstances(e.g. disk logging fails, serial port is unavailable).
+> 
+> But current netconsole is not flexible. For example, if you want to change ip
+> address for logging agent, in the case of built-in netconsole, you can't change
+> config except for changing boot parameter and rebooting your system, or in the
+> case of module netconsole, you need to reload netconsole module.
 
+If netconsole is a module, you should be able to remove it and reload
+with different parameters.
 
-diff -uNr linux-2.6.18-orig/arch/x86_64/kernel/aperture.c 
-linux-2.6.18-new/arch/x86_64/kernel/aperture.c
---- linux-2.6.18-orig/arch/x86_64/kernel/aperture.c     2006-09-19 
-23:42:06.000000000 -0400
-+++ linux-2.6.18-new/arch/x86_64/kernel/aperture.c      2006-12-20 
-19:43:42.000000000 -0500
-@@ -38,7 +38,6 @@
+> So, I propose the following extended features for netconsole.
+> 
+> 1) support for multiple logging agents.
+> 2) add interface to access each parameter of netconsole
+>    using sysfs.
+> 
+> This patch is for linux-2.6.20-rc1-mm1 and is divided to each function.
+> Your comments are very welcome.
 
- static u32 __init allocate_aperture(void)
- {
--       pg_data_t *nd0 = NODE_DATA(0);
-        u32 aper_size;
-        void *p;
-
-@@ -52,12 +51,13 @@
-         * Unfortunately we cannot move it up because that would make the
-         * IOMMU useless.
-         */
--       p = __alloc_bootmem_node(nd0, aper_size, aper_size, 0);
-+
-+       p = __alloc_bootmem(aper_size, aper_size, 0);
-        if (!p || __pa(p)+aper_size > 0xffffffff) {
-                printk("Cannot allocate aperture memory hole (%p,%uK)\n",
-                       p, aper_size>>10);
-                if (p)
--                       free_bootmem_node(nd0, __pa(p), aper_size);
-+                       free_bootmem(__pa(p), aper_size);
-                return 0;
-        }
-        printk("Mapping aperture over %d KB of RAM @ %lx\n",
-
+Rather than extending the existing kludge with module parameter, to
+sysfs. I would rather see a better API for this. Please build think
+about doing a better API with a basic set of ioctl's. Some additional
+things:
+	- shouldn't just be IPV4 specific, should handle IPV6 as well
+	- shouldn't specify MAC address, it can do network discovery/arp to
+	  find that when adding addresses

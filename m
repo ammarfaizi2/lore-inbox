@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1946018AbWLVKLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946019AbWLVKQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946018AbWLVKLG (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 05:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWLVKLG
+	id S1946019AbWLVKQP (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 05:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946020AbWLVKQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 05:11:06 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:53680 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946018AbWLVKLF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 05:11:05 -0500
-Date: Fri, 22 Dec 2006 11:10:55 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061222101055.GA12230@deprecation.cyrius.com>
-References: <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org> <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org> <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> <20061221012721.68f3934b.akpm@osdl.org> <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com> <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com> <20061222100637.GA12105@deprecation.cyrius.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061222100637.GA12105@deprecation.cyrius.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 22 Dec 2006 05:16:15 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:34520 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946019AbWLVKQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 05:16:14 -0500
+Date: Fri, 22 Dec 2006 01:43:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Stefano Takekawa <take@libero.it>
+Cc: Ard -kwaak- van Breemen <ard@telegraafnet.nl>,
+       "Zhang, Yanmin" <yanmin.zhang@intel.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Yinghai Lu <yinghai.lu@amd.com>, agalanin@mera.ru,
+       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+Message-Id: <20061222014341.5ba33788.akpm@osdl.org>
+In-Reply-To: <1166779971.16097.8.camel@proton.twominds.it>
+References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com>
+	<20061222082248.GY31882@telegraafnet.nl>
+	<20061222003029.4394bd9a.akpm@osdl.org>
+	<1166779971.16097.8.camel@proton.twominds.it>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin Michlmayr <tbm@cyrius.com> [2006-12-22 11:06]:
-> Okay, it's really weird.  So apt-get just hangs doing nothing and I
-> cannot even kill it.  I just tried to download strace via wget and
-> immediately when I started wget, the hanging apt-get process
-> continued.
+On Fri, 22 Dec 2006 10:32:51 +0100
+Stefano Takekawa <take@libero.it> wrote:
 
-... and now that we've completed this step, the apt cache has suddenly
-been reduced (see Gordon's mail for an explanation) and it segfaults:
+> Applied to 2.6.19 it doesn't change anything. It still panics.
 
-sh-3.1# ls -l /var/cache/apt/
-total 12524
-drwxr-xr-x 3 root root   12288 Dec 22 04:41 archives
--rw-r--r-- 1 root root 6426885 Dec 22 05:03 pkgcache.bin
--rw-r--r-- 1 root root 6426835 Dec 22 05:03 srcpkgcache.bin
-sh-3.1# apt-get -f install
-Reading package lists... Done
-Segmentation faulty tree... 50%
+Really?
 
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+And you can confirm that converting pci_bus_sem back into a spinlock fixes
+it?
+
+> How can I have something similar to a serial console on a laptop without
+> serial port but with a parallel one? Will netconsole work?
+> 
+
+No, netconsole isn't available for quite some time after the kernel starts.
+
+Your best bet would be to boot with `earlyprintk=vga vga=N', where N is
+something which gives lots of rows.  0F01, perhaps.
+
+Then, take a digital photo of the display.

@@ -1,1619 +1,2602 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423147AbWLVPAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423143AbWLVPAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423147AbWLVPAm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 10:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423156AbWLVPAm
+	id S1423143AbWLVPAq (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 10:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423153AbWLVPAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 10:00:42 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:55747 "EHLO
+	Fri, 22 Dec 2006 10:00:45 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:55746 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423147AbWLVPAk (ORCPT
+	with ESMTP id S1423143AbWLVPAk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 22 Dec 2006 10:00:40 -0500
+X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 10:00:39 EST
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:message-id:references:user-agent:date:from:to:cc:
 	subject:content-disposition;
-	b=ttDm0OcfABH3gUt0nqJwTc8zSP7qYGhc+IQjB1O8wq/Te4E6jDEqvKDcWHLdnA9F3
-	GSx8lNArnXhCd8JA484zA==
-Message-Id: <20061222145216.928478318@menage.corp.google.com>
+	b=BOUu8XTIEzNXDwspK4V6BODpZfXBYhlMWOe5USoivsBy3sLNGiSvubRzv2hE6Ev5i
+	lACgOJoJzzRKilm5Ca3Rg==
+Message-Id: <20061222145216.388481236@menage.corp.google.com>
 References: <20061222141442.753211763@menage.corp.google.com>
 User-Agent: quilt/0.45-1
-Date: Fri, 22 Dec 2006 06:14:47 -0800
+Date: Fri, 22 Dec 2006 06:14:44 -0800
 From: Paul Menage <menage@google.com>
 To: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
        serue@us.ibm.com, vatsa@in.ibm.com
 Cc: ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
        devel@openvz.org, containers@lists.osdl.org, mbligh@google.com,
        winget@google.com, rohitseth@google.com
-Subject: [PATCH 5/6] containers: Resource Groups over generic containers
-Content-Disposition: inline; filename=res_group_f0.8_single_2618.patch
+Subject: [PATCH 2/6] containers: Cpusets hooked into containers
+Content-Disposition: inline; filename=cpusets_using_containers.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the RG core and numtasks controller as container
-subsystems, intended as an example of how to implement a more complex
-resource control system over generic process containers. The changes
-to the core involve primarily removing the group management, task
-membership and configfs support and adding interface layers to talk to
-the generic container layer instead.
+This patch removes the process grouping code from the cpusets code,
+instead hooking it into the generic container system. This temporarily
+adds cpuset-specific code in kernel/container.c, which is removed by
+the next patch in the series.
 
-Each resource controller becomes an independent container subsystem;
-the RG core is essentially a library that the resource controllers can
-use to provide the RG API to userspace. Rather than a single shares
-and stats file in each group, there's a <controller>_shares and 
-a <controller>_stats file, each linked to the appropriate resource
-controller.
+Signed-off-by: Paul Menage <menage@google.com>
 
- include/linux/moduleparam.h  |   12 -
- include/linux/numtasks.h     |   28 ++
- include/linux/res_group.h    |   87 ++++++++
- include/linux/res_group_rc.h |   97 ++++++++
- init/Kconfig                 |   22 ++
- kernel/Makefile              |    1 
- kernel/fork.c                |    7 
- kernel/res_group/Makefile    |    2 
- kernel/res_group/local.h     |   38 +++
- kernel/res_group/numtasks.c  |  467 +++++++++++++++++++++++++++++++++++++++++++
- kernel/res_group/res_group.c |  160 ++++++++++++++
- kernel/res_group/rgcs.c      |  302 +++++++++++++++++++++++++++
- kernel/res_group/shares.c    |  228 ++++++++++++++++++++
- 13 files changed, 1447 insertions(+), 4 deletions(-)
+---
+ Documentation/cpusets.txt |   81 +-
+ fs/proc/base.c            |    4 
+ fs/super.c                |    5 
+ include/linux/container.h |    7 
+ include/linux/cpuset.h    |   25 
+ include/linux/fs.h        |    2 
+ include/linux/mempolicy.h |    2 
+ include/linux/sched.h     |    4 
+ init/Kconfig              |   14 
+ kernel/container.c        |  107 +++
+ kernel/cpuset.c           | 1269 +++++-----------------------------------------
+ kernel/exit.c             |    2 
+ kernel/fork.c             |    7 
+ mm/oom_kill.c             |    6 
+ 14 files changed, 319 insertions(+), 1216 deletions(-)
 
-Index: container-2.6.20-rc1/include/linux/moduleparam.h
+Index: container-2.6.20-rc1/include/linux/container.h
 ===================================================================
---- container-2.6.20-rc1.orig/include/linux/moduleparam.h
-+++ container-2.6.20-rc1/include/linux/moduleparam.h
-@@ -78,11 +78,17 @@ struct kparam_array
- /* Helper functions: type is byte, short, ushort, int, uint, long,
-    ulong, charp, bool or invbool, or XXX if you define param_get_XXX,
-    param_set_XXX and param_check_XXX. */
--#define module_param_named(name, value, type, perm)			   \
--	param_check_##type(name, &(value));				   \
--	module_param_call(name, param_set_##type, param_get_##type, &value, perm); \
-+#define module_param_named_call(name, value, type, set, perm)		\
-+	param_check_##type(name, &(value));				\
-+	module_param_call(name, set, param_get_##type, &(value), perm); \
- 	__MODULE_PARM_TYPE(name, #type)
+--- container-2.6.20-rc1.orig/include/linux/container.h
++++ container-2.6.20-rc1/include/linux/container.h
+@@ -47,6 +47,10 @@ struct container {
  
-+#define module_param_named(name, value, type, perm)			   \
-+	module_param_named_call(name, value, type, param_set_##type, perm)
+ 	struct container *parent;	/* my parent */
+ 	struct dentry *dentry;		/* container fs entry */
 +
-+#define module_param_set_call(name, type, setfn, perm) \
-+	module_param_named_call(name, name, type, setfn, perm)
-+
- #define module_param(name, type, perm)				\
- 	module_param_named(name, name, type, perm)
++#ifdef CONFIG_CPUSETS
++	struct cpuset *cpuset;
++#endif
+ };
  
-Index: container-2.6.20-rc1/include/linux/numtasks.h
+ /* struct cftype:
+@@ -79,6 +83,9 @@ struct cftype {
+ int container_add_file(struct container *cont, const struct cftype *cft);
+ 
+ int container_is_removed(const struct container *cont);
++void container_set_release_agent_path(const char *path);
++
++int container_path(const struct container *cont, char *buf, int buflen);
+ 
+ #else /* !CONFIG_CONTAINERS */
+ 
+Index: container-2.6.20-rc1/include/linux/cpuset.h
 ===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/include/linux/numtasks.h
-@@ -0,0 +1,28 @@
-+/* numtasks.h - No. of tasks resource controller for Resource Groups
-+ *
-+ * Copyright (C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
-+ *
-+ * Provides No. of tasks resource controller for Resource Groups
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+#ifndef _LINUX_NUMTASKS_H
-+#define _LINUX_NUMTASKS_H
-+
-+#ifdef CONFIG_RES_GROUPS_NUMTASKS
-+#include <linux/res_group_rc.h>
-+
-+extern int numtasks_allow_fork(struct task_struct *);
-+
-+#else /* CONFIG_RES_GROUPS_NUMTASKS */
-+
-+#define numtasks_allow_fork(task) (0)
-+
-+#endif /* CONFIG_RES_GROUPS_NUMTASKS */
-+#endif /* _LINUX_NUMTASKS_H */
-Index: container-2.6.20-rc1/include/linux/res_group.h
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/include/linux/res_group.h
-@@ -0,0 +1,87 @@
-+/*
-+ *  res_group.h - Header file to be used by Resource Groups
-+ *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
-+ *		(C) Shailabh Nagar,  IBM Corp. 2003, 2004
-+ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
-+ *
-+ * Provides data structures, macros and kernel APIs
-+ *
-+ * More details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#ifndef _LINUX_RES_GROUP_H
-+#define _LINUX_RES_GROUP_H
-+
-+#ifdef CONFIG_RES_GROUPS
-+#include <linux/spinlock.h>
-+#include <linux/list.h>
-+#include <linux/kref.h>
+--- container-2.6.20-rc1.orig/include/linux/cpuset.h
++++ container-2.6.20-rc1/include/linux/cpuset.h
+@@ -11,16 +11,15 @@
+ #include <linux/sched.h>
+ #include <linux/cpumask.h>
+ #include <linux/nodemask.h>
 +#include <linux/container.h>
+ 
+ #ifdef CONFIG_CPUSETS
+ 
+-extern int number_of_cpusets;	/* How many cpusets are defined in system? */
++extern int number_of_cpusets;  /* How many cpusets are defined in system? */
+ 
+ extern int cpuset_init_early(void);
+ extern int cpuset_init(void);
+ extern void cpuset_init_smp(void);
+-extern void cpuset_fork(struct task_struct *p);
+-extern void cpuset_exit(struct task_struct *p);
+ extern cpumask_t cpuset_cpus_allowed(struct task_struct *p);
+ extern nodemask_t cpuset_mems_allowed(struct task_struct *p);
+ #define cpuset_current_mems_allowed (current->mems_allowed)
+@@ -57,10 +56,6 @@ extern void __cpuset_memory_pressure_bum
+ 
+ extern const struct file_operations proc_cpuset_operations;
+ extern char *cpuset_task_status_allowed(struct task_struct *task, char *buffer);
+-
+-extern void cpuset_lock(void);
+-extern void cpuset_unlock(void);
+-
+ extern int cpuset_mem_spread_node(void);
+ 
+ static inline int cpuset_do_page_mem_spread(void)
+@@ -75,13 +70,22 @@ static inline int cpuset_do_slab_mem_spr
+ 
+ extern void cpuset_track_online_nodes(void);
+ 
++extern int cpuset_can_attach_task(struct container *cont,
++				  struct task_struct *tsk);
++extern void cpuset_attach_task(struct container *cont,
++				struct task_struct *tsk);
++extern void cpuset_post_attach_task(struct container *cont,
++				    struct container *oldcont,
++				    struct task_struct *tsk);
++extern int cpuset_populate_dir(struct container *cont);
++extern int cpuset_create(struct container *cont);
++extern void cpuset_destroy(struct container *cont);
 +
-+#define SHARE_UNCHANGED	(-1)	/* implicitly specified by userspace,
-+					 * never stored in a resource group'
-+					 * shares struct; never displayed */
-+#define SHARE_UNSUPPORTED	(-2)	/* If the resource controller doesn't
-+					 * support user changing a shares value
-+					 * it sets the corresponding share
-+					 * value to UNSUPPORTED when it returns
-+					 * the newly allocated shares data
-+					 * structure */
-+#define SHARE_DONT_CARE	(-3)
-+
-+#define SHARE_DEFAULT_DIVISOR 	(100)
-+
-+#define MAX_RES_CTLRS	CONFIG_MAX_CONTAINER_SUBSYS /* max # of resource controllers */
-+#define MAX_DEPTH	5	/* max depth of hierarchy supported */
-+
-+#define NO_RES_GROUP		NULL
-+#define NO_SHARE		NULL
-+#define NO_RES_ID		MAX_RES_CTLRS /* Invalid ID */
-+
-+/*
-+ * Share quantities are a child's fraction of the parent's resource
-+ * specified by a divisor in the parent and a dividend in the child.
-+ *
-+ * Shares are represented as a relative quantity between parent and child
-+ * to simplify locking when propagating modifications to the shares of a
-+ * resource group. Only the parent and the children of the modified
-+ * resource group need to be locked.
-+*/
-+struct res_shares {
-+	/* shares only set by userspace */
-+	int min_shares; /* minimun fraction of parent's resources allowed */
-+	int max_shares; /* maximum fraction of parent's resources allowed */
-+	int child_shares_divisor; /* >= 1, may not be DONT_CARE */
-+
-+	/*
-+	 * share values invisible to userspace.  adjusted when userspace
-+	 * sets shares
-+	 */
-+	int unused_min_shares;
-+		/* 0 <= unused_min_shares <= (child_shares_divisor -
-+		 * 			Sum of min_shares of children)
-+		 */
-+	int cur_max_shares; /* max(children's max_shares). need better name */
-+
-+	/* State maintained by container system - only relevant when
-+	 * this shares struct is the actual shares struct for a
-+	 * container */
-+	struct container_subsys_state css;
-+};
-+
-+/*
-+ * Class is the grouping of tasks with shares of each resource that has
-+ * registered a resource controller (see include/linux/res_group_rc.h).
-+ */
-+
-+#define resource_group container
-+
-+#endif /* CONFIG_RES_GROUPS */
-+#endif /* _LINUX_RES_GROUP_H */
-Index: container-2.6.20-rc1/include/linux/res_group_rc.h
+ #else /* !CONFIG_CPUSETS */
+ 
+ static inline int cpuset_init_early(void) { return 0; }
+ static inline int cpuset_init(void) { return 0; }
+ static inline void cpuset_init_smp(void) {}
+-static inline void cpuset_fork(struct task_struct *p) {}
+-static inline void cpuset_exit(struct task_struct *p) {}
+ 
+ static inline cpumask_t cpuset_cpus_allowed(struct task_struct *p)
+ {
+@@ -126,9 +130,6 @@ static inline char *cpuset_task_status_a
+ 	return buffer;
+ }
+ 
+-static inline void cpuset_lock(void) {}
+-static inline void cpuset_unlock(void) {}
+-
+ static inline int cpuset_mem_spread_node(void)
+ {
+ 	return 0;
+Index: container-2.6.20-rc1/kernel/exit.c
 ===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/include/linux/res_group_rc.h
-@@ -0,0 +1,97 @@
-+/*
-+ *  res_group_rc.h - Header file to be used by Resource controllers of
-+ *		      Resource Groups
-+ *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003
-+ *		(C) Shailabh Nagar,  IBM Corp. 2003
-+ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
-+ *		(C) Vivek Kashyap , IBM Corp. 2004
-+ *
-+ * Provides data structures, macros and kernel API of Resource Groups for
-+ * resource controllers.
-+ *
-+ * More details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#ifndef _LINUX_RES_GROUP_RC_H
-+#define _LINUX_RES_GROUP_RC_H
-+
-+#include <linux/res_group.h>
-+#include <linux/container.h>
-+
-+struct res_group_cft {
-+	struct cftype cft;
-+	struct res_controller *ctlr;
-+};
-+
-+struct res_controller {
-+	struct container_subsys subsys;
-+	struct res_group_cft shares_cft;
-+	struct res_group_cft stats_cft;
-+
-+	const char *name;
-+	unsigned int ctlr_id;
-+
-+	/*
-+	 * Keeps number of references to this controller structure. kref
-+	 * does not work as we want to be able to allow removal of a
-+	 * controller even when some resource group are still defined.
-+	 */
-+	atomic_t count;
-+
-+	/*
-+	 * Allocate a new shares struct for this resource controller.
-+	 * Called when registering a resource controller with pre-existing
-+	 * resource groups and when new resource group is created by the user.
-+	 */
-+	struct res_shares *(*alloc_shares_struct)(struct container *);
-+	/* Corresponding free of shares struct for this resource controller */
-+	void (*free_shares_struct)(struct res_shares *);
-+
-+	/* Notifies the controller when the shares are changed */
-+	void (*shares_changed)(struct res_shares *);
-+
-+	/* resource statistics */
-+	ssize_t (*show_stats)(struct res_shares *, char *, size_t);
-+	int (*reset_stats)(struct res_shares *, const char *);
-+
-+	/*
-+	 * move_task is called when a task moves from one resource group to
-+	 * another. First parameter is the task that is moving, the second
-+	 * is the resource specific shares of the resource group the task
-+	 * was in, and the third is the shares of the resource group the
-+	 * task has moved to.
-+	 */
-+	void (*move_task)(struct task_struct *, struct res_shares *,
-+				struct res_shares *);
-+};
-+
-+extern int register_controller(struct res_controller *);
-+extern int unregister_controller(struct res_controller *);
-+extern struct resource_group default_res_group;
-+static inline int is_res_group_root(const struct resource_group *rgroup)
-+{
-+	return (rgroup->parent == NULL);
-+}
-+
-+#define for_each_child(child, parent)	\
-+	list_for_each_entry(child, &parent->children, sibling)
-+
-+/* Get controller specific shares structure for the given resource group */
-+static inline struct res_shares *get_controller_shares(
-+	struct container *rgroup, struct res_controller *ctlr)
-+{
-+	if (rgroup && ctlr)
-+		return container_of(rgroup->subsys[ctlr->subsys.subsys_id],
-+				    struct res_shares, css);
-+	else
-+		return NO_SHARE;
-+}
-+
-+#endif /* _LINUX_RES_GROUP_RC_H */
-Index: container-2.6.20-rc1/init/Kconfig
-===================================================================
---- container-2.6.20-rc1.orig/init/Kconfig
-+++ container-2.6.20-rc1/init/Kconfig
-@@ -341,6 +341,28 @@ config TASK_IO_ACCOUNTING
+--- container-2.6.20-rc1.orig/kernel/exit.c
++++ container-2.6.20-rc1/kernel/exit.c
+@@ -30,7 +30,6 @@
+ #include <linux/mempolicy.h>
+ #include <linux/taskstats_kern.h>
+ #include <linux/delayacct.h>
+-#include <linux/cpuset.h>
+ #include <linux/container.h>
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+@@ -920,7 +919,6 @@ fastcall NORET_TYPE void do_exit(long co
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+ 	exit_thread();
+-	cpuset_exit(tsk);
+ 	container_exit(tsk);
+ 	exit_keys(tsk);
  
- 	  Say N if unsure.
- 
-+menu "Resource Groups"
-+
-+config RES_GROUPS
-+	bool "Resource Groups"
-+	depends on EXPERIMENTAL
-+	select CONTAINERS
-+	help
-+	  Resource Groups is a framework for controlling and monitoring
-+	  resource allocation of user-defined groups of tasks. For more
-+	  information, please visit http://ckrm.sf.net.
-+
-+config RES_GROUPS_NUMTASKS
-+	bool "Number of Tasks Resource Controller"
-+	depends on RES_GROUPS
-+	default y
-+	help
-+	  Provides a Resource Controller for Resource Groups that allows
-+	  limiting number of tasks a resource group can have.
-+
-+	  Say N if unsure, Y to use the feature.
-+
-+endmenu
- config SYSCTL
- 	bool
- 
-Index: container-2.6.20-rc1/kernel/Makefile
-===================================================================
---- container-2.6.20-rc1.orig/kernel/Makefile
-+++ container-2.6.20-rc1/kernel/Makefile
-@@ -53,6 +53,7 @@ obj-$(CONFIG_RELAY) += relay.o
- obj-$(CONFIG_UTS_NS) += utsname.o
- obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
- obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
-+obj-$(CONFIG_RES_GROUPS) += res_group/
- 
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
 Index: container-2.6.20-rc1/kernel/fork.c
 ===================================================================
 --- container-2.6.20-rc1.orig/kernel/fork.c
 +++ container-2.6.20-rc1/kernel/fork.c
-@@ -49,6 +49,7 @@
- #include <linux/delayacct.h>
- #include <linux/taskstats_kern.h>
- #include <linux/random.h>
-+#include <linux/numtasks.h>
+@@ -30,7 +30,6 @@
+ #include <linux/nsproxy.h>
+ #include <linux/capability.h>
+ #include <linux/cpu.h>
+-#include <linux/cpuset.h>
+ #include <linux/container.h>
+ #include <linux/security.h>
+ #include <linux/swap.h>
+@@ -1060,13 +1059,12 @@ static struct task_struct *copy_process(
+ 	p->io_wait = NULL;
+ 	p->audit_context = NULL;
+ 	container_fork(p);
+-	cpuset_fork(p);
+ #ifdef CONFIG_NUMA
+  	p->mempolicy = mpol_copy(p->mempolicy);
+  	if (IS_ERR(p->mempolicy)) {
+  		retval = PTR_ERR(p->mempolicy);
+  		p->mempolicy = NULL;
+- 		goto bad_fork_cleanup_cpuset;
++ 		goto bad_fork_cleanup_container;
+  	}
+ 	mpol_fix_fork_child_flag(p);
+ #endif
+@@ -1290,9 +1288,8 @@ bad_fork_cleanup_security:
+ bad_fork_cleanup_policy:
+ #ifdef CONFIG_NUMA
+ 	mpol_free(p->mempolicy);
+-bad_fork_cleanup_cpuset:
++bad_fork_cleanup_container:
+ #endif
+-	cpuset_exit(p);
+ 	container_exit(p);
+ bad_fork_cleanup_delays_binfmt:
+ 	delayacct_tsk_free(p);
+Index: container-2.6.20-rc1/kernel/container.c
+===================================================================
+--- container-2.6.20-rc1.orig/kernel/container.c
++++ container-2.6.20-rc1/kernel/container.c
+@@ -55,6 +55,7 @@
+ #include <linux/time.h>
+ #include <linux/backing-dev.h>
+ #include <linux/sort.h>
++#include <linux/cpuset.h>
  
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1355,7 +1356,7 @@ long do_fork(unsigned long clone_flags,
- 	      int __user *child_tidptr)
+ #include <asm/uaccess.h>
+ #include <asm/atomic.h>
+@@ -92,6 +93,18 @@ static struct container top_container = 
+ 	.children = LIST_HEAD_INIT(top_container.children),
+ };
+ 
++/* The path to use for release notifications. No locking between
++ * setting and use - so if userspace updates this while subcontainers
++ * exist, you could miss a notification */
++static char release_agent_path[PATH_MAX] = "/sbin/container_release_agent";
++
++void container_set_release_agent_path(const char *path)
++{
++	container_manage_lock();
++	strcpy(release_agent_path, path);
++	container_manage_unlock();
++}
++
+ static struct vfsmount *container_mount;
+ static struct super_block *container_sb;
+ 
+@@ -333,7 +346,7 @@ static inline struct cftype *__d_cft(str
+  * Returns 0 on success, -errno on error.
+  */
+ 
+-static int container_path(const struct container *cont, char *buf, int buflen)
++int container_path(const struct container *cont, char *buf, int buflen)
  {
- 	struct task_struct *p;
--	int trace = 0;
-+	int trace = 0, rc;
- 	struct pid *pid = alloc_pid();
- 	long nr;
+ 	char *start;
  
-@@ -1368,6 +1369,10 @@ long do_fork(unsigned long clone_flags,
- 			clone_flags |= CLONE_PTRACE;
+@@ -397,7 +410,7 @@ static void container_release_agent(cons
+ 		return;
+ 
+ 	i = 0;
+-	argv[i++] = "/sbin/container_release_agent";
++	argv[i++] = release_agent_path;
+ 	argv[i++] = (char *)pathbuf;
+ 	argv[i] = NULL;
+ 
+@@ -438,6 +451,7 @@ static void check_for_release(struct con
+ 		buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return;
++
+ 		if (container_path(cont, buf, PAGE_SIZE) < 0)
+ 			kfree(buf);
+ 		else
+@@ -486,7 +500,7 @@ static int attach_task(struct container 
+ 	pid_t pid;
+ 	struct task_struct *tsk;
+ 	struct container *oldcont;
+-	int retval;
++	int retval = 0;
+ 
+ 	if (sscanf(pidbuf, "%d", &pid) != 1)
+ 		return -EIO;
+@@ -513,7 +527,9 @@ static int attach_task(struct container 
+ 		get_task_struct(tsk);
  	}
  
-+	rc = numtasks_allow_fork(current);
-+	if (rc)
-+		return rc;
+-	retval = security_task_setscheduler(tsk, 0, NULL);
++#ifdef CONFIG_CPUSETS
++	retval = cpuset_can_attach_task(cont, tsk);
++#endif
+ 	if (retval) {
+ 		put_task_struct(tsk);
+ 		return retval;
+@@ -533,8 +549,16 @@ static int attach_task(struct container 
+ 	rcu_assign_pointer(tsk->container, cont);
+ 	task_unlock(tsk);
+ 
++#ifdef CONFIG_CPUSETS
++	cpuset_attach_task(cont, tsk);
++#endif
 +
- 	p = copy_process(clone_flags, stack_start, regs, stack_size, parent_tidptr, child_tidptr, nr);
+ 	mutex_unlock(&callback_mutex);
+ 
++#ifdef CONFIG_CPUSETS
++	cpuset_post_attach_task(cont, oldcont, tsk);
++#endif
++
+ 	put_task_struct(tsk);
+ 	synchronize_rcu();
+ 	if (atomic_dec_and_test(&oldcont->count))
+@@ -549,6 +573,7 @@ typedef enum {
+ 	FILE_DIR,
+ 	FILE_NOTIFY_ON_RELEASE,
+ 	FILE_TASKLIST,
++	FILE_RELEASE_AGENT,
+ } container_filetype_t;
+ 
+ static ssize_t container_common_file_write(struct container *cont,
+@@ -562,8 +587,7 @@ static ssize_t container_common_file_wri
+ 	char *pathbuf = NULL;
+ 	int retval = 0;
+ 
+-	/* Crude upper limit on largest legitimate cpulist user might write. */
+-	if (nbytes > 100 + 6 * NR_CPUS)
++	if (nbytes >= PATH_MAX)
+ 		return -E2BIG;
+ 
+ 	/* +1 for nul-terminator */
+@@ -590,6 +614,20 @@ static ssize_t container_common_file_wri
+ 	case FILE_TASKLIST:
+ 		retval = attach_task(cont, buffer, &pathbuf);
+ 		break;
++	case FILE_RELEASE_AGENT:
++	{
++		if (nbytes < sizeof(release_agent_path)) {
++			/* We never write anything other than '\0'
++			 * into the last char of release_agent_path,
++			 * so it always remains a NUL-terminated
++			 * string */
++			strncpy(release_agent_path, buffer, nbytes);
++			release_agent_path[nbytes] = 0;
++		} else {
++			retval = -ENOSPC;
++		}
++		break;
++	}
+ 	default:
+ 		retval = -EINVAL;
+ 		goto out2;
+@@ -643,6 +681,17 @@ static ssize_t container_common_file_rea
+ 	case FILE_NOTIFY_ON_RELEASE:
+ 		*s++ = notify_on_release(cont) ? '1' : '0';
+ 		break;
++	case FILE_RELEASE_AGENT:
++	{
++		size_t n;
++		container_manage_lock();
++		n = strnlen(release_agent_path, sizeof(release_agent_path));
++		n = min(n, (size_t) PAGE_SIZE);
++		strncpy(s, release_agent_path, n);
++		container_manage_unlock();
++		s += n;
++		break;
++	}
+ 	default:
+ 		retval = -EINVAL;
+ 		goto out;
+@@ -978,6 +1027,13 @@ static struct cftype cft_notify_on_relea
+ 	.private = FILE_NOTIFY_ON_RELEASE,
+ };
+ 
++static struct cftype cft_release_agent = {
++	.name = "release_agent",
++	.read = container_common_file_read,
++	.write = container_common_file_write,
++	.private = FILE_RELEASE_AGENT,
++};
++
+ static int container_populate_dir(struct container *cont)
+ {
+ 	int err;
+@@ -986,6 +1042,13 @@ static int container_populate_dir(struct
+ 		return err;
+ 	if ((err = container_add_file(cont, &cft_tasks)) < 0)
+ 		return err;
++	if ((cont == &top_container) &&
++	    (err = container_add_file(cont, &cft_release_agent)) < 0)
++		return err;
++#ifdef CONFIG_CPUSETS
++	if ((err = cpuset_populate_dir(cont)) < 0)
++		return err;
++#endif
+ 	return 0;
+ }
+ 
+@@ -1017,6 +1080,12 @@ static long container_create(struct cont
+ 
+ 	cont->parent = parent;
+ 
++#ifdef CONFIG_CPUSETS
++	err = cpuset_create(cont);
++	if (err)
++		goto err_unlock_free;
++#endif
++
+ 	mutex_lock(&callback_mutex);
+ 	list_add(&cont->sibling, &cont->parent->children);
+ 	number_of_containers++;
+@@ -1038,11 +1107,14 @@ static long container_create(struct cont
+ 	return 0;
+ 
+  err_remove:
++#ifdef CONFIG_CPUSETS
++	cpuset_destroy(cont);
++#endif
+ 	mutex_lock(&callback_mutex);
+ 	list_del(&cont->sibling);
+ 	number_of_containers--;
+ 	mutex_unlock(&callback_mutex);
+-
++ err_unlock_free:
+ 	mutex_unlock(&manage_mutex);
+ 	kfree(cont);
+ 	return err;
+@@ -1097,6 +1169,9 @@ static int container_rmdir(struct inode 
+ 	dput(d);
+ 	number_of_containers--;
+ 	mutex_unlock(&callback_mutex);
++#ifdef CONFIG_CPUSETS
++	cpuset_destroy(cont);
++#endif
+ 	if (list_empty(&parent->children))
+ 		check_for_release(parent, &pathbuf);
+ 	mutex_unlock(&manage_mutex);
+@@ -1283,6 +1358,24 @@ void container_unlock(void)
+ 	mutex_unlock(&callback_mutex);
+ }
+ 
++void container_manage_lock(void)
++{
++	mutex_lock(&manage_mutex);
++}
++
++/**
++ * container_manage_unlock - release lock on container changes
++ *
++ * Undo the lock taken in a previous container_manage_lock() call.
++ */
++
++void container_manage_unlock(void)
++{
++	mutex_unlock(&manage_mutex);
++}
++
++
++
+ /*
+  * proc_container_show()
+  *  - Print tasks container path into seq_file.
+Index: container-2.6.20-rc1/kernel/cpuset.c
+===================================================================
+--- container-2.6.20-rc1.orig/kernel/cpuset.c
++++ container-2.6.20-rc1/kernel/cpuset.c
+@@ -54,8 +54,6 @@
+ #include <asm/atomic.h>
+ #include <linux/mutex.h>
+ 
+-#define CPUSET_SUPER_MAGIC		0x27e0eb
+-
+ /*
+  * Tracks how many cpusets are currently defined in system.
+  * When there is only one cpuset (the root cpuset) we can
+@@ -77,20 +75,8 @@ struct cpuset {
+ 	cpumask_t cpus_allowed;		/* CPUs allowed to tasks in cpuset */
+ 	nodemask_t mems_allowed;	/* Memory Nodes allowed to tasks */
+ 
+-	/*
+-	 * Count is atomic so can incr (fork) or decr (exit) without a lock.
+-	 */
+-	atomic_t count;			/* count tasks using this cpuset */
+-
+-	/*
+-	 * We link our 'sibling' struct into our parents 'children'.
+-	 * Our children link their 'sibling' into our 'children'.
+-	 */
+-	struct list_head sibling;	/* my parents children */
+-	struct list_head children;	/* my children */
+-
++	struct container *container;    /* Task container */
+ 	struct cpuset *parent;		/* my parent */
+-	struct dentry *dentry;		/* cpuset fs entry */
+ 
  	/*
- 	 * Do this prior waking up the new thread - the thread pointer
-Index: container-2.6.20-rc1/kernel/res_group/Makefile
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/Makefile
-@@ -0,0 +1,2 @@
-+obj-y = res_group.o shares.o rgcs.o
-+obj-$(CONFIG_RES_GROUPS_NUMTASKS) += numtasks.o
-Index: container-2.6.20-rc1/kernel/res_group/local.h
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/local.h
-@@ -0,0 +1,38 @@
-+/*
-+ * Contains function definitions that are local to the Resource Groups.
-+ * NOT to be included by controllers.
-+ */
-+
-+#include <linux/res_group_rc.h>
-+
-+extern struct res_controller *get_controller_by_name(const char *);
-+extern struct res_controller *get_controller_by_id(unsigned int);
-+extern void put_controller(struct res_controller *);
-+extern struct resource_group *alloc_res_group(struct resource_group *,
-+							const char *);
-+extern int free_res_group(struct resource_group *);
-+extern void release_res_group(struct kref *);
-+extern int set_controller_shares(struct resource_group *,
-+			struct res_controller *, const struct res_shares *);
-+/* Set shares for the given resource group and resource to default values */
-+extern void set_shares_to_default(struct resource_group *,
-+						struct res_controller *);
-+extern void res_group_teardown(void);
-+extern int set_res_group(pid_t, struct resource_group *);
-+extern void move_tasks_to_parent(struct resource_group *);
-+
-+ssize_t res_group_file_read(struct container *cont,
-+			    struct cftype *cft,
-+			    struct file *file,
-+			    char __user *buf,
-+			    size_t nbytes, loff_t *ppos);
-+ssize_t res_group_file_write(struct container *cont,
-+			     struct cftype *cft,
-+			     struct file *file,
-+			     const char __user *userbuf,
-+			     size_t nbytes, loff_t *ppos);
-+
-+enum {
-+	RG_FILE_SHARES,
-+	RG_FILE_STATS,
-+};
-Index: container-2.6.20-rc1/kernel/res_group/numtasks.c
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/numtasks.c
-@@ -0,0 +1,467 @@
-+/* numtasks.c - "Number of tasks" resource controller for Resource Groups
-+ *
-+ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003-2006
-+ *	      (C) Matt Helsley, IBM Corp. 2006
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+/*
-+ * Resource controller for tracking number of tasks in a resource group.
-+ */
-+#include <linux/module.h>
-+#include <linux/res_group_rc.h>
-+#include <linux/numtasks.h>
-+
-+static const char res_ctlr_name[] = "numtasks";
-+
-+#define UNLIMITED INT_MAX
-+#define DEF_TOTAL_NUM_TASKS UNLIMITED
-+static int total_numtasks __read_mostly = DEF_TOTAL_NUM_TASKS;
-+
-+static struct resource_group *root_rgroup;
-+static int total_cnt_alloc = 0;
-+
-+#define DEF_FORKRATE UNLIMITED
-+#define DEF_FORKRATE_INTERVAL (1)
-+static int forkrate __read_mostly = DEF_FORKRATE;
-+static int forkrate_interval __read_mostly = DEF_FORKRATE_INTERVAL;
-+
-+struct numtasks {
-+	struct res_shares shares;
-+	int cnt_min_shares;	/* num_tasks min_shares in local units */
-+	int cnt_unused;		/* has to borrow if more than this is needed */
-+	int cnt_max_shares;	/* no tasks over this limit. */
-+				/* Three above cnt_* fields are protected
-+				 * by resource group's group_lock */
-+	atomic_t cnt_cur_alloc;	/* current alloc from self */
-+	atomic_t cnt_borrowed;	/* borrowed from the parent */
-+
-+	/* stats */
-+	int successes;
-+	int failures;
-+	int forkrate_failures;
-+
-+	/* Fork rate fields */
-+	int forks_in_period;
-+	unsigned long period_start;
-+};
-+
-+struct res_controller numtasks_ctlr;
-+
-+static struct numtasks *get_shares_numtasks(struct res_shares *shares)
-+{
-+	if (shares)
-+		return container_of(shares, struct numtasks, shares);
-+	return NULL;
-+}
-+
-+static struct numtasks *get_numtasks(struct resource_group *rgroup)
-+{
-+	return get_shares_numtasks(get_controller_shares(rgroup,
-+						&numtasks_ctlr));
-+}
-+
-+static struct resource_group *numtasks_rgroup(struct numtasks *nt)
-+{
-+	return nt->shares.css.container;
-+}
-+
-+static inline int check_forkrate(struct numtasks *res)
-+{
-+	if (time_after(jiffies, res->period_start + forkrate_interval * HZ)) {
-+		res->period_start = jiffies;
-+		res->forks_in_period = 0;
+ 	 * Copy of global cpuset_mems_generation as of the most
+@@ -106,8 +92,6 @@ typedef enum {
+ 	CS_CPU_EXCLUSIVE,
+ 	CS_MEM_EXCLUSIVE,
+ 	CS_MEMORY_MIGRATE,
+-	CS_REMOVED,
+-	CS_NOTIFY_ON_RELEASE,
+ 	CS_SPREAD_PAGE,
+ 	CS_SPREAD_SLAB,
+ } cpuset_flagbits_t;
+@@ -123,16 +107,6 @@ static inline int is_mem_exclusive(const
+ 	return test_bit(CS_MEM_EXCLUSIVE, &cs->flags);
+ }
+ 
+-static inline int is_removed(const struct cpuset *cs)
+-{
+-	return test_bit(CS_REMOVED, &cs->flags);
+-}
+-
+-static inline int notify_on_release(const struct cpuset *cs)
+-{
+-	return test_bit(CS_NOTIFY_ON_RELEASE, &cs->flags);
+-}
+-
+ static inline int is_memory_migrate(const struct cpuset *cs)
+ {
+ 	return test_bit(CS_MEMORY_MIGRATE, &cs->flags);
+@@ -173,388 +147,32 @@ static struct cpuset top_cpuset = {
+ 	.flags = ((1 << CS_CPU_EXCLUSIVE) | (1 << CS_MEM_EXCLUSIVE)),
+ 	.cpus_allowed = CPU_MASK_ALL,
+ 	.mems_allowed = NODE_MASK_ALL,
+-	.count = ATOMIC_INIT(0),
+-	.sibling = LIST_HEAD_INIT(top_cpuset.sibling),
+-	.children = LIST_HEAD_INIT(top_cpuset.children),
+-};
+-
+-static struct vfsmount *cpuset_mount;
+-static struct super_block *cpuset_sb;
+-
+-/*
+- * We have two global cpuset mutexes below.  They can nest.
+- * It is ok to first take manage_mutex, then nest callback_mutex.  We also
+- * require taking task_lock() when dereferencing a tasks cpuset pointer.
+- * See "The task_lock() exception", at the end of this comment.
+- *
+- * A task must hold both mutexes to modify cpusets.  If a task
+- * holds manage_mutex, then it blocks others wanting that mutex,
+- * ensuring that it is the only task able to also acquire callback_mutex
+- * and be able to modify cpusets.  It can perform various checks on
+- * the cpuset structure first, knowing nothing will change.  It can
+- * also allocate memory while just holding manage_mutex.  While it is
+- * performing these checks, various callback routines can briefly
+- * acquire callback_mutex to query cpusets.  Once it is ready to make
+- * the changes, it takes callback_mutex, blocking everyone else.
+- *
+- * Calls to the kernel memory allocator can not be made while holding
+- * callback_mutex, as that would risk double tripping on callback_mutex
+- * from one of the callbacks into the cpuset code from within
+- * __alloc_pages().
+- *
+- * If a task is only holding callback_mutex, then it has read-only
+- * access to cpusets.
+- *
+- * The task_struct fields mems_allowed and mems_generation may only
+- * be accessed in the context of that task, so require no locks.
+- *
+- * Any task can increment and decrement the count field without lock.
+- * So in general, code holding manage_mutex or callback_mutex can't rely
+- * on the count field not changing.  However, if the count goes to
+- * zero, then only attach_task(), which holds both mutexes, can
+- * increment it again.  Because a count of zero means that no tasks
+- * are currently attached, therefore there is no way a task attached
+- * to that cpuset can fork (the other way to increment the count).
+- * So code holding manage_mutex or callback_mutex can safely assume that
+- * if the count is zero, it will stay zero.  Similarly, if a task
+- * holds manage_mutex or callback_mutex on a cpuset with zero count, it
+- * knows that the cpuset won't be removed, as cpuset_rmdir() needs
+- * both of those mutexes.
+- *
+- * The cpuset_common_file_write handler for operations that modify
+- * the cpuset hierarchy holds manage_mutex across the entire operation,
+- * single threading all such cpuset modifications across the system.
+- *
+- * The cpuset_common_file_read() handlers only hold callback_mutex across
+- * small pieces of code, such as when reading out possibly multi-word
+- * cpumasks and nodemasks.
+- *
+- * The fork and exit callbacks cpuset_fork() and cpuset_exit(), don't
+- * (usually) take either mutex.  These are the two most performance
+- * critical pieces of code here.  The exception occurs on cpuset_exit(),
+- * when a task in a notify_on_release cpuset exits.  Then manage_mutex
+- * is taken, and if the cpuset count is zero, a usermode call made
+- * to /sbin/cpuset_release_agent with the name of the cpuset (path
+- * relative to the root of cpuset file system) as the argument.
+- *
+- * A cpuset can only be deleted if both its 'count' of using tasks
+- * is zero, and its list of 'children' cpusets is empty.  Since all
+- * tasks in the system use _some_ cpuset, and since there is always at
+- * least one task in the system (init), therefore, top_cpuset
+- * always has either children cpusets and/or using tasks.  So we don't
+- * need a special hack to ensure that top_cpuset cannot be deleted.
+- *
+- * The above "Tale of Two Semaphores" would be complete, but for:
+- *
+- *	The task_lock() exception
+- *
+- * The need for this exception arises from the action of attach_task(),
+- * which overwrites one tasks cpuset pointer with another.  It does
+- * so using both mutexes, however there are several performance
+- * critical places that need to reference task->cpuset without the
+- * expense of grabbing a system global mutex.  Therefore except as
+- * noted below, when dereferencing or, as in attach_task(), modifying
+- * a tasks cpuset pointer we use task_lock(), which acts on a spinlock
+- * (task->alloc_lock) already in the task_struct routinely used for
+- * such matters.
+- *
+- * P.S.  One more locking exception.  RCU is used to guard the
+- * update of a tasks cpuset pointer by attach_task() and the
+- * access of task->cpuset->mems_generation via that pointer in
+- * the routine cpuset_update_task_memory_state().
+- */
+-
+-static DEFINE_MUTEX(manage_mutex);
+-static DEFINE_MUTEX(callback_mutex);
+-
+-/*
+- * A couple of forward declarations required, due to cyclic reference loop:
+- *  cpuset_mkdir -> cpuset_create -> cpuset_populate_dir -> cpuset_add_file
+- *  -> cpuset_create_file -> cpuset_dir_inode_operations -> cpuset_mkdir.
+- */
+-
+-static int cpuset_mkdir(struct inode *dir, struct dentry *dentry, int mode);
+-static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry);
+-
+-static struct backing_dev_info cpuset_backing_dev_info = {
+-	.ra_pages = 0,		/* No readahead */
+-	.capabilities	= BDI_CAP_NO_ACCT_DIRTY | BDI_CAP_NO_WRITEBACK,
+-};
+-
+-static struct inode *cpuset_new_inode(mode_t mode)
+-{
+-	struct inode *inode = new_inode(cpuset_sb);
+-
+-	if (inode) {
+-		inode->i_mode = mode;
+-		inode->i_uid = current->fsuid;
+-		inode->i_gid = current->fsgid;
+-		inode->i_blocks = 0;
+-		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-		inode->i_mapping->backing_dev_info = &cpuset_backing_dev_info;
+-	}
+-	return inode;
+-}
+-
+-static void cpuset_diput(struct dentry *dentry, struct inode *inode)
+-{
+-	/* is dentry a directory ? if so, kfree() associated cpuset */
+-	if (S_ISDIR(inode->i_mode)) {
+-		struct cpuset *cs = dentry->d_fsdata;
+-		BUG_ON(!(is_removed(cs)));
+-		kfree(cs);
+-	}
+-	iput(inode);
+-}
+-
+-static struct dentry_operations cpuset_dops = {
+-	.d_iput = cpuset_diput,
+-};
+-
+-static struct dentry *cpuset_get_dentry(struct dentry *parent, const char *name)
+-{
+-	struct dentry *d = lookup_one_len(name, parent, strlen(name));
+-	if (!IS_ERR(d))
+-		d->d_op = &cpuset_dops;
+-	return d;
+-}
+-
+-static void remove_dir(struct dentry *d)
+-{
+-	struct dentry *parent = dget(d->d_parent);
+-
+-	d_delete(d);
+-	simple_rmdir(parent->d_inode, d);
+-	dput(parent);
+-}
+-
+-/*
+- * NOTE : the dentry must have been dget()'ed
+- */
+-static void cpuset_d_remove_dir(struct dentry *dentry)
+-{
+-	struct list_head *node;
+-
+-	spin_lock(&dcache_lock);
+-	node = dentry->d_subdirs.next;
+-	while (node != &dentry->d_subdirs) {
+-		struct dentry *d = list_entry(node, struct dentry, d_u.d_child);
+-		list_del_init(node);
+-		if (d->d_inode) {
+-			d = dget_locked(d);
+-			spin_unlock(&dcache_lock);
+-			d_delete(d);
+-			simple_unlink(dentry->d_inode, d);
+-			dput(d);
+-			spin_lock(&dcache_lock);
+-		}
+-		node = dentry->d_subdirs.next;
+-	}
+-	list_del_init(&dentry->d_u.d_child);
+-	spin_unlock(&dcache_lock);
+-	remove_dir(dentry);
+-}
+-
+-static struct super_operations cpuset_ops = {
+-	.statfs = simple_statfs,
+-	.drop_inode = generic_delete_inode,
+ };
+ 
+-static int cpuset_fill_super(struct super_block *sb, void *unused_data,
+-							int unused_silent)
+-{
+-	struct inode *inode;
+-	struct dentry *root;
+-
+-	sb->s_blocksize = PAGE_CACHE_SIZE;
+-	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+-	sb->s_magic = CPUSET_SUPER_MAGIC;
+-	sb->s_op = &cpuset_ops;
+-	cpuset_sb = sb;
+-
+-	inode = cpuset_new_inode(S_IFDIR | S_IRUGO | S_IXUGO | S_IWUSR);
+-	if (inode) {
+-		inode->i_op = &simple_dir_inode_operations;
+-		inode->i_fop = &simple_dir_operations;
+-		/* directories start off with i_nlink == 2 (for "." entry) */
+-		inc_nlink(inode);
+-	} else {
+-		return -ENOMEM;
+-	}
+-
+-	root = d_alloc_root(inode);
+-	if (!root) {
+-		iput(inode);
+-		return -ENOMEM;
+-	}
+-	sb->s_root = root;
+-	return 0;
+-}
+-
++/* This is ugly, but preserves the userspace API for existing cpuset
++ * users. If someone tries to mount the "cpuset" filesystem, we
++ * silently switch it to mount "container" instead */
+ static int cpuset_get_sb(struct file_system_type *fs_type,
+ 			 int flags, const char *unused_dev_name,
+ 			 void *data, struct vfsmount *mnt)
+ {
+-	return get_sb_single(fs_type, flags, data, cpuset_fill_super, mnt);
++	struct file_system_type *container_fs = get_fs_type("container");
++	int ret = -ENODEV;
++	container_set_release_agent_path("/sbin/cpuset_release_agent");
++	if (container_fs) {
++		ret = container_fs->get_sb(container_fs, flags,
++					   unused_dev_name,
++					   data, mnt);
++		put_filesystem(container_fs);
 +	}
-+
-+	if (res->forks_in_period >= forkrate) {
-+ 		res->forkrate_failures++;
-+		return -ENOSPC;
-+	}
-+	res->forks_in_period++;
-+	return 0;
-+}
-+
-+int numtasks_allow_fork(struct task_struct *task)
-+{
-+	int rc = 0;
-+	struct numtasks *res;
-+
-+	/* task->container won't be deleted during an RCU critical section */
-+	rcu_read_lock();
-+
-+	/* controller is not registered; no resource group is given */
-+	if (numtasks_ctlr.ctlr_id == NO_RES_ID)
-+		goto out;
-+	res = get_numtasks(task_container(task, &numtasks_ctlr.subsys));
-+
-+	/* numtasks not available for this resource group */
-+	if (!res)
-+		goto out;
-+
-+	/* Check forkrate before checking resource group's usage */
-+	rc = check_forkrate(res);
-+	if (rc)
-+		goto out;
-+
-+	if (res->cnt_max_shares == SHARE_DONT_CARE)
-+		goto out;
-+
-+	/* Over the limit ? */
-+	if (atomic_read(&res->cnt_cur_alloc) >= res->cnt_max_shares) {
-+		res->failures++;
-+		rc = -ENOSPC;
-+		goto out;
-+	}
-+ out:
-+	rcu_read_unlock();
-+	return rc;
-+}
-+
-+static void inc_usage_count(struct numtasks *res)
-+{
-+	struct resource_group *rgroup = numtasks_rgroup(res);
-+	atomic_inc(&res->cnt_cur_alloc);
-+
-+	if (is_res_group_root(rgroup)) {
-+		total_cnt_alloc++;
-+		res->successes++;
-+		return;
-+	}
-+	/* Do we need to borrow from our parent ? */
-+	if ((res->cnt_unused == SHARE_DONT_CARE) ||
-+			(atomic_read(&res->cnt_cur_alloc) > res->cnt_unused)) {
-+		inc_usage_count(get_numtasks(rgroup->parent));
-+		atomic_inc(&res->cnt_borrowed);
-+	} else {
-+		total_cnt_alloc++;
-+  		res->successes++;
-+	}
-+}
-+
-+static void dec_usage_count(struct numtasks *res)
-+{
-+	if (atomic_read(&res->cnt_cur_alloc) == 0)
-+		return;
-+	atomic_dec(&res->cnt_cur_alloc);
-+	if (atomic_read(&res->cnt_borrowed) > 0) {
-+		atomic_dec(&res->cnt_borrowed);
-+		dec_usage_count(get_numtasks(numtasks_rgroup(res)->parent));
-+	} else
-+		total_cnt_alloc--;
-+
-+}
-+
-+static void numtasks_move_task(struct task_struct *task,
-+		struct res_shares *old, struct res_shares *new)
-+{
-+	struct numtasks *oldres, *newres;
-+
-+	if (old == new)
-+		return;
-+
-+	/* Decrement usage count of old resource group */
-+	oldres = get_shares_numtasks(old);
-+	if (oldres)
-+		dec_usage_count(oldres);
-+
-+	/* Increment usage count of new resource group */
-+	newres = get_shares_numtasks(new);
-+	if (newres)
-+		inc_usage_count(newres);
-+}
-+
-+/* Initialize share struct values */
-+static void numtasks_res_init_one(struct numtasks *numtasks_res)
-+{
-+	numtasks_res->shares.min_shares = SHARE_DONT_CARE;
-+	numtasks_res->shares.max_shares = SHARE_DONT_CARE;
-+	numtasks_res->shares.child_shares_divisor = SHARE_DEFAULT_DIVISOR;
-+	numtasks_res->shares.unused_min_shares = SHARE_DEFAULT_DIVISOR;
-+
-+	numtasks_res->cnt_min_shares = SHARE_DONT_CARE;
-+	numtasks_res->cnt_unused = SHARE_DONT_CARE;
-+	numtasks_res->cnt_max_shares = SHARE_DONT_CARE;
-+	numtasks_res->period_start = jiffies;
-+}
-+
-+static struct res_shares *numtasks_alloc_shares_struct(
-+					struct resource_group *rgroup)
-+{
-+	struct numtasks *res;
-+
-+	res = kzalloc(sizeof(struct numtasks), GFP_KERNEL);
-+	if (!res)
-+		return NULL;
-+	numtasks_res_init_one(res);
-+	if (is_res_group_root(rgroup))
-+		root_rgroup = rgroup; /* store root's resource group. */
-+	return &res->shares;
-+}
-+
-+/*
-+ * No locking of this resource group object necessary as we are not
-+ * supposed to be assigned (or used) when/after this function is called.
-+ */
-+static void numtasks_free_shares_struct(struct res_shares *my_res)
-+{
-+	struct numtasks *res, *parres;
-+	int i, borrowed;
-+	struct resource_group *rgroup;
-+
-+	res = get_shares_numtasks(my_res);
-+	rgroup = numtasks_rgroup(res);
-+	if (!is_res_group_root(rgroup)) {
-+		parres = get_numtasks(rgroup->parent);
-+		borrowed = atomic_read(&res->cnt_borrowed);
-+		for (i = 0; i < borrowed; i++)
-+			dec_usage_count(parres);
-+	}
-+	kfree(res);
-+}
-+
-+static int recalc_shares(int self_shares, int parent_shares, int parent_divisor)
-+{
-+	u64 numerator;
-+
-+	if ((self_shares == SHARE_DONT_CARE) ||
-+				(parent_shares == SHARE_DONT_CARE))
-+		return SHARE_DONT_CARE;
-+	if (parent_divisor == 0)
-+		return 0;
-+	numerator = (u64) self_shares * parent_shares;
-+	do_div(numerator, parent_divisor);
-+	return numerator;
-+}
-+
-+static int recalc_unused_shares(int self_cnt_min_shares,
-+				int self_unused_min_shares, int self_divisor)
-+{
-+	u64 numerator;
-+
-+	if (self_cnt_min_shares == SHARE_DONT_CARE)
-+		return SHARE_DONT_CARE;
-+	if (self_divisor == 0)
-+		return 0;
-+	numerator = (u64) self_unused_min_shares * self_cnt_min_shares;
-+	do_div(numerator, self_divisor);
-+	return numerator;
-+}
-+
-+static void recalc_self(struct numtasks *res,
-+				struct numtasks *parres)
-+{
-+	struct res_shares *par = &parres->shares;
-+	struct res_shares *self = &res->shares;
-+
-+	res->cnt_min_shares = recalc_shares(self->min_shares,
-+						parres->cnt_min_shares,
-+						par->child_shares_divisor);
-+	res->cnt_max_shares = recalc_shares(self->max_shares,
-+						parres->cnt_max_shares,
-+						par->child_shares_divisor);
-+
-+	/*
-+	 * Now that we know the new cnt_min/cnt_max boundaries we can update
-+	 * the unused quantity.
-+	 */
-+	res->cnt_unused = recalc_unused_shares(res->cnt_min_shares,
-+						self->unused_min_shares,
-+						self->child_shares_divisor);
-+}
-+
-+
-+/*
-+ * Recalculate the min_shares and max_shares in real units and propagate the
-+ * same to children.
-+ * Called with container_manage_lock() held.
-+ */
-+static void recalc_and_propagate(struct numtasks *res,
-+				struct numtasks *parres)
-+{
-+	struct resource_group *child = NULL;
-+	struct numtasks *childres;
-+
-+	if (parres)
-+		recalc_self(res, parres);
-+
-+	/* propagate to children */
-+	for_each_child(child, numtasks_rgroup(res)) {
-+		childres = get_numtasks(child);
-+		BUG_ON(!childres);
-+		recalc_and_propagate(childres, res);
-+	}
-+}
-+
-+static void numtasks_shares_changed(struct res_shares *my_res)
-+{
-+	struct numtasks *parres, *res;
-+	struct res_shares *cur, *par;
-+	struct resource_group *rgroup;
-+
-+	res = get_shares_numtasks(my_res);
-+	if (!res)
-+		return;
-+	rgroup = numtasks_rgroup(res);
-+	cur = &res->shares;
-+
-+	if (!is_res_group_root(rgroup)) {
-+		parres = get_numtasks(rgroup->parent);
-+		par = &parres->shares;
-+	} else {
-+		parres = NULL;
-+		par = NULL;
-+	}
-+	if (parres)
-+		parres->cnt_unused = recalc_unused_shares(
-+						parres->cnt_min_shares,
-+						par->unused_min_shares,
-+						par->child_shares_divisor);
-+	recalc_and_propagate(res, parres);
-+}
-+
-+static ssize_t numtasks_show_stats(struct res_shares *my_res,
-+					char *buf, size_t buf_size)
-+{
-+	ssize_t i, j = 0;
-+	struct numtasks *res;
-+
-+	res = get_shares_numtasks(my_res);
-+	if (!res)
-+		return -EINVAL;
-+
-+	i = snprintf(buf, buf_size, "%s: Current usage %d\n",
-+					res_ctlr_name,
-+					atomic_read(&res->cnt_cur_alloc));
-+	buf += i; j += i; buf_size -= i;
-+	i = snprintf(buf, buf_size, "%s: Number of successes %d\n",
-+					res_ctlr_name, res->successes);
-+	buf += i; j += i; buf_size -= i;
-+	i = snprintf(buf, buf_size, "%s: Number of failures %d\n",
-+					res_ctlr_name, res->failures);
-+	buf += i; j += i; buf_size -= i;
-+	i = snprintf(buf, buf_size, "%s: Number of forkrate failures %d\n",
-+					res_ctlr_name, res->forkrate_failures);
-+	j += i;
-+	return j;
-+}
-+
-+struct res_controller numtasks_ctlr = {
-+	.name = res_ctlr_name,
-+	.ctlr_id = NO_RES_ID,
-+	.alloc_shares_struct = numtasks_alloc_shares_struct,
-+	.free_shares_struct = numtasks_free_shares_struct,
-+	.move_task = numtasks_move_task,
-+	.shares_changed = numtasks_shares_changed,
-+	.show_stats = numtasks_show_stats,
-+};
-+
-+/*
-+ * Writeable module parameters use these set_<parameter> functions to respond
-+ * to changes. Otherwise the values can be read and used any time.
-+ */
-+static int set_numtasks_config_val(int *var, int old_value, const char *val,
-+				struct kernel_param *kp)
-+{
-+	int rc = param_set_int(val, kp);
-+
-+	if (rc < 0)
-+		return rc;
-+	if (*var < 1) {
-+		*var = old_value;
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+static int set_total_numtasks(const char *val, struct kernel_param *kp)
-+{
-+	int prev = total_numtasks;
-+	int rc = set_numtasks_config_val(&total_numtasks, prev, val, kp);
-+	struct numtasks *res = NULL;
-+
-+	if (!root_rgroup)
-+		return 0;
-+	if (rc < 0)
-+		return rc;
-+	if (total_numtasks <= total_cnt_alloc) {
-+		total_numtasks = prev;
-+		return -EINVAL;
-+	}
++	return ret;
+ }
+ 
+ static struct file_system_type cpuset_fs_type = {
+ 	.name = "cpuset",
+ 	.get_sb = cpuset_get_sb,
+-	.kill_sb = kill_litter_super,
+ };
+ 
+-/* struct cftype:
+- *
+- * The files in the cpuset filesystem mostly have a very simple read/write
+- * handling, some common function will take care of it. Nevertheless some cases
+- * (read tasks) are special and therefore I define this structure for every
+- * kind of file.
+- *
+- *
+- * When reading/writing to a file:
+- *	- the cpuset to use in file->f_path.dentry->d_parent->d_fsdata
+- *	- the 'cftype' of the file is file->f_path.dentry->d_fsdata
+- */
+-
+-struct cftype {
+-	char *name;
+-	int private;
+-	int (*open) (struct inode *inode, struct file *file);
+-	ssize_t (*read) (struct file *file, char __user *buf, size_t nbytes,
+-							loff_t *ppos);
+-	int (*write) (struct file *file, const char __user *buf, size_t nbytes,
+-							loff_t *ppos);
+-	int (*release) (struct inode *inode, struct file *file);
+-};
+-
+-static inline struct cpuset *__d_cs(struct dentry *dentry)
+-{
+-	return dentry->d_fsdata;
+-}
+-
+-static inline struct cftype *__d_cft(struct dentry *dentry)
+-{
+-	return dentry->d_fsdata;
+-}
+-
+-/*
+- * Call with manage_mutex held.  Writes path of cpuset into buf.
+- * Returns 0 on success, -errno on error.
+- */
+-
+-static int cpuset_path(const struct cpuset *cs, char *buf, int buflen)
+-{
+-	char *start;
+-
+-	start = buf + buflen;
+-
+-	*--start = '\0';
+-	for (;;) {
+-		int len = cs->dentry->d_name.len;
+-		if ((start -= len) < buf)
+-			return -ENAMETOOLONG;
+-		memcpy(start, cs->dentry->d_name.name, len);
+-		cs = cs->parent;
+-		if (!cs)
+-			break;
+-		if (!cs->parent)
+-			continue;
+-		if (--start < buf)
+-			return -ENAMETOOLONG;
+-		*start = '/';
+-	}
+-	memmove(buf, start, buf + buflen - start);
+-	return 0;
+-}
+-
+-/*
+- * Notify userspace when a cpuset is released, by running
+- * /sbin/cpuset_release_agent with the name of the cpuset (path
+- * relative to the root of cpuset file system) as the argument.
+- *
+- * Most likely, this user command will try to rmdir this cpuset.
+- *
+- * This races with the possibility that some other task will be
+- * attached to this cpuset before it is removed, or that some other
+- * user task will 'mkdir' a child cpuset of this cpuset.  That's ok.
+- * The presumed 'rmdir' will fail quietly if this cpuset is no longer
+- * unused, and this cpuset will be reprieved from its death sentence,
+- * to continue to serve a useful existence.  Next time it's released,
+- * we will get notified again, if it still has 'notify_on_release' set.
+- *
+- * The final arg to call_usermodehelper() is 0, which means don't
+- * wait.  The separate /sbin/cpuset_release_agent task is forked by
+- * call_usermodehelper(), then control in this thread returns here,
+- * without waiting for the release agent task.  We don't bother to
+- * wait because the caller of this routine has no use for the exit
+- * status of the /sbin/cpuset_release_agent task, so no sense holding
+- * our caller up for that.
+- *
+- * When we had only one cpuset mutex, we had to call this
+- * without holding it, to avoid deadlock when call_usermodehelper()
+- * allocated memory.  With two locks, we could now call this while
+- * holding manage_mutex, but we still don't, so as to minimize
+- * the time manage_mutex is held.
+- */
+-
+-static void cpuset_release_agent(const char *pathbuf)
+-{
+-	char *argv[3], *envp[3];
+-	int i;
+-
+-	if (!pathbuf)
+-		return;
+-
+-	i = 0;
+-	argv[i++] = "/sbin/cpuset_release_agent";
+-	argv[i++] = (char *)pathbuf;
+-	argv[i] = NULL;
+-
+-	i = 0;
+-	/* minimal command environment */
+-	envp[i++] = "HOME=/";
+-	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-	envp[i] = NULL;
+-
+-	call_usermodehelper(argv[0], argv, envp, 0);
+-	kfree(pathbuf);
+-}
+-
+-/*
+- * Either cs->count of using tasks transitioned to zero, or the
+- * cs->children list of child cpusets just became empty.  If this
+- * cs is notify_on_release() and now both the user count is zero and
+- * the list of children is empty, prepare cpuset path in a kmalloc'd
+- * buffer, to be returned via ppathbuf, so that the caller can invoke
+- * cpuset_release_agent() with it later on, once manage_mutex is dropped.
+- * Call here with manage_mutex held.
+- *
+- * This check_for_release() routine is responsible for kmalloc'ing
+- * pathbuf.  The above cpuset_release_agent() is responsible for
+- * kfree'ing pathbuf.  The caller of these routines is responsible
+- * for providing a pathbuf pointer, initialized to NULL, then
+- * calling check_for_release() with manage_mutex held and the address
+- * of the pathbuf pointer, then dropping manage_mutex, then calling
+- * cpuset_release_agent() with pathbuf, as set by check_for_release().
+- */
+-
+-static void check_for_release(struct cpuset *cs, char **ppathbuf)
+-{
+-	if (notify_on_release(cs) && atomic_read(&cs->count) == 0 &&
+-	    list_empty(&cs->children)) {
+-		char *buf;
+-
+-		buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-		if (!buf)
+-			return;
+-		if (cpuset_path(cs, buf, PAGE_SIZE) < 0)
+-			kfree(buf);
+-		else
+-			*ppathbuf = buf;
+-	}
+-}
+-
+ /*
+  * Return in *pmask the portion of a cpusets's cpus_allowed that
+  * are online.  If none are online, walk up the cpuset hierarchy
+@@ -652,20 +270,20 @@ void cpuset_update_task_memory_state(voi
+ 	struct task_struct *tsk = current;
+ 	struct cpuset *cs;
+ 
+-	if (tsk->cpuset == &top_cpuset) {
++	if (tsk->container->cpuset == &top_cpuset) {
+ 		/* Don't need rcu for top_cpuset.  It's never freed. */
+ 		my_cpusets_mem_gen = top_cpuset.mems_generation;
+ 	} else {
+ 		rcu_read_lock();
+-		cs = rcu_dereference(tsk->cpuset);
++		cs = rcu_dereference(tsk->container->cpuset);
+ 		my_cpusets_mem_gen = cs->mems_generation;
+ 		rcu_read_unlock();
+ 	}
+ 
+ 	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
+-		mutex_lock(&callback_mutex);
++		container_lock();
+ 		task_lock(tsk);
+-		cs = tsk->cpuset;	/* Maybe changed when task not locked */
++		cs = tsk->container->cpuset; /* Maybe changed when task not locked */
+ 		guarantee_online_mems(cs, &tsk->mems_allowed);
+ 		tsk->cpuset_mems_generation = cs->mems_generation;
+ 		if (is_spread_page(cs))
+@@ -677,7 +295,7 @@ void cpuset_update_task_memory_state(voi
+ 		else
+ 			tsk->flags &= ~PF_SPREAD_SLAB;
+ 		task_unlock(tsk);
+-		mutex_unlock(&callback_mutex);
++		container_unlock();
+ 		mpol_rebind_task(tsk, &tsk->mems_allowed);
+ 	}
+ }
+@@ -720,10 +338,12 @@ static int is_cpuset_subset(const struct
+ 
+ static int validate_change(const struct cpuset *cur, const struct cpuset *trial)
+ {
++	struct container *cont;
+ 	struct cpuset *c, *par;
+ 
+ 	/* Each of our child cpusets must be a subset of us */
+-	list_for_each_entry(c, &cur->children, sibling) {
++	list_for_each_entry(cont, &cur->container->children, sibling) {
++		c = cont->cpuset;
+ 		if (!is_cpuset_subset(c, trial))
+ 			return -EBUSY;
+ 	}
+@@ -739,7 +359,8 @@ static int validate_change(const struct 
+ 		return -EACCES;
+ 
+ 	/* If either I or some sibling (!= me) is exclusive, we can't overlap */
+-	list_for_each_entry(c, &par->children, sibling) {
++	list_for_each_entry(cont, &par->container->children, sibling) {
++		c = cont->cpuset;
+ 		if ((is_cpu_exclusive(trial) || is_cpu_exclusive(c)) &&
+ 		    c != cur &&
+ 		    cpus_intersects(trial->cpus_allowed, c->cpus_allowed))
+@@ -769,6 +390,7 @@ static int validate_change(const struct 
+ 
+ static void update_cpu_domains(struct cpuset *cur)
+ {
++	struct container *cont;
+ 	struct cpuset *c, *par = cur->parent;
+ 	cpumask_t pspan, cspan;
+ 
+@@ -780,7 +402,8 @@ static void update_cpu_domains(struct cp
+ 	 * children
+ 	 */
+ 	pspan = par->cpus_allowed;
+-	list_for_each_entry(c, &par->children, sibling) {
++	list_for_each_entry(cont, &par->container->children, sibling) {
++		c = cont->cpuset;
+ 		if (is_cpu_exclusive(c))
+ 			cpus_andnot(pspan, pspan, c->cpus_allowed);
+ 	}
+@@ -797,7 +420,8 @@ static void update_cpu_domains(struct cp
+ 		 * Get all cpus from current cpuset's cpus_allowed not part
+ 		 * of exclusive children
+ 		 */
+-		list_for_each_entry(c, &cur->children, sibling) {
++		list_for_each_entry(cont, &cur->container->children, sibling) {
++			c = cont->cpuset;
+ 			if (is_cpu_exclusive(c))
+ 				cpus_andnot(cspan, cspan, c->cpus_allowed);
+ 		}
+@@ -832,9 +456,9 @@ static int update_cpumask(struct cpuset 
+ 	if (retval < 0)
+ 		return retval;
+ 	cpus_unchanged = cpus_equal(cs->cpus_allowed, trialcs.cpus_allowed);
+-	mutex_lock(&callback_mutex);
 +	container_lock();
-+	res = get_numtasks(root_rgroup);
-+	res->cnt_min_shares = total_numtasks;
-+	res->cnt_unused = total_numtasks;
-+	res->cnt_max_shares = total_numtasks;
-+	recalc_and_propagate(res, NULL);
+ 	cs->cpus_allowed = trialcs.cpus_allowed;
+-	mutex_unlock(&callback_mutex);
 +	container_unlock();
-+	return 0;
-+}
-+module_param_set_call(total_numtasks, int, set_total_numtasks,
-+			S_IRUGO | S_IWUSR);
-+
-+static void reset_forkrates(struct resource_group *rgroup, unsigned long now)
-+{
-+	struct numtasks *res;
-+	struct resource_group *child = NULL;
-+
-+	res = get_numtasks(rgroup);
-+	if (!res)
-+		return;
-+	res->forks_in_period = 0;
-+	res->period_start = now;
-+
-+	for_each_child(child, rgroup)
-+		reset_forkrates(child, now);
-+}
-+
-+static int set_forkrate(const char *val, struct kernel_param *kp)
-+{
-+	int prev = forkrate;
-+	int rc = set_numtasks_config_val(&forkrate, prev, val, kp);
-+	if (rc < 0)
-+		return rc;
+ 	if (is_cpu_exclusive(cs) && !cpus_unchanged)
+ 		update_cpu_domains(cs);
+ 	return 0;
+@@ -878,15 +502,15 @@ static void cpuset_migrate_mm(struct mm_
+ 
+ 	cpuset_update_task_memory_state();
+ 
+-	mutex_lock(&callback_mutex);
 +	container_lock();
-+	reset_forkrates(root_rgroup, jiffies);
+ 	tsk->mems_allowed = *to;
+-	mutex_unlock(&callback_mutex);
 +	container_unlock();
-+	return 0;
-+}
-+module_param_set_call(forkrate, int, set_forkrate, S_IRUGO | S_IWUSR);
-+
-+static int set_forkrate_interval(const char *val, struct kernel_param *kp)
-+{
-+	int prev = forkrate_interval;
-+	int rc = set_numtasks_config_val(&forkrate_interval, prev, val, kp);
-+	if (rc < 0)
-+		return rc;
+ 
+ 	do_migrate_pages(mm, from, to, MPOL_MF_MOVE_ALL);
+ 
+-	mutex_lock(&callback_mutex);
+-	guarantee_online_mems(tsk->cpuset, &tsk->mems_allowed);
+-	mutex_unlock(&callback_mutex);
 +	container_lock();
-+	reset_forkrates(root_rgroup, jiffies);
++	guarantee_online_mems(tsk->container->cpuset, &tsk->mems_allowed);
 +	container_unlock();
-+	return 0;
+ }
+ 
+ /*
+@@ -913,12 +537,14 @@ static int update_nodemask(struct cpuset
+ 	int migrate;
+ 	int fudge;
+ 	int retval;
++	struct container *cont;
+ 
+ 	/* top_cpuset.mems_allowed tracks node_online_map; it's read-only */
+ 	if (cs == &top_cpuset)
+ 		return -EACCES;
+ 
+ 	trialcs = *cs;
++	cont = cs->container;
+ 	retval = nodelist_parse(buf, trialcs.mems_allowed);
+ 	if (retval < 0)
+ 		goto done;
+@@ -936,10 +562,10 @@ static int update_nodemask(struct cpuset
+ 	if (retval < 0)
+ 		goto done;
+ 
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	cs->mems_allowed = trialcs.mems_allowed;
+ 	cs->mems_generation = cpuset_mems_generation++;
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	set_cpuset_being_rebound(cs);		/* causes mpol_copy() rebind */
+ 
+@@ -955,13 +581,13 @@ static int update_nodemask(struct cpuset
+ 	 * enough mmarray[] w/o using GFP_ATOMIC.
+ 	 */
+ 	while (1) {
+-		ntasks = atomic_read(&cs->count);	/* guess */
++		ntasks = atomic_read(&cs->container->count);  /* guess */
+ 		ntasks += fudge;
+ 		mmarray = kmalloc(ntasks * sizeof(*mmarray), GFP_KERNEL);
+ 		if (!mmarray)
+ 			goto done;
+ 		write_lock_irq(&tasklist_lock);		/* block fork */
+-		if (atomic_read(&cs->count) <= ntasks)
++		if (atomic_read(&cs->container->count) <= ntasks)
+ 			break;				/* got enough */
+ 		write_unlock_irq(&tasklist_lock);	/* try again */
+ 		kfree(mmarray);
+@@ -978,7 +604,7 @@ static int update_nodemask(struct cpuset
+ 				"Cpuset mempolicy rebind incomplete.\n");
+ 			continue;
+ 		}
+-		if (p->cpuset != cs)
++		if (p->container != cont)
+ 			continue;
+ 		mm = get_task_mm(p);
+ 		if (!mm)
+@@ -1061,12 +687,12 @@ static int update_flag(cpuset_flagbits_t
+ 		return err;
+ 	cpu_exclusive_changed =
+ 		(is_cpu_exclusive(cs) != is_cpu_exclusive(&trialcs));
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	cs->flags = trialcs.flags;
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	if (cpu_exclusive_changed)
+-                update_cpu_domains(cs);
++		update_cpu_domains(cs);
+ 	return 0;
+ }
+ 
+@@ -1168,85 +794,35 @@ static int fmeter_getrate(struct fmeter 
+ 	return val;
+ }
+ 
+-/*
+- * Attack task specified by pid in 'pidbuf' to cpuset 'cs', possibly
+- * writing the path of the old cpuset in 'ppathbuf' if it needs to be
+- * notified on release.
+- *
+- * Call holding manage_mutex.  May take callback_mutex and task_lock of
+- * the task 'pid' during call.
+- */
+-
+-static int attach_task(struct cpuset *cs, char *pidbuf, char **ppathbuf)
++int cpuset_can_attach_task(struct container *cont, struct task_struct *tsk)
+ {
+-	pid_t pid;
+-	struct task_struct *tsk;
+-	struct cpuset *oldcs;
+-	cpumask_t cpus;
+-	nodemask_t from, to;
+-	struct mm_struct *mm;
+-	int retval;
++	struct cpuset *cs = cont->cpuset;
+ 
+-	if (sscanf(pidbuf, "%d", &pid) != 1)
+-		return -EIO;
+ 	if (cpus_empty(cs->cpus_allowed) || nodes_empty(cs->mems_allowed))
+ 		return -ENOSPC;
+ 
+-	if (pid) {
+-		read_lock(&tasklist_lock);
+-
+-		tsk = find_task_by_pid(pid);
+-		if (!tsk || tsk->flags & PF_EXITING) {
+-			read_unlock(&tasklist_lock);
+-			return -ESRCH;
+-		}
+-
+-		get_task_struct(tsk);
+-		read_unlock(&tasklist_lock);
+-
+-		if ((current->euid) && (current->euid != tsk->uid)
+-		    && (current->euid != tsk->suid)) {
+-			put_task_struct(tsk);
+-			return -EACCES;
+-		}
+-	} else {
+-		tsk = current;
+-		get_task_struct(tsk);
+-	}
+-
+-	retval = security_task_setscheduler(tsk, 0, NULL);
+-	if (retval) {
+-		put_task_struct(tsk);
+-		return retval;
+-	}
+-
+-	mutex_lock(&callback_mutex);
+-
+-	task_lock(tsk);
+-	oldcs = tsk->cpuset;
+-	/*
+-	 * After getting 'oldcs' cpuset ptr, be sure still not exiting.
+-	 * If 'oldcs' might be the top_cpuset due to the_top_cpuset_hack
+-	 * then fail this attach_task(), to avoid breaking top_cpuset.count.
+-	 */
+-	if (tsk->flags & PF_EXITING) {
+-		task_unlock(tsk);
+-		mutex_unlock(&callback_mutex);
+-		put_task_struct(tsk);
+-		return -ESRCH;
+-	}
+-	atomic_inc(&cs->count);
+-	rcu_assign_pointer(tsk->cpuset, cs);
+-	task_unlock(tsk);
++	return security_task_setscheduler(tsk, 0, NULL);
 +}
-+module_param_set_call(forkrate_interval, int, set_forkrate_interval,
-+			S_IRUGO | S_IWUSR);
-+
-+int __init init_numtasks_res(void)
+ 
++void cpuset_attach_task(struct container *cont, struct task_struct *tsk)
 +{
-+	if (numtasks_ctlr.ctlr_id != NO_RES_ID)
-+		return -EBUSY; /* already registered */
-+	return register_controller(&numtasks_ctlr);
++	cpumask_t cpus;
++	struct cpuset *cs = cont->cpuset;
+ 	guarantee_online_cpus(cs, &cpus);
+ 	set_cpus_allowed(tsk, cpus);
 +}
 +
-+void __exit exit_numtasks_res(void)
++void cpuset_post_attach_task(struct container *cont,
++			     struct container *oldcont,
++			     struct task_struct *tsk)
 +{
-+	int rc;
-+	do {
-+		rc = unregister_controller(&numtasks_ctlr);
-+	} while (rc == -EBUSY);
-+	BUG_ON(rc != 0);
-+}
-+module_init(init_numtasks_res)
-+module_exit(exit_numtasks_res)
-Index: container-2.6.20-rc1/kernel/res_group/res_group.c
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/res_group.c
-@@ -0,0 +1,160 @@
-+/* res_group.c - Resource Groups: Resource management through grouping of
-+ *		  unrelated tasks.
-+ *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
-+ *		(C) Shailabh Nagar, IBM Corp. 2003, 2004
-+ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
-+ *		(C) Vivek Kashyap, IBM Corp. 2004
-+ *		(C) Matt Helsley, IBM Corp. 2006
-+ *
-+ * Provides kernel API of Resource Groups for in-kernel,per-resource
-+ * controllers (one each for cpu, memory and io).
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <asm/uaccess.h>
-+#include <linux/fs.h>
-+#include "local.h"
-+
-+
-+static int res_group_create(struct container_subsys *ss,
-+			    struct container *cont)
-+{
-+	struct res_controller *ctlr = container_of(ss, struct res_controller, subsys);
-+	struct res_shares *shares = ctlr->alloc_shares_struct(cont);
-+	cont->subsys[ss->subsys_id] = &shares->css;
-+	return 0;
-+}
-+
-+static void res_group_destroy(struct container_subsys *ss,
-+			     struct container *cont)
-+{
-+	struct res_controller *ctlr = container_of(ss, struct res_controller, subsys);
-+	struct res_shares *shares = get_controller_shares(cont, ctlr);
-+	ctlr->free_shares_struct(shares);
-+}
-+
-+static int res_group_populate(struct container_subsys *ss,
-+			      struct container *cont) {
-+	int err;
-+	struct res_controller *ctlr = container_of(ss, struct res_controller, subsys);
-+	if ((err = container_add_file(cont, &ctlr->shares_cft.cft)) < 0)
-+		return err;
-+	if ((err = container_add_file(cont, &ctlr->stats_cft.cft)) < 0)
-+		return err;
-+
-+	return 0;
-+}
-+
-+static void res_group_attach(struct container_subsys *ss,
-+			     struct container *cont,
-+			     struct container *old_cont,
-+			     struct task_struct *tsk) {
-+	struct res_controller *ctlr = container_of(ss, struct res_controller, subsys);
-+	struct res_shares *oldshares = get_controller_shares(old_cont, ctlr);
-+	struct res_shares *newshares = get_controller_shares(cont, ctlr);
-+
-+	if (ctlr->move_task) {
-+		ctlr->move_task(tsk, oldshares, newshares);
-+	}
-+}
-+
-+static void res_group_fork(struct container_subsys *ss,
-+				struct task_struct *task) {
-+	struct res_controller *ctlr =
-+		container_of(ss, struct res_controller, subsys);
-+	struct res_shares *shares =
-+		get_controller_shares(task_container(task, ss), ctlr);
-+	if (ctlr->move_task) {
-+		ctlr->move_task(task, NULL, shares);
-+	}
-+}
-+
-+static void res_group_exit(struct container_subsys *ss,
-+			   struct task_struct *task) {
-+	struct res_controller *ctlr =
-+		container_of(ss, struct res_controller, subsys);
-+	struct res_shares *shares =
-+		get_controller_shares(task_container(task, ss), ctlr);
-+	if (ctlr->move_task) {
-+		ctlr->move_task(task, shares, NULL);
-+	}
-+}
-+
-+/*
-+ * Interface for registering a resource controller.
-+ *
-+ * Returns the 0 on success, -errno for failure.
-+ * Fills ctlr->ctlr_id with a valid controller id on success.
-+ */
-+int register_controller(struct res_controller *ctlr)
-+{
-+	int ret;
-+
-+	struct container_subsys *ss = &ctlr->subsys;
-+
-+	if (!ctlr)
-+		return -EINVAL;
-+
-+	/* Make sure there is an alloc and a free */
-+	if (!ctlr->alloc_shares_struct || !ctlr->free_shares_struct)
-+		return -EINVAL;
-+
-+	ss->create = res_group_create;
-+	ss->destroy = res_group_destroy;
-+	ss->populate = res_group_populate;
-+	if (ctlr->move_task) {
-+		ss->attach = res_group_attach;
-+		ss->fork = res_group_fork;
-+		ss->exit = res_group_exit;
-+	}
-+
-+	ctlr->shares_cft.ctlr = ctlr;
-+	strcpy(ctlr->shares_cft.cft.name, ctlr->name);
-+	strcat(ctlr->shares_cft.cft.name, ".shares");
-+	ctlr->shares_cft.cft.private = RG_FILE_SHARES;
-+	ctlr->shares_cft.cft.read = res_group_file_read;
-+	ctlr->shares_cft.cft.write = res_group_file_write;
-+
-+	ctlr->stats_cft.ctlr = ctlr;
-+	strcpy(ctlr->stats_cft.cft.name, ctlr->name);
-+	strcat(ctlr->stats_cft.cft.name, ".stats");
-+	ctlr->stats_cft.cft.private = RG_FILE_STATS;
-+	ctlr->stats_cft.cft.read = res_group_file_read;
-+	ctlr->stats_cft.cft.write = res_group_file_write;
-+
-+	ss->name = ctlr->name;
-+
-+	ret = container_register_subsys(ss);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	ctlr->ctlr_id = ss->subsys_id;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Unregistering resource controller.
-+ *
-+ * Returns 0 on success -errno for failure.
-+ */
-+int unregister_controller(struct res_controller *ctlr)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+
-+EXPORT_SYMBOL_GPL(register_controller);
-+EXPORT_SYMBOL_GPL(unregister_controller);
-+EXPORT_SYMBOL_GPL(set_controller_shares);
-Index: container-2.6.20-rc1/kernel/res_group/rgcs.c
-===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/rgcs.c
-@@ -0,0 +1,302 @@
-+/*
-+ * kernel/res_group/rgcs.c
-+ *
-+ * Copyright (C) Shailabh Nagar,  IBM Corp. 2005
-+ *	       Chandra Seetharaman,   IBM Corp. 2005, 2006
-+ *
-+ * Resource Group Configfs Subsystem (rgcs) provides the user interface
-+ * for Resource groups.
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of version 2 of the  GNU General Public License
-+ * as published by the Free Software Foundation.
-+ *
-+ */
-+#include <linux/ctype.h>
-+#include <linux/module.h>
-+#include <linux/configfs.h>
-+#include <linux/parser.h>
-+#include <linux/fs.h>
-+#include <asm/uaccess.h>
-+
-+#include "local.h"
-+
-+#define RES_STRING "res"
-+#define MIN_SHARES_STRING "min_shares"
-+#define MAX_SHARES_STRING "max_shares"
-+#define CHILD_SHARES_DIVISOR_STRING "child_shares_divisor"
-+
-+static ssize_t show_stats(struct resource_group *rgroup,
-+		   struct res_controller *ctlr,
-+		   char *buf)
-+{
-+	int j = 0, rc = 0;
-+	size_t buf_size = PAGE_SIZE-1; /* allow only PAGE_SIZE # of bytes */
-+	struct res_shares *shares;
-+
-+	shares = get_controller_shares(rgroup, ctlr);
-+	if (shares && ctlr->show_stats)
-+		j = ctlr->show_stats(shares, buf, buf_size);
-+	rc += j;
-+	buf += j;
-+	buf_size -= j;
-+	return rc;
-+}
-+
-+enum parse_token_t {
-+	parse_res_type, parse_err
-+};
-+
-+static match_table_t parse_tokens = {
-+	{parse_res_type, RES_STRING"=%s"},
-+	{parse_err, NULL}
-+};
-+
-+static int stats_parse(const char *options,
-+				char **resname, char **remaining_line)
-+{
-+	char *p, *str;
-+	int rc = -EINVAL;
-+
-+	if (!options)
-+		return -EINVAL;
-+
-+	while ((p = strsep((char **)&options, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+
-+		if (!*p)
-+			continue;
-+		token = match_token(p, parse_tokens, args);
-+		if (token == parse_res_type) {
-+			*resname = match_strdup(args);
-+			str = p + strlen(p) + 1;
-+			*remaining_line = kmalloc(strlen(str) + 1, GFP_KERNEL);
-+			if (*remaining_line == NULL) {
-+				kfree(*resname);
-+				*resname = NULL;
-+				rc = -ENOMEM;
-+			} else {
-+				strcpy(*remaining_line, str);
-+				rc = 0;
-+			}
-+			break;
-+		}
-+	}
-+	return rc;
-+}
-+
-+static int reset_stats(struct resource_group *rgroup, struct res_controller *ctlr, const char *str)
-+{
-+	int rc;
-+	char *resname = NULL, *statstr = NULL;
-+	struct res_shares *shares;
-+
-+	rc = stats_parse(str, &resname, &statstr);
-+	if (rc)
-+		return rc;
-+
-+	shares = get_controller_shares(rgroup, ctlr);
-+	if (shares && ctlr->reset_stats)
-+		rc = ctlr->reset_stats(shares, statstr);
-+
-+	kfree(resname);
-+	kfree(statstr);
-+	return rc;
-+}
-+
-+
-+enum share_token_t {
-+	MIN_SHARES_TOKEN,
-+	MAX_SHARES_TOKEN,
-+	CHILD_SHARES_DIVISOR_TOKEN,
-+	RESOURCE_TYPE_TOKEN,
-+	ERROR_TOKEN
-+};
-+
-+/* Token matching for parsing input to this magic file */
-+static match_table_t shares_tokens = {
-+	{RESOURCE_TYPE_TOKEN, RES_STRING"=%s"},
-+	{MIN_SHARES_TOKEN, MIN_SHARES_STRING"=%d"},
-+	{MAX_SHARES_TOKEN, MAX_SHARES_STRING"=%d"},
-+	{CHILD_SHARES_DIVISOR_TOKEN, CHILD_SHARES_DIVISOR_STRING"=%d"},
-+	{ERROR_TOKEN, NULL}
-+};
-+
-+static int shares_parse(const char *options, char **resname,
-+					struct res_shares *shares)
-+{
-+	char *p;
-+	int option, rc = -EINVAL;
-+
-+	*resname = NULL;
-+	if (!options)
-+		goto done;
-+
-+	while ((p = strsep((char **)&options, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+
-+		if (!*p)
-+			continue;
-+
-+		token = match_token(p, shares_tokens, args);
-+		switch (token) {
-+		case RESOURCE_TYPE_TOKEN:
-+			if (*resname)
-+				goto done;
-+			*resname = match_strdup(args);
-+			break;
-+		case MIN_SHARES_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->min_shares = option;
-+			break;
-+		case MAX_SHARES_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->max_shares = option;
-+			break;
-+		case CHILD_SHARES_DIVISOR_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->child_shares_divisor = option;
-+			break;
-+		default:
-+			goto done;
-+		}
-+	}
-+	rc = 0;
-+done:
-+	if (rc) {
-+		kfree(*resname);
-+		*resname = NULL;
-+	}
-+	return rc;
-+}
-+
-+static int set_shares(struct resource_group *rgroup,
-+		      struct res_controller *ctlr,
-+		      const char *str)
-+{
-+	char *resname = NULL;
-+	int rc;
-+	struct res_shares shares = {
-+		.min_shares = SHARE_UNCHANGED,
-+		.max_shares = SHARE_UNCHANGED,
-+		.child_shares_divisor = SHARE_UNCHANGED,
-+	};
-+
-+	rc = shares_parse(str, &resname, &shares);
-+	if (!rc) {
-+		rc = set_controller_shares(rgroup, ctlr, &shares);
-+		kfree(resname);
-+	}
-+	return rc;
-+}
-+
-+static ssize_t show_shares(struct resource_group *rgroup,
-+			   struct res_controller *ctlr,
-+			   char *buf)
-+{
-+	ssize_t j, rc = 0, bufsize = PAGE_SIZE;
-+	struct res_shares *shares;
-+
-+	shares = get_controller_shares(rgroup, ctlr);
-+	if (shares) {
-+		j = snprintf(buf, bufsize, "%s=%s,%s=%d,%s=%d,%s=%d\n",
-+			     RES_STRING, ctlr->name,
-+			     MIN_SHARES_STRING, shares->min_shares,
-+			     MAX_SHARES_STRING, shares->max_shares,
-+			     CHILD_SHARES_DIVISOR_STRING,
-+			     shares->child_shares_divisor);
-+		rc += j; buf += j; bufsize -= j;
-+	}
-+	return rc;
-+}
-+
-+ssize_t res_group_file_write(struct container *cont,
-+				   struct cftype *cft,
-+				   struct file *file,
-+				   const char __user *userbuf,
-+				   size_t nbytes, loff_t *ppos)
-+{
-+	struct res_group_cft *rgcft = container_of(cft, struct res_group_cft, cft);
-+	struct res_controller *ctlr = rgcft->ctlr;
-+
-+	char *buf;
-+	ssize_t retval;
-+	int filetype = cft->private;
-+
-+	if (nbytes >= PAGE_SIZE)
-+		return -E2BIG;
-+
-+	buf = kmalloc(nbytes + 1, GFP_USER);
-+	if (!buf) return -ENOMEM;
-+	if (copy_from_user(buf, userbuf, nbytes)) {
-+		retval = -EFAULT;
-+		goto out1;
-+	}
-+	buf[nbytes] = 0;	/* nul-terminate */
-+
++	nodemask_t from, to;
++	struct mm_struct *mm;
++	struct cpuset *cs = cont->cpuset;
++	struct cpuset *oldcs = oldcont->cpuset;
+ 
+ 	from = oldcs->mems_allowed;
+ 	to = cs->mems_allowed;
+-
+-	mutex_unlock(&callback_mutex);
+-
+ 	mm = get_task_mm(tsk);
+ 	if (mm) {
+ 		mpol_rebind_mm(mm, &to);
+@@ -1255,40 +831,31 @@ static int attach_task(struct cpuset *cs
+ 		mmput(mm);
+ 	}
+ 
+-	put_task_struct(tsk);
+-	synchronize_rcu();
+-	if (atomic_dec_and_test(&oldcs->count))
+-		check_for_release(oldcs, ppathbuf);
+-	return 0;
+ }
+ 
+ /* The various types of files and directories in a cpuset file system */
+ 
+ typedef enum {
+-	FILE_ROOT,
+-	FILE_DIR,
+ 	FILE_MEMORY_MIGRATE,
+ 	FILE_CPULIST,
+ 	FILE_MEMLIST,
+ 	FILE_CPU_EXCLUSIVE,
+ 	FILE_MEM_EXCLUSIVE,
+-	FILE_NOTIFY_ON_RELEASE,
+ 	FILE_MEMORY_PRESSURE_ENABLED,
+ 	FILE_MEMORY_PRESSURE,
+ 	FILE_SPREAD_PAGE,
+ 	FILE_SPREAD_SLAB,
+-	FILE_TASKLIST,
+ } cpuset_filetype_t;
+ 
+-static ssize_t cpuset_common_file_write(struct file *file,
++static ssize_t cpuset_common_file_write(struct container *cont,
++					struct cftype *cft,
++					struct file *file,
+ 					const char __user *userbuf,
+ 					size_t nbytes, loff_t *unused_ppos)
+ {
+-	struct cpuset *cs = __d_cs(file->f_path.dentry->d_parent);
+-	struct cftype *cft = __d_cft(file->f_path.dentry);
++	struct cpuset *cs = cont->cpuset;
+ 	cpuset_filetype_t type = cft->private;
+ 	char *buffer;
+-	char *pathbuf = NULL;
+ 	int retval = 0;
+ 
+ 	/* Crude upper limit on largest legitimate cpulist user might write. */
+@@ -1305,9 +872,9 @@ static ssize_t cpuset_common_file_write(
+ 	}
+ 	buffer[nbytes] = 0;	/* nul-terminate */
+ 
+-	mutex_lock(&manage_mutex);
 +	container_manage_lock();
-+
+ 
+-	if (is_removed(cs)) {
 +	if (container_is_removed(cont)) {
-+		retval = -ENODEV;
-+		goto out2;
-+	}
-+
-+	switch(filetype) {
-+	case RG_FILE_SHARES:
-+		retval = set_shares(cont, ctlr, buf);
-+		break;
-+	case RG_FILE_STATS:
-+		retval = reset_stats(cont, ctlr, buf);
-+		break;
-+	default:
-+		retval = -EINVAL;
-+	}
-+	if (!retval) retval = nbytes;
-+
-+ out2:
+ 		retval = -ENODEV;
+ 		goto out2;
+ 	}
+@@ -1325,9 +892,6 @@ static ssize_t cpuset_common_file_write(
+ 	case FILE_MEM_EXCLUSIVE:
+ 		retval = update_flag(CS_MEM_EXCLUSIVE, cs, buffer);
+ 		break;
+-	case FILE_NOTIFY_ON_RELEASE:
+-		retval = update_flag(CS_NOTIFY_ON_RELEASE, cs, buffer);
+-		break;
+ 	case FILE_MEMORY_MIGRATE:
+ 		retval = update_flag(CS_MEMORY_MIGRATE, cs, buffer);
+ 		break;
+@@ -1345,9 +909,6 @@ static ssize_t cpuset_common_file_write(
+ 		retval = update_flag(CS_SPREAD_SLAB, cs, buffer);
+ 		cs->mems_generation = cpuset_mems_generation++;
+ 		break;
+-	case FILE_TASKLIST:
+-		retval = attach_task(cs, buffer, &pathbuf);
+-		break;
+ 	default:
+ 		retval = -EINVAL;
+ 		goto out2;
+@@ -1356,30 +917,12 @@ static ssize_t cpuset_common_file_write(
+ 	if (retval == 0)
+ 		retval = nbytes;
+ out2:
+-	mutex_unlock(&manage_mutex);
+-	cpuset_release_agent(pathbuf);
 +	container_manage_unlock();
-+ out1:
-+	kfree(buf);
-+	return retval;
-+}
+ out1:
+ 	kfree(buffer);
+ 	return retval;
+ }
+ 
+-static ssize_t cpuset_file_write(struct file *file, const char __user *buf,
+-						size_t nbytes, loff_t *ppos)
+-{
+-	ssize_t retval = 0;
+-	struct cftype *cft = __d_cft(file->f_path.dentry);
+-	if (!cft)
+-		return -ENODEV;
+-
+-	/* special function ? */
+-	if (cft->write)
+-		retval = cft->write(file, buf, nbytes, ppos);
+-	else
+-		retval = cpuset_common_file_write(file, buf, nbytes, ppos);
+-
+-	return retval;
+-}
+-
+ /*
+  * These ascii lists should be read in a single call, by using a user
+  * buffer large enough to hold the entire map.  If read in smaller
+@@ -1396,9 +939,9 @@ static int cpuset_sprintf_cpulist(char *
+ {
+ 	cpumask_t mask;
+ 
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	mask = cs->cpus_allowed;
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	return cpulist_scnprintf(page, PAGE_SIZE, mask);
+ }
+@@ -1407,18 +950,20 @@ static int cpuset_sprintf_memlist(char *
+ {
+ 	nodemask_t mask;
+ 
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	mask = cs->mems_allowed;
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	return nodelist_scnprintf(page, PAGE_SIZE, mask);
+ }
+ 
+-static ssize_t cpuset_common_file_read(struct file *file, char __user *buf,
+-				size_t nbytes, loff_t *ppos)
++static ssize_t cpuset_common_file_read(struct container *cont,
++				       struct cftype *cft,
++				       struct file *file,
++				       char __user *buf,
++				       size_t nbytes, loff_t *ppos)
+ {
+-	struct cftype *cft = __d_cft(file->f_path.dentry);
+-	struct cpuset *cs = __d_cs(file->f_path.dentry->d_parent);
++	struct cpuset *cs = cont->cpuset;
+ 	cpuset_filetype_t type = cft->private;
+ 	char *page;
+ 	ssize_t retval = 0;
+@@ -1442,9 +987,6 @@ static ssize_t cpuset_common_file_read(s
+ 	case FILE_MEM_EXCLUSIVE:
+ 		*s++ = is_mem_exclusive(cs) ? '1' : '0';
+ 		break;
+-	case FILE_NOTIFY_ON_RELEASE:
+-		*s++ = notify_on_release(cs) ? '1' : '0';
+-		break;
+ 	case FILE_MEMORY_MIGRATE:
+ 		*s++ = is_memory_migrate(cs) ? '1' : '0';
+ 		break;
+@@ -1472,391 +1014,96 @@ out:
+ 	return retval;
+ }
+ 
+-static ssize_t cpuset_file_read(struct file *file, char __user *buf, size_t nbytes,
+-								loff_t *ppos)
+-{
+-	ssize_t retval = 0;
+-	struct cftype *cft = __d_cft(file->f_path.dentry);
+-	if (!cft)
+-		return -ENODEV;
+-
+-	/* special function ? */
+-	if (cft->read)
+-		retval = cft->read(file, buf, nbytes, ppos);
+-	else
+-		retval = cpuset_common_file_read(file, buf, nbytes, ppos);
+-
+-	return retval;
+-}
+-
+-static int cpuset_file_open(struct inode *inode, struct file *file)
+-{
+-	int err;
+-	struct cftype *cft;
+-
+-	err = generic_file_open(inode, file);
+-	if (err)
+-		return err;
+-
+-	cft = __d_cft(file->f_path.dentry);
+-	if (!cft)
+-		return -ENODEV;
+-	if (cft->open)
+-		err = cft->open(inode, file);
+-	else
+-		err = 0;
+-
+-	return err;
+-}
+-
+-static int cpuset_file_release(struct inode *inode, struct file *file)
+-{
+-	struct cftype *cft = __d_cft(file->f_path.dentry);
+-	if (cft->release)
+-		return cft->release(inode, file);
+-	return 0;
+-}
+-
+-/*
+- * cpuset_rename - Only allow simple rename of directories in place.
+- */
+-static int cpuset_rename(struct inode *old_dir, struct dentry *old_dentry,
+-                  struct inode *new_dir, struct dentry *new_dentry)
+-{
+-	if (!S_ISDIR(old_dentry->d_inode->i_mode))
+-		return -ENOTDIR;
+-	if (new_dentry->d_inode)
+-		return -EEXIST;
+-	if (old_dir != new_dir)
+-		return -EIO;
+-	return simple_rename(old_dir, old_dentry, new_dir, new_dentry);
+-}
+-
+-static const struct file_operations cpuset_file_operations = {
+-	.read = cpuset_file_read,
+-	.write = cpuset_file_write,
+-	.llseek = generic_file_llseek,
+-	.open = cpuset_file_open,
+-	.release = cpuset_file_release,
+-};
+-
+-static struct inode_operations cpuset_dir_inode_operations = {
+-	.lookup = simple_lookup,
+-	.mkdir = cpuset_mkdir,
+-	.rmdir = cpuset_rmdir,
+-	.rename = cpuset_rename,
+-};
+-
+-static int cpuset_create_file(struct dentry *dentry, int mode)
+-{
+-	struct inode *inode;
+-
+-	if (!dentry)
+-		return -ENOENT;
+-	if (dentry->d_inode)
+-		return -EEXIST;
+-
+-	inode = cpuset_new_inode(mode);
+-	if (!inode)
+-		return -ENOMEM;
+-
+-	if (S_ISDIR(mode)) {
+-		inode->i_op = &cpuset_dir_inode_operations;
+-		inode->i_fop = &simple_dir_operations;
+-
+-		/* start off with i_nlink == 2 (for "." entry) */
+-		inc_nlink(inode);
+-	} else if (S_ISREG(mode)) {
+-		inode->i_size = 0;
+-		inode->i_fop = &cpuset_file_operations;
+-	}
+-
+-	d_instantiate(dentry, inode);
+-	dget(dentry);	/* Extra count - pin the dentry in core */
+-	return 0;
+-}
+-
+-/*
+- *	cpuset_create_dir - create a directory for an object.
+- *	cs:	the cpuset we create the directory for.
+- *		It must have a valid ->parent field
+- *		And we are going to fill its ->dentry field.
+- *	name:	The name to give to the cpuset directory. Will be copied.
+- *	mode:	mode to set on new directory.
+- */
+-
+-static int cpuset_create_dir(struct cpuset *cs, const char *name, int mode)
+-{
+-	struct dentry *dentry = NULL;
+-	struct dentry *parent;
+-	int error = 0;
+-
+-	parent = cs->parent->dentry;
+-	dentry = cpuset_get_dentry(parent, name);
+-	if (IS_ERR(dentry))
+-		return PTR_ERR(dentry);
+-	error = cpuset_create_file(dentry, S_IFDIR | mode);
+-	if (!error) {
+-		dentry->d_fsdata = cs;
+-		inc_nlink(parent->d_inode);
+-		cs->dentry = dentry;
+-	}
+-	dput(dentry);
+-
+-	return error;
+-}
+-
+-static int cpuset_add_file(struct dentry *dir, const struct cftype *cft)
+-{
+-	struct dentry *dentry;
+-	int error;
+-
+-	mutex_lock(&dir->d_inode->i_mutex);
+-	dentry = cpuset_get_dentry(dir, cft->name);
+-	if (!IS_ERR(dentry)) {
+-		error = cpuset_create_file(dentry, 0644 | S_IFREG);
+-		if (!error)
+-			dentry->d_fsdata = (void *)cft;
+-		dput(dentry);
+-	} else
+-		error = PTR_ERR(dentry);
+-	mutex_unlock(&dir->d_inode->i_mutex);
+-	return error;
+-}
+-
+-/*
+- * Stuff for reading the 'tasks' file.
+- *
+- * Reading this file can return large amounts of data if a cpuset has
+- * *lots* of attached tasks. So it may need several calls to read(),
+- * but we cannot guarantee that the information we produce is correct
+- * unless we produce it entirely atomically.
+- *
+- * Upon tasks file open(), a struct ctr_struct is allocated, that
+- * will have a pointer to an array (also allocated here).  The struct
+- * ctr_struct * is stored in file->private_data.  Its resources will
+- * be freed by release() when the file is closed.  The array is used
+- * to sprintf the PIDs and then used by read().
+- */
+-
+-/* cpusets_tasks_read array */
+-
+-struct ctr_struct {
+-	char *buf;
+-	int bufsz;
+-};
+-
+-/*
+- * Load into 'pidarray' up to 'npids' of the tasks using cpuset 'cs'.
+- * Return actual number of pids loaded.  No need to task_lock(p)
+- * when reading out p->cpuset, as we don't really care if it changes
+- * on the next cycle, and we are not going to try to dereference it.
+- */
+-static int pid_array_load(pid_t *pidarray, int npids, struct cpuset *cs)
+-{
+-	int n = 0;
+-	struct task_struct *g, *p;
+-
+-	read_lock(&tasklist_lock);
+-
+-	do_each_thread(g, p) {
+-		if (p->cpuset == cs) {
+-			pidarray[n++] = p->pid;
+-			if (unlikely(n == npids))
+-				goto array_full;
+-		}
+-	} while_each_thread(g, p);
+-
+-array_full:
+-	read_unlock(&tasklist_lock);
+-	return n;
+-}
+-
+-static int cmppid(const void *a, const void *b)
+-{
+-	return *(pid_t *)a - *(pid_t *)b;
+-}
+-
+-/*
+- * Convert array 'a' of 'npids' pid_t's to a string of newline separated
+- * decimal pids in 'buf'.  Don't write more than 'sz' chars, but return
+- * count 'cnt' of how many chars would be written if buf were large enough.
+- */
+-static int pid_array_to_buf(char *buf, int sz, pid_t *a, int npids)
+-{
+-	int cnt = 0;
+-	int i;
+-
+-	for (i = 0; i < npids; i++)
+-		cnt += snprintf(buf + cnt, max(sz - cnt, 0), "%d\n", a[i]);
+-	return cnt;
+-}
+-
+-/*
+- * Handle an open on 'tasks' file.  Prepare a buffer listing the
+- * process id's of tasks currently attached to the cpuset being opened.
+- *
+- * Does not require any specific cpuset mutexes, and does not take any.
+- */
+-static int cpuset_tasks_open(struct inode *unused, struct file *file)
+-{
+-	struct cpuset *cs = __d_cs(file->f_path.dentry->d_parent);
+-	struct ctr_struct *ctr;
+-	pid_t *pidarray;
+-	int npids;
+-	char c;
+-
+-	if (!(file->f_mode & FMODE_READ))
+-		return 0;
+-
+-	ctr = kmalloc(sizeof(*ctr), GFP_KERNEL);
+-	if (!ctr)
+-		goto err0;
+-
+-	/*
+-	 * If cpuset gets more users after we read count, we won't have
+-	 * enough space - tough.  This race is indistinguishable to the
+-	 * caller from the case that the additional cpuset users didn't
+-	 * show up until sometime later on.
+-	 */
+-	npids = atomic_read(&cs->count);
+-	pidarray = kmalloc(npids * sizeof(pid_t), GFP_KERNEL);
+-	if (!pidarray)
+-		goto err1;
+-
+-	npids = pid_array_load(pidarray, npids, cs);
+-	sort(pidarray, npids, sizeof(pid_t), cmppid, NULL);
+-
+-	/* Call pid_array_to_buf() twice, first just to get bufsz */
+-	ctr->bufsz = pid_array_to_buf(&c, sizeof(c), pidarray, npids) + 1;
+-	ctr->buf = kmalloc(ctr->bufsz, GFP_KERNEL);
+-	if (!ctr->buf)
+-		goto err2;
+-	ctr->bufsz = pid_array_to_buf(ctr->buf, ctr->bufsz, pidarray, npids);
+-
+-	kfree(pidarray);
+-	file->private_data = ctr;
+-	return 0;
+-
+-err2:
+-	kfree(pidarray);
+-err1:
+-	kfree(ctr);
+-err0:
+-	return -ENOMEM;
+-}
+-
+-static ssize_t cpuset_tasks_read(struct file *file, char __user *buf,
+-						size_t nbytes, loff_t *ppos)
+-{
+-	struct ctr_struct *ctr = file->private_data;
+-
+-	if (*ppos + nbytes > ctr->bufsz)
+-		nbytes = ctr->bufsz - *ppos;
+-	if (copy_to_user(buf, ctr->buf + *ppos, nbytes))
+-		return -EFAULT;
+-	*ppos += nbytes;
+-	return nbytes;
+-}
+-
+-static int cpuset_tasks_release(struct inode *unused_inode, struct file *file)
+-{
+-	struct ctr_struct *ctr;
+-
+-	if (file->f_mode & FMODE_READ) {
+-		ctr = file->private_data;
+-		kfree(ctr->buf);
+-		kfree(ctr);
+-	}
+-	return 0;
+-}
+-
+ /*
+  * for the common functions, 'private' gives the type of file
+  */
+ 
+-static struct cftype cft_tasks = {
+-	.name = "tasks",
+-	.open = cpuset_tasks_open,
+-	.read = cpuset_tasks_read,
+-	.release = cpuset_tasks_release,
+-	.private = FILE_TASKLIST,
+-};
+-
+ static struct cftype cft_cpus = {
+ 	.name = "cpus",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_CPULIST,
+ };
+ 
+ static struct cftype cft_mems = {
+ 	.name = "mems",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_MEMLIST,
+ };
+ 
+ static struct cftype cft_cpu_exclusive = {
+ 	.name = "cpu_exclusive",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_CPU_EXCLUSIVE,
+ };
+ 
+ static struct cftype cft_mem_exclusive = {
+ 	.name = "mem_exclusive",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_MEM_EXCLUSIVE,
+ };
+ 
+-static struct cftype cft_notify_on_release = {
+-	.name = "notify_on_release",
+-	.private = FILE_NOTIFY_ON_RELEASE,
+-};
+-
+ static struct cftype cft_memory_migrate = {
+ 	.name = "memory_migrate",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_MEMORY_MIGRATE,
+ };
+ 
+ static struct cftype cft_memory_pressure_enabled = {
+ 	.name = "memory_pressure_enabled",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_MEMORY_PRESSURE_ENABLED,
+ };
+ 
+ static struct cftype cft_memory_pressure = {
+ 	.name = "memory_pressure",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_MEMORY_PRESSURE,
+ };
+ 
+ static struct cftype cft_spread_page = {
+ 	.name = "memory_spread_page",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_SPREAD_PAGE,
+ };
+ 
+ static struct cftype cft_spread_slab = {
+ 	.name = "memory_spread_slab",
++	.read = cpuset_common_file_read,
++	.write = cpuset_common_file_write,
+ 	.private = FILE_SPREAD_SLAB,
+ };
+ 
+-static int cpuset_populate_dir(struct dentry *cs_dentry)
++int cpuset_populate_dir(struct container *cont)
+ {
+ 	int err;
+ 
+-	if ((err = cpuset_add_file(cs_dentry, &cft_cpus)) < 0)
+-		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_mems)) < 0)
++	if ((err = container_add_file(cont, &cft_cpus)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_cpu_exclusive)) < 0)
++	if ((err = container_add_file(cont, &cft_mems)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_mem_exclusive)) < 0)
++	if ((err = container_add_file(cont, &cft_cpu_exclusive)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_notify_on_release)) < 0)
++	if ((err = container_add_file(cont, &cft_mem_exclusive)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_memory_migrate)) < 0)
++	if ((err = container_add_file(cont, &cft_memory_migrate)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_memory_pressure)) < 0)
++	if ((err = container_add_file(cont, &cft_memory_pressure)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_spread_page)) < 0)
++	if ((err = container_add_file(cont, &cft_spread_page)) < 0)
+ 		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_spread_slab)) < 0)
+-		return err;
+-	if ((err = cpuset_add_file(cs_dentry, &cft_tasks)) < 0)
++	if ((err = container_add_file(cont, &cft_spread_slab)) < 0)
+ 		return err;
++	/* memory_pressure_enabled is in root cpuset only */
++	if (err == 0 && !cont->parent)
++		err = container_add_file(cont, &cft_memory_pressure_enabled);
+ 	return 0;
+ }
+ 
+@@ -1869,66 +1116,31 @@ static int cpuset_populate_dir(struct de
+  *	Must be called with the mutex on the parent inode held
+  */
+ 
+-static long cpuset_create(struct cpuset *parent, const char *name, int mode)
++int cpuset_create(struct container *cont)
+ {
+ 	struct cpuset *cs;
+-	int err;
++	struct cpuset *parent = cont->parent->cpuset;
+ 
+ 	cs = kmalloc(sizeof(*cs), GFP_KERNEL);
+ 	if (!cs)
+ 		return -ENOMEM;
+ 
+-	mutex_lock(&manage_mutex);
+ 	cpuset_update_task_memory_state();
+ 	cs->flags = 0;
+-	if (notify_on_release(parent))
+-		set_bit(CS_NOTIFY_ON_RELEASE, &cs->flags);
+ 	if (is_spread_page(parent))
+ 		set_bit(CS_SPREAD_PAGE, &cs->flags);
+ 	if (is_spread_slab(parent))
+ 		set_bit(CS_SPREAD_SLAB, &cs->flags);
+ 	cs->cpus_allowed = CPU_MASK_NONE;
+ 	cs->mems_allowed = NODE_MASK_NONE;
+-	atomic_set(&cs->count, 0);
+-	INIT_LIST_HEAD(&cs->sibling);
+-	INIT_LIST_HEAD(&cs->children);
+ 	cs->mems_generation = cpuset_mems_generation++;
+ 	fmeter_init(&cs->fmeter);
+ 
+ 	cs->parent = parent;
+-
+-	mutex_lock(&callback_mutex);
+-	list_add(&cs->sibling, &cs->parent->children);
++	cont->cpuset = cs;
++	cs->container = cont;
+ 	number_of_cpusets++;
+-	mutex_unlock(&callback_mutex);
+-
+-	err = cpuset_create_dir(cs, name, mode);
+-	if (err < 0)
+-		goto err;
+-
+-	/*
+-	 * Release manage_mutex before cpuset_populate_dir() because it
+-	 * will down() this new directory's i_mutex and if we race with
+-	 * another mkdir, we might deadlock.
+-	 */
+-	mutex_unlock(&manage_mutex);
+-
+-	err = cpuset_populate_dir(cs->dentry);
+-	/* If err < 0, we have a half-filled directory - oh well ;) */
+ 	return 0;
+-err:
+-	list_del(&cs->sibling);
+-	mutex_unlock(&manage_mutex);
+-	kfree(cs);
+-	return err;
+-}
+-
+-static int cpuset_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+-{
+-	struct cpuset *c_parent = dentry->d_parent->d_fsdata;
+-
+-	/* the vfs holds inode->i_mutex already */
+-	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
+ }
+ 
+ /*
+@@ -1942,49 +1154,16 @@ static int cpuset_mkdir(struct inode *di
+  * nesting would risk an ABBA deadlock.
+  */
+ 
+-static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
++void cpuset_destroy(struct container *cont)
+ {
+-	struct cpuset *cs = dentry->d_fsdata;
+-	struct dentry *d;
+-	struct cpuset *parent;
+-	char *pathbuf = NULL;
+-
+-	/* the vfs holds both inode->i_mutex already */
++	struct cpuset *cs = cont->cpuset;
+ 
+-	mutex_lock(&manage_mutex);
+ 	cpuset_update_task_memory_state();
+-	if (atomic_read(&cs->count) > 0) {
+-		mutex_unlock(&manage_mutex);
+-		return -EBUSY;
+-	}
+-	if (!list_empty(&cs->children)) {
+-		mutex_unlock(&manage_mutex);
+-		return -EBUSY;
+-	}
+ 	if (is_cpu_exclusive(cs)) {
+ 		int retval = update_flag(CS_CPU_EXCLUSIVE, cs, "0");
+-		if (retval < 0) {
+-			mutex_unlock(&manage_mutex);
+-			return retval;
+-		}
++		BUG_ON(retval);
+ 	}
+-	parent = cs->parent;
+-	mutex_lock(&callback_mutex);
+-	set_bit(CS_REMOVED, &cs->flags);
+-	list_del(&cs->sibling);	/* delete my sibling from parent->children */
+-	spin_lock(&cs->dentry->d_lock);
+-	d = dget(cs->dentry);
+-	cs->dentry = NULL;
+-	spin_unlock(&d->d_lock);
+-	cpuset_d_remove_dir(d);
+-	dput(d);
+ 	number_of_cpusets--;
+-	mutex_unlock(&callback_mutex);
+-	if (list_empty(&parent->children))
+-		check_for_release(parent, &pathbuf);
+-	mutex_unlock(&manage_mutex);
+-	cpuset_release_agent(pathbuf);
+-	return 0;
+ }
+ 
+ /*
+@@ -1995,10 +1174,10 @@ static int cpuset_rmdir(struct inode *un
+ 
+ int __init cpuset_init_early(void)
+ {
+-	struct task_struct *tsk = current;
+-
+-	tsk->cpuset = &top_cpuset;
+-	tsk->cpuset->mems_generation = cpuset_mems_generation++;
++	struct container *cont = current->container;
++	cont->cpuset = &top_cpuset;
++	top_cpuset.container = cont;
++	cont->cpuset->mems_generation = cpuset_mems_generation++;
+ 	return 0;
+ }
+ 
+@@ -2010,39 +1189,19 @@ int __init cpuset_init_early(void)
+ 
+ int __init cpuset_init(void)
+ {
+-	struct dentry *root;
+-	int err;
+-
++	int err = 0;
+ 	top_cpuset.cpus_allowed = CPU_MASK_ALL;
+ 	top_cpuset.mems_allowed = NODE_MASK_ALL;
+ 
+ 	fmeter_init(&top_cpuset.fmeter);
+ 	top_cpuset.mems_generation = cpuset_mems_generation++;
+ 
+-	init_task.cpuset = &top_cpuset;
+-
+ 	err = register_filesystem(&cpuset_fs_type);
+ 	if (err < 0)
+-		goto out;
+-	cpuset_mount = kern_mount(&cpuset_fs_type);
+-	if (IS_ERR(cpuset_mount)) {
+-		printk(KERN_ERR "cpuset: could not mount!\n");
+-		err = PTR_ERR(cpuset_mount);
+-		cpuset_mount = NULL;
+-		goto out;
+-	}
+-	root = cpuset_mount->mnt_sb->s_root;
+-	root->d_fsdata = &top_cpuset;
+-	inc_nlink(root->d_inode);
+-	top_cpuset.dentry = root;
+-	root->d_inode->i_op = &cpuset_dir_inode_operations;
++		return err;
 +
-+ssize_t res_group_file_read(struct container *cont,
-+				   struct cftype *cft,
-+				   struct file *file,
-+				   char __user *buf,
-+				   size_t nbytes, loff_t *ppos)
-+{
-+	struct res_group_cft *rgcft = container_of(cft, struct res_group_cft, cft);
-+	struct res_controller *ctlr = rgcft->ctlr;
-+
-+	char *page = kmalloc(PAGE_SIZE, GFP_USER);
-+	ssize_t retval;
-+	int filetype = cft->private;
-+
-+	if (!page) return -ENOMEM;
-+
-+	switch(filetype) {
-+	case RG_FILE_SHARES:
-+		retval = show_shares(cont, ctlr, page);
-+		break;
-+	case RG_FILE_STATS:
-+		retval = show_stats(cont, ctlr, page);
-+		break;
-+	default:
-+		retval = -EINVAL;
-+	}
-+
-+	if (retval >= 0) {
-+		retval = simple_read_from_buffer(buf, nbytes,
-+						 ppos, page, retval);
-+	}
-+	kfree(page);
-+	return retval;
-+}
-Index: container-2.6.20-rc1/kernel/res_group/shares.c
+ 	number_of_cpusets = 1;
+-	err = cpuset_populate_dir(root);
+-	/* memory_pressure_enabled is in root cpuset only */
+-	if (err == 0)
+-		err = cpuset_add_file(root, &cft_memory_pressure_enabled);
+-out:
+-	return err;
++	return 0;
+ }
+ 
+ /*
+@@ -2068,10 +1227,12 @@ out:
+ 
+ static void guarantee_online_cpus_mems_in_subtree(const struct cpuset *cur)
+ {
++	struct container *cont;
+ 	struct cpuset *c;
+ 
+ 	/* Each of our child cpusets mems must be online */
+-	list_for_each_entry(c, &cur->children, sibling) {
++	list_for_each_entry(cont, &cur->container->children, sibling) {
++		c = cont->cpuset;
+ 		guarantee_online_cpus_mems_in_subtree(c);
+ 		if (!cpus_empty(c->cpus_allowed))
+ 			guarantee_online_cpus(c, &c->cpus_allowed);
+@@ -2098,15 +1259,15 @@ static void guarantee_online_cpus_mems_i
+ 
+ static void common_cpu_mem_hotplug_unplug(void)
+ {
+-	mutex_lock(&manage_mutex);
+-	mutex_lock(&callback_mutex);
++	container_manage_lock();
++	container_lock();
+ 
+ 	guarantee_online_cpus_mems_in_subtree(&top_cpuset);
+ 	top_cpuset.cpus_allowed = cpu_online_map;
+ 	top_cpuset.mems_allowed = node_online_map;
+ 
+-	mutex_unlock(&callback_mutex);
+-	mutex_unlock(&manage_mutex);
++	container_unlock();
++	container_manage_unlock();
+ }
+ 
+ /*
+@@ -2154,111 +1315,6 @@ void __init cpuset_init_smp(void)
+ }
+ 
+ /**
+- * cpuset_fork - attach newly forked task to its parents cpuset.
+- * @tsk: pointer to task_struct of forking parent process.
+- *
+- * Description: A task inherits its parent's cpuset at fork().
+- *
+- * A pointer to the shared cpuset was automatically copied in fork.c
+- * by dup_task_struct().  However, we ignore that copy, since it was
+- * not made under the protection of task_lock(), so might no longer be
+- * a valid cpuset pointer.  attach_task() might have already changed
+- * current->cpuset, allowing the previously referenced cpuset to
+- * be removed and freed.  Instead, we task_lock(current) and copy
+- * its present value of current->cpuset for our freshly forked child.
+- *
+- * At the point that cpuset_fork() is called, 'current' is the parent
+- * task, and the passed argument 'child' points to the child task.
+- **/
+-
+-void cpuset_fork(struct task_struct *child)
+-{
+-	task_lock(current);
+-	child->cpuset = current->cpuset;
+-	atomic_inc(&child->cpuset->count);
+-	task_unlock(current);
+-}
+-
+-/**
+- * cpuset_exit - detach cpuset from exiting task
+- * @tsk: pointer to task_struct of exiting process
+- *
+- * Description: Detach cpuset from @tsk and release it.
+- *
+- * Note that cpusets marked notify_on_release force every task in
+- * them to take the global manage_mutex mutex when exiting.
+- * This could impact scaling on very large systems.  Be reluctant to
+- * use notify_on_release cpusets where very high task exit scaling
+- * is required on large systems.
+- *
+- * Don't even think about derefencing 'cs' after the cpuset use count
+- * goes to zero, except inside a critical section guarded by manage_mutex
+- * or callback_mutex.   Otherwise a zero cpuset use count is a license to
+- * any other task to nuke the cpuset immediately, via cpuset_rmdir().
+- *
+- * This routine has to take manage_mutex, not callback_mutex, because
+- * it is holding that mutex while calling check_for_release(),
+- * which calls kmalloc(), so can't be called holding callback_mutex().
+- *
+- * We don't need to task_lock() this reference to tsk->cpuset,
+- * because tsk is already marked PF_EXITING, so attach_task() won't
+- * mess with it, or task is a failed fork, never visible to attach_task.
+- *
+- * the_top_cpuset_hack:
+- *
+- *    Set the exiting tasks cpuset to the root cpuset (top_cpuset).
+- *
+- *    Don't leave a task unable to allocate memory, as that is an
+- *    accident waiting to happen should someone add a callout in
+- *    do_exit() after the cpuset_exit() call that might allocate.
+- *    If a task tries to allocate memory with an invalid cpuset,
+- *    it will oops in cpuset_update_task_memory_state().
+- *
+- *    We call cpuset_exit() while the task is still competent to
+- *    handle notify_on_release(), then leave the task attached to
+- *    the root cpuset (top_cpuset) for the remainder of its exit.
+- *
+- *    To do this properly, we would increment the reference count on
+- *    top_cpuset, and near the very end of the kernel/exit.c do_exit()
+- *    code we would add a second cpuset function call, to drop that
+- *    reference.  This would just create an unnecessary hot spot on
+- *    the top_cpuset reference count, to no avail.
+- *
+- *    Normally, holding a reference to a cpuset without bumping its
+- *    count is unsafe.   The cpuset could go away, or someone could
+- *    attach us to a different cpuset, decrementing the count on
+- *    the first cpuset that we never incremented.  But in this case,
+- *    top_cpuset isn't going away, and either task has PF_EXITING set,
+- *    which wards off any attach_task() attempts, or task is a failed
+- *    fork, never visible to attach_task.
+- *
+- *    Another way to do this would be to set the cpuset pointer
+- *    to NULL here, and check in cpuset_update_task_memory_state()
+- *    for a NULL pointer.  This hack avoids that NULL check, for no
+- *    cost (other than this way too long comment ;).
+- **/
+-
+-void cpuset_exit(struct task_struct *tsk)
+-{
+-	struct cpuset *cs;
+-
+-	cs = tsk->cpuset;
+-	tsk->cpuset = &top_cpuset;	/* the_top_cpuset_hack - see above */
+-
+-	if (notify_on_release(cs)) {
+-		char *pathbuf = NULL;
+-
+-		mutex_lock(&manage_mutex);
+-		if (atomic_dec_and_test(&cs->count))
+-			check_for_release(cs, &pathbuf);
+-		mutex_unlock(&manage_mutex);
+-		cpuset_release_agent(pathbuf);
+-	} else {
+-		atomic_dec(&cs->count);
+-	}
+-}
+-
+-/**
+  * cpuset_cpus_allowed - return cpus_allowed mask from a tasks cpuset.
+  * @tsk: pointer to task_struct from which to obtain cpuset->cpus_allowed.
+  *
+@@ -2272,11 +1328,11 @@ cpumask_t cpuset_cpus_allowed(struct tas
+ {
+ 	cpumask_t mask;
+ 
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	task_lock(tsk);
+-	guarantee_online_cpus(tsk->cpuset, &mask);
++	guarantee_online_cpus(tsk->container->cpuset, &mask);
+ 	task_unlock(tsk);
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	return mask;
+ }
+@@ -2300,11 +1356,11 @@ nodemask_t cpuset_mems_allowed(struct ta
+ {
+ 	nodemask_t mask;
+ 
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 	task_lock(tsk);
+-	guarantee_online_mems(tsk->cpuset, &mask);
++	guarantee_online_mems(tsk->container->cpuset, &mask);
+ 	task_unlock(tsk);
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 
+ 	return mask;
+ }
+@@ -2420,14 +1476,14 @@ int __cpuset_zone_allowed_softwall(struc
+ 		return 1;
+ 
+ 	/* Not hardwall and node outside mems_allowed: scan up cpusets */
+-	mutex_lock(&callback_mutex);
++	container_lock();
+ 
+ 	task_lock(current);
+-	cs = nearest_exclusive_ancestor(current->cpuset);
++	cs = nearest_exclusive_ancestor(current->container->cpuset);
+ 	task_unlock(current);
+ 
+ 	allowed = node_isset(node, cs->mems_allowed);
+-	mutex_unlock(&callback_mutex);
++	container_unlock();
+ 	return allowed;
+ }
+ 
+@@ -2466,33 +1522,6 @@ int __cpuset_zone_allowed_hardwall(struc
+ }
+ 
+ /**
+- * cpuset_lock - lock out any changes to cpuset structures
+- *
+- * The out of memory (oom) code needs to mutex_lock cpusets
+- * from being changed while it scans the tasklist looking for a
+- * task in an overlapping cpuset.  Expose callback_mutex via this
+- * cpuset_lock() routine, so the oom code can lock it, before
+- * locking the task list.  The tasklist_lock is a spinlock, so
+- * must be taken inside callback_mutex.
+- */
+-
+-void cpuset_lock(void)
+-{
+-	mutex_lock(&callback_mutex);
+-}
+-
+-/**
+- * cpuset_unlock - release lock on cpuset changes
+- *
+- * Undo the lock taken in a previous cpuset_lock() call.
+- */
+-
+-void cpuset_unlock(void)
+-{
+-	mutex_unlock(&callback_mutex);
+-}
+-
+-/**
+  * cpuset_mem_spread_node() - On which node to begin search for a page
+  *
+  * If a task is marked PF_SPREAD_PAGE or PF_SPREAD_SLAB (as for
+@@ -2552,7 +1581,7 @@ int cpuset_excl_nodes_overlap(const stru
+ 		task_unlock(current);
+ 		goto done;
+ 	}
+-	cs1 = nearest_exclusive_ancestor(current->cpuset);
++	cs1 = nearest_exclusive_ancestor(current->container->cpuset);
+ 	task_unlock(current);
+ 
+ 	task_lock((struct task_struct *)p);
+@@ -2560,7 +1589,7 @@ int cpuset_excl_nodes_overlap(const stru
+ 		task_unlock((struct task_struct *)p);
+ 		goto done;
+ 	}
+-	cs2 = nearest_exclusive_ancestor(p->cpuset);
++	cs2 = nearest_exclusive_ancestor(p->container->cpuset);
+ 	task_unlock((struct task_struct *)p);
+ 
+ 	overlap = nodes_intersects(cs1->mems_allowed, cs2->mems_allowed);
+@@ -2599,11 +1628,12 @@ void __cpuset_memory_pressure_bump(void)
+ 	struct cpuset *cs;
+ 
+ 	task_lock(current);
+-	cs = current->cpuset;
++	cs = current->container->cpuset;
+ 	fmeter_markevent(&cs->fmeter);
+ 	task_unlock(current);
+ }
+ 
++#ifdef CONFIG_PROC_PID_CPUSET
+ /*
+  * proc_cpuset_show()
+  *  - Print tasks cpuset path into seq_file.
+@@ -2634,15 +1664,15 @@ static int proc_cpuset_show(struct seq_f
+ 		goto out_free;
+ 
+ 	retval = -EINVAL;
+-	mutex_lock(&manage_mutex);
++	container_manage_lock();
+ 
+-	retval = cpuset_path(tsk->cpuset, buf, PAGE_SIZE);
++	retval = container_path(tsk->container, buf, PAGE_SIZE);
+ 	if (retval < 0)
+ 		goto out_unlock;
+ 	seq_puts(m, buf);
+ 	seq_putc(m, '\n');
+ out_unlock:
+-	mutex_unlock(&manage_mutex);
++	container_manage_unlock();
+ 	put_task_struct(tsk);
+ out_free:
+ 	kfree(buf);
+@@ -2662,6 +1692,7 @@ const struct file_operations proc_cpuset
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+ };
++#endif /* CONFIG_PROC_PID_CPUSET */
+ 
+ /* Display task cpus_allowed, mems_allowed in /proc/<pid>/status file. */
+ char *cpuset_task_status_allowed(struct task_struct *task, char *buffer)
+Index: container-2.6.20-rc1/init/Kconfig
 ===================================================================
---- /dev/null
-+++ container-2.6.20-rc1/kernel/res_group/shares.c
-@@ -0,0 +1,228 @@
-+/*
-+ * shares.c - Share management functions for Resource Groups
-+ *
-+ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003, 2004, 2005, 2006
-+ *		(C) Hubertus Franke,  IBM Corp. 2004
-+ *		(C) Matt Helsley,  IBM Corp. 2006
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
+--- container-2.6.20-rc1.orig/init/Kconfig
++++ container-2.6.20-rc1/init/Kconfig
+@@ -239,17 +239,12 @@ config IKCONFIG_PROC
+ 	  through /proc/config.gz.
+ 
+ config CONTAINERS
+-	bool "Container support"
+-	help
+-	  This option will let you create and manage process containers,
+-	  which can be used to aggregate multiple processes, e.g. for
+-	  the purposes of resource tracking.
+-
+-	  Say N if unsure
++	bool
+ 
+ config CPUSETS
+ 	bool "Cpuset support"
+ 	depends on SMP
++	select CONTAINERS
+ 	help
+ 	  This option will let you create and manage CPUSETs which
+ 	  allow dynamically partitioning a system into sets of CPUs and
+@@ -278,6 +273,11 @@ config SYSFS_DEPRECATED
+ 	  If you are using a distro that was released in 2006 or later,
+ 	  it should be safe to say N here.
+ 
++config PROC_PID_CPUSET
++	bool "Include legacy /proc/<pid>/cpuset file"
++	depends on CPUSETS
++	default y
 +
-+#include <linux/errno.h>
-+#include <linux/res_group_rc.h>
-+#include <linux/container.h>
+ config RELAY
+ 	bool "Kernel->user space relay support (formerly relayfs)"
+ 	help
+Index: container-2.6.20-rc1/mm/oom_kill.c
+===================================================================
+--- container-2.6.20-rc1.orig/mm/oom_kill.c
++++ container-2.6.20-rc1/mm/oom_kill.c
+@@ -404,7 +404,7 @@ void out_of_memory(struct zonelist *zone
+ 		show_mem();
+ 	}
+ 
+-	cpuset_lock();
++	container_lock();
+ 	read_lock(&tasklist_lock);
+ 
+ 	/*
+@@ -438,7 +438,7 @@ retry:
+ 		/* Found nothing?!?! Either we hang forever, or we panic. */
+ 		if (!p) {
+ 			read_unlock(&tasklist_lock);
+-			cpuset_unlock();
++			container_unlock();
+ 			panic("Out of memory and no killable processes...\n");
+ 		}
+ 
+@@ -450,7 +450,7 @@ retry:
+ 
+ out:
+ 	read_unlock(&tasklist_lock);
+-	cpuset_unlock();
++	container_unlock();
+ 
+ 	/*
+ 	 * Give "p" a good chance of killing itself before we
+Index: container-2.6.20-rc1/include/linux/sched.h
+===================================================================
+--- container-2.6.20-rc1.orig/include/linux/sched.h
++++ container-2.6.20-rc1/include/linux/sched.h
+@@ -744,7 +744,6 @@ extern unsigned int max_cache_size;
+ 
+ struct io_context;			/* See blkdev.h */
+ struct container;
+-struct cpuset;
+ #define NGROUPS_SMALL		32
+ #define NGROUPS_PER_BLOCK	((int)(PAGE_SIZE / sizeof(gid_t)))
+ struct group_info {
+@@ -1026,7 +1025,6 @@ struct task_struct {
+ 	short il_next;
+ #endif
+ #ifdef CONFIG_CPUSETS
+-	struct cpuset *cpuset;
+ 	nodemask_t mems_allowed;
+ 	int cpuset_mems_generation;
+ 	int cpuset_mem_spread_rotor;
+@@ -1471,7 +1469,7 @@ static inline int thread_group_empty(str
+ /*
+  * Protects ->fs, ->files, ->mm, ->group_info, ->comm, keyring
+  * subscriptions and synchronises with wait4().  Also used in procfs.  Also
+- * pins the final release of task.io_context.  Also protects ->cpuset.
++ * pins the final release of task.io_context.  Also protects ->container.
+  *
+  * Nests both inside and outside of read_lock(&tasklist_lock).
+  * It must not be nested with write_lock_irq(&tasklist_lock),
+Index: container-2.6.20-rc1/Documentation/cpusets.txt
+===================================================================
+--- container-2.6.20-rc1.orig/Documentation/cpusets.txt
++++ container-2.6.20-rc1/Documentation/cpusets.txt
+@@ -7,6 +7,7 @@ Written by Simon.Derr@bull.net
+ Portions Copyright (c) 2004-2006 Silicon Graphics, Inc.
+ Modified by Paul Jackson <pj@sgi.com>
+ Modified by Christoph Lameter <clameter@sgi.com>
++Modified by Paul Menage <menage@google.com>
+ 
+ CONTENTS:
+ =========
+@@ -16,10 +17,9 @@ CONTENTS:
+   1.2 Why are cpusets needed ?
+   1.3 How are cpusets implemented ?
+   1.4 What are exclusive cpusets ?
+-  1.5 What does notify_on_release do ?
+-  1.6 What is memory_pressure ?
+-  1.7 What is memory spread ?
+-  1.8 How do I use cpusets ?
++  1.5 What is memory_pressure ?
++  1.6 What is memory spread ?
++  1.7 How do I use cpusets ?
+ 2. Usage Examples and Syntax
+   2.1 Basic Usage
+   2.2 Adding/removing cpus
+@@ -43,18 +43,19 @@ hierarchy visible in a virtual file syst
+ hooks, beyond what is already present, required to manage dynamic
+ job placement on large systems.
+ 
+-Each task has a pointer to a cpuset.  Multiple tasks may reference
+-the same cpuset.  Requests by a task, using the sched_setaffinity(2)
+-system call to include CPUs in its CPU affinity mask, and using the
+-mbind(2) and set_mempolicy(2) system calls to include Memory Nodes
+-in its memory policy, are both filtered through that tasks cpuset,
+-filtering out any CPUs or Memory Nodes not in that cpuset.  The
+-scheduler will not schedule a task on a CPU that is not allowed in
+-its cpus_allowed vector, and the kernel page allocator will not
+-allocate a page on a node that is not allowed in the requesting tasks
+-mems_allowed vector.
++Cpusets use the generic container subsystem described in
++Documentation/container.txt.
+ 
+-User level code may create and destroy cpusets by name in the cpuset
++Requests by a task, using the sched_setaffinity(2) system call to
++include CPUs in its CPU affinity mask, and using the mbind(2) and
++set_mempolicy(2) system calls to include Memory Nodes in its memory
++policy, are both filtered through that tasks cpuset, filtering out any
++CPUs or Memory Nodes not in that cpuset.  The scheduler will not
++schedule a task on a CPU that is not allowed in its cpus_allowed
++vector, and the kernel page allocator will not allocate a page on a
++node that is not allowed in the requesting tasks mems_allowed vector.
 +
-+/*
-+ * Share values can be quantitative (quantity of memory for instance) or
-+ * symbolic. The symbolic value DONT_CARE allows for any quantity of a resource
-+ * to be substituted in its place. The symbolic value UNCHANGED is only used
-+ * when setting share values and means that the old value should be used.
-+ */
-+
-+/* Is the share a quantity (as opposed to "symbols" DONT_CARE or UNCHANGED) */
-+static inline int is_share_quantitative(int share)
-+{
-+	return (share >= 0);
-+}
-+
-+static inline int is_share_symbolic(int share)
-+{
-+	return !is_share_quantitative(share);
-+}
-+
-+static inline int is_share_valid(int share)
-+{
-+	return ((share == SHARE_DONT_CARE) ||
-+			(share == SHARE_UNSUPPORTED) ||
-+			is_share_quantitative(share));
-+}
-+
-+static inline int did_share_change(int share)
-+{
-+	return (share != SHARE_UNCHANGED);
-+}
-+
-+static inline int change_supported(int share)
-+{
-+	return (share != SHARE_UNSUPPORTED);
-+}
-+
-+/*
-+ * Caller is responsible for protecting 'parent'
-+ * Caller is responsible for making sure that the sum of sibling min_shares
-+ * doesn't exceed parent's total min_shares.
-+ */
-+static inline void child_min_shares_changed(struct res_shares *parent,
-+				   int child_cur_min_shares,
-+				   int child_new_min_shares)
-+{
-+	if (is_share_quantitative(child_new_min_shares))
-+		parent->unused_min_shares -= child_new_min_shares;
-+	if (is_share_quantitative(child_cur_min_shares))
-+		parent->unused_min_shares += child_cur_min_shares;
-+}
-+
-+/*
-+ * Set parent's cur_max_shares to the largest 'max_shares' of all
-+ * of its children.
-+ */
-+static inline void set_cur_max_shares(struct resource_group *parent,
-+				      struct res_controller *ctlr)
-+{
-+	int max_shares = 0;
-+	struct resource_group *child = NULL;
-+	struct res_shares *child_shares, *parent_shares;
-+
-+	for_each_child(child, parent) {
-+		child_shares = get_controller_shares(child, ctlr);
-+		max_shares = max(max_shares, child_shares->max_shares);
-+	}
-+
-+	parent_shares = get_controller_shares(parent, ctlr);
-+	parent_shares->cur_max_shares = max_shares;
-+}
-+
-+/*
-+ * Return -EINVAL if the child's shares violate self-consistency or
-+ * parent-imposed restrictions. Otherwise return 0.
-+ *
-+ * This involves checking shares between the child and its parent;
-+ * the child and itself (userspace can't be trusted).
-+ */
-+static inline int are_shares_valid(struct res_shares *child,
-+				   struct res_shares *parent,
-+				   int current_usage,
-+				   int min_shares_increase)
-+{
-+	/*
-+	 * CHILD <-> PARENT validation
-+	 * Increases in child's min_shares or max_shares can't exceed
-+	 * limitations imposed by the parent resource group.
-+	 * Only validate this if we have a parent.
-+	 */
-+	if (parent &&
-+	    ((is_share_quantitative(child->min_shares) &&
-+	      (min_shares_increase > parent->unused_min_shares)) ||
-+	     (is_share_quantitative(child->max_shares) &&
-+	      (child->max_shares > parent->child_shares_divisor))))
-+		return -EINVAL;
-+
-+	/* CHILD validation: is min valid */
-+	if (!is_share_valid(child->min_shares))
-+		return -EINVAL;
-+
-+	/* CHILD validation: is max valid */
-+	if (!is_share_valid(child->max_shares))
-+		return -EINVAL;
-+
-+	/*
-+	 * CHILD validation: is divisor quantitative & current_usage
-+	 * is not more than the new divisor
-+	 */
-+	if (!is_share_quantitative(child->child_shares_divisor) ||
-+			(current_usage > child->child_shares_divisor))
-+		return -EINVAL;
-+
-+	/*
-+	 * CHILD validation: is the new child_shares_divisor large
-+	 * enough to accomodate largest max_shares of any of my child
-+	 */
-+	if (child->child_shares_divisor < child->cur_max_shares)
-+		return -EINVAL;
-+
-+	/* CHILD validation: min <= max */
-+	if (is_share_quantitative(child->min_shares) &&
-+			is_share_quantitative(child->max_shares) &&
-+			(child->min_shares > child->max_shares))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Set the resource shares of a child resource group given the new shares
-+ * specified by userspace, the child's current shares, and the parent
-+ * resource group's shares.
-+ *
-+ * Caller is responsible for holding group_lock of child and parent
-+ * resource groups to protect the shares structures passed to this function.
-+ */
-+static int set_shares(const struct res_shares *new,
-+		    struct res_shares *child_shares,
-+    		    struct res_shares *parent_shares)
-+{
-+	int rc, current_usage, min_shares_increase;
-+	struct res_shares final_shares;
-+
-+	BUG_ON(!new || !child_shares);
-+
-+	final_shares = *child_shares;
-+	if (did_share_change(new->child_shares_divisor) &&
-+			change_supported(child_shares->child_shares_divisor))
-+		final_shares.child_shares_divisor = new->child_shares_divisor;
-+	if (did_share_change(new->min_shares) &&
-+			change_supported(child_shares->min_shares))
-+		final_shares.min_shares = new->min_shares;
-+	if (did_share_change(new->max_shares) &&
-+			change_supported(child_shares->max_shares))
-+		final_shares.max_shares = new->max_shares;
-+
-+	current_usage = child_shares->child_shares_divisor -
-+	    		 child_shares->unused_min_shares;
-+	min_shares_increase = final_shares.min_shares;
-+	if (is_share_quantitative(child_shares->min_shares))
-+		min_shares_increase -= child_shares->min_shares;
-+
-+	rc = are_shares_valid(&final_shares, parent_shares, current_usage,
-+   			      min_shares_increase);
-+	if (rc)
-+		return rc; /* new shares would violate restrictions */
-+
-+	if (did_share_change(new->child_shares_divisor))
-+		final_shares.unused_min_shares =
-+			(final_shares.child_shares_divisor - current_usage);
-+	*child_shares = final_shares;
-+	return 0;
-+}
-+
-+int set_controller_shares(struct resource_group *rgroup,
-+			  struct res_controller *ctlr,
-+			  const struct res_shares *new_shares)
-+{
-+	struct res_shares *shares, *parent_shares;
-+	int prev_min, prev_max, rc;
-+
-+	if (!ctlr->shares_changed)
-+		return -EINVAL;
-+
-+	shares = get_controller_shares(rgroup, ctlr);
-+	if (!shares)
-+		return -EINVAL;
-+
-+	prev_min = shares->min_shares;
-+	prev_max = shares->max_shares;
-+
-+	container_lock(); /* XXX */
-+	//spin_lock(&rgroup->group_lock);
-+	parent_shares = get_controller_shares(rgroup->parent, ctlr);
-+	rc = set_shares(new_shares, shares, parent_shares);
-+
-+	if (rc || is_res_group_root(rgroup))
-+		goto done;
-+
-+	/* Notify parent about changes in my shares */
-+	child_min_shares_changed(parent_shares, prev_min,
-+				      shares->min_shares);
-+	if (prev_max != shares->max_shares)
-+		set_cur_max_shares(rgroup->parent, ctlr);
-+
-+done:
-+	container_unlock(); /* XXX */
-+	if (!rc)
-+		ctlr->shares_changed(shares);
-+	return rc;
-+}
++User level code may create and destroy cpusets by name in the container
+ virtual file system, manage the attributes and permissions of these
+ cpusets and which CPUs and Memory Nodes are assigned to each cpuset,
+ specify and query to which cpuset a task is assigned, and list the
+@@ -117,7 +118,7 @@ Cpusets extends these two mechanisms as 
+  - Cpusets are sets of allowed CPUs and Memory Nodes, known to the
+    kernel.
+  - Each task in the system is attached to a cpuset, via a pointer
+-   in the task structure to a reference counted cpuset structure.
++   in the task structure to a reference counted container structure.
+  - Calls to sched_setaffinity are filtered to just those CPUs
+    allowed in that tasks cpuset.
+  - Calls to mbind and set_mempolicy are filtered to just
+@@ -152,15 +153,10 @@ into the rest of the kernel, none in per
+  - in page_alloc.c, to restrict memory to allowed nodes.
+  - in vmscan.c, to restrict page recovery to the current cpuset.
+ 
+-In addition a new file system, of type "cpuset" may be mounted,
+-typically at /dev/cpuset, to enable browsing and modifying the cpusets
+-presently known to the kernel.  No new system calls are added for
+-cpusets - all support for querying and modifying cpusets is via
+-this cpuset file system.
+-
+-Each task under /proc has an added file named 'cpuset', displaying
+-the cpuset name, as the path relative to the root of the cpuset file
+-system.
++You should mount the "container" filesystem type in order to enable
++browsing and modifying the cpusets presently known to the kernel.  No
++new system calls are added for cpusets - all support for querying and
++modifying cpusets is via this cpuset file system.
+ 
+ The /proc/<pid>/status file for each task has two added lines,
+ displaying the tasks cpus_allowed (on which CPUs it may be scheduled)
+@@ -170,16 +166,15 @@ in the format seen in the following exam
+   Cpus_allowed:   ffffffff,ffffffff,ffffffff,ffffffff
+   Mems_allowed:   ffffffff,ffffffff
+ 
+-Each cpuset is represented by a directory in the cpuset file system
+-containing the following files describing that cpuset:
++Each cpuset is represented by a directory in the container file system
++containing (on top of the standard container files) the following
++files describing that cpuset:
+ 
+  - cpus: list of CPUs in that cpuset
+  - mems: list of Memory Nodes in that cpuset
+  - memory_migrate flag: if set, move pages to cpusets nodes
+  - cpu_exclusive flag: is cpu placement exclusive?
+  - mem_exclusive flag: is memory placement exclusive?
+- - tasks: list of tasks (by pid) attached to that cpuset
+- - notify_on_release flag: run /sbin/cpuset_release_agent on exit?
+  - memory_pressure: measure of how much paging pressure in cpuset
+ 
+ In addition, the root cpuset only has the following file:
+@@ -253,21 +248,7 @@ such as requests from interrupt handlers
+ outside even a mem_exclusive cpuset.
+ 
+ 
+-1.5 What does notify_on_release do ?
+-------------------------------------
+-
+-If the notify_on_release flag is enabled (1) in a cpuset, then whenever
+-the last task in the cpuset leaves (exits or attaches to some other
+-cpuset) and the last child cpuset of that cpuset is removed, then
+-the kernel runs the command /sbin/cpuset_release_agent, supplying the
+-pathname (relative to the mount point of the cpuset file system) of the
+-abandoned cpuset.  This enables automatic removal of abandoned cpusets.
+-The default value of notify_on_release in the root cpuset at system
+-boot is disabled (0).  The default value of other cpusets at creation
+-is the current value of their parents notify_on_release setting.
+-
+-
+-1.6 What is memory_pressure ?
++1.5 What is memory_pressure ?
+ -----------------------------
+ The memory_pressure of a cpuset provides a simple per-cpuset metric
+ of the rate that the tasks in a cpuset are attempting to free up in
+@@ -324,7 +305,7 @@ the tasks in the cpuset, in units of rec
+ times 1000.
+ 
+ 
+-1.7 What is memory spread ?
++1.6 What is memory spread ?
+ ---------------------------
+ There are two boolean flag files per cpuset that control where the
+ kernel allocates pages for the file system buffers and related in
+@@ -395,7 +376,7 @@ data set, the memory allocation across t
+ can become very uneven.
+ 
+ 
+-1.8 How do I use cpusets ?
++1.7 How do I use cpusets ?
+ --------------------------
+ 
+ In order to minimize the impact of cpusets on critical kernel
+@@ -485,7 +466,7 @@ than stress the kernel.
+ To start a new job that is to be contained within a cpuset, the steps are:
+ 
+  1) mkdir /dev/cpuset
+- 2) mount -t cpuset none /dev/cpuset
++ 2) mount -t container none /dev/cpuset
+  3) Create the new cpuset by doing mkdir's and write's (or echo's) in
+     the /dev/cpuset virtual file system.
+  4) Start a task that will be the "founding father" of the new job.
+@@ -497,7 +478,7 @@ For example, the following sequence of c
+ named "Charlie", containing just CPUs 2 and 3, and Memory Node 1,
+ and then start a subshell 'sh' in that cpuset:
+ 
+-  mount -t cpuset none /dev/cpuset
++  mount -t container none /dev/cpuset
+   cd /dev/cpuset
+   mkdir Charlie
+   cd Charlie
+@@ -507,7 +488,7 @@ and then start a subshell 'sh' in that c
+   sh
+   # The subshell 'sh' is now running in cpuset Charlie
+   # The next line should display '/Charlie'
+-  cat /proc/self/cpuset
++  cat /proc/self/container
+ 
+ In the future, a C library interface to cpusets will likely be
+ available.  For now, the only way to query or modify cpusets is
+@@ -529,7 +510,7 @@ Creating, modifying, using the cpusets c
+ virtual filesystem.
+ 
+ To mount it, type:
+-# mount -t cpuset none /dev/cpuset
++# mount -t container none /dev/cpuset
+ 
+ Then under /dev/cpuset you can find a tree that corresponds to the
+ tree of the cpusets in the system. For instance, /dev/cpuset
+Index: container-2.6.20-rc1/fs/super.c
+===================================================================
+--- container-2.6.20-rc1.orig/fs/super.c
++++ container-2.6.20-rc1/fs/super.c
+@@ -39,11 +39,6 @@
+ #include <linux/mutex.h>
+ #include <asm/uaccess.h>
+ 
+-
+-void get_filesystem(struct file_system_type *fs);
+-void put_filesystem(struct file_system_type *fs);
+-struct file_system_type *get_fs_type(const char *name);
+-
+ LIST_HEAD(super_blocks);
+ DEFINE_SPINLOCK(sb_lock);
+ 
+Index: container-2.6.20-rc1/include/linux/fs.h
+===================================================================
+--- container-2.6.20-rc1.orig/include/linux/fs.h
++++ container-2.6.20-rc1/include/linux/fs.h
+@@ -1840,6 +1840,8 @@ extern int vfs_fstat(unsigned int, struc
+ 
+ extern int vfs_ioctl(struct file *, unsigned int, unsigned int, unsigned long);
+ 
++extern void get_filesystem(struct file_system_type *fs);
++extern void put_filesystem(struct file_system_type *fs);
+ extern struct file_system_type *get_fs_type(const char *name);
+ extern struct super_block *get_super(struct block_device *);
+ extern struct super_block *user_get_super(dev_t);
+Index: container-2.6.20-rc1/include/linux/mempolicy.h
+===================================================================
+--- container-2.6.20-rc1.orig/include/linux/mempolicy.h
++++ container-2.6.20-rc1/include/linux/mempolicy.h
+@@ -152,7 +152,7 @@ extern void mpol_fix_fork_child_flag(str
+ 
+ #ifdef CONFIG_CPUSETS
+ #define current_cpuset_is_being_rebound() \
+-				(cpuset_being_rebound == current->cpuset)
++ (cpuset_being_rebound == current->container->cpuset)
+ #else
+ #define current_cpuset_is_being_rebound() 0
+ #endif
+Index: container-2.6.20-rc1/fs/proc/base.c
+===================================================================
+--- container-2.6.20-rc1.orig/fs/proc/base.c
++++ container-2.6.20-rc1/fs/proc/base.c
+@@ -1866,7 +1866,7 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_SCHEDSTATS
+ 	INF("schedstat",  S_IRUGO, pid_schedstat),
+ #endif
+-#ifdef CONFIG_CPUSETS
++#ifdef CONFIG_PROC_PID_CPUSET
+ 	REG("cpuset",     S_IRUGO, cpuset),
+ #endif
+ #ifdef CONFIG_CONTAINERS
+@@ -2150,7 +2150,7 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_SCHEDSTATS
+ 	INF("schedstat", S_IRUGO, pid_schedstat),
+ #endif
+-#ifdef CONFIG_CPUSETS
++#ifdef CONFIG_PROC_PID_CPUSET
+ 	REG("cpuset",    S_IRUGO, cpuset),
+ #endif
+ #ifdef CONFIG_CONTAINERS
 
 --

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752437AbWLVT5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752486AbWLVT6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752437AbWLVT5w (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 14:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWLVT5w
+	id S1752486AbWLVT6H (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 14:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbWLVT6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 14:57:52 -0500
-Received: from nlpi015.sbcis.sbc.com ([207.115.36.44]:46546 "EHLO
-	nlpi015.sbcis.sbc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752437AbWLVT5v (ORCPT
+	Fri, 22 Dec 2006 14:58:05 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:55657 "EHLO
+	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752433AbWLVT6D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 14:57:51 -0500
-X-Greylist: delayed 394 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 14:57:51 EST
-X-ORBL: [67.117.73.34]
-Date: Fri, 22 Dec 2006 11:51:16 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Komal Shah <komal.shah802003@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vladimir Ananiev <vovan888@gmail.com>
-Subject: Re: omap compilation fixes
-Message-ID: <20061222195115.GC2449@atomide.com>
-References: <20061222105521.GA23683@elf.ucw.cz> <3a5b1be00612220335l4779089egae0d3270a7c9cd5f@mail.gmail.com> <20061222115116.GA961@flint.arm.linux.org.uk>
+	Fri, 22 Dec 2006 14:58:03 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: J <jhnlmn@yahoo.com>
+Subject: Re: Possible race condition in usb-serial.c
+Date: Fri, 22 Dec 2006 20:59:50 +0100
+User-Agent: KMail/1.8
+Cc: Greg KH <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <20061222190800.3167.qmail@web32909.mail.mud.yahoo.com>
+In-Reply-To: <20061222190800.3167.qmail@web32909.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061222115116.GA961@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200612222059.50652.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-* Russell King <rmk+lkml@arm.linux.org.uk> [061222 03:51]:
-> On Fri, Dec 22, 2006 at 01:35:31PM +0200, Komal Shah wrote:
-> > On 12/22/06, Pavel Machek <pavel@ucw.cz> wrote:
-> > >Hi!
-> > >
-> > >This is not yet complete set. set_map() is missing in latest kernels.
-> > >
-> > >Fix DECLARE_WORK()-change-related compilation problems. Please apply,
-> > >
-> > >Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > >
-> > 
-> > Please check linux-omap-open-source mailing list. Some of the build
-> > breakage patches are already posted regarding to latest kernel sync
-> > up.
-> > 
-> > http://linux.omap.com/pipermail/linux-omap-open-source
+Am Freitag, 22. Dezember 2006 20:08 schrieb J:
+> > This problem will need some deeper surgery probably
+> > involving
+> > removal of the refcounting.
 > 
-> There are a set of omap patches in the patch system, but they were too
-> late for me to merge within the 2 week window - there were additional
-> delays caused by the accidental attempt to merge the silly ATAG_BOARD
-> stuff which I had previously refused.
+> Refcounting may be OK if used consistently. 
+> It is not OK when some pointers are ref-counted, 
+> but other (in serial_table) are not (like it is
+> in the current version).
+
+No, this is a fundamental problem. You don't refcount
+a pointer, you refcount a data structure. But this is
+insufficient. We need to make sure the pointer points to valid
+memory.
+The problem with the current scheme is that serial_table
+needs a lock. It needs to be taken in four places
+- disconnect()
+- open()
+- probe()
+- read_proc()
+
+Refcounting solves only the race between disconnect() and close()
+There's little use in a second locking mechanism if you use it
+only in a minority of occasions.
+Refcounting is a great idea if the number of references follows
+a clear up -> maximum -> down -> free scheme, like for
+skbs, etc..
+
 > 
-> Tony needs to either create a git tree containing strictly just fixes
-> suitable for -rc kernels, or submit them as individual patches.
+> As for the deeper surgery, what do you think about my
+> earlier suggestion to start by rewriting
+> usb_serial_probe
+> to fully initialize usb_serial before it is added to 
+> serial_table? 
 
-Yeah, I'll put together a set of fixes shortly, and will keep the
-larger merge set for post 2.6.20.
+Good suggestion. However, if done right, we'd go for a spin lock.
 
-Regards,
-
-Tony
+	Regards
+		Oliver

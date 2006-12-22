@@ -1,326 +1,322 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752100AbWLVTVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752118AbWLVTVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752100AbWLVTVA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 14:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWLVTVA
+	id S1752118AbWLVTVE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 14:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWLVTVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 14:21:00 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:54841 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752100AbWLVTU7 (ORCPT
+	Fri, 22 Dec 2006 14:21:03 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:47313 "HELO
+	smtp112.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752118AbWLVTVA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 14:20:59 -0500
-Date: Fri, 22 Dec 2006 20:20:27 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061222192027.GJ4229@deprecation.cyrius.com>
-References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> <20061221012721.68f3934b.akpm@osdl.org> <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com> <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com> <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost> <20061222123249.GG13727@deprecation.cyrius.com> <20061222125920.GA16763@deprecation.cyrius.com> <1166793952.32117.29.camel@twins>
+	Fri, 22 Dec 2006 14:21:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=GOHF1P7b2p1Z1DlibAcBiuuQDZd672iU8qYc4UGVGKZJUkW5/YyEHLBXrkqZaf+N3kunt3gz/9gWfUEUcpItUjNUiWxXZ7X/IXXW9oEZ3K5zIi2jaTIjrkIMdl/zFtknOHRd2LGIBdjmeeDq3Eoizp88PlIOA10y12vyNZc7Owc=  ;
+X-YMail-OSG: 3ysYRoMVM1nrvRGFfHESOz9L_dp.Q8Gs3RxoHjG4MD9tYA2i.ef31ZdGSudb2vIsTl6EZ1cJ_jQ.Kg6Da5owuHsdQGzADOonKnZ.C49CpR0PzKYEQOwcUQ--
+Date: Fri, 22 Dec 2006 11:20:58 -0800
+From: David Brownell <david-b@pacbell.net>
+To: nicolas.ferre@rfo.atmel.com, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net
+Subject: [patch 2.6.20-rc1 1/6] input: ads7846 pluggable conditioning 
+ filters
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <1166793952.32117.29.camel@twins>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20061222192058.51D361F0D22@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: imre.deak@solidboot.com <imre.deak@solidboot.com>
+Date: Mon Jul 3 21:36:53 2006 +0300
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Input: ads7846: pluggable filtering logic
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> [2006-12-22 14:25]:
-> > .... and it failed.
-> Since you are on ARM you might want to try with the page_mkclean_one
-> cleanup patch too.
+Some LCDs like the LS041Y3 require a customized filtering
+logic for reliable readings, so make the filtering function
+replacable through platform specific hooks.
+    
+Signed-off-by: Imre Deak <imre.deak@solidboot.com>
+Signed-off-by: Juha Yrjola <juha.yrjola@solidboot.com>
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-I've already tried it and it didn't work.  I just tried it again
-together with Linus' patch and the two from Andrew and it still fails.
-(For reference, the patch is attached.)
--- 
-Martin Michlmayr
-http://www.cyrius.com/
-
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2834,7 +2834,7 @@ int try_to_free_buffers(struct page *pag
- 	int ret = 0;
- 
- 	BUG_ON(!PageLocked(page));
--	if (PageWriteback(page))
-+	if (PageDirty(page) || PageWriteback(page))
- 		return 0;
- 
- 	if (mapping == NULL) {		/* can this still happen? */
-@@ -2845,22 +2845,6 @@ int try_to_free_buffers(struct page *pag
- 	spin_lock(&mapping->private_lock);
- 	ret = drop_buffers(page, &buffers_to_free);
- 	spin_unlock(&mapping->private_lock);
--	if (ret) {
--		/*
--		 * If the filesystem writes its buffers by hand (eg ext3)
--		 * then we can have clean buffers against a dirty page.  We
--		 * clean the page here; otherwise later reattachment of buffers
--		 * could encounter a non-uptodate page, which is unresolvable.
--		 * This only applies in the rare case where try_to_free_buffers
--		 * succeeds but the page is not freed.
--		 *
--		 * Also, during truncate, discard_buffer will have marked all
--		 * the page's buffers clean.  We discover that here and clean
--		 * the page also.
--		 */
--		if (test_clear_page_dirty(page))
--			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
--	}
- out:
- 	if (buffers_to_free) {
- 		struct buffer_head *bh = buffers_to_free;
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index ed2c223..4f4cd13 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -176,7 +176,7 @@ static int hugetlbfs_commit_write(struct
- 
- static void truncate_huge_page(struct page *page)
- {
--	clear_page_dirty(page);
-+	cancel_dirty_page(page, /* No IO accounting for huge pages? */0);
- 	ClearPageUptodate(page);
- 	remove_from_page_cache(page);
- 	put_page(page);
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 4830a3b..350878a 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -253,15 +253,11 @@ #define ClearPageUncached(page)	clear_bi
- 
- struct page;	/* forward declaration */
- 
--int test_clear_page_dirty(struct page *page);
-+extern void cancel_dirty_page(struct page *page, unsigned int account_size);
-+
- int test_clear_page_writeback(struct page *page);
- int test_set_page_writeback(struct page *page);
- 
--static inline void clear_page_dirty(struct page *page)
--{
--	test_clear_page_dirty(page);
--}
--
- static inline void set_page_writeback(struct page *page)
- {
- 	test_set_page_writeback(page);
-diff --git a/mm/memory.c b/mm/memory.c
-index c00bac6..79cecab 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1842,6 +1842,33 @@ void unmap_mapping_range(struct address_
- }
- EXPORT_SYMBOL(unmap_mapping_range);
- 
-+static void check_last_page(struct address_space *mapping, loff_t size)
-+{
-+	pgoff_t index;
-+	unsigned int offset;
-+	struct page *page;
-+
-+	if (!mapping)
-+		return;
-+	offset = size & ~PAGE_MASK;
-+	if (!offset)
-+		return;
-+	index = size >> PAGE_SHIFT;
-+	page = find_lock_page(mapping, index);
-+	if (page) {
-+		unsigned int check = 0;
-+		unsigned char *kaddr = kmap_atomic(page, KM_USER0);
-+		do {
-+			check += kaddr[offset++];
-+		} while (offset < PAGE_SIZE);
-+		kunmap_atomic(kaddr,KM_USER0);
-+		unlock_page(page);
-+		page_cache_release(page);
-+		if (check)
-+			printk("%s: BADNESS: truncate check %u\n", current->comm, check);
-+	}
-+}
-+
- /**
-  * vmtruncate - unmap mappings "freed" by truncate() syscall
-  * @inode: inode of the file used
-@@ -1875,6 +1902,7 @@ do_expand:
- 		goto out_sig;
- 	if (offset > inode->i_sb->s_maxbytes)
- 		goto out_big;
-+	check_last_page(mapping, inode->i_size);
- 	i_size_write(inode, offset);
- 
- out_truncate:
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index 237107c..b3a198c 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -845,38 +845,6 @@ int set_page_dirty_lock(struct page *pag
- EXPORT_SYMBOL(set_page_dirty_lock);
- 
- /*
-- * Clear a page's dirty flag, while caring for dirty memory accounting. 
-- * Returns true if the page was previously dirty.
-- */
--int test_clear_page_dirty(struct page *page)
--{
--	struct address_space *mapping = page_mapping(page);
--	unsigned long flags;
--
--	if (!mapping)
--		return TestClearPageDirty(page);
--
--	write_lock_irqsave(&mapping->tree_lock, flags);
--	if (TestClearPageDirty(page)) {
--		radix_tree_tag_clear(&mapping->page_tree,
--				page_index(page), PAGECACHE_TAG_DIRTY);
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
--		/*
--		 * We can continue to use `mapping' here because the
--		 * page is locked, which pins the address_space
--		 */
--		if (mapping_cap_account_dirty(mapping)) {
--			page_mkclean(page);
--			dec_zone_page_state(page, NR_FILE_DIRTY);
--		}
--		return 1;
--	}
--	write_unlock_irqrestore(&mapping->tree_lock, flags);
--	return 0;
--}
--EXPORT_SYMBOL(test_clear_page_dirty);
--
--/*
-  * Clear a page's dirty flag, while caring for dirty memory accounting.
-  * Returns true if the page was previously dirty.
+Index: osk/include/linux/spi/ads7846.h
+===================================================================
+--- osk.orig/include/linux/spi/ads7846.h	2006-12-22 11:08:16.000000000 -0800
++++ osk/include/linux/spi/ads7846.h	2006-12-22 11:08:41.000000000 -0800
+@@ -5,6 +5,12 @@
   *
-diff --git a/mm/rmap.c b/mm/rmap.c
-index d8a842a..3278b2a 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -432,7 +432,7 @@ static int page_mkclean_one(struct page
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pte_t *pte, entry;
-+	pte_t *pte;
- 	spinlock_t *ptl;
- 	int ret = 0;
- 
-@@ -444,17 +444,18 @@ static int page_mkclean_one(struct page
- 	if (!pte)
- 		goto out;
- 
--	if (!pte_dirty(*pte) && !pte_write(*pte))
--		goto unlock;
-+	if (pte_dirty(*pte) || pte_write(*pte)) {
-+		pte_t entry;
- 
--	entry = ptep_get_and_clear(mm, address, pte);
--	entry = pte_mkclean(entry);
--	entry = pte_wrprotect(entry);
--	ptep_establish(vma, address, pte, entry);
--	lazy_mmu_prot_update(entry);
--	ret = 1;
-+		flush_cache_page(vma, address, pte_pfn(*pte));
-+		entry = ptep_clear_flush(vma, address, pte);
-+		entry = pte_wrprotect(entry);
-+		entry = pte_mkclean(entry);
-+		set_pte_at(vma, address, pte, entry);
-+		lazy_mmu_prot_update(entry);
-+		ret = 1;
-+	}
- 
--unlock:
- 	pte_unmap_unlock(pte, ptl);
- out:
- 	return ret;
-@@ -489,6 +490,8 @@ int page_mkclean(struct page *page)
- 		if (mapping)
- 			ret = page_mkclean_file(mapping, page);
- 	}
-+	if (page_test_and_clear_dirty(page))
-+		ret = 1;
- 
- 	return ret;
- }
-diff --git a/mm/truncate.c b/mm/truncate.c
-index 9bfb8e8..4a38dd1 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -51,6 +51,22 @@ static inline void truncate_partial_page
- 		do_invalidatepage(page, partial);
- }
- 
-+void cancel_dirty_page(struct page *page, unsigned int account_size)
-+{
-+	/* If we're cancelling the page, it had better not be mapped any more */
-+	if (page_mapped(page)) {
-+		static unsigned int warncount;
+  * It's OK if the min/max values are zero.
+  */
++enum ads7846_filter {
++	ADS7846_FILTER_OK,
++	ADS7846_FILTER_REPEAT,
++	ADS7846_FILTER_IGNORE,
++};
 +
-+		WARN_ON(++warncount < 5);
-+	}
-+		
-+	if (TestClearPageDirty(page) && account_size &&
-+			mapping_cap_account_dirty(page->mapping)) {
-+		dec_zone_page_state(page, NR_FILE_DIRTY);
-+		task_io_account_cancelled_write(account_size);
+ struct ads7846_platform_data {
+ 	u16	model;			/* 7843, 7845, 7846. */
+ 	u16	vref_delay_usecs;	/* 0 for external vref; etc */
+@@ -21,5 +27,9 @@ struct ads7846_platform_data {
+ 	u16	debounce_rep;		/* additional consecutive good readings
+ 					 * required after the first two */
+ 	int	(*get_pendown_state)(void);
++	int	(*filter_init)	(struct ads7846_platform_data *pdata,
++				 void **filter_data);
++	int	(*filter)	(void *filter_data, int data_idx, int *val);
++	void	(*filter_cleanup)(void *filter_data);
+ };
+ 
+Index: osk/drivers/input/touchscreen/ads7846.c
+===================================================================
+--- osk.orig/drivers/input/touchscreen/ads7846.c	2006-12-22 11:08:16.000000000 -0800
++++ osk/drivers/input/touchscreen/ads7846.c	2006-12-22 11:08:41.000000000 -0800
+@@ -63,11 +63,11 @@ struct ts_event {
+ 	/* For portability, we can't read 12 bit values using SPI (which
+ 	 * would make the controller deliver them as native byteorder u16
+ 	 * with msbs zeroed).  Instead, we read them as two 8-bit values,
+-	 * which need byteswapping then range adjustment.
++	 * *** WHICH NEED BYTESWAPPING *** and range adjustment.
+ 	 */
+-	__be16 x;
+-	__be16 y;
+-	__be16 z1, z2;
++	u16	x;
++	u16	y;
++	u16	z1, z2;
+ 	int    ignore;
+ };
+ 
+@@ -106,6 +106,9 @@ struct ads7846 {
+ 	unsigned		irq_disabled:1;	/* P: lock */
+ 	unsigned		disabled:1;
+ 
++	int			(*filter)(void *data, int data_idx, int *val);
++	void			*filter_data;
++	void			(*filter_cleanup)(void *data);
+ 	int			(*get_pendown_state)(void);
+ };
+ 
+@@ -379,13 +382,13 @@ static void ads7846_rx(void *ads)
+ 	u16			x, y, z1, z2;
+ 	unsigned long		flags;
+ 
+-	/* adjust:  on-wire is a must-ignore bit, a BE12 value, then padding;
+-	 * built from two 8 bit values written msb-first.
++	/* ads7846_rx_val() did in-place conversion (including byteswap) from
++	 * on-the-wire format as part of debouncing to get stable readings.
+ 	 */
+-	x = (be16_to_cpu(ts->tc.x) >> 3) & 0x0fff;
+-	y = (be16_to_cpu(ts->tc.y) >> 3) & 0x0fff;
+-	z1 = (be16_to_cpu(ts->tc.z1) >> 3) & 0x0fff;
+-	z2 = (be16_to_cpu(ts->tc.z2) >> 3) & 0x0fff;
++	x = ts->tc.x;
++	y = ts->tc.y;
++	z1 = ts->tc.z1;
++	z2 = ts->tc.z2;
+ 
+ 	/* range filtering */
+ 	if (x == MAX_12BIT)
+@@ -453,50 +456,85 @@ static void ads7846_rx(void *ads)
+ 	spin_unlock_irqrestore(&ts->lock, flags);
+ }
+ 
+-static void ads7846_debounce(void *ads)
++static int ads7846_debounce(void *ads, int data_idx, int *val)
+ {
+ 	struct ads7846		*ts = ads;
+-	struct spi_message	*m;
+-	struct spi_transfer	*t;
+-	int			val;
+-	int			status;
+ 
+-	m = &ts->msg[ts->msg_idx];
+-	t = list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
+-	val = (be16_to_cpu(*(__be16 *)t->rx_buf) >> 3) & 0x0fff;
+-	if (!ts->read_cnt || (abs(ts->last_read - val) > ts->debounce_tol)) {
++	if (!ts->read_cnt || (abs(ts->last_read - *val) > ts->debounce_tol)) {
++		/* Start over collecting consistent readings. */
++		ts->read_rep = 0;
+ 		/* Repeat it, if this was the first read or the read
+ 		 * wasn't consistent enough. */
+ 		if (ts->read_cnt < ts->debounce_max) {
+-			ts->last_read = val;
++			ts->last_read = *val;
+ 			ts->read_cnt++;
++			return ADS7846_FILTER_REPEAT;
+ 		} else {
+ 			/* Maximum number of debouncing reached and still
+ 			 * not enough number of consistent readings. Abort
+ 			 * the whole sample, repeat it in the next sampling
+ 			 * period.
+ 			 */
+-			ts->tc.ignore = 1;
+ 			ts->read_cnt = 0;
+-			/* Last message will contain ads7846_rx() as the
+-			 * completion function.
+-			 */
+-			m = ts->last_msg;
++			return ADS7846_FILTER_IGNORE;
+ 		}
+-		/* Start over collecting consistent readings. */
+-		ts->read_rep = 0;
+ 	} else {
+ 		if (++ts->read_rep > ts->debounce_rep) {
+ 			/* Got a good reading for this coordinate,
+ 			 * go for the next one. */
+-			ts->tc.ignore = 0;
+-			ts->msg_idx++;
+ 			ts->read_cnt = 0;
+ 			ts->read_rep = 0;
+-			m++;
+-		} else
++			return ADS7846_FILTER_OK;
++		} else {
+ 			/* Read more values that are consistent. */
+ 			ts->read_cnt++;
++			return ADS7846_FILTER_REPEAT;
++		}
 +	}
 +}
 +
- /*
-  * If truncate cannot remove the fs-private metadata from the page, the page
-  * becomes anonymous.  It will be left on the LRU and may even be mapped into
-@@ -67,11 +83,11 @@ truncate_complete_page(struct address_sp
- 	if (page->mapping != mapping)
- 		return;
- 
-+	cancel_dirty_page(page, PAGE_CACHE_SIZE);
++static int ads7846_no_filter(void *ads, int data_idx, int *val)
++{
++	return ADS7846_FILTER_OK;
++}
 +
- 	if (PagePrivate(page))
- 		do_invalidatepage(page, 0);
++static void ads7846_rx_val(void *ads)
++{
++	struct ads7846 *ts = ads;
++	struct spi_message *m;
++	struct spi_transfer *t;
++	u16 *rx_val;
++	int val;
++	int action;
++	int status;
++
++	m = &ts->msg[ts->msg_idx];
++	t = list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
++	rx_val = t->rx_buf;
++
++	/* adjust:  on-wire is a must-ignore bit, a BE12 value, then padding;
++	 * built from two 8 bit values written msb-first.
++	 */
++	val = be16_to_cpu(*rx_val) >> 3;
++
++	action = ts->filter(ts->filter_data, ts->msg_idx, &val);
++	switch (action) {
++	case ADS7846_FILTER_REPEAT:
++		break;
++	case ADS7846_FILTER_IGNORE:
++		ts->tc.ignore = 1;
++		/* Last message will contain ads7846_rx() as the
++		 * completion function.
++		 */
++		m = ts->last_msg;
++		break;
++	case ADS7846_FILTER_OK:
++		*rx_val = val;
++		ts->tc.ignore = 0;
++		m = &ts->msg[++ts->msg_idx];
++		break;
++	default:
++		BUG();
+ 	}
+ 	status = spi_async(ts->spi, m);
+ 	if (status)
+@@ -689,14 +727,25 @@ static int __devinit ads7846_probe(struc
+ 	ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+ 	ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+ 	ts->pressure_max = pdata->pressure_max ? : ~0;
+-	if (pdata->debounce_max) {
++
++	if (pdata->filter != NULL) {
++		if (pdata->filter_init != NULL) {
++			err = pdata->filter_init(pdata, &ts->filter_data);
++			if (err < 0)
++				goto err_free_mem;
++		}
++		ts->filter = pdata->filter;
++		ts->filter_cleanup = pdata->filter_cleanup;
++	} else if (pdata->debounce_max) {
+ 		ts->debounce_max = pdata->debounce_max;
++		if (ts->debounce_max < 2)
++			ts->debounce_max = 2;
+ 		ts->debounce_tol = pdata->debounce_tol;
+ 		ts->debounce_rep = pdata->debounce_rep;
+-		if (ts->debounce_rep > ts->debounce_max + 1)
+-			ts->debounce_rep = ts->debounce_max - 1;
++		ts->filter = ads7846_debounce;
++		ts->filter_data = ts;
+ 	} else
+-		ts->debounce_tol = ~0;
++		ts->filter = ads7846_no_filter;
+ 	ts->get_pendown_state = pdata->get_pendown_state;
  
--	if (test_clear_page_dirty(page))
--		task_io_account_cancelled_write(PAGE_CACHE_SIZE);
- 	ClearPageUptodate(page);
- 	ClearPageMappedToDisk(page);
- 	remove_from_page_cache(page);
-@@ -350,7 +366,6 @@ int invalidate_inode_pages2_range(struct
- 		for (i = 0; !ret && i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
- 			pgoff_t page_index;
--			int was_dirty;
+ 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", spi->dev.bus_id);
+@@ -737,7 +786,7 @@ static int __devinit ads7846_probe(struc
+ 	x->len = 2;
+ 	spi_message_add_tail(x, m);
  
- 			lock_page(page);
- 			if (page->mapping != mapping) {
-@@ -386,12 +401,8 @@ int invalidate_inode_pages2_range(struct
- 					  PAGE_CACHE_SIZE, 0);
- 				}
- 			}
--			was_dirty = test_clear_page_dirty(page);
--			if (!invalidate_complete_page2(mapping, page)) {
--				if (was_dirty)
--					set_page_dirty(page);
-+			if (!invalidate_complete_page2(mapping, page))
- 				ret = -EIO;
--			}
- 			unlock_page(page);
- 		}
- 		pagevec_release(&pvec);
-
---mP3DRpeJDSE+ciuQ--
+-	m->complete = ads7846_debounce;
++	m->complete = ads7846_rx_val;
+ 	m->context = ts;
+ 
+ 	m++;
+@@ -755,7 +804,7 @@ static int __devinit ads7846_probe(struc
+ 	x->len = 2;
+ 	spi_message_add_tail(x, m);
+ 
+-	m->complete = ads7846_debounce;
++	m->complete = ads7846_rx_val;
+ 	m->context = ts;
+ 
+ 	/* turn y+ off, x- on; we'll use formula #2 */
+@@ -774,7 +823,7 @@ static int __devinit ads7846_probe(struc
+ 		x->len = 2;
+ 		spi_message_add_tail(x, m);
+ 
+-		m->complete = ads7846_debounce;
++		m->complete = ads7846_rx_val;
+ 		m->context = ts;
+ 
+ 		m++;
+@@ -791,7 +840,7 @@ static int __devinit ads7846_probe(struc
+ 		x->len = 2;
+ 		spi_message_add_tail(x, m);
+ 
+-		m->complete = ads7846_debounce;
++		m->complete = ads7846_rx_val;
+ 		m->context = ts;
+ 	}
+ 
+@@ -820,7 +869,7 @@ static int __devinit ads7846_probe(struc
+ 			spi->dev.driver->name, ts)) {
+ 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+ 		err = -EBUSY;
+-		goto err_free_mem;
++		goto err_cleanup_filter;
+ 	}
+ 
+ 	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
+@@ -856,6 +905,9 @@ static int __devinit ads7846_probe(struc
+ 	sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
+  err_free_irq:
+ 	free_irq(spi->irq, ts);
++ err_cleanup_filter:
++	if (ts->filter_cleanup)
++		ts->filter_cleanup(ts->filter_data);
+  err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(ts);
+@@ -876,6 +928,9 @@ static int __devexit ads7846_remove(stru
+ 	/* suspend left the IRQ disabled */
+ 	enable_irq(ts->spi->irq);
+ 
++	if (ts->filter_cleanup != NULL)
++		ts->filter_cleanup(ts->filter_data);
++
+ 	kfree(ts);
+ 
+ 	dev_dbg(&spi->dev, "unregistered touchscreen\n");

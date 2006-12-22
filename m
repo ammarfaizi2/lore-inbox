@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1945976AbWLVHU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1945970AbWLVHUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945976AbWLVHU2 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 02:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945972AbWLVHU2
+	id S1945970AbWLVHUi (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 02:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945972AbWLVHUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 02:20:28 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:30438 "EHLO
+	Fri, 22 Dec 2006 02:20:38 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:10843 "EHLO
 	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1945967AbWLVHUW (ORCPT
+	with ESMTP id S1945974AbWLVHU3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 02:20:22 -0500
+	Fri, 22 Dec 2006 02:20:29 -0500
 From: Divy Le Ray <None@chelsio.com>
-Subject: [PATCH 1/10] cxgb3 - main header files
-Date: Thu, 21 Dec 2006 23:20:00 -0800
+Subject: [PATCH 2/10] cxgb3 - main source file
+Date: Thu, 21 Dec 2006 23:20:12 -0800
 To: jeff@garzik.org
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
        swise@opengridcomputing.com
-Message-Id: <20061222072000.12316.46469.stgit@localhost.localdomain>
+Message-Id: <20061222072012.12332.51382.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.11
@@ -25,24 +25,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Divy Le Ray <divy@chelsio.com>
 
-This patch implements the main header files of
-the Chelsio T3 network driver.
+This patch implements the main source file for
+the Chelsio T3 network adapter driver.
 
 Signed-off-by: Divy Le Ray <divy@chelsio.com>
 ---
 
- drivers/net/cxgb3/adapter.h          |  255 ++++++++++++
- drivers/net/cxgb3/common.h           |  709 ++++++++++++++++++++++++++++++++++
- drivers/net/cxgb3/cxgb3_ioctl.h      |  165 ++++++++
- drivers/net/cxgb3/firmware_exports.h |  144 +++++++
- 4 files changed, 1273 insertions(+), 0 deletions(-)
+ drivers/net/cxgb3/cxgb3_main.c | 2474 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 2474 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/net/cxgb3/adapter.h b/drivers/net/cxgb3/adapter.h
+diff --git a/drivers/net/cxgb3/cxgb3_main.c b/drivers/net/cxgb3/cxgb3_main.c
 new file mode 100755
-index 0000000..16643f6
+index 0000000..54c49ac
 --- /dev/null
-+++ b/drivers/net/cxgb3/adapter.h
-@@ -0,0 +1,255 @@
++++ b/drivers/net/cxgb3/cxgb3_main.c
+@@ -0,0 +1,2474 @@
 +/*
 + * This file is part of the Chelsio T3 Ethernet driver for Linux.
 + *
@@ -54,1283 +51,2466 @@ index 0000000..16643f6
 + * release for licensing terms and conditions.
 + */
 +
-+/* This file should not be included directly.  Include common.h instead. */
-+
-+#ifndef __T3_ADAPTER_H__
-+#define __T3_ADAPTER_H__
-+
-+#include <linux/pci.h>
-+#include <linux/spinlock.h>
-+#include <linux/interrupt.h>
-+#include <linux/timer.h>
-+#include <linux/cache.h>
-+#include "t3cdev.h"
-+#include <asm/semaphore.h>
-+#include <asm/bitops.h>
-+#include <asm/io.h>
-+
-+typedef irqreturn_t(*intr_handler_t) (int, void *);
-+
-+struct vlan_group;
-+
-+struct port_info {
-+	struct vlan_group *vlan_grp;
-+	const struct port_type_info *port_type;
-+	u8 port_id;
-+	u8 rx_csum_offload;
-+	u8 nqsets;
-+	u8 first_qset;
-+	struct cphy phy;
-+	struct cmac mac;
-+	struct link_config link_config;
-+	struct net_device_stats netstats;
-+	int activity;
-+};
-+
-+enum {				/* adapter flags */
-+	FULL_INIT_DONE = (1 << 0),
-+	USING_MSI = (1 << 1),
-+	USING_MSIX = (1 << 2),
-+};
-+
-+struct rx_desc;
-+struct rx_sw_desc;
-+
-+struct sge_fl {			/* SGE per free-buffer list state */
-+	unsigned int buf_size;	/* size of each Rx buffer */
-+	unsigned int credits;	/* # of available Rx buffers */
-+	unsigned int size;	/* capacity of free list */
-+	unsigned int cidx;	/* consumer index */
-+	unsigned int pidx;	/* producer index */
-+	unsigned int gen;	/* free list generation */
-+	struct rx_desc *desc;	/* address of HW Rx descriptor ring */
-+	struct rx_sw_desc *sdesc;	/* address of SW Rx descriptor ring */
-+	dma_addr_t phys_addr;	/* physical address of HW ring start */
-+	unsigned int cntxt_id;	/* SGE context id for the free list */
-+	unsigned long empty;	/* # of times queue ran out of buffers */
-+};
-+
-+/*
-+ * Bundle size for grouping offload RX packets for delivery to the stack.
-+ * Don't make this too big as we do prefetch on each packet in a bundle.
-+ */
-+# define RX_BUNDLE_SIZE 8
-+
-+struct rsp_desc;
-+
-+struct sge_rspq {		/* state for an SGE response queue */
-+	unsigned int credits;	/* # of pending response credits */
-+	unsigned int size;	/* capacity of response queue */
-+	unsigned int cidx;	/* consumer index */
-+	unsigned int gen;	/* current generation bit */
-+	unsigned int polling;	/* is the queue serviced through NAPI? */
-+	unsigned int holdoff_tmr;	/* interrupt holdoff timer in 100ns */
-+	unsigned int next_holdoff;	/* holdoff time for next interrupt */
-+	struct rsp_desc *desc;	/* address of HW response ring */
-+	dma_addr_t phys_addr;	/* physical address of the ring */
-+	unsigned int cntxt_id;	/* SGE context id for the response q */
-+	spinlock_t lock;	/* guards response processing */
-+	struct sk_buff *rx_head;	/* offload packet receive queue head */
-+	struct sk_buff *rx_tail;	/* offload packet receive queue tail */
-+
-+	unsigned long offload_pkts;
-+	unsigned long offload_bundles;
-+	unsigned long eth_pkts;	/* # of ethernet packets */
-+	unsigned long pure_rsps;	/* # of pure (non-data) responses */
-+	unsigned long imm_data;	/* responses with immediate data */
-+	unsigned long rx_drops;	/* # of packets dropped due to no mem */
-+	unsigned long async_notif; /* # of asynchronous notification events */
-+	unsigned long empty;	/* # of times queue ran out of credits */
-+	unsigned long nomem;	/* # of responses deferred due to no mem */
-+	unsigned long unhandled_irqs;	/* # of spurious intrs */
-+};
-+
-+struct tx_desc;
-+struct tx_sw_desc;
-+
-+struct sge_txq {		/* state for an SGE Tx queue */
-+	unsigned long flags;	/* HW DMA fetch status */
-+	unsigned int in_use;	/* # of in-use Tx descriptors */
-+	unsigned int size;	/* # of descriptors */
-+	unsigned int processed;	/* total # of descs HW has processed */
-+	unsigned int cleaned;	/* total # of descs SW has reclaimed */
-+	unsigned int stop_thres;	/* SW TX queue suspend threshold */
-+	unsigned int cidx;	/* consumer index */
-+	unsigned int pidx;	/* producer index */
-+	unsigned int gen;	/* current value of generation bit */
-+	unsigned int unacked;	/* Tx descriptors used since last COMPL */
-+	struct tx_desc *desc;	/* address of HW Tx descriptor ring */
-+	struct tx_sw_desc *sdesc;	/* address of SW Tx descriptor ring */
-+	spinlock_t lock;	/* guards enqueueing of new packets */
-+	unsigned int token;	/* WR token */
-+	dma_addr_t phys_addr;	/* physical address of the ring */
-+	struct sk_buff_head sendq;	/* List of backpressured offload packets */
-+	struct tasklet_struct qresume_tsk;	/* restarts the queue */
-+	unsigned int cntxt_id;	/* SGE context id for the Tx q */
-+	unsigned long stops;	/* # of times q has been stopped */
-+	unsigned long restarts;	/* # of queue restarts */
-+};
-+
-+enum {				/* per port SGE statistics */
-+	SGE_PSTAT_TSO,		/* # of TSO requests */
-+	SGE_PSTAT_RX_CSUM_GOOD,	/* # of successful RX csum offloads */
-+	SGE_PSTAT_TX_CSUM,	/* # of TX checksum offloads */
-+	SGE_PSTAT_VLANEX,	/* # of VLAN tag extractions */
-+	SGE_PSTAT_VLANINS,	/* # of VLAN tag insertions */
-+
-+	SGE_PSTAT_MAX		/* must be last */
-+};
-+
-+struct sge_qset {		/* an SGE queue set */
-+	struct sge_rspq rspq;
-+	struct sge_fl fl[SGE_RXQ_PER_SET];
-+	struct sge_txq txq[SGE_TXQ_PER_SET];
-+	struct net_device *netdev;	/* associated net device */
-+	unsigned long txq_stopped;	/* which Tx queues are stopped */
-+	struct timer_list tx_reclaim_timer;	/* reclaims TX buffers */
-+	unsigned long port_stats[SGE_PSTAT_MAX];
-+} ____cacheline_aligned;
-+
-+struct sge {
-+	struct sge_qset qs[SGE_QSETS];
-+	spinlock_t reg_lock;	/* guards non-atomic SGE registers (eg context) */
-+};
-+
-+struct adapter {
-+	struct t3cdev tdev;
-+	struct list_head adapter_list;
-+	void __iomem *regs;
-+	struct pci_dev *pdev;
-+	unsigned long registered_device_map;
-+	unsigned long open_device_map;
-+	unsigned long flags;
-+
-+	const char *name;
-+	int msg_enable;
-+	unsigned int mmio_len;
-+
-+	struct adapter_params params;
-+	unsigned int slow_intr_mask;
-+	unsigned long irq_stats[IRQ_NUM_STATS];
-+
-+	struct {
-+		unsigned short vec;
-+		char desc[22];
-+	} msix_info[SGE_QSETS + 1];
-+
-+	/* T3 modules */
-+	struct sge sge;
-+	struct mc7 pmrx;
-+	struct mc7 pmtx;
-+	struct mc7 cm;
-+	struct mc5 mc5;
-+
-+	struct net_device *port[MAX_NPORTS];
-+	unsigned int check_task_cnt;
-+	struct delayed_work adap_check_task;
-+	struct work_struct ext_intr_handler_task;
-+
-+	/*
-+	 * Dummy netdevices are needed when using multiple receive queues with
-+	 * NAPI as each netdevice can service only one queue.
-+	 */
-+	struct net_device *dummy_netdev[SGE_QSETS - 1];
-+
-+	struct dentry *debugfs_root;
-+
-+	struct mutex mdio_lock;
-+	spinlock_t stats_lock;
-+	spinlock_t work_lock;
-+};
-+
-+static inline u32 t3_read_reg(struct adapter *adapter, u32 reg_addr)
-+{
-+	u32 val = readl(adapter->regs + reg_addr);
-+
-+	CH_DBG(adapter, MMIO, "read register 0x%x value 0x%x\n", reg_addr, val);
-+	return val;
-+}
-+
-+static inline void t3_write_reg(struct adapter *adapter, u32 reg_addr, u32 val)
-+{
-+	CH_DBG(adapter, MMIO, "setting register 0x%x to 0x%x\n", reg_addr, val);
-+	writel(val, adapter->regs + reg_addr);
-+}
-+
-+static inline struct port_info *adap2pinfo(struct adapter *adap, int idx)
-+{
-+	return netdev_priv(adap->port[idx]);
-+}
-+
-+/*
-+ * We use the spare atalk_ptr to map a net device to its SGE queue set.
-+ * This is a macro so it can be used as l-value.
-+ */
-+#define dev2qset(netdev) ((netdev)->atalk_ptr)
-+
-+#define OFFLOAD_DEVMAP_BIT 15
-+
-+#define tdev2adap(d) container_of(d, struct adapter, tdev)
-+
-+static inline int offload_running(struct adapter *adapter)
-+{
-+	return test_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map);
-+}
-+
-+int t3_offload_tx(struct t3cdev *tdev, struct sk_buff *skb);
-+
-+void t3_os_ext_intr_handler(struct adapter *adapter);
-+void t3_os_link_changed(struct adapter *adapter, int port_id, int link_status,
-+			int speed, int duplex, int fc);
-+
-+void t3_sge_start(struct adapter *adap);
-+void t3_sge_stop(struct adapter *adap);
-+void t3_free_sge_resources(struct adapter *adap);
-+void t3_sge_err_intr_handler(struct adapter *adapter);
-+intr_handler_t t3_intr_handler(struct adapter *adap, int polling);
-+int t3_eth_xmit(struct sk_buff *skb, struct net_device *dev);
-+void t3_update_qset_coalesce(struct sge_qset *qs, const struct qset_params *p);
-+int t3_sge_alloc_qset(struct adapter *adapter, unsigned int id, int nports,
-+		      int irq_vec_idx, const struct qset_params *p,
-+		      int ntxq, struct net_device *netdev);
-+int t3_get_desc(const struct sge_qset *qs, unsigned int qnum, unsigned int idx,
-+		unsigned char *data);
-+irqreturn_t t3_sge_intr_msix(int irq, void *cookie);
-+
-+#endif				/* __T3_ADAPTER_H__ */
-diff --git a/drivers/net/cxgb3/common.h b/drivers/net/cxgb3/common.h
-new file mode 100755
-index 0000000..60a979b
---- /dev/null
-+++ b/drivers/net/cxgb3/common.h
-@@ -0,0 +1,709 @@
-+/*
-+ * This file is part of the Chelsio T3 Ethernet driver.
-+ *
-+ * Copyright (C) 2005-2006 Chelsio Communications.  All rights reserved.
-+ *
-+ * This program is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the LICENSE file included in this
-+ * release for licensing terms and conditions.
-+ */
-+
-+#ifndef __CHELSIO_COMMON_H
-+#define __CHELSIO_COMMON_H
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/ctype.h>
-+#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
 +#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/dma-mapping.h>
 +#include <linux/netdevice.h>
-+#include <linux/ethtool.h>
++#include <linux/etherdevice.h>
++#include <linux/if_vlan.h>
 +#include <linux/mii.h>
++#include <linux/sockios.h>
++#include <linux/workqueue.h>
++#include <linux/proc_fs.h>
++#include <linux/rtnetlink.h>
++#include <asm/uaccess.h>
++
++#include "common.h"
++#include "cxgb3_ioctl.h"
++#include "regs.h"
++#include "cxgb3_offload.h"
 +#include "version.h"
 +
-+#define CH_ERR(adap, fmt, ...)   dev_err(&adap->pdev->dev, fmt, ## __VA_ARGS__)
-+#define CH_WARN(adap, fmt, ...)  dev_warn(&adap->pdev->dev, fmt, ## __VA_ARGS__)
-+#define CH_ALERT(adap, fmt, ...) \
-+	dev_printk(KERN_ALERT, &adap->pdev->dev, fmt, ## __VA_ARGS__)
++#include "cxgb3_ctl_defs.h"
++#include "t3_cpl.h"
++#include "firmware_exports.h"
++
++enum {
++	MAX_TXQ_ENTRIES = 16384,
++	MAX_CTRL_TXQ_ENTRIES = 1024,
++	MAX_RSPQ_ENTRIES = 16384,
++	MAX_RX_BUFFERS = 16384,
++	MAX_RX_JUMBO_BUFFERS = 16384,
++	MIN_TXQ_ENTRIES = 4,
++	MIN_CTRL_TXQ_ENTRIES = 4,
++	MIN_RSPQ_ENTRIES = 32,
++	MIN_FL_ENTRIES = 32
++};
++
++#define PORT_MASK ((1 << MAX_NPORTS) - 1)
++
++#define DFLT_MSG_ENABLE (NETIF_MSG_DRV | NETIF_MSG_PROBE | NETIF_MSG_LINK | \
++			 NETIF_MSG_TIMER | NETIF_MSG_IFDOWN | NETIF_MSG_IFUP |\
++			 NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR)
++
++#define EEPROM_MAGIC 0x38E2F10C
++
++#define to_net_dev(class) container_of(class, struct net_device, class_dev)
++
++#define CH_DEVICE(devid, ssid, idx) \
++	{ PCI_VENDOR_ID_CHELSIO, devid, PCI_ANY_ID, ssid, 0, 0, idx }
++
++static const struct pci_device_id cxgb3_pci_tbl[] = {
++	CH_DEVICE(0x20, 1, 0),	/* PE9000 */
++	CH_DEVICE(0x21, 1, 1),	/* T302E */
++	CH_DEVICE(0x22, 1, 2),	/* T310E */
++	CH_DEVICE(0x23, 1, 3),	/* T320X */
++	CH_DEVICE(0x24, 1, 1),	/* T302X */
++	CH_DEVICE(0x25, 1, 3),	/* T320E */
++	CH_DEVICE(0x26, 1, 2),	/* T310X */
++	CH_DEVICE(0x30, 1, 2),	/* T3B10 */
++	CH_DEVICE(0x31, 1, 3),	/* T3B20 */
++	CH_DEVICE(0x32, 1, 1),	/* T3B02 */
++	{0,}
++};
++
++MODULE_DESCRIPTION(DRV_DESC);
++MODULE_AUTHOR("Chelsio Communications");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
++MODULE_DEVICE_TABLE(pci, cxgb3_pci_tbl);
++
++static int dflt_msg_enable = DFLT_MSG_ENABLE;
++
++module_param(dflt_msg_enable, int, 0644);
++MODULE_PARM_DESC(dflt_msg_enable, "Chelsio T3 default message enable bitmap");
 +
 +/*
-+ * More powerful macro that selectively prints messages based on msg_enable.
-+ * For info and debugging messages.
++ * The driver uses the best interrupt scheme available on a platform in the
++ * order MSI-X, MSI, legacy pin interrupts.  This parameter determines which
++ * of these schemes the driver may consider as follows:
++ *
++ * msi = 2: choose from among all three options
++ * msi = 1: only consider MSI and pin interrupts
++ * msi = 0: force pin interrupts
 + */
-+#define CH_MSG(adapter, level, category, fmt, ...) do { \
-+	if ((adapter)->msg_enable & NETIF_MSG_##category) \
-+		dev_printk(KERN_##level, &adapter->pdev->dev, fmt, \
-+			   ## __VA_ARGS__); \
-+} while (0)
++static int msi = 2;
 +
-+#ifdef DEBUG
-+# define CH_DBG(adapter, category, fmt, ...) \
-+	CH_MSG(adapter, DEBUG, category, fmt, ## __VA_ARGS__)
-+#else
-+# define CH_DBG(adapter, category, fmt, ...)
-+#endif
++module_param(msi, int, 0644);
++MODULE_PARM_DESC(msi, "whether to use MSI or MSI-X");
 +
-+/* Additional NETIF_MSG_* categories */
-+#define NETIF_MSG_MMIO 0x8000000
++/*
++ * The driver enables offload as a default.
++ * To disable it, use ofld_disable = 1.
++ */
 +
-+struct t3_rx_mode {
++static int ofld_disable = 0;
++
++module_param(ofld_disable, int, 0644);
++MODULE_PARM_DESC(ofld_disable, "whether to enable offload at init time or not");
++
++/*
++ * We have work elements that we need to cancel when an interface is taken
++ * down.  Normally the work elements would be executed by keventd but that
++ * can deadlock because of linkwatch.  If our close method takes the rtnl
++ * lock and linkwatch is ahead of our work elements in keventd, linkwatch
++ * will block keventd as it needs the rtnl lock, and we'll deadlock waiting
++ * for our work to complete.  Get our own work queue to solve this.
++ */
++static struct workqueue_struct *cxgb3_wq;
++
++/**
++ *	link_report - show link status and link speed/duplex
++ *	@p: the port whose settings are to be reported
++ *
++ *	Shows the link status, speed, and duplex of a port.
++ */
++static void link_report(struct net_device *dev)
++{
++	if (!netif_carrier_ok(dev))
++		printk(KERN_INFO "%s: link down\n", dev->name);
++	else {
++		const char *s = "10Mbps";
++		const struct port_info *p = netdev_priv(dev);
++
++		switch (p->link_config.speed) {
++		case SPEED_10000:
++			s = "10Gbps";
++			break;
++		case SPEED_1000:
++			s = "1000Mbps";
++			break;
++		case SPEED_100:
++			s = "100Mbps";
++			break;
++		}
++
++		printk(KERN_INFO "%s: link up, %s, %s-duplex\n", dev->name, s,
++		       p->link_config.duplex == DUPLEX_FULL ? "full" : "half");
++	}
++}
++
++/**
++ *	t3_os_link_changed - handle link status changes
++ *	@adapter: the adapter associated with the link change
++ *	@port_id: the port index whose limk status has changed
++ *	@link_stat: the new status of the link
++ *	@speed: the new speed setting
++ *	@duplex: the new duplex setting
++ *	@pause: the new flow-control setting
++ *
++ *	This is the OS-dependent handler for link status changes.  The OS
++ *	neutral handler takes care of most of the processing for these events,
++ *	then calls this handler for any OS-specific processing.
++ */
++void t3_os_link_changed(struct adapter *adapter, int port_id, int link_stat,
++			int speed, int duplex, int pause)
++{
++	struct net_device *dev = adapter->port[port_id];
++
++	/* Skip changes from disabled ports. */
++	if (!netif_running(dev))
++		return;
++
++	if (link_stat != netif_carrier_ok(dev)) {
++		if (link_stat)
++			netif_carrier_on(dev);
++		else
++			netif_carrier_off(dev);
++		link_report(dev);
++	}
++}
++
++static void cxgb_set_rxmode(struct net_device *dev)
++{
++	struct t3_rx_mode rm;
++	struct port_info *pi = netdev_priv(dev);
++
++	init_rx_mode(&rm, dev, dev->mc_list);
++	t3_mac_set_rx_mode(&pi->mac, &rm);
++}
++
++/**
++ *	link_start - enable a port
++ *	@dev: the device to enable
++ *
++ *	Performs the MAC and PHY actions needed to enable a port.
++ */
++static void link_start(struct net_device *dev)
++{
++	struct t3_rx_mode rm;
++	struct port_info *pi = netdev_priv(dev);
++	struct cmac *mac = &pi->mac;
++
++	init_rx_mode(&rm, dev, dev->mc_list);
++	t3_mac_reset(mac);
++	t3_mac_set_mtu(mac, dev->mtu);
++	t3_mac_set_address(mac, 0, dev->dev_addr);
++	t3_mac_set_rx_mode(mac, &rm);
++	t3_link_start(&pi->phy, mac, &pi->link_config);
++	t3_mac_enable(mac, MAC_DIRECTION_RX | MAC_DIRECTION_TX);
++}
++
++static inline void cxgb_disable_msi(struct adapter *adapter)
++{
++	if (adapter->flags & USING_MSIX) {
++		pci_disable_msix(adapter->pdev);
++		adapter->flags &= ~USING_MSIX;
++	} else if (adapter->flags & USING_MSI) {
++		pci_disable_msi(adapter->pdev);
++		adapter->flags &= ~USING_MSI;
++	}
++}
++
++/*
++ * Interrupt handler for asynchronous events used with MSI-X.
++ */
++static irqreturn_t t3_async_intr_handler(int irq, void *cookie)
++{
++	t3_slow_intr_handler(cookie);
++	return IRQ_HANDLED;
++}
++
++/*
++ * Name the MSI-X interrupts.
++ */
++static void name_msix_vecs(struct adapter *adap)
++{
++	int i, j, msi_idx = 1, n = sizeof(adap->msix_info[0].desc) - 1;
++
++	snprintf(adap->msix_info[0].desc, n, "%s", adap->name);
++	adap->msix_info[0].desc[n] = 0;
++
++	for_each_port(adap, j) {
++		struct net_device *d = adap->port[j];
++		const struct port_info *pi = netdev_priv(d);
++
++		for (i = 0; i < pi->nqsets; i++, msi_idx++) {
++			snprintf(adap->msix_info[msi_idx].desc, n,
++				 "%s (queue %d)", d->name, i);
++			adap->msix_info[msi_idx].desc[n] = 0;
++		}
++ 	}
++}
++
++static int request_msix_data_irqs(struct adapter *adap)
++{
++	int i, j, err, qidx = 0;
++
++	for_each_port(adap, i) {
++		int nqsets = adap2pinfo(adap, i)->nqsets;
++
++		for (j = 0; j < nqsets; ++j) {
++			err = request_irq(adap->msix_info[qidx + 1].vec,
++					  t3_intr_handler(adap,
++							  adap->sge.qs[qidx].
++							  rspq.polling), 0,
++					  adap->msix_info[qidx + 1].desc,
++					  &adap->sge.qs[qidx]);
++			if (err) {
++				while (--qidx >= 0)
++					free_irq(adap->msix_info[qidx + 1].vec,
++						 &adap->sge.qs[qidx]);
++				return err;
++			}
++			qidx++;
++		}
++	}
++	return 0;
++}
++
++/**
++ *	setup_rss - configure RSS
++ *	@adap: the adapter
++ *
++ *	Sets up RSS to distribute packets to multiple receive queues.  We
++ *	configure the RSS CPU lookup table to distribute to the number of HW
++ *	receive queues, and the response queue lookup table to narrow that
++ *	down to the response queues actually configured for each port.
++ *	We always configure the RSS mapping for two ports since the mapping
++ *	table has plenty of entries.
++ */
++static void setup_rss(struct adapter *adap)
++{
++	int i;
++	unsigned int nq0 = adap2pinfo(adap, 0)->nqsets;
++	unsigned int nq1 = adap->port[1] ? adap2pinfo(adap, 1)->nqsets : 1;
++	u8 cpus[SGE_QSETS + 1];
++	u16 rspq_map[RSS_TABLE_SIZE];
++
++	for (i = 0; i < SGE_QSETS; ++i)
++		cpus[i] = i;
++	cpus[SGE_QSETS] = 0xff;	/* terminator */
++
++	for (i = 0; i < RSS_TABLE_SIZE / 2; ++i) {
++		rspq_map[i] = i % nq0;
++		rspq_map[i + RSS_TABLE_SIZE / 2] = (i % nq1) + nq0;
++	}
++
++	t3_config_rss(adap, F_RQFEEDBACKENABLE | F_TNLLKPEN | F_TNLMAPEN |
++		      F_TNLPRTEN | F_TNL2TUPEN | F_TNL4TUPEN |
++		      V_RRCPLCPUSIZE(6), cpus, rspq_map);
++}
++
++/*
++ * If we have multiple receive queues per port serviced by NAPI we need one
++ * netdevice per queue as NAPI operates on netdevices.  We already have one
++ * netdevice, namely the one associated with the interface, so we use dummy
++ * ones for any additional queues.  Note that these netdevices exist purely
++ * so that NAPI has something to work with, they do not represent network
++ * ports and are not registered.
++ */
++static int init_dummy_netdevs(struct adapter *adap)
++{
++	int i, j, dummy_idx = 0;
++	struct net_device *nd;
++
++	for_each_port(adap, i) {
++		struct net_device *dev = adap->port[i];
++		const struct port_info *pi = netdev_priv(dev);
++
++		for (j = 0; j < pi->nqsets - 1; j++) {
++			if (!adap->dummy_netdev[dummy_idx]) {
++				nd = alloc_netdev(0, "", ether_setup);
++				if (!nd)
++					goto free_all;
++
++				nd->priv = adap;
++				nd->weight = 64;
++				set_bit(__LINK_STATE_START, &nd->state);
++				adap->dummy_netdev[dummy_idx] = nd;
++			}
++			strcpy(adap->dummy_netdev[dummy_idx]->name, dev->name);
++			dummy_idx++;
++		}
++	}
++	return 0;
++
++free_all:
++	while (--dummy_idx >= 0) {
++		free_netdev(adap->dummy_netdev[dummy_idx]);
++		adap->dummy_netdev[dummy_idx] = NULL;
++	}
++	return -ENOMEM;
++}
++
++/*
++ * Wait until all NAPI handlers are descheduled.  This includes the handlers of
++ * both netdevices representing interfaces and the dummy ones for the extra
++ * queues.
++ */
++static void quiesce_rx(struct adapter *adap)
++{
++	int i;
 +	struct net_device *dev;
-+	struct dev_mc_list *mclist;
-+	unsigned int idx;
-+};
 +
-+static inline void init_rx_mode(struct t3_rx_mode *p, struct net_device *dev,
-+				struct dev_mc_list *mclist)
-+{
-+	p->dev = dev;
-+	p->mclist = mclist;
-+	p->idx = 0;
-+}
-+
-+static inline u8 *t3_get_next_mcaddr(struct t3_rx_mode *rm)
-+{
-+	u8 *addr = NULL;
-+
-+	if (rm->mclist && rm->idx < rm->dev->mc_count) {
-+		addr = rm->mclist->dmi_addr;
-+		rm->mclist = rm->mclist->next;
-+		rm->idx++;
++	for_each_port(adap, i) {
++		dev = adap->port[i];
++		while (test_bit(__LINK_STATE_RX_SCHED, &dev->state))
++			msleep(1);
 +	}
-+	return addr;
-+}
 +
-+enum {
-+	MAX_NPORTS = 2,		/* max # of ports */
-+	MAX_FRAME_SIZE = 10240,	/* max MAC frame size, including header + FCS */
-+	EEPROMSIZE = 8192,	/* Serial EEPROM size */
-+	RSS_TABLE_SIZE = 64,	/* size of RSS lookup and mapping tables */
-+	TCB_SIZE = 128,		/* TCB size */
-+	NMTUS = 16,		/* size of MTU table */
-+	NCCTRL_WIN = 32,	/* # of congestion control windows */
-+};
-+
-+#define MAX_RX_COALESCING_LEN 16224U
-+
-+enum {
-+	PAUSE_RX = 1 << 0,
-+	PAUSE_TX = 1 << 1,
-+	PAUSE_AUTONEG = 1 << 2
-+};
-+
-+enum {
-+	SUPPORTED_OFFLOAD = 1 << 24,
-+	SUPPORTED_IRQ = 1 << 25
-+};
-+
-+enum {				/* adapter interrupt-maintained statistics */
-+	STAT_ULP_CH0_PBL_OOB,
-+	STAT_ULP_CH1_PBL_OOB,
-+	STAT_PCI_CORR_ECC,
-+
-+	IRQ_NUM_STATS		/* keep last */
-+};
-+
-+enum {
-+	SGE_QSETS = 8,		/* # of SGE Tx/Rx/RspQ sets */
-+	SGE_RXQ_PER_SET = 2,	/* # of Rx queues per set */
-+	SGE_TXQ_PER_SET = 3	/* # of Tx queues per set */
-+};
-+
-+enum sge_context_type {		/* SGE egress context types */
-+	SGE_CNTXT_RDMA = 0,
-+	SGE_CNTXT_ETH = 2,
-+	SGE_CNTXT_OFLD = 4,
-+	SGE_CNTXT_CTRL = 5
-+};
-+
-+enum {
-+	AN_PKT_SIZE = 32,	/* async notification packet size */
-+	IMMED_PKT_SIZE = 48	/* packet size for immediate data */
-+};
-+
-+struct sg_ent {			/* SGE scatter/gather entry */
-+	u32 len[2];
-+	u64 addr[2];
-+};
-+
-+#ifndef SGE_NUM_GENBITS
-+/* Must be 1 or 2 */
-+# define SGE_NUM_GENBITS 2
-+#endif
-+
-+#define TX_DESC_FLITS 16U
-+#define WR_FLITS (TX_DESC_FLITS + 1 - SGE_NUM_GENBITS)
-+
-+struct cphy;
-+struct adapter;
-+
-+struct mdio_ops {
-+	int (*read)(struct adapter *adapter, int phy_addr, int mmd_addr,
-+		    int reg_addr, unsigned int *val);
-+	int (*write)(struct adapter *adapter, int phy_addr, int mmd_addr,
-+		     int reg_addr, unsigned int val);
-+};
-+
-+struct adapter_info {
-+	unsigned char nports;	/* # of ports */
-+	unsigned char phy_base_addr;	/* MDIO PHY base address */
-+	unsigned char mdien;
-+	unsigned char mdiinv;
-+	unsigned int gpio_out;	/* GPIO output settings */
-+	unsigned int gpio_intr;	/* GPIO IRQ enable mask */
-+	unsigned long caps;	/* adapter capabilities */
-+	const struct mdio_ops *mdio_ops;	/* MDIO operations */
-+	const char *desc;	/* product description */
-+};
-+
-+struct port_type_info {
-+	void (*phy_prep)(struct cphy *phy, struct adapter *adapter,
-+			 int phy_addr, const struct mdio_ops *ops);
-+	unsigned int caps;
-+	const char *desc;
-+};
-+
-+struct mc5_stats {
-+	unsigned long parity_err;
-+	unsigned long active_rgn_full;
-+	unsigned long nfa_srch_err;
-+	unsigned long unknown_cmd;
-+	unsigned long reqq_parity_err;
-+	unsigned long dispq_parity_err;
-+	unsigned long del_act_empty;
-+};
-+
-+struct mc7_stats {
-+	unsigned long corr_err;
-+	unsigned long uncorr_err;
-+	unsigned long parity_err;
-+	unsigned long addr_err;
-+};
-+
-+struct mac_stats {
-+	u64 tx_octets;		/* total # of octets in good frames */
-+	u64 tx_octets_bad;	/* total # of octets in error frames */
-+	u64 tx_frames;		/* all good frames */
-+	u64 tx_mcast_frames;	/* good multicast frames */
-+	u64 tx_bcast_frames;	/* good broadcast frames */
-+	u64 tx_pause;		/* # of transmitted pause frames */
-+	u64 tx_deferred;	/* frames with deferred transmissions */
-+	u64 tx_late_collisions;	/* # of late collisions */
-+	u64 tx_total_collisions;	/* # of total collisions */
-+	u64 tx_excess_collisions;	/* frame errors from excessive collissions */
-+	u64 tx_underrun;	/* # of Tx FIFO underruns */
-+	u64 tx_len_errs;	/* # of Tx length errors */
-+	u64 tx_mac_internal_errs;	/* # of internal MAC errors on Tx */
-+	u64 tx_excess_deferral;	/* # of frames with excessive deferral */
-+	u64 tx_fcs_errs;	/* # of frames with bad FCS */
-+
-+	u64 tx_frames_64;	/* # of Tx frames in a particular range */
-+	u64 tx_frames_65_127;
-+	u64 tx_frames_128_255;
-+	u64 tx_frames_256_511;
-+	u64 tx_frames_512_1023;
-+	u64 tx_frames_1024_1518;
-+	u64 tx_frames_1519_max;
-+
-+	u64 rx_octets;		/* total # of octets in good frames */
-+	u64 rx_octets_bad;	/* total # of octets in error frames */
-+	u64 rx_frames;		/* all good frames */
-+	u64 rx_mcast_frames;	/* good multicast frames */
-+	u64 rx_bcast_frames;	/* good broadcast frames */
-+	u64 rx_pause;		/* # of received pause frames */
-+	u64 rx_fcs_errs;	/* # of received frames with bad FCS */
-+	u64 rx_align_errs;	/* alignment errors */
-+	u64 rx_symbol_errs;	/* symbol errors */
-+	u64 rx_data_errs;	/* data errors */
-+	u64 rx_sequence_errs;	/* sequence errors */
-+	u64 rx_runt;		/* # of runt frames */
-+	u64 rx_jabber;		/* # of jabber frames */
-+	u64 rx_short;		/* # of short frames */
-+	u64 rx_too_long;	/* # of oversized frames */
-+	u64 rx_mac_internal_errs;	/* # of internal MAC errors on Rx */
-+
-+	u64 rx_frames_64;	/* # of Rx frames in a particular range */
-+	u64 rx_frames_65_127;
-+	u64 rx_frames_128_255;
-+	u64 rx_frames_256_511;
-+	u64 rx_frames_512_1023;
-+	u64 rx_frames_1024_1518;
-+	u64 rx_frames_1519_max;
-+
-+	u64 rx_cong_drops;	/* # of Rx drops due to SGE congestion */
-+
-+	unsigned long tx_fifo_parity_err;
-+	unsigned long rx_fifo_parity_err;
-+	unsigned long tx_fifo_urun;
-+	unsigned long rx_fifo_ovfl;
-+	unsigned long serdes_signal_loss;
-+	unsigned long xaui_pcs_ctc_err;
-+	unsigned long xaui_pcs_align_change;
-+};
-+
-+struct tp_mib_stats {
-+	u32 ipInReceive_hi;
-+	u32 ipInReceive_lo;
-+	u32 ipInHdrErrors_hi;
-+	u32 ipInHdrErrors_lo;
-+	u32 ipInAddrErrors_hi;
-+	u32 ipInAddrErrors_lo;
-+	u32 ipInUnknownProtos_hi;
-+	u32 ipInUnknownProtos_lo;
-+	u32 ipInDiscards_hi;
-+	u32 ipInDiscards_lo;
-+	u32 ipInDelivers_hi;
-+	u32 ipInDelivers_lo;
-+	u32 ipOutRequests_hi;
-+	u32 ipOutRequests_lo;
-+	u32 ipOutDiscards_hi;
-+	u32 ipOutDiscards_lo;
-+	u32 ipOutNoRoutes_hi;
-+	u32 ipOutNoRoutes_lo;
-+	u32 ipReasmTimeout;
-+	u32 ipReasmReqds;
-+	u32 ipReasmOKs;
-+	u32 ipReasmFails;
-+
-+	u32 reserved[8];
-+
-+	u32 tcpActiveOpens;
-+	u32 tcpPassiveOpens;
-+	u32 tcpAttemptFails;
-+	u32 tcpEstabResets;
-+	u32 tcpOutRsts;
-+	u32 tcpCurrEstab;
-+	u32 tcpInSegs_hi;
-+	u32 tcpInSegs_lo;
-+	u32 tcpOutSegs_hi;
-+	u32 tcpOutSegs_lo;
-+	u32 tcpRetransSeg_hi;
-+	u32 tcpRetransSeg_lo;
-+	u32 tcpInErrs_hi;
-+	u32 tcpInErrs_lo;
-+	u32 tcpRtoMin;
-+	u32 tcpRtoMax;
-+};
-+
-+struct tp_params {
-+	unsigned int nchan;	/* # of channels */
-+	unsigned int pmrx_size;	/* total PMRX capacity */
-+	unsigned int pmtx_size;	/* total PMTX capacity */
-+	unsigned int cm_size;	/* total CM capacity */
-+	unsigned int chan_rx_size;	/* per channel Rx size */
-+	unsigned int chan_tx_size;	/* per channel Tx size */
-+	unsigned int rx_pg_size;	/* Rx page size */
-+	unsigned int tx_pg_size;	/* Tx page size */
-+	unsigned int rx_num_pgs;	/* # of Rx pages */
-+	unsigned int tx_num_pgs;	/* # of Tx pages */
-+	unsigned int ntimer_qs;	/* # of timer queues */
-+};
-+
-+struct qset_params {		/* SGE queue set parameters */
-+	unsigned int polling;	/* polling/interrupt service for rspq */
-+	unsigned int coalesce_usecs;	/* irq coalescing timer */
-+	unsigned int rspq_size;	/* # of entries in response queue */
-+	unsigned int fl_size;	/* # of entries in regular free list */
-+	unsigned int jumbo_size;	/* # of entries in jumbo free list */
-+	unsigned int txq_size[SGE_TXQ_PER_SET];	/* Tx queue sizes */
-+	unsigned int cong_thres;	/* FL congestion threshold */
-+};
-+
-+struct sge_params {
-+	unsigned int max_pkt_size;	/* max offload pkt size */
-+	struct qset_params qset[SGE_QSETS];
-+};
-+
-+struct mc5_params {
-+	unsigned int mode;	/* selects MC5 width */
-+	unsigned int nservers;	/* size of server region */
-+	unsigned int nfilters;	/* size of filter region */
-+	unsigned int nroutes;	/* size of routing region */
-+};
-+
-+/* Default MC5 region sizes */
-+enum {
-+	DEFAULT_NSERVERS = 512,
-+	DEFAULT_NFILTERS = 128
-+};
-+
-+/* MC5 modes, these must be non-0 */
-+enum {
-+	MC5_MODE_144_BIT = 1,
-+	MC5_MODE_72_BIT = 2
-+};
-+
-+struct vpd_params {
-+	unsigned int cclk;
-+	unsigned int mclk;
-+	unsigned int uclk;
-+	unsigned int mdc;
-+	unsigned int mem_timing;
-+	u8 eth_base[6];
-+	u8 port_type[MAX_NPORTS];
-+	unsigned short xauicfg[2];
-+};
-+
-+struct pci_params {
-+	unsigned int vpd_cap_addr;
-+	unsigned int pcie_cap_addr;
-+	unsigned short speed;
-+	unsigned char width;
-+	unsigned char variant;
-+};
-+
-+enum {
-+	PCI_VARIANT_PCI,
-+	PCI_VARIANT_PCIX_MODE1_PARITY,
-+	PCI_VARIANT_PCIX_MODE1_ECC,
-+	PCI_VARIANT_PCIX_266_MODE2,
-+	PCI_VARIANT_PCIE
-+};
-+
-+struct adapter_params {
-+	struct sge_params sge;
-+	struct mc5_params mc5;
-+	struct tp_params tp;
-+	struct vpd_params vpd;
-+	struct pci_params pci;
-+
-+	const struct adapter_info *info;
-+
-+	unsigned short mtus[NMTUS];
-+	unsigned short a_wnd[NCCTRL_WIN];
-+	unsigned short b_wnd[NCCTRL_WIN];
-+
-+	unsigned int nports;	/* # of ethernet ports */
-+	unsigned int stats_update_period;	/* MAC stats accumulation period */
-+	unsigned int linkpoll_period;	/* link poll period in 0.1s */
-+	unsigned int rev;	/* chip revision */
-+};
-+
-+struct trace_params {
-+	u32 sip;
-+	u32 sip_mask;
-+	u32 dip;
-+	u32 dip_mask;
-+	u16 sport;
-+	u16 sport_mask;
-+	u16 dport;
-+	u16 dport_mask;
-+	u32 vlan:12;
-+	u32 vlan_mask:12;
-+	u32 intf:4;
-+	u32 intf_mask:4;
-+	u8 proto;
-+	u8 proto_mask;
-+};
-+
-+struct link_config {
-+	unsigned int supported;	/* link capabilities */
-+	unsigned int advertising;	/* advertised capabilities */
-+	unsigned short requested_speed;	/* speed user has requested */
-+	unsigned short speed;	/* actual link speed */
-+	unsigned char requested_duplex;	/* duplex user has requested */
-+	unsigned char duplex;	/* actual link duplex */
-+	unsigned char requested_fc;	/* flow control user has requested */
-+	unsigned char fc;	/* actual link flow control */
-+	unsigned char autoneg;	/* autonegotiating? */
-+	unsigned int link_ok;	/* link up? */
-+};
-+
-+#define SPEED_INVALID   0xffff
-+#define DUPLEX_INVALID  0xff
-+
-+struct mc5 {
-+	struct adapter *adapter;
-+	unsigned int tcam_size;
-+	unsigned char part_type;
-+	unsigned char parity_enabled;
-+	unsigned char mode;
-+	struct mc5_stats stats;
-+};
-+
-+static inline unsigned int t3_mc5_size(const struct mc5 *p)
-+{
-+	return p->tcam_size;
-+}
-+
-+struct mc7 {
-+	struct adapter *adapter;	/* backpointer to adapter */
-+	unsigned int size;	/* memory size in bytes */
-+	unsigned int width;	/* MC7 interface width */
-+	unsigned int offset;	/* register address offset for MC7 instance */
-+	const char *name;	/* name of MC7 instance */
-+	struct mc7_stats stats;	/* MC7 statistics */
-+};
-+
-+static inline unsigned int t3_mc7_size(const struct mc7 *p)
-+{
-+	return p->size;
-+}
-+
-+struct cmac {
-+	struct adapter *adapter;
-+	unsigned int offset;
-+	unsigned int nucast;	/* # of address filters for unicast MACs */
-+	struct mac_stats stats;
-+};
-+
-+enum {
-+	MAC_DIRECTION_RX = 1,
-+	MAC_DIRECTION_TX = 2,
-+	MAC_RXFIFO_SIZE = 32768
-+};
-+
-+/* IEEE 802.3ae specified MDIO devices */
-+enum {
-+	MDIO_DEV_PMA_PMD = 1,
-+	MDIO_DEV_WIS = 2,
-+	MDIO_DEV_PCS = 3,
-+	MDIO_DEV_XGXS = 4
-+};
-+
-+/* PHY loopback direction */
-+enum {
-+	PHY_LOOPBACK_TX = 1,
-+	PHY_LOOPBACK_RX = 2
-+};
-+
-+/* PHY interrupt types */
-+enum {
-+	cphy_cause_link_change = 1,
-+	cphy_cause_fifo_error = 2
-+};
-+
-+/* PHY operations */
-+struct cphy_ops {
-+	void (*destroy)(struct cphy *phy);
-+	int (*reset)(struct cphy *phy, int wait);
-+
-+	int (*intr_enable)(struct cphy *phy);
-+	int (*intr_disable)(struct cphy *phy);
-+	int (*intr_clear)(struct cphy *phy);
-+	int (*intr_handler)(struct cphy *phy);
-+
-+	int (*autoneg_enable)(struct cphy *phy);
-+	int (*autoneg_restart)(struct cphy *phy);
-+
-+	int (*advertise)(struct cphy *phy, unsigned int advertise_map);
-+	int (*set_loopback)(struct cphy *phy, int mmd, int dir, int enable);
-+	int (*set_speed_duplex)(struct cphy *phy, int speed, int duplex);
-+	int (*get_link_status)(struct cphy *phy, int *link_ok, int *speed,
-+			       int *duplex, int *fc);
-+	int (*power_down)(struct cphy *phy, int enable);
-+};
-+
-+/* A PHY instance */
-+struct cphy {
-+	int addr;		/* PHY address */
-+	struct adapter *adapter;	/* associated adapter */
-+	unsigned long fifo_errors;	/* FIFO over/under-flows */
-+	const struct cphy_ops *ops;	/* PHY operations */
-+	int (*mdio_read)(struct adapter *adapter, int phy_addr, int mmd_addr,
-+			 int reg_addr, unsigned int *val);
-+	int (*mdio_write)(struct adapter *adapter, int phy_addr, int mmd_addr,
-+			  int reg_addr, unsigned int val);
-+};
-+
-+/* Convenience MDIO read/write wrappers */
-+static inline int mdio_read(struct cphy *phy, int mmd, int reg,
-+			    unsigned int *valp)
-+{
-+	return phy->mdio_read(phy->adapter, phy->addr, mmd, reg, valp);
-+}
-+
-+static inline int mdio_write(struct cphy *phy, int mmd, int reg,
-+			     unsigned int val)
-+{
-+	return phy->mdio_write(phy->adapter, phy->addr, mmd, reg, val);
-+}
-+
-+/* Convenience initializer */
-+static inline void cphy_init(struct cphy *phy, struct adapter *adapter,
-+			     int phy_addr, struct cphy_ops *phy_ops,
-+			     const struct mdio_ops *mdio_ops)
-+{
-+	phy->adapter = adapter;
-+	phy->addr = phy_addr;
-+	phy->ops = phy_ops;
-+	if (mdio_ops) {
-+		phy->mdio_read = mdio_ops->read;
-+		phy->mdio_write = mdio_ops->write;
++	for (i = 0; i < ARRAY_SIZE(adap->dummy_netdev); i++) {
++		dev = adap->dummy_netdev[i];
++		if (dev)
++			while (test_bit(__LINK_STATE_RX_SCHED, &dev->state))
++				msleep(1);
 +	}
 +}
 +
-+/* Accumulate MAC statistics every 180 seconds.  For 1G we multiply by 10. */
-+#define MAC_STATS_ACCUM_SECS 180
++/**
++ *	setup_sge_qsets - configure SGE Tx/Rx/response queues
++ *	@adap: the adapter
++ *
++ *	Determines how many sets of SGE queues to use and initializes them.
++ *	We support multiple queue sets per port if we have MSI-X, otherwise
++ *	just one queue set per port.
++ */
++static int setup_sge_qsets(struct adapter *adap)
++{
++	int i, j, err, irq_idx = 0, qset_idx = 0, dummy_dev_idx = 0;
++	unsigned int ntxq = is_offload(adap) ? SGE_TXQ_PER_SET : 1;
 +
-+#define XGM_REG(reg_addr, idx) \
-+	((reg_addr) + (idx) * (XGMAC0_1_BASE_ADDR - XGMAC0_0_BASE_ADDR))
++	if (adap->params.rev > 0 && !(adap->flags & USING_MSI))
++		irq_idx = -1;
 +
-+struct addr_val_pair {
-+	unsigned int reg_addr;
++	for_each_port(adap, i) {
++		struct net_device *dev = adap->port[i];
++		const struct port_info *pi = netdev_priv(dev);
++
++		for (j = 0; j < pi->nqsets; ++j, ++qset_idx) {
++			err = t3_sge_alloc_qset(adap, qset_idx, 1,
++				(adap->flags & USING_MSIX) ? qset_idx + 1 :
++							     irq_idx,
++				&adap->params.sge.qset[qset_idx], ntxq,
++				j == 0 ? dev :
++					 adap-> dummy_netdev[dummy_dev_idx++]);
++			if (err) {
++				t3_free_sge_resources(adap);
++				return err;
++			}
++		}
++	}
++
++	return 0;
++}
++
++static ssize_t attr_show(struct class_device *cd, char *buf,
++			 ssize_t(*format) (struct adapter *, char *))
++{
++	ssize_t len;
++	struct adapter *adap = to_net_dev(cd)->priv;
++
++	/* Synchronize with ioctls that may shut down the device */
++	rtnl_lock();
++	len = (*format) (adap, buf);
++	rtnl_unlock();
++	return len;
++}
++
++static ssize_t attr_store(struct class_device *cd, const char *buf, size_t len,
++			  ssize_t(*set) (struct adapter *, unsigned int),
++			  unsigned int min_val, unsigned int max_val)
++{
++	char *endp;
++	ssize_t ret;
 +	unsigned int val;
++	struct adapter *adap = to_net_dev(cd)->priv;
++
++	if (!capable(CAP_NET_ADMIN))
++		return -EPERM;
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (endp == buf || val < min_val || val > max_val)
++		return -EINVAL;
++
++	rtnl_lock();
++	ret = (*set) (adap, val);
++	if (!ret)
++		ret = len;
++	rtnl_unlock();
++	return ret;
++}
++
++#define CXGB3_SHOW(name, val_expr) \
++static ssize_t format_##name(struct adapter *adap, char *buf) \
++{ \
++	return sprintf(buf, "%u\n", val_expr); \
++} \
++static ssize_t show_##name(struct class_device *cd, char *buf) \
++{ \
++	return attr_show(cd, buf, format_##name); \
++}
++
++static ssize_t set_nfilters(struct adapter *adap, unsigned int val)
++{
++	if (adap->flags & FULL_INIT_DONE)
++		return -EBUSY;
++	if (val && adap->params.rev == 0)
++		return -EINVAL;
++	if (val > t3_mc5_size(&adap->mc5) - adap->params.mc5.nservers)
++		return -EINVAL;
++	adap->params.mc5.nfilters = val;
++	return 0;
++}
++
++static ssize_t store_nfilters(struct class_device *cd, const char *buf,
++			      size_t len)
++{
++	return attr_store(cd, buf, len, set_nfilters, 0, ~0);
++}
++
++static ssize_t set_nservers(struct adapter *adap, unsigned int val)
++{
++	if (adap->flags & FULL_INIT_DONE)
++		return -EBUSY;
++	if (val > t3_mc5_size(&adap->mc5) - adap->params.mc5.nfilters)
++		return -EINVAL;
++	adap->params.mc5.nservers = val;
++	return 0;
++}
++
++static ssize_t store_nservers(struct class_device *cd, const char *buf,
++			      size_t len)
++{
++	return attr_store(cd, buf, len, set_nservers, 0, ~0);
++}
++
++#define CXGB3_ATTR_R(name, val_expr) \
++CXGB3_SHOW(name, val_expr) \
++static CLASS_DEVICE_ATTR(name, S_IRUGO, show_##name, NULL)
++
++#define CXGB3_ATTR_RW(name, val_expr, store_method) \
++CXGB3_SHOW(name, val_expr) \
++static CLASS_DEVICE_ATTR(name, S_IRUGO | S_IWUSR, show_##name, store_method)
++
++CXGB3_ATTR_R(cam_size, t3_mc5_size(&adap->mc5));
++CXGB3_ATTR_RW(nfilters, adap->params.mc5.nfilters, store_nfilters);
++CXGB3_ATTR_RW(nservers, adap->params.mc5.nservers, store_nservers);
++
++static struct attribute *cxgb3_attrs[] = {
++	&class_device_attr_cam_size.attr,
++	&class_device_attr_nfilters.attr,
++	&class_device_attr_nservers.attr,
++	NULL
 +};
 +
-+#include "adapter.h"
++static struct attribute_group cxgb3_attr_group = {.attrs = cxgb3_attrs };
 +
-+#ifndef PCI_VENDOR_ID_CHELSIO
-+# define PCI_VENDOR_ID_CHELSIO 0x1425
-+#endif
-+
-+#define for_each_port(adapter, iter) \
-+	for (iter = 0; iter < (adapter)->params.nports; ++iter)
-+
-+#define adapter_info(adap) ((adap)->params.info)
-+
-+static inline int uses_xaui(const struct adapter *adap)
++static ssize_t tm_attr_show(struct class_device *cd, char *buf, int sched)
 +{
-+	return adapter_info(adap)->caps & SUPPORTED_AUI;
++	ssize_t len;
++	unsigned int v, addr, bpt, cpt;
++	struct adapter *adap = to_net_dev(cd)->priv;
++
++	addr = A_TP_TX_MOD_Q1_Q0_RATE_LIMIT - sched / 2;
++	rtnl_lock();
++	t3_write_reg(adap, A_TP_TM_PIO_ADDR, addr);
++	v = t3_read_reg(adap, A_TP_TM_PIO_DATA);
++	if (sched & 1)
++		v >>= 16;
++	bpt = (v >> 8) & 0xff;
++	cpt = v & 0xff;
++	if (!cpt)
++		len = sprintf(buf, "disabled\n");
++	else {
++		v = (adap->params.vpd.cclk * 1000) / cpt;
++		len = sprintf(buf, "%u Kbps\n", (v * bpt) / 125);
++	}
++	rtnl_unlock();
++	return len;
 +}
 +
-+static inline int is_10G(const struct adapter *adap)
++static ssize_t tm_attr_store(struct class_device *cd, const char *buf,
++			     size_t len, int sched)
 +{
-+	return adapter_info(adap)->caps & SUPPORTED_10000baseT_Full;
++	char *endp;
++	ssize_t ret;
++	unsigned int val;
++	struct adapter *adap = to_net_dev(cd)->priv;
++
++	if (!capable(CAP_NET_ADMIN))
++		return -EPERM;
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (endp == buf || val > 10000000)
++		return -EINVAL;
++
++	rtnl_lock();
++	ret = t3_config_sched(adap, val, sched);
++	if (!ret)
++		ret = len;
++	rtnl_unlock();
++	return ret;
 +}
 +
-+static inline int is_offload(const struct adapter *adap)
-+{
-+	return adapter_info(adap)->caps & SUPPORTED_OFFLOAD;
-+}
++#define TM_ATTR(name, sched) \
++static ssize_t show_##name(struct class_device *cd, char *buf) \
++{ \
++	return tm_attr_show(cd, buf, sched); \
++} \
++static ssize_t store_##name(struct class_device *cd, const char *buf, size_t len) \
++{ \
++	return tm_attr_store(cd, buf, len, sched); \
++} \
++static CLASS_DEVICE_ATTR(name, S_IRUGO | S_IWUSR, show_##name, store_##name)
 +
-+static inline unsigned int core_ticks_per_usec(const struct adapter *adap)
-+{
-+	return adap->params.vpd.cclk / 1000;
-+}
++TM_ATTR(sched0, 0);
++TM_ATTR(sched1, 1);
++TM_ATTR(sched2, 2);
++TM_ATTR(sched3, 3);
++TM_ATTR(sched4, 4);
++TM_ATTR(sched5, 5);
++TM_ATTR(sched6, 6);
++TM_ATTR(sched7, 7);
 +
-+static inline unsigned int is_pcie(const struct adapter *adap)
-+{
-+	return adap->params.pci.variant == PCI_VARIANT_PCIE;
-+}
++static struct attribute *offload_attrs[] = {
++	&class_device_attr_sched0.attr,
++	&class_device_attr_sched1.attr,
++	&class_device_attr_sched2.attr,
++	&class_device_attr_sched3.attr,
++	&class_device_attr_sched4.attr,
++	&class_device_attr_sched5.attr,
++	&class_device_attr_sched6.attr,
++	&class_device_attr_sched7.attr,
++	NULL
++};
 +
-+void t3_set_reg_field(struct adapter *adap, unsigned int addr, u32 mask,
-+		      u32 val);
-+void t3_write_regs(struct adapter *adapter, const struct addr_val_pair *p,
-+		   int n, unsigned int offset);
-+int t3_wait_op_done_val(struct adapter *adapter, int reg, u32 mask,
-+			int polarity, int attempts, int delay, u32 *valp);
-+static inline int t3_wait_op_done(struct adapter *adapter, int reg, u32 mask,
-+				  int polarity, int attempts, int delay)
-+{
-+	return t3_wait_op_done_val(adapter, reg, mask, polarity, attempts,
-+				   delay, NULL);
-+}
-+int t3_mdio_change_bits(struct cphy *phy, int mmd, int reg, unsigned int clear,
-+			unsigned int set);
-+int t3_phy_reset(struct cphy *phy, int mmd, int wait);
-+int t3_phy_advertise(struct cphy *phy, unsigned int advert);
-+int t3_set_phy_speed_duplex(struct cphy *phy, int speed, int duplex);
-+
-+void t3_intr_enable(struct adapter *adapter);
-+void t3_intr_disable(struct adapter *adapter);
-+void t3_intr_clear(struct adapter *adapter);
-+void t3_port_intr_enable(struct adapter *adapter, int idx);
-+void t3_port_intr_disable(struct adapter *adapter, int idx);
-+void t3_port_intr_clear(struct adapter *adapter, int idx);
-+int t3_slow_intr_handler(struct adapter *adapter);
-+int t3_phy_intr_handler(struct adapter *adapter);
-+
-+void t3_link_changed(struct adapter *adapter, int port_id);
-+int t3_link_start(struct cphy *phy, struct cmac *mac, struct link_config *lc);
-+const struct adapter_info *t3_get_adapter_info(unsigned int board_id);
-+int t3_seeprom_read(struct adapter *adapter, u32 addr, u32 *data);
-+int t3_seeprom_write(struct adapter *adapter, u32 addr, u32 data);
-+int t3_seeprom_wp(struct adapter *adapter, int enable);
-+int t3_read_flash(struct adapter *adapter, unsigned int addr,
-+		  unsigned int nwords, u32 *data, int byte_oriented);
-+int t3_load_fw(struct adapter *adapter, const u8 * fw_data, unsigned int size);
-+int t3_get_fw_version(struct adapter *adapter, u32 *vers);
-+int t3_check_fw_version(struct adapter *adapter);
-+int t3_init_hw(struct adapter *adapter, u32 fw_params);
-+void mac_prep(struct cmac *mac, struct adapter *adapter, int index);
-+void early_hw_init(struct adapter *adapter, const struct adapter_info *ai);
-+int t3_prep_adapter(struct adapter *adapter, const struct adapter_info *ai,
-+		    int reset);
-+void t3_led_ready(struct adapter *adapter);
-+void t3_fatal_err(struct adapter *adapter);
-+void t3_set_vlan_accel(struct adapter *adapter, unsigned int ports, int on);
-+void t3_config_rss(struct adapter *adapter, unsigned int rss_config,
-+		   const u8 * cpus, const u16 *rspq);
-+int t3_read_rss(struct adapter *adapter, u8 * lkup, u16 *map);
-+int t3_mps_set_active_ports(struct adapter *adap, unsigned int port_mask);
-+int t3_cim_ctl_blk_read(struct adapter *adap, unsigned int addr,
-+			unsigned int n, unsigned int *valp);
-+int t3_mc7_bd_read(struct mc7 *mc7, unsigned int start, unsigned int n,
-+		   u64 *buf);
-+
-+int t3_mac_reset(struct cmac *mac);
-+void t3b_pcs_reset(struct cmac *mac);
-+int t3_mac_enable(struct cmac *mac, int which);
-+int t3_mac_disable(struct cmac *mac, int which);
-+int t3_mac_set_mtu(struct cmac *mac, unsigned int mtu);
-+int t3_mac_set_rx_mode(struct cmac *mac, struct t3_rx_mode *rm);
-+int t3_mac_set_address(struct cmac *mac, unsigned int idx, u8 addr[6]);
-+int t3_mac_set_num_ucast(struct cmac *mac, int n);
-+const struct mac_stats *t3_mac_update_stats(struct cmac *mac);
-+int t3_mac_set_speed_duplex_fc(struct cmac *mac, int speed, int duplex, int fc);
-+
-+void t3_mc5_prep(struct adapter *adapter, struct mc5 *mc5, int mode);
-+int t3_mc5_init(struct mc5 *mc5, unsigned int nservers, unsigned int nfilters,
-+		unsigned int nroutes);
-+void t3_mc5_intr_handler(struct mc5 *mc5);
-+int t3_read_mc5_range(const struct mc5 *mc5, unsigned int start, unsigned int n,
-+		      u32 *buf);
-+
-+int t3_tp_set_coalescing_size(struct adapter *adap, unsigned int size, int psh);
-+void t3_tp_set_max_rxsize(struct adapter *adap, unsigned int size);
-+void t3_tp_set_offload_mode(struct adapter *adap, int enable);
-+void t3_tp_get_mib_stats(struct adapter *adap, struct tp_mib_stats *tps);
-+void t3_load_mtus(struct adapter *adap, unsigned short mtus[NMTUS],
-+		  unsigned short alpha[NCCTRL_WIN],
-+		  unsigned short beta[NCCTRL_WIN], unsigned short mtu_cap);
-+void t3_read_hw_mtus(struct adapter *adap, unsigned short mtus[NMTUS]);
-+void t3_get_cong_cntl_tab(struct adapter *adap,
-+			  unsigned short incr[NMTUS][NCCTRL_WIN]);
-+void t3_config_trace_filter(struct adapter *adapter,
-+			    const struct trace_params *tp, int filter_index,
-+			    int invert, int enable);
-+int t3_config_sched(struct adapter *adap, unsigned int kbps, int sched);
-+
-+void t3_sge_prep(struct adapter *adap, struct sge_params *p);
-+void t3_sge_init(struct adapter *adap, struct sge_params *p);
-+int t3_sge_init_ecntxt(struct adapter *adapter, unsigned int id, int gts_enable,
-+		       enum sge_context_type type, int respq, u64 base_addr,
-+		       unsigned int size, unsigned int token, int gen,
-+		       unsigned int cidx);
-+int t3_sge_init_flcntxt(struct adapter *adapter, unsigned int id,
-+			int gts_enable, u64 base_addr, unsigned int size,
-+			unsigned int esize, unsigned int cong_thres, int gen,
-+			unsigned int cidx);
-+int t3_sge_init_rspcntxt(struct adapter *adapter, unsigned int id,
-+			 int irq_vec_idx, u64 base_addr, unsigned int size,
-+			 unsigned int fl_thres, int gen, unsigned int cidx);
-+int t3_sge_init_cqcntxt(struct adapter *adapter, unsigned int id, u64 base_addr,
-+			unsigned int size, int rspq, int ovfl_mode,
-+			unsigned int credits, unsigned int credit_thres);
-+int t3_sge_enable_ecntxt(struct adapter *adapter, unsigned int id, int enable);
-+int t3_sge_disable_fl(struct adapter *adapter, unsigned int id);
-+int t3_sge_disable_rspcntxt(struct adapter *adapter, unsigned int id);
-+int t3_sge_disable_cqcntxt(struct adapter *adapter, unsigned int id);
-+int t3_sge_read_ecntxt(struct adapter *adapter, unsigned int id, u32 data[4]);
-+int t3_sge_read_fl(struct adapter *adapter, unsigned int id, u32 data[4]);
-+int t3_sge_read_cq(struct adapter *adapter, unsigned int id, u32 data[4]);
-+int t3_sge_read_rspq(struct adapter *adapter, unsigned int id, u32 data[4]);
-+int t3_sge_cqcntxt_op(struct adapter *adapter, unsigned int id, unsigned int op,
-+		      unsigned int credits);
-+
-+void t3_vsc8211_phy_prep(struct cphy *phy, struct adapter *adapter,
-+			 int phy_addr, const struct mdio_ops *mdio_ops);
-+void t3_ael1002_phy_prep(struct cphy *phy, struct adapter *adapter,
-+			 int phy_addr, const struct mdio_ops *mdio_ops);
-+void t3_ael1006_phy_prep(struct cphy *phy, struct adapter *adapter,
-+			 int phy_addr, const struct mdio_ops *mdio_ops);
-+void t3_qt2045_phy_prep(struct cphy *phy, struct adapter *adapter, int phy_addr,
-+			const struct mdio_ops *mdio_ops);
-+void t3_xaui_direct_phy_prep(struct cphy *phy, struct adapter *adapter,
-+			     int phy_addr, const struct mdio_ops *mdio_ops);
-+#endif				/* __CHELSIO_COMMON_H */
-diff --git a/drivers/net/cxgb3/cxgb3_ioctl.h b/drivers/net/cxgb3/cxgb3_ioctl.h
-new file mode 100755
-index 0000000..1ee77b2
---- /dev/null
-+++ b/drivers/net/cxgb3/cxgb3_ioctl.h
-@@ -0,0 +1,165 @@
-+/*
-+ * This file is part of the Chelsio T3 Ethernet driver for Linux.
-+ *
-+ * Copyright (C) 2003-2006 Chelsio Communications.  All rights reserved.
-+ *
-+ * This program is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the LICENSE file included in this
-+ * release for licensing terms and conditions.
-+ */
-+
-+#ifndef __CHIOCTL_H__
-+#define __CHIOCTL_H__
++static struct attribute_group offload_attr_group = {.attrs = offload_attrs };
 +
 +/*
-+ * Ioctl commands specific to this driver.
++ * Sends an sk_buff to an offload queue driver
++ * after dealing with any active network taps.
 + */
-+enum {
-+	CHELSIO_SETREG = 1024,
-+	CHELSIO_GETREG,
-+	CHELSIO_SETTPI,
-+	CHELSIO_GETTPI,
-+	CHELSIO_GETMTUTAB,
-+	CHELSIO_SETMTUTAB,
-+	CHELSIO_GETMTU,
-+	CHELSIO_SET_PM,
-+	CHELSIO_GET_PM,
-+	CHELSIO_GET_TCAM,
-+	CHELSIO_SET_TCAM,
-+	CHELSIO_GET_TCB,
-+	CHELSIO_GET_MEM,
-+	CHELSIO_LOAD_FW,
-+	CHELSIO_GET_PROTO,
-+	CHELSIO_SET_PROTO,
-+	CHELSIO_SET_TRACE_FILTER,
-+	CHELSIO_SET_QSET_PARAMS,
-+	CHELSIO_GET_QSET_PARAMS,
-+	CHELSIO_SET_QSET_NUM,
-+	CHELSIO_GET_QSET_NUM,
-+	CHELSIO_SET_PKTSCHED,
-+};
++static inline int offload_tx(struct t3cdev *tdev, struct sk_buff *skb)
++{
++	int ret;
 +
-+struct ch_reg {
-+	uint32_t cmd;
-+	uint32_t addr;
-+	uint32_t val;
-+};
++	local_bh_disable();
++	ret = t3_offload_tx(tdev, skb);
++	local_bh_enable();
++	return ret;
++}
 +
-+struct ch_cntxt {
-+	uint32_t cmd;
-+	uint32_t cntxt_type;
-+	uint32_t cntxt_id;
-+	uint32_t data[4];
-+};
++static int write_smt_entry(struct adapter *adapter, int idx)
++{
++	struct cpl_smt_write_req *req;
++	struct sk_buff *skb = alloc_skb(sizeof(*req), GFP_KERNEL);
 +
-+/* context types */
-+enum { CNTXT_TYPE_EGRESS, CNTXT_TYPE_FL, CNTXT_TYPE_RSP, CNTXT_TYPE_CQ };
++	if (!skb)
++		return -ENOMEM;
 +
-+struct ch_desc {
-+	uint32_t cmd;
-+	uint32_t queue_num;
-+	uint32_t idx;
-+	uint32_t size;
-+	uint8_t data[128];
-+};
++	req = (struct cpl_smt_write_req *)__skb_put(skb, sizeof(*req));
++	req->wr.wr_hi = htonl(V_WR_OP(FW_WROPCODE_FORWARD));
++	OPCODE_TID(req) = htonl(MK_OPCODE_TID(CPL_SMT_WRITE_REQ, idx));
++	req->mtu_idx = NMTUS - 1;	/* should be 0 but there's a T3 bug */
++	req->iff = idx;
++	memset(req->src_mac1, 0, sizeof(req->src_mac1));
++	memcpy(req->src_mac0, adapter->port[idx]->dev_addr, ETH_ALEN);
++	skb->priority = 1;
++	offload_tx(&adapter->tdev, skb);
++	return 0;
++}
 +
-+struct ch_mem_range {
-+	uint32_t cmd;
-+	uint32_t mem_id;
-+	uint32_t addr;
-+	uint32_t len;
-+	uint32_t version;
-+	uint8_t buf[0];
-+};
++static int init_smt(struct adapter *adapter)
++{
++	int i;
 +
-+struct ch_qset_params {
-+	uint32_t cmd;
-+	uint32_t qset_idx;
-+	int32_t txq_size[3];
-+	int32_t rspq_size;
-+	int32_t fl_size[2];
-+	int32_t intr_lat;
-+	int32_t polling;
-+	int32_t cong_thres;
-+};
++	for_each_port(adapter, i)
++	    write_smt_entry(adapter, i);
++	return 0;
++}
 +
-+struct ch_pktsched_params {
-+	uint32_t cmd;
-+	uint8_t sched;
-+	uint8_t idx;
-+	uint8_t min;
-+	uint8_t max;
-+	uint8_t binding;
-+};
++static void init_port_mtus(struct adapter *adapter)
++{
++	unsigned int mtus = adapter->port[0]->mtu;
 +
-+#ifndef TCB_SIZE
-+# define TCB_SIZE   128
-+#endif
++	if (adapter->port[1])
++		mtus |= adapter->port[1]->mtu << 16;
++	t3_write_reg(adapter, A_TP_MTU_PORT_TABLE, mtus);
++}
 +
-+/* TCB size in 32-bit words */
-+#define TCB_WORDS (TCB_SIZE / 4)
-+
-+enum { MEM_CM, MEM_PMRX, MEM_PMTX };	/* ch_mem_range.mem_id values */
-+
-+struct ch_mtus {
-+	uint32_t cmd;
-+	uint32_t nmtus;
-+	uint16_t mtus[NMTUS];
-+};
-+
-+struct ch_pm {
-+	uint32_t cmd;
-+	uint32_t tx_pg_sz;
-+	uint32_t tx_num_pg;
-+	uint32_t rx_pg_sz;
-+	uint32_t rx_num_pg;
-+	uint32_t pm_total;
-+};
-+
-+struct ch_tcam {
-+	uint32_t cmd;
-+	uint32_t tcam_size;
-+	uint32_t nservers;
-+	uint32_t nroutes;
-+	uint32_t nfilters;
-+};
-+
-+struct ch_tcb {
-+	uint32_t cmd;
-+	uint32_t tcb_index;
-+	uint32_t tcb_data[TCB_WORDS];
-+};
-+
-+struct ch_tcam_word {
-+	uint32_t cmd;
-+	uint32_t addr;
-+	uint32_t buf[3];
-+};
-+
-+struct ch_trace {
-+	uint32_t cmd;
-+	uint32_t sip;
-+	uint32_t sip_mask;
-+	uint32_t dip;
-+	uint32_t dip_mask;
-+	uint16_t sport;
-+	uint16_t sport_mask;
-+	uint16_t dport;
-+	uint16_t dport_mask;
-+	uint32_t vlan:12;
-+	uint32_t vlan_mask:12;
-+	uint32_t intf:4;
-+	uint32_t intf_mask:4;
-+	uint8_t proto;
-+	uint8_t proto_mask;
-+	uint8_t invert_match:1;
-+	uint8_t config_tx:1;
-+	uint8_t config_rx:1;
-+	uint8_t trace_tx:1;
-+	uint8_t trace_rx:1;
-+};
-+
-+#define SIOCCHIOCTL SIOCDEVPRIVATE
-+
-+#endif
-diff --git a/drivers/net/cxgb3/firmware_exports.h b/drivers/net/cxgb3/firmware_exports.h
-new file mode 100755
-index 0000000..3565f48
---- /dev/null
-+++ b/drivers/net/cxgb3/firmware_exports.h
-@@ -0,0 +1,144 @@
-+/* 
-+ * ----------------------------------------------------------------------------
-+ * >>>>>>>>>>>>>>>>>>>>>>>>>>>>> COPYRIGHT NOTICE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-+ * ----------------------------------------------------------------------------
-+ * Copyright 2004 (C) Chelsio Communications, Inc. (Chelsio)
++/**
++ *	cxgb_up - enable the adapter
++ *	@adapter: adapter being enabled
 + *
-+ * Chelsio Communications, Inc. owns the sole copyright to this software.
-+ * You may not make a copy, you may not derive works herefrom, and you may
-+ * not distribute this work to others. Other restrictions of rights may apply
-+ * as well. This is unpublished, confidential information. All rights reserved.
-+ * This software contains confidential information and trade secrets of Chelsio
-+ * Communications, Inc. Use, disclosure, or reproduction is prohibited without
-+ * the prior express written permission of Chelsio Communications, Inc.
-+ * ----------------------------------------------------------------------------
-+ * >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Warranty <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-+ * ----------------------------------------------------------------------------
-+ * CHELSIO MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THE USE OF THIS
-+ * SOFTWARE, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-+ * ----------------------------------------------------------------------------
++ *	Called when the first port is enabled, this function performs the
++ *	actions necessary to make an adapter operational, such as completing
++ *	the initialization of HW modules, and enabling interrupts.
 + *
-+ * This is the firmware_exports.h header file, firmware interface defines.
-+ *
-+ * Written January 2005 by felix marti (felix@chelsio.com)
++ *	Must be called with the rtnl lock held.
 + */
-+#ifndef _FIRMWARE_EXPORTS_H_
-+#define _FIRMWARE_EXPORTS_H_
++static int cxgb_up(struct adapter *adap)
++{
++	int err = 0;
 +
-+/* WR OPCODES supported by the firmware.
-+ */
-+#define	FW_WROPCODE_FORWARD			0x01
-+#define FW_WROPCODE_BYPASS			0x05
++	if (!(adap->flags & FULL_INIT_DONE)) {
++		err = t3_check_fw_version(adap);
++		if (err) {
++			dev_err(&adap->pdev->dev,
++				"adapter FW is not compatible with driver\n");
++			goto out;
++		}
 +
-+#define FW_WROPCODE_TUNNEL_TX_PKT		0x03
++		err = init_dummy_netdevs(adap);
++		if (err)
++			goto out;
 +
-+#define FW_WROPOCDE_ULPTX_DATA_SGL		0x00
-+#define FW_WROPCODE_ULPTX_MEM_READ		0x02
-+#define FW_WROPCODE_ULPTX_PKT			0x04
-+#define FW_WROPCODE_ULPTX_INVALIDATE		0x06
++		err = t3_init_hw(adap, 0);
++		if (err)
++			goto out;
 +
-+#define FW_WROPCODE_TUNNEL_RX_PKT		0x07
++		err = setup_sge_qsets(adap);
++		if (err)
++			goto out;
 +
-+#define FW_WROPCODE_OFLD_GETTCB_RPL		0x08
-+#define FW_WROPCODE_OFLD_CLOSE_CON		0x09
-+#define FW_WROPCODE_OFLD_TP_ABORT_CON_REQ	0x0A
-+#define FW_WROPCODE_OFLD_HOST_ABORT_CON_RPL	0x0F
-+#define FW_WROPCODE_OFLD_HOST_ABORT_CON_REQ	0x0B
-+#define FW_WROPCODE_OFLD_TP_ABORT_CON_RPL	0x0C
-+#define FW_WROPCODE_OFLD_TX_DATA		0x0D
-+#define FW_WROPCODE_OFLD_TX_DATA_ACK		0x0E
++		setup_rss(adap);
++		adap->flags |= FULL_INIT_DONE;
++	}
 +
-+#define FW_WROPCODE_RI_RDMA_INIT		0x10
-+#define FW_WROPCODE_RI_RDMA_WRITE		0x11
-+#define FW_WROPCODE_RI_RDMA_READ_REQ		0x12
-+#define FW_WROPCODE_RI_RDMA_READ_RESP		0x13
-+#define FW_WROPCODE_RI_SEND			0x14
-+#define FW_WROPCODE_RI_TERMINATE		0x15
-+#define FW_WROPCODE_RI_RDMA_READ		0x16
-+#define FW_WROPCODE_RI_RECEIVE			0x17
-+#define FW_WROPCODE_RI_BIND_MW			0x18
-+#define FW_WROPCODE_RI_FASTREGISTER_MR		0x19
-+#define FW_WROPCODE_RI_LOCAL_INV		0x1A
-+#define FW_WROPCODE_RI_MODIFY_QP		0x1B
-+#define FW_WROPCODE_RI_BYPASS			0x1C
++	t3_intr_clear(adap);
 +
-+#define FW_WROPOCDE_RSVD			0x1E
++	if (adap->flags & USING_MSIX) {
++		name_msix_vecs(adap);
++		err = request_irq(adap->msix_info[0].vec,
++				  t3_async_intr_handler, 0,
++				  adap->msix_info[0].desc, adap);
++		if (err)
++			goto irq_err;
 +
-+#define FW_WROPCODE_SGE_EGRESSCONTEXT_RR	0x1F
++		if (request_msix_data_irqs(adap)) {
++			free_irq(adap->msix_info[0].vec, adap);
++			goto irq_err;
++		}
++	} else if ((err = request_irq(adap->pdev->irq,
++				      t3_intr_handler(adap,
++						      adap->sge.qs[0].rspq.
++						      polling),
++				      (adap->flags & USING_MSI) ? 0 : SA_SHIRQ,
++				      adap->name, adap)))
++		goto irq_err;
 +
-+#define FW_WROPCODE_MNGT			0x1D
-+#define FW_MNGTOPCODE_PKTSCHED_SET		0x00
-+
-+/* Maximum size of a WR sent from the host, limited by the SGE. 
-+ *
-+ * Note: WR coming from ULP or TP are only limited by CIM. 
-+ */
-+#define FW_WR_SIZE			128
-+
-+/* Maximum number of outstanding WRs sent from the host. Value must be
-+ * programmed in the CTRL/TUNNEL/QP SGE Egress Context and used by 
-+ * offload modules to limit the number of WRs per connection.
-+ */
-+#define FW_T3_WR_NUM			16
-+#define FW_N3_WR_NUM			7
-+
-+#ifndef N3
-+# define FW_WR_NUM			FW_T3_WR_NUM
-+#else
-+# define FW_WR_NUM			FW_N3_WR_NUM
-+#endif
-+
-+/* FW_TUNNEL_NUM corresponds to the number of supported TUNNEL Queues. These
-+ * queues must start at SGE Egress Context FW_TUNNEL_SGEEC_START and must
-+ * start at 'TID' (or 'uP Token') FW_TUNNEL_TID_START.
-+ *
-+ * Ingress Traffic (e.g. DMA completion credit)  for TUNNEL Queue[i] is sent 
-+ * to RESP Queue[i].
-+ */
-+#define FW_TUNNEL_NUM			8
-+#define FW_TUNNEL_SGEEC_START		8
-+#define FW_TUNNEL_TID_START		65544
-+
-+/* FW_CTRL_NUM corresponds to the number of supported CTRL Queues. These queues
-+ * must start at SGE Egress Context FW_CTRL_SGEEC_START and must start at 'TID'
-+ * (or 'uP Token') FW_CTRL_TID_START.
-+ *
-+ * Ingress Traffic for CTRL Queue[i] is sent to RESP Queue[i].
-+ */
-+#define FW_CTRL_NUM			8
-+#define FW_CTRL_SGEEC_START		65528
-+#define FW_CTRL_TID_START		65536
-+
-+/* FW_OFLD_NUM corresponds to the number of supported OFFLOAD Queues. These 
-+ * queues must start at SGE Egress Context FW_OFLD_SGEEC_START. 
-+ * 
-+ * Note: the 'uP Token' in the SGE Egress Context fields is irrelevant for 
-+ * OFFLOAD Queues, as the host is responsible for providing the correct TID in
-+ * every WR.
-+ *
-+ * Ingress Trafffic for OFFLOAD Queue[i] is sent to RESP Queue[i].
-+ */
-+#define FW_OFLD_NUM			8
-+#define FW_OFLD_SGEEC_START		0
++	t3_sge_start(adap);
++	t3_intr_enable(adap);
++out:
++	return err;
++irq_err:
++	CH_ERR(adap, "request_irq failed, err %d\n", err);
++	goto out;
++}
 +
 +/*
-+ * 
++ * Release resources when all the ports and offloading have been stopped.
 + */
-+#define FW_RI_NUM			1
-+#define FW_RI_SGEEC_START		65527
-+#define FW_RI_TID_START			65552
++static void cxgb_down(struct adapter *adapter)
++{
++	t3_sge_stop(adapter);
++	spin_lock_irq(&adapter->work_lock);	/* sync with PHY intr task */
++	t3_intr_disable(adapter);
++	spin_unlock_irq(&adapter->work_lock);
++
++	if (adapter->flags & USING_MSIX) {
++		int i, n = 0;
++
++		free_irq(adapter->msix_info[0].vec, adapter);
++		for_each_port(adapter, i)
++		    n += adap2pinfo(adapter, i)->nqsets;
++
++		for (i = 0; i < n; ++i)
++			free_irq(adapter->msix_info[i + 1].vec,
++				 &adapter->sge.qs[i]);
++	} else
++		free_irq(adapter->pdev->irq, adapter);
++
++	flush_workqueue(cxgb3_wq);	/* wait for external IRQ handler */
++	quiesce_rx(adapter);
++}
++
++static void schedule_chk_task(struct adapter *adap)
++{
++	unsigned int timeo;
++
++	timeo = adap->params.linkpoll_period ?
++	    (HZ * adap->params.linkpoll_period) / 10 :
++	    adap->params.stats_update_period * HZ;
++	if (timeo)
++		queue_delayed_work(cxgb3_wq, &adap->adap_check_task, timeo);
++}
++
++static int offload_open(struct net_device *dev)
++{
++	struct adapter *adapter = dev->priv;
++	struct t3cdev *tdev = T3CDEV(dev);
++	int adap_up = adapter->open_device_map & PORT_MASK;
++	int err = 0;
++
++	if (test_and_set_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map))
++		return 0;
++
++	if (!adap_up && (err = cxgb_up(adapter)) < 0)
++		return err;
++
++	t3_tp_set_offload_mode(adapter, 1);
++	tdev->lldev = adapter->port[0];
++	err = cxgb3_offload_activate(adapter);
++	if (err)
++		goto out;
++
++	init_port_mtus(adapter);
++	t3_load_mtus(adapter, adapter->params.mtus, adapter->params.a_wnd,
++		     adapter->params.b_wnd,
++		     adapter->params.rev == 0 ?
++		     adapter->port[0]->mtu : 0xffff);
++	init_smt(adapter);
++
++	/* Never mind if the next step fails */
++	sysfs_create_group(&tdev->lldev->class_dev.kobj, &offload_attr_group);
++
++	/* Call back all registered clients */
++	cxgb3_add_clients(tdev);
++
++out:
++	/* restore them in case the offload module has changed them */
++	if (err) {
++		t3_tp_set_offload_mode(adapter, 0);
++		clear_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map);
++		cxgb3_set_dummy_ops(tdev);
++	}
++	return err;
++}
++
++static int offload_close(struct t3cdev *tdev)
++{
++	struct adapter *adapter = tdev2adap(tdev);
++
++	if (!test_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map))
++		return 0;
++
++	/* Call back all registered clients */
++	cxgb3_remove_clients(tdev);
++
++	sysfs_remove_group(&tdev->lldev->class_dev.kobj, &offload_attr_group);
++
++	tdev->lldev = NULL;
++	cxgb3_set_dummy_ops(tdev);
++	t3_tp_set_offload_mode(adapter, 0);
++	clear_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map);
++
++	if (!adapter->open_device_map)
++		cxgb_down(adapter);
++
++	cxgb3_offload_deactivate(adapter);
++	return 0;
++}
++
++static int cxgb_open(struct net_device *dev)
++{
++	int err;
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++	int other_ports = adapter->open_device_map & PORT_MASK;
++
++	if (!adapter->open_device_map && (err = cxgb_up(adapter)) < 0)
++		return err;
++
++	set_bit(pi->port_id, &adapter->open_device_map);
++	if (!ofld_disable) {
++		err = offload_open(dev);
++		if (err)
++			printk(KERN_WARNING
++			       "Could not initialize offload capabilities\n");
++	}
++
++	link_start(dev);
++	t3_port_intr_enable(adapter, pi->port_id);
++	netif_start_queue(dev);
++	if (!other_ports)
++		schedule_chk_task(adapter);
++
++	return 0;
++}
++
++static int cxgb_close(struct net_device *dev)
++{
++	struct adapter *adapter = dev->priv;
++	struct port_info *p = netdev_priv(dev);
++
++	t3_port_intr_disable(adapter, p->port_id);
++	netif_stop_queue(dev);
++	p->phy.ops->power_down(&p->phy, 1);
++	netif_carrier_off(dev);
++	t3_mac_disable(&p->mac, MAC_DIRECTION_TX | MAC_DIRECTION_RX);
++
++	spin_lock(&adapter->work_lock);	/* sync with update task */
++	clear_bit(p->port_id, &adapter->open_device_map);
++	spin_unlock(&adapter->work_lock);
++
++	if (!(adapter->open_device_map & PORT_MASK))
++		cancel_rearming_delayed_workqueue(cxgb3_wq,
++						  &adapter->adap_check_task);
++
++	if (!adapter->open_device_map)
++		cxgb_down(adapter);
++
++	return 0;
++}
++
++static struct net_device_stats *cxgb_get_stats(struct net_device *dev)
++{
++	struct adapter *adapter = dev->priv;
++	struct port_info *p = netdev_priv(dev);
++	struct net_device_stats *ns = &p->netstats;
++	const struct mac_stats *pstats;
++
++	spin_lock(&adapter->stats_lock);
++	pstats = t3_mac_update_stats(&p->mac);
++	spin_unlock(&adapter->stats_lock);
++
++	ns->tx_bytes = pstats->tx_octets;
++	ns->tx_packets = pstats->tx_frames;
++	ns->rx_bytes = pstats->rx_octets;
++	ns->rx_packets = pstats->rx_frames;
++	ns->multicast = pstats->rx_mcast_frames;
++
++	ns->tx_errors = pstats->tx_underrun;
++	ns->rx_errors = pstats->rx_symbol_errs + pstats->rx_fcs_errs +
++	    pstats->rx_too_long + pstats->rx_jabber + pstats->rx_short +
++	    pstats->rx_fifo_ovfl;
++
++	/* detailed rx_errors */
++	ns->rx_length_errors = pstats->rx_jabber + pstats->rx_too_long;
++	ns->rx_over_errors = 0;
++	ns->rx_crc_errors = pstats->rx_fcs_errs;
++	ns->rx_frame_errors = pstats->rx_symbol_errs;
++	ns->rx_fifo_errors = pstats->rx_fifo_ovfl;
++	ns->rx_missed_errors = pstats->rx_cong_drops;
++
++	/* detailed tx_errors */
++	ns->tx_aborted_errors = 0;
++	ns->tx_carrier_errors = 0;
++	ns->tx_fifo_errors = pstats->tx_underrun;
++	ns->tx_heartbeat_errors = 0;
++	ns->tx_window_errors = 0;
++	return ns;
++}
++
++static u32 get_msglevel(struct net_device *dev)
++{
++	struct adapter *adapter = dev->priv;
++
++	return adapter->msg_enable;
++}
++
++static void set_msglevel(struct net_device *dev, u32 val)
++{
++	struct adapter *adapter = dev->priv;
++
++	adapter->msg_enable = val;
++}
++
++static char stats_strings[][ETH_GSTRING_LEN] = {
++	"TxOctetsOK         ",
++	"TxFramesOK         ",
++	"TxMulticastFramesOK",
++	"TxBroadcastFramesOK",
++	"TxPauseFrames      ",
++	"TxUnderrun         ",
++	"TxExtUnderrun      ",
++
++	"TxFrames64         ",
++	"TxFrames65To127    ",
++	"TxFrames128To255   ",
++	"TxFrames256To511   ",
++	"TxFrames512To1023  ",
++	"TxFrames1024To1518 ",
++	"TxFrames1519ToMax  ",
++
++	"RxOctetsOK         ",
++	"RxFramesOK         ",
++	"RxMulticastFramesOK",
++	"RxBroadcastFramesOK",
++	"RxPauseFrames      ",
++	"RxFCSErrors        ",
++	"RxSymbolErrors     ",
++	"RxShortErrors      ",
++	"RxJabberErrors     ",
++	"RxLengthErrors     ",
++	"RxFIFOoverflow     ",
++
++	"RxFrames64         ",
++	"RxFrames65To127    ",
++	"RxFrames128To255   ",
++	"RxFrames256To511   ",
++	"RxFrames512To1023  ",
++	"RxFrames1024To1518 ",
++	"RxFrames1519ToMax  ",
++
++	"PhyFIFOErrors      ",
++	"TSO                ",
++	"VLANextractions    ",
++	"VLANinsertions     ",
++	"TxCsumOffload      ",
++	"RxCsumGood         ",
++	"RxDrops            "
++};
++
++static int get_stats_count(struct net_device *dev)
++{
++	return ARRAY_SIZE(stats_strings);
++}
++
++#define T3_REGMAP_SIZE (3 * 1024)
++
++static int get_regs_len(struct net_device *dev)
++{
++	return T3_REGMAP_SIZE;
++}
++
++static int get_eeprom_len(struct net_device *dev)
++{
++	return EEPROMSIZE;
++}
++
++static void get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
++{
++	u32 fw_vers = 0;
++	struct adapter *adapter = dev->priv;
++
++	t3_get_fw_version(adapter, &fw_vers);
++
++	strcpy(info->driver, DRV_NAME);
++	strcpy(info->version, DRV_VERSION);
++	strcpy(info->bus_info, pci_name(adapter->pdev));
++	if (!fw_vers)
++		strcpy(info->fw_version, "N/A");
++	else
++		snprintf(info->fw_version, sizeof(info->fw_version),
++			 "%s %u.%u", (fw_vers >> 24) ? "T" : "N",
++			 (fw_vers >> 12) & 0xfff, fw_vers & 0xfff);
++}
++
++static void get_strings(struct net_device *dev, u32 stringset, u8 * data)
++{
++	if (stringset == ETH_SS_STATS)
++		memcpy(data, stats_strings, sizeof(stats_strings));
++}
++
++static unsigned long collect_sge_port_stats(struct adapter *adapter,
++					    struct port_info *p, int idx)
++{
++	int i;
++	unsigned long tot = 0;
++
++	for (i = 0; i < p->nqsets; ++i)
++		tot += adapter->sge.qs[i + p->first_qset].port_stats[idx];
++	return tot;
++}
++
++static void get_stats(struct net_device *dev, struct ethtool_stats *stats,
++		      u64 *data)
++{
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++	const struct mac_stats *s;
++
++	spin_lock(&adapter->stats_lock);
++	s = t3_mac_update_stats(&pi->mac);
++	spin_unlock(&adapter->stats_lock);
++
++	*data++ = s->tx_octets;
++	*data++ = s->tx_frames;
++	*data++ = s->tx_mcast_frames;
++	*data++ = s->tx_bcast_frames;
++	*data++ = s->tx_pause;
++	*data++ = s->tx_underrun;
++	*data++ = s->tx_fifo_urun;
++
++	*data++ = s->tx_frames_64;
++	*data++ = s->tx_frames_65_127;
++	*data++ = s->tx_frames_128_255;
++	*data++ = s->tx_frames_256_511;
++	*data++ = s->tx_frames_512_1023;
++	*data++ = s->tx_frames_1024_1518;
++	*data++ = s->tx_frames_1519_max;
++
++	*data++ = s->rx_octets;
++	*data++ = s->rx_frames;
++	*data++ = s->rx_mcast_frames;
++	*data++ = s->rx_bcast_frames;
++	*data++ = s->rx_pause;
++	*data++ = s->rx_fcs_errs;
++	*data++ = s->rx_symbol_errs;
++	*data++ = s->rx_short;
++	*data++ = s->rx_jabber;
++	*data++ = s->rx_too_long;
++	*data++ = s->rx_fifo_ovfl;
++
++	*data++ = s->rx_frames_64;
++	*data++ = s->rx_frames_65_127;
++	*data++ = s->rx_frames_128_255;
++	*data++ = s->rx_frames_256_511;
++	*data++ = s->rx_frames_512_1023;
++	*data++ = s->rx_frames_1024_1518;
++	*data++ = s->rx_frames_1519_max;
++
++	*data++ = pi->phy.fifo_errors;
++
++	*data++ = collect_sge_port_stats(adapter, pi, SGE_PSTAT_TSO);
++	*data++ = collect_sge_port_stats(adapter, pi, SGE_PSTAT_VLANEX);
++	*data++ = collect_sge_port_stats(adapter, pi, SGE_PSTAT_VLANINS);
++	*data++ = collect_sge_port_stats(adapter, pi, SGE_PSTAT_TX_CSUM);
++	*data++ = collect_sge_port_stats(adapter, pi, SGE_PSTAT_RX_CSUM_GOOD);
++	*data++ = s->rx_cong_drops;
++}
++
++static inline void reg_block_dump(struct adapter *ap, void *buf,
++				  unsigned int start, unsigned int end)
++{
++	u32 *p = buf + start;
++
++	for (; start <= end; start += sizeof(u32))
++		*p++ = t3_read_reg(ap, start);
++}
++
++static void get_regs(struct net_device *dev, struct ethtool_regs *regs,
++		     void *buf)
++{
++	struct adapter *ap = dev->priv;
++
++	/*
++	 * Version scheme:
++	 * bits 0..9: chip version
++	 * bits 10..15: chip revision
++	 * bit 31: set for PCIe cards
++	 */
++	regs->version = 3 | (ap->params.rev << 10) | (is_pcie(ap) << 31);
++
++	/*
++	 * We skip the MAC statistics registers because they are clear-on-read.
++	 * Also reading multi-register stats would need to synchronize with the
++	 * periodic mac stats accumulation.  Hard to justify the complexity.
++	 */
++	memset(buf, 0, T3_REGMAP_SIZE);
++	reg_block_dump(ap, buf, 0, A_SG_RSPQ_CREDIT_RETURN);
++	reg_block_dump(ap, buf, A_SG_HI_DRB_HI_THRSH, A_ULPRX_PBL_ULIMIT);
++	reg_block_dump(ap, buf, A_ULPTX_CONFIG, A_MPS_INT_CAUSE);
++	reg_block_dump(ap, buf, A_CPL_SWITCH_CNTRL, A_CPL_MAP_TBL_DATA);
++	reg_block_dump(ap, buf, A_SMB_GLOBAL_TIME_CFG, A_XGM_SERDES_STAT3);
++	reg_block_dump(ap, buf, A_XGM_SERDES_STATUS0,
++		       XGM_REG(A_XGM_SERDES_STAT3, 1));
++	reg_block_dump(ap, buf, XGM_REG(A_XGM_SERDES_STATUS0, 1),
++		       XGM_REG(A_XGM_RX_SPI4_SOP_EOP_CNT, 1));
++}
++
++static int restart_autoneg(struct net_device *dev)
++{
++	struct port_info *p = netdev_priv(dev);
++
++	if (!netif_running(dev))
++		return -EAGAIN;
++	if (p->link_config.autoneg != AUTONEG_ENABLE)
++		return -EINVAL;
++	p->phy.ops->autoneg_restart(&p->phy);
++	return 0;
++}
++
++static int cxgb3_phys_id(struct net_device *dev, u32 data)
++{
++	int i;
++	struct adapter *adapter = dev->priv;
++
++	if (data == 0)
++		data = 2;
++
++	for (i = 0; i < data * 2; i++) {
++		t3_set_reg_field(adapter, A_T3DBG_GPIO_EN, F_GPIO0_OUT_VAL,
++				 (i & 1) ? F_GPIO0_OUT_VAL : 0);
++		if (msleep_interruptible(500))
++			break;
++	}
++	t3_set_reg_field(adapter, A_T3DBG_GPIO_EN, F_GPIO0_OUT_VAL,
++			 F_GPIO0_OUT_VAL);
++	return 0;
++}
++
++static int get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++{
++	struct port_info *p = netdev_priv(dev);
++
++	cmd->supported = p->link_config.supported;
++	cmd->advertising = p->link_config.advertising;
++
++	if (netif_carrier_ok(dev)) {
++		cmd->speed = p->link_config.speed;
++		cmd->duplex = p->link_config.duplex;
++	} else {
++		cmd->speed = -1;
++		cmd->duplex = -1;
++	}
++
++	cmd->port = (cmd->supported & SUPPORTED_TP) ? PORT_TP : PORT_FIBRE;
++	cmd->phy_address = p->phy.addr;
++	cmd->transceiver = XCVR_EXTERNAL;
++	cmd->autoneg = p->link_config.autoneg;
++	cmd->maxtxpkt = 0;
++	cmd->maxrxpkt = 0;
++	return 0;
++}
++
++static int speed_duplex_to_caps(int speed, int duplex)
++{
++	int cap = 0;
++
++	switch (speed) {
++	case SPEED_10:
++		if (duplex == DUPLEX_FULL)
++			cap = SUPPORTED_10baseT_Full;
++		else
++			cap = SUPPORTED_10baseT_Half;
++		break;
++	case SPEED_100:
++		if (duplex == DUPLEX_FULL)
++			cap = SUPPORTED_100baseT_Full;
++		else
++			cap = SUPPORTED_100baseT_Half;
++		break;
++	case SPEED_1000:
++		if (duplex == DUPLEX_FULL)
++			cap = SUPPORTED_1000baseT_Full;
++		else
++			cap = SUPPORTED_1000baseT_Half;
++		break;
++	case SPEED_10000:
++		if (duplex == DUPLEX_FULL)
++			cap = SUPPORTED_10000baseT_Full;
++	}
++	return cap;
++}
++
++#define ADVERTISED_MASK (ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full | \
++		      ADVERTISED_100baseT_Half | ADVERTISED_100baseT_Full | \
++		      ADVERTISED_1000baseT_Half | ADVERTISED_1000baseT_Full | \
++		      ADVERTISED_10000baseT_Full)
++
++static int set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++{
++	struct port_info *p = netdev_priv(dev);
++	struct link_config *lc = &p->link_config;
++
++	if (!(lc->supported & SUPPORTED_Autoneg))
++		return -EOPNOTSUPP;	/* can't change speed/duplex */
++
++	if (cmd->autoneg == AUTONEG_DISABLE) {
++		int cap = speed_duplex_to_caps(cmd->speed, cmd->duplex);
++
++		if (!(lc->supported & cap) || cmd->speed == SPEED_1000)
++			return -EINVAL;
++		lc->requested_speed = cmd->speed;
++		lc->requested_duplex = cmd->duplex;
++		lc->advertising = 0;
++	} else {
++		cmd->advertising &= ADVERTISED_MASK;
++		cmd->advertising &= lc->supported;
++		if (!cmd->advertising)
++			return -EINVAL;
++		lc->requested_speed = SPEED_INVALID;
++		lc->requested_duplex = DUPLEX_INVALID;
++		lc->advertising = cmd->advertising | ADVERTISED_Autoneg;
++	}
++	lc->autoneg = cmd->autoneg;
++	if (netif_running(dev))
++		t3_link_start(&p->phy, &p->mac, lc);
++	return 0;
++}
++
++static void get_pauseparam(struct net_device *dev,
++			   struct ethtool_pauseparam *epause)
++{
++	struct port_info *p = netdev_priv(dev);
++
++	epause->autoneg = (p->link_config.requested_fc & PAUSE_AUTONEG) != 0;
++	epause->rx_pause = (p->link_config.fc & PAUSE_RX) != 0;
++	epause->tx_pause = (p->link_config.fc & PAUSE_TX) != 0;
++}
++
++static int set_pauseparam(struct net_device *dev,
++			  struct ethtool_pauseparam *epause)
++{
++	struct port_info *p = netdev_priv(dev);
++	struct link_config *lc = &p->link_config;
++
++	if (epause->autoneg == AUTONEG_DISABLE)
++		lc->requested_fc = 0;
++	else if (lc->supported & SUPPORTED_Autoneg)
++		lc->requested_fc = PAUSE_AUTONEG;
++	else
++		return -EINVAL;
++
++	if (epause->rx_pause)
++		lc->requested_fc |= PAUSE_RX;
++	if (epause->tx_pause)
++		lc->requested_fc |= PAUSE_TX;
++	if (lc->autoneg == AUTONEG_ENABLE) {
++		if (netif_running(dev))
++			t3_link_start(&p->phy, &p->mac, lc);
++	} else {
++		lc->fc = lc->requested_fc & (PAUSE_RX | PAUSE_TX);
++		if (netif_running(dev))
++			t3_mac_set_speed_duplex_fc(&p->mac, -1, -1, lc->fc);
++	}
++	return 0;
++}
++
++static u32 get_rx_csum(struct net_device *dev)
++{
++	struct port_info *p = netdev_priv(dev);
++
++	return p->rx_csum_offload;
++}
++
++static int set_rx_csum(struct net_device *dev, u32 data)
++{
++	struct port_info *p = netdev_priv(dev);
++
++	p->rx_csum_offload = data;
++	return 0;
++}
++
++static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++{
++	struct adapter *adapter = dev->priv;
++
++	e->rx_max_pending = MAX_RX_BUFFERS;
++	e->rx_mini_max_pending = 0;
++	e->rx_jumbo_max_pending = MAX_RX_JUMBO_BUFFERS;
++	e->tx_max_pending = MAX_TXQ_ENTRIES;
++
++	e->rx_pending = adapter->params.sge.qset[0].fl_size;
++	e->rx_mini_pending = adapter->params.sge.qset[0].rspq_size;
++	e->rx_jumbo_pending = adapter->params.sge.qset[0].jumbo_size;
++	e->tx_pending = adapter->params.sge.qset[0].txq_size[0];
++}
++
++static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++{
++	int i;
++	struct adapter *adapter = dev->priv;
++
++	if (e->rx_pending > MAX_RX_BUFFERS ||
++	    e->rx_jumbo_pending > MAX_RX_JUMBO_BUFFERS ||
++	    e->tx_pending > MAX_TXQ_ENTRIES ||
++	    e->rx_mini_pending > MAX_RSPQ_ENTRIES ||
++	    e->rx_mini_pending < MIN_RSPQ_ENTRIES ||
++	    e->rx_pending < MIN_FL_ENTRIES ||
++	    e->rx_jumbo_pending < MIN_FL_ENTRIES ||
++	    e->tx_pending < adapter->params.nports * MIN_TXQ_ENTRIES)
++		return -EINVAL;
++
++	if (adapter->flags & FULL_INIT_DONE)
++		return -EBUSY;
++
++	for (i = 0; i < SGE_QSETS; ++i) {
++		struct qset_params *q = &adapter->params.sge.qset[i];
++
++		q->rspq_size = e->rx_mini_pending;
++		q->fl_size = e->rx_pending;
++		q->jumbo_size = e->rx_jumbo_pending;
++		q->txq_size[0] = e->tx_pending;
++		q->txq_size[1] = e->tx_pending;
++		q->txq_size[2] = e->tx_pending;
++	}
++	return 0;
++}
++
++static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
++{
++	struct adapter *adapter = dev->priv;
++	struct qset_params *qsp = &adapter->params.sge.qset[0];
++	struct sge_qset *qs = &adapter->sge.qs[0];
++
++	if (c->rx_coalesce_usecs * 10 > M_NEWTIMER)
++		return -EINVAL;
++
++	qsp->coalesce_usecs = c->rx_coalesce_usecs;
++	t3_update_qset_coalesce(qs, qsp);
++	return 0;
++}
++
++static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
++{
++	struct adapter *adapter = dev->priv;
++	struct qset_params *q = adapter->params.sge.qset;
++
++	c->rx_coalesce_usecs = q->coalesce_usecs;
++	return 0;
++}
++
++static int get_eeprom(struct net_device *dev, struct ethtool_eeprom *e,
++		      u8 * data)
++{
++	int i, err = 0;
++	struct adapter *adapter = dev->priv;
++
++	u8 *buf = kmalloc(EEPROMSIZE, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	e->magic = EEPROM_MAGIC;
++	for (i = e->offset & ~3; !err && i < e->offset + e->len; i += 4)
++		err = t3_seeprom_read(adapter, i, (u32 *) & buf[i]);
++
++	if (!err)
++		memcpy(data, buf + e->offset, e->len);
++	kfree(buf);
++	return err;
++}
++
++static int set_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom,
++		      u8 * data)
++{
++	u8 *buf;
++	int err = 0;
++	u32 aligned_offset, aligned_len, *p;
++	struct adapter *adapter = dev->priv;
++
++	if (eeprom->magic != EEPROM_MAGIC)
++		return -EINVAL;
++
++	aligned_offset = eeprom->offset & ~3;
++	aligned_len = (eeprom->len + (eeprom->offset & 3) + 3) & ~3;
++
++	if (aligned_offset != eeprom->offset || aligned_len != eeprom->len) {
++		buf = kmalloc(aligned_len, GFP_KERNEL);
++		if (!buf)
++			return -ENOMEM;
++		err = t3_seeprom_read(adapter, aligned_offset, (u32 *) buf);
++		if (!err && aligned_len > 4)
++			err = t3_seeprom_read(adapter,
++					      aligned_offset + aligned_len - 4,
++					      (u32 *) & buf[aligned_len - 4]);
++		if (err)
++			goto out;
++		memcpy(buf + (eeprom->offset & 3), data, eeprom->len);
++	} else
++		buf = data;
++
++	err = t3_seeprom_wp(adapter, 0);
++	if (err)
++		goto out;
++
++	for (p = (u32 *) buf; !err && aligned_len; aligned_len -= 4, p++) {
++		err = t3_seeprom_write(adapter, aligned_offset, *p);
++		aligned_offset += 4;
++	}
++
++	if (!err)
++		err = t3_seeprom_wp(adapter, 1);
++out:
++	if (buf != data)
++		kfree(buf);
++	return err;
++}
++
++static void get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
++{
++	wol->supported = 0;
++	wol->wolopts = 0;
++	memset(&wol->sopass, 0, sizeof(wol->sopass));
++}
++
++static const struct ethtool_ops cxgb_ethtool_ops = {
++	.get_settings = get_settings,
++	.set_settings = set_settings,
++	.get_drvinfo = get_drvinfo,
++	.get_msglevel = get_msglevel,
++	.set_msglevel = set_msglevel,
++	.get_ringparam = get_sge_param,
++	.set_ringparam = set_sge_param,
++	.get_coalesce = get_coalesce,
++	.set_coalesce = set_coalesce,
++	.get_eeprom_len = get_eeprom_len,
++	.get_eeprom = get_eeprom,
++	.set_eeprom = set_eeprom,
++	.get_pauseparam = get_pauseparam,
++	.set_pauseparam = set_pauseparam,
++	.get_rx_csum = get_rx_csum,
++	.set_rx_csum = set_rx_csum,
++	.get_tx_csum = ethtool_op_get_tx_csum,
++	.set_tx_csum = ethtool_op_set_tx_csum,
++	.get_sg = ethtool_op_get_sg,
++	.set_sg = ethtool_op_set_sg,
++	.get_link = ethtool_op_get_link,
++	.get_strings = get_strings,
++	.phys_id = cxgb3_phys_id,
++	.nway_reset = restart_autoneg,
++	.get_stats_count = get_stats_count,
++	.get_ethtool_stats = get_stats,
++	.get_regs_len = get_regs_len,
++	.get_regs = get_regs,
++	.get_wol = get_wol,
++	.get_tso = ethtool_op_get_tso,
++	.set_tso = ethtool_op_set_tso,
++	.get_perm_addr = ethtool_op_get_perm_addr
++};
++
++static int in_range(int val, int lo, int hi)
++{
++	return val < 0 || (val <= hi && val >= lo);
++}
++
++static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
++{
++	int ret;
++	u32 cmd;
++	struct adapter *adapter = dev->priv;
++
++	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
++		return -EFAULT;
++
++	switch (cmd) {
++	case CHELSIO_SETREG:{
++		struct ch_reg edata;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (copy_from_user(&edata, useraddr, sizeof(edata)))
++			return -EFAULT;
++		if ((edata.addr & 3) != 0
++			|| edata.addr >= adapter->mmio_len)
++			return -EINVAL;
++		writel(edata.val, adapter->regs + edata.addr);
++		break;
++	}
++	case CHELSIO_GETREG:{
++		struct ch_reg edata;
++
++		if (copy_from_user(&edata, useraddr, sizeof(edata)))
++			return -EFAULT;
++		if ((edata.addr & 3) != 0
++			|| edata.addr >= adapter->mmio_len)
++			return -EINVAL;
++		edata.val = readl(adapter->regs + edata.addr);
++		if (copy_to_user(useraddr, &edata, sizeof(edata)))
++			return -EFAULT;
++		break;
++	}
++	case CHELSIO_SET_QSET_PARAMS:{
++		int i;
++		struct qset_params *q;
++		struct ch_qset_params t;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (copy_from_user(&t, useraddr, sizeof(t)))
++			return -EFAULT;
++		if (t.qset_idx >= SGE_QSETS)
++			return -EINVAL;
++		if (!in_range(t.intr_lat, 0, M_NEWTIMER) ||
++			!in_range(t.cong_thres, 0, 255) ||
++			!in_range(t.txq_size[0], MIN_TXQ_ENTRIES,
++				MAX_TXQ_ENTRIES) ||
++			!in_range(t.txq_size[1], MIN_TXQ_ENTRIES,
++				MAX_TXQ_ENTRIES) ||
++			!in_range(t.txq_size[2], MIN_CTRL_TXQ_ENTRIES,
++				MAX_CTRL_TXQ_ENTRIES) ||
++			!in_range(t.fl_size[0], MIN_FL_ENTRIES,
++				MAX_RX_BUFFERS)
++			|| !in_range(t.fl_size[1], MIN_FL_ENTRIES,
++					MAX_RX_JUMBO_BUFFERS)
++			|| !in_range(t.rspq_size, MIN_RSPQ_ENTRIES,
++					MAX_RSPQ_ENTRIES))
++			return -EINVAL;
++		if ((adapter->flags & FULL_INIT_DONE) &&
++			(t.rspq_size >= 0 || t.fl_size[0] >= 0 ||
++			t.fl_size[1] >= 0 || t.txq_size[0] >= 0 ||
++			t.txq_size[1] >= 0 || t.txq_size[2] >= 0 ||
++			t.polling >= 0 || t.cong_thres >= 0))
++			return -EBUSY;
++
++		q = &adapter->params.sge.qset[t.qset_idx];
++
++		if (t.rspq_size >= 0)
++			q->rspq_size = t.rspq_size;
++		if (t.fl_size[0] >= 0)
++			q->fl_size = t.fl_size[0];
++		if (t.fl_size[1] >= 0)
++			q->jumbo_size = t.fl_size[1];
++		if (t.txq_size[0] >= 0)
++			q->txq_size[0] = t.txq_size[0];
++		if (t.txq_size[1] >= 0)
++			q->txq_size[1] = t.txq_size[1];
++		if (t.txq_size[2] >= 0)
++			q->txq_size[2] = t.txq_size[2];
++		if (t.cong_thres >= 0)
++			q->cong_thres = t.cong_thres;
++		if (t.intr_lat >= 0) {
++			struct sge_qset *qs =
++				&adapter->sge.qs[t.qset_idx];
++
++			q->coalesce_usecs = t.intr_lat;
++			t3_update_qset_coalesce(qs, q);
++		}
++		if (t.polling >= 0) {
++			if (adapter->flags & USING_MSIX)
++				q->polling = t.polling;
++			else {
++				/* No polling with INTx for T3A */
++				if (adapter->params.rev == 0 &&
++					!(adapter->flags & USING_MSI))
++					t.polling = 0;
++
++				for (i = 0; i < SGE_QSETS; i++) {
++					q = &adapter->params.sge.
++						qset[i];
++					q->polling = t.polling;
++				}
++			}
++		}
++		break;
++	}
++	case CHELSIO_GET_QSET_PARAMS:{
++		struct qset_params *q;
++		struct ch_qset_params t;
++
++		if (copy_from_user(&t, useraddr, sizeof(t)))
++			return -EFAULT;
++		if (t.qset_idx >= SGE_QSETS)
++			return -EINVAL;
++
++		q = &adapter->params.sge.qset[t.qset_idx];
++		t.rspq_size = q->rspq_size;
++		t.txq_size[0] = q->txq_size[0];
++		t.txq_size[1] = q->txq_size[1];
++		t.txq_size[2] = q->txq_size[2];
++		t.fl_size[0] = q->fl_size;
++		t.fl_size[1] = q->jumbo_size;
++		t.polling = q->polling;
++		t.intr_lat = q->coalesce_usecs;
++		t.cong_thres = q->cong_thres;
++
++		if (copy_to_user(useraddr, &t, sizeof(t)))
++			return -EFAULT;
++		break;
++	}
++	case CHELSIO_SET_QSET_NUM:{
++		struct ch_reg edata;
++		struct port_info *pi = netdev_priv(dev);
++		unsigned int i, first_qset = 0, other_qsets = 0;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (adapter->flags & FULL_INIT_DONE)
++			return -EBUSY;
++		if (copy_from_user(&edata, useraddr, sizeof(edata)))
++			return -EFAULT;
++		if (edata.val < 1 ||
++			(edata.val > 1 && !(adapter->flags & USING_MSIX)))
++			return -EINVAL;
++
++		for_each_port(adapter, i)
++			if (adapter->port[i] && adapter->port[i] != dev)
++				other_qsets += adap2pinfo(adapter, i)->nqsets;
++
++		if (edata.val + other_qsets > SGE_QSETS)
++			return -EINVAL;
++
++		pi->nqsets = edata.val;
++
++		for_each_port(adapter, i)
++			if (adapter->port[i]) {
++				pi = adap2pinfo(adapter, i);
++				pi->first_qset = first_qset;
++				first_qset += pi->nqsets;
++			}
++		break;
++	}
++	case CHELSIO_GET_QSET_NUM:{
++		struct ch_reg edata;
++		struct port_info *pi = netdev_priv(dev);
++
++		edata.cmd = CHELSIO_GET_QSET_NUM;
++		edata.val = pi->nqsets;
++		if (copy_to_user(useraddr, &edata, sizeof(edata)))
++			return -EFAULT;
++		break;
++	}
++	case CHELSIO_LOAD_FW:{
++		u8 *fw_data;
++		struct ch_mem_range t;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (copy_from_user(&t, useraddr, sizeof(t)))
++			return -EFAULT;
++
++		fw_data = kmalloc(t.len, GFP_KERNEL);
++		if (!fw_data)
++			return -ENOMEM;
++
++		if (copy_from_user
++			(fw_data, useraddr + sizeof(t), t.len)) {
++			kfree(fw_data);
++			return -EFAULT;
++		}
++
++		ret = t3_load_fw(adapter, fw_data, t.len);
++		kfree(fw_data);
++		if (ret)
++			return ret;
++		break;
++	}
++	case CHELSIO_SETMTUTAB:{
++		struct ch_mtus m;
++		int i;
++
++		if (!is_offload(adapter))
++			return -EOPNOTSUPP;
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (offload_running(adapter))
++			return -EBUSY;
++		if (copy_from_user(&m, useraddr, sizeof(m)))
++			return -EFAULT;
++		if (m.nmtus != NMTUS)
++			return -EINVAL;
++		if (m.mtus[0] < 81)	/* accommodate SACK */
++			return -EINVAL;
++
++		/* MTUs must be in ascending order */
++		for (i = 1; i < NMTUS; ++i)
++			if (m.mtus[i] < m.mtus[i - 1])
++				return -EINVAL;
++
++		memcpy(adapter->params.mtus, m.mtus,
++			sizeof(adapter->params.mtus));
++		break;
++	}
++	case CHELSIO_GET_PM:{
++		struct tp_params *p = &adapter->params.tp;
++		struct ch_pm m = {.cmd = CHELSIO_GET_PM };
++
++		if (!is_offload(adapter))
++			return -EOPNOTSUPP;
++		m.tx_pg_sz = p->tx_pg_size;
++		m.tx_num_pg = p->tx_num_pgs;
++		m.rx_pg_sz = p->rx_pg_size;
++		m.rx_num_pg = p->rx_num_pgs;
++		m.pm_total = p->pmtx_size + p->chan_rx_size * p->nchan;
++		if (copy_to_user(useraddr, &m, sizeof(m)))
++			return -EFAULT;
++		break;
++	}
++	case CHELSIO_SET_PM:{
++		struct ch_pm m;
++		struct tp_params *p = &adapter->params.tp;
++
++		if (!is_offload(adapter))
++			return -EOPNOTSUPP;
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (adapter->flags & FULL_INIT_DONE)
++			return -EBUSY;
++		if (copy_from_user(&m, useraddr, sizeof(m)))
++			return -EFAULT;
++		if (!m.rx_pg_sz || (m.rx_pg_sz & (m.rx_pg_sz - 1)) ||
++			!m.tx_pg_sz || (m.tx_pg_sz & (m.tx_pg_sz - 1)))
++			return -EINVAL;	/* not power of 2 */
++		if (!(m.rx_pg_sz & 0x14000))
++			return -EINVAL;	/* not 16KB or 64KB */
++		if (!(m.tx_pg_sz & 0x1554000))
++			return -EINVAL;
++		if (m.tx_num_pg == -1)
++			m.tx_num_pg = p->tx_num_pgs;
++		if (m.rx_num_pg == -1)
++			m.rx_num_pg = p->rx_num_pgs;
++		if (m.tx_num_pg % 24 || m.rx_num_pg % 24)
++			return -EINVAL;
++		if (m.rx_num_pg * m.rx_pg_sz > p->chan_rx_size ||
++			m.tx_num_pg * m.tx_pg_sz > p->chan_tx_size)
++			return -EINVAL;
++		p->rx_pg_size = m.rx_pg_sz;
++		p->tx_pg_size = m.tx_pg_sz;
++		p->rx_num_pgs = m.rx_num_pg;
++		p->tx_num_pgs = m.tx_num_pg;
++		break;
++	}
++	case CHELSIO_GET_MEM:{
++		struct ch_mem_range t;
++		struct mc7 *mem;
++		u64 buf[32];
++
++		if (!is_offload(adapter))
++			return -EOPNOTSUPP;
++		if (!(adapter->flags & FULL_INIT_DONE))
++			return -EIO;	/* need the memory controllers */
++		if (copy_from_user(&t, useraddr, sizeof(t)))
++			return -EFAULT;
++		if ((t.addr & 7) || (t.len & 7))
++			return -EINVAL;
++		if (t.mem_id == MEM_CM)
++			mem = &adapter->cm;
++		else if (t.mem_id == MEM_PMRX)
++			mem = &adapter->pmrx;
++		else if (t.mem_id == MEM_PMTX)
++			mem = &adapter->pmtx;
++		else
++			return -EINVAL;
++
++		/*
++			* Version scheme:
++			* bits 0..9: chip version
++			* bits 10..15: chip revision
++			*/
++		t.version = 3 | (adapter->params.rev << 10);
++		if (copy_to_user(useraddr, &t, sizeof(t)))
++			return -EFAULT;
++
++		/*
++		 * Read 256 bytes at a time as len can be large and we don't
++		 * want to use huge intermediate buffers.
++		 */
++		useraddr += sizeof(t);	/* advance to start of buffer */
++		while (t.len) {
++			unsigned int chunk =
++				min_t(unsigned int, t.len, sizeof(buf));
++
++			ret =
++				t3_mc7_bd_read(mem, t.addr / 8, chunk / 8,
++						buf);
++			if (ret)
++				return ret;
++			if (copy_to_user(useraddr, buf, chunk))
++				return -EFAULT;
++			useraddr += chunk;
++			t.addr += chunk;
++			t.len -= chunk;
++		}
++		break;
++	}
++	case CHELSIO_SET_TRACE_FILTER:{
++		struct ch_trace t;
++		const struct trace_params *tp;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (!offload_running(adapter))
++			return -EAGAIN;
++		if (copy_from_user(&t, useraddr, sizeof(t)))
++			return -EFAULT;
++
++		tp = (const struct trace_params *)&t.sip;
++		if (t.config_tx)
++			t3_config_trace_filter(adapter, tp, 0,
++						t.invert_match,
++						t.trace_tx);
++		if (t.config_rx)
++			t3_config_trace_filter(adapter, tp, 1,
++						t.invert_match,
++						t.trace_rx);
++		break;
++	}
++	case CHELSIO_SET_PKTSCHED:{
++		struct sk_buff *skb;
++		struct ch_pktsched_params p;
++		struct mngt_pktsched_wr *req;
++
++		if (!(adapter->flags & FULL_INIT_DONE))
++			return -EIO;	/* uP must be up and running */
++		if (copy_from_user(&p, useraddr, sizeof(p)))
++			return -EFAULT;
++		skb = alloc_skb(sizeof(*req), GFP_KERNEL);
++		if (!skb)
++			return -ENOMEM;
++		req =
++			(struct mngt_pktsched_wr *)skb_put(skb,
++							sizeof(*req));
++		req->wr_hi = htonl(V_WR_OP(FW_WROPCODE_MNGT));
++		req->mngt_opcode = FW_MNGTOPCODE_PKTSCHED_SET;
++		req->sched = p.sched;
++		req->idx = p.idx;
++		req->min = p.min;
++		req->max = p.max;
++		req->binding = p.binding;
++		printk(KERN_INFO
++			"pktsched: sched %u idx %u min %u max %u binding %u\n",
++			req->sched, req->idx, req->min, req->max,
++			req->binding);
++		skb->priority = 1;
++		offload_tx(&adapter->tdev, skb);
++		break;
++	}
++	default:
++		return -EOPNOTSUPP;
++	}
++	return 0;
++}
++
++static int cxgb_ioctl(struct net_device *dev, struct ifreq *req, int cmd)
++{
++	int ret, mmd;
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++	struct mii_ioctl_data *data = if_mii(req);
++
++	switch (cmd) {
++	case SIOCGMIIPHY:
++		data->phy_id = pi->phy.addr;
++		/* FALLTHRU */
++	case SIOCGMIIREG:{
++		u32 val;
++		struct cphy *phy = &pi->phy;
++
++		if (!phy->mdio_read)
++			return -EOPNOTSUPP;
++		if (is_10G(adapter)) {
++			mmd = data->phy_id >> 8;
++			if (!mmd)
++				mmd = MDIO_DEV_PCS;
++			else if (mmd > MDIO_DEV_XGXS)
++				return -EINVAL;
++
++			ret =
++				phy->mdio_read(adapter, data->phy_id & 0x1f,
++						mmd, data->reg_num, &val);
++		} else
++			ret =
++				phy->mdio_read(adapter, data->phy_id & 0x1f,
++						0, data->reg_num & 0x1f,
++						&val);
++		if (!ret)
++			data->val_out = val;
++		break;
++	}
++	case SIOCSMIIREG:{
++		struct cphy *phy = &pi->phy;
++
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++		if (!phy->mdio_write)
++			return -EOPNOTSUPP;
++		if (is_10G(adapter)) {
++			mmd = data->phy_id >> 8;
++			if (!mmd)
++				mmd = MDIO_DEV_PCS;
++			else if (mmd > MDIO_DEV_XGXS)
++				return -EINVAL;
++
++			ret =
++				phy->mdio_write(adapter,
++						data->phy_id & 0x1f, mmd,
++						data->reg_num,
++						data->val_in);
++		} else
++			ret =
++				phy->mdio_write(adapter,
++						data->phy_id & 0x1f, 0,
++						data->reg_num & 0x1f,
++						data->val_in);
++		break;
++	}
++	case SIOCCHIOCTL:
++		return cxgb_extension_ioctl(dev, req->ifr_data);
++	default:
++		return -EOPNOTSUPP;
++	}
++	return ret;
++}
++
++static int cxgb_change_mtu(struct net_device *dev, int new_mtu)
++{
++	int ret;
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++
++	if (new_mtu < 81)	/* accommodate SACK */
++		return -EINVAL;
++	if ((ret = t3_mac_set_mtu(&pi->mac, new_mtu)))
++		return ret;
++	dev->mtu = new_mtu;
++	init_port_mtus(adapter);
++	if (adapter->params.rev == 0 && offload_running(adapter))
++		t3_load_mtus(adapter, adapter->params.mtus,
++			     adapter->params.a_wnd, adapter->params.b_wnd,
++			     adapter->port[0]->mtu);
++	return 0;
++}
++
++static int cxgb_set_mac_addr(struct net_device *dev, void *p)
++{
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++	struct sockaddr *addr = p;
++
++	if (!is_valid_ether_addr(addr->sa_data))
++		return -EINVAL;
++
++	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
++	t3_mac_set_address(&pi->mac, 0, dev->dev_addr);
++	if (offload_running(adapter))
++		write_smt_entry(adapter, pi->port_id);
++	return 0;
++}
++
++/**
++ * t3_synchronize_rx - wait for current Rx processing on a port to complete
++ * @adap: the adapter
++ * @p: the port
++ *
++ * Ensures that current Rx processing on any of the queues associated with
++ * the given port completes before returning.  We do this by acquiring and
++ * releasing the locks of the response queues associated with the port.
++ */
++static void t3_synchronize_rx(struct adapter *adap, const struct port_info *p)
++{
++	int i;
++
++	for (i = 0; i < p->nqsets; i++) {
++		struct sge_rspq *q = &adap->sge.qs[i + p->first_qset].rspq;
++
++		spin_lock_irq(&q->lock);
++		spin_unlock_irq(&q->lock);
++	}
++}
++
++static void vlan_rx_register(struct net_device *dev, struct vlan_group *grp)
++{
++	struct adapter *adapter = dev->priv;
++	struct port_info *pi = netdev_priv(dev);
++
++	pi->vlan_grp = grp;
++	if (adapter->params.rev > 0)
++		t3_set_vlan_accel(adapter, 1 << pi->port_id, grp != NULL);
++	else {
++		/* single control for all ports */
++		unsigned int i, have_vlans = 0;
++		for_each_port(adapter, i)
++		    have_vlans |= adap2pinfo(adapter, i)->vlan_grp != NULL;
++
++		t3_set_vlan_accel(adapter, 1, have_vlans);
++	}
++	t3_synchronize_rx(adapter, pi);
++}
++
++static void vlan_rx_kill_vid(struct net_device *dev, unsigned short vid)
++{
++	/* nothing */
++}
++
++#ifdef CONFIG_NET_POLL_CONTROLLER
++static void cxgb_netpoll(struct net_device *dev)
++{
++	struct adapter *adapter = dev->priv;
++	struct sge_qset *qs = dev2qset(dev);
++
++	t3_intr_handler(adapter, qs->rspq.polling) (adapter->pdev->irq,
++						    adapter);
++}
++#endif
 +
 +/*
-+ * The RX_PKT_TID 
++ * Periodic accumulation of MAC statistics.
 + */
-+#define FW_RX_PKT_NUM			1
-+#define FW_RX_PKT_TID_START		65553
++static void mac_stats_update(struct adapter *adapter)
++{
++	int i;
 +
-+/* FW_WRC_NUM corresponds to the number of Work Request Context that supported
-+ * by the firmware.
++	for_each_port(adapter, i) {
++		struct net_device *dev = adapter->port[i];
++		struct port_info *p = netdev_priv(dev);
++
++		if (netif_running(dev)) {
++			spin_lock(&adapter->stats_lock);
++			t3_mac_update_stats(&p->mac);
++			spin_unlock(&adapter->stats_lock);
++		}
++	}
++}
++
++static void check_link_status(struct adapter *adapter)
++{
++	int i;
++
++	for_each_port(adapter, i) {
++		struct net_device *dev = adapter->port[i];
++		struct port_info *p = netdev_priv(dev);
++
++		if (!(p->port_type->caps & SUPPORTED_IRQ) && netif_running(dev))
++			t3_link_changed(adapter, i);
++	}
++}
++
++static void t3_adap_check_task(struct work_struct *work)
++{
++	struct adapter *adapter = container_of(work, struct adapter,
++					       adap_check_task.work);
++	const struct adapter_params *p = &adapter->params;
++
++	adapter->check_task_cnt++;
++
++	/* Check link status for PHYs without interrupts */
++	if (p->linkpoll_period)
++		check_link_status(adapter);
++
++	/* Accumulate MAC stats if needed */
++	if (!p->linkpoll_period ||
++	    (adapter->check_task_cnt * p->linkpoll_period) / 10 >=
++	    p->stats_update_period) {
++		mac_stats_update(adapter);
++		adapter->check_task_cnt = 0;
++	}
++
++	/* Schedule the next check update if any port is active. */
++	spin_lock(&adapter->work_lock);
++	if (adapter->open_device_map & PORT_MASK)
++		schedule_chk_task(adapter);
++	spin_unlock(&adapter->work_lock);
++}
++
++/*
++ * Processes external (PHY) interrupts in process context.
 + */
-+#define FW_WRC_NUM			\
-+    (65536 + FW_TUNNEL_NUM + FW_CTRL_NUM + FW_RI_NUM + FW_RX_PKT_NUM)
++static void ext_intr_task(struct work_struct *work)
++{
++	struct adapter *adapter = container_of(work, struct adapter,
++					       ext_intr_handler_task);
 +
-+#endif				/* _FIRMWARE_EXPORTS_H_ */
++	t3_phy_intr_handler(adapter);
++
++	/* Now reenable external interrupts */
++	spin_lock_irq(&adapter->work_lock);
++	if (adapter->slow_intr_mask) {
++		adapter->slow_intr_mask |= F_T3DBG;
++		t3_write_reg(adapter, A_PL_INT_CAUSE0, F_T3DBG);
++		t3_write_reg(adapter, A_PL_INT_ENABLE0,
++			     adapter->slow_intr_mask);
++	}
++	spin_unlock_irq(&adapter->work_lock);
++}
++
++/*
++ * Interrupt-context handler for external (PHY) interrupts.
++ */
++void t3_os_ext_intr_handler(struct adapter *adapter)
++{
++	/*
++	 * Schedule a task to handle external interrupts as they may be slow
++	 * and we use a mutex to protect MDIO registers.  We disable PHY
++	 * interrupts in the meantime and let the task reenable them when
++	 * it's done.
++	 */
++	spin_lock(&adapter->work_lock);
++	if (adapter->slow_intr_mask) {
++		adapter->slow_intr_mask &= ~F_T3DBG;
++		t3_write_reg(adapter, A_PL_INT_ENABLE0,
++			     adapter->slow_intr_mask);
++		queue_work(cxgb3_wq, &adapter->ext_intr_handler_task);
++	}
++	spin_unlock(&adapter->work_lock);
++}
++
++void t3_fatal_err(struct adapter *adapter)
++{
++	unsigned int fw_status[4];
++
++	if (adapter->flags & FULL_INIT_DONE) {
++		t3_sge_stop(adapter);
++		t3_intr_disable(adapter);
++	}
++	CH_ALERT(adapter, "encountered fatal error, operation suspended\n");
++	if (!t3_cim_ctl_blk_read(adapter, 0xa0, 4, fw_status))
++		CH_ALERT(adapter, "FW status: 0x%x, 0x%x, 0x%x, 0x%x\n",
++			 fw_status[0], fw_status[1],
++			 fw_status[2], fw_status[3]);
++
++}
++
++static int __devinit cxgb_enable_msix(struct adapter *adap)
++{
++	struct msix_entry entries[SGE_QSETS + 1];
++	int i, err;
++
++	for (i = 0; i < ARRAY_SIZE(entries); ++i)
++		entries[i].entry = i;
++
++	err = pci_enable_msix(adap->pdev, entries, ARRAY_SIZE(entries));
++	if (!err) {
++		for (i = 0; i < ARRAY_SIZE(entries); ++i)
++			adap->msix_info[i].vec = entries[i].vector;
++	} else if (err > 0)
++		dev_info(&adap->pdev->dev,
++		       "only %d MSI-X vectors left, not using MSI-X\n", err);
++	return err;
++}
++
++static void __devinit print_port_info(struct adapter *adap,
++				      const struct adapter_info *ai)
++{
++	static const char *pci_variant[] = {
++		"PCI", "PCI-X", "PCI-X ECC", "PCI-X 266", "PCI Express"
++	};
++
++	int i;
++	char buf[80];
++
++	if (is_pcie(adap))
++		snprintf(buf, sizeof(buf), "%s x%d",
++			 pci_variant[adap->params.pci.variant],
++			 adap->params.pci.width);
++	else
++		snprintf(buf, sizeof(buf), "%s %dMHz/%d-bit",
++			 pci_variant[adap->params.pci.variant],
++			 adap->params.pci.speed, adap->params.pci.width);
++
++	for_each_port(adap, i) {
++		struct net_device *dev = adap->port[i];
++		const struct port_info *pi = netdev_priv(dev);
++
++		if (!test_bit(i, &adap->registered_device_map))
++			continue;
++		printk(KERN_INFO "%s: %s %s RNIC (rev %d) %s%s\n",
++		       dev->name, ai->desc, pi->port_type->desc,
++		       adap->params.rev, buf,
++		       (adap->flags & USING_MSIX) ? " MSI-X" :
++		       (adap->flags & USING_MSI) ? " MSI" : "");
++		if (adap->name == dev->name && adap->params.vpd.mclk)
++			printk(KERN_INFO "%s: %uMB CM, %uMB PMTX, %uMB PMRX\n",
++			       adap->name, t3_mc7_size(&adap->cm) >> 20,
++			       t3_mc7_size(&adap->pmtx) >> 20,
++			       t3_mc7_size(&adap->pmrx) >> 20);
++	}
++}
++
++static int __devinit init_one(struct pci_dev *pdev,
++			      const struct pci_device_id *ent)
++{
++	static int version_printed;
++
++	int i, err, pci_using_dac = 0;
++	unsigned long mmio_start, mmio_len;
++	const struct adapter_info *ai;
++	struct adapter *adapter = NULL;
++	struct port_info *pi;
++
++	if (!version_printed) {
++		printk(KERN_INFO "%s - version %s\n", DRV_DESC, DRV_VERSION);
++		++version_printed;
++	}
++
++	if (!cxgb3_wq) {
++		cxgb3_wq = create_singlethread_workqueue(DRV_NAME);
++		if (!cxgb3_wq) {
++			printk(KERN_ERR DRV_NAME
++			       ": cannot initialize work queue\n");
++			return -ENOMEM;
++		}
++	}
++
++	err = pci_request_regions(pdev, DRV_NAME);
++	if (err) {
++		/* Just info, some other driver may have claimed the device. */
++		dev_info(&pdev->dev, "cannot obtain PCI resources\n");
++		return err;
++	}
++
++	err = pci_enable_device(pdev);
++	if (err) {
++		dev_err(&pdev->dev, "cannot enable PCI device\n");
++		goto out_release_regions;
++	}
++
++	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
++		pci_using_dac = 1;
++		err = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
++		if (err) {
++			dev_err(&pdev->dev, "unable to obtain 64-bit DMA for "
++			       "coherent allocations\n");
++			goto out_disable_device;
++		}
++	} else if ((err = pci_set_dma_mask(pdev, DMA_32BIT_MASK)) != 0) {
++		dev_err(&pdev->dev, "no usable DMA configuration\n");
++		goto out_disable_device;
++	}
++
++	pci_set_master(pdev);
++
++	mmio_start = pci_resource_start(pdev, 0);
++	mmio_len = pci_resource_len(pdev, 0);
++	ai = t3_get_adapter_info(ent->driver_data);
++
++	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
++	if (!adapter) {
++		err = -ENOMEM;
++		goto out_disable_device;
++	}
++
++	adapter->regs = ioremap_nocache(mmio_start, mmio_len);
++	if (!adapter->regs) {
++		dev_err(&pdev->dev, "cannot map device registers\n");
++		err = -ENOMEM;
++		goto out_free_adapter;
++	}
++
++	adapter->pdev = pdev;
++	adapter->name = pci_name(pdev);
++	adapter->msg_enable = dflt_msg_enable;
++	adapter->mmio_len = mmio_len;
++
++	mutex_init(&adapter->mdio_lock);
++	spin_lock_init(&adapter->work_lock);
++	spin_lock_init(&adapter->stats_lock);
++
++	INIT_LIST_HEAD(&adapter->adapter_list);
++	INIT_WORK(&adapter->ext_intr_handler_task, ext_intr_task);
++	INIT_DELAYED_WORK(&adapter->adap_check_task, t3_adap_check_task);
++
++	for (i = 0; i < ai->nports; ++i) {
++		struct net_device *netdev;
++
++		netdev = alloc_etherdev(sizeof(struct port_info));
++		if (!netdev) {
++			err = -ENOMEM;
++			goto out_free_dev;
++		}
++
++		SET_MODULE_OWNER(netdev);
++		SET_NETDEV_DEV(netdev, &pdev->dev);
++
++		adapter->port[i] = netdev;
++		pi = netdev_priv(netdev);
++		pi->rx_csum_offload = 1;
++		pi->nqsets = 1;
++		pi->first_qset = i;
++		pi->activity = 0;
++		pi->port_id = i;
++		netif_carrier_off(netdev);
++		netdev->irq = pdev->irq;
++		netdev->mem_start = mmio_start;
++		netdev->mem_end = mmio_start + mmio_len - 1;
++		netdev->priv = adapter;
++		netdev->features |= NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO;
++		netdev->features |= NETIF_F_LLTX;
++		if (pci_using_dac)
++			netdev->features |= NETIF_F_HIGHDMA;
++
++		netdev->features |= NETIF_F_HW_VLAN_TX | NETIF_F_HW_VLAN_RX;
++		netdev->vlan_rx_register = vlan_rx_register;
++		netdev->vlan_rx_kill_vid = vlan_rx_kill_vid;
++
++		netdev->open = cxgb_open;
++		netdev->stop = cxgb_close;
++		netdev->hard_start_xmit = t3_eth_xmit;
++		netdev->get_stats = cxgb_get_stats;
++		netdev->set_multicast_list = cxgb_set_rxmode;
++		netdev->do_ioctl = cxgb_ioctl;
++		netdev->change_mtu = cxgb_change_mtu;
++		netdev->set_mac_address = cxgb_set_mac_addr;
++#ifdef CONFIG_NET_POLL_CONTROLLER
++		netdev->poll_controller = cxgb_netpoll;
++#endif
++		netdev->weight = 64;
++
++		SET_ETHTOOL_OPS(netdev, &cxgb_ethtool_ops);
++	}
++
++	pci_set_drvdata(pdev, adapter->port[0]);
++	if (t3_prep_adapter(adapter, ai, 1) < 0) {
++		err = -ENODEV;
++		goto out_free_dev;
++	}
++
++	/*
++	 * The card is now ready to go.  If any errors occur during device
++	 * registration we do not fail the whole card but rather proceed only
++	 * with the ports we manage to register successfully.  However we must
++	 * register at least one net device.
++	 */
++	for_each_port(adapter, i) {
++		err = register_netdev(adapter->port[i]);
++		if (err)
++			dev_warn(&pdev->dev,
++				 "cannot register net device %s, skipping\n",
++				 adapter->port[i]->name);
++		else {
++			/*
++			 * Change the name we use for messages to the name of
++			 * the first successfully registered interface.
++			 */
++			if (!adapter->registered_device_map)
++				adapter->name = adapter->port[i]->name;
++
++			__set_bit(i, &adapter->registered_device_map);
++		}
++	}
++	if (!adapter->registered_device_map) {
++		dev_err(&pdev->dev, "could not register any net devices\n");
++		goto out_free_dev;
++	}
++
++	/* Driver's ready. Reflect it on LEDs */
++	t3_led_ready(adapter);
++
++	if (is_offload(adapter)) {
++		__set_bit(OFFLOAD_DEVMAP_BIT, &adapter->registered_device_map);
++		cxgb3_adapter_ofld(adapter);
++	}
++
++	/* See what interrupts we'll be using */
++	if (msi > 1 && cxgb_enable_msix(adapter) == 0)
++		adapter->flags |= USING_MSIX;
++	else if (msi > 0 && pci_enable_msi(pdev) == 0)
++		adapter->flags |= USING_MSI;
++
++	err = sysfs_create_group(&adapter->port[0]->class_dev.kobj,
++				 &cxgb3_attr_group);
++
++	print_port_info(adapter, ai);
++	return 0;
++
++out_free_dev:
++	iounmap(adapter->regs);
++	for (i = ai->nports - 1; i >= 0; --i)
++		if (adapter->port[i])
++			free_netdev(adapter->port[i]);
++
++out_free_adapter:
++	kfree(adapter);
++
++out_disable_device:
++	pci_disable_device(pdev);
++out_release_regions:
++	pci_release_regions(pdev);
++	pci_set_drvdata(pdev, NULL);
++	return err;
++}
++
++static void __devexit remove_one(struct pci_dev *pdev)
++{
++	struct net_device *dev = pci_get_drvdata(pdev);
++
++	if (dev) {
++		int i;
++		struct adapter *adapter = dev->priv;
++
++		t3_sge_stop(adapter);
++		sysfs_remove_group(&adapter->port[0]->class_dev.kobj,
++				   &cxgb3_attr_group);
++
++		for_each_port(adapter, i)
++		    if (test_bit(i, &adapter->registered_device_map))
++			unregister_netdev(adapter->port[i]);
++
++		if (is_offload(adapter)) {
++			cxgb3_adapter_unofld(adapter);
++			if (test_bit(OFFLOAD_DEVMAP_BIT,
++				     &adapter->open_device_map))
++				offload_close(&adapter->tdev);
++		}
++
++		t3_free_sge_resources(adapter);
++		cxgb_disable_msi(adapter);
++
++		for (i = 0; i < ARRAY_SIZE(adapter->dummy_netdev); i++)
++			if (adapter->dummy_netdev[i]) {
++				free_netdev(adapter->dummy_netdev[i]);
++				adapter->dummy_netdev[i] = NULL;
++			}
++
++		for_each_port(adapter, i)
++			if (adapter->port[i])
++				free_netdev(adapter->port[i]);
++
++		iounmap(adapter->regs);
++		kfree(adapter);
++		pci_release_regions(pdev);
++		pci_disable_device(pdev);
++		pci_set_drvdata(pdev, NULL);
++	}
++}
++
++static struct pci_driver driver = {
++	.name = DRV_NAME,
++	.id_table = cxgb3_pci_tbl,
++	.probe = init_one,
++	.remove = __devexit_p(remove_one),
++};
++
++static int __init cxgb3_init_module(void)
++{
++	int ret;
++
++	cxgb3_offload_init();
++
++	ret = pci_register_driver(&driver);
++	return ret;
++}
++
++static void __exit cxgb3_cleanup_module(void)
++{
++	pci_unregister_driver(&driver);
++	if (cxgb3_wq)
++		destroy_workqueue(cxgb3_wq);
++}
++
++module_init(cxgb3_init_module);
++module_exit(cxgb3_cleanup_module);

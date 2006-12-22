@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1423077AbWLVOlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1423119AbWLVOpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423077AbWLVOlh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 09:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423074AbWLVOlh
+	id S1423119AbWLVOpM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 09:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423099AbWLVOpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 09:41:37 -0500
-Received: from smtp0.telegraaf.nl ([217.196.45.192]:47419 "EHLO
-	smtp0.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423077AbWLVOlg (ORCPT
+	Fri, 22 Dec 2006 09:45:12 -0500
+Received: from ip127.bb146.pacific.net.hk ([202.64.146.127]:57847 "EHLO
+	mailhub.stlglobal.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1423074AbWLVOpK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 09:41:36 -0500
-Date: Fri, 22 Dec 2006 15:41:34 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-ID: <20061222144134.GH31882@telegraafnet.nl>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com> <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061222003029.4394bd9a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+	Fri, 22 Dec 2006 09:45:10 -0500
+Message-ID: <458BEF72.6050801@tausq.org>
+Date: Fri, 22 Dec 2006 22:45:06 +0800
+From: Randolph Chung <randolph@tausq.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Randolph Chung <randolph@tausq.org>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
+ that again
+References: <20061221152621.GB3958@flint.arm.linux.org.uk> <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk> <E1GxS8x-0000q5-00@dorka.pomaz.szeredi.hu> <20061221181156.GG3958@flint.arm.linux.org.uk> <E1GxSgF-0000uV-00@dorka.pomaz.szeredi.hu> <20061221185512.GH3958@flint.arm.linux.org.uk> <E1GxTED-0000yy-00@dorka.pomaz.szeredi.hu> <458B1E06.1030209@tausq.org> <20061222084318.GA5132@flint.arm.linux.org.uk>
+In-Reply-To: <20061222084318.GA5132@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2006 at 12:30:29AM -0800, Andrew Morton wrote:
-> To whom do I have to pay how much to get this darn patch tested?
-I've altered your patch to do the spin_lock_irqsave in down_read.
-I am very ignorant and stupid. That's why I am doing it without
-thinking why or why not de irqsave is ok in that region or not.
+>> Is the documentation wrong?
+> 
+> Yes.  As I've already explained there is no guarantee that
+> get_user_pages() is only called to obtain pages for the current
+> process, and flush_anon_pages() is called irrespective of which
+> user process is being 'got'.
 
-And the results are:
-include/asm-i386/ide.h ide_default_io_base(): blaat: interrupts were disabled@49
-include/asm-i386/ide.h ide_default_io_base(): blaat: interrupts were disabled@51
-include/asm-i386/ide.h ide_default_io_base(): blaat: interrupts were disabled@59
+ok, it's easy enough to fix, I'm just trying to point out that it's 
+being implemented on parisc according to the documentation.
 
-Meaning: it works.
+randolph
 
-Repeating: I am very stupid, so I don't know if saving the irq state is ok or
-not in down_read.
--- 
-program signature;
-begin  { telegraaf.com
-} writeln("<ard@telegraafnet.nl> TEM2");
-end
-.
+
+

@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752880AbWLVVtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752886AbWLVVuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752880AbWLVVtA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 16:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752881AbWLVVtA
+	id S1752886AbWLVVuM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 16:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752884AbWLVVuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 16:49:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43115 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752879AbWLVVs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 16:48:59 -0500
-Date: Fri, 22 Dec 2006 22:48:43 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Vladimir Ananiev <vovan888@gmail.com>
-Subject: Re: omap compilation fixes
-Message-ID: <20061222214843.GA25475@elf.ucw.cz>
-References: <20061222105521.GA23683@elf.ucw.cz> <20061222211754.GU2449@atomide.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061222211754.GU2449@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 22 Dec 2006 16:50:11 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:55883 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752803AbWLVVuK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 16:50:10 -0500
+Date: Fri, 22 Dec 2006 13:51:24 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: gregkh <greg@kroah.com>
+Subject: [PATCH] pci/probe: fix macro that confuses kernel-doc
+Message-Id: <20061222135124.26122c95.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-> > This is not yet complete set. set_map() is missing in latest kernels.
-> > 
-> > Fix DECLARE_WORK()-change-related compilation problems. Please apply,
-> >
-> > --- a/drivers/mmc/omap.c
-> > +++ b/drivers/mmc/omap.c
-> > @@ -2,7 +2,7 @@
-> >   *  linux/drivers/media/mmc/omap.c
-> >   *
-> >   *  Copyright (C) 2004 Nokia Corporation
-> > - *  Written by Tuukka Tikkanen and Juha Yrjölä<juha.yrjola@nokia.com>
-> > + *  Written by Tuukka Tikkanen and Juha Yrjölä <juha.yrjola@nokia.com>
-> >   *  Misc hacks here and there by Tony Lindgren <tony@atomide.com>
-> >   *  Other hacks (DMA, SD, etc) by David Brownell
-> >   *
-> 
-> I already applied similar fixes to linux-omap for the workqueue changes,
-> so I only applied the MMC typo fix above.
+Don't have macros between a function's kernel-doc block and
+the function definition.  This is not valid for kernel-doc.
 
-I thought I got pretty recent -git:
+Warning(/var/linsrc/linux-2.6.20-rc1-git8//drivers/pci/probe.c:653): No description found for parameter 'IORESOURCE_PCI_FIXED'
 
-omap git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap-2.6.git
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/pci/probe.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-...should I use another tree?
+--- linux-2.6.20-rc1-git8.orig/drivers/pci/probe.c
++++ linux-2.6.20-rc1-git8/drivers/pci/probe.c
+@@ -639,6 +639,8 @@ static void pci_read_irq(struct pci_dev 
+ 	dev->irq = irq;
+ }
+ 
++#define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
++
+ /**
+  * pci_setup_device - fill in class and map information of a device
+  * @dev: the device structure to fill
+@@ -649,9 +651,6 @@ static void pci_read_irq(struct pci_dev 
+  * Returns 0 on success and -1 if unknown type of device (not normal, bridge
+  * or CardBus).
+  */
+-
+-#define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
+-
+ static int pci_setup_device(struct pci_dev * dev)
+ {
+ 	u32 class;
 
-Aha, I did another pull now and it seems to be better... no, it is
-not:
 
-Recovering from a previously interrupted fetch...
-Fetching pack (head and objects)...
-Fetching tags...
-Missing tag v2.6.20-rc1...
-Generating pack...
-Done counting 1 objects.
-Deltifying 1 objects.
- 100% (1/1) done
-Total 1, written 1 (delta 0), reused 1 (delta 0)
-Unpacking 1 objects
- 100% (1/1) done
-Up to date.
-
-Applying changes...
-Branch already fully merged.
-
-Plus it still does not compile:
-
-  LD      vmlinux
-arch/arm/plat-omap/built-in.o(.text+0xd470): In function
-`exmap_set_armmmu':
-: undefined reference to `set_pte'
-arch/arm/plat-omap/built-in.o(.text+0xd56c): In function
-`exmap_set_armmmu':
-: undefined reference to `set_pte'
-make: *** [vmlinux] Error 1
-
-									Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+---

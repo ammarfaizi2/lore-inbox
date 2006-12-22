@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751912AbWLVSga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751830AbWLVSmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751912AbWLVSga (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 13:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWLVSga
+	id S1751830AbWLVSmz (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 13:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751919AbWLVSmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 13:36:30 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:35095 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751786AbWLVSg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 13:36:29 -0500
-Date: Fri, 22 Dec 2006 10:36:15 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Keiichi KII <k-keiichi@bx.jp.nec.com>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH -mm 0/5] proposal for dynamic configurable
- netconsole
-Message-ID: <20061222103615.6e074f4e@localhost.localdomain>
-In-Reply-To: <458BC905.7050003@bx.jp.nec.com>
-References: <458BC905.7050003@bx.jp.nec.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+	Fri, 22 Dec 2006 13:42:55 -0500
+Received: from smtp0.telegraaf.nl ([217.196.45.192]:34461 "EHLO
+	smtp0.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751830AbWLVSmy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 13:42:54 -0500
+Date: Fri, 22 Dec 2006 19:42:24 +0100
+From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
+       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+Message-ID: <20061222184224.GK31882@telegraafnet.nl>
+References: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <117E3EB5059E4E48ADFF2822933287A401F2E7C5@pdsmsx404.ccr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
+X-telegraaf-MailScanner-From: ard@telegraafnet.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2006 21:01:09 +0900
-Keiichi KII <k-keiichi@bx.jp.nec.com> wrote:
+Hello,
+On Thu, Dec 21, 2006 at 04:04:04PM +0800, Zhang, Yanmin wrote:
+> I couldn't reproduce it on my EM64T machine. I instrumented function start_kernel and
+> didn't find irq was enabled before calling init_IRQ. It'll be better if the reporter could
+> instrument function start_kernel to capture which function enables irq.
 
-> From: Keiichi KII <k-keiichi@bx.jp.nec.com>
-> 
-> The netconsole is a very useful module for collecting kernel message under
-> certain circumstances(e.g. disk logging fails, serial port is unavailable).
-> 
-> But current netconsole is not flexible. For example, if you want to change ip
-> address for logging agent, in the case of built-in netconsole, you can't change
-> config except for changing boot parameter and rebooting your system, or in the
-> case of module netconsole, you need to reload netconsole module.
+I can confirm this is a *GENERIC* X86_64 problem:
+----
+Kernel command line: console=tty0 console=ttyS0,115200 hdb=noprobe root=/dev/md0
+init/main.c start_kernel(): interrupts were disabled@525
+ide_setup: hdb=noprobe
+init/main.c start_kernel(): interrupts were enabled@529
+...
+start_kernel(): bug: interrupts were enabled early
+----
+This is on a dell 1950 with a core 2 duo processors.
 
-If netconsole is a module, you should be able to remove it and reload
-with different parameters.
+You have to have ide compiled in, and set ide options to get the irq's enabled,
+and then have a setup which will have an irq pending before the irq controller
+get's initialized to get the panic. The dell1950 does not panic, the kernel
+merely warns.
 
-> So, I propose the following extended features for netconsole.
-> 
-> 1) support for multiple logging agents.
-> 2) add interface to access each parameter of netconsole
->    using sysfs.
-> 
-> This patch is for linux-2.6.20-rc1-mm1 and is divided to each function.
-> Your comments are very welcome.
+I am pretty sure the i386 tree has the same problem but I haven't checked yet.
+Anyway: the panic is just a way of noticing. The bug is that irq's are enabled
+before the irq controller is set up.
 
-Rather than extending the existing kludge with module parameter, to
-sysfs. I would rather see a better API for this. Please build think
-about doing a better API with a basic set of ioctl's. Some additional
-things:
-	- shouldn't just be IPV4 specific, should handle IPV6 as well
-	- shouldn't specify MAC address, it can do network discovery/arp to
-	  find that when adding addresses
+But to make the ide_setup/irq bug go away, I think it might be an acceptable
+solution to just disable the irq's again after the parse_args, and just to wait
+until the SATA tree takes over the IDE tree.
+
+-- 
+program signature;
+begin  { telegraaf.com
+} writeln("<ard@telegraafnet.nl> TEM2");
+end
+.

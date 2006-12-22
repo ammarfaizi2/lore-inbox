@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753186AbWLVWut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753194AbWLVWvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753186AbWLVWut (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 17:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753188AbWLVWut
+	id S1753194AbWLVWvB (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 17:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753231AbWLVWvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 17:50:49 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:41710 "EHLO cacti.profiwh.com"
+	Fri, 22 Dec 2006 17:51:00 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:41713 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753186AbWLVWus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 17:50:48 -0500
-Message-id: <2547431671200824742@wsc.cz>
+	id S1753194AbWLVWu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 17:50:58 -0500
+Message-id: <1141328742697215348@wsc.cz>
 In-reply-to: <2548619677109123490@wsc.cz>
-Subject: [PATCH 2/3] Char: mxser_new, mark init functions
+Subject: [PATCH 3/3] Char: mxser_new, remove useless spinlock
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Fri, 22 Dec 2006 23:51:00 +0100 (CET)
+Date: Fri, 22 Dec 2006 23:51:10 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, mark init functions
+mxser_new, remove useless spinlock
 
-Mark some funcions with __init and __devinit.
+gm_lock is useless, since ISA is configured at init time and there it's
+serialized.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 04a4dbf03a9fdc4c53282ab7e1db146389140c3b
-tree 916cdef3d0f3acb58de8b96db6e83c11c3f0613c
-parent e3a36e41f423af467a95221598fd5754a8fb4032
-author Jiri Slaby <jirislaby@gmail.com> Fri, 22 Dec 2006 22:56:33 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 22 Dec 2006 22:56:33 +0059
+commit 5f93193574c932263132e3262853be671e9d1642
+tree 94693e221836fd7234e290b9911757357889a580
+parent 04a4dbf03a9fdc4c53282ab7e1db146389140c3b
+author Jiri Slaby <jirislaby@gmail.com> Fri, 22 Dec 2006 23:04:17 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Fri, 22 Dec 2006 23:04:17 +0059
 
- drivers/char/mxser_new.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/char/mxser_new.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index 1bb030b..2f173e9 100644
+index 2f173e9..103f0b5 100644
 --- a/drivers/char/mxser_new.c
 +++ b/drivers/char/mxser_new.c
-@@ -316,7 +316,7 @@ static int mxser_set_baud_method[MXSER_PORTS + 1];
- static spinlock_t gm_lock;
+@@ -313,7 +313,6 @@ static int mxvar_diagflag;
+ static unsigned char mxser_msr[MXSER_PORTS + 1];
+ static struct mxser_mon_ext mon_data_ext;
+ static int mxser_set_baud_method[MXSER_PORTS + 1];
+-static spinlock_t gm_lock;
  
  #ifdef CONFIG_PCI
--static int CheckIsMoxaMust(int io)
-+static int __devinit CheckIsMoxaMust(int io)
- {
- 	u8 oldmcr, hwid;
- 	int i;
-@@ -1373,7 +1373,7 @@ static int mxser_tiocmset(struct tty_struct *tty, struct file *file,
- 	return 0;
- }
- 
--static int mxser_program_mode(int port)
-+static int __init mxser_program_mode(int port)
+ static int __devinit CheckIsMoxaMust(int io)
+@@ -1377,7 +1376,6 @@ static int __init mxser_program_mode(int port)
  {
  	int id, i, j, n;
  
-@@ -1410,7 +1410,7 @@ static int mxser_program_mode(int port)
- 	return id;
- }
+-	spin_lock(&gm_lock);
+ 	outb(0, port);
+ 	outb(0, port);
+ 	outb(0, port);
+@@ -1385,7 +1383,6 @@ static int __init mxser_program_mode(int port)
+ 	(void)inb(port);
+ 	outb(0, port);
+ 	(void)inb(port);
+-	spin_unlock(&gm_lock);
  
--static void mxser_normal_mode(int port)
-+static void __init mxser_normal_mode(int port)
- {
- 	int i, n;
+ 	id = inb(port + 1) & 0x1F;
+ 	if ((id != C168_ASIC_ID) &&
+@@ -2684,7 +2681,6 @@ static int __init mxser_module_init(void)
+ 	mxvar_sdriver = alloc_tty_driver(MXSER_PORTS + 1);
+ 	if (!mxvar_sdriver)
+ 		return -ENOMEM;
+-	spin_lock_init(&gm_lock);
  
-@@ -1443,7 +1443,7 @@ static void mxser_normal_mode(int port)
- #define EN0_PORT	0x010	/* Rcv missed frame error counter RD */
- #define ENC_PAGE0	0x000	/* Select page 0 of chip registers   */
- #define ENC_PAGE3	0x0C0	/* Select page 3 of chip registers   */
--static int mxser_read_register(int port, unsigned short *regs)
-+static int __init mxser_read_register(int port, unsigned short *regs)
- {
- 	int i, k, value, id;
- 	unsigned int j;
+ 	printk(KERN_INFO "MOXA Smartio/Industio family driver version %s\n",
+ 		MXSER_VERSION);

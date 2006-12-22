@@ -1,51 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1946028AbWLVKaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946026AbWLVKfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946028AbWLVKaL (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 05:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946029AbWLVKaK
+	id S1946026AbWLVKfw (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 05:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946029AbWLVKfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 05:30:10 -0500
-Received: from smtp1.telegraaf.nl ([217.196.45.193]:53334 "EHLO
-	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946030AbWLVKaI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 05:30:08 -0500
-Date: Fri, 22 Dec 2006 11:30:05 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
+	Fri, 22 Dec 2006 05:35:51 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:49798 "EHLO e6.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946026AbWLVKfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 05:35:50 -0500
+Date: Fri, 22 Dec 2006 16:07:24 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-ID: <20061222103005.GC31882@telegraafnet.nl>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com> <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
+       Tom Zanussi <zanussi@us.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Douglas Niehaus <niehaus@eecs.ku.edu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Thomas Gleixner <tglx@linutronix.de>, kiran@scalex86.org,
+       venkatesh.pallipadi@intel.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       torvalds@osdl.org, davej@redhat.com
+Subject: Re: [PATCH] Relay CPU Hotplug support
+Message-ID: <20061222103724.GA29348@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061221003101.GA28643@Krystal> <20061220232350.eb4b6a46.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061222003029.4394bd9a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+In-Reply-To: <20061220232350.eb4b6a46.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-On Fri, Dec 22, 2006 at 12:30:29AM -0800, Andrew Morton wrote:
-> To whom do I have to pay how much to get this darn patch tested?
-I've already tested that (as I said somewhere in the bugzilla so
-it probably got lost somehow :-) ): It doesn't solve the booting
-problem, and I really don't have an idea what it does, nor does
-it output any debug code. So I left it at: doesn't fix ;-).
+Hi Andrew,
 
-Anyway: on to the ide_setup tracking....
-(I've noticed that the notifier of this problem als has idebus=66
-or something similar, so that explains in his case the
-early call to ide_setup.)
+While we are at this per-subsystem cpuhotplug "locking", here's a
+proposal that might put an end to the workqueue deadlock woes.
 
+I'm yet to cook up a patch for this, but here's the idea in brief.
+
+On Wed, Dec 20, 2006 at 11:23:50PM -0800, Andrew Morton wrote:
+> to the relay driver.  Why do that - you don't own cpu_online_map (but you
+> do get some notifications when it wants to change, that's all).
+
+How about: Let each hot-cpu-aware subsystem maintain it's own 
+online_cpus mask. Thus we can eliminate the global online_cpus mask 
+and also have a clear picture of what data the per-subsystem mutexes
+are protecting :)
+
+In kenel/cpu.c
+
+_cpu_down()
+{
+	send_all_pre_cpu_down_notifications();
+	.
+	.
+	.
+	send_notifications_to_lock_per_subsystem_mutexes();
+	__stop_machine_run();
+	send_notifications_to_update_per_subsystem_online_cpus_mask();
+	send_notifications_to_release_per_subsystem_mutexes();
+	.
+	.
+	.
+	send_all_post_cpu_down_notifications();
+	
+}
+
+Ditto for _cpu_up().
+
+This will not only reduce the lock-contention , but will also 
+allow the pre/post hotplug notifications handlers to make calls to 
+function which are cpu-hotplug-aware (like create_workqueue,
+destroy_workqueues etc) without ending up in a recursive deadlock
+as the persubsystem mutexes would have been released by then. 
+
+And since we are sending notifications to update 
+per_subsystem_cpus_mask before sending the
+post_cpu_hotplug_notifications, the post_notification handlers
+will be executing with the consistent value of the online_cpus mask.
+
+Does anybody see a problem with this "update_now-cleanup_later" 
+approach ?
+
+Thanks and Regards
+gautham.
 -- 
-program signature;
-begin  { telegraaf.com
-} writeln("<ard@telegraafnet.nl> TEM2");
-end
-.
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

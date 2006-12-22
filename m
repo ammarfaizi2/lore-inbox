@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754837AbWLVNaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754840AbWLVNb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754837AbWLVNaA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 08:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754838AbWLVNaA
+	id S1754840AbWLVNb5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 08:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754838AbWLVNb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 08:30:00 -0500
-Received: from amsfep16-int.chello.nl ([62.179.120.11]:41995 "EHLO
-	amsfep16-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754837AbWLVN37 (ORCPT
+	Fri, 22 Dec 2006 08:31:57 -0500
+Received: from amsfep19-int.chello.nl ([62.179.120.14]:65462 "EHLO
+	amsfep19-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754839AbWLVNb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 08:29:59 -0500
+	Fri, 22 Dec 2006 08:31:56 -0500
 Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
 	corruption on ext3)
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
@@ -20,7 +20,7 @@ Cc: Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
        Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        Arjan van de Ven <arjan@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061222125920.GA16763@deprecation.cyrius.com>
+In-Reply-To: <1166793952.32117.29.camel@twins>
 References: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
 	 <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org>
 	 <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
@@ -31,102 +31,89 @@ References: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
 	 <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
 	 <20061222123249.GG13727@deprecation.cyrius.com>
 	 <20061222125920.GA16763@deprecation.cyrius.com>
+	 <1166793952.32117.29.camel@twins>
 Content-Type: text/plain
-Date: Fri, 22 Dec 2006 14:25:52 +0100
-Message-Id: <1166793952.32117.29.camel@twins>
+Date: Fri, 22 Dec 2006 14:29:54 +0100
+Message-Id: <1166794194.32117.34.camel@twins>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-22 at 13:59 +0100, Martin Michlmayr wrote:
-> * Martin Michlmayr <tbm@cyrius.com> [2006-12-22 13:32]:
-> > I've completed one installation with Linus' patch plus the two from
-> > Andrew successfully, but I'm currently trying again...
-> 
-> .... and it failed.
 
-Since you are on ARM you might want to try with the page_mkclean_one
-cleanup patch too.
+A cleanup of try_to_unmap. I have not identified any races that this
+would solve, but for consistencies sake.
 
-Arjan agreed that the loop is not needed; we clear the pte, flush on all
-CPUs and then re-establish the pte. Any race will fault and be
-serialised on the pte lock.
-
-FWIW - with todays -git and Andrews second cancel_dirty_page() patch:
-  http://lkml.org/lkml/2006/12/22/49
-I am unable to trigger any corruption - I could again earlier by raising
-the number of seeds from 3 to 6. (am currently at 10 seeds)
-
-
+Also includes a small s390 optimization by moving
+page_test_and_clear_dirty() out of the vma iteration.
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-fix page_mkclean_one()
+We clear the page in the following sequence:
+  ClearPageDirty - lock ptl, clear pte, unlock ptl
 
- - add flush_cache_page() for all those virtual indexed cache
-   architectures.
+hence we should dirty in the opposite order:
+  lock ptl, clear pte, unlock ptl - SetPageDirty
 
- - handle s390.
+try_to_unmap_one violates this by doing the SetPageDirty under the ptl.
+
+Also move page_test_and_clear_dirty() to try_to_unmap().
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 ---
- mm/rmap.c |   38 +++++++++++++++++++++++++-------------
- 1 file changed, 25 insertions(+), 13 deletions(-)
+ mm/rmap.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 Index: linux-2.6/mm/rmap.c
 ===================================================================
 --- linux-2.6.orig/mm/rmap.c
 +++ linux-2.6/mm/rmap.c
-@@ -432,7 +432,7 @@ static int page_mkclean_one(struct page 
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pte_t *pte, entry;
-+	pte_t *pte;
+@@ -590,8 +590,6 @@ void page_remove_rmap(struct page *page)
+ 		 * Leaving it set also helps swapoff to reinstate ptes
+ 		 * faster for those pages still in swapcache.
+ 		 */
+-		if (page_test_and_clear_dirty(page))
+-			set_page_dirty(page);
+ 		__dec_zone_page_state(page,
+ 				PageAnon(page) ? NR_ANON_PAGES : NR_FILE_MAPPED);
+ 	}
+@@ -610,6 +608,7 @@ static int try_to_unmap_one(struct page 
+ 	pte_t pteval;
  	spinlock_t *ptl;
- 	int ret = 0;
+ 	int ret = SWAP_AGAIN;
++	struct page *dirty_page = NULL;
  
-@@ -444,17 +444,18 @@ static int page_mkclean_one(struct page 
- 	if (!pte)
- 		goto out;
+ 	address = vma_address(page, vma);
+ 	if (address == -EFAULT)
+@@ -636,7 +635,7 @@ static int try_to_unmap_one(struct page 
  
--	if (!pte_dirty(*pte) && !pte_write(*pte))
--		goto unlock;
-+	if (pte_dirty(*pte) || pte_write(*pte)) {
-+		pte_t entry;
+ 	/* Move the dirty bit to the physical page now the pte is gone. */
+ 	if (pte_dirty(pteval))
+-		set_page_dirty(page);
++		dirty_page = page;
  
--	entry = ptep_get_and_clear(mm, address, pte);
--	entry = pte_mkclean(entry);
--	entry = pte_wrprotect(entry);
--	ptep_establish(vma, address, pte, entry);
--	lazy_mmu_prot_update(entry);
--	ret = 1;
-+		flush_cache_page(vma, address, pte_pfn(*pte));
-+		entry = ptep_clear_flush(vma, address, pte);
-+		entry = pte_wrprotect(entry);
-+		entry = pte_mkclean(entry);
-+		set_pte_at(vma, address, pte, entry);
-+		lazy_mmu_prot_update(entry);
-+		ret = 1;
-+	}
+ 	/* Update high watermark before we lower rss */
+ 	update_hiwater_rss(mm);
+@@ -687,6 +686,8 @@ static int try_to_unmap_one(struct page 
  
--unlock:
+ out_unmap:
  	pte_unmap_unlock(pte, ptl);
++	if (dirty_page)
++		set_page_dirty(dirty_page);
  out:
  	return ret;
-@@ -489,6 +490,8 @@ int page_mkclean(struct page *page)
- 		if (mapping)
- 			ret = page_mkclean_file(mapping, page);
- 	}
-+	if (page_test_and_clear_dirty(page))
-+		ret = 1;
- 
- 	return ret;
  }
-
-
+@@ -918,6 +919,9 @@ int try_to_unmap(struct page *page, int 
+ 	else
+ 		ret = try_to_unmap_file(page, migration);
  
++	if (page_test_and_clear_dirty(page))
++		set_page_dirty(page);
++
+ 	if (!page_mapped(page))
+ 		ret = SWAP_SUCCESS;
+ 	return ret;
+
 

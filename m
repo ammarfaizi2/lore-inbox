@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752886AbWLVVuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752903AbWLVVxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752886AbWLVVuM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 16:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752884AbWLVVuL
+	id S1752903AbWLVVxM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 16:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752928AbWLVVxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 16:50:11 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:55883 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752803AbWLVVuK (ORCPT
+	Fri, 22 Dec 2006 16:53:12 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:34180 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752902AbWLVVxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 16:50:10 -0500
-Date: Fri, 22 Dec 2006 13:51:24 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: gregkh <greg@kroah.com>
-Subject: [PATCH] pci/probe: fix macro that confuses kernel-doc
-Message-Id: <20061222135124.26122c95.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Dec 2006 16:53:11 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <458C5389.70704@s5r6.in-berlin.de>
+Date: Fri, 22 Dec 2006 22:52:09 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Randy Dunlap <randy.dunlap@oracle.com>, Greg KH <greg@kroah.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       e1000-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH 1/5] Update Documentation/pci.txt
+References: <456404E2.1060102@jp.fujitsu.com>	<20061122182804.GE378@colo.lackof.org>	<45663EE8.1080708@jp.fujitsu.com>	<20061124051217.GB8202@colo.lackof.org>	<20061206072651.GG17199@kroah.com>	<20061210072508.GA12272@colo.lackof.org>	<20061215170207.GB15058@kroah.com>	<20061218071133.GA1738@colo.lackof.org> <20061222114658.01da661b.randy.dunlap@oracle.com>
+In-Reply-To: <20061222114658.01da661b.randy.dunlap@oracle.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+> On Mon, 18 Dec 2006 00:11:33 -0700 Grant Grundler wrote:
+...
+>> +4.1 Stop IRQs on the device
+>> +~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> +How to do this is chip/device specific. If it's not done, it opens
+>> +the possibility of a "screaming interrupt" if (and only if)
+>> +the IRQ is shared with another device.
+>> +
+>> +When the shared IRQ handler is "unhoooked", the remaining devices
+                                       ^^^
+-> unhooked
 
-Don't have macros between a function's kernel-doc block and
-the function definition.  This is not valid for kernel-doc.
+...
+>> +11. MMIO Space and "Write Posting"
+>> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> +Converting a driver from using I/O Port space to using MMIO space
+>> +often requires some additional changes. Specifically, "write posting"
+>> +needs to be handled. Many drivers (e.g. tg3, acenic, sym53c8xx_2)
+>> +already do. I/O Port space guarantees write transactions reach the PCI
+> 
+>    already do this.
+> 
+>> +device before the CPU can continue. Writes to MMIO space allow to CPU
+                                                                   ^^
+>> +continue before the transaction reaches the PCI device. HW weenies
+   ^
+-> allow the CPU to continue
 
-Warning(/var/linsrc/linux-2.6.20-rc1-git8//drivers/pci/probe.c:653): No description found for parameter 'IORESOURCE_PCI_FIXED'
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/pci/probe.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
---- linux-2.6.20-rc1-git8.orig/drivers/pci/probe.c
-+++ linux-2.6.20-rc1-git8/drivers/pci/probe.c
-@@ -639,6 +639,8 @@ static void pci_read_irq(struct pci_dev 
- 	dev->irq = irq;
- }
- 
-+#define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
-+
- /**
-  * pci_setup_device - fill in class and map information of a device
-  * @dev: the device structure to fill
-@@ -649,9 +651,6 @@ static void pci_read_irq(struct pci_dev 
-  * Returns 0 on success and -1 if unknown type of device (not normal, bridge
-  * or CardBus).
-  */
--
--#define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
--
- static int pci_setup_device(struct pci_dev * dev)
- {
- 	u32 class;
-
-
----
+-- 
+Stefan Richter
+-=====-=-==- ==-- =-==-
+http://arcgraph.de/sr/

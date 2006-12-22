@@ -1,90 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1946020AbWLVKR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1946027AbWLVK3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946020AbWLVKR5 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 05:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWLVKR5
+	id S1946027AbWLVK3u (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 05:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946026AbWLVK3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 05:17:57 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34688 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946020AbWLVKR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 05:17:56 -0500
-Date: Fri, 22 Dec 2006 02:17:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrei Popa <andrei.popa@i-neo.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Florian Weimer <fw@deneb.enyo.de>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
- corruption on ext3)
-Message-Id: <20061222021714.6a83fcac.akpm@osdl.org>
-In-Reply-To: <20061222100004.GC10273@deprecation.cyrius.com>
-References: <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
-	<20061220175309.GT30106@deprecation.cyrius.com>
-	<Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
-	<Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
-	<97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
-	<Pine.LNX.4.64.0612202352060.3576@woody.osdl.org>
-	<97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
-	<20061221012721.68f3934b.akpm@osdl.org>
-	<97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
-	<Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
-	<20061222100004.GC10273@deprecation.cyrius.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Dec 2006 05:29:50 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42101 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1946027AbWLVK3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 05:29:49 -0500
+Date: Fri, 22 Dec 2006 11:29:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Compilation failure in today's git: reiserfs
+Message-ID: <20061222102937.GA15168@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2006 11:00:04 +0100
-Martin Michlmayr <tbm@cyrius.com> wrote:
+Hi!
 
-> > -	if (TestClearPageDirty(page) && account_size)
-> > +	if (TestClearPageDirty(page) && account_size) {
-> > +		dec_zone_page_state(page, NR_FILE_DIRTY);
-> >  		task_io_account_cancelled_write(account_size);
-> > +	}
-> 
-> This hunk (on top of git from about 2 days ago and your latest patch)
-> results in the installer hanging right at the start. 
+I get this one. As I do not need reiserfs, solution is simple for me.
 
-You'll need this also:
+fs/built-in.o: In function `reiserfs_cut_from_item':
+(.text+0x60149): undefined reference to `clear_page_dirty'
+make: *** [.tmp_vmlinux1] Error 1
+9.67user 3.31system 13.06 (0m13.063s) elapsed 99.36%CPU
 
-From: Andrew Morton <akpm@osdl.org>
 
-Only (un)account for IO and page-dirtying for devices which have real backing
-store (ie: not tmpfs or ramdisks).
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- mm/truncate.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN mm/truncate.c~truncate-dirty-memory-accounting-fix mm/truncate.c
---- a/mm/truncate.c~truncate-dirty-memory-accounting-fix
-+++ a/mm/truncate.c
-@@ -60,7 +60,8 @@ void cancel_dirty_page(struct page *page
- 		WARN_ON(++warncount < 5);
- 	}
- 		
--	if (TestClearPageDirty(page) && account_size) {
-+	if (TestClearPageDirty(page) && account_size &&
-+			mapping_cap_account_dirty(page->mapping)) {
- 		dec_zone_page_state(page, NR_FILE_DIRTY);
- 		task_io_account_cancelled_write(account_size);
- 	}
-_
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

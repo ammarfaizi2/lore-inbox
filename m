@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750939AbWLVRJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751219AbWLVRLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWLVRJX (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 12:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWLVRJX
+	id S1751219AbWLVRLb (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 12:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWLVRLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 12:09:23 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4150 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750939AbWLVRJW (ORCPT
+	Fri, 22 Dec 2006 12:11:31 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:54575 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751219AbWLVRLa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 12:09:22 -0500
-Date: Fri, 22 Dec 2006 17:09:16 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: jkosina@suse.cz, linux-input@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] Fix some ARM builds due to HID brokenness
-Message-ID: <20061222170916.GA3320@dyn-67.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	jkosina@suse.cz, linux-input@atrey.karlin.mff.cuni.cz
-Mime-Version: 1.0
+	Fri, 22 Dec 2006 12:11:30 -0500
+Date: Fri, 22 Dec 2006 18:11:13 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Gordon Farquharson <gordonfarquharson@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Message-ID: <20061222171113.GC4229@deprecation.cyrius.com>
+References: <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com> <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org> <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com> <20061221012721.68f3934b.akpm@osdl.org> <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com> <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com> <20061222100637.GA12105@deprecation.cyrius.com> <20061222101055.GA12230@deprecation.cyrius.com> <97a0a9ac0612220730r4f00c913k65a074097f981277@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <97a0a9ac0612220730r4f00c913k65a074097f981277@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new location for HID is extremely annoying:
+* Gordon Farquharson <gordonfarquharson@gmail.com> [2006-12-22 08:30]:
+> Based on the kernel gurus current knowledge of the problem, would
+> you expect the corruption to occur at the same point in a file, or
+> is it possible that the corruption could occur at different points
+> on successive Debian installer attempts on a UP, non PREEMPT system?
 
-1. the help text implies that you need to enable it for any
-   keyboard or mouse attached to the system.  This is not
-   correct.
-
-2. it defaults to 'y'.  When you have input deselected, this
-   causes the kernel to fail to link:
-
-drivers/built-in.o: In function `usb_hidinput_input_event':
-hid-input.c:(.text+0x55054): undefined reference to `input_ff_event'
-drivers/built-in.o: In function `hidinput_hid_event':
-hid-input.c:(.text+0x6446c): undefined reference to `input_event'
-hid-input.c:(.text+0x644f8): undefined reference to `input_event'
-hid-input.c:(.text+0x64550): undefined reference to `input_event'
-hid-input.c:(.text+0x64590): undefined reference to `input_event'
-hid-input.c:(.text+0x645b8): undefined reference to `input_event'
-drivers/built-in.o: In function `hidinput_disconnect':
-hid-input.c:(.text+0x64624): undefined reference to `input_unregister_device'
-drivers/built-in.o: In function `hidinput_report_event':
-hid-input.c:(.text+0x64670): undefined reference to `input_event'
-drivers/built-in.o: In function `hidinput_connect':
-hid-input.c:(.text+0x64824): undefined reference to `input_allocate_device'
-hid-input.c:(.text+0x675e0): undefined reference to `input_register_device'
-hid-input.c:(.text+0x67698): undefined reference to `input_free_device'
-hid-input.c:(.text+0x676b8): undefined reference to `input_register_device'
-make: *** [.tmp_vmlinux1] Error 1
-
-Fix the second problem by making it depend on INPUT.  The first
-problem is left as an exercise for the HID maintainers to solve.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 96d4a0b..1ccc222 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -6,6 +6,7 @@ menu "HID Devices"
- 
- config HID
- 	tristate "Generic HID support"
-+	depends on INPUT
- 	default y
- 	---help---
- 	  Say Y here if you want generic HID support to connect keyboards,
+Seems like it can occur anywhere.  In fact, some people see apt
+problems because of filesystem corruption on the NSLU2 after they have
+already installe Debian.  I've only seen this once myself and failed
+many times to find a reproducible situation.
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

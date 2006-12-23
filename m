@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752879AbWLWJ1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752888AbWLWJgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752879AbWLWJ1Y (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 04:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752872AbWLWJ1Y
+	id S1752888AbWLWJgZ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 04:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752881AbWLWJgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 04:27:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50947 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752789AbWLWJ1X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 04:27:23 -0500
-Date: Sat, 23 Dec 2006 09:27:18 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: David Chinner <dgc@sgi.com>
-Cc: Alex Tomas <alex@clusterfs.com>, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] delayed allocation for ext4
-Message-ID: <20061223092718.GA26276@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Chinner <dgc@sgi.com>, Alex Tomas <alex@clusterfs.com>,
-	linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <m37iwjwumf.fsf@bzzz.home.net> <20061223033123.GL44411608@melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061223033123.GL44411608@melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 23 Dec 2006 04:36:25 -0500
+Received: from javad.com ([216.122.176.236]:2375 "EHLO javad.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752793AbWLWJgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 04:36:24 -0500
+X-Greylist: delayed 1588 seconds by postgrey-1.27 at vger.kernel.org; Sat, 23 Dec 2006 04:36:24 EST
+From: Sergei Organov <osv@javad.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: moxa serial driver testing
+References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
+	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
+	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
+	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
+	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
+	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
+	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
+	<87r6urket6.fsf@javad.com> <552766292581216610@wsc.cz>
+Date: Sat, 23 Dec 2006 12:09:45 +0300
+In-Reply-To: <552766292581216610@wsc.cz> (Jiri Slaby's message of "Sat, 23
+ Dec
+	2006 02:35:46 +0100 (CET)")
+Message-ID: <87mz5fj7vq.fsf@javad.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 23, 2006 at 02:31:23PM +1100, David Chinner wrote:
-> >  - ext4-delayed-allocation.patch
-> >    delayed allocation itself, enabled by "delalloc" mount option.
-> >    extents support is also required. currently it works only
-> >    with blocksize=pagesize.
-> 
-> Ah, that's why you can get away with a page flag - you've ignored
-> the partial page delay state problem. Any plans to use the
-> existing method in the future so we will be able to use ext4 delalloc
-> on machines with a page size larger than 4k?
+Jiri,
 
-I think fixing this up for blocksize < pagesize is an absolute requirement
-to get things merged.  We don't need more filesystems that are crippled
-on half of our platforms.
+Jiri Slaby <jirislaby@gmail.com> writes:
+> osv@javad.com wrote:
+>> Hi Jiri,
+>> 
+>> I've figured out that both old and new mxser drivers have two similar
+>> problems:
+>> 
+>> 1. When there are data coming to a port, sometimes opening of the port
+>>    entirely locks the box. This is quite reproducible. Any idea what's
+>>    wrong and how can I help to debug it?
+>
+> Could you test the patch below, if something changes?
 
-Note that recording delayed alloc state at a page granularity in addition
-to just the buffer heads has a lot of advantages aswell and would help
-xfs, too.  But I think it makes a lot more sense to record it as a radix
-tree tag to speed up the gang lookups for delalloc conversion.
+Thanks for looking into it. I'll be able to get to the box with moxa
+installed on Monday and will try the patch.
+
+As for SysRq, I'm afraid it didn't work though I'm not 100% sure. I'll
+check that as well.
+
+-- Sergei.
+
+> ---
+>
+>  drivers/char/mxser_new.c |    6 ++++--
+>  1 files changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+> index a2bca5d..c0af201 100644
+> --- a/drivers/char/mxser_new.c
+> +++ b/drivers/char/mxser_new.c
+> @@ -2268,6 +2268,8 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
+>  			if (bits & irqbits)
+>  				continue;
+>  			port = &brd->ports[i];
+> +			if (!(port->flags & ASYNC_INITIALIZED))
+> +				continue;
+>  
+>  			int_cnt = 0;
+>  			do {
+> @@ -2320,9 +2322,9 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
+>  					if (status & UART_LSR_THRE)
+>  						mxser_transmit_chars(port);
+>  				}
+> -			} while (int_cnt++ < MXSER_ISR_PASS_LIMIT);
+> +			} while (int_cnt++ < 256);
+>  		}
+> -		if (pass_counter++ > MXSER_ISR_PASS_LIMIT)
+> +		if (pass_counter++ > 64)
+>  			break;	/* Prevent infinite loops */
+>  	}
+>  

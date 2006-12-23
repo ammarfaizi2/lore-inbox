@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752910AbWLWOAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753154AbWLWOOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752910AbWLWOAV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 09:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752964AbWLWOAU
+	id S1753154AbWLWOOD (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 09:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753291AbWLWOOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 09:00:20 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:47790 "EHLO
-	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752910AbWLWOAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 09:00:19 -0500
-Date: Sat, 23 Dec 2006 15:00:18 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <1166869106.3281.587.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> 
- <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
- <1166869106.3281.587.camel@laptopd505.fenrus.org>
-X-Personality-Disorder: Schizoid
+	Sat, 23 Dec 2006 09:14:02 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39697 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753154AbWLWOOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 09:14:00 -0500
+Message-ID: <458D39AE.2040207@drzeus.cx>
+Date: Sat, 23 Dec 2006 15:14:06 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+CC: "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       Tony Lindgren <tony@atomide.com>,
+       ext David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 4/4] Add MMC Password Protection (lock/unlock) support
+ V8: mmc_sysfs.diff
+References: <45748173.2050008@indt.org.br> <20061215193717.GA10367@flint.arm.linux.org.uk> <45868C6F.5000804@indt.org.br>
+In-Reply-To: <45868C6F.5000804@indt.org.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If user (or script) doesn't specify that flag, it doesn't help. I think
->> the best solution for these filesystems would be either to add new syscall
->>  	int is_hardlink(char *filename1, char *filename2)
->> (but I know adding syscall bloat may be objectionable)
->
-> it's also the wrong api; the filenames may have been changed under you
-> just as you return from this call, so it really is a
-> "was_hardlink_at_some_point()" as you specify it.
-> If you make it work on fd's.. it has a chance at least.
+Anderson Briglia wrote:
+> Ok. I will fix the code and send another version of this patch on the V9 series e-mail thread.
+>   
 
-Yes, but it doesn't matter --- if the tree changes under "cp -a" command, 
-no one guarantees you what you get.
- 	int fis_hardlink(int handle1, int handle 2);
-Is another possibility but it can't detect hardlinked symlinks.
+Have you found the time to fix this?
 
-Mikulas
+Rgds
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+

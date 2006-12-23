@@ -1,151 +1,219 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752703AbWLWKiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753148AbWLWLBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752703AbWLWKiZ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 05:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753102AbWLWKiY
+	id S1753148AbWLWLBx (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 06:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753239AbWLWLBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 05:38:24 -0500
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:63065 "EHLO
-	mail.first.fraunhofer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752703AbWLWKiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 05:38:23 -0500
-Subject: [PATCH] usbhid quirks for macbook(pro) updated to 2.6.20-rc1
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Greg KH <greg@kroah.com>
-Cc: Joseph Fannin <jhf@columbus.rr.com>, Oliver Neukum <oliver@neukum.name>,
-       Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20061215175632.GC15871@kroah.com>
-References: <1161856438.5214.2.camel@no.intranet.wo.rk>
-	 <1162054576.3769.15.camel@localhost> <200610282043.59106.oliver@neukum.org>
-	 <200610282055.29423.oliver@neukum.name> <1162067266.4044.2.camel@localhost>
-	 <20061030101202.GB9265@nineveh.rivenstone.net>
-	 <1165598367.19187.18.camel@localhost>
-	 <1165716489.27637.7.camel@localhost.localdomain>
-	 <1166171764.3507.2.camel@localhost>  <20061215175632.GC15871@kroah.com>
-Content-Type: multipart/mixed; boundary="=-4FC8La0Ez3KfOVoxJoiQ"
-Date: Sat, 23 Dec 2006 11:38:09 +0100
-Message-Id: <1166870289.11501.8.camel@localhost>
+	Sat, 23 Dec 2006 06:01:53 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57705 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753148AbWLWLBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 06:01:52 -0500
+Date: Sat, 23 Dec 2006 11:59:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Tim C" <tim.c.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: 2.6.19-rt14 slowdown compared to 2.6.19
+Message-ID: <20061223105937.GA21172@elte.hu>
+References: <9D2C22909C6E774EBFB8B5583AE5291C0199950A@fmsmsx414.amr.corp.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 
+Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C0199950A@fmsmsx414.amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-4FC8La0Ez3KfOVoxJoiQ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, 2006-12-15 at 09:56 -0800, Greg KH wrote:
-> On Fri, Dec 15, 2006 at 09:36:04AM +0100, Soeren Sonnenburg wrote:
-> > On Sat, 2006-12-09 at 21:08 -0500, Joseph Fannin wrote:
-> > > On Fri, 2006-12-08 at 18:19 +0100, Soeren Sonnenburg wrote:
-[...]
-> > Greg,
-> > 
-> > I've noticed that this patch is not in 2.6.20-rc1. Could you please
-> > comment on what is wrong with it / whether it will ever have a chance to
-> > be accepted in the way it is done ? 
+
+* Chen, Tim C <tim.c.chen@intel.com> wrote:
+
+> Ingo,
+>  
+> We did some benchmarking on 2.6.19-rt14, compared it with 2.6.19 
+> kernel and noticed several slowdowns.  The test machine is a 2 socket 
+> woodcrest machine with your default configuration.
+
+cool - thanks for the feedback! Running the 64-bit kernel, right?
+
+> Netperf TCP Streaming was slower by 40% ( 1 server and 1 client each 
+> bound to separate cpu cores on different socket, network loopback mode 
+> was used).
 > 
-> It's in my queue right now, sorry.  I'll catch up on it in a few hours.
+> Volanomark was slower by 80% (Server and Clients communicate with 
+> network loopback mode. Idle time goes from 1% to 60%)
+> 
+> Re-Aim7 was slower by 40% (idle time goes from 0% to 20%)
+> 
+> Wonder if you have any suggestions on what could cause the slowdown.  
+> We've tried disabling CONFIG_NO_HZ and it didn't help much.
 
-Please find attached a updated version of this patch (for kernel
-2.6.20-rc1)
+while some slowdown is to be expected, did in each case idle time 
+increase significantly? If yes then this is the effect of lock 
+contention. Lock contention effects are 'magnified' by PREEMPT_RT. For 
+example if you run 128 threads workload that all use the same lock then 
+the -rt kernel can act as if it were a 128-way box (!). This way by 
+running -rt you'll see scalability problems alot sooner than on real 
+hardware. In other words: PREEMPT_RT in essence simulates the 
+scalability behavior of up to an infinite amount of CPUs. (with the 
+exception of cachemiss emulation ;) [the effect is not this precise, but 
+that's the rough trend]
 
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+the good news: any fix for such problems in -rt is useful for the 
+upstream kernel too, because it improves scalability on real hardware as 
+well. The bad news: this work hasnt been finished yet ;-)
 
---=-4FC8La0Ez3KfOVoxJoiQ
-Content-Disposition: attachment; filename=usbhid.patch
-Content-Type: text/x-patch; name=usbhid.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
+We've fixed a couple of contention points discovered by -rt this way, in 
+particular Peter's excellent scalability patches at:
 
-U2lnbmVkLW9mZi1ieTogU29lcmVuIFNvbm5lbmJ1cmcgPGtlcm5lbEBubjcuZGU+DQpTaWduZWQt
-b2ZmLWJ5OiBTZXJnZXkgVmxhc292IDx2c3VAYWx0bGludXgucnU+DQoNCmRpZmYgLXVyIGxpbnV4
-LTIuNi4yMC1yYzEtb3JpZy9kcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jIGxpbnV4LTIuNi4y
-MC1yYzEvZHJpdmVycy91c2IvaW5wdXQvaGlkLWNvcmUuYw0KLS0tIGxpbnV4LTIuNi4yMC1yYzEt
-b3JpZy9kcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jCTIwMDYtMTItMTQgMDI6MTQ6MjMuMDAw
-MDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjIwLXJjMS9kcml2ZXJzL3VzYi9pbnB1dC9oaWQt
-Y29yZS5jCTIwMDYtMTItMjMgMTA6MjE6NDkuMDAwMDAwMDAwICswMTAwDQpAQCAtNzcyLDYgKzc3
-Miw3IEBADQogI2RlZmluZSBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjRfSklTCTB4MDIxYw0K
-ICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9GT1VOVEFJTl9UUF9PTkxZCTB4MDMwYQ0KICNk
-ZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIxX1RQX09OTFkJMHgwMzBiDQorI2RlZmlu
-ZSBVU0JfREVWSUNFX0lEX0FQUExFX0lSCQkweDgyNDANCiANCiAjZGVmaW5lIFVTQl9WRU5ET1Jf
-SURfQ0hFUlJZCQkweDA0NmENCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQ0hFUlJZX0NZTU9USU9O
-CTB4MDAyMw0KQEAgLTk0MiwxOSArOTQzLDE5IEBADQogDQogCXsgVVNCX1ZFTkRPUl9JRF9DSEVS
-UlksIFVTQl9ERVZJQ0VfSURfQ0hFUlJZX0NZTU9USU9OLCBISURfUVVJUktfQ1lNT1RJT04gfSwN
-CiANCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0ZPVU5UQUlO
-X0FOU0ksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9B
-UFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9GT1VOVEFJTl9JU08sIEhJRF9RVUlSS19QT1dFUkJP
-T0tfSEFTX0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBM
-RV9HRVlTRVJfQU5TSSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCi0JeyBVU0JfVkVO
-RE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9JU08sIEhJRF9RVUlSS19Q
-T1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX1BPV0VSQk9PS19JU09fS0VZQk9BUkR9LA0KLQl7
-IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSX0pJUywgSElE
-X1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0Jf
-REVWSUNFX0lEX0FQUExFX0dFWVNFUjNfQU5TSSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4g
-fSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjNf
-SVNPLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19QT1dFUkJPT0tfSVNP
-X0tFWUJPQVJEfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExF
-X0dFWVNFUjNfSklTLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB9LA0KLQl7IFVTQl9WRU5E
-T1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSNF9BTlNJLCBISURfUVVJUktf
-UE9XRVJCT09LX0hBU19GTiB9LA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0Vf
-SURfQVBQTEVfR0VZU0VSNF9JU08sIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQotCXsg
-VVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVI0X0pJUywgSElE
-X1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0Jf
-REVWSUNFX0lEX0FQUExFX0ZPVU5UQUlOX1RQX09OTFksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFT
-X0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlT
-RVIxX1RQX09OTFksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQorCXsgVVNCX1ZFTkRP
-Ul9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9GT1VOVEFJTl9BTlNJLCBISURfUVVJUktf
-UE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0UgfSwNCisJeyBVU0JfVkVO
-RE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0ZPVU5UQUlOX0lTTywgSElEX1FVSVJL
-X1BPV0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFIH0sDQorCXsgVVNCX1ZF
-TkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVJfQU5TSSwgSElEX1FVSVJL
-X1BPV0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFIH0sDQorCXsgVVNCX1ZF
-TkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVJfSVNPLCBISURfUVVJUktf
-UE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0UgfCBISURfUVVJUktfUE9X
-RVJCT09LX0lTT19LRVlCT0FSRH0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklD
-RV9JRF9BUFBMRV9HRVlTRVJfSklTLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9R
-VUlSS19JR05PUkVfTU9VU0UgfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNF
-X0lEX0FQUExFX0dFWVNFUjNfQU5TSSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURf
-UVVJUktfSUdOT1JFX01PVVNFIH0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklD
-RV9JRF9BUFBMRV9HRVlTRVIzX0lTTywgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURf
-UVVJUktfSUdOT1JFX01PVVNFIHwgSElEX1FVSVJLX1BPV0VSQk9PS19JU09fS0VZQk9BUkR9LA0K
-Kwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSM19KSVMs
-IEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRSB9LA0K
-Kwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSNF9BTlNJ
-LCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0UgfSwN
-CisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjRfSVNP
-LCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0UgfCBI
-SURfUVVJUktfUE9XRVJCT09LX0lTT19LRVlCT0FSRH0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBM
-RSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVI0X0pJUywgSElEX1FVSVJLX1BPV0VSQk9PS19I
-QVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFIH0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBM
-RSwgVVNCX0RFVklDRV9JRF9BUFBMRV9GT1VOVEFJTl9UUF9PTkxZLCBISURfUVVJUktfUE9XRVJC
-T09LX0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0UgfSwNCisJeyBVU0JfVkVORE9SX0lE
-X0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjFfVFBfT05MWSwgSElEX1FVSVJLX1BP
-V0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFIH0sDQogDQogCXsgVVNCX1ZF
-TkRPUl9JRF9QQU5KSVQsIDB4MDAwMSwgSElEX1FVSVJLX0lHTk9SRSB9LA0KIAl7IFVTQl9WRU5E
-T1JfSURfUEFOSklULCAweDAwMDIsIEhJRF9RVUlSS19JR05PUkUgfSwNCkBAIC0xMDYwLDYgKzEw
-NjEsMTEgQEANCiAJaWYgKHF1aXJrcyAmIEhJRF9RVUlSS19JR05PUkUpDQogCQlyZXR1cm4gTlVM
-TDsNCiANCisJaWYgKChxdWlya3MgJiBISURfUVVJUktfSUdOT1JFX01PVVNFKSAmJg0KKwkJKGlu
-dGVyZmFjZS0+ZGVzYy5iSW50ZXJmYWNlUHJvdG9jb2wgPT0gVVNCX0lOVEVSRkFDRV9QUk9UT0NP
-TF9NT1VTRSkpDQorCQkJcmV0dXJuIE5VTEw7DQorDQorDQogCWlmICh1c2JfZ2V0X2V4dHJhX2Rl
-c2NyaXB0b3IoaW50ZXJmYWNlLCBISURfRFRfSElELCAmaGRlc2MpICYmDQogCSAgICAoIWludGVy
-ZmFjZS0+ZGVzYy5iTnVtRW5kcG9pbnRzIHx8DQogCSAgICAgdXNiX2dldF9leHRyYV9kZXNjcmlw
-dG9yKCZpbnRlcmZhY2UtPmVuZHBvaW50WzBdLCBISURfRFRfSElELCAmaGRlc2MpKSkgew0KZGlm
-ZiAtdXIgbGludXgtMi42LjIwLXJjMS1vcmlnL2luY2x1ZGUvbGludXgvaGlkLmggbGludXgtMi42
-LjIwLXJjMS9pbmNsdWRlL2xpbnV4L2hpZC5oDQotLS0gbGludXgtMi42LjIwLXJjMS1vcmlnL2lu
-Y2x1ZGUvbGludXgvaGlkLmgJMjAwNi0xMi0xNCAwMjoxNDoyMy4wMDAwMDAwMDAgKzAxMDANCisr
-KyBsaW51eC0yLjYuMjAtcmMxL2luY2x1ZGUvbGludXgvaGlkLmgJMjAwNi0xMi0yMyAwODoyMTo0
-MS4wMDAwMDAwMDAgKzAxMDANCkBAIC0yNjQsNiArMjY0LDcgQEANCiAjZGVmaW5lIEhJRF9RVUlS
-S19JTlZFUlRfSFdIRUVMCQkJMHgwMDAwNDAwMA0KICNkZWZpbmUgSElEX1FVSVJLX1BPV0VSQk9P
-S19JU09fS0VZQk9BUkQgICAgICAgIDB4MDAwMDgwMDANCiAjZGVmaW5lIEhJRF9RVUlSS19CQURf
-UkVMQVRJVkVfS0VZUwkJMHgwMDAxMDAwMA0KKyNkZWZpbmUgSElEX1FVSVJLX0lHTk9SRV9NT1VT
-RQkJCTB4MDAwMjAwMDANCiANCiAvKg0KICAqIFRoaXMgaXMgdGhlIGdsb2JhbCBlbnZpcm9ubWVu
-dCBvZiB0aGUgcGFyc2VyLiBUaGlzIGluZm9ybWF0aW9uIGlzDQo=
+  http://programming.kicks-ass.net/kernel-patches/
+
+were done based on lock-contention profiling feedback. I've included the 
+lockless pagecache and the s_files scalability patches which were very 
+useful already. The lru_cache_add one is the next one for me to try, 
+plus on i686 -rt kernels highmem locking hurts, hence the 
+highmem_rewrite.patch (not in -rt yet either). Plus there's the really 
+exciting concurrent-pagecache patch-queue from Peter, which will be 
+interesting to try too.
+
+If you'd like to profile this yourself then the lowest-cost way of 
+profiling lock contention on -rt is to use the yum kernel and run the 
+attached trace-it-lock-prof.c code on the box while your workload is in 
+'steady state' (and is showing those extended idle times):
+
+  ./trace-it-lock-prof > trace.txt
+
+this captures up to 1 second worth of system activity, on the current 
+CPU. Then you can construct the histogram via:
+
+  grep -A 1 ' __schedule()<-' trace.txt | cut -d: -f2- | sort |
+                                  uniq -c | sort -n > prof.txt
+
+i just did this for "hackbench 20", and it gave me:
+
+     38  kfree()<-skb_release_data()<-kfree_skbmem()<-(-1)()
+     40  kmem_cache_free()<-kfree_skbmem()<-__kfree_skb()<-(-1)()
+     47  __schedule()<-preempt_schedule_irq()<-retint_kernel()<-__spin_unlock_irqrestore()
+    173  rt_read_lock()<-sock_def_readable()<-unix_stream_sendmsg()<-(-1)()
+    173  __schedule()<-schedule()<-rt_spin_lock_slowlock()<-__lock_text_start()
+    274  __schedule()<-schedule()<-posix_cpu_timers_thread()<-kthread()
+    277  __schedule()<-schedule()<-ksoftirqd()<-kthread()
+    365  kmem_cache_alloc_node()<-__alloc_skb()<-sock_alloc_send_skb()<-(-1)()
+    366  kmem_cache_alloc_node()<-__kmalloc_node()<-__alloc_skb()<-(-1)()
+    814  __schedule()<-schedule()<-rt_spin_lock_slowlock()<-rt_spin_lock()
+   1819  __schedule()<-schedule()<-int_careful()<-<ffffe405>()
+   2346  __schedule()<-schedule()<-schedule_timeout()<-unix_stream_recvmsg()
+   2346  sock_aio_read()<-do_sync_read()<-vfs_read()<-(-1)()
+
+(note the output mixes the two lines of symbolic stack backtrace entries 
+that are generated by the tracer, so the last two lines for example are 
+for the same contention/preemption point.)
+
+this means that the biggest contention points (or natural rescheduling 
+points) in this workload are sock_aio_read()->unix_stream_recvmsg() - 
+not unexpected. But there's also ~10% of contention in the kmalloc code, 
+meaning that for this workload the per-CPU slabs are probably set a bit 
+too low. There's also ~5% of contention from sock_def_readable()'s use 
+of an rwlock.
+
+with more CPUs and more tasks you'll see these effects in a more drastic 
+way.
+
+	Ingo
+
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="trace-it-lock-prof.c"
 
 
---=-4FC8La0Ez3KfOVoxJoiQ--
+/*
+ * Copyright (C) 2005, Ingo Molnar <mingo@redhat.com>
+ *
+ * user-triggered tracing.
+ *
+ * The -rt kernel has a built-in kernel tracer, which will trace
+ * all kernel function calls (and a couple of special events as well),
+ * by using a build-time gcc feature that instruments all kernel
+ * functions.
+ * 
+ * The tracer is highly automated for a number of latency tracing purposes,
+ * but it can also be switched into 'user-triggered' mode, which is a
+ * half-automatic tracing mode where userspace apps start and stop the
+ * tracer. This file shows a dumb example how to turn user-triggered
+ * tracing on, and how to start/stop tracing. Note that if you do
+ * multiple start/stop sequences, the kernel will do a maximum search
+ * over their latencies, and will keep the trace of the largest latency
+ * in /proc/latency_trace. The maximums are also reported to the kernel
+ * log. (but can also be read from /proc/sys/kernel/preempt_max_latency)
+ *
+ * For the tracer to be activated, turn on CONFIG_WAKEUP_TIMING and
+ * CONFIG_LATENCY_TRACE in the .config, rebuild the kernel and boot
+ * into it. Note that the tracer can have significant runtime overhead,
+ * so you dont want to use it for performance testing :)
+ */
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/prctl.h>
+#include <linux/unistd.h>
+
+int main (int argc, char **argv)
+{
+	int ret;
+
+	if (getuid() != 0) {
+		fprintf(stderr, "needs to run as root.\n");
+		exit(1);
+	}
+	ret = system("cat /proc/sys/kernel/mcount_enabled >/dev/null 2>/dev/null");
+	if (ret) {
+		fprintf(stderr, "CONFIG_LATENCY_TRACING not enabled?\n");
+		exit(1);
+	}
+	system("echo 1 > /proc/sys/kernel/trace_enabled");
+	system("echo 0 > /proc/sys/kernel/trace_freerunning");
+	system("echo 0 > /proc/sys/kernel/trace_print_at_crash");
+	system("echo 1 > /proc/sys/kernel/trace_user_triggered");
+	system("echo 1 > /proc/sys/kernel/stackframe_tracing");
+	system("echo 0 > /proc/sys/kernel/trace_verbose");
+	system("echo 0 > /proc/sys/kernel/preempt_max_latency");
+	system("echo 0 > /proc/sys/kernel/preempt_thresh");
+	system("[ -e /proc/sys/kernel/wakeup_timing ] && echo 1 > /proc/sys/kernel/wakeup_timing");
+	system("echo 0 > /proc/sys/kernel/mcount_enabled");
+
+	// start tracing
+	if (prctl(0, 1)) {
+		fprintf(stderr, "trace-it: couldnt start tracing!\n");
+		return 1;
+	}
+	usleep(1000000);
+	if (prctl(0, 0)) {
+		fprintf(stderr, "trace-it: couldnt start tracing!\n");
+		return 1;
+	}
+
+	system("cat /proc/latency_trace");
+
+	return 0;
+}
+
+
+
+--sdtB3X0nJg68CQEu--

@@ -1,73 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751627AbWLVXqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753302AbWLWA0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWLVXqj (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 18:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753280AbWLVXqj
+	id S1753302AbWLWA0S (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 19:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753322AbWLWA0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 18:46:39 -0500
-Received: from post-25.mail.nl.demon.net ([194.159.73.195]:59941 "EHLO
-	post-25.mail.nl.demon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751627AbWLVXqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 18:46:38 -0500
-Message-ID: <458C6E56.3070700@edsons.demon.nl>
-Date: Sat, 23 Dec 2006 00:46:30 +0100
-From: Rudy Zijlstra <rudy@edsons.demon.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.12) Gecko/20050923
-X-Accept-Language: en-us, en
+	Fri, 22 Dec 2006 19:26:18 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53912 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753302AbWLWA0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 19:26:17 -0500
+Date: Fri, 22 Dec 2006 16:25:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+cc: Thomas Meyer <thomas@m3y3r.de>, Steve French <sfrench@samba.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: WARNING: "test_clear_page_dirty" [fs/cifs/cifs.ko] undefined!
+In-Reply-To: <20061222223034.b29aeb5f.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.64.0612221615430.3671@woody.osdl.org>
+References: <458BEB9D.8030709@m3y3r.de> <20061222223034.b29aeb5f.khali@linux-fr.org>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Trond Myklebust <Trond.Myklebust@netapp.com>,
-       nfs <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Kernel BUG
-References: <458BC8AE.2030507@edsons.demon.nl> <1166794920.32117.42.camel@twins>
-In-Reply-To: <1166794920.32117.42.camel@twins>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
 
->On Fri, 2006-12-22 at 12:59 +0100, Rudy Zijlstra wrote:
->  
->
->>Hi,
->>
->>I have a system where whenever i trigger a ongoing consistent NFS load i 
->>get the following kernel BUG:
->>
->>----------
->>kernel BUG at mm/truncate.c:311!
->>    
->>
->
->Lotsa changes there:
->try these:
-> http://client.linux-nfs.org/Linux-2.6.x/2.6.19/linux-2.6.19-NFS_ALL.dif
->
->And:
->  http://lkml.org/lkml/2006/12/19/279
->
->  
->
-Thanks, i have now a 2.6.19.1 patched with the above NFS_ALL patchset 
-running under load since about 17:00 and still going strong. So seems to 
-have solved the problem!
 
-Also, performance seems to have significantly increased. I am testing 
-this with MythTv with the storage over NFS. With HD LiveTV (which  is 
-what i use to test this), this translates into about 43Mbps total load, 
-from almost 15Mbps video stream which is present 3x on the ethernet:
-1/ from card to NFS disk
-2/ read from NFS disk
-3/ stream to viewer app.
+On Fri, 22 Dec 2006, Jean Delvare wrote:
+> 
+> The approach seems quite broken to me, the users should have been fixed
+> _before_ removing the function, so as to avoid compilation failures.
+> These are a pain for testers, and break git bisect too. Grmbl.
 
-Doing this with HD streams before the patch set resulted in regular 
-picture hickups. No hickups visible anymore (that i have seen, i have 
-not been present all this time).
+This needed to be fixed, and quite frankly, things don't get fixed nearly 
+as quickly if you don't just break them first. And there really were just 
+two filesystems that got broken, cifs being one of them.
 
-Regards,
+I just can't test it.
 
-Rudy
+> Now that it's done... Steve, can you please take a look and provide a
+> patch so that cifs builds again?
+
+CIFS _should_ be using "clear_page_dirty_for_io()" in that place, and that 
+will fix the build. However, the reason I didn't just do that myself is 
+that I can't test the end result, and for the life of me, I can't see 
+where CIFS does the "end_page_writeback()" that it needs to do at IO 
+completion time.
+
+And the thing that confuses me about that, is that if CIFS doesn't do 
+"end_page_writeback()", then it was already broken before - because when 
+the VM calls "->writepage()" the clear_page_dirty_for_io() will have been 
+done by the VM, and it needs that "end_page_writeback()" so that the 
+system can know when the IO is done.
+
+I _suspect_ that those "unlock_page()" calls should be accompanied by a 
+"end_page_writeback()" call, and that the proper patch MAY look something 
+like the appended, but I worry about having missed something really 
+subtle. Maybe there's a end_page_writeback() somewhere else.
+
+And if there isn't, I wonder if shared mappings have _ever_ worked on 
+CIFS? And if so, how? That writeback bit thing isn't new per se.
+
+So this may or may not fix it. If you can test it (_including_ with some 
+dirty shared mmap-on-mmap action, please - just call me kinky), I'll 
+commit it. But I need somebody who actually uses this to test it.
+
+		Linus
+
+---
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 0f05cab..4f0472d 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1245,7 +1245,7 @@ retry:
+ 				wait_on_page_writeback(page);
+ 
+ 			if (PageWriteback(page) ||
+-					!test_clear_page_dirty(page)) {
++					!clear_page_dirty_for_io(page)) {
+ 				unlock_page(page);
+ 				break;
+ 			}
+@@ -1253,6 +1253,7 @@ retry:
+ 			if (page_offset(page) >= mapping->host->i_size) {
+ 				done = 1;
+ 				unlock_page(page);
++				end_page_writeback(page);
+ 				break;
+ 			}
+ 
+@@ -1316,6 +1317,7 @@ retry:
+ 					SetPageError(page);
+ 				kunmap(page);
+ 				unlock_page(page);
++				end_page_writeback(page);
+ 				page_cache_release(page);
+ 			}
+ 			if ((wbc->nr_to_write -= n_iov) <= 0)
+@@ -1356,7 +1358,8 @@ static int cifs_writepage(struct page* page, struct writeback_control *wbc)
+ 	rc = cifs_partialpagewrite(page, 0, PAGE_CACHE_SIZE);
+ 	SetPageUptodate(page); /* BB add check for error and Clearuptodate? */
+ 	unlock_page(page);
+-	page_cache_release(page);	
++	end_page_writeback(page);
++	page_cache_release(page);
+ 	FreeXid(xid);
+ 	return rc;
+ }

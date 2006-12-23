@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753456AbWLWLiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753312AbWLWLkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753456AbWLWLiI (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 06:38:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753312AbWLWLiH
+	id S1753312AbWLWLkR (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 06:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753460AbWLWLkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 06:38:07 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3826 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753456AbWLWLiG (ORCPT
+	Sat, 23 Dec 2006 06:40:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2685 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753312AbWLWLkP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 06:38:06 -0500
-Date: Sat, 23 Dec 2006 11:37:52 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Tony Lindgren <tony@atomide.com>,
-       pHilipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [patch 2.6.20-rc1 5/6] SA1100 GPIO wrappers
-Message-ID: <20061223113752.GA28306@flint.arm.linux.org.uk>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-	Bill Gatliff <bgat@billgatliff.com>,
-	Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-	Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-	Tony Lindgren <tony@atomide.com>,
-	pHilipp Zabel <philipp.zabel@gmail.com>
-References: <200611111541.34699.david-b@pacbell.net> <200612201304.03912.david-b@pacbell.net> <200612201313.22572.david-b@pacbell.net>
-Mime-Version: 1.0
+	Sat, 23 Dec 2006 06:40:15 -0500
+Date: Sat, 23 Dec 2006 12:40:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] add i386 idle notifier (take 3)
+Message-ID: <20061223114015.GQ6993@stusta.de>
+References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de> <20061222100700.GB1895@frankl.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612201313.22572.david-b@pacbell.net>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061222100700.GB1895@frankl.hpl.hp.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2006 at 01:13:21PM -0800, David Brownell wrote:
-> Arch-neutral GPIO calls for SA-1100.
+On Fri, Dec 22, 2006 at 02:07:00AM -0800, Stephane Eranian wrote:
+> Andrian,
 > 
-> From: Philipp Zabel <philipp.zabel@gmail.com>
+> On Fri, Dec 22, 2006 at 02:06:41AM +0100, Adrian Bunk wrote:
+> > > changelog:
+> > > 	- add a notifier mechanism to the low level idle loop. You can
+> > > 	  register a callback function which gets invoked on entry and exit
+> > > 	  from the low level idle loop. The low level idle loop is defined as
+> > > 	  the polling loop, low-power call, or the mwait instruction. Interrupts
+> > > 	  processed by the idle thread are not considered part of the low level
+> > > 	  loop. The notifier can be used to measure precisely how much is spent
+> > > 	  in useless execution (or low power mode). The perfmon subsystem uses it
+> > > 	  to turn on/off monitoring.
+> > 
+> > 
+> > Why is this patch not submitted as part of the perfmon patch that also 
+> > adds a user of this code?
 > 
-> +static inline unsigned gpio_to_irq(unsigned gpio)
-> +{
-> +	if (gpio < 11)
-> +		return IRQ_GPIO0 + gpio;
-> +	else
-> +		return IRQ_GPIO11 - 11 + gpio;
-> +}
-> +
-> +static inline unsigned irq_to_gpio(unsigned irq)
-> +{
-> +	if (irq < IRQ_GPIO11_27)
-> +		return irq - IRQ_GPIO0;
-> +	else
-> +		return irq - IRQ_GPIO11 + 11;
-> +}
+> If you look at the perfmon-new-base patch, you'll see a base.diff patch which
+> includes this one. I am slowly getting rid of this requirement by pushing
+> those "infrastructure patches" to mainline so that the perfmon patch gets
+> smaller over time. Submitting smaller patches makes it easier for maintainers
+> to integrate.
 
-Why do we need to convert between IRQ and PGIO numbers?  This is NOT
-something that drivers should even care about - it's something that the
-interrupt subsystem should know when being asked to claim an GPIO-based
-IRQ.
+No, the preferred way is to start with getting both the infrastructure 
+and the users into -mm.
 
-That's something I worked hard to eliminate from the SA1100 drivers,
-please don't reintroduce this silly idea again.
+Adding infrastructure without users doesn't fit into the kernel 
+development model.
 
-When the interrupt system is asked to claim a IRQ corresponding to a
-GPIO, it should deal with all the stuff necessary to ensure that the
-GPIO is in the required state.  Drivers should not be considering
-converting IRQ numbers to GPIOs or vice versa.
+The unused x86-64 idle notifiers are now bloating the kernel since 
+nearly one year.
 
-Doing otherwise is just plain silly - are we expecting to add GPIO
-support to all Linux drivers which could possibly be used on ARM, just
-because their interrupt pin might possibly be connected to a GPIO?
+> > And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
+> > perfmon-new-base-061204 doesn't seem to add any modular user?
+> 
+> I have tried to stay as close as possible from the x86-64 implementation
+> of this mechanism. The registration entry points are exported to modules,
+> just like they are for x86-64. Also note that the x86-64 idle notifier does
+> not have a user at this point, yet it is in the kernel. Perfmon will become
+> the first user of this mechanism.
 
-Get real - if you're dealing with IRQs use _only_ IRQ numbers.  Don't
-even think that drivers should be able to convert between IRQ and GPIO
-numbers.
+Where does the perfmon code use the EXPORT_SYMBOL's?
+
+And having added bloat on one architecture is not an excuse for adding 
+bloat on other architectures.
+
+> -Stephane
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

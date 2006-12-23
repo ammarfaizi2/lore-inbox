@@ -1,128 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753748AbWLWUj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753783AbWLWVg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753748AbWLWUj4 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 15:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753743AbWLWUj4
+	id S1753783AbWLWVg0 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 16:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753782AbWLWVg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 15:39:56 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:28850 "HELO
-	smtp104.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753747AbWLWUjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 15:39:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ATPjVVk1a/MXs9A3AGTSH+X7YvSbH8CXOdOzBBgif/dCYL2GvaQlA73ow5SemUnfPtzWLxzt/tAkv8pVUT4b35NcunnrzA85rI1uig2HWbUpQalmcUSWOlkdlfk1MSfgzRhzn7Ff1BIeVlY6tbug+mh1B94U4QK1Z/xXomB3ni4=  ;
-X-YMail-OSG: l2ZFbQUVM1mvGT4CCr8iViYU6gZiixL72vW18ltMDLYNoHEwoX_pbSqQH5zZiofKTwx0mTqlDYoBOzN3a3Q3m3hrtaq_4LC3LE8jtLKZiu_Sbqis5AUTE9ucgNHxRPVMPnCM6FSdJhpNG8.KxajykXriCpAMqw6KfRHj6oGxRtIADyoIXuXDEGIGD_b9
-From: David Brownell <david-b@pacbell.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 2.6.20-rc1 5/6] SA1100 GPIO wrappers
-Date: Sat, 23 Dec 2006 12:39:50 -0800
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Tony Lindgren <tony@atomide.com>,
-       pHilipp Zabel <philipp.zabel@gmail.com>
-References: <200611111541.34699.david-b@pacbell.net> <200612201313.22572.david-b@pacbell.net> <20061223113752.GA28306@flint.arm.linux.org.uk>
-In-Reply-To: <20061223113752.GA28306@flint.arm.linux.org.uk>
+	Sat, 23 Dec 2006 16:36:26 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36474 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753783AbWLWVgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 16:36:25 -0500
+Date: Sat, 23 Dec 2006 22:36:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061223213602.GA29627@elf.ucw.cz>
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <20061214161750.GB3388@stusta.de> <20061214163347.4f1be668@localhost.localdomain> <20061214171749.GA29982@thunk.org> <20061214195136.GD3388@stusta.de> <20061221153828.GA4038@ucw.cz> <20061223112429.GP6993@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612231239.52285.david-b@pacbell.net>
+In-Reply-To: <20061223112429.GP6993@stusta.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 December 2006 3:37 am, Russell King wrote:
+On Sat 2006-12-23 12:24:29, Adrian Bunk wrote:
+> On Thu, Dec 21, 2006 at 03:38:29PM +0000, Pavel Machek wrote:
+> > On Thu 14-12-06 20:51:36, Adrian Bunk wrote:
+> > > On Thu, Dec 14, 2006 at 12:17:49PM -0500, Theodore Tso wrote:
+> > > > On Thu, Dec 14, 2006 at 04:33:47PM +0000, Alan wrote:
+> > > > > > The trick is to let a lawyer send cease and desist letters to people 
+> > > > > > distributing the infringing software for 1 Euro at Ebay.
+> > > > > 
+> > > > > Doesn't that sound even more like the music industry ? Pick on Grandma,
+> > > > > and people who've no clue about the issue. It's not the way to solve such
+> > > > > problems. The world does not need "The war on binary modules". Educate
+> > > > > people instead, and talk to vendors.
+> > > > 
+> > > > .... or like Microsoft, who is threatening to make war on end-users
+> > > > instead of settling things with vendors.  (One of the reasons why I
+> > > > personally find the Microsoft promise not to sue _Novell_'s end users
+> > > > so nasty.  Microsoft shouldn't be threatening anyone's users; if they
+> > > > have a problem, they should be taking it up with the relevant vendor,
+> > > > not sueing innocent and relatively shallow-pocketed end-users and
+> > > > distributors.)
+> > > > 
+> > > > One of the things that I find so interesting about how rabid people
+> > > > get about enforcing GPL-only modules is how they start acting more and
+> > > > more like the RIAA, MPAA, and Microsoft every day....
+> > > 
+> > > Please don't think or imply I'd plan to do this, I'm only saying that 
+> > > there's a risk for users in such grey areas.
+> > > 
+> > > It could be that someone who wants to harm Linux starts suing people 
+> > > distributing Linux. If your goal is to harm Linux, suing users can 
+> > > simply be much more effective than suing vendors...
+> > > 
+> > > It could even be that people distributing Linux could receive cease and 
+> > > desist letters from people without any real interest in the issue
+> > > itself - "cease and desist letter"s are so frequent in Germany because 
+> > > the people who have to sign them have to pay the lawyers' costs that are 
+> > > usually > 1000 Euro, and that's a good business for the lawyers.
+> > 
+> > Something is very wrong with German legal system, I'm afraid.
+> 
+> The point that you can take legal actions against anyone distributing 
+> something that violates your rights should be present in more or less 
+> all legal systems.
+> 
+> What might be special in Germany is only that you can demand your costs 
+> after successfully taking legal actions.
 
-> Why do we need to convert between IRQ and PGIO numbers?
-
-(I take it that's the only real issue you had with this patch, other
-than maybe excessive #includes?)
-
-
-I suppose we could do with a one way mapping:  GPIO-to-IRQ, then
-require drivers map the other way themselves when they need to.
-As they must do with DMA addresses.
-
-Having that GPIO-to-IRQ mapping is quite routine; and necessary.
-
-On the other hand, since it's a (small) one-to-one mapping, I don't
-see any real issue with defining how to access it in both directions.
-I can tell one direction (IRQ-to-GPIO) bothers you ... but not why.
-
-
-> When the interrupt system is asked to claim a IRQ corresponding to a
-> GPIO, it should deal with all the stuff necessary to ensure that the
-> GPIO is in the required state.
-
-IRQ framework can't do "all" the needed stuff on platforms (like OMAP1)
-where knowing the GPIO (presumably from a private IRQ-to-GPIO mapping??)
-doesn't tell you what pin to set up, or how.  Such setup needs to be in
-place *before* request_irq() is called.  The genirq irqchip.startup()
-call could potentially sanity check whether a GPIO is configured as an
-input, but couldn't handle pin muxing or pullup/pulldown config; and
-I'd argue it shouldn't try to change anyt of that, since it's an API
-for managing IRQs not for pin configuration.
-
-
-> 	are we expecting to add GPIO
-> support to all Linux drivers which could possibly be used on ARM, just
-> because their interrupt pin might possibly be connected to a GPIO?
-
-I'd expect board-specific setup code to pass gpio_to_irq(gpio_num) to
-drivers when the _only_ thing that matters is its IRQ-ness.  And to
-have previousy set up the relevant pin as a GPIO input ... so that most
-drivers would just see an IRQ, much like any other irq.
-
-That's what most of them do now, I didn't propose changing any part of
-that except defining a standard way to write the GPIO-to-IRQ mapping.
-
-
-The overall goal is basically to let drivers which know they've got a
-GPIO have a standard way to use it ... in the previous situation, the
-lack of such a portable API means those drivers must be (needlessly)
-platform-specific.
-
-
-> This is NOT 
-> something that drivers should even care about - it's something that the
-> interrupt subsystem should know when being asked to claim an GPIO-based
-> IRQ.
-
-It's admittedly uncommon that drivers care about IRQ-to-GPIO, but it's
-not a "never" thing.  Drivers often need to care more about the exact
-state of the signal than "IRQ triggered a while back"; and that means
-some kind of IRQ-to-GPIO mapping.
-
-Examples: systems that only have "both edges" triggering, where the
-hardware signal is level triggered; or the supported triggering modes
-are otherwise not a good match for an external chip.  State when the
-driver starts up may need to check signal level directly, when the
-IRQ must use edge triggering.  Also, disabling an IRQ at the source
-(vs. unsharably masking it in the local IRQ controller) can sometimes
-take much of a millisecond because of I2C or similar delays, making
-it likely that signal state changed since the irq triggered.  Oh, and
-the reverse mapping could also be useful for diagnostics.
-
-
-> Get real - if you're dealing with IRQs use _only_ IRQ numbers.  Don't
-> even think that drivers should be able to convert between IRQ and GPIO
-> numbers.
-
-I was being real, and I gave some examples above where drivers need to
-be able to detect the actual signal level.
-
-On the other hand it'd also be practical to force drivers to do that
-mapping from IRQ (they probably only handle a few!) to GPIO, when they
-need to do that, if they're given a GPIO number directly.  Then they'd
-just use the GPIO-to-IRQ mapping to request the IRQ (already a common
-idiom) and directly access the gpio state.
-
-- Dave
-
+What is special in Germany is fact that any random lawyer can demand
+$1000 (not his cost, his profit) if you distribute code that is not
+his...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

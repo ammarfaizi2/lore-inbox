@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751667AbWLWDDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751920AbWLWDV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751667AbWLWDDp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 22:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWLWDDp
+	id S1751920AbWLWDV6 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 22:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWLWDV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 22:03:45 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:37605 "EHLO
-	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751667AbWLWDDo (ORCPT
+	Fri, 22 Dec 2006 22:21:57 -0500
+Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:64176 "EHLO
+	sbcs.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751561AbWLWDV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 22:03:44 -0500
-X-Greylist: delayed 302 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 22:03:44 EST
-From: John A Chaves <chaves@computer.org>
-To: Christoph Anton Mitterer <calestyo@scientia.net>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory hole mapping related bug?!
-Date: Fri, 22 Dec 2006 20:56:39 -0600
-User-Agent: KMail/1.9.5
-Cc: Karsten Weiss <K.Weiss@science-computing.de>, Chris Wedgwood <cw@f00f.org>,
-       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>,
-       Andi Kleen <ak@suse.de>, muli@il.ibm.com
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612132100060.6688@palpatine.science-computing.de> <458C8EBE.3010506@scientia.net>
-In-Reply-To: <458C8EBE.3010506@scientia.net>
+	Fri, 22 Dec 2006 22:21:56 -0500
+Date: Fri, 22 Dec 2006 22:21:47 -0500 (EST)
+From: Nikolai Joukov <kolya@cs.sunysb.edu>
+X-X-Sender: kolya@compserv1
+To: Al Boldi <a1426z@gawab.com>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: [ANNOUNCE] RAIF: Redundant Array of Independent Filesystems
+In-Reply-To: <200612172059.07941.a1426z@gawab.com>
+Message-ID: <Pine.GSO.4.53.0612222206170.10362@compserv1>
+References: <Pine.GSO.4.53.0612122217360.22195@compserv1>
+ <200612161635.49502.a1426z@gawab.com> <Pine.GSO.4.53.0612161118010.24531@compserv1>
+ <200612172059.07941.a1426z@gawab.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612222056.39939.chaves@computer.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 December 2006 20:04, Christoph Anton Mitterer wrote:
-> This brings me to:
-> Chris Wedgwood wrote:
-> > Does anyone have an amd64 with an nforce4 chipset and >4GB that does
-> > NOT have this problem? If so it might be worth chasing the BIOS
-> > vendors to see what errata they are dealing with.
-> John Chaves replied and claimed that he wouldn't suffer from that
-> problem (I've CC'ed him to this post).
-> You can read his message at the bottom of this post.
-> @ John: Could you please tell us in detail how you've tested your system?
+> > 3. A known ideal solution for this problem is sharing of the cached pages
+> >    between file systems.  We attempted to do it for Tracefs but the
+> >    resulting code is not beautiful and is potentially racy:
+> >    <http://marc.theaimsgroup.com/?l=linux-fsdevel&m=113193082115222&w=2>
+> >    Unfortunately, for fan-out file systems this solution requires even
+> >    more support from the OS.  However, this is what most OSs do
+> >    (including BSD and Windows) but unfortunately not Linux :-(
+>
+> VFS-hooks seem to be the cleanest solution not only for a stacked-fs, but
+> also for many other situations.  It's rather sad that linux hasn't seen the
+> light yet.
 
-I didn't need to run a specific test for this.  The normal workload of the
-machine approximates a continuous selftest for almost the last year.
+Jeff Sipek just got his proposal for a paper/discussion topic accepted to
+the Linux Storage and Filesystems workshop, co-located with FAST.  The
+topic for discussion will be what "surgery" the Linux kernel needs to
+support stackable file systems properly.  I hope it is an indicator that
+the situation with support of the stackable file systems in Linux may
+improve soon.
 
-Large files (4-12GB is typical) are being continuously packed and unpacked
-with gzip and bzip2.  Statistical analysis of the datasets is followed by
-verification of the data, sometimes using diff, or md5sum, or python
-scripts using numarray to mmap 2GB chunks at a time.  The machine
-often goes for days with a load level of 20+ and 32GB RAM + another 32GB
-swap in use.  It would be very unlikely for data corruption to go unnoticed.
-
-When I first got the machine I did have some problems with disks being
-dropped from the RAID and occasional log messages implicating the IOMMU.
-But that was with kernel 2.6.16.?, Kernels since 2.6.17 haven't had any
-problem.
-
-John
+Nikolai.

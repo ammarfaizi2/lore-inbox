@@ -1,64 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753100AbWLWKaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753124AbWLWKe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753100AbWLWKaU (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 05:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753102AbWLWKaU
+	id S1753124AbWLWKe5 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 05:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753102AbWLWKe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 05:30:20 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41645 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753084AbWLWKaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 05:30:18 -0500
-Date: Sat, 23 Dec 2006 11:27:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
-       suresh.b.siddha@intel.com, kenneth.w.chen@intel.com,
-       tony.luck@intel.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] sched: improve sched_clock() on i686
-Message-ID: <20061223102707.GA20251@elte.hu>
-References: <20061222104306.GC1895@frankl.hpl.hp.com> <20061222121920.GA3809@elte.hu>
+	Sat, 23 Dec 2006 05:34:57 -0500
+Received: from mail.first.fraunhofer.de ([194.95.169.2]:51214 "EHLO
+	mail.first.fraunhofer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752703AbWLWKe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 05:34:56 -0500
+Subject: [PATCH] make fn_keys work again on power/macbooks on
+	linux-2.6.20-rc1
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+Content-Type: multipart/mixed; boundary="=-Il4jN9A3l2Mn831MZYxn"
+Date: Sat, 23 Dec 2006 11:34:49 +0100
+Message-Id: <1166870089.11501.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061222121920.GA3809@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+X-Mailer: Evolution 2.8.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--=-Il4jN9A3l2Mn831MZYxn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> it's purely historic - the i686 sched_clock() implementation predates 
-> the scheduler's ability to deal with non-synchronous per-CPU clocks. I 
-> tried to fix that (a year ago) and it didnt work out - but i've 
-> reviewed my old patch and now realize what the mistake was - the patch 
-> below should work better.
+Dear all,
 
-that patch needs the small fix below as well.
+The apple fn keys don't work anymore with 2.6.20-rc1.
 
-	Ingo
+The reason is that USB_HID_POWERBOOK appears in several files although
+USB_HIDINPUT_POWERBOOK is the thing to be used.
 
-Index: linux/include/asm-i386/bugs.h
-===================================================================
---- linux.orig/include/asm-i386/bugs.h
-+++ linux/include/asm-i386/bugs.h
-@@ -160,7 +160,7 @@ static void __init check_config(void)
-  * If we configured ourselves for a TSC, we'd better have one!
-  */
- #ifdef CONFIG_X86_TSC
--	if (!cpu_has_tsc)
-+	if (!cpu_has_tsc && !tsc_disable)
- 		panic("Kernel compiled for Pentium+, requires TSC feature!");
- #endif
- 
+the attached trivial patch fixes this.
 
+Please apply.
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+
+--=-Il4jN9A3l2Mn831MZYxn
+Content-Disposition: attachment; filename=apple_fn.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=apple_fn.patch; charset=ISO-8859-15
+
+U2lnbmVkLW9mZi1ieTogU29lcmVuIFNvbm5lbmJ1cmcgPGtlcm5lbEBubjcuZGU+DQoNCmRpZmYg
+LXVyIGxpbnV4LTIuNi4yMC1yYzEtb3JpZy9hcmNoL2kzODYvZGVmY29uZmlnIGxpbnV4LTIuNi4y
+MC1yYzEvYXJjaC9pMzg2L2RlZmNvbmZpZw0KLS0tIGxpbnV4LTIuNi4yMC1yYzEtb3JpZy9hcmNo
+L2kzODYvZGVmY29uZmlnCTIwMDYtMTItMTQgMDI6MTQ6MjMuMDAwMDAwMDAwICswMTAwDQorKysg
+bGludXgtMi42LjIwLXJjMS9hcmNoL2kzODYvZGVmY29uZmlnCTIwMDYtMTItMjMgMTE6MTM6MDcu
+MDAwMDAwMDAwICswMTAwDQpAQCAtMTE2Nyw3ICsxMTY3LDcgQEANCiAjIFVTQiBJbnB1dCBEZXZp
+Y2VzDQogIw0KIENPTkZJR19VU0JfSElEPXkNCi0jIENPTkZJR19VU0JfSElEX1BPV0VSQk9PSyBp
+cyBub3Qgc2V0DQorIyBDT05GSUdfVVNCX0hJRElOUFVUX1BPV0VSQk9PSyBpcyBub3Qgc2V0DQog
+IyBDT05GSUdfSElEX0ZGIGlzIG5vdCBzZXQNCiAjIENPTkZJR19VU0JfSElEREVWIGlzIG5vdCBz
+ZXQNCiAjIENPTkZJR19VU0JfQUlQVEVLIGlzIG5vdCBzZXQNCmRpZmYgLXVyIGxpbnV4LTIuNi4y
+MC1yYzEtb3JpZy9hcmNoL3NwYXJjNjQvZGVmY29uZmlnIGxpbnV4LTIuNi4yMC1yYzEvYXJjaC9z
+cGFyYzY0L2RlZmNvbmZpZw0KLS0tIGxpbnV4LTIuNi4yMC1yYzEtb3JpZy9hcmNoL3NwYXJjNjQv
+ZGVmY29uZmlnCTIwMDYtMTItMTQgMDI6MTQ6MjMuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgt
+Mi42LjIwLXJjMS9hcmNoL3NwYXJjNjQvZGVmY29uZmlnCTIwMDYtMTItMjMgMTE6MTM6MDcuMDAw
+MDAwMDAwICswMTAwDQpAQCAtMTEwMyw3ICsxMTAzLDcgQEANCiAjIFVTQiBJbnB1dCBEZXZpY2Vz
+DQogIw0KIENPTkZJR19VU0JfSElEPXkNCi0jIENPTkZJR19VU0JfSElEX1BPV0VSQk9PSyBpcyBu
+b3Qgc2V0DQorIyBDT05GSUdfVVNCX0hJRElOUFVUX1BPV0VSQk9PSyBpcyBub3Qgc2V0DQogIyBD
+T05GSUdfSElEX0ZGIGlzIG5vdCBzZXQNCiBDT05GSUdfVVNCX0hJRERFVj15DQogIyBDT05GSUdf
+VVNCX0FJUFRFSyBpcyBub3Qgc2V0DQpkaWZmIC11ciBsaW51eC0yLjYuMjAtcmMxLW9yaWcvYXJj
+aC94ODZfNjQvZGVmY29uZmlnIGxpbnV4LTIuNi4yMC1yYzEvYXJjaC94ODZfNjQvZGVmY29uZmln
+DQotLS0gbGludXgtMi42LjIwLXJjMS1vcmlnL2FyY2gveDg2XzY0L2RlZmNvbmZpZwkyMDA2LTEy
+LTE0IDAyOjE0OjIzLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNi4yMC1yYzEvYXJjaC94
+ODZfNjQvZGVmY29uZmlnCTIwMDYtMTItMjMgMTE6MTM6MDcuMDAwMDAwMDAwICswMTAwDQpAQCAt
+MTE5MSw3ICsxMTkxLDcgQEANCiAjIFVTQiBJbnB1dCBEZXZpY2VzDQogIw0KIENPTkZJR19VU0Jf
+SElEPXkNCi0jIENPTkZJR19VU0JfSElEX1BPV0VSQk9PSyBpcyBub3Qgc2V0DQorIyBDT05GSUdf
+VVNCX0hJRElOUFVUX1BPV0VSQk9PSyBpcyBub3Qgc2V0DQogIyBDT05GSUdfSElEX0ZGIGlzIG5v
+dCBzZXQNCiAjIENPTkZJR19VU0JfSElEREVWIGlzIG5vdCBzZXQNCiAjIENPTkZJR19VU0JfQUlQ
+VEVLIGlzIG5vdCBzZXQNCg0KZGlmZiAtdXIgbGludXgtMi42LjIwLXJjMS1vcmlnL2RyaXZlcnMv
+dXNiL2lucHV0L0tjb25maWcgbGludXgtMi42LjIwLXJjMS9kcml2ZXJzL3VzYi9pbnB1dC9LY29u
+ZmlnDQotLS0gbGludXgtMi42LjIwLXJjMS1vcmlnL2RyaXZlcnMvdXNiL2lucHV0L0tjb25maWcJ
+MjAwNi0xMi0xNCAwMjoxNDoyMy4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYuMjAtcmMx
+L2RyaXZlcnMvdXNiL2lucHV0L0tjb25maWcJMjAwNi0xMi0yMyAxMTowODoyOC4wMDAwMDAwMDAg
+KzAxMDANCkBAIC0yOCw3ICsyOCw3IEBADQogY29tbWVudCAiSW5wdXQgY29yZSBzdXBwb3J0IGlz
+IG5lZWRlZCBmb3IgVVNCIEhJRCBpbnB1dCBsYXllciBvciBISURCUCBzdXBwb3J0Ig0KIAlkZXBl
+bmRzIG9uIFVTQl9ISUQgJiYgSU5QVVQ9bg0KIA0KLWNvbmZpZyBVU0JfSElEX1BPV0VSQk9PSw0K
+K2NvbmZpZyBVU0JfSElESU5QVVRfUE9XRVJCT09LDQogCWJvb2wgIkVuYWJsZSBzdXBwb3J0IGZv
+ciBpQm9vay9Qb3dlckJvb2sgc3BlY2lhbCBrZXlzIg0KIAlkZWZhdWx0IG4NCiAJZGVwZW5kcyBv
+biBVU0JfSElEDQo=
+
+
+--=-Il4jN9A3l2Mn831MZYxn--

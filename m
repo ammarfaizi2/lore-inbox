@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750849AbWLWCev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751736AbWLWDAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWLWCev (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 21:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWLWCev
+	id S1751736AbWLWDAS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 22:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753312AbWLWDAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 21:34:51 -0500
-Received: from hera.kernel.org ([140.211.167.34]:54748 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750856AbWLWCeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 21:34:50 -0500
-From: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [GIT PATCH] ACPI patches for 2.6.20-rc1
-Date: Fri, 22 Dec 2006 21:34:13 -0500
-User-Agent: KMail/1.9.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org
-References: <200612200434.56516.lenb@kernel.org> <Pine.LNX.4.64.0612202357110.3576@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612202357110.3576@woody.osdl.org>
+	Fri, 22 Dec 2006 22:00:18 -0500
+Received: from mtao01.charter.net ([209.225.8.186]:35950 "EHLO
+	mtao01.charter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751736AbWLWDAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 22:00:16 -0500
+X-Greylist: delayed 862 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 22:00:15 EST
+Message-ID: <458C9BB2.1060201@cybsft.com>
+Date: Fri, 22 Dec 2006 21:00:02 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Chen, Tim C" <tim.c.chen@intel.com>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: 2.6.19-rt14 slowdown compared to 2.6.19
+References: <9D2C22909C6E774EBFB8B5583AE5291C0199950A@fmsmsx414.amr.corp.intel.com>
+In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C0199950A@fmsmsx414.amr.corp.intel.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612222134.14054.lenb@kernel.org>
+X-Chzlrs: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 December 2006 02:58, Linus Torvalds wrote:
+Chen, Tim C wrote:
+> Ingo,
+>  
+> We did some benchmarking on 2.6.19-rt14, compared it with 2.6.19 
+> kernel and noticed several slowdowns.  The test machine is a 2 socket
+> woodcrest machine with your default configuration.
+>  
+> Netperf TCP Streaming was slower by 40% ( 1 server and 1 client 
+> each bound to separate cpu cores on different socket, network
+> loopback mode was used).  
 > 
-> On Wed, 20 Dec 2006, Len Brown wrote:
-> > 
-> > please pull from: 
+> Volanomark was slower by 80% (Server and Clients communicate with 
+> network loopback mode. Idle time goes from 1% to 60%)
 > 
-> Is this really all obvious bug-fixes? There seems to be a lot of 
-> development there that simply isn't appropriate after an -rc1 any more.
+> Re-Aim7 was slower by 40% (idle time goes from 0% to 20%)
 > 
-> I want 2.6.20 to be stable, and one of the things I'm doing is to be 
-> strict about the merge window.
+> Wonder if you have any suggestions on what could cause the slowdown.  
+> We've tried disabling CONFIG_NO_HZ and it didn't help much.
+>
+> Thanks.
+> 
+> Tim
 
-Yes, I recommend pulling this tree now.
-While there is a fair amount of text changed, the functional changes
-here are actually quite small, and have been in -mm for a long time --
-some of them already shipping in distros before being upstream.
+Take a look at this. Not sure if this is the same problem but it looks
+like a candidate. I can definitely say that some latencies I have seen
+in my recent testing have gone away in the last few versions
+2.6.20-rc1-rt{3,4}.
 
-Yes, there is a fair amount of fluffy cleanup here -- seems there is
-never a good time in the release cycle to do them, but as andrew says,
-we're in this for the long term, so we do have to do them some time.
-I don't see any big risks in them so it seems appropriate to push after rc1.
+Sorry I missed the URL first time around.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116670388527349&w=2
 
-Note that there is a much larger body of ACPI changes in flight
-that I have excluded from this pull request and are waiting for 2.6.21.
+-- 
+	kr
 
-thanks,
--Len

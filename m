@@ -1,139 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753426AbWLWB2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753427AbWLWBfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753426AbWLWB2p (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 20:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753427AbWLWB2p
+	id S1753427AbWLWBfr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 20:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753438AbWLWBfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 20:28:45 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:33999 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753426AbWLWB2o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 20:28:44 -0500
-Date: Fri, 22 Dec 2006 17:28:40 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Ian McDonald" <ian.mcdonald@jandi.co.nz>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       sfrench@samba.org, linux-cifs-client@lists.samba.org,
-       samba-technical@lists.samba.org, "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [BUG] CIFS won't link
-Message-Id: <20061222172840.9bb66cf0.randy.dunlap@oracle.com>
-In-Reply-To: <5640c7e00612221721h1463aad2xf01c2785c6febce0@mail.gmail.com>
-References: <5640c7e00612221721h1463aad2xf01c2785c6febce0@mail.gmail.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Fri, 22 Dec 2006 20:35:46 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:40034 "EHLO cacti.profiwh.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753427AbWLWBfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Dec 2006 20:35:46 -0500
+Message-id: <552766292581216610@wsc.cz>
+In-reply-to: <87r6urket6.fsf@javad.com>
+References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
+	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
+	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
+	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
+	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
+	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
+	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
+	<87r6urket6.fsf@javad.com>
+Subject: Re: moxa serial driver testing
+From: Jiri Slaby <jirislaby@gmail.com>
+To: <osv@javad.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Sat, 23 Dec 2006 02:35:46 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2006 14:21:48 +1300 Ian McDonald wrote:
+osv@javad.com wrote:
+> Hi Jiri,
+> 
+> I've figured out that both old and new mxser drivers have two similar
+> problems:
+> 
+> 1. When there are data coming to a port, sometimes opening of the port
+>    entirely locks the box. This is quite reproducible. Any idea what's
+>    wrong and how can I help to debug it?
 
-> In commit fba2591bf4e418b6c3f9f8794c9dd8fe40ae7bd9
-> test_clear_page_dirty was removed a couple of days ago.
-> 
-> Now when I try and build I get this:
-> WARNING: "test_clear_page_dirty" [fs/cifs/cifs.ko] undefined!
-> 
-> This is caused by line 1248 of fs/cifs/file.c
-> 			if (PageWriteback(page) ||
-> 					!test_clear_page_dirty(page)) {
-> 
-> This isn't my area of expertise so I'm not providing a fix as I'm sure
-> I'll get it wrong!
-> 
-> My apologies if people have already fixed as I'm not on all the relevant lists.
-
-Linus posted an (untested) patch for this about 10 minutes ago.
-Is this something that you can test? (see below)
-
+Could you test the patch below, if something changes?
 
 ---
-On Fri, 22 Dec 2006, Jean Delvare wrote:
-> 
-> The approach seems quite broken to me, the users should have been fixed
-> _before_ removing the function, so as to avoid compilation failures.
-> These are a pain for testers, and break git bisect too. Grmbl.
 
-This needed to be fixed, and quite frankly, things don't get fixed nearly 
-as quickly if you don't just break them first. And there really were just 
-two filesystems that got broken, cifs being one of them.
+ drivers/char/mxser_new.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-I just can't test it.
-
-> Now that it's done... Steve, can you please take a look and provide a
-> patch so that cifs builds again?
-
-CIFS _should_ be using "clear_page_dirty_for_io()" in that place, and that 
-will fix the build. However, the reason I didn't just do that myself is 
-that I can't test the end result, and for the life of me, I can't see 
-where CIFS does the "end_page_writeback()" that it needs to do at IO 
-completion time.
-
-And the thing that confuses me about that, is that if CIFS doesn't do 
-"end_page_writeback()", then it was already broken before - because when 
-the VM calls "->writepage()" the clear_page_dirty_for_io() will have been 
-done by the VM, and it needs that "end_page_writeback()" so that the 
-system can know when the IO is done.
-
-I _suspect_ that those "unlock_page()" calls should be accompanied by a 
-"end_page_writeback()" call, and that the proper patch MAY look something 
-like the appended, but I worry about having missed something really 
-subtle. Maybe there's a end_page_writeback() somewhere else.
-
-And if there isn't, I wonder if shared mappings have _ever_ worked on 
-CIFS? And if so, how? That writeback bit thing isn't new per se.
-
-So this may or may not fix it. If you can test it (_including_ with some 
-dirty shared mmap-on-mmap action, please - just call me kinky), I'll 
-commit it. But I need somebody who actually uses this to test it.
-
-		Linus
-
----
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 0f05cab..4f0472d 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -1245,7 +1245,7 @@ retry:
- 				wait_on_page_writeback(page);
+diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+index a2bca5d..c0af201 100644
+--- a/drivers/char/mxser_new.c
++++ b/drivers/char/mxser_new.c
+@@ -2268,6 +2268,8 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
+ 			if (bits & irqbits)
+ 				continue;
+ 			port = &brd->ports[i];
++			if (!(port->flags & ASYNC_INITIALIZED))
++				continue;
  
- 			if (PageWriteback(page) ||
--					!test_clear_page_dirty(page)) {
-+					!clear_page_dirty_for_io(page)) {
- 				unlock_page(page);
- 				break;
- 			}
-@@ -1253,6 +1253,7 @@ retry:
- 			if (page_offset(page) >= mapping->host->i_size) {
- 				done = 1;
- 				unlock_page(page);
-+				end_page_writeback(page);
- 				break;
- 			}
+ 			int_cnt = 0;
+ 			do {
+@@ -2320,9 +2322,9 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
+ 					if (status & UART_LSR_THRE)
+ 						mxser_transmit_chars(port);
+ 				}
+-			} while (int_cnt++ < MXSER_ISR_PASS_LIMIT);
++			} while (int_cnt++ < 256);
+ 		}
+-		if (pass_counter++ > MXSER_ISR_PASS_LIMIT)
++		if (pass_counter++ > 64)
+ 			break;	/* Prevent infinite loops */
+ 	}
  
-@@ -1316,6 +1317,7 @@ retry:
- 					SetPageError(page);
- 				kunmap(page);
- 				unlock_page(page);
-+				end_page_writeback(page);
- 				page_cache_release(page);
- 			}
- 			if ((wbc->nr_to_write -= n_iov) <= 0)
-@@ -1356,7 +1358,8 @@ static int cifs_writepage(struct page* page, struct writeback_control *wbc)
- 	rc = cifs_partialpagewrite(page, 0, PAGE_CACHE_SIZE);
- 	SetPageUptodate(page); /* BB add check for error and Clearuptodate? */
- 	unlock_page(page);
--	page_cache_release(page);	
-+	end_page_writeback(page);
-+	page_cache_release(page);
- 	FreeXid(xid);
- 	return rc;
- }
--
-

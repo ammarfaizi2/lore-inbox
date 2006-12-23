@@ -1,53 +1,123 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753291AbWLWOT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752789AbWLWO3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753291AbWLWOT0 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 09:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753549AbWLWOT0
+	id S1752789AbWLWO3G (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 09:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753552AbWLWO3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 09:19:26 -0500
-Received: from ns2.suse.de ([195.135.220.15]:60736 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753151AbWLWOTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 09:19:25 -0500
-X-Greylist: delayed 969 seconds by postgrey-1.27 at vger.kernel.org; Sat, 23 Dec 2006 09:19:25 EST
-Date: Sat, 23 Dec 2006 15:02:54 +0100
-From: Stefan Seyfried <seife@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       david-b@pacbell.net, gregkh@suse.de, Holger Macht <hmacht@suse.de>
-Subject: Re: Changes to sysfs PM layer break userspace
-Message-ID: <20061223140254.GA4974@suse.de>
-References: <20061219185223.GA13256@srcf.ucam.org> <1166556889.3365.1269.camel@laptopd505.fenrus.org> <20061219194410.GA14121@srcf.ucam.org> <20061222204401.GB3960@ucw.cz>
+	Sat, 23 Dec 2006 09:29:06 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:59721 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752789AbWLWO3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 09:29:04 -0500
+From: Martin Williges <kernel@zut.de>
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: [PATCH 1/1] usblp.c - add Kyocera Mita FS 820 to list of "quirky" printers
+Date: Sat, 23 Dec 2006 15:28:56 +0100
+User-Agent: KMail/1.9.5
+References: <200612221227.18870.kernel@zut.de> <458BD945.5020604@gentoo.org>
+In-Reply-To: <458BD945.5020604@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061222204401.GB3960@ucw.cz>
-X-Operating-System: openSUSE 10.2 (i586), Kernel 2.6.18.2-34-default
-User-Agent: mutt-ng/devel-r804 (Linux)
+Message-Id: <200612231528.56431.kernel@zut.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:0e8a1abe8b7b166fb6ca785a477f557f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2006 at 08:44:01PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > which userspace is using this btw?
-> > 
-> > Ubuntu uses it to disable wireless hardware under certain circumstances. 
-> > I believe that Suse's powernowd uses it to power down wired ethernet 
-> > hardware when it's not in use.
+So after reading about usbmon, here are some logs.
 
-Powersaved had implemented this, but it was always declared an experimental
-feature and AFAIK is gone since quite some time.
- 
-> I flamed seife for this. It was always broken for 20%-or-so of
-> hardware. It is _not_ simple to fix.
+Printer is inserted and on. Starting cups usb backend to get information 
+gives:
 
-It was an experimental feature in the words sense:
-For experimentation. I never accepted any bugreports for that but told
-the reporters to go away :-)
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+df827bc0 1861979946 S Bi:002:02 -115 8192 <
+ddba34e0 1861979979 S Ci:002:00 s a1 00 0000 0000 03ff 1023 <
+ddba34e0 1866979395 C Ci:002:00 -104 0
+df827bc0 1866980389 C Bi:002:02 -2 0
+
+Plugging the printer in with usbmon logging gives:
+
+dfaede40 1932904692 S Ii:001:01 -115 2 <
+ddba3460 1932904708 S Ci:001:00 s a3 00 0000 0001 0004 4 <
+ddba3460 1932904711 C Ci:001:00 0 4 = 00010000
+ddba3460 1932904712 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1932904717 C Ci:001:00 0 4 = 01010100
+ddba3460 1932904718 S Co:001:00 s 23 01 0010 0002 0000 0
+ddba3460 1932904719 C Co:001:00 0 0
+ddba3460 1932904722 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1932904723 C Ci:001:00 0 4 = 01010000
+ddba3460 1932936690 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1932936692 C Ci:001:00 0 4 = 01010000
+ddba3460 1932968689 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1932968698 C Ci:001:00 0 4 = 01010000
+ddba3460 1933000687 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1933000689 C Ci:001:00 0 4 = 01010000
+ddba3460 1933032693 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1933032694 C Ci:001:00 0 4 = 01010000
+ddba3460 1933032703 S Co:001:00 s 23 03 0004 0002 0000 0
+ddba3460 1933048686 C Co:001:00 0 0
+ddba3460 1933104684 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1933104690 C Ci:001:00 0 4 = 03011000
+dfaede40 1933156684 C Ii:001:01 0 1 = 04
+dfaede40 1933156686 S Ii:001:01 -115 2 <
+ddba3460 1933160683 S Co:001:00 s 23 01 0014 0002 0000 0
+ddba3460 1933160684 C Co:001:00 0 0
+ddba3460 1933171377 S Ci:000:00 s 80 06 0100 0000 0040 64 <
+ddba3460 1933172589 C Ci:000:00 0 8 = 12010101 00000008
+ddba3460 1933172597 S Co:001:00 s 23 03 0004 0002 0000 0
+ddba3460 1933184681 C Co:001:00 0 0
+ddba3460 1933240680 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+ddba3460 1933240686 C Ci:001:00 0 4 = 03011000
+ddba3460 1933296678 S Co:001:00 s 23 01 0014 0002 0000 0
+ddba3460 1933296679 C Co:001:00 0 0
+ddba3460 1933296681 S Co:000:00 s 00 05 0003 0000 0000 0
+ddba3460 1933298535 C Co:000:00 0 0
+ddba3460 1933316680 S Ci:003:00 s 80 06 0100 0000 0012 18 <
+ddba3460 1933318528 C Ci:003:00 0 18 = 12010101 00000008 82041000 00000102 
+0301
+ddba3460 1933318537 S Ci:003:00 s 80 06 0200 0000 0009 9 <
+ddba3460 1933321527 C Ci:003:00 0 9 = 09022000 010100c0 32
+ddba3460 1933321532 S Ci:003:00 s 80 06 0200 0000 0020 32 <
+ddba3460 1933324525 C Ci:003:00 0 32 = 09022000 010100c0 32090400 00020701 
+02000705 01024000 00070582 02400000
+ddba34e0 1933324536 S Ci:003:00 s 80 06 0300 0000 00ff 255 <
+ddba34e0 1933327524 C Ci:003:00 0 4 = 04030904
+ddba34e0 1933327531 S Ci:003:00 s 80 06 0302 0409 00ff 255 <
+ddba34e0 1933330523 C Ci:003:00 0 42 = 2a034b00 79006f00 63006500 72006100 
+20004d00 69007400 61002000 46005300
+ddba34e0 1933330530 S Ci:003:00 s 80 06 0301 0409 00ff 255 <
+ddba34e0 1933333522 C Ci:003:00 0 26 = 1a034b00 79006f00 63006500 72006100 
+20004d00 69007400 6100
+ddba34e0 1933333527 S Ci:003:00 s 80 06 0303 0409 00ff 255 <
+ddba34e0 1933336520 C Ci:003:00 0 22 = 16035800 4c004600 34005900 30003700 
+37003900 3100
+ddba34e0 1933378426 S Co:003:00 s 00 09 0001 0000 0000 0
+ddba34e0 1933379513 C Co:003:00 0 0
+cf590ea0 1933379625 S Co:003:00 s 01 0b 0000 0000 0000 0
+cf590ea0 1933382511 C Co:003:00 0 0
+cf590ea0 1933382539 S Ci:003:00 s a1 00 0000 0000 03ff 1023 <
+cf590ea0 1933385510 C Ci:003:00 0 91 = 005b4944 3a46532d 3832303b 4d46473a 
+4b796f63 6572613b 434d443a 50434c58
+cf590ea0 1933396519 S Ci:001:00 s a3 00 0000 0003 0004 4 <
+cf590ea0 1933396524 C Ci:001:00 0 4 = 00010000
+cf590ea0 1933396531 S Ci:001:00 s a3 00 0000 0002 0004 4 <
+cf590ea0 1933396533 C Ci:001:00 0 4 = 03010000
+de8fbac0 1935981340 S Bi:003:02 -115 8192 <
+de8fb1c0 1935981363 S Ci:003:00 s a1 00 0000 0000 03ff 1023 <
+de8fbac0 1935982496 C Bi:003:02 0 0
+de8fb1c0 1935982501 C Ci:003:00 0 91 = 005b4944 3a46532d 3832303b 4d46473a 
+4b796f63 6572613b 434d443a 50434c58
+
+starting the cups usb backend some seconds after plugging the printer in gives
+
+de8fbac0 2123539163 S Bi:003:02 -115 8192 <
+ddba3860 2123539196 S Ci:003:00 s a1 00 0000 0000 03ff 1023 <
+ddba3860 2128538251 C Ci:003:00 -104 0
+de8fbac0 2128539243 C Bi:003:02 -2 0
+
+just as before.
+
+

@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753446AbWLWCHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753453AbWLWCQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753446AbWLWCHU (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 21:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753453AbWLWCHU
+	id S1753453AbWLWCQX (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 21:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753456AbWLWCQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 21:07:20 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:61533 "EHLO
-	ms-smtp-02.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753446AbWLWCHS (ORCPT
+	Fri, 22 Dec 2006 21:16:23 -0500
+Received: from userg504.nifty.com ([202.248.238.84]:17934 "EHLO
+	userg504.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753453AbWLWCQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 21:07:18 -0500
-Subject: Re: [patch] change WARN_ON back to "BUG: at ..."
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061222120422.eb28953b.akpm@osdl.org>
-References: <20061221124327.GA17190@elte.hu> <458AD71D.2060508@goop.org>
-	 <20061221235732.GA32637@elte.hu>  <20061222120422.eb28953b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 22 Dec 2006 21:06:50 -0500
-Message-Id: <1166839610.1573.20.camel@localhost.localdomain>
+	Fri, 22 Dec 2006 21:16:22 -0500
+DomainKey-Signature: a=rsa-sha1; s=userg504; d=nifty.com; c=simple; q=dns;
+	b=CXfd3811PyjGPgfgNqnabEXf58uZijxUFcNS/yoZbF00T8HUXmGNpD02M+yXgJnfh
+	/VqMTzPwjPlxLB+e0sqRA==
+Date: Sat, 23 Dec 2006 20:17:45 +0900
+From: Komuro <komurojun-mbn@nifty.com>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com, Al Viro <viro@ftp.linux.org.uk>,
+       "netdev@vger.kernel.org;Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [BUG KERNEL 2.6.20-rc1]  ftp: get or put stops during
+ file-transfer
+Message-Id: <20061223201745.8bff64e3.komurojun-mbn@nifty.com>
+In-Reply-To: <20061218030113.GT10316@stusta.de>
+References: <20061217212752.d93816b4.komurojun-mbn@nifty.com>
+	<20061217040222.GD17561@ftp.linux.org.uk>
+	<20061217232311.f181302f.komurojun-mbn@nifty.com>
+	<20061218030113.GT10316@stusta.de>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-22 at 12:04 -0800, Andrew Morton wrote:
-> I've always felt that it is wrong (or at least misleading) that WARN_ON
-> prints "BUG".  It would have been better if it had said "WARNING", and only
-> BUG_ON says "BUG".
-> 
-> But lots of people have now written downstream log-parsing tools which
-> might break due to this change, so I'm inclined to go with Ingo's patch,
-> and restore the old (il)logic.
 
->From hearing what Ingo has to say about this, it seems that calling it
-WARING was wrong in the first place.
+> > On kernel 2.6.20-rc1, ftp (get or put) stops
+> > during file-transfer.
+> > 
+> > Client: ftp-0.17-33.fc6  (192.168.1.1)
+> > Server: vsftpd-2.0.5-8   (192.168.1.3)
+> > 
 
-BUG (and BUG_ON) are really fatal bugs.  Meaning that if you continue,
-you will corrupt the system.
+This problem happens on kernel-2.6.19-git4 or later.
+but does _not_ happen on kernel-2.6.19-git3.
 
-WARN_ON is still a BUG, but we know enough about it that we can just
-cripple the system so that it doesn't break anything.  But keeps the
-system running so that someone can either read the logs, and perhaps, if
-it happens to a developer, be able to do some more diagnostics.
+So this problem is introduced to kernel-2.6.19-git4.
 
-But really, the WARN_ON should only be used when the system did
-something that is as bad as a BUG, but you don't need to crash the
-system since you can prevent data from being corrupted.  But you want to
-flag this so that it can be fixed. Since it really is a BUG!  Calling
-BUG_ON while the user is in X is really hopeless, since they may never
-know why their system just crashed.
 
-The kernel already prints out "warning" for other things that are not
-bugs. Usually a warning means that something might not be compatible.
-Or something might degrade performance.  Or you have buggy hardware.
-But a "warning" doesn't usually mean a kernel BUG.  WARN_ON on the other
-hand should only be used where the cause of the WARN_ON was due to a bug
-in the kernel, hence, the word "BUG" should be used.
+I tried the Marvell 88E8001(skge) and Realtek 8139(8139too),
+the same problem happens.
 
-At least with the -rt patch, we get reports of a BUG happening where it
-was from a WARN_ON, and this is a Good Thing(TM).  I can foresee users
-ignoring a warning message if that's all they see, and they don't
-realize that something has been crippled, and the system is unstable.
+I think this is not a network-card-driver problem.
 
-Sometimes a WARN_ON can be a cause of a later BUG.  And since the BUG
-output has a "cut here" we may not get the output of the true bug.
-Users are much more apt to report messages of BUG than WARNING.  So, I
-totally agree with Ingo, we need people to see these as BUGs, and report
-them whenever they happen. Because when it comes down to it, the warning
-is about a bug.
-
--- Steve
-
+Thanks!
+ 
+Best Regards
+Komuro
+ 

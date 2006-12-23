@@ -1,85 +1,219 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753571AbWLWP6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753595AbWLWQwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753571AbWLWP6R (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 10:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753575AbWLWP6R
+	id S1753595AbWLWQwK (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 11:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753608AbWLWQwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 10:58:17 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:56898 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753569AbWLWP6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 10:58:16 -0500
-Date: Sat, 23 Dec 2006 16:55:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Siddha@elte.hu,
-       Suresh B <suresh.b.siddha@intel.com>,
-       Clark Williams <williams@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] suspend: fix suspend on single-CPU systems
-Message-ID: <20061223155529.GA18924@elte.hu>
+	Sat, 23 Dec 2006 11:52:10 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:33157 "EHLO
+	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753595AbWLWQwI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 11:52:08 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>
+Subject: [take29 6/8] kevent: Pipe notifications.
+In-Reply-To: <1166892701836@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Sat, 23 Dec 2006 19:51:41 +0300
+Message-Id: <11668927012450@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] suspend: fix suspend on single-CPU systems
-From: Ingo Molnar <mingo@elte.hu>
 
-Clark Williams reported that suspend doesnt work on his laptop on 
-2.6.20-rc1-rt kernels. The bug was introduced by the following cleanup 
-commit:
+Pipe notifications.
 
- commit 112cecb2cc0e7341db92281ba04b26c41bb8146d
- Author: Siddha, Suresh B <suresh.b.siddha@intel.com>
- Date:   Wed Dec 6 20:34:31 2006 -0800
 
-    [PATCH] suspend: don't change cpus_allowed for task initiating the suspend
-
-because with this change 'error' is not initialized to 0 anymore, if 
-there are no other online CPUs. (i.e. if the system is single-CPU).
-
-the fix is the initialize it to 0. The really weird thing is that my 
-version of gcc does not warn about this non-initialized variable 
-situation ...
-
-(also fix the kernel printk in the error branch, it was missing a
- newline)
-
-Reported-by: Clark Williams <williams@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/cpu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux/kernel/cpu.c
-===================================================================
---- linux.orig/kernel/cpu.c
-+++ linux/kernel/cpu.c
-@@ -258,7 +258,7 @@ static cpumask_t frozen_cpus;
+diff --git a/fs/pipe.c b/fs/pipe.c
+index f3b6f71..aeaee9c 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -16,6 +16,7 @@
+ #include <linux/uio.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/kevent.h>
  
- int disable_nonboot_cpus(void)
- {
--	int cpu, first_cpu, error;
-+	int cpu, first_cpu, error = 0;
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+@@ -312,6 +313,7 @@ redo:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 			wake_up_interruptible_sync(&pipe->wait);
+  			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 		}
+@@ -321,6 +323,7 @@ redo:
  
- 	mutex_lock(&cpu_add_remove_lock);
- 	first_cpu = first_cpu(cpu_present_map);
-@@ -294,7 +294,7 @@ int disable_nonboot_cpus(void)
- 		/* Make sure the CPUs won't be enabled by someone else */
- 		cpu_hotplug_disabled = 1;
- 	} else {
--		printk(KERN_ERR "Non-boot CPUs are not disabled");
-+		printk(KERN_ERR "Non-boot CPUs are not disabled\n");
+ 	/* Signal writers asynchronously that there is more room. */
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
  	}
+@@ -490,6 +493,7 @@ redo2:
+ 			break;
+ 		}
+ 		if (do_wakeup) {
++			kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 			wake_up_interruptible_sync(&pipe->wait);
+ 			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 			do_wakeup = 0;
+@@ -501,6 +505,7 @@ redo2:
  out:
- 	mutex_unlock(&cpu_add_remove_lock);
+ 	mutex_unlock(&inode->i_mutex);
+ 	if (do_wakeup) {
++		kevent_pipe_notify(inode, KEVENT_SOCKET_RECV);
+ 		wake_up_interruptible(&pipe->wait);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 	}
+@@ -605,6 +610,7 @@ pipe_release(struct inode *inode, int decr, int decw)
+ 		free_pipe_info(inode);
+ 	} else {
+ 		wake_up_interruptible(&pipe->wait);
++		kevent_pipe_notify(inode, KEVENT_SOCKET_SEND|KEVENT_SOCKET_RECV);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+ 	}
+diff --git a/kernel/kevent/kevent_pipe.c b/kernel/kevent/kevent_pipe.c
+new file mode 100644
+index 0000000..91dc1eb
+--- /dev/null
++++ b/kernel/kevent/kevent_pipe.c
+@@ -0,0 +1,123 @@
++/*
++ * 	kevent_pipe.c
++ * 
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/file.h>
++#include <linux/fs.h>
++#include <linux/kevent.h>
++#include <linux/pipe_fs_i.h>
++
++static int kevent_pipe_callback(struct kevent *k)
++{
++	struct inode *inode = k->st->origin;
++	struct pipe_inode_info *pipe = inode->i_pipe;
++	int nrbufs = pipe->nrbufs;
++
++	if (k->event.event & KEVENT_SOCKET_RECV && nrbufs > 0) {
++		if (!pipe->writers)
++			return -1;
++		return 1;
++	}
++	
++	if (k->event.event & KEVENT_SOCKET_SEND && nrbufs < PIPE_BUFFERS) {
++		if (!pipe->readers)
++			return -1;
++		return 1;
++	}
++
++	return 0;
++}
++
++int kevent_pipe_enqueue(struct kevent *k)
++{
++	struct file *pipe;
++	int err = -EBADF;
++	struct inode *inode;
++
++	pipe = fget(k->event.id.raw[0]);
++	if (!pipe)
++		goto err_out_exit;
++
++	inode = igrab(pipe->f_dentry->d_inode);
++	if (!inode)
++		goto err_out_fput;
++
++	err = -EINVAL;
++	if (!S_ISFIFO(inode->i_mode))
++		goto err_out_iput;
++
++	err = kevent_storage_enqueue(&inode->st, k);
++	if (err)
++		goto err_out_iput;
++
++	if (k->event.req_flags & KEVENT_REQ_ALWAYS_QUEUE) {
++		kevent_requeue(k);
++		err = 0;
++	} else {
++		err = k->callbacks.callback(k);
++		if (err)
++			goto err_out_dequeue;
++	}
++
++	fput(pipe);
++
++	return err;
++
++err_out_dequeue:
++	kevent_storage_dequeue(k->st, k);
++err_out_iput:
++	iput(inode);
++err_out_fput:
++	fput(pipe);
++err_out_exit:
++	return err;
++}
++
++int kevent_pipe_dequeue(struct kevent *k)
++{
++	struct inode *inode = k->st->origin;
++
++	kevent_storage_dequeue(k->st, k);
++	iput(inode);
++
++	return 0;
++}
++
++void kevent_pipe_notify(struct inode *inode, u32 event)
++{
++	kevent_storage_ready(&inode->st, NULL, event);
++}
++
++static int __init kevent_init_pipe(void)
++{
++	struct kevent_callbacks sc = {
++		.callback = &kevent_pipe_callback,
++		.enqueue = &kevent_pipe_enqueue,
++		.dequeue = &kevent_pipe_dequeue,
++		.flags = 0,
++	};
++
++	return kevent_add_callbacks(&sc, KEVENT_PIPE);
++}
++module_init(kevent_init_pipe);
+

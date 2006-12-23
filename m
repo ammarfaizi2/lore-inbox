@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753783AbWLWVg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753782AbWLWV54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753783AbWLWVg0 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 16:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753782AbWLWVg0
+	id S1753782AbWLWV54 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 16:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753792AbWLWV5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 16:36:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36474 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753783AbWLWVgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 16:36:25 -0500
-Date: Sat, 23 Dec 2006 22:36:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061223213602.GA29627@elf.ucw.cz>
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <20061214161750.GB3388@stusta.de> <20061214163347.4f1be668@localhost.localdomain> <20061214171749.GA29982@thunk.org> <20061214195136.GD3388@stusta.de> <20061221153828.GA4038@ucw.cz> <20061223112429.GP6993@stusta.de>
+	Sat, 23 Dec 2006 16:57:55 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:36006 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753782AbWLWV5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 16:57:55 -0500
+Date: Sat, 23 Dec 2006 22:57:05 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Patrick McHardy <kaber@trash.net>
+cc: Netfilter Developer Mailing List 
+	<netfilter-devel@lists.netfilter.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: xt_request_find_match
+In-Reply-To: <4588FF92.9050607@trash.net>
+Message-ID: <Pine.LNX.4.61.0612232254110.10087@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0612161851180.30896@yvahk01.tjqt.qr>
+ <4587D227.1000003@trash.net> <Pine.LNX.4.61.0612191405160.24179@yvahk01.tjqt.qr>
+ <4587E91A.2020903@trash.net> <Pine.LNX.4.61.0612191623490.10396@yvahk01.tjqt.qr>
+ <4588F175.8060109@trash.net> <Pine.LNX.4.61.0612201009540.26276@yvahk01.tjqt.qr>
+ <4588FF92.9050607@trash.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061223112429.GP6993@stusta.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-12-23 12:24:29, Adrian Bunk wrote:
-> On Thu, Dec 21, 2006 at 03:38:29PM +0000, Pavel Machek wrote:
-> > On Thu 14-12-06 20:51:36, Adrian Bunk wrote:
-> > > On Thu, Dec 14, 2006 at 12:17:49PM -0500, Theodore Tso wrote:
-> > > > On Thu, Dec 14, 2006 at 04:33:47PM +0000, Alan wrote:
-> > > > > > The trick is to let a lawyer send cease and desist letters to people 
-> > > > > > distributing the infringing software for 1 Euro at Ebay.
-> > > > > 
-> > > > > Doesn't that sound even more like the music industry ? Pick on Grandma,
-> > > > > and people who've no clue about the issue. It's not the way to solve such
-> > > > > problems. The world does not need "The war on binary modules". Educate
-> > > > > people instead, and talk to vendors.
-> > > > 
-> > > > .... or like Microsoft, who is threatening to make war on end-users
-> > > > instead of settling things with vendors.  (One of the reasons why I
-> > > > personally find the Microsoft promise not to sue _Novell_'s end users
-> > > > so nasty.  Microsoft shouldn't be threatening anyone's users; if they
-> > > > have a problem, they should be taking it up with the relevant vendor,
-> > > > not sueing innocent and relatively shallow-pocketed end-users and
-> > > > distributors.)
-> > > > 
-> > > > One of the things that I find so interesting about how rabid people
-> > > > get about enforcing GPL-only modules is how they start acting more and
-> > > > more like the RIAA, MPAA, and Microsoft every day....
-> > > 
-> > > Please don't think or imply I'd plan to do this, I'm only saying that 
-> > > there's a risk for users in such grey areas.
-> > > 
-> > > It could be that someone who wants to harm Linux starts suing people 
-> > > distributing Linux. If your goal is to harm Linux, suing users can 
-> > > simply be much more effective than suing vendors...
-> > > 
-> > > It could even be that people distributing Linux could receive cease and 
-> > > desist letters from people without any real interest in the issue
-> > > itself - "cease and desist letter"s are so frequent in Germany because 
-> > > the people who have to sign them have to pay the lawyers' costs that are 
-> > > usually > 1000 Euro, and that's a good business for the lawyers.
-> > 
-> > Something is very wrong with German legal system, I'm afraid.
-> 
-> The point that you can take legal actions against anyone distributing 
-> something that violates your rights should be present in more or less 
-> all legal systems.
-> 
-> What might be special in Germany is only that you can demand your costs 
-> after successfully taking legal actions.
 
-What is special in Germany is fact that any random lawyer can demand
-$1000 (not his cost, his profit) if you distribute code that is not
-his...
-								Pavel
+On Dec 20 2006 10:17, Patrick McHardy wrote:
+>Jan Engelhardt wrote:
+>>>Make sure the user specifies the match on the command line before
+>>>your match. Look at the TCPMSS or REJECT targets for examples for
+>>>this.
+>> 
+>> That would mean I'd have to
+>> 
+>>   -p tcp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
+>> lotsofothers -j TARGET
+>>   -p udp -m multiport --dport 1,2,3,4 -m time --time sundays -m 
+>> lotsofothers -j TARGET
+>
+>I don't see any match that would depend on an other match in
+>your example. How about your start explaining what you would
+>like to do, ideally with some code.
+
+Yup, on the spot!
+http://jengelh.hopto.org/f/chaostables/chaostables-0.1.tar.bz2
+(Contains a target, but still something that could use 
+xt_request_find_module.)
+
+
+	-`J'
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

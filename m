@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752628AbWLWIQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752879AbWLWJ1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752628AbWLWIQJ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 03:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752631AbWLWIQJ
+	id S1752879AbWLWJ1Y (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 04:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752872AbWLWJ1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 03:16:09 -0500
-Received: from [85.204.20.254] ([85.204.20.254]:37778 "EHLO megainternet.ro"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752628AbWLWIQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 03:16:08 -0500
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
-	corruption on ext3)
-From: Andrei Popa <andrei.popa@i-neo.ro>
-Reply-To: andrei.popa@i-neo.ro
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061222123249.GG13727@deprecation.cyrius.com>
-References: <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
-	 <97a0a9ac0612202332p1b90367bja28ba58c653e5cd5@mail.gmail.com>
-	 <Pine.LNX.4.64.0612202352060.3576@woody.osdl.org>
-	 <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
-	 <20061221012721.68f3934b.akpm@osdl.org>
-	 <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
-	 <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
-	 <20061222100004.GC10273@deprecation.cyrius.com>
-	 <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
-	 <20061222123249.GG13727@deprecation.cyrius.com>
-Content-Type: text/plain
-Organization: I-NEO
-Date: Sat, 23 Dec 2006 10:15:58 +0200
-Message-Id: <1166861758.7411.1.camel@localhost>
+	Sat, 23 Dec 2006 04:27:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50947 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752789AbWLWJ1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 04:27:23 -0500
+Date: Sat, 23 Dec 2006 09:27:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Chinner <dgc@sgi.com>
+Cc: Alex Tomas <alex@clusterfs.com>, linux-ext4@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] delayed allocation for ext4
+Message-ID: <20061223092718.GA26276@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Chinner <dgc@sgi.com>, Alex Tomas <alex@clusterfs.com>,
+	linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <m37iwjwumf.fsf@bzzz.home.net> <20061223033123.GL44411608@melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061223033123.GL44411608@melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-22 at 13:32 +0100, Martin Michlmayr wrote:
-> * Andrei Popa <andrei.popa@i-neo.ro> [2006-12-22 14:24]:
-> > With all three patches I have corruption....
+On Sat, Dec 23, 2006 at 02:31:23PM +1100, David Chinner wrote:
+> >  - ext4-delayed-allocation.patch
+> >    delayed allocation itself, enabled by "delalloc" mount option.
+> >    extents support is also required. currently it works only
+> >    with blocksize=pagesize.
 > 
-> I've completed one installation with Linus' patch plus the two from
-> Andrew successfully, but I'm currently trying again... but I really
-> need a better testcase since an installation takes about an hour.
-> Andrei, which torrent do you download as a testcase?  It would be good
-> if someone could suggest a torrent which is legal and not too large.
-It's a 1.4GB file torrent split in 84 rar files and there are many
-seeders. I download with ~ 5MB/sec. The torrent is private.
+> Ah, that's why you can get away with a page flag - you've ignored
+> the partial page delay state problem. Any plans to use the
+> existing method in the future so we will be able to use ext4 delalloc
+> on machines with a page size larger than 4k?
 
+I think fixing this up for blocksize < pagesize is an absolute requirement
+to get things merged.  We don't need more filesystems that are crippled
+on half of our platforms.
+
+Note that recording delayed alloc state at a page granularity in addition
+to just the buffer heads has a lot of advantages aswell and would help
+xfs, too.  But I think it makes a lot more sense to record it as a radix
+tree tag to speed up the gang lookups for delalloc conversion.

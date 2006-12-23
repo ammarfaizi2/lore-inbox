@@ -1,123 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753344AbWLWBUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753348AbWLWBUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753344AbWLWBUT (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 20:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753360AbWLWBUT
+	id S1753348AbWLWBUU (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 20:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753360AbWLWBUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 20:20:19 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:44172 "EHLO
+	Fri, 22 Dec 2006 20:20:20 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:44183 "EHLO
 	mail01.miraclelinux.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753344AbWLWBUR (ORCPT
+	with ESMTP id S1753348AbWLWBUR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 22 Dec 2006 20:20:17 -0500
-X-Greylist: delayed 1171 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 20:20:17 EST
-To: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: [PATCH -mm] MMCONFIG: Fix x86_64 ioremap base_address
+Subject: [PATCH] arch/i386/pci/mmconfig.c tlb flush fix
 From: OGAWA Hirofumi <hogawa@miraclelinux.com>
-Date: Sat, 23 Dec 2006 10:02:07 +0900
-Message-ID: <lrfyb7ctm8.fsf@dhcp-0242.miraclelinux.com>
+Date: Sat, 23 Dec 2006 10:00:43 +0900
+Message-ID: <lrk60jctok.fsf@dhcp-0242.miraclelinux.com>
 User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current -mm's mmconfig has some problems of remapped range.
+We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
+The problem is in pci_exp_set_dev_base(). It is caching a last
+accessed address to avoid calling set_fixmap_nocache() whenever
+pci_mmcfg_read/write() is used.
 
-a) In the case of broken MCFG tables on Asus etc., we need to remap
-256M range, but currently only remap 1M.
+static inline void pci_exp_set_dev_base(int bus, int devfn)
+{
+	u32 dev_base = base | (bus << 20) | (devfn << 12);
+	if (dev_base != mmcfg_last_accessed_device) {
+		mmcfg_last_accessed_device = dev_base;
+		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
+	}
+}
 
-b) The base address always corresponds to bus number 0, but currently
-we are assuming it corresponds to start bus number.
+            cpu0                                        cpu1
+  ---------------------------------------------------------------------------
+    pci_mmcfg_read("device-A")
+        pci_exp_set_dev_base()
+            set_fixmap_nocache()
+                                              pci_mmcfg_read("device-B")
+                                                  pci_exp_set_dev_base()
+                                                      set_fixmap_nocache()
+    pci_mmcfg_read("device-B")
+        pci_exp_set_dev_base()
+            /* doesn't flush tlb */
 
-This patch fixes the above problems.
+But if cpus accessed the above order, the second pci_mmcfg_read() on
+cpu0 doesn't flush the TLB, because "mmcfg_last_accessed_device" is
+device-B.  So, second pci_mmcfg_read() on cpu0 accesses a device-A via
+a previous TLB cache. This problem became the cause of several strange
+behavior.
 
+This patches fixes this situation by adds "mmcfg_last_accessed_cpu" check.
+
+Signed-off-by: OGAWA Hirofumi <hogawa@miraclelinux.com>
 Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 ---
 
- arch/x86_64/pci/mmconfig.c |   48 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 13 deletions(-)
+ arch/i386/pci/mmconfig.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff -puN arch/x86_64/pci/mmconfig.c~pci-mmconfig-ioremap-range-fix arch/x86_64/pci/mmconfig.c
---- linux-2.6/arch/x86_64/pci/mmconfig.c~pci-mmconfig-ioremap-range-fix	2006-12-23 08:52:15.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/pci/mmconfig.c	2006-12-23 09:35:37.000000000 +0900
-@@ -24,6 +24,39 @@ struct mmcfg_virt {
- };
- static struct mmcfg_virt *pci_mmcfg_virt;
+diff -puN arch/i386/pci/mmconfig.c~i386-mmconfig-flush arch/i386/pci/mmconfig.c
+--- linux-2.6/arch/i386/pci/mmconfig.c~i386-mmconfig-flush	2006-10-06 08:38:33.000000000 +0900
++++ linux-2.6-hirofumi/arch/i386/pci/mmconfig.c	2006-10-06 08:38:33.000000000 +0900
+@@ -26,6 +26,7 @@
  
-+static inline int mcfg_broken(void)
-+{
-+	struct acpi_table_mcfg_config *cfg = &pci_mmcfg_config[0];
-+
-+	/* Handle more broken MCFG tables on Asus etc.
-+	   They only contain a single entry for bus 0-0. Assume
-+ 	   this applies to all busses. */
-+	if (pci_mmcfg_config_num == 1 &&
-+	    cfg->pci_segment_group_number == 0 &&
-+	    (cfg->start_bus_number | cfg->end_bus_number) == 0)
-+		return 1;
-+	return 0;
-+}
-+
-+static void __iomem *mcfg_ioremap(struct acpi_table_mcfg_config *cfg)
-+{
-+	void __iomem *addr;
-+	u32 size;
-+
-+	if (mcfg_broken())
-+		size = 256 << 20;
-+	else
-+		size = (cfg->end_bus_number + 1) << 20;
-+
-+	addr = ioremap_nocache(cfg->base_address, size);
-+	if (addr) {
-+		printk(KERN_INFO "PCI: Using MMCONFIG at %x - %x\n",
-+		       cfg->base_address,
-+		       cfg->base_address + size - 1);
-+	}
-+	return addr;
-+}
-+
- static char __iomem *get_virt(unsigned int seg, unsigned bus)
+ /* The base address of the last MMCONFIG device accessed */
+ static u32 mmcfg_last_accessed_device;
++static int mmcfg_last_accessed_cpu;
+ 
+ static DECLARE_BITMAP(fallback_slots, MAX_CHECK_BUS*32);
+ 
+@@ -73,8 +74,11 @@ static u32 get_base_addr(unsigned int se
+ static void pci_exp_set_dev_base(unsigned int base, int bus, int devfn)
  {
- 	int cfg_num = -1;
-@@ -41,13 +74,7 @@ static char __iomem *get_virt(unsigned i
- 			return pci_mmcfg_virt[cfg_num].virt;
+ 	u32 dev_base = base | (bus << 20) | (devfn << 12);
+-	if (dev_base != mmcfg_last_accessed_device) {
++	int cpu = smp_processor_id();
++	if (dev_base != mmcfg_last_accessed_device ||
++	    cpu != mmcfg_last_accessed_cpu) {
+ 		mmcfg_last_accessed_device = dev_base;
++		mmcfg_last_accessed_cpu = cpu;
+ 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
  	}
- 
--	/* Handle more broken MCFG tables on Asus etc.
--	   They only contain a single entry for bus 0-0. Assume
-- 	   this applies to all busses. */
--	cfg = &pci_mmcfg_config[0];
--	if (pci_mmcfg_config_num == 1 &&
--		cfg->pci_segment_group_number == 0 &&
--		(cfg->start_bus_number | cfg->end_bus_number) == 0)
-+	if (mcfg_broken())
- 		return pci_mmcfg_virt[0].virt;
- 
- 	/* Fall back to type 0 */
-@@ -139,19 +166,14 @@ int __init pci_mmcfg_arch_init(void)
- 	}
- 
- 	for (i = 0; i < pci_mmcfg_config_num; ++i) {
--		u32 size = (pci_mmcfg_config[0].end_bus_number - pci_mmcfg_config[0].start_bus_number + 1) << 20;
- 		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
--		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address,
--							 size);
-+		pci_mmcfg_virt[i].virt = mcfg_ioremap(&pci_mmcfg_config[i]);
- 		if (!pci_mmcfg_virt[i].virt) {
- 			printk(KERN_ERR "PCI: Cannot map mmconfig aperture for "
- 					"segment %d\n",
- 			       pci_mmcfg_config[i].pci_segment_group_number);
- 			return 0;
- 		}
--		printk(KERN_INFO "PCI: Using MMCONFIG at %x-%x\n",
--		       pci_mmcfg_config[i].base_address,
--		       pci_mmcfg_config[i].base_address + size - 1);
- 	}
- 
- 	raw_pci_ops = &pci_mmcfg;
+ }
 _
 
 -- 

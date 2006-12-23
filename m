@@ -1,18 +1,17 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751736AbWLWDAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751839AbWLWDCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751736AbWLWDAS (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 22 Dec 2006 22:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753312AbWLWDAS
+	id S1751839AbWLWDCK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 22 Dec 2006 22:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752581AbWLWDCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Dec 2006 22:00:18 -0500
-Received: from mtao01.charter.net ([209.225.8.186]:35950 "EHLO
-	mtao01.charter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736AbWLWDAQ (ORCPT
+	Fri, 22 Dec 2006 22:02:10 -0500
+Received: from que03.charter.net ([209.225.8.191]:34989 "EHLO
+	que03.charter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752104AbWLWDCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Dec 2006 22:00:16 -0500
-X-Greylist: delayed 862 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Dec 2006 22:00:15 EST
-Message-ID: <458C9BB2.1060201@cybsft.com>
-Date: Fri, 22 Dec 2006 21:00:02 -0600
+	Fri, 22 Dec 2006 22:02:08 -0500
+Message-ID: <458C97ED.4000904@cybsft.com>
+Date: Fri, 22 Dec 2006 20:43:57 -0600
 From: "K.R. Foley" <kr@cybsft.com>
 Organization: Cybersoft Solutions, Inc.
 User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
@@ -58,9 +57,5 @@ like a candidate. I can definitely say that some latencies I have seen
 in my recent testing have gone away in the last few versions
 2.6.20-rc1-rt{3,4}.
 
-Sorry I missed the URL first time around.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116670388527349&w=2
-
 -- 
 	kr
-

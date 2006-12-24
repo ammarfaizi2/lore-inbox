@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751219AbWLXMbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751561AbWLXNb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWLXMbS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 07:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWLXMbS
+	id S1751561AbWLXNb7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 08:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWLXNb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 07:31:18 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60595 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751219AbWLXMbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 07:31:17 -0500
-Date: Sun, 24 Dec 2006 04:31:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: andrei.popa@i-neo.ro
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Martin Michlmayr <tbm@cyrius.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
- corruption on ext3)
-Message-Id: <20061224043102.d152e5b4.akpm@osdl.org>
-In-Reply-To: <1166962478.7442.0.camel@localhost>
-References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
-	<97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
-	<Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
-	<20061222100004.GC10273@deprecation.cyrius.com>
-	<20061222021714.6a83fcac.akpm@osdl.org>
-	<1166790275.6983.4.camel@localhost>
-	<20061222123249.GG13727@deprecation.cyrius.com>
-	<20061222125920.GA16763@deprecation.cyrius.com>
-	<1166793952.32117.29.camel@twins>
-	<20061222192027.GJ4229@deprecation.cyrius.com>
-	<97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
-	<Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>
-	<20061224005752.937493c8.akpm@osdl.org>
-	<1166962478.7442.0.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 24 Dec 2006 08:31:58 -0500
+Received: from mo-p07-ob.rzone.de ([81.169.146.190]:27159 "EHLO
+	mo-p07-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751483AbWLXNb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 08:31:58 -0500
+Date: Sun, 24 Dec 2006 14:31:54 +0100 (MET)
+From: Wolfgang Draxinger <wdraxinger@darkstargames.de>
+Organization: DARKSTARgames
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Binary Drivers
+User-Agent: KMail/1.9.5
+References: <MDEHLPKNGKAHNMBLJOLKOEMLAIAC.davids@webmaster.com>
+ <200612240646.kBO6knVT030879@turing-police.cc.vt.edu>
+In-Reply-To: <200612240646.kBO6knVT030879@turing-police.cc.vt.edu>
+Cc: Valdis.Kletnieks@vt.edu
+MIME-Version: 1.0
+Content-Type: multipart/signed;  boundary="nextPart1720200.7bahuTXZQW";
+  protocol="application/pgp-signature";  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200612241434.39307.wdraxinger@darkstargames.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Dec 2006 14:14:38 +0200
-Andrei Popa <andrei.popa@i-neo.ro> wrote:
+--nextPart1720200.7bahuTXZQW
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > - mount the fs with ext2 with the no-buffer-head option.  That means either:
-> > 
-> >   grub.conf:  rootfstype=ext2 rootflags=nobh
-> >   /etc/fstab: ext2 nobh
-> 
-> ierdnac ~ # mount
-> /dev/sda7 on / type ext2 (rw,noatime,nobh)
-> 
-> I have corruption.
-> 
-> > 
-> > - mount the fs with ext3 data=writeback, nobh
-> > 
-> >   grub.conf:  rootfstype=ext3 rootflags=nobh,data=writeback  (I hope this works)
-> >   /etc/fstab: ext2 data=writeback,nobh
-> 
-> ierdnac ~ # mount
-> /dev/sda7 on / type ext3 (rw,noatime,nobh)
-> 
-> ierdnac ~ # dmesg|grep EXT3
-> EXT3-fs: mounted filesystem with writeback data mode.
-> EXT3 FS on sda7, internal journal
-> 
-> I don't have corruption. I tested twice.
+Am Sonntag, 24. Dezember 2006 07:46 schrieb Valdis.Kletnieks@vt.edu:
 
-This is a surprising result.  Can you pleas retest ext3 data=writeback,nobh?
+> Are they allowed to sell a car that incorporates a computer that
+> uses a trade-secret algorithm for controlling the fuel injection to
+> get 20 more horsepower and 5% better mileage?
+
+That would be a propritary fuel injection driver then.
+
+What we want however is access to the documentation, the=20
+specifications, that allows us to develop a very own driver,=20
+independently from the propritary one. We don't want source code or=20
+anything. Of course if the hardware manufactor supplies us with=20
+source code, that's great.
+
+Probably any customly written driver will be suboptimal in the first=20
+place, but OTOH there are so many skilled people around in the OSS=20
+scene, that such a driver would surely soon catch up, if not even=20
+surpass the propritary one.
+
+Happy holydays
+
+Wolfgang Draxinger
+=2D-=20
+"sooner or later we'll reverse engineer you."
+
+
+--nextPart1720200.7bahuTXZQW
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFjoHvBfWmRR/TvT4RAqbzAKDwOJRhcNrP06vAtlOAq3+sFz8AxQCgynXk
+WjxcggCVHNLHLMJ63f7Dq8o=
+=1NoN
+-----END PGP SIGNATURE-----
+
+--nextPart1720200.7bahuTXZQW--

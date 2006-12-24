@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752874AbWLXVGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752803AbWLXVTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752874AbWLXVGA (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 16:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752877AbWLXVF7
+	id S1752803AbWLXVTa (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 16:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752748AbWLXVTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 16:05:59 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:60628 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752871AbWLXVF6 convert rfc822-to-8bit (ORCPT
+	Sun, 24 Dec 2006 16:19:30 -0500
+Received: from postfix1-g20.free.fr ([212.27.60.42]:54860 "EHLO
+	postfix1-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752803AbWLXVT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 16:05:58 -0500
-From: Ismail =?utf-8?q?D=C3=B6nmez?= <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: "Guillaume Chazarain" <guichaz@gmail.com>
-Subject: Re: ACPI EC warnings
-Date: Sun, 24 Dec 2006 23:05:58 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200612242247.06989.ismail@pardus.org.tr> <3d8471ca0612241302j5d4a92cdi84eec81e0739aa2@mail.gmail.com>
-In-Reply-To: <3d8471ca0612241302j5d4a92cdi84eec81e0739aa2@mail.gmail.com>
+	Sun, 24 Dec 2006 16:19:29 -0500
+Message-ID: <458EEEC6.4000406@yahoo.fr>
+Date: Sun, 24 Dec 2006 22:19:02 +0100
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612242305.59729.ismail@pardus.org.tr>
+To: Ismail Donmez <ismail@pardus.org.tr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ACPI EC warnings
+References: <200612242247.06989.ismail@pardus.org.tr> <3d8471ca0612241302j5d4a92cdi84eec81e0739aa2@mail.gmail.com> <200612242305.59729.ismail@pardus.org.tr>
+In-Reply-To: <200612242305.59729.ismail@pardus.org.tr>
+Content-Type: multipart/mixed;
+ boundary="------------070405080802000906090704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-24 Ara 2006 Paz 23:02 tarihinde, Guillaume Chazarain şunları yazmıştı: 
-> 2006/12/24, Ismail Donmez <ismail@pardus.org.tr>:
-> > ACPI: EC: evaluating _Q60
->
-> Same thing here, I think it is caused by
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=comm
->it;h=af3fd1404fd4f0f58ebbb52b22be4f1ca0794cda
->
-> The attached patch restores the previous behaviour.
+This is a multi-part message in MIME format.
+--------------070405080802000906090704
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Patch looks nice, btw do you notice any skippy behaviour? i.e sound skips when 
-I get this warning or something else is broken and I blame ACPI because its 
-flooding dmesg =)
 
-Regards,
-ismail
+> Patch looks nice,
+But LKML didn't like gmail's HTML so here is it again. Hopefully this 
+one will pass.
+
+> btw do you notice any skippy behaviour? i.e sound skips when 
+> I get this warning
+
+No, in my case I just get the message: ACPI: EC: evaluating _Q20
+> or something else is broken and I blame ACPI because its 
+> flooding dmesg =)
+>   
+I happen to have at the moment some other debugging printk, flooding
+my logs, and sound doesn't skip either :-) Asus V6VA - Pentium-M 2GHz here.
 
 -- 
-2 + 2 = 5 for very large values of 2
+Guillaume
+
+
+--------------070405080802000906090704
+Content-Type: text/x-patch;
+ name="ACPI.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ACPI.diff"
+
+diff -r ef50bfb54157 drivers/acpi/ec.c
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -424,7 +424,7 @@ static void acpi_ec_gpe_query(void *ec_c
+ 
+ 	snprintf(object_name, 8, "_Q%2.2X", value);
+ 
+-	printk(KERN_INFO PREFIX "evaluating %s\n", object_name);
++	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Evaluating %s", object_name));
+ 
+ 	acpi_evaluate_object(ec->handle, object_name, NULL, NULL);
+ }
+
+
+--------------070405080802000906090704--

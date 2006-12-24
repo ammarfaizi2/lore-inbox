@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751520AbWLXN6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751627AbWLXOFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWLXN6d (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 08:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWLXN6d
+	id S1751627AbWLXOFr (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 09:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWLXOFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 08:58:33 -0500
-Received: from wx-out-0506.google.com ([66.249.82.237]:11016 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751520AbWLXN6d (ORCPT
+	Sun, 24 Dec 2006 09:05:47 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:58443 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbWLXOFq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 08:58:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mACnqUEUrZs3J2Zps9rvtRfb9fqaPtSivnBIJU5HqGxng8PgokxsMbaZ/RM+0huHRLH2se5t/Nn7xxxF5zIIHY2/F2KgNsHUBf39vu8KaKgY7YELd4avJFJCPw2fg81ZjKiP7tMuALOw3SfN99bP631pmjSabfUz6AVVF81fkE0=
-Message-ID: <5a4c581d0612240558t1a693049l2c2f311d63681b40@mail.gmail.com>
-Date: Sun, 24 Dec 2006 14:58:32 +0100
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Linux 2.6.20-rc2
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org>
+	Sun, 24 Dec 2006 09:05:46 -0500
+Date: Sun, 24 Dec 2006 15:05:28 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
+Message-ID: <20061224140528.GF28755@deprecation.cyrius.com>
+References: <20061222100004.GC10273@deprecation.cyrius.com> <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost> <20061222123249.GG13727@deprecation.cyrius.com> <20061222125920.GA16763@deprecation.cyrius.com> <1166793952.32117.29.camel@twins> <20061222192027.GJ4229@deprecation.cyrius.com> <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com> <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061224005752.937493c8.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org>
+In-Reply-To: <20061224005752.937493c8.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/24/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
-> Ok,
->  it's a couple of days delayed, because we've been trying to figure out
-> what is up with the rtorrent hash failures since 2.6.18.3. I don't think
-> we've made any progress, but we've cleaned up a number of suspects in the
-> meantime.
->
-> It's a bit sad, if only because I was really hoping to make 2.6.20 an easy
-> release, and held back on merging some stuff during the merge window for
-> that reason. And now we're battling something that was introduced much
-> earlier..
->
-> Now, practically speaking this isn't likely to affect a lot of people, but
-> it's still a worrisome problem, and we've had "top people" looking at it.
-> And they'll continue, but xmas is coming.
->
-> In the meantime, we'll continue with the stabilization, and this mainly
-> does some driver updates (usb, sound, dri, pci hotplug) and ACPI updates
-> (much of the latter syntactic cleanups). And arm and powerpc updates.
->
-> Shortlog appended.
->
-> For developers: if you sent me a patch, and I didn't apply it, it was
-> probably just missed because I concentrated on other issues. So pls
-> re-send.. Unless I explicitly told you that I'm not going to pull it due
-> to the merge window being over, of course ;)
->
->                 Linus
+* Andrew Morton <akpm@osdl.org> [2006-12-24 00:57]:
+>   /etc/fstab: ext2 nobh
+>   /etc/fstab: ext3 data=writeback,nobh
 
-[shortlog snipped]
-
-As already reported multiple times, including at -rc1 time...
-
- still need this libata-sff.c patch:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116343564202844&q=raw
-
- to have my root device detected, ata_piix probe would otherwise
- fail as described in this thread:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0612.0/0690.html
-
-Enjoy the holiday season,
-
---alessandro
-
-"...when I get it, I _get_ it"
-
-     (Lara Eidemiller)
+It seems that busybox mount ignores the nobh option but both ext2 and
+ext3 data=writeback work for me.  This is with plain 2.6.19 which
+normally always fails.
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

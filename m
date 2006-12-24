@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750994AbWLXL6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751020AbWLXMOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWLXL6V (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 06:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWLXL6V
+	id S1751020AbWLXMOt (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 07:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWLXMOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 06:58:21 -0500
-Received: from ms-smtp-06.tampabay.rr.com ([65.32.5.136]:41467 "EHLO
-	ms-smtp-06.tampabay.rr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750939AbWLXL6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 06:58:20 -0500
-Message-ID: <458E6B46.2060201@cfl.rr.com>
-Date: Sun, 24 Dec 2006 06:57:58 -0500
-From: Mark Hounschell <dmarkh@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20060911)
-MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.co.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <45811AA6.1070508@superbug.co.uk>
-In-Reply-To: <45811AA6.1070508@superbug.co.uk>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 24 Dec 2006 07:14:49 -0500
+Received: from [85.204.20.254] ([85.204.20.254]:60625 "EHLO megainternet.ro"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751007AbWLXMOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 07:14:48 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Andrei Popa <andrei.popa@i-neo.ro>
+Reply-To: andrei.popa@i-neo.ro
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Martin Michlmayr <tbm@cyrius.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061224005752.937493c8.akpm@osdl.org>
+References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
+	 <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
+	 <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
+	 <20061222100004.GC10273@deprecation.cyrius.com>
+	 <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
+	 <20061222123249.GG13727@deprecation.cyrius.com>
+	 <20061222125920.GA16763@deprecation.cyrius.com>
+	 <1166793952.32117.29.camel@twins>
+	 <20061222192027.GJ4229@deprecation.cyrius.com>
+	 <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
+	 <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>
+	 <20061224005752.937493c8.akpm@osdl.org>
+Content-Type: text/plain
+Organization: I-NEO
+Date: Sun, 24 Dec 2006 14:14:38 +0200
+Message-Id: <1166962478.7442.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton wrote:
+On Sun, 2006-12-24 at 00:57 -0800, Andrew Morton wrote: 
+> On Sun, 24 Dec 2006 00:43:54 -0800 (PST)
+> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> I agree with Linus on these points. The kernel should not be enforcing
-> these issues. Leave the lawyers to do that bit. If companies want to
-> play in the "Grey Area", then it is at their own risk. Binary drivers
-> are already difficult and expensive for the companies because they have
-> to keep updating them as we change the kernel versions. If they do open
-> source drivers, we update them for them as we change the kernel
-> versions, so it works out cheaper for the companies involved.
+> > I now _suspect_ that we're talking about something like
+> > 
+> >  - we started a writeout. The IO is still pending, and the page was 
+> >    marked clean and is now in the "writeback" phase.
+> >  - a write happens to the page, and the page gets marked dirty again. 
+> >    Marking the page dirty also marks all the _buffers_ in the page dirty, 
+> >    but they were actually already dirty, because the IO hasn't completed 
+> >    yet.
+> >  - the IO from the _previous_ write completes, and marks the buffers clean 
+> >    again.
 > 
+> Some things for the testers to try, please:
+> 
+> - mount the fs with ext2 with the no-buffer-head option.  That means either:
+> 
+>   grub.conf:  rootfstype=ext2 rootflags=nobh
+>   /etc/fstab: ext2 nobh
 
-Hum. We open sourced our drivers 2 years ago. Now one is 'changing' them
-for us. The only way that happens is if they can get in the official
-tree. I know just from monitoring this list that our drivers would never
-be acceptable for inclusion in any "functional form". We open sourced
-them purely out of respect for the way we know the community feels about
-it.
+ierdnac ~ # mount
+/dev/sda7 on / type ext2 (rw,noatime,nobh)
 
-It would cost more for us to make them acceptable for inclusion than it
-does for us to just maintain them ourselves. I suspect that is true for
-most vendor created drivers open source or not.
+I have corruption.
 
-So kernel developers making the required changes as the kernel changes
-is NO real incentive for any vendor to open source their drivers. Sorry.
+> 
+> - mount the fs with ext3 data=writeback, nobh
+> 
+>   grub.conf:  rootfstype=ext3 rootflags=nobh,data=writeback  (I hope this works)
+>   /etc/fstab: ext2 data=writeback,nobh
 
-If it were knowingly less difficult to actually get your drivers
-included, that would be an incentive and then you original point would
-hold as an additional incentive.
+ierdnac ~ # mount
+/dev/sda7 on / type ext3 (rw,noatime,nobh)
 
-My humble $.02 worth
+ierdnac ~ # dmesg|grep EXT3
+EXT3-fs: mounted filesystem with writeback data mode.
+EXT3 FS on sda7, internal journal
 
-Regards
-Mark
+I don't have corruption. I tested twice.
 
-
+> 
+> if that still fails we can rule out buffer_head funnies.
+> 
 

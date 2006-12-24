@@ -1,92 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751020AbWLXMOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751007AbWLXMWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWLXMOt (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 07:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWLXMOt
+	id S1751007AbWLXMWt (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 07:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWLXMWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 07:14:49 -0500
-Received: from [85.204.20.254] ([85.204.20.254]:60625 "EHLO megainternet.ro"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751007AbWLXMOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 07:14:48 -0500
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
-	corruption on ext3)
-From: Andrei Popa <andrei.popa@i-neo.ro>
-Reply-To: andrei.popa@i-neo.ro
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Martin Michlmayr <tbm@cyrius.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061224005752.937493c8.akpm@osdl.org>
-References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
-	 <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
-	 <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
-	 <20061222100004.GC10273@deprecation.cyrius.com>
-	 <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
-	 <20061222123249.GG13727@deprecation.cyrius.com>
-	 <20061222125920.GA16763@deprecation.cyrius.com>
-	 <1166793952.32117.29.camel@twins>
-	 <20061222192027.GJ4229@deprecation.cyrius.com>
-	 <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
-	 <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>
-	 <20061224005752.937493c8.akpm@osdl.org>
-Content-Type: text/plain
-Organization: I-NEO
-Date: Sun, 24 Dec 2006 14:14:38 +0200
-Message-Id: <1166962478.7442.0.camel@localhost>
+	Sun, 24 Dec 2006 07:22:49 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60130 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751007AbWLXMWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 07:22:49 -0500
+Date: Sun, 24 Dec 2006 04:22:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       marcel@holtmann.org, maxk@qualcomm.com,
+       bluez-devel@lists.sourceforge.net
+Subject: Re: ptrace() memory corruption?
+Message-Id: <20061224042225.51a6619a.akpm@osdl.org>
+In-Reply-To: <458E69CB.6000107@gmail.com>
+References: <20061223234305.GA1809@elf.ucw.cz>
+	<20061223235501.GA1740@elf.ucw.cz>
+	<20061224000150.GA1812@elf.ucw.cz>
+	<20061224000605.GA1768@elf.ucw.cz>
+	<20061224000753.GA1811@elf.ucw.cz>
+	<458DD459.2030209@gmail.com>
+	<458E69CB.6000107@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-24 at 00:57 -0800, Andrew Morton wrote: 
-> On Sun, 24 Dec 2006 00:43:54 -0800 (PST)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > I now _suspect_ that we're talking about something like
-> > 
-> >  - we started a writeout. The IO is still pending, and the page was 
-> >    marked clean and is now in the "writeback" phase.
-> >  - a write happens to the page, and the page gets marked dirty again. 
-> >    Marking the page dirty also marks all the _buffers_ in the page dirty, 
-> >    but they were actually already dirty, because the IO hasn't completed 
-> >    yet.
-> >  - the IO from the _previous_ write completes, and marks the buffers clean 
-> >    again.
-> 
-> Some things for the testers to try, please:
-> 
-> - mount the fs with ext2 with the no-buffer-head option.  That means either:
-> 
->   grub.conf:  rootfstype=ext2 rootflags=nobh
->   /etc/fstab: ext2 nobh
+On Sun, 24 Dec 2006 12:51:16 +0059
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
-ierdnac ~ # mount
-/dev/sda7 on / type ext2 (rw,noatime,nobh)
+> [   58.674780] EFLAGS: 00010046   (2.6.20-rc1-mm1 #207)
 
-I have corruption.
-
-> 
-> - mount the fs with ext3 data=writeback, nobh
-> 
->   grub.conf:  rootfstype=ext3 rootflags=nobh,data=writeback  (I hope this works)
->   /etc/fstab: ext2 data=writeback,nobh
-
-ierdnac ~ # mount
-/dev/sda7 on / type ext3 (rw,noatime,nobh)
-
-ierdnac ~ # dmesg|grep EXT3
-EXT3-fs: mounted filesystem with writeback data mode.
-EXT3 FS on sda7, internal journal
-
-I don't have corruption. I tested twice.
-
-> 
-> if that still fails we can rule out buffer_head funnies.
-> 
-
+please, test 2.6.20-rc2.  We applied a fix for this.

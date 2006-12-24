@@ -1,206 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753963AbWLXACJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753974AbWLXAGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753963AbWLXACJ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 19:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753971AbWLXACJ
+	id S1753974AbWLXAGY (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 19:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753971AbWLXAGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 19:02:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58218 "EHLO amd.ucw.cz"
+	Sat, 23 Dec 2006 19:06:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39129 "EHLO amd.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753963AbWLXACI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 19:02:08 -0500
-Date: Sun, 24 Dec 2006 01:01:50 +0100
+	id S1753974AbWLXAGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 19:06:23 -0500
+Date: Sun, 24 Dec 2006 01:06:05 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
 Cc: marcel@holtmann.org, maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
-Subject: Re: bluetooth memory corruption (was Re: ext3-related crash in 2.6.20-rc1)
-Message-ID: <20061224000150.GA1812@elf.ucw.cz>
-References: <20061223234305.GA1809@elf.ucw.cz> <20061223235501.GA1740@elf.ucw.cz>
+Subject: not-only-bluetooth memory corruption
+Message-ID: <20061224000605.GA1768@elf.ucw.cz>
+References: <20061223234305.GA1809@elf.ucw.cz> <20061223235501.GA1740@elf.ucw.cz> <20061224000150.GA1812@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
 Content-Disposition: inline
-In-Reply-To: <20061223235501.GA1740@elf.ucw.cz>
+In-Reply-To: <20061224000150.GA1812@elf.ucw.cz>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I got this nasty oops while playing with debugger. Not sure if that is
-> > related; it also might be something with bluetooth; I already know it
-> > corrupts memory during suspend, perhaps it corrupts memory in some
-> > error path?
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun 2006-12-24 01:01:50, Pavel Machek wrote:
+> Hi!
 > 
-> Okay, I spoke too soon. bluetooth & suspend memory corruption was
-> _way_ harder to reproduce than expected. Took me 5-or-so-suspend
-> cycles... so it is probably unrelated to the previous crash.
+> > > I got this nasty oops while playing with debugger. Not sure if that is
+> > > related; it also might be something with bluetooth; I already know it
+> > > corrupts memory during suspend, perhaps it corrupts memory in some
+> > > error path?
+> > 
+> > Okay, I spoke too soon. bluetooth & suspend memory corruption was
+> > _way_ harder to reproduce than expected. Took me 5-or-so-suspend
+> > cycles... so it is probably unrelated to the previous crash.
+> > 
+> > I was getting pretty regular crashes with bluetooth & gdb, but I was
+> > not using bluetooth at the time of ext3-related crash.
 > 
-> I was getting pretty regular crashes with bluetooth & gdb, but I was
-> not using bluetooth at the time of ext3-related crash.
+> And for completeness, here's bluetooth + gdb oops. Ok, I'm not _sure_
+> it is bluetooth related. I'll try it without bluetooth in a while.
 
-And for completeness, here's bluetooth + gdb oops. Ok, I'm not _sure_
-it is bluetooth related. I'll try it without bluetooth in a while.
+Ok, so this one is not bluetooth related. My little "phone"
+application provokes nasty oops, even when talking to
+/dev/null. Strange, that code does _nothing_
+strange. (www.sf.net/projects/tui).
 
-								Pavel
+Is there something wrong with gdb?
 
+									Pavel
+pcmcia: Detected deprecated PCMCIA ioctl usage from process: cardmgr.
+pcmcia: This interface will soon be removed from the kernel; please expect breakage unless you upgrade to new tools.
+pcmcia: see http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html for details.
+cs: IO port probe 0x310-0x380: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+PM: Adding info for No Bus:vcs10
+PM: Adding info for No Bus:vcsa10
+PM: Removing info for No Bus:vcs10
+PM: Removing info for No Bus:vcsa10
+PM: Adding info for No Bus:vcs10
+PM: Adding info for No Bus:vcsa10
+PM: Removing info for No Bus:vcs10
+PM: Removing info for No Bus:vcsa10
+e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
+e1000: eth0: e1000_watchdog: 10/100 speed: disabling TSO
+PM: Adding info for No Bus:vcs11
+PM: Adding info for No Bus:vcsa11
+PM: Adding info for No Bus:vcs2
+PM: Adding info for No Bus:vcs3
+PM: Adding info for No Bus:vcs4
+PM: Adding info for No Bus:vcsa2
+PM: Adding info for No Bus:vcs5
+PM: Adding info for No Bus:vcs6
+PM: Adding info for No Bus:vcs7
+PM: Adding info for No Bus:vcs8
+PM: Adding info for No Bus:vcsa3
+PM: Adding info for No Bus:vcsa4
+PM: Adding info for No Bus:vcsa5
+PM: Adding info for No Bus:vcsa6
+PM: Adding info for No Bus:vcsa7
 PM: Adding info for No Bus:vcsa8
 coda_read_super: Bad mount data
 coda_read_super: device index: 0
-coda_read_super: rootfid is (01234567.ffffffff.080519b0.00000000)
-PM: Removing info for No Bus:vcs10
-PM: Removing info for No Bus:vcsa10
-coda_upcall: Venus dead on (op,un) (7.2) flags 10
-Failure of coda_cnode_make for root: error -19
-hci_cmd_task: hci0 command tx timeout
-PM: Adding info for No Bus:rfcomm1
-PM: Adding info for bluetooth:acl00803715A329
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-l2cap_recv_acldata: Unexpected continuation frame (len 0)
-PM: Removing info for bluetooth:acl00803715A329
+coda_read_super: No pseudo device
+PM: Removing info for No Bus:vcs1
+PM: Removing info for No Bus:vcsa1
+PM: Adding info for No Bus:vcs1
+PM: Adding info for No Bus:vcsa1
+PM: Removing info for No Bus:vcs1
+PM: Removing info for No Bus:vcsa1
+PM: Adding info for No Bus:vcs1
+PM: Adding info for No Bus:vcsa1
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on sda2, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
 ------------[ cut here ]------------
 kernel BUG at fs/buffer.c:1235!
 invalid opcode: 0000 [#1]
@@ -211,16 +111,17 @@ EIP:    0060:[<c01912b2>]    Not tainted VLI
 EFLAGS: 00010046   (2.6.20-rc1 #383)
 EIP is at __find_get_block+0x1b2/0x1c0
 eax: 00000086   ebx: 00001000   ecx: 00000000   edx: 006780b2
-esi: 0033d60d   edi: 00001000   ebp: 000000cf   esp: f75a3c90
+esi: 0033d60d   edi: 00001000   ebp: 000000cf   esp: f6de1c90
 ds: 007b   es: 007b   ss: 0068
-Process phone (pid: 1795, ti=f75a2000 task=c2287030 task.ti=f75a2000)
-Stack: 006780b2 00000000 c21e9a08 00000003 ad40ad40 f7d8d1dc c0629908 00000000 
-       f89fa000 00000012 00000002 00000003 ad55ad55 f7d8d182 c0629908 00001000 
-       0033d60d 00001000 000000cf c01912df 00001000 f7dbf74c 00000000 00000008 
+Process phone (pid: 1847, ti=f6de0000 task=c2329550 task.ti=f6de0000)
+Stack: 006780b2 00000000 c20eb5f8 00000003 05950595 c236d8d2 c0629908 00000000 
+       f88da000 00000012 00000002 00000003 05800580 c236d878 c016a284 00001000 
+       0033d60d 00001000 000000cf c01912df 00001000 5a0df380 0000007f f77b9c0c 
 Call Trace:
- [<c01912df>] __getblk+0x1f/0x290
  [<c016a284>] check_poison_obj+0x24/0x1a0
- [<c0280115>] soft_cursor+0x175/0x1e0
+ [<c01912df>] __getblk+0x1f/0x290
+ [<c01312e0>] lock_timer_base+0x20/0x50
+ [<c01317f0>] __mod_timer+0x90/0xa0
  [<c01b1ad0>] __ext3_get_inode_loc+0x120/0x3a0
  [<c016954e>] dbg_redzone1+0xe/0x20
  [<c016a43e>] cache_alloc_debugcheck_after+0x3e/0x150
@@ -231,9 +132,9 @@ Call Trace:
  [<c018a744>] __mark_inode_dirty+0x34/0x1c0
  [<c0181a59>] file_update_time+0x39/0xa0
  [<c0152984>] __generic_file_aio_write_nolock+0x244/0x590
- [<c0120fad>] __wake_up_sync+0x3d/0x60
  [<c06154df>] __mutex_lock_slowpath+0xef/0x230
  [<c0152d29>] generic_file_aio_write+0x59/0xd0
+ [<c0103aa4>] apic_timer_interrupt+0x28/0x30
  [<c01b04a0>] ext3_file_write+0x30/0xc0
  [<c016e997>] do_sync_write+0xc7/0x130
  [<c013c640>] autoremove_wake_function+0x0/0x50
@@ -244,9 +145,243 @@ Call Trace:
  [<c010304c>] syscall_call+0x7/0xb
  =======================
 Code: 00 8b 7c 24 18 f3 a5 fb 8b 44 24 10 85 c0 0f 84 2c ff ff ff 8b 44 24 10 e8 5c ca ff ff e9 1e ff ff ff 89 d8 e8 50 ca ff ff eb 8d <0f> 0b eb fe 0f 0b eb fe 0f 0b eb fe 89 f6 55 57 56 53 83 ec 48 
-EIP: [<c01912b2>] __find_get_block+0x1b2/0x1c0 SS:ESP 0068:f75a3c90
+EIP: [<c01912b2>] __find_get_block+0x1b2/0x1c0 SS:ESP 0068:f6de1c90
  
+
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="oops4.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWYuvrTEAKvB/gP/0CAR+////f////v////AQAGA3fOajgAYYPT76lb3bbXsx
+3Y1ODXXdmgNXYNOCB7drMlaLrm3ve73LTZGJKpszS2bNt61HNvb3eeZFQlXSktrDd7vZ9t2m
+he97x3Y4jZvTX17w1UiL29sProoO1jTIHmagErrW7jpR3YHHZqU5tKoYmiyADOjG2KZw0IRo
+BMZBGg0NTJkE0xEzKaaaNU8pvSR6NT1MnlNpkjaFQJo/VT02/1VSmYEFPU9T0xRvUnqYTAjT
+IwCDQzSGQYgCUBAgmgQIym1PRoTCNNJNA9R+qYeqZAaaeoBiAAk1EU00mhiaTVT9qemhNU/T
+Qamo9Q3qnqeUPUeKafqnqeppoNBoGgAikQJpqPUwGqnk9GSn6o2Uw1MJ6mR5RpkaAAAAAAkS
+EATRoJkyAE0anop6aT0MhoEZU3qQ/VPSaaGQaPU9TeYA65IwgsgQf7KBKg0xgA0VKgMhUQU8
+zIUhFWEFgSMQPMgrKfu9f7u0SR/2+f+/1+MY0V6el43qF7RbfNA/XoImKoF1RE0+Pt48LMyC
+/g3tj9RDnHhxolheGg1/r/DL/KQJCjNwSswpsUEP4wC9SLp/t+b/7VyT1ypf42L/vCpQC57H
+DOdFmiKvLWp8wgaVutOfsx+2K4Wt9Z3fNqZ1z5NstuEuWXLxan/0k8Oj94Yl9B/4VHfB9To8
+XTyIe39l5L/WSqj7zVwHSbf1EX+GLKSwmBN65Vy5Wwz9dB6f884LYVSbbRAMFwfWa80NOHLs
+3wxRJFFFFFFFBFE1rWtabNIpbXKi5qwpG0ZZmXdqRrmpppkpq7b7b6AAAAAAAAAAAunOdc5z
+nOc5znMAAAAAAAAAAAAAAAAAAAAAAAAAAMmK/Z3M9VPg5Md+XLGXLlyzy4YiqIiIiLYiK4iI
+iMEREWRERFkRERgiIiuIiMOHDn6XyW6Yiu++/Hjx3z06dOkAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAADyX7lLRbkryar8FmG2VuzZXTZXVTUrIEqWfze2ClV5cuXdQEuLTO3NWve/
+pv2ejqtf1UNFF0h3d8QREOjjzrwJJmltdcbuOk27epBlXGPhDaJ1a0FQJWBUQU6Tfv+nDOnX
+y7189jlB35JcrNC96WwqHwAWlda07L+q1s9lzezdBPK651i/l8nNt2XSrLRdbUqv/nHPGAFG
+GtE244r2bVLpwV2yyKQ5NaLfrUisJBoniOw2mZnY+KZbxu+CoxOkae5BI7lR7YqYRflEuQ4J
+YVpR3hIBjBWrZ2IXZzp6IyZFdfWKhMJmNqOxawzOlbEEh5VRDpkSgyqkixWLVyKhOdzF/5Zz
+hSutJR97dax0/IyBAJp8MOPP6PxrU6MERAQwNAJM/FZDjehdp+Bwr/IM299Zbc9Pq7Zy7tja
+44+HdzRgpqjFFbyGkNKYSEidDMZkCTaV8JcE56R1EW/pkXOo+toE0EatZhYsTSwWZ24j5PGZ
+VM3Uves6AB32vjOWEqNtjf+TOP+odTtheP0OSMCCYZVzZfkIqAMlv2t6NN8afjj+VBvoiPTg
+uE5/6C+dro84mBXouLJxgyBfeldVGLUryAcw8W+a+jz8vCNDOp9L9hMhOj5f2piKyxeHY/mp
+UYLI+JJf5aI+tmv3dRIpLIk222ykWLFiMK/NZ7H+OOC6F3momB2V6z4sg38BZ/IFGcbGLFix
+YsWLFigsBQbTaRteC+l4aAnIGvBnGh8j3GmszuuMynEOYLD9onV+lfjP3fHv7OX6jXdYayDm
++INHkVTObtpPE1RxhSjMz9UGZQx35XRFEJCKGKdvsG3eNU3lGntm4KcJ284GTK9d2d+jH63a
+os+ffwmijU4pjpdYnT1u9PQh2cI0W4SEZ5yLt+nCsO2zgX76RNNMZWj7nr1VOb690/Vui3rE
+R6pJBWgWPKxQjEHRXHEZ8bdMrDpjhU5AQ0+64N3YWPLx2fo6WQn+M0kjXiBH934txgqkueHV
+F+QFORwJsLlHM8hnE3L57n9HurtgDTb4ADDo66/hcBOi2jik6Tz/BmYGUx59+mfoSC2VTEeA
+N4jonuk9B6VFRI/e542no+/duQv54Es9TuZHu5cYmadtVfYe2oz0fKQCECqfiQXRf3pbsysg
+4L5He6Hly66UzRoVVU7XPo1UnqBz9N4lDBCOj8FFqzXDUn9PG0APBaDEsYFZGFsL9gMht6Jw
+MpBE7df649kBUaRfCUBjWdkNc8z2ZSqe0DG8JuOFrlrX8cSKcat5iU3h4RSUHNZjKKsKus6N
+RxytFpbZKtTR/OopI4GTxn6iNQ5HFPnGTavS/CKYuf4VZ1BveTqc/R0btzoW5EFJEaxKe71/
+PeVJE9ocXDRNbRcNJXqA459H4wkxwzL2lhOMdL+XU1PZD6me9Vu2Pp6wN56Nsr9WB2M97wqq
+qV5KoZd3fvIyZjt+EOQK9OLIQAclEdHRKeuXCszszzF6FJbOrfomUvxKvIKHkzpvhdAzIeco
+Do5dNNSPnY6kgNjHst0i2+NnR0WgVsmpkG2H5X0otIPUVQgPHm7/LQTqlVvBUNh56YFszqSv
+VRvSpTfuQcOHJsZN80Ni7odnkau25w81mNVKu+FqKAfjwOjpr8cumrwD3IDBgaOxmWH09IEp
+vvGgH+i07E0zwonu6vjHjfPY89uV8Z49Xj2E+GmYVksBonvHdShEZ77Y+FrWNEHH9Hmz0utv
+CNH3/Zlrdfd5PWY1D9+ZdF8wjAstCtoFkHZYLCgDBk4h0kIZYwvOZNMubT4UK9B7lUe+SDtT
+fTQ0bRWKAwaqgNmhIlASsVpxBFUFFfJI27ICXQG4HQjdDmEUCkk7fpdDGIn+NwEvp7dMwkyu
+z6KshQjVuEZktVJ6CArOIwSlTR+HfVHKBvl5RAdA2ryTTTfINmhLRrFekdIwLPcx/OaL44wA
+YGJzAG21W9ZDZAayIXXx1v2x8V7zxpH0DI9HPhjBMI/L6cSP5ykgmlaePNYrS/7dHCJgFD+c
+T4Nfw6AXR6M5Zg0F1iLVyLNrGp1toqhoIuepSqqmLZEujbozUHTUklV5tKRvZ7rGjXOnh3lr
+La4u0QuiHVbQBZt1LTZdQVB9RhJJo1igRiSWpuETVcCCiR07JOdDy0+/hrTr35FkABBIRg4r
+rbte/bogr+93L7l9r4iXmrLco3mV7oSR06/nVOQSBuwWvPp+e88NYcNU3j03xSwtmXnjBgAP
+mH2GN+Fw1xyX3gRrKWq2SO5mHjJ6/0SYA98RWNPUDmX87X1sh6hDzdRKIoohnrnz/1hlhINM
+URN7FCWVTHTV/2fjY7BM6dbPv7LgDpT1NubA2nEYCbZ+cpK3WW9yBRw1aoSrGJuIiEMNdKlX
+sIqPqQAm5+39nlTWOBhKvULNsgvK3Hddmu+jYKNHDAFVzXoiwOoLH9wdgyHWoZjL0+Fw6Dx7
+6MGgwZEVBDCu2J3PdE1p9p2C6RkewLVNLQOxfzUgQQiidWi/SahOO0xyDRyYgV1Zs2tvl9xl
+5SD+KkAPlNyGiqynh1aIIoOiEKGv0T615O4kRMh1iMRjHkPxojaeyAJEpW20pLeAlrAENGjb
+6qKOuhcIwMBnaMekACkTOhHmfGNERPiiKRapmk8NITe2aE/VcFaQ6xX18fetYM+KIRkYtdO6
+Gf8+/uPwQwRvM74/DUtmw5GSnLG6E6pS2lzhg5Gw+1O+Zf1aRL3fbzlh50xUzETAtIPQVYMh
+7gVYKAgU8i2xebKXH2cisg9Xv+v6PqbGA/0gOv9+r2asqgkmE+lAzTRTgGBaIYgX0AIEHqGn
+by+qBMyNsJyJWRSnIoL2/M+Zfb6exqyg+Vm/w8R864TBuHeij7TjzLfVXmrGPZ776I/dNRV/
+DL0+nTUXcDL75/y1j2wrMFDAD1ISS9uH8JpLsSAHtyC39Gau0CmniQDIqvCUl/uibTXyTuMZ
+GxSC/vxCxsgVTdr2x2zRt5FBBw1S/SEKf+U7SDmBwXKwHB9Ah58YYLNig7trnoOcWrmHWySU
+j5+0bCIgDA9H0wC48/0AYDG/bu1boiUpjic7Qf9Pi8N91S8c7EvT23sq0OieP1kHu9YBJ0yE
+PPN3fJ9FHzb4PT74RFhPvg6B8OoMNO8iIwLSKcch5Q5+XfOI2CnPm/4gCGDqkyPmry3yNVgl
+pj0HzZLTGip1qCHwtYrGlftnwrSlzfZ1vAq+0/Z6qT5rlhUQzFExxLeNKMtvcW9622odpmZJ
+LeSm+v56J32Sy2oxMC2hrUo6++resYYO9cKJZUKsYygq8RMrCw5LqWYdUr69IqkNSKqrvFrR
+MtFb0dmemRxrSVUXAJYd4d7Zw6UDOfjkyUNHZSy2Adh5cpDjuyEf+iNSbIGopu2qa1t1uz18
+X3H/tsEbPj054oaC5VN425tgz2xatYtCqBpgcY1Q4RqWiIelfo9DEQTIArqKqKOM+3+RgwZ2
+afDzMGet/ypVq3aOktyIPWZp/RbCURpoaERvX/NZgco2gcZNAIgCAu3lv0XL6ttJomW3mtiV
+QKPPljDHGJ6IDzkqVSF+lPVwio9ul0VVcy68/+7c+vr1dmr0/c5ztOnU973ve973ve9732Tm
+qwsygQn0W2PhAzsDFYISk06mTMk7DATQ1HySK6zC/I0On6K3HR7bkOA8M0p+DDiAwP9/fRzH
+e8OetzI+N23cucMJuEJCHROSpi5jsCDStmVZfECEmdQkSL8Tt9WFSV99gpSFHlIX7tSTqp+s
+pyi69QfjkVOFVok00K9ggWi+rKXVyiiX9EPsezaPwfN0a7xIEHs7YeBjLuK2iANg/qahoVQy
+kEOIFvyclUTjdhKVaVB8Rm9Jp7mEKiIoiAgUhinKnyc4V7fLSb+ejUHqcqVUK22vC2a1x2ir
+2pEXL2F8eec9LW2zi4Y4xfLMO0AZ9q+nw7cCoiiiiqCgoKCwFFRBEVRVVRK7888Kz8ZjdQYF
+1Zq1pWYiFfazuVN4cW3zbOyhlTjNGfOZOCJVCWYTNUQVmBEDZQcDh4Zx4EOPdYPEwI39rMmW
+uk3YwpvYFIH30B1JbpXscUZNRAiWARNEgSVItNYBJ2OWyYWjguggSmMqYUDVAruV7sIRoRhR
+puZ1SloqOs90dH5oSmsOWp10vLLw8rIapwBrblVMezhqZVVQ665Cvm60eiiGATyjIlVfkEOG
+/nXFZyQYMbiwSQtczm8aX0Kq81ffONQt02uiJuQap0+UpeqJYVC2Txcv0UKPufsjdeUBbmrH
+IL2Gtb5mxER8TIAiN2YattqabM1/d4lGlfH5/twpJ7hpIgFAKMjsW87t2g12VLvtP9e2N2/D
+CwD/U7gUCWlMYMJfYEeODGEYrgqjRKtrxunZRhVi3P0S7bkKqlJQ1i5clt3RdUSkNEnl9XKi
+/o/LfTs47PZQg5Mx85eeeLDK+Pz8/Plw9HnN2edSU3bevg973ve973ve99b7x2Pg80je8AUT
+Q+M0iaRT4ZWcl9uqqzxpPmxeD+bt+n9yqyRFYmSScfc25qFtWrmzTwyW1y5Ksxe02gWdK7N0
+mym+8wiRdbqSlO6ghCqZV8JImFd0T3/Dxf0/Tn3iJ56zIV39V+XhVC/HL2UWfqMZfR+t/WXB
+Oujym8COeDm5udXlRpjIFdPUFO6vdu27seL/zAeg/uaP4XBKQgmxmml7mzy/bUFySJILNvRR
+qg9kuQF0tdbLZxONcgFJoG/3Hb61TLfXXXgZHI233rVja5b0/fkgcyb3qXuNw+rxthUS9Lzf
+X0TzdNw/T3deeedCLSu2iv4U/EMyj3vu3rcYFgDQVfzzjrxEfhYpQQgwrfHV3yn5Duo8p1jR
+UQvGJkIg7DjpDXtLFUMskCkqyeocwS1NFbQQWwafYczTKTzUs1V4QXzZs0vs9nzdndh6+qzd
+7G11r4X28emyyyyyyyiyyyyyyuyCvVdqkrvWRrPQjUBC6yNsIygZ0BfgrSNPZHJc9o+pgtOa
+7l9up2/YWnVmzdkN7NcLHy79rldbqeNx4VF+pTbOhwxwQqv4RJt/C/mOmZ49XTIWoeJorlza
+vriRxZxbqIUA7NUHkDu14HKZSqFxyEB6fVr107U06w0KqGdrWPsVMl6VPg/F+21vPB0b9uzA
+5vvdrJZk+8+7gRAta1ufJaD9Skdda6kSrazM9XY2a8+732turzMu0xKla1ffU6jLjPk7ttRd
+uxkVckb7uyTxMs0OPwMxiOQArSzcYvElkZOPNJtYcccpItLeLqq357e7u7t/Z3dXddj3OdrX
+fg973vc5znOc52Z0+4XxvqXnJgTWo57rFdwvQAK2SchIwtMUMuMYCSzBIA3GXioQTEVpogV2
+xRNO3bckJuJUbvFVOKXfVla7XuXE8HtUN65qe1SdrBpFicKtjvfmjlBR8GZzfff8R6IzgxqB
+5DZu1innWF9wBi0fhRxFbGBQtjAMhMJ4JIgq20G+DNWCbPfWzi6Tjx45V8ceLsONVVtrMXOc
+5znOc5znOodPhFmtuLQmgxcxGGkKe+301S3WRUDyHZhj0tNL5JClj8F0hfQ4+bJzGn1Sd2ay
+zNmDRiDmMH8TXHsfDCiuH6ntKv6z7PHOympK4UXSxR9TVpVCvX6YuUrwtw7K1yDo5pD9rQs/
+dXdU+sqwVizGYxRDJk6k8Mzc5h5yhsUq62y6krWj6IOU9nLly6OXLo5a9HKqrjfngc5znOc5
+znOc6d0NF2y8HapygAiwdqi1YNSRwIn5V2hV1jGxoY7+owzEGpT1Zd3ZdeTIMDVXisRKKKrD
+rVV2qMUEvstfLC4R8o391TOkwG+FDEzmEO7Q+srZ9w6ce7lRAq2eIZNzcu3VV8YxjTZQyfHM
+2zGbHHHTjjrx0YY1VO0aIHOc5znOc5znOndDRY/zTBT9ee4Hovw0gDnJpRBCZLhVJGpTIo0S
+GFTphRKyqWECw1qr6uPeVAugt7JKIrlK/IAuTn1RmUIWcsniVlBRI9bEcyuRpjapUUsMqyXK
+IyBKIwQPKGZUG5L7d1Vle7du17t2vdhp3Oqdc6yF73ve973ve9753w0aLD1YKR2oAXE3FUoO
+HHhEit173k31T6A6rC9FbCEdUdcjlI+rXTzG7O2NZNKmpWtPU8nHzqqovRlzBNgwp0Xb0R80
+NCIGAKFOKDdOKmTZPyztjyyy15ZZZPyyqqry2wOc5znOc5znOdO6G3aYprCrzNaswvTAzxGp
+H6FqJIGquatmgUtFnHiZVlMm/xZGnpMrHIPpWd90GFXQlE72Q5OxJf0FQCC5+iy0KhiF2h+B
+xKcYrT2rw9FKLagvn42jdxOpsF06a589JakMzi7Laifka/4BsYXKqSUbo0r6VlSgHBs+nTwj
+ku4cMeHDhw2cOB007b8XOc5znOc5znOrdqvXSBxAy4b+eIgJn38OoKXkjs544cpRTQfJ38T1
+WYVYYTgPOd+UyailaZLAj64XlkHC7pwWitm8e/NtC8g+HzwMpz+XLt9PupSnJsiXtzA3R1+X
+RUlVMvPdzeZ5NtVhAfXHiOhkr64Z43QzMzMMzMzMzMzMzMzMzszuKTlIlEREhRH02VfnkqXc
+QY1ouMtH7eJ53FWlpGkIyiD6lFUejKqH2q3OsujQyMZRd+XdebkdfDtW/5wQIFzhokafbH7F
++TS1DOrZfXm+NVr0FdP6BPvf7j4X/wx6MEqu3oy2YZ1DTDRpg05vbLcGJAWMKzs17rd0qkBq
+lfec5RQMvwUfqLmQlU+fb68yUSsMt1yZgEK/+0vZHHHaayGyEk+LVCMG9z9AH4RYWgNBz8WH
+HHTTS/ktbYrl4bqAvxUIQDICUBCXFmfNTf/EbyH50SZq6ptZ0zJetKs2COopsbo60yy5Et+r
+6fYZGAC16i72IL+aPQ2f4cc60qO00nzS7OY7unQe9uIv55KBo6Ekb7NEYMBAk0kYr9DIGWdH
+bXhuokqP7z2/lMID6KAiWvx3PjYbwfDgNa/zx8PdkXiu9k+lXFIicZIdEDNhUMsLLfyTBQCe
+4tmoglKMQqmCQUYfP6uAfskKA/k+B09xvcd3+RPl78a9d4kV6mdPF4sANbh5EMY/dzfqPCA1
+IiWoadXQjlKGK0u1YsAnAA6dkdbn6rYPHwzJ4q6+DDCjX7PShAGsqVICZ9xCr+59r9wM99VS
+FQkj82372/0Pu2M1vf9Ze7Q+T49KVjZXa9f48YF7n9OtHUhAgRQWB/V5vWE2hyGgNcck2Ne8
+NO67EaAww4SRm/2/l02ZCorUAwY0n+kQ/BoAAVyv4kEWwFiYUOcVUuz2zJwERE7PnL4t7SbY
+fjN8SIAxiICqpIGBx0UVvO71pswTrJIG6cVXqqqYSjbCvHp56UekyaLEYjEYmgUEKZJj1/Nn
+CdByHd3OVamjW0VTGdbXEV8UpBJ5ffNdumBsFA0OKeTXWhhQkk8nrhXFKccyNDHsAjqQqj+s
+/8f69t+qtLiJ/sF6DVVipNpkaYkzj5W/EJma4is/qaNE8DcpWHUy8z3klhqgPQ1ya1tX239H
+4h141bSZ3s6rv2ZolBlfVJaGuncKGivdIrUODrGewa5j+EfvjABy7Sg+7oIGHRkiG2JtJNbo
+hJtGnAVS5e8u7Ji6BzKAq0KIwUBEJFIgCCKgqXQZZaDZ2Swz9MTF6Gpa8OI10Tw1105yAuba
+Q8oWPiIN8MrMZjA5gJ8H74fKFhtUiRYKQH0eui/i9J6xrq409MJVyqew0wGphzMQb/CFt3nP
+MCaUuUI3RDCSPW2cOK4nTQzHkp7GFbxk0QQezAruBYdXPokleY+N3ooKTO/ir6/oXSFR08yU
+I+5r70zgxAxroOXPt8eWHIlaJy1hd1AeJFyFxUXW1h+tg0goA+9xU5uWcDztEgczTO4hqgqg
+djFUJmuKg53srqEGvn4oW01XIDXrirbiZ95+ZsKg7s+vjMlzu+vXfOKFLwVf+msaqrlCjPSu
+ZiRrGoPSLxcxWhy7oJF+IS2ElCqwrVTTESUARs++WkzMmkTAbWTItOwQqYoI10nr2ASTbCsl
+tMU2dIr2I6zWLq0Vc7yHxLRQujOSvsALKtrkj7QYBP+EhZ29KL13YAz8Mp4Oxuefvxx3zf1+
+SxDaiaBtZmCQG68k6Nu8aoAiA5TJyJz210edsROnXls6zIGkngF8eOZuYA+LQojyBhvwRg1z
+EQHLftlL9zcgqSlcxHVXGVBYUxRG3Wd0HEmC7mHYzgYi1AVlwFBdgMMGSNzgXQkLcRDFvGHK
+3CQep2NtCqe3nnJN2jhjbbewc7RMSeMkcvRoqnbzRVjBvmENBkYqYn2Q8OiSd/Z1L2zyUnyQ
+HwsIF8KdJ4TwEwQoEGcF7xdWBTp+Kh8YBMv85vav7PJD3SXTYUb+lrBphtkZ8I1CD1ah2hwR
+JF71EpeOXKRPnEurDNAwdQEDkctcbRfyONDWHsFBUf2FeSQazuBv4eCv/WDcfr9xx5nqs0DQ
+7fqgGynvZVQqNUVKTT6UvrhZvks24lnMIIetCwwqmp+iN2u8zvv09mFWP5+lAG22TGUcp2nM
+sKiOUDZP01zsvDcn5ReN2pL4UXMdzfZa6tHBP78F2LHzc67P92n8dWnmwgGIBh2sW7PTLdlK
+yvMciykw93vfG66tcV1D/RfQ/ad34/A7TkE0ZBm+UIqONpA2CSR2GGhIWBfJJO2bj6MN8WGU
+gKyzS4IY02y19d8IrNX8YO3t7xK8DEkSCchAcFt2ypk4fPAPSgs9D3d4BoH1T6fs+M3IfYEf
+Eb+cHOSHoPIOkuxPbn0SRValnCJAsrjwGc+4XXl9PPeU9cP0aTjJpGOk2q0gIVh5Ll9YM5Vm
+Y249iAc/5mbYpgr9HBmRoJPc0im3pT6yi0Yg+0udUxpBhQCbV5crtEf/OVRlxntDH8WjaLlh
+pujtL04M+agSeWCNw69ZHSyq4sRtYg8nMLx8ZC5gz2wWx1yxa0YdIapXFuFDuAyrlBAA00Sm
+qzTyRYMkl9lLrB1/oa0URo4QgNFtLswwa2IrYnhglOBbPa/VWRA3gqBq+xvXoFAp8WqLI6gS
+AQFD0TslEZD1cui2Z5aTJ6XzqlKl4MhOYrBBeuIduzm0Rj60Ys3Hq27+DMAAHFbyyplKXTlT
+LYlKrUtjMwzJ7cvRZh+nfvNNHNjZRrbYV7jBR0UVGO+Be9mNoFAWxomek6ReZ5QvnoHjWkoP
+fAhQWKpthxg60SSmZzDENNmhxuoWA9UH4APrSQuVZ1Gyxq48NqFMNM4tZZxO6smllA9xVMfw
+RBcVagCUYB5kIuAMF9jF6p8nMi0ZZOjpy377sqKKKKAAW5McpcNO9qlRw0308VNFG1qolbZr
+58pUY1XHklx17r/vfOPxzFaf5oK2IbAghp2LquOKrLdeAULPzZOQtgz4swYWGz2BofzTnnch
+vaWGAd4wVVF5c8xeTLaR47LJlxkM91p+fq9Coe4EdOJ1X5VEIS5Jq0woBQFoZSyc0KRjFg1P
+2ExggvfxVjAND853bTfv6GUlAHK/bZ3BmYOlJOrjJ8yoMkFQgvkA7py4ydBZRQwYCCw3gw4M
+PO5IgOiKpaUwlIRZIovbkAEg0lDWEkjk8YhF6A9EG7QkspWrSAtjntgg86H1QhBemJBUBsoI
+LOm1bbwZRJQ3nBK2UpSplRKmKrb93esu5c87p3cujf5QAAulKjJ4MKBZPnehnKF8YBsAyeIV
+ppoymPw3duGcG1bZ+AFlTUzZcJsGkAWC0gGxpSa6hgi1pE5wmNjXgCUqqsrMinq/S0qGW1qV
+3yI5HyPrc8FHHYPYKfWp9HyGLlOXJETTm8tjMimupKA6mVUDsuOEZwCPVK5rDzLtPk0d15bK
+3vmbi4t1zMjBCBAmjExmQkSznIITGcxEqUk6T2XsBefyZDBHgBoVIunyw4kJHlMQjj6phJZ6
+TPvfr41GQoGJ84PSZoQIFzFzWNeeWsK6ppxF5IKmQpJttSQgcDHlMvCwsGjmA8MYkwLXXLLC
+aYO848rciri56WzG/nsswfBr2NGvPr18m/yAABfKUvlnddVZzpWbdq22igPSWDgjwpF22wNu
+7jKDMiYIeKFyG6C9bMiVGGEpSkWzpTBVIpgZpUQMZ63RKT7KYVzMMjm6BWWzzzd32LlCdddS
+kVHN2HgHph7vWHhKCu8FMvyk6upuUdRfldlFsosNYu0ONjeguE9nPD2lZt9fkfxc296K+ogl
+6YtMp94VAygfRM+aszZa+HL95DKqw3qd8UNBSjIxahRyUoEIietAK0KRXqCrNGPRq2kjeLoS
+XSUaR1kKHAREqV2dPKwQeVES0StKvby/VQNFMsyx9Fvo74GsjtZiG6DoNJeNUYK/8q0Z9UFN
+xK4uDz5vjeT2mKisoEWobLq1oF6MyaZPMkwW810X+Aif69awq2cyVV2kg66EDrOXCYIlhRmZ
+SNnmW1Xd+T9Ld0eVdBcxc7oL0j6ppQfR2LQkptuyz4E2qAZqI1S+pkGSIKLNEHAWrdAI1b5d
+XIsq/DQHfmVwEKVuG5QruR7QI6DK8r3Bpq4yhMQxJMTS6EX6Newe9iiAgUOAgj8LjItqkUUb
+HwPuamEEQfeB3yCY27FkhLeljkbN3HNBZ1mgAkAY/eMVlR1jDMNf+TkXA6r5ZH9dA2+oQTMo
+R36JBHHZJ4u+3le3yspnigsGfuamNEvJi0e6/TdRKmLuijX1ognYAOILCBKqUBWY6dbRkFZW
+aISJjReBskA5DDWBOY1hIMh9EMQTN1GzgCQhu5Ny0OCpJwlnRJKq1OZ08jXmYsC16Lu4VZmy
+bCSJ8akSGTLTclZTbMW1IO36lHWy+oxkDMXA0xoD6aSqHQNOfCKsQjeFGyCTJfpJaXZAusHF
+1LV09wGlgOo7hBfjoQDtTvvaALyxRGshJGKaENoYDKGk401JIwLYba5DAMkRBUbTC4REACw7
+r7ZMPXTXJZox265555591FFGWWWWWWWm9mOPVIPMhOCPlT885gFCTFSXd70Gq+NHe6U/Ex9N
+8J4o1wGWoqoqPMdc6FSMvjtk6og+26bbgRqDoSRW7hEnqx7fAk2GYW5VrTwCDWeGggSbIZWL
+Fk2gNLRtfAtC0RVY3TF2X06gJoDlt/HHTOt4K456Ui/m16ZfY30L0iWz0mLYPviBM+7GSwji
+sEARkqIjUtZihaFlQBTA5YfgwWh/BLxss+8OXh2WEGiWLnWWVMSrYjpGgTiAQJChoCYM7abJ
+OkT0Y9nkJ1XbUNsYyxwJ24Iy2zqYhtTDCgaEK1n52JIVUmNHpc7l4FhkXi92my+ZowcxF2PA
+Rw/iOIY9oECRJOSvLRqcUaDXkCMEt18wvBaEMlWrRmCgFCeUT3qbyiZy/ZPzWd/3abA8H9s1
+mrudba/PRoIEJros8U1vzxDvU6a1sArgxLtqbxIT4DQ0k19GtF+NzN4Vd67RPLeMoskKqtg+
+7+LOQmhDSb6YAvVYI34b80aTJEz5a7TrQ/nZdBGgYwyWOR29KTtYkQwShpE/l6ANU/3005+8
+xrVjWgNZ6nteDPvIKApfnQgYf3nVQCfFbdWrWagkHxsFg+T0EtwrE0tZJJLAdlvlPHzzKxso
+PEqIhoRL0faHfKoZyHxPA7DAU8hI0G1YjydECBCkbMcDXJ1vBln3rFSB2q2kCo6FjAgMW1Jn
+SQCEPBIpAZBEZBkEIopCChAxgA2alaXg0o7Yl59rKen5H4eymwbBdwFSbdsXzKIz8UutTCo5
+rphZRArGrkVlNRtoiQQVitMaGhC0o9A0KBMaIYOAgUANsq1W9dyWa1+oAKdW1EtZoTaQz0Xy
+361C97RgNOyYbVUEHpiWsQh94dG8ufIlImVMolHSHMhYwCgoCKJb+EhO8pMGCRNQT6jBzqpR
+xCAaAw4DEevQuc4/D6o+u7JS26AK/vslH/gV7/wzEFjZUphz81aueBWhPbshiZKsHSqlZG8K
+p6PFqifOx1wxAcrHX3lM3oLXP0LqLll4KjBVXKXADFKGwKlaVhGzzZJ4pgzMlXcqmOlmCbGs
+0FGGpnEst90/Jo7zHUe6wxnqogMfa0si+TJiuUGPaVsSMSw8ZKHQnAMOmGzTBhNWgSI9Z8+3
+ZZDVRUyUnZoGuxdqiFgZ7YDRVxZcGFZESS+rhZQndJCJIegYDeLTIIIGZCTbPhMzsF6jDzug
+YW1Tqg1cxTm3Mg98WlWhes1GqxnnqiocIs/RAcVz4VC18RvtMcWzCDEckpzZEi2IjGRIWPKO
+oEtrRXRFRYAyiqDIGE6JsLA9mVhQUtOHHfoDz8OKAm95B1kiN2CXCQvXgi9LaC5r0bAprmRC
+cEHfp9l/OMW+pJGVhM3wiMCEr1oMO7gIC9SrdhDmivZISs7qiwUw4CgALrdAwYasDX+5buHi
+aO8vox0cUOLA7ZVSBbDqurGYquuTLVF2WKfKhhW+MomYhpigzLoFh5jNYHJ1sjCJm5KDL8kX
+WGVR9tDC29slVOQA20q2UbEaTbYYAMExdUJIbojGIiA+A/FDGhKiisCVD2s+PTCpSLYggjhC
+CItb0R1vef14JDgTYbSzEqgC7ziKXNZNqOymq2tTlDyGjIdmHckq0i+YK4vUJzL2UoDfVVBY
+jUxCURQiiyc0qSJNNNhsQJgsN0HFclROqsDPBki8y8IJ51VVLCR66A70PM7OiygAIIwNLeNY
+hBmGZRIB9yWEz3hWLvZgkG/USCjmkDPexaQ+aDDEReu32axQUP1JRJOHATlEhOr0iCFVqWQC
+0QavNP0liX29fRbouBNBKDWtEJLKipiRNCZAxAcBVWcQmg6oQ1Q28awxBPkYsMu0REUZI0f2
+V58EH+NBKs0UWidlwKJDYJjEMb16tOOrdUX/3botiLBBGwlssN0WiDEbMDpE2zAlBAAiMFgK
+SSaFBuNrRiSp1TyCrLy1ZXwq4AH6iePSZ+sMRHWmBgdeCvNL0iXnzQCkcG0SS272fICpzFBs
+jbzbYKiUSQ2aok7/kO5SSCyBJ0g9j47APp7oS15Z9zHcTF9SMlFK3XDnGbgFrRNF2Cmo1G9N
+xy53qv64rppPZ8F83trMdisgDsV14mlkE4OAMgiluteyhjGGy4lAVdYsbiswEWsIax7KvCsw
+ZV62kj/36JL6CEqpVGpoR4nYzQvr3hCPfFaeJslaWCjWdKqzSfUgLBa5FxlDolYfDRPc6kob
+MOHlPCraSBTeSnyloGhobIcIMiLBTLhFW4laV2BtxL5BQY0mmMK/riR5uBHw6lYGzING5VyZ
+//dxqEHApoztkMAAPYHR2JG4rSRXsBHHyi8AH8aFE6xA+pgbRBIwUWAjEFEQAAiIiKiwWCqd
+bFlKJGLBICQgvqEqRgCQRkZ6KOLc8+8FtiwpM0eKYTQoOiybccD0b2nXSU2PL5uMtxLERj8H
+c438NIdn4O4X3bgAobwh4iGpFIZIse5kgYIuNia8wNXLpmsLRtK1g2gIYLpnbv5+qaqGQBel
+p8vAKDfI6vskEO4MKUN0dhtAVpZfJI1hmG9tDxAsFZqrtzn7Zif5HYkTWpH1qMWSLBQUKDU1
+lWxSI7YwHURjIZTsxXZJOiCikQUOkJO7ySdjOZvax2llZaQkqjbX+TCeIschI1Qj5DEExt5o
+UzBBhBoRgjBRkiz4aKIyGzDOXw4OBA27CBlXCrFOBX+XhDsLQw6YleyTmt4+MemQzOF9ksiZ
+CbTYsmUTaSXisagSYsxLJaqXexqQWXIXIouGQq1McK/1S1kGs543bMoi2uBl0Qr6V2pVOJRR
+IbTPOWi2XW6ZarVO5RUGYSIiKKKKKKbtoHKs3U6WHWhusVs8QsihNqpA7MKjxuSSSSKicROD
+Ct3vTCEEyAqFFx7THhMsGJCL4G5Ioxg4LpF7xWLCgYhg2cgVVGciqmRGIG+OZLEOAWsZMkku
+7RJjd555r2UxAeA69aVz27prDycBg9pBpCobmRQwJRyrfvIDgVBmUIzfa7MhZKk7GFazLryd
+oiTSiw9YzeaFCtoBnrJhpeKaYUgkwkhnuaA8lK2gEMDFrqPYVluCZsYC3CZYIQ/OqqdVAms1
+JSS+ZeSjiw6OiokHC0LXnfwHnBNy8VM2BW0aWU75ilqfC9LgXKM9O4C6M44itBNDyVoqwhZL
+OlnzV7MWKhMQxLgsUq3zIGzsVrNNJoZPe02lsmSMUekLA+QdJoNo0wQ7uO7C6wojgkRYgIYy
++RcWS7Z2lxAQTSdpeCKG/NLW3YU7iP421YXsom+1pBUygwhDwK56ZFx23Qhr8jOQxgXkljJt
+xTvLILbzJh2NHGtrQtTgQYCoAbII2z27S5qoQiaQqDSBs1lehNpl3Gky2iDLIF3SmpoDw2BL
+xIKyQggRiDvmCJXrB799YghTDDbdJLaTLktQBlVFBzNEDYnNLq7LYpNqbLKUwbbk0nf4674i
+JQRMc6kZiBgxPYLV0UzqWL9WN4IF6M+6ihhUIZAbMrFrHgZGBAXBmbHccUQAsogAHS+c5cHG
+6Tib48ZgoACmFZpVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVdZAqlVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbfDR4Z8SoYxgF7K/GDUAU0bSY1jBY
+ZQSsOAgka0fMOSbeW7YC1lWo23I6dhtApL1sNVPjDf11pnHFhnPakZroELTIyHqk2wxsxhPv
+ydkDgILDZ3gQLHk0SNMxbK6LnT3kZMRYyc0kkkiF5GWl86D0x3rTDbbbYgmkoEKFLdkNikgx
+aqYZrR16zQQlY05PmvgRI6dizHil1geg6g5wlFWcrLsShooREgJSTtKuWaTyG3u+HIahIF0G
+dmVp6jW6QmplUzAyCIJJMgwoAaibe2G0ybIAGmlii00BZh454iLIQcDtYwoIALRSDQ41uXGc
+MoKiTFWDKJC4zUApozURWQqwKK/m9GHo4c+EsYOUOs+uSQR3sPuYSxCIyCJ99FQRIifwIShE
+Q3efd48qyGdhUKaFGBSIUVEZPbZ1FjgqbWfkYejbs02sBfp/XhV1eQvbiSnODwnvuihR2SUi
+B5gFhBI6yqRmY3VSkFUgqkFUgqkFUFRRbKJcAcYKAD1UUAG6igARABIACxMCZzBp42impQcZ
+AAGMZyBKYGIHoZDIVvAgQB7aYxTSWyGIJCB6TDBnAH2f/i7kinChIRdfWmI=
+
+--nFreZHaLTZJo0R7j--

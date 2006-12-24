@@ -1,125 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754005AbWLXBDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754008AbWLXBHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754005AbWLXBDW (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 20:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754008AbWLXBDW
+	id S1754008AbWLXBHc (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 20:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754013AbWLXBHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 20:03:22 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:4040 "EHLO sycorax.lbl.gov"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754005AbWLXBDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 20:03:21 -0500
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.6.20-rc1: kernel BUG at fs/buffer.c:1235!
-Date: Sat, 23 Dec 2006 17:03:21 -0800
-Message-ID: <87psaagl5y.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Sat, 23 Dec 2006 20:07:32 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3950 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754008AbWLXBHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 20:07:31 -0500
+Date: Sun, 24 Dec 2006 02:07:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
+Message-ID: <20061224010732.GR6993@stusta.de>
+References: <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <20061214161750.GB3388@stusta.de> <20061214163347.4f1be668@localhost.localdomain> <20061214171749.GA29982@thunk.org> <20061214195136.GD3388@stusta.de> <20061221153828.GA4038@ucw.cz> <20061223112429.GP6993@stusta.de> <20061223213602.GA29627@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061223213602.GA29627@elf.ucw.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is on a thinkpad t40, not sure if it means anything, but here it goes:
+On Sat, Dec 23, 2006 at 10:36:02PM +0100, Pavel Machek wrote:
+> On Sat 2006-12-23 12:24:29, Adrian Bunk wrote:
+> > On Thu, Dec 21, 2006 at 03:38:29PM +0000, Pavel Machek wrote:
+> > > On Thu 14-12-06 20:51:36, Adrian Bunk wrote:
+> > > > On Thu, Dec 14, 2006 at 12:17:49PM -0500, Theodore Tso wrote:
+> > > > > On Thu, Dec 14, 2006 at 04:33:47PM +0000, Alan wrote:
+> > > > > > > The trick is to let a lawyer send cease and desist letters to people 
+> > > > > > > distributing the infringing software for 1 Euro at Ebay.
+> > > > > > 
+> > > > > > Doesn't that sound even more like the music industry ? Pick on Grandma,
+> > > > > > and people who've no clue about the issue. It's not the way to solve such
+> > > > > > problems. The world does not need "The war on binary modules". Educate
+> > > > > > people instead, and talk to vendors.
+> > > > > 
+> > > > > .... or like Microsoft, who is threatening to make war on end-users
+> > > > > instead of settling things with vendors.  (One of the reasons why I
+> > > > > personally find the Microsoft promise not to sue _Novell_'s end users
+> > > > > so nasty.  Microsoft shouldn't be threatening anyone's users; if they
+> > > > > have a problem, they should be taking it up with the relevant vendor,
+> > > > > not sueing innocent and relatively shallow-pocketed end-users and
+> > > > > distributors.)
+> > > > > 
+> > > > > One of the things that I find so interesting about how rabid people
+> > > > > get about enforcing GPL-only modules is how they start acting more and
+> > > > > more like the RIAA, MPAA, and Microsoft every day....
+> > > > 
+> > > > Please don't think or imply I'd plan to do this, I'm only saying that 
+> > > > there's a risk for users in such grey areas.
+> > > > 
+> > > > It could be that someone who wants to harm Linux starts suing people 
+> > > > distributing Linux. If your goal is to harm Linux, suing users can 
+> > > > simply be much more effective than suing vendors...
+> > > > 
+> > > > It could even be that people distributing Linux could receive cease and 
+> > > > desist letters from people without any real interest in the issue
+> > > > itself - "cease and desist letter"s are so frequent in Germany because 
+> > > > the people who have to sign them have to pay the lawyers' costs that are 
+> > > > usually > 1000 Euro, and that's a good business for the lawyers.
+> > > 
+> > > Something is very wrong with German legal system, I'm afraid.
+> > 
+> > The point that you can take legal actions against anyone distributing 
+> > something that violates your rights should be present in more or less 
+> > all legal systems.
+> > 
+> > What might be special in Germany is only that you can demand your costs 
+> > after successfully taking legal actions.
+> 
+> What is special in Germany is fact that any random lawyer can demand
+> $1000 (not his cost, his profit) if you distribute code that is not
+> his...
 
-kernel: kernel BUG at fs/buffer.c:1235!
-kernel: invalid opcode: 0000 [#1]
-kernel: PREEMPT 
-kernel: Modules linked in: radeon drm binfmt_misc nfs sd_mod scsi_mod nfsd exportfs lockd sunrpc autofs4 pcmcia firmware_class joydev irtty_sir sir_dev nsc_ircc irda crc_ccitt parport_pc parport ehci_hcd uhci_hcd usbcore aes_i586 airo nls_iso8859_1 ntfs yenta_socket rsrc_nonstatic pcmcia_core
-kernel: CPU:    0
-kernel: EIP:    0060:[<c016ad06>]    Not tainted VLI
-kernel: EFLAGS: 00010046   (2.6.20-rc1 #215)
-kernel: EIP is at __find_get_block+0x14/0x15e
-kernel: eax: 00000082   ebx: c661fcf0   ecx: 00001000   edx: 004d7f7a
-kernel: esi: 00001000   edi: 004d7f7a   ebp: c146d740   esp: c661fb80
-kernel: ds: 007b   es: 007b   ss: 0068
-kernel: Process vdrift (pid: 27994, ti=c661e000 task=ddc9da70 task.ti=c661e000)
-kernel: Stack: 00000000 00001000 000b0059 cf76d9f8 c016ae46 cf76d9f8 cf76dd38 d7da8684 
-kernel:        c661fcf0 004d7f7a 00001000 00000000 c016ae66 c661fd1c 000b0059 004d7f7a 
-kernel:        c146d740 c661fcf0 004d7f7a c661fcf8 00000000 c019889a 00000000 c661fc0c 
-kernel: Call Trace:
-kernel:  [<c016ae46>] __find_get_block+0x154/0x15e
-kernel:  [<c016ae66>] __getblk+0x16/0x1d6
-kernel:  [<c019889a>] search_by_key+0x6b/0xc77
-kernel:  [<c0114c69>] try_to_wake_up+0x13c/0x147
-kernel:  [<c0120f8d>] __group_send_sig_info+0x5e/0x69
-kernel:  [<c0121594>] group_send_sig_info+0x5d/0x65
-kernel:  [<c012a998>] hrtimer_run_queues+0x136/0x14c
-kernel:  [<c011f320>] run_timer_softirq+0x17c/0x184
-kernel:  [<c0187768>] make_cpu_key+0x3f/0x46
-kernel:  [<c0188c7e>] reiserfs_update_sd_size+0x7e/0x284
-kernel:  [<c0118de9>] profile_tick+0x42/0x5d
-kernel:  [<c019f915>] journal_begin+0x99/0xd0
-kernel:  [<c0191c39>] reiserfs_dirty_inode+0x61/0x7e
-kernel:  [<c0167be0>] __mark_inode_dirty+0x2a/0x18d
-kernel:  [<c015dab3>] __d_lookup+0x120/0x13d
-kernel:  [<c01607ed>] inode_setattr+0x15f/0x169
-kernel:  [<c018aee6>] reiserfs_setattr+0x152/0x185
-kernel:  [<c011bc74>] current_fs_time+0x45/0x51
-kernel:  [<c01608f8>] notify_change+0x101/0x219
-kernel:  [<c014e03a>] do_truncate+0x52/0x68
-kernel:  [<c014daac>] get_unused_fd+0xa9/0xc5
-kernel:  [<c01562fe>] may_open+0x17c/0x193
-kernel:  [<c015822b>] open_namei+0x25a/0x56e
-kernel:  [<c014dd21>] do_filp_open+0x25/0x39
-kernel:  [<c014daac>] get_unused_fd+0xa9/0xc5
-kernel:  [<c014dd77>] do_sys_open+0x42/0xc3
-kernel:  [<c014de31>] sys_open+0x1c/0x1e
-kernel:  [<c0102d64>] syscall_call+0x7/0xb
-kernel:  [<c0300033>] unix_create1+0x4a/0xee
-kernel:  =======================
-kernel: Code: 89 e0 25 00 e0 ff ff 8b 40 08 a8 08 74 05 e8 cd 93 19 00 5b 5e 5f c3 55 89 c5 57 89 d7 56 89 ce 53 83 ec 20 9c 58 f6 c4 02 75 04 <0f> 0b eb fe b8 01 00 00 00 e8 ae 94 fa ff 31 c9 8b 1c 8d 20 23 
-kernel: EIP: [<c016ad06>] __find_get_block+0x14/0x15e SS:ESP 0068:c661fb80
-kernel:  WARNING at kernel/exit.c:853 do_exit()
-kernel:  [<c011a2b7>] do_exit+0x42/0x72f
-kernel:  [<c0118561>] printk+0x1b/0x1f
-kernel:  [<c0104154>] die+0x1d9/0x1e1
-kernel:  [<c01049b2>] do_invalid_op+0x0/0xab
-kernel:  [<c0104a54>] do_invalid_op+0xa2/0xab
-kernel:  [<c016ad06>] __find_get_block+0x14/0x15e
-kernel:  [<c016ae66>] __getblk+0x16/0x1d6
-kernel:  [<c012ba63>] clocksource_get_next+0x3b/0x55
-kernel:  [<c011f98b>] do_timer+0x500/0x711
-kernel:  [<c0181143>] reiserfs_read_bitmap_block+0x5c/0xc1
-kernel:  [<c012a985>] hrtimer_run_queues+0x123/0x14c
-kernel:  [<c0305d5c>] error_code+0x74/0x7c
-kernel:  [<c016007b>] shrink_icache_memory+0x17b/0x1ce
-kernel:  [<c016ad06>] __find_get_block+0x14/0x15e
-kernel:  [<c016ae46>] __find_get_block+0x154/0x15e
-kernel:  [<c016ae66>] __getblk+0x16/0x1d6
-kernel:  [<c019889a>] search_by_key+0x6b/0xc77
-kernel:  [<c0114c69>] try_to_wake_up+0x13c/0x147
-kernel:  [<c0120f8d>] __group_send_sig_info+0x5e/0x69
-kernel:  [<c0121594>] group_send_sig_info+0x5d/0x65
-kernel:  [<c012a998>] hrtimer_run_queues+0x136/0x14c
-kernel:  [<c011f320>] run_timer_softirq+0x17c/0x184
-kernel:  [<c0187768>] make_cpu_key+0x3f/0x46
-kernel:  [<c0188c7e>] reiserfs_update_sd_size+0x7e/0x284
-kernel:  [<c0118de9>] profile_tick+0x42/0x5d
-kernel:  [<c019f915>] journal_begin+0x99/0xd0
-kernel:  [<c0191c39>] reiserfs_dirty_inode+0x61/0x7e
-kernel:  [<c0167be0>] __mark_inode_dirty+0x2a/0x18d
-kernel:  [<c015dab3>] __d_lookup+0x120/0x13d
-kernel:  [<c01607ed>] inode_setattr+0x15f/0x169
-kernel:  [<c018aee6>] reiserfs_setattr+0x152/0x185
-kernel:  [<c011bc74>] current_fs_time+0x45/0x51
-kernel:  [<c01608f8>] notify_change+0x101/0x219
-kernel:  [<c014e03a>] do_truncate+0x52/0x68
-kernel:  [<c014daac>] get_unused_fd+0xa9/0xc5
-kernel:  [<c01562fe>] may_open+0x17c/0x193
-kernel:  [<c015822b>] open_namei+0x25a/0x56e
-kernel:  [<c014dd21>] do_filp_open+0x25/0x39
-kernel:  [<c014daac>] get_unused_fd+0xa9/0xc5
-kernel:  [<c014dd77>] do_sys_open+0x42/0xc3
-kernel:  [<c014de31>] sys_open+0x1c/0x1e
-kernel:  [<c0102d64>] syscall_call+0x7/0xb
-kernel:  [<c0300033>] unix_create1+0x4a/0xee
-kernel:  =======================
+This is a misunderstanding.
 
---alex--
+You can demand the costs for your lawyer.
+The costs for your lawyer depend on the amount in controversy.
+
+The one who tells his lawyer to take legal actions might be a copyright 
+owner, but it's also possible based on competition law.
+
+> 								Pavel
+
+cu
+Adrian
 
 -- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

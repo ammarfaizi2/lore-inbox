@@ -1,61 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754154AbWLXHCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754144AbWLXHVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754154AbWLXHCK (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 02:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754144AbWLXHCK
+	id S1754144AbWLXHVb (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 02:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754156AbWLXHVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 02:02:10 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:32366 "HELO
-	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754154AbWLXHCJ (ORCPT
+	Sun, 24 Dec 2006 02:21:31 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:53587 "EHLO
+	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754144AbWLXHVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 02:02:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=3hn0Bi60/9+PHhBMQ8O0loCFxdP18dgepumrOFyDKbOetZKLKPBlNAUrRKU5QzTSVaTL9DSPIE7qz2OV1gGq+DvdGwu6nX56v7sdpzWIZSHNDH0zELRzWFlM5nXxd5Ib/UtX074oIWNzlNwglASQEy69jFRJn9gBT+HudeksJLU=  ;
-X-YMail-OSG: tZAjoUwVM1kwQQudp.iCKISL6iACg3hfgRuvO1YGN8ojkv952FxpvwJfiWhlyqteR2zZfbUG0n2njqNzly.ZDDVIoUr7Lg1wVsnIUqJTWDl4ImSLlUUr_BlD72ieR4Wi5lhah91elPg0wIfAc0ViS5bDsHBY0S4sP7c-
-From: David Brownell <david-b@pacbell.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Changes to PM layer break userspace
-Date: Sat, 23 Dec 2006 23:02:05 -0800
-User-Agent: KMail/1.7.1
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-References: <20061219185223.GA13256@srcf.ucam.org> <200612192114.49920.david-b@pacbell.net> <20061222210937.GD3960@ucw.cz>
-In-Reply-To: <20061222210937.GD3960@ucw.cz>
+	Sun, 24 Dec 2006 02:21:30 -0500
+Message-ID: <458E2A41.2030200@comcast.net>
+Date: Sun, 24 Dec 2006 02:20:33 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Valdis.Kletnieks@vt.edu
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: evading ulimits
+References: <458C4CEF.3090505@comcast.net> <Pine.LNX.4.61.0612240111250.20280@yvahk01.tjqt.qr>            <458DCCE2.3060605@comcast.net> <200612240655.kBO6tngs031080@turing-police.cc.vt.edu>
+In-Reply-To: <200612240655.kBO6tngs031080@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612232302.06151.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 December 2006 1:09 pm, Pavel Machek wrote:
-> Actually, if we noticed power/state during PM framework review, it
-> would have been killed. It is just way too ugly.
+
+
+Valdis.Kletnieks@vt.edu wrote:
+> On Sat, 23 Dec 2006 19:42:10 EST, John Richard Moser said:
+>>
+>> Jan Engelhardt wrote:
+>>>> I've set up some stuff on my box where /etc/security/limits.conf
+>>>> contains the following:
+>>>>
+>>>> @users          soft    nproc           3072
+>>>> @users          hard    nproc           4096
+>>>>
+>>>> I'm in group users, and a simple fork bomb is easily quashed by this:
+>>>>
+>>>> bluefox@icebox:~$ :(){ :|:; };:
+>>>> bash: fork: Resource temporarily unavailable
+>>>> Terminated
+>>>>
+>>>> Oddly enough, trying this again and again yields the same results; but,
+>>>> I can kill the box (eventually; about 1 minute in I managed to `/exec
+>>>> killall -9 bash` from x-chat, since I couldn't get a new shell open)
+>>>> with the below:
+>>> Note that trying to kill all shells is a race between killing them all firs
+> t
+>>> and them spawning new ones everytime. To stop fork bombs, use killall -STOP
+>>> first, then kill them.
+>>>
+>> Yes I know; the point, though, is that they should die automatically
+>> when the process count hits 4096.  They do with the first fork bomb;
+>> they keep growing with the second, well past what they should.
 > 
-> > > > In contrast, the /sys/devices/.../power/state API has never had many
-> > > > users beyond developers trying to test their drivers ...
-> > > 
-> > > It's used on every Ubuntu and Suse system,
-> > 
-> > Odd how the relevant Suse developers didn't mention any issues with
-> > those files going away, any of the times problems with them were
-> > discussed on the PM list.  Also, I have a Suse system that doesn't
-> > use those files for anything ... maybe only newer release use it.
+> This may be another timing issue - note that in the first case, you have :|:
+> which forks off 2 processes with a pipe in between.  If the head process fails,
+> the second probably won't get started by the shell *either*.  In the second
+> case, you launch *3*, and it's possible that the head process will start and
+> live long enough to re-fork before a later one in the pipe gets killed.
 > 
-> Not on *every* suse system. power/state is known to oops kernels, so
-> it is only enabled when user explicitely asks for 'dangerous aggresive
-> experimental power saving' or something like that.
+> Does the behavior change if you use 4095 or 4097 rather than 4096?  I'm
+> willing to bet that your system exhibits semi-predictable behavior regarding
+> the order the processes get created, and *which* process gets killed makes
+> a difference regarding how fast the process tree gets pruned.
+> 
 
-So exactly what tool on Ubuntu uses this?  Without any "dangerous!
-aggressive! experimental!" read-lights-siren-alarms-ringing alert level?
+I will test this later (sleeping now)
+
+> Do you have any good evidence that the second version manages to create much
+> more than 4096 processes, rather than just being more exuberant about doing so?
+> I'm guessing that in fact, in both cases the number of processes ends up
+> pseudorandomly oscillating in the 4090-4906 range, but the exact order of
+> operations makes the rate and impact different in the two cases.
+
+I haven't gathered evidence; I rather look for evidence that fork() is
+failing, like bash complaints.  I get those in abundance in the first
+case; but see none in the second case.
+
+Trying again, I can't reproduce the phenomena.  It crashes out in 3
+seconds.  Either just weird that it ran for so long last time before I
+had to manually kill it off; or a race.  I don't have sufficient data to
+decide.
 
 
-Seems to me anyone really desperate to put PCI devices into a low
-power mode, without driver support at the "ifdown" level, would be
-able just "rmmod driver; setpci".  Without risking software bugs.
+-- 
+    We will enslave their women, eat their children and rape their
+    cattle!
+             -- Bosc, Evil alien overlord from the fifth dimension
+Anti-Spam:  https://bugzilla.mozilla.org/show_bug.cgi?id=229686

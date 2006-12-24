@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753952AbWLWXzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753963AbWLXACJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753952AbWLWXzS (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 23 Dec 2006 18:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753963AbWLWXzS
+	id S1753963AbWLXACJ (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 23 Dec 2006 19:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753971AbWLXACJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Dec 2006 18:55:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33130 "EHLO amd.ucw.cz"
+	Sat, 23 Dec 2006 19:02:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58218 "EHLO amd.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753952AbWLWXzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Dec 2006 18:55:16 -0500
-Date: Sun, 24 Dec 2006 00:55:01 +0100
+	id S1753963AbWLXACI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Dec 2006 19:02:08 -0500
+Date: Sun, 24 Dec 2006 01:01:50 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
 Cc: marcel@holtmann.org, maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
-Subject: bluetooth memory corruption (was Re: ext3-related crash in 2.6.20-rc1)
-Message-ID: <20061223235501.GA1740@elf.ucw.cz>
-References: <20061223234305.GA1809@elf.ucw.cz>
+Subject: Re: bluetooth memory corruption (was Re: ext3-related crash in 2.6.20-rc1)
+Message-ID: <20061224000150.GA1812@elf.ucw.cz>
+References: <20061223234305.GA1809@elf.ucw.cz> <20061223235501.GA1740@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061223234305.GA1809@elf.ucw.cz>
+In-Reply-To: <20061223235501.GA1740@elf.ucw.cz>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,228 +27,225 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I got this nasty oops while playing with debugger. Not sure if that is
-> related; it also might be something with bluetooth; I already know it
-> corrupts memory during suspend, perhaps it corrupts memory in some
-> error path?
+> > I got this nasty oops while playing with debugger. Not sure if that is
+> > related; it also might be something with bluetooth; I already know it
+> > corrupts memory during suspend, perhaps it corrupts memory in some
+> > error path?
+> 
+> Okay, I spoke too soon. bluetooth & suspend memory corruption was
+> _way_ harder to reproduce than expected. Took me 5-or-so-suspend
+> cycles... so it is probably unrelated to the previous crash.
+> 
+> I was getting pretty regular crashes with bluetooth & gdb, but I was
+> not using bluetooth at the time of ext3-related crash.
 
-Okay, I spoke too soon. bluetooth & suspend memory corruption was
-_way_ harder to reproduce than expected. Took me 5-or-so-suspend
-cycles... so it is probably unrelated to the previous crash.
-
-I was getting pretty regular crashes with bluetooth & gdb, but I was
-not using bluetooth at the time of ext3-related crash.
+And for completeness, here's bluetooth + gdb oops. Ok, I'm not _sure_
+it is bluetooth related. I'll try it without bluetooth in a while.
 
 								Pavel
 
-acpi acpi: resuming
-__tx_submit: hci0 tx submit failed urb c20efb08 type 2 err -113
-agpgart-intel 0000:00:00.0: resuming
-pci 0000:00:02.0: resuming
-pci 0000:00:02.1: resuming
-PM: Writing back config space on device 0000:00:02.1 at offset 1 (was 900000, writing 900003)
-HDA Intel 0000:00:1b.0: resuming
-PM: Writing back config space on device 0000:00:1b.0 at offset 1 (was 100106, writing 100102)
-PCI: Setting latency timer of device 0000:00:1b.0 to 64
-pci 0000:00:1c.0: resuming
-PCI: Setting latency timer of device 0000:00:1c.0 to 64
-pci 0000:00:1c.1: resuming
-PCI: Setting latency timer of device 0000:00:1c.1 to 64
-pci 0000:00:1c.2: resuming
-PCI: Setting latency timer of device 0000:00:1c.2 to 64
-pci 0000:00:1c.3: resuming
-PM: Writing back config space on device 0000:00:1c.3 at offset f (was 40400, writing 4040b)
-PM: Writing back config space on device 0000:00:1c.3 at offset 9 (was 10001, writing e421e421)
-PM: Writing back config space on device 0000:00:1c.3 at offset 8 (was 0, writing ebf0ea00)
-PM: Writing back config space on device 0000:00:1c.3 at offset 7 (was 20000000, writing 8070)
-PM: Writing back config space on device 0000:00:1c.3 at offset 3 (was 810000, writing 810010)
-PM: Writing back config space on device 0000:00:1c.3 at offset 1 (was 100000, writing 100107)
-PCI: Setting latency timer of device 0000:00:1c.3 to 64
-uhci_hcd 0000:00:1d.0: resuming
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-usb usb4: root hub lost power or was reset
-uhci_hcd 0000:00:1d.1: resuming
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-usb usb2: root hub lost power or was reset
-uhci_hcd 0000:00:1d.2: resuming
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-usb usb5: root hub lost power or was reset
-uhci_hcd 0000:00:1d.3: resuming
-PCI: Setting latency timer of device 0000:00:1d.3 to 64
-usb usb3: root hub lost power or was reset
-ehci_hcd 0000:00:1d.7: resuming
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-pci 0000:00:1e.0: resuming
-PM: Writing back config space on device 0000:00:1e.0 at offset 1 (was 100005, writing 100007)
-PCI: Setting latency timer of device 0000:00:1e.0 to 64
-pci 0000:00:1f.0: resuming
-PIIX_IDE 0000:00:1f.1: resuming
-ahci 0000:00:1f.2: resuming
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-pci 0000:00:1f.3: resuming
-pci 0000:02:00.0: resuming
-PM: Writing back config space on device 0000:02:00.0 at offset 1 (was 100107, writing 100103)
-pci 0000:03:00.0: resuming
-yenta_cardbus 0000:15:00.0: resuming
-ohci1394 0000:15:00.1: resuming
-PM: Writing back config space on device 0000:15:00.1 at offset 4 (was 0, writing e4301000)
-PM: Writing back config space on device 0000:15:00.1 at offset 3 (was 800000, writing 804000)
-PM: Writing back config space on device 0000:15:00.1 at offset 1 (was 2100000, writing 2100006)
-ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[21]  MMIO=[e4301000-e43017ff]  Max Packet=[2048]  IR/IT contexts=[4/4]
-sdhci 0000:15:00.2: resuming
-PM: Writing back config space on device 0000:15:00.2 at offset 4 (was 0, writing e4301800)
-PM: Writing back config space on device 0000:15:00.2 at offset 3 (was 800000, writing 804000)
-PM: Writing back config space on device 0000:15:00.2 at offset 1 (was 2100000, writing 2100006)
-system 00:00: resuming
-pnp 00:01: resuming
-system 00:02: resuming
-pnp 00:03: resuming
-pnp 00:04: resuming
-pnp 00:05: resuming
-pnp 00:06: resuming
-pnp 00:07: resuming
-i8042 kbd 00:08: resuming
-pnp: Device 00:08 does not support activation.
-i8042 aux 00:09: resuming
-pnp: Device 00:09 does not support activation.
-pnp 00:0a: resuming
-pnp 00:0b: resuming
-platform bluetooth: resuming
-pcspkr pcspkr: resuming
-vesafb vesafb.0: resuming
-serial8250 serial8250: resuming
-usb usb1: resuming
-hub 1-0:1.0: resuming
-usb usb2: resuming
-hub 2-0:1.0: resuming
-usb usb4: resuming
-ata2: SATA link down (SStatus 0 SControl 0)
-ata3: SATA link down (SStatus 0 SControl 0)
-ata4: SATA link down (SStatus 0 SControl 0)
-usb usb5: resuming
-hub 4-0:1.0: resuming
-hub 5-0:1.0: resuming
-usb usb3: resuming
-hub 3-0:1.0: resuming
-i8042 i8042: resuming
-atkbd serio0: resuming
-psmouse serio1: resuming
-mmcblk mmc0:cc53: resuming
-sd 0:0:0:0: resuming
-usb 3-2: resuming
- usbdev3.14_ep00: PM: resume from 0, parent 3-2 still 2
-usb 3-2:1.0: PM: resume from 2, parent 3-2 still 2
-usb 3-2:1.0: resuming
- usbdev3.14_ep81: PM: resume from 0, parent 3-2:1.0 still 2
- usbdev3.14_ep02: PM: resume from 0, parent 3-2:1.0 still 2
- usbdev3.14_ep83: PM: resume from 0, parent 3-2:1.0 still 2
-usb 3-1: resuming
- usbdev3.15_ep00: PM: resume from 0, parent 3-1 still 2
-hci_usb 3-1:1.0: PM: resume from 2, parent 3-1 still 2
-hci_usb 3-1:1.0: resuming
- hci0: PM: resume from 0, parent 3-1:1.0 still 2
- usbdev3.15_ep81: PM: resume from 0, parent 3-1:1.0 still 2
- usbdev3.15_ep82: PM: resume from 0, parent 3-1:1.0 still 2
- usbdev3.15_ep02: PM: resume from 0, parent 3-1:1.0 still 2
-hci_usb 3-1:1.1: PM: resume from 2, parent 3-1 still 2
-hci_usb 3-1:1.1: resuming
- usbdev3.15_ep83: PM: resume from 0, parent 3-1:1.1 still 2
- usbdev3.15_ep03: PM: resume from 0, parent 3-1:1.1 still 2
-usb 3-1:1.2: PM: resume from 2, parent 3-1 still 2
-usb 3-1:1.2: resuming
- usbdev3.15_ep84: PM: resume from 0, parent 3-1:1.2 still 2
- usbdev3.15_ep04: PM: resume from 0, parent 3-1:1.2 still 2
-usb 3-1:1.3: PM: resume from 2, parent 3-1 still 2
-usb 3-1:1.3: resuming
-Restarting tasks ... <6>usb 3-1: USB disconnect, address 15
-PM: Removing info for No Bus:usbdev3.15_ep81
-PM: Removing info for No Bus:usbdev3.15_ep82
-PM: Removing info for No Bus:usbdev3.15_ep02
-slab error in verify_redzone_free(): cache `size-512': memory outside object was overwritten
- [<c016a1b8>] cache_free_debugcheck+0x128/0x1d0
- [<c04b58e3>] hci_usb_close+0xf3/0x160
- [<c016b530>] kfree+0x50/0xa0
- [<c04b58e3>] hci_usb_close+0xf3/0x160
- [<c04b59be>] hci_usb_disconnect+0x2e/0x90
- [<c0454f23>] usb_disable_interface+0x53/0x70
- [<c04576f8>] usb_unbind_interface+0x38/0x80
- [<c032f908>] __device_release_driver+0x68/0xb0
- [<c032fc3e>] device_release_driver+0x1e/0x40
- [<c032f1db>] bus_remove_device+0x8b/0xa0
- [<c032dbc9>] device_del+0x159/0x1c0
- [<c04559ad>] usb_disable_device+0x4d/0x100
- [<c044fe8a>] usb_disconnect+0x9a/0x110
- [<c0452405>] hub_thread+0x355/0xbd0
- [<c061426e>] schedule+0x2de/0x8f0
- [<c013c640>] autoremove_wake_function+0x0/0x50
- [<c04520b0>] hub_thread+0x0/0xbd0
- [<c013c58c>] kthread+0xec/0xf0
- [<c013c4a0>] kthread+0x0/0xf0
- [<c0103be7>] kernel_thread_helper+0x7/0x10
- =======================
-e91f6288: redzone 1:0x5a5a5a5a, redzone 2:0xc054aeae.
+PM: Adding info for No Bus:vcsa8
+coda_read_super: Bad mount data
+coda_read_super: device index: 0
+coda_read_super: rootfid is (01234567.ffffffff.080519b0.00000000)
+PM: Removing info for No Bus:vcs10
+PM: Removing info for No Bus:vcsa10
+coda_upcall: Venus dead on (op,un) (7.2) flags 10
+Failure of coda_cnode_make for root: error -19
+hci_cmd_task: hci0 command tx timeout
+PM: Adding info for No Bus:rfcomm1
+PM: Adding info for bluetooth:acl00803715A329
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+hci_acldata_packet: hci0 ACL packet for unknown connection handle 12
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+l2cap_recv_acldata: Unexpected continuation frame (len 0)
+PM: Removing info for bluetooth:acl00803715A329
 ------------[ cut here ]------------
-kernel BUG at mm/slab.c:2878!
+kernel BUG at fs/buffer.c:1235!
 invalid opcode: 0000 [#1]
 SMP 
 Modules linked in:
-CPU:    0
-EIP:    0060:[<c016a242>]    Not tainted VLI
-EFLAGS: 00010002   (2.6.20-rc1 #383)
-EIP is at cache_free_debugcheck+0x1b2/0x1d0
-eax: e91f6284   ebx: e91f6078   ecx: 00052c00   edx: 0000020c
-esi: c20df680   edi: e91f6288   ebp: 5a5a5a5a   esp: c2227e30
+CPU:    1
+EIP:    0060:[<c01912b2>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.20-rc1 #383)
+EIP is at __find_get_block+0x1b2/0x1c0
+eax: 00000086   ebx: 00001000   ecx: 00000000   edx: 006780b2
+esi: 0033d60d   edi: 00001000   ebp: 000000cf   esp: f75a3c90
 ds: 007b   es: 007b   ss: 0068
-Process khubd (pid: 303, ti=c2226000 task=c21f6a70 task.ti=c2226000)
-Stack: c06b3fe0 e91f6288 5a5a5a5a c054aeae c04b58e3 e91f6040 c20df680 c20d9164 
-       e91f628c 00000282 c016b530 c20efb08 c20efaf4 e977a274 0000000c c04b58e3 
-       e977a230 e977a260 f7b3f904 e977a1a4 00000001 e977a1a4 f7b3f904 c07e2060 
+Process phone (pid: 1795, ti=f75a2000 task=c2287030 task.ti=f75a2000)
+Stack: 006780b2 00000000 c21e9a08 00000003 ad40ad40 f7d8d1dc c0629908 00000000 
+       f89fa000 00000012 00000002 00000003 ad55ad55 f7d8d182 c0629908 00001000 
+       0033d60d 00001000 000000cf c01912df 00001000 f7dbf74c 00000000 00000008 
 Call Trace:
- [<c054aeae>] sock_alloc_send_skb+0x16e/0x1c0
- [<c04b58e3>] hci_usb_close+0xf3/0x160
- [<c016b530>] kfree+0x50/0xa0
- [<c04b58e3>] hci_usb_close+0xf3/0x160
- [<c04b59be>] hci_usb_disconnect+0x2e/0x90
- [<c0454f23>] usb_disable_interface+0x53/0x70
- [<c04576f8>] usb_unbind_interface+0x38/0x80
- [<c032f908>] __device_release_driver+0x68/0xb0
- [<c032fc3e>] device_release_driver+0x1e/0x40
- [<c032f1db>] bus_remove_device+0x8b/0xa0
- [<c032dbc9>] device_del+0x159/0x1c0
- [<c04559ad>] usb_disable_device+0x4d/0x100
- [<c044fe8a>] usb_disconnect+0x9a/0x110
- [<c0452405>] hub_thread+0x355/0xbd0
- [<c061426e>] schedule+0x2de/0x8f0
+ [<c01912df>] __getblk+0x1f/0x290
+ [<c016a284>] check_poison_obj+0x24/0x1a0
+ [<c0280115>] soft_cursor+0x175/0x1e0
+ [<c01b1ad0>] __ext3_get_inode_loc+0x120/0x3a0
+ [<c016954e>] dbg_redzone1+0xe/0x20
+ [<c016a43e>] cache_alloc_debugcheck_after+0x3e/0x150
+ [<c01c1703>] journal_start+0x83/0xe0
+ [<c01b1e27>] ext3_reserve_inode_write+0x27/0x80
+ [<c01b226a>] ext3_mark_inode_dirty+0x1a/0x40
+ [<c01b2719>] ext3_dirty_inode+0x79/0xb0
+ [<c018a744>] __mark_inode_dirty+0x34/0x1c0
+ [<c0181a59>] file_update_time+0x39/0xa0
+ [<c0152984>] __generic_file_aio_write_nolock+0x244/0x590
+ [<c0120fad>] __wake_up_sync+0x3d/0x60
+ [<c06154df>] __mutex_lock_slowpath+0xef/0x230
+ [<c0152d29>] generic_file_aio_write+0x59/0xd0
+ [<c01b04a0>] ext3_file_write+0x30/0xc0
+ [<c016e997>] do_sync_write+0xc7/0x130
  [<c013c640>] autoremove_wake_function+0x0/0x50
- [<c04520b0>] hub_thread+0x0/0xbd0
- [<c013c58c>] kthread+0xec/0xf0
- [<c013c4a0>] kthread+0x0/0xf0
- [<c0103be7>] kernel_thread_helper+0x7/0x10
+ [<c015f2e9>] remove_vma+0x39/0x50
+ [<c016f126>] vfs_write+0xa6/0x160
+ [<c016e8d0>] do_sync_write+0x0/0x130
+ [<c016f9e1>] sys_write+0x41/0x70
+ [<c010304c>] syscall_call+0x7/0xb
  =======================
-Code: f0 2c 5a 75 8b b9 39 31 6b c0 89 f2 b8 88 e8 61 c0 e8 73 f4 ff ff eb 89 81 fb a5 c2 0f 17 0f 85 6c ff ff ff 90 8d 74 26 00 eb 8e <0f> 0b eb fe 0f 0b eb fe 8d b6 00 00 00 00 0f 0b eb fe 8b 52 0c 
-EIP: [<c016a242>] cache_free_debugcheck+0x1b2/0x1d0 SS:ESP 0068:c2227e30
- <7>PM: Adding info for No Bus:vcs63
-PM: Adding info for No Bus:vcsa63
-PM: Removing info for No Bus:vcs63
-PM: Removing info for No Bus:vcsa63
-done.
-Enabling non-boot CPUs ...
-SMP alternatives: switching to SMP code
-Booting processor 1/1 eip 3000
-Initializing CPU#1
-Calibrating delay using timer specific routine.. 3657.63 BogoMIPS (lpj=18288162)
-CPU: After generic identify, caps: bfe9fbff 00100000 00000000 00000000 0000c1a9 00000000 00000000
-monitor/mwait feature present.
-CPU: L1 I cache: 32K, L1 D cache: 32K
-CPU: L2 cache: 2048K
-CPU: Physical Processor ID: 0
-CPU: Processor Core ID: 1
-CPU: After all inits, caps: bfe9fbff 00100000 00000000 00002940 0000c1a9 00000000 00000000
-CPU1: Intel Genuine Intel(R) CPU           T2400  @ 1.83GHz stepping 08
-PM: Adding info for No Bus:msr1
-CPU1 is up
-ata1: waiting for device to spin up (7 secs)
-
+Code: 00 8b 7c 24 18 f3 a5 fb 8b 44 24 10 85 c0 0f 84 2c ff ff ff 8b 44 24 10 e8 5c ca ff ff e9 1e ff ff ff 89 d8 e8 50 ca ff ff eb 8d <0f> 0b eb fe 0f 0b eb fe 0f 0b eb fe 89 f6 55 57 56 53 83 ec 48 
+EIP: [<c01912b2>] __find_get_block+0x1b2/0x1c0 SS:ESP 0068:f75a3c90
+ 
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

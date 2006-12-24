@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753030AbWLXWEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753056AbWLXXYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753030AbWLXWEZ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 17:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753046AbWLXWEZ
+	id S1753056AbWLXXYd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 18:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753172AbWLXXYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 17:04:25 -0500
-Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:46495 "EHLO
-	smtpq3.groni1.gr.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753027AbWLXWEY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 17:04:24 -0500
-X-Greylist: delayed 2848 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Dec 2006 17:04:24 EST
-Message-ID: <458EEDF7.4000200@gmail.com>
-Date: Sun, 24 Dec 2006 22:15:35 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
+	Sun, 24 Dec 2006 18:24:33 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60343 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753056AbWLXXYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 18:24:32 -0500
+Date: Mon, 25 Dec 2006 00:24:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] romsignature/checksum cleanup
-Content-Type: multipart/mixed;
- boundary="------------010708040905020206050704"
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
+Cc: kernel list <linux-kernel@vger.kernel.org>, marcel@holtmann.org,
+       maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
+Subject: Re: bluetooth memory corruption (was Re: ext3-related crash in 2.6.20-rc1)
+Message-ID: <20061224232421.GA1761@elf.ucw.cz>
+References: <20061223234305.GA1809@elf.ucw.cz> <20061223235501.GA1740@elf.ucw.cz> <20061223171804.e2c22a67.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061223171804.e2c22a67.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010708040905020206050704
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hi Andrew.
+> > PM: Removing info for No Bus:usbdev3.15_ep81
+> > PM: Removing info for No Bus:usbdev3.15_ep82
+> > PM: Removing info for No Bus:usbdev3.15_ep02
+> > slab error in verify_redzone_free(): cache `size-512': memory outside object was overwritten
+> >  [<c016a1b8>] cache_free_debugcheck+0x128/0x1d0
+> >  [<c04b58e3>] hci_usb_close+0xf3/0x160
+> >  [<c016b530>] kfree+0x50/0xa0
+> >  [<c04b58e3>] hci_usb_close+0xf3/0x160
+> >  [<c04b59be>] hci_usb_disconnect+0x2e/0x90
+> >  [<c0454f23>] usb_disable_interface+0x53/0x70
+> >  [<c04576f8>] usb_unbind_interface+0x38/0x80
+> >  [<c032f908>] __device_release_driver+0x68/0xb0
+> >  [<c032fc3e>] device_release_driver+0x1e/0x40
+> >  [<c032f1db>] bus_remove_device+0x8b/0xa0
+> >  [<c032dbc9>] device_del+0x159/0x1c0
+> >  [<c04559ad>] usb_disable_device+0x4d/0x100
+> >  [<c044fe8a>] usb_disconnect+0x9a/0x110
+> >  [<c0452405>] hub_thread+0x355/0xbd0
+> >  [<c061426e>] schedule+0x2de/0x8f0
+> >  [<c013c640>] autoremove_wake_function+0x0/0x50
+> >  [<c04520b0>] hub_thread+0x0/0xbd0
+> >  [<c013c58c>] kthread+0xec/0xf0
+> >  [<c013c4a0>] kthread+0x0/0xf0
+> >  [<c0103be7>] kernel_thread_helper+0x7/0x10
+> >  =======================
+> 
+> yes, this one looks like memory scribblage in bluetooth.  The
+> buffer.c assertion failure should now be fixed, please verify.
 
-Use adding __init to romsignature() (it's only called from probe_roms() 
-which is itself __init) as an excuse to submit a pedantic cleanup.
+I can confirm buffer.c assertion to be fixed (yes, I was using gdb at
+that time).
+									Pavel
 
-Signed-off-by: Rene Herman <rene.herman@gmail.com>
-
---------------010708040905020206050704
-Content-Type: text/plain;
- name="romsignature-checksum-cleanup.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="romsignature-checksum-cleanup.diff"
-
-diff --git a/arch/i386/kernel/e820.c b/arch/i386/kernel/e820.c
-index f391abc..2565fac 100644
---- a/arch/i386/kernel/e820.c
-+++ b/arch/i386/kernel/e820.c
-@@ -156,21 +156,22 @@ static struct resource standard_io_resou
- 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
- } };
- 
--static int romsignature(const unsigned char *x)
-+#define ROMSIGNATURE 0xaa55
-+
-+static int __init romsignature(const unsigned char *rom)
- {
- 	unsigned short sig;
--	int ret = 0;
--	if (probe_kernel_address((const unsigned short *)x, sig) == 0)
--		ret = (sig == 0xaa55);
--	return ret;
-+
-+	return probe_kernel_address((const unsigned short *)rom, sig) == 0 &&
-+	       sig == ROMSIGNATURE;
- }
- 
- static int __init romchecksum(unsigned char *rom, unsigned long length)
- {
--	unsigned char *p, sum = 0;
-+	unsigned char sum;
- 
--	for (p = rom; p < rom + length; p++)
--		sum += *p;
-+	for (sum = 0; length; length--)
-+		sum += *rom++;
- 	return sum == 0;
- }
- 
-
---------------010708040905020206050704--
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

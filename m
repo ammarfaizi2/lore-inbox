@@ -1,42 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752000AbWLXOqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752028AbWLXOtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752000AbWLXOqS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 09:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752028AbWLXOqR
+	id S1752028AbWLXOtf (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 09:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWLXOtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 09:46:17 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:52813 "EHLO aun.it.uu.se"
+	Sun, 24 Dec 2006 09:49:35 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:60129 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752000AbWLXOqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 09:46:17 -0500
-Date: Sun, 24 Dec 2006 15:45:12 +0100 (MET)
-Message-Id: <200612241445.kBOEjC47021011@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: sam@ravnborg.org
-Subject: [PATCH 2.6.20-rc2] fix mrproper incompleteness
-Cc: linux-kernel@vger.kernel.org
+	id S1752028AbWLXOte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 09:49:34 -0500
+Message-ID: <458E937B.9050603@garzik.org>
+Date: Sun, 24 Dec 2006 09:49:31 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.20-rc2
+References: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org> <5a4c581d0612240558t1a693049l2c2f311d63681b40@mail.gmail.com>
+In-Reply-To: <5a4c581d0612240558t1a693049l2c2f311d63681b40@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/utsrelease.h and include/linux/version.h
-aren't removed any more by mrproper in kernel 2.6.20-rc2.
-The patch below fixes this.
+Alessandro Suardi wrote:
+> On 12/24/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>>
+>> Ok,
+>>  it's a couple of days delayed, because we've been trying to figure out
+>> what is up with the rtorrent hash failures since 2.6.18.3. I don't think
+>> we've made any progress, but we've cleaned up a number of suspects in the
+>> meantime.
+>>
+>> It's a bit sad, if only because I was really hoping to make 2.6.20 an 
+>> easy
+>> release, and held back on merging some stuff during the merge window for
+>> that reason. And now we're battling something that was introduced much
+>> earlier..
+>>
+>> Now, practically speaking this isn't likely to affect a lot of people, 
+>> but
+>> it's still a worrisome problem, and we've had "top people" looking at it.
+>> And they'll continue, but xmas is coming.
+>>
+>> In the meantime, we'll continue with the stabilization, and this mainly
+>> does some driver updates (usb, sound, dri, pci hotplug) and ACPI updates
+>> (much of the latter syntactic cleanups). And arm and powerpc updates.
+>>
+>> Shortlog appended.
+>>
+>> For developers: if you sent me a patch, and I didn't apply it, it was
+>> probably just missed because I concentrated on other issues. So pls
+>> re-send.. Unless I explicitly told you that I'm not going to pull it due
+>> to the merge window being over, of course ;)
+>>
+>>                 Linus
+> 
+> [shortlog snipped]
+> 
+> As already reported multiple times, including at -rc1 time...
+> 
+> still need this libata-sff.c patch:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=116343564202844&q=raw
+> 
+> to have my root device detected, ata_piix probe would otherwise
+> fail as described in this thread:
+> 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0612.0/0690.html
 
-The definition of MRPROPER_FILES looks weird: generated-headers
-looks like a misspelling of generated_headers, but that one is
-a Makefile target, not a variable or a file, so I don't see how
-including it in MRPROPER_FILES could have any effect.
+I've got a patch that should work for those cases.  Alan's patch 
+contained some bugs.
 
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+	Jeff
 
---- linux-2.6.20-rc2/Makefile.~1~	2006-12-24 14:04:26.000000000 +0100
-+++ linux-2.6.20-rc2/Makefile	2006-12-24 15:31:41.000000000 +0100
-@@ -1040,7 +1040,7 @@ CLEAN_FILES +=	vmlinux System.map \
- # Directories & files removed with 'make mrproper'
- MRPROPER_DIRS  += include/config include2 usr/include
- MRPROPER_FILES += .config .config.old include/asm .version .old_version \
--                  include/linux/autoconf.h generated-headers		\
-+                  include/linux/autoconf.h include/linux/utsrelease.h include/linux/version.h \
- 		  Module.symvers tags TAGS cscope*
- 
- # clean - Delete most, but leave enough to build external modules
+
+

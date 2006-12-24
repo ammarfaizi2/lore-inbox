@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751347AbWLXNlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751336AbWLXNnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWLXNlS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 08:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWLXNlS
+	id S1751336AbWLXNnS (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 08:43:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWLXNnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 08:41:18 -0500
-Received: from bayc1-pasmtp11.bayc1.hotmail.com ([65.54.191.171]:3168 "EHLO
-	BAYC1-PASMTP11.CEZ.ICE" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751347AbWLXNlR (ORCPT
+	Sun, 24 Dec 2006 08:43:18 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:15509 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751336AbWLXNnR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 08:41:17 -0500
-X-Greylist: delayed 1147 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Dec 2006 08:41:17 EST
-X-Originating-IP: [69.156.137.239]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Sun, 24 Dec 2006 08:22:07 -0500
-From: Sean <seanlkml@sympatico.ca>
-To: Mark Hounschell <dmarkh@cfl.rr.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
- for 2.6.19]
-Message-Id: <20061224082207.dcc0b955.seanlkml@sympatico.ca>
-In-Reply-To: <458E6B46.2060201@cfl.rr.com>
-References: <20061214003246.GA12162@suse.de>
-	<22299.1166057009@lwn.net>
-	<20061214005532.GA12790@suse.de>
-	<Pine.LNX.4.64.0612131954530.5718@woody.osdl.org>
-	<45811AA6.1070508@superbug.co.uk>
-	<458E6B46.2060201@cfl.rr.com>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 24 Dec 2006 08:43:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=O0Y7G2t8N3L9qnl0XOkQsiTavcYssrGfB8De8L7AMMCPWK3X/AivTR1yyagoVaS7T9AGPe04pt01IVP6NlGO0UyFoUAl/lqeqhsh30j+Wz1vjJfzntnjAiR3k2vW9iZHfWpKtI0qR9TVg6YvEucuIMMqMFQBSyDyFNwJaKUjJbM=
+Message-ID: <458E8407.1050504@gmail.com>
+Date: Sun, 24 Dec 2006 14:43:12 +0059
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       marcel@holtmann.org, maxk@qualcomm.com,
+       bluez-devel@lists.sourceforge.net
+Subject: Re: ptrace() memory corruption?
+References: <20061223234305.GA1809@elf.ucw.cz>	<20061223235501.GA1740@elf.ucw.cz>	<20061224000150.GA1812@elf.ucw.cz>	<20061224000605.GA1768@elf.ucw.cz>	<20061224000753.GA1811@elf.ucw.cz>	<458DD459.2030209@gmail.com>	<458E69CB.6000107@gmail.com> <20061224042225.51a6619a.akpm@osdl.org>
+In-Reply-To: <20061224042225.51a6619a.akpm@osdl.org>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Dec 2006 13:32:40.0781 (UTC) FILETIME=[FC12B7D0:01C7275F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Dec 2006 06:57:58 -0500
-Mark Hounschell <dmarkh@cfl.rr.com> wrote:
-
-
-> Hum. We open sourced our drivers 2 years ago. Now one is 'changing' them
-> for us. The only way that happens is if they can get in the official
-> tree. I know just from monitoring this list that our drivers would never
-> be acceptable for inclusion in any "functional form". We open sourced
-> them purely out of respect for the way we know the community feels about
-> it.
-
-That shows some class, thanks.
-
-> It would cost more for us to make them acceptable for inclusion than it
-> does for us to just maintain them ourselves. I suspect that is true for
-> most vendor created drivers open source or not.
+Andrew Morton wrote:
+> On Sun, 24 Dec 2006 12:51:16 +0059
+> Jiri Slaby <jirislaby@gmail.com> wrote:
 > 
-> So kernel developers making the required changes as the kernel changes
-> is NO real incentive for any vendor to open source their drivers. Sorry.
+>> [   58.674780] EFLAGS: 00010046   (2.6.20-rc1-mm1 #207)
 > 
-> If it were knowingly less difficult to actually get your drivers
-> included, that would be an incentive and then you original point would
-> hold as an additional incentive.
+> please, test 2.6.20-rc2.  We applied a fix for this.
 
-Out of curiosity what specific technical issues in your driver code make
-you think that it would be too expensive to whip them into shape for
-inclusion?
+It's working now.
 
-Cheers,
-Sean
-
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

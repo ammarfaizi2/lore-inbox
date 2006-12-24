@@ -1,103 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754213AbWLXJOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754222AbWLXJ1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754213AbWLXJOS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 04:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754209AbWLXJOS
+	id S1754222AbWLXJ1T (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 04:27:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754221AbWLXJ1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 04:14:18 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:35861 "EHLO
-	dev.mellanox.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754169AbWLXJOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 04:14:16 -0500
-X-Greylist: delayed 1367 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Dec 2006 04:14:13 EST
-Date: Sun, 24 Dec 2006 10:49:25 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: rdreier@cisco.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-Message-ID: <20061224084925.GD15106@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061214135233.21159.78613.stgit@dell3.ogc.int> <20061214135303.21159.61880.stgit@dell3.ogc.int>
+	Sun, 24 Dec 2006 04:27:19 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52909 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754217AbWLXJ1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 04:27:18 -0500
+Date: Sun, 24 Dec 2006 01:26:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Martin Michlmayr <tbm@cyrius.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <20061224005752.937493c8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612240115560.3671@woody.osdl.org>
+References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
+ <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
+ <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org> <20061222100004.GC10273@deprecation.cyrius.com>
+ <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
+ <20061222123249.GG13727@deprecation.cyrius.com> <20061222125920.GA16763@deprecation.cyrius.com>
+ <1166793952.32117.29.camel@twins> <20061222192027.GJ4229@deprecation.cyrius.com>
+ <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
+ <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061224005752.937493c8.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061214135303.21159.61880.stgit@dell3.ogc.int>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-> index 283d50b..15cbd49 100644
-> --- a/drivers/infiniband/hw/mthca/mthca_cq.c
-> +++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-> @@ -722,7 +722,8 @@ repoll:
->  	return err == 0 || err == -EAGAIN ? npolled : err;
->  }
->  
-> -int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify)
-> +int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, 
-> +		       struct ib_udata *udata)
->  {
->  	__be32 doorbell[2];
->  
-> @@ -739,7 +740,8 @@ int mthca_tavor_arm_cq(struct ib_cq *cq,
->  	return 0;
->  }
->  
-> -int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
-> +int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
-> +		       struct ib_udata *udata)
->  {
->  	struct mthca_cq *cq = to_mcq(ibcq);
->  	__be32 doorbell[2];
-> diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
-> index fe5cecf..6b9ccf6 100644
-> --- a/drivers/infiniband/hw/mthca/mthca_dev.h
-> +++ b/drivers/infiniband/hw/mthca/mthca_dev.h
-> @@ -493,8 +493,8 @@ void mthca_unmap_eq_icm(struct mthca_dev
->  
->  int mthca_poll_cq(struct ib_cq *ibcq, int num_entries,
->  		  struct ib_wc *entry);
-> -int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
-> -int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
-> +int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
-> +int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
->  int mthca_init_cq(struct mthca_dev *dev, int nent,
->  		  struct mthca_ucontext *ctx, u32 pdn,
->  		  struct mthca_cq *cq);
-> diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-> index 8eacc35..e3e1a2c 100644
-> --- a/include/rdma/ib_verbs.h
-> +++ b/include/rdma/ib_verbs.h
-> @@ -941,7 +941,8 @@ struct ib_device {
->  					      struct ib_wc *wc);
->  	int                        (*peek_cq)(struct ib_cq *cq, int wc_cnt);
->  	int                        (*req_notify_cq)(struct ib_cq *cq,
-> -						    enum ib_cq_notify cq_notify);
-> +						    enum ib_cq_notify cq_notify,
-> +						    struct ib_udata *udata);
->  	int                        (*req_ncomp_notif)(struct ib_cq *cq,
->  						      int wc_cnt);
->  	struct ib_mr *             (*get_dma_mr)(struct ib_pd *pd,
-> @@ -1373,7 +1374,7 @@ int ib_peek_cq(struct ib_cq *cq, int wc_
->  static inline int ib_req_notify_cq(struct ib_cq *cq,
->  				   enum ib_cq_notify cq_notify)
->  {
-> -	return cq->device->req_notify_cq(cq, cq_notify);
-> +	return cq->device->req_notify_cq(cq, cq_notify, NULL);
->  }
->  
->  /**
 
-Can't say I like this adding overhead in data path operations (and note this
-can't be optimized out). And kernel consumers work without passing it in, so it
-hurts kernel code even for Chelsio. Granted, the cost is small here, but these
-things do tend to add up.
 
-It seems all Chelsio needs is to pass in a consumer index - so, how about a new
-entry point? Something like void set_cq_udata(struct ib_cq *cq, struct ib_udata *udata)?
+On Sun, 24 Dec 2006, Andrew Morton wrote:
+> 
+> > I now _suspect_ that we're talking about something like
+> > 
+> >  - we started a writeout. The IO is still pending, and the page was 
+> >    marked clean and is now in the "writeback" phase.
+> >  - a write happens to the page, and the page gets marked dirty again. 
+> >    Marking the page dirty also marks all the _buffers_ in the page dirty, 
+> >    but they were actually already dirty, because the IO hasn't completed 
+> >    yet.
+> >  - the IO from the _previous_ write completes, and marks the buffers clean 
+> >    again.
+> 
+> Some things for the testers to try, please:
+> 
+> - mount the fs with ext2 with the no-buffer-head option.  That means either:
 
--- 
-MST
+[ snip snip ]
+
+This is definitely worth testing, but the exact schenario I outlined is 
+probably not the thing that happens. It was really meant to be more of an 
+exmple of the _kind_ of situation I think we might have.
+
+That would explain why we didn't see this before: we simply didn't mark 
+pages clean all that aggressively, and an app like rtorrent would normally 
+have caused its flushes to happen _synchronously_ by using msync() (even 
+if the IO itself was done asynchronously, all the dirty bit stuff would be 
+synchronous wrt any rtorrent behaviour).
+
+And the things that /did/ use to clean pages asynchronously (VM scanning) 
+would always actually look at the "young" bit (aka "accessed") and not 
+even touch the dirty bit if an application had accessed the page recently, 
+so that basically avoided any likely races, because we'd touch the dirty 
+bit ONLY if the page was "cold".
+
+So this is why I'm saying that it might be an old bug, and it would be 
+just the new pattern of handling dirty bits that triggers it.
+
+But avoiding buffer heads and testing that part is worth doing. Just to 
+remove one thing from the equation.
+
+		Linus

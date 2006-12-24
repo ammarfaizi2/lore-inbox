@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752417AbWLXRdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752433AbWLXRif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752417AbWLXRdO (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 12:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752433AbWLXRdO
+	id S1752433AbWLXRif (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 12:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752434AbWLXRif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 12:33:14 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:3870 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752417AbWLXRdN (ORCPT
+	Sun, 24 Dec 2006 12:38:35 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:4460 "EHLO
+	mail.parknet.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752433AbWLXRif (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 12:33:13 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: Binary Drivers
-Date: Sun, 24 Dec 2006 09:33:15 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEAGAJAC.davids@webmaster.com>
+	Sun, 24 Dec 2006 12:38:35 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFC] i386: per-cpu mmconfig map
+References: <87lkkxz0k5.fsf@duaron.myhome.or.jp>
+	<1166980577.3281.1396.camel@laptopd505.fenrus.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 25 Dec 2006 02:38:20 +0900
+In-Reply-To: <1166980577.3281.1396.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Sun\, 24 Dec 2006 18\:16\:17 +0100")
+Message-ID: <87hcvlyz1v.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200612240646.kBO6knVT030879@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 24 Dec 2006 10:35:34 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 24 Dec 2006 10:35:34 -0800
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> On Fri, 22 Dec 2006 23:19:09 PST, David Schwartz said:
+Arjan van de Ven <arjan@infradead.org> writes:
 
-> > You can't sell something that doesn't exist. If you sell a car
-> > even though
-> > you can't explain how anyone could drive it, that's fraud.
+>>     [ Alternatively, we could make a per-cpu mapping area or something. Not
+>>       that it's probably worth it, but if we wanted to avoid all locking and
+>>       instead just disable preemption, that would be the way to go. --Linus ]
+>> 
+>> This patch is a draft of Linus's suggestion. This seems work for me.
+>> And this removes pci_config_lock in mmconfig access path, I think we
+>> don't need lock on this path, although we need to disable IRQ.
+>> 
+>> Comment?
+>
+> I like the idea and the implementation, I have just one concern:
+> Does your schema still work if the Non-Maskable-Interrupt code uses
+> config space? It may do that I suspect to deal with ECC memory errors ;(
 
-> Are they allowed to sell a car that incorporates a computer that uses a
-> trade-secret algorithm for controlling the fuel injection to get 20 more
-> horsepower and 5% better mileage?
-
-I assume that's a rhetorical question. Of course they are.
-
-Now, let's try it another way: Are they allowed to sell a car that
-incorporates a computer that uses a trade-secret algorithm for controlling
-the fuel injection to get 20 more horsepower and 5% better mileage if it's
-impossible to *start* the car without knowing that algorithm?
-
-Then, I think it's obvious the answer is, of course, no. If you buy the car,
-they have to tell you the algorithm.
-
-If knowledge of the algorithm is required to use the car in a reasonable
-way, even if it's not the normal expected way, then they can't keep it
-secret. They can't sell something while keeping secret how to *use* it. And
-that doesn't just mean the normal expected use. Buying something free and
-clear allows you to use it even in unusual ways.
-
-Perhaps that wasn't the best example. Let's try another one. You buy a car,
-and then discover that the car computer has a lockout and a code needs to be
-entered on the alarm panel to start the car between 4 AM and 4:15 AM on
-Tuesdays. You ask the manufacturer for that code, since you would like to
-start your car between 4 AM and 4:15 AM on Tuesdays even though many people
-don't.
-
-How many of the following answers would you consider fair:
-
-1) We never wrote the code down. We knew it, but we didn't put it in a form
-in which we can give it to you. Most people don't need it anyway. Sorry.
-
-2) We're sorry. We know the code, but our contract with another company
-prohibits us from disclosing it.
-
-And so on.
-
-Buying the car includes the right to start it between 4 AM and 4:15 AM on
-Tuesdays if that's what you want to do. If the manufacturer couldn't sell
-you the right or ability to do that, it couldn't sell you the car.
-
-Owning a video card includes the right to make it work with Linux if that's
-what you want to do. If the manufacturer couldn't sell you the right or
-ability to do that, it couldn't sell you the video card.
-
-DS
-
-
+I didn't notice the problem of NMI at all. However if NMI path use it,
+pci_config_lock would be deadlock already. So I think NMI can't access
+to PCI config... Hm...
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

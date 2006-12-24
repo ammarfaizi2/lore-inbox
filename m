@@ -1,107 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751699AbWLXO1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751949AbWLXOkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWLXO1x (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 09:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWLXO1w
+	id S1751949AbWLXOkz (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 09:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751976AbWLXOkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 09:27:52 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4624 "EHLO spitz.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751665AbWLXO1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 09:27:52 -0500
-Date: Sun, 24 Dec 2006 14:27:09 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       "Michael K. Edwards" <medwards.linux@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches for 2.6.19]
-Message-ID: <20061224142709.GB4071@ucw.cz>
-References: <20061213195226.GA6736@kroah.com> <Pine.LNX.4.64.0612131205360.5718@woody.osdl.org> <f2b55d220612131238h6829f51ao96c17abbd1d0b71d@mail.gmail.com> <20061213210219.GA9410@suse.de> <45807182.1060408@mbligh.org> <20061213134721.d8ff8c11.akpm@osdl.org> <20061213220911.GA10677@suse.de> <20061214003246.GA12162@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Dec 2006 09:40:55 -0500
+Received: from smtp.nildram.co.uk ([195.112.4.54]:3736 "EHLO
+	smtp.nildram.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751949AbWLXOky (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 09:40:54 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Oops in 2.6.19.1
+Date: Sun, 24 Dec 2006 14:40:55 +0000
+User-Agent: KMail/1.9.5
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200612232325_MC3-1-D634-10E4@compuserve.com>
+In-Reply-To: <200612232325_MC3-1-D634-10E4@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061214003246.GA12162@suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200612241440.55841.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 24 December 2006 04:23, Chuck Ebbert wrote:
+> In-Reply-To: <200612231540.47176.s0348365@sms.ed.ac.uk>
+>
+> On Sat, 23 Dec 2006 15:40:46 +0000, Alistair John Strachan wrote:
+> > Pretty much like clockwork, it happened again. I think it's time to take
+> > this seriously as a software bug, and not some hardware problem. I've ran
+> > kernels since 2.6.0 on this machine without such crashes, and now two of
+> > the same in 2.6.19.1? Pretty unlikely!
+>
+> Stranger things have happened, e.g. your system might have started
+> to overheat just recently.
 
-> > > > So let's come out and ban binary modules, rather than pussyfooting
-> > > > around, if that's what we actually want to do.
-> > > 
-> > > Give people 12 months warning (time to work out what they're going to do,
-> > > talk with the legal dept, etc) then make the kernel load only GPL-tagged
-> > > modules.
-> > > 
-> > > I think I'd favour that.  It would aid those people who are trying to
-> > > obtain device specs, and who are persuading organisations to GPL their drivers.
-> > 
-> > Ok, I have no objection to that at all.  I'll whip up such a patch in a
-> > bit to spit out kernel log messages whenever such a module is loaded so
-> > that people have some warning.
-> 
-> Here you go.  The wording for the feature-removal-schedule.txt file
-> could probably be cleaned up.  Any suggestions would be welcome.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -----------
-> From: Greg Kroah-Hartmna <gregkh@suse.de>
-> Subject: Notify non-GPL module loading will be going away in January 2008
-> 
-> Numerous kernel developers feel that loading non-GPL drivers into the
-> kernel violates the license of the kernel and their copyright.  Because
-> of this, a one year notice for everyone to address any non-GPL
-> compatible modules has been set.
-> 
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> ---
->  Documentation/feature-removal-schedule.txt |    9 +++++++++
->  kernel/module.c                            |    6 +++++-
->  2 files changed, 14 insertions(+), 1 deletion(-)
-> 
-> --- gregkh-2.6.orig/Documentation/feature-removal-schedule.txt
-> +++ gregkh-2.6/Documentation/feature-removal-schedule.txt
-> @@ -281,3 +281,12 @@ Why:	Speedstep-centrino driver with ACPI
->  Who:	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
->  
->  ---------------------------
-> +
-> +What:	non GPL licensed modules will able to be loaded successfully.
-> +When:	January 2008
-> +Why:	Numerous kernel developers feel that loading non-GPL drivers into the
-> +	kernel violates the license of the kernel and their copyright.
-> +
-> +Who:	Greg Kroah-Hartman <greg@kroah.com> or <gregkh@suse.de>
-> +
-> +---------------------------
-> --- gregkh-2.6.orig/kernel/module.c
-> +++ gregkh-2.6/kernel/module.c
-> @@ -1393,9 +1393,13 @@ static void set_license(struct module *m
->  		license = "unspecified";
->  
->  	if (!license_is_gpl_compatible(license)) {
-> -		if (!(tainted & TAINT_PROPRIETARY_MODULE))
-> +		if (!(tainted & TAINT_PROPRIETARY_MODULE)) {
->  			printk(KERN_WARNING "%s: module license '%s' taints "
->  				"kernel.\n", mod->name, license);
-> +			printk(KERN_WARNING "%s: This module will not be able "
-> +				"to be loaded after January 1, 2008 due to its "
-> +				"license.\n", mod->name);
-> +		}
->  		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
->  	}
->  }
+True, I've considered it, I'll replace the CPU fan.
 
-perhaps printk('Binary only modules are not allowed by kernel license,
-but copyright law may still allow them in special cases. Be careful,
-Greg is going tuo sue you at beggining of 2008 if you get it wrong.')
-would be acceptable way to educate people?
-							Pavel
+> Anyway, post your complete .config.  And exactly which one of the
+> many Via cpus are you using?  Are you using the Padlock unit?
+
+No, much older than that:
+
+[alistair] 14:38 [~] cat /proc/cpuinfo
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 9
+model name      : VIA Nehemiah
+stepping        : 1
+cpu MHz         : 999.569
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge cmov mmx fxsr sse fxsr_opt
+bogomips        : 2000.02
+
+> What do those java/python programs do that are running?  What pipe
+> are they polling?
+>
+> You could try going back to 2.6.18.x for a while in the meantime.
+
+Well, I have had a thought. I recently upgraded the toolchain on the machine 
+from binutils 2.16.x and GCC 3.4.3 (2.6.19 was built with this) to binutils 
+2.17 and GCC 4.1.1. It's conceivable that this is some sort of compiler bug.
+
 -- 
-Thanks for all the (sleeping) penguins.
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

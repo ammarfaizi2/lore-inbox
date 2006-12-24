@@ -1,83 +1,105 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751949AbWLXOkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751976AbWLXOmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751949AbWLXOkz (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 09:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751976AbWLXOkz
+	id S1751976AbWLXOmt (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 09:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWLXOms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 09:40:55 -0500
-Received: from smtp.nildram.co.uk ([195.112.4.54]:3736 "EHLO
-	smtp.nildram.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751949AbWLXOky (ORCPT
+	Sun, 24 Dec 2006 09:42:48 -0500
+Received: from ms-smtp-06.tampabay.rr.com ([65.32.5.136]:41585 "EHLO
+	ms-smtp-06.tampabay.rr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751976AbWLXOmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 09:40:54 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Oops in 2.6.19.1
-Date: Sun, 24 Dec 2006 14:40:55 +0000
-User-Agent: KMail/1.9.5
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <200612232325_MC3-1-D634-10E4@compuserve.com>
-In-Reply-To: <200612232325_MC3-1-D634-10E4@compuserve.com>
+	Sun, 24 Dec 2006 09:42:47 -0500
+Message-ID: <458E91D0.5090807@cfl.rr.com>
+Date: Sun, 24 Dec 2006 09:42:24 -0500
+From: Mark Hounschell <dmarkh@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sean <seanlkml@sympatico.ca>
+CC: James Courtier-Dutton <James@superbug.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       "Michael K. Edwards" <medwards.linux@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL only modules [was Re: [GIT PATCH] more Driver core patches
+ for 2.6.19]
+References: <20061214003246.GA12162@suse.de> <22299.1166057009@lwn.net> <20061214005532.GA12790@suse.de> <Pine.LNX.4.64.0612131954530.5718@woody.osdl.org> <45811AA6.1070508@superbug.co.uk> <458E6B46.2060201@cfl.rr.com> <20061224082207.dcc0b955.seanlkml@sympatico.ca>
+In-Reply-To: <20061224082207.dcc0b955.seanlkml@sympatico.ca>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612241440.55841.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 December 2006 04:23, Chuck Ebbert wrote:
-> In-Reply-To: <200612231540.47176.s0348365@sms.ed.ac.uk>
->
-> On Sat, 23 Dec 2006 15:40:46 +0000, Alistair John Strachan wrote:
-> > Pretty much like clockwork, it happened again. I think it's time to take
-> > this seriously as a software bug, and not some hardware problem. I've ran
-> > kernels since 2.6.0 on this machine without such crashes, and now two of
-> > the same in 2.6.19.1? Pretty unlikely!
->
-> Stranger things have happened, e.g. your system might have started
-> to overheat just recently.
+Sean wrote:
+> On Sun, 24 Dec 2006 06:57:58 -0500
+> Mark Hounschell <dmarkh@cfl.rr.com> wrote:
+> 
+> 
+>> Hum. We open sourced our drivers 2 years ago. Now one is 'changing' them
+>> for us. The only way that happens is if they can get in the official
+>> tree. I know just from monitoring this list that our drivers would never
+>> be acceptable for inclusion in any "functional form". We open sourced
+>> them purely out of respect for the way we know the community feels about
+>> it.
+> 
+> That shows some class, thanks.
+> 
+>> It would cost more for us to make them acceptable for inclusion than it
+>> does for us to just maintain them ourselves. I suspect that is true for
+>> most vendor created drivers open source or not.
+>>
+>> So kernel developers making the required changes as the kernel changes
+>> is NO real incentive for any vendor to open source their drivers. Sorry.
+>>
+>> If it were knowingly less difficult to actually get your drivers
+>> included, that would be an incentive and then you original point would
+>> hold as an additional incentive.
+> 
+> Out of curiosity what specific technical issues in your driver code make
+> you think that it would be too expensive to whip them into shape for
+> inclusion?
+> 
+> Cheers,
+> Sean
+> 
 
-True, I've considered it, I'll replace the CPU fan.
+Well just off the top of my head, one of our drivers directly mucks with
+all the irq affinities (irq_desc) via a provided user land library call.
+This single call forces all 'other' irqs to be serviced by all the
+'other' processors. I know this would never fly in kernel. User land
+/proc manipulation is not an option for us  here.
 
-> Anyway, post your complete .config.  And exactly which one of the
-> many Via cpus are you using?  Are you using the Padlock unit?
+We have another that absolutely requires the Bigphysarea patch. We
+refuse to use "MEM=xxxx" and use a fixed address. Every installation
+would require a special configuration and our 'end users' would have to
+have some understanding of all that. We are also maintaining that patch
+internally also. So this product (for full functionality with our not so
+open source application) requires a special kernel to begin with. Other
+than that this one might have a chance of inclusion. It only requires
+the bigphysarea when used with this application. It will actually build
+and work (basically) with or without it.
 
-No, much older than that:
+Another is actually somewhat tied to the one mentioned above in that
+this one has to facilitate the ability of its card being able to to PIO
+reads and writes to 'special locations' in userspace and to the SRAM
+memory of the above card. Even when on different pci busses. I've looked
+at some of the V4L drivers that also do this sort of thing and I'm
+confused by how they are doing it so I'm almost certain that what we are
+doing would be considered 'wrong'.
 
-[alistair] 14:38 [~] cat /proc/cpuinfo
-processor       : 0
-vendor_id       : CentaurHauls
-cpu family      : 6
-model           : 9
-model name      : VIA Nehemiah
-stepping        : 1
-cpu MHz         : 999.569
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu de tsc msr cx8 mtrr pge cmov mmx fxsr sse fxsr_opt
-bogomips        : 2000.02
+Then there is probably the biggest one of all. The coding style issue.
+Don't get me wrong I understand and agree with what I've read about it.
+Our drivers were written by hardware people. Or I should say they were
+written by OUR hardware people. I can offend them because I am among
+them. No offense intended to any of you invaluable hardware guys.
 
-> What do those java/python programs do that are running?  What pipe
-> are they polling?
->
-> You could try going back to 2.6.18.x for a while in the meantime.
+I see 6 months of full time work before I could even sanely ask what I
+needed to do for inclusion. It seems easier to just try to keep up with
+the changes.
 
-Well, I have had a thought. I recently upgraded the toolchain on the machine 
-from binutils 2.16.x and GCC 3.4.3 (2.6.19 was built with this) to binutils 
-2.17 and GCC 4.1.1. It's conceivable that this is some sort of compiler bug.
+I'm certain our company is not the only one in this situation. I see
+many GPL external kernel drivers. Why?
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Mark

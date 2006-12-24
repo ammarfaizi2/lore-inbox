@@ -1,85 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752888AbWLXVfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753015AbWLXWB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752888AbWLXVfe (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 16:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752880AbWLXVfe
+	id S1753015AbWLXWB1 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 17:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752963AbWLXWB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 16:35:34 -0500
-Received: from p02c11o145.mxlogic.net ([208.65.145.68]:46581 "EHLO
-	p02c11o145.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752886AbWLXVfd (ORCPT
+	Sun, 24 Dec 2006 17:01:27 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:59196 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753011AbWLXWB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 16:35:33 -0500
-X-Greylist: delayed 866 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Dec 2006 16:35:33 EST
-Date: Sun, 24 Dec 2006 23:21:13 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+	Sun, 24 Dec 2006 17:01:27 -0500
+Date: Sun, 24 Dec 2006 23:01:15 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrei Popa <andrei.popa@i-neo.ro>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Martin Michlmayr <tbm@cyrius.com>, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>, openib-general@openib.org,
+Cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061224212113.GA31813@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <Pine.LNX.4.64.0612241029460.3671@woody.osdl.org>
+Message-ID: <20061224220114.GA6256@deprecation.cyrius.com>
+References: <20061222192027.GJ4229@deprecation.cyrius.com> <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com> <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061224005752.937493c8.akpm@osdl.org> <1166962478.7442.0.camel@localhost> <20061224043102.d152e5b4.akpm@osdl.org> <1166978752.7022.1.camel@localhost> <Pine.LNX.4.64.0612240907180.3671@woody.osdl.org> <97a0a9ac0612241127u1051f7eay70065b03f27ae668@mail.gmail.com> <Pine.LNX.4.64.0612241131570.3671@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612241029460.3671@woody.osdl.org>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 24 Dec 2006 21:23:02.0609 (UTC) FILETIME=[B197EC10:01C727A1]
-X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14890.000
-X-TM-AS-Result: No--18.361200-4.000000-31
-X-Spam: [F=0.0100000000; S=0.010(2006120601)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+In-Reply-To: <Pine.LNX.4.64.0612241131570.3671@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quoting Linus Torvalds <torvalds@osdl.org>:
-> Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
->
-> Peter, tell me I'm crazy, but with the new rules, the following condition 
-> is a bug:
-> 
->  - shared mapping
->  - writable
->  - not already marked dirty in the PTE
-> 
-> because that combination means that the hardware can mark the PTE dirty 
-> without us even realizing (and thus not marking the "struct page *" 
-> dirty).
+* Linus Torvalds <torvalds@osdl.org> [2006-12-24 11:35]:
+> And if this doesn't fix it, I don't know what will..
 
-Er.
-Sorry about bumping in, and I'm not sure I understand all of the discussion,
-but this reminded me of an old issue with COW that created what looks
-like a vaguely similiar data corruption on infiniband. We solved this for
-infiniband with MADV_DONTFORK, but I always wondered why does it not affect
-other parts of kernel.  Small reminder from that discussion:
-
-down mmap sem
-get user pages
-up mmap sem
-page becomes shared, and COW (e.g. fork)
-process writes to first byte of page <----- gets a copy
-Now we had a problem: struct page that we got from get user pages
-does not point to a correct page in our process.
-For example: if at some point we map this page for DMA, and
-hardware writes to last byte of page -----> process does not
-see this data.
-
-So for infiniband, what we do is a combination of
-- prevent page from becoming COW while hardware might DMA to this page, and
-- ask users not to write to page if hardware might DMA to same page
-  (even if its using different bytes).
-
-I just wandered - is there some chance something like this could be happening in
-the fs code?
-
-HTH,
-
+Sorry, but it still fails (on top of plain 2.6.19).
 -- 
-MST
+Martin Michlmayr
+http://www.cyrius.com/

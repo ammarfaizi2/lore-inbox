@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752281AbWLXQ3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752326AbWLXQqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752281AbWLXQ3w (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 11:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752314AbWLXQ3v
+	id S1752326AbWLXQqE (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 11:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752327AbWLXQqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 11:29:51 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:1310 "EHLO sycorax.lbl.gov"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752281AbWLXQ3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 11:29:51 -0500
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.6.20-rc1: kernel BUG at fs/buffer.c:1235!
-References: <87psaagl5y.fsf@sycorax.lbl.gov> <458E84C6.7040100@gmail.com>
-Date: Sun, 24 Dec 2006 08:29:49 -0800
-In-Reply-To: <458E84C6.7040100@gmail.com> (message from Jiri Slaby on Sun, 24
-	Dec 2006 14:46:23 +0059)
-Message-ID: <871wmpgsua.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Dec 2006 11:46:04 -0500
+Received: from [85.204.20.254] ([85.204.20.254]:37718 "EHLO megainternet.ro"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752326AbWLXQqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Dec 2006 11:46:01 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Andrei Popa <andrei.popa@i-neo.ro>
+Reply-To: andrei.popa@i-neo.ro
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Martin Michlmayr <tbm@cyrius.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061224043102.d152e5b4.akpm@osdl.org>
+References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
+	 <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>
+	 <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>
+	 <20061222100004.GC10273@deprecation.cyrius.com>
+	 <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>
+	 <20061222123249.GG13727@deprecation.cyrius.com>
+	 <20061222125920.GA16763@deprecation.cyrius.com>
+	 <1166793952.32117.29.camel@twins>
+	 <20061222192027.GJ4229@deprecation.cyrius.com>
+	 <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
+	 <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>
+	 <20061224005752.937493c8.akpm@osdl.org> <1166962478.7442.0.camel@localhost>
+	 <20061224043102.d152e5b4.akpm@osdl.org>
+Content-Type: text/plain
+Organization: I-NEO
+Date: Sun, 24 Dec 2006 18:45:51 +0200
+Message-Id: <1166978752.7022.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
+On Sun, 2006-12-24 at 04:31 -0800, Andrew Morton wrote:
+> On Sun, 24 Dec 2006 14:14:38 +0200
+> Andrei Popa <andrei.popa@i-neo.ro> wrote:
+> 
+> > > - mount the fs with ext2 with the no-buffer-head option.  That means either:
+> > > 
+> > >   grub.conf:  rootfstype=ext2 rootflags=nobh
+> > >   /etc/fstab: ext2 nobh
+> > 
+> > ierdnac ~ # mount
+> > /dev/sda7 on / type ext2 (rw,noatime,nobh)
+> > 
+> > I have corruption.
+> > 
+> > > 
+> > > - mount the fs with ext3 data=writeback, nobh
+> > > 
+> > >   grub.conf:  rootfstype=ext3 rootflags=nobh,data=writeback  (I hope this works)
+> > >   /etc/fstab: ext2 data=writeback,nobh
+> > 
+> > ierdnac ~ # mount
+> > /dev/sda7 on / type ext3 (rw,noatime,nobh)
+> > 
+> > ierdnac ~ # dmesg|grep EXT3
+> > EXT3-fs: mounted filesystem with writeback data mode.
+> > EXT3 FS on sda7, internal journal
+> > 
+> > I don't have corruption. I tested twice.
+> 
+> This is a surprising result.  Can you pleas retest ext3 data=writeback,nobh?
 
-> Alex Romosan wrote:
->> this is on a thinkpad t40, not sure if it means anything, but here it goes:
->> 
->> kernel: kernel BUG at fs/buffer.c:1235!
->> kernel: invalid opcode: 0000 [#1]
->> kernel: PREEMPT 
->> kernel: Modules linked in: radeon drm binfmt_misc nfs sd_mod scsi_mod nfsd exportfs lockd sunrpc autofs4 pcmcia firmware_class joydev irtty_sir sir_dev nsc_ircc irda crc_ccitt parport_pc parport ehci_hcd uhci_hcd usbcore aes_i586 airo nls_iso8859_1 ntfs yenta_socket rsrc_nonstatic pcmcia_core
->> kernel: CPU:    0
->> kernel: EIP:    0060:[<c016ad06>]    Not tainted VLI
->> kernel: EFLAGS: 00010046   (2.6.20-rc1 #215)
->
-> Could you test 2.6.20-rc2? It's probably fixed there.
+Yes, no corruption. Also tested only with data=writeback and had no
+corruption.
 
-i switched to 2.6.20-rc2 last night. we'll see if it happens again.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |

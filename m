@@ -1,107 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754242AbWLYEBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754268AbWLYH7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754242AbWLYEBq (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 23:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754240AbWLYEBq
+	id S1754268AbWLYH7Q (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 25 Dec 2006 02:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754275AbWLYH7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 23:01:46 -0500
-Received: from iabervon.org ([66.92.72.58]:1496 "EHLO iabervon.org"
+	Mon, 25 Dec 2006 02:59:16 -0500
+Received: from colo.lackof.org ([198.49.126.79]:55129 "EHLO colo.lackof.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754221AbWLYEBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 23:01:45 -0500
-Date: Sun, 24 Dec 2006 23:01:43 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Petr Vandrovec <petr@vandrovec.name>
-cc: jeff@garzik.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Unbreak MSI on ATI devices
-In-Reply-To: <20061221075540.GA21152@vana.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.64.0612242116090.20138@iabervon.org>
-References: <20061221075540.GA21152@vana.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S1754266AbWLYH7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Dec 2006 02:59:15 -0500
+Date: Mon, 25 Dec 2006 00:59:12 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] Update Documentation/pci.txt v7
+Message-ID: <20061225075912.GA32499@colo.lackof.org>
+References: <456404E2.1060102@jp.fujitsu.com> <20061122182804.GE378@colo.lackof.org> <45663EE8.1080708@jp.fujitsu.com> <20061124051217.GB8202@colo.lackof.org> <20061206072651.GG17199@kroah.com> <20061210072508.GA12272@colo.lackof.org> <20061215170207.GB15058@kroah.com> <20061218071133.GA1738@colo.lackof.org> <20061224060726.GC24131@colo.lackof.org> <20061224111622.e22bfd8a.randy.dunlap@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061224111622.e22bfd8a.randy.dunlap@oracle.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2006, Petr Vandrovec wrote:
+On Sun, Dec 24, 2006 at 11:16:22AM -0800, Randy Dunlap wrote:
+> On Sat, 23 Dec 2006 23:07:26 -0700 Grant Grundler wrote:
+> 
+> > +10. Legacy I/O port free driver
+> > +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> That subject (and patches with similar subject) confuses me.
+> It's difficult to associate the adjectives correctly.
 
-> So my question is - what is real reason for disabling INTX when in MSI mode?
-> According to PCI spec it should not be needed.
+Agreed. This was the original section name and I didn't
+have a better idea.
 
-The PCI spec is at least not clear enough on the matter to keep nVidia 
-from thinking that it's the OS's responsibility to make legacy interrupts 
-not happen, by disabling INTX.
+> I suppose it just needs some hyphens/dashes, like:
+> 
+> 10. Legacy-I/O-port-free driver
+> 
+> but that's ETOOMUCH.  Maybe ?
+> 
+> 10.  Stop using legacy I/O space
 
-> None of devices in the box assert INTX while in MSI even if INTX is enabled.
+Yeah, that is good too.
 
-I've got a forcedeth-driven ethernet card that does, and people have 
-reported that nVidia "Intel HDA" sound does as well.
+I changed it to "10. pci_enable_device_bars() and Legacy I/O Port space".
+The goal of this section is to introduce the new PCI function 
+and why one should use it.
 
-> So I'd like to see first patch below accepted.  If there are some 
-> devices which require INTX disabling, then apparently decision whether 
-> to disable it or no has to be moved to device drivers, or some 
-> blacklist/whitelist must be created...
 
-PCI Express (IIRC) had the pci_intx() calls already, so it's probably 
-actually required by the spec (or at least common implementations) there. 
+...
+> > +Thus, timing sensitive code should add readl() where the CPU is
+> > +expected to wait before doing other work.  The classic "bit banging"
+> > +sequence works fine for I/O Port space:
+> > +
+> > +       for (i=8; --i; val >>= 1) {
+> 
+> Please use:	i = 8;
+> to match CodingStyle.  (and below)
 
-I'd guess that it's more common for hardware to be unhappy with intx 
-enabled than to be unhappy with intx disabled, since the hardware is 
-supposed to not send legacy interrupts.
+Definitely....Sorry, I thought someone already asked me to change this.
+I thought I did. Changed now in both cases.
 
-> I'm not sure about second one - I have it in my tree for months, but I run 
-> that kernel only on hardware mentioned above, so it is probably too dangerous 
-> until pci_enable_msi() gets answer whether MSI works or no always right.
 
-I think it'd be better to add an module parameter, like in the later 
-drivers in your patch. Figuring out how to get MSI working whenever it's 
-available isn't going to move forward unless there's an easy way to test 
-it, especially since (according to rumor) Windows doesn't use it at all.
+> Rest looks good to me.
 
-> /proc/interrupts after patch.  Before patch *hci_hcd:usb* were at zero, 
-> IRQ21 was stuck with IRQ count at 10000, and HCD complained about 
-> "Unlink after no-IRQ?".
+v8 will be posted shortly.
 
-Maybe the intx disable is just totally broken for your device? It 
-certainly shouldn't cause the delivery of *more* legacy interrupts, and if 
-it does with MSI enabled, I'd be surprised if it didn't without MSI. My 
-guess is that that device should get a quirk to just leave the INTx 
-disable bit alone (such that pci_intx doesn't do anything, regardless of 
-context).
-
-> diff -uprdN linux/sound/pci/atiixp.c linux/sound/pci/atiixp.c
-> --- linux/sound/pci/atiixp.c	2006-12-16 13:35:47.000000000 -0800
-> +++ linux/sound/pci/atiixp.c	2006-12-16 13:57:09.000000000 -0800
-> @@ -1442,6 +1446,11 @@ static int snd_atiixp_suspend(struct pci
->  	snd_atiixp_aclink_down(chip);
->  	snd_atiixp_chip_stop(chip);
->  
-> +	if (chip->have_msi) {
-> +		pci_disable_msi(pci);
-> +	} else {
-> +		pci_intx(pci, 0);
-> +	}
-
-This doesn't look right, at least for !chip->have_msi. Or is disabling 
-intx desirable here for non-MSI? I'd guess that devices that freak out if 
-you fiddle with intx are likely to be old, and therefore likely to not 
-support MSI.
-
-> @@ -1532,6 +1546,11 @@ static int snd_atiixp_free(struct atiixp
->  	if (chip->remap_addr)
->  		iounmap(chip->remap_addr);
->  	pci_release_regions(chip->pci);
-> +	if (chip->have_msi) {
-> +		pci_disable_msi(chip->pci);
-> +	} else {
-> +		pci_intx(chip->pci, 0);
-> +	}
-
-My playing with forcedeth trying to get my system working suggests that 
-the expected intx state for a device with no driver is "not disabled". I 
-think the else clause here would cause the device to not work if you used 
-this driver, unloaded the module, and loaded a version without the patch 
-(or kexeced an older kernel, or soft-rebooted into some operating system 
-without MSI support).
-
-	-Daniel
-*This .sig left intentionally blank*
+thanks Randy!
+grant

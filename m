@@ -1,93 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752633AbWLYVrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754560AbWLYWy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752633AbWLYVrw (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 25 Dec 2006 16:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754253AbWLYVrw
+	id S1754560AbWLYWy4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 25 Dec 2006 17:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754562AbWLYWy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Dec 2006 16:47:52 -0500
-Received: from squawk.glines.org ([72.36.206.66]:58306 "EHLO squawk.glines.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752633AbWLYVrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Dec 2006 16:47:51 -0500
-Message-ID: <459046FE.9030008@glines.org>
-Date: Mon, 25 Dec 2006 13:47:42 -0800
-From: Mark Glines <mark@glines.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061221)
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-CC: linuxppc-dev@ozlabs.org,
+	Mon, 25 Dec 2006 17:54:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:51459 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1754560AbWLYWyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Dec 2006 17:54:55 -0500
+X-Authenticated: #20450766
+Date: Mon, 25 Dec 2006 23:54:58 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Mark Glines <mark@glines.org>
+cc: linuxppc-dev@ozlabs.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH]  powerpc: linkstation uses uimage style zImages
-References: <fa.ne7N9dqjDz5qS4D/fowPKdPc4ZY@ifi.uio.no> <fa.pM17YEcICUlveSt/vbSKGv6sFWk@ifi.uio.no> <45902A6F.4000100@glines.org> <Pine.LNX.4.60.0612252128530.3424@poirot.grange>
-In-Reply-To: <Pine.LNX.4.60.0612252128530.3424@poirot.grange>
-Content-Type: multipart/mixed;
- boundary="------------030108020406060304010101"
+Subject: Re: [PATCH]  powerpc: linkstation uses uimage style zImages
+In-Reply-To: <459046FE.9030008@glines.org>
+Message-ID: <Pine.LNX.4.60.0612252349040.3424@poirot.grange>
+References: <fa.ne7N9dqjDz5qS4D/fowPKdPc4ZY@ifi.uio.no>
+ <fa.pM17YEcICUlveSt/vbSKGv6sFWk@ifi.uio.no> <45902A6F.4000100@glines.org>
+ <Pine.LNX.4.60.0612252128530.3424@poirot.grange> <459046FE.9030008@glines.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030108020406060304010101
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Mark
 
-Guennadi Liakhovetski wrote:
-> On Mon, 25 Dec 2006, Mark Glines wrote:
->> Followup:  Yeah, it looks like it just doesn't know which format of zImage to
->> produce for linkstation.
->>
->> I'm not sure what image should be used by default.  I guess it depends on the
->> bootloader.  Maybe default to uImage, as uBoot seems to be fairly common on
->> these devices?
-> 
-> Yes, uImage is the format used on linkstation. Is there a way to cleanly 
-> specify this in the kernel sources apart from a comment in Kconfig?
+Thanks for the patch. Are you actually going to test this kernel on a real 
+hardware or just testing builds? If it is going to be a real life test, 
+I'd be interested to know what exactly hardware, U-boot version, dts, and 
+what results.
 
-Yep.  Kconfig just needs to select DEFAULT_UIMAGE, and then the system 
-tries to build a uImage.
+BTW, ack-ing your patch would be a bit easier if you sent it inline.
 
-Once I tracked down and installed a "mkimage" command (dependency needed 
-by the WRAP line), my "make zImage" succeeded.  So, I hope you guys 
-apply this.
+On Mon, 25 Dec 2006, Mark Glines wrote:
+
+> Once I tracked down and installed a "mkimage" command (dependency needed by
+> the WRAP line), my "make zImage" succeeded.  So, I hope you guys apply this.
 
 ...
 
-   GEN     .version
-   LD      .tmp_vmlinux1
-   KSYM    .tmp_kallsyms1.S
-   AS      .tmp_kallsyms1.o
-   LD      .tmp_vmlinux2
-   KSYM    .tmp_kallsyms2.S
-   AS      .tmp_kallsyms2.o
-   LD      vmlinux
-   SYSMAP  System.map
-   SYSMAP  .tmp_System.map
-   MODPOST vmlinux
-   WRAP    arch/powerpc/boot/uImage
-Image Name:   Linux-2.6.20-rc2-kuroboxHG
-Created:      Sun Dec 24 19:24:12 2006
-Image Type:   PowerPC Linux Kernel Image (gzip compressed)
-Data Size:    1673973 Bytes = 1634.74 kB = 1.60 MB
-Load Address: 0x00000000
-Entry Point:  0x00000000
-paranoid@kuro-2 /usr/src/linux $
+> Signed-off-by: Mark Glines <mark@glines.org>
+Acked-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 
-
-Signed-off-by: Mark Glines <mark@glines.org>
-
---------------030108020406060304010101
-Content-Type: text/plain;
- name="linkstation-uses-uimage.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="linkstation-uses-uimage.diff"
-
-LS0tIGxpbnV4LTIuNi4yMC1yYzIvYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9lbWJlZGRlZDZ4
-eC9LY29uZmlnLm9yaWcJMjAwNi0xMi0yNCAxOToxMzo0OS4wMDAwMDAwMDAgLTA4MDAKKysr
-IGxpbnV4LTIuNi4yMC1yYzIvYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9lbWJlZGRlZDZ4eC9L
-Y29uZmlnCTIwMDYtMTItMjQgMTk6MTQ6MDIuMDAwMDAwMDAwIC0wODAwCkBAIC03OSw2ICs3
-OSw3IEBACiAJc2VsZWN0IE1QSUMKIAlzZWxlY3QgRlNMX1NPQwogCXNlbGVjdCBQUENfVURC
-R18xNjU1MCBpZiBTRVJJQUxfODI1MAorCXNlbGVjdCBERUZBVUxUX1VJTUFHRQogCWhlbHAK
-IAkgIFNlbGVjdCBMSU5LU1RBVElPTiBpZiBjb25maWd1cmluZyBmb3Igb25lIG9mIFBQQy0g
-KE1QQzgyNDEpCiAJICBiYXNlZCBOQVMgc3lzdGVtcyBmcm9tIEJ1ZmZhbG8gVGVjaG5vbG9n
-eS4gU28gZmFyIG9ubHkK
---------------030108020406060304010101--
+> --- linux-2.6.20-rc2/arch/powerpc/platforms/embedded6xx/Kconfig.orig	2006-12-24 19:13:49.000000000 -0800
+> +++ linux-2.6.20-rc2/arch/powerpc/platforms/embedded6xx/Kconfig	2006-12-24 19:14:02.000000000 -0800
+> @@ -79,6 +79,7 @@
+>  	select MPIC
+>  	select FSL_SOC
+>  	select PPC_UDBG_16550 if SERIAL_8250
+> +	select DEFAULT_UIMAGE
+>  	help
+>  	  Select LINKSTATION if configuring for one of PPC- (MPC8241)
+>  	  based NAS systems from Buffalo Technology. So far only

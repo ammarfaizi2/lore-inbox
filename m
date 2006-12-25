@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754454AbWLYL07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754471AbWLYMgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754454AbWLYL07 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 25 Dec 2006 06:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754466AbWLYL07
+	id S1754471AbWLYMgo (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 25 Dec 2006 07:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754474AbWLYMgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Dec 2006 06:26:59 -0500
-Received: from javad.com ([216.122.176.236]:2299 "EHLO javad.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754454AbWLYL07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Dec 2006 06:26:59 -0500
-From: Sergei Organov <osv@javad.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: moxa serial driver testing
-References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
-	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
-	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
-	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
-	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
-	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
-	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
-	<87r6urket6.fsf@javad.com> <552766292581216610@wsc.cz>
-Date: Mon, 25 Dec 2006 14:26:42 +0300
-In-Reply-To: <552766292581216610@wsc.cz> (Jiri Slaby's message of "Sat, 23
- Dec
-	2006 02:35:46 +0100 (CET)")
-Message-ID: <87r6uo8bd9.fsf@javad.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Mon, 25 Dec 2006 07:36:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59049 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754471AbWLYMgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Dec 2006 07:36:43 -0500
+Subject: Re: [PATCH -mm] MMCONFIG: Fix x86_64 ioremap base_address
+From: Arjan van de Ven <arjan@infradead.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: OGAWA Hirofumi <hogawa@miraclelinux.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87fyb6n86a.fsf@duaron.myhome.or.jp>
+References: <lrfyb7ctm8.fsf@dhcp-0242.miraclelinux.com>
+	 <1166869244.3281.590.camel@laptopd505.fenrus.org>
+	 <87fyb6n86a.fsf@duaron.myhome.or.jp>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 25 Dec 2006 13:36:37 +0100
+Message-Id: <1167050198.3281.1635.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
 
-> osv@javad.com wrote:
->> Hi Jiri,
->> 
->> I've figured out that both old and new mxser drivers have two similar
->> problems:
->> 
->> 1. When there are data coming to a port, sometimes opening of the port
->>    entirely locks the box. This is quite reproducible. Any idea what's
->>    wrong and how can I help to debug it?
->
-> Could you test the patch below, if something changes?
+> Current workaround is the following (both of linus and -mm),
+> 
+> 	if (pci_mmcfg_config_num == 1 &&
+> 		cfg->pci_segment_group_number == 0 &&
+> 		(cfg->start_bus_number | cfg->end_bus_number) == 0)
+>                 /* Assume it can access 256M range */
+> 
+> But, if the system has bus number 0 only, it's a correct table.
+> We may need to detect the broken system. blacklist?
 
-I'm preparing to test it. However, it seems that my version of
-mxser_new.c got out of sync with your one:
+or just... not assume 256Mb but assume broken?
 
-osv@osv mxser_new$ patch -p3 < lock.patch
-patching file mxser_new.c
-Hunk #1 succeeded at 1900 (offset -368 lines).
-Hunk #2 succeeded at 1968 (offset -354 lines).
-osv@osv mxser_new$ patch -p3 < rmmod.patch
-patching file mxser.c
-Hunk #1 succeeded at 711 with fuzz 2 (offset -6 lines).
-patching file mxser_new.c
-Hunk #1 succeeded at 705 with fuzz 2 (offset -1985 lines).
-osv@osv mxser_new$
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-I'll try this one anyway, but could you please either tell me where to
-get the version you are using, or just send it to me by mail?
-
-BTW, when system hangs, SysRq magic doesn't work anymore.
-
--- Sergei.

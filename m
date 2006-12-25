@@ -1,84 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753302AbWLYA1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753233AbWLYAar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753302AbWLYA1H (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 24 Dec 2006 19:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753233AbWLYA1H
+	id S1753233AbWLYAar (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 24 Dec 2006 19:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753322AbWLYAar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Dec 2006 19:27:07 -0500
-Received: from c-68-85-149-9.hsd1.mi.comcast.net ([68.85.149.9]:53735 "EHLO
-	paragw.zapto.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753322AbWLYA1G (ORCPT
+	Sun, 24 Dec 2006 19:30:47 -0500
+Received: from mo-p07-ob.rzone.de ([81.169.146.190]:57043 "EHLO
+	mo-p07-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753233AbWLYAaq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Dec 2006 19:27:06 -0500
-X-Greylist: delayed 652 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Dec 2006 19:27:06 EST
-Date: Sun, 24 Dec 2006 19:15:55 -0500 (EST)
-From: Parag Warudkar <paragw@paragw.zapto.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: selinux networking: sleeping functin called from invalid context
- in 2.6.20-rc[12]
-In-Reply-To: <20061225052124.A10323@freya>
-Message-ID: <Pine.LNX.4.64.0612241856300.29007@paragw.zapto.org>
-References: <20061225052124.A10323@freya>
+	Sun, 24 Dec 2006 19:30:46 -0500
+Date: Mon, 25 Dec 2006 01:30:41 +0100 (MET)
+From: Wolfgang Draxinger <wdraxinger@darkstargames.de>
+Organization: DARKSTARgames
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Binary Drivers
+User-Agent: KMail/1.9.5
+References: <200612242020.kBOKKtS9009605@laptop13.inf.utfsm.cl>
+In-Reply-To: <200612242020.kBOKKtS9009605@laptop13.inf.utfsm.cl>
+Cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1430522261-1707996492-1167005755=:29007"
+Content-Type: multipart/signed;  boundary="nextPart1430551.JLlZ0uriNR";
+  protocol="application/pgp-signature";  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200612250133.27413.wdraxinger@darkstargames.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+--nextPart1430551.JLlZ0uriNR
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
---1430522261-1707996492-1167005755=:29007
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Am Sonntag, 24. Dezember 2006 21:20 schrieb Horst H. von Brand:
 
-On Mon, 25 Dec 2006, Adam J. Richter wrote:
+> It is done regularly. Current cars control the fuel injection etc
+> via an onboard computer, without this control the engine just won't
+> start. Did you get the specs for the exact fuel control algorithm
+> with your car? Should you be able to fool around with that, thus
+> violating emission control measures (this would damage not only
+> you, but everybody)?
 
-> 	Under 2.6.20-rc1 and 2.6.20-rc2, I get the following complaint
-> for several network programs running on my system:
->
-> [  156.381868] BUG: sleeping function called from invalid context at net/core/sock.c:1523
-> [  156.381876] in_atomic():1, irqs_disabled():0
-> [  156.381881] no locks held by kio_http/9693.
-> [  156.381886]  [<c01057a2>] show_trace_log_lvl+0x1a/0x2f
-> [  156.381900]  [<c0105dab>] show_trace+0x12/0x14
-> [  156.381908]  [<c0105e48>] dump_stack+0x16/0x18
-> [  156.381917]  [<c011e30f>] __might_sleep+0xe5/0xeb
-> [  156.381926]  [<c025942a>] lock_sock_nested+0x1d/0xc4
-> [  156.381937]  [<c01cc570>] selinux_netlbl_inode_permission+0x5a/0x8e
-> [  156.381946]  [<c01c2505>] selinux_file_permission+0x96/0x9b
-> [  156.381954]  [<c0175a0a>] vfs_write+0x8d/0x167
-> [  156.381962]  [<c017605a>] sys_write+0x3f/0x63
-> [  156.381971]  [<c01040c0>] syscall_call+0x7/0xb
-> [  156.381980]  =======================
->
+You won't get access to the software source code, but the car=20
+manufactors are required to document and publish the interfaces to=20
+their hardware, so that also independent car workshops are able to do=20
+maintenance and repair on it.
 
-lock_sock_nested can sleep, its BH counterpart doesn't.
-selinux_netlbl_inode_permission() probably needs to use the BH counterpart 
-unconditionally. But I am not sure if that function is always called from an atomic context. Assuming it is, the 
-attached patch should fix this.
+You have ever heared of chip tuning? Chip tuning is a replacement of=20
+the original firmware with a 3rd party one, that will give higher=20
+power and torque.
 
-Compile tested.
+So your gave a perfect example from another industry, where the specs=20
+are actually published.
 
-Signed-off-by: Parag Warudkar <paragw@paragw.zapto.org>
+Again: We don't want the original drivers being open sourced. All we=20
+want is access to the hardware interface documentation, so that we=20
+can develop our very own drivers. And heck: With a custom driver for=20
+some RAID controller or a graphics card you will hardly violate any=20
+regulations.
 
-Parag
+There might be issues with radio hardware, but surprisingly the=20
+drivers for the good stuff (i.e. not those cheapo cards with lousy=20
+range and throughput) are open source (Prism/HostAP).
 
---1430522261-1707996492-1167005755=:29007
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=services.c.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0612241915550.29007@paragw.zapto.org>
-Content-Description: selinux - use proper locking interfaces
-Content-Disposition: attachment; filename=services.c.patch
+I'd even say, that selling hardware without giving documentation is=20
+illegal also from a competitions law point of view. By supplying a=20
+driver only for a small range of operating systems you, as the=20
+factual owner of a piece of hardware are hindered to use it in the=20
+way you like, e.g. use it with the homebrew operating system you=20
+wrote (or a finnish student wrote in 1991 ;-)). Thus the HW=20
+manufactor delivering drivers only for a small range of operating=20
+systems can be assumed to distort the market by biasing one specific=20
+operting system manufactor _and_ hardware manufactors. Remember, that=20
+many binary only drivers for Linux are only avaliable for the x86=20
+variant. Only few are also avaliable for x86_64 (AMD64), even fewer=20
+for IA64 and for other architectures it's getting homeopathic. This=20
+is IMHO a extreme distortion of the free market.
 
-LS0tIGxpbnV4LTIuNi9zZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmMu
-b3JpZwkyMDA2LTEyLTI0IDE4OjUyOjQyLjAwMDAwMDAwMCAtMDUwMA0KKysr
-IGxpbnV4LTIuNi9zZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmMJMjAw
-Ni0xMi0yNCAxOTowMDoyMi4wMDAwMDAwMDAgLTA1MDANCkBAIC0yNjYwLDkg
-KzI2NjAsOSBAQA0KIAkJcmN1X3JlYWRfdW5sb2NrKCk7DQogCQlyZXR1cm4g
-MDsNCiAJfQ0KLQlsb2NrX3NvY2soc29jay0+c2spOw0KKwliaF9sb2NrX3Nv
-Y2tfbmVzdGVkKHNvY2stPnNrKTsNCiAJcmMgPSBzZWxpbnV4X25ldGxibF9z
-b2NrZXRfc2V0c2lkKHNvY2ssIHNrc2VjLT5zaWQpOw0KLQlyZWxlYXNlX3Nv
-Y2soc29jay0+c2spOw0KKwliaF91bmxvY2tfc29jayhzb2NrLT5zayk7DQog
-CXJjdV9yZWFkX3VubG9jaygpOw0KIA0KIAlyZXR1cm4gcmM7DQo=
+Happy holydays
 
---1430522261-1707996492-1167005755=:29007--
+Wolfgang Draxinger
+
+--nextPart1430551.JLlZ0uriNR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFjxxXBfWmRR/TvT4RAnyQAJwJgVI67g0uLlQdsCvLXK7pP9ZvCwCg7w5w
+UOTTUN67MVfjF0RNMys790Y=
+=AlWl
+-----END PGP SIGNATURE-----
+
+--nextPart1430551.JLlZ0uriNR--

@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932598AbWLZOC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932613AbWLZOEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932598AbWLZOC4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 09:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWLZOC4
+	id S932613AbWLZOEp (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 09:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWLZOEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 09:02:56 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:4082 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932598AbWLZOCz (ORCPT
+	Tue, 26 Dec 2006 09:04:45 -0500
+Received: from web32607.mail.mud.yahoo.com ([68.142.207.234]:48450 "HELO
+	web32607.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932613AbWLZOEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 09:02:55 -0500
-Date: Tue, 26 Dec 2006 15:03:02 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Alexander van Heukelum <heukelum@fastmail.fm>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-Id: <20061226150302.85606ac4.khali@linux-fr.org>
-In-Reply-To: <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
-	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
-	<20061220214340.f6b037b1.khali@linux-fr.org>
-	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
-	<20061221101240.f7e8f107.khali@linux-fr.org>
-	<20061221145922.16ee8dd7.khali@linux-fr.org>
-	<1166723157.29546.281560884@webmail.messagingengine.com>
-	<20061221204408.GA7009@in.ibm.com>
-	<20061222090806.3ae56579.khali@linux-fr.org>
-	<20061222104056.GB7009@in.ibm.com>
-	<cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Tue, 26 Dec 2006 09:04:44 -0500
+Message-ID: <20061226140443.91401.qmail@web32607.mail.mud.yahoo.com>
+X-YMail-OSG: c5tLSMUVM1nswBp499LkjHPNXrLSyUlpo08f0hbsgkQOOmo1KWb5ngnBHX_cjjL7d4c1WqAzeYCVKVy0IhBrgTDPjLxRQ60zLZg.cGro2NPSgeivqdCY5K69QeZO00yNy9LYzmgAgqUqoLRLtvfs5VaVxGp__q4PEL4-
+X-RocketYMMF: knobi.rm
+Date: Tue, 26 Dec 2006 06:04:43 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: Binary Drivers
+To: Trent Waddington <trent.waddington@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3d57814d0612260333h7a7a835dwf5b95a3ad26ad2ab@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Segher,
 
-On Tue, 26 Dec 2006 13:43:31 +0100, Segher Boessenkool wrote:
-> > Thanks Jean. Your compressed/head.o looks fine.
+--- Trent Waddington <trent.waddington@gmail.com> wrote:
+
+> On 12/26/06, Martin Knoblauch <knobi@knobisoft.de> wrote:
+> >
+> >  Oh, if only for Christmas - stop this stupid car comparisons. They
+> are
+> > just that - utter nonsense.
+> >
+> >  And now lets stop the car nonsense !!!! :-)
 > 
-> No it doesn't -- the .text.head section doesn't have
-> the ALLOC attribute set.  The section then ends up not
-> being assigned to an output segment (during the linking
-> of vmlinux) and all hell breaks loose.  The linker gives
-> you a warning about this btw.
+> I agree, if you really want to talk about cars, I can relate the woes
+> I've heard from mechanics about how impossible it is to service new
+> model Fords these days.
 
-I didn't notice any warning, but maybe I just missed it.
+ A behaviour that is not very different from gthe GMs, BMWs,
+daimler-Chryslers, Toyota, "you name them" of this world.
 
-> Jean, how old is your binutils?
+ I never said I liked the attitude.
 
-2.14.90.0.6
+>  Without the engine management systems
+> diagnostics devices they can't do anything.  Ford controls who gets
+> these devices and demands a cut of every service, essentially setting
+> the price.  Service centers that don't play ball don't get the
+> devices or get the devices taken away from them if they question 
+> Ford's pricing policies.  Of course, this should be illegal, and our
+> governments should be enforcing antitrust laws, but Ford is a big
+> company and has lots of lawyers..
+>
 
-> Since 2.15 at least this should be set automatically
-> on sections named .text.<whatever> .
+ Actually we have/had a similar situation here in Germany. We are  used
+to having "licensed dealerships" which are only allowed to sell one car
+brand. This might be illegal by EU laws now.
+
+> Repco and other after market manufacturers can't easily make a clone
+> of these devices like they do every other part, because reverse
+> engineering software is not really as advanced as reverse engineering
+> spare parts.. or maybe software reverse engineering is just so much
+> more expensive than automotive reverse engineering that it is not
+> cost effective to clone these devices.. or maybe they're just afraid
+> of the lawyers too.
 > 
-> It wouldn't hurt to specify it by hand in the source
-> code of course -- change
-> 
-> .section ".text.head"
-> 
-> to
-> 
-> .section ".text.head","ax",@progbits
-> 
-> in compressed/head.S .
 
-I don't have access to this test system at the moment, I'll check, test
-and report back once I have access again.
+ Understanding software is more difficult, because you also have to
+understand the working prinziple of the underlying hardware, which you
+often have no specs for either. So you have to reverse engineer both
+layers.
 
-Thanks,
--- 
-Jean Delvare
+Cheers
+Martin
+
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

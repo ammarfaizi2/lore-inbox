@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932566AbWLZM5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932572AbWLZNE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWLZM5c (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 07:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWLZM5c
+	id S932572AbWLZNE1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 08:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWLZNE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 07:57:32 -0500
-Received: from lucidpixels.com ([66.45.37.187]:37077 "EHLO lucidpixels.com"
+	Tue, 26 Dec 2006 08:04:27 -0500
+Received: from gate.crashing.org ([63.228.1.57]:57504 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932566AbWLZM5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 07:57:31 -0500
-Date: Tue, 26 Dec 2006 07:57:29 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Robert Hancock <hancockr@shaw.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.17.13: eth2: TX underrun, threshold adjusted.
-In-Reply-To: <45908F87.9010205@shaw.ca>
-Message-ID: <Pine.LNX.4.64.0612260757120.10234@p34.internal.lan>
-References: <fa.8x7CSG3Vz8/rASmsmG0lScp7gAc@ifi.uio.no> <45908F87.9010205@shaw.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S932572AbWLZNE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 08:04:26 -0500
+X-Greylist: delayed 1174 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 08:04:25 EST
+In-Reply-To: <20061222104056.GB7009@in.ibm.com>
+References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
+       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Date: Tue, 26 Dec 2006 13:43:31 +0100
+To: vgoyal@in.ibm.com
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Thanks Jean. Your compressed/head.o looks fine.
+
+No it doesn't -- the .text.head section doesn't have
+the ALLOC attribute set.  The section then ends up not
+being assigned to an output segment (during the linking
+of vmlinux) and all hell breaks loose.  The linker gives
+you a warning about this btw.
+
+Jean, how old is your binutils?
+Since 2.15 at least this should be set automatically
+on sections named .text.<whatever> .
+
+It wouldn't hurt to specify it by hand in the source
+code of course -- change
+
+.section ".text.head"
+
+to
+
+.section ".text.head","ax",@progbits
+
+in compressed/head.S .
 
 
-On Mon, 25 Dec 2006, Robert Hancock wrote:
+Segher
 
-> Justin Piszcz wrote:
-> > I am using a dual port Intel NIC on an A-Bit IC7-G; any reason why I get
-> > these?
-> > 
-> > [4298634.444000] eth2: TX underrun, threshold adjusted.
-> > [4299146.645000] eth2: TX underrun, threshold adjusted.
-> 
-> ...
-> 
-> > I am using the e100 driver, MAC addr commented out with **.
-> > 
-> > [4294675.208000] eth2: 0000:04:04.0, 00:**:**:**:**:**, IRQ 18.
-> > [4294675.209000]   Receiver lock-up bug exists -- enabling work-around.
-> > [4294675.209000]   Board assembly 711269-003, Physical connectors present:
-> > RJ45
-> 
-> I don't think you are using e100, these messages seem to be from eepro100, not
-> e100. Try disabling eepro100 and see if e100 works.
-> 
-> -- 
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
-> 
-
-Oops-- thanks, e100 has not produced the error yet.
-
-Justin.

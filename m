@@ -1,316 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932770AbWLZTnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932775AbWLZTxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932770AbWLZTnM (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 14:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932773AbWLZTnL
+	id S932775AbWLZTxv (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 14:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932776AbWLZTxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 14:43:11 -0500
-Received: from lucidpixels.com ([66.45.37.187]:38234 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932770AbWLZTnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 14:43:09 -0500
-Date: Tue, 26 Dec 2006 14:43:06 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Erik Ohrnberger <erik@echohome.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: System / libata IDE controller woes (long)
-In-Reply-To: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAJ1ef91k2DRKvSshkps/AYkBAAAAAA==@echohome.org>
-Message-ID: <Pine.LNX.4.64.0612261442120.19760@p34.internal.lan>
-References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAJ1ef91k2DRKvSshkps/AYkBAAAAAA==@echohome.org>
+	Tue, 26 Dec 2006 14:53:50 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:3651 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932775AbWLZTxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 14:53:50 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <sepreece@gmail.com>
+Cc: <vonbrand@laptop13.inf.utfsm.cl>, <Valdis.Kletnieks@vt.edu>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Binary Drivers
+Date: Tue, 26 Dec 2006 11:53:02 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEGPAJAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+In-Reply-To: <7b69d1470612261120n6218500ctbfc64bf5627892d@mail.gmail.com>
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 26 Dec 2006 12:56:02 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 26 Dec 2006 12:56:03 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problem you did when I put 3 identical controllers 
-together.  To get around that problem I used 2 TX133s and 1 TX100x2.  I 
-believe this is the root cause of your problems.
 
-Justin.
+> Again, while some of the car/house analogies may describe situations
+> where the seller has not conveyed all the rights, the video card
+> situation is completely different. You have the right to do what you
+> like with it and the seller retains no rights. Lack of documentation
+> is not an imposition on your rights, unless you had a specific promise
+> of documentation from the seller.
 
-On Tue, 26 Dec 2006, Erik Ohrnberger wrote:
+I'm curious if you really believe this. So let me set up one last
+hypothetical.
 
-> First off, Merry Christmas, Seasons Greetings and Happy Holidays!
-> 
-> Hang on, this is a bit of a long story, but I think that you'll need the
-> information and background.
-> 
-> I want what amounts to a NAS, that I'd like to build on gentoo Linux.  I'm
-> familiar with gentoo and the use of EVMS, so I think I'm pretty well
-> prepared from this perspective.
-> 
-> Earlier this year, when I started putting it together, I gathered my
-> hardware.  A decent 2 GHz Athlon system with 512 MB RAM, DVD drive, a 40 GB
-> system drive, and a 500 Watt power supply.  Then I started adding hard
-> disks.  To date, I've got 5 80 GB PATA, 2 200 GB PATA, and 1 60 GB PATA.
-> 
-> I mounted the drives on a set of aluminum rails that I had a friend make for
-> me.  They run vertically, and have slots through which screws are tightened
-> into the normal hard drive's mounting holes.  All the communication cables
-> are 80 pin cables, and run pretty much straight to the controller cards,
-> while the power pigtails fan out on the side of the 'tower'.
-> 
-> With all these hard drives, I also got 3 Promise 20269 IDE controllers.
-> After I put it all together, and creating 2 logical volumes, one linked EVMS
-> LV, and one RAID5 across 5 80 GB drives.  To support this configuration, I
-> connected the drives in the follow manner (using /dev/hdX notation):
-> 
-> ide0:	/dev/hdc = System boot disk	(Motherboard)
-> 	/dev/hdb = DVD ROM
-> ide1:	/dev/hdc = nothing
-> 	/dev/hdd = nothing
-> ide2:	/dev/hde = raid disk		(First Promise card)
-> 	/dev/hdf = lvm disk
-> ide3:	/dev/hdg = raid disk
-> 	/dev/hdh = lvm disk
-> ide4:	/dev/hdi = raid disk		(Second Promise card)
-> 	/dev/hdj = lvm disk
-> ide5:	/dev/hdk = raid disk
-> 	/dev/hdl = nothing
-> ide6:	/dev/hdm = raid disk		(Thrid Promise card)
-> 	/dev/hdn = nothing
-> ide7:	/dev/hdo = nothing
-> 	/dev/hdp = nothing
-> 
-> >From what I understood, this is how you want to connect a set of raid drives
-> so that no one controller is over loaded with IO.  But I had to use the
-> other ports to connect the LVM.
-> 
-> I started to get 'dma_expiry' errors (see message file extract below):
-> 
-> Dec 22 21:29:33 livecd hdg: dma_timer_expiry: dma status == 0x21
-> Dec 22 21:29:43 livecd hdg: DMA timeout error
-> Dec 22 21:29:43 livecd hdg: dma timeout error: status=0x50 { DriveReady
-> SeekComplete }
-> Dec 22 21:29:43 livecd ide: failed opcode was: unknown
-> Dec 22 21:29:43 livecd hdg: task_in_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Dec 22 21:29:43 livecd hdg: task_in_intr: error=0x04 { DriveStatusError }
-> Dec 22 21:29:43 livecd ide: failed opcode was: unknown
-> Dec 22 21:29:43 livecd hdg: task_in_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Dec 22 21:29:43 livecd hdg: task_in_intr: error=0x04 { DriveStatusError }
-> Dec 22 21:29:43 livecd ide: failed opcode was: unknown
-> Dec 22 21:29:43 livecd hdg: task_in_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Dec 22 21:29:43 livecd hdg: task_in_intr: error=0x04 { DriveStatusError }
-> Dec 22 21:29:43 livecd ide: failed opcode was: unknown
-> Dec 22 21:29:43 livecd hdg: task_in_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Dec 22 21:29:43 livecd hdg: task_in_intr: error=0x04 { DriveStatusError }
-> Dec 22 21:29:43 livecd ide: failed opcode was: unknown
-> Dec 22 21:29:43 livecd PDC202XX: Secondary channel reset.
-> Dec 22 21:29:43 livecd ide3: reset: success
-> Dec 22 21:30:03 livecd hdg: dma_timer_expiry: dma status == 0x21
-> Dec 22 21:30:15 livecd hdg: DMA timeout error
-> Dec 22 21:30:15 livecd hdg: dma timeout error: status=0x80 { Busy }
-> Dec 22 21:30:15 livecd ide: failed opcode was: unknown
-> Dec 22 21:30:15 livecd hdg: DMA disabled
-> Dec 22 21:30:15 livecd PDC202XX: Secondary channel reset.
-> Dec 22 21:30:20 livecd ide3: reset: success
-> Dec 22 21:36:58 livecd hdg: irq timeout: status=0x80 { Busy }
-> Dec 22 21:36:58 livecd ide: failed opcode was: unknown
-> Dec 22 21:36:58 livecd PDC202XX: Secondary channel reset.
-> Dec 22 21:37:33 livecd ide3: reset timed-out, status=0x80
-> Dec 22 21:37:33 livecd hdg: status timeout: status=0x80 { Busy }
-> Dec 22 21:37:33 livecd ide: failed opcode was: unknown
-> Dec 22 21:37:33 livecd PDC202XX: Secondary channel reset.
-> Dec 22 21:37:33 livecd hdg: drive not ready for command
-> Dec 22 21:37:48 livecd ide3: reset: success
-> Dec 22 21:37:58 livecd hdg: lost interrupt
-> 
-> These errors caused the raid array to crash repeatedly, so I gave up on that
-> and changed the raid to an EVMS drive linked logical volume, and changed
-> their connections to as follows:
-> 
-> ide0:	/dev/hdc = System boot disk	(motherboard)
-> 	/dev/hdb = DVD ROM
-> ide1:	/dev/hdc = nothing
-> 	/dev/hdd = nothing
-> ide2:	/dev/hde = lvm1			(first promise card)
-> 	/dev/hdf = lvm1
-> ide3:	/dev/hdg = lvm1
-> 	/dev/hdh = lvm1
-> ide4:	/dev/hdi = lvm1			(second promise card)
-> 	/dev/hdj = nothing
-> ide5:	/dev/hdk = lvm2
-> 	/dev/hdl = lvm2
-> ide6:	/dev/hdm = lvm2			(third promise card)
-> 	/dev/hdn = nothing
-> ide7:	/dev/hdo = nothing
-> 	/dev/hdp = nothing
-> 
-> Still got the same dma_timer_expiry errors. I consulted this list as to how
-> to resolve them.  The wisdom of the list recommended that I try libata
-> rather than the old ide controller code.  So I patched the kernel, and all
-> was well, for quite some time.
-> 
-> But then I started to get random lockups.  I upgraded the kernel to 2.6.19,
-> which has all the libata code in it, and ran it.  This didn't help.  I
-> enabled nmi_watchdog in order to track down which drive was causing the
-> problems.  It helped, and pointed to a drive (see message log file extract
-> below):
-> 
-> Dec 25 03:13:23 storage ATA: abnormal status 0x80 on port 0xE0A817DF
-> Dec 25 03:13:23 storage ATA: abnormal status 0x80 on port 0xE0A817DF
-> Dec 25 03:13:23 storage ATA: abnormal status 0x80 on port 0xE0A817DF
-> Dec 25 03:13:53 storage ata5.01: exception Emask 0x0 SAct 0x0 SErr 0x0
-> action 0x2 frozen
-> Dec 25 03:13:53 storage ata5.01: (BMDMA stat 0x1)
-> Dec 25 03:13:53 storage ata5.01: tag 0 cmd 0xc8 Emask 0x4 stat 0x40 err 0x0
-> (timeout)
-> Dec 25 03:14:00 storage ata5: port is slow to respond, please be patient
-> (Status 0x80)
-> Dec 25 03:14:23 storage ata5: port failed to respond (30 secs, Status 0x80)
-> Dec 25 03:14:23 storage ata5: soft resetting port
-> Dec 25 03:14:30 storage ata5: port is slow to respond, please be patient
-> (Status 0xd0)
-> Dec 25 03:14:53 storage ata5: port failed to respond (30 secs, Status 0xd0)
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:14:53 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:23 storage ata5.00: qc timeout (cmd 0xec)
-> Dec 25 03:15:23 storage ata5.00: failed to IDENTIFY (I/O error,
-> err_mask=0x4)
-> Dec 25 03:15:23 storage ata5.00: revalidation failed (errno=-5)
-> Dec 25 03:15:23 storage ata5: failed to recover some devices, retrying in 5
-> secs
-> Dec 25 03:15:28 storage ata5: soft resetting port
-> Dec 25 03:15:35 storage ata5: port is slow to respond, please be patient
-> (Status 0xd0)
-> Dec 25 03:15:58 storage ata5: port failed to respond (30 secs, Status 0xd0)
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:15:58 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:16:28 storage ata5.00: qc timeout (cmd 0xec)
-> Dec 25 03:16:28 storage ata5.00: failed to IDENTIFY (I/O error,
-> err_mask=0x4)
-> Dec 25 03:16:28 storage ata5.00: revalidation failed (errno=-5)
-> Dec 25 03:16:28 storage ata5: failed to recover some devices, retrying in 5
-> secs
-> Dec 25 03:16:33 storage ata5: soft resetting port
-> Dec 25 03:16:41 storage ata5: port is slow to respond, please be patient
-> (Status 0xd0)
-> Dec 25 03:17:04 storage ata5: port failed to respond (30 secs, Status 0xd0)
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:04 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:17:34 storage ata5.00: qc timeout (cmd 0xec)
-> Dec 25 03:17:34 storage ata5.00: failed to IDENTIFY (I/O error,
-> err_mask=0x4)
-> Dec 25 03:17:34 storage ata5.00: revalidation failed (errno=-5)
-> Dec 25 03:17:34 storage ata5.00: disabled
-> Dec 25 03:17:34 storage ata5: failed to recover some devices, retrying in 5
-> secs
-> Dec 25 03:17:39 storage ATA: abnormal status 0x80 on port 0xE0A817DF
-> Dec 25 03:17:39 storage ata5.01: failed to IDENTIFY (I/O error,
-> err_mask=0x40)
-> Dec 25 03:17:39 storage ata5.01: revalidation failed (errno=-5)
-> Dec 25 03:17:39 storage ata5: failed to recover some devices, retrying in 5
-> secs
-> Dec 25 03:17:51 storage ata5: port is slow to respond, please be patient
-> (Status 0x80)
-> Dec 25 03:18:14 storage ata5: port failed to respond (30 secs, Status 0x80)
-> Dec 25 03:18:14 storage ata5: soft resetting port
-> Dec 25 03:18:21 storage ata5: port is slow to respond, please be patient
-> (Status 0xd0)
-> Dec 25 03:18:44 storage ata5: port failed to respond (30 secs, Status 0xd0)
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:18:44 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:19:14 storage ata5.01: qc timeout (cmd 0xec)
-> Dec 25 03:19:14 storage ata5.01: failed to IDENTIFY (I/O error,
-> err_mask=0x4)
-> Dec 25 03:19:14 storage ata5.01: revalidation failed (errno=-5)
-> Dec 25 03:19:14 storage ata5: failed to recover some devices, retrying in 5
-> secs
-> Dec 25 03:19:19 storage ata5: soft resetting port
-> Dec 25 03:19:26 storage ata5: port is slow to respond, please be patient
-> (Status 0xd0)
-> Dec 25 03:19:49 storage ata5: port failed to respond (30 secs, Status 0xd0)
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD2 on port 0xE0A817DF
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:19:49 storage ATA: abnormal status 0xD0 on port 0xE0A817DF
-> Dec 25 03:20:19 storage ata5.01: qc timeout (cmd 0xec)
-> Dec 25 03:20:19 storage ata5.01: failed to IDENTIFY (I/O error,
-> err_mask=0x4)
-> Dec 25 03:20:19 storage ata5.01: revalidation failed (errno=-5)
-> Dec 25 03:20:19 storage ata5.01: disabled
-> Dec 25 03:20:20 storage ata5: EH complete
-> Dec 25 03:20:20 storage sd 4:0:1:0: SCSI error: return code = 0x00040000
-> Dec 25 03:20:20 storage end_request: I/O error, dev sdg, sector 271144
-> 
-> However, when I take the drives off that system put them another on
-> another's motherboard IDE connection, and run badblocks in read only mode on
-> all the drives, I get no errors, not a single one on any of the drives.  So
-> if it's not the physical IO that causing problems, it must be the interface?
-> 
-> Something is clearly wrong here, and I'm at a loss as to what it may be or
-> how to resolve it.
-> 
-> 1). Could it be that this is just too many PCI IDE drive controllers in one
-> system?  That they are fighting each other for resources when they are all
-> being read from and written to?
-> 
-> 2). If it is in fact that there are too many IDE controllers, is there any
-> advantage in a single board with many drive connections over many boards?
-> 
-> 3). Are there any BIOS or kernel settings that I could make that would
-> resolve what may be this resource contention?  A slower CPU? (I have a
-> similar 900 MHz Athlon system and file serving is hardly CPU intensive).
-> 
-> 4). Is it that the Promise 20269 are bad choice of controllers and I should
-> change to a different ones?  If so, what is a good choice?
-> 
-> 5). Should I consider migrating everything to SATA with SIL 3114
-> controllers?
-> 
-> 6). Should I consider reducing the number of smaller disks in favor or fewer
-> larger ones?
-> 
-> 7). What if I add a SIL 3114 SATA controller and SATA disks to migrate off,
-> will I cause the same issue by adding yet another PCI hard disk controller?
-> 
-> Lspci output for further reference:
-> 00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different version?)
-> (rev c1)
-> 00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 0 (rev c1)
-> 00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4 (rev c1)
-> 00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3 (rev c1)
-> 00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2 (rev c1)
-> 00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5 (rev c1)
-> 00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a4)
-> 00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
-> 00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge (rev a3)
-> 00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
-> 00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
-> 01:06.0 Mass storage controller: Promise Technology, Inc. 20269 (rev 02)
-> 01:07.0 Mass storage controller: Promise Technology, Inc. 20269 (rev 02)
-> 01:08.0 Mass storage controller: Promise Technology, Inc. 20269 (rev 02)
-> 01:0a.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev
-> 10)
-> 02:00.0 VGA compatible controller: ATI Technologies Inc Radeon R200 QM
-> [Radeon 9100]
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+You buy a phone for $200. The manufacturer only represents that it works
+with CarrierCo. (You do not buy the phone form CarrierCo.)
+
+Two months later, CarrierCo stops supporting your phone's configuration. You
+need to make a configuration change to the phone to get it to work on
+CarrierCo's "newly upgraded" network.
+
+You go to change the phone's configuration and you discover it requires a
+code. You call the manufacturer of the phone and say "hey, it's my phone,
+give me my lock out code". The manufacturer says, "sure, for $450".
+
+You have the right to do what you like with the phone, of course. It's a
+great doorstop and a reasonable paper weight. The manufacturer didn't
+promise the phone's configuration wouldn't become obsolete or that you would
+be able to change the configuration. Lack of documentation is not an
+imposition on your rights, and you had no specific promise of documentation
+from the seller.
+
+I have to say, it honestly astonishes me that would people would make
+arguments like these. Are we so used to these kinds of one-sided
+arrangements that we've lost our common sense?
+
+DS
+
+

@@ -1,133 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932706AbWLZQkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932710AbWLZQml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932706AbWLZQkN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 11:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbWLZQkN
+	id S932710AbWLZQml (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 11:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbWLZQml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 11:40:13 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53096 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932706AbWLZQkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 11:40:12 -0500
-Date: Tue, 26 Dec 2006 17:37:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Andrew Morton <akpm@osdl.org>, Florin Iucha <florin@iucha.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc2
-Message-ID: <20061226163713.GA9047@elte.hu>
-References: <20061225224047.GB6087@iucha.net> <20061225225616.GA22307@iucha.net> <20061226022538.13ea8b3f.akpm@osdl.org> <20061226124019.GA3701@elte.hu> <20061226073610.1b86a7cc.randy.dunlap@oracle.com> <20061226162616.GA6756@elte.hu>
+	Tue, 26 Dec 2006 11:42:41 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:55731 "HELO
+	mail.dev.rtsoft.ru" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with SMTP id S932710AbWLZQmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 11:42:40 -0500
+Date: Tue, 26 Dec 2006 19:43:17 +0300
+From: Vitaly Wool <vitalywool@gmail.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 8250: make probing for TXEN bug a config option
+Message-Id: <20061226194317.3fd3ec14.vitalywool@gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061226162616.GA6756@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andrew,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+probing for UART_BUG_TXEN in 8250 driver leads to weird effects on some ARM boards (pnx4008 for instance). That is, the driver detects  UART_BUG_TXEN (though it apparently shouldn't) and it leads to symbol loss in console on input (i. e. you input 'a' and you get nothing, then you input 'b' and you get 'a', then you input 'c' and get 'b' and so on).
 
-> > I've had at least one more occurrence of it:
-> > 
-> > [   78.804940] BUG: scheduling while atomic: kbd/0x20000000/3444
-> > [   78.804944] 
-> > [   78.804945] Call Trace:
-> 
-> ok, i can think of a simpler scenario: 
-> add_preempt_count(PREEMPT_ACTIVE) /twice/, nested into each other.
+The patch below makes this very probing a configuration option turned on by default.
 
-doh - the BKL! That does a down() in a PREEMPT_ACTIVE section, which can 
-trigger cond_resched(). The fix is to check for PREEMPT_ACTIVE in 
-cond_resched(). (and only in cond_resched())
+ drivers/serial/8250.c  |    5 ++++-
+ drivers/serial/Kconfig |   10 ++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-Updated fix (against -rc2) attached.
+Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
 
-	Ingo
-
----------------------->
-Subject: [patch] sched: fix cond_resched_softirq() offset
-From: Ingo Molnar <mingo@elte.hu>
-
-remove the __resched_legal() check: it is conceptually broken.
-The biggest problem it had is that it can mask buggy cond_resched()
-calls. A cond_resched() call is only legal if we are not in an
-atomic context, with two narrow exceptions:
-
- - if the system is booting
- - a reacquire_kernel_lock() down() done while PREEMPT_ACTIVE is set
-
-But __resched_legal() hid this and just silently returned whenever
-these primitives were called from invalid contexts. (Same goes for
-cond_resched_locked() and cond_resched_softirq()).
-
-furthermore, the __legal_resched(0) call was buggy in that it caused
-unnecessarily long softirq latencies via cond_resched_softirq(). (which
-is only called from softirq-off sections, hence the code did nothing.)
-
-the fix is to resurrect the efficiency of the might_sleep checks and to
-only allow the narrow exceptions.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/sched.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
-
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -4617,17 +4617,6 @@ asmlinkage long sys_sched_yield(void)
- 	return 0;
- }
+diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+index 51f3c73..cf3eb31 100644
+--- a/drivers/serial/8250.c
++++ b/drivers/serial/8250.c
+@@ -1645,6 +1645,7 @@ static int serial8250_startup(struct uar
  
--static inline int __resched_legal(int expected_preempt_count)
--{
--#ifdef CONFIG_PREEMPT
--	if (unlikely(preempt_count() != expected_preempt_count))
--		return 0;
--#endif
--	if (unlikely(system_state != SYSTEM_RUNNING))
--		return 0;
--	return 1;
--}
--
- static void __cond_resched(void)
- {
- #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-@@ -4647,7 +4636,8 @@ static void __cond_resched(void)
+ 	serial8250_set_mctrl(&up->port, up->port.mctrl);
  
- int __sched cond_resched(void)
- {
--	if (need_resched() && __resched_legal(0)) {
-+	if (need_resched() && !(preempt_count() & PREEMPT_ACTIVE) &&
-+					system_state == SYSTEM_RUNNING) {
- 		__cond_resched();
- 		return 1;
++#ifndef CONFIG_SERIAL_8250_DONT_TEST_BUG_TXEN
+ 	/*
+ 	 * Do a quick test to see if we receive an
+ 	 * interrupt when we enable the TX irq.
+@@ -1660,7 +1661,9 @@ static int serial8250_startup(struct uar
+ 			pr_debug("ttyS%d - enabling bad tx status workarounds\n",
+ 				 port->line);
+ 		}
+-	} else {
++	} else
++#endif
++	{
+ 		up->bugs &= ~UART_BUG_TXEN;
  	}
-@@ -4673,7 +4663,7 @@ int cond_resched_lock(spinlock_t *lock)
- 		ret = 1;
- 		spin_lock(lock);
- 	}
--	if (need_resched() && __resched_legal(1)) {
-+	if (need_resched() && system_state == SYSTEM_RUNNING) {
- 		spin_release(&lock->dep_map, 1, _THIS_IP_);
- 		_raw_spin_unlock(lock);
- 		preempt_enable_no_resched();
-@@ -4689,7 +4679,7 @@ int __sched cond_resched_softirq(void)
- {
- 	BUG_ON(!in_softirq());
  
--	if (need_resched() && __resched_legal(0)) {
-+	if (need_resched() && system_state == SYSTEM_RUNNING) {
- 		raw_local_irq_disable();
- 		_local_bh_enable();
- 		raw_local_irq_enable();
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index 2978c09..7efcaf3 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -223,6 +223,16 @@ config SERIAL_8250_DETECT_IRQ
+ 
+ 	  If unsure, say N.
+ 
++config SERIAL_8250_DONT_TEST_BUG_TXEN
++	bool "Don't probe for TXEN bug"
++	depends on SERIAL_8250_EXTENDED
++	help
++	  Say Y here if you don't want the kernel to probe for TXEN bug
++	  on your serial port and try to workaround it. It might lead to
++	  character loss on some boards, though this is quite a rare case.
++
++	  If unsure, say N.
++
+ config SERIAL_8250_RSA
+ 	bool "Support RSA serial ports"
+ 	depends on SERIAL_8250_EXTENDED

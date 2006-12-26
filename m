@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932345AbWLZL2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932513AbWLZLdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWLZL2P (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 06:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWLZL2P
+	id S932513AbWLZLdT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 06:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWLZLdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 06:28:15 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:35404 "EHLO
-	mailout03.sul.t-online.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932345AbWLZL2P (ORCPT
+	Tue, 26 Dec 2006 06:33:19 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:32964 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932513AbWLZLdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 06:28:15 -0500
-Message-ID: <4591073F.9080004@t-online.de>
-Date: Tue, 26 Dec 2006 12:27:59 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Tue, 26 Dec 2006 06:33:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EhYBgP9Oszhet7ntrbAF294CheuLg9CHauAgN6Ik2Hx/3LCWxSt7jPnEuhSVG0TKQifhPZ9Il851Npp1QipqUJ8Xl12dLUs32bRlBXIY1sj7R978XIq3OwiCO1bzAIF62RM6W8kpazDsW7WyvZJPItg5FwlctvTlvfqflPcFU0g=
+Message-ID: <3d57814d0612260333h7a7a835dwf5b95a3ad26ad2ab@mail.gmail.com>
+Date: Tue, 26 Dec 2006 21:33:16 +1000
+From: "Trent Waddington" <trent.waddington@gmail.com>
+To: knobi@knobisoft.de
+Subject: Re: Binary Drivers
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061226111308.79965.qmail@web32615.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: htejun@gmail.com
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19.1, sata_sil: sata dvd writer doesn't work
-References: <45841710.9040900@t-online.de>
-In-Reply-To: <45841710.9040900@t-online.de>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig284E4456629AE5FCA92818D5"
-X-ID: VOIJdYZCZegNu2pRICuak+4G4zw1nY2WswNsvVsr5zs+uaSu4znYke
-X-TOI-MSGID: 85036796-a446-4283-9927-d648f069f4ce
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061226111308.79965.qmail@web32615.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig284E4456629AE5FCA92818D5
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On 12/26/06, Martin Knoblauch <knobi@knobisoft.de> wrote:
+>
+>  Oh, if only for Christmas - stop this stupid car comparisons. They are
+> just that - utter nonsense.
+>
+>  And now lets stop the car nonsense !!!! :-)
 
-Harald Dunkel wrote:
-> Hi folks,
->=20
-> I've got a problem with a Samsung SATA dvd writer: It
-> doesn't play video DVDs. If I connect the same drive
-> via an adapter to USB, then there is no such problem.
->=20
+I agree, if you really want to talk about cars, I can relate the woes
+I've heard from mechanics about how impossible it is to service new
+model Fords these days.  Without the engine management systems
+diagnostics devices they can't do anything.  Ford controls who gets
+these devices and demands a cut of every service, essentially setting
+the price.  Service centers that don't play ball don't get the devices
+or get the devices taken away from them if they question Ford's
+pricing policies.  Of course, this should be illegal, and our
+governments should be enforcing antitrust laws, but Ford is a big
+company and has lots of lawyers..
 
-PS: To make sure that its not a hardware problem I have
-tried this drive in another PC, using ata_piix for sata.
-Same kernel, but 32bit. There was no problem here.
+Repco and other after market manufacturers can't easily make a clone
+of these devices like they do every other part, because reverse
+engineering software is not really as advanced as reverse engineering
+spare parts.. or maybe software reverse engineering is just so much
+more expensive than automotive reverse engineering that it is not cost
+effective to clone these devices.. or maybe they're just afraid of the
+lawyers too.
 
-
-Regards
-
-Harri
-
-
---------------enig284E4456629AE5FCA92818D5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFkQdFUTlbRTxpHjcRAmxfAJ9Fpx6BJllhGm3PeRtZZpbq5nsqKwCeJgu3
-tIWwyz00jWimfcPREmv6OdI=
-=D8k1
------END PGP SIGNATURE-----
-
---------------enig284E4456629AE5FCA92818D5--
+Trent

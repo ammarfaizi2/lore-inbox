@@ -1,55 +1,131 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932572AbWLZNE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932579AbWLZNKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWLZNE1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 08:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWLZNE1
+	id S932579AbWLZNKi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 08:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWLZNKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 08:04:27 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57504 "EHLO gate.crashing.org"
+	Tue, 26 Dec 2006 08:10:38 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46607 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932572AbWLZNE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 08:04:26 -0500
-X-Greylist: delayed 1174 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 08:04:25 EST
-In-Reply-To: <20061222104056.GB7009@in.ibm.com>
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org> <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
-       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Date: Tue, 26 Dec 2006 13:43:31 +0100
-To: vgoyal@in.ibm.com
-X-Mailer: Apple Mail (2.623)
+	id S932579AbWLZNKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 08:10:37 -0500
+Date: Tue, 26 Dec 2006 14:07:39 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Fabio Comolli <fabio.comolli@gmail.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [patch] sched: remove __resched_legal() and fix cond_resched_softirq()
+Message-ID: <20061226130739.GB3701@elte.hu>
+References: <b637ec0b0612240553n28b252c4p4c1559da794e646c@mail.gmail.com> <87psa9z0wu.fsf@duaron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87psa9z0wu.fsf@duaron.myhome.or.jp>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks Jean. Your compressed/head.o looks fine.
 
-No it doesn't -- the .text.head section doesn't have
-the ALLOC attribute set.  The section then ends up not
-being assigned to an output segment (during the linking
-of vmlinux) and all hell breaks loose.  The linker gives
-you a warning about this btw.
+* OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 
-Jean, how old is your binutils?
-Since 2.15 at least this should be set automatically
-on sections named .text.<whatever> .
+> "Fabio Comolli" <fabio.comolli@gmail.com> writes:
+> 
+> > Just found this in syslog. It was during normal activity, about 6
+> > minutes after resume-from-ram. I never saw this before.
+> 
+> It seems someone missed to check PREEMPT_ACTIVE in __resched_legal().
 
-It wouldn't hurt to specify it by hand in the source
-code of course -- change
+but PREEMPT_ACTIVE is 0x10000000, not 0x20000000.
 
-.section ".text.head"
+> Could you please test the following patch?
 
-to
+no. cond_resched() is always legal in the !PREEMPT case.
 
-.section ".text.head","ax",@progbits
+i found another bug and realized that the whole __resched_legal() 
+approach is fundamentally wrong! The patch below fixes this.
 
-in compressed/head.S .
+	Ingo
 
+------------------->
+Subject: [patch] sched: remove __resched_legal() and fix cond_resched_softirq()
+From: Ingo Molnar <mingo@elte.hu>
 
-Segher
+remove the __resched_legal() check: it is conceptually broken. The 
+biggest problem it had is that it can mask buggy cond_resched() calls. A 
+cond_resched() call is only legal if we are not in an atomic context. 
+But __resched_legal() hid this fact. Same goes for cond_resched_locked() 
+and cond_resched_softirq().
 
+furthermore, the __legal_resched(0) call was buggy in 
+cond_resched_softirq() and caused unnecessary long softirq latencies!
+
+the fix is to preserve the only valid inhibitor to voluntary preemption: 
+if the system is still booting. None of the other behavior of 
+__resched_legal() made any sense.
+
+the effect of this fix should be more real bugs exposed, and shorter 
+softirq latencies.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/sched.c |   17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
+
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4617,17 +4617,6 @@ asmlinkage long sys_sched_yield(void)
+ 	return 0;
+ }
+ 
+-static inline int __resched_legal(int expected_preempt_count)
+-{
+-#ifdef CONFIG_PREEMPT
+-	if (unlikely(preempt_count() != expected_preempt_count))
+-		return 0;
+-#endif
+-	if (unlikely(system_state != SYSTEM_RUNNING))
+-		return 0;
+-	return 1;
+-}
+-
+ static void __cond_resched(void)
+ {
+ #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
+@@ -4647,7 +4636,7 @@ static void __cond_resched(void)
+ 
+ int __sched cond_resched(void)
+ {
+-	if (need_resched() && __resched_legal(0)) {
++	if (need_resched() && system_state == SYSTEM_RUNNING) {
+ 		__cond_resched();
+ 		return 1;
+ 	}
+@@ -4673,7 +4662,7 @@ int cond_resched_lock(spinlock_t *lock)
+ 		ret = 1;
+ 		spin_lock(lock);
+ 	}
+-	if (need_resched() && __resched_legal(1)) {
++	if (need_resched() && system_state == SYSTEM_RUNNING) {
+ 		spin_release(&lock->dep_map, 1, _THIS_IP_);
+ 		_raw_spin_unlock(lock);
+ 		preempt_enable_no_resched();
+@@ -4689,7 +4678,7 @@ int __sched cond_resched_softirq(void)
+ {
+ 	BUG_ON(!in_softirq());
+ 
+-	if (need_resched() && __resched_legal(0)) {
++	if (need_resched() && system_state == SYSTEM_RUNNING) {
+ 		raw_local_irq_disable();
+ 		_local_bh_enable();
+ 		raw_local_irq_enable();

@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932851AbWLZXet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932852AbWLZXhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932851AbWLZXet (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 18:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932847AbWLZXet
+	id S932852AbWLZXhj (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 18:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWLZXhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 18:34:49 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:57271
-	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932851AbWLZXet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 18:34:49 -0500
-X-Greylist: delayed 644 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 18:34:49 EST
-From: Rob Landley <rob@landley.net>
-To: linux-kernel@vger.kernel.org
-Subject: Feature request: exec self for NOMMU.
-Date: Tue, 26 Dec 2006 18:23:07 -0500
-User-Agent: KMail/1.9.1
-Cc: David McCullough <david_mccullough@au.securecomputing.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612261823.07927.rob@landley.net>
+	Tue, 26 Dec 2006 18:37:39 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:50284 "EHLO inti.inf.utfsm.cl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932852AbWLZXhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 18:37:38 -0500
+Message-Id: <200612262337.kBQNbKIo005296@laptop13.inf.utfsm.cl>
+To: davids@webmaster.com
+cc: knobi@knobisoft.de, linux-kernel@vger.kernel.org
+Subject: Re: Binary Drivers 
+In-Reply-To: Message from "David Schwartz" <davids@webmaster.com> 
+   of "Tue, 26 Dec 2006 11:12:44 -0800." <MDEHLPKNGKAHNMBLJOLKIEGNAJAC.davids@webmaster.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Tue, 26 Dec 2006 20:37:20 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: IP, sender and recipient auto-whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 26 Dec 2006 20:37:31 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to make some nommu-friendly busybox-like tools, which means using 
-vfork() instead of fork().  This means that after I fork I have to exec in 
-the child to unblock the parent, and if I want to exec my current executable 
-I have to find out where it lives so I can feed the path to exec().  This is 
-nontrivial.
+David Schwartz <davids@webmaster.com> wrote:
 
-Worse, it's not always possible.  If chroot() has happened since the program 
-started, there may not _be_ a path to my current executable available from 
-this process's current or root directories.
+[..]
+.
+> The point is that any rights the manufacturer may have had to the car should
+> have been sold along with the car, otherwise it's not a normal free and
+> clear sale. A normal free and clear sale includes all rights to the item
+> sold, except those specific laws allows the manufacturer to retain.
 
-What would be really nice is if I could feed a NULL path to exec on NOMMU 
-systems, and have that mean "re-exec the current executable".  I can't think 
-of a way to do this without kernel support.  Any opinions on whether this is 
-worthwhile?
+This is complete nonsense. The car manufacturer can very well agree with
+you to sell you the right to only drive the car on weekdays, and rent it
+off on weekends. Nothing forces them to sell "all rights they have on the
+car". 
 
-A nommu-friendly daemonize() is another use for this, by the way...
+[...]
 
-Rob
+> I simply do not accept the argument that it is lawful for a manufacturer to
+> sell a physical object in a normal free and clear sale and then refuse to
+> disclose the knowledge necessary to use it.
+
+Ask a lawyer about this, don't impose your wacky legal theories on us.
+
+>                                             (And by that I mean necessary to
+> use it any reasonable way, not just the way the manufacturer intended it to
+> be used.)
+
+Define "reasonable way". The manufacturer could very well define it as "use
+the XYZ graphics card on Windows XP service pack 2", as it was designed
+specifically for that environment. Everything else (use on Linux, for
+example) is then "unreasonable use", and need not be supported at all.
+
+> This same issue has been pressed in other areas
+
+Examples?
+
+>                                                 and I think it's time it be
+> pressed with graphics cards.
 -- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

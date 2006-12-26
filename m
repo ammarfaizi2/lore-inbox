@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932721AbWLZROX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932730AbWLZRPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932721AbWLZROX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 12:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWLZROX
+	id S932730AbWLZRPm (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 12:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWLZRPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 12:14:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45150 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932721AbWLZROW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 12:14:22 -0500
-Message-ID: <45915868.5050701@redhat.com>
-Date: Tue, 26 Dec 2006 12:14:16 -0500
-From: Chris Snook <csnook@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 26 Dec 2006 12:15:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34699 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932725AbWLZRPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 12:15:41 -0500
+Date: Tue, 26 Dec 2006 18:15:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Fabio Comolli <fabio.comolli@gmail.com>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: BUG: scheduling while atomic - Linux 2.6.20-rc2-ga3d89517
+Message-ID: <20061226171531.GC7600@elf.ucw.cz>
+References: <b637ec0b0612240553n28b252c4p4c1559da794e646c@mail.gmail.com> <87psa9z0wu.fsf@duaron.myhome.or.jp> <b637ec0b0612251102w2bb4a4c1ifc78df1193879c6f@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-CC: Jay Cliburn <jacliburn@bellsouth.net>
-Subject: [ANNOUNCE] new home for atl1 driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b637ec0b0612251102w2bb4a4c1ifc78df1193879c6f@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Happy Boxing Day!
+Hi!
 
-	If you just turned on your shiny new box and discovered that it's got 
-an Attansic L1 gigabit ethernet chip in it, and can't get Linux to 
-recognize it, fear not.  Jay and I are still working on getting the 
-driver ready for merging.  A lot of the fancy stuff is un(der)tested, 
-but if you're just doing basic desktop stuff with it, it works just fine.
+> some days and will let you know if the problem represents. Please note
+> that it happened only twice and I don't have any clue on how to
+> reproduce it.
+> 
+> I added Pavel and Rafael to CC-list because for the first time in at
+> least six months my laptop failed to resume after suspend-to-disk
+> (userland tools) with this kernel. Guys, do you think that this
+> failure could be related to this BUG?
 
-	We've started up a sourceforge project for it, at http://atl1.sf.net/ 
-More content coming soon.  If you're a user and want to be informed of 
-our progress, subscribe to the atl1-users list.  If you want to help out 
-with development and/or testing, please subscribe to the atl1-devel 
-list, and say hi.
+everything is possible, but this one does not seem too likely. Is
+failure reproducible?
 
-	-- Chris
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

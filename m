@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754608AbWLZBa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932078AbWLZCt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754608AbWLZBa5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 25 Dec 2006 20:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754622AbWLZBa5
+	id S932078AbWLZCt2 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 25 Dec 2006 21:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWLZCt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Dec 2006 20:30:57 -0500
-Received: from iucha.net ([209.98.146.184]:40571 "EHLO mail.iucha.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754608AbWLZBa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Dec 2006 20:30:56 -0500
-Date: Mon, 25 Dec 2006 19:30:55 -0600
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc2
-Message-ID: <20061226013055.GB22307@iucha.net>
-References: <20061225224047.GB6087@iucha.net> <20061225225616.GA22307@iucha.net> <1167088018.16449.16.camel@lade.trondhjem.org>
+	Mon, 25 Dec 2006 21:49:28 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:10689 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932078AbWLZCt1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Dec 2006 21:49:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dGZgMiXo66S6vwV+/94UmGN8nmm+gPc06yUuQ2j6TzuylaY0ANIP+0EW7qJ7K/WgUcIpDa7Z/a0xnL8FoRUBXhyrKsJJYpd5Cqmu54+eGeERHJ97IarBFLFKgi3zdBMM7Co0SvrML9u48FWR1RaVeNtKLKqArkG+KkSwhFRpiR8=
+Message-ID: <7b69d1470612251849x20be0f45g3c86822c35a41f6a@mail.gmail.com>
+Date: Mon, 25 Dec 2006 20:49:26 -0600
+From: "Scott Preece" <sepreece@gmail.com>
+To: davids@webmaster.com
+Subject: Re: Binary Drivers
+Cc: vonbrand@laptop13.inf.utfsm.cl, Valdis.Kletnieks@vt.edu,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEEAAJAC.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="q9KOos5vDmpwPx9o"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1167088018.16449.16.camel@lade.trondhjem.org>
-X-GPG-Key: http://iucha.net/florin_iucha.gpg
-X-GPG-Fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: florin@iucha.net (Florin Iucha)
+References: <200612242020.kBOKKtS9009605@laptop13.inf.utfsm.cl>
+	 <MDEHLPKNGKAHNMBLJOLKIEEAAJAC.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/25/06, David Schwartz <davids@webmaster.com> wrote:
+>
 
---q9KOos5vDmpwPx9o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> If I bought the car from the manufacturer, it also must include any rights
+> the manufacturer might have to the car's use. That includes using the car to
+> violate emission control measures. If I didn't buy the right to use the car
+> that way (insofar as that right was owned by the car manufacturer), I didn't
+> buy the whole care -- just *some* of the rights to use it.
+---
 
-On Tue, Dec 26, 2006 at 12:06:58AM +0100, Trond Myklebust wrote:
-> On Mon, 2006-12-25 at 16:56 -0600, Florin Iucha wrote:
-> > BTW, I am using NFSv4 exported async from the server and mounted
-> > without any extra options on the client.
->=20
-> Doesn't look like it has much to do with NFS. The Oopses appear mainly
-> to be occurring when assorted ext3 code calls submit_bio(). Was that the
-> entire Oops text?
+I have no idea why you assume that "having the right to do X" implies
+"must be told how to do X". The have the right (except as laws
+prohibit it) to modify the car's systems, but (except for some
+specific legal requirements) the manufacturer is not required to
+explain anything, even basic operation.
 
-Yes, that was the entire oops text.  NFS appeared on the stack trace
-and I thought I might be useful to know more about the code paths.
+---
+> If I buy a device that has a safety of some kind, the manufacturer cannot
+> prohibit me from removing or disabling the safety unless some law gives them
+> that authority. ...
+---
 
-florin
+Yes, I agree. However, they are completely allowed to make it
+arbitrarily hard for you to remove (by, for instance, welding the
+safety in place).
 
---=20
-Bruce Schneier expects the Spanish Inquisition.
-      http://geekz.co.uk/schneierfacts/fact/163
+---
+> > Almost everything around you is controlled by a uP nowadays (it is much
+> > cheaper/preciser to control e.g. the washing machine that way than via the
+> > customary rotating wheels with notches). Did you get the specs for that?
+> > Can you get them?
+>
+> So long as you don't *need* them to use the device, there's no issue. The
+> problem is when you need them to use the device (and not just the ordinary
+> expected way, any reasonable way). Then you are entitled to them.
+---
 
---q9KOos5vDmpwPx9o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Again, (IANAL), I think this is simply a misconception. Buyng a
+physical object gives you the right to do anything with it that the
+law allows, but imposes no obligation on the seller to explain it
+(other than specific restrictions hte law may apply to specific
+classes of objects for safety or other reasons). It's up to you, in
+deciding whether to buy it, to decide whether it comes with sufficient
+documentation to satisfy your needs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFFkHtPND0rFCN2b1sRAruFAJ9R0axiDHNqKzCjOULnDoIGqNg3PwCfcxUp
-fg6M6pTDoIfaD+VSMgdqsZk=
-=p8ng
------END PGP SIGNATURE-----
-
---q9KOos5vDmpwPx9o--
+scott

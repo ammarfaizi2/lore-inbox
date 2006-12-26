@@ -1,98 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932757AbWLZTNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932764AbWLZTQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbWLZTNo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 14:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbWLZTNo
+	id S932764AbWLZTQU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 14:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWLZTQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 14:13:44 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:1159 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932757AbWLZTNn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 14:13:43 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <knobi@knobisoft.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Binary Drivers
-Date: Tue, 26 Dec 2006 11:12:44 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEGNAJAC.davids@webmaster.com>
+	Tue, 26 Dec 2006 14:16:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40192 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932761AbWLZTQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 14:16:19 -0500
+Message-ID: <459174FB.3050107@redhat.com>
+Date: Tue, 26 Dec 2006 14:16:11 -0500
+From: Jeff Layton <jlayton@redhat.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-In-Reply-To: <20061226112040.95091.qmail@web32614.mail.mud.yahoo.com>
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 26 Dec 2006 12:15:42 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 26 Dec 2006 12:15:42 -0800
+To: =?UTF-8?B?SsO2cm4gRW5nZWw=?= <joern@lazybastard.org>,
+       Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/3] ensure unique i_ino in filesystems without permanent
+ inode numbers (introduction)
+References: <457891E7.10902@redhat.com> <45829D94.1090304@redhat.com> <20061215140057.GF30508@lazybastard.org> <4582B8AF.9060707@redhat.com>
+In-Reply-To: <4582B8AF.9060707@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Layton wrote:
+ >  >
+ >  > I'm still unsure whether idr has a sufficient advantage over simply
+ >  > hashing the inodes.  Hch has suggested that keeping the hashtable
+ >  > smaller is good for performance.  But idr adds new complexity, which
+ >  > should be avoided on its own right.  So is the performance benefit big
+ >  > enough to add more complexity?  Is it even measurable?
+ >  >
+ >  > Jörn
+ >  >
+ >
+ >
+ > A very good question. Certainly, just hashing them would be a heck of a
+ > lot simpler. That was my first inclination when I looked at this, but as
+ > you said, HCH NAK'ed that idea stating that it would bloat out the
+ > hashtable. I tend to think that it's probably not that significant, but
+ > that might very much depend on workload.
+ >
+ > I'm OK with either approach, though I'd like to have some sort of buyin
+ > from Christoph on hashing the inodes before I start working on patches to
+ > do that.
+ >
+ > Christoph, care to comment?
+ >
+ > -- Jeff
+ >
+ >
 
-Combined responses:
+I'm still in limbo on this patchset and could use some guidance. It's not
+clear to me that IDR is really a big enough win over just hashing the inodes.
+It seems like the inode hash is pretty well optimized for fast lookups such
+that even if we get some extra hash collisions it shouldn't be too awful.
 
-> > If I bought the car from the manufacturer, it also must
-> > include any rights the manufacturer might have to the car's use.
-> > That includes using the car to violate emission control measures.
-> > If I didn't buy the right to use the car that way (insofar as
-> > that right was owned by the car manufacturer), I didn't
-> > buy the whole care -- just *some* of the rights to use it.
+Perhaps the best thing to do is to start with a patch that just hashes the
+inodes and then fall back to using IDR (or some other scheme) if it turns out
+that it impacts performance too much?
 
->  just to be dense - what makes you think that the car manufacturer has
-> any legal right to violate emission control measures? What an utter
-> nonsense (sorry).
+Anyone have an opinion on what approach they think would be best here?
 
-That's why I said "insofar as that right was owned by the car manufacturer".
-The example of emission control measures wasn't mine. I'm responding to a
-silly hypothetical.
-
-> So, lets stop the stupid car comparisons. They are no being funny any
-> more.
-
-They were never intended to be funny. They only become stupid when people
-deliberately pointed out the cases where the examples differ from the case
-we're realling interested in. I agree that examples involving cases where
-there are specific laws (such as emissions control) are silly.
-
-The point is that any rights the manufacturer may have had to the car should
-have been sold along with the car, otherwise it's not a normal free and
-clear sale. A normal free and clear sale includes all rights to the item
-sold, except those specific laws allows the manufacturer to retain.
-
-All the issues about whether the manufacturer has the right to break the law
-or whether the manufacturer has to help you break the law are not in any way
-relevant to the hardware issue we were discussion. Someone brought them up
-just to sidetrack the analogies.
-
-That's a very good way to make an analogy seem irrelevent, but it's
-cheating. So long as you stick to the issues that relate, the analogy is
-nearly perfect. See, for examlek, James C. Georgas post.
-
---
-
->Solution (a) involves denial of point (1), mostly through the use of
->analogy and allegory. Alternatively, one can try to change the law
->through government channels.
-
-One doesn't need to change the law, just enforce it.
-
-I simply do not accept the argument that it is lawful for a manufacturer to
-sell a physical object in a normal free and clear sale and then refuse to
-disclose the knowledge necessary to use it. (And by that I mean necessary to
-use it any reasonable way, not just the way the manufacturer intended it to
-be used.)
-
-This same issue has been pressed in other areas and I think it's time it be
-pressed with graphics cards.
-
-DS
-
+-- Jeff
 

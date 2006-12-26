@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932730AbWLZRPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932725AbWLZRVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932730AbWLZRPm (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 12:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWLZRPm
+	id S932725AbWLZRVY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 12:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWLZRVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 12:15:42 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34699 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932725AbWLZRPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 12:15:41 -0500
-Date: Tue, 26 Dec 2006 18:15:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Fabio Comolli <fabio.comolli@gmail.com>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: BUG: scheduling while atomic - Linux 2.6.20-rc2-ga3d89517
-Message-ID: <20061226171531.GC7600@elf.ucw.cz>
-References: <b637ec0b0612240553n28b252c4p4c1559da794e646c@mail.gmail.com> <87psa9z0wu.fsf@duaron.myhome.or.jp> <b637ec0b0612251102w2bb4a4c1ifc78df1193879c6f@mail.gmail.com>
+	Tue, 26 Dec 2006 12:21:24 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:55103 "EHLO smtp6-g19.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932725AbWLZRVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 12:21:23 -0500
+X-Greylist: delayed 641 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 12:21:23 EST
+Message-ID: <1167153681.45915a11a02fb@imp3-g19.free.fr>
+Date: Tue, 26 Dec 2006 18:21:21 +0100
+From: dimitri.gorokhovik@free.fr
+To: mpm@selenic.com, linux-mm@kvack.org
+Cc: clameter@sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1 2.6.20-rc2] MM: SLOB is broken by recent cleanup of slab.h
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b637ec0b0612251102w2bb4a4c1ifc78df1193879c6f@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 87.88.35.208
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: Dimitri Gorokhovik <dimitri.gorokhovik@free.fr>
 
-> some days and will let you know if the problem represents. Please note
-> that it happened only twice and I don't have any clue on how to
-> reproduce it.
-> 
-> I added Pavel and Rafael to CC-list because for the first time in at
-> least six months my laptop failed to resume after suspend-to-disk
-> (userland tools) with this kernel. Guys, do you think that this
-> failure could be related to this BUG?
+Recent cleanup of slab.h broke SLOB allocator: the routine kmem_cache_init
+has now the __init attribute for both slab.c and slob.c. This routine cannot
+be removed after init in the case of slob.c -- it serves as a timer callback.
 
-everything is possible, but this one does not seem too likely. Is
-failure reproducible?
+Provide a separate timer callback routine, call it once from kmem_cache_init,
+keep the __init attribute on the latter.
 
-								Pavel
+Signed-off-by: Dimitri Gorokhovik <dimitri.gorokhovik@free.fr>
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+---
+
+--- linux-2.6.20-rc2-orig/mm/slob.c	2006-12-26 15:12:21.000000000 +0100
++++ linux-2.6.20-rc2/mm/slob.c	2006-12-26 18:02:28.000000000 +0100
+@@ -60,6 +60,8 @@ static DEFINE_SPINLOCK(slob_lock);
+ static DEFINE_SPINLOCK(block_lock);
+
+ static void slob_free(void *b, int size);
++static void slob_timer_cbk(void);
++
+
+ static void *slob_alloc(size_t size, gfp_t gfp, int align)
+ {
+@@ -326,7 +328,7 @@ const char *kmem_cache_name(struct kmem_
+ EXPORT_SYMBOL(kmem_cache_name);
+
+ static struct timer_list slob_timer = TIMER_INITIALIZER(
+-	(void (*)(unsigned long))kmem_cache_init, 0, 0);
++	(void (*)(unsigned long))slob_timer_cbk, 0, 0);
+
+ int kmem_cache_shrink(struct kmem_cache *d)
+ {
+@@ -339,7 +341,12 @@ int kmem_ptr_validate(struct kmem_cache
+ 	return 0;
+ }
+
+-void kmem_cache_init(void)
++void __init kmem_cache_init(void)
++{
++	slob_timer_cbk();
++}
++
++static void slob_timer_cbk(void)
+ {
+ 	void *p = slob_alloc(PAGE_SIZE, 0, PAGE_SIZE-1);
+

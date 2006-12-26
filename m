@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932853AbWLZXnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932861AbWLZXqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932853AbWLZXnG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 18:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932860AbWLZXnF
+	id S932861AbWLZXqt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 18:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932866AbWLZXqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 18:43:05 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48288 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932853AbWLZXnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 18:43:04 -0500
-Date: Wed, 27 Dec 2006 00:40:45 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Robert Crocombe <rcrocomb@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19.1-rt15: BUG in __tasklet_action at kernel/softirq.c:568
-Message-ID: <20061226234045.GC6003@elte.hu>
-References: <e6babb600612180948n7820c038k148a5a514d541b2e@mail.gmail.com> <20061219175728.GA20262@elte.hu> <e6babb600612200437n6c5ff4d4lf86e60c309dd1b6e@mail.gmail.com> <20061220195008.GB14316@elte.hu> <1166671151.852.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Dec 2006 18:46:49 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:45251 "HELO
+	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932861AbWLZXqs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 18:46:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=cpPaRC76nT8SQPUstnGCOFLNWHFRCqiGlD1D25wbHNtNUPDizT+bQvgYqAwan9kQYecpKeRXusJThvH+P7qHtttoavKiQ0Yz/3vTahqDklmJA66JOfHY0cdciN1kVk4W4VN49v3wac9Ng0EpV27kLvurYN7SdqqdVK9E1Kh4cxs=  ;
+X-YMail-OSG: P1L0A7AVM1lMju18hvjquXmP8BKWLkSoKlciMtf5E348mEOmHwn4DKRIuKak_n_3nzM9GCg1TB8p39ZXRYWmOk3kCnjLl0_iD2X2MkY9OBHv0QTHTGVMacZDv7xzJWBqLNT2tPCePWFTmRd_dMulwxkH5ENn9CFwUGemGKPee7yiN0OqR83wCIDMt44n
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] USB power usage
+Date: Tue, 26 Dec 2006 15:46:44 -0800
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0612252245310.29662-100000@netrider.rowland.org> <20061226144008.GA2062@elf.ucw.cz>
+In-Reply-To: <20061226144008.GA2062@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1166671151.852.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Message-Id: <200612261546.45800.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> On Wed, 2006-12-20 at 20:50 +0100, Ingo Molnar wrote:
-> > * Robert Crocombe <rcrocomb@gmail.com> wrote:
+> > > Couple of watts is not that bad, considering usb still eats 4W more
+> > > than it should.
 > > 
-> > > On 12/19/06, Ingo Molnar <mingo@elte.hu> wrote:
-> > > >yeah. This is something that triggers very rarely on certain boxes. Not
-> > > >fixed yet, and it's been around for some time.
-> > > 
-> > > Is there anything you would like me to do to help diagnose this?
-> > 
-> > to figure out what the bug is :-/ Below is the tasklet redesign patch - 
-> > the bug must be in there somewhere.
-> 
-> > +static inline int tasklet_tryunlock(struct tasklet_struct *t)
-> > +{
-> > +	return cmpxchg(&t->state, TASKLET_STATEF_RUN, 0) == TASKLET_STATEF_RUN;
-> > +}
-> > +
-> 
-> This probably isn't it, but is cmpxchg available on all archs now?
+> > The USB autosuspend mechanism has been present for a while in -mm and is
+> > included in 2.6.20-rc (although you have to turn on CONFIG_USB_SUSPEND,
+> > which is off by default -- it would be nice to change that).
 
-yeah, it's probably not related, i saw these failures on plain i686 too, 
-which definitely has cmpxchg support. The failures i saw happened on a 
-hyperthreading CPU, so i guess it must be some sort of narrow race.
+Call me paranoid, but I'd like to leave it this way for for a while yet
+to shake out bugs.  There are some complicated interactions here, some
+of which are hardware-specific, and we've only just started to really
+shake out the associated problems.  (But yes, eventually we do want to
+see that option go away, and this behavior be standard with PM enabled.)
 
-	Ingo
+
+> > Has anybody 
+> > tried doing some real-world measurements to see if it actually makes a
+> > significant improvement in power usage?
+> 
+> I did measurements while in -mm, and yes it helped. And yes,
+> it works in 2.6.20-rc2, too:
+> 
+> ...
+> 
+> As you can see, it saves ~3.5W, which is huge deal on machine that
+> eats 11W total.
+
+Hey, that's great to know.  Thanks for sharing the figures!
+
+And special thanks to Alan, for reworking (and re-reworking) relevant
+parts of usbcore so that these power savings can (mostly) be automated.
+ISTR the first patches supporting USB suspend/resume/wakeup landed in
+about the 2.6.10 kernel, and things look a LOT better than back then.
+
+- Dave
+
+
+> (X60 owners, get 2.6.20, and _disable that bluetooth_ while not in use).
+> 									Pavel

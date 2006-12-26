@@ -1,1732 +1,452 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932792AbWLZV0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932816AbWLZVtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932792AbWLZV0s (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 16:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWLZV0s
+	id S932816AbWLZVtL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 16:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWLZVtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 16:26:48 -0500
-Received: from lucidpixels.com ([66.45.37.187]:42613 "EHLO lucidpixels.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932792AbWLZV0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 16:26:45 -0500
-Date: Tue, 26 Dec 2006 16:26:39 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: linux-kernel@vger.kernel.org
-cc: xfs@oss.sgi.com
-Subject: Kernel 2.6.19: Kernel Panic! XFS / UDEV Issue?
-Message-ID: <Pine.LNX.4.64.0612261622360.1627@p34.internal.lan>
+	Tue, 26 Dec 2006 16:49:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47233 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932816AbWLZVtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 16:49:09 -0500
+Date: Tue, 26 Dec 2006 22:48:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.20-rc2: oops with broken usb cable, fault handler locks up?
+Message-ID: <20061226214841.GA12303@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use netconsole on all my machines and it caught the crash, I was not 
-doing anything special, just rebooted my machine and when it was booting, 
-this happened:
 
-Looks like an XFS problem?
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-System Events
-=-=-=-=-=-=-=
-Dec 26 15:59:37 box [    0.000000] BIOS-provided physical RAM map:
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 0000000000100000 - 000000007fff0000 (usable)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 000000007fff0000 - 000000007fff3000 (ACPI NVS)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 000000007fff3000 - 0000000080000000 (ACPI data)
-Dec 26 15:59:37 box [    0.000000]  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-Dec 26 15:59:37 box [    0.000000] 1151MB HIGHMEM available.
-Dec 26 15:59:37 box [    0.000000] 896MB LOWMEM available.
-Dec 26 15:59:37 box [    0.000000] found SMP MP-table at 000f5d10
-Dec 26 15:59:37 box [    0.000000] Zone PFN ranges:
-Dec 26 15:59:37 box [    0.000000]   DMA             0 ->     4096
-Dec 26 15:59:37 box [    0.000000]   Normal       4096 ->   229376
-Dec 26 15:59:37 box [    0.000000]   HighMem    229376 ->   524272
-Dec 26 15:59:37 box [    0.000000] early_node_map[1] active PFN ranges
-Dec 26 15:59:37 box [    0.000000]     0:        0 ->   524272
-Dec 26 15:59:37 box [    0.000000] DMI 2.2 present.
-Dec 26 15:59:37 box [    0.000000] ACPI: PM-Timer IO Port: 0x408
-Dec 26 15:59:37 box [    0.000000] ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-Dec 26 15:59:37 box [    0.000000] Processor #0 15:2 APIC version 20
-Dec 26 15:59:37 box [    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-Dec 26 15:59:37 box [    0.000000] Processor #1 15:2 APIC version 20
-Dec 26 15:59:37 box [    0.000000] ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-Dec 26 15:59:37 box [    0.000000] ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-Dec 26 15:59:37 box [    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-Dec 26 15:59:37 box [    0.000000] IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-Dec 26 15:59:37 box [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-Dec 26 15:59:37 box [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-Dec 26 15:59:37 box [    0.000000] Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Dec 26 15:59:37 box [    0.000000] Using ACPI (MADT) for SMP configuration information
-Dec 26 15:59:37 box [    0.000000] Allocating PCI resources starting at 88000000 (gap: 80000000:7ec00000)
-Dec 26 15:59:37 box [    0.000000] Detected 2606.071 MHz processor.
-Dec 26 15:59:37 box [   22.359952] Built 1 zonelists.  Total pages: 520177
-Dec 26 15:59:37 box [   22.359955] Kernel command line: auto BOOT_IMAGE=2.6.19-2 ro root=802 netconsole=4444@192.168.168.1/eth0,514@192.168.0.254/00:07:C9:55:47:AB nmi_watchdog=1
-Dec 26 15:59:37 box [   22.359995] netconsole: local port 4444
-Dec 26 15:59:37 box [   22.359998] netconsole: local IP 192.168.168.1
-Dec 26 15:59:37 box [   22.360000] netconsole: interface eth0
-Dec 26 15:59:37 box [   22.360002] netconsole: remote port 514
-Dec 26 15:59:37 box [   22.360004] netconsole: remote IP 192.168.0.254
-Dec 26 15:59:37 box [   22.360008] netconsole: remote ethernet address 00:07:e9:29:37:db
-Dec 26 15:59:37 box [   22.360179] Enabling fast FPU save and restore... done.
-Dec 26 15:59:37 box [   22.360182] Enabling unmasked SIMD FPU exception support... done.
-Dec 26 15:59:37 box [   22.360186] Initializing CPU#0
-Dec 26 15:59:37 box [   22.360251] PID hash table entries: 4096 (order: 12, 16384 bytes)
-Dec 26 15:59:37 box [   22.361425] Console: colour VGA+ 80x25
-Dec 26 15:59:37 box [   22.364157] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
-Dec 26 15:59:37 box [   22.364658] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-Dec 26 15:59:37 box [   22.463391] Memory: 2074188k/2097088k available (3017k kernel code, 21684k reserved, 872k data, 216k init, 1179584k highmem)
-Dec 26 15:59:37 box [   22.463467] virtual kernel memory layout:
-Dec 26 15:59:37 box [   22.463468]     fixmap  : 0xfff9d000 - 0xfffff000   ( 392 kB)
-Dec 26 15:59:37 box [   22.463469]     pkmap   : 0xff800000 - 0xffc00000   (4096 kB)
-Dec 26 15:59:37 box [   22.463470]     vmalloc : 0xf8800000 - 0xff7fe000   ( 111 MB)
-Dec 26 15:59:37 box [   22.463471]     lowmem  : 0xc0000000 - 0xf8000000   ( 896 MB)
-Dec 26 15:59:37 box [   22.463472]       .init : 0xc04d3000 - 0xc0509000   ( 216 kB)
-Dec 26 15:59:37 box [   22.463473]       .data : 0xc03f2412 - 0xc04cc424   ( 872 kB)
-Dec 26 15:59:37 box [   22.463475]       .text : 0xc0100000 - 0xc03f2412   (3017 kB)
-Dec 26 15:59:37 box [   22.463860] Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Dec 26 15:59:37 box [   22.523834] Calibrating delay using timer specific routine.. 5213.93 BogoMIPS (lpj=2606966)
-Dec 26 15:59:37 box [   22.523973] Mount-cache hash table entries: 512
-Dec 26 15:59:37 box [   22.524142] CPU: Trace cache: 12K uops, L1 D cache: 8K
-Dec 26 15:59:37 box [   22.524226] CPU: L2 cache: 512K
-Dec 26 15:59:37 box [   22.524274] CPU: Physical Processor ID: 0
-Dec 26 15:59:37 box [   22.524343] Checking 'hlt' instruction... OK.
-Dec 26 15:59:37 box [   22.528015] Freeing SMP alternatives: 12k freed
-Dec 26 15:59:37 box [   22.528065] ACPI: Core revision 20060707
-Dec 26 15:59:37 box [   22.547938] CPU0: Intel(R) Pentium(R) 4 CPU 2.60GHz stepping 09
-Dec 26 15:59:37 box [   22.548078] Booting processor 1/1 eip 2000
-Dec 26 15:59:37 box [   22.558416] Initializing CPU#1
-Dec 26 15:59:37 box [   22.618587] Calibrating delay using timer specific routine.. 5211.07 BogoMIPS (lpj=2605538)
-Dec 26 15:59:37 box [   22.618607] CPU: Trace cache: 12K uops, L1 D cache: 8K
-Dec 26 15:59:37 box [   22.618610] CPU: L2 cache: 512K
-Dec 26 15:59:37 box [   22.618612] CPU: Physical Processor ID: 0
-Dec 26 15:59:37 box [   22.618778] CPU1: Intel(R) Pentium(R) 4 CPU 2.60GHz stepping 09
-Dec 26 15:59:37 box [   22.619156] Total of 2 processors activated (10425.00 BogoMIPS).
-Dec 26 15:59:37 box [   22.619333] ENABLING IO-APIC IRQs
-Dec 26 15:59:37 box [   22.619553] ..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
-Dec 26 15:59:37 box [   22.731308] checking TSC synchronization across 2 CPUs: passed.
-Dec 26 15:59:37 box [    0.000955] Brought up 2 CPUs
-Dec 26 15:59:37 box [    0.054654] migration_cost=44
-Dec 26 15:59:37 box [    0.055223] NET: Registered protocol family 16
-Dec 26 15:59:37 box [    0.055360] ACPI: bus type pci registered
-Dec 26 15:59:37 box [    0.067272] PCI: PCI BIOS revision 2.10 entry at 0xfb720, last bus=3
-Dec 26 15:59:37 box [    0.067324] PCI: Using configuration type 1
-Dec 26 15:59:37 box [    0.067372] Setting up standard PCI resources
-Dec 26 15:59:37 box [    0.078356] ACPI: Interpreter enabled
-Dec 26 15:59:37 box [    0.078409] ACPI: Using IOAPIC for interrupt routing
-Dec 26 15:59:37 box [    0.079073] ACPI: PCI Root Bridge [PCI0] (0000:00)
-Dec 26 15:59:37 box [    0.081912] PCI quirk: region 0400-047f claimed by ICH4 ACPI/GPIO/TCO
-Dec 26 15:59:37 box [    0.081966] PCI quirk: region 0480-04bf claimed by ICH4 GPIO
-Dec 26 15:59:37 box [    0.082062] PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Dec 26 15:59:37 box [    0.082778] PCI: Transparent bridge - 0000:00:1e.0
-Dec 26 15:59:37 box [    0.096418] ACPI: PCI Interrupt Link [LNKA] (IRQs *3 4 5 7 9 10 11 12 14 15)
-Dec 26 15:59:37 box [    0.097163] ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-Dec 26 15:59:37 box [    0.097907] ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 9 *10 11 12 14 15)
-Dec 26 15:59:37 box [    0.098638] ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 7 9 10 11 12 14 15)
-Dec 26 15:59:37 box [    0.099377] ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 9 10 11 12 14 15) *0, disabled.
-Dec 26 15:59:37 box [    0.100194] ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 7 *9 10 11 12 14 15)
-Dec 26 15:59:37 box [    0.100934] ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-Dec 26 15:59:37 box [    0.101665] ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 7 9 *10 11 12 14 15)
-Dec 26 15:59:37 box [    0.202525] ACPI: Power Resource [PFAN] (off)
-Dec 26 15:59:37 box [    0.202881] SCSI subsystem initialized
-Dec 26 15:59:37 box [    0.203088] PCI: Using ACPI for IRQ routing
-Dec 26 15:59:37 box [    0.203139] PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-Dec 26 15:59:37 box [    0.228483] PCI: Bridge: 0000:00:01.0
-Dec 26 15:59:37 box [    0.228533]   IO window: disabled.
-Dec 26 15:59:37 box [    0.228583]   MEM window: f8000000-f9ffffff
-Dec 26 15:59:37 box [    0.228634]   PREFETCH window: f0000000-f7ffffff
-Dec 26 15:59:37 box [    0.228685] PCI: Bridge: 0000:00:03.0
-Dec 26 15:59:37 box [    0.228734]   IO window: a000-afff
-Dec 26 15:59:37 box [    0.228784]   MEM window: fc000000-fc0fffff
-Dec 26 15:59:37 box [    0.228834]   PREFETCH window: disabled.
-Dec 26 15:59:37 box [    0.228886] PCI: Bridge: 0000:00:1e.0
-Dec 26 15:59:37 box [    0.228935]   IO window: 8000-9fff
-Dec 26 15:59:37 box [    0.228985]   MEM window: fa000000-fbffffff
-Dec 26 15:59:37 box [    0.229036]   PREFETCH window: 88000000-880fffff
-Dec 26 15:59:37 box [    0.229138] NET: Registered protocol family 2
-Dec 26 15:59:37 box [    0.240374] IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
-Dec 26 15:59:37 box [    0.240578] TCP established hash table entries: 131072 (order: 8, 1572864 bytes)
-Dec 26 15:59:37 box [    0.241573] TCP bind hash table entries: 65536 (order: 7, 786432 bytes)
-Dec 26 15:59:37 box [    0.242257] TCP: Hash tables configured (established 131072 bind 65536)
-Dec 26 15:59:37 box [    0.242312] TCP reno registered
-Dec 26 15:59:37 box [    0.242860] highmem bounce pool size: 64 pages
-Dec 26 15:59:37 box [    0.243086] Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-Dec 26 15:59:37 box [    0.243489] io scheduler noop registered
-Dec 26 15:59:37 box [    0.243573] io scheduler anticipatory registered (default)
-Dec 26 15:59:37 box [    0.246317] Real Time Clock Driver v1.12ac
-Dec 26 15:59:37 box [    0.246370] Linux agpgart interface v0.101 (c) Dave Jones
-Dec 26 15:59:37 box [    0.246462] agpgart: Detected an Intel i875 Chipset.
-Dec 26 15:59:37 box [    0.250882] agpgart: AGP aperture is 128M @ 0xe8000000
-Dec 26 15:59:37 box [    0.250958] Serial: 8250/16550 driver $Revision: 1.90 $ 1 ports, IRQ sharing disabled
-Dec 26 15:59:37 box [    0.251133] serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Dec 26 15:59:37 box [    0.251356] Floppy drive(s): fd0 is 1.44M
-Dec 26 15:59:37 box [    0.267012] FDC 0 is a post-1991 82077
-Dec 26 15:59:37 box [    0.268351] loop: loaded (max 8 devices)
-Dec 26 15:59:37 box [    0.268442] Intel(R) PRO/1000 Network Driver - version 7.2.9-k4-NAPI
-Dec 26 15:59:37 box [    0.268493] Copyright (c) 1999-2006 Intel Corporation.
-Dec 26 15:59:37 box [    0.268600] ACPI: PCI Interrupt 0000:02:01.0[A] -> GSI 18 (level, low) -> IRQ 16
-Dec 26 15:59:37 box [    0.604067] e1000: 0000:02:01.0: e1000_probe: (PCI:33MHz:32-bit) 00:50:8d:f1:07:38
-Dec 26 15:59:37 box [    0.834733] e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-Dec 26 15:59:37 box [    0.834892] netconsole: device eth0 not up yet, forcing it
-Dec 26 15:59:37 box [    3.322054] e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex
-Dec 26 15:59:37 box [    3.332192] netconsole: network logging started
-Dec 26 15:59:37 box [    3.332249] Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-Dec 26 15:59:37 box [    3.332302] ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Dec 26 15:59:37 box [    3.332399] ICH5: IDE controller at PCI slot 0000:00:1f.1
-Dec 26 15:59:37 box [    3.332458] ACPI: PCI Interrupt 0000:00:1f.1[A] ->
-Dec 26 15:59:37 box GSI 18 (level, low) -> IRQ 16
-Dec 26 15:59:37 box [    3.332563] ICH5: chipset revision 2
-Dec 26 15:59:37 box [    3.332613] ICH5: not 100% native mode: will probe irqs later
-Dec 26 15:59:37 box [    3.332671]     ide0: BM-DMA at 0xf000-0xf007
-Dec 26 15:59:37 box , BIOS settings: hda:DMA, hdb:pio
-Dec 26 15:59:37 box
-Dec 26 15:59:37 box [    3.332815]     ide1: BM-DMA at 0xf008-0xf00f
-Dec 26 15:59:37 box , BIOS settings: hdc:DMA, hdd:pio
-Dec 26 15:59:37 box
-Dec 26 15:59:38 box [    4.003579] hda: _NEC DVD_RW ND-3550A,
-Dec 26 15:59:38 box ATAPI
-Dec 26 15:59:38 box CD/DVD-ROM
-Dec 26 15:59:38 box  drive
-Dec 26 15:59:39 box [    4.615066] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Dec 26 15:59:39 box
-Dec 26 15:59:39 box [    5.286214] hdc: LITE-ON LTR-52246S,
-Dec 26 15:59:39 box ATAPI
-Dec 26 15:59:39 box CD/DVD-ROM
-Dec 26 15:59:39 box  drive
-Dec 26 15:59:40 box [    5.594037] ide1 at 0x170-0x177,0x376 on irq 15
-Dec 26 15:59:40 box
-Dec 26 15:59:40 box [    5.594975] hda: ATAPI
-Dec 26 15:59:40 box  48X
-Dec 26 15:59:40 box  DVD-ROM
-Dec 26 15:59:40 box  DVD-R
-Dec 26 15:59:40 box  CD-R/RW
-Dec 26 15:59:40 box  drive
-Dec 26 15:59:40 box , 2048kB Cache
-Dec 26 15:59:40 box , UDMA(33)
-Dec 26 15:59:40 box
-Dec 26 15:59:40 box [    5.595335] Uniform CD-ROM driver Revision: 3.20
-Dec 26 15:59:40 box [    5.605270] hdc: ATAPI
-Dec 26 15:59:40 box  52X
-Dec 26 15:59:40 box  CD-ROM
-Dec 26 15:59:40 box  CD-R/RW
-Dec 26 15:59:40 box  drive
-Dec 26 15:59:40 box , 2048kB Cache
-Dec 26 15:59:40 box , UDMA(33)
-Dec 26 15:59:40 box
-Dec 26 15:59:40 box [    5.644915] ACPI: PCI Interrupt 0000:03:06.0[A] ->
-Dec 26 15:59:40 box GSI 22 (level, low) -> IRQ 17
-Dec 26 15:59:43 box [    8.646272] scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-Dec 26 15:59:43 box [    8.646274]         <Adaptec 2902/04/10/15/20C/30C SCSI adapter>
-Dec 26 15:59:43 box [    8.646275]         aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
-Dec 26 15:59:43 box [    8.646277]
-Dec 26 15:59:44 box [   10.481100] ata_piix 0000:00:1f.2: MAP [
-Dec 26 15:59:44 box  P0
-Dec 26 15:59:44 box  --
-Dec 26 15:59:44 box  P1
-Dec 26 15:59:44 box  --
-Dec 26 15:59:44 box  ]
-Dec 26 15:59:44 box [   10.481347] ACPI: PCI Interrupt 0000:00:1f.2[A] ->
-Dec 26 15:59:44 box GSI 18 (level, low) -> IRQ 16
-Dec 26 15:59:44 box [   10.481502] ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-Dec 26 15:59:44 box [   10.481591] ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-Dec 26 15:59:44 box [   10.481651] scsi1 : ata_piix
-Dec 26 15:59:45 box [   10.635214] ata1.00: ATA-7, max UDMA7, 488397168 sectors: LBA48 NCQ (depth 0/32)
-Dec 26 15:59:45 box [   10.635279] ata1.00: ata1: dev 0 multi count 16
-Dec 26 15:59:45 box [   10.665619] ata1.00: configured for UDMA/133
-Dec 26 15:59:45 box [   10.665674] scsi2 : ata_piix
-Dec 26 15:59:45 box [   10.827315] ATA: abnormal status 0x7F on port 0xC807
-Dec 26 15:59:45 box [   10.827469] scsi 1:0:0:0: Direct-Access     ATA      SAMSUNG SP2504C  VT10 PQ: 0 ANSI: 5
-Dec 26 15:59:45 box [   10.827651] SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-Dec 26 15:59:45 box [   10.828414] sda: Write Protect is off
-Dec 26 15:59:45 box [   10.828492] SCSI device sda: drive cache: write back
-Dec 26 15:59:45 box [   10.828601] SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-Dec 26 15:59:45 box [   10.828667] sda: Write Protect is off
-Dec 26 15:59:45 box [   10.828746] SCSI device sda: drive cache: write back
-Dec 26 15:59:45 box [   10.828798]  sda:
-Dec 26 15:59:45 box  sda1
-Dec 26 15:59:45 box  sda2
-Dec 26 15:59:45 box
-Dec 26 15:59:45 box [   10.838140] sd 1:0:0:0: Attached scsi disk sda
-Dec 26 15:59:45 box [   10.838277] sd 1:0:0:0: Attached scsi generic sg0 type 0
-Dec 26 15:59:45 box [   10.840768] serio: i8042 KBD port at 0x60,0x64 irq 1
-Dec 26 15:59:45 box [   10.840824] serio: i8042 AUX port at 0x60,0x64 irq 12
-Dec 26 15:59:45 box [   10.840947] mice: PS/2 mouse device common for all mice
-Dec 26 15:59:45 box [   10.841165] input: PC Speaker as /class/input/input0
-Dec 26 15:59:45 box [   10.870150] input: AT Translated Set 2 keyboard as /class/input/input1
-Dec 26 15:59:45 box [   10.874664] i2c /dev entries driver
-Dec 26 15:59:45 box [   10.875229] Advanced Linux Sound Architecture Driver Version 1.0.13 (Tue Nov 28 14:07:24 2006 UTC).
-Dec 26 15:59:45 box [   10.875551] ACPI: PCI Interrupt 0000:03:05.0[A] ->
-Dec 26 15:59:45 box GSI 21 (level, low) -> IRQ 18
-Dec 26 15:59:45 box [   10.899119] ALSA device list:
-Dec 26 15:59:45 box [   10.899176]   #0: SBLive! Value [CT4832] (rev.7, serial:0x80271102) at 0x9400, irq 18
-Dec 26 15:59:45 box [   10.899241] TCP cubic registered
-Dec 26 15:59:45 box [   10.899313] NET: Registered protocol family 1
-Dec 26 15:59:45 box [   10.899373] NET: Registered protocol family 17
-Dec 26 15:59:45 box [   10.899465] Testing NMI watchdog ...
-Dec 26 15:59:45 box OK.
-Dec 26 15:59:45 box [   10.909531] Starting balanced_irq
-Dec 26 15:59:45 box [   10.909586] Using IPI Shortcut mode
-Dec 26 15:59:45 box [   10.909755] Time: tsc clocksource has been installed.
-Dec 26 15:59:46 box [   11.582043] input: ImPS/2 Generic Wheel Mouse as /class/input/input2
-Dec 26 15:59:46 box [   11.638471] UDF-fs: No VRS found
-Dec 26 15:59:46 box [   11.670420] XFS mounting filesystem sda2
-Dec 26 15:59:46 box [   11.748382] VFS: Mounted root (xfs filesystem) readonly.
-Dec 26 15:59:46 box [   11.748601] Freeing unused kernel memory: 216k freed
-Dec 26 15:59:48 box [   13.956518] BUG: unable to handle kernel paging request
-Dec 26 15:59:48 box  at virtual address fffb9600
-Dec 26 15:59:48 box [   13.956649]  printing eip:
-Dec 26 15:59:48 box [   13.956703] c0149018
-Dec 26 15:59:48 box [   13.956754] *pde = 00003067
-Dec 26 15:59:48 box [   13.956811] *pte = 00000000
-Dec 26 15:59:48 box [   13.956880] Oops: 0000 [#1]
-Dec 26 15:59:48 box [   13.956944] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.957101] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.957206] CPU:    0
-Dec 26 15:59:48 box [   13.957207] EIP:    0060:[<c0149018>]    Not tainted VLI
-Dec 26 15:59:48 box [   13.957209] EFLAGS: 00010286   (2.6.19 #2)
-Dec 26 15:59:48 box [   13.957381] EIP is at do_wp_page+0xec/0x431
-Dec 26 15:59:48 box [   13.957438] eax: fffb8000   ebx: fffb8000   ecx: 00000280   edx: c0003ee0
-Dec 26 15:59:48 box [   13.957505] esi: fffb9600   edi: fffb8600   ebp: c1ff06a0   esp: f7b8bed4
-Dec 26 15:59:48 box [   13.957574] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   13.957638] Process udevd (pid: 560, ti=f7b8a000 task=c2157a90 task.ti=f7b8a000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.957695] Stack:
-Dec 26 15:59:48 box c1ff3ce0
-Dec 26 15:59:48 box 00000004
-Dec 26 15:59:48 box 7f835065
-Dec 26 15:59:48 box fffb9000
-Dec 26 15:59:48 box b7e4502c
-Dec 26 15:59:48 box f7be11d0
-Dec 26 15:59:48 box f7b84040
-Dec 26 15:59:48 box c1ff3ce0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.958140]
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box f7410914
-Dec 26 15:59:48 box f741bb7c
-Dec 26 15:59:48 box f7b84088
-Dec 26 15:59:48 box 00000007
-Dec 26 15:59:48 box c014a740
-Dec 26 15:59:48 box f7410914
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.958579]
-Dec 26 15:59:48 box f741bb7c
-Dec 26 15:59:48 box f7b84088
-Dec 26 15:59:48 box 7f835065
-Dec 26 15:59:48 box c016c06c
-Dec 26 15:59:48 box c21334ac
-Dec 26 15:59:48 box c21334ac
-Dec 26 15:59:48 box f7b75954
-Dec 26 15:59:48 box f7b84088
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.959044] Call Trace:
-Dec 26 15:59:48 box [   13.959146]  [<c014a740>]
-Dec 26 15:59:48 box __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box [   13.959246]  [<c016c06c>]
-Dec 26 15:59:48 box dentry_iput+0x6b/0xba
-Dec 26 15:59:48 box [   13.959345]  [<c0171023>]
-Dec 26 15:59:48 box mntput_no_expire+0x1c/0x7d
-Dec 26 15:59:48 box [   13.959458]  [<c015ca17>]
-Dec 26 15:59:48 box __fput+0x174/0x1c2
-Dec 26 15:59:48 box [   13.959568]  [<c0112ffa>]
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   13.959678]  [<c0112b5f>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   13.959772]  [<c03f1699>]
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box [   13.959878]  [<c03f007b>]
-Dec 26 15:59:48 box schedule_timeout+0xa5/0xb0
-Dec 26 15:59:48 box [   13.959987]  =======================
-Dec 26 15:59:48 box [   13.960049] Code:
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box e8
-Dec 26 15:59:48 box d1
-Dec 26 15:59:48 box a9
-Dec 26 15:59:48 box fc
-Dec 26 15:59:48 box ff
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 44
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box c7
-Dec 26 15:59:48 box 44
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 04
-Dec 26 15:59:48 box 04
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 54
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 1c
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 14
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box e8
-Dec 26 15:59:48 box b9
-Dec 26 15:59:48 box a9
-Dec 26 15:59:48 box fc
-Dec 26 15:59:48 box ff
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box b9
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 04
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box c7
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 74
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box f3>
-Dec 26 15:59:48 box a5
-Dec 26 15:59:48 box c7
-Dec 26 15:59:48 box 44
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 04
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 44
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 04
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box e8
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box aa
-Dec 26 15:59:48 box fc
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.962884] EIP: [<c0149018>]
-Dec 26 15:59:48 box do_wp_page+0xec/0x431
-Dec 26 15:59:48 box  SS:ESP 0068:f7b8bed4
-Dec 26 15:59:48 box [   13.963041]
-Dec 26 15:59:48 box note: udevd[560] exited with preempt_count 2
-Dec 26 15:59:48 box [   13.963925] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   13.963997] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   13.964061] invalid opcode: 0000 [#2]
-Dec 26 15:59:48 box [   13.964114] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.964254] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.964367] CPU:    0
-Dec 26 15:59:48 box [   13.964368] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   13.964372] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   13.964534] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   13.964596] eax: 7f9e7163   ebx: fffff000   ecx: c1ff7400   edx: c0003ee0
-Dec 26 15:59:48 box [   13.964664] esi: 00000004   edi: 00000000   ebp: c1ff2860   esp: f7457ec8
-Dec 26 15:59:48 box [   13.964731] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   13.964789] Process udevd (pid: 555, ti=f7456000 task=c21b4a90 task.ti=f7456000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.964850] Stack:
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box f7bc2918
-Dec 26 15:59:48 box c014900b
-Dec 26 15:59:48 box c1ff7400
-Dec 26 15:59:48 box 00000004
-Dec 26 15:59:48 box 7f943065
-Dec 26 15:59:48 box fffb9000
-Dec 26 15:59:48 box b7e4617c
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.965343]
-Dec 26 15:59:48 box f7bc3da0
-Dec 26 15:59:48 box f7b84ac0
-Dec 26 15:59:48 box c1ff7400
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box f7bc2918
-Dec 26 15:59:48 box f7beab7c
-Dec 26 15:59:48 box f7b84b08
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.965790]
-Dec 26 15:59:48 box 00000007
-Dec 26 15:59:48 box c014a740
-Dec 26 15:59:48 box f7bc2918
-Dec 26 15:59:48 box f7beab7c
-Dec 26 15:59:48 box f7b84b08
-Dec 26 15:59:48 box 7f943065
-Dec 26 15:59:48 box c016c06c
-Dec 26 15:59:48 box c21334ac
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.966286] Call Trace:
-Dec 26 15:59:48 box [   13.966401]  [<c014900b>]
-Dec 26 15:59:48 box do_wp_page+0xdf/0x431
-Dec 26 15:59:48 box [   13.966513]  [<c014a740>]
-Dec 26 15:59:48 box __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box [   13.966617]  [<c016c06c>]
-Dec 26 15:59:48 box dentry_iput+0x6b/0xba
-Dec 26 15:59:48 box [   13.966720]  [<c0171023>]
-Dec 26 15:59:48 box mntput_no_expire+0x1c/0x7d
-Dec 26 15:59:48 box [   13.966836]  [<c015ca17>]
-Dec 26 15:59:48 box __fput+0x174/0x1c2
-Dec 26 15:59:48 box [   13.966938]  [<c0112ffa>]
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   13.967038]  [<c0112b5f>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   13.967152]  [<c03f1699>]
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box [   13.967265]  [<c03f007b>]
-Dec 26 15:59:48 box schedule_timeout+0xa5/0xb0
-Dec 26 15:59:48 box [   13.967383]  =======================
-Dec 26 15:59:48 box [   13.967450] Code:
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 02
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 46
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e0
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 49
-Dec 26 15:59:48 box 22
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box d5
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 4c
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.970382] EIP: [<c0113a43>]
-Dec 26 15:59:48 box kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box  SS:ESP 0068:f7457ec8
-Dec 26 15:59:48 box [   13.970545]
-Dec 26 15:59:48 box note: udevd[555] exited with preempt_count 2
-Dec 26 15:59:48 box [   13.971027] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   13.971089] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   13.971148] invalid opcode: 0000 [#3]
-Dec 26 15:59:48 box [   13.971208] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.971356] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.971447] CPU:    0
-Dec 26 15:59:48 box [   13.971449] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   13.971452] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   13.971634] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   13.971696] eax: 7f943163   ebx: fffff000   ecx: c1ff4760   edx: c0003ee4
-Dec 26 15:59:48 box [   13.971756] esi: 00000003   edi: 00000080   ebp: f7e37db8   esp: f7e37ce0
-Dec 26 15:59:48 box [   13.971824] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   13.971895] Process udevd (pid: 522, ti=f7e36000 task=c2155a90 task.ti=f7e36000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.971968] Stack:
-Dec 26 15:59:48 box f7f1d280
-Dec 26 15:59:48 box 00000080
-Dec 26 15:59:48 box c013d03c
-Dec 26 15:59:48 box c1ff4760
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box f7aa42d0
-Dec 26 15:59:48 box 00000202
-Dec 26 15:59:48 box 00000080
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.972437]
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c1ff4760
-Dec 26 15:59:48 box f7aa42d0
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c013dac4
-Dec 26 15:59:48 box f7e37db8
-Dec 26 15:59:48 box c1ff4760
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.972894]
-Dec 26 15:59:48 box 00000891
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box f7e37d54
-Dec 26 15:59:48 box f7aa4220
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.973381] Call Trace:
-Dec 26 15:59:48 box [   13.973481]  [<c013d03c>]
-Dec 26 15:59:48 box file_read_actor+0xbb/0xf6
-Dec 26 15:59:48 box [   13.973581]  [<c013dac4>]
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box [   13.973679]  [<c013fe6b>]
-Dec 26 15:59:48 box generic_file_aio_read+0xfb/0x270
-Dec 26 15:59:48 box [   13.973774]  [<c013cf81>]
-Dec 26 15:59:48 box file_read_actor+0x0/0xf6
-Dec 26 15:59:48 box [   13.973871]  [<c024e29e>]
-Dec 26 15:59:48 box xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box [   13.973971]  [<c0164a5d>]
-Dec 26 15:59:48 box __link_path_walk+0x82c/0xda7
-Dec 26 15:59:48 box [   13.974080]  [<c024a738>]
-Dec 26 15:59:48 box xfs_file_aio_read+0x70/0x84
-Dec 26 15:59:48 box [   13.974192]  [<c015b752>]
-Dec 26 15:59:48 box do_sync_read+0xf0/0x126
-Dec 26 15:59:48 box [   13.974302]  [<c012e21e>]
-Dec 26 15:59:48 box autoremove_wake_function+0x0/0x4b
-Dec 26 15:59:48 box [   13.974404]  [<c0115035>]
-Dec 26 15:59:48 box try_to_wake_up+0x40/0x402
-Dec 26 15:59:48 box [   13.974500]  [<c0260652>]
-Dec 26 15:59:48 box __next_cpu+0x22/0x33
-Dec 26 15:59:48 box [   13.974601]  [<c015c031>]
-Dec 26 15:59:48 box vfs_read+0x9d/0x17b
-Dec 26 15:59:48 box [   13.974714]  [<c015f8de>]
-Dec 26 15:59:48 box kernel_read+0x49/0x59
-Dec 26 15:59:48 box [   13.974820]  [<c015f9ad>]
-Dec 26 15:59:48 box prepare_binprm+0xbf/0xf0
-Dec 26 15:59:48 box [   13.974923]  [<c016107b>]
-Dec 26 15:59:48 box do_execve+0xec/0x1dc
-Dec 26 15:59:48 box [   13.975019]  [<c010135b>]
-Dec 26 15:59:48 box sys_execve+0x3c/0x97
-Dec 26 15:59:48 box [   13.975117]  [<c0103003>]
-Dec 26 15:59:48 box syscall_call+0x7/0xb
-Dec 26 15:59:48 box [   13.975234]  [<c03f007b>]
-Dec 26 15:59:48 box schedule_timeout+0xa5/0xb0
-Dec 26 15:59:48 box [   13.975345]  =======================
-Dec 26 15:59:48 box [   13.975401] Code:
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 02
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 46
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e0
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 49
-Dec 26 15:59:48 box 22
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box d5
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 4c
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.978193] EIP: [<c0113a43>]
-Dec 26 15:59:48 box kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box note: udevd[522] exited with preempt_count 1
-Dec 26 15:59:48 box [   13.978847] ------------[ cut here ]------------
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.979481] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   13.981214] Call Trace:
-Dec 26 15:59:48 box [   13.982205]  [<c0141f9a>]
-Dec 26 15:59:48 box __alloc_pages+0x4f/0x2db
-Dec 26 15:59:48 box [   13.982756]  [<c0112b5f>]
-Dec 26 15:59:48 box [   13.982985]  =======================
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 4c
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box [   13.986129]
-Dec 26 15:59:48 box note: scsi_id[503] exited with preempt_count 1
-Dec 26 15:59:48 box [   13.986580] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   13.986947] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   13.987317] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box c013d03c
-Dec 26 15:59:48 box 00000080
-Dec 26 15:59:48 box c1ff37c0
-Dec 26 15:59:48 box f740bd54
-Dec 26 15:59:48 box [   13.988878]  [<c013d03c>]
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box [   13.989838]  [<c012e21e>]
-Dec 26 15:59:48 box sched_balance_self+0x13b/0x2e3
-Dec 26 15:59:48 box [   13.990457]  [<c016107b>]
-Dec 26 15:59:48 box syscall_call+0x7/0xb
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box note: udevd[534] exited with preempt_count 1
-Dec 26 15:59:48 box [   13.994411] ------------[ cut here ]------------
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box [   14.035590]
-Dec 26 15:59:48 box [   14.036042] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.036206] PREEMPT
-Dec 26 15:59:48 box [   14.036449] CPU:    0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box c0148ff3
-Dec 26 15:59:48 box 0805f794
-Dec 26 15:59:48 box f7417080
-Dec 26 15:59:48 box f7b84248
-Dec 26 15:59:48 box [   14.038497]  [<c014a740>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box [   14.042223]
-Dec 26 15:59:48 box [   14.042667] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.042856] PREEMPT
-Dec 26 15:59:48 box [   14.043120] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.043476] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box c1ff1d80
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box f7b08080
-Dec 26 15:59:48 box c014a740
-Dec 26 15:59:48 box [   14.045003] Call Trace:
-Dec 26 15:59:48 box [   14.045341]  [<c0106aa9>]
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box note: udevd[474] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.049495] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.049551] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.050516] invalid opcode: 0000 [#13]
-Dec 26 15:59:48 box [   14.050573] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box [   14.050833] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.051183] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box [   14.052157]
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box [   14.052822]  [<c01420fb>]
-Dec 26 15:59:48 box [   14.053047]  [<c03ef1ec>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.053672]  [<c012e269>]
-Dec 26 15:59:48 box file_read_actor+0x0/0xf6
-Dec 26 15:59:48 box [   14.054299]  [<c024a738>]
-Dec 26 15:59:48 box vfs_read+0x9d/0x17b
-Dec 26 15:59:48 box [   14.054931]  [<c03f007b>]
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box note: udevd[518] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.058569] ------------[ cut here ]------------
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.059035] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box [   14.059997]
-Dec 26 15:59:48 box [   14.060465]
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.061279]  [<c02652f8>]
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.061926]  [<c03ef9c0>]
-Dec 26 15:59:48 box [   14.062146]  [<c013dac4>]
-Dec 26 15:59:48 box get_unused_fd+0xbe/0xcf
-Dec 26 15:59:48 box [   14.063032]  [<c015c031>]
-Dec 26 15:59:48 box syscall_call+0x7/0xb
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 49
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box note: udevd[488] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.068364] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.068432] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.068492] invalid opcode: 0000 [#15]
-Dec 26 15:59:48 box [   14.068555] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.068808] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.069161] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box fffb9000
-Dec 26 15:59:48 box c1ff5ca0
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 00000db2
-Dec 26 15:59:48 box __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.071491]  [<c0117c25>]
-Dec 26 15:59:48 box [   14.071767] Code:
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box [   14.074634] EIP: [<c0113a43>]
-Dec 26 15:59:48 box note: S03udev[632] exited with preempt_count 2
-Dec 26 15:59:48 box [   14.076251] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.076333] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.076399] invalid opcode: 0000 [#16]
-Dec 26 15:59:48 box [   14.076465] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box [   14.076615] Modules linked in:
-Dec 26 15:59:48 box [   14.077088] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.077205] Stack:
-Dec 26 15:59:48 box f7a3f160
-Dec 26 15:59:48 box f7e83dd0
-Dec 26 15:59:48 box [   14.078163]
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.078858]  [<c013dac4>]
-Dec 26 15:59:48 box [   14.079088]  [<c013cf81>]
-Dec 26 15:59:48 box [   14.079511]  [<c015b752>]
-Dec 26 15:59:48 box autoremove_wake_function+0x0/0x4b
-Dec 26 15:59:48 box sys_read+0x4b/0x74
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box 00000080
-Dec 26 15:59:48 box f7b7eed0
-Dec 26 15:59:48 box 00001000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box do_sync_read+0xf0/0x126
-Dec 26 15:59:48 box [   14.097192]  [<c015c031>]
-Dec 26 15:59:48 box prepare_binprm+0xbf/0xf0
-Dec 26 15:59:48 box [   14.097817]  [<c03f007b>]
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box note: udevd[497] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.101348] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.101407] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.101781] CPU:    0
-Dec 26 15:59:48 box [   14.102144] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box f7b77174
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box c014a740
-Dec 26 15:59:48 box c224fa90
-Dec 26 15:59:48 box [   14.104054]  [<c011d94e>]
-Dec 26 15:59:48 box [   14.104285]  [<c0112b5f>]
-Dec 26 15:59:48 box [   14.104689] Code:
-Dec 26 15:59:48 box 02
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box note: udevd[494] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.108249] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.108721] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.109013] esi: 00000003   edi: 00000080   ebp: f7b8fdb8   esp: f7b8fce0
-Dec 26 15:59:48 box c013d03c
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box f7b8fdb8
-Dec 26 15:59:48 box 00000006
-Dec 26 15:59:48 box [   14.110608] Call Trace:
-Dec 26 15:59:48 box generic_file_aio_read+0xfb/0x270
-Dec 26 15:59:48 box [   14.111271]  [<c0164a5d>]
-Dec 26 15:59:48 box autoremove_wake_function+0x0/0x4b
-Dec 26 15:59:48 box [   14.111881]  [<c015c031>]
-Dec 26 15:59:48 box prepare_binprm+0xbf/0xf0
-Dec 26 15:59:48 box schedule_timeout+0xa5/0xb0
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box d5
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.115962] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.116030] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.116373] CPU:    0
-Dec 26 15:59:48 box [   14.116744] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.116857] Stack:
-Dec 26 15:59:48 box 0805b2d0
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c014a740
-Dec 26 15:59:48 box c046a6a0
-Dec 26 15:59:48 box [   14.118469]  [<c02652f8>]
-Dec 26 15:59:48 box memmove+0x3f/0x48
-Dec 26 15:59:48 box [   14.119445]  [<c014a740>]
-Dec 26 15:59:48 box __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box file_free_rcu+0x18/0x1c
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box note: udevd[496] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.123658] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.123994] Modules linked in:
-Dec 26 15:59:48 box [   14.124267] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.124463] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box c1ff47c0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box [   14.126032] Call Trace:
-Dec 26 15:59:48 box [   14.126356]  [<c013fe6b>]
-Dec 26 15:59:48 box __link_path_walk+0x82c/0xda7
-Dec 26 15:59:48 box [   14.126999]  [<c012e21e>]
-Dec 26 15:59:48 box [   14.127331]  [<c015c031>]
-Dec 26 15:59:48 box prepare_binprm+0xbf/0xf0
-Dec 26 15:59:48 box [   14.127996]  [<c03f007b>]
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box  SS:ESP 0068:f7b97ce0
-Dec 26 15:59:48 box [   14.131704] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.131830] invalid opcode: 0000 [#23]
-Dec 26 15:59:48 box [   14.132078] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.132134] Call Trace:
-Dec 26 15:59:48 box [   14.132145]  [<c012e269>] wake_bit_function+0x0/0x34
-Dec 26 15:59:48 box [   14.132196]  [<c015b752>] do_sync_read+0xf0/0x126
-Dec 26 15:59:48 box [   14.132227]  [<c015f8de>] kernel_read+0x49/0x59
-Dec 26 15:59:48 box [   14.132325]  <6>note: udevd[535] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.132544] PREEMPT SMP
-Dec 26 15:59:48 box [   14.132570] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.132620]  [<c0148ff3>] do_wp_page+0xc7/0x431
-Dec 26 15:59:48 box [   14.132662]  [<c03f1699>] error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.132890] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.132926] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.132962]  [<c013d03c>] file_read_actor+0xbb/0xf6
-Dec 26 15:59:48 box [   14.132996]  [<c0164a5d>] __link_path_walk+0x82c/0xda7
-Dec 26 15:59:48 box [   14.133040]  [<c015f9ad>] prepare_binprm+0xbf/0xf0
-Dec 26 15:59:48 box [   14.133066]  =======================
-Dec 26 15:59:48 box [   14.133124] EIP: [<c0113a43>] kmap_atomic+0x7f/0x94 SS:ESP 0068:f74b1ce0
-Dec 26 15:59:48 box [   14.133276] PREEMPT SMP
-Dec 26 15:59:48 box [   14.133291] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.133327]        00000000 c1ff47c0 f7453d7c 00000000 c013dac4 f7453db8 c1ff47c0 00000000
-Dec 26 15:59:48 box [   14.139180] Call Trace:
-Dec 26 15:59:48 box [   14.139198]  [<c01492b2>] do_wp_page+0x386/0x431
-Dec 26 15:59:48 box [   14.139223]  =======================
-Dec 26 15:59:48 box [   14.139472]  [<c03904dc>] skb_queue_purge+0x1a/0x23
-Dec 26 15:59:48 box [   14.139508]  [<c0161a4b>] pipe_read_release+0x24/0x36
-Dec 26 15:59:48 box [   14.139557]  [<c0104efb>] do_invalid_op+0xab/0xb4
-Dec 26 15:59:48 box [   14.139584]  [<c026007b>] bitmap_parse_user+0x37/0x57
-Dec 26 15:59:48 box [   14.139628]  [<c0103003>] syscall_call+0x7/0xb
-Dec 26 15:59:48 box [   14.139730] PREEMPT SMP
-Dec 26 15:59:48 box [   14.139761] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.135224] Call Trace:
-Dec 26 15:59:48 box [   14.135248]  [<c024e29e>] xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box [   14.135279]  [<c0115035>] try_to_wake_up+0x40/0x402
-Dec 26 15:59:48 box [   14.135405]  <6>note: udevd[639] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.135599] invalid opcode: 0000 [#32]
-Dec 26 15:59:48 box [   14.135675] Call Trace:
-Dec 26 15:59:48 box [   14.135688]  [<c011d94e>] do_wait+0x55a/0xb55
-Dec 26 15:59:48 box [   14.135719]  =======================
-Dec 26 15:59:48 box [   14.135980] PREEMPT SMP
-Dec 26 15:59:48 box [   14.135993] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.136044] Call Trace:
-Dec 26 15:59:48 box [   14.136070]  [<c0112ffa>] do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.136075]  [<c0112b5f>] do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.136080]  [<c03f1699>] error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.136089]  =======================
-Dec 26 15:59:48 box [   14.136289] invalid opcode: 0000 [#34]
-Dec 26 15:59:48 box [   14.136309] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.136366] Call Trace:
-Dec 26 15:59:48 box [   14.136382]  [<c0112b5f>] do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.136432]  [<c014864b>] kmap_high+0x60/0x1f7
-Dec 26 15:59:48 box [   14.136462]  [<c015f60a>] search_binary_handler+0xab/0x266
-Dec 26 15:59:48 box [   14.136550]  <6>note: modprobe[665] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.136648] PREEMPT SMP
-Dec 26 15:59:48 box [   14.136683] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.136730] Call Trace:
-Dec 26 15:59:48 box [   14.136767]  [<c03f1699>] error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.136839]  <6>note: udevd[657] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.136994] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.137051] Call Trace:
-Dec 26 15:59:48 box [   14.137077]  [<c013fe6b>] generic_file_aio_read+0xfb/0x270
-Dec 26 15:59:48 box [   14.137117]  [<c0115035>] try_to_wake_up+0x40/0x402
-Dec 26 15:59:48 box [   14.137145]  [<c010135b>] sys_execve+0x3c/0x97
-Dec 26 15:59:48 box [   14.137396] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.137473] Call Trace:
-Dec 26 15:59:48 box [   14.137475]  [<c0148ff3>] do_wp_page+0xc7/0x431
-Dec 26 15:59:48 box [   14.137504]  [<c03f007b>] schedule_timeout+0xa5/0xb0
-Dec 26 15:59:48 box [   14.137820] invalid opcode: 0000 [#38]
-Dec 26 15:59:48 box [   14.137837] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.137841] eax: 7fe86163   ebx: fffff000   ecx: c1fff060   edx: c0003ee4
-Dec 26 15:59:48 box [   14.137847] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.137870]        00000007 c014a740 f74c0180 f744f080 f741f088 7ff83045 00000280 c2248030
-Dec 26 15:59:48 box [   14.137909]  [<c03f1699>] error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.137965] EIP: [<c0113a43>] kmap_atomic+0x7f/0x94 SS:ESP 0068:f74dbec8
-Dec 26 15:59:48 box [   14.138258] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.138275] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.138321]  [<c014a740>] __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box [   14.138353]  [<c0112b5f>] do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.138622] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.138644] CPU:    0
-Dec 26 15:59:48 box [   14.138710] Call Trace:
-Dec 26 15:59:48 box [   14.138713]  [<c0148ff3>] do_wp_page+0xc7/0x431
-Dec 26 15:59:48 box [   14.138754]  =======================
-Dec 26 15:59:48 box [   14.139107] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.139127] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.139180] Call Trace:
-Dec 26 15:59:48 box [   14.139204]  [<c012e21e>] autoremove_wake_function+0x0/0x4b
-Dec 26 15:59:48 box [   14.139288]  <6>note: udevd[465] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.139489]  [<c03f03d5>] __mutex_lock_slowpath+0x50/0x89
-Dec 26 15:59:48 box [   14.139553]  [<c0104e50>] do_invalid_op+0x0/0xb4
-Dec 26 15:59:48 box [   14.139578]  [<c03f1699>] error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.139624]  [<c015c5a8>] sys_write+0x4b/0x74
-Dec 26 15:59:48 box [   14.139737] CPU:    0
-Dec 26 15:59:48 box [   14.139761] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.139804] Call Trace:
-Dec 26 15:59:48 box [   14.139807]  [<c0148ff3>] do_wp_page+0xc7/0x431
-Dec 26 15:59:48 box [   14.139812]  [<c014a740>] __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box [   14.139823]  [<c015ca17>] __fput+0x174/0x1c2
-Dec 26 15:59:48 box [   14.139852]  =======================
-Dec 26 15:59:48 box [   14.140230] PREEMPT SMP
-Dec 26 15:59:48 box [   14.140261] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.140303] Call Trace:
-Dec 26 15:59:48 box [   14.140325]  [<c0112ffa>] do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.140412]  <6>note: udevd[656] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.140621] Modules linked in:
-Dec 26 15:59:48 box [   14.140644] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.140684] Call Trace:
-Dec 26 15:59:48 box [   14.140713]  [<c0112b5f>] do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.140978] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.140994] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.141051] Call Trace:
-Dec 26 15:59:48 box [   14.141076]  [<c0112ffa>] do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.141158]  <6>note: udevd[654] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.141911] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.141967] Call Trace:
-Dec 26 15:59:48 box [   14.142009]  [<c0112b5f>] do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.170666] ------------[ cut here ]------------
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box [   14.171329] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.171432] Stack:
-Dec 26 15:59:48 box [   14.171816]
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box get_page_from_freelist+0x299/0x3ab
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.174004]  =======================
-Dec 26 15:59:48 box [   14.174052] Code:
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box note: udevd[495] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.183278] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.183348] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.183407] invalid opcode: 0000 [#48]
-Dec 26 15:59:48 box [   14.183465] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.183605] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.183702] CPU:    0
-Dec 26 15:59:48 box [   14.183703] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.183704] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.183854] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.183905] eax: 7fe86163   ebx: fffff000   ecx: c1ff3fe0   edx: c0003ee4
-Dec 26 15:59:48 box [   14.183958] esi: 00000003   edi: 00000001   ebp: 00000000   esp: f7539e64
-Dec 26 15:59:48 box [   14.184010] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.184060] Process modprobe (pid: 681, ti=f7538000 task=c224ea90 task.ti=f7538000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.184114] Stack:
-Dec 26 15:59:48 box c1ff3fe0
-Dec 26 15:59:48 box c1ff3fe0
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c1ff3fe0
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 000001b2
-Dec 26 15:59:48 box c046bc00
-Dec 26 15:59:48 box 000280d2
-Dec 26 15:59:48 box [   14.185342]  [<c0141f9a>]
-Dec 26 15:59:48 box [   14.185695]  [<c0112b5f>]
-Dec 26 15:59:48 box [   14.185955]  =======================
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box  SS:ESP 0068:f7539e64
-Dec 26 15:59:48 box [   14.192143] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.192211] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.192264] invalid opcode: 0000 [#49]
-Dec 26 15:59:48 box [   14.192318] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.192440] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.192529] CPU:    0
-Dec 26 15:59:48 box [   14.192531] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.192533] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.192695] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.192754] eax: 7fe86163   ebx: fffff000   ecx: c1ffbba0   edx: c0003ee4
-Dec 26 15:59:48 box [   14.192871] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box c1ffbba0
-Dec 26 15:59:48 box [   14.193385]
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box get_page_from_freelist+0x299/0x3ab
-Dec 26 15:59:48 box [   14.194689]  [<c0112b5f>]
-Dec 26 15:59:48 box file_read_actor+0x22/0xf6
-Dec 26 15:59:48 box [   14.195304]  [<c0159fff>]
-Dec 26 15:59:48 box [   14.195566]  [<c012e21e>]
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box  SS:ESP 0068:f7533bb4
-Dec 26 15:59:48 box [   14.211977] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.212045] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.212103] invalid opcode: 0000 [#50]
-Dec 26 15:59:48 box [   14.212159] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.212290] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.212376] CPU:    0
-Dec 26 15:59:48 box [   14.212377] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.212378] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.212527] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.212577] eax: 7fe86163   ebx: fffff000   ecx: c1ff61e0   edx: c0003ee4
-Dec 26 15:59:48 box [   14.212630] esi: 00000003   edi: 00000001   ebp: 00000000   esp: f7535bb4
-Dec 26 15:59:48 box [   14.212683] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.212733] Process modprobe (pid: 679, ti=f7534000 task=c21d6030 task.ti=f7534000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.212786] Stack:
-Dec 26 15:59:48 box c1ff61e0
-Dec 26 15:59:48 box c1ff61e0
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c1ff61e0
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 000001b2
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000044
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.213165]
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c046bc00
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.213544]
-Dec 26 15:59:48 box 000280d2
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box 00000282
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box f7535c50
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.213923] Call Trace:
-Dec 26 15:59:48 box [   14.214014]  [<c0141f9a>]
-Dec 26 15:59:48 box get_page_from_freelist+0x299/0x3ab
-Dec 26 15:59:48 box __handle_mm_fault+0x83a/0x997
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box get_unused_fd+0xbe/0xcf
-Dec 26 15:59:48 box [   14.215500]  [<c015c534>]
-Dec 26 15:59:48 box [   14.215759]  =======================
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box  SS:ESP 0068:f7535bb4
-Dec 26 15:59:48 box [   14.218603] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.218708] invalid opcode: 0000 [#51]
-Dec 26 15:59:48 box [   14.219105] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box f74fe168
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box f74fbcc8
-Dec 26 15:59:48 box __handle_mm_fault+0x6fa/0x997
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box [   14.223732]
-Dec 26 15:59:48 box [   14.233317] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.233377] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.233433] invalid opcode: 0000 [#52]
-Dec 26 15:59:48 box [   14.233486] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.233610] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.233696] CPU:    0
-Dec 26 15:59:48 box [   14.233697] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.233698] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.233844] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.233895] eax: 7fe86163   ebx: fffff000   ecx: c1ff5680   edx: c0003ee4
-Dec 26 15:59:48 box [   14.233948] esi: 00000003   edi: 00000001   ebp: 00000000   esp: f7537bb4
-Dec 26 15:59:48 box [   14.234692] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.234742] Process modprobe (pid: 680, ti=f7536000 task=f7476560 task.ti=f7536000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.234796] Stack:
-Dec 26 15:59:48 box c1ff5680
-Dec 26 15:59:48 box c1ff5680
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c1ff5680
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 000001b2
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000044
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.235175]
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c046bc00
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.235552]
-Dec 26 15:59:48 box 000280d2
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box [   14.236198]  [<c014a880>]
-Dec 26 15:59:48 box __sched_text_start+0x40c/0xaf3
-Dec 26 15:59:48 box file_read_actor+0x22/0xf6
-Dec 26 15:59:48 box [   14.237192]  [<c0159fff>]
-Dec 26 15:59:48 box [   14.237540]  [<c015c031>]
-Dec 26 15:59:48 box [   14.237798]  [<c03f007b>]
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box e0
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box note: modprobe[680] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.240812] invalid opcode: 0000 [#53]
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.241410] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box c0148ff3
-Dec 26 15:59:48 box c1ff7b60
-Dec 26 15:59:48 box f7b90168
-Dec 26 15:59:48 box do_wp_page+0xc7/0x431
-Dec 26 15:59:48 box [   14.243180]  [<c03f1699>]
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 22
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box note: udevd[671] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.265589] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.265643] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.265693] invalid opcode: 0000 [#54]
-Dec 26 15:59:48 box [   14.265742] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.265858] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.265942] CPU:    0
-Dec 26 15:59:48 box [   14.265943] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.265944] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.266092] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.266142] eax: 7fe86163   ebx: fffff000   ecx: c1ff7740   edx: c0003ee4
-Dec 26 15:59:48 box [   14.266195] esi: 00000003   edi: 00000001   ebp: 00000000   esp: f753bbb4
-Dec 26 15:59:48 box [   14.266247] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.266297] Process modprobe (pid: 682, ti=f753a000 task=f7476a90 task.ti=f753a000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.266350] Stack:
-Dec 26 15:59:48 box c1ff7740
-Dec 26 15:59:48 box c1ff7740
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c1ff7740
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 000001b2
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000044
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.266728]
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c046bc00
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.267106]
-Dec 26 15:59:48 box 000280d2
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box 00000282
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c0515324
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.267483] Call Trace:
-Dec 26 15:59:48 box [   14.267574]  [<c0141f9a>]
-Dec 26 15:59:48 box get_page_from_freelist+0x299/0x3ab
-Dec 26 15:59:48 box [   14.267663]  [<c01420fb>]
-Dec 26 15:59:48 box __alloc_pages+0x4f/0x2db
-Dec 26 15:59:48 box [   14.267750]  [<c014a880>]
-Dec 26 15:59:48 box __handle_mm_fault+0x83a/0x997
-Dec 26 15:59:48 box [   14.267839]  [<c03ef1ec>]
-Dec 26 15:59:48 box __sched_text_start+0x40c/0xaf3
-Dec 26 15:59:48 box [   14.267927]  [<c03ef21c>]
-Dec 26 15:59:48 box __sched_text_start+0x43c/0xaf3
-Dec 26 15:59:48 box [   14.268014]  [<c0112ffa>]
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.268102]  [<c0112b5f>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.268188]  [<c03f1699>]
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.268274]  [<c013cfa3>]
-Dec 26 15:59:48 box file_read_actor+0x22/0xf6
-Dec 26 15:59:48 box [   14.268362]  [<c012e269>]
-Dec 26 15:59:48 box wake_bit_function+0x0/0x34
-Dec 26 15:59:48 box [   14.268449]  [<c013dac4>]
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box [   14.268538]  [<c013fe6b>]
-Dec 26 15:59:48 box generic_file_aio_read+0xfb/0x270
-Dec 26 15:59:48 box [   14.268625]  [<c013cf81>]
-Dec 26 15:59:48 box file_read_actor+0x0/0xf6
-Dec 26 15:59:48 box [   14.268711]  [<c024e29e>]
-Dec 26 15:59:48 box xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box get_unused_fd+0xbe/0xcf
-Dec 26 15:59:48 box sys_read+0x4b/0x74
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box [   14.442714] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.442774] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.442825] invalid opcode: 0000 [#55]
-Dec 26 15:59:48 box [   14.442874] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.442991] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.443077] CPU:    0
-Dec 26 15:59:48 box [   14.443078] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.443079] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.443228] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.443278] eax: 7fe86163   ebx: fffff000   ecx: c1ff5040   edx: c0003ee4
-Dec 26 15:59:48 box [   14.443332] esi: 00000003   edi: 00000001   ebp: 00000000   esp: f78b3e64
-Dec 26 15:59:48 box [   14.443384] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.443434] Process rc (pid: 377, ti=f78b2000 task=c2155030 task.ti=f78b2000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.443478] Stack:
-Dec 26 15:59:48 box c1ff5040
-Dec 26 15:59:48 box c1ff5040
-Dec 26 15:59:48 box c0141f9a
-Dec 26 15:59:48 box c1ff5040
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box 000001b2
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000044
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.443858]
-Dec 26 15:59:48 box c046bd80
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c046bc00
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000002
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.444236]
-Dec 26 15:59:48 box 000280d2
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box 00000282
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box c046bfa0
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.444616] Call Trace:
-Dec 26 15:59:48 box [   14.444707]  [<c0141f9a>]
-Dec 26 15:59:48 box get_page_from_freelist+0x299/0x3ab
-Dec 26 15:59:48 box [   14.444797]  [<c01420fb>]
-Dec 26 15:59:48 box __alloc_pages+0x4f/0x2db
-Dec 26 15:59:48 box [   14.444883]  [<c015eb7a>]
-Dec 26 15:59:48 box cp_new_stat64+0x103/0x115
-Dec 26 15:59:48 box [   14.444971]  [<c014a880>]
-Dec 26 15:59:48 box __handle_mm_fault+0x83a/0x997
-Dec 26 15:59:48 box [   14.445059]  [<c014d543>]
-Dec 26 15:59:48 box vma_merge+0x136/0x1c5
-Dec 26 15:59:48 box [   14.445146]  [<c014da18>]
-Dec 26 15:59:48 box do_brk+0x17b/0x219
-Dec 26 15:59:48 box [   14.445232]  [<c0112ffa>]
-Dec 26 15:59:48 box do_page_fault+0x49b/0x651
-Dec 26 15:59:48 box [   14.445319]  [<c0112b5f>]
-Dec 26 15:59:48 box do_page_fault+0x0/0x651
-Dec 26 15:59:48 box [   14.445405]  [<c03f1699>]
-Dec 26 15:59:48 box error_code+0x39/0x40
-Dec 26 15:59:48 box [   14.445492]  =======================
-Dec 26 15:59:48 box [   14.445541] Code:
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 02
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 46
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e0
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 49
-Dec 26 15:59:48 box 22
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box d5
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 4c
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.447903] EIP: [<c0113a43>]
-Dec 26 15:59:48 box kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box  SS:ESP 0068:f78b3e64
-Dec 26 15:59:48 box [   14.448028]
-Dec 26 15:59:48 box note: rc[377] exited with preempt_count 1
-Dec 26 15:59:48 box [   14.448896] ------------[ cut here ]------------
-Dec 26 15:59:48 box [   14.448953] kernel BUG at arch/i386/mm/highmem.c:42!
-Dec 26 15:59:48 box [   14.449004] invalid opcode: 0000 [#56]
-Dec 26 15:59:48 box [   14.449053] PREEMPT
-Dec 26 15:59:48 box SMP
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.449170] Modules linked in:
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.449255] CPU:    0
-Dec 26 15:59:48 box [   14.449256] EIP:    0060:[<c0113a43>]    Not tainted VLI
-Dec 26 15:59:48 box [   14.449257] EFLAGS: 00010206   (2.6.19 #2)
-Dec 26 15:59:48 box [   14.449406] EIP is at kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box [   14.449456] eax: 7fe86163   ebx: fffff000   ecx: c1fff360   edx: c0003ee4
-Dec 26 15:59:48 box [   14.449509] esi: 00000003   edi: 00000180   ebp: c2121e0c   esp: c2121d34
-Dec 26 15:59:48 box [   14.449562] ds: 007b   es: 007b   ss: 0068
-Dec 26 15:59:48 box [   14.449614] Process init (pid: 1, ti=c2120000 task=c211ca90 task.ti=c2120000)
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.449658] Stack:
-Dec 26 15:59:48 box b7f68460
-Dec 26 15:59:48 box 00000180
-Dec 26 15:59:48 box c013d03c
-Dec 26 15:59:48 box c1fff360
-Dec 26 15:59:48 box 00000003
-Dec 26 15:59:48 box c1fff360
-Dec 26 15:59:48 box c01443c5
-Dec 26 15:59:48 box 00000180
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.450036]
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c1fff360
-Dec 26 15:59:48 box c2121dd0
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box c013dac4
-Dec 26 15:59:48 box c2121e0c
-Dec 26 15:59:48 box c1fff360
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.450413]
-Dec 26 15:59:48 box 00001000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box c2121da8
-Dec 26 15:59:48 box f796f820
-Dec 26 15:59:48 box 00000005
-Dec 26 15:59:48 box 00000000
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box 00000001
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.450793] Call Trace:
-Dec 26 15:59:48 box [   14.450884]  [<c013d03c>]
-Dec 26 15:59:48 box file_read_actor+0xbb/0xf6
-Dec 26 15:59:48 box [   14.450973]  [<c01443c5>]
-Dec 26 15:59:48 box activate_page+0x1e/0x99
-Dec 26 15:59:48 box [   14.451060]  [<c013dac4>]
-Dec 26 15:59:48 box do_generic_mapping_read+0x2c5/0x52c
-Dec 26 15:59:48 box [   14.451149]  [<c013fe6b>]
-Dec 26 15:59:48 box generic_file_aio_read+0xfb/0x270
-Dec 26 15:59:48 box [   14.451237]  [<c013cf81>]
-Dec 26 15:59:48 box file_read_actor+0x0/0xf6
-Dec 26 15:59:48 box [   14.452013]  [<c024e29e>]
-Dec 26 15:59:48 box xfs_read+0x180/0x3c1
-Dec 26 15:59:48 box [   14.452100]  [<c0159fff>]
-Dec 26 15:59:48 box get_unused_fd+0xbe/0xcf
-Dec 26 15:59:48 box [   14.452189]  [<c024a738>]
-Dec 26 15:59:48 box xfs_file_aio_read+0x70/0x84
-Dec 26 15:59:48 box [   14.452276]  [<c015b752>]
-Dec 26 15:59:48 box do_sync_read+0xf0/0x126
-Dec 26 15:59:48 box [   14.452362]  [<c0130d01>]
-Dec 26 15:59:48 box enqueue_hrtimer+0x52/0x83
-Dec 26 15:59:48 box [   14.452449]  [<c012e21e>]
-Dec 26 15:59:48 box autoremove_wake_function+0x0/0x4b
-Dec 26 15:59:48 box [   14.452537]  [<c016bc73>]
-Dec 26 15:59:48 box fcntl_setlk+0x44/0x231
-Dec 26 15:59:48 box [   14.452626]  [<c015c031>]
-Dec 26 15:59:48 box vfs_read+0x9d/0x17b
-Dec 26 15:59:48 box [   14.452711]  [<c015c534>]
-Dec 26 15:59:48 box sys_read+0x4b/0x74
-Dec 26 15:59:48 box [   14.452796]  [<c0103003>]
-Dec 26 15:59:48 box syscall_call+0x7/0xb
-Dec 26 15:59:48 box [   14.452882]  =======================
-Dec 26 15:59:48 box [   14.452930] Code:
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c2
-Dec 26 15:59:48 box 8b
-Dec 26 15:59:48 box 02
-Dec 26 15:59:48 box 85
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 75
-Dec 26 15:59:48 box 21
-Dec 26 15:59:48 box 2b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 80
-Dec 26 15:59:48 box 9d
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box f9
-Dec 26 15:59:48 box 05
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e1
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 0d
-Dec 26 15:59:48 box 38
-Dec 26 15:59:48 box 52
-Dec 26 15:59:48 box 51
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 0a
-Dec 26 15:59:48 box 8d
-Dec 26 15:59:48 box 46
-Dec 26 15:59:48 box 43
-Dec 26 15:59:48 box c1
-Dec 26 15:59:48 box e0
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 29
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box d8
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box c3
-Dec 26 15:59:48 box f>
-Dec 26 15:59:48 box 0b
-Dec 26 15:59:48 box 2a
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box 49
-Dec 26 15:59:48 box 22
-Dec 26 15:59:48 box 41
-Dec 26 15:59:48 box c0
-Dec 26 15:59:48 box eb
-Dec 26 15:59:48 box d5
-Dec 26 15:59:48 box 89
-Dec 26 15:59:48 box 4c
-Dec 26 15:59:48 box 24
-Dec 26 15:59:48 box 0c
-Dec 26 15:59:48 box 5b
-Dec 26 15:59:48 box 5e
-Dec 26 15:59:48 box e9
-Dec 26 15:59:48 box 5c
-Dec 26 15:59:48 box 4a
-Dec 26 15:59:48 box 03
-Dec 26 15:59:48 box 00
-Dec 26 15:59:48 box
-Dec 26 15:59:48 box [   14.455288] EIP: [<c0113a43>]
-Dec 26 15:59:48 box kmap_atomic+0x7f/0x94
-Dec 26 15:59:48 box  SS:ESP 0068:c2121d34
-Dec 26 15:59:48 box [   14.455412]
-Dec 26 15:59:48 box Kernel panic - not syncing: Attempted to kill init!
-Dec 26 15:59:49 box [   14.455556]
+Hi!
+
+I have cable between sx1 <-> pc, that is of _very_ low quality. Well,
+today sx1 communication stopped working, and this time it was not
+sx1's fault.
+
+...wait a moment, what is that? did oops handler lock up for long
+enough for softlockup to trigger?
+
+								Pavel
+PM: Adding info for usb-serial:ttyUSB0
+PM: Adding info for No Bus:ttyUSB0
+usb 2-1: generic converter now attached to ttyUSB0
+PM: Adding info for No Bus:usbdev2.81_ep01
+PM: Adding info for No Bus:usbdev2.81_ep82
+PM: Adding info for No Bus:usbdev2.81_ep83
+usb 2-1: USB disconnect, address 81
+PM: Removing info for No Bus:usbdev2.81_ep01
+PM: Removing info for No Bus:usbdev2.81_ep82
+PM: Removing info for No Bus:usbdev2.81_ep83
+PM: Removing info for No Bus:ttyUSB0
+generic ttyUSB0: generic converter now disconnected from ttyUSB0
+PM: Removing info for usb-serial:ttyUSB0
+usbserial_generic 2-1:1.0: device disconnected
+PM: Removing info for usb:2-1:1.0
+PM: Removing info for No Bus:usbdev2.81_ep00
+PM: Removing info for usb:2-1
+usb 2-1: new full speed USB device using uhci_hcd and address 82
+usb 2-1: device descriptor read/64, error -71
+PM: Adding info for usb:2-1
+PM: Adding info for No Bus:usbdev2.82_ep00
+usb 2-1: configuration #1 chosen from 2 choices
+PM: Adding info for usb:2-1:1.0
+usb0: register 'cdc_ether' at usb-0000:00:1d.0-1, CDC Ethernet Device, 5e:95:58:7c:02:7a
+PM: Adding info for No Bus:usbdev2.82_ep83
+PM: Adding info for usb:2-1:1.1
+PM: Adding info for No Bus:usbdev2.82_ep81
+PM: Adding info for No Bus:usbdev2.82_ep02
+usb 2-1: USB disconnect, address 82
+PM: Removing info for No Bus:usbdev2.82_ep83
+usb0: unregister 'cdc_ether' usb-0000:00:1d.0-1, CDC Ethernet Device
+PM: Removing info for usb:2-1:1.0
+PM: Removing info for No Bus:usbdev2.82_ep81
+PM: Removing info for No Bus:usbdev2.82_ep02
+PM: Removing info for usb:2-1:1.1
+PM: Removing info for No Bus:usbdev2.82_ep00
+PM: Removing info for usb:2-1
+usb 2-1: new full speed USB device using uhci_hcd and address 83
+usb 2-1: device descriptor read/64, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 84
+usb 2-1: device descriptor read/64, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 85
+usb 2-1: device not accepting address 85, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 87
+usb 2-1: device not accepting address 87, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 89
+usb 2-1: device not accepting address 89, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 91
+usb 2-1: device not accepting address 91, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 93
+usb 2-1: device descriptor read/64, error -84
+usb 2-1: new full speed USB device using uhci_hcd and address 94
+usb 2-1: device descriptor read/64, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 95
+usb 2-1: device not accepting address 95, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 97
+usb 2-1: device not accepting address 97, error -71
+usb 2-1: new full speed USB device using uhci_hcd and address 99
+usb 2-1: new full speed USB device using uhci_hcd and address 100
+usb 2-1: USB disconnect, address 100
+BUG: unable to handle kernel NULL pointer dereference at virtual address 00000010
+ printing eip:
+c060f5e4
+*pde = 00000000
+usb 2-1: unable to read config index 0 descriptor/start
+usb 2-1: chopping to 0 config(s)
+usb 2-1: string descriptor 0 read error: -19
+usb 2-1: string descriptor 0 read error: -19
+PM: Adding info for usb:2-1
+PM: Adding info for No Bus:usbdev2.100_ep00
+usb 2-1: no configuration chosen from 0 choices
+BUG: soft lockup detected on CPU#1!
+ [<c014d469>] softlockup_tick+0xa9/0xd0
+ [<c0131383>] update_process_times+0x33/0x80
+ [<c011ab7b>] smp_apic_timer_interrupt+0x6b/0x80
+ [<c0103aa4>] apic_timer_interrupt+0x28/0x30
+ [<c0255602>] delay_tsc+0x12/0x20
+ [<c0255646>] __delay+0x6/0x10
+ [<c011fbbb>] do_page_fault+0x35b/0x600
+ [<c011f860>] do_page_fault+0x0/0x600
+ [<c061237c>] error_code+0x7c/0x84
+ [<c060f5e4>] klist_del+0x14/0x50
+ [<c0328a3b>] device_del+0x1b/0x1c0
+ [<c044ae91>] usb_disconnect+0xb1/0x120
+ [<c044d83a>] hub_thread+0x3ca/0xe00
+ [<c0120ab1>] __activate_task+0x21/0x40
+ [<c01238af>] try_to_wake_up+0x3f/0x420
+ [<c013c680>] autoremove_wake_function+0x0/0x50
+ [<c044d470>] hub_thread+0x0/0xe00
+ [<c013c5cc>] kthread+0xec/0xf0
+ [<c013c4e0>] kthread+0x0/0xf0
+ [<c0103be7>] kernel_thread_helper+0x7/0x10
+ =======================
+Oops: 0000 [#1]
+SMP 
+Modules linked in: usbserial
+CPU:    1
+EIP:    0060:[<c060f5e4>]    Not tainted VLI
+EFLAGS: 00010292   (2.6.20-rc2 #384)
+EIP is at klist_del+0x14/0x50
+eax: 00000000   ebx: 00000000   ecx: 0000000f   edx: 00000000
+esi: 0000007c   edi: f309db70   ebp: f309dc44   esp: c2279ea4
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 304, ti=c2278000 task=c21fb030 task.ti=c2278000)
+Stack: f309db80 0000007c f309db5c c0328a3b f7e81690 f309db80 0000007c f309db04 
+       f309dc44 c044ae91 c0732acc c0701f8d f309dc14 00000064 f7e818b8 f309db5c 
+       f78f84ac f7e99a44 f7e81638 f78f8494 c044d83a c2279fb0 0000000a c2279f10 
+Call Trace:
+ [<c0328a3b>] device_del+0x1b/0x1c0
+ [<c044ae91>] usb_disconnect+0xb1/0x120
+ [<c044d83a>] hub_thread+0x3ca/0xe00
+ [<c0120ab1>] __activate_task+0x21/0x40
+ [<c01238af>] try_to_wake_up+0x3f/0x420
+ [<c013c680>] autoremove_wake_function+0x0/0x50
+ [<c044d470>] hub_thread+0x0/0xe00
+ [<c013c5cc>] kthread+0xec/0xf0
+ [<c013c4e0>] kthread+0x0/0xf0
+ [<c0103be7>] kernel_thread_helper+0x7/0x10
+ =======================
+Code: 04 89 46 04 89 4a 04 89 11 c6 03 01 8b 1c 24 8b 74 24 04 83 c4 08 c3 83 ec 0c 89 7c 24 08 89 c7 89 1c 24 89 74 24 04 8b 18 89 d8 <8b> 73 10 e8 e4 29 00 00 89 f8 e8 ad fe ff ff 85 c0 b8 00 00 00 
+EIP: [<c060f5e4>] klist_del+0x14/0x50 SS:ESP 0068:c2279ea4
+ 
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="oops5.bz2"
+Content-Transfer-Encoding: base64
+
+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
+
+--GvXjxJ+pjyke8COw--

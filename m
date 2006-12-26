@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932720AbWLZQsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932717AbWLZQwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932720AbWLZQsd (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 11:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWLZQsd
+	id S932717AbWLZQwc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 11:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWLZQwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 11:48:33 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:58405 "EHLO
+	Tue, 26 Dec 2006 11:52:32 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:58477 "EHLO
 	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932720AbWLZQsc (ORCPT
+	with ESMTP id S932717AbWLZQwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 11:48:32 -0500
-Message-ID: <45915218.7000004@zytor.com>
-Date: Tue, 26 Dec 2006 08:47:20 -0800
+	Tue, 26 Dec 2006 11:52:31 -0500
+Message-ID: <459152B1.9040106@zytor.com>
+Date: Tue, 26 Dec 2006 08:49:53 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+To: nigel@nigel.suspend2.net
+CC: "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
        Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, hpa@zytor.com,
-       webmaster@kernel.org
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
 Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-References: <20061214223718.GA3816@elf.ucw.cz> <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <20061216203000.GB31619@flint.arm.linux.org.uk>
-In-Reply-To: <20061216203000.GB31619@flint.arm.linux.org.uk>
+References: <20061214223718.GA3816@elf.ucw.cz>	 <20061216094421.416a271e.randy.dunlap@oracle.com>	 <20061216095702.3e6f1d1f.akpm@osdl.org>  <458434B0.4090506@oracle.com>	 <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net>
+In-Reply-To: <1166304080.13548.8.camel@nigel.suspend2.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Nigel Cunningham wrote:
+> Hi.
 > 
-> Ergo, downloads via http from ftp.uk.kernel.org are at best unreliable
-> for multiple requests.
-> 
-> I agree that it's not directly your problem, and isn't something you
-> have direct control over.  However, if you want to round-robin the
-> <cc>.kernel.org IP addresses between different providers, I suggest
-> that either the name resolves to just one site, or that kernel.org
-> adopts a policy with their mirrors that they only become part of
-> the <cc>.kernel.org DNS entries as long as they do not rewrite their
-> site-specific URLs in terms of that address.
+> I've have git trees against a few versions besides Linus', and have just
+> moved all but Linus' to staging to help until you can get your new
+> hardware. If others were encouraged to do the same, it might help a lot?
 > 
 
-Indeed.  I just sent a complaint about this, and if we can figure out a 
-decent way to test for this automatically we'll add it to our automatic 
-tests.
+Not really.  In fact, it would hardly help at all.
 
-There is also always ftp.
+The two things git users can do to help is:
+
+1. Make sure your alternatives file is set up correctly;
+2. Keep your trees packed and pruned, to keep the file count down.
+
+If you do this, the load imposed by a single git tree is fairly negible.
 
 	-hpa

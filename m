@@ -1,108 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932411AbWLZGcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932480AbWLZGkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWLZGcH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 01:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWLZGcH
+	id S932480AbWLZGkS (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 01:40:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWLZGkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 01:32:07 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:1827 "EHLO
-	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932411AbWLZGcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 01:32:06 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <sepreece@gmail.com>
-Cc: <vonbrand@laptop13.inf.utfsm.cl>, <Valdis.Kletnieks@vt.edu>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: Binary Drivers
-Date: Mon, 25 Dec 2006 22:31:42 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEENAJAC.davids@webmaster.com>
+	Tue, 26 Dec 2006 01:40:18 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:60263 "EHLO smtp.ocgnet.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932480AbWLZGkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 01:40:17 -0500
+X-Greylist: delayed 1342 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 01:40:16 EST
+Date: Tue, 26 Dec 2006 15:16:52 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: [PATCH] Sanely size hash tables when using large base pages.
+Message-ID: <20061226061652.GA598@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-In-Reply-To: <7b69d1470612251849x20be0f45g3c86822c35a41f6a@mail.gmail.com>
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 25 Dec 2006 23:34:38 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 25 Dec 2006 23:34:40 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At the moment both the pidhash and inode/dentry cache hash tables (common
+by way of alloc_large_system_hash()) are incorrectly sized by their
+respective detection logic when we attempt to use large base pages on
+systems with little memory.
 
-> I have no idea why you assume that "having the right to do X" implies
-> "must be told how to do X". The have the right (except as laws
-> prohibit it) to modify the car's systems, but (except for some
-> specific legal requirements) the manufacturer is not required to
-> explain anything, even basic operation.
+This results in odd behaviour when using a 64kB PAGE_SIZE, such as:
 
-It's really common sense. Imagine if you buy the right to use my car, but I
-don't give you the key. Can I say, "yes, you have the right to use my car,
-you bought that, but that doesn't mean I have to tell you how to use my
-car."
+PID hash table entries: 512 (order: 9, 2048 bytes)
+...
+Dentry cache hash table entries: 8192 (order: -1, 32768 bytes)
+Inode-cache hash table entries: 4096 (order: -2, 16384 bytes)
 
-> > If I buy a device that has a safety of some kind, the
-> > manufacturer cannot
-> > prohibit me from removing or disabling the safety unless some
-> > law gives them
-> > that authority. ...
+The mount cache hash table is seemingly the only one that gets this right
+by directly taking PAGE_SIZE in to account.
 
-> Yes, I agree. However, they are completely allowed to make it
-> arbitrarily hard for you to remove (by, for instance, welding the
-> safety in place).
+The following patch attempts to catch the bogus values and round it up to
+at least 0-order (or down, in the PID hash case).
 
-I do not think they can. You cannot at the same time argue that they sold me
-the right to remove the safety and that they can take active steps to stop
-me from using the safety.
+Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
-Again, the same example -- you buy the right to use my car, but I shoot at
-you every time you step on my property. Or I sell you my car, but right
-before I do, I put on a lock that only I can unlock and make it deliberately
-hard for you to remove it.
+--
 
-> Again, (IANAL), I think this is simply a misconception. Buyng a
-> physical object gives you the right to do anything with it that the
-> law allows,
+ kernel/pid.c    |   17 +++++++++++++----
+ mm/page_alloc.c |    4 ++++
 
-Exactly.
-
-> but imposes no obligation on the seller to explain it
-> (other than specific restrictions hte law may apply to specific
-> classes of objects for safety or other reasons). It's up to you, in
-> deciding whether to buy it, to decide whether it comes with sufficient
-> documentation to satisfy your needs.
-
-I think that simply defies common sense. If I sold you a house and then
-refused to provide you the keys, and made you break down the doors to get
-in, you'd have every right to sue me. A house *has* *to* come with keys. If
-not, the seller should bear the cost of your inability to use the house in a
-reasonable way without damaging it.
-
-You cannot sell something and then claim that you retained certain rights
-over the thing you sold unless you either negotiated for those rights or
-some law allows you to keep those rights. If you sell a computer, and it is
-password-protected, the password has to come with it. You cannot keep it a
-secret. You cannot negligently "happen to" lose it.
-
-When you buy a video car, you are *not* buying the right to use that video
-card with Windows. You are buying all the rights to the video card, to use
-it any way you please. The manufacturer has no right (because it sold that
-right when it sold the video card) to interfere or obstruct your right to
-use it as you please.
-
-If you retain some rights over something, then you are not selling it in the
-normal sense. You are selling a subset of the rights to it, and the buy must
-be told what rights he is getting and what rights he is not getting.
-
-DS
-
-
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+diff --git a/kernel/pid.c b/kernel/pid.c
+index 2efe9d8..198c6a9 100644
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -383,20 +383,29 @@ void free_pid_ns(struct kref *kref)
+ /*
+  * The pid hash table is scaled according to the amount of memory in the
+  * machine.  From a minimum of 16 slots up to 4096 slots at one gigabyte or
+- * more.
++ * more.  As a safety net for large base page on small memory systems
++ * the hash table is scaled to a 0-order allocation in the event that the
++ * initial detection logic sizes the table incorrectly (which can result
++ * in a very large number of slots).
+  */
+ void __init pidhash_init(void)
+ {
+-	int i, pidhash_size;
++	int i, pidhash_size, size;
+ 	unsigned long megabytes = nr_kernel_pages >> (20 - PAGE_SHIFT);
+ 
+ 	pidhash_shift = max(4, fls(megabytes * 4));
+ 	pidhash_shift = min(12, pidhash_shift);
+ 	pidhash_size = 1 << pidhash_shift;
+ 
++	size = pidhash_size * sizeof(struct hlist_head);
++	if (unlikely(size < PAGE_SIZE)) {
++		size = PAGE_SIZE;
++		pidhash_size = size / sizeof(struct hlist_head);
++		pidhash_shift = 0;
++	}
++
+ 	printk("PID hash table entries: %d (order: %d, %Zd bytes)\n",
+-		pidhash_size, pidhash_shift,
+-		pidhash_size * sizeof(struct hlist_head));
++		pidhash_size, pidhash_shift, size);
+ 
+ 	pid_hash = alloc_bootmem(pidhash_size *	sizeof(*(pid_hash)));
+ 	if (!pid_hash)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 8c1a116..4a9a83f 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3321,6 +3321,10 @@ void *__init alloc_large_system_hash(con
+ 			numentries >>= (scale - PAGE_SHIFT);
+ 		else
+ 			numentries <<= (PAGE_SHIFT - scale);
++
++		/* Make sure we've got at least a 0-order allocation.. */
++		if (unlikely((numentries * bucketsize) < PAGE_SIZE))
++			numentries = PAGE_SIZE / bucketsize;
+ 	}
+ 	numentries = roundup_pow_of_two(numentries);
+ 

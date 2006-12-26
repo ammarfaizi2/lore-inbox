@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932861AbWLZXqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932847AbWL0AKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932861AbWLZXqt (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 18:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932866AbWLZXqt
+	id S932847AbWL0AKP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 19:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWL0AKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 18:46:49 -0500
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:45251 "HELO
-	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932861AbWLZXqs (ORCPT
+	Tue, 26 Dec 2006 19:10:15 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:55536 "HELO
+	warden.diginsite.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with SMTP id S932847AbWL0AKN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 18:46:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=cpPaRC76nT8SQPUstnGCOFLNWHFRCqiGlD1D25wbHNtNUPDizT+bQvgYqAwan9kQYecpKeRXusJThvH+P7qHtttoavKiQ0Yz/3vTahqDklmJA66JOfHY0cdciN1kVk4W4VN49v3wac9Ng0EpV27kLvurYN7SdqqdVK9E1Kh4cxs=  ;
-X-YMail-OSG: P1L0A7AVM1lMju18hvjquXmP8BKWLkSoKlciMtf5E348mEOmHwn4DKRIuKak_n_3nzM9GCg1TB8p39ZXRYWmOk3kCnjLl0_iD2X2MkY9OBHv0QTHTGVMacZDv7xzJWBqLNT2tPCePWFTmRd_dMulwxkH5ENn9CFwUGemGKPee7yiN0OqR83wCIDMt44n
-From: David Brownell <david-b@pacbell.net>
-To: linux-pm@lists.osdl.org
-Subject: Re: [linux-pm] USB power usage
-Date: Tue, 26 Dec 2006 15:46:44 -0800
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0612252245310.29662-100000@netrider.rowland.org> <20061226144008.GA2062@elf.ucw.cz>
-In-Reply-To: <20061226144008.GA2062@elf.ucw.cz>
+	Tue, 26 Dec 2006 19:10:13 -0500
+X-Greylist: delayed 784 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 19:10:13 EST
+Date: Tue, 26 Dec 2006 15:55:27 -0800 (PST)
+From: David Lang <david.lang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Rob Landley <rob@landley.net>
+cc: linux-kernel@vger.kernel.org,
+       David McCullough <david_mccullough@au.securecomputing.com>
+Subject: Re: Feature request: exec self for NOMMU.
+In-Reply-To: <200612261823.07927.rob@landley.net>
+Message-ID: <Pine.LNX.4.63.0612261549050.24795@qynat.qvtvafvgr.pbz>
+References: <200612261823.07927.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612261546.45800.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Couple of watts is not that bad, considering usb still eats 4W more
-> > > than it should.
-> > 
-> > The USB autosuspend mechanism has been present for a while in -mm and is
-> > included in 2.6.20-rc (although you have to turn on CONFIG_USB_SUSPEND,
-> > which is off by default -- it would be nice to change that).
+On Tue, 26 Dec 2006, Rob Landley wrote:
 
-Call me paranoid, but I'd like to leave it this way for for a while yet
-to shake out bugs.  There are some complicated interactions here, some
-of which are hardware-specific, and we've only just started to really
-shake out the associated problems.  (But yes, eventually we do want to
-see that option go away, and this behavior be standard with PM enabled.)
+> I'm trying to make some nommu-friendly busybox-like tools, which means using
+> vfork() instead of fork().  This means that after I fork I have to exec in
+> the child to unblock the parent, and if I want to exec my current executable
+> I have to find out where it lives so I can feed the path to exec().  This is
+> nontrivial.
+>
+> Worse, it's not always possible.  If chroot() has happened since the program
+> started, there may not _be_ a path to my current executable available from
+> this process's current or root directories.
 
+does this even make sense (as a general purpose function)? if the executable 
+isn't available in your path it's likly that any config files it needs are not 
+available either.
 
-> > Has anybody 
-> > tried doing some real-world measurements to see if it actually makes a
-> > significant improvement in power usage?
-> 
-> I did measurements while in -mm, and yes it helped. And yes,
-> it works in 2.6.20-rc2, too:
-> 
-> ...
-> 
-> As you can see, it saves ~3.5W, which is huge deal on machine that
-> eats 11W total.
+> What would be really nice is if I could feed a NULL path to exec on NOMMU
+> systems, and have that mean "re-exec the current executable".  I can't think
+> of a way to do this without kernel support.  Any opinions on whether this is
+> worthwhile?
 
-Hey, that's great to know.  Thanks for sharing the figures!
+for something like busybox/toolbox where you have different functions based on 
+the name used to execute the program, which name would you use?
 
-And special thanks to Alan, for reworking (and re-reworking) relevant
-parts of usbcore so that these power savings can (mostly) be automated.
-ISTR the first patches supporting USB suspend/resume/wakeup landed in
-about the 2.6.10 kernel, and things look a LOT better than back then.
+David Lang
 
-- Dave
-
-
-> (X60 owners, get 2.6.20, and _disable that bluetooth_ while not in use).
-> 									Pavel
+> A nommu-friendly daemonize() is another use for this, by the way...
+>
+> Rob
+>

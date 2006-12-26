@@ -1,89 +1,121 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932186AbWLZKZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932312AbWLZKbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWLZKZu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 05:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWLZKZu
+	id S932312AbWLZKbu (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 05:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWLZKbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 05:25:50 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:54802 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932186AbWLZKZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 05:25:49 -0500
-Date: Tue, 26 Dec 2006 02:25:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: florin@iucha.net (Florin Iucha)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: Linux 2.6.20-rc2
-Message-Id: <20061226022538.13ea8b3f.akpm@osdl.org>
-In-Reply-To: <20061225225616.GA22307@iucha.net>
-References: <20061225224047.GB6087@iucha.net>
-	<20061225225616.GA22307@iucha.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Dec 2006 05:31:50 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:40471 "HELO
+	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932312AbWLZKbt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 05:31:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fvFlBoNL7czZRpHtwvM7eLxawZcoZbsLnywV7YGXAtPhvU/wqKSFJJ3djLgTp6dMLLjWBu/8fxnBUJy2UKnh6gXUZg7HGrConfHzO25kZZdhW2ZyH/tOVQ7Yvl1KnmLtmp5q2RbqVwpjKVea3UZPgncl8m1a6jrrbOU7rXRNMUU=  ;
+X-YMail-OSG: kO58QZgVM1kjCEowVs7ln7Fix_nypY3AbqvpbQZzDMzIpq6aYCh08AhzQ7NdfwatmTY7ev8ov.ktp7TrnSdFMQ8aR7m1c5JgXeWSrG7s0SaHDDQjgI5xn6vm8On29njiV9yl._HihCIv8Ak-
+Message-ID: <4590F9E5.4060300@yahoo.com.au>
+Date: Tue, 26 Dec 2006 21:31:01 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrei Popa <andrei.popa@i-neo.ro>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Martin Michlmayr <tbm@cyrius.com>, Hugh Dickins <hugh@veritas.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption
+ on ext3)
+References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>  <97a0a9ac0612212020i6f03c3cem3094004511966e@mail.gmail.com>  <Pine.LNX.4.64.0612212033120.3671@woody.osdl.org>  <20061222100004.GC10273@deprecation.cyrius.com>  <20061222021714.6a83fcac.akpm@osdl.org> <1166790275.6983.4.camel@localhost>  <20061222123249.GG13727@deprecation.cyrius.com>  <20061222125920.GA16763@deprecation.cyrius.com>  <1166793952.32117.29.camel@twins>  <20061222192027.GJ4229@deprecation.cyrius.com>  <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>  <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>  <20061224005752.937493c8.akpm@osdl.org> <1166962478.7442.0.camel@localhost>  <20061224043102.d152e5b4.akpm@osdl.org> <1166978752.7022.1.camel@localhost> <Pine.LNX.4.64.0612240907180.3671@woody.osdl.org> <Pine.LNX.4.64.0612241029460.3671@woody.osdl.org> <Pine.LNX.4.64.0612241115130.3671@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612241115130.3671@woody.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Dec 2006 16:56:16 -0600
-florin@iucha.net (Florin Iucha) wrote:
+Linus Torvalds wrote:
+> 
+> On Sun, 24 Dec 2006, Linus Torvalds wrote:
+> 
+>>Peter, tell me I'm crazy, but with the new rules, the following condition 
+>>is a bug:
+>>
+>> - shared mapping
+>> - writable
+>> - not already marked dirty in the PTE
+> 
+> 
+> Ok, so how about this diff.
+> 
+> I'm actually feeling good about this one. It really looks like 
+> "do_no_page()" was simply buggy, and that this explains everything.
 
-> > The dmesg from the client machine is attached.
-> 
-> Now, really.
-> 
-> BTW, I am using NFSv4 exported async from the server and mounted
-> without any extra options on the client.
-> 
-> florin
-> 
-> -- 
-> Bruce Schneier expects the Spanish Inquisition.
->       http://geekz.co.uk/schneierfacts/fact/163
-> 
-> 
-> [the_oops  text/plain (9.9KB)]
-> [ 2844.871895] BUG: scheduling while atomic: cp/0x20000000/2965
-> [ 2844.871900] 
-> [ 2844.871901] Call Trace:
-> [ 2844.871910]  [<ffffffff8015b97d>] __sched_text_start+0x5d/0x7a6
-> [ 2844.871914]  [<ffffffff8012f6b0>] submit_bio+0x84/0x8b
-> [ 2844.871918]  [<ffffffff801f8ea6>] ext3_get_block+0x0/0xe4
-> [ 2844.871922]  [<ffffffff80112933>] __pagevec_lru_add+0xb6/0xc6
-> [ 2844.871927]  [<ffffffff801c02f0>] mpage_bio_submit+0x22/0x26
-> [ 2844.871931]  [<ffffffff8012cb30>] unix_poll+0x0/0xa4
-> [ 2844.871936]  [<ffffffff8017d801>] __cond_resched+0x1c/0x44
-> [ 2844.871940]  [<ffffffff8015c1d0>] cond_resched+0x29/0x30
-> [ 2844.871943]  [<ffffffff8015dd92>] __reacquire_kernel_lock+0x26/0x44
-> [ 2844.871948]  [<ffffffff8015c169>] thread_return+0xa3/0xe1
-> [ 2844.871953]  [<ffffffff80116664>] unlock_page+0x9/0x26
-> [ 2844.871957]  [<ffffffff8017d801>] __cond_resched+0x1c/0x44
-> [ 2844.871961]  [<ffffffff8015c1d0>] cond_resched+0x29/0x30
-> [ 2844.871965]  [<ffffffff8019e8b6>] generic_writepages+0x113/0x2d8
-> [ 2844.871970]  [<ffffffff8022771c>] nfs_writepage+0x0/0x22
-> [ 2844.871976]  [<ffffffff802280ff>] nfs_writepages+0x45/0x13c
-> [ 2844.871980]  [<ffffffff801536e6>] do_writepages+0x20/0x2d
-> [ 2844.871984]  [<ffffffff801487be>] __filemap_fdatawrite_range+0x51/0x5b
-> [ 2844.871989]  [<ffffffff8019ca9b>] filemap_write_and_wait+0x17/0x31
-> [ 2844.871993]  [<ffffffff80220948>] nfs_setattr+0x98/0x108
-> [ 2844.871996]  [<ffffffff80129c6e>] mntput_no_expire+0x19/0x7b
-> [ 2844.872000]  [<ffffffff8010dab9>] link_path_walk+0xc5/0xd7
-> [ 2844.872005]  [<ffffffff8010d340>] current_fs_time+0x3b/0x40
-> [ 2844.872009]  [<ffffffff80129b48>] notify_change+0x122/0x22f
-> [ 2844.872014]  [<ffffffff801bb806>] do_utimes+0x106/0x129
-> [ 2844.872019]  [<ffffffff8010ac5b>] vfs_read+0xaa/0x152
-> [ 2844.872023]  [<ffffffff801bb865>] sys_futimesat+0x3c/0x4b
-> [ 2844.872027]  [<ffffffff8015671e>] system_call+0x7e/0x83
-> [ 2844.872030] 
+Still trying to catch up here, so I'm not going to reply to any old
+stuff and just start at the tip of the thread... Other than to say
+that I really like cancel_page_dirty ;)
 
-This is the second report we've had where bit 29 of ->preempt_count is
-getting set.  I don't think there's any legitimate way in which that bit
-can get set.  (Ingo?)
+I think your patch is quite right so that's a good catch. But I'm not
+too surprised that it does not help the problem, because I don't
+think we have started shedding any old pte_dirty tests at
+unmap/reclaim-time, have we? So the dirty bit isn't going to get lost,
+as such.
 
-I'd suggested that the first report (which was in i386 iirc) was due to
-memory corruption (hardware or software).  And this might also be a
-hardware error, but that's looking pretty unlikely now.
+I was hoping that you've almost narrowed it down to the filesystem
+writeback code, with the last few mails?
 
-If this is real, it's going to be hard to find, unless someone finds a
-way to make it happen with some repeatability.
+Nick
+
+> Please please please test. Throw all the other patches away (with the 
+> possible exception of the "update_mmu_cache()" sanity checker, which is 
+> still interesting in case some _other_ place does this too).
+> 
+> Don't do the "wait_on_page_writeback()" thing, because it changes timings 
+> and might hide thngs for the wrong reasons.  Just apply this on top of a 
+> known failing kernel, and test.
+> 
+> 			Linus
+> 
+> ---
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 563792f..cf429c4 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -2247,21 +2249,23 @@ retry:
+>  	if (pte_none(*page_table)) {
+>  		flush_icache_page(vma, new_page);
+>  		entry = mk_pte(new_page, vma->vm_page_prot);
+> -		if (write_access)
+> -			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+> -		set_pte_at(mm, address, page_table, entry);
+>  		if (anon) {
+>  			inc_mm_counter(mm, anon_rss);
+>  			lru_cache_add_active(new_page);
+>  			page_add_new_anon_rmap(new_page, vma, address);
+> +			if (write_access)
+> +				entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+>  		} else {
+>  			inc_mm_counter(mm, file_rss);
+>  			page_add_file_rmap(new_page);
+> +			entry = pte_wrprotect(entry);
+>  			if (write_access) {
+>  				dirty_page = new_page;
+>  				get_page(dirty_page);
+> +				entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+>  			}
+>  		}
+> +		set_pte_at(mm, address, page_table, entry);
+>  	} else {
+>  		/* One of our sibling threads was faster, back out. */
+>  		page_cache_release(new_page);
+> 
+
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

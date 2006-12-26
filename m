@@ -1,131 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932579AbWLZNKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932582AbWLZNfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932579AbWLZNKi (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 08:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWLZNKi
+	id S932582AbWLZNfe (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 08:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWLZNfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 08:10:38 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46607 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932579AbWLZNKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 08:10:37 -0500
-Date: Tue, 26 Dec 2006 14:07:39 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Fabio Comolli <fabio.comolli@gmail.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] sched: remove __resched_legal() and fix cond_resched_softirq()
-Message-ID: <20061226130739.GB3701@elte.hu>
-References: <b637ec0b0612240553n28b252c4p4c1559da794e646c@mail.gmail.com> <87psa9z0wu.fsf@duaron.myhome.or.jp>
+	Tue, 26 Dec 2006 08:35:34 -0500
+Received: from smtp108.rog.mail.re2.yahoo.com ([68.142.225.206]:23512 "HELO
+	smtp108.rog.mail.re2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932582AbWLZNfd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 08:35:33 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 08:35:33 EST
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:X-YMail-OSG:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=spRk8FV5C+wBX5XlmqdmKO3P0ymkTgiO3i1uibiLt+xpt3APCDRz8uEXPSJPUCMwhrE7LUxTFdlZy2Wz7FMYkIPGBkM6MIki7OPLA3JcAgmWT6xcDz8h1PoxyMVB8Twef5iQxj87SmaqMPRtxbyMQeyJYj7YyeW3aKvbe813QdQ=  ;
+X-YMail-OSG: pT2L1YIVM1mxeGA_PdNRHkkwJvMQxOuMx2osQ5E5IVIRat7UZe5wUEbQjR29q6QT0C4BotKJHoRhWBJnX5xDgc1SHayRGFoNr1rWrOjIDBbnL3QsDYmpeTFTydqClM0fObmxOa8J6JviNh0jG9r9Ahgm0r1iOE64FM00AsO2IPmBKqcKjAG7be1up7FU
+Subject: Re: Binary Drivers
+From: James C Georgas <jgeorgas@rogers.com>
+To: knobi@knobisoft.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061226112040.95091.qmail@web32614.mail.mud.yahoo.com>
+References: <20061226112040.95091.qmail@web32614.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 26 Dec 2006 08:28:52 -0500
+Message-Id: <1167139732.15424.48.camel@Rainsong>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87psa9z0wu.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-
-> "Fabio Comolli" <fabio.comolli@gmail.com> writes:
+On Tue, 2006-26-12 at 03:20 -0800, Martin Knoblauch wrote:
+> On 12/25/06, David Schwartz <davids@xxxxxxxxxxxxx> wrote:
 > 
-> > Just found this in syslog. It was during normal activity, about 6
-> > minutes after resume-from-ram. I never saw this before.
+> >   If I bought the car from the manufacturer, it also must
+> > include any rights the manufacturer might have to the car's use.
+> > That includes using the car to violate emission control measures.
+> > If I didn't buy the right to use the car that way (insofar as
+> > that right was owned by the car manufacturer), I didn't
+> > buy the whole care -- just *some* of the rights to use it.
 > 
-> It seems someone missed to check PREEMPT_ACTIVE in __resched_legal().
+>  just to be dense - what makes you think that the car manufacturer has
+> any legal right to violate emission control measures? What an utter
+> nonsense (sorry).
+> 
+>  So, lets stop the stupid car comparisons. They are no being funny any
+> more.
 
-but PREEMPT_ACTIVE is 0x10000000, not 0x20000000.
+Let's summarize the current situation:
 
-> Could you please test the following patch?
+1) Hardware vendors don't have to tell us how to program their products,
+as long as they provide some way to use it (i.e. binary blob driver).
 
-no. cond_resched() is always legal in the !PREEMPT case.
+2) Hardware vendors don't want to tell us how to program their products,
+because they think this information is their secret sauce (or maybe
+their competitor's secret sauce).
 
-i found another bug and realized that the whole __resched_legal() 
-approach is fundamentally wrong! The patch below fixes this.
+3) Hardware vendors don't tell us how to program their products, because
+they know about (1) and they believe (2).
 
-	Ingo
 
-------------------->
-Subject: [patch] sched: remove __resched_legal() and fix cond_resched_softirq()
-From: Ingo Molnar <mingo@elte.hu>
 
-remove the __resched_legal() check: it is conceptually broken. The 
-biggest problem it had is that it can mask buggy cond_resched() calls. A 
-cond_resched() call is only legal if we are not in an atomic context. 
-But __resched_legal() hid this fact. Same goes for cond_resched_locked() 
-and cond_resched_softirq().
+4) We need products with datasheets because of our development model.
 
-furthermore, the __legal_resched(0) call was buggy in 
-cond_resched_softirq() and caused unnecessary long softirq latencies!
+5) We want products with capabilities that these vendors advertise.
 
-the fix is to preserve the only valid inhibitor to voluntary preemption: 
-if the system is still booting. None of the other behavior of 
-__resched_legal() made any sense.
+6) Products that satisfy both (4) and (5) are often scarce or
+non-existent.
 
-the effect of this fix should be more real bugs exposed, and shorter 
-softirq latencies.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/sched.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+So far, the suggestions I've seen to resolve the above conflict fall
+into three categories:
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -4617,17 +4617,6 @@ asmlinkage long sys_sched_yield(void)
- 	return 0;
- }
- 
--static inline int __resched_legal(int expected_preempt_count)
--{
--#ifdef CONFIG_PREEMPT
--	if (unlikely(preempt_count() != expected_preempt_count))
--		return 0;
--#endif
--	if (unlikely(system_state != SYSTEM_RUNNING))
--		return 0;
--	return 1;
--}
--
- static void __cond_resched(void)
- {
- #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-@@ -4647,7 +4636,7 @@ static void __cond_resched(void)
- 
- int __sched cond_resched(void)
- {
--	if (need_resched() && __resched_legal(0)) {
-+	if (need_resched() && system_state == SYSTEM_RUNNING) {
- 		__cond_resched();
- 		return 1;
- 	}
-@@ -4673,7 +4662,7 @@ int cond_resched_lock(spinlock_t *lock)
- 		ret = 1;
- 		spin_lock(lock);
- 	}
--	if (need_resched() && __resched_legal(1)) {
-+	if (need_resched() && system_state == SYSTEM_RUNNING) {
- 		spin_release(&lock->dep_map, 1, _THIS_IP_);
- 		_raw_spin_unlock(lock);
- 		preempt_enable_no_resched();
-@@ -4689,7 +4678,7 @@ int __sched cond_resched_softirq(void)
- {
- 	BUG_ON(!in_softirq());
- 
--	if (need_resched() && __resched_legal(0)) {
-+	if (need_resched() && system_state == SYSTEM_RUNNING) {
- 		raw_local_irq_disable();
- 		_local_bh_enable();
- 		raw_local_irq_enable();
+a) Force vendors to provide datasheets. 
+
+b) Entice vendors to provide datasheets.
+
+c) Reverse engineer the hardware and write our own datasheets.
+
+Solution (a) involves denial of point (1), mostly through the use of
+analogy and allegory. Alternatively, one can try to change the law
+through government channels.
+
+Solution (b) requires market pressure, charity, or visionary management.
+We can't exert enough market pressure currently to make much difference.
+Charity sometimes gives us datasheets for old hardware. Visionary
+management is the future.
+
+Solution (c) is what we do now, with varying degrees of success. A good
+example is the R300 support in the radeon DRM module.
+
+Did I miss anything?
+

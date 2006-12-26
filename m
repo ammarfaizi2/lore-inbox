@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932701AbWLZQ2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932708AbWLZQ26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbWLZQ2t (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 11:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWLZQ2t
+	id S932708AbWLZQ26 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 11:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbWLZQ26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 11:28:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36535 "EHLO mx2.mail.elte.hu"
+	Tue, 26 Dec 2006 11:28:58 -0500
+Received: from ns1.suse.de ([195.135.220.2]:48882 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932701AbWLZQ2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 11:28:49 -0500
-Date: Tue, 26 Dec 2006 17:26:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Andrew Morton <akpm@osdl.org>, Florin Iucha <florin@iucha.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc2
-Message-ID: <20061226162616.GA6756@elte.hu>
-References: <20061225224047.GB6087@iucha.net> <20061225225616.GA22307@iucha.net> <20061226022538.13ea8b3f.akpm@osdl.org> <20061226124019.GA3701@elte.hu> <20061226073610.1b86a7cc.randy.dunlap@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061226073610.1b86a7cc.randy.dunlap@oracle.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0002]
+	id S932707AbWLZQ24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 11:28:56 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Larry Finger <larry.finger@lwfinger.net>
+Cc: bert hubert <bert.hubert@netherlabs.nl>,
+       Broadcom Linux <bcm43xx-dev@lists.berlios.de>,
+       netdev <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: bcm43xx-softmac broken on 2.6.20-rc2
+References: <458EA216.7000101@lwfinger.net>
+	<20061226154524.GB12583@outpost.ds9a.nl>
+	<45914CAF.1070907@lwfinger.net>
+X-Yow: When I met th'POPE back in '58, I scrubbed him with a MILD SOAP
+ or DETERGENT for 15 minutes.  He seemed to enjoy it..
+Date: Tue, 26 Dec 2006 17:28:49 +0100
+In-Reply-To: <45914CAF.1070907@lwfinger.net> (Larry Finger's message of "Tue,
+	26 Dec 2006 10:24:15 -0600")
+Message-ID: <jelkku62pq.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry Finger <larry.finger@lwfinger.net> writes:
 
-* Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> The patch does not apply because your mailer is breaking the white space and substituting spaces for 
+> tabs.
 
-> I've had at least one more occurrence of it:
-> 
-> [   78.804940] BUG: scheduling while atomic: kbd/0x20000000/3444
-> [   78.804944] 
-> [   78.804945] Call Trace:
+No, it does not apply because it was space-stuffed.
 
-ok, i can think of a simpler scenario: add_preempt_count(PREEMPT_ACTIVE) 
-/twice/, nested into each other.
+Andreas.
 
-	Ingo
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,107 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932244AbWLZEpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932288AbWLZExR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWLZEpf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 25 Dec 2006 23:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWLZEpf
+	id S932288AbWLZExR (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 25 Dec 2006 23:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWLZExR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Dec 2006 23:45:35 -0500
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:35228 "EHLO
-	liaag2aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932244AbWLZEpe (ORCPT
+	Mon, 25 Dec 2006 23:53:17 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:62952 "EHLO
+	tyo201.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932069AbWLZExQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Dec 2006 23:45:34 -0500
-Date: Mon, 25 Dec 2006 23:42:32 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: ebtables problems on 2.6.19.1 *and* 2.6.16.36
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: Patrick McHardy <kaber@trash.net>,
-       Santiago Garcia Mantinan <manty@manty.net>,
-       linux-kernel@vger.kernel.org, ebtables-devel@lists.sourceforge.net
-Message-ID: <200612252344_MC3-1-D65C-20B2@compuserve.com>
+	Mon, 25 Dec 2006 23:53:16 -0500
+Message-ID: <4590AAA6.1010106@bx.jp.nec.com>
+Date: Tue, 26 Dec 2006 13:52:54 +0900
+From: Keiichi KII <k-keiichi@bx.jp.nec.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: mpm@selenic.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH -mm 0/5] proposal for dynamic configurable netconsole
+References: <458BC905.7050003@bx.jp.nec.com> <20061222103615.6e074f4e@localhost.localdomain>
+In-Reply-To: <20061222103615.6e074f4e@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <458DEF02.90908@theshore.net>
+Thank you for your comments.
 
-On Sat, 23 Dec 2006 22:07:46 -0500, Christopher S. Aker wrote:
-
-> We're hitting this too, on both 2.6.16.36 and 2.6.19.1.
+>> So, I propose the following extended features for netconsole.
+>>
+>> 1) support for multiple logging agents.
+>> 2) add interface to access each parameter of netconsole
+>>    using sysfs.
+>>
+>> This patch is for linux-2.6.20-rc1-mm1 and is divided to each function.
+>> Your comments are very welcome.
 > 
-> BUG: unable to handle kernel paging request at virtual address f8cec008
->   printing eip:
-> c0462272
-> *pde = 00000000
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in: e1000
-> CPU:    1
-> EIP:    0060:[<c0462272>]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.19.1-1-bigmem #1)
-> EIP is at translate_table+0x2b3/0xddf
+> Rather than extending the existing kludge with module parameter, to
+> sysfs. I would rather see a better API for this. Please build think
+> about doing a better API with a basic set of ioctl's. Some additional
 
-> Considering I've never had these problems before, and that both stable 
-> (2.6.16.36) and current (2.6.19.1) exhibit this issue, I'd venture to 
-> guess that it's something that went into both of them very recently.
+What advantage do we use a set of ioctl's compared to sysfs?
+I think that sysfs is easier and more readable than the ioctl's 
+to change configurations(IP address and port number and so on).
 
-Bingo!
+ex)
+# cat /sys/class/misc/netconsole/port1/remote_ip
+192.168.0.1
+# echo 172.16.0.1 > /sys/class/misc/netconsole/port1/remote_ip
+# cat /sys/class/misc/netconsole/port1/remote_ip
+172.16.0.1
 
-It is dying here:
+And the sysfs doesn't need to create access program such as the ioctl's.
+If you change configurations related to netconsole through the sysfs interface, 
+a simple script file including a set of commands such as above echo 
+will help you set up automatically.
 
- static inline int
- ebt_check_entry(struct ebt_entry *e, struct ebt_table_info *newinfo,
-    const char *name, unsigned int *cnt, unsigned int valid_hooks,
-    struct ebt_cl_stack *cl_s, unsigned int udc_cnt)
- {
-        struct ebt_entry_target *t;
-        struct ebt_target *target;
-        unsigned int i, j, hook = 0, hookmask = 0;
-        size_t gap = e->next_offset - e->target_offset; <================
-        int ret;
+> things:
+> 	- shouldn't just be IPV4 specific, should handle IPV6 as well
 
-        /* don't mess with the struct ebt_entries */
-        if (e->bitmask == 0)
-                return 0;
+I would like to implement handling IPV6 on demand in the future.
 
+> 	- shouldn't specify MAC address, it can do network discovery/arp to
+> 	  find that when adding addresses
 
-when trying to access e->next_offset, which may or may not exist because
-'e' sometimes points to a 'struct ebt_entries', not 'struct ebt_entry'
-(note the comment before the 'if'.) This code was recently added.
+I think a userland application would rather find target MAC address and 
+change it through the sysfs.
 
-So this (untested) patch should fix it (I tried to move the computation to
-a place where it's efficient.)  If so it's needed for 2.6.16.x, 2.6.18.x,
-2.6.19.x and 2.6.20-rc.
-
-
-ebtables: don't compute gap until we know we have an ebt_entry
-
-We must check the bitmap field to make sure we have an ebt_entry and
-not an ebt_entries struct before using fields from ebt_entry.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.19.1-32smp.orig/net/bridge/netfilter/ebtables.c
-+++ 2.6.19.1-32smp/net/bridge/netfilter/ebtables.c
-@@ -575,7 +575,7 @@ ebt_check_entry(struct ebt_entry *e, str
- 	struct ebt_entry_target *t;
- 	struct ebt_target *target;
- 	unsigned int i, j, hook = 0, hookmask = 0;
--	size_t gap = e->next_offset - e->target_offset;
-+	size_t gap;
- 	int ret;
- 
- 	/* don't mess with the struct ebt_entries */
-@@ -625,6 +625,7 @@ ebt_check_entry(struct ebt_entry *e, str
- 	if (ret != 0)
- 		goto cleanup_watchers;
- 	t = (struct ebt_entry_target *)(((char *)e) + e->target_offset);
-+	gap = e->next_offset - e->target_offset;
- 	target = find_target_lock(t->u.name, &ret, &ebt_mutex);
- 	if (!target)
- 		goto cleanup_watchers;
 -- 
-MBTI: IXTP
+Keiichi KII
+NEC Corporation OSS Promotion Center
+E-mail: k-keiichi@bx.jp.nec.com
+
+
+
+

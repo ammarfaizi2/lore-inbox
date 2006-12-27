@@ -1,155 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753102AbWL0S1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751728AbWL0SgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753102AbWL0S1G (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 13:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753730AbWL0S1G
+	id S1751728AbWL0SgY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 13:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWL0SgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 13:27:06 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:44826 "EHLO mout1.freenet.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753102AbWL0S1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 13:27:04 -0500
-X-Greylist: delayed 6976 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Dec 2006 13:27:04 EST
-Date: Wed, 27 Dec 2006 17:37:18 +0100
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/1] 2.6.20-rc1-mm1 pktcdvd: cleanup
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
-Cc: "akpm@osdl.org" <akpm@osdl.org>, "petero2@telia.com" <petero2@telia.com>
-Content-Type: multipart/mixed; boundary=----------3mci1nkh6oHi4orjnEiLbZ
+	Wed, 27 Dec 2006 13:36:24 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:40651 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751728AbWL0SgX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 13:36:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=oMc3dgwMg4ZuLwRxL1rw5O0No2uSDwa5XNmYbe5j7w5h83uDbHEXQCv7T1Yu8wfKKGdODpQzQFvtiaDItqWEVRgEbOzPWKer5JoppGD10M8m5XUNOVjd8J24v/HVzmt3dlqbub/Tv+dbkK8OF00hzNEKwCpsADOsjMap447HMPw=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: ray-gmail@madrabbit.org
+Subject: Re: Feature request: exec self for NOMMU.
+Date: Wed, 27 Dec 2006 19:35:07 +0100
+User-Agent: KMail/1.8.2
+Cc: "Rob Landley" <rob@landley.net>, linux-kernel@vger.kernel.org,
+       "David McCullough" <david_mccullough@au.securecomputing.com>
+References: <200612261823.07927.rob@landley.net> <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
+In-Reply-To: <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
 MIME-Version: 1.0
-Message-ID: <op.tk78gghciudtyh@master>
-User-Agent: Opera Mail/9.02 (Win32)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612271935.07835.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------3mci1nkh6oHi4orjnEiLbZ
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+On Wednesday 27 December 2006 06:13, Ray Lee wrote:
+> On 12/26/06, Rob Landley <rob@landley.net> wrote:
+> > I'm trying to make some nommu-friendly busybox-like tools, which means using
+> > vfork() instead of fork().  This means that after I fork I have to exec in
+> > the child to unblock the parent, and if I want to exec my current executable
+> > I have to find out where it lives so I can feed the path to exec().  This is
+> > nontrivial.
+> >
+> > Worse, it's not always possible.  If chroot() has happened since the program
+> > started, there may not _be_ a path to my current executable available from
+> > this process's current or root directories.
+> 
+> How about openning an fd to yourself at the beginning of execution, then calling
+> fexecve later?
 
-Hello,
-
-this is a patch to cleanup some things in the pktcdvd driver for linux 2.6.20:
-
-- update documentation
-- use clear_bdi_congested/set_bdi_congested functions directly instead of old wrappers
-- removed DECLARE_BUF_AS_STRING macro
-
-Signed-off-by: Thomas Maier <balagi@justmail.de>
-------------3mci1nkh6oHi4orjnEiLbZ
-Content-Disposition: attachment; filename=pktcdvd-2.6.20-rc1-mm1.patch
-Content-Type: application/octet-stream; name=pktcdvd-2.6.20-rc1-mm1.patch
-Content-Transfer-Encoding: Base64
-
-ZGlmZiAtdXJwTiBsaW51eC0yLjYuMjAtcmMxLW1tMS9Eb2N1bWVudGF0aW9uL0FC
-SS90ZXN0aW5nL2RlYnVnZnMtcGt0Y2R2ZCBtb2R1bGUvRG9jdW1lbnRhdGlvbi9B
-QkkvdGVzdGluZy9kZWJ1Z2ZzLXBrdGNkdmQKLS0tIGxpbnV4LTIuNi4yMC1yYzEt
-bW0xL0RvY3VtZW50YXRpb24vQUJJL3Rlc3RpbmcvZGVidWdmcy1wa3RjZHZkCTIw
-MDYtMTItMjUgMTA6NTU6MTIuMDAwMDAwMDAwICswMTAwCisrKyBtb2R1bGUvRG9j
-dW1lbnRhdGlvbi9BQkkvdGVzdGluZy9kZWJ1Z2ZzLXBrdGNkdmQJMjAwNi0xMi0y
-NyAxNDo0OToxOC4wMDAwMDAwMDAgKzAxMDAKQEAgLTEsNiArMSw2IEBACiBXaGF0
-OiAgICAgICAgICAgL2RlYnVnL3BrdGNkdmQvcGt0Y2R2ZFswLTddCiBEYXRlOiAg
-ICAgICAgICAgT2N0LiAyMDA2Ci1LZXJuZWxWZXJzaW9uOiAgMi42LjE5CitLZXJu
-ZWxWZXJzaW9uOiAgMi42LjIwCiBDb250YWN0OiAgICAgICAgVGhvbWFzIE1haWVy
-IDxiYWxhZ2lAanVzdG1haWwuZGU+CiBEZXNjcmlwdGlvbjoKIApAQCAtMTEsOCAr
-MTEsNyBAQCBUaGUgcGt0Y2R2ZCBtb2R1bGUgKHBhY2tldCB3cml0aW5nIGRyaXZl
-CiB0aGVzZSBmaWxlcyBpbiBkZWJ1Z2ZzOgogCiAvZGVidWcvcGt0Y2R2ZC9wa3Rj
-ZHZkWzAtN10vCi0gICAgaW5mbyAgICAgICAgICAgICgwNDQ0KSBMb3RzIG9mIGh1
-bWFuIHJlYWRhYmxlIGRyaXZlcgotICAgICAgICAgICAgICAgICAgICAgICAgICAg
-c3RhdGlzdGljcyBhbmQgaW5mb3MuIE11bHRpcGxlIGxpbmVzIQorICAgIGluZm8g
-ICAgICAgICAgICAoMDQ0NCkgTG90cyBvZiBkcml2ZXIgc3RhdGlzdGljcyBhbmQg
-aW5mb3MuCiAKIEV4YW1wbGU6CiAtLS0tLS0tCmRpZmYgLXVycE4gbGludXgtMi42
-LjIwLXJjMS1tbTEvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9zeXNmcy1jbGFz
-cy1wa3RjZHZkIG1vZHVsZS9Eb2N1bWVudGF0aW9uL0FCSS90ZXN0aW5nL3N5c2Zz
-LWNsYXNzLXBrdGNkdmQKLS0tIGxpbnV4LTIuNi4yMC1yYzEtbW0xL0RvY3VtZW50
-YXRpb24vQUJJL3Rlc3Rpbmcvc3lzZnMtY2xhc3MtcGt0Y2R2ZAkyMDA2LTEyLTI1
-IDEwOjU1OjIxLjAwMDAwMDAwMCArMDEwMAorKysgbW9kdWxlL0RvY3VtZW50YXRp
-b24vQUJJL3Rlc3Rpbmcvc3lzZnMtY2xhc3MtcGt0Y2R2ZAkyMDA2LTEyLTI3IDE0
-OjQ5OjE4LjAwMDAwMDAwMCArMDEwMApAQCAtMSw2ICsxLDYgQEAKIFdoYXQ6ICAg
-ICAgICAgICAvc3lzL2NsYXNzL3BrdGNkdmQvCiBEYXRlOiAgICAgICAgICAgT2N0
-LiAyMDA2Ci1LZXJuZWxWZXJzaW9uOiAgMi42LjE5CitLZXJuZWxWZXJzaW9uOiAg
-Mi42LjIwCiBDb250YWN0OiAgICAgICAgVGhvbWFzIE1haWVyIDxiYWxhZ2lAanVz
-dG1haWwuZGU+CiBEZXNjcmlwdGlvbjoKIApkaWZmIC11cnBOIGxpbnV4LTIuNi4y
-MC1yYzEtbW0xL0RvY3VtZW50YXRpb24vY2Ryb20vcGFja2V0LXdyaXRpbmcudHh0
-IG1vZHVsZS9Eb2N1bWVudGF0aW9uL2Nkcm9tL3BhY2tldC13cml0aW5nLnR4dAot
-LS0gbGludXgtMi42LjIwLXJjMS1tbTEvRG9jdW1lbnRhdGlvbi9jZHJvbS9wYWNr
-ZXQtd3JpdGluZy50eHQJMjAwNi0xMi0yNSAxMDo1NTozMi4wMDAwMDAwMDAgKzAx
-MDAKKysrIG1vZHVsZS9Eb2N1bWVudGF0aW9uL2Nkcm9tL3BhY2tldC13cml0aW5n
-LnR4dAkyMDA2LTEyLTI3IDE0OjQ5OjQyLjAwMDAwMDAwMCArMDEwMApAQCAtOTMs
-NyArOTMsNyBAQCBOb3RlcwogVXNpbmcgdGhlIHBrdGNkdmQgc3lzZnMgaW50ZXJm
-YWNlCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIAotU2luY2Ug
-TGludXggMi42LjE5LCB0aGUgcGt0Y2R2ZCBtb2R1bGUgaGFzIGEgc3lzZnMgaW50
-ZXJmYWNlCitTaW5jZSBMaW51eCAyLjYuMjAsIHRoZSBwa3RjZHZkIG1vZHVsZSBo
-YXMgYSBzeXNmcyBpbnRlcmZhY2UKIGFuZCBjYW4gYmUgY29udHJvbGxlZCBieSBp
-dC4gRm9yIGV4YW1wbGUgdGhlICJwa3RjZHZkIiB0b29sIHVzZXMKIHRoaXMgaW50
-ZXJmYWNlLiAoc2VlIGh0dHA6Ly9wZW9wbGUuZnJlZW5ldC5kZS9CYWxhR2kjcGt0
-Y2R2ZCApCiAKZGlmZiAtdXJwTiBsaW51eC0yLjYuMjAtcmMxLW1tMS9kcml2ZXJz
-L2Jsb2NrL3BrdGNkdmQuYyBtb2R1bGUvZHJpdmVycy9ibG9jay9wa3RjZHZkLmMK
-LS0tIGxpbnV4LTIuNi4yMC1yYzEtbW0xL2RyaXZlcnMvYmxvY2svcGt0Y2R2ZC5j
-CTIwMDYtMTItMjUgMTA6NTY6MDUuMDAwMDAwMDAwICswMTAwCisrKyBtb2R1bGUv
-ZHJpdmVycy9ibG9jay9wa3RjZHZkLmMJMjAwNi0xMi0yNyAxNDo1MDo1NC4wMDAw
-MDAwMDAgKzAxMDAKQEAgLTE5MCwxNSArMTkwLDYgQEAgc3RhdGljIHN0cnVjdCBh
-dHRyaWJ1dGUgKmtvYmpfcGt0X2F0dHJzXwogCU5VTEwKIH07CiAKLS8qIGRlY2xh
-cmVzIGEgY2hhciBidWZmZXJbNjRdIF9kYnVmLCBjb3BpZXMgZGF0YSBmcm9tCi0g
-KiBfYiB3aXRoIGxlbmd0aCBfbCBpbnRvIGl0IGFuZCBlbnN1cmVzIHRoYXQgX2Ri
-dWYgZW5kcwotICogd2l0aCBhIFwwIGNoYXJhY3Rlci4KLSAqLwotI2RlZmluZSBE
-RUNMQVJFX0JVRl9BU19TVFJJTkcoX2RidWYsIF9iLCBfbCkgXAotCWNoYXIgX2Ri
-dWZbNjRdOyBpbnQgZGxlbiA9IChfbCkgPCAwID8gMCA6IChfbCk7IFwKLQlpZiAo
-ZGxlbiA+PSBzaXplb2YoX2RidWYpKSBkbGVuID0gc2l6ZW9mKF9kYnVmKS0xOyBc
-Ci0JbWVtY3B5KF9kYnVmLCBfYiwgZGxlbik7IF9kYnVmW2RsZW5dID0gMAotCiBz
-dGF0aWMgc3NpemVfdCBrb2JqX3BrdF9zaG93KHN0cnVjdCBrb2JqZWN0ICprb2Jq
-LAogCQkJc3RydWN0IGF0dHJpYnV0ZSAqYXR0ciwgY2hhciAqZGF0YSkKIHsKQEAg
-LTI2NCw5ICsyNTUsOCBAQCBzdGF0aWMgc3NpemVfdCBrb2JqX3BrdF9zdG9yZShz
-dHJ1Y3Qga29iCiB7CiAJc3RydWN0IHBrdGNkdmRfZGV2aWNlICpwZCA9IHRvX3Br
-dGNkdmRrb2JqKGtvYmopLT5wZDsKIAlpbnQgdmFsOwotCURFQ0xBUkVfQlVGX0FT
-X1NUUklORyhkYnVmLCBkYXRhLCBsZW4pOyAvKiBlbnN1cmUgc3NjYW5mIHNjYW5z
-IGEgc3RyaW5nICovCiAKLQlpZiAoc3RyY21wKGF0dHItPm5hbWUsICJyZXNldCIp
-ID09IDAgJiYgZGxlbiA+IDApIHsKKwlpZiAoc3RyY21wKGF0dHItPm5hbWUsICJy
-ZXNldCIpID09IDAgJiYgbGVuID4gMCkgewogCQlwZC0+c3RhdHMucGt0X3N0YXJ0
-ZWQgPSAwOwogCQlwZC0+c3RhdHMucGt0X2VuZGVkID0gMDsKIAkJcGQtPnN0YXRz
-LnNlY3NfdyA9IDA7CkBAIC0yNzQsNyArMjY0LDcgQEAgc3RhdGljIHNzaXplX3Qg
-a29ial9wa3Rfc3RvcmUoc3RydWN0IGtvYgogCQlwZC0+c3RhdHMuc2Vjc19yID0g
-MDsKIAogCX0gZWxzZSBpZiAoc3RyY21wKGF0dHItPm5hbWUsICJjb25nZXN0aW9u
-X29mZiIpID09IDAKLQkJICAgJiYgc3NjYW5mKGRidWYsICIlZCIsICZ2YWwpID09
-IDEpIHsKKwkJICAgJiYgc3NjYW5mKGRhdGEsICIlZCIsICZ2YWwpID09IDEpIHsK
-IAkJc3Bpbl9sb2NrKCZwZC0+bG9jayk7CiAJCXBkLT53cml0ZV9jb25nZXN0aW9u
-X29mZiA9IHZhbDsKIAkJaW5pdF93cml0ZV9jb25nZXN0aW9uX21hcmtzKCZwZC0+
-d3JpdGVfY29uZ2VzdGlvbl9vZmYsCkBAIC0yODIsNyArMjcyLDcgQEAgc3RhdGlj
-IHNzaXplX3Qga29ial9wa3Rfc3RvcmUoc3RydWN0IGtvYgogCQlzcGluX3VubG9j
-aygmcGQtPmxvY2spOwogCiAJfSBlbHNlIGlmIChzdHJjbXAoYXR0ci0+bmFtZSwg
-ImNvbmdlc3Rpb25fb24iKSA9PSAwCi0JCSAgICYmIHNzY2FuZihkYnVmLCAiJWQi
-LCAmdmFsKSA9PSAxKSB7CisJCSAgICYmIHNzY2FuZihkYXRhLCAiJWQiLCAmdmFs
-KSA9PSAxKSB7CiAJCXNwaW5fbG9jaygmcGQtPmxvY2spOwogCQlwZC0+d3JpdGVf
-Y29uZ2VzdGlvbl9vbiA9IHZhbDsKIAkJaW5pdF93cml0ZV9jb25nZXN0aW9uX21h
-cmtzKCZwZC0+d3JpdGVfY29uZ2VzdGlvbl9vZmYsCkBAIC0zNjksOCArMzU5LDcg
-QEAgc3RhdGljIHNzaXplX3QgY2xhc3NfcGt0Y2R2ZF9zdG9yZV9hZGQocwogCQkJ
-CQlzaXplX3QgY291bnQpCiB7CiAJdW5zaWduZWQgaW50IG1ham9yLCBtaW5vcjsK
-LQlERUNMQVJFX0JVRl9BU19TVFJJTkcoZGJ1ZiwgYnVmLCBjb3VudCk7Ci0JaWYg
-KHNzY2FuZihkYnVmLCAiJXU6JXUiLCAmbWFqb3IsICZtaW5vcikgPT0gMikgewor
-CWlmIChzc2NhbmYoYnVmLCAiJXU6JXUiLCAmbWFqb3IsICZtaW5vcikgPT0gMikg
-ewogCQlwa3Rfc2V0dXBfZGV2KE1LREVWKG1ham9yLCBtaW5vciksIE5VTEwpOwog
-CQlyZXR1cm4gY291bnQ7CiAJfQpAQCAtMzgxLDggKzM3MCw3IEBAIHN0YXRpYyBz
-c2l6ZV90IGNsYXNzX3BrdGNkdmRfc3RvcmVfcmVtb3YKIAkJCQkJc2l6ZV90IGNv
-dW50KQogewogCXVuc2lnbmVkIGludCBtYWpvciwgbWlub3I7Ci0JREVDTEFSRV9C
-VUZfQVNfU1RSSU5HKGRidWYsIGJ1ZiwgY291bnQpOwotCWlmIChzc2NhbmYoZGJ1
-ZiwgIiV1OiV1IiwgJm1ham9yLCAmbWlub3IpID09IDIpIHsKKwlpZiAoc3NjYW5m
-KGJ1ZiwgIiV1OiV1IiwgJm1ham9yLCAmbWlub3IpID09IDIpIHsKIAkJcGt0X3Jl
-bW92ZV9kZXYoTUtERVYobWFqb3IsIG1pbm9yKSk7CiAJCXJldHVybiBjb3VudDsK
-IAl9CkBAIC0xMzkwLDcgKzEzNzgsNyBAQCB0cnlfbmV4dF9iaW86CiAJIAkJJiYg
-cGQtPmJpb19xdWV1ZV9zaXplIDw9IHBkLT53cml0ZV9jb25nZXN0aW9uX29mZik7
-CiAJc3Bpbl91bmxvY2soJnBkLT5sb2NrKTsKIAlpZiAod2FrZXVwKQotCQlibGtf
-Y2xlYXJfcXVldWVfY29uZ2VzdGVkKHBkLT5kaXNrLT5xdWV1ZSwgV1JJVEUpOwor
-CQljbGVhcl9iZGlfY29uZ2VzdGVkKCZwZC0+ZGlzay0+cXVldWUtPmJhY2tpbmdf
-ZGV2X2luZm8sIFdSSVRFKTsKIAogCXBrdC0+c2xlZXBfdGltZSA9IG1heChQQUNL
-RVRfV0FJVF9USU1FLCAxKTsKIAlwa3Rfc2V0X3N0YXRlKHBrdCwgUEFDS0VUX1dB
-SVRJTkdfU1RBVEUpOwpAQCAtMjYxMSw3ICsyNTk5LDcgQEAgc3RhdGljIGludCBw
-a3RfbWFrZV9yZXF1ZXN0KHJlcXVlc3RfcXVldQogCXNwaW5fbG9jaygmcGQtPmxv
-Y2spOwogCWlmIChwZC0+d3JpdGVfY29uZ2VzdGlvbl9vbiA+IDAKIAkgICAgJiYg
-cGQtPmJpb19xdWV1ZV9zaXplID49IHBkLT53cml0ZV9jb25nZXN0aW9uX29uKSB7
-Ci0JCWJsa19zZXRfcXVldWVfY29uZ2VzdGVkKHEsIFdSSVRFKTsKKwkJc2V0X2Jk
-aV9jb25nZXN0ZWQoJnEtPmJhY2tpbmdfZGV2X2luZm8sIFdSSVRFKTsKIAkJZG8g
-ewogCQkJc3Bpbl91bmxvY2soJnBkLT5sb2NrKTsKIAkJCWNvbmdlc3Rpb25fd2Fp
-dChXUklURSwgSFopOwo=
-
-------------3mci1nkh6oHi4orjnEiLbZ--
-
+This solves chroot problem. How to find path-to-yourself reliably
+(for one, without using /proc/self/exe) is not obvious to me.
+--
+vda

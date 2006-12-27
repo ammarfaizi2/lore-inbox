@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754708AbWL0Tgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932069AbWL0ToO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754708AbWL0Tgv (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 14:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754709AbWL0Tgv
+	id S932069AbWL0ToO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 14:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWL0ToO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 14:36:51 -0500
-Received: from homer.mvista.com ([63.81.120.158]:18659 "EHLO
-	dwalker1.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754708AbWL0Tgu (ORCPT
+	Wed, 27 Dec 2006 14:44:14 -0500
+Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:2332 "EHLO
+	smtp-vbr14.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932069AbWL0ToN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 14:36:50 -0500
-Message-Id: <20061227193550.324850000@mvista.com>
-User-Agent: quilt/0.45-1
-Date: Wed, 27 Dec 2006 11:35:50 -0800
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] update kmap_atomic on !HIGHMEM
+	Wed, 27 Dec 2006 14:44:13 -0500
+Subject: Re: idle RAID1 cpu usage
+References: <20061227180900.GA10373@msgid.wurtel.net> <Pine.LNX.4.61.0612271915400.10556@yvahk01.tjqt.qr>
+From: Paul Slootman <paul+nospam@wurtel.net>
+Organization: Wurtelization
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Date: 27 Dec 2006 19:44:09 GMT
+Message-ID: <4592cd09$0$339$e4fe514c@news.xs4all.nl>
+X-Trace: 1167248649 news.xs4all.nl 339 [::ffff:83.68.3.130]:55611
+X-Complaints-To: abuse@xs4all.nl
+In-Reply-To: <Pine.LNX.4.61.0612271915400.10556@yvahk01.tjqt.qr>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got some scheduling while atomic on x86-64 , and since x86-64 doesn't seem
-to have HIGHMEM there's no workaround for kmap_atomic() .
+Jan Engelhardt  <jengelh@linux01.gwdg.de> wrote:
+>On Dec 27 2006 19:09, Paul Slootman wrote:
+>>
+>>This works fine, but I noticed that quite some time was being used by
+>>the mdX_raid1 threads; even on a partition that's not even being used at
+>>this time... (it was an empty mounted filesystem, but I umounted it to
+>>be sure the filesystem code wasn't causing some IO).
+>>
+>>My question is: why is CPU being used by the RAID1 threads, even for
+>>those devices that are otherwise unused? What are they doing?
+>
+>First-time synchronization (if applies), otherwise I suspect some
+>housekeeping (bitmap perhaps?).
 
-This patch adds the same as i386 HIGHMEM for !HIGHMEM.
+No, I had rebooted after the initial synchronization was complete.
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+>Otherwise it seems like a question who does what. On a raid5 array (i.e.
+>cpu-heavy), both smbd and mdx_raid5 accumulate time for, of course, xor
+>calculation.
 
----
- include/linux/highmem.h |   14 +++++++++++++-
- 1 files changed, 13 insertions(+), 1 deletion(-)
+On those devices that are actually in use, I'd understand CPU being
+used; but where the device is not even mounted or used for swap or
+whatever, I find that amount of CPU usage very high for just checking
+the bitmap... I may take the idle device apart and reassemble without a
+bitmap to see whether that makes any difference.
 
-Index: linux-2.6.19/include/linux/highmem.h
-===================================================================
---- linux-2.6.19.orig/include/linux/highmem.h
-+++ linux-2.6.19/include/linux/highmem.h
-@@ -42,13 +42,25 @@ static inline void *kmap(struct page *pa
- 
- #define kunmap(page) do { (void) (page); } while (0)
- 
-+#ifdef CONFIG_PREEMPT_RT
-+/*
-+ * kmap and kmunmap are above, and they don't really do anything
-+ * interesting.
-+ */
-+# define kmap_atomic(page, idx)		kmap(page)
-+# define kmap_atomic_pfn(pfn, idx)	kmap(pfn_to_page(pfn))
-+# define kunmap_atomic(kvaddr, idx)	kunmap(kvaddr)
-+#else
- #define kmap_atomic(page, idx) \
- 	({ pagefault_disable(); page_address(page); })
- #define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
- #define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
--#define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
- #endif
- 
-+#define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
-+
-+#endif /* ARCH_HAS_KMAP */
-+
- #endif /* CONFIG_HIGHMEM */
- 
- /* when CONFIG_HIGHMEM is not set these will be plain clear/copy_page */
---
+
+Paul Slootman

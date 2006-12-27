@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932906AbWL0EZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932907AbWL0EdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932906AbWL0EZj (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 23:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWL0EZj
+	id S932907AbWL0EdE (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 23:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932903AbWL0EdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 23:25:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35277 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932906AbWL0EZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 23:25:38 -0500
-In-Reply-To: <20061227040022.GA6699@in.ibm.com>
-References: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com> <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org> <20061227040022.GA6699@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <f3dd667a7a49168e6817600f196e29bc@kernel.crashing.org>
+	Tue, 26 Dec 2006 23:33:03 -0500
+Received: from py-out-1112.google.com ([64.233.166.178]:22005 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932907AbWL0EdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 23:33:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XIM8vtipwdswACFL+3xyNV1ZkuzFp71qIfp6gMYO5fbm46GetDa7qZpfcwrQSeA5WJcTlwnt8Ns3DsPN60X61EtnXvhBxneAS+bOPyr4YjDryUwuj69beCT1czWT7QOutc8RbUYbT1Ij0aVMxAe6Nm2eKmOdZTfN/SRVg/kXv4M=
+Message-ID: <9e4733910612262033u4a9cc726s10d6719b25d81ac2@mail.gmail.com>
+Date: Tue, 26 Dec 2006 23:33:00 -0500
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Randy Dunlap" <randy.dunlap@oracle.com>
+Subject: Re: BUG: scheduling while atomic, new libata code
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061226175559.e280e66e.randy.dunlap@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
-       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Date: Wed, 27 Dec 2006 05:25:29 +0100
-To: vgoyal@in.ibm.com
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
+	 <20061226175559.e280e66e.randy.dunlap@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> .text.head is not type AX so it will be left out from the linked 
-> output.
+On 12/26/06, Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> Can you apply and test the patch here:
+>   http://lkml.org/lkml/2006/12/26/62
+> and let us know if that fixes the BUG, please.
 
-No, it does get added, but the section is not added to
-any segment, so a) it ends up near the end of the address
-map instead of being first thing, and b) it won't be loaded
-at run time.
+I am running with the patch and haven't hit the BUG. But I wasn't
+hitting it very often without the patch so it may take a while to know
+if there is a difference.
 
-> This reminds me that I have put another patch in kernel/head.S creating
-> a new section .text.head. I think I shall have to put a patch there too
-> to make it work with older binutils.
-
-Yeah.  Current stuff works with 2.15, which is three years
-old, but it doesn't hurt supporting older toolchains where
-possible.
-
-
-Segher
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

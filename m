@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932773AbWL0VeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932699AbWL0Vhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932773AbWL0VeS (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 16:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWL0VeS
+	id S932699AbWL0Vhj (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 16:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754790AbWL0Vhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 16:34:18 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:48893 "EHLO
-	smtpq1.groni1.gr.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932773AbWL0VeR (ORCPT
+	Wed, 27 Dec 2006 16:37:39 -0500
+Received: from homer.mvista.com ([63.81.120.158]:44121 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1754750AbWL0Vhj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 16:34:17 -0500
-Message-ID: <4592E685.5000602@gmail.com>
-Date: Wed, 27 Dec 2006 22:32:53 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: dmitry.torokhov@gmail.com
-Subject: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 27 Dec 2006 16:37:39 -0500
+Subject: Re: [PATCH -rt] update kmap_atomic on !HIGHMEM
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061227212555.GA14947@elte.hu>
+References: <20061227193550.324850000@mvista.com>
+	 <20061227212555.GA14947@elte.hu>
+Content-Type: text/plain
+Date: Wed, 27 Dec 2006 13:36:56 -0800
+Message-Id: <1167255416.14081.46.camel@imap.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day.
+On Wed, 2006-12-27 at 22:25 +0100, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > I got some scheduling while atomic on x86-64 , and since x86-64 
+> > doesn't seem to have HIGHMEM there's no workaround for kmap_atomic() .
+> > 
+> > This patch adds the same as i386 HIGHMEM for !HIGHMEM.
+> 
+> the problem is that this does not disable pagefaulting while 
+> kmap-atomic. Could you try the patch below, does it solve the assert?
+> 
 
-The bug where the kernel repetitively emits "atkbd.c: Spurious ACK on 
-isa0060/serio0. Some program might be trying access hardware directly" 
-(sic) on a panic, thereby scrolling away the information that would help 
-in seeing what exactly the problem was (ie, "Unable to mount root fs" or 
-something) is still present in 2.6.20-rc2.
+That goes for the other CONFIG_HIGHMEM changes also? I mean if we can't
+do it here we shouldn't do it else where..
 
-Rene.
+(note, I just used testscripts/ltpstress.sh from LTP to reproduce this.)
+
+Daniel 
+

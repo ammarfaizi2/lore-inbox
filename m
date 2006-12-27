@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932813AbWL0NTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932796AbWL0NYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932813AbWL0NTO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 08:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932796AbWL0NTN
+	id S932796AbWL0NYS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 08:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932789AbWL0NYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 08:19:13 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:43023 "EHLO inti.inf.utfsm.cl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932810AbWL0NTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 08:19:13 -0500
-Message-Id: <200612271318.kBRDIHjU008457@laptop13.inf.utfsm.cl>
-To: Theodore Tso <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>,
-       Arnd Bergmann <arnd@arndb.de>, Karel Zak <kzak@redhat.com>,
+	Wed, 27 Dec 2006 08:24:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:55975 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932817AbWL0NYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 08:24:17 -0500
+Date: Wed, 27 Dec 2006 13:24:13 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Karel Zak <kzak@redhat.com>,
        linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
        Olaf Hering <olh@suse.de>
-Subject: Re: util-linux: orphan 
-In-Reply-To: Message from Theodore Tso <tytso@mit.edu> 
-   of "Tue, 26 Dec 2006 23:35:01 CDT." <20061227043501.GA7821@thunk.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Wed, 27 Dec 2006 10:18:17 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 27 Dec 2006 10:18:18 -0300 (CLST)
+Subject: Re: util-linux: orphan
+Message-ID: <20061227132413.GA3405@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+	Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>
+References: <20061109224157.GH4324@petra.dvoda.cz> <20061218071737.GA5217@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de> <4591E3BB.9070806@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4591E3BB.9070806@zytor.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fedora rawhide (i686):
+On Tue, Dec 26, 2006 at 07:08:43PM -0800, H. Peter Anvin wrote:
+> That's a pretty silly statement.  The real issue is that any library 
+> needed by binaries in /bin or /sbin should live in /lib, not /usr/lib.
 
-$ rpm -qf /bin/mount
-util-linux-2.13-0.48.fc7
+Well, there's a real treat here - lots of shared libraries mean
+mount is rendered unusable when they are not available for some reason.
+And there could be lots of reasons for this.  We've seen selinux mislabeling
+with a fedoro-ish box in the lab, there is the possibility of unintentional
+ABI breaks and so on and so on.
 
-$ ldd /bin/mount
-        linux-gate.so.1 =>  (0x00f9b000)
-        libblkid.so.1 => /lib/libblkid.so.1 (0x45dbc000)
-        libuuid.so.1 => /lib/libuuid.so.1 (0x45db6000)
-        libselinux.so.1 => /lib/libselinux.so.1 (0x43c5c000)
-        libc.so.6 => /lib/libc.so.6 (0x430d9000)
-        libdevmapper.so.1.02 => /lib/libdevmapper.so.1.02 (0x4329c000)
-        libdl.so.2 => /lib/libdl.so.2 (0x43255000)
-        libsepol.so.1 => /lib/libsepol.so.1 (0x43c8b000)
-        /lib/ld-linux.so.2 (0x5e3f7000)
+Then again using shared libraries has  big advtantags over duplicating all
+the code, so I wouldn't want to say I'm totally against it.  As mount
+only needs the various libraries for it's non-core features what about
+dlopen()ing those libraries?  That way a messed up system at least has the
+bare mount functionality available.
 
-Aurora Corona (SPARC64):
-
-$ rpm -qf /bin/mount
-util-linux-2.13-0.44.sparc.al3
-
-$ ldd /bin/mount
-        libblkid.so.1 => /lib/libblkid.so.1 (0xf7fbc000)
-        libuuid.so.1 => /lib/libuuid.so.1 (0xf7fa8000)
-        libselinux.so.1 => /lib/libselinux.so.1 (0xf7f80000)
-        libc.so.6 => /lib/libc.so.6 (0xf7e10000)
-        libdevmapper.so.1.02 => /lib/libdevmapper.so.1.02 (0xf7dfc000)
-        libdl.so.2 => /lib/libdl.so.2 (0xf7de4000)
-        libsepol.so.1 => /lib/libsepol.so.1 (0xf7d88000)
-        /lib/ld-linux.so.2 (0x70000000)
-
-CentOS 4.4 (x86_64):
-
-$ rpm -qf /bin/mount
-util-linux-2.12a-16.EL4.20
-
-$ ldd /bin/mount
-        libc.so.6 => /lib64/tls/libc.so.6 (0x00000031d6c00000)
-        /lib64/ld-linux-x86-64.so.2 (0x000000552aaaa000)
-
-All look fine to me.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

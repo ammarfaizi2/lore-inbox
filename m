@@ -1,86 +1,187 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933005AbWL0RRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932996AbWL0RSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933005AbWL0RRd (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933003AbWL0RL4
+	id S932996AbWL0RSq (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWL0RSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:11:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41471 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932997AbWL0RLt (ORCPT
+	Wed, 27 Dec 2006 12:18:25 -0500
+Received: from guri.is.scarlet.be ([193.74.71.22]:41804 "EHLO
+	guri.is.scarlet.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932996AbWL0RSA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:11:49 -0500
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       Hans Verkuil <hverkuil@xs4all.nl>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 15/28] V4L/DVB (4983): Force temporal filter to 0 when
-	scaling to prevent ghosting.
-Date: Wed, 27 Dec 2006 14:57:30 -0200
-Message-id: <20061227165730.PS10005700015@infradead.org>
-In-Reply-To: <20061227165016.PS89442900000@infradead.org>
-References: <20061227165016.PS89442900000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Wed, 27 Dec 2006 12:18:00 -0500
+X-Greylist: delayed 9211 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Dec 2006 12:17:57 EST
+Message-ID: <459286C2.7080705@scarlet.be>
+Date: Wed, 27 Dec 2006 14:44:18 +0000
+From: Joel Soete <soete.joel@scarlet.be>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: Ioan Ionita <opslynx@gmail.com>, Alan <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com, htejun@gmail.com
+Subject: Re: 2.6.19-rc5 libata PATA ATAPI CDROM SiS 5513 NOT WORKING
+References: <df47b87a0611161522o3ad007f5i8804c876c50e591c@mail.gmail.com> <20061116235048.3cd91beb@localhost.localdomain> <df47b87a0611161730p70e1dd41iad7d27a0bf9283ff@mail.gmail.com> <df47b87a0611161734h818fc4dneaad5eeaa7e3c392@mail.gmail.com> <20061117100559.GA10275@devserv.devel.redhat.com>
+In-Reply-To: <20061117100559.GA10275@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-DCC-scarlet.be-Metrics: guri 2020; Body=7 Fuz1=7 Fuz2=7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Alan, Jeff,
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+Reading a paper on this new libata, I just want to try but failled yet for what said this thread "ATAPI CDROM" ;_(.
 
-Change the code to unconditionally turn off the temporal filter when scaling.
-If the window is not full screen the filter will introduce a nasty ghosting
-effect.
+I first test the latest stable 2.6.19.1 without luck, so I also want to try latest 2.6.20-rc2 unfortunately without more 
+success.
 
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+Here it was the test of new libata with 2.6.19.1:
+[snip]
+ata_piix 0000:00:07.1: version 2.00ac6
+ata1: PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata2: PATA max UDMA/33 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
+scsi3 : ata_piix
+ata1.00: ATA-4, max UDMA/66, 29336832 sectors: LBA
+ata1.00: ata1: dev 0 multi count 16
+ata1.01: ATAPI, max MWDMA1
+ata1.00: configured for UDMA/33
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1.01: limiting speed to PIO3
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1.01: disabled
+ata1: failed to recover some devices, retrying in 5 secs
+ata1.00: failed to set xfermode (err_mask=0x40)
+ata1.00: limiting speed to UDMA/25
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.00: configured for UDMA/25
+scsi4 : ata_piix
+scsi 3:0:0:0: Direct-Access     ATA      QUANTUM FIREBALL A03. PQ: 0 ANSI: 5
+SCSI device sdc: 29336832 512-byte hdwr sectors (15020 MB)
+sdc: Write Protect is off
+sdc: Mode Sense: 00 3a 00 00
+SCSI device sdc: drive cache: write back
+SCSI device sdc: 29336832 512-byte hdwr sectors (15020 MB)
+sdc: Write Protect is off
+sdc: Mode Sense: 00 3a 00 00
+SCSI device sdc: drive cache: write back
+  sdc: sdc1 sdc2 < sdc5 sdc6 sdc7 sdc8 sdc9 sdc10 sdc11 sdc12 sdc13 sdc14 sdc15 >
+sd 3:0:0:0: Attached scsi disk sdc
+sd 3:0:0:0: Attached scsi generic sg2 type 0
+[snip]
 
- drivers/media/video/cx2341x.c |   15 ++++++---------
- 1 files changed, 6 insertions(+), 9 deletions(-)
+And today with 2.6.20-rc2:
+ata_piix 0000:00:07.1: version 2.00ac7
+ata1: PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata2: PATA max UDMA/33 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
+scsi3 : ata_piix
+ata1.00: ATA-4, max UDMA/66, 29336832 sectors: LBA
+ata1.00: ata1: dev 0 multi count 16
+ata1.01: ATAPI, max MWDMA1
+ata1.00: configured for UDMA/33
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1.01: limiting speed to PIO3
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.01: qc timeout (cmd 0xa1)
+ata1.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata1.01: revalidation failed (errno=-5)
+ata1.01: disabled
+ata1: failed to recover some devices, retrying in 5 secs
+ata1.00: failed to set xfermode (err_mask=0x40)
+ata1.00: limiting speed to UDMA/25
+ata1: failed to recover some devices, retrying in 5 secs
+ata1: port is slow to respond, please be patient (Status 0xd0)
+ata1: port failed to respond (30 secs, Status 0xd0)
+ata1.00: configured for UDMA/25
+scsi4 : ata_piix
+scsi 3:0:0:0: Direct-Access     ATA      QUANTUM FIREBALL A03. PQ: 0 ANSI: 5
+SCSI device sdc: 29336832 512-byte hdwr sectors (15020 MB)
+sdc: Write Protect is off
+sdc: Mode Sense: 00 3a 00 00
+SCSI device sdc: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+SCSI device sdc: 29336832 512-byte hdwr sectors (15020 MB)
+sdc: Write Protect is off
+sdc: Mode Sense: 00 3a 00 00
+SCSI device sdc: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+  sdc: sdc1 sdc2 < sdc5 sdc6 sdc7 sdc8 sdc9 sdc10 sdc11 sdc12 sdc13 sdc14 sdc15 >
+sd 3:0:0:0: Attached scsi disk sdc
+sd 3:0:0:0: Attached scsi generic sg2 type 0
+[snip]
 
-diff --git a/drivers/media/video/cx2341x.c b/drivers/media/video/cx2341x.c
-index 657e0b9..e796afd 100644
---- a/drivers/media/video/cx2341x.c
-+++ b/drivers/media/video/cx2341x.c
-@@ -742,7 +742,6 @@ int cx2341x_update(void *priv, cx2341x_m
- 
- 	if (old == NULL || old->width != new->width || old->height != new->height ||
- 			old->video_encoding != new->video_encoding) {
--		int is_scaling;
- 		u16 w = new->width;
- 		u16 h = new->height;
- 
-@@ -752,20 +751,18 @@ int cx2341x_update(void *priv, cx2341x_m
- 		}
- 		err = cx2341x_api(priv, func, CX2341X_ENC_SET_FRAME_SIZE, 2, h, w);
- 		if (err) return err;
-+	}
- 
-+	if (new->width != 720 || new->height != (new->is_50hz ? 576 : 480)) {
- 		/* Adjust temporal filter if necessary. The problem with the temporal
- 		   filter is that it works well with full resolution capturing, but
- 		   not when the capture window is scaled (the filter introduces
--		   a ghosting effect). So if the capture window changed, and there is
--		   no updated filter value, then the filter is set depending on whether
--		   the new window is full resolution or not.
-+		   a ghosting effect). So if the capture window is scaled, then
-+		   force the filter to 0.
- 
--		   For full resolution a setting of 8 really improves the video
-+		   For full resolution the filter really improves the video
- 		   quality, especially if the original video quality is suboptimal. */
--		is_scaling = new->width != 720 || new->height != (new->is_50hz ? 576 : 480);
--		if (old && old->video_temporal_filter == temporal) {
--			temporal = is_scaling ? 0 : 8;
--		}
-+		temporal = 0;
- 	}
- 
- 	if (old == NULL || old->stream_type != new->stream_type) {
+seems to look like same kind of pb this thread speak about (i.e. hd seems to works fine but not atapi cdrom (r/w)) but not sure?
+
+Any idea/advise?
+
+
+Tia,
+	Joel
+
+PS0: I check that scsi cdrom was well selected
+
+PS1: with traditional ide support I get (with same 2.6.19.1 kernel):
+  [snip]
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+hda: QUANTUM FIREBALLlct10 15, ATA DISK drive
+hdb: PHILIPS CDD3610 CD-R/RW, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+Probing IDE interface ide1...
+hda: max request size: 128KiB
+hda: 29336832 sectors (15020 MB) w/418KiB Cache, CHS=29104/16/63, UDMA(33)
+hda: cache flushes not supported
+  hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12 hda13 hda14 hda15 hda16 hda17 hda18 hda19 hda20 hda21 hda22
+hda23 hda24 >
+hdb: ATAPI 6X CD-ROM CD-R/RW drive, 768kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.20
+[snip]
+
+Alan Cox wrote:
+> On Thu, Nov 16, 2006 at 08:34:03PM -0500, Ioan Ionita wrote:
+>>> ata2.00: limiting speed to UDMA/25
+>>> ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+>>> ata2.00: (BMDMA stat 0x20)
+>>> ata2.00: tag 0 cmd 0xa0 Emask 0x5 stat 0x51 err 0x51 (timeout)
+> 
+> etc.. - yes known. Something in the core code but not yet fixed (and I've
+> not had time to look at this).
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
 

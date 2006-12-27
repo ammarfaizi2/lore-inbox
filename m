@@ -1,99 +1,113 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932700AbWL0LtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932724AbWL0Lur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbWL0LtR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 06:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWL0LtR
+	id S932724AbWL0Lur (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 06:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWL0Luq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 06:49:17 -0500
-Received: from javad.com ([216.122.176.236]:4688 "EHLO javad.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932700AbWL0LtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 06:49:16 -0500
-From: Sergei Organov <osv@javad.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: moxa serial driver testing
-In-Reply-To: <552766292581216610@wsc.cz> (Jiri Slaby's message of "Sat, 23
- Dec
-	2006 02:35:46 +0100 (CET)")
-Date: Wed, 27 Dec 2006 14:48:13 +0300
-Message-ID: <87mz595zlu.fsf@javad.com>
-References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
-	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
-	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
-	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
-	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
-	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
-	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
-	<87r6urket6.fsf@javad.com> <552766292581216610@wsc.cz>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Wed, 27 Dec 2006 06:50:46 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:36173 "EHLO
+	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932724AbWL0Lup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 06:50:45 -0500
+Date: Wed, 27 Dec 2006 17:20:13 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Magnus Damm <magnus@valinux.co.jp>
+Subject: [PATCH 1/4] i386: Restore CONFIG_PHYSICAL_START option
+Message-ID: <20061227115013.GA22606@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
 
-> osv@javad.com wrote:
->> Hi Jiri,
->> 
->> I've figured out that both old and new mxser drivers have two similar
->> problems:
->> 
->> 1. When there are data coming to a port, sometimes opening of the port
->>    entirely locks the box. This is quite reproducible. Any idea what's
->>    wrong and how can I help to debug it?
->
-> Could you test the patch below, if something changes?
 
-Just tested with low_latency commented out. Still oopses:
+o Relocatable bzImage support had got rid of CONFIG_PHYSICAL_START option
+  thinking that now this option is not required as people can build a
+  second kernel as relocatable and load it anywhere. So need of compiling
+  the kernel for a custom address was gone. But Magnus uses vmlinux images
+  for second kernel in Xen environment and he wants to continue to use
+  it.
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 00000008
- printing eip:
-f8f1730f
-*pde = 00000000
-Oops: 0000 [#1]
-SMP 
-Modules linked in: nvidia agpgart ipv6 nfs lockd nfs_acl sunrpc dm_mod sr_mod sbp2 ieee1394 ide_generic ide_disk e1000 snd_hda_intel snd_hda_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer i2c_i801 tsdev psmouse snd soundcore snd_page_alloc i2c_core serio_raw parport_pc parport mxser_new evdev floppy pcspkr rtc ext3 jbd mbcache usb_storage usbhid ide_cd cdrom sd_mod uhci_hcd piix usbcore skge ata_piix libata scsi_mod generic ide_core thermal processor fan
-CPU:    0
-EIP:    0060:[<f8f1730f>]    Tainted: P      VLI
-EFLAGS: 00010046   (2.6.18-3-686 #1) 
-EIP is at mxser_receive_chars+0x21b/0x249 [mxser_new]
-eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000286
-esi: f8f1c79c   edi: 00000001   ebp: c1be6000   esp: c0313efc
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, ti=c0312000 task=c02c76a0 task.ti=c0312000)
-Stack: c0313f48 f8f1c8a8 0000903d 00000000 00000fff 000000ff 00000286 0000007b 
-       f8f1c79c 00000006 0000007f 000000c6 f8f17d7a 00000007 00000008 00000080 
-       00000000 00000000 f8f1bdc0 00000060 df985500 00000000 00000000 0000003a 
-Call Trace:
- [<f8f17d7a>] mxser_interrupt+0x15f/0x1e6 [mxser_new]
- [<c013fb83>] handle_IRQ_event+0x23/0x49
- [<c013fc3c>] __do_IRQ+0x93/0xe8
- [<c01050e5>] do_IRQ+0x43/0x52
- [<c01036b6>] common_interrupt+0x1a/0x20
- [<c0101b91>] mwait_idle+0x25/0x38
- [<c0101b52>] cpu_idle+0x9f/0xb9
- [<c03186fd>] start_kernel+0x379/0x380
-Code: ed ff ff eb 1f 8b 06 83 78 18 00 75 17 8b 56 08 83 c2 05 ec 8b 14 24 0f b6 c0 a8 01 89 02 0f 85 d4 fe ff ff 8b 46 04 8b 54 24 18 <8b> 40 08 01 3c 85 c4 ec f1 f8 8b 44 24 04 01 be f4 00 00 00 01 
-EIP: [<f8f1730f>] mxser_receive_chars+0x21b/0x249 [mxser_new] SS:ESP 0068:c0313efc
- <0>Kernel panic - not syncing: Fatal exception in interrupt
- BUG: warning at arch/i386/kernel/smp.c:547/smp_call_function()
- [<c010f5a3>] smp_call_function+0x53/0xfe
- [<c011d97e>] printk+0x14/0x18
- [<c010f661>] smp_send_stop+0x13/0x1c
- [<c011cfc6>] panic+0x4c/0xe2
- [<c0104013>] die+0x256/0x28a
- [<c01156e0>] do_page_fault+0x3b4/0x481
- [<c01f9f8d>] tty_buffer_request_room+0x107/0x112
- [<c011532c>] do_page_fault+0x0/0x481
- [<c01037f9>] error_code+0x39/0x40
- [<f8f1730f>] mxser_receive_chars+0x21b/0x249 [mxser_new]
- [<f8f17d7a>] mxser_interrupt+0x15f/0x1e6 [mxser_new]
- [<c013fb83>] handle_IRQ_event+0x23/0x49
- [<c013fc3c>] __do_IRQ+0x93/0xe8
- [<c01050e5>] do_IRQ+0x43/0x52
- [<c01036b6>] common_interrupt+0x1a/0x20
- [<c0101b91>] mwait_idle+0x25/0x38
- [<c0101b52>] cpu_idle+0x9f/0xb9
- [<c03186fd>] start_kernel+0x379/0x380
+o Restoring the CONFIG_PHYSICAL_START option for the time being. I think
+  down the line we can get rid of it. 
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/i386/Kconfig       |   41 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/boot.h |    3 ++-
+ 2 files changed, 43 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/Kconfig~i386-restore-CONFIG_PHYSICAL_START-option arch/i386/Kconfig
+--- linux-2.6.20-rc2-reloc/arch/i386/Kconfig~i386-restore-CONFIG_PHYSICAL_START-option	2006-12-27 16:22:30.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/arch/i386/Kconfig	2006-12-27 16:48:30.000000000 +0530
+@@ -777,6 +777,47 @@ config CRASH_DUMP
+           PHYSICAL_START.
+ 	  For more details see Documentation/kdump/kdump.txt
+ 
++config PHYSICAL_START
++	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
++	default "0x100000"
++	help
++	  This gives the physical address where the kernel is loaded.
++
++	  If kernel is a not relocatable (CONFIG_RELOCATABLE=n) then
++	  bzImage will decompress itself to above physical address and
++	  run from there. Otherwise, bzImage will run from the address where
++	  it has been loaded by the boot loader and will ignore above physical
++	  address.
++
++	  In normal kdump cases one does not have to set/change this option
++	  as now bzImage can be compiled as a completely relocatable image
++	  (CONFIG_RELOCATABLE=y) and be used to load and run from a different
++	  address. This option is mainly useful for the folks who don't want
++	  to use a bzImage for capturing the crash dump and want to use a
++	  vmlinux instead. vmlinux is not relocatable hence a kernel needs
++	  to be specifically compiled to run from a specific memory area
++	  (normally a reserved region) and this option comes handy.
++
++	  So if you are using bzImage for capturing the crash dump, leave
++	  the value here unchanged to 0x100000 and set CONFIG_RELOCATABLE=y.
++	  Otherwise if you plan to use vmlinux for capturing the crash dump
++	  change this value to start of the reserved region (Typically 16MB
++	  0x1000000). In other words, it can be set based on the "X" value as
++	  specified in the "crashkernel=YM@XM" command line boot parameter
++	  passed to the panic-ed kernel. Typically this parameter is set as
++	  crashkernel=64M@16M. Please take a look at
++	  Documentation/kdump/kdump.txt for more details about crash dumps.
++
++	  Usage of bzImage for capturing the crash dump is recommended as
++	  one does not have to build two kernels. Same kernel can be used
++	  as production kernel and capture kernel. Above option should have
++	  gone away after relocatable bzImage support is introduced. But it
++	  is present because there are users out there who continue to use
++	  vmlinux for dump capture. This option should go away down the
++	  line.
++
++	  Don't change this unless you know what you are doing.
++
+ config RELOCATABLE
+ 	bool "Build a relocatable kernel(EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+diff -puN include/asm-i386/boot.h~i386-restore-CONFIG_PHYSICAL_START-option include/asm-i386/boot.h
+--- linux-2.6.20-rc2-reloc/include/asm-i386/boot.h~i386-restore-CONFIG_PHYSICAL_START-option	2006-12-27 16:22:30.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/include/asm-i386/boot.h	2006-12-27 16:22:30.000000000 +0530
+@@ -13,7 +13,8 @@
+ #define ASK_VGA		0xfffd		/* ask for it at bootup */
+ 
+ /* Physical address where kenrel should be loaded. */
+-#define LOAD_PHYSICAL_ADDR ((0x100000 + CONFIG_PHYSICAL_ALIGN - 1) \
++#define LOAD_PHYSICAL_ADDR ((CONFIG_PHYSICAL_START \
++				+ (CONFIG_PHYSICAL_ALIGN - 1)) \
+ 				& ~(CONFIG_PHYSICAL_ALIGN - 1))
+ 
+ #endif /* _LINUX_BOOT_H */
+_

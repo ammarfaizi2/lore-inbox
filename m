@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932912AbWL0FpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932918AbWL0FvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932912AbWL0FpQ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 00:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932918AbWL0FpQ
+	id S932918AbWL0FvF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 00:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932916AbWL0FvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 00:45:16 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:34688
-	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932912AbWL0FpP (ORCPT
+	Wed, 27 Dec 2006 00:51:05 -0500
+Received: from s233-64-196-242.try.wideopenwest.com ([64.233.242.196]:54096
+	"EHLO echohome.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932920AbWL0FvE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 00:45:15 -0500
-From: Rob Landley <rob@landley.net>
-To: Denis Vlasenko <vda.linux@googlemail.com>
-Subject: Re: Feature request: exec self for NOMMU.
-Date: Wed, 27 Dec 2006 00:44:11 -0500
-User-Agent: KMail/1.9.1
-Cc: David Lang <david.lang@digitalinsight.com>, linux-kernel@vger.kernel.org,
-       David McCullough <david_mccullough@au.securecomputing.com>
-References: <200612261823.07927.rob@landley.net> <Pine.LNX.4.63.0612261549050.24795@qynat.qvtvafvgr.pbz> <200612270524.36157.vda.linux@googlemail.com>
-In-Reply-To: <200612270524.36157.vda.linux@googlemail.com>
+	Wed, 27 Dec 2006 00:51:04 -0500
+Reply-To: <Erik@echohome.org>
+From: "Erik Ohrnberger" <Erik@echohome.org>
+To: "'Tejun Heo'" <htejun@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: System / libata IDE controller woes (long)
+Date: Wed, 27 Dec 2006 00:50:57 -0500
+Organization: EchoHome.org
+Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAANz30GbAA9BLm2+8fOoz0KkBAAAAAA==@EchoHome.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612270044.12645.rob@landley.net>
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+Thread-Index: AccpaP/mE0iuUFjWQp+QVP+WST45RwAEbsEA
+In-Reply-To: <4591EB76.3060801@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 December 2006 11:24 pm, Denis Vlasenko wrote:
-> busybox needs it in order to spawn, for example, gzip/bzip2 helper
-> for tar. We know that our own executable has this function.
-> How to execute _our own executable_? exec("/proc/self/exe")
-> works only if /proc is mounted. I can imagine that some embedded
-> people want to be able to not rely on that.
+Hi There!
+	Yea, I thought that it might be power related as well, so I moved
+1/2 of the drives from the 500 Watt power supply onto a separate one, and it
+did not change any of the symptoms.  So I think that it's been ruled out.
 
-Actually, we added CONFIG_BUSYBOX_EXEC_PATH so you could feed it a different 
-path to the busybox executable if you haven't got proc.  It's still a hack, 
-and it still breaks when you chroot, but you can use the standalone shell 
-without /proc.
+	Thanks,
+		Erik.
+> 
+> Hello,
+> 
+> Erik Ohrnberger wrote:
+> > Earlier this year, when I started putting it together, I 
+> gathered my 
+> > hardware.  A decent 2 GHz Athlon system with 512 MB RAM, 
+> DVD drive, a 
+> > 40 GB system drive, and a 500 Watt power supply.  Then I started 
+> > adding hard disks.  To date, I've got 5 80 GB PATA, 2 200 
+> GB PATA, and 1 60 GB PATA.
+> 
+> That's 9 hard drives.  How did you hook up your power supply? 
+>  My dual-rail 450w PS has a lot of problem driving 9 drives 
+> no matter how I hook it up while my 350w power supply can 
+> happily handle the load.  I suspect it's because how the 
+> separate 12v rails are configured in the PS.
+> 
+> It's nothing concrete but I wanna rule PS issue first.  If 
+> you've got an extra power supply (buy cheap 350w one if you 
+> don't have one), hook half of the drives to it and see what 
+> happens.  Using PS without motherboard is easy.  Just ask google.
+> 
+> Happy holidays.
+> 
+> --
+> tejun
+> 
 
-Why do people chroot?  To do system recovery using busybox with the standalone 
-shell and built-in commands.  They chroot into the damaged root partition to 
-run some of the commands in there (shared library paths get a bit twitchy 
-without the chroot), but they want to use the built-in busybox commands for 
-most of it because PAM and selinux can get screwed up by passing birds, 
-brightly colored wallpaper or large flowers, and when they do they interfere 
-with everything.
-
-*shrug*  This was a bigger deal a few years ago, before the invention of the 
-knoppix CD...
-
-Rob
--- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery

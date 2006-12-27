@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753621AbWL0Ijj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753674AbWL0IwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753621AbWL0Ijj (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 03:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753623AbWL0Ijj
+	id S1753674AbWL0IwP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 03:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753635AbWL0IwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 03:39:39 -0500
-Received: from [85.204.20.254] ([85.204.20.254]:42089 "EHLO megainternet.ro"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753608AbWL0Iji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 03:39:38 -0500
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-From: Andrei Popa <andrei.popa@i-neo.ro>
-Reply-To: andrei.popa@i-neo.ro
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
-       gordonfarquharson@gmail.com, tbm@cyrius.com, a.p.zijlstra@chello.nl,
-       akpm@osdl.org, hugh@veritas.com, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0612262254090.4473@woody.osdl.org>
-References: <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
-	 <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org>
-	 <20061226161700.GA14128@yamamaya.is-a-geek.org>
-	 <20061226.205518.63739038.davem@davemloft.net>
-	 <Pine.LNX.4.64.0612262254090.4473@woody.osdl.org>
-Content-Type: text/plain
-Organization: I-NEO
-Date: Wed, 27 Dec 2006 10:39:31 +0200
-Message-Id: <1167208771.7006.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+	Wed, 27 Dec 2006 03:52:14 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:26311 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753632AbWL0IwN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 03:52:13 -0500
+Message-ID: <45923432.9040607@chelsio.com>
+Date: Wed, 27 Dec 2006 00:52:02 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: Divy Le Ray <None@chelsio.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, swise@opengridcomputing.com
+Subject: Re: [PATCH 1/10] cxgb3 - main header files
+References: <20061220124125.6286.17148.stgit@localhost.localdomain> <45918CA4.3020601@garzik.org>
+In-Reply-To: <45918CA4.3020601@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Dec 2006 08:52:04.0651 (UTC) FILETIME=[483267B0:01C72994]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have corrupted files...
+Jeff,
 
-> ---
-> diff --git a/fs/buffer.c b/fs/buffer.c
-> index 263f88e..4652ef1 100644
-> --- a/fs/buffer.c
-> +++ b/fs/buffer.c
-> @@ -1653,19 +1653,7 @@ static int __block_write_full_page(struct inode *inode, struct page *page,
->  	do {
->  		if (!buffer_mapped(bh))
->  			continue;
-> -		/*
-> -		 * If it's a fully non-blocking write attempt and we cannot
-> -		 * lock the buffer then redirty the page.  Note that this can
-> -		 * potentially cause a busy-wait loop from pdflush and kswapd
-> -		 * activity, but those code paths have their own higher-level
-> -		 * throttling.
-> -		 */
-> -		if (wbc->sync_mode != WB_SYNC_NONE || !wbc->nonblocking) {
-> -			lock_buffer(bh);
-> -		} else if (test_set_buffer_locked(bh)) {
-> -			redirty_page_for_writepage(wbc, page);
-> -			continue;
-> -		}
-> +		lock_buffer(bh);
->  		if (test_clear_buffer_dirty(bh)) {
->  			mark_buffer_async_write(bh);
->  		} else {
+You can grab the monolithic patch at this URL:
+http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
 
+This patch adds support for the latest 1G/10G Chelsio adapter, T3.
+It is required by the T3 RDMA driver Steve Wise submitted.
+
+Here is a brief description of its content:
+
+ drivers/net/cxgb3/adapter.h,
+ drivers/net/cxgb3/common.h,
+ drivers/net/cxgb3/cxgb3_ioctl.h,
+ drivers/net/cxgb3/firmware_exports.h:
+     main header files
+
+ drivers/net/cxgb3/cxgb3_main.c
+     main source file
+
+ drivers/net/cxgb3/t3_hw.c
+     HW access routines
+
+ drivers/net/cxgb3/sge.c,
+ drivers/net/cxgb3/sge_defs.h
+     scatter/gather engine
+
+ drivers/net/cxgb3/ael1002.c,
+ drivers/net/cxgb3/mc5.c,
+ drivers/net/cxgb3/vsc8211.c,
+ drivers/net/cxgb3/xgmac.c
+     on board memory, MAC and PHY management
+
+ drivers/net/cxgb3/cxgb3_ctl_defs.h,
+ drivers/net/cxgb3/cxgb3_defs.h,
+ drivers/net/cxgb3/cxgb3_offload.h,
+ drivers/net/cxgb3/l2t.h, 
+ drivers/net/cxgb3/t3_cpl.h,
+ drivers/net/cxgb3/t3cdev.h
+     offload operations header files
+
+ drivers/net/cxgb3/cxgb3_offload.c,
+ drivers/net/cxgb3/l2t.c
+     offload capabilities
+
+ drivers/net/cxgb3/regs.h
+     register definitions
+
+ drivers/net/Kconfig
+ drivers/net/Makefile
+ drivers/net/cxgb3/Makefile
+ drivers/net/cxgb3/version.h
+     build files and versioning
+
+Signed-off-by: Divy Le Ray <divy@chelsio.com>
+---

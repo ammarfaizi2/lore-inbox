@@ -1,1174 +1,180 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932413AbWL0Mof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932804AbWL0NBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbWL0Mof (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 07:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWL0Moe
+	id S932804AbWL0NBd (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 08:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932808AbWL0NBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 07:44:34 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:11590 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932413AbWL0Mod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 07:44:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=nDaQ9bOhrt+eezrzHj20iPGjz7/JzLpkSY2mPaAQmE7Gk99ux/Zl1Y+oqkPeHSGmb93PfHjVtgCTQP/PH8Z/G5lBPhoAsOWqypbcsTMBETf3OlBLrkSZklNeuFh4vA+ybRgcHkerBpi1UKFiBPgriiyCR0xwMLaPHm6jiB+4SFE=
-Date: Wed, 27 Dec 2006 13:44:24 +0100
-From: valdyn@gmail.com
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrei Popa <andrei.popa@i-neo.ro>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Gordon Farquharson <gordonfarquharson@gmail.com>,
-       Martin Michlmayr <tbm@cyrius.com>, Hugh Dickins <hugh@veritas.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Message-ID: <20061227124423.GA8520@master.home>
-References: <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061224005752.937493c8.akpm@osdl.org> <1166962478.7442.0.camel@localhost> <20061224043102.d152e5b4.akpm@osdl.org> <1166978752.7022.1.camel@localhost> <Pine.LNX.4.64.0612240907180.3671@woody.osdl.org> <Pine.LNX.4.64.0612241029460.3671@woody.osdl.org> <Pine.LNX.4.64.0612241115130.3671@woody.osdl.org> <4590F9E5.4060300@yahoo.com.au> <Pine.LNX.4.64.0612261007100.3671@woody.osdl.org>
+	Wed, 27 Dec 2006 08:01:33 -0500
+Received: from ns.netcenter.hu ([195.228.254.57]:36755 "EHLO netcenter.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932804AbWL0NBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 08:01:32 -0500
+Message-ID: <041601c729b6$f81e4af0$0400a8c0@dcccs>
+From: =?ISO-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+To: "David Chinner" <dgc@sgi.com>
+Cc: <linux-xfs@oss.sgi.com>, <linux-kernel@vger.kernel.org>, <dgc@sgi.com>
+References: <Pine.LNX.4.64.0612120932220.19050@p34.internal.lan> <00ab01c71e53$942af2f0$0400a8c0@dcccs> <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs> <20061218223637.GP44411608@melbourne.sgi.com> <001a01c722fd$df5ca710$0400a8c0@dcccs> <20061219025229.GT33919298@melbourne.sgi.com> <20061219044700.GW33919298@melbourne.sgi.com>
+Subject: Re: xfslogd-spinlock bug?
+Date: Wed, 27 Dec 2006 13:58:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612261007100.3671@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1896
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 26, 2006 at 11:26:50AM -0800, Linus Torvalds wrote:
-> What would also actually be interesting is whether somebody can reproduce 
-> this on Reiserfs, for example. I _think_ all the reports I've seen are on 
-> ext2 or ext3, and if this is somehow writeback-related, it could be some 
-> bug that is just shared between the two by virtue of them still having a 
-> lot of stuff in common. 
-> 
-> 			Linus
-I do get this error on reiserfs ( old one, didn't try on reiser4 ). 
-Stock 2.6.19 plus reiser4 patch. Previously reported by me only in the
-debian bts.
-
-flo attenberger
-
----
-Linux master 2.6.19 #1 PREEMPT Thu Dec 21 10:55:34 CET 2006 x86_64
-GNU/Linux
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.19
-# Thu Dec 21 10:45:05 2006
-#
-CONFIG_X86_64=y
-CONFIG_64BIT=y
-CONFIG_X86=y
-CONFIG_ZONE_DMA32=y
-CONFIG_LOCKDEP_SUPPORT=y
-CONFIG_STACKTRACE_SUPPORT=y
-CONFIG_SEMAPHORE_SLEEPERS=y
-CONFIG_MMU=y
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-CONFIG_GENERIC_HWEIGHT=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_ARCH_MAY_HAVE_PC_FDC=y
-CONFIG_ARCH_POPULATES_NODE_MAP=y
-CONFIG_DMI=y
-CONFIG_AUDIT_ARCH=y
-CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_LOCALVERSION_AUTO=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-# CONFIG_IPC_NS is not set
-CONFIG_POSIX_MQUEUE=y
-CONFIG_BSD_PROCESS_ACCT=y
-# CONFIG_BSD_PROCESS_ACCT_V3 is not set
-# CONFIG_TASKSTATS is not set
-# CONFIG_UTS_NS is not set
-# CONFIG_AUDIT is not set
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_RELAY is not set
-CONFIG_INITRAMFS_SOURCE=""
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-CONFIG_SYSCTL=y
-# CONFIG_EMBEDDED is not set
-CONFIG_UID16=y
-CONFIG_SYSCTL_SYSCALL=y
-CONFIG_KALLSYMS=y
-CONFIG_KALLSYMS_ALL=y
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_HOTPLUG=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_ELF_CORE=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_SLAB=y
-CONFIG_VM_EVENT_COUNTERS=y
-CONFIG_RT_MUTEXES=y
-# CONFIG_TINY_SHMEM is not set
-CONFIG_BASE_SMALL=0
-# CONFIG_SLOB is not set
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_MODVERSIONS=y
-# CONFIG_MODULE_SRCVERSION_ALL is not set
-CONFIG_KMOD=y
-
-#
-# Block layer
-#
-CONFIG_BLOCK=y
-# CONFIG_LBD is not set
-# CONFIG_BLK_DEV_IO_TRACE is not set
-# CONFIG_LSF is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=m
-CONFIG_IOSCHED_DEADLINE=m
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_DEFAULT_AS is not set
-# CONFIG_DEFAULT_DEADLINE is not set
-CONFIG_DEFAULT_CFQ=y
-# CONFIG_DEFAULT_NOOP is not set
-CONFIG_DEFAULT_IOSCHED="cfq"
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_VSMP is not set
-CONFIG_MK8=y
-# CONFIG_MPSC is not set
-# CONFIG_GENERIC_CPU is not set
-CONFIG_X86_L1_CACHE_BYTES=64
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_INTERNODE_CACHE_BYTES=64
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_MICROCODE=m
-CONFIG_MICROCODE_OLD_INTERFACE=y
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_ARCH_SPARSEMEM_ENABLE=y
-CONFIG_ARCH_FLATMEM_ENABLE=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-# CONFIG_DISCONTIGMEM_MANUAL is not set
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-# CONFIG_SPARSEMEM_STATIC is not set
-CONFIG_SPLIT_PTLOCK_CPUS=4
-CONFIG_RESOURCES_64BIT=y
-CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG=y
-CONFIG_HPET_TIMER=y
-CONFIG_IOMMU=y
-# CONFIG_CALGARY_IOMMU is not set
-CONFIG_SWIOTLB=y
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_INTEL is not set
-CONFIG_X86_MCE_AMD=y
-CONFIG_KEXEC=y
-# CONFIG_CRASH_DUMP is not set
-CONFIG_PHYSICAL_START=0x200000
-CONFIG_SECCOMP=y
-# CONFIG_CC_STACKPROTECTOR is not set
-# CONFIG_HZ_100 is not set
-# CONFIG_HZ_250 is not set
-CONFIG_HZ_1000=y
-CONFIG_HZ=1000
-CONFIG_REORDER=y
-CONFIG_K8_NB=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_ISA_DMA_API=y
-
-#
-# Power management options
-#
-CONFIG_PM=y
-CONFIG_PM_LEGACY=y
-# CONFIG_PM_DEBUG is not set
-CONFIG_PM_SYSFS_DEPRECATED=y
-# CONFIG_SOFTWARE_SUSPEND is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-# CONFIG_ACPI_SLEEP_PROC_SLEEP is not set
-CONFIG_ACPI_AC=m
-# CONFIG_ACPI_BATTERY is not set
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_VIDEO=m
-CONFIG_ACPI_HOTKEY=m
-CONFIG_ACPI_FAN=m
-# CONFIG_ACPI_DOCK is not set
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_IBM is not set
-# CONFIG_ACPI_TOSHIBA is not set
-CONFIG_ACPI_BLACKLIST_YEAR=0
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_PM_TIMER=y
-# CONFIG_ACPI_CONTAINER is not set
-# CONFIG_ACPI_SBS is not set
-
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=m
-# CONFIG_CPU_FREQ_DEBUG is not set
-CONFIG_CPU_FREQ_STAT=m
-CONFIG_CPU_FREQ_STAT_DETAILS=y
-# CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
-CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=m
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=m
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
-
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_POWERNOW_K8=m
-CONFIG_X86_POWERNOW_K8_ACPI=y
-# CONFIG_X86_SPEEDSTEP_CENTRINO is not set
-CONFIG_X86_ACPI_CPUFREQ=m
-
-#
-# shared options
-#
-# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
-# CONFIG_X86_SPEEDSTEP_LIB is not set
-
-#
-# Bus options (PCI etc.)
-#
-CONFIG_PCI=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_PCIEPORTBUS is not set
-# CONFIG_PCI_MSI is not set
-# CONFIG_PCI_DEBUG is not set
-# CONFIG_HT_IRQ is not set
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# PCI Hotplug Support
-#
-CONFIG_HOTPLUG_PCI=m
-CONFIG_HOTPLUG_PCI_FAKE=m
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-# CONFIG_HOTPLUG_PCI_CPCI is not set
-# CONFIG_HOTPLUG_PCI_SHPC is not set
-
-#
-# Executable file formats / Emulations
-#
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_IA32_EMULATION=y
-# CONFIG_IA32_AOUT is not set
-CONFIG_COMPAT=y
-CONFIG_SYSVIPC_COMPAT=y
-
-#
-# Networking
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-# CONFIG_NETDEBUG is not set
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=m
-# CONFIG_XFRM_SUB_POLICY is not set
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_ASK_IP_FIB_HASH=y
-# CONFIG_IP_FIB_TRIE is not set
-CONFIG_IP_FIB_HASH=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-# CONFIG_IP_ROUTE_MULTIPATH_CACHED is not set
-CONFIG_IP_ROUTE_VERBOSE=y
-# CONFIG_IP_PNP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-# CONFIG_NET_IPGRE_BROADCAST is not set
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-CONFIG_ARPD=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_INET_XFRM_TUNNEL=m
-CONFIG_INET_TUNNEL=m
-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-# CONFIG_INET_XFRM_MODE_TUNNEL is not set
-# CONFIG_INET_XFRM_MODE_BEET is not set
-CONFIG_INET_DIAG=m
-CONFIG_INET_TCP_DIAG=m
-CONFIG_TCP_CONG_ADVANCED=y
-CONFIG_TCP_CONG_BIC=y
-CONFIG_TCP_CONG_CUBIC=m
-CONFIG_TCP_CONG_WESTWOOD=m
-CONFIG_TCP_CONG_HTCP=m
-# CONFIG_TCP_CONG_HSTCP is not set
-# CONFIG_TCP_CONG_HYBLA is not set
-# CONFIG_TCP_CONG_VEGAS is not set
-# CONFIG_TCP_CONG_SCALABLE is not set
-# CONFIG_TCP_CONG_LP is not set
-# CONFIG_TCP_CONG_VENO is not set
-CONFIG_DEFAULT_BIC=y
-# CONFIG_DEFAULT_CUBIC is not set
-# CONFIG_DEFAULT_HTCP is not set
-# CONFIG_DEFAULT_VEGAS is not set
-# CONFIG_DEFAULT_WESTWOOD is not set
-# CONFIG_DEFAULT_RENO is not set
-CONFIG_DEFAULT_TCP_CONG="bic"
-
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-CONFIG_IPV6=m
-CONFIG_IPV6_PRIVACY=y
-# CONFIG_IPV6_ROUTER_PREF is not set
-CONFIG_INET6_AH=m
-CONFIG_INET6_ESP=m
-CONFIG_INET6_IPCOMP=m
-# CONFIG_IPV6_MIP6 is not set
-CONFIG_INET6_XFRM_TUNNEL=m
-CONFIG_INET6_TUNNEL=m
-# CONFIG_INET6_XFRM_MODE_TRANSPORT is not set
-# CONFIG_INET6_XFRM_MODE_TUNNEL is not set
-# CONFIG_INET6_XFRM_MODE_BEET is not set
-# CONFIG_INET6_XFRM_MODE_ROUTEOPTIMIZATION is not set
-CONFIG_IPV6_SIT=m
-# CONFIG_IPV6_TUNNEL is not set
-# CONFIG_IPV6_MULTIPLE_TABLES is not set
-# CONFIG_NETLABEL is not set
-# CONFIG_NETWORK_SECMARK is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-
-#
-# Core Netfilter Configuration
-#
-CONFIG_NETFILTER_NETLINK=m
-CONFIG_NETFILTER_NETLINK_QUEUE=m
-CONFIG_NETFILTER_NETLINK_LOG=m
-CONFIG_NETFILTER_XTABLES=m
-CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
-CONFIG_NETFILTER_XT_TARGET_CONNMARK=m
-# CONFIG_NETFILTER_XT_TARGET_DSCP is not  SCSI low-level drivers
-#
-# CONFIG_ISCSI_TCP is not set
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_AIC94XX is not set
-# CONFIG_SCSI_ARCMSR is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-# CONFIG_MEGARAID_SAS is not set
-# CONFIG_SCSI_HPTIOP is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_STEX is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_QLA_FC is not set
-# CONFIG_SCSI_QLA_ISCSI is not set
-# CONFIG_SCSI_LPFC is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Serial ATA (prod) and Parallel ATA (experimental) drivers
-#
-CONFIG_ATA=y
-# CONFIG_SATA_AHCI is not set
-# CONFIG_SATA_SVW is not set
-# CONFIG_ATA_PIIX is not set
-# CONFIG_SATA_MV is not set
-# CONFIG_SATA_NV is not set
-# CONFIG_PDC_ADMA is not set
-# CONFIG_SATA_QSTOR is not set
-CONFIG_SATA_PROMISE=m
-# CONFIG_SATA_SX4 is not set
-# CONFIG_SATA_SIL is not set
-# CONFIG_SATA_SIL24 is not set
-# CONFIG_SATA_SIS is not set
-# CONFIG_SATA_ULI is not set
-CONFIG_SATA_VIA=y
-# CONFIG_SATA_VITESSE is not set
-# CONFIG_PATA_ALI is not set
-# CONFIG_PATA_AMD is not set
-# CONFIG_PATA_ARTOP is not set
-# CONFIG_PATA_ATIIXP is not set
-# CONFIG_PATA_CMD64X is not set
-# CONFIG_PATA_CS5520 is not set
-# CONFIG_PATA_CS5530 is not set
-# CONFIG_PATA_CYPRESS is not set
-# CONFIG_PATA_EFAR is not set
-# CONFIG_ATA_GENERIC is not set
-# CONFIG_PATA_HPT366 is not set
-# CONFIG_PATA_HPT37X is not set
-# CONFIG_PATA_HPT3X2N is not set
-# C# CONFIG_NETPOLL is not set
-# CONFIG_NET_POLL_CONTROLLER is not set
-
-#
-# ISDN subsystem
-#
-CONFIG_ISDN=m
-
-#
-# Old ISDN4Linux
-#
-CONFIG_ISDN_I4L=m
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-# CONFIG_IPPP_FILTER is not set
-CONFIG_ISDN_PPP_BSDCOMP=m
-CONFIG_ISDN_AUDIO=y
-CONFIG_ISDN_TTY_FAX=y
-
-#
-# ISDN feature submodules
-#
-# CONFIG_ISDN_DRV_LOOP is not set
-CONFIG_ISDN_DIVERSION=m
-
-#
-# ISDN4Linux hardware drivers
-#
-
-#
-# Passive cards
-#
-CONFIG_ISDN_DRV_HISAX=m
-
-#
-# D-channel protocol features
-#
-CONFIG_HISAX_EURO=y
-CONFIG_DE_AOC=y
-# CONFIG_HISAX_NO_SENDCOMPLETE is not set
-# CONFIG_HISAX_NO_LLC is not set
-# CONFIG_HISAX_NO_KEYPAD is not set
-# CONFIG_HISAX_1TR6 is not set
-# CONFIG_HISAX_NI1 is not set
-CONFIG_HISAX_MAX_CARDS=8
-
-#
-# HiSax supported cards
-#
-# CONFIG_HISAX_16_3 is not set
-# CONFIG_HISAX_TELESPCI is not set
-# CONFIG_HISAX_S0BOX is not set
-CONFIG_HISAX_FRITZPCI=y
-# CONFIG_HISAX_AVM_A1_PCMCIA is not set
-# CONFIG_HISAX_ELSA is not set
-# CONFIG_HISAX_DIEHLDIVA is not set
-# CONFIG_HISAX_SEDLBAUER is not set
-# CONFIG_HISAX_NETJET is not set
-# CONFIG_HISAX_NETJET_U is not set
-# CONFIG_HISAX_NICCY is not set
-# CONFIG_HISAX_BKM_A4T is not set
-# CONFIG_HISAX_SCT_QUADRO is not set
-# CONFIG_HISAX_GAZEL is not set
-# CONFIG_HISAX_HFC_PCI is not set
-# CONFIG_HISAX_W6692 is not set
-# CONFIG_HISAX_HFC_SX is not set
-# CONFIG_HISAX_DEBUG is not set
-
-#
-# HiSax PCMCIA card service modules
-#
-
-#
-# HiSax sub driver modules
-#
-# CONFIG_HISAX_ST5481 is not set
-# CONFIG_HISAX_HFCUSB is not set
-# CONFIG_HISAX_HFC4S8S is not set
-CONFIG_HISAX_FRITZ_PCIPNP=m
-
-#
-# Active cards
-#
-# CONFIG_HYSDN is not set
-
-#
-# Siemens Gigaset
-#
-# CONFIG_ISDN_DRV_GIGASET is not set
-
-#
-# CAPI subsystem
-#
-CONFIG_ISDN_CAPI=m
-# CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON is not set
-CONFIG_ISDN_CAPI_MIDDLEWARE=y
-CONFIG_ISDN_CAPI_CAPI20=m
-CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
-CONFIG_ISDN_CAPI_CAPIFS=m
-# CONFIG_ISDN_CAPI_CAPIDRV is not set
-
-#
-# CAPI hardware drivers
-#
-
-#
-# Active AVM cards
-#
-# CONFIG_CAPI_AVM is not set
-
-#
-# Active Eicon DIVA Server cards
-#
-# CONFIG_CAPI_EICON is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-# CONFIG_INPUT_FF_MEMLESS is not set
-
-#
-# Usepport
-#
-# CONFIG_SPI is not set
-# CONFIG_SPI_MASTER is not set
-
-#
-# Dallas's 1-wire bus
-#
-CONFIG_W1=m
-
-#
-# 1-wire Bus Masters
-#
-# CONFIG_W1_MASTER_MATROX is not set
-# CONFIG_W1_MASTER_DS2490 is not set
-# CONFIG_W1_MASTER_DS2482 is not set
-
-#
-# 1-wire Slaves
-#
-CONFIG_W1_SLAVE_THERM=m
-CONFIG_W1_SLAVE_SMEM=m
-CONFIG_W1_SLAVE_DS2433=m
-# CONFIG_W1_SLAVE_DS2433_CRC is not set
-
-#
-# Hardware Monitoring support
-#
-CONFIG_HWMON=m
-CONFIG_HWMON_VID=m
-# CONFIG_SENSORS_ABITUGURU is not set
-CONFIG_SENSORS_ADM1021=m
-CONFIG_SENSORS_ADM1025=m
-CONFIG_SENSORS_ADM1026=m
-CONFIG_SENSORS_ADM1031=m
-CONFIG_SENSORS_ADM9240=m
-CONFIG_SENSORS_K8TEMP=m
-CONFIG_SENSORS_ASB100=m
-# CONFIG_SENSORS_ATXP1 is not set
-CONFIG_SENSORS_DS1621=m
-# CONFIG_SENSORS_F71805F is not set
-CONFIG_SENSORS_FSCHER=m
-CONFIG_SENSORS_FSCPOS=m
-CONFIG_SENSORS_GL518SM=m
-CONFIG_SENSORS_GL520SM=m
-CONFIG_SENSORS_IT87=m
-CONFIG_SENSORS_LM63=m
-CONFIG_SENSORS_LM75=m
-CONFIG_SENSORS_LM77=m
-CONFIG_SENSORS_LM78=m
-CONFIG_SENSORS_LM80=m
-CONFIG_SENSORS_LM83=m
-CONFIG_SENSORS_LM85=m
-CONFIG_SENSORS_LM87=m
-CONFIG_SENSORS_LM90=m
-CONFIG_SENSORS_LM92=m
-CONFIG_SENSORS_MAX1619=m
-CONFIG_SENSORS_PC87360=m
-CONFIG_SENSORS_SIS5595=m
-CONFIG_SENSORS_SMSC47M1=m
-# CONFIG_SENSORS_SMSC47M192 is not set
-CONFIG_SENSORS_SMSC47B397=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_VT1211=m
-CONFIG_SENSORS_VT8231=m
-CONFIG_SENSORS_W83781D=m
-# CONFIG_SENSORS_W83791D is not set
-CONFIG_SENSORS_W83792D=m
-CONFIG_SENSORS_W83L785TS=m
-CONFIG_SENSORS_W83627HF=m
-CONFIG_SENSORS_W83627EHF=m
-# CONFIG_SENSORS_HDAPS is not set
-# CONFIG_HWMON_DEBUG_CHIP is not set
-
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=m
-CONFIG_VIDEO_V4L1=y
-CONFIG_VIDEO_V4L1_COMPAT=y
-CONFIG_VIDEO_V4L2=y
-
-#
-# Video Capture Adapters
-#
-
-#
-# Video Capture Adapters
-#
-# CONFIG_VIDEO_ADV_DEBUG is not set
-CONFIG_VIDEO_HELPER_CHIPS_AUTO=y
-CONFIG_VIDEO_TVAUDIO=m
-CONFIG_VIDEO_TDA7432=m
-CONFIG_VIDEO_TDA9875=m
-CONFIG_VIDEO_MSP3400=m
-# CONFIG_VIDEO_VIVI is not set
-CONFIG_VIDEO_BT848=m
-# CONFIG_VIDEO_BT848_DVB is not set
-CONFIG_VIDEO_SAA6588=m
-# CONFIG_VIDEO_BWQCAM is not set
-# CONFIG_VIDEO_CQCAM is not set
-# CONFIG_VIDEO_W9966 is not set
-# CONFIG_VIDEO_CPIA is not set
-# CONFIG_VIDEO_CPIA2 is not set
-CONFIG_VIDEO_SAA5246A=m
-CONFIG_VIDEO__UART=m
-CONFIG_SND_AC97_CODEC=m
-CONFIG_SND_AC97_BUS=m
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_MTS64 is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-CONFIG_SND_MPU401=m
-
-#
-# PCI devices
-#
-# CONFIG_SND_AD1889 is not set
-# CONFIG_SND_ALS300 is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_ATIIXP is not set
-# CONFIG_SND_ATIIXP_MODEM is not set
-# CONFIG_SND_AU8810 is not set
-# CONFIG_SND_AU8820 is not set
-# CONFIG_SND_AU8830 is not set
-# CONFIG_SND_AZT3328 is not set
-CONFIG_SND_BT87X=m
-# CONFIG_SND_BT87X_OVERCLOCK is not set
-# CONFIG_SND_CA0106 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_CS4281 is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_DARLA20 is not set
-# CONFIG_SND_GINA20 is not set
-# CONFIG_SND_LAYLA20 is not set
-# CONFIG_SND_DARLA24 is not set
-# CONFIG_SND_GINA24 is not set
-# CONFIG_SND_LAYLA24 is not set
-# CONFIG_SND_MONA is not set
-# CONFIG_SND_MIA is not set
-# CONFIG_SND_ECHO3G is not set
-# CONFIG_SND_INDIGO is not set
-# CONFIG_SND_INDIGOIO is not set
-# CONFIG_SND_INDIGODJ is not set
-# CONFIG_SND_EMU10K1 is not set
-# CONFIG_SND_EMU10K1X is not set
-# CONFIG_SND_ENS1370 is not set
-CONFIG_SND_ENS1371=m
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_HDA_INTEL is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_HDSPM is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-# CONFIG_SND_INTEL8X0 is not set
-# CONFIG_SND_INTEL8X0M is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_MAESTRO3 is not set
-# CONFIG_SND_MIXART is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_PCXHR is not set
-# CONFIG_SND_RIPTIDE is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_TRIDENT is not set
-CONFIG_SND_VIA82XX=m
-# CONFIG_SND_VIA82XX_MODEM is not set
-# CONFIG_SND_VX222 is not set
-# CONFIG_SND_YMFPCI is not set
-CONFIG_SND_AC97_POWER_SAVE=y
-
-#
-# USB devices
-#
-CONFIG_SND_USB_AUDIO=m
-# CONFIG_SND_USB_USX2Y is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
-
-#
-# USB support
-#
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB_ARCH_HAS_EHCI=y
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_SUSPEND is not set
-# CONFIG_USB_OTG is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_EHCI_SPLIT_ISO=y
-CONFIG_USB_EHCI_ROOT_HUB_TT=y
-# CONFIG_USB_EHCI_TT_NEWSCHED is not set
-# CONFIG_USB_ISP116X_HCD is not set
-CONFIG_USB_OHCI_HCD=m
-# CONFIG_USB_OHCI_BIG_ENDIAN is not set
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_UHCI_HCD=m
-# CONFIG_USB_SL811_HCD is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=m
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
-#
-
-#
-# may also be needed; see USB_STORAGE Help for more information
-#
-CONFIG_USB_STORAGE=m
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_USBAT is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-# CONFIG_USB_STORAGE_ALAUDA is not set
-# CONFIG_USB_STORAGE_KARMA is not set
-# CONFIG_USB_LIBUSUAL is not set
-
-#
-# USB Input Devices
-#
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-# CONFIG_USB_HIDINPUT_POWERBOOK is not set
-# CONFIG_HID_FF is not set
-CONFIG_USB_HIDDEV=y
-
-#
-# USB HID Boot Protocol drivers
-#
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_ACECAD is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_TOUCHSCREEN is not set
-# CONFIG_USB_YEALINK is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-# CONFIG_USB_ATI_REMOTE2 is not set
-# CONFIG_USB_KEYSPAN_REMOTE is not set
-# CONFIG_USB_APPLETOUCH is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET_MII is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_MON is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_ADUTUX is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYPRESS_CY7C63 is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_PHIDGET is not set
-# CONFIG_USB_IDMOUSE is not set
-# CONFIG_USB_FTDI_ELAN is not set
-# CONFIG_USB_APPLEDISPLAY is not set
-# CONFIG_USB_SISUSBVGA is not set
-# CONFIG_USB_LD is not set
-# CONFIG_USB_TRANCEVIBRATOR is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB DSL modem support
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-# CONFIG_MMC is not set
-
-#
-# LED devices
-#
-# CONFIG_NEW_LEDS is not set
-
-#
-# LED drivers
-#
-
-#
-# LED Triggers
-#
-
-#
-# InfiniBand support
-#
-# CONFIG_INFINIBAND is not set
-
-#
-# EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
-#
-# CONFIG_EDAC is not set
-
-#
-# Real Time Clock
-#
-CONFIG_RTC_LIB=m
-CONFIG_RTC_CLASS=m
-
-#
-# RTC interfaces
-#
-CONFIG_RTC_INTF_SYSFS=m
-CONFIG_RTC_INTF_PROC=m
-CONFIG_RTC_INTF_DEV=m
-# CONFIG_RTC_INTF_DEV_UIE_EMUL is not set
-
-#
-# RTC drivers
-#
-CONFIG_RTC_DRV_X1205=m
-CONFIG_RTC_DRV_DS1307=m
-CONFIG_RTC_DRV_DS1553=m
-CONFIG_RTC_DRV_ISL1208=m
-CONFIG_RTC_DRV_DS1672=m
-CONFIG_RTC_DRV_DS1742=m
-CONFIG_RTC_DRV_PCF8563=m
-CONFIG_RTC_DRV_PCF8583=m
-CONFIG_RTC_DRV_RS5C372=m
-CONFIG_RTC_DRV_M48T86=m
-CONFIG_RTC_DRV_TEST=m
-CONFIG_RTC_DRV_V3020=m
-
-#
-# DMA Engine support
-#
-# CONFIG_DMA_ENGINE is not set
-
-#
-# DMA Clients
-#
-
-#
-# DMA Devices
-#
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-# CONFIG_DELL_RBU is not set
-# CONFIG_DCDBAS is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-# CONFIG_EXT2_FS_XIP is not set
-CONFIG_EXT3_FS=m
-# CONFIG_EXT3_FS_XATTR is not set
-# CONFIG_EXT4DEV_FS is not set
-CONFIG_JBD=m
-# CONFIG_JBD_DEBUG is not set
-CONFIG_REISER4_FS=y
-# CONFIG_REISER4_DEBUG is not set
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_REISERFS_FS_XATTR is not set
-# CONFIG_JFS_FS is not set
-CONFIG_FS_POSIX_ACL=y
-# CONFIG_XFS_FS is not set
-# CONFIG_GFS2_FS is not set
-# CONFIG_OCFS2_FS is not set
-CONFIG_MINIX_FS=m
-CONFIG_ROMFS_FS=m
-CONFIG_INOTIFY=y
-CONFIG_INOTIFY_USER=y
-# CONFIG_QUOTA is not set
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_FUSE_FS=m
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=850
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-15"
-CONFIG_NTFS_FS=m
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=y
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_PROC_SYSCTL=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-# CONFIG_TMPFS_POSIX_ACL is not set
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-# CONFIG_CONFIGFS_FS is not set
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-CONFIG_CRAMFS=m
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V3_ACL is not set
-CONFIG_NFS_V4=y
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-# CONFIG_ONFIG_CRYPTO_HASH=y
-CONFIG_CRYPTO_MANAGER=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_WP512=m
-CONFIG_CRYPTO_TGR192=m
-CONFIG_CRYPTO_ECB=m
-CONFIG_CRYPTO_CBC=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_TWOFISH_COMMON=m
-CONFIG_CRYPTO_TWOFISH_X86_64=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_AES_X86_64=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRYPTO_TEA=m
-CONFIG_CRYPTO_ARC4=m
-CONFIG_CRYPTO_KHAZAD=m
-CONFIG_CRYPTO_ANUBIS=m
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRYPTO_MICHAEL_MIC=m
-CONFIG_CRYPTO_CRC32C=m
-CONFIG_CRYPTO_TEST=m
-
-#
-# Hardware crypto devices
-#
-
-#
-# Library routines
-#
-CONFIG_CRC_CCITT=m
-CONFIG_CRC16=m
-CONFIG_CRC32=m
-CONFIG_LIBCRC32C=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_TEXTSEARCH=y
-CONFIG_TEXTSEARCH_KMP=m
-CONFIG_TEXTSEARCH_BM=m
-CONFIG_TEXTSEARCH_FSM=m
-CONFIG_PLIST=y
+Hello,
+
+----- Original Message ----- 
+From: "David Chinner" <dgc@sgi.com>
+To: "David Chinner" <dgc@sgi.com>
+Cc: "Haar János" <djani22@netcenter.hu>; <linux-xfs@oss.sgi.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, December 19, 2006 5:47 AM
+Subject: Re: xfslogd-spinlock bug?
+
+
+> On Tue, Dec 19, 2006 at 01:52:29PM +1100, David Chinner wrote:
+> > On Tue, Dec 19, 2006 at 12:39:46AM +0100, Haar János wrote:
+> > > From: "David Chinner" <dgc@sgi.com>
+> > > > #define POISON_FREE 0x6b
+> > > >
+> > > > Can you confirm that you are running with CONFIG_DEBUG_SLAB=y?
+> > >
+> > > Yes, i build with this option enabled.
+>
+> ......
+>
+> > FWIW, I've run XFSQA twice now on a scsi disk with slab debuggin turned
+> > on and I haven't seen this problem. I'm not sure how to track down
+> > the source of the problem without a test case, but as a quick test, can
+> > you try the following patch?
+>
+> Third try an I got a crash on a poisoned object:
+>
+> [1]kdb> md8c40 e00000300d7d5100
+> 0xe00000300d7d5100 000000005a2cf071 0000000000000000   q.,Z............
+> 0xe00000300d7d5110 000000005a2cf071 6b6b6b6b6b6b6b6b   q.,Z....kkkkkkkk
+> 0xe00000300d7d5120 e0000039eb7b6320 6b6b6b6b6b6b6b6b    c{.9...kkkkkkkk
+> 0xe00000300d7d5130 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d5140 6b6b6b6f6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkokkkkkkkkkkk
+> 0xe00000300d7d5150 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d5160 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d5170 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d5180 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d5190 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d51a0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d51b0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d51c0 6b6b6b6b6b6b6b6b 6b6b6b6b6b6b6b6b   kkkkkkkkkkkkkkkk
+> 0xe00000300d7d51d0 6b6b6b6b6b6b6b6b a56b6b6b6b6b6b6b   kkkkkkkkkkkkkkk.
+> 0xe00000300d7d51e0 000000005a2cf071 a000000100468c30   q.,Z....0.F.....
+> [1]kdb> mds 0xe00000300d7d51e0
+> 0xe00000300d7d51e0 5a2cf071   q.,Z....
+> 0xe00000300d7d51e8 a000000100468c30 xfs_inode_item_destroy+0x30
+>
+> So the use-after-free here is on an inode item. You're tripping
+> over a buffer item.
+>
+> Unfortunately, it is not the same problem - the problem I've just
+> hit is to do with a QA test that does a forced shutdown on an active
+> filesystem, and:
+>
+> [1]kdb> xmount 0xe00000304393e238
+> .....
+> flags 0x440010 <FSSHUTDOWN IDELETE COMPAT_IOSIZE >
+>
+> The filesystem was being shutdown so xfs_inode_item_destroy() just
+> frees the inode log item without removing it from the AIL. I'll fix that,
+> and see if i have any luck....
+>
+> So I'd still try that patch i sent in the previous email...
+
+I still using the patch, but didnt shows any messages at this point.
+
+I'v got 3 crash/reboot, but 2 causes nbd disconneted, and this one:
+
+Dec 27 13:41:29 dy-base BUG: warning at
+kernel/mutex.c:220/__mutex_unlock_common_slowpath()
+Dec 27 13:41:29 dy-base Unable to handle kernel paging request at
+0000000066604480 RIP:
+Dec 27 13:41:29 dy-base  [<ffffffff80222c64>] resched_task+0x12/0x64
+Dec 27 13:41:29 dy-base PGD 115246067 PUD 0
+Dec 27 13:41:29 dy-base Oops: 0000 [1] SMP
+Dec 27 13:41:29 dy-base CPU 1
+Dec 27 13:41:29 dy-base Modules linked in: nbd rd netconsole e1000 video
+Dec 27 13:41:29 dy-base Pid: 4069, comm: httpd Not tainted 2.6.19 #3
+Dec 27 13:41:29 dy-base RIP: 0010:[<ffffffff80222c64>]  [<ffffffff80222c64>]
+resched_task+0x12/0x64
+Dec 27 13:41:29 dy-base RSP: 0018:ffff810105c01b78  EFLAGS: 00010083
+Dec 27 13:41:29 dy-base RAX: ffffffff807d5800 RBX: 00001749fd97c214 RCX:
+ffff81001cbd0000
+Dec 27 13:41:29 dy-base RDX: 000000001cbd0048 RSI: ffff810005834068 RDI:
+ffff8101047bf040
+Dec 27 13:41:29 dy-base RBP: ffff810105c01b78 R08: 0000000000000001 R09:
+0000000000000000
+Dec 27 13:41:29 dy-base R10: 0000000000000057 R11: ffff81000583cd80 R12:
+ffff810116693140
+Dec 27 13:41:29 dy-base R13: 0000000000000001 R14: 0000000000000000 R15:
+0000000000000000
+Dec 27 13:41:29 dy-base FS:  00002ba3c1ad07d0(0000)
+GS:ffff81011fc769c8(0000) knlGS:0000000000000000
+Dec 27 13:41:29 dy-base CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+Dec 27 13:41:29 dy-base CR2: 0000000066604480 CR3: 0000000118196000 CR4:
+00000000000006e0
+Dec 27 13:41:29 dy-base Process httpd (pid: 4069, threadinfo
+ffff810105c00000, task ffff8101166e1040)
+Dec 27 13:41:29 dy-base Stack:  ffff810105c01bf8 ffffffff80223f37
+ffff810002996a00 0000000002cba600
+Dec 27 13:41:29 dy-base  000000000000000f 0000000000000001 ffff810005833700
+0000000100000000
+Dec 27 13:41:29 dy-base  0000000000000005 0000000000000296 ffff810105c01bd8
+ffff810117fef690
+Dec 27 13:41:29 dy-base Call Trace:
+Dec 27 13:41:29 dy-base  [<ffffffff80223f37>] try_to_wake_up+0x3a7/0x3dc
+Dec 27 13:41:29 dy-base  [<ffffffff80223f98>] wake_up_process+0x10/0x12
+Dec 27 13:41:29 dy-base  [<ffffffff803c9186>] xfsbufd_wakeup+0x34/0x61
+Dec 27 13:41:29 dy-base  [<ffffffff8025cdf9>] shrink_slab+0x64/0x163
+Dec 27 13:41:29 dy-base  [<ffffffff8025d913>] try_to_free_pages+0x19c/0x289
+Dec 27 13:41:29 dy-base  [<ffffffff80258b62>] __alloc_pages+0x1b8/0x2c0
+Dec 27 13:41:29 dy-base  [<ffffffff80267f94>] anon_vma_prepare+0x29/0xf1
+Dec 27 13:41:29 dy-base  [<ffffffff80260d52>] __handle_mm_fault+0x496/0x9e3
+Dec 27 13:41:29 dy-base  [<ffffffff805e7dfd>] _spin_unlock+0x9/0xb
+Dec 27 13:41:29 dy-base  [<ffffffff8021a1b6>] do_page_fault+0x418/0x7b6
+Dec 27 13:41:29 dy-base  [<ffffffff802082ed>] __switch_to+0x280/0x28f
+Dec 27 13:41:29 dy-base  [<ffffffff805e7efb>] _spin_unlock_irq+0x9/0xc
+Dec 27 13:41:29 dy-base  [<ffffffff805e5ca8>] thread_return+0x5e/0xf7
+Dec 27 13:41:29 dy-base  [<ffffffff805e809d>] error_exit+0x0/0x84
+Dec 27 13:41:29 dy-base
+Dec 27 13:41:29 dy-base
+Dec 27 13:41:29 dy-base Code: 48 8b 14 d5 40 42 78 80 48 03 42 08 8b 00 85
+c0 7e 0a 0f 0b
+Dec 27 13:41:29 dy-base RIP  [<ffffffff80222c64>] resched_task+0x12/0x64
+Dec 27 13:41:29 dy-base  RSP <ffff810105c01b78>
+Dec 27 13:41:29 dy-base CR2: 0000000066604480
+Dec 27 13:41:29 dy-base  <0>Kernel panic - not syncing: Fatal exception
+Dec 27 13:41:29 dy-base
+Dec 27 13:41:29 dy-base Rebooting in 5 seconds..
+
+I found one bug on my apache config, and i think, the test case is changed.
+:-(
+Before the config is fixed, some users can stress the xfs source device
+readahead, and can periodically overload the system, with this action.
+I think, the original bug only comes on the highly overloaded system, and
+about readahead+buffering/caching.
+
+Thanks,
+Janos
+
+>
+> Cheers,
+>
+> Dave.
+> -- 
+> Dave Chinner
+> Principal Engineer
+> SGI Australian Software Group
 

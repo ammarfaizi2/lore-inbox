@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754684AbWL0TfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754708AbWL0Tgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754684AbWL0TfR (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 14:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754721AbWL0TfR
+	id S1754708AbWL0Tgv (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 14:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754709AbWL0Tgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 14:35:17 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:39605 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754684AbWL0TfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 14:35:16 -0500
-Date: Wed, 27 Dec 2006 20:35:16 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux tcp stack behavior change
-In-Reply-To: <Pine.LNX.4.61.0612270258450.14578@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0612272034320.10556@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0612270258450.14578@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 27 Dec 2006 14:36:51 -0500
+Received: from homer.mvista.com ([63.81.120.158]:18659 "EHLO
+	dwalker1.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754708AbWL0Tgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 14:36:50 -0500
+Message-Id: <20061227193550.324850000@mvista.com>
+User-Agent: quilt/0.45-1
+Date: Wed, 27 Dec 2006 11:35:50 -0800
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH -rt] update kmap_atomic on !HIGHMEM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got some scheduling while atomic on x86-64 , and since x86-64 doesn't seem
+to have HIGHMEM there's no workaround for kmap_atomic() .
 
-On Dec 27 2006 03:03, Jan Engelhardt wrote:
->
->I have been noticing that running nmap -sF on oneself does not generate 
->a reply from the TCP stack on 2.6.18(.5). In other words:
-[...]
+This patch adds the same as i386 HIGHMEM for !HIGHMEM.
 
-Alright same behavior on 2.6.13 and nmap 3.81, so the problem is 
-somewhere on my side having misdocumented something back then.
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
+---
+ include/linux/highmem.h |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletion(-)
 
-	-`J'
--- 
+Index: linux-2.6.19/include/linux/highmem.h
+===================================================================
+--- linux-2.6.19.orig/include/linux/highmem.h
++++ linux-2.6.19/include/linux/highmem.h
+@@ -42,13 +42,25 @@ static inline void *kmap(struct page *pa
+ 
+ #define kunmap(page) do { (void) (page); } while (0)
+ 
++#ifdef CONFIG_PREEMPT_RT
++/*
++ * kmap and kmunmap are above, and they don't really do anything
++ * interesting.
++ */
++# define kmap_atomic(page, idx)		kmap(page)
++# define kmap_atomic_pfn(pfn, idx)	kmap(pfn_to_page(pfn))
++# define kunmap_atomic(kvaddr, idx)	kunmap(kvaddr)
++#else
+ #define kmap_atomic(page, idx) \
+ 	({ pagefault_disable(); page_address(page); })
+ #define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
+ #define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
+-#define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
+ #endif
+ 
++#define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
++
++#endif /* ARCH_HAS_KMAP */
++
+ #endif /* CONFIG_HIGHMEM */
+ 
+ /* when CONFIG_HIGHMEM is not set these will be plain clear/copy_page */
+--

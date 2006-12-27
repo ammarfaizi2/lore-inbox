@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932898AbWL0D7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932899AbWL0D7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932898AbWL0D7O (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 22:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932899AbWL0D7O
+	id S932899AbWL0D7n (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 22:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932904AbWL0D7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 22:59:14 -0500
-Received: from moutng.kundenserver.de ([212.227.126.179]:57306 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932898AbWL0D7N convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 22:59:13 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: util-linux: orphan
-Date: Wed, 27 Dec 2006 04:58:54 +0100
-User-Agent: KMail/1.9.5
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-       Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>
-References: <20061109224157.GH4324@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de> <4591E3BB.9070806@zytor.com>
-In-Reply-To: <4591E3BB.9070806@zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 26 Dec 2006 22:59:43 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47869 "EHLO e5.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932899AbWL0D7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 22:59:42 -0500
+Date: Wed, 27 Dec 2006 09:30:22 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
+       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Message-ID: <20061227040022.GA6699@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com> <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612270458.55790.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 December 2006 04:08, H. Peter Anvin wrote:
+On Tue, Dec 26, 2006 at 01:43:31PM +0100, Segher Boessenkool wrote:
+> >Thanks Jean. Your compressed/head.o looks fine.
 > 
-> > I'd suggest that you make sure that mount always gets statically linked
-> > against libblkid to avoid these problems.
-> > 
+> No it doesn't -- the .text.head section doesn't have
+> the ALLOC attribute set.  The section then ends up not
+> being assigned to an output segment (during the linking
+> of vmlinux) and all hell breaks loose.  The linker gives
+> you a warning about this btw.
 > 
-> That's a pretty silly statement.  The real issue is that any library 
-> needed by binaries in /bin or /sbin should live in /lib, not /usr/lib.
 
-Right, this is obviously true in general. I don't understand enough
-about selinux (who does?) to be sure what went wrong there on top
-of this, but my impression was that I could have solved the problem
-if I had been able to remount the root partition, or mount the selinux
-file system, which was made impossible by the fact that I had no
-permission to access one of the libraries for the mount binary.
+Thanks Segher. You are right. I did not notice that.
 
-The location of the library file was not the problem I had, as that
-system doesn't have a separate /usr partition. 
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 000034 000044 00  AX  0   0  4
+  [ 2] .rel.text         REL             00000000 0005c8 000040 08      8   1  4
+  [ 3] .data             PROGBITS        00000000 000078 000000 00  WA  0   0  4
+  [ 4] .bss              NOBITS          00000000 000078 001000 00  WA  0   0  4
+  [ 5] .text.head        PROGBITS        00000000 000078 00006e 00      0   0  1
 
-	Arnd <><
+.text.head is not type AX so it will be left out from the linked output.
+This reminds me that I have put another patch in kernel/head.S creating
+a new section .text.head. I think I shall have to put a patch there too
+to make it work with older binutils.
+
+Thanks
+Vivek

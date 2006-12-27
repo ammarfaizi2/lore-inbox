@@ -1,78 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932840AbWL0OhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932945AbWL0Okt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932840AbWL0OhU (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 09:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932945AbWL0OhU
+	id S932945AbWL0Okt (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 09:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932940AbWL0Okt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 09:37:20 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:54122 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932840AbWL0OhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 09:37:19 -0500
-Date: Wed, 27 Dec 2006 15:37:01 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Martin Knoblauch <knobi@knobisoft.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to detect multi-core and/or HT-enabled CPUs in 2.4.x and
- 2.6.x kernels
-In-Reply-To: <666716.84435.qm@web32603.mail.mud.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0612271528580.10556@yvahk01.tjqt.qr>
-References: <666716.84435.qm@web32603.mail.mud.yahoo.com>
+	Wed, 27 Dec 2006 09:40:49 -0500
+Received: from web32603.mail.mud.yahoo.com ([68.142.207.230]:41705 "HELO
+	web32603.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932857AbWL0Oks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 09:40:48 -0500
+X-YMail-OSG: SpUxHSEVM1nXbh1KxL0cHHKyl6i8.mLUFhK5Fz7RMMyJcB0pcMBZ_F79NrMwwwlW6g717QneVzNYQnA.hLitUnwxw9npVeZ.uRJCLLrdx9gu9EhsG.tmeg--
+X-RocketYMMF: knobi.rm
+Date: Wed, 27 Dec 2006 06:40:47 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: How to detect multi-core and/or HT-enabled CPUs in 2.4.x and 2.6.x kernels
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1167229470.3281.3905.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <927934.92732.qm@web32603.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 27 2006 06:16, Martin Knoblauch wrote:
->
-> So far it seems that looking at the "physical id", "core id" and "cpu
->cores" of /proc/cpuinfo is the way to go.
+--- Arjan van de Ven <arjan@infradead.org> wrote:
 
-Possibly, but it does not catch all cases. 
+> On Wed, 2006-12-27 at 06:16 -0800, Martin Knoblauch wrote:
+> > Hi, (please CC on replies, thanks)
+> > 
+> >  for the ganglia project (http://ganglia.sourceforge.net/) we are
+> > trying to find a heuristics to determine the number of physical CPU
+> > "cores" as opposed to virtual processors added by enabling HT. The
+> > method should work on 2.4 and 2.6 kernels.
+> 
+> I have a counter question for you.. what are you trying to do with
+> the
+> "these two are SMT sibblings" information ?
+> 
+> Because I suspect "HT" is the wrong level of detection for what you
+> really want to achieve....
+> 
+> If you want to decide "shares caches" then at least 2.6 kernels
+> directly
+> export that (and HT is just the wrong way to go about this). 
+> -- 
+Hi Arjan,
 
-$grep '"physical id' /erk/kernel/linux-2.6.20-rc2/ -r
+ one piece of information that Ganglia collects for a node is the
+"number of CPUs", originally meaning "physical CPUs". With the
+introduction of HT and multi-core things are a bit more complex now. We
+have decided that HT sibblings do not qualify as "real" CPUs, while
+multi-cores do.
 
-returns exactly three lines, for 
-/erk/kernel/linux-2.6.20-rc2/arch/i386/kernel/cpu/proc.c 
-/erk/kernel/linux-2.6.20-rc2/arch/ia64/kernel/setup.c 
-/erk/kernel/linux-2.6.20-rc2/arch/x86_64/kernel/setup.c
+ Currently we are doing "sysconf(_SC_NPROCESSORS_ONLN)". But this
+includes both physical and virtual (HT) cores. We are looking for a
+method that only shows "real iron" and works on 2.6 and 2.4 kernels.
+Whether this has any practial valus is a completely different question.
 
-So what'cha doing about, say, sparc64? Here is its procinfo of a 
-standard SMP one:
+Cheers
+Martin
 
-15:31 ares:~ # cat /proc/cpuinfo
-cpu             : TI UltraSparc II  (BlackBird)
-fpu             : UltraSparc II integrated FPU
-prom            : OBP 3.30.0 2003/11/11 10:37
-type            : sun4u
-ncpus probed    : 2
-ncpus active    : 2
-D$ parity tl1   : 0
-I$ parity tl1   : 0
-Cpu0Bogo        : 800.49
-Cpu0ClkTck      : 0000000017d78400
-Cpu1Bogo        : 800.05
-Cpu1ClkTck      : 0000000017d78400
-MMU Type        : Spitfire
-State:
-CPU0:           online
-CPU1:           online
-
-
-> In 2.6 I would try to find the  distinct "physical id"s and  and sum
->up the corresponding "cpu cores". The question is whether this would
->work for 2.4 based systems.
->
-> Does anybody recall when the "physical id", "core id" and "cpu cores"
->were added to /proc/cpuinfo ?
-
-Why don't you check it out? 2.4.34 only has the "physical id" string for 
-x86_64. It does not seem to have CONFIG_SCHED_SMT at all. (Time to leave 
-the dead horse alone.)
-
-
-	-`J'
--- 
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

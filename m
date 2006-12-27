@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932926AbWL0GMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932928AbWL0GN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932926AbWL0GMw (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 01:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932928AbWL0GMw
+	id S932928AbWL0GN5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 01:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932929AbWL0GN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 01:12:52 -0500
-Received: from web27312.mail.ukl.yahoo.com ([217.146.177.173]:26661 "HELO
-	web27312.mail.ukl.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932926AbWL0GMv (ORCPT
+	Wed, 27 Dec 2006 01:13:57 -0500
+Received: from web8415.mail.in.yahoo.com ([202.43.219.103]:21065 "HELO
+	web8415.mail.in.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932928AbWL0GN4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 01:12:51 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Dec 2006 01:12:51 EST
+	Wed, 27 Dec 2006 01:13:56 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Dec 2006 01:13:55 EST
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
+  s=s1024; d=yahoo.co.in;
   h=Message-ID:X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=xsfuSh84154dAEuQqaU+gPOVeoSuip44jtsLX5hxjk9qkaxhv4a+KS1ovISG+nGtQH5unNRcyvxYuKn43Ha7EQaCbiOLXxkt3iA8LVAbTMXK1KzqL/2i9PfdPDvWrh84grwEe3a9yoBHqeOIIy+hS/N3dvn+p8D9kPZWWJNtMM0=  ;
-Message-ID: <20061227060609.95588.qmail@web27312.mail.ukl.yahoo.com>
-X-YMail-OSG: nn1vOc8VM1k_O7xv2eYC2x.GITcUbR2bUQCl2gg_s2wb7pbifB5pdMPWsVBjLc2z2tfWJnX2exDShagmKRYC6gumNZ8ih4yZVNcbqcllgHl3wS6lClmQinCYRXge728i6gh49g--
-Date: Wed, 27 Dec 2006 06:06:09 +0000 (GMT)
-From: Z <commander_uk@yahoo.com>
-Subject: ip_recv_error (ip_sockglue.c) - why zero the port on ICMP errors?
+  b=gIbix+1KuFi6Ev76yERYR+F4m7kkP074pjDWx/r600e2Q94jIh0ylzo3rMjop+a0Pp1JEsLopICPdJxsMyncth0iY+ZRTeII1J2Yglb2qOyRSUWIcbOKX8U+bvaxe952NAZMNk71pYE48QuJ7+/gSafwGK7myVRUB3QPgwLZ/i4=  ;
+Message-ID: <20061227060712.75821.qmail@web8415.mail.in.yahoo.com>
+X-YMail-OSG: edLFMH0VM1nbm4mRPrThHu8vJ89Wp2J8Q0B2dAUs7eivabzgBxGtNhYU_Zz1EX3yvb7wAP9pa2EOSm5qykyA_FV4x_G_cCbC659AkagIHxlBDI3cZU9mBO_G6JHYJoNTNF5Xbj07I9I9.hD7M1EbNjPixQ--
+Date: Wed, 27 Dec 2006 06:07:12 +0000 (GMT)
+From: veerasena reddy <veerasena_b@yahoo.co.in>
+Subject: problem with starting an application daemon from rcS script in case of lnux-2.6.18 kernel version. 
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,55 +27,41 @@ Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-I am developing a UDP application and wish to receive
-the ICMP unreachable messages that some hosts send in
-response to a UDP datagram that hits a closed port. I
-use the IP_RECVERR on my socket, recvmsg (fd, &msg,
-MSG_ERRQUEUE) and all that, however the returned port
-in the sock_extended_err SO_EE_OFFENDER data always 0.
+Hi,
 
-The following code in net/ipv4/ip_sockglue.c
-illustrates this:
-...
-	sin = &errhdr.offender;
-	sin->sin_family = AF_UNSPEC;
-	if (serr->ee.ee_origin == SO_EE_ORIGIN_ICMP) {
-		struct inet_sock *inet = inet_sk(sk);
+I wrote a small appication "test_shell" and started
+the same as a background process ("test_shell&") from
+"rcS" script to print a message "This is to test the
+shell for daemon processes" on console for every ten
+seconds.
 
-		sin->sin_family = AF_INET;
-		sin->sin_addr.s_addr = skb->nh.iph->saddr;
-		sin->sin_port = 0;
-		memset(&sin->sin_zero, 0, sizeof(sin->sin_zero));
-		if (inet->cmsg_flags)
-			ip_cmsg_recv(msg, skb);
-	}
-...
-For some reason, even though the full IP header is
-available here (and the port preserved in
-ip_icmp_error), sin->sin_port is set to zero in the
-ip_recv_error function, which really hurts the
-potential use of this in some applications which need
-the port to uniquely identify multiple clients using
-the same IP address.
+For this, the rcS script contains the below command:
+"test_shell &"
 
-I realise there's more than one way to do this - as a
-workaround, I am using the msg.msg_name field, however
-on earlier kernel versions (or maybe an earlier libc -
-I didn't track down the reason), the msg.msg_name
-field is not set correctly and the data fetched by
-SO_EE_OFFENDER is the only way to find out the full
-source of the error.
+I have built two images for the target with the kernel
+versions linux-2.6.18 and linux-mips-2.6.12.
 
-I'm just curious as to the reasoning behind zeroing
-out the port in this piece of code, it doesn't seem to
-make much sense as usermode applications will just see
-a zero port instead of the real port. I noticed in
-earlier kernel versions that sin_port and sin_zero
-were unspecified which led to uninitialized kernel
-stack memory being returned, maybe this was a hasty
-bug fix for that problem?
+In case of liunux-mips-2.6.12 i am able to see the
+prints on the console.
 
-I hope someone can quell my curiosity behind this :). Thanks.
+In case of liunux-2.6.18 i am not getting the prints
+on the console. if i try "ps" command i am able to see
+the process running in the background.
 
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+In both kernel versions libraries and shell used are
+same.
+
+What could be the reason for this?
+Please suggest me some solution for this.
+
+Could any body please suggest an alternate solution to
+start the application from the rcS as a daemon
+"test_shell&" and still get the prints on the
+console???
+
+Thanks in advance.
+
+Regards,
+veeru.
+
+Send free SMS to your Friends on Mobile from your Yahoo! Messenger. Download Now! http://messenger.yahoo.com/download.php

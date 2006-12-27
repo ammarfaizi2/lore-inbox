@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754777AbWL0Xox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964826AbWL0XqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754777AbWL0Xox (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 18:44:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWL0Xox
+	id S964826AbWL0XqM (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 18:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWL0XqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 18:44:53 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:60202 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754777AbWL0Xow (ORCPT
+	Wed, 27 Dec 2006 18:46:12 -0500
+Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:33065
+	"HELO smtpout08-04.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964808AbWL0XqL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 18:44:52 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Wed, 27 Dec 2006 18:38:55 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612271303.kBRD3tSJ007866@laptop13.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.64.0612270924530.3691@localhost.localdomain>
-References: <200612271303.kBRD3tSJ007866@laptop13.inf.utfsm.cl>
+	Wed, 27 Dec 2006 18:46:11 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Dec 2006 18:46:10 EST
+Message-ID: <45930431.60106@davidmeyer.org>
+Date: Wed, 27 Dec 2006 18:39:29 -0500
+From: "David R. Meyer" <david@davidmeyer.org>
+User-Agent: Thunderbird 2.0b1 (Windows/20061206)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
-Subject: Re: [PATCH] Remove logically superfluous comparisons from Kconfig files.
+To: linux-kernel@vger.kernel.org
+Subject: Re: Happy Birthday to Our Fearless Leader
+References: <20061227233743.E37AE3FC065@hamlet.sw.biz.rr.com>
+In-Reply-To: <20061227233743.E37AE3FC065@hamlet.sw.biz.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Dec 2006, Horst H. von Brand wrote:
+I hope it doesn't get me kicked off the list for unnecessary traffic, 
+but Happy Birthday Linus.  Thanks for making computing fun again!!!!
 
-> Robert P. J. Day <rpjday@mindspring.com> wrote:
-> >   Remove Kconfig comparisons of the form FUBAR || FUBAR=n, since they
-> > appear to be superfluous.
-> >
-> > Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> >
-> > ---
-> >
-> >   based on what i read in kconfig-language.txt, it would *appear* that
-> > those comparisons are redundant, but i'm willing to be convinced
-> > otherwise.  (unless the developer specifically wanted the case of
-> > "!=m", which i'm fairly sure is not the same thing, yes?)
->
-> Would be clearer written that way if so.
->
-> >  drivers/char/drm/Kconfig   |    2 +-
-> >  fs/dlm/Kconfig             |    1 -
-> >  net/ipv4/netfilter/Kconfig |    1 -
-> >  net/sctp/Kconfig           |    1 -
-> >  4 files changed, 1 insertion(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/char/drm/Kconfig b/drivers/char/drm/Kconfig
-> > index ef833a1..d681e68 100644
-> > --- a/drivers/char/drm/Kconfig
-> > +++ b/drivers/char/drm/Kconfig
-> > @@ -6,7 +6,7 @@
-> >  #
-> >  config DRM
-> >  	tristate "Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)"
-> > -	depends on (AGP || AGP=n) && PCI
-> > +	depends on && PCI
->                    ^^ ???
+Dave
 
-the stuff above is *very* old and also incorrect -- the only
-outstanding patch i have in the queue should be to remove the final 3
-"depends" directives in Kconfig files, nothing more.
+Loye Young wrote:
+> Be it remembered that on the 28th day of December in the year of our Lord 1969, there was born in the town of Helsinki, Finland, Linus Benedict Torvalds. 
+> 
+> Long live the king.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
 
-rday
+-- 
+David R. Meyer
+http://www.davidmeyer.org

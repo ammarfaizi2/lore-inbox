@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754169AbWL0JEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754658AbWL0JHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754169AbWL0JEP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 04:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754227AbWL0JEP
+	id S1754658AbWL0JHR (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 04:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754670AbWL0JHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 04:04:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33165 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754400AbWL0JEN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 04:04:13 -0500
-Subject: Re: [PATCH 1/10] cxgb3 - main header files
-From: Arjan van de Ven <arjan@infradead.org>
-To: Divy Le Ray <divy@chelsio.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Divy Le Ray <None@chelsio.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       swise@opengridcomputing.com
-In-Reply-To: <45923432.9040607@chelsio.com>
-References: <20061220124125.6286.17148.stgit@localhost.localdomain>
-	 <45918CA4.3020601@garzik.org>  <45923432.9040607@chelsio.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 27 Dec 2006 10:03:57 +0100
-Message-Id: <1167210238.3281.3751.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 27 Dec 2006 04:07:17 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:59851 "EHLO koto.vergenet.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754450AbWL0JHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 04:07:15 -0500
+Date: Wed, 27 Dec 2006 18:07:02 +0900
+From: Horms <horms@verge.net.au>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [patch] linux/preempt.h needs linux/thread_info.h
+Message-ID: <20061227090700.GB4761@verge.net.au>
+References: <20061227081701.GA19379@verge.net.au> <20061227082702.GO17561@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061227082702.GO17561@ftp.linux.org.uk>
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-27 at 00:52 -0800, Divy Le Ray wrote:
-> Jeff,
+On Wed, Dec 27, 2006 at 08:27:02AM +0000, Al Viro wrote:
+> On Wed, Dec 27, 2006 at 05:17:02PM +0900, Horms wrote:
+> > It seems that linux/preempt.h needs to include linux/thread_info.h
+> > in order to access current_thread_info(), which is used in
+> > preempt_count().
+> > 
+> > I guess that all callers of preempt_count() must include
+> > both linux/thread_info.h and linux/preempt.h directly or indirectly,
+> > as this does not cause a compile error. I noticed the problem while
+> > working on an unrelated issue in xen-land.
+> > 
+> > Signed-off-by: Simon Horman <horms@verge.net.au>
+> > 
+> > Index: linux-2.6/include/linux/preempt.h
+> > ===================================================================
+> > --- linux-2.6.orig/include/linux/preempt.h	2006-12-27 16:58:46.000000000 +0900
+> > +++ linux-2.6/include/linux/preempt.h	2006-12-27 17:13:12.000000000 +0900
+> > @@ -8,6 +8,7 @@
+> >  
+> >  #include <linux/thread_info.h>
+> >  #include <linux/linkage.h>
+> > +#include <linux/thread_info.h>
 > 
-> You can grab the monolithic patch at this URL:
-> http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
-> 
-> This patch adds support for the latest 1G/10G Chelsio adapter, T3.
-> It is required by the T3 RDMA driver Steve Wise submitted.
+> Huh?  It's just been included two lines above...
 
+Sorry about that. I mucked around with this for a while
+and ended up missing the obvious when doing the forward-port.
 
-does this patch still contain all the private ioctls?
-They are being ripped out from another new driver, and cxgb3 should
-probably have the same treatment...
-
+-- 
+Horms
+  H: http://www.vergenet.net/~horms/
+  W: http://www.valinux.co.jp/en/
 

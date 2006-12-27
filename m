@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932910AbWL0FNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932913AbWL0FOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932910AbWL0FNm (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 00:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWL0FNl
+	id S932913AbWL0FOf (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 00:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932914AbWL0FOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 00:13:41 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:64424 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932910AbWL0FNk (ORCPT
+	Wed, 27 Dec 2006 00:14:35 -0500
+Received: from wx-out-0506.google.com ([66.249.82.228]:44630 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932913AbWL0FOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 00:13:40 -0500
+	Wed, 27 Dec 2006 00:14:34 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TFcv7d4g+NObsnwLy2L3sSSJLEGEWNZ/Z45vuxxUpAEnCiltbY7w7fDW3H4nZY7BQ/GUjWkkEXIas9Vgnfdncj5WNDvm/w8OIU0kjcBBzBTPpYQ5y3T5yywoQ+L3SH+EHvhv3F6k6c9iPUypO1OR+SJ5TKBA1uyl9eb/M3EyZKE=
-Message-ID: <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
-Date: Tue, 26 Dec 2006 21:13:39 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Rob Landley" <rob@landley.net>
-Subject: Re: Feature request: exec self for NOMMU.
-Cc: linux-kernel@vger.kernel.org,
-       "David McCullough" <david_mccullough@au.securecomputing.com>
-In-Reply-To: <200612261823.07927.rob@landley.net>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=XJLpV1R7nmc3hKlSImsB8FrvE/eVmY5xWeMSTS5mYrQRmCHIbAvMdaMPUT2GR9LIt/Jew9bk2emxgkB83GB3MAWpWmfX/o9YZFEWyzvjlb+RHDX6gTChGX+BZXGjfs/tMQPam82mU+kBa5ppY9AqWbjv2rXp17zSvT3mCgHP4ho=
+Message-ID: <4592012C.5070601@gmail.com>
+Date: Wed, 27 Dec 2006 14:14:20 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jose Alberto Reguero <jareguero@telefonica.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sata_mv and Marvell 88SE6121
+References: <200612221334.08539.jareguero@telefonica.net>
+In-Reply-To: <200612221334.08539.jareguero@telefonica.net>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612261823.07927.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/26/06, Rob Landley <rob@landley.net> wrote:
-> I'm trying to make some nommu-friendly busybox-like tools, which means using
-> vfork() instead of fork().  This means that after I fork I have to exec in
-> the child to unblock the parent, and if I want to exec my current executable
-> I have to find out where it lives so I can feed the path to exec().  This is
-> nontrivial.
->
-> Worse, it's not always possible.  If chroot() has happened since the program
-> started, there may not _be_ a path to my current executable available from
-> this process's current or root directories.
+Jose Alberto Reguero wrote:
+> Can this sata controler Marvell 88SE6121 work with this driver?
+> Is anything I can try to make it work?
+> Any hints are welcome.
+> Thanks.
 
-How about openning an fd to yourself at the beginning of execution, then calling
-fexecve later?
+Combination of sata_mv and pata_marvell should do it.  Beware that
+sata_mv is still experimental.
+
+-- 
+tejun

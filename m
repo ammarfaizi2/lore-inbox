@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964771AbWL0RNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933013AbWL0ROG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWL0RNi (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964769AbWL0RNh
+	id S933013AbWL0ROG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932997AbWL0RNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:13:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41512 "EHLO
+	Wed, 27 Dec 2006 12:13:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41538 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933010AbWL0RNB (ORCPT
+	with ESMTP id S933013AbWL0RNf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:13:01 -0500
+	Wed, 27 Dec 2006 12:13:35 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       David Brownell <david-b@pacbell.net>,
-       David Brownell <dbrownell@users.sourceforge.net>,
+       Stephan Berberig <s.berberig@arcor.de>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 25/28] V4L/DVB (5014): Allyesconfig build fixes on some non
-	x86 arch
-Date: Wed, 27 Dec 2006 14:57:32 -0200
-Message-id: <20061227165732.PS37648900025@infradead.org>
+Subject: [PATCH 20/28] V4L/DVB (4992): Fix typo in saa7134-dvb.c
+Date: Wed, 27 Dec 2006 14:57:31 -0200
+Message-id: <20061227165731.PS25572700020@infradead.org>
 In-Reply-To: <20061227165016.PS89442900000@infradead.org>
 References: <20061227165016.PS89442900000@infradead.org>
 Mime-Version: 1.0
@@ -32,48 +30,41 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: David Brownell <david-b@pacbell.net>
+From: Stephan Berberig <s.berberig@arcor.de>
 
-- CAFE_CCIC needs to depend on PCI, else "allyesconfig" breaks
-   on systems without PCI
-- em28xx-video can't udelay(2500) else "allyesconfig" breaks
-   on systems that refuse to spin that long (I saw it on ARM)
+Fix a typo (use_frontent -> use_frontend) in saa7134-dvb.c.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Stephan Berberig <s.berberig@arcor.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/Kconfig               |    2 +-
- drivers/media/video/em28xx/em28xx-video.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/video/saa7134/saa7134-dvb.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/video/Kconfig b/drivers/media/video/Kconfig
-index 29a11c1..57357db 100644
---- a/drivers/media/video/Kconfig
-+++ b/drivers/media/video/Kconfig
-@@ -668,7 +668,7 @@ config VIDEO_M32R_AR_M64278
+diff --git a/drivers/media/video/saa7134/saa7134-dvb.c b/drivers/media/video/saa7134/saa7134-dvb.c
+index fa83398..c33f6a6 100644
+--- a/drivers/media/video/saa7134/saa7134-dvb.c
++++ b/drivers/media/video/saa7134/saa7134-dvb.c
+@@ -50,9 +50,9 @@ static unsigned int antenna_pwr = 0;
+ module_param(antenna_pwr, int, 0444);
+ MODULE_PARM_DESC(antenna_pwr,"enable antenna power (Pinnacle 300i)");
  
- config VIDEO_CAFE_CCIC
- 	tristate "Marvell 88ALP01 (Cafe) CMOS Camera Controller support"
--	depends on I2C && VIDEO_V4L2
-+	depends on PCI && I2C && VIDEO_V4L2
- 	select VIDEO_OV7670
- 	---help---
- 	  This is a video4linux2 driver for the Marvell 88ALP01 integrated
-diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
-index 2a461dd..36e72c2 100644
---- a/drivers/media/video/em28xx/em28xx-video.c
-+++ b/drivers/media/video/em28xx/em28xx-video.c
-@@ -1674,9 +1674,9 @@ #endif
- 	if (dev->has_msp34xx) {
- 		/* Send a reset to other chips via gpio */
- 		em28xx_write_regs_req(dev, 0x00, 0x08, "\xf7", 1);
--		udelay(2500);
-+		msleep(3);
- 		em28xx_write_regs_req(dev, 0x00, 0x08, "\xff", 1);
--		udelay(2500);
-+		msleep(3);
+-static int use_frontent = 0;
+-module_param(use_frontent, int, 0644);
+-MODULE_PARM_DESC(use_frontent,"for cards with multiple frontends (0: terrestrial, 1: satellite)");
++static int use_frontend = 0;
++module_param(use_frontend, int, 0644);
++MODULE_PARM_DESC(use_frontend,"for cards with multiple frontends (0: terrestrial, 1: satellite)");
  
- 	}
- 	video_mux(dev, 0);
+ /* ------------------------------------------------------------------ */
+ static int pinnacle_antenna_pwr(struct saa7134_dev *dev, int on)
+@@ -1303,7 +1303,7 @@ static int dvb_init(struct saa7134_dev *
+ 		}
+ 		break;
+ 	case SAA7134_BOARD_FLYDVB_TRIO:
+-		if(! use_frontent) {	//terrestrial
++		if(! use_frontend) {	//terrestrial
+ 			dev->dvb.frontend = dvb_attach(tda10046_attach,
+ 						       &lifeview_trio_config,
+ 						       &dev->i2c_adap);
 

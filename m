@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932895AbWL0DmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932898AbWL0D7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932895AbWL0DmN (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 22:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932897AbWL0DmN
+	id S932898AbWL0D7O (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 22:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932899AbWL0D7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 22:42:13 -0500
-Received: from ag-out-0708.google.com ([72.14.246.242]:31108 "EHLO
-	ag-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932895AbWL0DmM (ORCPT
+	Tue, 26 Dec 2006 22:59:14 -0500
+Received: from moutng.kundenserver.de ([212.227.126.179]:57306 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932898AbWL0D7N convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 22:42:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=Q6Nit5yz1fbPUG25UmNkTaPupgYSbhdm1pAsO4zu90Scmsjd8KABHl0HIpgdLaCRBlwYxwu6INoQLmW9FehLbdAFRvhoz1/8KWvpwFeK9+QBlEcgMKjGd80TaC8XsCHaK3u9qd95YTdU3zm3xYoLCaMbusy4/XruHc9ZCjO2u7Q=
-Message-ID: <4591EB76.3060801@gmail.com>
-Date: Wed, 27 Dec 2006 12:41:42 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Tue, 26 Dec 2006 22:59:13 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: util-linux: orphan
+Date: Wed, 27 Dec 2006 04:58:54 +0100
+User-Agent: KMail/1.9.5
+Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+       Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>
+References: <20061109224157.GH4324@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de> <4591E3BB.9070806@zytor.com>
+In-Reply-To: <4591E3BB.9070806@zytor.com>
 MIME-Version: 1.0
-To: erik@echohome.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System / libata IDE controller woes (long)
-References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAJ1ef91k2DRKvSshkps/AYkBAAAAAA==@echohome.org>
-In-Reply-To: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAJ1ef91k2DRKvSshkps/AYkBAAAAAA==@echohome.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612270458.55790.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 27 December 2006 04:08, H. Peter Anvin wrote:
+> 
+> > I'd suggest that you make sure that mount always gets statically linked
+> > against libblkid to avoid these problems.
+> > 
+> 
+> That's a pretty silly statement.  The real issue is that any library 
+> needed by binaries in /bin or /sbin should live in /lib, not /usr/lib.
 
-Erik Ohrnberger wrote:
-> Earlier this year, when I started putting it together, I gathered my
-> hardware.  A decent 2 GHz Athlon system with 512 MB RAM, DVD drive, a 40 GB
-> system drive, and a 500 Watt power supply.  Then I started adding hard
-> disks.  To date, I've got 5 80 GB PATA, 2 200 GB PATA, and 1 60 GB PATA.
+Right, this is obviously true in general. I don't understand enough
+about selinux (who does?) to be sure what went wrong there on top
+of this, but my impression was that I could have solved the problem
+if I had been able to remount the root partition, or mount the selinux
+file system, which was made impossible by the fact that I had no
+permission to access one of the libraries for the mount binary.
 
-That's 9 hard drives.  How did you hook up your power supply?  My
-dual-rail 450w PS has a lot of problem driving 9 drives no matter how I
-hook it up while my 350w power supply can happily handle the load.  I
-suspect it's because how the separate 12v rails are configured in the PS.
+The location of the library file was not the problem I had, as that
+system doesn't have a separate /usr partition. 
 
-It's nothing concrete but I wanna rule PS issue first.  If you've got an
-extra power supply (buy cheap 350w one if you don't have one), hook half
-of the drives to it and see what happens.  Using PS without motherboard
-is easy.  Just ask google.
-
-Happy holidays.
-
--- 
-tejun
+	Arnd <><

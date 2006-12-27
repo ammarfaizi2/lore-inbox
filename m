@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932997AbWL0ROG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933022AbWL0ROO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932997AbWL0ROG (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWL0RNk
+	id S933022AbWL0ROO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWL0ROK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:13:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41480 "EHLO
+	Wed, 27 Dec 2006 12:14:10 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41547 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933005AbWL0RMK (ORCPT
+	with ESMTP id S932999AbWL0RNr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:12:10 -0500
+	Wed, 27 Dec 2006 12:13:47 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       Mario Rossi <mariofutire@googlemail.com>,
-       Patrick Boettcher <pb@linuxtv.org>,
+       Akinobu Mita <akinobu.mita@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 01/28] V4L/DVB (4955): Fix autosearch index
-Date: Wed, 27 Dec 2006 14:57:27 -0200
-Message-id: <20061227165726.PS94054100001@infradead.org>
+Subject: [PATCH 21/28] V4L/DVB (4994): Vivi: fix use after free in
+	list_for_each()
+Date: Wed, 27 Dec 2006 14:57:31 -0200
+Message-id: <20061227165731.PS48805300021@infradead.org>
 In-Reply-To: <20061227165016.PS89442900000@infradead.org>
 References: <20061227165016.PS89442900000@infradead.org>
 Mime-Version: 1.0
@@ -31,31 +31,30 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Mario Rossi <mariofutire@googlemail.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
 
-After rewriting the driver the wrong autosearch index was used when
-COFDM-parameter needed to be detected.
-Thanks to Mario Rossi who found it.
+Freeing data including list_head in list_for_each() is not safe.
 
-Signed-off-by: Mario Rossi <mariofutire@googlemail.com>
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/frontends/dib3000mc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/vivi.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/dvb/frontends/dib3000mc.c b/drivers/media/dvb/frontends/dib3000mc.c
-index 5da6617..23aa75a 100644
---- a/drivers/media/dvb/frontends/dib3000mc.c
-+++ b/drivers/media/dvb/frontends/dib3000mc.c
-@@ -515,7 +515,7 @@ static int dib3000mc_autosearch_start(st
- 	fchan.vit_alpha = 1; fchan.vit_code_rate_hp = 2; fchan.vit_code_rate_lp = 2;
- 	fchan.vit_hrch = 0; fchan.vit_select_hp = 1;
+diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
+index 474ddb7..3cead24 100644
+--- a/drivers/media/video/vivi.c
++++ b/drivers/media/video/vivi.c
+@@ -1363,7 +1363,9 @@ static void __exit vivi_exit(void)
+ 	struct vivi_dev *h;
+ 	struct list_head *list;
  
--	dib3000mc_set_channel_cfg(state, &fchan, 7);
-+	dib3000mc_set_channel_cfg(state, &fchan, 11);
- 
- 	reg = dib3000mc_read_word(state, 0);
- 	dib3000mc_write_word(state, 0, reg | (1 << 8));
+-	list_for_each(list,&vivi_devlist) {
++	while (!list_empty(&vivi_devlist)) {
++		list = vivi_devlist.next;
++		list_del(list);
+ 		h = list_entry(list, struct vivi_dev, vivi_devlist);
+ 		kfree (h);
+ 	}
 

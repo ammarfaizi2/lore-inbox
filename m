@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754774AbWL0VK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932684AbWL0VPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754774AbWL0VK0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 16:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754790AbWL0VKZ
+	id S932684AbWL0VPL (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 16:15:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWL0VPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 16:10:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47448 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754774AbWL0VKY (ORCPT
+	Wed, 27 Dec 2006 16:15:11 -0500
+Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:36283
+	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932684AbWL0VPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 16:10:24 -0500
-Date: Wed, 27 Dec 2006 21:10:16 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Loye Young <loyeyoung@iycc.net>
-cc: linux-kernel@vger.kernel.org, loye.young@iycc.net
-Subject: Re: The Input Layer and the Serial Port 
-In-Reply-To: <20061227195433.872F03FC063@hamlet.sw.biz.rr.com>
-Message-ID: <Pine.LNX.4.64.0612272050240.19264@pentafluge.infradead.org>
-References: <20061227195433.872F03FC063@hamlet.sw.biz.rr.com>
+	Wed, 27 Dec 2006 16:15:10 -0500
+From: Rob Landley <rob@landley.net>
+To: Ray Lee <ray-lk@madrabbit.org>
+Subject: Re: Feature request: exec self for NOMMU.
+Date: Wed, 27 Dec 2006 16:13:51 -0500
+User-Agent: KMail/1.9.1
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, ray-gmail@madrabbit.org,
+       linux-kernel@vger.kernel.org,
+       David McCullough <david_mccullough@au.securecomputing.com>
+References: <200612261823.07927.rob@landley.net> <200612270329.16320.rob@landley.net> <4592C038.8010407@madrabbit.org>
+In-Reply-To: <4592C038.8010407@madrabbit.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612271613.52464.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> To the King of Penguins and the Wise Architects of the Kernel:
+On Wednesday 27 December 2006 1:49 pm, Ray Lee wrote:
+> >>> I haven't got a man page for fexecve.  Does libc have it?
+> >> It's implemented inside glibc, and uses /proc to execve() the file that
+> >> the fd points to.
 > 
-> Greetings and Smooth Compiling to All,
+> Oh, hmm. Then I think it won't work, will it? I'd assumed fexecve was
+> implemented in kernel.
+
+It sort of is.  Through the /proc filesystem, the kernel provides a path 
+through which to open any arbitrary file descriptor, thus providing 
+the "path" argument that the exec syscall requires.
+
+> > Cute, and I can do that.  Assuming /proc is mounted in the chroot 
+> > environment...
 > 
-> I, a humble pilgrim in the Land of Tux, have spent over a year 
-> seeking a simple answer to what seems to me a simple question: 
-> How do I expose my RS232 barcode scanner to the input layer so
-> that the scanned information shows up in applications? Basically,
-> I need the scanner to act like another keyboard. Scan a code, 
-> see the numbers. 
+> Maybe I'm just confused -- wouldn't be the first time -- but if it's
+> implemented inside userspace, then once you chroot() you won't be able
+> to execute the path you find via /proc, will you?
 
-   By the magic of serio. Take for example the AT keyboard which is 
-one of the most common keyboards in the world. I have seen and 
-used it attached to a PC via parport, serial port and the standard 
-PS/2 port. So to handle cases like this the input layer created a 
-serio interface. This way it does matter what bus the keyboard is
-attached to the same code can be used to drive the keyboard. 
-   The good news for you is that a serial port serio exist already.
-All you need to do is write the device interface. I recommend you
-take a look at sermouse.c in the drivers/input.mouse directory
-for a guide.
+You need /proc mounted in the new chroot for it to work.  It's not a complete 
+solution, but an incremental improvement over the previous hack.
 
-P.S
-   In fact I have been playing with serio for a way to 
-work with LCD panels that can be wired via parport, gpio etc.  
-Its just so flexiable :-)
+Of course today what you can do is copy busybox into the top directory of the 
+new chroot directory, execute that via the standard chroot command, 
+run "/busybox mount -n -t procfs /proc /proc", and then let the 
+current /proc/self/exe logic handle things from there.  (Or configure busybox 
+to use /busybox instead of /proc/self/exe as the re-exec-self path.)
+
+Rob
+-- 
+"Perfection is reached, not when there is no longer anything to add, but
+when there is no longer anything to take away." - Antoine de Saint-Exupery

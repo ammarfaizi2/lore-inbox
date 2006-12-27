@@ -1,155 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965001AbWL1Iig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964990AbWL1IiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWL1Iig (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 03:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWL1Iif
+	id S964990AbWL1IiT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 03:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWL1IiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 03:38:35 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:47837 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964998AbWL1Ii3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 03:38:29 -0500
-Date: Thu, 28 Dec 2006 14:12:52 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com, mingo@elte.hu
-Subject: [FSAIO][PATCH 7/8] Filesystem AIO read
-Message-ID: <20061228084252.GG6971@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com>
+	Thu, 28 Dec 2006 03:38:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3796 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964994AbWL1IiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 03:38:18 -0500
+Date: Wed, 27 Dec 2006 17:49:54 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Bill Gatliff <bgat@billgatliff.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
+       pHilipp Zabel <philipp.zabel@gmail.com>
+Subject: Re: [patch 2.6.20-rc1 1/6] GPIO core
+Message-ID: <20061227174953.GB4088@ucw.cz>
+References: <200611111541.34699.david-b@pacbell.net> <200612201304.03912.david-b@pacbell.net> <200612201308.41900.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061228082308.GA4476@in.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200612201308.41900.david-b@pacbell.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Converts the wait for page to become uptodate (lock page)
-after readahead/readpage (in do_generic_mapping_read) to a retry
-exit, to make buffered filesystem AIO reads actually synchronous.
 
-The patch avoids exclusive wakeups with AIO, a problem originally
-spotted by Chris Mason, though the reasoning for why it is an
-issue is now much clearer (see explanation in the comment below
-in aio.c), and the solution is perhaps slightly simpler.
+> +Identifying GPIOs
+> +-----------------
+> +GPIOs are identified by unsigned integers in the range 0..MAX_INT.  That
+> +reserves "negative" numbers for other purposes like marking signals as
+> +"not available on this board", or indicating faults.
+> +
+> +Platforms define how they use those integers, and usually #define symbols
+> +for the GPIO lines so that board-specific setup code directly corresponds
+> +to the relevant schematics.  In contrast, drivers should only use GPIO
 
-Signed-off-by: Suparna Bhattacharya <suparna@in.ibm.com>
-Acked-by: Ingo Molnar <mingo@elte.hu>
----
+Perhaps these should not be integers, then?
 
- linux-2.6.20-rc1-root/fs/aio.c            |   11 ++++++++++-
- linux-2.6.20-rc1-root/include/linux/aio.h |    5 +++++
- linux-2.6.20-rc1-root/mm/filemap.c        |   19 ++++++++++++++++---
- 3 files changed, 31 insertions(+), 4 deletions(-)
+typedef struct { int mydata } pin_t; prevents people from looking
+inside, allows you to typecheck, and allows expansion in (unlikely) case where
+more than int is needed? ...hotpluggable gpio pins?
 
-diff -puN fs/aio.c~aio-fs-read fs/aio.c
---- linux-2.6.20-rc1/fs/aio.c~aio-fs-read	2006-12-21 08:46:13.000000000 +0530
-+++ linux-2.6.20-rc1-root/fs/aio.c	2006-12-28 09:26:30.000000000 +0530
-@@ -1529,7 +1529,16 @@ static int aio_wake_function(wait_queue_
- 
- 	list_del_init(&wait->task_list);
- 	kick_iocb(iocb);
--	return 1;
-+	/*
-+	 * Avoid exclusive wakeups with retries since an exclusive wakeup
-+	 * may involve implicit expectations of waking up the next waiter
-+	 * and there is no guarantee that the retry will take a path that
-+	 * would do so. For example if a page has become up-to-date, then
-+	 * a retried read may end up straightaway performing a copyout
-+	 * and not go through a lock_page - unlock_page that would have
-+	 * passed the baton to the next waiter.
-+	 */
-+	return 0;
- }
- 
- int fastcall io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
-diff -puN mm/filemap.c~aio-fs-read mm/filemap.c
---- linux-2.6.20-rc1/mm/filemap.c~aio-fs-read	2006-12-21 08:46:13.000000000 +0530
-+++ linux-2.6.20-rc1-root/mm/filemap.c	2006-12-28 09:31:48.000000000 +0530
-@@ -909,6 +909,11 @@ void do_generic_mapping_read(struct addr
- 	if (!isize)
- 		goto out;
- 
-+	if (in_aio()) {
-+		/* Avoid repeat readahead */
-+		if (kiocbTryRestart(io_wait_to_kiocb(current->io_wait)))
-+			next_index = last_index;
-+	}
- 	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
- 	for (;;) {
- 		struct page *page;
-@@ -978,7 +983,10 @@ page_ok:
- 
- page_not_up_to_date:
- 		/* Get exclusive access to the page ... */
--		lock_page(page);
-+
-+		if ((error = __lock_page(page, current->io_wait))) {
-+			goto readpage_error;
-+		}
- 
- 		/* Did it get truncated before we got the lock? */
- 		if (!page->mapping) {
-@@ -1006,7 +1014,8 @@ readpage:
- 		}
- 
- 		if (!PageUptodate(page)) {
--			lock_page(page);
-+			if ((error = __lock_page(page, current->io_wait)))
-+				goto readpage_error;
- 			if (!PageUptodate(page)) {
- 				if (page->mapping == NULL) {
- 					/*
-@@ -1052,7 +1061,11 @@ readpage:
- 		goto page_ok;
- 
- readpage_error:
--		/* UHHUH! A synchronous read error occurred. Report it */
-+		/* We don't have uptodate data in the page yet */
-+		/* Could be due to an error or because we need to
-+		 * retry when we get an async i/o notification.
-+		 * Report the reason.
-+		 */
- 		desc->error = error;
- 		page_cache_release(page);
- 		goto out;
-diff -puN include/linux/aio.h~aio-fs-read include/linux/aio.h
---- linux-2.6.20-rc1/include/linux/aio.h~aio-fs-read	2006-12-21 08:46:13.000000000 +0530
-+++ linux-2.6.20-rc1-root/include/linux/aio.h	2006-12-28 09:26:27.000000000 +0530
-@@ -34,21 +34,26 @@ struct kioctx;
- /* #define KIF_LOCKED		0 */
- #define KIF_KICKED		1
- #define KIF_CANCELLED		2
-+#define KIF_RESTARTED		3
- 
- #define kiocbTryLock(iocb)	test_and_set_bit(KIF_LOCKED, &(iocb)->ki_flags)
- #define kiocbTryKick(iocb)	test_and_set_bit(KIF_KICKED, &(iocb)->ki_flags)
-+#define kiocbTryRestart(iocb)	test_and_set_bit(KIF_RESTARTED, &(iocb)->ki_flags)
- 
- #define kiocbSetLocked(iocb)	set_bit(KIF_LOCKED, &(iocb)->ki_flags)
- #define kiocbSetKicked(iocb)	set_bit(KIF_KICKED, &(iocb)->ki_flags)
- #define kiocbSetCancelled(iocb)	set_bit(KIF_CANCELLED, &(iocb)->ki_flags)
-+#define kiocbSetRestarted(iocb)	set_bit(KIF_RESTARTED, &(iocb)->ki_flags)
- 
- #define kiocbClearLocked(iocb)	clear_bit(KIF_LOCKED, &(iocb)->ki_flags)
- #define kiocbClearKicked(iocb)	clear_bit(KIF_KICKED, &(iocb)->ki_flags)
- #define kiocbClearCancelled(iocb)	clear_bit(KIF_CANCELLED, &(iocb)->ki_flags)
-+#define kiocbClearRestarted(iocb)	clear_bit(KIF_RESTARTED, &(iocb)->ki_flags)
- 
- #define kiocbIsLocked(iocb)	test_bit(KIF_LOCKED, &(iocb)->ki_flags)
- #define kiocbIsKicked(iocb)	test_bit(KIF_KICKED, &(iocb)->ki_flags)
- #define kiocbIsCancelled(iocb)	test_bit(KIF_CANCELLED, &(iocb)->ki_flags)
-+#define kiocbIsRestarted(iocb)	test_bit(KIF_RESTARTED, &(iocb)->ki_flags)
- 
- /* is there a better place to document function pointer methods? */
- /**
-_
+> +Spinlock-Safe GPIO access
+> +-------------------------
+> +Most GPIO controllers can be accessed with memory read/write instructions.
+> +That doesn't need to sleep, and can safely be done from inside IRQ handlers.
+> +
+> +Use these calls to access such GPIOs:
+> +
+> +	/* GPIO INPUT:  return zero or nonzero */
+> +	int gpio_get_value(unsigned gpio);
+> +
+> +	/* GPIO OUTPUT */
+> +	void gpio_set_value(unsigned gpio, int value);
+> +
+> +The values are boolean, zero for low, nonzero for high.  When reading the
+> +value of an output pin, the value returned should be what's seen on the
+> +pin ... that won't always match the specified output value, because of
+> +issues including wire-OR and output latencies.
+> +
+> +The get/set calls have no error returns because "invalid GPIO" should have
+> +been reported earlier in gpio_set_direction().  However, note that not all
+> +platforms can read the value of output pins; those that can't should always
+> +return zero.
+>  Also, these calls will be ignored for GPIOs that can't safely
+> +be accessed wihtout sleeping (see below).
+
+'Silently ignored' is ugly. BUG() would be okay there.
+
+> +Platforms that support this type of GPIO distinguish them from other GPIOs
+> +by returning nonzero from this call:
+> +
+> +	int gpio_cansleep(unsigned gpio);
+
+This is ugly :-(. But I don't see easy way around...
+
+
+> +GPIOs mapped to IRQs
+> +--------------------
+> +GPIO numbers are unsigned integers; so are IRQ numbers.  These make up
+> +two logically distinct namespaces (GPIO 0 need not use IRQ 0).  You can
+> +map between them using calls like:
+> +
+> +	/* map GPIO numbers to IRQ numbers */
+> +	int gpio_to_irq(unsigned gpio);
+> +
+> +	/* map IRQ numbers to GPIO numbers */
+> +	int irq_to_gpio(unsigned irq);
+
+. Don't we have irq_t already? 
+
+> +Those return either the corresponding number in the other namespace, or
+> +else a negative errno code if the mapping can't be done.  (For example,
+> +some GPIOs can't used as IRQs.)  It is an unchecked error to use a GPIO
+> +number that hasn't been marked as an input using gpio_set_direction(), or
+
+It should be valid to do irqs on outputs, if those outputs are really
+tristates (wire-or or how you call it?)?
+
+							Pavel
+
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Thanks for all the (sleeping) penguins.

@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932991AbWL0RLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933002AbWL0RLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932991AbWL0RLY (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932933AbWL0RKt
+	id S933002AbWL0RLz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932933AbWL0RLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:10:49 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41429 "EHLO
+	Wed, 27 Dec 2006 12:11:34 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41445 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933001AbWL0RKS (ORCPT
+	with ESMTP id S932996AbWL0RKt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:10:18 -0500
+	Wed, 27 Dec 2006 12:10:49 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
        Hans Verkuil <hverkuil@xs4all.nl>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 08/28] V4L/DVB (4968): Add PAL-60 support for cx2584x.
-Date: Wed, 27 Dec 2006 14:57:28 -0200
-Message-id: <20061227165728.PS49134400008@infradead.org>
+Subject: [PATCH 17/28] V4L/DVB (4988): Cx2341x audio_properties is an u16,
+	not u8
+Date: Wed, 27 Dec 2006 14:57:30 -0200
+Message-id: <20061227165730.PS57436900017@infradead.org>
 In-Reply-To: <20061227165016.PS89442900000@infradead.org>
 References: <20061227165016.PS89442900000@infradead.org>
 Mime-Version: 1.0
@@ -32,31 +33,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Hans Verkuil <hverkuil@xs4all.nl>
 
+This bug broke the MPEG audio mode controls.
+
 Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/cx25840/cx25840-vbi.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ include/media/cx2341x.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/video/cx25840/cx25840-vbi.c b/drivers/media/video/cx25840/cx25840-vbi.c
-index f85f208..ced13fe 100644
---- a/drivers/media/video/cx25840/cx25840-vbi.c
-+++ b/drivers/media/video/cx25840/cx25840-vbi.c
-@@ -128,7 +128,14 @@ void cx25840_vbi_setup(struct i2c_client
- 		uv_lpf=1;
+diff --git a/include/media/cx2341x.h b/include/media/cx2341x.h
+index d91d88f..ecad55b 100644
+--- a/include/media/cx2341x.h
++++ b/include/media/cx2341x.h
+@@ -49,7 +49,7 @@ struct cx2341x_mpeg_params {
+ 	enum v4l2_mpeg_audio_mode_extension audio_mode_extension;
+ 	enum v4l2_mpeg_audio_emphasis audio_emphasis;
+ 	enum v4l2_mpeg_audio_crc audio_crc;
+-	u8 audio_properties;
++	u16 audio_properties;
  
- 		src_decimation=0x21f;
--		if (std == V4L2_STD_PAL_M) {
-+		if (std == V4L2_STD_PAL_60) {
-+			vblank=26;
-+			vblank656=26;
-+			burst=0x5b;
-+			luma_lpf=2;
-+			comb=0x20;
-+			sc=0x0a8263;
-+		} else if (std == V4L2_STD_PAL_M) {
- 			vblank=20;
- 			vblank656=24;
- 			burst=0x61;
+ 	/* video */
+ 	enum v4l2_mpeg_video_encoding video_encoding;
 

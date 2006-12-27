@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932808AbWL0NEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932813AbWL0NTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932808AbWL0NEK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 08:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWL0NEJ
+	id S932813AbWL0NTO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 08:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932796AbWL0NTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 08:04:09 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:42548 "EHLO inti.inf.utfsm.cl"
+	Wed, 27 Dec 2006 08:19:13 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:43023 "EHLO inti.inf.utfsm.cl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932791AbWL0NEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 08:04:08 -0500
-Message-Id: <200612271303.kBRD3tSJ007866@laptop13.inf.utfsm.cl>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove logically superfluous comparisons from Kconfig files. 
-In-Reply-To: Message from "Robert P. J. Day" <rpjday@mindspring.com> 
-   of "Mon, 18 Dec 2006 05:14:01 CDT." <Pine.LNX.4.64.0612180509010.22527@localhost.localdomain> 
+	id S932810AbWL0NTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 08:19:13 -0500
+Message-Id: <200612271318.kBRDIHjU008457@laptop13.inf.utfsm.cl>
+To: Theodore Tso <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>,
+       Arnd Bergmann <arnd@arndb.de>, Karel Zak <kzak@redhat.com>,
+       linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
+       Olaf Hering <olh@suse.de>
+Subject: Re: util-linux: orphan 
+In-Reply-To: Message from Theodore Tso <tytso@mit.edu> 
+   of "Tue, 26 Dec 2006 23:35:01 CDT." <20061227043501.GA7821@thunk.org> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Wed, 27 Dec 2006 10:03:55 -0300
+Date: Wed, 27 Dec 2006 10:18:17 -0300
 From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 27 Dec 2006 10:03:56 -0300 (CLST)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 27 Dec 2006 10:18:18 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day <rpjday@mindspring.com> wrote:
->   Remove Kconfig comparisons of the form FUBAR || FUBAR=n, since they
-> appear to be superfluous.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   based on what i read in kconfig-language.txt, it would *appear* that
-> those comparisons are redundant, but i'm willing to be convinced
-> otherwise.  (unless the developer specifically wanted the case of
-> "!=m", which i'm fairly sure is not the same thing, yes?)
+Fedora rawhide (i686):
 
-Would be clearer written that way if so.
+$ rpm -qf /bin/mount
+util-linux-2.13-0.48.fc7
 
->  drivers/char/drm/Kconfig   |    2 +-
->  fs/dlm/Kconfig             |    1 -
->  net/ipv4/netfilter/Kconfig |    1 -
->  net/sctp/Kconfig           |    1 -
->  4 files changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/drivers/char/drm/Kconfig b/drivers/char/drm/Kconfig
-> index ef833a1..d681e68 100644
-> --- a/drivers/char/drm/Kconfig
-> +++ b/drivers/char/drm/Kconfig
-> @@ -6,7 +6,7 @@
->  #
->  config DRM
->  	tristate "Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)"
-> -	depends on (AGP || AGP=n) && PCI
-> +	depends on && PCI
-                   ^^ ???
+$ ldd /bin/mount
+        linux-gate.so.1 =>  (0x00f9b000)
+        libblkid.so.1 => /lib/libblkid.so.1 (0x45dbc000)
+        libuuid.so.1 => /lib/libuuid.so.1 (0x45db6000)
+        libselinux.so.1 => /lib/libselinux.so.1 (0x43c5c000)
+        libc.so.6 => /lib/libc.so.6 (0x430d9000)
+        libdevmapper.so.1.02 => /lib/libdevmapper.so.1.02 (0x4329c000)
+        libdl.so.2 => /lib/libdl.so.2 (0x43255000)
+        libsepol.so.1 => /lib/libsepol.so.1 (0x43c8b000)
+        /lib/ld-linux.so.2 (0x5e3f7000)
 
->  	help
+Aurora Corona (SPARC64):
+
+$ rpm -qf /bin/mount
+util-linux-2.13-0.44.sparc.al3
+
+$ ldd /bin/mount
+        libblkid.so.1 => /lib/libblkid.so.1 (0xf7fbc000)
+        libuuid.so.1 => /lib/libuuid.so.1 (0xf7fa8000)
+        libselinux.so.1 => /lib/libselinux.so.1 (0xf7f80000)
+        libc.so.6 => /lib/libc.so.6 (0xf7e10000)
+        libdevmapper.so.1.02 => /lib/libdevmapper.so.1.02 (0xf7dfc000)
+        libdl.so.2 => /lib/libdl.so.2 (0xf7de4000)
+        libsepol.so.1 => /lib/libsepol.so.1 (0xf7d88000)
+        /lib/ld-linux.so.2 (0x70000000)
+
+CentOS 4.4 (x86_64):
+
+$ rpm -qf /bin/mount
+util-linux-2.12a-16.EL4.20
+
+$ ldd /bin/mount
+        libc.so.6 => /lib64/tls/libc.so.6 (0x00000031d6c00000)
+        /lib64/ld-linux-x86-64.so.2 (0x000000552aaaa000)
+
+All look fine to me.
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                    Fono: +56 32 2654431

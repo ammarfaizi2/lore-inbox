@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932881AbWL0Clm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932885AbWL0Coc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932881AbWL0Clm (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 21:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWL0Clm
+	id S932885AbWL0Coc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 21:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWL0Coc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 21:41:42 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:59425 "EHLO
-	smtprelay04.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932881AbWL0Clm convert rfc822-to-8bit (ORCPT
+	Tue, 26 Dec 2006 21:44:32 -0500
+Received: from web38015.mail.mud.yahoo.com ([209.191.124.126]:24217 "HELO
+	web38015.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932885AbWL0Cob (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 21:41:42 -0500
-X-Greylist: delayed 440 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 21:41:41 EST
-From: Askadar <askadar@hvk-gymnasium.de>
+	Tue, 26 Dec 2006 21:44:31 -0500
+X-Greylist: delayed 398 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Dec 2006 21:44:31 EST
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4f7FL4BAWEfz9f4RV2oUt1tqddSCglF0lnNVpXFgecDOXclyc8FrXCayk7ASqREeFpf+VB3asbfA5PzV8UXhsmrKdtikNhkAybChDVhvDcUITBoeCWwwrda/Le2AsdN3Q1vu13sABHht5CoAR3SaCO7fOhJbNTcEtU84WSfEKHY=  ;
+Message-ID: <20061227023750.5300.qmail@web38015.mail.mud.yahoo.com>
+X-YMail-OSG: DfeFhw8VM1nhuXAw7Au_qWfRpQJhQN7DMNaPVeZoXOP.XTJ66vqLbttfJZHpfXNJqqZmqSKggEWJywJbjPXL6yq62qdAsKafb1j16jN51xu4gqN8G_94PqLCTJCJReke4bzN5pFxxVRM7Sw-
+Date: Tue, 26 Dec 2006 18:37:50 -0800 (PST)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: [PATCH] Buglet in vmscan.c
 To: linux-kernel@vger.kernel.org
-Subject: RE: linux tcp stack behavior change
-Date: Tue, 26 Dec 2006 21:34:11 -0500
-User-Agent: KMail/1.9.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612262134.11609.askadar@hvk-gymnasium.de>
+Content-Type: multipart/mixed; boundary="0-464885250-1167187070=:2630"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, I know that plain -sF worked with previous kernels. Using
-> nmap-4.00 on 2.6.18.5 yields the same result, so I do not think it is
-> caused by a change in nmap code. Could someone with 2.6.13-2.6.17 verify
-> that the TCP stack returned a RST?
+--0-464885250-1167187070=:2630
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Works for me on 2.6.18.3:
+The attached patch fixes a rather obvious buglet. 
+Noticed while instrumenting the VM using /proc/vmstat.
 
-[root@DS-12 bb]# tcpdump -ni lo &
-[root@DS-12 bb]# nmap localhost -n -sX -p 22
 
-Starting Nmap 4.11 ( http://www.insecure.org/nmap/ ) at 2006-12-26 21:26 EST
-21:26:09.217187 IP 127.0.0.1.46872 > 127.0.0.1.22: FP 4139391634:4139391634(0) 
-win 1024 urg 0
-21:26:09.217355 IP 127.0.0.1.22 > 127.0.0.1.46872: R 0:0(0) ack 4139391635 win 
-0
-Interesting ports on 127.0.0.1:
-PORT   STATE  SERVICE
-22/tcp closed ssh
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-464885250-1167187070=:2630
+Content-Type: text/x-patch; name="vm-pgsteal-count-fix.patch"
+Content-Description: 726233005-vm-pgsteal-count-fix.patch
+Content-Disposition: inline; filename="vm-pgsteal-count-fix.patch"
 
-[root@DS-12 bb]# uname -a
-Linux DS-12 2.6.18-ARCH #1 SMP PREEMPT Sun Nov 19 09:14:35 CET 2006 i686 
-Intel(R) Pentium(R) 4 Mobile CPU 1.80GHz GenuineIntel GNU/Linux
+--- .orig/mm/vmscan.c	2006-12-26 21:34:30.000000000 -0500
++++ 2.6.20-rc2-wb-fix/mm/vmscan.c	2006-12-26 21:32:17.000000000 -0500
+@@ -692,7 +692,7 @@
+ 			__count_vm_events(KSWAPD_STEAL, nr_freed);
+ 		} else
+ 			__count_zone_vm_events(PGSCAN_DIRECT, zone, nr_scan);
+-		__count_vm_events(PGACTIVATE, nr_freed);
++		__count_zone_vm_events(PGSTEAL, zone, nr_freed);
+ 
+ 		if (nr_taken == 0)
+ 			goto done;
 
-[root@DS-12 bb]# pacman -Q kernel26
-kernel26 2.6.18.3-1
-
-- Björn
+--0-464885250-1167187070=:2630--

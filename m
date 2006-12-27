@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964776AbWL0Wac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964787AbWL0Wpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWL0Wac (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 17:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWL0Wac
+	id S964787AbWL0Wpp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 17:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWL0Wpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 17:30:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44933 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964776AbWL0Wab (ORCPT
+	Wed, 27 Dec 2006 17:45:44 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:36249 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964787AbWL0Wpo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 17:30:31 -0500
-Subject: Re: [patch 2.6.12-rc2] PNP: export pnp_bus_type
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Adam Belay <abelay@novell.com>, ambx1@neo.rr.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612271347.47114.david-b@pacbell.net>
-References: <200612271347.47114.david-b@pacbell.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 27 Dec 2006 23:30:18 +0100
-Message-Id: <1167258618.3281.4112.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Wed, 27 Dec 2006 17:45:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HM7uLXbB9o/cyg8u9QYCAWGZwUyUfe/IcA3RvDqbC3dAterBw38Xnm4Gr2sc5W8nCKTqZUwlhXTCBnKSCYJzOP4JD4dE0+tGXADPcEEZIyF8Puqt7vJo6f7jF9KQA9eYR80NUEtoZbDAQAQ7d5mSsEgwmI0A6OpVQ3aDLgdgT/w=
+Message-ID: <c89a20770612271445q69ce84abv98d3265a1c88bfbe@mail.gmail.com>
+Date: Wed, 27 Dec 2006 23:45:43 +0100
+From: "John Freighter" <jfreighter@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: OpenSolaris under KVM?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-27 at 13:47 -0800, David Brownell wrote:
-> The PNP framework doesn't export "pnp_bus_type", which is an unfortunate
-> exception to the policy followed by pretty much every other bus.  I noticed
-> this when I had to find a device in order to provide its platform_data.
+Has anybody succeded running OpenSolaris under KVM virtualization?
+Before I download OS install DVD in vain...
 
-can you please merge the export together with the driver? We already
-have way too many unused exports, and the only sane way is to merge the
-export with the user..... (and yes exports are not free, they take up
-100 to 150 bytes of kernel size for example)
-
-
-
+Windows XP obviously runs great
+(http://linux.inet.hr/finally-user-friendly-virtualization-for-linux.html,
+but I would like to play with other Unix a little bit, without having
+to dual boot. Thanks for any info.

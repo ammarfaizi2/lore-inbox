@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933015AbWL0RLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932933AbWL0RL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933015AbWL0RLX (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932993AbWL0RK4
+	id S932933AbWL0RL4 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:11:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933013AbWL0RLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:10:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41441 "EHLO
+	Wed, 27 Dec 2006 12:11:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41449 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932997AbWL0RKn (ORCPT
+	with ESMTP id S932997AbWL0RLB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:10:43 -0500
+	Wed, 27 Dec 2006 12:11:01 -0500
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       Ang Way Chuang <wcang@nrg.cs.usm.my>,
-       Michael Krufky <mkrufky@linuxtv.org>,
+       Hans Verkuil <hverkuil@xs4all.nl>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 10/28] V4L/DVB (4972): Dvb-core: fix bug in CRC-32 checking
-	on 64-bit systems
-Date: Wed, 27 Dec 2006 14:57:29 -0200
-Message-id: <20061227165728.PS93298400010@infradead.org>
+Subject: [PATCH 16/28] V4L/DVB (4984): LOG_STATUS should show the real
+	temporal filter value.
+Date: Wed, 27 Dec 2006 14:57:30 -0200
+Message-id: <20061227165730.PS35389100016@infradead.org>
 In-Reply-To: <20061227165016.PS89442900000@infradead.org>
 References: <20061227165016.PS89442900000@infradead.org>
 Mime-Version: 1.0
@@ -32,32 +31,44 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ang Way Chuang <wcang@nrg.cs.usm.my>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-CRC-32 checking during ULE decapsulation always failed on x86_64 systems due
-to the size of a variable used to store CRC. This bug was discovered on
-Fedora Core 6 with kernel-2.6.18-1.2849. The i386 counterpart has no such
-problem. This patch has been tested on 64-bit system as well as 32-bit system.
+The temporal filter is forced off when scaling. The VIDIOC_LOG_STATUS
+handler still showed the old temporal filter. It is now consistent with
+the real temporal filter value.
 
-Signed-off-by: Ang Way Chuang <wcang@nrg.cs.usm.my>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/dvb-core/dvb_net.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/cx2341x.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/dvb/dvb-core/dvb_net.c b/drivers/media/dvb/dvb-core/dvb_net.c
-index ebf4dc5..8138b37 100644
---- a/drivers/media/dvb/dvb-core/dvb_net.c
-+++ b/drivers/media/dvb/dvb-core/dvb_net.c
-@@ -605,7 +605,7 @@ #endif
- 				{ &utype, sizeof utype },
- 				{ priv->ule_skb->data, priv->ule_skb->len - 4 }
- 			};
--			unsigned long ule_crc = ~0L, expected_crc;
-+			u32 ule_crc = ~0L, expected_crc;
- 			if (priv->ule_dbit) {
- 				/* Set D-bit for CRC32 verification,
- 				 * if it was set originally. */
+diff --git a/drivers/media/video/cx2341x.c b/drivers/media/video/cx2341x.c
+index e796afd..2f5ca71 100644
+--- a/drivers/media/video/cx2341x.c
++++ b/drivers/media/video/cx2341x.c
+@@ -863,6 +863,7 @@ invalid:
+ void cx2341x_log_status(struct cx2341x_mpeg_params *p, const char *prefix)
+ {
+ 	int is_mpeg1 = p->video_encoding == V4L2_MPEG_VIDEO_ENCODING_MPEG_1;
++	int temporal = p->video_temporal_filter;
+ 
+ 	/* Stream */
+ 	printk(KERN_INFO "%s: Stream: %s\n",
+@@ -919,10 +920,13 @@ void cx2341x_log_status(struct cx2341x_m
+ 		cx2341x_menu_item(p, V4L2_CID_MPEG_CX2341X_VIDEO_LUMA_SPATIAL_FILTER_TYPE),
+ 		cx2341x_menu_item(p, V4L2_CID_MPEG_CX2341X_VIDEO_CHROMA_SPATIAL_FILTER_TYPE),
+ 		p->video_spatial_filter);
++	if (p->width != 720 || p->height != (p->is_50hz ? 576 : 480)) {
++		temporal = 0;
++	}
+ 	printk(KERN_INFO "%s: Temporal Filter: %s, %d\n",
+ 		prefix,
+ 		cx2341x_menu_item(p, V4L2_CID_MPEG_CX2341X_VIDEO_TEMPORAL_FILTER_MODE),
+-		p->video_temporal_filter);
++		temporal);
+ 	printk(KERN_INFO "%s: Median Filter:   %s, Luma [%d, %d], Chroma [%d, %d]\n",
+ 		prefix,
+ 		cx2341x_menu_item(p, V4L2_CID_MPEG_CX2341X_VIDEO_MEDIAN_FILTER_TYPE),
 

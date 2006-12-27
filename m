@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932750AbWL0Lvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932785AbWL0LwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbWL0Lvp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 06:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932785AbWL0Lvp
+	id S932785AbWL0LwI (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 06:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932789AbWL0LwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 06:51:45 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:45752 "EHLO e5.ny.us.ibm.com"
+	Wed, 27 Dec 2006 06:52:07 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:49831 "EHLO e6.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932784AbWL0Lvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 06:51:44 -0500
-Date: Wed, 27 Dec 2006 17:20:33 +0530
+	id S932791AbWL0LwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 06:52:05 -0500
+Date: Wed, 27 Dec 2006 17:20:22 +0530
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
        Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 3/4] modpost add more symbols to whitelist pattern2
-Message-ID: <20061227115033.GC22606@in.ibm.com>
+Subject: [PATCH 2/4] i386: make apic probe function non-init
+Message-ID: <20061227115022.GB22606@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,48 +28,80 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-o MODPOST generates warning for i386 if compiled with CONFIG_RELOCATABLE=y
-  and serial console support is enabled.
+o struct genapic contains pointer to probe() function which is of type
+  __init. Hence MODPOST generates warning if kernel is compiled with
+  CONFIG_RELOCATABLE=y for i386.
 
-o Serial console setup function, serial8250_console_setup(), is a non __init
-  function and it calls functions which are of type __init().
-  (uart_parse_options() and uart_set_options()). Assuming, setup will
-  be called during init time, changing serial8250_console_setup() to __init.
- 
-o Adding one more pattern to modpost whitelist. Console drivers might
-  have *_console structures containing references to setup functions which
-  can be of __init type. Don't generate warnings for those.
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_summit' (at offset 0xc058b504) and 'apic_bigsmp'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_bigsmp' (at offset 0xc058b5a4) and 'cpu.4471'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_es7000' (at offset 0xc058b644) and 'apic_default'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_default' (at offset 0xc058b6e4) and 'interrupt'
 
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'serial8250_console' (at offset 0xc05a33d8) and 'serial8250_reg'
+o One of the possible options is to put special case check in MODPOST to
+  not emit warnings for this case but I think it is not a very good option
+  in terms of maintenance.
+
+o Another option is to make probe() function non __init. Anyway this function
+  is really small so not freeing this memory after init is not a big deal.
+  Secondly, from a programming perspective, probably genapic should not
+  provide pointers to functions which have been freed as genapic is non
+  __init and is used even after initialization is complete. 
 
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- drivers/serial/8250.c |    2 +-
- scripts/mod/modpost.c |    1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/i386/mach-generic/bigsmp.c  |    2 +-
+ arch/i386/mach-generic/default.c |    2 +-
+ arch/i386/mach-generic/es7000.c  |    2 +-
+ arch/i386/mach-generic/summit.c  |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN drivers/serial/8250.c~modpost-add-more-symbols-to-whitelist-pattern drivers/serial/8250.c
---- linux-2.6.20-rc2-reloc/drivers/serial/8250.c~modpost-add-more-symbols-to-whitelist-pattern	2006-12-27 16:25:00.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/drivers/serial/8250.c	2006-12-27 16:25:00.000000000 +0530
-@@ -2296,7 +2296,7 @@ serial8250_console_write(struct console 
- 	local_irq_restore(flags);
- }
+diff -puN arch/i386/mach-generic/bigsmp.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/bigsmp.c
+--- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/bigsmp.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/bigsmp.c	2006-12-27 16:24:58.000000000 +0530
+@@ -45,7 +45,7 @@ static struct dmi_system_id __initdata b
+ };
  
--static int serial8250_console_setup(struct console *co, char *options)
-+static int __init serial8250_console_setup(struct console *co, char *options)
+ 
+-static __init int probe_bigsmp(void)
++static int probe_bigsmp(void)
+ { 
+ 	if (def_to_bigsmp)
+         	dmi_bigsmp = 1;
+diff -puN arch/i386/mach-generic/default.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/default.c
+--- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/default.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/default.c	2006-12-27 16:24:58.000000000 +0530
+@@ -18,7 +18,7 @@
+ #include <asm/mach-default/mach_mpparse.h>
+ 
+ /* should be called last. */
+-static __init int probe_default(void)
++static int probe_default(void)
+ { 
+ 	return 1;
+ } 
+diff -puN arch/i386/mach-generic/es7000.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/es7000.c
+--- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/es7000.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/es7000.c	2006-12-27 16:24:58.000000000 +0530
+@@ -19,7 +19,7 @@
+ #include <asm/mach-es7000/mach_mpparse.h>
+ #include <asm/mach-es7000/mach_wakecpu.h>
+ 
+-static __init int probe_es7000(void)
++static int probe_es7000(void)
  {
- 	struct uart_port *port;
- 	int baud = 9600;
-diff -puN scripts/mod/modpost.c~modpost-add-more-symbols-to-whitelist-pattern scripts/mod/modpost.c
---- linux-2.6.20-rc2-reloc/scripts/mod/modpost.c~modpost-add-more-symbols-to-whitelist-pattern	2006-12-27 16:25:00.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/scripts/mod/modpost.c	2006-12-27 16:47:02.000000000 +0530
-@@ -595,6 +595,7 @@ static int secref_whitelist(const char *
- 		"_ops",
- 		"_probe",
- 		"_probe_one",
-+		"_console",
- 		NULL
- 	};
+ 	/* probed later in mptable/ACPI hooks */
+ 	return 0;
+diff -puN arch/i386/mach-generic/summit.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/summit.c
+--- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/summit.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
++++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/summit.c	2006-12-27 16:24:58.000000000 +0530
+@@ -18,7 +18,7 @@
+ #include <asm/mach-summit/mach_ipi.h>
+ #include <asm/mach-summit/mach_mpparse.h>
  
+-static __init int probe_summit(void)
++static int probe_summit(void)
+ { 
+ 	/* probed later in mptable/ACPI hooks */
+ 	return 0;
 _

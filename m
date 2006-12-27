@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754709AbWL0U1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754724AbWL0UhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754709AbWL0U1W (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 15:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754721AbWL0U1W
+	id S1754724AbWL0UhX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 15:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754727AbWL0UhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 15:27:22 -0500
-Received: from mga05.intel.com ([192.55.52.89]:12109 "EHLO
-	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754709AbWL0U1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 15:27:21 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,212,1165219200"; 
-   d="scan'208"; a="182219980:sNHT17960607"
-Date: Wed, 27 Dec 2006 11:58:55 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Martin Knoblauch <knobi@knobisoft.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to detect multi-core and/or HT-enabled CPUs in 2.4.x and 2.6.x kernels
-Message-ID: <20061227115854.C23645@unix-os.sc.intel.com>
-References: <1167235772.3281.3977.camel@laptopd505.fenrus.org> <681548.1013.qm@web32601.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <681548.1013.qm@web32601.mail.mud.yahoo.com>; from knobi@knobisoft.de on Wed, Dec 27, 2006 at 09:52:02AM -0800
+	Wed, 27 Dec 2006 15:37:23 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39834 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932235AbWL0UhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 15:37:23 -0500
+Message-ID: <4592D989.8070000@drzeus.cx>
+Date: Wed, 27 Dec 2006 21:37:29 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
+MIME-Version: 1.0
+To: Anderson.Briglia@indt.org.br
+CC: anderson.lizardo@indt.org.br, linux-kernel@vger.kernel.org,
+       carlos.aguiar@indt.org.br, tony@atomide.com, david-b@pacbell.net
+Subject: Re: [PATCH 4/4] Add MMC Password Protection (lock/unlock) support
+ V8: mmc_sysfs.diff
+References: <45748173.2050008@indt.org.br> <20061215193717.GA10367@flint.arm.linux.org.uk> <45868C6F.5000804@indt.org.br> <458D39AE.2040207@drzeus.cx> <F26D8BDC5BC8014A909C6D45468F69EF022B6839@mzebe101.NOE.Nokia.com>
+In-Reply-To: <F26D8BDC5BC8014A909C6D45468F69EF022B6839@mzebe101.NOE.Nokia.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2006 at 09:52:02AM -0800, Martin Knoblauch wrote:
->  For sizing purposes, doing benchmarks is the only way. For the purpose
-> of Ganglia the sockets/cores/threads info is purely for inventory. And
-> we are likely going to add the new information to our metrics.
-> 
->  But - we still need to find a way to extract the infor :-)
+Anderson.Briglia@indt.org.br wrote:
+> Did you see this patch at V9 series? This bug is fixed.
+> I also fixed this code according the latest Russel's comments and will send again at V9, just this patch.
+>
+>   
 
-Only the 2.4 x86_64 kernels are exporting limited info("physical id",
-"siblings") through /proc/cpuinfo.
+The V9 you sent me on the 15th was before Russell pointed out the
+dangling lock, and doesn't contain a fix for it.
 
-Some of the distos based on 2.4 kernels have the complete topology
-(physical id, core id, cpu cores, siblings) exported through /proc/cpuinfo.
+Rgds
 
-thanks,
-suresh
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+

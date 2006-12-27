@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932069AbWL0ToO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932425AbWL0Tta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWL0ToO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 14:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWL0ToO
+	id S932425AbWL0Tta (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 14:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWL0Tta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 14:44:14 -0500
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:2332 "EHLO
-	smtp-vbr14.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932069AbWL0ToN (ORCPT
+	Wed, 27 Dec 2006 14:49:30 -0500
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:2124 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932626AbWL0Tt3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 14:44:13 -0500
+	Wed, 27 Dec 2006 14:49:29 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Paul Slootman <paul+nospam@wurtel.net>
 Subject: Re: idle RAID1 cpu usage
-References: <20061227180900.GA10373@msgid.wurtel.net> <Pine.LNX.4.61.0612271915400.10556@yvahk01.tjqt.qr>
-From: Paul Slootman <paul+nospam@wurtel.net>
-Organization: Wurtelization
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Date: 27 Dec 2006 19:44:09 GMT
-Message-ID: <4592cd09$0$339$e4fe514c@news.xs4all.nl>
-X-Trace: 1167248649 news.xs4all.nl 339 [::ffff:83.68.3.130]:55611
-X-Complaints-To: abuse@xs4all.nl
-In-Reply-To: <Pine.LNX.4.61.0612271915400.10556@yvahk01.tjqt.qr>
-To: linux-kernel@vger.kernel.org
+Date: Wed, 27 Dec 2006 19:49:50 +0000
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061227180900.GA10373@msgid.wurtel.net>
+In-Reply-To: <20061227180900.GA10373@msgid.wurtel.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612271949.50723.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt  <jengelh@linux01.gwdg.de> wrote:
->On Dec 27 2006 19:09, Paul Slootman wrote:
->>
->>This works fine, but I noticed that quite some time was being used by
->>the mdX_raid1 threads; even on a partition that's not even being used at
->>this time... (it was an empty mounted filesystem, but I umounted it to
->>be sure the filesystem code wasn't causing some IO).
->>
->>My question is: why is CPU being used by the RAID1 threads, even for
->>those devices that are otherwise unused? What are they doing?
+On Wednesday 27 December 2006 18:09, Paul Slootman wrote:
+[snip]
+> My question is: why is CPU being used by the RAID1 threads, even for
+> those devices that are otherwise unused? What are they doing?
+> I even started distributed-net to check that it wasn't just idle CPU
+> cycles that were being used :-)
 >
->First-time synchronization (if applies), otherwise I suspect some
->housekeeping (bitmap perhaps?).
+> Note: it did seem that the activity was a bit more during the first
+> day after booting; in fact, the mdX_raid1 threads together had used
+> about one hour's worth of CPU in the first 24 hours, i.e. 4% CPU
+> (according to ps and top).
 
-No, I had rebooted after the initial synchronization was complete.
+Sounds like a bug to me. My box is x86_64, but it's been up for 2 days and one 
+unmounted md_raid5 has used 0 minutes, 0 seconds of CPU, which is what I'd 
+expect.
 
->Otherwise it seems like a question who does what. On a raid5 array (i.e.
->cpu-heavy), both smbd and mdx_raid5 accumulate time for, of course, xor
->calculation.
+Maybe it's some sort of accounting problem on SPARC?
 
-On those devices that are actually in use, I'd understand CPU being
-used; but where the device is not even mounted or used for swap or
-whatever, I find that amount of CPU usage very high for just checking
-the bitmap... I may take the idle device apart and reassemble without a
-bitmap to see whether that makes any difference.
+-- 
+Cheers,
+Alistair.
 
-
-Paul Slootman
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

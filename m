@@ -1,93 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754226AbWL0JEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754169AbWL0JEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754226AbWL0JEF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 04:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754094AbWL0JEE
+	id S1754169AbWL0JEP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 04:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754227AbWL0JEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 04:04:04 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42195 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754226AbWL0JED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 04:04:03 -0500
-Date: Wed, 27 Dec 2006 01:03:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dimitri.gorokhovik@free.fr
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1 2.6.20-rc2] MM: ramfs breaks without CONFIG_BLOCK
-Message-Id: <20061227010348.2e84b0cd.akpm@osdl.org>
-In-Reply-To: <1167152987.4591575b1a824@imp8-g19.free.fr>
-References: <1167152987.4591575b1a824@imp8-g19.free.fr>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 27 Dec 2006 04:04:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33165 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754400AbWL0JEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 04:04:13 -0500
+Subject: Re: [PATCH 1/10] cxgb3 - main header files
+From: Arjan van de Ven <arjan@infradead.org>
+To: Divy Le Ray <divy@chelsio.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Divy Le Ray <None@chelsio.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       swise@opengridcomputing.com
+In-Reply-To: <45923432.9040607@chelsio.com>
+References: <20061220124125.6286.17148.stgit@localhost.localdomain>
+	 <45918CA4.3020601@garzik.org>  <45923432.9040607@chelsio.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 27 Dec 2006 10:03:57 +0100
+Message-Id: <1167210238.3281.3751.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Dec 2006 18:09:47 +0100
-dimitri.gorokhovik@free.fr wrote:
-
-> From: Dimitri Gorokhovik <dimitri.gorokhovik@free.fr>
+On Wed, 2006-12-27 at 00:52 -0800, Divy Le Ray wrote:
+> Jeff,
 > 
-> ramfs doesn't provide the .set_dirty_page a_op, and when the BLOCK
-> layer is not configured in, 'set_page_dirty' makes a call via a NULL
-> pointer.
+> You can grab the monolithic patch at this URL:
+> http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+> 
+> This patch adds support for the latest 1G/10G Chelsio adapter, T3.
+> It is required by the T3 RDMA driver Steve Wise submitted.
 
-OK.  But I think it'd be better to fill in the address_space_operations:
 
+does this patch still contain all the private ioctls?
+They are being ripped out from another new driver, and cxgb3 should
+probably have the same treatment...
 
-From: Dimitri Gorokhovik <dimitri.gorokhovik@free.fr>
-
-ramfs doesn't provide the .set_dirty_page a_op, and when the BLOCK layer is
-not configured in, 'set_page_dirty' makes a call via a NULL pointer.
-
-Signed-off-by: Dimitri Gorokhovik <dimitri.gorokhovik@free.fr>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- fs/ramfs/file-mmu.c   |    4 +++-
- fs/ramfs/file-nommu.c |    4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN fs/ramfs/file-mmu.c~mm-ramfs-breaks-without-config_block fs/ramfs/file-mmu.c
---- a/fs/ramfs/file-mmu.c~mm-ramfs-breaks-without-config_block
-+++ a/fs/ramfs/file-mmu.c
-@@ -25,11 +25,13 @@
-  */
- 
- #include <linux/fs.h>
-+#include <linux/mm.h>
- 
- const struct address_space_operations ramfs_aops = {
- 	.readpage	= simple_readpage,
- 	.prepare_write	= simple_prepare_write,
--	.commit_write	= simple_commit_write
-+	.commit_write	= simple_commit_write,
-+	.set_page_dirty = __set_page_dirty_nobuffers,
- };
- 
- const struct file_operations ramfs_file_operations = {
-diff -puN fs/ramfs/file-nommu.c~mm-ramfs-breaks-without-config_block fs/ramfs/file-nommu.c
---- a/fs/ramfs/file-nommu.c~mm-ramfs-breaks-without-config_block
-+++ a/fs/ramfs/file-nommu.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/module.h>
- #include <linux/fs.h>
-+#include <linux/mm.h>
- #include <linux/pagemap.h>
- #include <linux/highmem.h>
- #include <linux/init.h>
-@@ -30,7 +31,8 @@ static int ramfs_nommu_setattr(struct de
- const struct address_space_operations ramfs_aops = {
- 	.readpage		= simple_readpage,
- 	.prepare_write		= simple_prepare_write,
--	.commit_write		= simple_commit_write
-+	.commit_write		= simple_commit_write,
-+	.set_page_dirty = __set_page_dirty_nobuffers,
- };
- 
- const struct file_operations ramfs_file_operations = {
-_
 

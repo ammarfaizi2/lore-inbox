@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932904AbWL0EZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932906AbWL0EZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932904AbWL0EZU (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 23:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWL0EZU
+	id S932906AbWL0EZj (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 23:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWL0EZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 23:25:20 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:13500 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932904AbWL0EZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 23:25:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dXCgDJrECrFWEmdrpR5+6dZuDKnOlXy4VDUsZ/ba9YOsfrRGElb1NbTeCChiDUtHrYkVDEhhG5BmIa4I8wsXx0Jc1mxAcChCAFeos8F9IuXKO6jYGIpa67D6JyMud9Eu7CoE89fQ+BB7BlDieaKv+dkH+2orQNqRTh2pNY9zJ7M=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: Feature request: exec self for NOMMU.
-Date: Wed, 27 Dec 2006 05:24:36 +0100
-User-Agent: KMail/1.8.2
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org,
-       David McCullough <david_mccullough@au.securecomputing.com>
-References: <200612261823.07927.rob@landley.net> <Pine.LNX.4.63.0612261549050.24795@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.63.0612261549050.24795@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Dec 2006 23:25:39 -0500
+Received: from gate.crashing.org ([63.228.1.57]:35277 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932906AbWL0EZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 23:25:38 -0500
+In-Reply-To: <20061227040022.GA6699@in.ibm.com>
+References: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com> <cd59f61239daf052c6b8038f4d3f57b8@kernel.crashing.org> <20061227040022.GA6699@in.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <f3dd667a7a49168e6817600f196e29bc@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612270524.36157.vda.linux@googlemail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
+       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Date: Wed, 27 Dec 2006 05:25:29 +0100
+To: vgoyal@in.ibm.com
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 December 2006 00:55, David Lang wrote:
-> On Tue, 26 Dec 2006, Rob Landley wrote:
-> 
-> > I'm trying to make some nommu-friendly busybox-like tools, which means using
-> > vfork() instead of fork().  This means that after I fork I have to exec in
-> > the child to unblock the parent, and if I want to exec my current executable
-> > I have to find out where it lives so I can feed the path to exec().  This is
-> > nontrivial.
-> >
-> > Worse, it's not always possible.  If chroot() has happened since the program
-> > started, there may not _be_ a path to my current executable available from
-> > this process's current or root directories.
-> 
-> does this even make sense (as a general purpose function)? if the executable 
-> isn't available in your path it's likly that any config files it needs are not 
-> available either.
+> .text.head is not type AX so it will be left out from the linked 
+> output.
 
-busybox needs it in order to spawn, for example, gzip/bzip2 helper
-for tar. We know that our own executable has this function.
-How to execute _our own executable_? exec("/proc/self/exe")
-works only if /proc is mounted. I can imagine that some embedded
-people want to be able to not rely on that.
---
-vda
+No, it does get added, but the section is not added to
+any segment, so a) it ends up near the end of the address
+map instead of being first thing, and b) it won't be loaded
+at run time.
+
+> This reminds me that I have put another patch in kernel/head.S creating
+> a new section .text.head. I think I shall have to put a patch there too
+> to make it work with older binutils.
+
+Yeah.  Current stuff works with 2.15, which is three years
+old, but it doesn't hurt supporting older toolchains where
+possible.
+
+
+Segher
+

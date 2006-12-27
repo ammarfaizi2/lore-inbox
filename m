@@ -1,107 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932785AbWL0LwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932731AbWL0LyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932785AbWL0LwI (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 06:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932789AbWL0LwH
+	id S932731AbWL0LyO (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 06:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWL0LyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 06:52:07 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:49831 "EHLO e6.ny.us.ibm.com"
+	Wed, 27 Dec 2006 06:54:14 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:37401 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932791AbWL0LwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 06:52:05 -0500
-Date: Wed, 27 Dec 2006 17:20:22 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 2/4] i386: make apic probe function non-init
-Message-ID: <20061227115022.GB22606@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	id S932731AbWL0LyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 06:54:12 -0500
+Date: Wed, 27 Dec 2006 12:46:56 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+cc: Theodore Tso <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>,
+       Arnd Bergmann <arnd@arndb.de>, Karel Zak <kzak@redhat.com>,
+       linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
+       Olaf Hering <olh@suse.de>
+Subject: Re: util-linux: orphan
+In-Reply-To: <5a4c581d0612270324k20725779j86e9ee9b364e5b2b@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612271243270.14578@yvahk01.tjqt.qr>
+References: <20061109224157.GH4324@petra.dvoda.cz>  <20061218071737.GA5217@petra.dvoda.cz>
+  <200612270346.10699.arnd@arndb.de> <4591E3BB.9070806@zytor.com> 
+ <20061227043501.GA7821@thunk.org> <5a4c581d0612270324k20725779j86e9ee9b364e5b2b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Dec 27 2006 12:24, Alessandro Suardi wrote:
+> On 12/27/06, Theodore Tso <tytso@mit.edu> wrote:
+>> On Tue, Dec 26, 2006 at 07:08:43PM -0800, H. Peter Anvin wrote:
 
-o struct genapic contains pointer to probe() function which is of type
-  __init. Hence MODPOST generates warning if kernel is compiled with
-  CONFIG_RELOCATABLE=y for i386.
+>>>> I saw that the current Fedora already dynamically links
+>>>> /bin/mount against /usr/lib/libblkid.so. This obviously does not
+>>>> work if /usr is a separate partition that needs to be mounted
+>>>> /with bin/mount. I also had problems with selinux claiming I had
+>>>> no right to access libblkid, which meant that the root fs could
+>>>> not be remounted r/w.
+>>>> 
+>>>> I'd suggest that you make sure that mount always gets statically
+>>>> linked against libblkid to avoid these problems.
+>>> 
+>>> That's a pretty silly statement.  The real issue is that any
+>>> library needed by binaries in /bin or /sbin should live in /lib,
+>>> not /usr/lib.
+>> 
+>> From a Debian unstable system:
+>> 
+>> think:~# ldd /bin/mount
+>> libblkid.so.1 => /lib/libblkid.so.1 (0xb7f23000)
+>
+> FC6-current for i386 has it right:
+>
+> [root@sandman ~]# ldd /bin/mount
+> libblkid.so.1 => /lib/libblkid.so.1 (0x4b607000)
 
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_summit' (at offset 0xc058b504) and 'apic_bigsmp'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_bigsmp' (at offset 0xc058b5a4) and 'cpu.4471'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_es7000' (at offset 0xc058b644) and 'apic_default'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from .data between 'apic_default' (at offset 0xc058b6e4) and 'interrupt'
+And so does openSUSE 10.2:
 
-o One of the possible options is to put special case check in MODPOST to
-  not emit warnings for this case but I think it is not a very good option
-  in terms of maintenance.
+ichi$ ldd /bin/mount
+        libblkid.so.1 => /lib/libblkid.so.1 (0xa7f4f000)
 
-o Another option is to make probe() function non __init. Anyway this function
-  is really small so not freeing this memory after init is not a big deal.
-  Secondly, from a programming perspective, probably genapic should not
-  provide pointers to functions which have been freed as genapic is non
-  __init and is used even after initialization is complete. 
+Interestingly enough, SUSE Linux 10.1 i586/x86_64 had it statically
+ccg$ ldd /bin/mount
+        libc.so.6 => /lib64/libc.so.6 (0x00002b489072e000)
+        /lib64/ld-linux-x86-64.so.2 (0x0000555555554000)
+        (that's all folks)
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+Now what puzzles is that FC6's mapping address is quite 'off' - the
+host "think" has it near PAGE_OFFSET (0xc0000000), as does "ichi"
+(PAGE_OFFSET=0xb0000000), so what's with "sandman"?
 
- arch/i386/mach-generic/bigsmp.c  |    2 +-
- arch/i386/mach-generic/default.c |    2 +-
- arch/i386/mach-generic/es7000.c  |    2 +-
- arch/i386/mach-generic/summit.c  |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -puN arch/i386/mach-generic/bigsmp.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/bigsmp.c
---- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/bigsmp.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/bigsmp.c	2006-12-27 16:24:58.000000000 +0530
-@@ -45,7 +45,7 @@ static struct dmi_system_id __initdata b
- };
- 
- 
--static __init int probe_bigsmp(void)
-+static int probe_bigsmp(void)
- { 
- 	if (def_to_bigsmp)
-         	dmi_bigsmp = 1;
-diff -puN arch/i386/mach-generic/default.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/default.c
---- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/default.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/default.c	2006-12-27 16:24:58.000000000 +0530
-@@ -18,7 +18,7 @@
- #include <asm/mach-default/mach_mpparse.h>
- 
- /* should be called last. */
--static __init int probe_default(void)
-+static int probe_default(void)
- { 
- 	return 1;
- } 
-diff -puN arch/i386/mach-generic/es7000.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/es7000.c
---- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/es7000.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/es7000.c	2006-12-27 16:24:58.000000000 +0530
-@@ -19,7 +19,7 @@
- #include <asm/mach-es7000/mach_mpparse.h>
- #include <asm/mach-es7000/mach_wakecpu.h>
- 
--static __init int probe_es7000(void)
-+static int probe_es7000(void)
- {
- 	/* probed later in mptable/ACPI hooks */
- 	return 0;
-diff -puN arch/i386/mach-generic/summit.c~i386-make-apic-probe-function-non-init arch/i386/mach-generic/summit.c
---- linux-2.6.20-rc2-reloc/arch/i386/mach-generic/summit.c~i386-make-apic-probe-function-non-init	2006-12-27 16:24:58.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/arch/i386/mach-generic/summit.c	2006-12-27 16:24:58.000000000 +0530
-@@ -18,7 +18,7 @@
- #include <asm/mach-summit/mach_ipi.h>
- #include <asm/mach-summit/mach_mpparse.h>
- 
--static __init int probe_summit(void)
-+static int probe_summit(void)
- { 
- 	/* probed later in mptable/ACPI hooks */
- 	return 0;
-_
+	-`J'
+-- 

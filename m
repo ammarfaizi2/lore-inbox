@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932918AbWL0FvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932923AbWL0Fw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932918AbWL0FvF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 00:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932916AbWL0FvF
+	id S932923AbWL0Fw5 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 00:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932915AbWL0Fw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 00:51:05 -0500
-Received: from s233-64-196-242.try.wideopenwest.com ([64.233.242.196]:54096
-	"EHLO echohome.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932920AbWL0FvE (ORCPT
+	Wed, 27 Dec 2006 00:52:57 -0500
+Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:34945
+	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932916AbWL0Fw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 00:51:04 -0500
-Reply-To: <Erik@echohome.org>
-From: "Erik Ohrnberger" <Erik@echohome.org>
-To: "'Tejun Heo'" <htejun@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: System / libata IDE controller woes (long)
-Date: Wed, 27 Dec 2006 00:50:57 -0500
-Organization: EchoHome.org
-Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAANz30GbAA9BLm2+8fOoz0KkBAAAAAA==@EchoHome.org>
+	Wed, 27 Dec 2006 00:52:56 -0500
+From: Rob Landley <rob@landley.net>
+To: ray-gmail@madrabbit.org
+Subject: Re: Feature request: exec self for NOMMU.
+Date: Wed, 27 Dec 2006 00:51:52 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org,
+       "David McCullough" <david_mccullough@au.securecomputing.com>
+References: <200612261823.07927.rob@landley.net> <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
+In-Reply-To: <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
-Thread-Index: AccpaP/mE0iuUFjWQp+QVP+WST45RwAEbsEA
-In-Reply-To: <4591EB76.3060801@gmail.com>
+Content-Disposition: inline
+Message-Id: <200612270051.52690.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There!
-	Yea, I thought that it might be power related as well, so I moved
-1/2 of the drives from the 500 Watt power supply onto a separate one, and it
-did not change any of the symptoms.  So I think that it's been ruled out.
+On Wednesday 27 December 2006 12:13 am, Ray Lee wrote:
+> How about openning an fd to yourself at the beginning of execution, then
+> calling fexecve later?
 
-	Thanks,
-		Erik.
-> 
-> Hello,
-> 
-> Erik Ohrnberger wrote:
-> > Earlier this year, when I started putting it together, I 
-> gathered my 
-> > hardware.  A decent 2 GHz Athlon system with 512 MB RAM, 
-> DVD drive, a 
-> > 40 GB system drive, and a 500 Watt power supply.  Then I started 
-> > adding hard disks.  To date, I've got 5 80 GB PATA, 2 200 
-> GB PATA, and 1 60 GB PATA.
-> 
-> That's 9 hard drives.  How did you hook up your power supply? 
->  My dual-rail 450w PS has a lot of problem driving 9 drives 
-> no matter how I hook it up while my 350w power supply can 
-> happily handle the load.  I suspect it's because how the 
-> separate 12v rails are configured in the PS.
-> 
-> It's nothing concrete but I wanna rule PS issue first.  If 
-> you've got an extra power supply (buy cheap 350w one if you 
-> don't have one), hook half of the drives to it and see what 
-> happens.  Using PS without motherboard is easy.  Just ask google.
-> 
-> Happy holidays.
-> 
-> --
-> tejun
-> 
+I haven't got a man page for fexecve.  Does libc have it?
 
+In the 2.6.19 kernel: "find . | xargs grep fexecve" produces no hits.
+
+Are you sure there _is_ one?
+
+Rob
+-- 
+"Perfection is reached, not when there is no longer anything to add, but
+when there is no longer anything to take away." - Antoine de Saint-Exupery

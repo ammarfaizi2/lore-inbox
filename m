@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932908AbWL0FDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932910AbWL0FNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932908AbWL0FDb (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 00:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWL0FDb
+	id S932910AbWL0FNm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 00:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWL0FNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 00:03:31 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:40169 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932908AbWL0FDa (ORCPT
+	Wed, 27 Dec 2006 00:13:41 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:64424 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932910AbWL0FNk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 00:03:30 -0500
+	Wed, 27 Dec 2006 00:13:40 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=ewVpsz/Orbj1Whi8B/lcqvW+bksxcH9OGZ2btCpDuOTdC1qiJ98jbcLZ+8TtzNYdhJr94F44NGwts/hojlvBAz2pf1ywMc8I2s83AVd3MCnDRkLQtvfabsUpQ3fTH3Spm/YqNppE++hxp9kRJCC++xv5SFi0wi3Y7mPiQxZ1Gf0=
-Message-ID: <4591FE96.1080606@gmail.com>
-Date: Wed, 27 Dec 2006 14:03:18 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TFcv7d4g+NObsnwLy2L3sSSJLEGEWNZ/Z45vuxxUpAEnCiltbY7w7fDW3H4nZY7BQ/GUjWkkEXIas9Vgnfdncj5WNDvm/w8OIU0kjcBBzBTPpYQ5y3T5yywoQ+L3SH+EHvhv3F6k6c9iPUypO1OR+SJ5TKBA1uyl9eb/M3EyZKE=
+Message-ID: <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
+Date: Tue, 26 Dec 2006 21:13:39 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Rob Landley" <rob@landley.net>
+Subject: Re: Feature request: exec self for NOMMU.
+Cc: linux-kernel@vger.kernel.org,
+       "David McCullough" <david_mccullough@au.securecomputing.com>
+In-Reply-To: <200612261823.07927.rob@landley.net>
 MIME-Version: 1.0
-To: Harald Dunkel <harald.dunkel@t-online.de>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19.1, sata_sil: sata dvd writer doesn't work
-References: <45841710.9040900@t-online.de> <4587F87C.2050100@gmail.com> <45883299.2050209@t-online.de> <45887CD8.5090100@gmail.com> <458AE5FB.7080607@t-online.de>
-In-Reply-To: <458AE5FB.7080607@t-online.de>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200612261823.07927.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
-> Hi Tejun,
-> 
-> Tejun Heo wrote:
->> * dmesg is truncated, please post the content of file /var/log/boot.msg.
->>
->> * Please post the result of 'lspci -nnvvv'
->>
->> * Please try the attached patch and see if it makes any difference and
->> post the result of 'dmesg' after trying to play a problematic dvd.
->>
-> 
-> It still doesn't work, but the dmesg output looks less
-> weird. See attachments.
-> 
-> 
-> Hope this helps. Please mail.
+On 12/26/06, Rob Landley <rob@landley.net> wrote:
+> I'm trying to make some nommu-friendly busybox-like tools, which means using
+> vfork() instead of fork().  This means that after I fork I have to exec in
+> the child to unblock the parent, and if I want to exec my current executable
+> I have to find out where it lives so I can feed the path to exec().  This is
+> nontrivial.
+>
+> Worse, it's not always possible.  If chroot() has happened since the program
+> started, there may not _be_ a path to my current executable available from
+> this process's current or root directories.
 
-Okay, Hmmm... Weird.  I tried to reproduce it here w/ LG dvd ram and
-sil3114 (almost identical, just two more ports) with no success.  I just
-ordered SH-S183A and it should arrive later today (zero-day shipping
-just at USD 3.5!).
-
-I'll write again when I know more.
-
--- 
-tejun
+How about openning an fd to yourself at the beginning of execution, then calling
+fexecve later?

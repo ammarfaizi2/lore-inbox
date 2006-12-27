@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932820AbWL0NpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932822AbWL0Nws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWL0NpF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 08:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932819AbWL0NpF
+	id S932822AbWL0Nws (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 08:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWL0Nws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 08:45:05 -0500
-Received: from nz-out-0506.google.com ([64.233.162.239]:6854 "EHLO
+	Wed, 27 Dec 2006 08:52:48 -0500
+Received: from nz-out-0506.google.com ([64.233.162.231]:8997 "EHLO
 	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932820AbWL0NpD (ORCPT
+	with ESMTP id S932825AbWL0Nwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 08:45:03 -0500
+	Wed, 27 Dec 2006 08:52:47 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=V0wNNbBB86NOW7ZH9LPOzbQCeVMst6t19zRs4akJgRaquK+go5W03Fd3vtnC6o+iKGryyvbCdU/07WhvrgOxtrKRrIqkC5Ys1tlkdJkxUC+k9kUYAfZYousqfBj1zleHz0uMg1gX19E63L/YFGxQCvXOUbRQIS8i8493V0fJ4G0=
-Message-ID: <459278D4.6060005@gmail.com>
-Date: Wed, 27 Dec 2006 22:44:52 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gJgPXZrrWMRHass984paggDOoVTwxWCk8A3i1saTG35XHkUcminU0+T3zXx0+B1bjEJJGr2K9bY5lZGlvU8X60S28BYEC+X228NiULW8aQHER2k5uuyMqKohnUpVqw3CypLclOOYc/f6LWwxpcvsus2rpwUJY2HHqOdOGRUldK8=
+Message-ID: <b0943d9e0612270552n4a612103u5a5dafabeaec7ae5@mail.gmail.com>
+Date: Wed, 27 Dec 2006 13:52:46 +0000
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: [PATCH 2.6.20-rc1 00/10] Kernel memory leak detector 0.13
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061218072932.GA5624@elte.hu>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Alan <alan@lxorguk.ukuu.org.uk>,
-       David Shirley <tephra@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: SATA DMA problem (sata_uli)
-References: <f0e65c090612122102o327ac693u2f24a74a9ba973ef@mail.gmail.com> <20061213112004.59cb186c@localhost.localdomain> <45841B20.9030402@pobox.com> <458884B2.9080802@gmail.com> <45888653.6080702@pobox.com> <4588A37F.9040102@gmail.com>
-In-Reply-To: <4588A37F.9040102@gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061216153346.18200.51408.stgit@localhost.localdomain>
+	 <20061216165738.GA5165@elte.hu>
+	 <b0943d9e0612161539s50fd6086v9246d6b0ffac949a@mail.gmail.com>
+	 <20061217085859.GB2938@elte.hu>
+	 <b0943d9e0612171505l6dfe19c6h6391b08f41243b1@mail.gmail.com>
+	 <20061218072932.GA5624@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> I'm just gonna ack Alan's patch.
-> 
-> * ATA_FLAG_NO_LEGACY is not really used widely (and thus LLDs don't set
-> it rigorously).  I think it should be removed once we get initialization
-> model right.
-> 
-> * I'm really reluctant to add more LLD-specific knowledge into libata
-> core.  We're already carrying too much due to the current init model
-> (libata should initialize host according to probe_ent, so many
-> weirdities should be represented in probe_ent in a form libata core
-> understands).
-> 
-> * The idea of clearing simplex for unknown controllers scares the hell
-> out of me.  where's mummy...
-> 
-> So, I'll ask bug reporter of #7590 to test it.
+On 18/12/06, Ingo Molnar <mingo@elte.hu> wrote:
+> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > I could also use a simple allocator based on alloc_pages [...]
+> > [...] It could be so simple that it would never need to free any
+> > pages, just grow the size as required and reuse the freed memleak
+> > objects from a list.
+>
+> sounds good to me. Please make it a per-CPU pool. We'll have to fix the
+> locking too, to be per-CPU - memleak_lock is quite a scalability problem
+> right now. (Add a memleak_object->cpu pointer so that freeing can be
+> done on any other CPU as well.)
 
-Aieee... uli sata controller doesn't allow simplex bit to be cleared.
+I did some simple statistics about allocations happening on one CPU
+and freeing on a different one. On a 4-CPU ARM system (and without IRQ
+balancing and without CONFIG_PREEMPT), these seem to happen in about
+8-10% of the cases. Do you expect higher figures on other
+systems/configurations?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7590#c31
+As I mentioned in a different e-mail, a way to remove the global hash
+table is to create per-cpu hashes. The only problem is that in these
+8-10% of the cases, freeing would need to look up the other hashes.
+This would become a problem with a high number of CPUs but I'm not
+sure whether it would overtake the performance issues introduced by
+cacheline ping-ponging in the single-hash case.
 
-I'll post ATA_FLAG_IGN_SIMPLEX patch soon.
+Any thoughts?
+
+Thanks.
 
 -- 
-tejun
+Catalin

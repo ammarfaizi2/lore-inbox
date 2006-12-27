@@ -1,80 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932977AbWL0Pl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932975AbWL0Ptq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932977AbWL0Pl7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 10:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932976AbWL0Pl7
+	id S932975AbWL0Ptq (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 10:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932983AbWL0Ptq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 10:41:59 -0500
-Received: from web32608.mail.mud.yahoo.com ([68.142.207.235]:30567 "HELO
-	web32608.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932977AbWL0Pl7 (ORCPT
+	Wed, 27 Dec 2006 10:49:46 -0500
+Received: from wr-out-0506.google.com ([64.233.184.232]:8852 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932975AbWL0Ptp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 10:41:59 -0500
-Message-ID: <20061227154158.54796.qmail@web32608.mail.mud.yahoo.com>
-X-YMail-OSG: GC86CTUVM1mgF3eM_2bnTuLsg0uElxPs3uAt0i09sU8buhbu6M_uyaifSJImWNkaj5SWnhTINAEbkRQeNSnBbYtMJckzggQ12WLECpHy6HQaePhLBqP.fw--
-X-RocketYMMF: knobi.rm
-Date: Wed, 27 Dec 2006 07:41:58 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: How to detect multi-core and/or HT-enabled CPUs in 2.4.x and 2.6.x kernels
-To: Gleb Natapov <glebn@voltaire.com>, Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061227152240.GC10953@minantech.com>
+	Wed, 27 Dec 2006 10:49:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=A6WGJjl8/ZSVPTFtl8rujUYyEV8P5CyEheop8NXVctu+unp20v4MLozU8w/ldc7C0tag3/foLIQBTvhnkt0h8PnWG+v5XaSKJgZl2jPy116XrvdlqBVSVNAG6V7MX41OGA48RWoYiA17lLIf/krtDR+Q9xDcNieNTsQ8Mq1K1i0=
+Message-ID: <6d6a94c50612270749j77cd53a9mba6280e4129d9d5a@mail.gmail.com>
+Date: Wed, 27 Dec 2006 23:49:43 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Page alignment issue
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As for the buddy system, much of docs mention the physical address of
+the first page frame of a block should be a multiple of the group
+size. For example, the initial address of a 16-page-frame block should
+be 16-page aligned. I happened to encounted an issue that the physical
+addresss pf the block is not 4-page aligned(0x36c9000) while the order
+of the block is 2. I want to know what out of buddy algorithm depend
+on this feature? My problem seems to happen in
+schedule()->context_switch() call, but so far I didn't figure out the
+root cause.
 
---- Gleb Natapov <glebn@voltaire.com> wrote:
-
-> On Wed, Dec 27, 2006 at 04:13:00PM +0100, Arjan van de Ven wrote:
-> > The original p4 HT to a large degree suffered from a too small
-> cache
-> > that now was shared. SMT in general isn't per se all that different
-> in
-> > performance than dual core, at least not on a fundamental level,
-> it's
-> > all a matter of how many resources each thread has on average. With
-> dual
-> > core sharing the cache for example, that already is part HT.
-> Putting the
-> > "boundary" at HT-but-not-dual-core is going to be highly artificial
-> and
-> > while it may work for the current hardware, in general it's not a
-> good
-> > way of separating things (just look at the PowerPC processors,
-> those are
-> > highly SMT as well), and I suspect that your distinction is just
-> going
-> > to break all the time over the next 10 years ;) Or even today on
-> the
-> > current "large cache" P4 processors with HT it already breaks.
-> (just
-> > those tend to be the expensive models so more rare)
-> > 
-> If I run two threads that are doing only calculations and very little
-> or no
-> IO at all on the same socket will modern HT and dual core be the same
-> (or close) performance wise?
-> 
-Hi Gleb,
- 
- this is a real interesting question. Ganglia is coming [originally]
-from the HPC side of computing. At least in the past HT as implemented
-on XEONs did help a lot. Running two CPU+memory-bandwith intensive
-processes on the same physical CPU would at best result in a 50/50
-performance split. So, knowing how many "real" CPUs are in a system is
-interesting to us.
-
- Other workloads (like lots of java threads doing mixed IO and CPU
-stuff) of course can benefit from HT.
-
-Cheers
-Martin
-
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+Any clue or suggestion will be really appreciated!
+Thanks,
+-Aubrey

@@ -1,47 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932871AbWL0ArD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932874AbWL0AvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932871AbWL0ArD (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 19:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932872AbWL0ArD
+	id S932874AbWL0AvY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 19:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932872AbWL0AvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 19:47:03 -0500
-Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:50021 "EHLO
-	smtpq3.groni1.gr.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932871AbWL0ArB (ORCPT
+	Tue, 26 Dec 2006 19:51:23 -0500
+Received: from mga01.intel.com ([192.55.52.88]:30889 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932874AbWL0AvX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 19:47:01 -0500
-Message-ID: <4591C230.3070705@gmail.com>
-Date: Wed, 27 Dec 2006 01:45:36 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Tue, 26 Dec 2006 19:51:23 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,211,1165219200"; 
+   d="scan'208"; a="181968830:sNHT20912220"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] romsignature/checksum cleanup
-References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain>
-In-Reply-To: <1167179512.16175.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.19-rt14 slowdown compared to 2.6.19
+Date: Tue, 26 Dec 2006 16:51:21 -0800
+Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C019998CA@fmsmsx414.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.19-rt14 slowdown compared to 2.6.19
+Thread-Index: AccmgcK5XbX9CwpDTLOSu6UfsDiNjgCwbNUg
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+X-OriginalArrivalTime: 27 Dec 2006 00:51:22.0863 (UTC) FILETIME=[2126CFF0:01C72951]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-
-> On Mon, 2006-12-25 at 01:53 +0100, Rene Herman wrote:
-
->> Hmm, by the way, if romsignature() needs this probe_kernel_address() 
->> thing, why doesn't romchecksum()?
+Ingo Molnar wrote:
 > 
-> I assume it's all in the same page, but CC'ing Zach is easier than
-> reading the code 8)
+> cool - thanks for the feedback! Running the 64-bit kernel, right?
+> 
 
-If we're talking hardware pages here; the romchecksum() might be done 
-over an area upto 0xff x 512 = 130560 bytes (there's also an acces to 
-the length byte at rom[2] in probe_roms(). I assume that one's okay if 
-romsignature() ensured that the first page is in).
+Yes, 64-bit kernel was used.
 
-Rene.
+> 
+> while some slowdown is to be expected, did in each case idle time
+> increase significantly? 
 
+Volanomark and Re-Aim7 ran close to 0% idle time for 2.6.19 kernel.
+Idle time
+increase significantly for Volanomark (to 60% idle) and Re-Aim7 (to 20%
+idle) 
+with the rt kernel.  For netperf, the system was 60% idle for 
+both 2.6.19 and rt kernel and changes in idle time was not significant.
+
+> If yes then this is the effect of lock
+> contention. Lock contention effects are 'magnified' by PREEMPT_RT. For
+> example if you run 128 threads workload that all use the same lock
+> then 
+> the -rt kernel can act as if it were a 128-way box (!). This way by
+> running -rt you'll see scalability problems alot sooner than on real
+> hardware. In other words: PREEMPT_RT in essence simulates the
+> scalability behavior of up to an infinite amount of CPUs. (with the
+> exception of cachemiss emulation ;) [the effect is not this precise,
+> but 
+> that's the rough trend]
+
+Turning off PREEMPT_RT for 2.6.20-rc2-rt0 kernel
+restored most the performance of Volanaomark
+and Re-Aim7.  Idle time is close to 0%.  So the benchmarks
+with large number of threads are affected more by PREEMPT_RT.
+
+For netperf TCP streaming, the performance improved from 40% down to 20%
+down from 2.6.20-rc2 kernel.  There is only a server and a client
+process
+for netperf.  The underlying reason for the change in performance
+is probably different.
+
+> 
+> If you'd like to profile this yourself then the lowest-cost way of
+> profiling lock contention on -rt is to use the yum kernel and run the
+> attached trace-it-lock-prof.c code on the box while your workload is
+> in 'steady state' (and is showing those extended idle times):
+> 
+>   ./trace-it-lock-prof > trace.txt
+> 
+
+Thanks for the pointer.  Will let you know of any relevant traces.
+
+Thanks.
+
+Tim

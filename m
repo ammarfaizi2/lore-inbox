@@ -1,154 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932884AbWL0BuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932879AbWL0Byl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932884AbWL0BuU (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 20:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbWL0BuU
+	id S932879AbWL0Byl (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 20:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWL0Byl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 20:50:20 -0500
-Received: from iucha.net ([209.98.146.184]:46059 "EHLO mail.iucha.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932881AbWL0BuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 20:50:18 -0500
-Date: Tue, 26 Dec 2006 19:50:17 -0600
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.20-rc2
-Message-ID: <20061227015017.GE22307@iucha.net>
-References: <20061225224047.GB6087@iucha.net> <20061225225616.GA22307@iucha.net> <20061226022538.13ea8b3f.akpm@osdl.org> <20061226124019.GA3701@elte.hu> <20061226142041.GC22307@iucha.net> <20061226152224.GA27528@elte.hu> <20061226234206.GD22307@iucha.net> <20061226234253.GA7523@elte.hu>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k1BdFSKqAqVdu8k/"
-Content-Disposition: inline
-In-Reply-To: <20061226234253.GA7523@elte.hu>
-X-GPG-Key: http://iucha.net/florin_iucha.gpg
-X-GPG-Fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: florin@iucha.net (Florin Iucha)
+	Tue, 26 Dec 2006 20:54:41 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:36014 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932879AbWL0Byk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 20:54:40 -0500
+Date: Tue, 26 Dec 2006 17:55:59 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: scheduling while atomic, new libata code
+Message-Id: <20061226175559.e280e66e.randy.dunlap@oracle.com>
+In-Reply-To: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
+References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 26 Dec 2006 20:47:31 -0500 Jon Smirl wrote:
 
---k1BdFSKqAqVdu8k/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Got this is my logs, no idea what triggered it. Using 2.6.20-rc2
+> I have one PATA and one SATA HD on ICH5 and two PATA CDROM
+> All using the new libata drivers
+> 
+>  BUG: scheduling while atomic: hald-addon-stor/0x20000000/5170
+>   [schedule+1529/2816] __sched_text_start+0x5f9/0xb00
+>   [blk_done_softirq+88/112] blk_done_softirq+0x58/0x70
+>   [__do_softirq+114/224] __do_softirq+0x72/0xe0
+>   [do_IRQ+69/128] do_IRQ+0x45/0x80
+>   [reschedule_interrupt+40/48] reschedule_interrupt+0x28/0x30
+>   [__cond_resched+22/64] __cond_resched+0x16/0x40
+>   [cond_resched+35/48] cond_resched+0x23/0x30
+>   [__reacquire_kernel_lock+28/60] __reacquire_kernel_lock+0x1c/0x3c
+>   [schedule+1577/2816] __sched_text_start+0x629/0xb00
+>   [scsi_done+0/32] scsi_done+0x0/0x20
+>   [ata_scsi_translate+154/320] ata_scsi_translate+0x9a/0x140
+>   [scsi_request_fn+542/800] scsi_request_fn+0x21e/0x320
+>   [__cond_resched+22/64] __cond_resched+0x16/0x40
+>   [cond_resched+35/48] cond_resched+0x23/0x30
+>   [wait_for_completion+15/192] wait_for_completion+0xf/0xc0
+>   [blk_execute_rq_nowait+91/160] blk_execute_rq_nowait+0x5b/0xa0
+>   [cfq_set_request+0/896] cfq_set_request+0x0/0x380
+>   [cfq_set_request+508/896] cfq_set_request+0x1fc/0x380
+>   [blk_execute_rq+124/224] blk_execute_rq+0x7c/0xe0
+>   [blk_end_sync_rq+0/48] blk_end_sync_rq+0x0/0x30
+>   [cfq_set_request+0/896] cfq_set_request+0x0/0x380
+>   [elv_set_request+28/64] elv_set_request+0x1c/0x40
+>   [get_request+289/624] get_request+0x121/0x270
+>   [get_request_wait+39/288] get_request_wait+0x27/0x120
+>   [scsi_execute+217/256] scsi_execute+0xd9/0x100
+>   [pg0+944853162/1069057024] sr_do_ioctl+0x7a/0x240 [sr_mod]
+>   [__wake_up+56/80] __wake_up+0x38/0x50
+>   [pg0+944854258/1069057024] sr_drive_status+0x62/0x80 [sr_mod]
+>   [pg0+945482260/1069057024] cdrom_ioctl+0x514/0xde0 [cdrom]
+>   [__mark_inode_dirty+52/400] __mark_inode_dirty+0x34/0x190
+>   [touch_atime+158/272] touch_atime+0x9e/0x110
+>   [pg0+944852851/1069057024] sr_block_ioctl+0x53/0xb0 [sr_mod]
+>   [blkdev_driver_ioctl+109/128] blkdev_driver_ioctl+0x6d/0x80
+>   [blkdev_ioctl+751/2000] blkdev_ioctl+0x2ef/0x7d0
+>   [kobject_get+15/32] kobject_get+0xf/0x20
+>   [get_disk+57/112] get_disk+0x39/0x70
+>   [exact_lock+7/16] exact_lock+0x7/0x10
+>   [kobject_get+15/32] kobject_get+0xf/0x20
+>   [pg0+944849884/1069057024] sr_block_open+0x5c/0xa0 [sr_mod]
+>   [blkdev_open+0/112] blkdev_open+0x0/0x70
+>   [do_open+439/656] do_open+0x1b7/0x290
+>   [blkdev_open+0/112] blkdev_open+0x0/0x70
+>   [blkdev_open+48/112] blkdev_open+0x30/0x70
+>   [__dentry_open+353/448] __dentry_open+0x161/0x1c0
+>   [nameidata_to_filp+53/64] nameidata_to_filp+0x35/0x40
+>   [do_filp_open+75/96] do_filp_open+0x4b/0x60
+>   [block_ioctl+24/32] block_ioctl+0x18/0x20
+>   [block_ioctl+0/32] block_ioctl+0x0/0x20
+>   [do_ioctl+43/144] do_ioctl+0x2b/0x90
+>   [vfs_ioctl+92/672] vfs_ioctl+0x5c/0x2a0
+>   [sys_ioctl+114/144] sys_ioctl+0x72/0x90
+>   [sysenter_past_esp+95/133] sysenter_past_esp+0x5f/0x85
+>   =======================
 
-On Wed, Dec 27, 2006 at 12:42:53AM +0100, Ingo Molnar wrote:
-> * Florin Iucha <florin@iucha.net> wrote:
-> > I saw your subsequent message and will apply the patch, retest and=20
-> > report.
->=20
-> yeah. Just to make sure i've attached the latest and greatest version of=
-=20
-> the patch - please make sure you have this one applied.
+Can you apply and test the patch here:
+  http://lkml.org/lkml/2006/12/26/62
+and let us know if that fixes the BUG, please.
 
-The good news is, with this patch there is no oops.
 
-The bad news is, the USB keyboard is still not functioning, but the
-mice plugged in the keyboard hub are working.
-
-One down, one more to go...
-
-florin
-
-> ---------------------->
-> Subject: [patch] sched: fix cond_resched_softirq() offset
-> From: Ingo Molnar <mingo@elte.hu>
->=20
-> remove the __resched_legal() check: it is conceptually broken.
-> The biggest problem it had is that it can mask buggy cond_resched()
-> calls. A cond_resched() call is only legal if we are not in an
-> atomic context, with two narrow exceptions:
->=20
->  - if the system is booting
->  - a reacquire_kernel_lock() down() done while PREEMPT_ACTIVE is set
->=20
-> But __resched_legal() hid this and just silently returned whenever
-> these primitives were called from invalid contexts. (Same goes for
-> cond_resched_locked() and cond_resched_softirq()).
->=20
-> furthermore, the __legal_resched(0) call was buggy in that it caused
-> unnecessarily long softirq latencies via cond_resched_softirq(). (which
-> is only called from softirq-off sections, hence the code did nothing.)
->=20
-> the fix is to resurrect the efficiency of the might_sleep checks and to
-> only allow the narrow exceptions.
->=20
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  kernel/sched.c |   18 ++++--------------
->  1 file changed, 4 insertions(+), 14 deletions(-)
->=20
-> Index: linux/kernel/sched.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux.orig/kernel/sched.c
-> +++ linux/kernel/sched.c
-> @@ -4617,17 +4617,6 @@ asmlinkage long sys_sched_yield(void)
->  	return 0;
->  }
-> =20
-> -static inline int __resched_legal(int expected_preempt_count)
-> -{
-> -#ifdef CONFIG_PREEMPT
-> -	if (unlikely(preempt_count() !=3D expected_preempt_count))
-> -		return 0;
-> -#endif
-> -	if (unlikely(system_state !=3D SYSTEM_RUNNING))
-> -		return 0;
-> -	return 1;
-> -}
-> -
->  static void __cond_resched(void)
->  {
->  #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-> @@ -4647,7 +4636,8 @@ static void __cond_resched(void)
-> =20
->  int __sched cond_resched(void)
->  {
-> -	if (need_resched() && __resched_legal(0)) {
-> +	if (need_resched() && !(preempt_count() & PREEMPT_ACTIVE) &&
-> +					system_state =3D=3D SYSTEM_RUNNING) {
->  		__cond_resched();
->  		return 1;
->  	}
-> @@ -4673,7 +4663,7 @@ int cond_resched_lock(spinlock_t *lock)
->  		ret =3D 1;
->  		spin_lock(lock);
->  	}
-> -	if (need_resched() && __resched_legal(1)) {
-> +	if (need_resched() && system_state =3D=3D SYSTEM_RUNNING) {
->  		spin_release(&lock->dep_map, 1, _THIS_IP_);
->  		_raw_spin_unlock(lock);
->  		preempt_enable_no_resched();
-> @@ -4689,7 +4679,7 @@ int __sched cond_resched_softirq(void)
->  {
->  	BUG_ON(!in_softirq());
-> =20
-> -	if (need_resched() && __resched_legal(0)) {
-> +	if (need_resched() && system_state =3D=3D SYSTEM_RUNNING) {
->  		raw_local_irq_disable();
->  		_local_bh_enable();
->  		raw_local_irq_enable();
->=20
-
---=20
-Bruce Schneier expects the Spanish Inquisition.
-      http://geekz.co.uk/schneierfacts/fact/163
-
---k1BdFSKqAqVdu8k/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFFkdFZND0rFCN2b1sRAkhpAJ97xzTyvpPy3GNkJxhtR6NBCMtUQgCbBrZK
-8H3LFskKYSS97GKMRdWpd4A=
-=XFmd
------END PGP SIGNATURE-----
-
---k1BdFSKqAqVdu8k/--
+---
+~Randy

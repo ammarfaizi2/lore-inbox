@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932879AbWL0Byl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932883AbWL0CD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932879AbWL0Byl (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 26 Dec 2006 20:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWL0Byl
+	id S932883AbWL0CD7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 26 Dec 2006 21:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932885AbWL0CD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Dec 2006 20:54:41 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:36014 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932879AbWL0Byk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Dec 2006 20:54:40 -0500
-Date: Tue, 26 Dec 2006 17:55:59 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: scheduling while atomic, new libata code
-Message-Id: <20061226175559.e280e66e.randy.dunlap@oracle.com>
-In-Reply-To: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
-References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Tue, 26 Dec 2006 21:03:58 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:42227 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932883AbWL0CD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Dec 2006 21:03:58 -0500
+Date: Wed, 27 Dec 2006 03:03:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linux tcp stack behavior change
+Message-ID: <Pine.LNX.4.61.0612270258450.14578@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Dec 2006 20:47:31 -0500 Jon Smirl wrote:
-
-> Got this is my logs, no idea what triggered it. Using 2.6.20-rc2
-> I have one PATA and one SATA HD on ICH5 and two PATA CDROM
-> All using the new libata drivers
-> 
->  BUG: scheduling while atomic: hald-addon-stor/0x20000000/5170
->   [schedule+1529/2816] __sched_text_start+0x5f9/0xb00
->   [blk_done_softirq+88/112] blk_done_softirq+0x58/0x70
->   [__do_softirq+114/224] __do_softirq+0x72/0xe0
->   [do_IRQ+69/128] do_IRQ+0x45/0x80
->   [reschedule_interrupt+40/48] reschedule_interrupt+0x28/0x30
->   [__cond_resched+22/64] __cond_resched+0x16/0x40
->   [cond_resched+35/48] cond_resched+0x23/0x30
->   [__reacquire_kernel_lock+28/60] __reacquire_kernel_lock+0x1c/0x3c
->   [schedule+1577/2816] __sched_text_start+0x629/0xb00
->   [scsi_done+0/32] scsi_done+0x0/0x20
->   [ata_scsi_translate+154/320] ata_scsi_translate+0x9a/0x140
->   [scsi_request_fn+542/800] scsi_request_fn+0x21e/0x320
->   [__cond_resched+22/64] __cond_resched+0x16/0x40
->   [cond_resched+35/48] cond_resched+0x23/0x30
->   [wait_for_completion+15/192] wait_for_completion+0xf/0xc0
->   [blk_execute_rq_nowait+91/160] blk_execute_rq_nowait+0x5b/0xa0
->   [cfq_set_request+0/896] cfq_set_request+0x0/0x380
->   [cfq_set_request+508/896] cfq_set_request+0x1fc/0x380
->   [blk_execute_rq+124/224] blk_execute_rq+0x7c/0xe0
->   [blk_end_sync_rq+0/48] blk_end_sync_rq+0x0/0x30
->   [cfq_set_request+0/896] cfq_set_request+0x0/0x380
->   [elv_set_request+28/64] elv_set_request+0x1c/0x40
->   [get_request+289/624] get_request+0x121/0x270
->   [get_request_wait+39/288] get_request_wait+0x27/0x120
->   [scsi_execute+217/256] scsi_execute+0xd9/0x100
->   [pg0+944853162/1069057024] sr_do_ioctl+0x7a/0x240 [sr_mod]
->   [__wake_up+56/80] __wake_up+0x38/0x50
->   [pg0+944854258/1069057024] sr_drive_status+0x62/0x80 [sr_mod]
->   [pg0+945482260/1069057024] cdrom_ioctl+0x514/0xde0 [cdrom]
->   [__mark_inode_dirty+52/400] __mark_inode_dirty+0x34/0x190
->   [touch_atime+158/272] touch_atime+0x9e/0x110
->   [pg0+944852851/1069057024] sr_block_ioctl+0x53/0xb0 [sr_mod]
->   [blkdev_driver_ioctl+109/128] blkdev_driver_ioctl+0x6d/0x80
->   [blkdev_ioctl+751/2000] blkdev_ioctl+0x2ef/0x7d0
->   [kobject_get+15/32] kobject_get+0xf/0x20
->   [get_disk+57/112] get_disk+0x39/0x70
->   [exact_lock+7/16] exact_lock+0x7/0x10
->   [kobject_get+15/32] kobject_get+0xf/0x20
->   [pg0+944849884/1069057024] sr_block_open+0x5c/0xa0 [sr_mod]
->   [blkdev_open+0/112] blkdev_open+0x0/0x70
->   [do_open+439/656] do_open+0x1b7/0x290
->   [blkdev_open+0/112] blkdev_open+0x0/0x70
->   [blkdev_open+48/112] blkdev_open+0x30/0x70
->   [__dentry_open+353/448] __dentry_open+0x161/0x1c0
->   [nameidata_to_filp+53/64] nameidata_to_filp+0x35/0x40
->   [do_filp_open+75/96] do_filp_open+0x4b/0x60
->   [block_ioctl+24/32] block_ioctl+0x18/0x20
->   [block_ioctl+0/32] block_ioctl+0x0/0x20
->   [do_ioctl+43/144] do_ioctl+0x2b/0x90
->   [vfs_ioctl+92/672] vfs_ioctl+0x5c/0x2a0
->   [sys_ioctl+114/144] sys_ioctl+0x72/0x90
->   [sysenter_past_esp+95/133] sysenter_past_esp+0x5f/0x85
->   =======================
-
-Can you apply and test the patch here:
-  http://lkml.org/lkml/2006/12/26/62
-and let us know if that fixes the BUG, please.
+Hello list,
 
 
----
-~Randy
+I have been noticing that running nmap -sF on oneself does not generate 
+a reply from the TCP stack on 2.6.18(.5). In other words:
+
+# tcpdump -ni lo &
+[1] 32376
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on lo, link-type EN10MB (Ethernet), capture size 96 bytes
+# nmap localhost -n -sX -p 22
+Starting Nmap 4.11 ( http://www.insecure.org/nmap/ ) at 2006-12-27 02:59 CET
+02:59:54.199763 IP 127.0.0.1.44431 > 127.0.0.1.22: FP 2987942575:2987942575(0) win 3072 urg 0
+
+and it just sits there. By chance, I found that passing FIN,ACK gives 
+the desired effect
+
+# nmap localhost -n -sX -p 22 --scanflags FIN,ACK
+Starting Nmap 4.11 ( http://www.insecure.org/nmap/ ) at 2006-12-27 03:01 CET
+03:01:28.847871 IP 127.0.0.1.34140 > 127.0.0.1.22: F 935914709:935914709(0) ack 1975786655 win 4096
+03:01:28.847943 IP 127.0.0.1.22 > 127.0.0.1.34140: R 1975786655:1975786655(0) win 0
+Interesting ports on 127.0.0.1:
+PORT   STATE  SERVICE
+22/tcp closed ssh
+Nmap finished: 1 IP address (1 host up) scanned in 0.071 seconds
+
+However, I know that plain -sF worked with previous kernels. Using 
+nmap-4.00 on 2.6.18.5 yields the same result, so I do not think it is 
+caused by a change in nmap code. Could someone with 2.6.13-2.6.17 verify 
+that the TCP stack returned a RST? Or perhaps someone else actually 
+knows there was a change in the linux kernel to cause the now-observed 
+behavior.
+
+
+Thanks,
+Jan
+-- 

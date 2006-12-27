@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932975AbWL0Ptq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932985AbWL0PuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932975AbWL0Ptq (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 10:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932983AbWL0Ptq
+	id S932985AbWL0PuF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 10:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932981AbWL0PuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 10:49:46 -0500
-Received: from wr-out-0506.google.com ([64.233.184.232]:8852 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932975AbWL0Ptp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 10:49:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=A6WGJjl8/ZSVPTFtl8rujUYyEV8P5CyEheop8NXVctu+unp20v4MLozU8w/ldc7C0tag3/foLIQBTvhnkt0h8PnWG+v5XaSKJgZl2jPy116XrvdlqBVSVNAG6V7MX41OGA48RWoYiA17lLIf/krtDR+Q9xDcNieNTsQ8Mq1K1i0=
-Message-ID: <6d6a94c50612270749j77cd53a9mba6280e4129d9d5a@mail.gmail.com>
-Date: Wed, 27 Dec 2006 23:49:43 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Page alignment issue
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Dec 2006 10:50:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35546 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932978AbWL0PuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 10:50:03 -0500
+Date: Wed, 27 Dec 2006 16:47:13 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [patch] block: remove BKL dependency from drivers/block/loop.c
+Message-ID: <20061227154713.GA4036@elte.hu>
+References: <20061227115207.GA20721@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061227115207.GA20721@elte.hu>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0003]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As for the buddy system, much of docs mention the physical address of
-the first page frame of a block should be a multiple of the group
-size. For example, the initial address of a 16-page-frame block should
-be 16-page aligned. I happened to encounted an issue that the physical
-addresss pf the block is not 4-page aligned(0x36c9000) while the order
-of the block is 2. I want to know what out of buddy algorithm depend
-on this feature? My problem seems to happen in
-schedule()->context_switch() call, but so far I didn't figure out the
-root cause.
 
-Any clue or suggestion will be really appreciated!
-Thanks,
--Aubrey
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> Subject: [patch] block: remove BKL dependency from drivers/block/loop.c
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> the block loopback device is protected by lo->lo_ctl_mutex and it does 
+> not need to hold the BKL anywhere. Convert its ioctl to unlocked_ioctl 
+> and remove the BKL acquire/release from its compat_ioctl.
+
+hm, i must have messed up this bit:
+
+> +static long lo_ioctl(struct file * file, unsigned int cmd, unsigned long arg)
+>  {
+> +	struct inode *inode = file->f_path.dentry->d_inode;
+>  	struct loop_device *lo = inode->i_bdev->bd_disk->private_data;
+
+because it now crashes there ... so forget this patch for now.
+
+	Ingo

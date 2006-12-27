@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933022AbWL0ROO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964779AbWL0ROy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933022AbWL0ROO (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 12:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWL0ROK
+	id S964779AbWL0ROy (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 12:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933023AbWL0ROr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 12:14:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41547 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932999AbWL0RNr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 12:13:47 -0500
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       Akinobu Mita <akinobu.mita@gmail.com>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 21/28] V4L/DVB (4994): Vivi: fix use after free in
-	list_for_each()
-Date: Wed, 27 Dec 2006 14:57:31 -0200
-Message-id: <20061227165731.PS48805300021@infradead.org>
-In-Reply-To: <20061227165016.PS89442900000@infradead.org>
-References: <20061227165016.PS89442900000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 27 Dec 2006 12:14:47 -0500
+Received: from quechua.inka.de ([193.197.184.2]:47682 "EHLO mail.inka.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933017AbWL0ROb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 12:14:31 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to detect multi-core and/or HT-enabled CPUs in 2.4.x and 2.6.x kernels
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <1167235772.3281.3977.camel@laptopd505.fenrus.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1GzcMG-0001fV-00@calista.eckenfels.net>
+Date: Wed, 27 Dec 2006 18:14:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1167235772.3281.3977.camel@laptopd505.fenrus.org> you wrote:
+> once your program (and many others) have such a check, then the next
+> step will be pressure on the kernel code to "fake" the old situation
+> when there is a processor where <vague criteria of the day> no longer
+> holds. It's basically a road to madness :-(
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+I agree that for HPC sizing a benchmark with various levels of parallelity
+are better. The question is, if the code in question only is for inventory
+reasons. In that case I would do something like x sockets, y cores and z cm
+threads.
 
-Freeing data including list_head in list_for_each() is not safe.
-
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
-
- drivers/media/video/vivi.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
-index 474ddb7..3cead24 100644
---- a/drivers/media/video/vivi.c
-+++ b/drivers/media/video/vivi.c
-@@ -1363,7 +1363,9 @@ static void __exit vivi_exit(void)
- 	struct vivi_dev *h;
- 	struct list_head *list;
- 
--	list_for_each(list,&vivi_devlist) {
-+	while (!list_empty(&vivi_devlist)) {
-+		list = vivi_devlist.next;
-+		list_del(list);
- 		h = list_entry(list, struct vivi_dev, vivi_devlist);
- 		kfree (h);
- 	}
-
+Bernd

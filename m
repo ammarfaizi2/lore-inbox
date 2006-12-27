@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbWL0Ukk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754748AbWL0UmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbWL0Ukk (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 15:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWL0Ukj
+	id S1754748AbWL0UmX (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 15:42:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754727AbWL0UmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 15:40:39 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:58184 "EHLO inti.inf.utfsm.cl"
+	Wed, 27 Dec 2006 15:42:23 -0500
+Received: from thunk.org ([69.25.196.29]:57165 "EHLO thunker.thunk.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754727AbWL0Ukj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 15:40:39 -0500
-Message-Id: <200612272038.kBRKcosK021701@laptop13.inf.utfsm.cl>
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, davem@davemloft.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sparclinux@vger.kernel.org
-Subject: Re: 2.6.19 (current from git) on SPARC64: Can't mount / 
-In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
-   of "Mon, 18 Dec 2006 04:20:03 BST." <20061218032003.GU10316@stusta.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Wed, 27 Dec 2006 17:38:50 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 27 Dec 2006 17:38:51 -0300 (CLST)
+	id S1754748AbWL0UmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 15:42:22 -0500
+Date: Wed, 27 Dec 2006 15:42:13 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Karel Zak <kzak@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+       Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: util-linux: orphan
+Message-ID: <20061227204212.GA21393@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>, Karel Zak <kzak@redhat.com>,
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+	Henne Vogelsang <hvogel@suse.de>, Olaf Hering <olh@suse.de>,
+	"H. Peter Anvin" <hpa@zytor.com>
+References: <20061109224157.GH4324@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de> <20061227181510.GB17785@petra.dvoda.cz> <200612271939.48125.arnd@arndb.de> <20061227191824.GC17785@petra.dvoda.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061227191824.GC17785@petra.dvoda.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
-> On Wed, Dec 13, 2006 at 03:56:46PM -0300, Horst H. von Brand wrote:
-> > I've been running kernel du jour straight from git on my SPARC Ultra 1 for
-> > some time now on Aurora Corona (Fedora relative, development branch). For a
-> > few days now 2.6.19 panics on boot, it can't mount /. 2.6.19 worked fine,
-> > as does 2.6.19.1 (Aurora changed gcc, mkinitrd, ... in between, so I had to
-> > rebuild a kernel to check if the problem lay elsewhere). Unpacking the
-> > initrds for 2.6.19 and 2.6.19.1 shows the same (nash script) /init and the
-> > same modules in both (ext3 + jbd, scsi_mod, sd_mod, esp, others).
+On Wed, Dec 27, 2006 at 08:18:24PM +0100, Karel Zak wrote:
+>  Frankly, it wasn't always easy to use SeLinux in previous FC
+>  releases, but there is huge progress and I think it's much better in
+>  FC6.
 
-> > I'm stumped. Any clue?
+I've never tried SELinux, but at one point there were all sorts of
+horror stories that if you enabled SELinux, the moment you installed
+any 3rd party software packages, whether it's Oracle or Websphere or
+some other commercial application program, the application would break
+because of all sorts of SELinux policy violations, and that it
+required an SELinux wizard to configure SELinux policy to enable a 3rd
+party application to actually work correctly.  Given that I tried
+enabling SELinux, witnessed things break spectacularly and with no
+hints about how to fix things, I've always had the attitude of "life
+is too short to enable SELinux", and so my limited experience is
+consistent with all of the horror stories that I've heard.
 
-> Is this issue still present in the latest -git?
+It sounds like SELinux has gotten better, according to your
+description.  Will handle arbitrary 3rd party software without running
+wild, or is it still the case that the moment you want anything other
+than software that was shipped with the distribution, it's "abandon
+all hope, all ye who enter here"?
 
-Sorry, got sidetracked by other stuff.
+						- Ted
 
-Still no boot with 2.9.20-rc1 and -rc2, and none of the kernels I tried in
-between.
-
-initrd is sane (the only differences between the one built for working
-2.6.19.1 and broken 2.6.20-rc2 are among the modules themselves). What I
-did was:
-
-  cd /tmp
-  mkdir ird-$version
-  cd ird-$version
-  zcat /boot/initrd-$version.img | cpio -i
-
-and then "diff -Nur ird-$1 ird-$2". Now to teach diff(1) to compare devices
-reasonably...
-
-Tried latest from Fedora rawhide (mkinitrd-6.0.6-1), no boot. initrd is
-huge, so I went back to mkinitrd-5.1.19-1.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
 

@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751728AbWL0SgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753655AbWL0ShD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWL0SgY (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 13:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWL0SgY
+	id S1753655AbWL0ShD (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 13:37:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753730AbWL0ShD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 13:36:24 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:40651 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728AbWL0SgX (ORCPT
+	Wed, 27 Dec 2006 13:37:03 -0500
+Received: from homer.mvista.com ([63.81.120.158]:2092 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1754066AbWL0ShB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 13:36:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=oMc3dgwMg4ZuLwRxL1rw5O0No2uSDwa5XNmYbe5j7w5h83uDbHEXQCv7T1Yu8wfKKGdODpQzQFvtiaDItqWEVRgEbOzPWKer5JoppGD10M8m5XUNOVjd8J24v/HVzmt3dlqbub/Tv+dbkK8OF00hzNEKwCpsADOsjMap447HMPw=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: ray-gmail@madrabbit.org
-Subject: Re: Feature request: exec self for NOMMU.
-Date: Wed, 27 Dec 2006 19:35:07 +0100
-User-Agent: KMail/1.8.2
-Cc: "Rob Landley" <rob@landley.net>, linux-kernel@vger.kernel.org,
-       "David McCullough" <david_mccullough@au.securecomputing.com>
-References: <200612261823.07927.rob@landley.net> <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
-In-Reply-To: <2c0942db0612262113v5b504aecmdd922193415b60de@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 27 Dec 2006 13:37:01 -0500
+Subject: Re: [PATCH -rt] disconnect warp check from hrtimers
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1167242644.14081.33.camel@imap.mvista.com>
+References: <20061227172828.998757000@mvista.com>
+	 <20061227173957.GA18900@elte.hu>
+	 <1167242010.14081.31.camel@imap.mvista.com>
+	 <1167242644.14081.33.camel@imap.mvista.com>
+Content-Type: text/plain
+Date: Wed, 27 Dec 2006 10:36:18 -0800
+Message-Id: <1167244578.14081.37.camel@imap.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612271935.07835.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 December 2006 06:13, Ray Lee wrote:
-> On 12/26/06, Rob Landley <rob@landley.net> wrote:
-> > I'm trying to make some nommu-friendly busybox-like tools, which means using
-> > vfork() instead of fork().  This means that after I fork I have to exec in
-> > the child to unblock the parent, and if I want to exec my current executable
-> > I have to find out where it lives so I can feed the path to exec().  This is
-> > nontrivial.
-> >
-> > Worse, it's not always possible.  If chroot() has happened since the program
-> > started, there may not _be_ a path to my current executable available from
-> > this process's current or root directories.
+On Wed, 2006-12-27 at 10:04 -0800, Daniel Walker wrote:
+> On Wed, 2006-12-27 at 09:53 -0800, Daniel Walker wrote:
 > 
-> How about openning an fd to yourself at the beginning of execution, then calling
-> fexecve later?
+> > The system hang was resolved by changing the irq threads to all prio
+> > 50 ..
+> 
+> Guess I was wrong about this.. The hang was resolved, but I's not sure
+> how yet ..
 
-This solves chroot problem. How to find path-to-yourself reliably
-(for one, without using /proc/self/exe) is not obvious to me.
---
-vda
+Looks like it was the irq thread priority _and_ the softirq prio needed
+to be raised. softirq was at SCHED_FIFO 1 which caused the hang (or
+that's how it looks).
+
+Daniel
+

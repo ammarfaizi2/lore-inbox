@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964900AbWL1DuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964908AbWL1DxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWL1DuF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 22:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWL1DuF
+	id S964908AbWL1DxP (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 22:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWL1DxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 22:50:05 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55517 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964900AbWL1DuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 22:50:03 -0500
-Date: Wed, 27 Dec 2006 19:49:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drop page cache of a single file
-Message-Id: <20061227194959.0ebce0e4.akpm@osdl.org>
-In-Reply-To: <1167275845.15989.153.camel@ymzhang>
-References: <1167275845.15989.153.camel@ymzhang>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Dec 2006 22:53:15 -0500
+Received: from an-out-0708.google.com ([209.85.132.240]:36457 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964910AbWL1DxO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 22:53:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jLeWzz4WooFzbLLqzdv7KEDoQdVz8Hf9rTdYJyoNy7brgVoVuKn+aM+FP2UuPUhsfnsYHaFD8CcodaHO3D72tYavHSRcwan6lepN6s2NSbtdOIGyGYD/C0Ti5W/4n2FmDBZef3QHofDr9+U6xP6YgyExxH0ASvnY9IVX74W4xzg=
+Message-ID: <45a44e480612271953we6fe8adg118560161579b7f9@mail.gmail.com>
+Date: Thu, 28 Dec 2006 04:53:13 +0100
+From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
+To: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+Subject: Re: [RFC 2.6.19 1/1] fbdev,mm: hecuba/E-Ink fbdev driver v2
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <cda58cb80612220157q5433c346pccd06b8b7cbaadba@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200612111046.kBBAkV8Y029087@localhost.localdomain>
+	 <457D895D.4010500@innova-card.com>
+	 <45a44e480612111554j1450f35ub4d9932e5cd32d4@mail.gmail.com>
+	 <cda58cb80612130038x6b81a00dv813d10726d495eda@mail.gmail.com>
+	 <45a44e480612162025n5d7c77bdkc825e94f1fb37904@mail.gmail.com>
+	 <cda58cb80612200050h6def9866nf1798753da9d842d@mail.gmail.com>
+	 <cda58cb80612220157q5433c346pccd06b8b7cbaadba@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 11:17:25 +0800
-"Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
+On 12/22/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+>
+> Well thinking more about it, this wouldn't work for all cache types.
+> For example, if your cache is not a direct maped one, this workaround
+> won't work. So this is definitely not a portable solution.
+>
 
-> Currently, by /proc/sys/vm/drop_caches, applications could drop pagecache,
-> slab(dentries and inodes), or both, but applications couldn't choose to
-> just drop the page cache of one file. An user of VOD (Video-On-Demand)
-> needs this capability to have more detailed control on page cache release.
+>From asking peterz on #mm, I think page_mkclean will do the right
+thing and call something like flush_cache_page. I think that resolves
+the issue which I think you identified where the end symptom on archs
+with virtually tagged caches could be a line of pixels written by
+userspace through one PTE remain in-cache and therefore "undisplayed"
+when the kernel reads through another PTE that may fall on a different
+cacheline.
 
-The posix_fadvise() system call should be used for this.  Probably in
-combination with sys_sync_file_range().
-
+Thanks,
+jayakumar

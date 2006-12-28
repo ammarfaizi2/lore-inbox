@@ -1,176 +1,111 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964862AbWL1DRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964904AbWL1Dam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWL1DRS (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 22:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWL1DRS
+	id S964904AbWL1Dam (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 22:30:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWL1Dal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 22:17:18 -0500
-Received: from mga05.intel.com ([192.55.52.89]:9048 "EHLO
-	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964862AbWL1DRR (ORCPT
+	Wed, 27 Dec 2006 22:30:41 -0500
+Received: from wx-out-0506.google.com ([66.249.82.237]:4250 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964902AbWL1Dak (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 22:17:17 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,213,1165219200"; 
-   d="scan'208"; a="182309769:sNHT20469211"
-Subject: [PATCH] drop page cache of a single file
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 28 Dec 2006 11:17:25 +0800
-Message-Id: <1167275845.15989.153.camel@ymzhang>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.9.2 (2.9.2-2.fc7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Dec 2006 22:30:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type;
+        b=ipSGsDCGJjzG2ccZNJiQA04qguF7fkgssNrM3lTIFG8Z0SrUwDxBjPjizLdRp4r/87QQ93ynX/FVWw8/z+yhvXJEqa9ywZrBzve/7Jn138tHI83lro/DpYhJRoT3Tr89j155vQwfFBEpXqZHyk2y6+z8W/7FFxRJlOymJPe5M2A=
+Message-ID: <45933A53.1090702@gmail.com>
+Date: Thu, 28 Dec 2006 12:30:27 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: Andrew Lyon <andrew.lyon@gmail.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive
+ 0x0) r0xj0
+References: <f4527be0612271812p7282de31j98462aebde16e5a1@mail.gmail.com>
+In-Reply-To: <f4527be0612271812p7282de31j98462aebde16e5a1@mail.gmail.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/mixed;
+ boundary="------------040406010202020601080905"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, by /proc/sys/vm/drop_caches, applications could drop pagecache,
-slab(dentries and inodes), or both, but applications couldn't choose to
-just drop the page cache of one file. An user of VOD (Video-On-Demand)
-needs this capability to have more detailed control on page cache release.
+This is a multi-part message in MIME format.
+--------------040406010202020601080905
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Below patch against 2.6.19 implements it.
+Andrew Lyon wrote:
+> Hi,
+> 
+> My system is gigabyte ds3 motherboard with onboard SATA JMicron
+> 20360/20363 AHCI Controller (rev 02), drive connected is WDC
+> WD740ADFD-00 20.0, I am running 2.6.18.6 32 bit, under heavy i/o I get
+> the following messaegs:
+> 
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+> 
+> Is this condition dangerous?
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+Not usually.  Might indicate something is going wrong in some really
+rare cases.  I think vendors are getting NCQ right these days.  Maybe
+it's time to remove that printk.
 
----
+> I plan to upgrade to 2.6.19 soon as I have problems with a sata dvd
+> writer but I have to wait for a driver that I need to catch up, this
+> system cannot be down for long as it runs mythtv.
 
-diff -Nraup linux-2.6.19/Documentation/filesystems/proc.txt linux-2.6.19_dropcache/Documentation/filesystems/proc.txt
---- linux-2.6.19/Documentation/filesystems/proc.txt	2006-12-08 15:32:44.000000000 +0800
-+++ linux-2.6.19_dropcache/Documentation/filesystems/proc.txt	2006-12-28 10:20:39.000000000 +0800
-@@ -1320,6 +1320,8 @@ To free dentries and inodes:
- 	echo 2 > /proc/sys/vm/drop_caches
- To free pagecache, dentries and inodes:
- 	echo 3 > /proc/sys/vm/drop_caches
-+To free the pagecache of one file:
-+	echo "4 /path/to/filename" > /proc/sys/vm/drop_caches
+Can you apply the attached patch and report what the kernel says?
+Please include full dmesg.
+
+Thanks.
+
+-- 
+tejun
+
+--------------040406010202020601080905
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index b517d24..13f5853 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1162,10 +1162,21 @@ static void ahci_host_intr(struct ata_port *ap)
+ 	if (ata_tag_valid(ap->active_tag) && (status & PORT_IRQ_PIOS_FIS))
+ 		return;
  
- As this is a non-destructive operation and dirty objects are not freeable, the
- user should run `sync' first.
-diff -Nraup linux-2.6.19/fs/drop_caches.c linux-2.6.19_dropcache/fs/drop_caches.c
---- linux-2.6.19/fs/drop_caches.c	2006-12-08 15:31:58.000000000 +0800
-+++ linux-2.6.19_dropcache/fs/drop_caches.c	2006-12-28 11:04:22.000000000 +0800
-@@ -8,9 +8,9 @@
- #include <linux/writeback.h>
- #include <linux/sysctl.h>
- #include <linux/gfp.h>
-+#include <linux/namei.h>
- 
--/* A global variable is a bit ugly, but it keeps the code simple */
--int sysctl_drop_caches;
-+char sysctl_drop_caches[PATH_MAX+2];
- 
- static void drop_pagecache_sb(struct super_block *sb)
- {
-@@ -54,15 +54,70 @@ void drop_slab(void)
- 	} while (nr_objects > 10);
- }
- 
-+void drop_file_pagecache(char *path)
-+{
-+	struct inode *inode;
-+	struct nameidata nd;
-+	int error;
+-	if (ata_ratelimit())
++	if (ata_ratelimit()) {
++		struct ahci_port_priv *pp = ap->private_data;
++		const u32 *f = pp->rx_fis + 0x58;
 +
-+	if (!path || !*path)
-+		return;
-+
-+	error = path_lookup(path, LOOKUP_FOLLOW, &nd);
-+	if (error)
-+		return;
-+
-+	inode = nd.dentry->d_inode;
-+	if (!(inode->i_state & (I_FREEING|I_WILL_FREE)))
-+		invalidate_inode_pages(inode->i_mapping);
-+	path_release(&nd);
-+
-+	return;
-+}
-+
- int drop_caches_sysctl_handler(ctl_table *table, int write,
- 	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
- {
--	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
--	if (write) {
--		if (sysctl_drop_caches & 1)
-+	int error;
-+	char *path;
-+	int operation;
-+
-+	error = proc_dostring(table, write, file, buffer, length, ppos);
-+	if (write && !error) {
-+		sscanf(sysctl_drop_caches, "%d", &operation);
-+
-+		switch (operation) {
-+		case 1:
- 			drop_pagecache();
--		if (sysctl_drop_caches & 2)
-+			break;
-+		case 2:
- 			drop_slab();
-+			break;
-+		case 3:
-+			drop_pagecache();
-+			drop_slab();
-+			break;
-+		case 4:
-+			/*
-+			 * The format in sysctl_drop_caches is:
-+			 * 4 /path/to/filename
-+			 */
-+			path = strchr(sysctl_drop_caches, '4');
-+			if (!path)
-+				break;
-+
-+			path ++;
-+			while (*path) {
-+				if (*path == ' ' || *path == '\t')
-+					path ++;
-+				else
-+					break;
-+			}
-+
-+			drop_file_pagecache(path);
-+			break;
+ 		ata_port_printk(ap, KERN_INFO, "spurious interrupt "
+-				"(irq_stat 0x%x active_tag %d sactive 0x%x)\n",
++				"(irq_stat 0x%x active_tag 0x%x sactive 0x%x)\n",
+ 				status, ap->active_tag, ap->sactive);
++		if (status & PORT_IRQ_SDB_FIS) {
++			ata_port_printk(ap, KERN_INFO, "issue=0x%x SAct=0x%x "
++					"SDB_FIS=%08x:%08x\n",
++					readl(port_mmio + PORT_CMD_ISSUE),
++					readl(port_mmio + PORT_SCR_ACT),
++					f[0], f[1]);
 +		}
- 	}
- 	return 0;
++	}
  }
-+
-diff -Nraup linux-2.6.19/include/linux/mm.h linux-2.6.19_dropcache/include/linux/mm.h
---- linux-2.6.19/include/linux/mm.h	2006-12-08 15:32:49.000000000 +0800
-+++ linux-2.6.19_dropcache/include/linux/mm.h	2006-12-28 09:59:10.000000000 +0800
-@@ -1121,6 +1121,7 @@ unsigned long shrink_slab(unsigned long 
- 			unsigned long lru_pages);
- void drop_pagecache(void);
- void drop_slab(void);
-+void drop_file_pagecache(char *path);
  
- #ifndef CONFIG_MMU
- #define randomize_va_space 0
-diff -Nraup linux-2.6.19/kernel/sysctl.c linux-2.6.19_dropcache/kernel/sysctl.c
---- linux-2.6.19/kernel/sysctl.c	2006-12-08 15:32:49.000000000 +0800
-+++ linux-2.6.19_dropcache/kernel/sysctl.c	2006-12-28 09:50:18.000000000 +0800
-@@ -73,7 +73,7 @@ extern int min_free_kbytes;
- extern int printk_ratelimit_jiffies;
- extern int printk_ratelimit_burst;
- extern int pid_max_min, pid_max_max;
--extern int sysctl_drop_caches;
-+extern char sysctl_drop_caches[PATH_MAX+2];
- extern int percpu_pagelist_fraction;
- extern int compat_log;
- 
-@@ -901,10 +901,10 @@ static ctl_table vm_table[] = {
- 		.ctl_name	= VM_DROP_PAGECACHE,
- 		.procname	= "drop_caches",
- 		.data		= &sysctl_drop_caches,
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(sysctl_drop_caches),
- 		.mode		= 0644,
- 		.proc_handler	= drop_caches_sysctl_handler,
--		.strategy	= &sysctl_intvec,
-+		.strategy	= &sysctl_string,
- 	},
- 	{
- 		.ctl_name	= VM_MIN_FREE_KBYTES,
+ static void ahci_irq_clear(struct ata_port *ap)
+
+--------------040406010202020601080905--

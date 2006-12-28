@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932689AbWL1IzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932756AbWL1I6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbWL1IzZ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 03:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWL1IzZ
+	id S932756AbWL1I6L (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 03:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbWL1I6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 03:55:25 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:33261 "EHLO tmailer.gwdg.de"
+	Thu, 28 Dec 2006 03:58:10 -0500
+Received: from maxwell.spina.si ([193.77.104.223]:50073 "EHLO maxwell.spina.si"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932689AbWL1IzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 03:55:25 -0500
-Date: Thu, 28 Dec 2006 09:54:28 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Amit Choudhary <amit2030@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
-In-Reply-To: <20061227171010.GA4088@ucw.cz>
-Message-ID: <Pine.LNX.4.61.0612280952450.15825@yvahk01.tjqt.qr>
-References: <20061221234127.29189.qmail@web55606.mail.re4.yahoo.com>
- <20061227171010.GA4088@ucw.cz>
+	id S932756AbWL1I6K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 03:58:10 -0500
+Message-ID: <45938788.4010201@kanardia.eu>
+Date: Thu, 28 Dec 2006 09:59:52 +0100
+From: Rok Markovic <kernel@kanardia.eu>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: James C Georgas <jgeorgas@rogers.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Binary Drivers
+References: <20061226112040.95091.qmail@web32614.mail.mud.yahoo.com> <1167139732.15424.48.camel@Rainsong>
+In-Reply-To: <1167139732.15424.48.camel@Rainsong>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Do we have a right to reverse engineer hardware, or they are protected by
+patents or something similar that would prevent you from publishing results
+adn/or drivers (open source).
 
-On Dec 27 2006 17:10, Pavel Machek wrote:
+Are there any restrictions in how you obtain information - signal analyser,
+disassembly of windows driver, etc.
 
->> Was just wondering if the _var_ in kfree(_var_) could be set to
->> NULL after its freed. It may solve the problem of accessing some
->> freed memory as the kernel will crash since _var_ was set to NULL.
->> 
->> Does this make sense? If yes, then how about renaming kfree to
->> something else and providing a kfree macro that would do the
->> following:
->> 
->> #define kfree(x) do { \
->>                       new_kfree(x); \
->>                       x = NULL; \
->>                     } while(0)
->> 
->> There might be other better ways too.
->
->No, that would be very confusing. Otoh having
->KFREE() do kfree() and assignment might be acceptable.
-
-What about setting x to some poison value from <linux/poison.h>?
+Rok Markovic
 
 
-	-`J'
--- 

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964928AbWL1Fde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964905AbWL1Fi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWL1Fde (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 00:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWL1Fde
+	id S964905AbWL1Fi0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 00:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWL1Fi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 00:33:34 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:48086
-	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964928AbWL1Fdd (ORCPT
+	Thu, 28 Dec 2006 00:38:26 -0500
+Received: from nz-out-0506.google.com ([64.233.162.239]:2295 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964905AbWL1FiZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 00:33:33 -0500
-From: Rob Landley <rob@landley.net>
-To: Denis Vlasenko <vda.linux@googlemail.com>
-Subject: Re: Feature request: exec self for NOMMU.
-Date: Thu, 28 Dec 2006 00:32:25 -0500
-User-Agent: KMail/1.9.1
-Cc: ray-gmail@madrabbit.org, linux-kernel@vger.kernel.org,
-       "David McCullough" <david_mccullough@au.securecomputing.com>
-References: <200612261823.07927.rob@landley.net> <200612271603.39454.rob@landley.net> <200612280348.16670.vda.linux@googlemail.com>
-In-Reply-To: <200612280348.16670.vda.linux@googlemail.com>
+	Thu, 28 Dec 2006 00:38:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uP1nByQbBq3mLmBXtsH6K98J4MKoeHzjoRMUGensoppZMf7cHa7Y74rLcJ7Cq43wzNUQFOKuvl+cONM07QqXnPhyGodJ223fLnWy+tsqfbYB3n1Weq8ZEbU3HfXhnub5j/LFnny5Q7KcT7uZcu1E54liCFT3oAZ5fg2IHMpqqrI=
+Message-ID: <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
+Date: Wed, 27 Dec 2006 22:38:24 -0700
+From: "Gordon Farquharson" <gordonfarquharson@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Cc: "David Miller" <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       "Andrew Morton" <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612280032.26101.rob@landley.net>
+References: <20061226.205518.63739038.davem@davemloft.net>
+	 <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
+	 <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org>
+	 <20061227.165246.112622837.davem@davemloft.net>
+	 <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+	 <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
+	 <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
+	 <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com>
+	 <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 December 2006 9:48 pm, Denis Vlasenko wrote:
-> Yes Rob, I know it can be done like this. But we don't want this.
-> In the tar example, we want :
-> 
-> 'Run my own binary again, with parameters: "zcat" "a.tar.gz",
-> even if there is no [/usr][/local]/bin/zcat -> busybox link anywhere'
-> 
-> We do not want to _search for_ zcat. We want to reexec our own binary.
+On 12/27/06, Linus Torvalds <torvalds@osdl.org> wrote:
 
-If we find our own binary, we can reexec it.  What we search for isn't zcat, 
-it's argv[0], and the search needs to be done in main() before any logic that 
-can chdir or set $PATH gets called.  Then save that path until we need it.
+> On Wed, 27 Dec 2006, Gordon Farquharson wrote:
+> >
+> > I don't think so. I did reduce the target size
+> >
+> > #define TARGETSIZE (100 << 12)
+>
+> That's just 400kB!
+>
+> There's no way you should see corruption with that kind of value. It
+> should all stay solidly in the cache.
+>
+> Is this perhaps with ARM nommu or something else strange? It may be that
+> the program just doesn't work at all if mmap() is faked out with a malloc
+> or similar.
 
-The kernel does not currently provide an easy way to do exec ourselves, but we 
-can do it ourself.  (And this is a way to do it _without_ proc.)
+Definitely a question for the ARM gurus. I'm out of my depth.
 
-The problem is, there's no guarante that argv[0] is actually the first 
-argument to exec(), it can be any arbitrary string.  (In fact, if tar wants 
-to re-exec itself as zcat, we can take advantage of this with 
-execv("/blah/tar", ["zcat", "-"]);)  So it's still a hack.  It should work if 
-we're called from a shell, but not necessarily from elsewhere.
+Gordon
 
-*shrug*  Kernel support for re-execing ourself would be nice, especially in 
-combination with vfork().  If not, I'll figure something out and make it work 
-in toybox.  There are a half-dozen non-kernel approaches, all varying degrees 
-of hackish.  (And daemonize() can probably be done with clone().)
-
-Rob
 -- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery
+Gordon Farquharson

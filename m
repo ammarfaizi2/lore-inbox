@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753651AbWL1RPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753596AbWL1RRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753651AbWL1RPF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 12:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754888AbWL1RPF
+	id S1753596AbWL1RRJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 12:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754888AbWL1RRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 12:15:05 -0500
-Received: from javad.com ([216.122.176.236]:1668 "EHLO javad.com"
+	Thu, 28 Dec 2006 12:17:08 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:45157 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753651AbWL1RPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 12:15:02 -0500
-From: Sergei Organov <osv@javad.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: moxa serial driver testing
-References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
-	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
-	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
-	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
-	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
-	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
-	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
-	<87r6urket6.fsf@javad.com> <552766292581216610@wsc.cz>
-	<552766292581216610@wsc.cz> <554564654653216610@wsc.cz>
-Date: Thu, 28 Dec 2006 20:14:43 +0300
-In-Reply-To: <554564654653216610@wsc.cz> (Jiri Slaby's message of "Wed, 27
- Dec
-	2006 14:36:56 +0100 (CET)")
-Message-ID: <87d564x7r0.fsf@javad.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+	id S1753596AbWL1RRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 12:17:07 -0500
+Date: Thu, 28 Dec 2006 09:15:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+cc: David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+       gordonfarquharson@gmail.com, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+In-Reply-To: <1167297349.15989.171.camel@ymzhang>
+Message-ID: <Pine.LNX.4.64.0612280912071.4473@woody.osdl.org>
+References: <20061226.205518.63739038.davem@davemloft.net> 
+ <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> 
+ <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> 
+ <20061227.165246.112622837.davem@davemloft.net>  <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+ <1167297349.15989.171.camel@ymzhang>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
 
->> Jiri Slaby <jirislaby@gmail.com> writes:
->> 
->> > Could you test the patch below, if something changes?
->> 
->> Just tested with low_latency commented out. Still oopses:
->> 
->> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000008
->>  printing eip:
->> f8f1730f
->> *pde = 00000000
->> Oops: 0000 [#1]
->> SMP 
->> Modules linked in: ...
->> CPU:    0
->> EIP:    0060:[<f8f1730f>]    Tainted: P      VLI
->> EFLAGS: 00010046   (2.6.18-3-686 #1) 
->> EIP is at mxser_receive_chars+0x21b/0x249 [mxser_new]
->
-> Yes, port->tty still somewhere becomes NULL -- does this patch help?
 
-Hi, Jiri!
+On Thu, 28 Dec 2006, Zhang, Yanmin wrote:
+> 
+> The test program is a process to write/read data. pdflush might write data
+> to disk asynchronously. After pdflush writes a page to disk, it will call (either by
+> softirq) clear_page_dirty to clear the dirty bit after getting the interrupt
+> notification.
 
-I'm so sorry, I don't know what I smoked yesterday, but the latest
-version you've sent me does not have this problem anymore! I think I
-copied compiled module to modules directory for different kernel and
-thus tested old code all the time. BTW, should you tell me that the
-ports are now called /dev/ttyMIx instead of /dev/ttyMx, I think I'd
-notice my mistake earlier. Yes, in fact I didn't test any version where
-ports are called /dev/ttyMIx until now! In particular, it means that
-maybe some of the recent changes you've made yesterday based on my wrong
-reports are not in fact required.
+That would indeed be a horrible bug. However, we don't do 
+"clear_page_dirty()" _after_ the IO has completed, we do it _before_ the 
+IO starts.
 
-Anyway, the only mxser-specific problem that currently remains for
-me and that I didn't see before, is the following:
+If you can actually find a place that does clear_page_dirty _after_ IO, 
+then yes, you've just found the bug. But I haven't found it.
 
-# rmmod mxser_new
-Trying to free already-free IRQ 58
-Trying to free nonexistent resource <0000000000009000-000000000000903f>
-Trying to free nonexistent resource <0000000000008800-0000000000008800>
-#
+So the rule is _always_:
 
--- Sergei.
+ - call "clear_page_dirty_for_io()" with the page lock held, and _before_ 
+   the IO starts.
+ - do "set_page_writeback()" before unlocking the page again
+ - do a "end_page_writeback()" when the IO actually finishes.
+
+and any code sequence that doesn't honor those rules would be buggy. A 
+beer for anybody that finds it..
+
+		Linus

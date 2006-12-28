@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964992AbWL1JTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964996AbWL1J1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWL1JTA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 04:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWL1JTA
+	id S964996AbWL1J1U (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 04:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWL1J1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 04:19:00 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48817 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964992AbWL1JS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 04:18:59 -0500
-Date: Thu, 28 Dec 2006 10:15:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] change WARN_ON back to "BUG: at ..."
-Message-ID: <20061228091548.GA24765@elte.hu>
-References: <20061221124327.GA17190@elte.hu> <458AD71D.2060508@goop.org> <20061221235732.GA32637@elte.hu> <20061222120422.eb28953b.akpm@osdl.org> <20061224141625.GA4071@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Dec 2006 04:27:20 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:22084 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964996AbWL1J1T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 04:27:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=WthTBIJ85tReLy5/SL2HL/NIMNhP+TjOFWs+6ZkuKUcphLJFJ6tO9bI72ndsTPfcSI5vw5vFPCK503STxlV/R6A54OnEKQz756lg0JGIaG5BLX07MH2JcYLmvABd5/68zjTChW74Cam/LTasiMTWvprcZiGg7djd8pchDXe6VGo=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
+Date: Thu, 28 Dec 2006 10:27:09 +0100
+User-Agent: KMail/1.9.5
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
+       jesper.juhl@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061224141625.GA4071@ucw.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Message-Id: <200612281027.09783.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Pavel Machek <pavel@ucw.cz> wrote:
+I get this message in my webservers (with NFS mounted homedirs) logs once 
+in a while : 
 
-> > But lots of people have now written downstream log-parsing tools 
-> > which might break due to this change, so I'm inclined to go with 
-> > Ingo's patch, and restore the old (il)logic.
-> 
-> People should not be parsing syslog. If they do, they deserve 
-> occassional breakage.
+  kernel: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
 
-so what other method do you propose to those who are working on 
-increasing the reliability of the kernel by running automatic regression 
-tests and boot allyesconfig kernels, to figure out whether out of the 
-tons of kernel logs there was any problem? Right now "^BUG: " is a 
-pretty universal filter, and i dont see a problem in preserving that.
+It doesn't seem to have any bad effect on anything, but it would be nice 
+to know if there is any cause for concern.
 
-(for lockdep there's a 'debug_locks' line in /proc/lockdep_stats that 
-tells us whether any lock related assert was printed by the kernel, and 
-my scripts monitor that. Along that line we could introduce a 
-/proc/sys/kernel/bugs counter for tools to monitor. But even after that, 
-you have to find the place in the syslog so having a text signature for 
-kernel bugs is still a good idea.)
+The NFS server is running 2.6.18.1 and the webservers are running 2.6.17.8
 
-	Ingo
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+

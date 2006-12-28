@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754828AbWL1L5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753456AbWL1MMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754828AbWL1L5z (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 06:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754830AbWL1L5z
+	id S1753456AbWL1MMm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 07:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753460AbWL1MMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 06:57:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:40041 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754828AbWL1L5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 06:57:54 -0500
-Date: Thu, 28 Dec 2006 11:57:47 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com, mingo@elte.hu
-Subject: Re: [FSAIO][PATCH 7/8] Filesystem AIO read
-Message-ID: <20061228115747.GB25644@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
-	akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084252.GG6971@in.ibm.com>
+	Thu, 28 Dec 2006 07:12:42 -0500
+Received: from mail.cc.tut.fi ([130.230.1.120]:49753 "EHLO outbox.tut.fi"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753456AbWL1MMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 07:12:41 -0500
+X-Greylist: delayed 1321 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 07:12:41 EST
+Date: Thu, 28 Dec 2006 13:50:36 +0200
+From: Petri Kaukasoina <kaukasoina610meov7e@sci.fi>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+       gordonfarquharson@gmail.com, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Message-ID: <20061228115036.GA18216@elektroni.phys.tut.fi>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+	gordonfarquharson@gmail.com, tbm@cyrius.com,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+	Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+	nickpiggin@yahoo.com.au, arjan@infradead.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061228084252.GG6971@in.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
 User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	if (in_aio()) {
-> +		/* Avoid repeat readahead */
-> +		if (kiocbTryRestart(io_wait_to_kiocb(current->io_wait)))
-> +			next_index = last_index;
-> +	}
+On Wed, Dec 27, 2006 at 07:04:34PM -0800, Linus Torvalds wrote:
+> [ Modified test-program that tells you where the corruption happens (and 
+>   when the missing parts were supposed to be written out) appended, in 
+>   case people care. ]
 
-Every place we use kiocbTryRestart in this and the next patch it's in
-this from, so we should add a little helper for it:
+Hi
 
-int aio_try_restart(void)
-{
-	struct wait_queue_head_t *wq = current->io_wait;
+2.6.18 (and 2.6.18.6) is ok, 2.6.19-rc1 is broken. I tried some snapshots
+between them but they hung before shell (2.6.18-git11, 2.6.18-git16,
+2.6.18-git20, 2.6.18-git21). 2.6.18-git22 booted and was broken.
 
-	if (!is_sync_wait(wq) && kiocbTryRestart(io_wait_to_kiocb(wq)))
-		return 1;
-	return 0;
-}
+(UP, no preempt)
 
-with a big kerneldoc comment explaining this idiom (and possible a better
-name for the function ;-))
-
-> +
-> +		if ((error = __lock_page(page, current->io_wait))) {
-> +			goto readpage_error;
-> +		}
-
-This should  be
-
-		error = __lock_page(page, current->io_wait);
-		if (error)
-			goto readpage_error;
-
-Pluse possible naming updates discussed in the last mail.  Also do we
-really need to pass current->io_wait here?  Isn't the waitqueue in
-the kiocb always guaranteed to be the same?  Now that all pagecache
-I/O goes through the ->aio_read/->aio_write routines I'd prefer to
-get rid of the task_struct field cludges and pass all this around in
-the kiocb.  
-
+-Petri

@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965009AbWL1Wqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965005AbWL1Wul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbWL1Wqu (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 17:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWL1Wqu
+	id S965005AbWL1Wul (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 17:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWL1Wul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 17:46:50 -0500
-Received: from py-out-1112.google.com ([64.233.166.176]:53449 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965034AbWL1Wqt (ORCPT
+	Thu, 28 Dec 2006 17:50:41 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:3985
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S965005AbWL1Wuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 17:46:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MqJMVsVHPDUYWcBPxD6MVl7GbtUD4yCGcXA83Anib73PEF4nOkLbbSOXWcjIE2KsbFyLM2K9axslc8E/NmyafgpYH38I+ECOBYaTFcmf5oik5XjqzB1UMSdf+CIuK4r1xDdU1f5FGXM61sjU1AU04D26XhGsQ+ef8bNy5Q22J30=
-Message-ID: <9e4733910612281446h1def63fbp89996690577cb2f4@mail.gmail.com>
-Date: Thu, 28 Dec 2006 17:46:49 -0500
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: BUG: scheduling while atomic, new libata code
-Cc: "Randy Dunlap" <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612282247.06127.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 28 Dec 2006 17:50:40 -0500
+Date: Thu, 28 Dec 2006 14:50:38 -0800 (PST)
+Message-Id: <20061228.145038.71089607.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, guichaz@yahoo.fr, ranma@tdiedrich.de,
+       gordonfarquharson@gmail.com, mh+linux-kernel@zugschlus.de,
+       nickpiggin@yahoo.com.au, andrei.popa@i-neo.ro,
+       linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, hugh@veritas.com,
+       fw@deneb.enyo.de, tbm@cyrius.com, arjan@infradead.org,
+       kenneth.w.chen@intel.com
+Subject: Re: 2.6.19 file content corruption on ext3
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
+References: <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
+	<Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
+	<Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
-	 <20061226175559.e280e66e.randy.dunlap@oracle.com>
-	 <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
-	 <200612282247.06127.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/28/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Thursday 28 December 2006 03:16, Jon Smirl wrote:
-> > BUG: scheduling while atomic: hald-addon-stor/0x20000000/5078
-> > [<c02b0289>] __sched_text_start+0x5f9/0xb00
-> > [<c024a623>] net_rx_action+0xb3/0x180
-> > [<c01210f2>] __do_softirq+0x72/0xe0
-> > [<c0105205>] do_IRQ+0x45/0x80
->
-> This doesn't seem to be related to libata at all. Like your
-> first trace, you call schedule from a softirq context, which
-> is always atomic.
-> The only place where I can imagine this happening is the
-> local_irq_enable() in there, which can be defined in different
-> ways.
-> Are you running with paravirt_ops, CONFIG_TRACE_IRQFLAGS_SUPPORT
-> and/or kernel preemption enabled?
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Thu, 28 Dec 2006 14:37:37 -0800 (PST)
 
-Forgot this,
-# CONFIG_PARAVIRT is not set
+> So if we're not losing any dirty bits, what's going on?
 
-CPU is 2.8Mhz P4, no virtualization capabilities.
+What happens when we writeback, to the PTEs?
 
->
->         Arnd <><
->
+page_mkclean_file() iterates the VMAs and when it finds a shared
+one it goes:
 
+		entry = ptep_clear_flush(vma, address, pte);
+		entry = pte_wrprotect(entry);
+		entry = pte_mkclean(entry);
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+and that's fine, but that PTE is still marked writable, and
+I think that's key.
+
+What does the fault path do in this situation?
+
+	if (write_access) {
+		if (!pte_write(entry))
+			return do_wp_page(mm, vma, address,
+					pte, pmd, ptl, entry);
+		entry = pte_mkdirty(entry);
+	}
+
+It does nothing to update the page dirty state, because it's
+writable, it just sets the PTE dirty bit and that's it.  Should
+it be setting the page dirty here for SHARED cases?
+
+So until vmscan actually unmaps the PTE completely, we have this
+window in which the application can write to the PTE and the
+page dirty state doesn't get updated.
+
+Perhaps something later cleans up after this, f.e. by rechecking the
+PTE dirty bit at the end of I/O or when vmscan unmaps the page.
+I guess that should handle things, but the above logic definitely
+stood out to me.

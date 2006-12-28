@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964827AbWL1B2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964868AbWL1CMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWL1B2y (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 20:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWL1B2y
+	id S964868AbWL1CMv (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 21:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWL1CMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 20:28:54 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:49096 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964827AbWL1B2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 20:28:54 -0500
-Date: Wed, 27 Dec 2006 17:24:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, tglx@linutronix.de,
-       mingo@elte.hu, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH -mm 4/5][time][x86_64] Convert x86_64 to use
- GENERIC_TIME
-Message-Id: <20061227172447.2d51eb59.akpm@osdl.org>
-In-Reply-To: <20061220221009.15178.6526.sendpatchset@localhost>
-References: <20061220220945.15178.2669.sendpatchset@localhost>
-	<20061220221009.15178.6526.sendpatchset@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Dec 2006 21:12:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:48304 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964868AbWL1CMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 21:12:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=eDXXK5EO6kluq6gWeS4a763KrAROfPobgJ+4LybRp8UHJ/IwTApLtwUx5Lmo44XaxzitcsNEXVQgrXvTeAbInBDyNYsKHXDS86fBq05FCtp3i+ZGfKbNOOjPqSCwNI9XJfkqEZzH2RZO8bTAH4p3zAOUgYIGa7TQOyVKoVzKSBg=
+Message-ID: <f4527be0612271812p7282de31j98462aebde16e5a1@mail.gmail.com>
+Date: Thu, 28 Dec 2006 02:12:48 +0000
+From: "Andrew Lyon" <andrew.lyon@gmail.com>
+To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0) r0xj0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2006 17:13:43 -0500
-john stultz <johnstul@us.ibm.com> wrote:
+Hi,
 
-> This patch converts x86_64 to use the GENERIC_TIME infrastructure and 
-> adds clocksource structures for both TSC and HPET (ACPI PM is shared w/ 
-> i386).
+My system is gigabyte ds3 motherboard with onboard SATA JMicron
+20360/20363 AHCI Controller (rev 02), drive connected is WDC
+WD740ADFD-00 20.0, I am running 2.6.18.6 32 bit, under heavy i/o I get
+the following messaegs:
 
-printk timestamping shows a time of zero all the time, because nothing
-calls set_cyc2ns_scale() any more.
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
+ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
 
-I stuck it in time_init():
+Is this condition dangerous?
 
---- a/arch/x86_64/kernel/time.c~time-x86_64-convert-x86_64-to-use-generic_time-fix
-+++ a/arch/x86_64/kernel/time.c
-@@ -361,6 +361,7 @@ void __init time_init(void)
- 	else
- 		vgetcpu_mode = VGETCPU_LSL;
- 
-+	set_cyc2ns_scale(cpu_khz);
- 	printk(KERN_INFO "time.c: Detected %d.%03d MHz processor.\n",
- 		cpu_khz / 1000, cpu_khz % 1000);
- 	setup_irq(0, &irq0);
-_
+I plan to upgrade to 2.6.19 soon as I have problems with a sata dvd
+writer but I have to wait for a driver that I need to catch up, this
+system cannot be down for long as it runs mythtv.
 
+Andy

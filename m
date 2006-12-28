@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753098AbWL1KcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753153AbWL1KjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753098AbWL1KcK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754806AbWL1KcJ
+	id S1753153AbWL1KjH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754805AbWL1KjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:32:09 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:38232 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753098AbWL1KcI (ORCPT
+	Thu, 28 Dec 2006 05:39:07 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:38194 "EHLO
+	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753153AbWL1KjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:32:08 -0500
-X-Sasl-enc: czvd95Jf3DbkStiHxBFc+wcvW0SIJTUxR53QF5NmxsvU 1167301856
-Date: Thu, 28 Dec 2006 19:32:26 +0900 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       nfs@lists.sourceforge.net
-Subject: Re: VFS: Busy inodes after unmount. Self-destruct in 5 seconds. 
- Have a nice day...
-In-Reply-To: <200612281027.09783.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64.0612281930120.5917@raven.themaw.net>
-References: <200612281027.09783.jesper.juhl@gmail.com>
+	Thu, 28 Dec 2006 05:39:06 -0500
+Date: Thu, 28 Dec 2006 11:39:00 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, melissah@us.ibm.com
+Subject: [S390] Change max. buffer size for monwriter device.
+Message-ID: <20061228103900.GA6270@skybase>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006, Jesper Juhl wrote:
+From: Melissa Howland <melissah@us.ibm.com>
 
-> 
-> I get this message in my webservers (with NFS mounted homedirs) logs once 
-> in a while : 
-> 
->   kernel: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-> 
-> It doesn't seem to have any bad effect on anything, but it would be nice 
-> to know if there is any cause for concern.
+[S390] Change max. buffer size for monwriter device.
 
-It's at least a memory leak.
+Reduce the max. buffer size for the monwriter device to prevent a
+possible problem with the z/VM monitor service.
 
-> 
-> The NFS server is running 2.6.18.1 and the webservers are running 2.6.17.8
+Signed-off-by: Melissa Howland <melissah@us.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Strange, I've not heard of this message appearing for a long time now.
+ drivers/s390/char/monwriter.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Ian
-
+diff -urpN linux-2.6/drivers/s390/char/monwriter.c linux-2.6-patched/drivers/s390/char/monwriter.c
+--- linux-2.6/drivers/s390/char/monwriter.c	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/monwriter.c	2006-12-28 00:33:35.000000000 +0100
+@@ -23,7 +23,7 @@
+ #include <asm/appldata.h>
+ #include <asm/monwriter.h>
+ 
+-#define MONWRITE_MAX_DATALEN	4024
++#define MONWRITE_MAX_DATALEN	4010
+ 
+ static int mon_max_bufs = 255;
+ static int mon_buf_count;

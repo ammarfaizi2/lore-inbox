@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964819AbWL0X7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964810AbWL1AAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbWL0X7G (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 18:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWL0X7G
+	id S964810AbWL1AAQ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 19:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWL1AAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 18:59:06 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:41503 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S964819AbWL0X7F (ORCPT
+	Wed, 27 Dec 2006 19:00:16 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:24997 "EHLO
+	mtagate1.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964810AbWL1AAN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 18:59:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=KOhhz8JFjMau4wZ96V1SXKP2zt8LLnNiRy0K9IKoJnOcTatuCFL/eUc/4Xpd0F+PwZhjr+w7Yz3BCk8v4X+bnL+h5BK0ehW/cJiLXOY8l2qRt9NFTRKz360FaHx/LScAp8lXwIkwwrYfdoYlSMF38nTu2mFdjBWOsAwKm6XOPO8=  ;
-X-YMail-OSG: bILa.GsVM1l2qVM18anOzzXQl8IV11vvPv9HBuHOnVAUAGF.ihFpMz_fmiqedUuoZCV6Z9Dt796jmYK0a5Qsg3FVkIzL7QRtAK3EZlZy1YbyHnZ611ZmZ32Bg5pX2SS9NDEBm7amTTmegxU14cpikX1LzVo8Up1pGUWBvoOISls0Wm27OvO9IE2Q7H.Y
-From: David Brownell <david-b@pacbell.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 2.6.12-rc2] PNP: export pnp_bus_type
-Date: Wed, 27 Dec 2006 15:59:00 -0800
-User-Agent: KMail/1.7.1
-Cc: Adam Belay <abelay@novell.com>, ambx1@neo.rr.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200612271347.47114.david-b@pacbell.net> <1167258618.3281.4112.camel@laptopd505.fenrus.org>
-In-Reply-To: <1167258618.3281.4112.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 27 Dec 2006 19:00:13 -0500
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+	corruption on ext3)
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Martin Michlmayr <tbm@cyrius.com>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+In-Reply-To: <Pine.LNX.4.64.0612211134370.3536@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org>
+	 <1166571749.10372.178.camel@twins>
+	 <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+	 <1166605296.10372.191.camel@twins>
+	 <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+	 <1166614001.10372.205.camel@twins>
+	 <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+	 <1166622979.10372.224.camel@twins>
+	 <20061220170323.GA12989@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org>
+	 <20061220175309.GT30106@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+	 <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>
+	 <1166652901.30008.1.camel@twins>
+	 <Pine.LNX.4.64.0612201441030.3576@woody.osdl.org>
+	 <1166655805.30008.18.camel@twins>  <1166692586.27750.4.camel@localhost>
+	 <1166692812.32117.2.camel@twins>
+	 <Pine.LNX.4.64.0612211134370.3536@woody.osdl.org>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Thu, 28 Dec 2006 01:00:00 +0100
+Message-Id: <1167264000.5200.21.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612271559.02077.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 December 2006 2:30 pm, Arjan van de Ven wrote:
-> On Wed, 2006-12-27 at 13:47 -0800, David Brownell wrote:
-> > The PNP framework doesn't export "pnp_bus_type", which is an unfortunate
-> > exception to the policy followed by pretty much every other bus.  I noticed
-> > this when I had to find a device in order to provide its platform_data.
-> 
-> can you please merge the export together with the driver? 
+On Thu, 2006-12-21 at 12:01 -0800, Linus Torvalds wrote:
+> What do you guys think? Does something like this work out for S/390 too? I
+> tried to make that "ptep_flush_dirty()" concept work for architectures
+> that hide the dirty bit somewhere else too, but..
 
-I'll send that stuff along; providing the platform data is actually
-an update to ACPI glue, not the driver, so the driver won't need to
-become needlessly coupled to ACPI.  (Driver = rtc_cmos, I'll resend
-it in a few days.)
+For s390 there are two aspects to consider:
+1) the pte values are 100% software controlled. They only change because
+a cpu stored a value to it or issued one of the specialized instructions
+(csp, ipte and idte). The ptep_flush_dirty would be a nop for s390.
+2) ptep_exchange is a bit dangerous. For s390 we need a lock that
+protects the software controlled updates of the ptes. The reason is the
+ipte instruction. It is implemented by the machine microcode in a
+non-atomic way in regard to the memory. It reads the byte of the pte
+that contains the invalid bit, flushes the tlb entries for it and then
+writes back the byte with the invalid bit set. The microcode makes sure
+that this pte cannot be used for form a new tlb on any cpu while the
+ipte is in progress.
+That means a compare-and-swap semantics on ptes won't work together with
+the ipte optimization. As long as there is the pte lock that protects
+all software accesses to the pte we are fine. But if any code expects
+that ptep_exchange does something like an xchg things break.
+
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
 
 
-> We already 
-> have way too many unused exports, and the only sane way is to merge the
-> export with the user..... (and yes exports are not free, they take up
-> 100 to 150 bytes of kernel size for example)
-
-Hmm, then maybe it'd be worth updating that patch I just sent so that
-the only change is to switch #includes for the extern decl ... i.e. to
-"export" it only to other statically linked kernel code, rather than to
-modules.  I'll do that.
-
-My own question about that EXPORT_SYMBOL was whether it instead be
-an EXPORT_SYMBOL_GPL, but if either one costs bytes ... I'm happy to
-avoid that cost!
-
-- Dave
-
-  

@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755234AbXAAQ3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932377AbXAAQ3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755234AbXAAQ3I (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 11:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbXAAQ3I
+	id S932377AbXAAQ3c (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 11:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755240AbXAAQ3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 11:29:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4665 "EHLO spitz.ucw.cz"
+	Mon, 1 Jan 2007 11:29:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4661 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755236AbXAAQ3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 11:29:04 -0500
-Date: Thu, 28 Dec 2006 13:36:52 +0000
+	id S1755235AbXAAQ3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 11:29:10 -0500
+Date: Thu, 28 Dec 2006 13:20:46 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Philip Langdale <philipl@overt.org>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
-       John Gilmore <gnu@toad.com>
-Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards
-Message-ID: <20061228133652.GE3955@ucw.cz>
-References: <458C22C0.1080307@vmware.com> <458C290B.4060003@overt.org>
+To: Dave Airlie <airlied@gmail.com>, vojtech@suse.cz
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LCA 2007 Kernel Miniconf CFP (better late than never...)
+Message-ID: <20061228132046.GC3955@ucw.cz>
+References: <21d7e9970612201643t6aca1d1eoc090f832f521555b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <458C290B.4060003@overt.org>
+In-Reply-To: <21d7e9970612201643t6aca1d1eoc090f832f521555b@mail.gmail.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Hi all,
-> > 
-> > Thanks to the generous donation of an SDHC card by John Gilmore, and the
-> > surprisingly enlightened decision by the SD Card Association to publish
-> > useful specs, I've been able to bash out support for SDHC. The changes
-> > are not too profound:
+> The Kernel miniconference at LCA 20007 is finally being 
+> organised and
+> this is the call for participation:
 > 
-> So I sent that with the wrong From: address (damn you thunderbird!). Please
-> reply to my personal address (this one) and not my work one. :-)
+> http://lca2007.linux.org.au/Miniconfs/Kernel
+> 
+> The current schedule gives us 6 slots.
+...
 
-Would you describe what SDHC is? I know SD flash cards, and IIRC SDIO
-cards exist, with functionality such as bluetooth...? But SDHC?
+(s2ram debugging session).
 
+Hmmm, it would be nice to be there...
+
+> The other 3 slots are currently open, and this is the 
+> call for presentations,
+> We'd like some presentations targetting kernel hacking, 
+> kernel
+> janitors, kernel newbies, and perhaps a using git to 
+> maintain a kernel
+> tree type of presentation. We'd rather avoid any papers 
+> that mention
+> Xen or that are being presented at the main conference.
+
+I could do where-to-save-power-in-kernel presentation, I guess.
+
+...but LCA is quite far away, I guess I'd need some visa or something,
+and am not sure if Novell is willing to send me there...?
+
+							Pavel
 -- 
 Thanks for all the (sleeping) penguins.

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753770AbWL1Xbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753823AbWL1Xef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753770AbWL1Xbh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 18:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753782AbWL1Xbg
+	id S1753823AbWL1Xef (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 18:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753872AbWL1Xee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 18:31:36 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53548 "EHLO perch.kroah.org"
+	Thu, 28 Dec 2006 18:34:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:46932 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753770AbWL1Xbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 18:31:36 -0500
-Date: Thu, 28 Dec 2006 15:30:25 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ben Castricum <mail0612@bencastricum.nl>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: 2.6.20-rc2: known unfixed regressions
-Message-ID: <20061228233025.GA2521@suse.de>
-References: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org> <20061228223909.GK20714@stusta.de> <20061228225706.GA886@suse.de> <20061228230701.GL20714@stusta.de> <Pine.LNX.4.64.0612281515470.4473@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612281515470.4473@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	id S1753823AbWL1Xee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 18:34:34 -0500
+Subject: [PATCH] Use correct macros in raid code, not raw asm
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Neil Brown <neilb@suse.de>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain
+Date: Fri, 29 Dec 2006 10:34:21 +1100
+Message-Id: <1167348861.30506.46.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 03:17:53PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 29 Dec 2006, Adrian Bunk wrote:
-> > 
-> > In Linus' tree, it currently only depends on EXPERIMENTAL.
-> > 
-> > It seems commit 009af1ff78bfc30b9a27807dd0207fc32848218a wasn't intended 
-> > for Linus?
-> 
-> I think we should just remove it.
-> 
-> It's broken.
-> 
-> Nobody cares.
+This make sure it's paravirtualized correctly when CONFIG_PARAVIRT=y.
 
-I agree, that's why I thought I had added a patch in the last PCI queue
-to you to just disable the config option and was going to rip out the
-code entirely for the next release.  I'll make sure to add the config
-option patch to the next round of PCI patches to you.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-thanks,
+diff -r 4ff048622391 drivers/md/raid6x86.h
+--- a/drivers/md/raid6x86.h	Thu Dec 28 16:52:54 2006 +1100
++++ b/drivers/md/raid6x86.h	Fri Dec 29 10:09:38 2006 +1100
+@@ -75,13 +75,14 @@ static inline unsigned long raid6_get_fp
+ 	unsigned long cr0;
+ 
+ 	preempt_disable();
+-	asm volatile("mov %%cr0,%0 ; clts" : "=r" (cr0));
++	cr0 = read_cr0();
++	clts();
+ 	return cr0;
+ }
+ 
+ static inline void raid6_put_fpu(unsigned long cr0)
+ {
+-	asm volatile("mov %0,%%cr0" : : "r" (cr0));
++	write_cr0(cr0);
+ 	preempt_enable();
+ }
+ 
 
-greg k-h
+

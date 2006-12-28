@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754874AbWL1QFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754885AbWL1QNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754874AbWL1QFF (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 11:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754870AbWL1QFF
+	id S1754885AbWL1QNz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 11:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754886AbWL1QNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 11:05:05 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:35657 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753569AbWL1QFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 11:05:03 -0500
-X-Greylist: delayed 307 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 11:05:03 EST
-Date: Thu, 28 Dec 2006 17:01:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>
-Subject: Re: [take29 0/8] kevent: Generic event handling mechanism.
-Message-ID: <20061228160137.GA19301@elte.hu>
-References: <3154985aa0591036@2ka.mipt.ru> <11668927001365@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Dec 2006 11:13:55 -0500
+Received: from mailout.surf-town.net ([212.97.132.199]:33427 "EHLO
+	mailout.surf-town.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754885AbWL1QNy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 11:13:54 -0500
+X-Greylist: delayed 1399 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 11:13:54 EST
 Content-Disposition: inline
-In-Reply-To: <11668927001365@2ka.mipt.ru>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+From: "martin@fatbob.nu" <martin@fatbob.nu>
+To: Linus Torvalds <torvalds@osdl.org>, Guillaume Chazarain <guichaz@yahoo.fr>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Reply-To: martin@fatbob.nu
+X-Origin: 194.17.32.1
+Date: Thu, 28 Dec 2006 16:50:23 +0100
+Cc: David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+       gordonfarquharson@gmail.com, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Uidl: 4593DE31.4070401@yahoo.fr
+X-Mailer: AtMail 4.4 - 194.17.32.1 - martin@fatbob.nu
+Message-Id: <20061228155023.F10B4168004@webmail2.surf-town.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+On Thu Dec 28 15:09 , Guillaume Chazarain sent:
 
-> Generic event handling mechanism.
+>I set a qemu environment to test kernels: http://guichaz.free.fr/linux-bug/
+>I have corruption with every Fedora release kernel except the first, that is
+>2.4.22 works, but 2.6.5, 2.6.9, 2.6.11, 2.6.15 and 2.6.18-1.2798 exhibit 
+>some corruption.
 
-i see it covers alot of event sources, but i cannot see block IO 
-notifications. Am i missing something?
+Confirm that I see corruption with Fedora kernel 2.6.18-1.2239.fc5:
 
-	Ingo
+...
+Chunk 142969 corrupted (0-1459)  (2580-4039)
+Expected 121, got 0
+Written as (89632)127652(124721)
+Chunk 142976 corrupted (0-1459)  (512-1971)
+Expected 128, got 0
+Written as (121734)128324(108589)
+Checking chunk 143639/143640 (99%)
+$ uname -a
+Linux 2.6.18-1.2239.fc5 #1 Fri Nov 10 13:04:06 EST 2006 i686 athlon i386 GNU/Linux
+
+/Martin

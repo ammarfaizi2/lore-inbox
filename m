@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964889AbWL1C2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964894AbWL1Cl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWL1C2V (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 21:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWL1C2V
+	id S964894AbWL1Cl2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 21:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWL1Cl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 21:28:21 -0500
-Received: from py-out-1112.google.com ([64.233.166.177]:32837 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964889AbWL1C2U (ORCPT
+	Wed, 27 Dec 2006 21:41:28 -0500
+Received: from mga05.intel.com ([192.55.52.89]:37379 "EHLO
+	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964897AbWL1Cl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 21:28:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C5T9gZFg+eP/wW3fblV2fDSSb/uMJJOBvZ7rYNLQpPip+F5ixCdvNWb92eavTbJQSQacns9am+8Tb9fTl8+4ME/pwPhKTAQhgurj8Dz1i7TaaUokplMDBuPkJhUHmeUywX4RNM/WHcBCS2V9x5nLHj9pbFX3pYhGlDt1PYLsG8I=
-Message-ID: <9e4733910612271828k6e017d1bg7dc62aa3b6cf0795@mail.gmail.com>
-Date: Wed, 27 Dec 2006 21:28:19 -0500
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: kobject_add failed for card0, ALSA and USB
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Dec 2006 21:41:27 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,213,1165219200"; 
+   d="scan'208"; a="182302616:sNHT26819975"
+Subject: Re: Oops in 2.6.19.1
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+In-Reply-To: <200612271235.08845.s0348365@sms.ed.ac.uk>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk>
+	 <200612231540.47176.s0348365@sms.ed.ac.uk>
+	 <1167185232.15989.129.camel@ymzhang>
+	 <200612271235.08845.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 28 Dec 2006 10:41:34 +0800
+Message-Id: <1167273694.15989.146.camel@ymzhang>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.9.2 (2.9.2-2.fc7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something has stopped working between usb_audio and ALSA. When I boot
-my USB audio won't work, but if I remove it and plug it in again it
-works. I posted this on usb-dev and alsa-dev but everyone is gone.
-
-The error occurs when the device is plugged in a again.
-
-usb 2-1: new full speed USB device using uhci_hcd and address 3
-usb 2-1: configuration #1 chosen from 1 choice
-ALSA sound/usb/usbaudio.c:2739: 3:1:1: add audio endpoint 0x1
-ALSA sound/usb/usbaudio.c:2739: 3:2:1: add audio endpoint 0x82
-ALSA sound/usb/usbmixer.c:989: [2] FU [PCM Playback Switch] ch = 1, val = 0/1/1
-ALSA sound/usb/usbmixer.c:989: [2] FU [PCM Playback Volume] ch = 6,
-val = 0/32512/127
-ALSA sound/usb/usbmixer.c:989: [5] FU [PCM Capture Switch] ch = 1, val = 0/1/1
-ALSA sound/usb/usbmixer.c:989: [5] FU [PCM Capture Volume] ch = 2, val
-= 0/6144/768
-kobject_add failed for card0 with -EEXIST, don't try to register
-things with the same name in the same directory.
- [<c01be26f>] kobject_add+0x10f/0x190
- [<c020b0c7>] device_add+0xb7/0x530
- [<c01bdf3f>] kobject_get+0xf/0x20
- [<c01be34b>] kobject_init+0x2b/0x40
- [<c020b5d8>] device_create+0x88/0xc0
- [<f8a6cc47>] snd_card_register+0x2e7/0x3c0 [snd]
- [<f8865c74>] usb_driver_claim_interface+0x84/0xb0 [usbcore]
- [<f8a875bc>] usb_audio_probe+0x5dc/0xa30 [snd_usb_audio]
- [<c01257e7>] try_to_del_timer_sync+0x47/0x50
- [<f8865b06>] usb_probe_interface+0x96/0xe0 [usbcore]
- [<c020d204>] really_probe+0x54/0x140
- [<c020d339>] driver_probe_device+0x49/0xc0
- [<c02af7e3>] klist_next+0x53/0xa0
- [<c020c614>] bus_for_each_drv+0x44/0x70
- [<c020d44a>] device_attach+0x7a/0x80
- [<c020d3b0>] __device_attach+0x0/0x10
- [<c020c556>] bus_attach_device+0x26/0x60
- [<c020b465>] device_add+0x455/0x530
- [<f8863e71>] usb_set_configuration+0x3f1/0x4d0 [usbcore]
- [<f886b867>] generic_probe+0x157/0x210 [usbcore]
- [<f8865753>] usb_probe_device+0x33/0x40 [usbcore]
- [<c020d204>] really_probe+0x54/0x140
- [<c020d339>] driver_probe_device+0x49/0xc0
- [<c02af7e3>] klist_next+0x53/0xa0
- [<c020c614>] bus_for_each_drv+0x44/0x70
- [<c020d44a>] device_attach+0x7a/0x80
- [<c020d3b0>] __device_attach+0x0/0x10
- [<c020c556>] bus_attach_device+0x26/0x60
- [<c020b465>] device_add+0x455/0x530
- [<f885f422>] __usb_new_device+0x92/0x120 [usbcore]
- [<f88607db>] hub_thread+0x74b/0xc10 [usbcore]
- [<c012f530>] autoremove_wake_function+0x0/0x50
- [<f8860090>] hub_thread+0x0/0xc10 [usbcore]
- [<c012f37a>] kthread+0xba/0xf0
- [<c012f2c0>] kthread+0x0/0xf0
- [<c0103cab>] kernel_thread_helper+0x7/0x1c
- =======================
-input: Philips Electronics Philips PSC805 as /class/input/input6
-input,hiddev96: USB HID v1.00 Device [Philips Electronics Philips
-PSC805] on usb-0000:00:1d.1-1
-ALSA sound/usb/usbaudio.c:1317: setting usb interface 1:1
-ALSA sound/usb/usbaudio.c:1317: setting usb interface 1:1
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+On Wed, 2006-12-27 at 12:35 +0000, Alistair John Strachan wrote:
+> On Wednesday 27 December 2006 02:07, Zhang, Yanmin wrote:
+> [snip]
+> > > 00000000 Call Trace:
+> > >  [<c015d7f3>] do_sys_poll+0x253/0x480
+> > >  [<c015da53>] sys_poll+0x33/0x50
+> > >  [<c0102c97>] syscall_call+0x7/0xb
+> > >  [<b7f26402>] 0xb7f26402
+> > >  =======================
+> > > Code: 58 01 00 00 0f 4f c2 09 c1 89 c8 83 c8 08 85 db 0f 44 c8 8b 5d f4
+> > > 89 c8 8b 75
+> > > f8 8b 7d fc 89 ec 5d c3 89 ca 8b 46 6c 83 ca 10 3b <87> 68 01 00 00 0f 45
+> > > ca eb b6 8d b6 00 00 00 00 55 b8 01 00 00
+> >
+> > Above codes look weird. Could you disassemble kernel image and post
+> > the part around address 0xc0156f60?
+> >
+> > "87 68 01 00 00" is instruction xchg, but if I disassemble from the
+> > begining, I couldn't see instruct xchg.
+> >
+> > > EIP: [<c0156f60>] pipe_poll+0xa0/0xb0 SS:ESP 0068:ee1b9c0c
+> 
+> Unfortunately, after suspecting the toolchain, I did a manual rebuild of 
+> binutils, gcc and glibc from the official sites, and then rebuilt 2.6.19.1. 
+> This might upset the decompile below, versus the original report.
+> 
+> Assuming it's NOT a bug in my distro's toolchain (because I am now running the 
+> GNU stuff), it'll crash again, so this is still useful.
+> 
+> Here's a current decompilation of vmlinux/pipe_poll() from the running kernel, 
+> the addresses have changed slightly. There's no xchg there either:
+Could you reproduce the bug by the new kernel, so we could get the exact address
+and instruction of the bug?

@@ -1,54 +1,143 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932695AbWL1Aci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964829AbWL1AkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932695AbWL1Aci (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 19:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWL1Aci
+	id S964829AbWL1AkN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 19:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWL1AkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 19:32:38 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:36353 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932745AbWL1Ach (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 19:32:37 -0500
-Message-ID: <459310A3.4060706@vmware.com>
-Date: Wed, 27 Dec 2006 16:32:35 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Wed, 27 Dec 2006 19:40:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46577 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964829AbWL1AkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 19:40:11 -0500
+Date: Wed, 27 Dec 2006 16:39:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Miller <davem@davemloft.net>
+cc: ranma@tdiedrich.de, gordonfarquharson@gmail.com, tbm@cyrius.com,
+       a.p.zijlstra@chello.nl, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+In-Reply-To: <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org>
+References: <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
+ <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061226161700.GA14128@yamamaya.is-a-geek.org>
+ <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Rene Herman <rene.herman@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] romsignature/checksum cleanup
-References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain>
-In-Reply-To: <1167179512.16175.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> On Mon, 2006-12-25 at 01:53 +0100, Rene Herman wrote:
->   
->> Rene Herman wrote:
->>
->>     
->>> Use adding __init to romsignature() (it's only called from probe_roms() 
->>> which is itself __init) as an excuse to submit a pedantic cleanup.
->>>       
->> Hmm, by the way, if romsignature() needs this probe_kernel_address() 
->> thing, why doesn't romchecksum()?
->>     
->
-> I assume it's all in the same page, but CC'ing Zach is easier than
-> reading the code 8)
->   
 
-Some hypervisors don't emulate the traditional physical layout of the 
-first 1M of memory, so those pages might never get physical mappings 
-established during the boot process, causing access to them to fault.  
-Presumably, if the first page is there with a good signature, the entire 
-ROM is mapped.  I think Jeremy added this for Xen, and it's harmless on 
-native hardware.
 
-Zach
+On Wed, 27 Dec 2006, Linus Torvalds wrote:
+> 
+> I think the test-case could probably be improved by having a munmap() and 
+> page-cache flush in between the writing and the checking, to see whether 
+> that shows the corruption easier (and possibly without having to start 
+> paging in order to throw the pages out, which would simplify testing a 
+> lot).
+
+I think the page-writeout is implicated, because I do seem to need it, but 
+the page-cache flush does seem to make corruption _easier_ to see. I now 
+seem about to trigger it with a 100MB file on a 256MB machine in a minute 
+or so, with this slight modification.
+
+I still don't see _why_, though. But maybe smarter people than me can see 
+it..
+
+		Linus
+
+---
+#include <sys/mman.h>
+#include <sys/fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <time.h>
+
+#define TARGETSIZE (100 << 20)
+#define CHUNKSIZE (1460)
+#define NRCHUNKS (TARGETSIZE / CHUNKSIZE)
+#define SIZE (NRCHUNKS * CHUNKSIZE)
+
+static void fillmem(void *start, int nr)
+{
+	memset(start, nr, CHUNKSIZE);
+}
+
+static void checkmem(void *start, int nr)
+{
+	unsigned char c = nr, *p = start;
+	int i;
+	for (i = 0; i < CHUNKSIZE; i++) {
+		if (*p++ != c) {
+			printf("Chunk %d corrupted           \n", nr);
+			return;
+		}
+	}
+}
+
+static char *remap(int fd, char *mapping)
+{
+	if (mapping) {
+		munmap(mapping, SIZE);
+		posix_fadvise(fd, 0, SIZE, POSIX_FADV_DONTNEED);
+	}
+	return mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+}
+
+int main(int argc, char **argv)
+{
+	char *mapping;
+	int fd, i;
+	static int chunkorder[NRCHUNKS];
+
+	/*
+	 * Make some random ordering of writing the chunks to the
+	 * memory map..
+	 *
+	 * Start with fully ordered..
+	 */
+	for (i = 0; i < NRCHUNKS; i++)
+		chunkorder[i] = i;
+
+	/* ..and then mix it up randomly */
+	srandom(time(NULL));
+	for (i = 0; i < NRCHUNKS; i++) {
+		int index = (unsigned int) random() % NRCHUNKS;
+		int nr = chunkorder[index];
+		chunkorder[index] = chunkorder[i];
+		chunkorder[i] = nr;
+	}
+
+	fd = open("mapfile", O_RDWR | O_TRUNC | O_CREAT, 0666);
+	if (fd < 0)
+		return -1;
+	if (ftruncate(fd, SIZE) < 0)
+		return -1;
+	mapping = remap(fd, NULL);
+	if (-1 == (int)(long)mapping)
+		return -1;
+
+	for (i = 0; i < NRCHUNKS; i++) {
+		int chunk = chunkorder[i];
+		printf("Writing chunk %d/%d (%d%%)     \r", i, NRCHUNKS, 100*i/NRCHUNKS);
+		fillmem(mapping + chunk * CHUNKSIZE, chunk);
+	}
+	printf("\n");
+
+	/* Unmap, drop, and remap.. */
+	mapping = remap(fd, mapping);
+
+	/* .. and check */
+	for (i = 0; i < NRCHUNKS; i++) {
+		int chunk = i;
+		printf("Checking chunk %d/%d (%d%%)     \r", i, NRCHUNKS, 100*i/NRCHUNKS);
+		checkmem(mapping + chunk * CHUNKSIZE, chunk);
+	}
+	printf("\n");
+	
+	return 0;
+}

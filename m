@@ -1,28 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932821AbWL1KFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932875AbWL1KGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932821AbWL1KFc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWL1KFc
+	id S932875AbWL1KGA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932893AbWL1KF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:05:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42043 "EHLO
+	Thu, 28 Dec 2006 05:05:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42049 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932821AbWL1KFb (ORCPT
+	with ESMTP id S932875AbWL1KF6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:05:31 -0500
-Subject: Re: [patch 2.6.12-rc2] PNP: export pnp_bus_type
+	Thu, 28 Dec 2006 05:05:58 -0500
+Subject: Re: Finding hardlinks
 From: Arjan van de Ven <arjan@infradead.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Adam Belay <abelay@novell.com>, ambx1@neo.rr.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612271559.02077.david-b@pacbell.net>
-References: <200612271347.47114.david-b@pacbell.net>
-	 <1167258618.3281.4112.camel@laptopd505.fenrus.org>
-	 <200612271559.02077.david-b@pacbell.net>
+To: Benny Halevy <bhalevy@panasas.com>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+In-Reply-To: <4593890C.8030207@panasas.com>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
+	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
+	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
+	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+	 <4593890C.8030207@panasas.com>
 Content-Type: text/plain
 Organization: Intel International BV
-Date: Thu, 28 Dec 2006 11:05:02 +0100
-Message-Id: <1167300302.3281.4181.camel@laptopd505.fenrus.org>
+Date: Thu, 28 Dec 2006 11:05:52 +0100
+Message-Id: <1167300352.3281.4183.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
@@ -32,21 +38,14 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Hmm, then maybe it'd be worth updating that patch I just sent so that
-> the only change is to switch #includes for the extern decl ... i.e. to
-> "export" it only to other statically linked kernel code, rather than to
-> modules.  I'll do that.
-> 
-> My own question about that EXPORT_SYMBOL was whether it instead be
-> an EXPORT_SYMBOL_GPL, but if either one costs bytes ... I'm happy to
-> avoid that cost!
+> It seems like the posix idea of unique <st_dev, st_ino> doesn't
+> hold water for modern file systems 
 
-no export if it's not *really* need is obviously superior to either of
-those so yes I like the patch you're talking about already without even
-having seen it ;)
+are you really sure?
+and if so, why don't we fix *THAT* instead, rather than adding racy
+syscalls and such that just can't really be used right...
 
 
->   
 -- 
 if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org

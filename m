@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755008AbWL1VqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755006AbWL1Vqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755008AbWL1VqY (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 16:46:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755009AbWL1VqY
+	id S1755006AbWL1Vqd (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 16:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWL1Vqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 16:46:24 -0500
-Received: from moutng.kundenserver.de ([212.227.126.174]:50951 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755006AbWL1VqX convert rfc822-to-8bit (ORCPT
+	Thu, 28 Dec 2006 16:46:33 -0500
+Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:36952 "EHLO
+	smtpq3.groni1.gr.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755006AbWL1Vqc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 16:46:23 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: BUG: scheduling while atomic, new libata code
-Date: Thu, 28 Dec 2006 22:47:05 +0100
-User-Agent: KMail/1.9.5
-Cc: "Randy Dunlap" <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com> <20061226175559.e280e66e.randy.dunlap@oracle.com> <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
-In-Reply-To: <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
+	Thu, 28 Dec 2006 16:46:32 -0500
+Message-ID: <45943AE4.6080704@gmail.com>
+Date: Thu, 28 Dec 2006 22:45:08 +0100
+From: Rene Herman <rene.herman@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612282247.06127.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+To: Dave Jones <davej@redhat.com>, Rene Herman <rene.herman@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com
+Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
+References: <4592E685.5000602@gmail.com> <20061228191204.GB8940@redhat.com>
+In-Reply-To: <20061228191204.GB8940@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 December 2006 03:16, Jon Smirl wrote:
-> BUG: scheduling while atomic: hald-addon-stor/0x20000000/5078
->  [<c02b0289>] __sched_text_start+0x5f9/0xb00
->  [<c024a623>] net_rx_action+0xb3/0x180
->  [<c01210f2>] __do_softirq+0x72/0xe0
->  [<c0105205>] do_IRQ+0x45/0x80
+Dave Jones wrote:
 
-This doesn't seem to be related to libata at all. Like your
-first trace, you call schedule from a softirq context, which
-is always atomic.
-The only place where I can imagine this happening is the
-local_irq_enable() in there, which can be defined in different
-ways.
-Are you running with paravirt_ops, CONFIG_TRACE_IRQFLAGS_SUPPORT
-and/or kernel preemption enabled?
+> On Wed, Dec 27, 2006 at 10:32:53PM +0100, Rene Herman wrote:
 
-	Arnd <><
+>> The bug where the kernel repetitively emits "atkbd.c: Spurious ACK
+>> on isa0060/serio0. Some program might be trying access hardware
+>> directly" (sic) on a panic, thereby scrolling away the information
+>> that would help in seeing what exactly the problem was (ie, "Unable
+>> to mount root fs" or something) is still present in 2.6.20-rc2.
+> 
+> Do you have a KVM ?  Quite a few of those seem to tickle this printk.
+
+No, regular old PS/2 keyboard, directly connected. Due to that exact 
+uneventfullness and having seen it reported before recently (*) I 
+assumed everyone was seeing this. If not, I guess I can try to narrow it 
+down.
+
+It's easy to test for anyone willing: just boot with "root=/dev/null" or 
+something as a kernel param. The printk's are in sync with the panic 
+code blinking the leds.
+
+(*) Here there was supposed to be a link to the post I was refferring 
+to, but googling for it led to http://lkml.org/lkml/2006/11/13/300
+
+Dmitry, could you ask Linus to pull the change? I find this to be an 
+exceedingly annoying bug. It's just so incredibly silly, having one part 
+of the kernel helpfully blink leds at you with another part going "hey, 
+dude! don't do that!"
+
+Rene.

@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964905AbWL1Fi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964923AbWL1FmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWL1Fi0 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 00:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWL1Fi0
+	id S964923AbWL1FmQ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 00:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWL1FmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 00:38:26 -0500
-Received: from nz-out-0506.google.com ([64.233.162.239]:2295 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964905AbWL1FiZ (ORCPT
+	Thu, 28 Dec 2006 00:42:16 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40454
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S964923AbWL1FmP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 00:38:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uP1nByQbBq3mLmBXtsH6K98J4MKoeHzjoRMUGensoppZMf7cHa7Y74rLcJ7Cq43wzNUQFOKuvl+cONM07QqXnPhyGodJ223fLnWy+tsqfbYB3n1Weq8ZEbU3HfXhnub5j/LFnny5Q7KcT7uZcu1E54liCFT3oAZ5fg2IHMpqqrI=
-Message-ID: <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
-Date: Wed, 27 Dec 2006 22:38:24 -0700
-From: "Gordon Farquharson" <gordonfarquharson@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
+	Thu, 28 Dec 2006 00:42:15 -0500
+Date: Wed, 27 Dec 2006 21:41:49 -0800 (PST)
+Message-Id: <20061227.214149.74746689.davem@davemloft.net>
+To: gordonfarquharson@gmail.com
+Cc: torvalds@osdl.org, ranma@tdiedrich.de, tbm@cyrius.com,
+       a.p.zijlstra@chello.nl, andrei.popa@i-neo.ro, akpm@osdl.org,
+       hugh@veritas.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] mm: fix page_mkclean_one
-Cc: "David Miller" <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
-       "Andrew Morton" <akpm@osdl.org>, hugh@veritas.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com>
+References: <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
+	<Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
+	<97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061226.205518.63739038.davem@davemloft.net>
-	 <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
-	 <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org>
-	 <20061227.165246.112622837.davem@davemloft.net>
-	 <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
-	 <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
-	 <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
-	 <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com>
-	 <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/27/06, Linus Torvalds <torvalds@osdl.org> wrote:
+From: "Gordon Farquharson" <gordonfarquharson@gmail.com>
+Date: Wed, 27 Dec 2006 22:20:20 -0700
 
-> On Wed, 27 Dec 2006, Gordon Farquharson wrote:
-> >
-> > I don't think so. I did reduce the target size
-> >
-> > #define TARGETSIZE (100 << 12)
->
-> That's just 400kB!
->
-> There's no way you should see corruption with that kind of value. It
-> should all stay solidly in the cache.
->
-> Is this perhaps with ARM nommu or something else strange? It may be that
-> the program just doesn't work at all if mmap() is faked out with a malloc
-> or similar.
+> and for some reason I get
+> 
+> linus-test.c: In function 'remap':
+> linus-test.c:61: error: 'POSIX_FADV_DONTNEED' undeclared (first use in
+> this function)
+> 
+> when I compile the program, so I replaced POSIX_FADV_DONTNEED with 4
+> as defined in /usr/include/bits/fcntl.h.
 
-Definitely a question for the ARM gurus. I'm out of my depth.
+Me too, I added "-D_POSIX_C_SOURCE=200112" to "fix" this.
 
-Gordon
-
--- 
-Gordon Farquharson
+Perhaps Linus's GCC sets that by default and our's doesn't.

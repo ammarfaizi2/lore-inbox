@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753678AbWL1TkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753684AbWL1TqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753678AbWL1TkO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 14:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753676AbWL1TkN
+	id S1753684AbWL1TqA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 14:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753685AbWL1Tp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 14:40:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58663 "EHLO mx1.redhat.com"
+	Thu, 28 Dec 2006 14:45:59 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:54431 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753678AbWL1TkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 14:40:11 -0500
-Date: Thu, 28 Dec 2006 14:39:43 -0500
-From: Dave Jones <davej@redhat.com>
+	id S1753683AbWL1Tp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 14:45:59 -0500
+Date: Thu, 28 Dec 2006 11:45:17 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Petri Kaukasoina <kaukasoina610meov7e@sci.fi>,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       andrei.popa@i-neo.ro,
+Cc: Guillaume Chazarain <guichaz@yahoo.fr>, David Miller <davem@davemloft.net>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       hugh@veritas.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-ID: <20061228193943.GC8940@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Petri Kaukasoina <kaukasoina610meov7e@sci.fi>,
-	Marc Haber <mh+linux-kernel@zugschlus.de>,
-	Andrew Morton <akpm@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-	Martin Michlmayr <tbm@cyrius.com>
-References: <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org> <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org> <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au> <20061217214308.62b9021a.akpm@osdl.org> <20061219085149.GA20442@torres.l21.ma.zugschlus.de> <20061228180536.GB7385@torres.zugschlus.de> <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org> <20061228190541.GA23128@elektroni.phys.tut.fi> <Pine.LNX.4.64.0612281119370.4473@woody.osdl.org>
+       Chen Kenneth W <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Message-Id: <20061228114517.3315aee7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
+References: <20061226.205518.63739038.davem@davemloft.net>
+	<Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
+	<Pine.LNX.4.64.0612271636540.4473@woody.osdl.org>
+	<20061227.165246.112622837.davem@davemloft.net>
+	<Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+	<4593DE31.4070401@yahoo.fr>
+	<459418D2.2000702@yahoo.fr>
+	<Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612281119370.4473@woody.osdl.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 11:21:21AM -0800, Linus Torvalds wrote:
- > 
- > 
- > On Thu, 28 Dec 2006, Petri Kaukasoina wrote:
- > > > me up), and that seems to show the corruption going way way back (ie going 
- > > > back to Linux-2.6.5 at least, according to one tester).
- > > 
- > > That was a Fedora kernel. Has anyone seen the corruption in vanilla 2.6.18
- > > (or older)?
- > 
- > Well, that was a really _old_ fedora kernel. I guarantee you it didn't 
- > have the page throttling patches in it, those were written this summer. So 
- > it would either have to be Fedora carrying around another patch that just 
- > happens to result in the same corruption for _years_, or it's the same 
- > bug.
+On Thu, 28 Dec 2006 11:28:52 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-The only notable VM patch in Fedora kernels of that vintage that I recall
-was Ingo's 4g/4g thing.
+> 
+> 
+> On Thu, 28 Dec 2006, Guillaume Chazarain wrote:
+> > 
+> > The attached patch fixes the corruption for me.
+> 
+> Well, that's a good hint, but it's really just a symptom. You effectively 
+> just made the test-program not even try to flush the data to disk, so the 
+> page cache would stay in memory, and you'd not see the corruption as well.
+> 
+> So you basically disabled the code that tried to trigger the bug more 
+> easily.
+> 
+> But the reason I say it's interesting is that "WB_SYNC_NONE" is very much 
+> implicated in mm/page-writeback.c, and if there is a bug triggered by 
+> WB_SYNC_NONE writebacks, then that would explain why page-writeback.c also 
+> fails..
+> 
 
-		Dave
+It would be interesting to convert your app to do fsync() before
+FADV_DONTNEED.  That would take WB_SYNC_NONE out of the picture as well
+(apart from pdflush activity).
 
--- 
-http://www.codemonkey.org.uk

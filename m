@@ -1,61 +1,174 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965028AbWL1WiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965033AbWL1WiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbWL1WiU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 17:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbWL1WiT
+	id S965033AbWL1WiW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 17:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWL1WiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 17:38:19 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:2684
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S965028AbWL1WiR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 17:38:17 -0500
-Date: Thu, 28 Dec 2006 14:38:15 -0800 (PST)
-Message-Id: <20061228.143815.41633302.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, guichaz@yahoo.fr, ranma@tdiedrich.de,
-       gordonfarquharson@gmail.com, tbm@cyrius.com, a.p.zijlstra@chello.nl,
-       andrei.popa@i-neo.ro, hugh@veritas.com, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
-	<20061228114517.3315aee7.akpm@osdl.org>
-	<Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 17:38:22 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:37949 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965033AbWL1WiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 17:38:18 -0500
+Date: Thu, 28 Dec 2006 14:37:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Guillaume Chazarain <guichaz@yahoo.fr>, David Miller <davem@davemloft.net>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Martin Michlmayr <tbm@cyrius.com>, arjan@infradead.org,
+       Chen Kenneth W <kenneth.w.chen@intel.com>
+Subject: Re: 2.6.19 file content corruption on ext3
+In-Reply-To: <Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
+References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org>
+ <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org>
+ <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
+ <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
+ <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au>
+ <20061217214308.62b9021a.akpm@osdl.org> <20061219085149.GA20442@torres.l21.ma.zugschlus.de>
+ <20061228180536.GB7385@torres.zugschlus.de> <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
+ <Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Thu, 28 Dec 2006 12:14:31 -0800 (PST)
 
-> I get corruption - but the whole point is that it's very much pdflush that 
-> should be writing these pages out.
+Ok,
+ with the ugly trace capture patch, I've actually captured this corruption 
+in action, I think.
 
-I think what might be happening is that pdflush writes them out fine,
-however we don't trap writes by the application _during_ that writeout.
+I did a full trace of all pages involved in one run, and picked one 
+corruption at random:
 
-These corruptions look exactly as if:
+	Chunk 14465 corrupted (0-75)  (01423fb4-01423fff)
+	Expected 129, got 0
+	Written as (5126)9509(15017)
 
-1) pdflush begins writeback of page X
-2) page goes to disk
-3) application writes a chunk to the page
-4) pdflush et al. think the page is clean, so it gets tossed, losing
-   the writes done in #3
+That's the first 76 bytes of a chunk missing, and it's the last 76 bytes 
+on a page. It's page index 01423 in the mapped file, and bytes fb4-fff 
+within that file.
 
-So there's a missing PTE change in there, so that we never get proper
-re-dirtying of the page if the application tries to write to the page
-during the writeback.
+There were four chunks written to that page:
 
-It's something that will only occur with writeback and MAP_SHARED
-writable access to the file pages.  That's why we never see this
-with normal filesystem writes, since those explicitly manage the
-page dirty state.
+	Writing chunk 14463/15800 (15%) (0142344c) (1)
+	Writing chunk 14462/15800 (30%) (01422e98) (2) (overflows into 00001423)
+	Writing chunk 14464/15800 (32%) (01423a00) (3)
+	Writing chunk 14465/15800 (60%) (01423fb4) (4)  <--- LOST!
 
-I think the dirty balancing logic etc. isn't where the problems are,
-to me it's a PTE state update issue for sure.
+and the other three chunks checked out all right.
+
+And here's the annotated trace as it concerns that page:
+
+ - here we write the first chunk to the page:
+	** (1)  do_no_page: mapping index 00001423 at b7d1f44c (write)
+	**      Setting page 00001423 dirty
+
+ - something flushes it out to disk:
+	**      cpd_for_io: index 00001423
+	**      cleaning index 00001423 at b7d1f000
+
+ - here we write the second chunk (which was split over the previous page 
+   and the interesting one):
+	** (2)  Setting page 00001422 dirty
+	** (2)  Setting page 00001423 dirty
+
+ - and here we do a cleaning event
+	**      cpd_for_io: index 00001423
+	**      cleaning index 00001423 at b7d1f000
+
+ - here we write the third chunk:
+	** (3)  Setting page 00001423 dirty
+
+ - here we write the fourth chunk:
+	** (4) NO DIRTY EVENT
+
+ - and a third flush to disk: 
+	**      cpd_for_io: index 00001423
+	**      cleaning index 00001423 at b7d1f000
+
+ - here we unmap and flush:
+	**      Unmapped index 00001423 at b7d1f000
+	**      Removing index 00001423 from page cache
+
+ - here we remap to check:
+	**      do_no_page: mapping index 00001423 at b7d1f000 (read)
+	**      Unmapped index 00001423 at b7d1f000
+
+ - and finally, here I remove the file after the run:
+	**      Removing index 00001423 from page cache
+
+Now, the important thing to see here is:
+
+ - the missing write did not have a "Setting page 00001423 dirty" event 
+   associated with it.
+
+ - but I can _see_ where the actual dirty event would be happening in the 
+   logs, because I can see the dirty events of the other chunk writes 
+   around it, so I know exactly where that fourth write happens. And 
+   indeed, it _shouldn't_ get a dirty event, because the page is still 
+   dirty from the write of chunk #3 to that page, which _did_ get a dirty 
+   event.
+
+   I can see that, because the testing app writes the log of the pages it 
+   writes, and this is the log around the fourth and final write:
+
+	...
+        Writing chunk 5338/15800 (60%) (0076eb48)       PFN: 76e/76f
+        Writing chunk 960/15800 (60%) (00156300)        PFN: 156
+        Writing chunk 14465/15800 (60%) (01423fb4)  <----
+        Writing chunk 8594/15800 (60%) (00bf74a8)       PFN: bf7
+        Writing chunk 556/15800 (60%) (000c62f0)        PFN: c6
+	Writing chunk 15190/15800 (60%) (01526678)	PFN: 1526
+	...
+
+   and I can match this up with the full log from the kernel, which looks 
+   like this:
+
+        Setting page 0000076e dirty
+        Setting page 0000076f dirty
+        Setting page 00000156 dirty
+        Setting page 000000c6 dirty
+	Setting page 00001526 dirty
+
+   so I know exactly where the missing writes (to our page at pfn 1423, 
+   and the fpn-bf7 page) happened.
+
+ - and the thing is, I can see a "cpd_for_io()" happening AFTER that 
+   fourth write. Quite a long while after, in fact. So all of this looks 
+   very fine indeed. We are not losing any dirty bits.
+
+ - EVEN MORE INTERESTING: write 3 makes it onto disk, and it really uses 
+   the SAME dirty bit as write 4 did (which didn't make it out to disk!). 
+   The event that clears the dirty bit that write 3 did happens AFTER 
+   write 4 has happened!
+
+So if we're not losing any dirty bits, what's going on?
+
+I think we have some nasty interaction with the buffer heads. In 
+particular, I don't think it's the dirty page bits that are broken (I 
+_see_ that the PageDirty bit was set after write 4 was done to memory in 
+the kernel traces). So I think that a real writeback just doesn't happen, 
+because somebody has marked the buffer heads clean _after_ it started IO 
+on them.
+
+I think "__mpage_writepage()" is buggy in this regard, for example. It 
+even has a comment about its crapola behaviour:
+
+        /*
+         * Must try to add the page before marking the buffer clean or
+         * the confused fail path above (OOM) will be very confused when
+         * it finds all bh marked clean (i.e. it will not write anything)
+         */
+
+however, I don't think that particular thing explains it, because I don't 
+think we use that function for the cases I'm looking at.
+
+Anyway, I'll add tracing for page-writeback setting/cleaning too, in case 
+I might see anything new there..
+
+		Linus

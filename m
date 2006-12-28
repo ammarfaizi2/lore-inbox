@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965037AbWL1WnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964963AbWL1Wnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965037AbWL1WnM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 17:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWL1WnL
+	id S964963AbWL1Wnu (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 17:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWL1Wnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 17:43:11 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:38355 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965031AbWL1WnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 17:43:10 -0500
-Date: Thu, 28 Dec 2006 14:42:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: suparna@in.ibm.com
-Cc: linux-aio@kvack.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-Subject: Re: [FSAIO][PATCH 3/8] Routines to initialize and test a wait bit
- key
-Message-Id: <20061228144243.a54046dc.akpm@osdl.org>
-In-Reply-To: <20061228083900.GC6971@in.ibm.com>
-References: <20061227153855.GA25898@in.ibm.com>
-	<20061228082308.GA4476@in.ibm.com>
-	<20061228083900.GC6971@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Dec 2006 17:43:49 -0500
+Received: from py-out-1112.google.com ([64.233.166.179]:52175 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965027AbWL1Wns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 17:43:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nTyo4mJl0UbW6Sij1bQaVw3GG6dUq/50mMHqjPEbFB9H40f9Wdy4LShuIw5j0ABwyFZ9SdEjKzhrLhpalvv1rBjvcMFDAF8SDCTf5N7AVYzKiBC1cgEqnjLajMCu28idQZwy0v36SgApsXuLMH4OeWLDcNHPgxR+K1Zal4xxSz0=
+Message-ID: <9e4733910612281443t53a1bbd8n97bbb35651cf6929@mail.gmail.com>
+Date: Thu, 28 Dec 2006 17:43:48 -0500
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Subject: Re: BUG: scheduling while atomic, new libata code
+Cc: "Randy Dunlap" <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200612282247.06127.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com>
+	 <20061226175559.e280e66e.randy.dunlap@oracle.com>
+	 <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
+	 <200612282247.06127.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 14:09:00 +0530
-Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+On 12/28/06, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Thursday 28 December 2006 03:16, Jon Smirl wrote:
+> > BUG: scheduling while atomic: hald-addon-stor/0x20000000/5078
+> > [<c02b0289>] __sched_text_start+0x5f9/0xb00
+> > [<c024a623>] net_rx_action+0xb3/0x180
+> > [<c01210f2>] __do_softirq+0x72/0xe0
+> > [<c0105205>] do_IRQ+0x45/0x80
+>
+> This doesn't seem to be related to libata at all. Like your
+> first trace, you call schedule from a softirq context, which
+> is always atomic.
+> The only place where I can imagine this happening is the
+> local_irq_enable() in there, which can be defined in different
+> ways.
+> Are you running with paravirt_ops, CONFIG_TRACE_IRQFLAGS_SUPPORT
+> and/or kernel preemption enabled?
 
-> +#define init_wait_bit_key(waitbit, word, bit)				\
-> +	do {								\
-> +		(waitbit)->key.flags = word;				\
-> +		(waitbit)->key.bit_nr = bit;				\
-> +	} while (0)
-> +
-> +#define init_wait_bit_task(waitbit, tsk)				\
-> +	do {								\
-> +		(waitbit)->wait.private = tsk;				\
-> +		(waitbit)->wait.func = wake_bit_function;		\
-> +		INIT_LIST_HEAD(&(waitbit)->wait.task_list);		\
-> +	} while (0)
+This is set, although I don't recall setting it.
+CONFIG_TRACE_IRQFLAGS_SUPPORT=y
 
-Can we convert these to C functions (inlined or regular, probably inlined
-would be better)?
+# CONFIG_PREEMPT_NONE is not set
+CONFIG_PREEMPT_VOLUNTARY=y
+# CONFIG_PREEMPT is not set
+CONFIG_PREEMPT_BKL=y
+
+Another odd thing I'm doing is simultaneously using a wired and
+wireless net at the same time.
+
+>
+>         Arnd <><
+>
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,88 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964956AbWL1IPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964967AbWL1ISs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWL1IPb (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 03:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWL1IPb
+	id S964967AbWL1ISs (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 03:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWL1ISs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 03:15:31 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:40094 "EHLO relay.sw.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964956AbWL1IPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 03:15:30 -0500
-Date: Thu, 28 Dec 2006 11:21:47 +0300
-From: Alexey Dobriyan <adobriyan@openvz.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: Re: Racy /proc creations interfaces
-Message-ID: <20061228082147.GA11127@localhost.sw.ru>
-References: <20061227134223.GA6044@localhost.sw.ru> <20061227135624.GP17561@ftp.linux.org.uk>
+	Thu, 28 Dec 2006 03:18:48 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:45900 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964962AbWL1ISq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 03:18:46 -0500
+Date: Thu, 28 Dec 2006 13:53:08 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com, mingo@elte.hu
+Subject: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20061228082308.GA4476@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20061227153855.GA25898@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061227135624.GP17561@ftp.linux.org.uk>
+In-Reply-To: <20061227153855.GA25898@in.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2006 at 01:56:24PM +0000, Al Viro wrote:
-> On Wed, Dec 27, 2006 at 04:42:23PM +0300, Alexey Dobriyan wrote:
-> > 
-> >    	struct proc_entry_raw foo_pe_raw = {
-> > 		.owner = THIS_MODULE,
-> > 		.name = "foo",
-> > 		.mode = 0644,
-> > 		.read_proc = foo_read_proc,
-> > 		.data = foo_data,
-> > 		.parent = foo_parent,
-> > 	};
-> > 
-> > 	pde = create_proc_entry(&foo_pe_raw);
-> > 	if (!pde)
-> > 		return -ENOMEM;
-> > 
-> >    where "struct proc_entry_raw" is cut down version of "struct proc_dir_entry"
-> 
-> Ewwwwwwwwwwwwwww
-> 
-> Please, please no.  Especially not .parent.  If anything, let's add a
-> helper saying "it's all set up now".  And turn create_proc_entry()
-> into a macro that would pass THIS_MODULE to underlying function and
-> call that helper, so that simple cases wouldn't have to bother at all.
 
-People are setting ->data after create_proc_entry():
+Currently native linux AIO is properly supported (in the sense of
+actually being asynchronous) only for files opened with O_DIRECT.
+While this suffices for a major (and most visible) user of AIO, i.e. databases,
+other types of users like Samba require AIO support for regular file IO.
+Also, for glibc POSIX AIO to be able to switch to using native AIO instead
+of the current simulation using threads, it needs/expects asynchronous
+behaviour for both O_DIRECT and buffered file AIO.
 
-drivers/zorro/proc.c:
-   110	static int __init zorro_proc_attach_device(u_int slot)
-   111	{
-   112		struct proc_dir_entry *entry;
-   113		char name[4];
-   114	
-   115		sprintf(name, "%02x", slot);
-   116		entry = create_proc_entry(name, 0, proc_bus_zorro_dir);
-   117		if (!entry)
-   118			return -ENOMEM;
-   119		entry->proc_fops = &proc_bus_zorro_operations;
-   120		entry->data = &zorro_autocon[slot];
-   121		entry->size = sizeof(struct zorro_dev);
+This patchset implements changes to make filesystem AIO read
+and write asynchronous for the non O_DIRECT case. This is mainly
+relevant in the case of reads of uncached or partially cached files, and
+O_SYNC writes. 
 
-If create_proc_entry is a macro doing what you suggest (am I right?)
+Instead of translating regular IO to [AIO + wait], it translates AIO
+to [regular IO - blocking + retries]. The intent of implementing it
+this way is to avoid modifying or slowing down normal usage, by keeping
+it pretty much the way it is without AIO, while avoiding code duplication.
+Instead we make AIO vs regular IO checks inside io_schedule(), i.e. at
+the blocking points. The low-level unit of distinction is a wait queue
+entry, which in the AIO case is contained in an iocb and in the
+synchronous IO case is associated with the calling task.
 
-	#define create_proc_entry(name, mode, parent)
-	({
-		struct proc_dir_entry *pde;
+The core idea is that is we complete as much IO as we can in a non-blocking
+fashion, and then continue the remaining part of the transfer again when
+woken up asynchronously via a wait queue callback when pages are ready ... 
+thus each iteration progresses through more of the request until it is
+completed. The interesting part here is that owing largely to the idempotence
+in the way radix-tree page cache traveral happens, every iteration is simply
+a smaller read/write. Almost all of the iocb manipulation and advancement
+in the AIO case happens in the high level AIO code, and rather than in
+regular VFS/filesystem paths.
 
-		pde = __create_proc_entry(name, mode, parent, THIS_MODULE);
-		if (pde)
-			mark_proc_entry_ready(pde);
-		pde;
-	})
+The following is a sampling of comparative aio-stress results with the
+patches (each run starts with uncached files):
 
-there is still a problem because we want it to be equivalent to
+---------------------------------------------
+				
+aio-stress throughput comparisons (in MB/s):
 
-	pde = create_proc_entry(...);
-	if (!pde)
-		return -ENOMEM;
-	pde->proc_fops = ...;
-	pde->data = ...;
-	mark_proc_entry_ready(pde);
+file size 1GB, record size 64KB, depth 64, ios per iteration 8
+max io_submit 8, buffer alignment set to 4KB
+4 way Pentium III SMP box, Adaptec AIC-7896/7 Ultra2 SCSI, 40 MB/s
+Filesystem: ext2
+
+----------------------------------------------------------------------------
+			Buffered (non O_DIRECT)
+			Vanilla		Patched		O_DIRECT
+----------------------------------------------------------------------------
+						       Vanilla Patched
+Random-Read		10.08		23.91		18.91,   18.98
+Random-O_SYNC-Write	 8.86		15.84		16.51,   16.53
+Sequential-Read		31.49		33.00		31.86,   31.79
+Sequential-O_SYNC-Write  8.68		32.60		31.45,   32.44
+Random-Write		31.09 (19.65)	30.90 (19.65)	
+Sequential-Write	30.84 (28.94)	30.09 (28.39)
+
+----------------------------------------------------------------------------
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

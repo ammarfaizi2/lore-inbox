@@ -1,75 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754989AbWL1VFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754988AbWL1VGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754989AbWL1VFU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 16:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754990AbWL1VFU
+	id S1754988AbWL1VGJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 16:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754991AbWL1VGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 16:05:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1297 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754986AbWL1VFT (ORCPT
+	Thu, 28 Dec 2006 16:06:09 -0500
+Received: from server99.tchmachines.com ([72.9.230.178]:51630 "EHLO
+	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754988AbWL1VGI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 16:05:19 -0500
-Date: Thu, 28 Dec 2006 22:05:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] kconfig: remove the unused "requires" syntax
-Message-ID: <20061228210521.GG20714@stusta.de>
-References: <Pine.LNX.4.64.0612181138360.27491@localhost.localdomain> <20061218180447.GF10316@stusta.de> <Pine.LNX.4.64.0612191850220.1867@scrub.home>
-MIME-Version: 1.0
+	Thu, 28 Dec 2006 16:06:08 -0500
+Date: Thu, 28 Dec 2006 13:05:53 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, jgarzik@pobox.com,
+       hch@lst.de
+Subject: [patch] x86: Fix dev_to_node  for x86 and x86_64
+Message-ID: <20061228210553.GA3874@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612191850220.1867@scrub.home>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 06:53:22PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 18 Dec 2006, Adrian Bunk wrote:
-> 
-> > On Mon, Dec 18, 2006 at 11:41:59AM -0500, Robert P. J. Day wrote:
-> > > 
-> > >   Remove the note in the documentation that suggests people can use
-> > > "requires" for dependencies in Kconfig files.
-> > >...
-> > 
-> > Considering that noone uses it, what about the patch below to also 
-> > remove the implementation?
-> 
-> Mostly to keep the noise in the generated files low I prefer to just add 
-> some warning prints and I'll remove them later with some other syntax 
-> changes. This would also give external trees the chance to fix any 
-> possible usage first.
+Hi Andrew,
+dev_to_node() does not work as expected on x86 and x86_64 as pointed out
+earlier here:
+http://lkml.org/lkml/2006/11/7/10
 
-How to add some warning prints?
+Following patch fixes it, please apply.  (Note: The fix depends on support
+for PCI domains for x86/x86_64)
 
-And what's the problem with changing the generated files?
-There doesn't seem to be much activity in this area, and the noise of 
-changing the generated files doesn't seem to be a problem for me (except 
-if anyone else is semnding patches for the same area at the same time.
-It's not as if this noise was big compared to the diff between two Linux 
-releases...
+Thanks,
+Kiran
 
-Regarding external trees:
-Do you know about anyone actually using it?
-The fact that we have zero usages in the kernel and that it doesn't have 
-any additional functionality seems to be a strong hint noone knows about 
-it. And if anyone really uses it, the fix is so trivial...
 
-> bye, Roman
+dev_to_node does not work as expected on x86_64 (and i386).  This is because
+node value returned by pcibus_to_node is initialized after a struct device
+is created with current x86_64 code.
 
-cu
-Adrian
+We need the node value initialized before the call to pci_scan_bus_parented,
+as the generic devices are allocated and initialized
+off pci_scan_child_bus, which gets called from pci_scan_bus_parented
+The following patch does that using "pci_sysdata" introduced by the PCI
+domain patches in -mm.
 
--- 
+Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Index: linux-2.6.20-rc1/arch/i386/pci/acpi.c
+===================================================================
+--- linux-2.6.20-rc1.orig/arch/i386/pci/acpi.c	2006-12-28 11:51:52.542775000 -0800
++++ linux-2.6.20-rc1/arch/i386/pci/acpi.c	2006-12-28 12:01:19.242775000 -0800
+@@ -9,6 +9,7 @@ struct pci_bus * __devinit pci_acpi_scan
+ {
+ 	struct pci_bus *bus;
+ 	struct pci_sysdata *sd;
++	int pxm;
+ 
+ 	/* Allocate per-root-bus (not per bus) arch-specific data.
+ 	 * TODO: leak; this memory is never freed.
+@@ -30,15 +31,21 @@ struct pci_bus * __devinit pci_acpi_scan
+ 	}
+ #endif /* CONFIG_PCI_DOMAINS */
+ 
++	sd->node = -1;
++
++	pxm = acpi_get_pxm(device->handle);
++#ifdef CONFIG_ACPI_NUMA
++	if (pxm >= 0)
++		sd->node = pxm_to_node(pxm);
++#endif
++
+ 	bus = pci_scan_bus_parented(NULL, busnum, &pci_root_ops, sd);
+ 	if (!bus)
+ 		kfree(sd);
+ 
+ #ifdef CONFIG_ACPI_NUMA
+ 	if (bus != NULL) {
+-		int pxm = acpi_get_pxm(device->handle);
+ 		if (pxm >= 0) {
+-			sd->node = pxm_to_node(pxm);
+ 			printk("bus %d -> pxm %d -> node %d\n",
+ 				busnum, pxm, sd->node);
+ 		}

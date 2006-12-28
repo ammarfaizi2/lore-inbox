@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753708AbWL1UIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754955AbWL1UKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753708AbWL1UIp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 15:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753720AbWL1UIp
+	id S1754955AbWL1UKt (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 15:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754956AbWL1UKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 15:08:45 -0500
-Received: from gw-e.panasas.com ([65.194.124.178]:34007 "EHLO
-	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753708AbWL1UIo convert rfc822-to-8bit (ORCPT
+	Thu, 28 Dec 2006 15:10:49 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58582 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754948AbWL1UKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 15:08:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Finding hardlinks
-Date: Thu, 28 Dec 2006 15:07:43 -0500
-Message-ID: <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Finding hardlinks
-Thread-Index: AccqrG654tBf+c5iRpK718nSKFnOjAACeeEo
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>  <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net> <4593DEF8.5020609@panasas.com> <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-From: "Halevy, Benny" <bhalevy@panasas.com>
-To: "Mikulas Patocka" <mikulas@artax.karlin.mff.cuni.cz>
-Cc: "Jeff Layton" <jlayton@poochiereds.net>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Jan Harkes" <jaharkes@cs.cmu.edu>,
-       "Miklos Szeredi" <miklos@szeredi.hu>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <nfsv4@ietf.org>
+	Thu, 28 Dec 2006 15:10:48 -0500
+Subject: Re: 2.6.19 file content corruption on ext3
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Petri Kaukasoina <kaukasoina610meov7e@sci.fi>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       andrei.popa@i-neo.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Martin Michlmayr <tbm@cyrius.com>
+In-Reply-To: <20061228193943.GC8940@redhat.com>
+References: <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
+	 <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org>
+	 <45861E68.3060403@yahoo.com.au> <20061217214308.62b9021a.akpm@osdl.org>
+	 <20061219085149.GA20442@torres.l21.ma.zugschlus.de>
+	 <20061228180536.GB7385@torres.zugschlus.de>
+	 <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
+	 <20061228190541.GA23128@elektroni.phys.tut.fi>
+	 <Pine.LNX.4.64.0612281119370.4473@woody.osdl.org>
+	 <20061228193943.GC8940@redhat.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 28 Dec 2006 21:10:33 +0100
+Message-Id: <1167336633.20929.31.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka wrote:
+On Thu, 2006-12-28 at 14:39 -0500, Dave Jones wrote:
+> On Thu, Dec 28, 2006 at 11:21:21AM -0800, Linus Torvalds wrote:
+>  > 
+>  > 
+>  > On Thu, 28 Dec 2006, Petri Kaukasoina wrote:
+>  > > > me up), and that seems to show the corruption going way way back (ie going 
+>  > > > back to Linux-2.6.5 at least, according to one tester).
+>  > > 
+>  > > That was a Fedora kernel. Has anyone seen the corruption in vanilla 2.6.18
+>  > > (or older)?
+>  > 
+>  > Well, that was a really _old_ fedora kernel. I guarantee you it didn't 
+>  > have the page throttling patches in it, those were written this summer. So 
+>  > it would either have to be Fedora carrying around another patch that just 
+>  > happens to result in the same corruption for _years_, or it's the same 
+>  > bug.
 > 
->>> This sounds like a bug to me. It seems like we should have a one to one
->>> correspondence of filehandle -> inode. In what situations would this not be the
->>> case?
->>
->> Well, the NFS protocol allows that [see rfc1813, p. 21: "If two file handles from
->> the same server are equal, they must refer to the same file, but if they are not
->> equal, no conclusions can be drawn."]
->>
->> As an example, some file systems encode hint information into the filehandle
->> and the hints may change over time, another example is encoding parent
->> information into the filehandle and then handles representing hard links
->> to the same file from different directories will differ.
->
->BTW. how does (or how should?) NFS client deal with cache coherency if 
->filehandles for the same file differ?
->
+> The only notable VM patch in Fedora kernels of that vintage that I recall
+> was Ingo's 4g/4g thing.
 
-Trond can probably answer this better than me...
-As I read it, currently the nfs client matches both the fileid and the
-filehandle (in nfs_find_actor). This means that different filehandles
-for the same file would result in different inodes :(.
-Strictly following the nfs protocol, comparing only the fileid should
-be enough IF fileids are indeed unique within the filesystem.
-Comparing the filehandle works as a workaround when the exported filesystem
-(or the nfs server) violates that.  From a user stand point I think that
-this should be configurable, probably per mount point.
+which does tlb flushes *all the time* so that even rules out (well
+almost) a stale tlb somewhere...
 
->Mikulas
->
+

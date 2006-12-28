@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933010AbWL1SbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933023AbWL1SdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933010AbWL1SbI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 13:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933021AbWL1SbI
+	id S933023AbWL1SdG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 13:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933021AbWL1SdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 13:31:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:43992 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933010AbWL1SbH (ORCPT
+	Thu, 28 Dec 2006 13:33:06 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62144 "EHLO
+	pd2mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933023AbWL1SdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 13:31:07 -0500
-Date: Thu, 28 Dec 2006 18:31:01 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Carol Hebert <cah@us.ibm.com>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
-Subject: Re: [PATCH] IPMI: fix some RCU problems
-Message-ID: <20061228183101.GA2412@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Corey Minyard <minyard@acm.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	"Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-	Carol Hebert <cah@us.ibm.com>,
-	OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
-References: <20061228182447.GA23730@localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061228182447.GA23730@localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 28 Dec 2006 13:33:05 -0500
+Date: Thu, 28 Dec 2006 12:34:39 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] introduce config option to disable DMA zone on i386
+In-reply-to: <fa.XVmR+7tQ0v2oWVb7eyfQ8pGFhp8@ifi.uio.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Marcelo Tosatti <marcelo@kvack.org>
+Message-id: <45940E3F.1050506@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.Nb4Y/frBNPmoag6ZL4pL3qEyDOs@ifi.uio.no>
+ <fa.XVmR+7tQ0v2oWVb7eyfQ8pGFhp8@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	if (list_empty(&intf->cmd_rcvrs))
-> +		INIT_LIST_HEAD(&list);
-> +	else {
-> +		list.next = intf->cmd_rcvrs.next;
-> +		list.prev = intf->cmd_rcvrs.prev;
-> +		INIT_LIST_HEAD(&intf->cmd_rcvrs);
-> +
-> +		/*
-> +		 * At this point the list body still points to
-> +		 * intf->cmd_rcvrs.  Wait for any readers to finish
-> +		 * using the list before we switch the list body over
-> +		 * to the new list.
-> +		 */
-> +		synchronize_rcu();
-> +
-> +		/* Ready the list for use. */
-> +		list.next->prev = &list;
-> +		list.prev->next = &list;
-> +	}
+Arjan van de Ven wrote:
+> Hi,
+> 
+> since one gets random corruption if a user gets this wrong, at least
+> make things like floppy and all CONFIG_ISA stuff conflict with this
+> option.... without that your patch feels like a walking time bomb...
+> (and please include all PCI drivers that only can do 24 bit or 28bit
+> or .. non-32bit dma as well)
 
-This kind of thing must not be opencoded in drivers.  Please add
-a new list_splice_rcu helper to list.h
+That sounds like a bug if this can happen. Drivers should be failing to 
+initialize if they can't set the proper DMA mask, and the DMA API calls 
+should be failing if the requested DMA mask can't be provided.
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

@@ -1,192 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754853AbWL1NxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754858AbWL1OPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754853AbWL1NxK (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 08:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754856AbWL1NxJ
+	id S1754858AbWL1OPa (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 09:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752964AbWL1OPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 08:53:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4564 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754853AbWL1NxI (ORCPT
+	Thu, 28 Dec 2006 09:15:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38036 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752302AbWL1OP3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 08:53:08 -0500
-Date: Thu, 28 Dec 2006 14:53:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.37
-Message-ID: <20061228135308.GB20714@stusta.de>
-MIME-Version: 1.0
+	Thu, 28 Dec 2006 09:15:29 -0500
+Date: Thu, 28 Dec 2006 14:15:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
+       akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
+Subject: Re: [FSAIO][PATCH 7/8] Filesystem AIO read
+Message-ID: <20061228141518.GA5211@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
+	akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084252.GG6971@in.ibm.com> <20061228115747.GB25644@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061228115747.GB25644@infradead.org>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+> Pluse possible naming updates discussed in the last mail.  Also do we
+> really need to pass current->io_wait here?  Isn't the waitqueue in
+> the kiocb always guaranteed to be the same?  Now that all pagecache
+> I/O goes through the ->aio_read/->aio_write routines I'd prefer to
+> get rid of the task_struct field cludges and pass all this around in
+> the kiocb.  
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.36:
-
-Adrian Bunk (5):
-      [ALSA] sound/core/: fix 3 off-by-one errors
-      [ALSA] fix some memory leaks
-      [ALSA] sound/pci/rme9652/hdspm.c: fix off-by-one errors
-      Linux 2.6.16.37-rc1
-      Linux 2.6.16.37
-
-Akinobu Mita (1):
-      [WATCHDOG] sc1200wdt.c pnp unregister fix.
-
-Alasdair G Kergon (1):
-      dm snapshot: unify chunk_size
-
-Alexey Kuznetsov (1):
-      [IPV4]: severe locking bug in fib_semantics.c
-
-Andrew Chew (1):
-      sata_nv/amd74xx: Add MCP61 support
-
-Andrew Morton (1):
-      hvc_console suspend fix
-
-Arjan van de Ven (1):
-      x86-64: Mark rdtsc as sync only for netburst, not for core2
-
-Arnaud Patard (1):
-      r8169: fix infinite loop during hotplug
-
-Brian King (1):
-      [SCSI] DAC960: PCI id table fixup
-
-Christophe Saout (2):
-      Fix SUNRPC wakeup/execute race condition
-      dm crypt: Fix data corruption with dm-crypt over RAID5
-
-Daniel Kobras (1):
-      dm: Fix deadlock under high i/o load in raid1 setup.
-
-Dave Jones (5):
-      [ALSA] ad1848 double free
-      [ALSA] Fix use after free in opl3_seq and opl3_oss
-      [ALSA] sound/isa/sb/sb_mixer.c double kfree
-      [ALSA] fix usbmixer double kfree
-      [WATCHDOG] sc1200wdt.c printk fix
-
-David S. Miller (1):
-      [IPV4] ip_fragment: Always compute hash with ipfrag_lock held.
-
-Francois Romieu (2):
-      r8169: RX fifo overflow recovery
-      r8169: tweak the PCI data parity error recovery
-
-Hans Verkuil (1):
-      V4L: Fix broken TUNER_LG_NTSC_TAPE radio support
-
-Herbert Xu (1):
-      [CRYPTO] sha512: Fix sha384 block size
-
-Jean Delvare (1):
-      [SCSI] gdth: Fix && typos
-
-Jeff Garzik (2):
-      [libata] sata_nv: add PCI IDs
-      ISDN: fix drivers, by handling errors thrown by ->readstat()
-
-Jeff Mahoney (1):
-      dm: add module ref counting
-
-Joerg Ahrens (1):
-      xirc2ps_cs: Cannot reset card in atomic context
-
-Linus Torvalds (1):
-      AGP: Allocate AGP pages with GFP_DMA32 by default
-
-Mark McLoughlin (1):
-      dm snapshot: fix metadata writing when suspending
-
-Michael Krufky (1):
-      DVB: lgdt330x: fix signal / lock status detection bug
-
-Michal Miroslaw (1):
-      dm: BUG/OOPS fix
-
-Neil Brown (2):
-      dm: mirror sector offset fix
-      md: Fix md grow/size code to correctly find the maximum available space
-
-Peer Chen (2):
-      pci_ids.h: Add NVIDIA PCI ID
-      IDE: Add the support of nvidia PATA controllers of MCP67 to amd74xx.c
-
-Randy Dunlap (1):
-      amd74xx.c: add some NVIDIA chipset IDs
-
-Robin Holt (1):
-      IA64: bte_unaligned_copy() transfers one extra cache line.
-
-Stephen Hemminger (1):
-      bridge-netfilter: don't overwrite memory outside of skb
-
-Tejun Heo (1):
-      scsi: clear garbage after CDBs on SG_IO
-
-Trond Myklebust (1):
-      NFS: nfs_lookup - don't hash dentry when optimising away the lookup
-
-Zachary Amsden (1):
-      softirq: remove BUG_ONs which can incorrectly trigger
-
-
- Makefile                               |    2 
- arch/ia64/sn/kernel/bte.c              |    9 +-
- arch/x86_64/kernel/setup.c             |    5 +
- block/scsi_ioctl.c                     |    3 
- crypto/sha512.c                        |    2 
- drivers/block/DAC960.c                 |    2 
- drivers/char/agp/generic.c             |    2 
- drivers/char/agp/intel-agp.c           |    2 
- drivers/char/hvc_console.c             |    1 
- drivers/char/watchdog/sc1200wdt.c      |   11 ++-
- drivers/ide/pci/amd74xx.c              |   13 +++
- drivers/isdn/i4l/isdn_common.c         |    9 +-
- drivers/md/dm-crypt.c                  |    6 +
- drivers/md/dm-exception-store.c        |   85 +++++++++++++++----------
- drivers/md/dm-mpath.c                  |    3 
- drivers/md/dm-raid1.c                  |   67 ++++++++++---------
- drivers/md/dm-snap.c                   |    6 -
- drivers/md/dm.c                        |    6 +
- drivers/md/md.c                        |    2 
- drivers/media/dvb/frontends/lgdt330x.c |    6 -
- drivers/media/video/tuner-simple.c     |    2 
- drivers/media/video/tuner-types.c      |   19 -----
- drivers/net/pcmcia/xirc2ps_cs.c        |   18 ++++-
- drivers/net/r8169.c                    |   36 +++++++---
- drivers/scsi/gdth.c                    |    4 -
- drivers/scsi/sata_nv.c                 |   10 ++
- drivers/scsi/scsi_lib.c                |    1 
- fs/nfs/dir.c                           |   14 +++-
- include/linux/netfilter_bridge.h       |   15 +++-
- include/linux/pci_ids.h                |    6 +
- kernel/softirq.c                       |    2 
- net/bridge/br_forward.c                |   10 ++
- net/ipv4/fib_semantics.c               |   12 +--
- net/ipv4/ip_fragment.c                 |   15 ++--
- net/sunrpc/sched.c                     |   10 +-
- sound/core/sound.c                     |    4 -
- sound/core/sound_oss.c                 |    2 
- sound/drivers/opl3/opl3_oss.c          |   12 ++-
- sound/drivers/opl3/opl3_seq.c          |   12 ++-
- sound/isa/ad1848/ad1848_lib.c          |    4 -
- sound/isa/es18xx.c                     |    1 
- sound/isa/sb/sb_mixer.c                |    4 -
- sound/pci/cs46xx/dsp_spos.c            |   10 ++
- sound/pci/rme9652/hdspm.c              |    4 -
- sound/usb/usbmixer.c                   |    1 
- 45 files changed, 289 insertions(+), 181 deletions(-)
+Btw, in current mainline task_struct.iowait is not used at all!  The patch
+below would remove it vs mainline, although I don't think it should go
+in as-is as it would create quite a bit of messup for your patchset.

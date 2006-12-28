@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753852AbWL1Xyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753888AbWL1X5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753852AbWL1Xyw (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 18:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753888AbWL1Xyv
+	id S1753888AbWL1X5o (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 18:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753900AbWL1X5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 18:54:51 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:43474 "EHLO smtp.osdl.org"
+	Thu, 28 Dec 2006 18:57:44 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43591 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753852AbWL1Xyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 18:54:49 -0500
-Date: Thu, 28 Dec 2006 15:54:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Andrew Morton <akpm@osdl.org>, Guillaume Chazarain <guichaz@yahoo.fr>,
-       David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
-       gordonfarquharson@gmail.com, Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Martin Michlmayr <tbm@cyrius.com>, arjan@infradead.org,
-       Chen Kenneth W <kenneth.w.chen@intel.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <Pine.LNX.4.64.0612282326460.3586@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0612281552100.4473@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org>
- <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au>
- <20061217214308.62b9021a.akpm@osdl.org> <20061219085149.GA20442@torres.l21.ma.zugschlus.de>
- <20061228180536.GB7385@torres.zugschlus.de> <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612282326460.3586@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S1753888AbWL1X5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 18:57:44 -0500
+Date: Thu, 28 Dec 2006 15:56:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Neil Brown <neilb@suse.de>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+Subject: Re: [PATCH] Use correct macros in raid code, not raw asm
+Message-Id: <20061228155659.462eaa9c.akpm@osdl.org>
+In-Reply-To: <1167348861.30506.46.camel@localhost.localdomain>
+References: <1167348861.30506.46.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Dec 2006 10:34:21 +1100
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-
-On Thu, 28 Dec 2006, Anton Altaparmakov wrote:
+> This make sure it's paravirtualized correctly when CONFIG_PARAVIRT=y.
 > 
-> But are chunks 3 and 4 in separate buffer heads?  Sorry could not see it 
-> immediately from the output you showed...
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> diff -r 4ff048622391 drivers/md/raid6x86.h
+> --- a/drivers/md/raid6x86.h	Thu Dec 28 16:52:54 2006 +1100
+> +++ b/drivers/md/raid6x86.h	Fri Dec 29 10:09:38 2006 +1100
+> @@ -75,13 +75,14 @@ static inline unsigned long raid6_get_fp
+>  	unsigned long cr0;
+>  
+>  	preempt_disable();
+> -	asm volatile("mov %%cr0,%0 ; clts" : "=r" (cr0));
+> +	cr0 = read_cr0();
+> +	clts();
+>  	return cr0;
+>  }
+>  
+>  static inline void raid6_put_fpu(unsigned long cr0)
+>  {
+> -	asm volatile("mov %0,%%cr0" : : "r" (cr0));
+> +	write_cr0(cr0);
+>  	preempt_enable();
+>  }
+>  
 
-No, this is a 4kB filesystem. A single bh per page.
+Perhaps we also need:
 
-> It is just that there may be a different cause rather than buffer dirty 
-> state...
+--- a/drivers/md/raid6x86.h~use-correct-macros-in-raid-code-not-raw-asm-include
++++ a/drivers/md/raid6x86.h
+@@ -21,6 +21,8 @@
+ 
+ #if defined(__i386__) || defined(__x86_64__)
+ 
++#include <asm/system.h>
++
+ #ifdef __x86_64__
+ 
+ typedef struct {
+_
 
-Sure.
-
-> A shot in the dark I know but it could perhaps be that a "COW for 
-> MAP_PRIVATE" like event happens when the page is dirty already thus the 
-> second write never actually makes it to the shared page thus it never gets 
-> written out.
-
-There are no private mappings anywhere, and no forks. Just a single mmap 
-(well, we unmap and remap in order to force the page cache to be 
-invalidated properly with the posix_fadvise() thing, but that's literally 
-the only user).
-
-		Linus
+?

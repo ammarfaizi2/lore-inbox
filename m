@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932854AbWL1S1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933010AbWL1SbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932854AbWL1S1f (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 13:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933010AbWL1S1f
+	id S933010AbWL1SbI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 13:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933021AbWL1SbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 13:27:35 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:54920 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932854AbWL1S1e (ORCPT
+	Thu, 28 Dec 2006 13:31:08 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43992 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933010AbWL1SbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 13:27:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=BuNNzN6vCbElLRSwMopKw9ElETR4qwODeelXGdPgTmLiuPi8rJoqL7OaVfAyYjSXPSukMimtC/65LcvB8VfGzSEVgvraVeqKkIy1sBprmPN1uZYs5UG/++/DDM/n5Dt8MAQvirrO7/wpE6QSAOAiDrNEMeJWQCAXBLt4aUl43MY=
-Date: Thu, 28 Dec 2006 21:27:34 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: akpm@osdl.org
-Cc: Thomas Hisch <t.hisch@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fuse: fix typo
-Message-ID: <20061228182734.GA4952@martell.zuzino.mipt.ru>
+	Thu, 28 Dec 2006 13:31:07 -0500
+Date: Thu, 28 Dec 2006 18:31:01 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Corey Minyard <minyard@acm.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Carol Hebert <cah@us.ibm.com>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
+Subject: Re: [PATCH] IPMI: fix some RCU problems
+Message-ID: <20061228183101.GA2412@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Corey Minyard <minyard@acm.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	"Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+	Carol Hebert <cah@us.ibm.com>,
+	OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
+References: <20061228182447.GA23730@localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061228182447.GA23730@localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Hisch <t.hisch@gmail.com>
+> +	if (list_empty(&intf->cmd_rcvrs))
+> +		INIT_LIST_HEAD(&list);
+> +	else {
+> +		list.next = intf->cmd_rcvrs.next;
+> +		list.prev = intf->cmd_rcvrs.prev;
+> +		INIT_LIST_HEAD(&intf->cmd_rcvrs);
+> +
+> +		/*
+> +		 * At this point the list body still points to
+> +		 * intf->cmd_rcvrs.  Wait for any readers to finish
+> +		 * using the list before we switch the list body over
+> +		 * to the new list.
+> +		 */
+> +		synchronize_rcu();
+> +
+> +		/* Ready the list for use. */
+> +		list.next->prev = &list;
+> +		list.prev->next = &list;
+> +	}
 
-Signed-off-by: Thomas Hisch <t.hisch@gmail.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-
- Documentation/filesystems/fuse.txt |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/Documentation/filesystems/fuse.txt
-+++ b/Documentation/filesystems/fuse.txt
-@@ -94,8 +94,8 @@ Mount options
-   filesystem is free to implement it's access policy or leave it to
-   the underlying file access mechanism (e.g. in case of network
-   filesystems).  This option enables permission checking, restricting
--  access based on file mode.  This is option is usually useful
--  together with the 'allow_other' mount option.
-+  access based on file mode.  It is usually useful together with the
-+  'allow_other' mount option.
- 
- 'allow_other'
- 
+This kind of thing must not be opencoded in drivers.  Please add
+a new list_splice_rcu helper to list.h
 

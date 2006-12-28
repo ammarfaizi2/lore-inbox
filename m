@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754870AbWL1RnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754893AbWL1RpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754870AbWL1RnJ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 12:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754886AbWL1RnI
+	id S1754893AbWL1RpJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 12:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754902AbWL1RpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 12:43:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33243 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754870AbWL1RnH (ORCPT
+	Thu, 28 Dec 2006 12:45:09 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:39299 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754893AbWL1RpH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 12:43:07 -0500
-Subject: Re: [PATCH] introduce config option to disable DMA zone on i386
-From: Arjan van de Ven <arjan@infradead.org>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, olpc-devel@laptop.org
-In-Reply-To: <20061228170302.GA4335@dmt>
-References: <20061228170302.GA4335@dmt>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 28 Dec 2006 18:43:03 +0100
-Message-Id: <1167327784.3281.4341.camel@laptopd505.fenrus.org>
+	Thu, 28 Dec 2006 12:45:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding:sender;
+        b=hXNi8sFspEvNwc01EhAQZUZfCfZ7IuU8/CZ5TpA5YQeOrhlcZZ2EUgT/Mf+JtgrNSFbHAh8PF8zYmXM+zfQgChntajEYSJsm3X42nQjnDBtI9N3faf6uCDEsRLYu6Lfbo1nEVc1hniNwZqcHTO8GIu3cbCWsaH5RirLZvF7zCzo=
+Date: Thu, 28 Dec 2006 18:44:59 +0100
+From: Jan Andersson <jan.andersson@ieee.org>
+To: wli@holomorphy.com
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: [PATCH] sparc32: add offset in pci_map_sg()
+Message-ID: <20061228184459.1c51a33b@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-28 at 15:03 -0200, Marcelo Tosatti wrote:
-> Hi,
-> 
-> The following patch adds a config option to get rid of the DMA zone on i386.
-> 
-> Architectures with devices that have no addressing limitations (eg. PPC)
-> already work this way.
-> 
-> This is useful for custom kernel builds where the developer is certain that 
-> there are no address limitations.
-> 
-> For example, the OLPC machine contains:
-> 
-> - USB devices
-> - no floppy
-> - no address limited PCI devices
-> - no floppy
-> 
-> A unified zone simplifies VM reclaiming work, and also simplifies OOM
-> killer heuristics (no need to deal with OOM on the DMA zone).
-> 
-> Comments?
+From: Jan Andersson jan.andersson@ieee.org
 
-Hi,
+Add sg->offset to sg->dvma_address in pci_map_sg() on sparc32. Without
+the offset, transfers to buffers that do not begin on a page boundary 
+will not work as expected. 
 
-since one gets random corruption if a user gets this wrong, at least
-make things like floppy and all CONFIG_ISA stuff conflict with this
-option.... without that your patch feels like a walking time bomb...
-(and please include all PCI drivers that only can do 24 bit or 28bit
-or .. non-32bit dma as well)
+Signed-off-by: Jan Andersson <jan.andersson@ieee.org>
+---
 
-Greetings,
-   Arjan van de Ven
-
+diff -uprN a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c
+--- a/arch/sparc/kernel/ioport.c        2006-12-28 15:00:46.000000000 +0100
++++ b/arch/sparc/kernel/ioport.c        2006-12-28 16:22:40.000000000 +0100
+@@ -728,7 +728,8 @@ int pci_map_sg(struct pci_dev *hwdev, st
+        /* IIep is write-through, not flushing. */
+        for (n = 0; n < nents; n++) {
+                BUG_ON(page_address(sg->page) == NULL);
+-               sg->dvma_address = virt_to_phys(page_address(sg->page));
++               sg->dvma_address = 
++                       virt_to_phys(page_address(sg->page)) + sg->offset;
+                sg->dvma_length = sg->length;
+                sg++;
+        }

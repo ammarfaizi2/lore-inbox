@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754996AbWL1VRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754998AbWL1VSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754996AbWL1VRp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 16:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754997AbWL1VRp
+	id S1754998AbWL1VSP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 16:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755002AbWL1VSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 16:17:45 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:51852 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753739AbWL1VRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 16:17:44 -0500
-Message-ID: <45943472.9080000@pobox.com>
-Date: Thu, 28 Dec 2006 16:17:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 28 Dec 2006 16:18:14 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:22265 "EHLO
+	gockel.physik3.uni-rostock.de" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1754999AbWL1VSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 16:18:13 -0500
+Date: Thu, 28 Dec 2006 22:18:12 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove 556 unneeded #includes of sched.h
+In-Reply-To: <20061228210803.GR17561@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.63.0612282211330.20531@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.63.0612282059160.8356@gockel.physik3.uni-rostock.de>
+ <20061228124644.4e1ed32b.akpm@osdl.org> <Pine.LNX.4.63.0612282154460.20531@gockel.physik3.uni-rostock.de>
+ <20061228210803.GR17561@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, hch@lst.de
-Subject: Re: [patch] x86: Fix dev_to_node  for x86 and x86_64
-References: <20061228210553.GA3874@localhost.localdomain>
-In-Reply-To: <20061228210553.GA3874@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
-> Hi Andrew,
-> dev_to_node() does not work as expected on x86 and x86_64 as pointed out
-> earlier here:
-> http://lkml.org/lkml/2006/11/7/10
-> 
-> Following patch fixes it, please apply.  (Note: The fix depends on support
-> for PCI domains for x86/x86_64)
+On Thu, 28 Dec 2006, Al Viro wrote:
 
-Thanks, I'll merge into my misc-2.6.git#pciseg repository, which is 
-where Andrew gets his PCI domain support from.
+> Uh-huh.  How much of build coverage have you got with it?
 
-	Jeff
+Well, as said in the patch description, I compiled alpha, arm, i386, ia64, 
+mips, powerpc, and x86_64 with allnoconfig, defconfig, allmodconfig, and 
+allyesconfig as well as a few randconfigs on x86_64. I also checked that 
+no new warnings were introduced by the patch.
 
+> Note that "doesn't use symbols defined in sched.h" != "can remove 
+> include of sched.h", which, in turn, is not the same as "removing it 
+> doesn't cause problems on a couple of configs I've tried on amd64".
 
+Sure. But from my experience (I started posting these patches almost five 
+years ago, inspired by a blog entry by davej) actually the only thing that 
+prevents removing the sched.h include (other than using symbols defined 
+there) is dereferencing current, which my scripts also check.
 
+Tim

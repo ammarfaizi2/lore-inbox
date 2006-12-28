@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754976AbWL1Ux5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754978AbWL1U4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754976AbWL1Ux5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 15:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754978AbWL1Ux5
+	id S1754978AbWL1U4U (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 15:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754979AbWL1U4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 15:53:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33671 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754975AbWL1Ux4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 15:53:56 -0500
-Date: Thu, 28 Dec 2006 21:53:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
-       pHilipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
-Message-ID: <20061228205341.GA3060@elf.ucw.cz>
-References: <200611111541.34699.david-b@pacbell.net> <200612201312.36616.david-b@pacbell.net> <20061227175344.GC4088@ucw.cz> <200612281248.21325.david-b@pacbell.net> <20061228205055.GA2311@elf.ucw.cz>
-MIME-Version: 1.0
+	Thu, 28 Dec 2006 15:56:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52438 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754978AbWL1U4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 15:56:19 -0500
+Date: Thu, 28 Dec 2006 15:55:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.20rc1 oops.
+Message-ID: <20061228205516.GA9462@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061214210215.GC22164@redhat.com> <20061218025710.GS10316@stusta.de> <20061218030542.GA12927@redhat.com> <20061228204003.GE20714@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061228205055.GA2311@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20061228204003.GE20714@stusta.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 2006-12-28 21:50:55, Pavel Machek wrote:
-> Hi!
-> 
-> > > > From: Philipp Zabel <philipp.zabel@gmail.com>
-> > > 
-> > > Missing s-o-b?
-> > 
-> > Yes, still ...
-> > 
-> > > > +static inline int gpio_direction_input(unsigned gpio)
-> > > > +{
-> > > > +	if (gpio > PXA_LAST_GPIO)
-> > > > +		return -EINVAL;
-> > > > +	pxa_gpio_mode(gpio | GPIO_IN);
-> > > > +}
-> > > 
-> > > Missing return 0?
-> > > 
-> > > > +static inline int gpio_direction_output(unsigned gpio)
-> > > > +{
-> > > > +	if (gpio > PXA_LAST_GPIO)
-> > > > +		return -EINVAL;
-> > > > +	pxa_gpio_mode(gpio | GPIO_OUT);
-> > > > +}
-> > > > +
-> > > 
-> > > And here?
-> > 
-> > You're looking at about the oldest version of that patch.
-> > Admittedly there were too many floating around...
-> 
-> I think I've looked at the newer ones, too, and this particular return
-> was _not_ fixed.
+On Thu, Dec 28, 2006 at 09:40:03PM +0100, Adrian Bunk wrote:
+ > On Sun, Dec 17, 2006 at 10:05:42PM -0500, Dave Jones wrote:
+ > > On Mon, Dec 18, 2006 at 03:57:10AM +0100, Adrian Bunk wrote:
+ > >  > On Thu, Dec 14, 2006 at 04:02:15PM -0500, Dave Jones wrote:
+ > >  > 
+ > >  > > Hmm. Puzzling.
+ > >  > 
+ > >  > CONFIG_PCI_MULTITHREAD_PROBE=y ?
+ > > 
+ > > I pondered that too, and set a kernel building before I left the
+ > > office on Friday without it.  Will try booting it when I get
+ > > back to it tomorrow.
+ > 
+ > Did it fix it?
 
-Ok, I was wrong, the very newest one seems to be okay.
-									Pavel
+The machine I saw this happen on seemed to have committed suicide.
+It didn't even get past the BIOS POST when I was fighting it
+just before the holidays.
+
+Tis the season for dead hardware it seems. My home router
+ate its disk today too.  Hrmph.
+
+		Dave
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+http://www.codemonkey.org.uk

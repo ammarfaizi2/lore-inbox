@@ -1,53 +1,121 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754918AbWL1SRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754909AbWL1SYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754918AbWL1SRj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 13:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754919AbWL1SRj
+	id S1754909AbWL1SYv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 13:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWL1SYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 13:17:39 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:46044 "EHLO
-	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754915AbWL1SRi (ORCPT
+	Thu, 28 Dec 2006 13:24:51 -0500
+Received: from mta13.adelphia.net ([68.168.78.44]:46021 "EHLO
+	mta13.adelphia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754909AbWL1SYu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 13:17:38 -0500
-Date: Thu, 28 Dec 2006 19:17:36 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Benny Halevy <bhalevy@panasas.com>
-Cc: Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <4593DEF8.5020609@panasas.com>
-Message-ID: <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> 
- <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
- <1166869106.3281.587.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
- <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
- <4593DEF8.5020609@panasas.com>
-X-Personality-Disorder: Schizoid
+	Thu, 28 Dec 2006 13:24:50 -0500
+X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 13:24:49 EST
+Date: Thu, 28 Dec 2006 12:24:47 -0600
+From: Corey Minyard <minyard@acm.org>
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Carol Hebert <cah@us.ibm.com>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
+Subject: [PATCH] IPMI: fix some RCU problems
+Message-ID: <20061228182447.GA23730@localdomain>
+Reply-To: minyard@acm.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This sounds like a bug to me. It seems like we should have a one to one
->> correspondence of filehandle -> inode. In what situations would this not be the
->> case?
->
-> Well, the NFS protocol allows that [see rfc1813, p. 21: "If two file handles from
-> the same server are equal, they must refer to the same file, but if they are not
-> equal, no conclusions can be drawn."]
->
-> As an example, some file systems encode hint information into the filehandle
-> and the hints may change over time, another example is encoding parent
-> information into the filehandle and then handles representing hard links
-> to the same file from different directories will differ.
+Fix some RCU problem pointed out by Paul McKenney of IBM.  These are:
 
-BTW. how does (or how should?) NFS client deal with cache coherency if 
-filehandles for the same file differ?
+The wholesale move of the command receivers list into a new list was
+not safe because the list will point to the new tail during a
+traversal, so the traversal will never end on a reader if this happens
+during a read.
 
-Mikulas
+Memory barriers were needed to handle proper ordering of the setting
+of the IPMI interface as valid.  Readers might not see proper ordering
+of data otherwise.
+
+In ipmi_smi_watcher_register(), the use of the _rcu suffix on the list
+is unnecessary.
+
+Signed-off-by: Corey Minyard <minyard@acm.org>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+
+Index: linux-2.6.19/drivers/char/ipmi/ipmi_msghandler.c
+===================================================================
+--- linux-2.6.19.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.19/drivers/char/ipmi/ipmi_msghandler.c
+@@ -406,13 +406,31 @@ static void clean_up_interface_data(ipmi
+ 	free_smi_msg_list(&intf->waiting_msgs);
+ 	free_recv_msg_list(&intf->waiting_events);
+ 
+-	/* Wholesale remove all the entries from the list in the
+-	 * interface and wait for RCU to know that none are in use. */
++	/*
++	 * Wholesale remove all the entries from the list in the
++	 * interface and wait for RCU to know that none are in use.
++	 */
+ 	mutex_lock(&intf->cmd_rcvrs_mutex);
+-	list_add_rcu(&list, &intf->cmd_rcvrs);
+-	list_del_rcu(&intf->cmd_rcvrs);
++	if (list_empty(&intf->cmd_rcvrs))
++		INIT_LIST_HEAD(&list);
++	else {
++		list.next = intf->cmd_rcvrs.next;
++		list.prev = intf->cmd_rcvrs.prev;
++		INIT_LIST_HEAD(&intf->cmd_rcvrs);
++
++		/*
++		 * At this point the list body still points to
++		 * intf->cmd_rcvrs.  Wait for any readers to finish
++		 * using the list before we switch the list body over
++		 * to the new list.
++		 */
++		synchronize_rcu();
++
++		/* Ready the list for use. */
++		list.next->prev = &list;
++		list.prev->next = &list;
++	}
+ 	mutex_unlock(&intf->cmd_rcvrs_mutex);
+-	synchronize_rcu();
+ 
+ 	list_for_each_entry_safe(rcvr, rcvr2, &list, link)
+ 		kfree(rcvr);
+@@ -451,7 +469,7 @@ int ipmi_smi_watcher_register(struct ipm
+ 	mutex_lock(&ipmi_interfaces_mutex);
+ 
+ 	/* Build a list of things to deliver. */
+-	list_for_each_entry_rcu(intf, &ipmi_interfaces, link) {
++	list_for_each_entry(intf, &ipmi_interfaces, link) {
+ 		if (intf->intf_num == -1)
+ 			continue;
+ 		e = kmalloc(sizeof(*e), GFP_KERNEL);
+@@ -838,6 +856,7 @@ int ipmi_create_user(unsigned int       
+ 	goto out_kfree;
+ 
+  found:
++	smp_rmb();
+ 	/* Note that each existing user holds a refcount to the interface. */
+ 	kref_get(&intf->refcount);
+ 
+@@ -2761,6 +2780,7 @@ int ipmi_register_smi(struct ipmi_smi_ha
+ 		kref_put(&intf->refcount, intf_free);
+ 	} else {
+ 		/* After this point the interface is legal to use. */
++		smp_wmb(); /* Keep memory order straight for RCU readers. */
+ 		intf->intf_num = i;
+ 		mutex_unlock(&ipmi_interfaces_mutex);
+ 		call_smi_watchers(i, intf->si_dev);
+@@ -3924,6 +3944,8 @@ static void send_panic_events(char *str)
+ 			/* Interface was not ready yet. */
+ 			continue;
+ 
++		smp_rmb();
++
+ 		/* First job here is to figure out where to send the
+ 		   OEM events.  There's no way in IPMI to send OEM
+ 		   events using an event send command, so we have to

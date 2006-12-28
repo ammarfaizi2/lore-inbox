@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933004AbWL1K2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932982AbWL1K3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933004AbWL1K2i (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933010AbWL1K2i
+	id S932982AbWL1K3d (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:29:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933010AbWL1K3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:28:38 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:48853 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933004AbWL1K2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:28:37 -0500
-X-Sasl-enc: K1mvaK5qqENwFqkpANffJFOTmLgTZINSF9SuOsnpONJa 1167301644
-Date: Thu, 28 Dec 2006 19:28:51 +0900 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Theodore Tso <tytso@mit.edu>
-cc: Karel Zak <kzak@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-       linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
-       Olaf Hering <olh@suse.de>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: util-linux: orphan
-In-Reply-To: <20061227204212.GA21393@thunk.org>
-Message-ID: <Pine.LNX.4.64.0612281920400.5917@raven.themaw.net>
-References: <20061109224157.GH4324@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de>
- <20061227181510.GB17785@petra.dvoda.cz> <200612271939.48125.arnd@arndb.de>
- <20061227191824.GC17785@petra.dvoda.cz> <20061227204212.GA21393@thunk.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Dec 2006 05:29:33 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47305 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932982AbWL1K3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 05:29:32 -0500
+Date: Thu, 28 Dec 2006 02:29:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drop page cache of a single file
+Message-Id: <20061228022926.4287ca33.akpm@osdl.org>
+In-Reply-To: <367290328.14058@ustc.edu.cn>
+References: <1167275845.15989.153.camel@ymzhang>
+	<20061227194959.0ebce0e4.akpm@osdl.org>
+	<367290328.14058@ustc.edu.cn>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Dec 2006, Theodore Tso wrote:
+On Thu, 28 Dec 2006 15:19:04 +0800
+Fengguang Wu <fengguang.wu@gmail.com> wrote:
 
-> On Wed, Dec 27, 2006 at 08:18:24PM +0100, Karel Zak wrote:
-> >  Frankly, it wasn't always easy to use SeLinux in previous FC
-> >  releases, but there is huge progress and I think it's much better in
-> >  FC6.
+> On Wed, Dec 27, 2006 at 07:49:59PM -0800, Andrew Morton wrote:
+> > On Thu, 28 Dec 2006 11:17:25 +0800
+> > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
+> > 
+> > > Currently, by /proc/sys/vm/drop_caches, applications could drop pagecache,
+> > > slab(dentries and inodes), or both, but applications couldn't choose to
+> > > just drop the page cache of one file. An user of VOD (Video-On-Demand)
+> > > needs this capability to have more detailed control on page cache release.
+> > 
+> > The posix_fadvise() system call should be used for this.  Probably in
+> > combination with sys_sync_file_range().
 > 
-> I've never tried SELinux, but at one point there were all sorts of
-> horror stories that if you enabled SELinux, the moment you installed
-> any 3rd party software packages, whether it's Oracle or Websphere or
-> some other commercial application program, the application would break
-> because of all sorts of SELinux policy violations, and that it
-> required an SELinux wizard to configure SELinux policy to enable a 3rd
-> party application to actually work correctly.  Given that I tried
-> enabling SELinux, witnessed things break spectacularly and with no
-> hints about how to fix things, I've always had the attitude of "life
-> is too short to enable SELinux", and so my limited experience is
-> consistent with all of the horror stories that I've heard.
+> Yanmin: I've been using the fadvise tool from
+> http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+> 
+> It's a nice tool:
+> 
+> % fadvise 
+> Usage: fadvise filename offset length advice [loops]
+>       advice: normal sequential willneed noreuse dontneed asyncwrite writewait
+> % fadvise /var/sparse 0 0x7fffffff dontneed
+> 
 
-I see the fine grained security of Selinux as a big problem for third 
-party applications.
+I was a bit reluctant to point at that because it has nasty hacks to make
+it mostly-work on old glibc's which don't implement posix_fadvise().
 
-It's a big job to make the OS work cleanly with it but the fact is that 
-many machines need to run significant 3rd party applications. I don't have 
-first hand experience but I suspect most vendors have tight enough budgets 
-without adding an Selinux developer and customers usually don't have this 
-resource either so, by and large, I expect people will just have to 
-disable it.
-
-I really don't see any solution to this problem either.
-Time will tell.
-
-Ian
+Hopefully if you're running a recent distro, you have glibc support for
+fadvise() and it's possible to write a portable version of that app which
+doesn't need to know about per-arch syscall numbers.

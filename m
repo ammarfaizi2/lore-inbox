@@ -1,126 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752778AbWL1P7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754890AbWL1P76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752778AbWL1P7N (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 10:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754870AbWL1P7M
+	id S1754890AbWL1P76 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 10:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754891AbWL1P75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 10:59:12 -0500
-Received: from mx2-2.mail.ru ([194.67.23.122]:32662 "EHLO mx2.mail.ru"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753060AbWL1P7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 10:59:12 -0500
-Date: Thu, 28 Dec 2006 19:04:05 +0300
-From: Evgeniy Dushistov <dushistov@mail.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Tomasz Kvarsin <kvarsin@gmail.com>,
-       Alexander Viro <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [PATCH] [RFC] garbage instead of zeroes in UFS
-Message-ID: <20061228160405.GA16344@rain>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Tomasz Kvarsin <kvarsin@gmail.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <5157576d0612200302j556694bfsfdc6cb0c37b054c@mail.gmail.com> <5157576d0612200304n7123157vc47c3c7c1a645527@mail.gmail.com> <20061220030955.bd3acdbc.akpm@osdl.org> <20061220145412.GA11922@rain> <20061220213555.4a21dd08.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 28 Dec 2006 10:59:57 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51747 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754890AbWL1P74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 10:59:56 -0500
+Date: Thu, 28 Dec 2006 16:56:45 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>
+Subject: Re: [take29 0/8] kevent: Generic event handling mechanism.
+Message-ID: <20061228155645.GA7516@elte.hu>
+References: <3154985aa0591036@2ka.mipt.ru> <11668927001365@2ka.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061220213555.4a21dd08.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <11668927001365@2ka.mipt.ru>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0071]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry for delay with answer]
 
-On Wed, Dec 20, 2006 at 09:35:55PM -0800, Andrew Morton wrote:
-> I know nothing of UFS, but here goes..
-> 
-> > Looks like this is the problem, which point Al Viro some time ago:
-> > when we allocate block(in this situation 16K) we mark as new
-> > only one fragment(in this situation 2K), 
-> 
-> Do you mean:
-> 
->  ufs's get_block callback allocates 16k of disk at a time, and links that
->  entire 16k into the file's metadata.  But because get_block is called for
->  only a single buffer_head (a 2k buffer_head in this case?) we are only
->  able to tell the VFS that this 2k is buffer_new().
-> 
->  So when ufs_getfrag_block() is later called to map some more data in the
->  file, and when that data resides within the remaining 14k of this
->  fragment, ufs_getfrag_block() will incorrectly return a !buffer_new()
->  buffer_head.
-> 
-Yes.
+* Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-> If that is correct, it seems like a fairly easy-to-trigger bug.  Perhaps
-> it only happens when we're filling in file holes for some reason?
-> 
-when we filling file hole with size >=16K(in this case),
-or extend big enough file(big - we use indirect, double indirect and so
-on blocks).
+> Generic event handling mechanism.
 
-> Or perhaps this bad data can be accessed simply by extending the file with
-> ftruncate and then reading shortly beyond the previous end-of-file?
-> 
-> > I don't see _right_ way to do nullification of whole block,
-> > if use inode page cache, some pages may be outside of inode limits
-> > (inode size),
-> > and will be lost;
-> 
-> Using the per-inode pagecache is certainly more efficient than perfroming
-> synchronous writes via blockdev pagecache and then reading the blocks back
-> into the inode pagecache!
-> 
-> It'd be fairly straightforward to do this for blocks which are inside
-> i_size (ie: filling in file holes): populate pagecache, zero it, mark it
-> dirty.
-> 
-> For pages which are presently outside i_size things are a bit more risky -
-> they're not really legal and can't in theory be written out.  Or might not
-> be written out.  Although from a quick look at the writeback code, it might
-> all just work.
-> 
-> However a cleaner solution might be to remember, on a per-inode basis, what
-> the filesystem's view is of the current file size.  Then implement
-> inode_operations.setattr() and if someone extends the file, we know that
-> this will expose the uninitialised blocks outside the old file-size to
-> reads, so now is the time to instantiate that dirty, zero-filled pagecache
-> to cover the tail of the last fragment.
-> 
-> Is all a bit tricky.
-> 
+it would be /very/ helpful to state against which kernel tree the 
+patch-queue is. It does not apply to 2.6.20-rc1 nor to -rc2 nor to 
+2.6.19. At which point i gave up ...
 
-I see the two places:
-inode_ops.setattr and
-address_space_operations.commit_write,
-where inode size can be changed, and we should say
-"hey, we have pages outside of inode lets fill them with zeroes".
-
-But there is one problem, as can I see(may be I missed something?):
-functions from ufs address_space_operations like prepare_write,
-writepage are called with page in locked state,
-and deadlock may appear, when for example msync will be called
-for page "0" and another msync will be called for page "1",
-and prepare_write for "0" will try nullify pages "0", "1", "2" and "3"
-(The similar code[populate cache and modify pages],
-used for reallocate fragments, but due to nature of ufs such situation
-is impossible).
-
-So it will be funny implement, debug and use such code.
-
-> > if use blockdev page cache it is possible to zeroize real data,
-> > if later inode page cache will be used.
-> > 
-> > The simpliest way, as can I see usage of block device page cache,
-> > but not only mark dirty, but also sync it during "nullification".
-> 
-> That'll work.  How bad is this change from a performance point-of-view?
-
-You suggest any particular benchmark?
-I use my simple tests collection, which I used for check
-that create,open,write,read,close works on ufs, and I see that
-this patch makes ufs code 18% slower then before.
-
--- 
-/Evgeniy
-
+	Ingo

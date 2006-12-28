@@ -1,93 +1,126 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753563AbWL1PzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752778AbWL1P7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753563AbWL1PzQ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 10:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754887AbWL1PzP
+	id S1752778AbWL1P7N (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 10:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754870AbWL1P7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 10:55:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32955 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753563AbWL1PzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 10:55:14 -0500
-Message-ID: <4593E8CC.8090401@redhat.com>
-Date: Thu, 28 Dec 2006 10:54:52 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 28 Dec 2006 10:59:12 -0500
+Received: from mx2-2.mail.ru ([194.67.23.122]:32662 "EHLO mx2.mail.ru"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753060AbWL1P7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 10:59:12 -0500
+Date: Thu, 28 Dec 2006 19:04:05 +0300
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Tomasz Kvarsin <kvarsin@gmail.com>,
+       Alexander Viro <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] [PATCH] [RFC] garbage instead of zeroes in UFS
+Message-ID: <20061228160405.GA16344@rain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Tomasz Kvarsin <kvarsin@gmail.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <5157576d0612200302j556694bfsfdc6cb0c37b054c@mail.gmail.com> <5157576d0612200304n7123157vc47c3c7c1a645527@mail.gmail.com> <20061220030955.bd3acdbc.akpm@osdl.org> <20061220145412.GA11922@rain> <20061220213555.4a21dd08.akpm@osdl.org>
 MIME-Version: 1.0
-To: Benny Halevy <bhalevy@panasas.com>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>  <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net> <4593DEF8.5020609@panasas.com>
-In-Reply-To: <4593DEF8.5020609@panasas.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061220213555.4a21dd08.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benny Halevy wrote:
-> Jeff Layton wrote:
->> Benny Halevy wrote:
->>> It seems like the posix idea of unique <st_dev, st_ino> doesn't
->>> hold water for modern file systems and that creates real problems for
->>> backup apps which rely on that to detect hard links.
->>>
->> Why not? Granted, many of the filesystems in the Linux kernel don't enforce that 
->> they have unique st_ino values, but I'm working on a set of patches to try and 
->> fix that.
+[sorry for delay with answer]
+
+On Wed, Dec 20, 2006 at 09:35:55PM -0800, Andrew Morton wrote:
+> I know nothing of UFS, but here goes..
 > 
-> That's great and will surely help most file systems (apparently not Coda as
-> Jan says they use 128 bit internal file identifiers).
+> > Looks like this is the problem, which point Al Viro some time ago:
+> > when we allocate block(in this situation 16K) we mark as new
+> > only one fragment(in this situation 2K), 
 > 
-> What about 32 bit architectures? Is ino_t going to be 64 bit
-> there too?
+> Do you mean:
+> 
+>  ufs's get_block callback allocates 16k of disk at a time, and links that
+>  entire 16k into the file's metadata.  But because get_block is called for
+>  only a single buffer_head (a 2k buffer_head in this case?) we are only
+>  able to tell the VFS that this 2k is buffer_new().
+> 
+>  So when ufs_getfrag_block() is later called to map some more data in the
+>  file, and when that data resides within the remaining 14k of this
+>  fragment, ufs_getfrag_block() will incorrectly return a !buffer_new()
+>  buffer_head.
+> 
+Yes.
+
+> If that is correct, it seems like a fairly easy-to-trigger bug.  Perhaps
+> it only happens when we're filling in file holes for some reason?
+> 
+when we filling file hole with size >=16K(in this case),
+or extend big enough file(big - we use indirect, double indirect and so
+on blocks).
+
+> Or perhaps this bad data can be accessed simply by extending the file with
+> ftruncate and then reading shortly beyond the previous end-of-file?
+> 
+> > I don't see _right_ way to do nullification of whole block,
+> > if use inode page cache, some pages may be outside of inode limits
+> > (inode size),
+> > and will be lost;
+> 
+> Using the per-inode pagecache is certainly more efficient than perfroming
+> synchronous writes via blockdev pagecache and then reading the blocks back
+> into the inode pagecache!
+> 
+> It'd be fairly straightforward to do this for blocks which are inside
+> i_size (ie: filling in file holes): populate pagecache, zero it, mark it
+> dirty.
+> 
+> For pages which are presently outside i_size things are a bit more risky -
+> they're not really legal and can't in theory be written out.  Or might not
+> be written out.  Although from a quick look at the writeback code, it might
+> all just work.
+> 
+> However a cleaner solution might be to remember, on a per-inode basis, what
+> the filesystem's view is of the current file size.  Then implement
+> inode_operations.setattr() and if someone extends the file, we know that
+> this will expose the uninitialised blocks outside the old file-size to
+> reads, so now is the time to instantiate that dirty, zero-filled pagecache
+> to cover the tail of the last fragment.
+> 
+> Is all a bit tricky.
 > 
 
-Sorry, I should qualify that statement. A lot of filesystems don't have 
-permanent i_ino values (mostly pseudo filesystems -- pipefs, sockfs, /proc 
-stuff, etc). For those, the idea is to try to make sure we use 32 bit values for 
-them and to ensure that they are uniquely assigned. I unfortunately can't do 
-much about filesystems that do have permanent inode numbers.
+I see the two places:
+inode_ops.setattr and
+address_space_operations.commit_write,
+where inode size can be changed, and we should say
+"hey, we have pages outside of inode lets fill them with zeroes".
 
->>> Adding a vfs call to check for file equivalence seems like a good idea to me.
->>> A syscall exposing it to user mode apps can look like what you sketched above,
->>> and another variant of it can maybe take two paths and possibly a flags field
->>> (for e.g. don't follow symlinks).
->>>
->>> I'm cross-posting this also to nfsv4@ietf. NFS has exactly the same problem
->>> with <fsid, fileid> as fileid is 64 bit wide. Although the nfs client can
->>> determine that two filesystem objects are hard linked if they have the same
->>> filehandle but there are cases where two distinct filehandles can still refer to
->>> the same filesystem object.  Letting the nfs client determine file equivalency
->>> based on filehandles will probably satisfy most users but if the exported
->>> fs supports the new call discussed above, exporting it over NFS makes a
->>> lot of sense to me... What do you guys think about adding such an operation
->>> to NFS?
->>>
->> This sounds like a bug to me. It seems like we should have a one to one 
->> correspondence of filehandle -> inode. In what situations would this not be the 
->> case?
+But there is one problem, as can I see(may be I missed something?):
+functions from ufs address_space_operations like prepare_write,
+writepage are called with page in locked state,
+and deadlock may appear, when for example msync will be called
+for page "0" and another msync will be called for page "1",
+and prepare_write for "0" will try nullify pages "0", "1", "2" and "3"
+(The similar code[populate cache and modify pages],
+used for reallocate fragments, but due to nature of ufs such situation
+is impossible).
+
+So it will be funny implement, debug and use such code.
+
+> > if use blockdev page cache it is possible to zeroize real data,
+> > if later inode page cache will be used.
+> > 
+> > The simpliest way, as can I see usage of block device page cache,
+> > but not only mark dirty, but also sync it during "nullification".
 > 
-> Well, the NFS protocol allows that [see rfc1813, p. 21: "If two file handles from
-> the same server are equal, they must refer to the same file, but if they are not
-> equal, no conclusions can be drawn."]
-> 
-> As an example, some file systems encode hint information into the filehandle
-> and the hints may change over time, another example is encoding parent
-> information into the filehandle and then handles representing hard links
-> to the same file from different directories will differ.
-> 
+> That'll work.  How bad is this change from a performance point-of-view?
 
-Interesting. That does seem to break the method of st_dev/st_ino for finding 
-hardlinks. For Linux fileservers I think we generally do have 1:1 correspondence 
-so that's not generally an issue.
+You suggest any particular benchmark?
+I use my simple tests collection, which I used for check
+that create,open,write,read,close works on ufs, and I see that
+this patch makes ufs code 18% slower then before.
 
-If we're getting into changing specs, though, I think it would be better to 
-change it to enforce a 1:1 filehandle to inode correspondence rather than making 
-new NFS ops. That does mean you can't use the filehandle for carrying other 
-info, but it seems like there ought to be better mechanisms for that.
+-- 
+/Evgeniy
 
--- Jeff

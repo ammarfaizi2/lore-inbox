@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964977AbWL1Sl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753653AbWL1SpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbWL1Sl2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 13:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWL1Sl1
+	id S1753653AbWL1SpR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 13:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754924AbWL1SpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 13:41:27 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:28367 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964885AbWL1Sl1 (ORCPT
+	Thu, 28 Dec 2006 13:45:17 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2471 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753653AbWL1SpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 13:41:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YWeYab0RFmSNH4f6dX+Jb6kULRs9K/GDAC4hzlXyWlnP4udRxBGVMJVnh5BSb5iLM7Z+tc9Sl5stUlmtLIvt943VDa4Dn4yclSMbbOgnFJcrC9w1eiyj1x63N3C55UbKnfpNZdkcD9Q3cmcLI7mUasgGD7XXq39e80DSQs9FlK0=
-Message-ID: <80ec54e90612281041q3b2c2bcemb0308c1e89a29ac@mail.gmail.com>
-Date: Thu, 28 Dec 2006 19:41:25 +0100
-From: "=?ISO-8859-1?Q?Daniel_Marjam=E4ki?=" <daniel.marjamaki@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Want comments regarding patch
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 13:45:15 -0500
+Date: Thu, 28 Dec 2006 18:44:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       David Miller <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Message-ID: <20061228184440.GC20596@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Gordon Farquharson <gordonfarquharson@gmail.com>,
+	David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+	tbm@cyrius.com, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	andrei.popa@i-neo.ro, Andrew Morton <akpm@osdl.org>,
+	hugh@veritas.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org> <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> <97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com> <20061228101311.GA9672@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612280917000.4473@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612280917000.4473@woody.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all!
+On Thu, Dec 28, 2006 at 09:27:12AM -0800, Linus Torvalds wrote:
+> On Thu, 28 Dec 2006, Russell King wrote:
+> > and if you look at glibc's memset() function, you'll notice that's exactly
+> > what you expect if you pass a non-8bit value to it.  Ergo, what you're
+> > seeing is utterly expected given glibc's memset() implementation on ARM.
+> 
+> Guys, you _really_ should fix memset(). What you describe is a _bug_. 
 
-I sent a patch with this content:
+Yup, but I have nothing to do with glibc because I refuse to do that
+silly copyright assignment FSF thing.  Hopefully someone else can
+resolve it, but...
 
--       for (i = 0; i < MAX_PIRQS; i++)
--               pirq_entries[i] = -1;
-+       memset(pirq_entries, -1, sizeof(pirq_entries));
+> > Fixing Linus' test program to pass nr & 255 to memset
+> 
+> No. I'm almost certain that that is not a "fix", it's a workaround for a 
+> serious bug in your glibc crap.
 
-I'd like to know if you have any comments to this change. It was of
-course my intention to make the code shorter, simpler and faster.
+_is_ a fix whether _you_ like it or not to work around the issue so
+people can at least run your test program.  I'm not saying it's a
+proper fix though.
 
-I've discussed this with Ingo Molnar and here's our conversation:
+Of course, if you prefer to be mislead by incorrect bug reports...
 
-INGO:
-
-hm, i'm not sure i like this - the '-1' in the memset is for a byte,
-while the pirq_entries are word sized. It should work because the bytes
-happen to be 0xff for the word too, but this is encodes an assumption,
-and were we ever to change that value it could break silently. gcc ought
-to be able to figure out the best way to initialize the array.
-
-
-DANIEL:
-
-Thank you for the comments.
-
-I understand your point, it's good. But I personally still like my
-method better.
-For me -1 is just as valid as an argument as 0. As you note however,
-it assumes that the next developer understands the encoding of
-negative numbers. A developer who doesn't know the encoding could be
-very confused. Would my patch be ok if I used '0xff' instead of '-1'?
-
-With version 3.3.6 (gcc) there's quite a big difference in the
-assembly code (between 'for' and 'memset').
-
-INGO:
-
-0xff might be better, but i'm still uneasy about it ... No other piece
-of code within the kernel does this.
-
-could you post the patch and the reasoning to
-linux-kernel@vger.kernel.org as well? That way others can chime in as
-well.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

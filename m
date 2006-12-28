@@ -1,104 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754871AbWL1P0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754883AbWL1Pm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754871AbWL1P0H (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 10:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754873AbWL1P0G
+	id S1754883AbWL1Pm7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 10:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754879AbWL1Pm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 10:26:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4709 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754871AbWL1P0F (ORCPT
+	Thu, 28 Dec 2006 10:42:59 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:30967 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754883AbWL1Pm6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 10:26:05 -0500
-Date: Thu, 28 Dec 2006 16:26:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
-Subject: [-mm patch] DVB: fix compile error
-Message-ID: <20061228152607.GC20714@stusta.de>
-References: <20061228024237.375a482f.akpm@osdl.org>
+	Thu, 28 Dec 2006 10:42:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pcFgca5XW8h4yOd0Yq0FBVUiv1xpz/ejQQrPIB9rgWrQI285Ry2W6ny7gdhVhKEkrwsyC2I/4DP0uCycuvNkK+wg0U6A+0/ZBYO0PVmooKr+jbMqypx3kJQOjGIk0JLCKl4NFBRIikArNzzTh6wXsc+KaaI+3PKGxCILOL2OUfA=
+Message-ID: <b6a2187b0612280742x1b613849ye23aca38c71a5871@mail.gmail.com>
+Date: Thu, 28 Dec 2006 23:42:51 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: "Avi Kivity" <avi@argo.co.il>
+Subject: Re: open /dev/kvm: No such file or directory
+Cc: "Dor Laor" <dor.laor@qumranet.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4593D9F5.6010807@argo.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061228024237.375a482f.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <b6a2187b0612280508t24e0a740nd1aabdfeb706fbec@mail.gmail.com>
+	 <64F9B87B6B770947A9F8391472E0321609AB0D35@ehost011-8.exch011.intermedia.net>
+	 <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
+	 <4593D9F5.6010807@argo.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 02:42:37AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.20-rc1-mm1:
->...
->  git-dvb.patch
->...
->  git trees
->...
+On 12/28/06, Avi Kivity <avi@argo.co.il> wrote:
 
+> udev is the best solution here.  It works with read-only root as it
+> mounts tmpfs on /dev.
 
-This patch fixes the following compile error:
+Thanks for the suggestion and I'll look into it. As for now, my system
+works well without udev, and I just wanted to test kvm without the
+"dynamic" /dev/kvm feature if possible.
 
-<--  snip  -->
+Would it be possible to create /dev/kvm once and let it stay there
+permanently? How about a switch for non-udev system?
 
-...
-  LD      drivers/media/video/built-in.o
-drivers/media/video/saa7134/built-in.o:(.data+0x85ec): multiple definition of `ir_rc5_remote_gap'
-drivers/media/video/bt8xx/built-in.o:(.data+0x734c): first defined here
-drivers/media/video/saa7134/built-in.o:(.data+0x85f0): multiple definition of `ir_rc5_key_timeout'
-drivers/media/video/bt8xx/built-in.o:(.data+0x7350): first defined here
-make[4]: *** [drivers/media/video/built-in.o] Error 1
-
-<--  snip  -->
-
-Since this variables were needlessly global, this patch implements the 
-trivial fix of making them static.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- drivers/media/video/bt8xx/bttv-input.c      |    4 ++--
- drivers/media/video/saa7134/saa7134-input.c |    4 ++--
- include/media/ir-common.h                   |    3 ---
- 3 files changed, 4 insertions(+), 7 deletions(-)
-
---- linux-2.6.20-rc2-mm1/include/media/ir-common.h.old	2006-12-28 12:54:05.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/include/media/ir-common.h	2006-12-28 12:54:39.000000000 +0100
-@@ -36,9 +36,6 @@
- #define IR_KEYCODE(tab,code)	(((unsigned)code < IR_KEYTAB_SIZE) \
- 				 ? tab[code] : KEY_RESERVED)
- 
--extern int ir_rc5_remote_gap;
--extern int ir_rc5_key_timeout;
--
- #define RC5_START(x)	(((x)>>12)&3)
- #define RC5_TOGGLE(x)	(((x)>>11)&1)
- #define RC5_ADDR(x)	(((x)>>6)&31)
---- linux-2.6.20-rc2-mm1/drivers/media/video/saa7134/saa7134-input.c.old	2006-12-28 12:54:48.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/media/video/saa7134/saa7134-input.c	2006-12-28 12:55:00.000000000 +0100
-@@ -41,9 +41,9 @@
- module_param(pinnacle_remote, int, 0644);    /* Choose Pinnacle PCTV remote */
- MODULE_PARM_DESC(pinnacle_remote, "Specify Pinnacle PCTV remote: 0=coloured, 1=grey (defaults to 0)");
- 
--int ir_rc5_remote_gap = 885;
-+static int ir_rc5_remote_gap = 885;
- module_param(ir_rc5_remote_gap, int, 0644);
--int ir_rc5_key_timeout = 115;
-+static int ir_rc5_key_timeout = 115;
- module_param(ir_rc5_key_timeout, int, 0644);
- 
- #define dprintk(fmt, arg...)	if (ir_debug) \
---- linux-2.6.20-rc2-mm1/drivers/media/video/bt8xx/bttv-input.c.old	2006-12-28 12:55:08.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/media/video/bt8xx/bttv-input.c	2006-12-28 12:55:17.000000000 +0100
-@@ -36,9 +36,9 @@
- static int repeat_period = 33;
- module_param(repeat_period, int, 0644);
- 
--int ir_rc5_remote_gap = 885;
-+static int ir_rc5_remote_gap = 885;
- module_param(ir_rc5_remote_gap, int, 0644);
--int ir_rc5_key_timeout = 200;
-+static int ir_rc5_key_timeout = 200;
- module_param(ir_rc5_key_timeout, int, 0644);
- 
- #define DEVNAME "bttv-input"
-
+Thanks,
+Jeff.

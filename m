@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964908AbWL1DxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964910AbWL1ECD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWL1DxP (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 22:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWL1DxP
+	id S964910AbWL1ECD (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 23:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWL1ECD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 22:53:15 -0500
-Received: from an-out-0708.google.com ([209.85.132.240]:36457 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964910AbWL1DxO (ORCPT
+	Wed, 27 Dec 2006 23:02:03 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:4899 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964910AbWL1ECA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 22:53:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jLeWzz4WooFzbLLqzdv7KEDoQdVz8Hf9rTdYJyoNy7brgVoVuKn+aM+FP2UuPUhsfnsYHaFD8CcodaHO3D72tYavHSRcwan6lepN6s2NSbtdOIGyGYD/C0Ti5W/4n2FmDBZef3QHofDr9+U6xP6YgyExxH0ASvnY9IVX74W4xzg=
-Message-ID: <45a44e480612271953we6fe8adg118560161579b7f9@mail.gmail.com>
-Date: Thu, 28 Dec 2006 04:53:13 +0100
-From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
-To: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-Subject: Re: [RFC 2.6.19 1/1] fbdev,mm: hecuba/E-Ink fbdev driver v2
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <cda58cb80612220157q5433c346pccd06b8b7cbaadba@mail.gmail.com>
+	Wed, 27 Dec 2006 23:02:00 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Subject: Re: Oops in 2.6.19.1
+Date: Thu, 28 Dec 2006 04:02:23 +0000
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <200612271235.08845.s0348365@sms.ed.ac.uk> <1167273694.15989.146.camel@ymzhang>
+In-Reply-To: <1167273694.15989.146.camel@ymzhang>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200612111046.kBBAkV8Y029087@localhost.localdomain>
-	 <457D895D.4010500@innova-card.com>
-	 <45a44e480612111554j1450f35ub4d9932e5cd32d4@mail.gmail.com>
-	 <cda58cb80612130038x6b81a00dv813d10726d495eda@mail.gmail.com>
-	 <45a44e480612162025n5d7c77bdkc825e94f1fb37904@mail.gmail.com>
-	 <cda58cb80612200050h6def9866nf1798753da9d842d@mail.gmail.com>
-	 <cda58cb80612220157q5433c346pccd06b8b7cbaadba@mail.gmail.com>
+Message-Id: <200612280402.23474.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/22/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+On Thursday 28 December 2006 02:41, Zhang, Yanmin wrote:
+[snip]
+> > Here's a current decompilation of vmlinux/pipe_poll() from the running
+> > kernel, the addresses have changed slightly. There's no xchg there
+> > either:
 >
-> Well thinking more about it, this wouldn't work for all cache types.
-> For example, if your cache is not a direct maped one, this workaround
-> won't work. So this is definitely not a portable solution.
->
+> Could you reproduce the bug by the new kernel, so we could get the exact
+> address and instruction of the bug?
 
->From asking peterz on #mm, I think page_mkclean will do the right
-thing and call something like flush_cache_page. I think that resolves
-the issue which I think you identified where the end symptom on archs
-with virtually tagged caches could be a line of pixels written by
-userspace through one PTE remain in-cache and therefore "undisplayed"
-when the kernel reads through another PTE that may fall on a different
-cacheline.
+It crashed again, but this time with no output (machine locked solid). To be 
+honest, the disassembly looks right (it's like Chuck said, it's jumping back 
+half way through an instruction):
 
-Thanks,
-jayakumar
+c0156f5f:       3b 87 68 01 00 00       cmp    0x168(%edi),%eax
+
+So c0156f60 is 87 68 01 00 00..
+
+This is with the GCC recompile, so it's not a distro problem. It could still 
+either be GCC 4.x, or a 2.6.19.1 specific bug, but it's serious. 2.6.19 with 
+GCC 3.4.3 is 100% stable.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

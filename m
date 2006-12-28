@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753724AbWL1UkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754972AbWL1Uq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753724AbWL1UkG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 15:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754971AbWL1UkG
+	id S1754972AbWL1Uq6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 15:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754971AbWL1Uq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 15:40:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1253 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753724AbWL1UkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 15:40:05 -0500
-Date: Thu, 28 Dec 2006 21:40:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.20rc1 oops.
-Message-ID: <20061228204003.GE20714@stusta.de>
-References: <20061214210215.GC22164@redhat.com> <20061218025710.GS10316@stusta.de> <20061218030542.GA12927@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061218030542.GA12927@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 28 Dec 2006 15:46:58 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58771 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753748AbWL1Uq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 15:46:57 -0500
+Date: Thu, 28 Dec 2006 12:46:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] remove 556 unneeded #includes of sched.h
+Message-Id: <20061228124644.4e1ed32b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0612282059160.8356@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.63.0612282059160.8356@gockel.physik3.uni-rostock.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 17, 2006 at 10:05:42PM -0500, Dave Jones wrote:
-> On Mon, Dec 18, 2006 at 03:57:10AM +0100, Adrian Bunk wrote:
->  > On Thu, Dec 14, 2006 at 04:02:15PM -0500, Dave Jones wrote:
->  > 
->  > > Hmm. Puzzling.
->  > 
->  > CONFIG_PCI_MULTITHREAD_PROBE=y ?
-> 
-> I pondered that too, and set a kernel building before I left the
-> office on Friday without it.  Will try booting it when I get
-> back to it tomorrow.
+On Thu, 28 Dec 2006 21:27:40 +0100 (CET)
+Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
 
-Did it fix it?
+> After Al Viro (finally) succeeded in removing the sched.h #include in 
+> module.h recently, it makes sense again to remove other superfluous 
+> sched.h includes.
 
-> 		Dave
+Why are they "superfluous"?  Because those compilation
+units pick up sched.h indirectly, via other includes?
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+If so, is that a thing we want to do?

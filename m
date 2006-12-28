@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754964AbWL1UiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753724AbWL1UkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754964AbWL1UiW (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 15:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754963AbWL1UiW
+	id S1753724AbWL1UkG (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 15:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754971AbWL1UkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 15:38:22 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:23392 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754964AbWL1UiV (ORCPT
+	Thu, 28 Dec 2006 15:40:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1253 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753724AbWL1UkF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 15:38:21 -0500
-Date: Thu, 28 Dec 2006 12:24:22 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: paulmck@linux.vnet.ibm.com
-Cc: Christoph Hellwig <hch@infradead.org>, Corey Minyard <minyard@acm.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Carol Hebert <cah@us.ibm.com>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
-Subject: Re: [PATCH] IPMI: fix some RCU problems
-Message-Id: <20061228122422.f052f6b5.randy.dunlap@oracle.com>
-In-Reply-To: <20061228195504.GC4501@linux.vnet.ibm.com>
-References: <20061228182447.GA23730@localdomain>
-	<20061228183101.GA2412@infradead.org>
-	<20061228195504.GC4501@linux.vnet.ibm.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 28 Dec 2006 15:40:05 -0500
+Date: Thu, 28 Dec 2006 21:40:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.20rc1 oops.
+Message-ID: <20061228204003.GE20714@stusta.de>
+References: <20061214210215.GC22164@redhat.com> <20061218025710.GS10316@stusta.de> <20061218030542.GA12927@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061218030542.GA12927@redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 11:55:04 -0800 Paul E. McKenney wrote:
-
->  list.h |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 58 insertions(+)
+On Sun, Dec 17, 2006 at 10:05:42PM -0500, Dave Jones wrote:
+> On Mon, Dec 18, 2006 at 03:57:10AM +0100, Adrian Bunk wrote:
+>  > On Thu, Dec 14, 2006 at 04:02:15PM -0500, Dave Jones wrote:
+>  > 
+>  > > Hmm. Puzzling.
+>  > 
+>  > CONFIG_PCI_MULTITHREAD_PROBE=y ?
 > 
-> diff -urpNa -X dontdiff linux-2.6.19/include/linux/list.h linux-2.6.19-lpr/include/linux/list.h
-> --- linux-2.6.19/include/linux/list.h	2006-11-29 13:57:37.000000000 -0800
-> +++ linux-2.6.19-lpr/include/linux/list.h	2006-12-28 11:48:31.000000000 -0800
-> @@ -360,6 +360,64 @@ static inline void list_splice_init(stru
->  }
->  
->  /**
-> + * list_splice_init_rcu - splice an RCU-protected list into an existing list.
-> + * @list	the RCU-protected list to splice
-> + * @head	the place in the list to splice the first list into
-> + * @sync	function to sync: synchronize_rcu(), synchronize_sched(), ...
+> I pondered that too, and set a kernel building before I left the
+> office on Friday without it.  Will try booting it when I get
+> back to it tomorrow.
 
-@parameter: is kernel-doc syntax.
-I.e., please add a colon after each one of those.
+Did it fix it?
 
----
-~Randy
+> 		Dave
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

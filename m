@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932787AbWL1Ja7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932763AbWL1JgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932787AbWL1Ja7 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 04:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWL1Ja7
+	id S932763AbWL1JgL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 04:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbWL1JgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 04:30:59 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:37267 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932787AbWL1Ja6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 04:30:58 -0500
-Date: Thu, 28 Dec 2006 10:30:41 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Gordon Farquharson <gordonfarquharson@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
-       ranma@tdiedrich.de, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       andrei.popa@i-neo.ro, Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-Message-ID: <20061228093041.GA14626@deprecation.cyrius.com>
-References: <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org> <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com> <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org> <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
+	Thu, 28 Dec 2006 04:36:10 -0500
+Received: from il.qumranet.com ([62.219.232.206]:37417 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932763AbWL1JgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 04:36:10 -0500
+Message-ID: <45939008.106@qumranet.com>
+Date: Thu, 28 Dec 2006 11:36:08 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS - KVM in 2.6.20-rc2
+References: <122820060049.5177.4593147E000B4D2C0000143922007621949D0E050B9A9D0E99@comcast.net>
+In-Reply-To: <122820060049.5177.4593147E000B4D2C0000143922007621949D0E050B9A9D0E99@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Gordon Farquharson <gordonfarquharson@gmail.com> [2006-12-27 22:38]:
-> >That's just 400kB!
-> >
-> >There's no way you should see corruption with that kind of value. It
-> >should all stay solidly in the cache.
-> >
-> >Is this perhaps with ARM nommu or something else strange? It may be that
-> >the program just doesn't work at all if mmap() is faked out with a malloc
-> >or similar.
-> 
-> Definitely a question for the ARM gurus. I'm out of my depth.
+Parag Warudkar wrote:
+> Running qemu with 512M ram out of available 480M total invoked the OOM killer (that's obvious along with other OOM-killer stupidities like killing totally irrelevant processes) followed by the below OOPS.
+>
+> Killed process 19271 (trashapplet)Out of memory: kill process 12475 (qemu) score 7899 or a childOut of memory: kill process 12475 (qemu) score 7899 or a childKilled process 12475 (qemu)Killed process 12475 (qemu)
+>
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000004 printing eip:c0153aa2*pde = 17339067*pte = 
 
-The CPU has a MMU.  For reference, it's a IXP4xx based device with 32 MB
-of memory.
+I've committed a fix for this, and will send it to Andrew shortly.  
+Thanks for the report.
+
 -- 
-Martin Michlmayr
-http://www.cyrius.com/
+error compiling committee.c: too many arguments to function
+

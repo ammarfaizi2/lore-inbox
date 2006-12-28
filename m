@@ -1,174 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965033AbWL1WiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965038AbWL1WjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWL1WiW (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 17:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWL1WiW
+	id S965038AbWL1WjL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 17:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWL1WjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 17:38:22 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:37949 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965033AbWL1WiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 17:38:18 -0500
-Date: Thu, 28 Dec 2006 14:37:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Guillaume Chazarain <guichaz@yahoo.fr>, David Miller <davem@davemloft.net>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-       Marc Haber <mh+linux-kernel@zugschlus.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, andrei.popa@i-neo.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Hugh Dickins <hugh@veritas.com>, Florian Weimer <fw@deneb.enyo.de>,
-       Martin Michlmayr <tbm@cyrius.com>, arjan@infradead.org,
-       Chen Kenneth W <kenneth.w.chen@intel.com>
-Subject: Re: 2.6.19 file content corruption on ext3
-In-Reply-To: <Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
-References: <1166314399.7018.6.camel@localhost> <20061217040620.91dac272.akpm@osdl.org>
- <1166362772.8593.2.camel@localhost> <20061217154026.219b294f.akpm@osdl.org>
- <Pine.LNX.4.64.0612171716510.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612171725110.3479@woody.osdl.org>
- <Pine.LNX.4.64.0612171744360.3479@woody.osdl.org> <45861E68.3060403@yahoo.com.au>
- <20061217214308.62b9021a.akpm@osdl.org> <20061219085149.GA20442@torres.l21.ma.zugschlus.de>
- <20061228180536.GB7385@torres.zugschlus.de> <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
+	Thu, 28 Dec 2006 17:39:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1517 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S965039AbWL1WjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 17:39:08 -0500
+Date: Thu, 28 Dec 2006 23:39:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ben Castricum <mail0612@bencastricum.nl>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Berthold Cogel <cogel@rrz.uni-koeln.de>,
+       Ben Collins <ben.collins@ubuntu.com>,
+       Daniel Holbach <daniel.holbach@ubuntu.com>,
+       Komuro <komurojun-mbn@nifty.com>, Michael Reske <micha@gmx.com>,
+       Ayaz Abdulla <aabdulla@nvidia.com>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, Tobias Diedrich <ranma+kernel@tdiedrich.de>,
+       Andi Kleen <ak@suse.de>, Yinghai Lu <yinghai.lu@amd.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, discuss@x86-64.org,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Steve Wise <swise@opengridcomputing.com>, linux-ide@vger.kernel.org
+Subject: 2.6.20-rc2: known unfixed regressions
+Message-ID: <20061228223909.GK20714@stusta.de>
+References: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This email lists some known regressions in 2.6.20-rc2 compared to 2.6.19.
 
-Ok,
- with the ugly trace capture patch, I've actually captured this corruption 
-in action, I think.
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-I did a full trace of all pages involved in one run, and picked one 
-corruption at random:
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-	Chunk 14465 corrupted (0-75)  (01423fb4-01423fff)
-	Expected 129, got 0
-	Written as (5126)9509(15017)
 
-That's the first 76 bytes of a chunk missing, and it's the last 76 bytes 
-on a page. It's page index 01423 in the mapped file, and bytes fb4-fff 
-within that file.
+Subject    : PCI_MULTITHREAD_PROBE breakage
+References : http://lkml.org/lkml/2006/12/12/21
+Submitter  : Ben Castricum <mail0612@bencastricum.nl>
+Caused-By  : Greg Kroah-Hartman <gregkh@suse.de>
+             commit 009af1ff78bfc30b9a27807dd0207fc32848218a
+Status     : known to break many drivers; revert?
 
-There were four chunks written to that page:
 
-	Writing chunk 14463/15800 (15%) (0142344c) (1)
-	Writing chunk 14462/15800 (30%) (01422e98) (2) (overflows into 00001423)
-	Writing chunk 14464/15800 (32%) (01423a00) (3)
-	Writing chunk 14465/15800 (60%) (01423fb4) (4)  <--- LOST!
+Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
+References : http://lkml.org/lkml/2006/12/25/40
+Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
+Status     : unknown
 
-and the other three chunks checked out all right.
 
-And here's the annotated trace as it concerns that page:
+Subject    : i386: Oops in __find_get_block()
+References : http://lkml.org/lkml/2006/12/16/138
+Submitter  : Ben Collins <ben.collins@ubuntu.com>
+             Daniel Holbach <daniel.holbach@ubuntu.com>
+Status     : unknown
 
- - here we write the first chunk to the page:
-	** (1)  do_no_page: mapping index 00001423 at b7d1f44c (write)
-	**      Setting page 00001423 dirty
 
- - something flushes it out to disk:
-	**      cpd_for_io: index 00001423
-	**      cleaning index 00001423 at b7d1f000
+Subject    : ftp: get or put stops during file-transfer
+References : http://lkml.org/lkml/2006/12/16/174
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Status     : unknown
 
- - here we write the second chunk (which was split over the previous page 
-   and the interesting one):
-	** (2)  Setting page 00001422 dirty
-	** (2)  Setting page 00001423 dirty
 
- - and here we do a cleaning event
-	**      cpd_for_io: index 00001423
-	**      cleaning index 00001423 at b7d1f000
+Subject    : forcedeth.c 0.59: problem with sideband managment
+References : http://bugzilla.kernel.org/show_bug.cgi?id=7684
+Submitter  : Michael Reske <micha@gmx.com>
+Handled-By : Ayaz Abdulla <aabdulla@nvidia.com>
+Status     : problem is being debugged
 
- - here we write the third chunk:
-	** (3)  Setting page 00001423 dirty
 
- - here we write the fourth chunk:
-	** (4) NO DIRTY EVENT
+Subject    : x86_64 boot failure: "IO-APIC + timer doesn't work"
+References : http://lkml.org/lkml/2006/12/16/101
+Submitter  : Tobias Diedrich <ranma+kernel@tdiedrich.de>
+Caused-By  : Andi Kleen <ak@suse.de>
+             commit b026872601976f666bae77b609dc490d1834bf77
+Handled-By : Yinghai Lu <yinghai.lu@amd.com>
+             "Eric W. Biederman" <ebiederm@xmission.com>
+Status     : problem is being debugged
 
- - and a third flush to disk: 
-	**      cpd_for_io: index 00001423
-	**      cleaning index 00001423 at b7d1f000
 
- - here we unmap and flush:
-	**      Unmapped index 00001423 at b7d1f000
-	**      Removing index 00001423 from page cache
+Subject    : kernel panics on boot (libata-sff)
+References : http://lkml.org/lkml/2006/12/3/99
+             http://lkml.org/lkml/2006/12/14/153
+             http://lkml.org/lkml/2006/12/24/33
+Submitter  : Alessandro Suardi <alessandro.suardi@gmail.com>
+Caused-By  : Alan Cox <alan@lxorguk.ukuu.org.uk>
+             commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f
+Handled-By : Alan Cox <alan@lxorguk.ukuu.org.uk>
+             Steve Wise <swise@opengridcomputing.com>
+             Alessandro Suardi <alessandro.suardi@gmail.com>
+Status     : people are working on a fix
 
- - here we remap to check:
-	**      do_no_page: mapping index 00001423 at b7d1f000 (read)
-	**      Unmapped index 00001423 at b7d1f000
 
- - and finally, here I remove the file after the run:
-	**      Removing index 00001423 from page cache
-
-Now, the important thing to see here is:
-
- - the missing write did not have a "Setting page 00001423 dirty" event 
-   associated with it.
-
- - but I can _see_ where the actual dirty event would be happening in the 
-   logs, because I can see the dirty events of the other chunk writes 
-   around it, so I know exactly where that fourth write happens. And 
-   indeed, it _shouldn't_ get a dirty event, because the page is still 
-   dirty from the write of chunk #3 to that page, which _did_ get a dirty 
-   event.
-
-   I can see that, because the testing app writes the log of the pages it 
-   writes, and this is the log around the fourth and final write:
-
-	...
-        Writing chunk 5338/15800 (60%) (0076eb48)       PFN: 76e/76f
-        Writing chunk 960/15800 (60%) (00156300)        PFN: 156
-        Writing chunk 14465/15800 (60%) (01423fb4)  <----
-        Writing chunk 8594/15800 (60%) (00bf74a8)       PFN: bf7
-        Writing chunk 556/15800 (60%) (000c62f0)        PFN: c6
-	Writing chunk 15190/15800 (60%) (01526678)	PFN: 1526
-	...
-
-   and I can match this up with the full log from the kernel, which looks 
-   like this:
-
-        Setting page 0000076e dirty
-        Setting page 0000076f dirty
-        Setting page 00000156 dirty
-        Setting page 000000c6 dirty
-	Setting page 00001526 dirty
-
-   so I know exactly where the missing writes (to our page at pfn 1423, 
-   and the fpn-bf7 page) happened.
-
- - and the thing is, I can see a "cpd_for_io()" happening AFTER that 
-   fourth write. Quite a long while after, in fact. So all of this looks 
-   very fine indeed. We are not losing any dirty bits.
-
- - EVEN MORE INTERESTING: write 3 makes it onto disk, and it really uses 
-   the SAME dirty bit as write 4 did (which didn't make it out to disk!). 
-   The event that clears the dirty bit that write 3 did happens AFTER 
-   write 4 has happened!
-
-So if we're not losing any dirty bits, what's going on?
-
-I think we have some nasty interaction with the buffer heads. In 
-particular, I don't think it's the dirty page bits that are broken (I 
-_see_ that the PageDirty bit was set after write 4 was done to memory in 
-the kernel traces). So I think that a real writeback just doesn't happen, 
-because somebody has marked the buffer heads clean _after_ it started IO 
-on them.
-
-I think "__mpage_writepage()" is buggy in this regard, for example. It 
-even has a comment about its crapola behaviour:
-
-        /*
-         * Must try to add the page before marking the buffer clean or
-         * the confused fail path above (OOM) will be very confused when
-         * it finds all bh marked clean (i.e. it will not write anything)
-         */
-
-however, I don't think that particular thing explains it, because I don't 
-think we use that function for the cases I'm looking at.
-
-Anyway, I'll add tracing for page-writeback setting/cleaning too, in case 
-I might see anything new there..
-
-		Linus

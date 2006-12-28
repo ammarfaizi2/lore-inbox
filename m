@@ -1,28 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964829AbWL1AkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964837AbWL1AnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWL1AkN (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 27 Dec 2006 19:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWL1AkN
+	id S964837AbWL1AnG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 27 Dec 2006 19:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWL1AnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Dec 2006 19:40:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:46577 "EHLO smtp.osdl.org"
+	Wed, 27 Dec 2006 19:43:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46679 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964829AbWL1AkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Dec 2006 19:40:11 -0500
-Date: Wed, 27 Dec 2006 16:39:43 -0800 (PST)
+	id S964837AbWL1AnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Dec 2006 19:43:04 -0500
+Date: Wed, 27 Dec 2006 16:42:40 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: David Miller <davem@davemloft.net>
-cc: ranma@tdiedrich.de, gordonfarquharson@gmail.com, tbm@cyrius.com,
-       a.p.zijlstra@chello.nl, andrei.popa@i-neo.ro,
-       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-In-Reply-To: <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org>
-References: <97a0a9ac0612240010x33f4c51cj32d89cb5b08d4332@mail.gmail.com>
- <Pine.LNX.4.64.0612240029390.3671@woody.osdl.org> <20061226161700.GA14128@yamamaya.is-a-geek.org>
- <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Martin Michlmayr <tbm@cyrius.com>,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrei Popa <andrei.popa@i-neo.ro>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Florian Weimer <fw@deneb.enyo.de>,
+       Marc Haber <mh+linux-kernel@zugschlus.de>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, gordonfarquharson@gmail.com
+Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content
+ corruption on ext3)
+In-Reply-To: <1167264000.5200.21.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612271639510.4473@woody.osdl.org>
+References: <Pine.LNX.4.64.0612181151010.3479@woody.osdl.org> 
+ <1166571749.10372.178.camel@twins>  <Pine.LNX.4.64.0612191609410.6766@woody.osdl.org>
+  <1166605296.10372.191.camel@twins>  <1166607554.3365.1354.camel@laptopd505.fenrus.org>
+  <1166614001.10372.205.camel@twins>  <Pine.LNX.4.64.0612201237280.28787@blonde.wat.veritas.com>
+  <1166622979.10372.224.camel@twins>  <20061220170323.GA12989@deprecation.cyrius.com>
+  <Pine.LNX.4.64.0612200928090.6766@woody.osdl.org> 
+ <20061220175309.GT30106@deprecation.cyrius.com>  <Pine.LNX.4.64.0612201043170.6766@woody.osdl.org>
+  <Pine.LNX.4.64.0612201139280.3576@woody.osdl.org>  <1166652901.30008.1.camel@twins>
+  <Pine.LNX.4.64.0612201441030.3576@woody.osdl.org>  <1166655805.30008.18.camel@twins>
+  <1166692586.27750.4.camel@localhost>  <1166692812.32117.2.camel@twins> 
+ <Pine.LNX.4.64.0612211134370.3536@woody.osdl.org> <1167264000.5200.21.camel@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,114 +43,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 27 Dec 2006, Linus Torvalds wrote:
+On Thu, 28 Dec 2006, Martin Schwidefsky wrote:
 > 
-> I think the test-case could probably be improved by having a munmap() and 
-> page-cache flush in between the writing and the checking, to see whether 
-> that shows the corruption easier (and possibly without having to start 
-> paging in order to throw the pages out, which would simplify testing a 
-> lot).
+> For s390 there are two aspects to consider:
+> 1) the pte values are 100% software controlled.
 
-I think the page-writeout is implicated, because I do seem to need it, but 
-the page-cache flush does seem to make corruption _easier_ to see. I now 
-seem about to trigger it with a 100MB file on a 256MB machine in a minute 
-or so, with this slight modification.
+That's fine. In that situation, you shouldn't need any atomic ops at all, 
+I think all our sw page-table operations are already done under the pte 
+lock. 
 
-I still don't see _why_, though. But maybe smarter people than me can see 
-it..
+The reason x86 needs to be careful is exactly the fact that the hardware 
+will obviously do a lot on its own, and the hardware is _not_ going to 
+honor our page table locking ;)
+
+In an all-sw situation, a lot of this should be easier. S390 has _other_ 
+things that are inconvenient (the strange "dirty bit is not in the page 
+tables" thing that makes it look different from everybody else), but hey, 
+it's a balance..
+
+So for s390, ptep_exchange() in my example should be able to be a simple 
+"load old value and store new one", assuming everybody honors the pte lock 
+(and they _should_).
 
 		Linus
-
----
-#include <sys/mman.h>
-#include <sys/fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
-
-#define TARGETSIZE (100 << 20)
-#define CHUNKSIZE (1460)
-#define NRCHUNKS (TARGETSIZE / CHUNKSIZE)
-#define SIZE (NRCHUNKS * CHUNKSIZE)
-
-static void fillmem(void *start, int nr)
-{
-	memset(start, nr, CHUNKSIZE);
-}
-
-static void checkmem(void *start, int nr)
-{
-	unsigned char c = nr, *p = start;
-	int i;
-	for (i = 0; i < CHUNKSIZE; i++) {
-		if (*p++ != c) {
-			printf("Chunk %d corrupted           \n", nr);
-			return;
-		}
-	}
-}
-
-static char *remap(int fd, char *mapping)
-{
-	if (mapping) {
-		munmap(mapping, SIZE);
-		posix_fadvise(fd, 0, SIZE, POSIX_FADV_DONTNEED);
-	}
-	return mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-}
-
-int main(int argc, char **argv)
-{
-	char *mapping;
-	int fd, i;
-	static int chunkorder[NRCHUNKS];
-
-	/*
-	 * Make some random ordering of writing the chunks to the
-	 * memory map..
-	 *
-	 * Start with fully ordered..
-	 */
-	for (i = 0; i < NRCHUNKS; i++)
-		chunkorder[i] = i;
-
-	/* ..and then mix it up randomly */
-	srandom(time(NULL));
-	for (i = 0; i < NRCHUNKS; i++) {
-		int index = (unsigned int) random() % NRCHUNKS;
-		int nr = chunkorder[index];
-		chunkorder[index] = chunkorder[i];
-		chunkorder[i] = nr;
-	}
-
-	fd = open("mapfile", O_RDWR | O_TRUNC | O_CREAT, 0666);
-	if (fd < 0)
-		return -1;
-	if (ftruncate(fd, SIZE) < 0)
-		return -1;
-	mapping = remap(fd, NULL);
-	if (-1 == (int)(long)mapping)
-		return -1;
-
-	for (i = 0; i < NRCHUNKS; i++) {
-		int chunk = chunkorder[i];
-		printf("Writing chunk %d/%d (%d%%)     \r", i, NRCHUNKS, 100*i/NRCHUNKS);
-		fillmem(mapping + chunk * CHUNKSIZE, chunk);
-	}
-	printf("\n");
-
-	/* Unmap, drop, and remap.. */
-	mapping = remap(fd, mapping);
-
-	/* .. and check */
-	for (i = 0; i < NRCHUNKS; i++) {
-		int chunk = i;
-		printf("Checking chunk %d/%d (%d%%)     \r", i, NRCHUNKS, 100*i/NRCHUNKS);
-		checkmem(mapping + chunk * CHUNKSIZE, chunk);
-	}
-	printf("\n");
-	
-	return 0;
-}

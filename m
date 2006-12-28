@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964931AbWL1FrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964929AbWL1FzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbWL1FrX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 00:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWL1FrX
+	id S964929AbWL1FzZ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 00:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWL1FzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 00:47:23 -0500
-Received: from nz-out-0506.google.com ([64.233.162.231]:4066 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964931AbWL1FrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 00:47:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h6BziLpIrTB1r/BCJjPH7RAjEzCW/8thWEeyAqtfzfgHd3bm5nYglIBxJmSHSqBlW0r67AJfiAGjkNd1ENvhKi3JDUU+7nnTbgYzkPjyASCnpgcsam+cdKBGwet2EelrDofOOeFD04758DxBmb+6tvfVaZ88yXpdkQF9XmmyfKs=
-Message-ID: <97a0a9ac0612272147o7d0a5527ncfbd15e230d99a6e@mail.gmail.com>
-Date: Wed, 27 Dec 2006 22:47:22 -0700
-From: "Gordon Farquharson" <gordonfarquharson@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-Cc: torvalds@osdl.org, ranma@tdiedrich.de, tbm@cyrius.com,
-       a.p.zijlstra@chello.nl, andrei.popa@i-neo.ro, akpm@osdl.org,
-       hugh@veritas.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061227.214149.74746689.davem@davemloft.net>
+	Thu, 28 Dec 2006 00:55:25 -0500
+Received: from mga03.intel.com ([143.182.124.21]:20609 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964929AbWL1FzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 00:55:24 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,214,1165219200"; 
+   d="scan'208"; a="163039431:sNHT27267009"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "David Miller" <davem@davemloft.net>
+Cc: <ranma@tdiedrich.de>, <gordonfarquharson@gmail.com>, <tbm@cyrius.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>, <andrei.popa@i-neo.ro>,
+       "Andrew Morton" <akpm@osdl.org>, <hugh@veritas.com>,
+       <nickpiggin@yahoo.com.au>, <arjan@infradead.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] mm: fix page_mkclean_one
+Date: Wed, 27 Dec 2006 21:55:21 -0800
+Message-ID: <000001c72a44$c3da12e0$bc84030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
-	 <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
-	 <97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com>
-	 <20061227.214149.74746689.davem@davemloft.net>
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccqLS9Kqo4sjztNSZqePKJs01fm0gAFnoNA
+In-Reply-To: <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David
+Linus Torvalds wrote on Wednesday, December 27, 2006 7:05 PM
+> On Wed, 27 Dec 2006, David Miller wrote:
+> > > 
+> > > I still don't see _why_, though. But maybe smarter people than me can see 
+> > > it..
+> > 
+> > FWIW this program definitely triggers the bug for me.
+> 
+> Ok, now that I have something simple to do repeatable stuff with, I can 
+> say what the pattern is.. It's not all that surprising, but it's still 
+> worth just stating for the record.
 
-On 12/27/06, David Miller <davem@davemloft.net> wrote:
 
-> Me too, I added "-D_POSIX_C_SOURCE=200112" to "fix" this.
+Running the test code, git bisect points its finger at this commit. Reverting
+this commit on top of 2.6.20-rc2 doesn't trigger the bug from the test code.
 
-That works for me. Thanks for the tip.
 
-Gordon
+edc79b2a46ed854595e40edcf3f8b37f9f14aa3f is first bad commit
+commit edc79b2a46ed854595e40edcf3f8b37f9f14aa3f
+Author: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Date:   Mon Sep 25 23:30:58 2006 -0700
 
--- 
-Gordon Farquharson
+    [PATCH] mm: balance dirty pages
+
+    Now that we can detect writers of shared mappings, throttle them.  Avoids OOM
+    by surprise.
+
+    Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+    Cc: Hugh Dickins <hugh@veritas.com>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>

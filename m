@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752703AbWL1KpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753124AbWL1Kt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752703AbWL1KpU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753100AbWL1KpU
+	id S1753124AbWL1Kt4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753084AbWL1Ktz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:45:20 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2260 "EHLO
+	Thu, 28 Dec 2006 05:49:55 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4706 "EHLO
 	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752703AbWL1KpS (ORCPT
+	with ESMTP id S1753100AbWL1Ktz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:45:18 -0500
-Date: Thu, 28 Dec 2006 10:45:08 +0000
+	Thu, 28 Dec 2006 05:49:55 -0500
+Date: Thu, 28 Dec 2006 10:49:23 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fengguang Wu <fengguang.wu@gmail.com>,
-       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drop page cache of a single file
-Message-ID: <20061228104508.GA20596@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Fengguang Wu <fengguang.wu@gmail.com>,
-	"Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1167275845.15989.153.camel@ymzhang> <20061227194959.0ebce0e4.akpm@osdl.org> <367290328.14058@ustc.edu.cn> <20061228022926.4287ca33.akpm@osdl.org>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
+       ranma@tdiedrich.de, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       andrei.popa@i-neo.ro, Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Message-ID: <20061228104923.GB20596@flint.arm.linux.org.uk>
+Mail-Followup-To: Martin Michlmayr <tbm@cyrius.com>,
+	Gordon Farquharson <gordonfarquharson@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Miller <davem@davemloft.net>, ranma@tdiedrich.de,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+	Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+	nickpiggin@yahoo.com.au, arjan@infradead.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org> <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com> <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org> <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com> <20061228101659.GB14626@deprecation.cyrius.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061228022926.4287ca33.akpm@osdl.org>
+In-Reply-To: <20061228101659.GB14626@deprecation.cyrius.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 02:29:26AM -0800, Andrew Morton wrote:
-> On Thu, 28 Dec 2006 15:19:04 +0800
-> Fengguang Wu <fengguang.wu@gmail.com> wrote:
-> > Yanmin: I've been using the fadvise tool from
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+On Thu, Dec 28, 2006 at 11:16:59AM +0100, Martin Michlmayr wrote:
+> * Gordon Farquharson <gordonfarquharson@gmail.com> [2006-12-27 22:38]:
+> > >> #define TARGETSIZE (100 << 12)
+> > >
+> > >That's just 400kB!
+> > >
+> > >There's no way you should see corruption with that kind of value. It
+> > >should all stay solidly in the cache.
+> > >
+> > >Is this perhaps with ARM nommu or something else strange? It may be that
+> > >the program just doesn't work at all if mmap() is faked out with a malloc
+> > >or similar.
 > > 
-> > It's a nice tool:
-> > 
-> > % fadvise 
-> > Usage: fadvise filename offset length advice [loops]
-> >       advice: normal sequential willneed noreuse dontneed asyncwrite writewait
-> > % fadvise /var/sparse 0 0x7fffffff dontneed
-> > 
+> > Definitely a question for the ARM gurus. I'm out of my depth.
 > 
-> I was a bit reluctant to point at that because it has nasty hacks to make
-> it mostly-work on old glibc's which don't implement posix_fadvise().
-> 
-> Hopefully if you're running a recent distro, you have glibc support for
-> fadvise() and it's possible to write a portable version of that app which
-> doesn't need to know about per-arch syscall numbers.
+> By the way, I just tried it with TARGETSIZE (100 << 12) on a different
+> ARM machine (a Thecus N2100 based on an IOP32x chip with 128 MB of
+> memory) and I see similar results to that from Gordon:
 
-And note that if it gets implemented on ARM on pre-fadvise() glibc,
-the syscall argument order is rather non-standard: fd, action, start,
-size rather than fd, start, size, action - since otherwise we run out
-of registers with EABI.
-
-The kernel community needs to get a grip with the implementation of
-new syscalls - we need a process where architecture maintainers get
-to review the arguments _prior_ to them being accepted into the kernel.
-That way we can avoid silly architecture specific syscall changes like
-this.
+Work around the glibc memset() problem by passing nr & 255, and re-run
+the test.  You're getting false positives.
 
 -- 
 Russell King

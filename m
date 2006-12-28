@@ -1,58 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754868AbWL1PZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754871AbWL1P0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754868AbWL1PZO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 10:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754870AbWL1PZN
+	id S1754871AbWL1P0H (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 10:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754873AbWL1P0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 10:25:13 -0500
-Received: from gw-e.panasas.com ([65.194.124.178]:55205 "EHLO
-	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754868AbWL1PZM (ORCPT
+	Thu, 28 Dec 2006 10:26:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4709 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754871AbWL1P0F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 10:25:12 -0500
-Message-ID: <4593E1B7.6080408@panasas.com>
-Date: Thu, 28 Dec 2006 17:24:39 +0200
-From: Benny Halevy <bhalevy@panasas.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Thu, 28 Dec 2006 10:26:05 -0500
+Date: Thu, 28 Dec 2006 16:26:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+Subject: [-mm patch] DVB: fix compile error
+Message-ID: <20061228152607.GC20714@stusta.de>
+References: <20061228024237.375a482f.akpm@osdl.org>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>	 <1166869106.3281.587.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>	 <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org>
-In-Reply-To: <1167300352.3281.4183.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Dec 2006 15:24:23.0051 (UTC) FILETIME=[4096F5B0:01C72A94]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228024237.375a482f.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> It seems like the posix idea of unique <st_dev, st_ino> doesn't
->> hold water for modern file systems 
-> 
-> are you really sure?
+On Thu, Dec 28, 2006 at 02:42:37AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.20-rc1-mm1:
+>...
+>  git-dvb.patch
+>...
+>  git trees
+>...
 
-Well Jan's example was of Coda that uses 128-bit internal file ids.
 
-> and if so, why don't we fix *THAT* instead
+This patch fixes the following compile error:
 
-Hmm, sometimes you can't fix the world, especially if the filesystem
-is exported over NFS and has a problem with fitting its file IDs uniquely
-into a 64-bit identifier.
+<--  snip  -->
 
-> rather than adding racy
-> syscalls and such that just can't really be used right...
-> 
+...
+  LD      drivers/media/video/built-in.o
+drivers/media/video/saa7134/built-in.o:(.data+0x85ec): multiple definition of `ir_rc5_remote_gap'
+drivers/media/video/bt8xx/built-in.o:(.data+0x734c): first defined here
+drivers/media/video/saa7134/built-in.o:(.data+0x85f0): multiple definition of `ir_rc5_key_timeout'
+drivers/media/video/bt8xx/built-in.o:(.data+0x7350): first defined here
+make[4]: *** [drivers/media/video/built-in.o] Error 1
 
-If the syscall is working on two pathnames I agree there might be a race
-that isn't different from calling lstat() on each of these names
-before opening them. But I'm not sure I see a race if you operate on two
-open file descriptors (compared to fstat()ing both of them)
+<--  snip  -->
 
-On the nfs side, if the client looked up two names (or opened them over nfsv4)
-and has two filehandles in hand, asking the server whether they refer to the
-same object isn't racy.
+Since this variables were needlessly global, this patch implements the 
+trivial fix of making them static.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/media/video/bt8xx/bttv-input.c      |    4 ++--
+ drivers/media/video/saa7134/saa7134-input.c |    4 ++--
+ include/media/ir-common.h                   |    3 ---
+ 3 files changed, 4 insertions(+), 7 deletions(-)
+
+--- linux-2.6.20-rc2-mm1/include/media/ir-common.h.old	2006-12-28 12:54:05.000000000 +0100
++++ linux-2.6.20-rc2-mm1/include/media/ir-common.h	2006-12-28 12:54:39.000000000 +0100
+@@ -36,9 +36,6 @@
+ #define IR_KEYCODE(tab,code)	(((unsigned)code < IR_KEYTAB_SIZE) \
+ 				 ? tab[code] : KEY_RESERVED)
+ 
+-extern int ir_rc5_remote_gap;
+-extern int ir_rc5_key_timeout;
+-
+ #define RC5_START(x)	(((x)>>12)&3)
+ #define RC5_TOGGLE(x)	(((x)>>11)&1)
+ #define RC5_ADDR(x)	(((x)>>6)&31)
+--- linux-2.6.20-rc2-mm1/drivers/media/video/saa7134/saa7134-input.c.old	2006-12-28 12:54:48.000000000 +0100
++++ linux-2.6.20-rc2-mm1/drivers/media/video/saa7134/saa7134-input.c	2006-12-28 12:55:00.000000000 +0100
+@@ -41,9 +41,9 @@
+ module_param(pinnacle_remote, int, 0644);    /* Choose Pinnacle PCTV remote */
+ MODULE_PARM_DESC(pinnacle_remote, "Specify Pinnacle PCTV remote: 0=coloured, 1=grey (defaults to 0)");
+ 
+-int ir_rc5_remote_gap = 885;
++static int ir_rc5_remote_gap = 885;
+ module_param(ir_rc5_remote_gap, int, 0644);
+-int ir_rc5_key_timeout = 115;
++static int ir_rc5_key_timeout = 115;
+ module_param(ir_rc5_key_timeout, int, 0644);
+ 
+ #define dprintk(fmt, arg...)	if (ir_debug) \
+--- linux-2.6.20-rc2-mm1/drivers/media/video/bt8xx/bttv-input.c.old	2006-12-28 12:55:08.000000000 +0100
++++ linux-2.6.20-rc2-mm1/drivers/media/video/bt8xx/bttv-input.c	2006-12-28 12:55:17.000000000 +0100
+@@ -36,9 +36,9 @@
+ static int repeat_period = 33;
+ module_param(repeat_period, int, 0644);
+ 
+-int ir_rc5_remote_gap = 885;
++static int ir_rc5_remote_gap = 885;
+ module_param(ir_rc5_remote_gap, int, 0644);
+-int ir_rc5_key_timeout = 200;
++static int ir_rc5_key_timeout = 200;
+ module_param(ir_rc5_key_timeout, int, 0644);
+ 
+ #define DEVNAME "bttv-input"
 

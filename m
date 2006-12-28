@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753645AbWL1Q7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753665AbWL1RKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753645AbWL1Q7Z (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 11:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753658AbWL1Q7Z
+	id S1753665AbWL1RKg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 12:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753668AbWL1RKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 11:59:25 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:41233 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753585AbWL1Q7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 11:59:24 -0500
-Date: Thu, 28 Dec 2006 08:56:23 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
-       akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-Subject: Re: [FSAIO][PATCH 7/8] Filesystem AIO read
-Message-Id: <20061228085623.b6c74840.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.61.0612281721170.23545@yvahk01.tjqt.qr>
-References: <20061227153855.GA25898@in.ibm.com>
-	<20061228082308.GA4476@in.ibm.com>
-	<20061228084252.GG6971@in.ibm.com>
-	<20061228115747.GB25644@infradead.org>
-	<Pine.LNX.4.61.0612281721170.23545@yvahk01.tjqt.qr>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 28 Dec 2006 12:10:36 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44738 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753620AbWL1RKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 12:10:35 -0500
+Date: Thu, 28 Dec 2006 09:08:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Gordon Farquharson <gordonfarquharson@gmail.com>
+cc: David Miller <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+In-Reply-To: <97a0a9ac0612272158h72f75a2bt22eccddcbbb2d9a9@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0612280906270.4473@woody.osdl.org>
+References: <20061226.205518.63739038.davem@davemloft.net> 
+ <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> 
+ <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> 
+ <20061227.165246.112622837.davem@davemloft.net>  <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+  <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> 
+ <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> 
+ <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com> 
+ <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org>
+ <97a0a9ac0612272158h72f75a2bt22eccddcbbb2d9a9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 17:22:07 +0100 (MET) Jan Engelhardt wrote:
 
+
+On Wed, 27 Dec 2006, Gordon Farquharson wrote:
 > 
-> On Dec 28 2006 11:57, Christoph Hellwig wrote:
-> >
-> >> +
-> >> +		if ((error = __lock_page(page, current->io_wait))) {
-> >> +			goto readpage_error;
-> >> +		}
-> >
-> >This should  be
-> >
-> >		error = __lock_page(page, current->io_wait);
-> >		if (error)
-> >			goto readpage_error;
-> 
-> That's effectively the same. Essentially a style thing, and I see if((err =
-> xyz)) not being uncommon in the kernel tree.
+> 100kB and 200kB files always succeed on the ARM system. 400kB and
+> larger always seem to fail.
 
-The combined if/assignment has been known to contain coding errors
-that are legal C, just not what was intended.
+Oh, wow. Yeah, I've just repressed how tiny 32MB is. And especially if you 
+lowered the /proc/sys/vm/dirty_ratio to a smaller percentage, I guess 
+400kB should be enough to cause writeback.
 
-Since the latter replacement shouldn't cause any code efficiency
-problems and it's more readable, it's becoming preferred.
+Ugh. I tested a 128MB machine a few weeks ago, and found it painful.
 
----
-~Randy
+		Linus

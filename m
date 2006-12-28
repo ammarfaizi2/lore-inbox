@@ -1,90 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932832AbWL1Jwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932849AbWL1Jyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932832AbWL1Jwc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 04:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932849AbWL1Jwc
+	id S932849AbWL1Jyk (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 04:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932827AbWL1Jyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 04:52:32 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:44131 "EHLO 2ka.mipt.ru"
+	Thu, 28 Dec 2006 04:54:40 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55067 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932832AbWL1Jwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 04:52:31 -0500
-Date: Thu, 28 Dec 2006 12:50:44 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061228095044.GA26314@2ka.mipt.ru>
-References: <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru> <20061122121516.GA7229@2ka.mipt.ru> <4564CE00.9030904@redhat.com> <20061123122225.GD20294@2ka.mipt.ru> <456605EA.5060601@redhat.com> <20061124105856.GE13600@2ka.mipt.ru> <456B2D2B.9080502@redhat.com> <20061128101327.GE15083@2ka.mipt.ru> <4592DB7E.4090100@redhat.com>
+	id S932805AbWL1Jyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 04:54:39 -0500
+Date: Thu, 28 Dec 2006 10:52:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20061228095205.GG24765@elte.hu>
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4592DB7E.4090100@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 28 Dec 2006 12:50:58 +0300 (MSK)
+In-Reply-To: <20061228082308.GA4476@in.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2006 at 12:45:50PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> > Why do we want to inject _ready_ event, when it is possible to mark
-> > event as ready and wakeup thread parked in syscall?
+
+* Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+
+> The following is a sampling of comparative aio-stress results with the 
+> patches (each run starts with uncached files):
 > 
-> Going back to this old one:
+> ---------------------------------------------
+> 				
+> aio-stress throughput comparisons (in MB/s):
 > 
-> How do you want to mark an event ready if you don't want to introduce
-> yet another layer of data structures?  The event notification happens
-> through entries in the ring buffer.  Userlevel code should never add
-> anything to the ring buffer directly, this would mean huge
-> synchronization problems.  Yes, one could add additional data structures
-> accompanying the ring buffer which can specify userlevel-generated
-> events.  But this is a) clumsy and b) a pain to use when the same ring
-> buffer is used in multiple threads (you'd have to have another shared
-> memory segment).
+> file size 1GB, record size 64KB, depth 64, ios per iteration 8
+> max io_submit 8, buffer alignment set to 4KB
+> 4 way Pentium III SMP box, Adaptec AIC-7896/7 Ultra2 SCSI, 40 MB/s
+> Filesystem: ext2
 > 
-> It's much cleaner if the userlevel code can get the kernel to inject a
-> userlevel-generated event.  This is the equivalent of userlevel code
-> generating a signal with kill().
+> ----------------------------------------------------------------------------
+> 			Buffered (non O_DIRECT)
+> 			Vanilla		Patched		O_DIRECT
+> ----------------------------------------------------------------------------
+> 						       Vanilla Patched
+> Random-Read		10.08		23.91		18.91,   18.98
+> Random-O_SYNC-Write	 8.86		15.84		16.51,   16.53
+> Sequential-Read		31.49		33.00		31.86,   31.79
+> Sequential-O_SYNC-Write  8.68		32.60		31.45,   32.44
+> Random-Write		31.09 (19.65)	30.90 (19.65)	
+> Sequential-Write	30.84 (28.94)	30.09 (28.39)
 
-Existing possibility to mark event as ready works following way:
-event is queued into storage queue (socket, inode or some other queue),
-when readiness condition becomes true, event is queued into ready queue
-(although it is still in the storage queueu). It happens completely
-asynchronosu to _any_ kind of userspace processing.
-When userspace calls apropriate syscall, event is being copied into ring
-buffer.
+the numbers look very convincing to me!
 
-Thus userspace readiness will just mark event as ready, i.e. it queues
-event into ready queue, so later usersapce will callsyscall to actually
-get the event.
-
-When one thread is parked in the syscall and there are _no_ events
-which should be marked as ready (for example only sockets are there, and
-it is not a good idea to wakeup the whole socket processing state machine), 
-then there is no possibility to receive such event (although it is
-possible to interrupt and break syscall).
-
-So, according to injecting ready events, it can be done - just an
-addition of special flag which will force kevent core to move event into
-ready queue immediately. In this case userspace can event prepare a
-needed event (like signal event) and deliver it to process, so it will
-think (only from kevent point of view) that real signal has been arrived.
-
-I will also add special type of events - userspace events - which will
-not have empty callbacks, which will be intended to use for user-defined
-way (i.e. for inter thread communications).
-
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
-> 
-
-
-
--- 
-	Evgeniy Polyakov
+	Ingo

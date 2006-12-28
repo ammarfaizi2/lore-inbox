@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932936AbWL1KRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933004AbWL1K2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932936AbWL1KRS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932979AbWL1KRS
+	id S933004AbWL1K2i (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933010AbWL1K2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:17:18 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:37371 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932936AbWL1KRR (ORCPT
+	Thu, 28 Dec 2006 05:28:38 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:48853 "EHLO
+	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933004AbWL1K2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:17:17 -0500
-Date: Thu, 28 Dec 2006 11:16:59 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Gordon Farquharson <gordonfarquharson@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
-       ranma@tdiedrich.de, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       andrei.popa@i-neo.ro, Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-Message-ID: <20061228101659.GB14626@deprecation.cyrius.com>
-References: <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org> <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com> <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org> <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
+	Thu, 28 Dec 2006 05:28:37 -0500
+X-Sasl-enc: K1mvaK5qqENwFqkpANffJFOTmLgTZINSF9SuOsnpONJa 1167301644
+Date: Thu, 28 Dec 2006 19:28:51 +0900 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Theodore Tso <tytso@mit.edu>
+cc: Karel Zak <kzak@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+       linux-kernel@vger.kernel.org, Henne Vogelsang <hvogel@suse.de>,
+       Olaf Hering <olh@suse.de>, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: util-linux: orphan
+In-Reply-To: <20061227204212.GA21393@thunk.org>
+Message-ID: <Pine.LNX.4.64.0612281920400.5917@raven.themaw.net>
+References: <20061109224157.GH4324@petra.dvoda.cz> <200612270346.10699.arnd@arndb.de>
+ <20061227181510.GB17785@petra.dvoda.cz> <200612271939.48125.arnd@arndb.de>
+ <20061227191824.GC17785@petra.dvoda.cz> <20061227204212.GA21393@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Gordon Farquharson <gordonfarquharson@gmail.com> [2006-12-27 22:38]:
-> >> #define TARGETSIZE (100 << 12)
-> >
-> >That's just 400kB!
-> >
-> >There's no way you should see corruption with that kind of value. It
-> >should all stay solidly in the cache.
-> >
-> >Is this perhaps with ARM nommu or something else strange? It may be that
-> >the program just doesn't work at all if mmap() is faked out with a malloc
-> >or similar.
+On Wed, 27 Dec 2006, Theodore Tso wrote:
+
+> On Wed, Dec 27, 2006 at 08:18:24PM +0100, Karel Zak wrote:
+> >  Frankly, it wasn't always easy to use SeLinux in previous FC
+> >  releases, but there is huge progress and I think it's much better in
+> >  FC6.
 > 
-> Definitely a question for the ARM gurus. I'm out of my depth.
+> I've never tried SELinux, but at one point there were all sorts of
+> horror stories that if you enabled SELinux, the moment you installed
+> any 3rd party software packages, whether it's Oracle or Websphere or
+> some other commercial application program, the application would break
+> because of all sorts of SELinux policy violations, and that it
+> required an SELinux wizard to configure SELinux policy to enable a 3rd
+> party application to actually work correctly.  Given that I tried
+> enabling SELinux, witnessed things break spectacularly and with no
+> hints about how to fix things, I've always had the attitude of "life
+> is too short to enable SELinux", and so my limited experience is
+> consistent with all of the horror stories that I've heard.
 
-By the way, I just tried it with TARGETSIZE (100 << 12) on a different
-ARM machine (a Thecus N2100 based on an IOP32x chip with 128 MB of
-memory) and I see similar results to that from Gordon:
+I see the fine grained security of Selinux as a big problem for third 
+party applications.
 
-Writing chunk 279/280 (99%)
-Chunk 256 corrupted (1-1455)  (1025-2479)
-Expected 0, got 1
-Written as (199)43(184)
-Chunk 258 corrupted (1-1455)  (3945-1303)
-Expected 2, got 3
-Written as (184)74(145)
-Chunk 260 corrupted (1-1455)  (2769-127)
-Expected 4, got 5
-Written as (145)89(237)
-Chunk 262 corrupted (1-1455)  (1593-3047)
-Expected 6, got 7
-Written as (237)168(174)
-Chunk 264 corrupted (1-1455)  (417-1871)
-Expected 8, got 9
-Written as (174)135(161)
-Chunk 266 corrupted (1-1455)  (3337-695)
-Expected 10, got 11
-Written as (161)123(180)
-Chunk 268 corrupted (1-1455)  (2161-3615)
-Expected 12, got 13
-Written as (180)13(19)
-Chunk 270 corrupted (1-1455)  (985-2439)
-Expected 14, got 15
-Written as (19)172(106)
-Chunk 272 corrupted (1-1455)  (3905-1263)
-Expected 16, got 17
-Written as (106)212(140)
-Chunk 274 corrupted (1-1455)  (2729-87)
-Expected 18, got 19
-Written as (140)124(73)
-Chunk 276 corrupted (1-1455)  (1553-3007)
-Expected 20, got 21
-Written as (73)151(52)
-Chunk 278 corrupted (1-1455)  (377-1831)
-Expected 22, got 23
-Written as (52)215(99)
-Checking chunk 279/280 (99%)
+It's a big job to make the OS work cleanly with it but the fact is that 
+many machines need to run significant 3rd party applications. I don't have 
+first hand experience but I suspect most vendors have tight enough budgets 
+without adding an Selinux developer and customers usually don't have this 
+resource either so, by and large, I expect people will just have to 
+disable it.
 
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+I really don't see any solution to this problem either.
+Time will tell.
+
+Ian

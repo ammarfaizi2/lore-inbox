@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755005AbWL1Vml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755008AbWL1VqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755005AbWL1Vml (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 16:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755007AbWL1Vml
+	id S1755008AbWL1VqY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 16:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755009AbWL1VqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 16:42:41 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:5507 "EHLO
-	gockel.physik3.uni-rostock.de" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1755005AbWL1Vmk (ORCPT
+	Thu, 28 Dec 2006 16:46:24 -0500
+Received: from moutng.kundenserver.de ([212.227.126.174]:50951 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755006AbWL1VqX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 16:42:40 -0500
-Date: Thu, 28 Dec 2006 22:42:29 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+	Thu, 28 Dec 2006 16:46:23 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: BUG: scheduling while atomic, new libata code
+Date: Thu, 28 Dec 2006 22:47:05 +0100
+User-Agent: KMail/1.9.5
+Cc: "Randy Dunlap" <randy.dunlap@oracle.com>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove 556 unneeded #includes of sched.h
-In-Reply-To: <20061228213438.GD20596@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.63.0612282239190.20531@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.63.0612282059160.8356@gockel.physik3.uni-rostock.de>
- <20061228124644.4e1ed32b.akpm@osdl.org> <Pine.LNX.4.63.0612282154460.20531@gockel.physik3.uni-rostock.de>
- <20061228210803.GR17561@ftp.linux.org.uk>
- <Pine.LNX.4.63.0612282211330.20531@gockel.physik3.uni-rostock.de>
- <20061228213438.GD20596@flint.arm.linux.org.uk>
+References: <9e4733910612261747s4b32d6ben2e5a55f88f225edf@mail.gmail.com> <20061226175559.e280e66e.randy.dunlap@oracle.com> <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
+In-Reply-To: <9e4733910612271816x1ebc968auf94de2a84526aee0@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612282247.06127.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006, Russell King wrote:
+On Thursday 28 December 2006 03:16, Jon Smirl wrote:
+> BUG: scheduling while atomic: hald-addon-stor/0x20000000/5078
+>  [<c02b0289>] __sched_text_start+0x5f9/0xb00
+>  [<c024a623>] net_rx_action+0xb3/0x180
+>  [<c01210f2>] __do_softirq+0x72/0xe0
+>  [<c0105205>] do_IRQ+0x45/0x80
 
-> To cover these, you need to build at least rpc_defconfig, lubbock_defconfig,
-> netwinder_defconfig, badge4_defconfig, cerf_defconfig, ...etc...
+This doesn't seem to be related to libata at all. Like your
+first trace, you call schedule from a softirq context, which
+is always atomic.
+The only place where I can imagine this happening is the
+local_irq_enable() in there, which can be defined in different
+ways.
+Are you running with paravirt_ops, CONFIG_TRACE_IRQFLAGS_SUPPORT
+and/or kernel preemption enabled?
 
-OK, I'll try to do that.
-Do I need to build all the configs in arch/arm/configs?
-
-> The whole "all*config" idea on ARM is utterly useless - you can _not_
-> get build coverage that way.
-
-Or shall I exclude the arm specific drivers for now?
-
-Tim
+	Arnd <><

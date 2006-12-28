@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964996AbWL1J1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932787AbWL1Ja7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbWL1J1U (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 04:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWL1J1U
+	id S932787AbWL1Ja7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 04:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWL1Ja7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 04:27:20 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:22084 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964996AbWL1J1T (ORCPT
+	Thu, 28 Dec 2006 04:30:59 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:37267 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932787AbWL1Ja6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 04:27:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=WthTBIJ85tReLy5/SL2HL/NIMNhP+TjOFWs+6ZkuKUcphLJFJ6tO9bI72ndsTPfcSI5vw5vFPCK503STxlV/R6A54OnEKQz756lg0JGIaG5BLX07MH2JcYLmvABd5/68zjTChW74Cam/LTasiMTWvprcZiGg7djd8pchDXe6VGo=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-Date: Thu, 28 Dec 2006 10:27:09 +0100
-User-Agent: KMail/1.9.5
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
-       jesper.juhl@gmail.com
+	Thu, 28 Dec 2006 04:30:58 -0500
+Date: Thu, 28 Dec 2006 10:30:41 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Gordon Farquharson <gordonfarquharson@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Miller <davem@davemloft.net>,
+       ranma@tdiedrich.de, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       andrei.popa@i-neo.ro, Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+Message-ID: <20061228093041.GA14626@deprecation.cyrius.com>
+References: <20061226.205518.63739038.davem@davemloft.net> <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org> <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net> <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org> <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com> <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org> <97a0a9ac0612272115g4cce1f08n3c3c8498a6076bd5@mail.gmail.com> <Pine.LNX.4.64.0612272120180.4473@woody.osdl.org> <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612281027.09783.jesper.juhl@gmail.com>
+In-Reply-To: <97a0a9ac0612272138o5348488ahfde03f9e22a71b5d@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Gordon Farquharson <gordonfarquharson@gmail.com> [2006-12-27 22:38]:
+> >That's just 400kB!
+> >
+> >There's no way you should see corruption with that kind of value. It
+> >should all stay solidly in the cache.
+> >
+> >Is this perhaps with ARM nommu or something else strange? It may be that
+> >the program just doesn't work at all if mmap() is faked out with a malloc
+> >or similar.
+> 
+> Definitely a question for the ARM gurus. I'm out of my depth.
 
-I get this message in my webservers (with NFS mounted homedirs) logs once 
-in a while : 
-
-  kernel: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-
-It doesn't seem to have any bad effect on anything, but it would be nice 
-to know if there is any cause for concern.
-
-The NFS server is running 2.6.18.1 and the webservers are running 2.6.17.8
-
-
+The CPU has a MMU.  For reference, it's a IXP4xx based device with 32 MB
+of memory.
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-
+Martin Michlmayr
+http://www.cyrius.com/

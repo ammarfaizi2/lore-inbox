@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754866AbWL1PNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754864AbWL1POM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754866AbWL1PNv (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 10:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754865AbWL1PNv
+	id S1754864AbWL1POM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 10:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754868AbWL1POM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 10:13:51 -0500
-Received: from gw-e.panasas.com ([65.194.124.178]:54883 "EHLO
-	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754862AbWL1PNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 10:13:50 -0500
-Message-ID: <4593DEF8.5020609@panasas.com>
-Date: Thu, 28 Dec 2006 17:12:56 +0200
-From: Benny Halevy <bhalevy@panasas.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Jeff Layton <jlayton@poochiereds.net>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>  <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
-In-Reply-To: <4593C524.8070209@poochiereds.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Dec 2006 15:12:43.0585 (UTC) FILETIME=[9FACEB10:01C72A92]
+	Thu, 28 Dec 2006 10:14:12 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:57941 "EHLO e4.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754867AbWL1POK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 10:14:10 -0500
+Date: Thu, 28 Dec 2006 20:48:30 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-aio@kvack.org, akpm@osdl.org,
+       drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
+Subject: Re: [FSAIO][PATCH 7/8] Filesystem AIO read
+Message-ID: <20061228151830.GB10156@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084252.GG6971@in.ibm.com> <20061228115747.GB25644@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228115747.GB25644@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Jeff Layton wrote:
-> Benny Halevy wrote:
->> It seems like the posix idea of unique <st_dev, st_ino> doesn't
->> hold water for modern file systems and that creates real problems for
->> backup apps which rely on that to detect hard links.
->>
+On Thu, Dec 28, 2006 at 11:57:47AM +0000, Christoph Hellwig wrote:
+> > +	if (in_aio()) {
+> > +		/* Avoid repeat readahead */
+> > +		if (kiocbTryRestart(io_wait_to_kiocb(current->io_wait)))
+> > +			next_index = last_index;
+> > +	}
 > 
-> Why not? Granted, many of the filesystems in the Linux kernel don't enforce that 
-> they have unique st_ino values, but I'm working on a set of patches to try and 
-> fix that.
-
-That's great and will surely help most file systems (apparently not Coda as
-Jan says they use 128 bit internal file identifiers).
-
-What about 32 bit architectures? Is ino_t going to be 64 bit
-there too?
-
+> Every place we use kiocbTryRestart in this and the next patch it's in
+> this from, so we should add a little helper for it:
 > 
->> Adding a vfs call to check for file equivalence seems like a good idea to me.
->> A syscall exposing it to user mode apps can look like what you sketched above,
->> and another variant of it can maybe take two paths and possibly a flags field
->> (for e.g. don't follow symlinks).
->>
->> I'm cross-posting this also to nfsv4@ietf. NFS has exactly the same problem
->> with <fsid, fileid> as fileid is 64 bit wide. Although the nfs client can
->> determine that two filesystem objects are hard linked if they have the same
->> filehandle but there are cases where two distinct filehandles can still refer to
->> the same filesystem object.  Letting the nfs client determine file equivalency
->> based on filehandles will probably satisfy most users but if the exported
->> fs supports the new call discussed above, exporting it over NFS makes a
->> lot of sense to me... What do you guys think about adding such an operation
->> to NFS?
->>
+> int aio_try_restart(void)
+> {
+> 	struct wait_queue_head_t *wq = current->io_wait;
 > 
-> This sounds like a bug to me. It seems like we should have a one to one 
-> correspondence of filehandle -> inode. In what situations would this not be the 
-> case?
+> 	if (!is_sync_wait(wq) && kiocbTryRestart(io_wait_to_kiocb(wq)))
+> 		return 1;
+> 	return 0;
+> }
 
-Well, the NFS protocol allows that [see rfc1813, p. 21: "If two file handles from
-the same server are equal, they must refer to the same file, but if they are not
-equal, no conclusions can be drawn."]
-
-As an example, some file systems encode hint information into the filehandle
-and the hints may change over time, another example is encoding parent
-information into the filehandle and then handles representing hard links
-to the same file from different directories will differ.
+Yes, we can do that -- how about aio_restarted() as an alternate name ?
 
 > 
-> -- Jeff
+> with a big kerneldoc comment explaining this idiom (and possible a better
+> name for the function ;-))
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > +
+> > +		if ((error = __lock_page(page, current->io_wait))) {
+> > +			goto readpage_error;
+> > +		}
+> 
+> This should  be
+> 
+> 		error = __lock_page(page, current->io_wait);
+> 		if (error)
+> 			goto readpage_error;
+> 
+> Pluse possible naming updates discussed in the last mail.  Also do we
+> really need to pass current->io_wait here?  Isn't the waitqueue in
+> the kiocb always guaranteed to be the same?  Now that all pagecache
+
+We don't have have the kiocb available to this routine. Using current->io_wait
+avoids the need to pass the iocb down to deeper levels just for the sync vs
+async checks, also allowing such routines to be shared by other code which
+does not use iocbs (e.g. generic_file_sendfile->do_generic_file_read
+->do_generic_mapping_read) without having to set up dummy iocbs.
+
+Does that clarify ? We could abstract this away within a lock page wrapper,
+but I don't know if that makes a difference.
+
+> I/O goes through the ->aio_read/->aio_write routines I'd prefer to
+> get rid of the task_struct field cludges and pass all this around in
+> the kiocb.
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

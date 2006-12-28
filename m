@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754808AbWL1KoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752703AbWL1KpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754808AbWL1KoI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 05:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754813AbWL1KoH
+	id S1752703AbWL1KpU (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 05:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753100AbWL1KpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 05:44:07 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:57167 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754808AbWL1KoG (ORCPT
+	Thu, 28 Dec 2006 05:45:20 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2260 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752703AbWL1KpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 05:44:06 -0500
-Subject: Re: bluetooth memory corruption (was Re: ext3-related crash in
-	2.6.20-rc1)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
-In-Reply-To: <20061228084251.GB3955@ucw.cz>
-References: <20061223234305.GA1809@elf.ucw.cz>
-	 <20061223235501.GA1740@elf.ucw.cz> <1166971163.15485.21.camel@violet>
-	 <20061224234357.GA1817@elf.ucw.cz>  <20061228084251.GB3955@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 28 Dec 2006 11:40:25 +0100
-Message-Id: <1167302425.2417.18.camel@violet>
+	Thu, 28 Dec 2006 05:45:18 -0500
+Date: Thu, 28 Dec 2006 10:45:08 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Fengguang Wu <fengguang.wu@gmail.com>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drop page cache of a single file
+Message-ID: <20061228104508.GA20596@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Fengguang Wu <fengguang.wu@gmail.com>,
+	"Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1167275845.15989.153.camel@ymzhang> <20061227194959.0ebce0e4.akpm@osdl.org> <367290328.14058@ustc.edu.cn> <20061228022926.4287ca33.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.9.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228022926.4287ca33.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
-
-> > > > > I got this nasty oops while playing with debugger. Not sure if that is
-> > > > > related; it also might be something with bluetooth; I already know it
-> > > > > corrupts memory during suspend, perhaps it corrupts memory in some
-> > > > > error path?
-> > > > 
-> > > > Okay, I spoke too soon. bluetooth & suspend memory corruption was
-> > > > _way_ harder to reproduce than expected. Took me 5-or-so-suspend
-> > > > cycles... so it is probably unrelated to the previous crash.
-> > > 
-> > > can you try to reproduce this with 2.6.20-rc2 as well.
+On Thu, Dec 28, 2006 at 02:29:26AM -0800, Andrew Morton wrote:
+> On Thu, 28 Dec 2006 15:19:04 +0800
+> Fengguang Wu <fengguang.wu@gmail.com> wrote:
+> > Yanmin: I've been using the fadvise tool from
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
 > > 
-> > (reproduced in another mail).
+> > It's a nice tool:
 > > 
-> >         _urb_queue_tail(__pending_q(husb, _urb->type), _urb);
-> >         err = usb_submit_urb(urb, GFP_ATOMIC);
-> >         if (err) {
-> >                 BT_ERR("%s tx submit failed urb %p type %d err %d",
-> >                                 husb->hdev->name, urb, _urb->type, err);
-> >                 _urb_unlink(_urb);
-> > 
-> >                 ~~~~~~~~~~~~~~~~~~
-> > 	 	 Do we need to remove urb from pending_q here?
-> > 
-> >                 _urb_queue_tail(__completed_q(husb, _urb->type), _urb);
-> >         } else
-> >                 atomic_inc(__pending_tx(husb, _urb->type));
+> > % fadvise 
+> > Usage: fadvise filename offset length advice [loops]
+> >       advice: normal sequential willneed noreuse dontneed asyncwrite writewait
+> > % fadvise /var/sparse 0 0x7fffffff dontneed
 > > 
 > 
-> Any news? Should I convert above idea to a patch? Or should I make
-> bluetooth suspend() routine return error so corruption is impossible
-> to hit?
+> I was a bit reluctant to point at that because it has nasty hacks to make
+> it mostly-work on old glibc's which don't implement posix_fadvise().
+> 
+> Hopefully if you're running a recent distro, you have glibc support for
+> fadvise() and it's possible to write a portable version of that app which
+> doesn't need to know about per-arch syscall numbers.
 
-to be honest, I have no idea. This code is way to ugly anyway.
+And note that if it gets implemented on ARM on pre-fadvise() glibc,
+the syscall argument order is rather non-standard: fd, action, start,
+size rather than fd, start, size, action - since otherwise we run out
+of registers with EABI.
 
-Regards
+The kernel community needs to get a grip with the implementation of
+new syscalls - we need a process where architecture maintainers get
+to review the arguments _prior_ to them being accepted into the kernel.
+That way we can avoid silly architecture specific syscall changes like
+this.
 
-Marcel
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

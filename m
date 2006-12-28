@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754888AbWL1R0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754897AbWL1R3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754888AbWL1R0j (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 12:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754893AbWL1R0j
+	id S1754897AbWL1R3H (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 12:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754896AbWL1R3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 12:26:39 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:48216 "EHLO kanga.kvack.org"
+	Thu, 28 Dec 2006 12:29:07 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46079 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754888AbWL1R0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 12:26:38 -0500
-X-Greylist: delayed 970 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 12:26:38 EST
-Date: Thu, 28 Dec 2006 15:03:02 -0200
-From: Marcelo Tosatti <marcelo@kvack.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, olpc-devel@laptop.org
-Subject: [PATCH] introduce config option to disable DMA zone on i386
-Message-ID: <20061228170302.GA4335@dmt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	id S1754897AbWL1R3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 12:29:04 -0500
+Date: Thu, 28 Dec 2006 09:27:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
+       David Miller <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       nickpiggin@yahoo.com.au, arjan@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: fix page_mkclean_one
+In-Reply-To: <20061228101311.GA9672@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612280917000.4473@woody.osdl.org>
+References: <20061226.205518.63739038.davem@davemloft.net>
+ <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
+ <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net>
+ <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
+ <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
+ <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
+ <97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com>
+ <20061228101311.GA9672@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following patch adds a config option to get rid of the DMA zone on i386.
 
-Architectures with devices that have no addressing limitations (eg. PPC)
-already work this way.
+On Thu, 28 Dec 2006, Russell King wrote:
+> 
+> and if you look at glibc's memset() function, you'll notice that's exactly
+> what you expect if you pass a non-8bit value to it.  Ergo, what you're
+> seeing is utterly expected given glibc's memset() implementation on ARM.
 
-This is useful for custom kernel builds where the developer is certain that 
-there are no address limitations.
+Guys, you _really_ should fix memset(). What you describe is a _bug_. 
 
-For example, the OLPC machine contains:
+"memset()" takes an "int" as its argument (always has), and has to convert 
+it to a byte _itself_. It may not be common, but it's perfectly normal, to 
+pass it values outside 0-255 (negative values that still fit in a "signed 
+char" in particular are very normal, but my usage of "let the thing 
+truncate it itself" is also quite fine).
 
-- USB devices
-- no floppy
-- no address limited PCI devices
-- no floppy
+> Fixing Linus' test program to pass nr & 255 to memset
 
-A unified zone simplifies VM reclaiming work, and also simplifies OOM
-killer heuristics (no need to deal with OOM on the DMA zone).
+No. I'm almost certain that that is not a "fix", it's a workaround for a 
+serious bug in your glibc crap.
 
-Comments?
+But it does explain all the unexpected strange behaviour (and the really 
+small writeback size - now it doesn't need any /proc/sys/vm/dirty_ratio 
+assumptions to be explicable.
 
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 0d67a0a..8d4dd5e 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -547,6 +547,18 @@ choice
- 		bool "1G/3G user/kernel split"
- endchoice
- 
-+config NO_DMA_ZONE
-+	bool "DMA zone support"
-+	default n
-+	help
-+	 This disables support for the 16MiB DMA zone. Only enable this 
-+	 option if you are certain that your devices contain no DMA
-+	 addressing limitations. A few of them which do: 
-+	 	- floppy
-+	 	- ISA devices
-+	 	- some PCI devices (soundcards, etc)
-+
-+
- config PAGE_OFFSET
- 	hex
- 	default 0xB0000000 if VMSPLIT_3G_OPT
-diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
-index 79df6e6..3078019 100644
---- a/arch/i386/kernel/setup.c
-+++ b/arch/i386/kernel/setup.c
-@@ -371,9 +371,13 @@ void __init zone_sizes_init(void)
- {
- 	unsigned long max_zone_pfns[MAX_NR_ZONES];
- 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
-+#ifndef CONFIG_NO_DMA_ZONE
- 	max_zone_pfns[ZONE_DMA] =
- 		virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
-+#else
-+	max_zone_pfns[ZONE_DMA] = max_low_pfn;
-+#endif
- #ifdef CONFIG_HIGHMEM
- 	max_zone_pfns[ZONE_HIGHMEM] = highend_pfn;
- 	add_active_range(0, 0, highend_pfn);
-
+		Linus

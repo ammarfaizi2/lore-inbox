@@ -1,83 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754856AbWL1Om7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752356AbWL1Ovg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754856AbWL1Om7 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 09:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754860AbWL1Om7
+	id S1752356AbWL1Ovg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 09:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754863AbWL1Ovg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 09:42:59 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:58046 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753561AbWL1Om5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 09:42:57 -0500
-Date: Thu, 28 Dec 2006 20:17:17 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-aio@kvack.org, akpm@osdl.org,
-       drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-Subject: Re: [FSAIO][PATCH 6/8] Enable asynchronous wait page and lock page
-Message-ID: <20061228144717.GA10156@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084149.GF6971@in.ibm.com> <20061228115510.GA25644@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061228115510.GA25644@infradead.org>
-User-Agent: Mutt/1.5.11
+	Thu, 28 Dec 2006 09:51:36 -0500
+Received: from il.qumranet.com ([62.219.232.206]:56621 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752356AbWL1Ovg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 09:51:36 -0500
+Message-ID: <4593D9F5.6010807@argo.co.il>
+Date: Thu, 28 Dec 2006 16:51:33 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+CC: Dor Laor <dor.laor@qumranet.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: open /dev/kvm: No such file or directory
+References: <b6a2187b0612280508t24e0a740nd1aabdfeb706fbec@mail.gmail.com>	 <64F9B87B6B770947A9F8391472E0321609AB0D35@ehost011-8.exch011.intermedia.net> <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
+In-Reply-To: <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 11:55:10AM +0000, Christoph Hellwig wrote:
-> On Thu, Dec 28, 2006 at 02:11:49PM +0530, Suparna Bhattacharya wrote:
-> > -extern void FASTCALL(lock_page_slow(struct page *page));
-> > +extern int FASTCALL(__lock_page_slow(struct page *page, wait_queue_t *wait));
-> >  extern void FASTCALL(__lock_page_nosync(struct page *page));
-> >  extern void FASTCALL(unlock_page(struct page *page));
-> >
-> >  /*
-> >   * lock_page may only be called if we have the page's inode pinned.
-> >   */
-> > -static inline void lock_page(struct page *page)
-> > +static inline int __lock_page(struct page *page, wait_queue_t *wait)
-> >  {
-> >  	might_sleep();
-> >  	if (TestSetPageLocked(page))
-> > -		lock_page_slow(page);
-> > +		return __lock_page_slow(page, wait);
-> > +	return 0;
-> >  }
-> >
-> > +#define lock_page(page)		__lock_page(page, &current->__wait.wait)
-> > +#define lock_page_slow(page)	__lock_page_slow(page, &current->__wait.wait)
-> 
-> Can we please simply kill your lock_page_slow wrapper and rename the
-> arguments taking __lock_page_slow to lock_page_slow?  All too many
-> variants of the locking functions aren't all that useful and there's
-> very few users.
+Jeff Chua wrote:
+>
+>> It's a dynamic misc device, you don't need to create it.
+>
+> But it'll be nice to be able to manually create the device as I
+> normally mount "/" as read-only?
+>
 
-OK.
-
-> 
-> Similarly I don't really think __lock_page is an all that useful name here.
-> What about lock_page_wq?  or aio_lock_page to denote it has special
-
-I am really bad with names :(  I tried using the _wq suffixes earlier and
-that seemed confusing to some, but if no one else objects I'm happy to use
-that. I thought aio_lock_page() might be misleading because it is
-synchronous if a regular wait queue entry is passed in, but again it may not
-be too bad.
-
-What's your preference ? Does anything more intuitive come to mind ?
-
-> meaning in aio contect?  Then again because of these special sematics
-> we need a bunch of really verbose kerneldoc comments for this function
-> famility.
-
-Regards
-Suparna
+udev is the best solution here.  It works with read-only root as it 
+mounts tmpfs on /dev.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+error compiling committee.c: too many arguments to function
 

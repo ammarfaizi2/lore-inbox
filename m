@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964946AbWL1G2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964943AbWL1HTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWL1G2P (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 01:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWL1G2P
+	id S964943AbWL1HTK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 02:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWL1HTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 01:28:15 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:2413
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S964946AbWL1G2O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 01:28:14 -0500
-Date: Wed, 27 Dec 2006 22:27:48 -0800 (PST)
-Message-Id: <20061227.222748.74746488.davem@davemloft.net>
-To: kenneth.w.chen@intel.com
-Cc: torvalds@osdl.org, ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-       tbm@cyrius.com, a.p.zijlstra@chello.nl, andrei.popa@i-neo.ro,
-       akpm@osdl.org, hugh@veritas.com, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <000101c72a46$ee2296b0$bc84030a@amr.corp.intel.com>
-References: <000001c72a44$c3da12e0$bc84030a@amr.corp.intel.com>
-	<000101c72a46$ee2296b0$bc84030a@amr.corp.intel.com>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 02:19:10 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:45961 "HELO ustc.edu.cn"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S964943AbWL1HTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 02:19:09 -0500
+Message-ID: <367290328.14058@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 28 Dec 2006 15:19:04 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drop page cache of a single file
+Message-ID: <20061228071903.GA5702@mail.ustc.edu.cn>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	"Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1167275845.15989.153.camel@ymzhang> <20061227194959.0ebce0e4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061227194959.0ebce0e4.akpm@osdl.org>
+X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Date: Wed, 27 Dec 2006 22:10:52 -0800
-
-> Chen, Kenneth wrote on Wednesday, December 27, 2006 9:55 PM
-> > Linus Torvalds wrote on Wednesday, December 27, 2006 7:05 PM
-> > > On Wed, 27 Dec 2006, David Miller wrote:
-> > > > > 
-> > > > > I still don't see _why_, though. But maybe smarter people than me can see 
-> > > > > it..
-> > > > 
-> > > > FWIW this program definitely triggers the bug for me.
-> > > 
-> > > Ok, now that I have something simple to do repeatable stuff with, I can 
-> > > say what the pattern is.. It's not all that surprising, but it's still 
-> > > worth just stating for the record.
-> > 
-> > 
-> > Running the test code, git bisect points its finger at this commit. Reverting
-> > this commit on top of 2.6.20-rc2 doesn't trigger the bug from the test code.
-> > 
-> > edc79b2a46ed854595e40edcf3f8b37f9f14aa3f is first bad commit
-> > commit edc79b2a46ed854595e40edcf3f8b37f9f14aa3f
-> > Author: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > Date:   Mon Sep 25 23:30:58 2006 -0700
-> > 
-> >     [PATCH] mm: balance dirty pages
-> > 
-> >     Now that we can detect writers of shared mappings, throttle them.  Avoids OOM
-> >     by surprise.
+On Wed, Dec 27, 2006 at 07:49:59PM -0800, Andrew Morton wrote:
+> On Thu, 28 Dec 2006 11:17:25 +0800
+> "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
 > 
+> > Currently, by /proc/sys/vm/drop_caches, applications could drop pagecache,
+> > slab(dentries and inodes), or both, but applications couldn't choose to
+> > just drop the page cache of one file. An user of VOD (Video-On-Demand)
+> > needs this capability to have more detailed control on page cache release.
 > 
-> Oh, never mind :-(  I just didn't create enough write out pressure when
-> test this. I just saw bug got triggered on a kernel I previously thought
-> was OK.
+> The posix_fadvise() system call should be used for this.  Probably in
+> combination with sys_sync_file_range().
 
-Besides, I'm pretty sure that from the Debian bug entry it's been
-established that the dirty-page tracking changes from a few releases
-ago introduced this problem.
+Yanmin: I've been using the fadvise tool from
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+
+It's a nice tool:
+
+% fadvise 
+Usage: fadvise filename offset length advice [loops]
+      advice: normal sequential willneed noreuse dontneed asyncwrite writewait
+% fadvise /var/sparse 0 0x7fffffff dontneed
+
+Regards,
+Wu

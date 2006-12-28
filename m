@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754897AbWL1R3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754903AbWL1Rbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754897AbWL1R3H (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 12:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754896AbWL1R3H
+	id S1754903AbWL1Rbg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 12:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754896AbWL1Rbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 12:29:07 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:46079 "EHLO smtp.osdl.org"
+	Thu, 28 Dec 2006 12:31:36 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:57894 "EHLO smtp.ocgnet.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754897AbWL1R3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 12:29:04 -0500
-Date: Thu, 28 Dec 2006 09:27:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Gordon Farquharson <gordonfarquharson@gmail.com>,
-       David Miller <davem@davemloft.net>, ranma@tdiedrich.de, tbm@cyrius.com,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, andrei.popa@i-neo.ro,
-       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-In-Reply-To: <20061228101311.GA9672@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0612280917000.4473@woody.osdl.org>
-References: <20061226.205518.63739038.davem@davemloft.net>
- <Pine.LNX.4.64.0612271601430.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612271636540.4473@woody.osdl.org> <20061227.165246.112622837.davem@davemloft.net>
- <Pine.LNX.4.64.0612271835410.4473@woody.osdl.org>
- <97a0a9ac0612272032uf5358c4qf12bf183f97309a6@mail.gmail.com>
- <Pine.LNX.4.64.0612272039411.4473@woody.osdl.org>
- <97a0a9ac0612272120g144d2364n932d6f66728f162e@mail.gmail.com>
- <20061228101311.GA9672@flint.arm.linux.org.uk>
+	id S1754893AbWL1Rbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 12:31:35 -0500
+Date: Fri, 29 Dec 2006 02:30:37 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Marcelo Tosatti <marcelo@kvack.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, olpc-devel@laptop.org
+Subject: Re: [PATCH] introduce config option to disable DMA zone on i386
+Message-ID: <20061228173037.GA22099@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Marcelo Tosatti <marcelo@kvack.org>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, olpc-devel@laptop.org
+References: <20061228170302.GA4335@dmt>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228170302.GA4335@dmt>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 28 Dec 2006, Russell King wrote:
+On Thu, Dec 28, 2006 at 03:03:02PM -0200, Marcelo Tosatti wrote:
+> The following patch adds a config option to get rid of the DMA zone on i386.
 > 
-> and if you look at glibc's memset() function, you'll notice that's exactly
-> what you expect if you pass a non-8bit value to it.  Ergo, what you're
-> seeing is utterly expected given glibc's memset() implementation on ARM.
-
-Guys, you _really_ should fix memset(). What you describe is a _bug_. 
-
-"memset()" takes an "int" as its argument (always has), and has to convert 
-it to a byte _itself_. It may not be common, but it's perfectly normal, to 
-pass it values outside 0-255 (negative values that still fit in a "signed 
-char" in particular are very normal, but my usage of "let the thing 
-truncate it itself" is also quite fine).
-
-> Fixing Linus' test program to pass nr & 255 to memset
-
-No. I'm almost certain that that is not a "fix", it's a workaround for a 
-serious bug in your glibc crap.
-
-But it does explain all the unexpected strange behaviour (and the really 
-small writeback size - now it doesn't need any /proc/sys/vm/dirty_ratio 
-assumptions to be explicable.
-
-		Linus
+> Architectures with devices that have no addressing limitations (eg. PPC)
+> already work this way.
+> 
+> This is useful for custom kernel builds where the developer is certain that 
+> there are no address limitations.
+> 
+Don't know if you're aware or not, but there's already a CONFIG_ZONE_DMA
+in -mm that accomplishes this, which goes a bit further in that it rips
+out all of the generic ZONE_DMA references. Quite a few architectures
+that have no interest in the zone are using this already.

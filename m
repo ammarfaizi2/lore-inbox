@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752964AbWL1Oi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754856AbWL1Om7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752964AbWL1Oi7 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 09:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754860AbWL1Oi7
+	id S1754856AbWL1Om7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 09:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754860AbWL1Om7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 09:38:59 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:9844 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752964AbWL1Oi6 (ORCPT
+	Thu, 28 Dec 2006 09:42:59 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:58046 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753561AbWL1Om5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 09:38:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rnutvtlCyFJhbvHYaGvKrJkX7casbI/exgaonIKetFsvb6ngIxDKnFzn/h6qZRFwOjc6QYf72O9F0pjPV3pXVR5qkPtPLOxtw7P2AReIWV8Uhv9l+5iIQe5Xnk4K3iIvCsov4bv6s836xgBy0azd9T8BhU0zt1zRauxlurfcxRM=
-Message-ID: <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
-Date: Thu, 28 Dec 2006 22:38:52 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Dor Laor" <dor.laor@qumranet.com>
-Subject: Re: open /dev/kvm: No such file or directory
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <64F9B87B6B770947A9F8391472E0321609AB0D35@ehost011-8.exch011.intermedia.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 09:42:57 -0500
+Date: Thu, 28 Dec 2006 20:17:17 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-aio@kvack.org, akpm@osdl.org,
+       drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
+Subject: Re: [FSAIO][PATCH 6/8] Enable asynchronous wait page and lock page
+Message-ID: <20061228144717.GA10156@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084149.GF6971@in.ibm.com> <20061228115510.GA25644@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <b6a2187b0612280508t24e0a740nd1aabdfeb706fbec@mail.gmail.com>
-	 <64F9B87B6B770947A9F8391472E0321609AB0D35@ehost011-8.exch011.intermedia.net>
+In-Reply-To: <20061228115510.GA25644@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/28/06, Dor Laor <dor.laor@qumranet.com> wrote:
-> Are you sure the kvm_intel & kvm modules are loaded?
+On Thu, Dec 28, 2006 at 11:55:10AM +0000, Christoph Hellwig wrote:
+> On Thu, Dec 28, 2006 at 02:11:49PM +0530, Suparna Bhattacharya wrote:
+> > -extern void FASTCALL(lock_page_slow(struct page *page));
+> > +extern int FASTCALL(__lock_page_slow(struct page *page, wait_queue_t *wait));
+> >  extern void FASTCALL(__lock_page_nosync(struct page *page));
+> >  extern void FASTCALL(unlock_page(struct page *page));
+> >
+> >  /*
+> >   * lock_page may only be called if we have the page's inode pinned.
+> >   */
+> > -static inline void lock_page(struct page *page)
+> > +static inline int __lock_page(struct page *page, wait_queue_t *wait)
+> >  {
+> >  	might_sleep();
+> >  	if (TestSetPageLocked(page))
+> > -		lock_page_slow(page);
+> > +		return __lock_page_slow(page, wait);
+> > +	return 0;
+> >  }
+> >
+> > +#define lock_page(page)		__lock_page(page, &current->__wait.wait)
+> > +#define lock_page_slow(page)	__lock_page_slow(page, &current->__wait.wait)
+> 
+> Can we please simply kill your lock_page_slow wrapper and rename the
+> arguments taking __lock_page_slow to lock_page_slow?  All too many
+> variants of the locking functions aren't all that useful and there's
+> very few users.
 
-Yes.
+OK.
 
-> Maybe you're bios does not support virtualization.
+> 
+> Similarly I don't really think __lock_page is an all that useful name here.
+> What about lock_page_wq?  or aio_lock_page to denote it has special
 
-Configured in the bios on Dell 745.
+I am really bad with names :(  I tried using the _wq suffixes earlier and
+that seemed confusing to some, but if no one else objects I'm happy to use
+that. I thought aio_lock_page() might be misleading because it is
+synchronous if a regular wait queue entry is passed in, but again it may not
+be too bad.
 
-> Please check your dmesg.
+What's your preference ? Does anything more intuitive come to mind ?
 
-I'll double-check dmesg when I get to the office tomorrow. But I'm
-pretty sure it's loaded successfully on the Dell Optiplex 745. On my
-IBM X60s notebook, it failed to load.
+> meaning in aio contect?  Then again because of these special sematics
+> we need a bunch of really verbose kerneldoc comments for this function
+> famility.
 
+Regards
+Suparna
 
-> It's a dynamic misc device, you don't need to create it.
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-But it'll be nice to be able to manually create the device as I
-normally mount "/" as read-only?
-
-
-Thanks,
-Jeff.

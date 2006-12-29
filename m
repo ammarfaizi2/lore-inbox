@@ -1,83 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755046AbWL2Ppu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755028AbWL2Py1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755046AbWL2Ppu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 10:45:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755026AbWL2Ppt
+	id S1755028AbWL2Py1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 10:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755040AbWL2Py1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 10:45:49 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:10858 "EHLO relay.sw.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755027AbWL2Pps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 10:45:48 -0500
-Date: Fri, 29 Dec 2006 18:52:16 +0300
-From: Alexey Dobriyan <adobriyan@openvz.org>
-To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: devel@openvz.org
-Subject: [RFC] Use jiffies_64 in sched_clock()
-Message-ID: <20061229155216.GA11125@localhost.sw.ru>
-Mime-Version: 1.0
+	Fri, 29 Dec 2006 10:54:27 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:42473 "EHLO
+	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755024AbWL2Py0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 10:54:26 -0500
+Date: Fri, 29 Dec 2006 16:54:04 +0100
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
+       Andrew Morton <akpm@osdl.org>, a.p.zijlstra@chello.nl,
+       arjan@infradead.org, andrei.popa@i-neo.ro
+Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
+Message-ID: <20061229155404.GL2062@deprecation.cyrius.com>
+References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org> <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229140822.GH2062@deprecation.cyrius.com> <4595318B.10102@seclark.us>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4595318B.10102@seclark.us>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it make sense to always use jiffies_64 instead of jiffies?
-(module hardware specific version)
+* Stephen Clark <Stephen.Clark@seclark.us> [2006-12-29 10:17]:
+> >It works for me now, both your testcase as well as an installation of
+> >Debian on this ARM device.  I manually applied the patch to 2.6.19.
+> 
+> Can you post a diff against 2.6.19?
 
-This is what FRV, UML, one ia64 version, one i386 version do.
-
-Also substract initial jiffies.
-
-Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
----
-
- arch/frv/kernel/time.c |    8 --------
- arch/um/kernel/time.c  |    8 --------
- kernel/sched.c         |    3 ++-
- 3 files changed, 2 insertions(+), 17 deletions(-)
-
---- a/arch/frv/kernel/time.c
-+++ b/arch/frv/kernel/time.c
-@@ -139,11 +139,3 @@ void time_init(void)
- 
- 	time_divisor_init();
- }
--
--/*
-- * Scheduler clock - returns current time in nanosec units.
-- */
--unsigned long long sched_clock(void)
--{
--	return jiffies_64 * (1000000000 / HZ);
--}
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -27,14 +27,6 @@ int hz(void)
- 	return(HZ);
- }
- 
--/*
-- * Scheduler clock - returns current time in nanosec units.
-- */
--unsigned long long sched_clock(void)
--{
--	return (unsigned long long)jiffies_64 * (1000000000 / HZ);
--}
--
- static unsigned long long prev_nsecs;
- #ifdef CONFIG_UML_REAL_TIME_CLOCK
- static long long delta;   		/* Deviation per interval */
---- a/kernel/sched.c
-+++ b/kernel/sched.c
-@@ -64,7 +64,8 @@ #include <asm/unistd.h>
-  */
- unsigned long long __attribute__((weak)) sched_clock(void)
+--- a/mm/page-writeback.c	2006-11-29 21:57:37.000000000 +0000
++++ b/mm/page-writeback.c	2006-12-29 11:02:55.555147896 +0000
+@@ -893,16 +893,45 @@
  {
--	return (unsigned long long)jiffies * (1000000000 / HZ);
-+	/* No locking but a rare wrong value is not a big deal. */
-+	return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
- }
+ 	struct address_space *mapping = page_mapping(page);
  
- /*
+-	if (mapping) {
++	if (mapping && mapping_cap_account_dirty(mapping)) {
++		/*
++		 * Yes, Virginia, this is indeed insane.
++		 *
++		 * We use this sequence to make sure that
++		 *  (a) we account for dirty stats properly
++		 *  (b) we tell the low-level filesystem to
++		 *      mark the whole page dirty if it was
++		 *      dirty in a pagetable. Only to then
++		 *  (c) clean the page again and return 1 to
++		 *      cause the writeback.
++		 *
++		 * This way we avoid all nasty races with the
++		 * dirty bit in multiple places and clearing
++		 * them concurrently from different threads.
++		 *
++		 * Note! Normally the "set_page_dirty(page)"
++		 * has no effect on the actual dirty bit - since
++		 * that will already usually be set. But we
++		 * need the side effects, and it can help us
++		 * avoid races.
++		 *
++		 * We basically use the page "master dirty bit"
++		 * as a serialization point for all the different
++		 * threds doing their things.
++		 *
++		 * FIXME! We still have a race here: if somebody
++		 * adds the page back to the page tables in
++		 * between the "page_mkclean()" and the "TestClearPageDirty()",
++		 * we might have it mapped without the dirty bit set.
++		 */
++		if (page_mkclean(page))
++			set_page_dirty(page);
+ 		if (TestClearPageDirty(page)) {
+-			if (mapping_cap_account_dirty(mapping)) {
+-				page_mkclean(page);
+-				dec_zone_page_state(page, NR_FILE_DIRTY);
+-			}
++			dec_zone_page_state(page, NR_FILE_DIRTY);
+ 			return 1;
+ 		}
+ 		return 0;
+-	}
++ 	}
+ 	return TestClearPageDirty(page);
+ }
+ EXPORT_SYMBOL(clear_page_dirty_for_io);
 
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

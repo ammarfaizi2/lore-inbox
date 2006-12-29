@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753902AbWL2EWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753561AbWL2Eh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753902AbWL2EWS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 23:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754069AbWL2EWS
+	id S1753561AbWL2Eh4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 23:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754780AbWL2Eh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 23:22:18 -0500
-Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:48658 "EHLO
-	smtpq3.groni1.gr.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753902AbWL2EWR (ORCPT
+	Thu, 28 Dec 2006 23:37:56 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:26759 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753561AbWL2Eh4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 23:22:17 -0500
-Message-ID: <459497A3.8080001@gmail.com>
-Date: Fri, 29 Dec 2006 05:20:51 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Thu, 28 Dec 2006 23:37:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aygJv8LVlwZo4tzUaUO2T4Cbb95ruImka5zc9TMTyM2xOh6auE2HCJ1ufsu0ESH+ryiyVzfiRfb5ZaqIYP3tbb3j4NE3AkbIkqdJxHyrAi2c9f6Ds9r5hZ8s6Wz5hkJMbqxTF/PhrYYACMMwo0/shiawZFFcxFhOijSMzgxzUp0=
+Message-ID: <b6a2187b0612282037p16e3f355i8683f1cfbe0179b2@mail.gmail.com>
+Date: Fri, 29 Dec 2006 12:37:54 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: "Dor Laor" <dor.laor@qumranet.com>
+Subject: Re: open /dev/kvm: No such file or directory
+Cc: lkml <linux-kernel@vger.kernel.org>, "Greg KH" <greg@kroah.com>
+In-Reply-To: <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-CC: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
-References: <4592E685.5000602@gmail.com> <20061228191204.GB8940@redhat.com> <45943AE4.6080704@gmail.com> <200612282240.00784.dtor@insightbb.com>
-In-Reply-To: <200612282240.00784.dtor@insightbb.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+References: <b6a2187b0612280508t24e0a740nd1aabdfeb706fbec@mail.gmail.com>
+	 <64F9B87B6B770947A9F8391472E0321609AB0D35@ehost011-8.exch011.intermedia.net>
+	 <b6a2187b0612280638o3d7c48ecn13b5dece8395b41a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
+On 12/28/06, Jeff Chua <jeff.chua.linux@gmail.com> wrote:
+> > Are you sure the kvm_intel & kvm modules are loaded?
+> > Please check your dmesg.
 
-> The change to suppress ACKs from paic blinking is already in Linus's
-> tree. I just tried booting with root=/dev/sdg and I had leds blinking
-> but no messages from atkbd were seen.
-> 
-> Could it be that you loaded older kernel by accident? Does anybody
-> else still seeing "Spurios ACK" messages during kernel panic?
+I checked and it's loaded ...
 
-Well, no, I'm really on 2.6.20-rc2, from a freshly cloned tree. And I do 
-get atkbd.c complaining at me when I boot with root=/dev/wrong-device.
+Module                  Size     Used by
+kvm_intel              18572  0
+kvm                      46276  1 kvm_intel
 
-Could you point me to the changeset in question? I couldn't find it 
-searching for "leds" in the log.
+Any chance of getting a static /dev/kvm ?
 
-Rene
+Thanks,
+Jeff.

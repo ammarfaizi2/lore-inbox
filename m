@@ -1,116 +1,129 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751564AbWL2KuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751615AbWL2LCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbWL2KuA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 05:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWL2KuA
+	id S1751615AbWL2LCa (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 06:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbWL2LC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 05:50:00 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:47411 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751561AbWL2Kto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 05:49:44 -0500
-Date: Fri, 29 Dec 2006 02:48:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-       Andrew Morton <akpm@osdl.org>, a.p.zijlstra@chello.nl, tbm@cyrius.com,
-       arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-In-Reply-To: <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
- <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
- <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
- <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
+	Fri, 29 Dec 2006 06:02:29 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:42827 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751592AbWL2LC2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 06:02:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:sender;
+        b=T4coE/qQXgXwJjhGcrEhgPE59a223pxLmMlDbatmatzxTIN+3DZhXBBMNPYZCZVIv2Z/nsyewbzZ53zeaUWdnyQ5d/pFdeliXK4n8sHJW+y3Pl9Zt/VWVvVZm9InzG8tBIQMr7C5Vp37gjrGqiSbiiPZrqf4lp1+w4N5c/EJ67M=
+Date: Fri, 29 Dec 2006 11:00:41 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Oliver Neukum <oliver@neukum.name>, Greg KH <greg@kroah.com>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.20-rc2-mm1: INFO: possible recursive locking detected in con_close
+Message-ID: <20061229110041.GA1441@slug>
+References: <20061228024237.375a482f.akpm@osdl.org> <45943638.30705@free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45943638.30705@free.fr>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 29 Dec 2006, Linus Torvalds wrote:
+On Thu, Dec 28, 2006 at 10:25:12PM +0100, Laurent Riffard wrote:
+> Le 28.12.2006 11:42, Andrew Morton a écrit :
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc2/2.6.20-rc2-mm1/
 > 
-> Hmm? I'd love it if somebody else wrote the patch and tested it, because 
-> I'm getting sick and tired of this bug ;)
+> Hello,
+> 
+> got this with 2.6.20-rc2-mm1, reverting 
+> gregkh-driver-driver-core-fix-race-in-sysfs-between-sysfs_remove_file-and-read-write.patch made it disappear.
+> 
+Hi, 
 
-Who the hell am I kidding? I haven't been able to sleep right for the last 
-few days over this bug. It was really getting to me.
+This is due to sysfs_hash_and_remove() holding dir->d_inode->i_mutex
+before calling sysfs_drop_dentry() which calls orphan_all_buffers()
+which in turn takes node->i_mutex.
+The following patch solves the problem by defering the buffers orphaning
+after the dir->d_inode->imutex is released. Not sure it's the best
+solution though, Greg?
 
-And putting on the thinking cap, there's actually a fairly simple an 
-nonintrusive patch. It still has a tiny tiny race (see the comment), but I 
-bet nobody can really hit it in real life anyway, and I know several ways 
-to fix it, so I'm not really _that_ worried about it.
+Regards,
+Frederik
 
-The patch is mostly a comment. The "real" meat of it is actually just a 
-few lines.
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
 
-Can anybody get corruption with this thing applied? It goes on top of 
-plain v2.6.20-rc2.
-
-		Linus
-
-----
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index b3a198c..ec01da1 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -862,17 +862,46 @@ int clear_page_dirty_for_io(struct page *page)
+diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+index 8c533cb..7cac0b6 100644
+--- a/fs/sysfs/inode.c
++++ b/fs/sysfs/inode.c
+@@ -230,10 +230,10 @@ static inline void orphan_all_buffers(struct inode *node)
+  * Unhashes the dentry corresponding to given sysfs_dirent
+  * Called with parent inode's i_mutex held.
+  */
+-void sysfs_drop_dentry(struct sysfs_dirent * sd, struct dentry * parent)
++struct inode *sysfs_drop_dentry(struct sysfs_dirent * sd, struct dentry * parent)
  {
- 	struct address_space *mapping = page_mapping(page);
+ 	struct dentry * dentry = sd->s_dentry;
+-	struct inode *inode;
++	struct inode *inode = NULL;
  
--	if (!mapping)
--		return TestClearPageDirty(page);
--
--	if (TestClearPageDirty(page)) {
--		if (mapping_cap_account_dirty(mapping)) {
--			page_mkclean(page);
-+	if (mapping && mapping_cap_account_dirty(mapping)) {
-+		/*
-+		 * Yes, Virginia, this is indeed insane.
-+		 *
-+		 * We use this sequence to make sure that
-+		 *  (a) we account for dirty stats properly
-+		 *  (b) we tell the low-level filesystem to
-+		 *      mark the whole page dirty if it was
-+		 *      dirty in a pagetable. Only to then
-+		 *  (c) clean the page again and return 1 to
-+		 *      cause the writeback.
-+		 *
-+		 * This way we avoid all nasty races with the
-+		 * dirty bit in multiple places and clearing
-+		 * them concurrently from different threads.
-+		 *
-+		 * Note! Normally the "set_page_dirty(page)"
-+		 * has no effect on the actual dirty bit - since
-+		 * that will already usually be set. But we
-+		 * need the side effects, and it can help us
-+		 * avoid races.
-+		 *
-+		 * We basically use the page "master dirty bit"
-+		 * as a serialization point for all the different
-+		 * threds doing their things.
-+		 *
-+		 * FIXME! We still have a race here: if somebody
-+		 * adds the page back to the page tables in
-+		 * between the "page_mkclean()" and the "TestClearPageDirty()",
-+		 * we might have it mapped without the dirty bit set.
-+		 */
-+		if (page_mkclean(page))
-+			set_page_dirty(page);
-+		if (TestClearPageDirty(page)) {
- 			dec_zone_page_state(page, NR_FILE_DIRTY);
-+			return 1;
+ 	if (dentry) {
+ 		spin_lock(&dcache_lock);
+@@ -248,19 +248,19 @@ void sysfs_drop_dentry(struct sysfs_dirent * sd, struct dentry * parent)
+ 			spin_unlock(&dentry->d_lock);
+ 			spin_unlock(&dcache_lock);
+ 			simple_unlink(parent->d_inode, dentry);
+-			orphan_all_buffers(inode);
+-			iput(inode);
+ 		} else {
+ 			spin_unlock(&dentry->d_lock);
+ 			spin_unlock(&dcache_lock);
  		}
--		return 1;
-+		return 0;
  	}
--	return 0;
-+	return TestClearPageDirty(page);
++	return inode;
  }
- EXPORT_SYMBOL(clear_page_dirty_for_io);
  
+ int sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ {
+ 	struct sysfs_dirent * sd;
+ 	struct sysfs_dirent * parent_sd;
++	struct inode *inode;
+ 	int found = 0;
+ 
+ 	if (!dir)
+@@ -277,7 +277,7 @@ int sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ 			continue;
+ 		if (!strcmp(sysfs_get_name(sd), name)) {
+ 			list_del_init(&sd->s_sibling);
+-			sysfs_drop_dentry(sd, dir);
++			inode = sysfs_drop_dentry(sd, dir);
+ 			sysfs_put(sd);
+ 			found = 1;
+ 			break;
+@@ -285,5 +285,10 @@ int sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ 	}
+ 	mutex_unlock(&dir->d_inode->i_mutex);
+ 
++	if (found == 1 && inode) {
++		orphan_all_buffers(inode);
++		iput(inode);
++	}
++
+ 	return found ? 0 : -ENOENT;
+ }
+diff --git a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+index 5100a12..ef9d217 100644
+--- a/fs/sysfs/sysfs.h
++++ b/fs/sysfs/sysfs.h
+@@ -17,7 +17,7 @@ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **)
+ extern void sysfs_remove_subdir(struct dentry *);
+ 
+ extern const unsigned char * sysfs_get_name(struct sysfs_dirent *sd);
+-extern void sysfs_drop_dentry(struct sysfs_dirent *sd, struct dentry *parent);
++extern struct inode * sysfs_drop_dentry(struct sysfs_dirent *sd, struct dentry *parent);
+ extern int sysfs_setattr(struct dentry *dentry, struct iattr *iattr);
+ 
+ extern struct rw_semaphore sysfs_rename_sem;

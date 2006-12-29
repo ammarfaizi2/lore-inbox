@@ -1,90 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752531AbWL2MpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752651AbWL2MvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752531AbWL2MpK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 07:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbWL2MpK
+	id S1752651AbWL2MvM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 07:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752733AbWL2MvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 07:45:10 -0500
-Received: from smtp23.orange.fr ([193.252.22.30]:36852 "EHLO smtp23.orange.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752531AbWL2MpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 07:45:08 -0500
-X-ME-UUID: 20061229124505443.6C27270000A0@mwinf2328.orange.fr
-Message-ID: <45950DD1.2010208@free.fr>
-Date: Fri, 29 Dec 2006 13:45:05 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.7) Gecko/20060405 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Rene Herman <rene.herman@gmail.com>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
-References: <4592E685.5000602@gmail.com> <200612290000.12791.dtor@insightbb.com> <4594A4DC.5090404@gmail.com> <200612290028.01531.dtor@insightbb.com> <4594ADAD.1030400@gmail.com>
-In-Reply-To: <4594ADAD.1030400@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 29 Dec 2006 07:51:12 -0500
+Received: from smtp1.telegraaf.nl ([217.196.45.193]:53192 "EHLO
+	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752651AbWL2MvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 07:51:11 -0500
+Date: Fri, 29 Dec 2006 13:51:08 +0100
+From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
+       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
+Message-ID: <20061229125108.GK912@telegraafnet.nl>
+References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com> <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org> <20061222144134.GH31882@telegraafnet.nl> <20061222154234.GI31882@telegraafnet.nl> <20061228155148.f5469729.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228155148.f5469729.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-telegraaf-MailScanner-From: ard@telegraafnet.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 29.12.2006 06:54, Rene Herman a écrit :
-> Dmitry Torokhov wrote:
+Hello Andrew,
+On Thu, Dec 28, 2006 at 03:51:48PM -0800, Andrew Morton wrote:
+> Could someone please test this?
+Without testing I declare it won't fix it 8-D
+> Ard has worked out the call tree:
 > 
->> On Friday 29 December 2006 00:17, Rene Herman wrote:
-> 
->>> Yes, I do have that in my tree. From the looks of it it's probably 
->>> not surprising, but the following gets me blinking leds without the 
->>> spurious ACK messages. Maybe still useful to know?
->>>
->>> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
->>> index debe944..9c70d34 100644
->>> --- a/drivers/input/serio/i8042.c
->>> +++ b/drivers/input/serio/i8042.c
->>> @@ -371,7 +371,7 @@ static irqreturn_t i8042_interrupt(int i
->>>       if (unlikely(i8042_suppress_kbd_ack))
->>>           if (port_no == I8042_KBD_PORT_NO &&
->>>               (data == 0xfa || data == 0xfe)) {
->>> -            i8042_suppress_kbd_ack = 0;
->>> +            /* i8042_suppress_kbd_ack = 0; */
->>>               goto out;
->>
->> That would indicate that your keyboard generates multiple acks... I 
->> wonder
->> if you could boot with i8042.debug=1 and somehow capture the data flow
->> during panic (do you have a digital camera?).
-> 
-> Not even an analog camera, but with or without the above, I get a single:
-> 
-> " <7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [ 902]"
-> 
-> when it panics. During a full boot, I get:
-> 
-> ===
-[snip]
-> ===
-> 
-> Rene.
-> 
+> init/main.c         start_kernel
+> kernel/params.c      parse_args("Booting kernel"
+> kernel/params.c       parse_one
+> drivers/ide/ide.c      ide_setup
+> drivers/ide/ide.c       init_ide_data
+> drivers/ide/ide.c        init_hwif_default
+> include/asm-i386/ide.h    ide_default_io_base(index)
+> drivers/pci/search.c       pci_find_device
+> drivers/pci/search.c        pci_find_subsys
+------------------------------^^^^^^^^^^^^^^
+Your patch patches pci_get_subsys, while pci_find_subsys does the
+down_read...
+I will try it on the right function, and see what we get.
 
-Dmitry, 
+Regards,
+Ard
 
-How about this output? (got this after a kernel panic)
-
-====
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35172]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35172]
-atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35296]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35297]
-atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35420]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35421]
-atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35544]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35545]
-atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
-===
-
-~~
-laurent
-
+-- 
+program signature;
+begin  { telegraaf.com
+} writeln("<ard@telegraafnet.nl> TEM2");
+end
+.

@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755020AbWL2PpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755046AbWL2Ppu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755020AbWL2PpV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 10:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755024AbWL2PpV
+	id S1755046AbWL2Ppu (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 10:45:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755026AbWL2Ppt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 10:45:21 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36770 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755013AbWL2PpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 10:45:20 -0500
-Subject: Re: KVM ... bypass BIOS check for VT?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
-References: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 29 Dec 2006 16:45:18 +0100
-Message-Id: <1167407118.20929.278.camel@laptopd505.fenrus.org>
+	Fri, 29 Dec 2006 10:45:49 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:10858 "EHLO relay.sw.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755027AbWL2Pps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 10:45:48 -0500
+Date: Fri, 29 Dec 2006 18:52:16 +0300
+From: Alexey Dobriyan <adobriyan@openvz.org>
+To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: devel@openvz.org
+Subject: [RFC] Use jiffies_64 in sched_clock()
+Message-ID: <20061229155216.GA11125@localhost.sw.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-29 at 23:14 +0800, Jeff Chua wrote:
-> I'm resending this under KVM as a subject and hope to get response.
-> 
-> kvm: disabled by bios
-> 
-> I know this has been asked before and the answer was no. Does it still
-> stand or is there a way to bypass the bios? I'm using Lenovo X60s and
-> there's no option to enable VT in the BIOS setup.
+Would it make sense to always use jiffies_64 instead of jiffies?
+(module hardware specific version)
 
-I don't think there is a generic way that works.
-(rationale: the bios really has to support VT, for example it has to
-load the right microcode into the cpu etc)
+This is what FRV, UML, one ia64 version, one i386 version do.
 
-Not ruling out that specific machines may be able to force it, but
-that's more luck than a general solution if that's the case.
+Also substract initial jiffies.
 
-(fwiw the linux-ready firmware developer kit now has a test for
-vt-enabling so with some luck more bioses will have this right in the
-future)
+Signed-off-by: Alexey Dobriyan <adobriyan@openvz.org>
+---
 
-Greetings,
-   Arjan van de Ven
+ arch/frv/kernel/time.c |    8 --------
+ arch/um/kernel/time.c  |    8 --------
+ kernel/sched.c         |    3 ++-
+ 3 files changed, 2 insertions(+), 17 deletions(-)
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+--- a/arch/frv/kernel/time.c
++++ b/arch/frv/kernel/time.c
+@@ -139,11 +139,3 @@ void time_init(void)
+ 
+ 	time_divisor_init();
+ }
+-
+-/*
+- * Scheduler clock - returns current time in nanosec units.
+- */
+-unsigned long long sched_clock(void)
+-{
+-	return jiffies_64 * (1000000000 / HZ);
+-}
+--- a/arch/um/kernel/time.c
++++ b/arch/um/kernel/time.c
+@@ -27,14 +27,6 @@ int hz(void)
+ 	return(HZ);
+ }
+ 
+-/*
+- * Scheduler clock - returns current time in nanosec units.
+- */
+-unsigned long long sched_clock(void)
+-{
+-	return (unsigned long long)jiffies_64 * (1000000000 / HZ);
+-}
+-
+ static unsigned long long prev_nsecs;
+ #ifdef CONFIG_UML_REAL_TIME_CLOCK
+ static long long delta;   		/* Deviation per interval */
+--- a/kernel/sched.c
++++ b/kernel/sched.c
+@@ -64,7 +64,8 @@ #include <asm/unistd.h>
+  */
+ unsigned long long __attribute__((weak)) sched_clock(void)
+ {
+-	return (unsigned long long)jiffies * (1000000000 / HZ);
++	/* No locking but a rare wrong value is not a big deal. */
++	return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
+ }
+ 
+ /*
 

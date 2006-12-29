@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752417AbWL2Mel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752531AbWL2MpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752417AbWL2Mel (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 07:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752420AbWL2Mel
+	id S1752531AbWL2MpK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 07:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbWL2MpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 07:34:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33230 "EHLO mx2.mail.elte.hu"
+	Fri, 29 Dec 2006 07:45:10 -0500
+Received: from smtp23.orange.fr ([193.252.22.30]:36852 "EHLO smtp23.orange.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752376AbWL2Mek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 07:34:40 -0500
-Date: Fri, 29 Dec 2006 13:31:27 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-       Andrew Morton <akpm@osdl.org>, a.p.zijlstra@chello.nl, tbm@cyrius.com,
-       arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-Message-ID: <20061229123127.GA19563@elte.hu>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org> <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S1752531AbWL2MpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 07:45:08 -0500
+X-ME-UUID: 20061229124505443.6C27270000A0@mwinf2328.orange.fr
+Message-ID: <45950DD1.2010208@free.fr>
+Date: Fri, 29 Dec 2006 13:45:05 +0100
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.7) Gecko/20060405 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Rene Herman <rene.herman@gmail.com>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
+References: <4592E685.5000602@gmail.com> <200612290000.12791.dtor@insightbb.com> <4594A4DC.5090404@gmail.com> <200612290028.01531.dtor@insightbb.com> <4594ADAD.1030400@gmail.com>
+In-Reply-To: <4594ADAD.1030400@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> > Hmm? I'd love it if somebody else wrote the patch and tested it, 
-> > because I'm getting sick and tired of this bug ;)
+Le 29.12.2006 06:54, Rene Herman a écrit :
+> Dmitry Torokhov wrote:
 > 
-> Who the hell am I kidding? I haven't been able to sleep right for the 
-> last few days over this bug. It was really getting to me.
+>> On Friday 29 December 2006 00:17, Rene Herman wrote:
 > 
-> And putting on the thinking cap, there's actually a fairly simple an 
-> nonintrusive patch. [...]
+>>> Yes, I do have that in my tree. From the looks of it it's probably 
+>>> not surprising, but the following gets me blinking leds without the 
+>>> spurious ACK messages. Maybe still useful to know?
+>>>
+>>> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+>>> index debe944..9c70d34 100644
+>>> --- a/drivers/input/serio/i8042.c
+>>> +++ b/drivers/input/serio/i8042.c
+>>> @@ -371,7 +371,7 @@ static irqreturn_t i8042_interrupt(int i
+>>>       if (unlikely(i8042_suppress_kbd_ack))
+>>>           if (port_no == I8042_KBD_PORT_NO &&
+>>>               (data == 0xfa || data == 0xfe)) {
+>>> -            i8042_suppress_kbd_ack = 0;
+>>> +            /* i8042_suppress_kbd_ack = 0; */
+>>>               goto out;
+>>
+>> That would indicate that your keyboard generates multiple acks... I 
+>> wonder
+>> if you could boot with i8042.debug=1 and somehow capture the data flow
+>> during panic (do you have a digital camera?).
+> 
+> Not even an analog camera, but with or without the above, I get a single:
+> 
+> " <7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [ 902]"
+> 
+> when it panics. During a full boot, I get:
+> 
+> ===
+[snip]
+> ===
+> 
+> Rene.
+> 
 
-ok, your patch seems to fix the testcase here too on -rc2-rt.
+Dmitry, 
 
-[ Damn, i should have slept a bit more, that would have saved me a ~4
-  hour debug and tracing session today to analyze your testcase, just to
-  find your patch and your explanation on lkml, right after i sent my
-  analysis and workaround patch ;-) At least now we know it from two
-  independent tracing results that the suspect code is the same. ]
+How about this output? (got this after a kernel panic)
 
-	Ingo
+====
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35172]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35172]
+atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35296]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35297]
+atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35420]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35421]
+atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35544]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [35545]
+atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying access hardware directly.
+===
+
+~~
+laurent
+

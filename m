@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751007AbWL2Kaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751056AbWL2KeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWL2Kaa (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 05:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWL2Kaa
+	id S1751056AbWL2KeN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 05:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWL2KeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 05:30:30 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:54644 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751007AbWL2Ka3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 05:30:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EOP6+he0Fkc27n70QVhC3oyOLGnCZz7zyW93PB/VktU79rVGnlTZHwZsf6c7F7+mRG/UWjDUS9ODwWKjmewiC8/AiohN4alvY1rLTK6LSSzZKOcrK2mS3wpjkHmlAGIuH+XdTfMbQhDLx+NlZAgFHUoWCVmyDgA85OH3R2gHM14=
-Message-ID: <b6a2187b0612290230g7e494670h6396e2f0a4ecea10@mail.gmail.com>
-Date: Fri, 29 Dec 2006 18:30:27 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: any chance to bypass BIOS check for VT?
+	Fri, 29 Dec 2006 05:34:13 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39883 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751056AbWL2KeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 05:34:13 -0500
+Message-ID: <4594EF2B.3090800@drzeus.cx>
+Date: Fri, 29 Dec 2006 11:34:19 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+CC: anderson.lizardo@indt.org.br, linux-kernel@vger.kernel.org,
+       carlos.aguiar@indt.org.br, tony@atomide.com, david-b@pacbell.net
+Subject: Re: [PATCH 4/4] Add MMC Password Protection (lock/unlock) support
+ V8: mmc_sysfs.diff
+References: <45748173.2050008@indt.org.br> <20061215193717.GA10367@flint.arm.linux.org.uk> <45868C6F.5000804@indt.org.br> <458D39AE.2040207@drzeus.cx> <F26D8BDC5BC8014A909C6D45468F69EF022B6839@mzebe101.NOE.Nokia.com> <4592D989.8070000@drzeus.cx> <4594240D.7040007@indt.org.br>
+In-Reply-To: <4594240D.7040007@indt.org.br>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kvm: disabled by bios
+Anderson Briglia wrote:
+> Yes, I'm already fixed the latest Russel's comment. I'm preparing it to send again to you and LKML. Do you have other
+> comments? If the others patches are ok, I intend to send just this mmc_sysfs.diff patch.
+>   
 
-I know this has been asked before and the answer was no. Does it still
-stand or is there a way to bypass the bios? I'm using Lenovo X60s and
-there's no option to enable VT in the BIOS setup.
+Everything else looks fine, so send away.
 
-/proc/cpuinfo shows "VMX".
+Rgds
 
+-- 
+     -- Pierre Ossman
 
-Another question ... how to enable "mouse" in KVM?
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 
-
-Thanks,
-Jeff.

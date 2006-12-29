@@ -1,29 +1,30 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755117AbWL2D7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755175AbWL2D7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755117AbWL2D7L (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 22:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755135AbWL2D7K
+	id S1755175AbWL2D7Y (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 22:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755178AbWL2D7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 22:59:10 -0500
+	Thu, 28 Dec 2006 22:59:23 -0500
 Received: from [211.144.102.245] ([211.144.102.245]:16584 "EHLO
 	Web.hsic.com.cn" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755072AbWL2D7I (ORCPT
+	with ESMTP id S1755181AbWL2D7X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 22:59:08 -0500
+	Thu, 28 Dec 2006 22:59:23 -0500
 X-Greylist: delayed 905 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 22:59:05 EST
-Subject: Subject: [PATCH] Input: HID - add CIDC USB device to HID blacklist
+Subject: [PATCH] Input: HID - add CIDC USB device to HID blacklist
 From: Zheng XiaoJun <zhengxiaojun@hsic.com.cn>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Fri, 29 Dec 2006 11:46:53 +0800
-Message-Id: <1167364013.2685.9.camel@zxj.hsic.com.cn>
+Date: Fri, 29 Dec 2006 11:45:09 +0800
+Message-Id: <1167363909.2685.7.camel@zxj.hsic.com.cn>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Dec 2006 03:46:36.0203 (UTC) FILETIME=[F06AAFB0:01C72AFB]
+X-OriginalArrivalTime: 29 Dec 2006 03:44:52.0390 (UTC) FILETIME=[B28A1460:01C72AFB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Subject: [PATCH] Input: HID - add CIDC USB device to HID blacklist
 From: Zheng XiaoJun <zhengxiaojun@hsic.com.cn>
 
 Add CIDC USB device to HID blacklist since it is actually a USB token

@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754917AbWL2PZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754951AbWL2P2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754917AbWL2PZP (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 10:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754927AbWL2PZP
+	id S1754951AbWL2P2z (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 10:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754927AbWL2P2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 10:25:15 -0500
-Received: from smtp0.telegraaf.nl ([217.196.45.192]:55730 "EHLO
-	smtp0.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754917AbWL2PZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 10:25:10 -0500
-Date: Fri, 29 Dec 2006 16:24:26 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-ID: <20061229152426.GQ912@telegraafnet.nl>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com> <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org> <20061222144134.GH31882@telegraafnet.nl> <20061222154234.GI31882@telegraafnet.nl> <20061228155148.f5469729.akpm@osdl.org> <20061229125108.GK912@telegraafnet.nl> <20061229132759.GL912@telegraafnet.nl> <20061229141058.GM912@telegraafnet.nl> <20061229150132.GN912@telegraafnet.nl>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZInfyf7laFu/Kiw7"
+	Fri, 29 Dec 2006 10:28:55 -0500
+Received: from THUNK.ORG ([69.25.196.29]:54272 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754869AbWL2P2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 10:28:54 -0500
+Date: Fri, 29 Dec 2006 10:27:42 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+       linux-kernel@vger.kernel.org, ranma@tdiedrich.de,
+       gordonfarquharson@gmail.com, akpm@osdl.org, a.p.zijlstra@chello.nl,
+       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
+Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
+Message-ID: <20061229152742.GA28710@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Segher Boessenkool <segher@kernel.crashing.org>,
+	David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+	kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+	linux-kernel@vger.kernel.org, ranma@tdiedrich.de,
+	gordonfarquharson@gmail.com, akpm@osdl.org, a.p.zijlstra@chello.nl,
+	tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
+References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061229150132.GN912@telegraafnet.nl>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+In-Reply-To: <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 29, 2006 at 12:58:12AM -0800, Linus Torvalds wrote:
+> Because what "__set_page_dirty_buffers()" does is that AT THE TIME THE 
+> "set_page_dirty()" IS CALLED, it will mark all the buffers on that page as 
+> dirty. That may _sound_ like what we want, but it really isn't. Because by 
+> the time "writepage()" is actually called (which can be MUCH MUCH later), 
+> some internal filesystem activity may actually have cleaned one or more of 
+> those buffers in the meantime, and now we call "writepage()" (which really 
+> wants to write them _all_), and it will write only part of them, or none 
+> at all.
 
---ZInfyf7laFu/Kiw7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm confused.  Does this mean that if "fs blocksize"=="VM pagesize"
+this bug can't trigger?  But I thought at least one of people
+reporting corruption was using a filesystem with a 4k block size on an
+i386?
 
-On Fri, Dec 29, 2006 at 04:01:32PM +0100, Ard -kwaak- van Breemen wrote:
-> > - parse-one detection of Yanmin
-> It doesn't flag it. I am working on that.
-As said: it was doing a callback to obsolete_...
-This replaces the patch into not being bloated and still gives
-enough info. It won't check voor callbacks or whatever, just
-which parameter b0rked it.
-
-Output of dmesg without the pci-patch applied:
-ard@supergirl:~$ dmesg|grep -B5 -A1 'interrupts were enabled'
-Kernel command line: console=tty0 console=ttyS0,115200 hdb=noprobe hdc=noprobe hdd=noprobe root=/dev/md0 ro panic=30 earlyprintk=serial,ttyS0,115200 
-ide_setup: hdb=noprobe
-parse_args(): option 'hdb=noprobe' enabled irq's!
-ide_setup: hdc=noprobe
-ide_setup: hdd=noprobe
-start_kernel(): bug: interrupts were enabled *very* early, fixing it
-Initializing CPU#0
-
--- 
-program signature;
-begin  { telegraaf.com
-} writeln("<ard@telegraafnet.nl> TEM2");
-end
-.
-
---ZInfyf7laFu/Kiw7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="param-parse-irq-enable-detection.patch"
-
---- linux-2.6.19.vanilla/kernel/params.c	2006-11-29 21:57:37.000000000 +0000
-+++ linux-2.6.19/kernel/params.c	2006-12-29 15:14:26.000000000 +0000
-@@ -143,9 +143,14 @@
- 
- 	while (*args) {
- 		int ret;
-+		int irq_was_disabled;
- 
- 		args = next_arg(args, &param, &val);
-+		irq_was_disabled=irqs_disabled();
- 		ret = parse_one(param, val, params, num, unknown);
-+		if(irq_was_disabled && !irqs_disabled()) {
-+			printk(KERN_WARNING "parse_args(): option '%s' enabled irq's!\n",param);
-+		}
- 		switch (ret) {
- 		case -ENOENT:
- 			printk(KERN_ERR "%s: Unknown parameter `%s'\n",
-
---ZInfyf7laFu/Kiw7--
+						- Ted

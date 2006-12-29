@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965159AbWL2Ut3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965157AbWL2UzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965159AbWL2Ut3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWL2Ut2
+	id S965157AbWL2UzT (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 15:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWL2UzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:49:28 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:60510 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965159AbWL2Ut1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:49:27 -0500
-To: Martin Stoilov <mstoilov@odesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kobject_add unreachable code
-References: <4594BA09.1080509@odesys.com> <87k60azu8b.fsf@goat.bogus.local>
-	<45954D19.5020905@odesys.com> <45955217.5050405@odesys.com>
-From: Olaf Dietsche <olaf.dietsche@olafdietsche.de>
-Date: Fri, 29 Dec 2006 21:49:18 +0100
-In-Reply-To: <45955217.5050405@odesys.com> (Martin Stoilov's message of
- "Fri, 29 Dec 2006 09:36:23 -0800")
-Message-ID: <87bqlmzaup.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Constant Variable,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
+	Fri, 29 Dec 2006 15:55:19 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:42647 "EHLO cacti.profiwh.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965157AbWL2UzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 15:55:19 -0500
+Message-id: <2444927859138811520@wsc.cz>
+Subject: [PATCH 1/1] Doc: isicom, remove reserved ioctl-number
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: Michael Elizabeth Chastain <mec@shout.net>
+Date: Fri, 29 Dec 2006 21:55:28 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Stoilov <mstoilov@odesys.com> writes:
+isicom, remove reserved ioctl-number
 
-> Martin Stoilov wrote:
->> Olaf Dietsche wrote:
->>   
->>> Martin Stoilov <mstoilov@odesys.com> writes:
->>>
->>>   
->>>     
->>>> The following code in kobject_add
->>>>     if (!kobj->k_name)
->>>>         kobj->k_name = kobj->name;
->>>>     if (!kobj->k_name) {
->>>>         pr_debug("kobject attempted to be registered with no name!\n");
->>>>         WARN_ON(1);
->>>>         return -EINVAL;
->>>>     }
->>>>
->>>> doesn't look right to me. The second 'if' statement looks useless after
->>>> the assignment in the first one. May be it was meant to be like:
->>>> if (!*kobj->k_name)
->>>>     
->>>>       
->>> The second test is true, if kobj->name is NULL as well.
->>>   
->>>     
->> And how would that ever be true? kobj->name is a buffer inside kobj:
->>
->> struct kobject <http://localhost/lxr/http/ident?i=kobject> {
->> 	const char              * k_name;
->> 	char                    name <http://localhost/lxr/http/ident?i=name>[KOBJ_NAME_LEN <http://localhost/lxr/http/ident?i=KOBJ_NAME_LEN>];
->>
->> kobj->name will not be NULL, even if kobj itself is NULL.
->>   
->
-> Oops, I am sorry for sending badly formated text! Here it is:
->
-> I don't understand how would that ever be true? kobj->name is a buffer inside kobj:
->
-> struct kobject {
->     const char      * k_name;
->     char            name[KOBJ_NAME_LEN];
->
-> kobj->name will not be NULL, even if kobj itself is NULL.
+Isicom driver no longer registers chardev with ioctl function. It used
+to use for firmware loading. Remove the reserved letter (M) from
+ioctl-number, so that the conflict get away.
 
-Shame on me! I just looked at kobject_add() without a clue about struct
-kobject. You're right, of course.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Regards, Olaf.
+---
+commit 5bdb7cc0e955ee7724ff519a212aceb706e4814d
+tree 27615584648d8776da636a527a16fed31ca51bca
+parent 549237a65498ad3880cd1ca40f23f8bc942041cb
+author Jiri Slaby <jirislaby@gmail.com> Fri, 29 Dec 2006 21:48:23 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Fri, 29 Dec 2006 21:48:23 +0059
+
+ Documentation/ioctl-number.txt |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/ioctl-number.txt b/Documentation/ioctl-number.txt
+index 5a8bd5b..8f750c0 100644
+--- a/Documentation/ioctl-number.txt
++++ b/Documentation/ioctl-number.txt
+@@ -94,8 +94,7 @@ Code	Seq#	Include File		Comments
+ 'L'	00-1F	linux/loop.h
+ 'L'	E0-FF	linux/ppdd.h		encrypted disk device driver
+ 					<http://linux01.gwdg.de/~alatham/ppdd.html>
+-'M'	all	linux/soundcard.h	conflict!
+-'M'	00-1F	linux/isicom.h		conflict!
++'M'	all	linux/soundcard.h
+ 'N'	00-1F	drivers/usb/scanner.h
+ 'P'	all	linux/soundcard.h
+ 'Q'	all	linux/soundcard.h

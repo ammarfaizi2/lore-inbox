@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965134AbWL2USZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965143AbWL2U0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbWL2USZ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWL2USZ
+	id S965143AbWL2U0u (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 15:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbWL2U0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:18:25 -0500
-Received: from iabervon.org ([66.92.72.58]:1198 "EHLO iabervon.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965134AbWL2USZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:18:25 -0500
-Date: Fri, 29 Dec 2006 15:18:23 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: 2.6.20-rc2: known unfixed regressions
-In-Reply-To: <20061229192205.GT20714@stusta.de>
-Message-ID: <Pine.LNX.4.64.0612291445470.20138@iabervon.org>
-References: <Pine.LNX.4.64.0612232043030.3671@woody.osdl.org>
- <20061228223909.GK20714@stusta.de> <Pine.LNX.4.64.0612291234400.20138@iabervon.org>
- <20061229192205.GT20714@stusta.de>
+	Fri, 29 Dec 2006 15:26:50 -0500
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:22993 "HELO
+	smtp102.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S965143AbWL2U0u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 15:26:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=HMuKD3LIAzPV3NNpy1IkRwIC2cFIS7NeOiyfR3qxWEVuAYnOw5W58hHv2WfFX9GgGzDnY+On9yydALCw+mS0+BaPzgdlAqVAjnSDHRRhnb+/1GwfICmkkUdQGGteog+sqMpdQ6MTpvINlPi3hxWK9vuCQKY8kPc8SU/wgXb2Vn0=  ;
+X-YMail-OSG: RUVOWdQVM1nRYBo5gBExhtvEKSGxIHouINTQ.YVbLJ7g4z73eP4DEXdgHbdrN2IA5sHb62GI54aMqXrIENnnQn5d.hvIieYAV6VLMKF26q6o.nHiq.Ul853IBr5WNAcHZIkPocU0s1._u_o-
+From: David Brownell <david-b@pacbell.net>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [patch 2.6.20-rc1 6/6] input: ads7846 directly senses PENUP state
+Date: Fri, 29 Dec 2006 12:26:46 -0800
+User-Agent: KMail/1.7.1
+Cc: Imre Deak <imre.deak@solidboot.com>, linux-kernel@vger.kernel.org,
+       nicolas.ferre@rfo.atmel.com, tony@atomide.com
+References: <20061222192536.A206A1F0CDB@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <200612281437.56888.david-b@pacbell.net> <200612290122.52752.dtor@insightbb.com>
+In-Reply-To: <200612290122.52752.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612291226.46984.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Dec 2006, Adrian Bunk wrote:
-
-> On Fri, Dec 29, 2006 at 01:14:13PM -0500, Daniel Barkalow wrote:
+On Thursday 28 December 2006 10:22 pm, Dmitry Torokhov wrote:
 > 
-> > There's also http://lkml.org/lkml/2006/12/21/47; the included patch break 
-> > my nVidia devices and probably all PCIX devices, so it's not right, but 
-> > something has to be done to fix ATI. My guess is a quirk to say that 
-> > pci_intx doesn't work on certain devices and should just be skipped, but 
-> > I'm not sure if it's just in combination with MSI or not.
-> 
-> This:
-> - does not seem to be a regression and
-> - missing MSI support is not such a big problem.
-> 
-> Considering how many problems patches in this area tend to cause on 
-> different hardware, I'm even inclined to say that such patches should 
-> only be added during the 2 weeks merge window before -rc1.
+> I appied all patches except for hwmon as it had some issues with CONFIG_HWMON
+> handling. Could you please take a look at the patch below and tell me if it
+> works for you?
 
-(I was only talking about the first issue/patch as being a regression, 
-obviously, and forgot that there was more to the email I cited.)
+Looked OK, except:
 
-Ah, okay. I somehow missed that all of the devices that were reported 
-to break with the MSI change in mainline doesn't support MSI in mainline. 
-Actually, I wouldn't be surprised if this issue applied to audio on ATI 
-SB450 and later, which (I think) use the hda_intel driver, which supports 
-MSI (although I guess it's still defaulting to disabled). If this is true, 
-it would be a regression since 2.6.19.
+> +#if defined(CONFIG_HWMON) || (defined(MODULE) && defined(CONFIG_HWMON_MODULE))
 
-The addition of a quirk to not use pci_intx with MSI on ATI PCI devices 
-should be safe (until 2.6.20-rc1, this was the usual kernel behavior), but 
-is clearly not critical if mainline doesn't use MSI with any such devices 
-anyway.
+That idiom is more usually written
 
-	-Daniel
-*This .sig left intentionally blank*
+	#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+
+Thanks!  I'll be glad to see fewer versions of this driver floating around.
+And to see the next version of the ads7843 patches ... :) 
+
+- Dave
+

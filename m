@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755232AbXAAQZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932292AbXAAQ3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755232AbXAAQZV (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 11:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755234AbXAAQZV
+	id S932292AbXAAQ3F (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 11:29:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755238AbXAAQ3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 11:25:21 -0500
-Received: from ns.suse.de ([195.135.220.2]:45398 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755232AbXAAQZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 11:25:20 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Amit Choudhary <amit2030@yahoo.com>, Bernd Petrovitsch <bernd@firmix.at>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
-References: <88880.94256.qm@web55601.mail.re4.yahoo.com>
-	<200701011709.48349.ioe-lkml@rameria.de>
-X-Yow: Someone is DROOLING on my collar!!
-Date: Mon, 01 Jan 2007 17:25:03 +0100
-In-Reply-To: <200701011709.48349.ioe-lkml@rameria.de> (Ingo Oeser's message of
-	"Mon, 1 Jan 2007 17:09:46 +0100")
-Message-ID: <je3b6uhfz4.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 1 Jan 2007 11:29:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4662 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755234AbXAAQ3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 11:29:04 -0500
+Date: Fri, 29 Dec 2006 10:02:23 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Finding hardlinks
+Message-ID: <20061229100223.GF3955@ucw.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu> <20061221185850.GA16807@delft.aura.cs.cmu.edu> <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ioe-lkml@rameria.de> writes:
+Hi!
 
-> Hi,
->
-> On Monday, 1. January 2007 07:37, Amit Choudhary wrote:
->> --- Ingo Oeser <ioe-lkml@rameria.de> wrote:
->> > #define kfree_nullify(x) do { \
->> > 	if (__builtin_constant_p(x)) { \
->> > 		kfree(x); \
->> > 	} else { \
->> > 		typeof(x) *__addr_x = &x; \
->
-> Ok, I should change that line to 
-> 		typeof(x) *__addr_x = &(x); \
->
->> > 		kfree(*__addr_x); \
->> > 		*__addr_x = NULL; \
->> > 	} \
->> > } while (0)
->> > 
->> > Regards
->> > 
->> > Ingo Oeser
->> > 
->> 
->> This is a nice approach but what if someone does kfree_nullify(x+20).
->
-> Then this works, because the side effect (+20) is evaluated only once. 
+> >>If user (or script) doesn't specify that flag, it 
+> >>doesn't help. I think
+> >>the best solution for these filesystems would be 
+> >>either to add new syscall
+> >> 	int is_hardlink(char *filename1, char *filename2)
+> >>(but I know adding syscall bloat may be objectionable)
+> >
+> >it's also the wrong api; the filenames may have been 
+> >changed under you
+> >just as you return from this call, so it really is a
+> >"was_hardlink_at_some_point()" as you specify it.
+> >If you make it work on fd's.. it has a chance at least.
+> 
+> Yes, but it doesn't matter --- if the tree changes under 
+> "cp -a" command, no one guarantees you what you get.
+> 	int fis_hardlink(int handle1, int handle 2);
+> Is another possibility but it can't detect hardlinked 
+> symlinks.
 
-It's not a side effect, it's a non-lvalue, and you can't take the address
-of a non-lvalue.
+Ugh. Is it even legal to hardlink symlinks?
 
-Andreas.
-
+Anyway, cp -a is not the only application that wants to do hardlink
+detection.
+						Pavel
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Thanks for all the (sleeping) penguins.

@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965226AbWL2X7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755103AbWL3AFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965226AbWL2X7y (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 18:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755103AbWL2X7x
+	id S1755103AbWL3AFK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 19:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755105AbWL3AFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 18:59:53 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:35006 "EHLO smtp.osdl.org"
+	Fri, 29 Dec 2006 19:05:09 -0500
+Received: from main.gmane.org ([80.91.229.2]:37411 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755100AbWL2X7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 18:59:51 -0500
-Date: Fri, 29 Dec 2006 15:59:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Theodore Tso <tytso@mit.edu>
-cc: Andrew Morton <akpm@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro,
-       linux-ext4@vger.kernel.org
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-In-Reply-To: <20061229233207.GA21461@thunk.org>
-Message-ID: <Pine.LNX.4.64.0612291542260.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
- <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
- <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
- <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229141632.51c8c080.akpm@osdl.org>
- <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org> <20061229233207.GA21461@thunk.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S1755103AbWL3AFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 19:05:08 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Adam Megacz <megacz@cs.berkeley.edu>
+Subject: OpenAFS gatekeepers request addition of AFS_SUPER_MAGIC to magic.h
+Date: Fri, 29 Dec 2006 15:56:12 -0800
+Organization: Myself
+Message-ID: <x3fyay2r4z.fsf@nowhere.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 216.237.119.187
+X-Home-Page: http://www.megacz.com/
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:9b1tDaxaEcFegbN0rMjsgHeXzBs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello,
 
-On Fri, 29 Dec 2006, Theodore Tso wrote:
->
-> If we do get this fixed for ext4, one interesting question is whether
-> people would accept a patch to backport the fixes to ext3, given the
-> the grief this is causing the page I/O and VM routines.
+Jeffrey Altman, one of the gatekeepers of OpenAFS (the open source
+project which inherited the Transarc/IBM AFS codebase) has requested
+that the magic number 0x5346414F (little endian 'OAFS') be allocated
+for the f_type field of the fsinfo structure on Linux:
 
-I don't think backporting is the smartest option (unless it's done _way_ 
-later), but the real problem with it isn't actually the VM behaviour, but 
-simply the fact that cached performance absoluely _sucks_ with the buffer 
-cache.
+  https://lists.openafs.org/pipermail/openafs-info/2006-December/024829.html
 
-With the physically indexed buffer cache thing, you end up always having 
-to do these complicated translations into block numbers for every single 
-access, and at some point when I benchmarked it, it was a huge overhead 
-for doing simple things like readdir.
+I would like to offer the patch below for inclusion in the source
+tree, if possible.  The patch adds it to include/linux/magic.h, mostly
+as a way of publishing this number and ensuring that no other
+filesystem accidentally uses it.
 
-It's also a major pain for read-ahead, exactly partly due to the high cost 
-of translation - because you can't cheaply check whether the next block is 
-there, the cost of even asking the question "should I try to read ahead?" 
-is much much higher. As a result, read-ahead is seriously limited, because 
-it's so expensive for the cached case (which is still hopefully the 
-_common_ case).
+  - a
 
-So because read-ahead is limited, the non-cached case then _really_ sucks.
 
-It was somewhat fixed in a really god-awful fashion by having 
-ext3_readdir() actually do _readahead_ though the page cache, even though 
-it does everything else through the buffer cache. And that just happens to 
-work because we hopefully have physically contiguous blocks, but when that 
-isn't true, the readahead doesn't do squat.
+--- include/linux/magic.h       2006-12-29 15:48:50.000000000 -0800
++++ include/linux/magic.h       2006-11-29 13:57:37.000000000 -0800
+@@ -3,7 +3,6 @@
+ 
+ #define ADFS_SUPER_MAGIC       0xadf5
+ #define AFFS_SUPER_MAGIC       0xadff
+-#define AFS_SUPER_MAGIC                0x5346414F
+ #define AUTOFS_SUPER_MAGIC     0x0187
+ #define CODA_SUPER_MAGIC       0x73757245
+ #define EFS_SUPER_MAGIC                0x414A53
 
-It's really quite fundamentally broken. But none of that causes any 
-problems for the VM, since directories cannot be mmap'ed anyway. But it's 
-really pitiful, and it really doesn't work very well. Of course, other 
-filesystems _also_ suck at this, and other operating systems haev even 
-MORE problems, so people don't always seem to realize how horribly 
-horribly broken this all is.
-
-I really wish somebody would write a filesystem that did large cold-cache 
-directories well. Open some horrible file manager on /usr/bin with cold 
-caches, and weep. The biggest problem is the inode indirection, but at 
-some point when I looked at why it sucked, it was doing basically 
-synchronous single-buffer reads on the directory too, because readahead 
-didn't work properly.
-
-I was hoping that something like SpadFS would actually take off, because 
-it seemed to do a lot of good design choices (having inodes in-line in the 
-directory for when there are no hardlinks is probably a requirement for a 
-good filesystem these days. The separate inode table had its uses, but 
-indirection in a filesystem really does suck, and stat information is too 
-important to be indirect unless it absolutely has to).
-
-But I suspect it needs more than somebody who just wants to get his thesis 
-written ;)
-
-		Linus

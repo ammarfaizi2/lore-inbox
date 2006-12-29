@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755045AbWL2Cun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751623AbWL2Cwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755045AbWL2Cun (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 21:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755046AbWL2Cun
+	id S1751623AbWL2Cwz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 21:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752902AbWL2Cwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 21:50:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50925 "EHLO omx2.sgi.com"
+	Thu, 28 Dec 2006 21:52:55 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50948 "EHLO omx2.sgi.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753902AbWL2Cum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 21:50:42 -0500
-Date: Fri, 29 Dec 2006 13:50:06 +1100
+	id S1751613AbWL2Cwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 21:52:53 -0500
+Date: Fri, 29 Dec 2006 13:52:46 +1100
 From: David Chinner <dgc@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, David Chinner <dgc@sgi.com>,
-       Alex Tomas <alex@clusterfs.com>, linux-ext4@vger.kernel.org,
+To: Alex Tomas <alex@clusterfs.com>
+Cc: David Chinner <dgc@sgi.com>, linux-ext4@vger.kernel.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [RFC] delayed allocation for ext4
-Message-ID: <20061229025006.GN44411608@melbourne.sgi.com>
-References: <m37iwjwumf.fsf@bzzz.home.net> <20061223033123.GL44411608@melbourne.sgi.com> <20061223092718.GA26276@infradead.org>
+Message-ID: <20061229025246.GO44411608@melbourne.sgi.com>
+References: <m37iwjwumf.fsf@bzzz.home.net> <20061223033123.GL44411608@melbourne.sgi.com> <m3zm9etomy.fsf@bzzz.home.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061223092718.GA26276@infradead.org>
+In-Reply-To: <m3zm9etomy.fsf@bzzz.home.net>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 23, 2006 at 09:27:18AM +0000, Christoph Hellwig wrote:
-> On Sat, Dec 23, 2006 at 02:31:23PM +1100, David Chinner wrote:
-> > >  - ext4-delayed-allocation.patch
-> > >    delayed allocation itself, enabled by "delalloc" mount option.
-> > >    extents support is also required. currently it works only
-> > >    with blocksize=pagesize.
-> > 
-> > Ah, that's why you can get away with a page flag - you've ignored
-> > the partial page delay state problem. Any plans to use the
-> > existing method in the future so we will be able to use ext4 delalloc
-> > on machines with a page size larger than 4k?
+On Sat, Dec 23, 2006 at 10:09:57PM +0300, Alex Tomas wrote:
 > 
-> I think fixing this up for blocksize < pagesize is an absolute requirement
-> to get things merged.  We don't need more filesystems that are crippled
-> on half of our platforms.
+> Good day,
 > 
-> Note that recording delayed alloc state at a page granularity in addition
-> to just the buffer heads has a lot of advantages aswell and would help
-> xfs, too.  But I think it makes a lot more sense to record it as a radix
-> tree tag to speed up the gang lookups for delalloc conversion.
+> >>>>> David Chinner (DC) writes:
+> 
+>  DC> So that mean's we'll have 2 separate mechanisms for marking
+>  DC> pages as delalloc. XFS uses the BH_delay flag to indicate
+>  DC> that a buffer (block) attached to the page is using delalloc.
+> 
+> well, for blocksize=pagesize we can save 56 bytes on every page.
 
-I'm not sure it will make that much difference, really.  Looking up
-by delalloc tag is only going to save a few tail pages in pagevec we
-use for the look up and could be more expensive if delalloc pages
-are sparsely distributed through the file.
+Sure, but it means that ext4 w/ delalloc won't work on lots of
+machines....
 
-We'd still have to keep the bufferheads around for partial page
-state, and that becomes an interesting exercise in keeping things
-coherent between the radix tree and the buffer heads.
+>  DC> FWIW, how does this mechanism deal with block size < page size?
+>  DC> Don't you have to track delalloc on a block basis rather than
+>  DC> a page basis?
+> 
+> I'm still thinking how better to deal with that w/o much code duplication.
 
-Of course, then there's the unwritten state that XFS also carries
-around per block (bufferhead) which has all the same issues as the
-delalloc state.  I'd hate to have a generic method for handling
-delalloc state which is different from the handling of the unwritten
-state and needing two different sets of code to handle what is
-essentially the same thing....
+Code duplication in ext4, or across all filesystems?
+
+>  DC> Ah, that's why you can get away with a page flag - you've ignored
+>  DC> the partial page delay state problem. Any plans to use the
+>  DC> existing method in the future so we will be able to use ext4 delalloc
+>  DC> on machines with a page size larger than 4k?
+> 
+> what do you mean by "exsiting"? BH_delay?
+
+Yes.
 
 Cheers,
 

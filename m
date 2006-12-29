@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754069AbWL2FjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964927AbWL2Ft5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754069AbWL2FjY (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 00:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754072AbWL2FjY
+	id S964927AbWL2Ft5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 00:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754244AbWL2Ft5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 00:39:24 -0500
-Received: from p02c11o144.mxlogic.net ([208.65.145.67]:45698 "EHLO
-	p02c11o144.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754069AbWL2FjX (ORCPT
+	Fri, 29 Dec 2006 00:49:57 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:49246 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754074AbWL2Ft4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 00:39:23 -0500
-Date: Fri, 29 Dec 2006 07:39:30 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, rolandd@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [-mm patch] infiniband/ulp/ipoib/ipoib_cm.c: make functions static
-Message-ID: <20061229053930.GA4580@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061228024237.375a482f.akpm@osdl.org> <20061229021009.GN20714@stusta.de>
+	Fri, 29 Dec 2006 00:49:56 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@argo.co.il>
+Subject: Re: open /dev/kvm: No such file or directory
+Date: Fri, 29 Dec 2006 06:50:27 +0100
+User-Agent: KMail/1.9.5
+Cc: Jeff Chua <jeff.chua.linux@gmail.com>, Dor Laor <dor.laor@qumranet.com>,
+       lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <b6a2187b0612280508t24e0a740nd1aabdfeb706fbec@mail.gmail.com> <b6a2187b0612280742x1b613849ye23aca38c71a5871@mail.gmail.com> <4593E7EB.7070801@argo.co.il>
+In-Reply-To: <4593E7EB.7070801@argo.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061229021009.GN20714@stusta.de>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 29 Dec 2006 05:41:23.0593 (UTC) FILETIME=[F99EFF90:01C72B0B]
-X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14902.001
-X-TM-AS-Result: No--12.277200-4.000000-31
-X-Spam: [F=0.0120901816; S=0.012(2006120601)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+Message-Id: <200612290650.28508.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quoting Adrian Bunk <bunk@stusta.de>:
-> Subject: [-mm patch] infiniband/ulp/ipoib/ipoib_cm.c: make functions static
-> 
-> On Thu, Dec 28, 2006 at 02:42:37AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.20-rc1-mm1:
-> >...
-> >  git-infiniband.patch
-> >...
-> >  git trees
-> >...
-> 
-> 
-> This patch makes some needlessly global functions static.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Thursday 28 December 2006 16:51, Avi Kivity wrote:
+> Greg, /dev/kvm is a MISC_DYNAMIC_MINOR device.  Is there any way of
+> using it without udev?  Should I allocate a static number?
 
-Thanks, I'll put this in my tree.
+You can write a small script that parses /proc/misc and creates the device,
+like
 
--- 
-MST
+# /sbin/mknod /dev/kvm c 10 `grep '\<kvm\>' /proc/misc | cut -f 1 -d\ `
+
+If you already have an init script, e.g. to set up tun/tap devices,
+it would make sense to put it in there.
+
+	Arnd <><

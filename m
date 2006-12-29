@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751056AbWL2KeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751520AbWL2Kew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWL2KeN (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 05:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWL2KeN
+	id S1751520AbWL2Kew (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 05:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWL2Kew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 05:34:13 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39883 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751056AbWL2KeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 05:34:13 -0500
-Message-ID: <4594EF2B.3090800@drzeus.cx>
-Date: Fri, 29 Dec 2006 11:34:19 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Anderson Briglia <anderson.briglia@indt.org.br>
-CC: anderson.lizardo@indt.org.br, linux-kernel@vger.kernel.org,
-       carlos.aguiar@indt.org.br, tony@atomide.com, david-b@pacbell.net
-Subject: Re: [PATCH 4/4] Add MMC Password Protection (lock/unlock) support
- V8: mmc_sysfs.diff
-References: <45748173.2050008@indt.org.br> <20061215193717.GA10367@flint.arm.linux.org.uk> <45868C6F.5000804@indt.org.br> <458D39AE.2040207@drzeus.cx> <F26D8BDC5BC8014A909C6D45468F69EF022B6839@mzebe101.NOE.Nokia.com> <4592D989.8070000@drzeus.cx> <4594240D.7040007@indt.org.br>
-In-Reply-To: <4594240D.7040007@indt.org.br>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 29 Dec 2006 05:34:52 -0500
+Received: from pat.uio.no ([129.240.10.15]:44844 "EHLO pat.uio.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751079AbWL2Kev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 05:34:51 -0500
+Subject: Re: Finding hardlinks
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+In-Reply-To: <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
+	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
+	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
+	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+	 <4593890C.8030207@panasas.com>
+	 <1167300352.3281.4183.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Fri, 29 Dec 2006 11:34:35 +0100
+Message-Id: <1167388475.6106.51.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=failed, UIO_MAIL_IS_INTERNAL=-5)
+X-UiO-Scanned: 6F67C93B556E7C92F9A51CAF27AF8E47DF118A28
+X-UiO-SPAM-Test: 83.109.147.16 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anderson Briglia wrote:
-> Yes, I'm already fixed the latest Russel's comment. I'm preparing it to send again to you and LKML. Do you have other
-> comments? If the others patches are ok, I intend to send just this mmc_sysfs.diff patch.
->   
+On Thu, 2006-12-28 at 19:14 +0100, Mikulas Patocka wrote:
+> Why don't you rip off the support for colliding inode number from the 
+> kernel at all (i.e. remove iget5_locked)?
+> 
+> It's reasonable to have either no support for colliding ino_t or full 
+> support for that (including syscalls that userspace can use to work with 
+> such filesystem) --- but I don't see any point in having half-way support 
+> in kernel as is right now.
 
-Everything else looks fine, so send away.
+What would ino_t have to do with inode numbers? It is only used as a
+hash table lookup. The inode number is set in the ->getattr() callback.
 
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Cheers
+  Trond
 

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965058AbWL2KMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965053AbWL2KOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965058AbWL2KMa (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 05:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWL2KMa
+	id S965053AbWL2KOI (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 05:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWL2KOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 05:12:30 -0500
-Received: from pat.uio.no ([129.240.10.15]:51591 "EHLO pat.uio.no"
+	Fri, 29 Dec 2006 05:14:07 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:32857 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965027AbWL2KM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 05:12:29 -0500
-Subject: Re: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Benny Halevy <bhalevy@panasas.com>
-Cc: Jeff Layton <jlayton@poochiereds.net>,
-       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-In-Reply-To: <4593DEF8.5020609@panasas.com>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	 <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
-	 <4593DEF8.5020609@panasas.com>
-Content-Type: text/plain
-Date: Fri, 29 Dec 2006 11:12:08 +0100
-Message-Id: <1167387128.6106.32.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=failed, UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: 290988B3949ACF5B314455C39589516D693E45C8
-X-UiO-SPAM-Test: 83.109.147.16 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+	id S965053AbWL2KOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 05:14:06 -0500
+Date: Fri, 29 Dec 2006 11:13:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@gmail.com>
+cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Want comments regarding patch
+In-Reply-To: <80ec54e90612282257m4175347x226cd1b045059336@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612291106480.23545@yvahk01.tjqt.qr>
+References: <80ec54e90612281041q3b2c2bcemb0308c1e89a29ac@mail.gmail.com> 
+ <1167331995.3281.4374.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.61.0612290043050.23545@yvahk01.tjqt.qr>
+ <80ec54e90612282257m4175347x226cd1b045059336@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-482809503-1167387187=:23545"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-28 at 17:12 +0200, Benny Halevy wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> As an example, some file systems encode hint information into the filehandle
-> and the hints may change over time, another example is encoding parent
-> information into the filehandle and then handles representing hard links
-> to the same file from different directories will differ.
+--1283855629-482809503-1167387187=:23545
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Both these examples are bogus. Filehandle information should not change
-over time (except in the special case of NFSv4 "volatile filehandles")
-and they should definitely not encode parent directory information that
-can change over time (think rename()!).
 
-Cheers
-  Trond
+On Dec 29 2006 07:57, Daniel Marjamäki wrote:
+>
+> It was my goal to improve the readability. I failed.
+>
+> I personally prefer to use standard functions instead of writing code.
+> In my opinion using standard functions means less code that is easier to read.
 
+Hm in that case, what about having something like
+
+void *memset_int(void *a, int x, int n) {
+    asm("mov %0, %%esi;
+         mov %1, %%eax;
+         mov %2, %%ecx;
+         repz movsd;",
+       a,x,n);
+}
+
+in include/asm-i386/ and asm-x86_64/? (For x86_64, also a memset_long 
+that uses rsi/rax/rcx/movsq)
+
+
+	-`J'
+-- 
+--1283855629-482809503-1167387187=:23545--

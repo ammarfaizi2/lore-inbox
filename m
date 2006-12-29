@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752903AbWL2CyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754065AbWL2DkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752903AbWL2CyG (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 21:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753249AbWL2CyG
+	id S1754065AbWL2DkH (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 22:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754071AbWL2DkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 21:54:06 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58188 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752903AbWL2CyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 21:54:05 -0500
-In-Reply-To: <20061228.143815.41633302.davem@davemloft.net>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
+	Thu, 28 Dec 2006 22:40:07 -0500
+Received: from gateway.insightbb.com ([74.128.0.19]:41957 "EHLO
+	asav02.insightbb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754065AbWL2DkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 22:40:05 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CAN8clEVKhRO4UGdsb2JhbACOAAEBKg
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Rene Herman <rene.herman@gmail.com>
+Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
+Date: Thu, 28 Dec 2006 22:40:00 -0500
+User-Agent: KMail/1.9.3
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4592E685.5000602@gmail.com> <20061228191204.GB8940@redhat.com> <45943AE4.6080704@gmail.com>
+In-Reply-To: <45943AE4.6080704@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, guichaz@yahoo.fr,
-       hugh@veritas.com, linux-kernel@vger.kernel.org, ranma@tdiedrich.de,
-       torvalds@osdl.org, gordonfarquharson@gmail.com, akpm@osdl.org,
-       a.p.zijlstra@chello.nl, tbm@cyrius.com, arjan@infradead.org,
-       andrei.popa@i-neo.ro
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one
-Date: Fri, 29 Dec 2006 03:50:50 +0100
-To: David Miller <davem@davemloft.net>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+Message-Id: <200612282240.00784.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think what might be happening is that pdflush writes them out fine,
-> however we don't trap writes by the application _during_ that writeout.
+On Thursday 28 December 2006 16:45, Rene Herman wrote:
+> Dave Jones wrote:
+> 
+> > On Wed, Dec 27, 2006 at 10:32:53PM +0100, Rene Herman wrote:
+> 
+> >> The bug where the kernel repetitively emits "atkbd.c: Spurious ACK
+> >> on isa0060/serio0. Some program might be trying access hardware
+> >> directly" (sic) on a panic, thereby scrolling away the information
+> >> that would help in seeing what exactly the problem was (ie, "Unable
+> >> to mount root fs" or something) is still present in 2.6.20-rc2.
+> > 
+> > Do you have a KVM ?  Quite a few of those seem to tickle this printk.
+> 
+> No, regular old PS/2 keyboard, directly connected. Due to that exact 
+> uneventfullness and having seen it reported before recently (*) I 
+> assumed everyone was seeing this. If not, I guess I can try to narrow it 
+> down.
+> 
+> It's easy to test for anyone willing: just boot with "root=/dev/null" or 
+> something as a kernel param. The printk's are in sync with the panic 
+> code blinking the leds.
+> 
+> (*) Here there was supposed to be a link to the post I was refferring 
+> to, but googling for it led to http://lkml.org/lkml/2006/11/13/300
+> 
+> Dmitry, could you ask Linus to pull the change? I find this to be an 
+> exceedingly annoying bug. It's just so incredibly silly, having one part 
+> of the kernel helpfully blink leds at you with another part going "hey, 
+> dude! don't do that!"
+> 
 
-Yeah.  I believe that more exactly it happens if the very last
-write to the page causes a writeback (due to dirty balancing)
-while another writeback for the page is already happening.
+Hi Rene,
 
-As usual in these cases, I have zero proof.
+The change to suppress ACKs from paic blinking is already in Linus's tree.
+I just tried booting with root=/dev/sdg and I had leds blinking but no
+messages from atkbd were seen.
 
-> It's something that will only occur with writeback and MAP_SHARED
-> writable access to the file pages.
+Could it be that you loaded older kernel by accident? Does anybody else
+still seeing "Spurios ACK" messages during kernel panic?
 
-It's the do_wp_page -> balance_dirty_pages -> generic_writepages
-path for sure.  Maybe it's enough to change
-
-                         if (wbc->sync_mode != WB_SYNC_NONE)
-                                 wait_on_page_writeback(page);
-
-                         if (PageWriteback(page) ||
-                             !clear_page_dirty_for_io(page)) {
-                                 unlock_page(page);
-                                 continue;
-                         }
-
-to
-
-                         if (wbc->sync_mode != WB_SYNC_NONE)
-                                 wait_on_page_writeback(page);
-
-                         if (PageWriteback(page)) {
-                         	    redirty_page_for_writepage(wbc, page);
-                                 unlock_page(page);
-                                 continue;
-                         }
-
-                         if (!clear_page_dirty_for_io(page)) {
-                                 unlock_page(page);
-                                 continue;
-                         }
-
-or something along those lines.  Completely untested of course :-)
-
-
-Segher
-
+-- 
+Dmitry

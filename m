@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755087AbWL2Xce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965140AbWL2Xqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755087AbWL2Xce (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 18:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755089AbWL2Xcd
+	id S965140AbWL2Xqv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 18:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWL2Xqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 18:32:33 -0500
-Received: from THUNK.ORG ([69.25.196.29]:58460 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755083AbWL2Xcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 18:32:32 -0500
-Date: Fri, 29 Dec 2006 18:32:07 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro,
-       linux-ext4@vger.kernel.org
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-Message-ID: <20061229233207.GA21461@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Segher Boessenkool <segher@kernel.crashing.org>,
-	David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-	kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-	a.p.zijlstra@chello.nl, tbm@cyrius.com, arjan@infradead.org,
-	andrei.popa@i-neo.ro, linux-ext4@vger.kernel.org
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org> <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229141632.51c8c080.akpm@osdl.org> <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
-MIME-Version: 1.0
+	Fri, 29 Dec 2006 18:46:51 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:45681 "EHLO
+	saraswathi.solana.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965140AbWL2Xqu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 18:46:50 -0500
+Message-Id: <200612292341.kBTNfUqs005544@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 4/6] UML - Lock the irqs_to_free list
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Date: Fri, 29 Dec 2006 18:41:30 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2006 at 02:42:51PM -0800, Linus Torvalds wrote:
-> I think ext3 is terminally crap by now. It still uses buffer heads in 
-> places where it really really shouldn't, and as a result, things like 
-> directory accesses are simply slower than they should be. Sadly, I don't 
-> think ext4 is going to fix any of this, either.
+Fix (i.e. add some) the locking around the irqs_to_free list.
 
-Not just ext3; ocfs2 is using the jbd layer as well.  I think we're
-going to have to put this (a rework of jbd2 to use the page cache) on
-the ext4 todo list, and work with the ocfs2 folks to try to come up
-with something that suits their needs as well.  Fortunately we have
-this filesystem/storage summit thing coming up in the next few months,
-and we can try to get some discussion going on the linux-ext4 mailing
-list in the meantime.  Unfortunately, I don't think this is going to
-be trivial.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-If we do get this fixed for ext4, one interesting question is whether
-people would accept a patch to backport the fixes to ext3, given the
-the grief this is causing the page I/O and VM routines.  OTOH, reiser3
-probably has the same problems, and I suspect the changes to ext3 to
-cause it to avoid buffer heads, especially in order to support for
-filesystem blocksizes < pagesize, are going to be sufficiently risky
-in terms of introducing regressions to ext3 that they would probably
-be rejected on those grounds.  So unfortunately, we probably are going
-to have to support flushes via buffer heads for the foreseeable
-future.
+--
+ arch/um/drivers/chan_kern.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-						- Ted
+Index: linux-2.6.18-mm/arch/um/drivers/chan_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/chan_kern.c	2006-12-29 15:27:16.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/chan_kern.c	2006-12-29 16:38:43.000000000 -0500
+@@ -222,15 +222,28 @@ void enable_chan(struct line *line)
+ 	}
+ }
+ 
++/* Items are added in IRQ context, when free_irq can't be called, and
++ * removed in process context, when it can.
++ * This handles interrupt sources which disappear, and which need to
++ * be permanently disabled.  This is discovered in IRQ context, but
++ * the freeing of the IRQ must be done later.
++ */
++static DEFINE_SPINLOCK(irqs_to_free_lock);
+ static LIST_HEAD(irqs_to_free);
+ 
+ void free_irqs(void)
+ {
+ 	struct chan *chan;
++	LIST_HEAD(list);
++	struct list_head *ele;
++
++	spin_lock_irq(&irqs_to_free_lock);
++	list_splice_init(&irqs_to_free, &list);
++	INIT_LIST_HEAD(&irqs_to_free);
++	spin_unlock_irq(&irqs_to_free_lock);
+ 
+-	while(!list_empty(&irqs_to_free)){
+-		chan = list_entry(irqs_to_free.next, struct chan, free_list);
+-		list_del(&chan->free_list);
++	list_for_each(ele, &list){
++		chan = list_entry(ele, struct chan, free_list);
+ 
+ 		if(chan->input)
+ 			free_irq(chan->line->driver->read_irq, chan);
+@@ -246,7 +259,9 @@ static void close_one_chan(struct chan *
+ 		return;
+ 
+ 	if(delay_free_irq){
++		spin_lock_irq(&irqs_to_free_lock);
+ 		list_add(&chan->free_list, &irqs_to_free);
++		spin_unlock_irq(&irqs_to_free_lock);
+ 	}
+ 	else {
+ 		if(chan->input)
+

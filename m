@@ -1,132 +1,366 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752317AbWL2MXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752532AbWL2M0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752317AbWL2MXe (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 07:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752326AbWL2MXe
+	id S1752532AbWL2M0s (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 07:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752531AbWL2M0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 07:23:34 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:57246 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752317AbWL2MXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 07:23:33 -0500
-Date: Fri, 29 Dec 2006 13:19:46 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       linux-kernel@vger.kernel.org, ranma@tdiedrich.de,
-       gordonfarquharson@gmail.com, akpm@osdl.org, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: [patch] fix data corruption bug in __block_write_full_page()
-Message-ID: <20061229121946.GA17837@elte.hu>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
+	Fri, 29 Dec 2006 07:26:46 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:40704 "EHLO
+	kano.factory.vocord.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752334AbWL2M0l convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 07:26:41 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: [take30 8/9] kevent: Kevent posix timer notifications.
+In-Reply-To: <1167395158642@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 29 Dec 2006 15:25:58 +0300
+Message-Id: <11673951583526@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
 
-> I do have a few interesting details from the trace I haven't really 
-> analyzed yet. Here's the trace for events on one of the pages that was 
-> corrupted. Note how the events are numbered (there were 171640 events 
-> total), so the thing you see is just a small set of events from the 
-> whole big trace, but it's the ones that talk about _that_ particular 
-> page.
+Kevent posix timer notifications.
 
-i've extended the tracer in -rt to trace all relevant pagetable, 
-pagecache, buffer-cache and IO events and coupled the tracer to your 
-test.c code. The corruption happens here:
+Simple extensions to POSIX timers which allows
+to deliver notification of the timer expiration
+through kevent queue.
 
-    test-2126  0.... 3756170us+: trace_page (cf20ebd8 b6a2c000 0)
- pdflush-2006  0.... 6432909us+: trace_page (cf20ebd8 b6a2c000 4200420)
-    test-2126  0.... 8135596us+: trace_page (cf20ebd8 b6a2c000 4200420)
-    test-2126  0D... 9012933us+: do_page_fault (8048900 4 b6a2c000)
-    test-2126  0.... 9023278us+: trace_page (cf262f24 b6a2c000 0)
-    test-2126  0.... 9023305us > sys_prctl (000000d8 b6a2c000 000000ac)
+Example application posix_timer.c can be found
+in archive on project homepage.
 
-address 0xb6a2c000 is the one that shows the corruption. Now, this 
-address is mapped to page cf262f24 when the bug happened, but it had 
-page 0xcf20ebd8 mapped to it 3 seconds ago, which has this history:
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-    test-2126  0.... 3756413us+: trace_page (cf20ebd8 0 0)
-    test-2126  0.... 3756469us+: trace_page (cf20ebd8 0 0)
-    test-2126  0.... 3757341us+: trace_page (cf20ebd8 10 0)
-  IRQ-14-402   0.... 3759332us+: trace_page (cf20ebd8 ffffffff 0)
-  IRQ-14-402   0.... 3759376us+: trace_page (cf20ebd8 ffffffff 0)
-    test-2126  0.... 5104662us+: trace_page (cf20ebd8 b6a2c400 0)
-    test-2126  0.... 5104687us+: trace_page (cf20ebd8 1 0)
- pdflush-2006  0.... 6432909us+: trace_page (cf20ebd8 b6a2c000 4200420)
- pdflush-2006  0.... 6432952us+: trace_page (cf20ebd8 ffffffff 4200420)
- pdflush-2006  0.... 6432986us+: trace_page (cf20ebd8 1 4200420)
- pdflush-2006  0.... 6433022us+: trace_page (cf20ebd8 4096 4200420)
- pdflush-2006  0.... 6433061us+: trace_page (cf20ebd8 0 4200420)
- pdflush-2006  0.... 6433112us+: trace_page (cf20ebd8 0 4200420)
- pdflush-2006  0.... 6433154us+: trace_page (cf20ebd8 0 4200420)
- pdflush-2006  0.... 6433303us+: trace_page (cf20ebd8 11 4200420)
- pdflush-2006  0.... 6433343us+: trace_page (cf20ebd8 13 4200420)
- pdflush-2006  0.... 6433382us+: trace_page (cf20ebd8 14 4200420)
- pdflush-2006  0.... 6433421us+: trace_page (cf20ebd8 15 4200420)
- pdflush-2006  0.... 6433460us+: trace_page (cf20ebd8 ffffffff 4200420)
- pdflush-2006  0.... 6433504us+: trace_page (cf20ebd8 ffffffff 4200420)
-    test-2126  0.... 8135596us+: trace_page (cf20ebd8 b6a2c000 4200420)
 
-in particular timestamp 6433421us is interesting:
+diff --git a/include/asm-generic/siginfo.h b/include/asm-generic/siginfo.h
+index 8786e01..3768746 100644
+--- a/include/asm-generic/siginfo.h
++++ b/include/asm-generic/siginfo.h
+@@ -235,6 +235,7 @@ typedef struct siginfo {
+ #define SIGEV_NONE	1	/* other notification: meaningless */
+ #define SIGEV_THREAD	2	/* deliver via thread creation */
+ #define SIGEV_THREAD_ID 4	/* deliver to thread */
++#define SIGEV_KEVENT	8	/* deliver through kevent queue */
+ 
+ /*
+  * This works because the alignment is ok on all current architectures
+@@ -260,6 +261,8 @@ typedef struct sigevent {
+ 			void (*_function)(sigval_t);
+ 			void *_attribute;	/* really pthread_attr_t */
+ 		} _sigev_thread;
++
++		int kevent_fd;
+ 	} _sigev_un;
+ } sigevent_t;
+ 
+diff --git a/include/linux/posix-timers.h b/include/linux/posix-timers.h
+index a7dd38f..4b9deb4 100644
+--- a/include/linux/posix-timers.h
++++ b/include/linux/posix-timers.h
+@@ -4,6 +4,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/sched.h>
++#include <linux/kevent_storage.h>
+ 
+ union cpu_time_count {
+ 	cputime_t cpu;
+@@ -49,6 +50,9 @@ struct k_itimer {
+ 	sigval_t it_sigev_value;	/* value word of sigevent struct */
+ 	struct task_struct *it_process;	/* process to send signal to */
+ 	struct sigqueue *sigq;		/* signal queue entry. */
++#ifdef CONFIG_KEVENT_TIMER
++	struct kevent_storage st;
++#endif
+ 	union {
+ 		struct {
+ 			struct hrtimer timer;
+diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
+index 5fe87de..5ec805e 100644
+--- a/kernel/posix-timers.c
++++ b/kernel/posix-timers.c
+@@ -48,6 +48,8 @@
+ #include <linux/wait.h>
+ #include <linux/workqueue.h>
+ #include <linux/module.h>
++#include <linux/kevent.h>
++#include <linux/file.h>
+ 
+ /*
+  * Management arrays for POSIX timers.	 Timers are kept in slab memory
+@@ -224,6 +226,100 @@ static int posix_ktime_get_ts(clockid_t which_clock, struct timespec *tp)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_KEVENT_TIMER
++static int posix_kevent_enqueue(struct kevent *k)
++{
++	/*
++	 * It is not ugly - there is no pointer in the id field union, 
++	 * but its size is 64bits, which is ok for any known pointer size.
++	 */
++	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
++	return kevent_storage_enqueue(&tmr->st, k);
++}
++static int posix_kevent_dequeue(struct kevent *k)
++{
++	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
++	kevent_storage_dequeue(&tmr->st, k);
++	return 0;
++}
++static int posix_kevent_callback(struct kevent *k)
++{
++	return 1;
++}
++static int posix_kevent_init(void)
++{
++	struct kevent_callbacks tc = {
++		.callback = &posix_kevent_callback,
++		.enqueue = &posix_kevent_enqueue,
++		.dequeue = &posix_kevent_dequeue,
++		.flags = KEVENT_CALLBACKS_KERNELONLY};
++
++	return kevent_add_callbacks(&tc, KEVENT_POSIX_TIMER);
++}
++
++extern struct file_operations kevent_user_fops;
++
++static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
++{
++	struct ukevent uk;
++	struct file *file;
++	struct kevent_user *u;
++	int err;
++
++	file = fget(fd);
++	if (!file) {
++		err = -EBADF;
++		goto err_out;
++	}
++
++	if (file->f_op != &kevent_user_fops) {
++		err = -EINVAL;
++		goto err_out_fput;
++	}
++
++	u = file->private_data;
++
++	memset(&uk, 0, sizeof(struct ukevent));
++
++	uk.event = KEVENT_MASK_ALL;
++	uk.type = KEVENT_POSIX_TIMER;
++	uk.id.raw_u64 = (unsigned long)(tmr); /* Just cast to something unique */
++	uk.req_flags = KEVENT_REQ_ONESHOT | KEVENT_REQ_ALWAYS_QUEUE;
++	uk.ptr = tmr->it_sigev_value.sival_ptr;
++
++	err = kevent_user_add_ukevent(&uk, u);
++	if (err)
++		goto err_out_fput;
++
++	fput(file);
++
++	return 0;
++
++err_out_fput:
++	fput(file);
++err_out:
++	return err;
++}
++
++static void posix_kevent_fini_timer(struct k_itimer *tmr)
++{
++	kevent_storage_fini(&tmr->st);
++}
++#else
++static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
++{
++	return -ENOSYS;
++}
++static int posix_kevent_init(void)
++{
++	return 0;
++}
++static void posix_kevent_fini_timer(struct k_itimer *tmr)
++{
++}
++#endif
++
++
+ /*
+  * Initialize everything, well, just everything in Posix clocks/timers ;)
+  */
+@@ -241,6 +337,11 @@ static __init int init_posix_timers(void)
+ 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
+ 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
+ 
++	if (posix_kevent_init()) {
++		printk(KERN_ERR "Failed to initialize kevent posix timers.\n");
++		BUG();
++	}
++
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
+ 	idr_init(&posix_timers_id);
+@@ -343,23 +444,29 @@ static int posix_timer_fn(struct hrtimer *timer)
+ 
+ 	timr = container_of(timer, struct k_itimer, it.real.timer);
+ 	spin_lock_irqsave(&timr->it_lock, flags);
++	
++	if (timr->it_sigev_notify == SIGEV_KEVENT) {
++#ifdef CONFIG_KEVENT_TIMER
++		kevent_storage_ready(&timr->st, NULL, KEVENT_MASK_ALL);
++#endif
++	} else {
++		if (timr->it.real.interval.tv64 != 0)
++			si_private = ++timr->it_requeue_pending;
+ 
+-	if (timr->it.real.interval.tv64 != 0)
+-		si_private = ++timr->it_requeue_pending;
+-
+-	if (posix_timer_event(timr, si_private)) {
+-		/*
+-		 * signal was not sent because of sig_ignor
+-		 * we will not get a call back to restart it AND
+-		 * it should be restarted.
+-		 */
+-		if (timr->it.real.interval.tv64 != 0) {
+-			timr->it_overrun +=
+-				hrtimer_forward(timer,
+-						timer->base->softirq_time,
+-						timr->it.real.interval);
+-			ret = HRTIMER_RESTART;
+-			++timr->it_requeue_pending;
++		if (posix_timer_event(timr, si_private)) {
++			/*
++			 * signal was not sent because of sig_ignor
++			 * we will not get a call back to restart it AND
++			 * it should be restarted.
++			 */
++			if (timr->it.real.interval.tv64 != 0) {
++				timr->it_overrun +=
++					hrtimer_forward(timer,
++							timer->base->softirq_time,
++							timr->it.real.interval);
++				ret = HRTIMER_RESTART;
++				++timr->it_requeue_pending;
++			}
+ 		}
+ 	}
+ 
+@@ -407,6 +514,9 @@ static struct k_itimer * alloc_posix_timer(void)
+ 		kmem_cache_free(posix_timers_cache, tmr);
+ 		tmr = NULL;
+ 	}
++#ifdef CONFIG_KEVENT_TIMER
++	kevent_storage_init(tmr, &tmr->st);
++#endif
+ 	return tmr;
+ }
+ 
+@@ -424,6 +534,7 @@ static void release_posix_timer(struct k_itimer *tmr, int it_id_set)
+ 	if (unlikely(tmr->it_process) &&
+ 	    tmr->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
+ 		put_task_struct(tmr->it_process);
++	posix_kevent_fini_timer(tmr);
+ 	kmem_cache_free(posix_timers_cache, tmr);
+ }
+ 
+@@ -496,40 +607,52 @@ sys_timer_create(const clockid_t which_clock,
+ 		new_timer->it_sigev_signo = event.sigev_signo;
+ 		new_timer->it_sigev_value = event.sigev_value;
+ 
+-		read_lock(&tasklist_lock);
+-		if ((process = good_sigevent(&event))) {
+-			/*
+-			 * We may be setting up this process for another
+-			 * thread.  It may be exiting.  To catch this
+-			 * case the we check the PF_EXITING flag.  If
+-			 * the flag is not set, the siglock will catch
+-			 * him before it is too late (in exit_itimers).
+-			 *
+-			 * The exec case is a bit more invloved but easy
+-			 * to code.  If the process is in our thread
+-			 * group (and it must be or we would not allow
+-			 * it here) and is doing an exec, it will cause
+-			 * us to be killed.  In this case it will wait
+-			 * for us to die which means we can finish this
+-			 * linkage with our last gasp. I.e. no code :)
+-			 */
++		if (event.sigev_notify == SIGEV_KEVENT) {
++			error = posix_kevent_init_timer(new_timer, event._sigev_un.kevent_fd);
++			if (error)
++				goto out;
++
++			process = current->group_leader;
+ 			spin_lock_irqsave(&process->sighand->siglock, flags);
+-			if (!(process->flags & PF_EXITING)) {
+-				new_timer->it_process = process;
+-				list_add(&new_timer->list,
+-					 &process->signal->posix_timers);
+-				spin_unlock_irqrestore(&process->sighand->siglock, flags);
+-				if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
+-					get_task_struct(process);
+-			} else {
+-				spin_unlock_irqrestore(&process->sighand->siglock, flags);
+-				process = NULL;
++			new_timer->it_process = process;
++			list_add(&new_timer->list, &process->signal->posix_timers);
++			spin_unlock_irqrestore(&process->sighand->siglock, flags);
++		} else {
++			read_lock(&tasklist_lock);
++			if ((process = good_sigevent(&event))) {
++				/*
++				 * We may be setting up this process for another
++				 * thread.  It may be exiting.  To catch this
++				 * case the we check the PF_EXITING flag.  If
++				 * the flag is not set, the siglock will catch
++				 * him before it is too late (in exit_itimers).
++				 *
++				 * The exec case is a bit more invloved but easy
++				 * to code.  If the process is in our thread
++				 * group (and it must be or we would not allow
++				 * it here) and is doing an exec, it will cause
++				 * us to be killed.  In this case it will wait
++				 * for us to die which means we can finish this
++				 * linkage with our last gasp. I.e. no code :)
++				 */
++				spin_lock_irqsave(&process->sighand->siglock, flags);
++				if (!(process->flags & PF_EXITING)) {
++					new_timer->it_process = process;
++					list_add(&new_timer->list,
++						 &process->signal->posix_timers);
++					spin_unlock_irqrestore(&process->sighand->siglock, flags);
++					if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
++						get_task_struct(process);
++				} else {
++					spin_unlock_irqrestore(&process->sighand->siglock, flags);
++					process = NULL;
++				}
++			}
++			read_unlock(&tasklist_lock);
++			if (!process) {
++				error = -EINVAL;
++				goto out;
+ 			}
+-		}
+-		read_unlock(&tasklist_lock);
+-		if (!process) {
+-			error = -EINVAL;
+-			goto out;
+ 		}
+ 	} else {
+ 		new_timer->it_sigev_notify = SIGEV_SIGNAL;
 
- pdflush-2006  0.... 6433504us+: trace_page (cf20ebd8 ffffffff 4200420)
- pdflush-2006  0.... 6433526us : trace_page()<-test_clear_page_writeback()<-end_page_writeback()<-__block_write_full_page()
- pdflush-2006  0.... 6433526us+: block_write_full_page()<-ext3_ordered_writepage()<-generic_writepages()<-(-1)()
-
-i.e. the page got its pending writeback cancelled in 
-block_write_full_page(), without any IRQ#14 activity whatsoever! That 
-looks quite suspect. It is this piece of code in 
-__block_write_full_page():
-
-                /*
-                 * The page was marked dirty, but the buffers were
-                 * clean.  Someone wrote them back by hand with
-                 * ll_rw_block/submit_bh.  A rare case.
-                 */
-                ....
-                if (uptodate)
-                        SetPageUptodate(page);
-                end_page_writeback(page);
-
-A 'rare case' ... hm. So i tried a quick workaround below, just to keep 
-us from marking the page clean, to see whether the corruption goes away 
-- and i was unable to trigger the corruption after half an hour of 
-testing, while before it triggered within 10 seconds!
-
-now this patch is only an ugly hack, but the bug definitely seems to be 
-related to buffer management, as you suspected.
-
-	Ingo
-
----
- fs/buffer.c |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: linux/fs/buffer.c
-===================================================================
---- linux.orig/fs/buffer.c
-+++ linux/fs/buffer.c
-@@ -1702,6 +1702,7 @@ done:
- 		} while (bh != head);
- 		if (uptodate)
- 			SetPageUptodate(page);
-+		set_page_dirty(page);
- 		end_page_writeback(page);
- 		/*
- 		 * The page and buffer_heads can be released at any time from

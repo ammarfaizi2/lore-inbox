@@ -1,98 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755028AbWL2Py1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755024AbWL2P5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755028AbWL2Py1 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 10:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755040AbWL2Py1
+	id S1755024AbWL2P5T (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 10:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755048AbWL2P5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 10:54:27 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:42473 "EHLO
-	sorrow.cyrius.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755024AbWL2Py0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 10:54:26 -0500
-Date: Fri, 29 Dec 2006 16:54:04 +0100
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Stephen Clark <Stephen.Clark@seclark.us>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com,
-       Andrew Morton <akpm@osdl.org>, a.p.zijlstra@chello.nl,
-       arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-Message-ID: <20061229155404.GL2062@deprecation.cyrius.com>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org> <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229140822.GH2062@deprecation.cyrius.com> <4595318B.10102@seclark.us>
+	Fri, 29 Dec 2006 10:57:19 -0500
+Received: from mail.gmx.net ([213.165.64.20]:47960 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1755040AbWL2P5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 10:57:18 -0500
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 29 Dec 2006 16:57:16 +0100
+From: spam@alpenjodel.de
+Message-ID: <20061229155716.20160@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4595318B.10102@seclark.us>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Subject: once again SCHED_IDLE
+To: linux-kernel@vger.kernel.org
+X-Authenticated: #7969460
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Clark <Stephen.Clark@seclark.us> [2006-12-29 10:17]:
-> >It works for me now, both your testcase as well as an installation of
-> >Debian on this ARM device.  I manually applied the patch to 2.6.19.
-> 
-> Can you post a diff against 2.6.19?
+Hi all,
 
---- a/mm/page-writeback.c	2006-11-29 21:57:37.000000000 +0000
-+++ b/mm/page-writeback.c	2006-12-29 11:02:55.555147896 +0000
-@@ -893,16 +893,45 @@
- {
- 	struct address_space *mapping = page_mapping(page);
- 
--	if (mapping) {
-+	if (mapping && mapping_cap_account_dirty(mapping)) {
-+		/*
-+		 * Yes, Virginia, this is indeed insane.
-+		 *
-+		 * We use this sequence to make sure that
-+		 *  (a) we account for dirty stats properly
-+		 *  (b) we tell the low-level filesystem to
-+		 *      mark the whole page dirty if it was
-+		 *      dirty in a pagetable. Only to then
-+		 *  (c) clean the page again and return 1 to
-+		 *      cause the writeback.
-+		 *
-+		 * This way we avoid all nasty races with the
-+		 * dirty bit in multiple places and clearing
-+		 * them concurrently from different threads.
-+		 *
-+		 * Note! Normally the "set_page_dirty(page)"
-+		 * has no effect on the actual dirty bit - since
-+		 * that will already usually be set. But we
-+		 * need the side effects, and it can help us
-+		 * avoid races.
-+		 *
-+		 * We basically use the page "master dirty bit"
-+		 * as a serialization point for all the different
-+		 * threds doing their things.
-+		 *
-+		 * FIXME! We still have a race here: if somebody
-+		 * adds the page back to the page tables in
-+		 * between the "page_mkclean()" and the "TestClearPageDirty()",
-+		 * we might have it mapped without the dirty bit set.
-+		 */
-+		if (page_mkclean(page))
-+			set_page_dirty(page);
- 		if (TestClearPageDirty(page)) {
--			if (mapping_cap_account_dirty(mapping)) {
--				page_mkclean(page);
--				dec_zone_page_state(page, NR_FILE_DIRTY);
--			}
-+			dec_zone_page_state(page, NR_FILE_DIRTY);
- 			return 1;
- 		}
- 		return 0;
--	}
-+ 	}
- 	return TestClearPageDirty(page);
- }
- EXPORT_SYMBOL(clear_page_dirty_for_io);
+I know there have been some discussions regarding an IDLE scheduler
+priority, but by now this is about 4 years ago without any major
+results besides the new SCHED_BATCH priority, which works quite
+differently from the original idle priority. (Or did I miss something?)
+So I wanted to restart this discussion and emphasize that such a feature
+is worthwhile, because - just for example - there are so many projects
+out there, where you can donate your cpu time to something good. We
+certainly do not want Linux to become known as the OS, whose users
+don't dare to support "cure for cancer/aids" project, because such
+clients won't release the cpu when its owner needs it himself, would
+you? ;-) Just overdoing, but I think you see my point. As I recently
+read, FreeBSD also has it. So why not Linux?
+The only point I got from the early discussions are your concerns about
+"priority inversion". Probably there is no simple solution to it. But
+let's have closer look at the problem: If I got that right, there is an
+unimportant Process A which has a lock on something (call it R) that
+important Process B needs from time to time. We assume, that A sometimes
+releases its lock on R, so that B can run. But now evil Process C comes
+into play. C maliciously blocks a resource (the CPU) that A would need,
+before A can release its lock. Now A and B are blocked, but this can
+happen with any other resource (not only CPU) as well! Or did I miss
+something? Even if A is scheduled regularly (nice +19), a malicious
+process C could request so much CPU, that A needs more than 20 times the
+time until it can release R. Isn't that similarly bad?
+So would SCHED_IDLE really be that bad? No, I don't think so. C could
+block R right away, you wouldn't even need A for this.
+Additionally, idle priority is not the root cause of the priority
+inversion problem. B could get the cpu, but it does not want it, because
+of A, because of C.
+Trading off the benefits and risks of an IDLE priority I would rather
+vote for it. And when security matters: You always have the choice of
+not running any process as an idle process. You simply don't have to.
+Don't run processes (as idle) that could lock vital resources or live
+with the consequences. I think "priority inversion" is not a problem of
+a normal user's every day life, but not being able to spend cpu time on
+something "nice to have", because it would always eat up its share of
+cpu even if the system is under full load, is quite a bit annoying.
+
+Please let me know about your opinions on this topic or if I missed
+something.
+
+Looking forward to further discussion,
+Christian
+
+
 
 -- 
-Martin Michlmayr
-http://www.cyrius.com/
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen! 
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

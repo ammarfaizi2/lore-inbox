@@ -1,32 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753961AbWL2BOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755014AbWL2BgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753961AbWL2BOV (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 20:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753971AbWL2BOV
+	id S1755014AbWL2BgJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 20:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755016AbWL2BgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 20:14:21 -0500
-Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:38385 "EHLO
-	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753961AbWL2BOV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 20:14:21 -0500
-Message-ID: <45946BF2.8030501@lwfinger.net>
-Date: Thu, 28 Dec 2006 19:14:26 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: build anomaly in 2.6.20
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 20:36:09 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:48264 "EHLO inti.inf.utfsm.cl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755014AbWL2BgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 20:36:08 -0500
+Message-Id: <200612290136.kBT1a2sO006708@laptop13.inf.utfsm.cl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.20-rc2: known unfixed regressions 
+In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
+   of "Thu, 28 Dec 2006 23:39:09 BST." <20061228223909.GK20714@stusta.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Thu, 28 Dec 2006 22:36:02 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Delayed for 00:35:17 by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.19.1]); Thu, 28 Dec 2006 22:36:06 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.20-rc2, fs/proc/proc_misc.c has been changed to need include/linux/compile.h. As the latter
-file contains the dat and time of the compilation, this change ensures that the kernel will be
-relinked with every make call, even if it is run just after a successful make run.
+Adrian Bunk <bunk@stusta.de> wrote:
+> This email lists some known regressions in 2.6.20-rc2 compared to 2.6.19.
 
-In my work as the bcm43xx maintainer, I make frequent trial changes to that module. It seems a waste
-to have to relink the kernel with every such change.
-
-Larry
+Add that on SPARC64 boot fails due to missing /dev/root. Vanilla 2.6.19 and
+2.6.19.1 work fine, before 2.6.20-rc1 it broke. I checked the initrds for
+both versions, the only difference "diff -Nur" finds between the unpacked
+initrds are the modules themselves (obviously).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

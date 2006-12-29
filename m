@@ -1,73 +1,127 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753849AbWL2AWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753923AbWL2A2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753849AbWL2AWg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 19:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753902AbWL2AWf
+	id S1753923AbWL2A2X (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 19:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753924AbWL2A2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 19:22:35 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:62228 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753849AbWL2AWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 19:22:35 -0500
-Date: Thu, 28 Dec 2006 16:10:19 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove 556 unneeded #includes of sched.h
-Message-Id: <20061228161019.b876e10b.randy.dunlap@oracle.com>
-In-Reply-To: <20061228214830.GF20596@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.63.0612282059160.8356@gockel.physik3.uni-rostock.de>
-	<20061228124644.4e1ed32b.akpm@osdl.org>
-	<Pine.LNX.4.63.0612282154460.20531@gockel.physik3.uni-rostock.de>
-	<20061228210803.GR17561@ftp.linux.org.uk>
-	<Pine.LNX.4.63.0612282211330.20531@gockel.physik3.uni-rostock.de>
-	<20061228213438.GD20596@flint.arm.linux.org.uk>
-	<20061228133246.ad820c6a.randy.dunlap@oracle.com>
-	<20061228214830.GF20596@flint.arm.linux.org.uk>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 28 Dec 2006 19:28:23 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57854 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753923AbWL2A2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 19:28:22 -0500
+Date: Fri, 29 Dec 2006 01:27:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Bill Gatliff <bgat@billgatliff.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
+       pHilipp Zabel <philipp.zabel@gmail.com>
+Subject: Re: [patch 2.6.20-rc1 1/6] GPIO core
+Message-ID: <20061229002752.GA3543@elf.ucw.cz>
+References: <200611111541.34699.david-b@pacbell.net> <200612201308.41900.david-b@pacbell.net> <20061227174953.GB4088@ucw.cz> <200612281405.37143.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612281405.37143.david-b@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 21:48:30 +0000 Russell King wrote:
 
-> On Thu, Dec 28, 2006 at 01:32:46PM -0800, Randy Dunlap wrote:
-> > On Thu, 28 Dec 2006 21:34:38 +0000 Russell King wrote:
-> > > The whole "all*config" idea on ARM is utterly useless - you can _not_
-> > > get build coverage that way.
+> Good afternoon.  :)
+
+Good after-midnight :-).
+
+> > > +Identifying GPIOs
+> > > +-----------------
+> > > +GPIOs are identified by unsigned integers in the range 0..MAX_INT.  That
+> > > +reserves "negative" numbers for other purposes like marking signals as
+> > > +"not available on this board", or indicating faults.
+> > > +
+> > > +Platforms define how they use those integers, and usually #define symbols
+> > > +for the GPIO lines so that board-specific setup code directly corresponds
+> > > +to the relevant schematics.  In contrast, drivers should only use GPIO
 > > 
-> > Uh, can J. Random Developer submit patches to the ARM build system
-> > for testing?
+> > Perhaps these should not be integers, then?
 > 
-> Given that it takes about 8 to 12 hours to do a build cycle, that's
-> not practical.  The only real solution is for us to accept that
-> breakage will occur (and be prepared to keep a steady stream of
-> fixes heading into Linus' tree - which has been ruled out by Linus)
-> or J. Random Developer has to build a set of affected ARM defconfigs
-> themselves.
+> Thing is, the platforms **DO** identify them as integers.
 
-I guess I don't get it.  Isn't that what we just went thru
-with the struct nightmare^W work_struct changes?
-But these header file changes are much simpler and more obvious...
+> Go through OMAP, PXA, StrongARM chip docs ... what you see is
+> references to GPIO numbers, 0..MAX, and oh by the way those map to
+> bit offsets within gpio controller banks.
 
+Well. when you see (something) = gpio_number + 5 ... you most likely
+have an error. That means that they are close to integers, but not
+quite. I'd use
 
-> Or alternatively the guy who's running kautobuild needs an amount of
-> rather powerful donated hardware to stubstantially increase it's
-> throughput.
+typedef int gpio_t;
+
+...it also serves as a nice documentation.
+
+> When they don't identify them as integers, as with AT91, AVR32, and
+> S3C -- all of which present GPIOs as a lettered bank plus a bit offset
+> within that bank, isn't that structure familiar -- then the Linux
+> platform support already #defines them as integers.  The naming matches
+
+Great, except that mechanism should not #define them but "enum gpio {
+} " them...
+
+> > inside, allows you to typecheck, and allows expansion in (unlikely) case where
+> > more than int is needed? ...hotpluggable gpio pins?
 > 
-> Or cross-gcc needs to be optimised to compile faster.
-> 
-> I don't see any of the above happening, so...
+> If some system wants that kind of infrastructure, it can easily
+> implement it behind this API.  There's the IDR infrastructure, for
 
----
-~Randy
+No, that's a wrong way. I want you to admit that gpio numbers are
+opaque cookies noone should look at, and use (something like)
+gpio_t... so that we can teach sparse to check them.
+
+
+> > > +The get/set calls have no error returns because "invalid GPIO" should have
+> > > +been reported earlier in gpio_set_direction().  However, note that not all
+> > > +platforms can read the value of output pins; those that can't should always
+> > > +return zero.  Also, these calls will be ignored for GPIOs that can't safely
+> > > +be accessed without sleeping (see below).
+> > 
+> > 'Silently ignored' is ugly. BUG() would be okay there.
+> 
+> The reason for "silently ignored" is that we really don't want to be
+> cluttering up the code (source or object) with logic to test for this
+> kind of "can't happen" failure, especially since there's not going to
+> be any way to _resolve_ such failures cleanly.
+
+You may not want to clutter up code for one arch, but for some of them
+maybe it is okay and welcome. Please do not document "silently
+ignored" into API.
+
+> And per Linus' rule about BUG(), "silently ignored" is clearly better
+> than needlessly stopping the whole system.
+
+You are perverting what Linus said. "Do not bother detecting errors"
+is not what he had in mind.. but perhaps it should be WARN() not
+BUG().
+
+> > > +Those return either the corresponding number in the other namespace, or
+> > > +else a negative errno code if the mapping can't be done.  (For example,
+> > > +some GPIOs can't used as IRQs.)  It is an unchecked error to use a GPIO
+> > > +number that hasn't been marked as an input using gpio_set_direction(), or
+> > 
+> > It should be valid to do irqs on outputs,
+> 
+> Good point -- it _might_ be valid to do that, on some platforms.
+> Such things have been used as a software IRQ trigger, which can
+> make bootstrapping some things easier.
+> 
+> That's not incompatible with it being an error for portable code to
+
+I believe your text suggests it _is_ incompatible. Plus that seems to
+mean that  architecture must not check for that error...
+
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

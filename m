@@ -1,134 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965168AbWL2Vwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030179AbWL2Vxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbWL2Vwl (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 16:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWL2Vwl
+	id S1030179AbWL2Vxa (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 16:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030180AbWL2Vxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 16:52:41 -0500
-Received: from smtp4-g19.free.fr ([212.27.42.30]:44547 "EHLO smtp4-g19.free.fr"
+	Fri, 29 Dec 2006 16:53:30 -0500
+Received: from gate.crashing.org ([63.228.1.57]:48613 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965168AbWL2Vwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 16:52:40 -0500
-Message-ID: <45958E4F.5080105@yahoo.fr>
-Date: Fri, 29 Dec 2006 22:53:19 +0100
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] Handle error in sync_sb_inodes()
-Content-Type: multipart/mixed;
- boundary="------------040905060903050808040909"
+	id S1030179AbWL2Vx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 16:53:29 -0500
+Subject: Re: 2.6.20-rc2: kernel BUG at include/asm/dma-mapping.h:110!
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux1394-devel@lists.sourceforge.net, linuxppc-dev@ozlabs.org,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <je7iwa1l8a.fsf@sykes.suse.de>
+References: <je7iwa1l8a.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Sat, 30 Dec 2006 08:52:51 +1100
+Message-Id: <1167429171.23340.125.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040905060903050808040909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Against 2.6.20-rc2, and now the bug fix.
+> Bisecting has identified this commit:
+> 
+> commit 9b7d9c096dd4e4baacc21b2588662bbb56f36c4e
+> Author: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> Date:   Wed Nov 22 21:44:34 2006 +0100
+> 
+>     ieee1394: sbp2: convert from PCI DMA to generic DMA
+>     
+>     API conversion without change in functionality
+>     
+>     Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> 
+> 
+> I'm only seeing this on ppc64, ppc32 seems to be working fine.
 
--- 
-Guillaume
+The patch looks totally bogus to me. It's passing a random struct device
+from the hbsp host data structure to the dma_map_* routines. which they
+can't do anything about.
+
+The dma_map_* routines only know about some bus types. That's always
+been the case (that's why you also can't pass a usb device's struct
+device to them for example). Mostly, PCI, possibly others depending on
+the platform.
+
+So if you are to pass a struct device pointer to dma_map_*, use the one
+inside the pci_dev of the host. Or have the host driver provide you with
+the struct device pointer (which is the one from the pci_dev * for PCI
+implementations, and others give you what they are on, assuming the
+platform can do dma-* on that device).
+
+Ben.
 
 
---------------040905060903050808040909
-Content-Type: text/x-patch;
- name="02_sync_sb_inodes_handle_error.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="02_sync_sb_inodes_handle_error.diff"
-
-I/O errors could go unnoticed when syncing, for example the following code could
-write a file bigger than 10Mib on a 10Mib filesystem. With this patch, msync()
-will report the error originally encountered by sync(). Tuning the number of
-sync may be needed to reproduce the bug.
-make_file.c:
-
-#include <unistd.h>
-#include <sys/fcntl.h>
-#include <sys/mman.h>
-#include <string.h>
-#include <stdio.h>
-
-#define NR_SYNC 3 /* Adjust me if needed */
-#define SIZE ((10 << 20) + (100 << 10))
-
-int main(void)
-{
-	int i, fd;
-	char *mapping;
-	fd = open("mnt/file", O_RDWR | O_CREAT, 0600);
-	if (fd < 0) {
-		perror("open");
-		return 1;
-	}
-
-	if (ftruncate(fd, SIZE) < 0) {
-		perror("ftruncate");
-		return 1;
-	}
-
-	mapping = mmap(NULL, SIZE, PROT_WRITE, MAP_SHARED, fd, 0);
-	if (mapping == MAP_FAILED) {
-		perror("mmap");
-		return 1;
-	}
-
-	memset(mapping, 0xFF, SIZE);
-
-	for (i = 0; i < NR_SYNC; i++)
-		sync();
-
-	if (msync(mapping, SIZE, MS_SYNC) < 0) {
-		perror("msync");
-		return 1;
-	}
-
-	if (close(fd) < 0) {
-		perror("close");
-		return 1;
-	}
-
-	puts("File written successfully => bad!\n");
-	return 0;
-}
-
-#!/bin/sh
-
-dd if=/dev/zero of=fs.10M bs=10M count=0 seek=1
-mkfs.ext2 -qF fs.10M
-mkdir mnt
-mount fs.10M mnt -o loop
-./make_file
-
-Signed-off-by: Guillaume Chazarain <guichaz@yahoo.fr>
----
-
- fs-writeback.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff -r 3859b1144d3a fs/fs-writeback.c
---- a/fs/fs-writeback.c	Sun Dec 24 05:00:03 2006 +0000
-+++ b/fs/fs-writeback.c	Fri Dec 29 22:12:42 2006 +0100
-@@ -316,6 +316,7 @@ sync_sb_inodes(struct super_block *sb, s
- 		struct address_space *mapping = inode->i_mapping;
- 		struct backing_dev_info *bdi = mapping->backing_dev_info;
- 		long pages_skipped;
-+		int ret;
- 
- 		if (!bdi_cap_writeback_dirty(bdi)) {
- 			list_move(&inode->i_list, &sb->s_dirty);
-@@ -365,7 +366,8 @@ sync_sb_inodes(struct super_block *sb, s
- 		BUG_ON(inode->i_state & I_FREEING);
- 		__iget(inode);
- 		pages_skipped = wbc->pages_skipped;
--		__writeback_single_inode(inode, wbc);
-+		ret = __writeback_single_inode(inode, wbc);
-+		mapping_set_error(mapping, ret);
- 		if (wbc->sync_mode == WB_SYNC_HOLD) {
- 			inode->dirtied_when = jiffies;
- 			list_move(&inode->i_list, &sb->s_dirty);
-
---------------040905060903050808040909--

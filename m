@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754070AbWL2F3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754409AbWL2FaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754070AbWL2F3Z (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 00:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754071AbWL2F3Z
+	id S1754409AbWL2FaS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 00:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754072AbWL2FaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 00:29:25 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:38169
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1754070AbWL2F3Y (ORCPT
+	Fri, 29 Dec 2006 00:30:18 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:41432 "HELO
+	smtp112.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753990AbWL2FaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 00:29:24 -0500
-Date: Thu, 28 Dec 2006 21:28:51 -0800 (PST)
-Message-Id: <20061228.212851.93211529.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: martin@strongswan.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc1] xfrm: Algorithm lookup using .compat name
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061222210446.GB22568@gondor.apana.org.au>
-References: <1166804803.21634.40.camel@martin>
-	<20061222210446.GB22568@gondor.apana.org.au>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 29 Dec 2006 00:30:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=zKfcTGZ9g9ONbvdDKvngsGaijIdioAlhDj2HkdTz2nUFRk4wARsCR0Q4/q+5Ja7CeppitftLdYbKVZMFBgSlMLEfhQNIKkcGjWVikADgyTjow/gK/O/stGT3GvtG/JIb6hUpoOlUkUbGSlD2lj+gDpBmdj/0zbMDFCWGBKSeh9w=  ;
+X-YMail-OSG: H9Ap4eYVM1lyLS9CHOXgEEn94BOEz.0IOh0NKFQZ.9sO1i7iK8Xlz0Iqt2A8Hv73zGnWMsUt6dq.2VF1ZBTpZt31iBw8XshbKgNujx7zlxGG_hUqmj0d6K_GofNUQZOdw2ql9.SQ7D5A91G5Lrzuj4mlZ7jNsd14F065zk8CeU_lEwzhBZID0VU6bfVv
+From: David Brownell <david-b@pacbell.net>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Changes to PM layer break userspace
+Date: Thu, 28 Dec 2006 21:27:45 -0800
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+References: <20061219185223.GA13256@srcf.ucam.org> <200612232302.06151.david-b@pacbell.net> <20061228133137.409b85d2@localhost.localdomain>
+In-Reply-To: <20061228133137.409b85d2@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612282127.46504.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 23 Dec 2006 08:04:46 +1100
-
-> On Fri, Dec 22, 2006 at 05:26:43PM +0100, Martin Willi wrote:
-> > Installing an IPsec SA using old algorithm names (.compat) does not work
-> > if the algorithm is not already loaded. When not using the PF_KEY
-> > interface, algorithms are not preloaded in xfrm_probe_algs() and
-> > installing a IPsec SA fails.
+On Thursday 28 December 2006 5:31 am, Alan wrote:
+> > Seems to me anyone really desperate to put PCI devices into a low
+> > power mode, without driver support at the "ifdown" level, would be
+> > able just "rmmod driver; setpci".  
 > 
-> Good catch.  Thanks Martin!
+> Incorrect for very obvious reasons - there may be two devices driven by
+> the same driver one up and one down.
 
-Applied.
+Let me emphasize "desperate".  ;)
 
-Martin, please be careful with future patch submissions, your
-email client corrupted up the patch by adding newlines and
-changing tab characters into spaces, so I had to add the patch
-by hand.
+The examples given were all cases where that didn't seem to be an issue.
 
-Herbert, this fix is only needed for 2.6.20 correct?  I assume
-it was added by the 2.6.20 crypto layer merge, right?
+But agreed, the best approach is really to make devices not in active
+use (i.e. before "ifup", after "ifdown" ... maybe even whenever no
+driver is bound to the device) stay in low power states.
 
-Thanks.
+- Dave

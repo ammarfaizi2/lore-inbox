@@ -1,148 +1,143 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755095AbWL2Xv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965224AbWL2Xwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755095AbWL2Xv4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 18:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755094AbWL2Xvz
+	id S965224AbWL2Xwa (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 18:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755102AbWL2Xwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 18:51:55 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34679 "EHLO smtp.osdl.org"
+	Fri, 29 Dec 2006 18:52:30 -0500
+Received: from mga02.intel.com ([134.134.136.20]:13186 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755093AbWL2Xvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 18:51:54 -0500
-Date: Fri, 29 Dec 2006 15:51:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-Message-Id: <20061229155118.3feb0c17.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
-	<20061228114517.3315aee7.akpm@osdl.org>
-	<Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
-	<20061228.143815.41633302.davem@davemloft.net>
-	<3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
-	<Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
-	<20061229141632.51c8c080.akpm@osdl.org>
-	<Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1755103AbWL2Xw3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 18:52:29 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,219,1165219200"; 
+   d="scan'208"; a="179833341:sNHT26062071"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: 2.6.19-rt14 slowdown compared to 2.6.19
+Date: Fri, 29 Dec 2006 15:52:26 -0800
+Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C019F9B16@fmsmsx414.amr.corp.intel.com>
+In-Reply-To: <20061223105937.GA21172@elte.hu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.19-rt14 slowdown compared to 2.6.19
+Thread-Index: AccmgcK5XbX9CwpDTLOSu6UfsDiNjgE/udcg
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+X-OriginalArrivalTime: 29 Dec 2006 23:52:28.0302 (UTC) FILETIME=[65A0DAE0:01C72BA4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Dec 2006 14:42:51 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
-
+Ingo Molnar wrote:
 > 
+> If you'd like to profile this yourself then the lowest-cost way of
+> profiling lock contention on -rt is to use the yum kernel and run the
+> attached trace-it-lock-prof.c code on the box while your workload is
+> in 'steady state' (and is showing those extended idle times):
 > 
-> On Fri, 29 Dec 2006, Andrew Morton wrote:
-> > 
-> > - The above change means that we do extra writeout.  If a page is dirtied
-> >   once, kjournald will write it and then pdflush will come along and
-> >   needlessly write it again.
+>   ./trace-it-lock-prof > trace.txt
 > 
-> There's zero extra writeout for any flushing that flushes BY PAGES.
+> this captures up to 1 second worth of system activity, on the current
+> CPU. Then you can construct the histogram via:
 > 
-> Only broken flushers that flush by buffer heads (which really really 
-> really shouldn't be done any more: welcome to the 21st century) will cause 
-> extra writeouts. And those extra writeouts are obviously required for all 
-> the dirty state to actually hit the disk - which is the point of the 
-> patch.
+>   grep -A 1 ' __schedule()<-' trace.txt | cut -d: -f2- | sort |
+>                                   uniq -c | sort -n > prof.txt
 > 
-> So they're not "extra" - they are "required for correct working".
 
-They're extra.  As in "can be optimised away".
+I did lock profiling on Volanomark as suggested and obtained the 
+profile that is listed below. 
 
-> But I can't stress the fact enough that people SHOULD NOT do writeback by 
-> buffer heads. The buffer head has been purely an "IO entity" for the last 
-> several years now, and it's not a cache entity.
+    246
+__sched_text_start()<-schedule()<-rt_spin_lock_slowlock()<-__lock_text_s
+tart()
+    264  rt_mutex_slowunlock()<-rt_mutex_unlock()<-rt_up_read()<-(-1)()
+    334
+__sched_text_start()<-schedule()<-posix_cpu_timers_thread()<-kthread()
+    437  __sched_text_start()<-schedule()<-do_futex()<-sys_futex()
+    467  (-1)()<-(0)()<-(0)()<-(0)()
+    495
+__sched_text_start()<-preempt_schedule()<-__spin_unlock_irqrestore()<-rt
+_mutex_adjust_prio()
+    497  __netif_rx_schedule()<-netif_rx()<-loopback_xmit()<-(-1)()
+    499
+__sched_text_start()<-schedule()<-schedule_timeout()<-sk_wait_data()
+    500  tcp_recvmsg()<-sock_common_recvmsg()<-sock_recvmsg()<-(-1)()
+    503  __rt_down_read()<-rt_down_read()<-do_futex()<-(-1)()
+   1160  __sched_text_start()<-schedule()<-ksoftirqd()<-kthread()
+   1433  __rt_down_read()<-rt_down_read()<-futex_wake()<-(-1)()
+   1497  child_rip()<-(-1)()<-(0)()<-(0)()
+   1936
+__sched_text_start()<-schedule()<-rt_mutex_slowlock()<-rt_mutex_lock()
 
-The buffer_head is not an IO container.  It is the kernel's core
-representation of a disk block.  Usually (but not always) it is backed by
-some memory which is in pagecache.  We can feed buffer_heads into IO
-containers via submit_bh(), but that's far from the only thing we use
-buffer_heads for.  We should have done s/buffer_head/block/g years ago.
+Looks like the idle time I saw was due to lock contention 
+during call to futex_wake, which requires acquisition of
+current->mm->mmap_sem. 
+Many of the java threads share mm and result in concurrent access to
+common mm.  
+Looks like under rt case there is no special treatment to read locking
+so
+the read lock accesses are contended under __rt_down_read.  For non rt
+case, 
+__down_read makes the distinction for read lock access and the read
+lockings 
+do not contend. 
 
-JBD implements physical block-based journalling, so it is 100% appropriate
-that JBD deal with these disk blocks using their buffer_head
-representation.
+Things are made worse here as this delayed waking up processes locked by
+the futex.
+See also a snippet of the latency_trace below. 
 
-That being said, ordered-data mode isn't really part of the JBD journalling
-system at all (the data doesn't get journalled!) - ordered-mode is an
-add-on to the JBD journal to make the metadata which we're about to journal
-point at more-likely-to-be-correct data.
+  <idle>-0     2D..2 5821us!: thread_return <softirq--31> (150 20)
+  <idle>-0     2DN.1 6278us :
+__sched_text_start()<-cpu_idle()<-start_secondary()<-(-1)()
+  <idle>-0     2DN.1 6278us : (0)()<-(0)()<-(0)()<-(0)()
+    java-6648  2D..2 6280us+: thread_return <<idle>-0> (20 -4)
+    java-6648  2D..1 6296us :
+try_to_wake_up()<-wake_up_process()<-wakeup_next_waiter()<-rt_mutex_slow
+unlock()
+    java-6648  2D..1 6296us :
+rt_mutex_unlock()<-rt_up_read()<-do_futex()<-(-1)()
+    java-6648  2D..2 6297us : effective_prio <<...>-6673> (-4 -4)
+    java-6648  2D..2 6297us : __activate_task <<...>-6673> (-4 1)
+    java-6648  2.... 6297us < (-11)
+    java-6648  2.... 6298us+> sys_futex (0000000000afaf50
+0000000000000001 0000000000000001)
+    java-6648  2...1 6315us :
+__sched_text_start()<-schedule()<-rt_mutex_slowlock()<-rt_mutex_lock()
+    java-6648  2...1 6315us :
+__rt_down_read()<-rt_down_read()<-futex_wake()<-(-1)()
+    java-6648  2D..2 6316us+: deactivate_task <java-6648> (-4 1)
+  <idle>-0     2D..2 6318us+: thread_return <java-6648> (-4 20)
+  <idle>-0     2DN.1 6327us :
+__sched_text_start()<-cpu_idle()<-start_secondary()<-(-1)()
+  <idle>-0     2DN.1 6328us+: (0)()<-(0)()<-(0)()<-(0)()
+    java-6629  2D..2 6330us+: thread_return <<idle>-0> (20 -4)
+    java-6629  2D..1 6347us :
+try_to_wake_up()<-wake_up_process()<-wakeup_next_waiter()<-rt_mutex_slow
+unlock()
+    java-6629  2D..1 6347us :
+rt_mutex_unlock()<-rt_up_read()<-futex_wake()<-(-1)()
+    java-6629  2D..2 6348us : effective_prio <java-6235> (-4 -4)
+    java-6629  2D..2 6349us : __activate_task <java-6235> (-4 1)
+    java-6629  2.... 6350us+< (0)
+    java-6629  2.... 6352us+> sys_futex (0000000000afc1dc
+0000000000000001 0000000000000001)
+    java-6629  2...1 6368us :
+__sched_text_start()<-schedule()<-rt_mutex_slowlock()<-rt_mutex_lock()
+    java-6629  2...1 6368us :
+__rt_down_read()<-rt_down_read()<-futex_wake()<-(-1)()
+    java-6629  2D..2 6369us+: deactivate_task <java-6629> (-4 1)
+  <idle>-0     2D..2 6404us!: thread_return <java-6629> (-4 20)
+  <idle>-0     2DN.1 6584us :
+__sched_text_start()<-cpu_idle()<-start_secondary()<-(-1)()
 
-JBD's ordered-mode writeback is just a sync and I see no conceptual
-problems with killing its old buffer_head based sync and moving it into the
-21st century.
+Thanks.
 
-> Anybody who does writeback 
-> by buffer heads is basically bypassing the real cache (the page cache), 
-> and that's why all the problems happen.
-> 
-> I think ext3 is terminally crap by now. It still uses buffer heads in 
-> places where it really really shouldn't,
-
-The ordered-data mode flush: sure.  The rest of JBD's use of buffer_heads
-is quite appropriate.
-
-> and as a result, things like 
-> directory accesses are simply slower than they should be. Sadly, I don't 
-> think ext4 is going to fix any of this, either.
-
-I thought I fixed the performance problem?
-
-Somewhat nastily, but as ext3 directories are metadata it is appropriate
-that modifications to them be done in terms of buffer_heads (ie: blocks).
-
-> It's all just too inherently wrongly designed around the buffer head 
-> (which was correct in 1995, but hasn't been correct for a long time in the 
-> kernel any more).
-> 
-> > - Poor old IO accounting broke again.
-> 
-> No. That's why I used "set_page_dirty()" and did it that strange ugly way 
-> ("set page dirty, even though it's already dirty, and even though the very 
-> next thing we will do is TestClearPageDirty???").
-
-nfs_set_page_dirty() and reiserfs_set_page_dirty() should now bail if
-PageDirty() to avoid needless work.
-
-> > - For a long time I've wanted to nuke the current ext3/jbd ordered-data
-> >   implementation altogether, and just make kjournald call into the
-> >   standard writeback code to do a standard suberblock->inodes->pages walk.
-> 
-> I really would like to see less of the buffer-head-based stuff, and yes, 
-> more of the normal inode page walking. I don't think you can "order" 
-> accesses within a page anyway, exactly because of memory mapping issues, 
-> so any page ordering is not about buffer heads on the page itself, it 
-> should be purely about metadata.
-
-In this context ext3's "ordered" mode means "sync the file contents before
-journalling the metadata which points at it".
-
-> > - It's pretty obnoxious that the VM now sets a clean page "dirty" and
-> >   then proceeds to modify its contents.  It would be nice to stop doing
-> >   that.
-> 
-> No. I think this really the fundamental confusion people had. People 
-> thought that setting the page dirty meant that it was no longer being 
-> modified.
-
-No.  Setting a page (or bh, or inode) dirty means "this is known to have
-been modified".  ie: this cached entity is now out of sync with backing
-store.
-
-Ho hum.  I don't care much, really.  But then, I understand how all this
-stuff works.  Try explaining to someone the relationship between
-pte-dirtiness, page-dirtiness, radix-tree-dirtiness and
-buffer_head-dirtiness.
-
+Tim

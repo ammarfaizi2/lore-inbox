@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965143AbWL2U0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965156AbWL2UpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWL2U0u (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbWL2U0u
+	id S965156AbWL2UpM (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 15:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWL2UpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:26:50 -0500
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:22993 "HELO
-	smtp102.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S965143AbWL2U0u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:26:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=HMuKD3LIAzPV3NNpy1IkRwIC2cFIS7NeOiyfR3qxWEVuAYnOw5W58hHv2WfFX9GgGzDnY+On9yydALCw+mS0+BaPzgdlAqVAjnSDHRRhnb+/1GwfICmkkUdQGGteog+sqMpdQ6MTpvINlPi3hxWK9vuCQKY8kPc8SU/wgXb2Vn0=  ;
-X-YMail-OSG: RUVOWdQVM1nRYBo5gBExhtvEKSGxIHouINTQ.YVbLJ7g4z73eP4DEXdgHbdrN2IA5sHb62GI54aMqXrIENnnQn5d.hvIieYAV6VLMKF26q6o.nHiq.Ul853IBr5WNAcHZIkPocU0s1._u_o-
-From: David Brownell <david-b@pacbell.net>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [patch 2.6.20-rc1 6/6] input: ads7846 directly senses PENUP state
-Date: Fri, 29 Dec 2006 12:26:46 -0800
-User-Agent: KMail/1.7.1
-Cc: Imre Deak <imre.deak@solidboot.com>, linux-kernel@vger.kernel.org,
-       nicolas.ferre@rfo.atmel.com, tony@atomide.com
-References: <20061222192536.A206A1F0CDB@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <200612281437.56888.david-b@pacbell.net> <200612290122.52752.dtor@insightbb.com>
-In-Reply-To: <200612290122.52752.dtor@insightbb.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612291226.46984.david-b@pacbell.net>
+	Fri, 29 Dec 2006 15:45:11 -0500
+Received: from main.gmane.org ([80.91.229.2]:55400 "EHLO ciao.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965156AbWL2UpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 15:45:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ritesh Raj Sarraf <rrs@researchut.com>
+Subject: select() to /dev/rtc to wait for clock tick timed out
+Date: Sat, 30 Dec 2006 01:11:25 +0530
+Organization: RESEARCHUT
+Message-ID: <6k7g64-ln8.ln1@www.researchut.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 203.187.253.248
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 December 2006 10:22 pm, Dmitry Torokhov wrote:
-> 
-> I appied all patches except for hwmon as it had some issues with CONFIG_HWMON
-> handling. Could you please take a look at the patch below and tell me if it
-> works for you?
+Hi,
 
-Looked OK, except:
+I have a Dell XPS M1210 notebook with 2.6.18 running on it.
 
-> +#if defined(CONFIG_HWMON) || (defined(MODULE) && defined(CONFIG_HWMON_MODULE))
+I've noticed that a recent BIOS upgrade (A03 -> A05) has started giving me this
+message on system boot when hwclock runs.
 
-That idiom is more usually written
+select() to /dev/rtc to wait for clock tick timed out
 
-	#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+My machine has a dual-core Intel processor.
 
-Thanks!  I'll be glad to see fewer versions of this driver floating around.
-And to see the next version of the ads7843 patches ... :) 
+A quick search revealed a workaround for hwclock to use the --directisa option.
+Also this bug seems to be generic to dual-core Intel processors as many other
+people also are facing the same issue on servers/desktops/laptops.
 
-- Dave
+Thanks,
+Ritesh
+-- 
+Ritesh Raj Sarraf
+RESEARCHUT - http://www.researchut.com
+"Necessity is the mother of invention."
+"Stealing logic from one person is plagiarism, stealing from many is research."
+"The great are those who achieve the impossible, the petty are those who
+cannot - rrs"
 

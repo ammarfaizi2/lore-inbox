@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755054AbWL2WXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965223AbWL2WZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755054AbWL2WXf (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 17:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755059AbWL2WXf
+	id S965223AbWL2WZV (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 17:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755070AbWL2WZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 17:23:35 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:39587 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752978AbWL2WXe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 17:23:34 -0500
-From: Ismail =?utf-8?q?D=C3=B6nmez?= <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: No sound in KDE with intel hda since 2.6.20-rc1
-Date: Sat, 30 Dec 2006 00:23:17 +0200
-User-Agent: KMail/1.9.5
-References: <20061229062559.GB16659@mellanox.co.il> <20061229071819.GB19327@mellanox.co.il>
-In-Reply-To: <20061229071819.GB19327@mellanox.co.il>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-sound@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-       PeiSen Hou <pshou@realtek.com.tw>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612300023.19274.ismail@pardus.org.tr>
+	Fri, 29 Dec 2006 17:25:21 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59599 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752978AbWL2WZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 17:25:20 -0500
+Date: Fri, 29 Dec 2006 14:24:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
+       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
+Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
+Message-Id: <20061229142435.d78a1293.akpm@osdl.org>
+In-Reply-To: <20061229141632.51c8c080.akpm@osdl.org>
+References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
+	<20061228114517.3315aee7.akpm@osdl.org>
+	<Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
+	<20061228.143815.41633302.davem@davemloft.net>
+	<3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
+	<Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
+	<Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
+	<Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
+	<20061229141632.51c8c080.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-29 Ara 2006 Cum 09:18 tarihinde, Michael S. Tsirkin şunları yazmıştı: 
-> > Since 2.6.20-rc1 (tested both -rc1 and rc2), system notification sounds
-> > under KDE, and sound in games (e.g. TuxPaint) no longer seem to work on
-> > my T60 thinkpad. Works fine under 2.6.19 though.  The strange thing is
-> > e.g. Amarok still plays music fine.
->
-> Tis is on Kubuntu 6.06, BTW.
+On Fri, 29 Dec 2006 14:16:32 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-Same on Pardus 2007 which uses KDE 3.5.5.
+> - Poor old IO accounting broke again.
 
-Regards,
-ismail
-
--- 
-2 + 2 = 5 for very large values of 2
+No it didn't - we're relying upon the behaviour of __set_page_dirty_buffers()
+against an already-dirty page.

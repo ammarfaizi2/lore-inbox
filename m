@@ -1,30 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755175AbWL2D7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755179AbWL2D7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755175AbWL2D7Y (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 22:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755178AbWL2D7X
+	id S1755179AbWL2D7b (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 22:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755110AbWL2D71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 22:59:23 -0500
+	Thu, 28 Dec 2006 22:59:27 -0500
 Received: from [211.144.102.245] ([211.144.102.245]:16584 "EHLO
 	Web.hsic.com.cn" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755181AbWL2D7X (ORCPT
+	with ESMTP id S1755104AbWL2D7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 22:59:23 -0500
+	Thu, 28 Dec 2006 22:59:20 -0500
 X-Greylist: delayed 905 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Dec 2006 22:59:05 EST
 Subject: [PATCH] Input: HID - add CIDC USB device to HID blacklist
 From: Zheng XiaoJun <zhengxiaojun@hsic.com.cn>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Fri, 29 Dec 2006 11:45:09 +0800
-Message-Id: <1167363909.2685.7.camel@zxj.hsic.com.cn>
+Date: Fri, 29 Dec 2006 11:49:21 +0800
+Message-Id: <1167364161.2828.0.camel@zxj.hsic.com.cn>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Dec 2006 03:44:52.0390 (UTC) FILETIME=[B28A1460:01C72AFB]
+X-OriginalArrivalTime: 29 Dec 2006 03:49:12.0906 (UTC) FILETIME=[4DD1AAA0:01C72AFC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [PATCH] Input: HID - add CIDC USB device to HID blacklist
 From: Zheng XiaoJun <zhengxiaojun@hsic.com.cn>
 
 Add CIDC USB device to HID blacklist since it is actually a USB token

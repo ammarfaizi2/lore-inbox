@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965165AbWL2U4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965162AbWL2VJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWL2U4Z (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWL2U4Z
+	id S965162AbWL2VJx (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 16:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWL2VJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:56:25 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:42661 "EHLO cacti.profiwh.com"
+	Fri, 29 Dec 2006 16:09:53 -0500
+Received: from main.gmane.org ([80.91.229.2]:47737 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965165AbWL2U4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:56:17 -0500
-Message-id: <223225458143254603@wsc.cz>
-In-reply-to: <26150293961999718626@wsc.cz>
-Subject: [PATCH 4/4] Char: mxser_new, fix twice resource releasing
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: Sergei Organov <osv@javad.com>
-Date: Fri, 29 Dec 2006 21:56:25 +0100 (CET)
+	id S965162AbWL2VJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 16:09:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: OpenSolaris under KVM?
+Date: Fri, 29 Dec 2006 21:09:28 +0000 (UTC)
+Message-ID: <loom.20061229T220455-260@post.gmane.org>
+References: <c89a20770612271445q69ce84abv98d3265a1c88bfbe@mail.gmail.com> <45937DE6.2020704@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 68.85.149.9 (Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en) AppleWebKit/418.9.1 (KHTML, like Gecko) Safari/419.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, fix twice resource releasing
+Avi Kivity <avi <at> argo.co.il> writes:
 
-Because brd->info is not NULLed, resources are released twice. NULL it in
-pci_remove function. Also take care of retval and releasing in pci_probe --
-mxser_initbrd alreasy releases resource, do not do it again in fail path in
-probe function.
+> 
+> John Freighter wrote:
+> > Has anybody succeded running OpenSolaris under KVM virtualization?
+> > Before I download OS install DVD in vain...
+> >
+> 
+> There was indeed a report (and a patch) from Michael Riepe to that 
+> effect.  -rc2 should contain that patch.  Please report to kvm-devel if 
+> it doesn't work.
+> 
 
-Cc: Sergei Organov <osv@javad.com>
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
----
-commit 549237a65498ad3880cd1ca40f23f8bc942041cb
-tree 8208eb0eb881aa6bd1532c90a60c72009415e3e1
-parent 5065aa25fd624e3477d993baebbf3255a1d492fa
-author Jiri Slaby <jirislaby@gmail.com> Fri, 29 Dec 2006 21:38:56 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 29 Dec 2006 21:38:56 +0059
+I tried installing Solaris 10 U2 with Qemu/KVM-8 on -rc2 plus 
+the latest 8 kernel side KVM patches. 
+It appeared to work well until about 80% in the installation 
+where it got stuck after this error is dmesg -
 
- drivers/char/mxser_new.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+vmwrite error: reg 6802 value 1c334000 (err 17408)
+This was on a Core Duo Mac Mini.
 
-diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index 042d138..f078ddf 100644
---- a/drivers/char/mxser_new.c
-+++ b/drivers/char/mxser_new.c
-@@ -2403,9 +2403,8 @@ static int __devinit mxser_initbrd(struct mxser_board *brd,
- 			brd->info->name, brd->irq);
- 		/* We hold resources, we need to release them. */
- 		mxser_release_res(brd, pdev, 0);
--		return retval;
- 	}
--	return 0;
-+	return retval;
- }
- 
- static int __init mxser_get_ISA_conf(int cap, struct mxser_board *brd)
-@@ -2590,8 +2589,9 @@ static int __devinit mxser_probe(struct pci_dev *pdev,
- 	}
- 
- 	/* mxser_initbrd will hook ISR. */
--	if (mxser_initbrd(brd, pdev) < 0)
--		goto err_relvec;
-+	retval = mxser_initbrd(brd, pdev);
-+	if (retval)
-+		goto err_null;
- 
- 	for (i = 0; i < brd->info->nports; i++)
- 		tty_register_device(mxvar_sdriver, brd->idx + i, &pdev->dev);
-@@ -2599,10 +2599,9 @@ static int __devinit mxser_probe(struct pci_dev *pdev,
- 	pci_set_drvdata(pdev, brd);
- 
- 	return 0;
--err_relvec:
--	pci_release_region(pdev, 3);
- err_relio:
- 	pci_release_region(pdev, 2);
-+err_null:
- 	brd->info = NULL;
- err:
- 	return retval;
-@@ -2620,6 +2619,7 @@ static void __devexit mxser_remove(struct pci_dev *pdev)
- 		tty_unregister_device(mxvar_sdriver, brd->idx + i);
- 
- 	mxser_release_res(brd, pdev, 1);
-+	brd->info = NULL;
- }
- 
- static struct pci_driver mxser_driver = {
+Parag
+

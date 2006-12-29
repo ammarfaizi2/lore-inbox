@@ -1,76 +1,134 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755029AbWL2CAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755033AbWL2CKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755029AbWL2CAh (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 28 Dec 2006 21:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755028AbWL2CAh
+	id S1755033AbWL2CKJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 28 Dec 2006 21:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755036AbWL2CKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Dec 2006 21:00:37 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:50706 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754021AbWL2CAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Dec 2006 21:00:36 -0500
-Date: Thu, 28 Dec 2006 17:59:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Miller <davem@davemloft.net>, guichaz@yahoo.fr, ranma@tdiedrich.de,
-       gordonfarquharson@gmail.com, mh+linux-kernel@zugschlus.de,
-       nickpiggin@yahoo.com.au, andrei.popa@i-neo.ro,
-       linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, hugh@veritas.com,
-       fw@deneb.enyo.de, tbm@cyrius.com, arjan@infradead.org,
-       kenneth.w.chen@intel.com
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-Id: <20061228175954.fb744871.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612281730550.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281014190.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612281318480.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612281325290.4473@woody.osdl.org>
-	<20061228.145038.71089607.davem@davemloft.net>
-	<Pine.LNX.4.64.0612281730550.4473@woody.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Dec 2006 21:10:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1801 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1755032AbWL2CKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Dec 2006 21:10:08 -0500
+Date: Fri, 29 Dec 2006 03:10:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, rolandd@cisco.com
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [-mm patch] infiniband/ulp/ipoib/ipoib_cm.c: make functions static
+Message-ID: <20061229021009.GN20714@stusta.de>
+References: <20061228024237.375a482f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061228024237.375a482f.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 17:38:38 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
-
-> in 
-> the hope that somebody else is working on this corruption issue and is 
-> interested..
-
-What corruption issue? ;)
-
-
-I'm finding that the corruption happens trivially with your test app, but
-apparently doesn't happen at all with ext2 or ext3, data=writeback.  Maybe
-it will happen with increased rarity, but the difference is quite stark.
-
-Removing the
-
-                err = walk_page_buffers(handle, page_bufs, 0, PAGE_CACHE_SIZE,
-                                        NULL, journal_dirty_data_fn);
-
-from ext3_ordered_writepage() fixes things up.
-
-The things which journal_submit_data_buffers() does after dropping all the
-locks are ...  disturbing - I don't think we have sufficient tests in there
-to ensure that the buffer is still where we think it is after we retake
-locks (they're slippery little buggers).  But that wouldn't explain it
-anyway.
-
-It's inefficient that journal_dirty_data() will put these locked, clean
-buffers onto BJ_SyncData instead of BJ_Locked, but
-journal_submit_data_buffers() seems to dtrt with them.
-
-So no theory yet.  Maybe ext3 is just altering timing.  But the difference
-is really large..
+On Thu, Dec 28, 2006 at 02:42:37AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.20-rc1-mm1:
+>...
+>  git-infiniband.patch
+>...
+>  git trees
+>...
 
 
+This patch makes some needlessly global functions static.
 
-Disabling all the WB_SYNC_NONE stuff and making everything go synchronous
-everywhere has no effect.  Disabling bdi_write_congested() has no effect.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
 
+ drivers/infiniband/ulp/ipoib/ipoib_cm.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+--- linux-2.6.20-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_cm.c.old	2006-12-29 01:40:17.000000000 +0100
++++ linux-2.6.20-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_cm.c	2006-12-29 01:43:22.000000000 +0100
+@@ -56,7 +56,8 @@
+ 	u32 remote_mtu;
+ };
+ 
+-int ipoib_cm_tx_handler(struct ib_cm_id *cm_id, struct ib_cm_event *event);
++static int ipoib_cm_tx_handler(struct ib_cm_id *cm_id,
++			       struct ib_cm_event *event);
+ 
+ static void ipoib_cm_dma_unmap_rx(struct ipoib_dev_priv *priv,
+ 				  dma_addr_t mapping[IPOIB_CM_RX_SG])
+@@ -265,7 +266,8 @@
+ 	return ret;
+ }
+ 
+-int ipoib_cm_rx_handler(struct ib_cm_id *cm_id, struct ib_cm_event *event)
++static int ipoib_cm_rx_handler(struct ib_cm_id *cm_id,
++			       struct ib_cm_event *event)
+ {
+ 	struct ipoib_cm_rx *p;
+ 	struct ipoib_dev_priv *priv;
+@@ -396,7 +398,7 @@
+ 			   "for buf %d\n", wr_id);
+ }
+ 
+-void ipoib_cm_rx_completion(struct ib_cq *cq, void *dev_ptr)
++static void ipoib_cm_rx_completion(struct ib_cq *cq, void *dev_ptr)
+ {
+ 	struct net_device *dev = (struct net_device *) dev_ptr;
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+@@ -550,7 +552,7 @@
+ 	spin_unlock_irqrestore(&priv->tx_lock, flags);
+ }
+ 
+-void ipoib_cm_tx_completion(struct ib_cq *cq, void *tx_ptr)
++static void ipoib_cm_tx_completion(struct ib_cq *cq, void *tx_ptr)
+ {
+ 	struct ipoib_cm_tx *tx = tx_ptr;
+ 	int n, i;
+@@ -768,7 +770,8 @@
+ 	return 0;
+ }
+ 
+-int ipoib_cm_tx_init(struct ipoib_cm_tx *p, u32 qpn, struct ib_sa_path_rec *pathrec)
++static int ipoib_cm_tx_init(struct ipoib_cm_tx *p, u32 qpn,
++			    struct ib_sa_path_rec *pathrec)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(p->dev);
+ 	int ret;
+@@ -841,7 +844,7 @@
+ 	return ret;
+ }
+ 
+-void ipoib_cm_tx_destroy(struct ipoib_cm_tx *p)
++static void ipoib_cm_tx_destroy(struct ipoib_cm_tx *p)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(p->dev);
+ 	struct ipoib_tx_buf *tx_req;
+@@ -875,7 +878,8 @@
+ 	kfree(p);
+ }
+ 
+-int ipoib_cm_tx_handler(struct ib_cm_id *cm_id, struct ib_cm_event *event)
++static int ipoib_cm_tx_handler(struct ib_cm_id *cm_id,
++			       struct ib_cm_event *event)
+ {
+ 	struct ipoib_cm_tx *tx = cm_id->context;
+ 	struct ipoib_dev_priv *priv = netdev_priv(tx->dev);
+@@ -960,7 +964,7 @@
+ 	}
+ }
+ 
+-void ipoib_cm_tx_start(struct work_struct *work)
++static void ipoib_cm_tx_start(struct work_struct *work)
+ {
+ 	struct ipoib_dev_priv *priv =
+ 		container_of(work, struct ipoib_dev_priv, cm.start_task);
+@@ -1003,7 +1007,7 @@
+ 	spin_unlock_irqrestore(&priv->tx_lock, flags);
+ }
+ 
+-void ipoib_cm_tx_reap(struct work_struct *work)
++static void ipoib_cm_tx_reap(struct work_struct *work)
+ {
+ 	struct ipoib_dev_priv *priv =
+ 		container_of(work, struct ipoib_dev_priv, cm.reap_task);
 

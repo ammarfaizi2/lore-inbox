@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755052AbWL2ROB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755056AbWL2RPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755052AbWL2ROB (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 12:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755055AbWL2ROB
+	id S1755056AbWL2RPW (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 12:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755042AbWL2RPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 12:14:01 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:57310 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755042AbWL2ROA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 12:14:00 -0500
-Date: Fri, 29 Dec 2006 18:13:11 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sergei Organov <osv@javad.com>
-cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: irq 4: nobody cared and I/O errors on serial ports.
-In-Reply-To: <874prfm42p.fsf@javad.com>
-Message-ID: <Pine.LNX.4.61.0612291808220.9799@yvahk01.tjqt.qr>
-References: <874prfm42p.fsf@javad.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 29 Dec 2006 12:15:22 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:20901 "EHLO
+	vms042pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755056AbWL2RPV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 12:15:21 -0500
+Date: Fri, 29 Dec 2006 09:15:05 -0800
+From: Martin Stoilov <mstoilov@odesys.com>
+Subject: Re: kobject_add unreachable code
+In-reply-to: <87k60azu8b.fsf@goat.bogus.local>
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <45954D19.5020905@odesys.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+References: <4594BA09.1080509@odesys.com> <87k60azu8b.fsf@goat.bogus.local>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Dec 29 2006 12:41, Sergei Organov wrote:
+Olaf Dietsche wrote:
+> Martin Stoilov <mstoilov@odesys.com> writes:
 >
->It seems that the kernel has some problems/races in opening/closing of
->serial ports. Simple C program below just opens/closes a port in a loop:
->[..]
->I've noticed 2 problems running this program. I run 2.6.19.1 smp kernel
->(I've also tested Debian 2.6.18.3 kernel, and it has the same issues) on
->hyper-threaded Pentium 4 CPU.
+>   
+>> The following code in kobject_add
+>>     if (!kobj->k_name)
+>>         kobj->k_name = kobj->name;
+>>     if (!kobj->k_name) {
+>>         pr_debug("kobject attempted to be registered with no name!\n");
+>>         WARN_ON(1);
+>>         return -EINVAL;
+>>     }
+>>
+>> doesn't look right to me. The second 'if' statement looks useless after
+>> the assignment in the first one. May be it was meant to be like:
+>> if (!*kobj->k_name)
+>>     
+>
+> The second test is true, if kobj->name is NULL as well.
+>   
+And how would that ever be true? kobj->name is a buffer inside kobj:
 
-Also happens on 2.6.18.5 on AMD AXP2000 (UP, CONFIG_SMP=y), standard 
-x86 pc serial port
-serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-00:09: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+struct kobject <http://localhost/lxr/http/ident?i=kobject> {
+	const char              * k_name;
+	char                    name <http://localhost/lxr/http/ident?i=name>[KOBJ_NAME_LEN <http://localhost/lxr/http/ident?i=KOBJ_NAME_LEN>];
 
->1. When I run the program, I begin to get "irq 4: nobody cared" in dmesg even
->   though the port is not connected (idle). Please find relevant part of dmesg
->   below.
+kobj->name will not be NULL, even if kobj itself is NULL.
 
-Running said program repeatedly produces one stack trace every 4 
-seconds (CONFIG_HZ=100). Maybe knowing this interval helps finding the 
-problem.
-[ 9545.167750] Disabling IRQ #4
-[ 9549.599704] Disabling IRQ #4
-[ 9554.034803] Disabling IRQ #4
-[ 9558.455093] Disabling IRQ #4
-[ 9562.876508] Disabling IRQ #4
+> Regards, Olaf.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>   
 
-
-	-`J'
--- 
+-Martin

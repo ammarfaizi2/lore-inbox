@@ -1,97 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755085AbWL2X0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755087AbWL2Xce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755085AbWL2X0Y (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 18:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755086AbWL2X0Y
+	id S1755087AbWL2Xce (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 18:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755089AbWL2Xcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 18:26:24 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:53186
-	"EHLO gnuppy.monkey.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755067AbWL2X0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 18:26:23 -0500
-Date: Fri, 29 Dec 2006 15:26:19 -0800
-To: "Chen, Tim C" <tim.c.chen@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: [PATCH] lock stat for -rt 2.6.20-rc2-rt2 [was Re: 2.6.19-rt14 slowdown compared to 2.6.19]
-Message-ID: <20061229232618.GA11239@gnuppy.monkey.org>
-References: <9D2C22909C6E774EBFB8B5583AE5291C019998CA@fmsmsx414.amr.corp.intel.com>
+	Fri, 29 Dec 2006 18:32:33 -0500
+Received: from THUNK.ORG ([69.25.196.29]:58460 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755083AbWL2Xcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 18:32:32 -0500
+Date: Fri, 29 Dec 2006 18:32:07 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
+       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro,
+       linux-ext4@vger.kernel.org
+Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
+Message-ID: <20061229233207.GA21461@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Segher Boessenkool <segher@kernel.crashing.org>,
+	David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+	kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ranma@tdiedrich.de, gordonfarquharson@gmail.com,
+	a.p.zijlstra@chello.nl, tbm@cyrius.com, arjan@infradead.org,
+	andrei.popa@i-neo.ro, linux-ext4@vger.kernel.org
+References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org> <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org> <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org> <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org> <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org> <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229141632.51c8c080.akpm@osdl.org> <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C019998CA@fmsmsx414.amr.corp.intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 26, 2006 at 04:51:21PM -0800, Chen, Tim C wrote:
-> Ingo Molnar wrote:
-> > If you'd like to profile this yourself then the lowest-cost way of
-> > profiling lock contention on -rt is to use the yum kernel and run the
-> > attached trace-it-lock-prof.c code on the box while your workload is
-> > in 'steady state' (and is showing those extended idle times):
-> > 
-> >   ./trace-it-lock-prof > trace.txt
->
-> Thanks for the pointer.  Will let you know of any relevant traces.
+On Fri, Dec 29, 2006 at 02:42:51PM -0800, Linus Torvalds wrote:
+> I think ext3 is terminally crap by now. It still uses buffer heads in 
+> places where it really really shouldn't, and as a result, things like 
+> directory accesses are simply slower than they should be. Sadly, I don't 
+> think ext4 is going to fix any of this, either.
 
-Tim,
-	http://mmlinux.sourceforge.net/public/patch-2.6.20-rc2-rt2.lock_stat.patch
+Not just ext3; ocfs2 is using the jbd layer as well.  I think we're
+going to have to put this (a rework of jbd2 to use the page cache) on
+the ext4 todo list, and work with the ocfs2 folks to try to come up
+with something that suits their needs as well.  Fortunately we have
+this filesystem/storage summit thing coming up in the next few months,
+and we can try to get some discussion going on the linux-ext4 mailing
+list in the meantime.  Unfortunately, I don't think this is going to
+be trivial.
 
-You can also apply this patch to get more precise statistics down to
-the lock. For example:
+If we do get this fixed for ext4, one interesting question is whether
+people would accept a patch to backport the fixes to ext3, given the
+the grief this is causing the page I/O and VM routines.  OTOH, reiser3
+probably has the same problems, and I suspect the changes to ext3 to
+cause it to avoid buffer heads, especially in order to support for
+filesystem blocksizes < pagesize, are going to be sufficiently risky
+in terms of introducing regressions to ext3 that they would probably
+be rejected on those grounds.  So unfortunately, we probably are going
+to have to support flushes via buffer heads for the foreseeable
+future.
 
-...
-
-	[50, 30, 279 :: 1, 0]		{tty_ldisc_try, -, 0}
-	[5, 5, 0 :: 19, 0]		{alloc_super, fs/super.c, 76}
-	[5, 5, 3 :: 1, 0]		{__free_pages_ok, -, 0}
-	[5728, 862, 156 :: 2, 0]		{journal_init_common, fs/jbd/journal.c, 667}
-	[594713, 79020, 4287 :: 60818, 0]		{inode_init_once, fs/inode.c, 193}
-	[602, 0, 0 :: 1, 0]		{lru_cache_add_active, -, 0}
-	[63, 5, 59 :: 1, 0]		{lookup_mnt, -, 0}
-	[6425, 378, 103 :: 24, 0]		{initialize_tty_struct, drivers/char/tty_io.c, 3530}
-	[6708, 1, 225 :: 1, 0]		{file_move, -, 0}
-	[67, 8, 15 :: 1, 0]		{do_lookup, -, 0}
-	[69, 0, 0 :: 1, 0]		{exit_mmap, -, 0}
-	[7, 0, 0 :: 1, 0]		{uart_set_options, drivers/serial/serial_core.c, 1876}
-	[76, 0, 0 :: 1, 0]		{get_zone_pcp, -, 0}
-	[7777, 5, 9 :: 1, 0]		{as_work_handler, -, 0}
-	[8689, 0, 0 :: 15, 0]		{create_workqueue_thread, kernel/workqueue.c, 474}
-	[89, 7, 6 :: 195, 0]		{sighand_ctor, kernel/fork.c, 1474}
-	@contention events = 1791177
-	@found = 21
-
-Is the output from /proc/lock_stat/contention. First column is the number
-of contention that will results in a full block of the task, second is the
-number of times the mutex owner is active on a per cpu run queue the
-scheduler and third is the number of times Steve Rostedt's ownership handoff
-code averted a full block. Peter Zijlstra used it initially during his
-files_lock work.
-
-Overhead of the patch is very low since it is only recording stuff in the
-slow path of the rt-mutex implementation.
-
-Writing to that file clears all of the stats for a fresh run with a
-benchmark. This should give a precise point at which any contention would
-happen in -rt. In general, -rt should do about as well as the stock kernel
-minus the overhead of interrupt threads.
-
-Since the last release, I've added checks for whether the task is running
-as "current" on a run queue to see if adaptive spins would be useful in -rt.
-
-These new stats show that only a small percentage of events would benefit
-from the use of adaptive spins in front of a rt- mutex. Any implementation
-of it would have little impact on the system. It's not the mechanism but
-the raw MP work itself that contributes to the good MP performance of Linux.
-
-Apply and have fun.
-
-bill
-
+						- Ted

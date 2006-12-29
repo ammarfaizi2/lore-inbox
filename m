@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965045AbWL2IxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965035AbWL2I4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWL2IxQ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 03:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWL2IxQ
+	id S965035AbWL2I4j (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 03:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWL2I4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 03:53:16 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:39152 "EHLO 2ka.mipt.ru"
+	Fri, 29 Dec 2006 03:56:38 -0500
+Received: from javad.com ([216.122.176.236]:1609 "EHLO javad.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965031AbWL2IxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 03:53:15 -0500
-Date: Fri, 29 Dec 2006 11:48:37 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Jamal Hadi Salim <hadi@cyberus.ca>
-Subject: Re: [take29 0/8] kevent: Generic event handling mechanism.
-Message-ID: <20061229084837.GA13816@2ka.mipt.ru>
-References: <3154985aa0591036@2ka.mipt.ru> <11668927001365@2ka.mipt.ru> <20061228155645.GA7516@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061228155645.GA7516@elte.hu>
-User-Agent: Mutt/1.5.9i
+	id S965035AbWL2I4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 03:56:37 -0500
+From: Sergei Organov <osv@javad.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: moxa serial driver testing
+References: <45222E7E.3040904@gmail.com> <87wt7hw97c.fsf@javad.com>
+	<4522ABC3.2000604@gmail.com> <878xjx6xtf.fsf@javad.com>
+	<4522B5C2.3050004@gmail.com> <87mz8borl2.fsf@javad.com>
+	<45251211.7010604@gmail.com> <87zmcaokys.fsf@javad.com>
+	<45254F61.1080502@gmail.com> <87vemyo9ck.fsf@javad.com>
+	<4af2d03a0610061355p5940a538pdcbd2cda249161e8@mail.gmail.com>
+	<87vemtnbyg.fsf@javad.com> <452A1862.9030502@gmail.com>
+	<87r6urket6.fsf@javad.com> <552766292581216610@wsc.cz>
+	<552766292581216610@wsc.cz> <554564654653216610@wsc.cz>
+	<87d564x7r0.fsf@javad.com> <459453E6.6020104@gmail.com>
+Date: Fri, 29 Dec 2006 11:56:23 +0300
+In-Reply-To: <459453E6.6020104@gmail.com> (Jiri Slaby's message of "Fri, 29
+	Dec 2006 00:31:27 +0059")
+Message-ID: <87zm97krm0.fsf@javad.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2006 at 04:56:45PM +0100, Ingo Molnar (mingo@elte.hu) wrote:
-> 
-> * Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> 
-> > Generic event handling mechanism.
-> 
-> it would be /very/ helpful to state against which kernel tree the 
-> patch-queue is. It does not apply to 2.6.20-rc1 nor to -rc2 nor to 
-> 2.6.19. At which point i gave up ...
+Jiri Slaby <jirislaby@gmail.com> writes:
 
-It was against 2.6.18 (d4397acde6fd047f13c744e5471a9bfe287f78a3) git.
-Next patchset with possibility to inject already read event and
-userspace reserved notifications will be against the latest tree (I will
-push it today before final New Year celebration started).
+[...]
 
-> 	Ingo
+>> # rmmod mxser_new
+>> Trying to free already-free IRQ 58
+>> Trying to free nonexistent resource <0000000000009000-000000000000903f>
+>> Trying to free nonexistent resource <0000000000008800-0000000000008800>
+>
+> Thanks, I'll fix this and let you know. Does this happed every time you try to
+> unload it?
 
--- 
-	Evgeniy Polyakov
+Yes, it's stable. Happens every time.
+
+-- Sergei.
+

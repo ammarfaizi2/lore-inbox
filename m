@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965152AbWL2UtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965159AbWL2Ut3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWL2UtS (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWL2UtS
+	id S965159AbWL2Ut3 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 15:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWL2Ut2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:49:18 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4032 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965152AbWL2UtR (ORCPT
+	Fri, 29 Dec 2006 15:49:28 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:60510 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965159AbWL2Ut1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:49:17 -0500
-Date: Fri, 29 Dec 2006 20:49:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ollie Wild <aaw@google.com>, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-arch@vger.kernel.org, David Howells <dhowells@redhat.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: [patch] remove MAX_ARG_PAGES
-Message-ID: <20061229204904.GI20596@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, Ollie Wild <aaw@google.com>,
-	linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org,
-	Linus Torvalds <torvalds@osdl.org>,
-	Arjan van de Ven <arjan@infradead.org>, linux-mm@kvack.org,
-	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-	linux-arch@vger.kernel.org, David Howells <dhowells@redhat.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>
-References: <65dd6fd50610101705t3db93a72sc0847cd120aa05d3@mail.gmail.com> <1160572460.2006.79.camel@taijtu> <65dd6fd50610111448q7ff210e1nb5f14917c311c8d4@mail.gmail.com> <65dd6fd50610241048h24af39d9ob49c3816dfe1ca64@mail.gmail.com> <20061229200357.GA5940@elte.hu>
-Mime-Version: 1.0
+	Fri, 29 Dec 2006 15:49:27 -0500
+To: Martin Stoilov <mstoilov@odesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kobject_add unreachable code
+References: <4594BA09.1080509@odesys.com> <87k60azu8b.fsf@goat.bogus.local>
+	<45954D19.5020905@odesys.com> <45955217.5050405@odesys.com>
+From: Olaf Dietsche <olaf.dietsche@olafdietsche.de>
+Date: Fri, 29 Dec 2006 21:49:18 +0100
+In-Reply-To: <45955217.5050405@odesys.com> (Martin Stoilov's message of
+ "Fri, 29 Dec 2006 09:36:23 -0800")
+Message-ID: <87bqlmzaup.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Constant Variable,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061229200357.GA5940@elte.hu>
-User-Agent: Mutt/1.4.2.1i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2006 at 09:03:57PM +0100, Ingo Molnar wrote:
-> FYI, i have forward ported your MAX_ARG_PAGES limit removal patch to 
-> 2.6.20-rc2 and have included it in the -rt kernel. It's working great - 
-> i can now finally do a "ls -t patches/*.patch" in my patch repository - 
-> something i havent been able to do for years ;-)
+Martin Stoilov <mstoilov@odesys.com> writes:
 
-How do the various autoconf stuff react to this?  Eg, I notice the
-following in various configure scripts:
+> Martin Stoilov wrote:
+>> Olaf Dietsche wrote:
+>>   
+>>> Martin Stoilov <mstoilov@odesys.com> writes:
+>>>
+>>>   
+>>>     
+>>>> The following code in kobject_add
+>>>>     if (!kobj->k_name)
+>>>>         kobj->k_name = kobj->name;
+>>>>     if (!kobj->k_name) {
+>>>>         pr_debug("kobject attempted to be registered with no name!\n");
+>>>>         WARN_ON(1);
+>>>>         return -EINVAL;
+>>>>     }
+>>>>
+>>>> doesn't look right to me. The second 'if' statement looks useless after
+>>>> the assignment in the first one. May be it was meant to be like:
+>>>> if (!*kobj->k_name)
+>>>>     
+>>>>       
+>>> The second test is true, if kobj->name is NULL as well.
+>>>   
+>>>     
+>> And how would that ever be true? kobj->name is a buffer inside kobj:
+>>
+>> struct kobject <http://localhost/lxr/http/ident?i=kobject> {
+>> 	const char              * k_name;
+>> 	char                    name <http://localhost/lxr/http/ident?i=name>[KOBJ_NAME_LEN <http://localhost/lxr/http/ident?i=KOBJ_NAME_LEN>];
+>>
+>> kobj->name will not be NULL, even if kobj itself is NULL.
+>>   
+>
+> Oops, I am sorry for sending badly formated text! Here it is:
+>
+> I don't understand how would that ever be true? kobj->name is a buffer inside kobj:
+>
+> struct kobject {
+>     const char      * k_name;
+>     char            name[KOBJ_NAME_LEN];
+>
+> kobj->name will not be NULL, even if kobj itself is NULL.
 
-checking the maximum length of command line arguments... 32768
+Shame on me! I just looked at kobject_add() without a clue about struct
+kobject. You're right, of course.
 
-Suggest you test (eg) a rebuild of libX11 to see how it reacts to
-this patch.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Regards, Olaf.

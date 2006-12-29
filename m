@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754954AbWL2Pmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755020AbWL2PpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754954AbWL2Pmz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 10:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754985AbWL2Pmz
+	id S1755020AbWL2PpV (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 10:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755024AbWL2PpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 10:42:55 -0500
-Received: from smtp0.telegraaf.nl ([217.196.45.192]:60705 "EHLO
-	smtp0.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754954AbWL2Pmy (ORCPT
+	Fri, 29 Dec 2006 10:45:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36770 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755013AbWL2PpU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 10:42:54 -0500
-Date: Fri, 29 Dec 2006 16:42:51 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 7505] Linux-2.6.18 fails to boot on AMD64 machine
-Message-ID: <20061229154251.GR912@telegraafnet.nl>
-References: <117E3EB5059E4E48ADFF2822933287A401F2EB70@pdsmsx404.ccr.corp.intel.com> <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org> <20061222144134.GH31882@telegraafnet.nl> <20061222154234.GI31882@telegraafnet.nl> <20061228155148.f5469729.akpm@osdl.org> <20061229125108.GK912@telegraafnet.nl> <20061229132759.GL912@telegraafnet.nl> <20061229141058.GM912@telegraafnet.nl> <20061229150132.GN912@telegraafnet.nl>
+	Fri, 29 Dec 2006 10:45:20 -0500
+Subject: Re: KVM ... bypass BIOS check for VT?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
+References: <b6a2187b0612290714g4ce65aa2n82752ae73e651a38@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 29 Dec 2006 16:45:18 +0100
+Message-Id: <1167407118.20929.278.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061229150132.GN912@telegraafnet.nl>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-On Fri, Dec 29, 2006 at 04:01:32PM +0100, Ard -kwaak- van Breemen wrote:
-> On Fri, Dec 29, 2006 at 03:10:58PM +0100, Ard -kwaak- van Breemen wrote:
-> > Preliminary patches:
-> > - pci fix of Andrews patches
-> The printk might be too verbose. I think removing them is ok
+On Fri, 2006-12-29 at 23:14 +0800, Jeff Chua wrote:
+> I'm resending this under KVM as a subject and hope to get response.
+> 
+> kvm: disabled by bios
+> 
+> I know this has been asked before and the answer was no. Does it still
+> stand or is there a way to bypass the bios? I'm using Lenovo X60s and
+> there's no option to enable VT in the BIOS setup.
 
-I stick with the verbose printk. Because else we will never know
-that something is faul.
+I don't think there is a generic way that works.
+(rationale: the bios really has to support VT, for example it has to
+load the right microcode into the cpu etc)
 
-> since the only thing that has happened is that it prevents
-> entering the loop and the semaphores. The only thing that bugs me
-> is if list_empty can be used like that. (in other words: don't we
-> need semaphores around that).
+Not ruling out that specific machines may be able to force it, but
+that's more luck than a general solution if that's the case.
 
-I was wondering about the validity of pci_devices at that time.
-But on the other hand: if that was not wrong, people would have
-complained much earlier.
+(fwiw the linux-ready firmware developer kit now has a test for
+vt-enabling so with some luck more bioses will have this right in the
+future)
 
-Anyway, I think that's it: those 3 patches will fix and guard the
-problems we've seen.
+Greetings,
+   Arjan van de Ven
 
 -- 
-program signature;
-begin  { telegraaf.com
-} writeln("<ard@telegraafnet.nl> TEM2");
-end
-.
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965156AbWL2UpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965152AbWL2UtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965156AbWL2UpM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 15:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWL2UpL
+	id S965152AbWL2UtS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 15:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWL2UtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 15:45:11 -0500
-Received: from main.gmane.org ([80.91.229.2]:55400 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965156AbWL2UpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 15:45:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ritesh Raj Sarraf <rrs@researchut.com>
-Subject: select() to /dev/rtc to wait for clock tick timed out
-Date: Sat, 30 Dec 2006 01:11:25 +0530
-Organization: RESEARCHUT
-Message-ID: <6k7g64-ln8.ln1@www.researchut.com>
+	Fri, 29 Dec 2006 15:49:18 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4032 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965152AbWL2UtR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 15:49:17 -0500
+Date: Fri, 29 Dec 2006 20:49:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ollie Wild <aaw@google.com>, linux-kernel@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       linux-arch@vger.kernel.org, David Howells <dhowells@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: [patch] remove MAX_ARG_PAGES
+Message-ID: <20061229204904.GI20596@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, Ollie Wild <aaw@google.com>,
+	linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org,
+	Linus Torvalds <torvalds@osdl.org>,
+	Arjan van de Ven <arjan@infradead.org>, linux-mm@kvack.org,
+	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+	linux-arch@vger.kernel.org, David Howells <dhowells@redhat.com>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>
+References: <65dd6fd50610101705t3db93a72sc0847cd120aa05d3@mail.gmail.com> <1160572460.2006.79.camel@taijtu> <65dd6fd50610111448q7ff210e1nb5f14917c311c8d4@mail.gmail.com> <65dd6fd50610241048h24af39d9ob49c3816dfe1ca64@mail.gmail.com> <20061229200357.GA5940@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 203.187.253.248
-User-Agent: KNode/0.10.4
+Content-Disposition: inline
+In-Reply-To: <20061229200357.GA5940@elte.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Dec 29, 2006 at 09:03:57PM +0100, Ingo Molnar wrote:
+> FYI, i have forward ported your MAX_ARG_PAGES limit removal patch to 
+> 2.6.20-rc2 and have included it in the -rt kernel. It's working great - 
+> i can now finally do a "ls -t patches/*.patch" in my patch repository - 
+> something i havent been able to do for years ;-)
 
-I have a Dell XPS M1210 notebook with 2.6.18 running on it.
+How do the various autoconf stuff react to this?  Eg, I notice the
+following in various configure scripts:
 
-I've noticed that a recent BIOS upgrade (A03 -> A05) has started giving me this
-message on system boot when hwclock runs.
+checking the maximum length of command line arguments... 32768
 
-select() to /dev/rtc to wait for clock tick timed out
+Suggest you test (eg) a rebuild of libX11 to see how it reacts to
+this patch.
 
-My machine has a dual-core Intel processor.
-
-A quick search revealed a workaround for hwclock to use the --directisa option.
-Also this bug seems to be generic to dual-core Intel processors as many other
-people also are facing the same issue on servers/desktops/laptops.
-
-Thanks,
-Ritesh
 -- 
-Ritesh Raj Sarraf
-RESEARCHUT - http://www.researchut.com
-"Necessity is the mother of invention."
-"Stealing logic from one person is plagiarism, stealing from many is research."
-"The great are those who achieve the impossible, the petty are those who
-cannot - rrs"
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

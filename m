@@ -1,83 +1,120 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965228AbWL3Ava@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965232AbWL3Avm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965228AbWL3Ava (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 19:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755129AbWL3Av3
+	id S965232AbWL3Avm (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 19:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWL3Avm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 19:51:29 -0500
-Received: from userg501.nifty.com ([202.248.238.81]:41368 "EHLO
-	userg501.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755126AbWL3Av2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 19:51:28 -0500
-DomainKey-Signature: a=rsa-sha1; s=userg501; d=nifty.com; c=simple; q=dns;
-	b=kUCNZnrKPO3hI6Cia2dJHspQzGmjbcEJ6jFViO8X89LD8da2hlCmcmCK8DRgmxIjs
-	gLmqrmJksWzQ3Lk9xIZ9g==
-Date: Sat, 30 Dec 2006 18:50:43 +0900
-From: Komuro <komurojun-mbn@nifty.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: jgarzik@pobox.com, Al Viro <viro@ftp.linux.org.uk>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       yoshfuji@linux-ipv6.org, davem@davemloft.net
-Subject: Re: [BUG KERNEL 2.6.20-rc1]  ftp: get or put stops during
- file-transfer
-Message-Id: <20061230185043.d31d2104.komurojun-mbn@nifty.com>
-In-Reply-To: <20061218030113.GT10316@stusta.de>
-References: <20061217212752.d93816b4.komurojun-mbn@nifty.com>
-	<20061217040222.GD17561@ftp.linux.org.uk>
-	<20061217232311.f181302f.komurojun-mbn@nifty.com>
-	<20061218030113.GT10316@stusta.de>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Dec 2006 19:51:42 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:36953 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965229AbWL3Avk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 19:51:40 -0500
+Date: Fri, 29 Dec 2006 16:50:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Theodore Tso <tytso@mit.edu>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
+       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro,
+       linux-ext4@vger.kernel.org
+Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
+In-Reply-To: <20061229160520.e498789f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612291633500.4473@woody.osdl.org>
+References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
+ <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
+ <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
+ <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
+ <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
+ <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229141632.51c8c080.akpm@osdl.org>
+ <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org> <20061229233207.GA21461@thunk.org>
+ <20061229160520.e498789f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I investigated the ftp-file-transfer-stop problem by git-bisect method,
-and found this problem was introduced by
-"[TCP]: MD5 Signature Option (RFC2385) support" patch.
-
-Mr.YOSHIFUJI san, please fix this problem.
-
->commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
->Author: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
->Date:   Tue Nov 14 19:07:45 2006 -0800
->
->    [TCP]: MD5 Signature Option (RFC2385) support.
->    
->    Based on implementation by Rick Payne.
->    
->    Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
->    Signed-off-by: David S. Miller <davem@davemloft.net>
-
-Best Regards
-Komuro
 
 
-> On Sun, Dec 17, 2006 at 11:23:11PM +0900, Komuro wrote:
-> > On Sun, 17 Dec 2006 04:02:22 +0000
-> > Al Viro <viro@ftp.linux.org.uk> wrote:
-> > 
-> > > On Sun, Dec 17, 2006 at 09:27:52PM +0900, Komuro wrote:
-> > > > 
-> > > > Hello,
-> > > > 
-> > > > On kernel 2.6.20-rc1, ftp (get or put) stops
-> > > > during file-transfer.
-> > > > 
-> > > > Client: ftp-0.17-33.fc6  (192.168.1.1)
-> > > > Server: vsftpd-2.0.5-8   (192.168.1.3)
-> > > > 
-> > > > This problem does _not_ happen on kernel-2.6.19.
-> > > > is it caused by network-subsystem change on 2.6.20-rc1??
-> > > 
-> > > Do you have NAT between you and server?
-> > 
-> > No. I don't have NAT between the client and the server.
-> > Actually, the client and the sever is located in same room.
-> > 
-> > client -- 100MbpsHub -- server.
+On Fri, 29 Dec 2006, Andrew Morton wrote:
+> 
+> Adam Richter spent considerable time a few years ago trying to make the
+> mpage code go direct-to-BIO in all cases and we eventually gave up.  The
+> conceptual layering of page<->blocks<->bio is pretty clean, and it is hard
+> and ugly to fully optimise away the "block" bit in the middle.
 
+Using the buffer cache as a translation layer to the physical address is 
+fine. That's what _any_ block device will do.
+
+I'm not at all sayign that "buffer heads must go away". They work fine.
+
+What I'm saying is that
+
+ - if you index by buffer heads, you're screwed.
+ - if you do IO by starting at buffer heads, you're screwed.
+
+Both indexing and writeback decisions should be done at the page cache 
+layer. Then, when you actually need to do IO, you look at the buffers. But 
+you start from the "page". YOU SHOULD NEVER LOOK UP a buffer on its own 
+merits, and YOU SHOULD NEVER DO IO on a buffer head on its own cognizance.
+
+So by all means keep the buffer heads as a way to keep the 
+"virtual->physical" translation. It's what they were designed for. But 
+they were _originally_ also designed for "lookup" and "driving the start 
+of IO", and that is wrong, and has been wrong for a long time now, because
+
+ - lookup based on physical address is fundamentally slow and inefficient. 
+   You have to look up the virtual->physical translation somewhere else, 
+   so it's by design an unnecessary indirection _and_ that "somewere 
+   else" is also by definition filesystem-specific, so you can't do any 
+   of these things at the VFS layer.
+
+   Ergo: anything that needs to look up the physical address in order to 
+   find the buffer head is BROKEN in this day and age. We look up the 
+   _virtual_ page cache page, and then we can trivially find the buffer 
+   heads within that page thanks to page->buffers.
+
+   Example: ext2 vs ext3 readdir. One of them sucks, the other doesn't. 
+
+ - starting IO based on the physical entity is insane. It's insane exactly 
+   _because_ the VM doesn't actually think in physical addresses, or in 
+   buffer-sized blocks. The VM only really knows about whole pages, and 
+   all the VM decisions fundamentally have to be page-based. We don't ever 
+   "free a buffer". We free a whole page, and as such, doing writeback 
+   based on buffers is pointless, because it doesn't actually say anything 
+   about the "page state" which is what the VM tracks.
+
+But neither of these means that "buffer_head" itself has to go away. They 
+both really boil down to the same thing: you should never KEY things by 
+the buffer head. All actions should be based on virtual indexes as far as 
+at all humanly possible.
+
+Once you do lookup and locking and writeback _starting_ from the page, 
+it's then easy to look up the actual buffer head within the page, and use 
+that as a way to do the actual _IO_ on the physical address. So the buffer 
+heads still exist in ext2, for example, but they don't drive the show 
+quite as much.
+
+(They still do in some areas: the allocation bitmaps, the xattr code etc. 
+But as long as none of those have big VM footprints, and as long as no 
+_common_ operations really care deeply, and as long as those data 
+structures never need to be touched by the VM or VFS layer, nobody will 
+ever really care).
+
+The directory case comes up just because "readdir()" actually is very 
+common, and sometimes very slow. And it can have a big VM working set 
+footprint ("find"), so trying to be page-based actually really helps, 
+because it all drives things like writeback on the _right_ issues, and we 
+can do things like LRU's and writeback decisions on the level that really 
+matters.
+
+I actually suspect that the inode tables could benefit from being in the 
+page cache too (although I think that the inode buffer address is actually 
+"physical", so there's no indirection for inode tables, which means that 
+the virtual vs physical addressing doesn't matter). For directories, there 
+definitely is a big cost to continually doing the virtual->physical 
+translation all the time.
+
+		Linus

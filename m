@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030206AbWL3CKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030214AbWL3CP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWL3CKJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 21:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWL3CKJ
+	id S1030214AbWL3CP4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 21:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWL3CP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 21:10:09 -0500
-Received: from main.gmane.org ([80.91.229.2]:36001 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030206AbWL3CKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 21:10:07 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Adam Megacz <megacz@cs.berkeley.edu>
-Subject: Re: OpenAFS gatekeepers request addition of AFS_SUPER_MAGIC to
- magic.h
-Date: Fri, 29 Dec 2006 18:09:27 -0800
-Organization: Myself
-Message-ID: <x3wt4a16eg.fsf@nowhere.com>
-References: <x3fyay2r4z.fsf@nowhere.com> <20061230004542.GJ24675@kenobi.snowman.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 216.237.119.187
-X-Home-Page: http://www.megacz.com/
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:nY2E+3951kRl4HSCqmtkKnVoVKk=
+	Fri, 29 Dec 2006 21:15:56 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:42908 "EHLO
+	relais.videotron.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030214AbWL3CPz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 21:15:55 -0500
+Date: Fri, 29 Dec 2006 21:15:54 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
+In-reply-to: <200612281247.36869.david-b@pacbell.net>
+X-X-Sender: nico@xanadu.home
+To: David Brownell <david-b@pacbell.net>
+Cc: pHilipp Zabel <philipp.zabel@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Victor <andrew@sanpeople.com>,
+       Bill Gatliff <bgat@billgatliff.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>,
+       Kevin Hilman <khilman@mvista.com>, Russell King <rmk@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>
+Message-id: <Pine.LNX.4.64.0612292107580.18171@xanadu.home>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <200611111541.34699.david-b@pacbell.net>
+ <Pine.LNX.4.64.0612211457390.18171@xanadu.home>
+ <74d0deb30612212253s7d35cf92q80bbebe9d8ae9476@mail.gmail.com>
+ <200612281247.36869.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Dec 2006, David Brownell wrote:
 
-Drat.  Diffed in the wrong direction.  Yes, you're right.
+> Phillip:  is this the final version, then?  It's missing
+> a signed-off-by line, so I can't do anything appropriate.
+> 
+> Nico, your signoff here would be a Good Thing too if it
+> meets your technical review.  (My only comment, ISTR, was
+> that gpio_set_value macro should probably test for whether
+> the value is a constant too, not just the gpio pin.)
 
-  - a
+I don't think so.  Expansion of GPIO_bit(x) is pretty simple even if x 
+is not constant.  That probably makes it still less costly than a 
+function call.
 
-Stephen Frost <sfrost@snowman.net> writes:
-> * Adam Megacz (megacz@cs.berkeley.edu) wrote:
->> --- include/linux/magic.h       2006-12-29 15:48:50.000000000 -0800
->> +++ include/linux/magic.h       2006-11-29 13:57:37.000000000 -0800
->> @@ -3,7 +3,6 @@
->>  
->>  #define ADFS_SUPER_MAGIC       0xadf5
->>  #define AFFS_SUPER_MAGIC       0xadff
->> -#define AFS_SUPER_MAGIC                0x5346414F
->>  #define AUTOFS_SUPER_MAGIC     0x0187
->>  #define CODA_SUPER_MAGIC       0x73757245
->>  #define EFS_SUPER_MAGIC                0x414A53
->
-> Wouldn't you want a patch which *adds* it, rather than one which
-> *removes* it...?
->
-> 	Thanks,
->
-> 		Stephen
 
--- 
-PGP/GPG: 5C9F F366 C9CF 2145 E770  B1B8 EFB1 462D A146 C380
-
+Nicolas

@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755121AbWL3AeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755124AbWL3Apn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755121AbWL3AeU (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 19:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755122AbWL3AeU
+	id S1755124AbWL3Apn (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 19:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755126AbWL3Apn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 19:34:20 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36234 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755106AbWL3AeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 19:34:19 -0500
-Date: Fri, 29 Dec 2006 16:33:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-Message-Id: <20061229163316.020fcda1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612291559540.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
-	<20061228114517.3315aee7.akpm@osdl.org>
-	<Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
-	<20061228.143815.41633302.davem@davemloft.net>
-	<3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
-	<Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
-	<Pine.LNX.4.64.0612290202350.4473@woody.osdl.org>
-	<20061229141632.51c8c080.akpm@osdl.org>
-	<Pine.LNX.4.64.0612291431200.4473@woody.osdl.org>
-	<20061229155118.3feb0c17.akpm@osdl.org>
-	<Pine.LNX.4.64.0612291559540.4473@woody.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Dec 2006 19:45:43 -0500
+Received: from kenobi.snowman.net ([70.84.9.186]:57574 "EHLO
+	kenobi.snowman.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755124AbWL3Apn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 19:45:43 -0500
+Date: Fri, 29 Dec 2006 19:45:42 -0500
+From: Stephen Frost <sfrost@snowman.net>
+To: Adam Megacz <megacz@cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OpenAFS gatekeepers request addition of AFS_SUPER_MAGIC to magic.h
+Message-ID: <20061230004542.GJ24675@kenobi.snowman.net>
+Mail-Followup-To: Adam Megacz <megacz@cs.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+References: <x3fyay2r4z.fsf@nowhere.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aExbj4quxJ/WWgx4"
+Content-Disposition: inline
+In-Reply-To: <x3fyay2r4z.fsf@nowhere.com>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.6.16-2-vserver-686 (i686)
+X-Uptime: 19:45:13 up 103 days, 54 min, 18 users,  load average: 0.35, 0.50, 0.40
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Dec 2006 16:11:44 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
 
-> 
-> 
-> > JBD implements physical block-based journalling, so it is 100% appropriate
-> > that JBD deal with these disk blocks using their buffer_head
-> > representation.
-> 
-> And as long as it does that, you just have to face the fact that it's 
-> going to perform like crap, including what you call "extra" writes, and 
-> what I call "deal with it".
+--aExbj4quxJ/WWgx4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is quite tiresome to delete things which your interlocutor said and to
-then restate them as if it were some sort of relevation.
+* Adam Megacz (megacz@cs.berkeley.edu) wrote:
+> --- include/linux/magic.h       2006-12-29 15:48:50.000000000 -0800
+> +++ include/linux/magic.h       2006-11-29 13:57:37.000000000 -0800
+> @@ -3,7 +3,6 @@
+> =20
+>  #define ADFS_SUPER_MAGIC       0xadf5
+>  #define AFFS_SUPER_MAGIC       0xadff
+> -#define AFS_SUPER_MAGIC                0x5346414F
+>  #define AUTOFS_SUPER_MAGIC     0x0187
+>  #define CODA_SUPER_MAGIC       0x73757245
+>  #define EFS_SUPER_MAGIC                0x414A53
 
-> > Somewhat nastily, but as ext3 directories are metadata it is appropriate
-> > that modifications to them be done in terms of buffer_heads (ie: blocks).
-> 
-> No. There is nothing "appropriate" about using buffer_heads for metadata. 
+Wouldn't you want a patch which *adds* it, rather than one which
+*removes* it...?
 
-I said "modification".
+	Thanks,
 
-> [stuff about directory reads elided]
+		Stephen
 
+--aExbj4quxJ/WWgx4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFlba2rzgMPqB3kigRAn+mAJ9cFsoAGEGUDpQphddmgkarj2M9YACfQnc2
+HpmJPlvfNKUcI40sb2rPbr4=
+=bxs/
+-----END PGP SIGNATURE-----
+
+--aExbj4quxJ/WWgx4--

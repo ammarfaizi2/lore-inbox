@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030328AbWL3UPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030337AbWL3U2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbWL3UPw (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 15:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbWL3UPw
+	id S1030337AbWL3U2D (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 15:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWL3U2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 15:15:52 -0500
-Received: from smtp1.telegraaf.nl ([217.196.45.193]:51395 "EHLO
-	smtp1.telegraaf.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030331AbWL3UPv (ORCPT
+	Sat, 30 Dec 2006 15:28:03 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:39046 "EHLO uludag.org.tr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030334AbWL3U2B convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 15:15:51 -0500
-Date: Sat, 30 Dec 2006 21:15:48 +0100
-From: Ard -kwaak- van Breemen <ard@telegraafnet.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yinghai Lu <yinghai.lu@amd.com>, take@libero.it, agalanin@mera.ru,
-       linux-kernel@vger.kernel.org, bugme-daemon@bugzilla.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 2.6.20-rc2-git1] PCI: prevent down_read when pci_devices is empty
-Message-ID: <20061230201548.GV912@telegraafnet.nl>
-References: <20061222082248.GY31882@telegraafnet.nl> <20061222003029.4394bd9a.akpm@osdl.org> <20061222144134.GH31882@telegraafnet.nl> <20061222154234.GI31882@telegraafnet.nl> <20061228155148.f5469729.akpm@osdl.org> <20061229125108.GK912@telegraafnet.nl> <20061229132759.GL912@telegraafnet.nl> <20061229141058.GM912@telegraafnet.nl> <20061229150132.GN912@telegraafnet.nl> <20061229154251.GR912@telegraafnet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Dec 2006 15:28:01 -0500
+From: Ismail =?utf-8?q?D=C3=B6nmez?= <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: No sound in KDE with intel hda since 2.6.20-rc1
+Date: Sat, 30 Dec 2006 22:27:46 +0200
+User-Agent: KMail/1.9.5
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-sound@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+       PeiSen Hou <pshou@realtek.com.tw>
+References: <200612301844.02413.s0348365@sms.ed.ac.uk> <20061230191123.GA4352@mellanox.co.il> <200612301919.06949.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200612301919.06949.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061229154251.GR912@telegraafnet.nl>
-User-Agent: Mutt/1.5.9i
-X-telegraaf-MailScanner-From: ard@telegraafnet.nl
+Message-Id: <200612302227.48097.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pci_find_subsys gets called very early by obsolete ide setup
-parameters.  This is a bogus call since pci is not initialized
-yet, so the list is empty.  But in the mean time, interrupts get
-enabled by down_read. This can result in a kernel panic when the
-irq controller gets initialized.
-This patch checks if the device list is empty before taking the
-semaphore, and hence will not enable irq's. Furthermore it will
-inform that it is called while pci_devices is empty as a reminder
-that the ide code needs to be fixed.
-The pci_get_subsys can get called in the same manner, and as such
-is patched in the same manner.
+30 Ara 2006 Cts 21:19 tarihinde şunları yazmıştınız:
+> On Saturday 30 December 2006 19:11, Michael S. Tsirkin wrote:
+> > > On Friday 29 December 2006 06:25, Michael S. Tsirkin wrote:
+> > > > Virtual MIDI Card 1
+> > >
+> > > Compile this feature out, I bet things start working again.
+> >
+> > Yes, this helped, thanks.
+> > BTW, is this expected?
+>
+> It's a severe "misfeature" in my opinion that caused me problems years ago.
+> The first soundcard becomes "default", which can probably be overridden in
+> many different ways.
+>
+> However, I really think a hack should be put in to prevent "virtual MIDI"
+> from ever being in the first slot, it's just a bug asking to happen.
 
-Signed-off-by: Ard van Breemen <ard@telegraafnet.nl>
-----
-This patch is an adaption of Andrew Mortons patch.
+So should we enable Virtual MIDI in kernel config? Since I have it off and 
+aRts have no sound with ALSA backend.
 
---- linux-2.6.19.vanilla/drivers/pci/search.c	2006-11-29 21:57:37.000000000 +0000
-+++ linux-2.6.19.ok/drivers/pci/search.c	2006-12-29 15:38:18.000000000 +0000
-@@ -193,6 +193,17 @@ static struct pci_dev * pci_find_subsys(
- 	struct pci_dev *dev;
- 
- 	WARN_ON(in_interrupt());
-+
-+	/*
-+	 * pci_find_subsys() can be called on the ide_setup() path, super-early
-+	 * in boot.  But the down_read() will enable local interrupts, which
-+	 * can cause some machines to crash.  So here we detect and flag that
-+	 * situation and bail out early.
-+	 */
-+	if(unlikely(list_empty(&pci_devices))) {
-+		printk(KERN_INFO "pci_find_subsys() called while pci_devices is still empty\n");
-+		return NULL;
-+	}
- 	down_read(&pci_bus_sem);
- 	n = from ? from->global_list.next : pci_devices.next;
- 
-@@ -259,6 +270,16 @@ pci_get_subsys(unsigned int vendor, unsi
- 	struct pci_dev *dev;
- 
- 	WARN_ON(in_interrupt());
-+	/*
-+	 * pci_get_subsys() can potentially be called by drivers super-early
-+	 * in boot.  But the down_read() will enable local interrupts, which
-+	 * can cause some machines to crash.  So here we detect and flag that
-+	 * situation and bail out early.
-+	 */
-+	if(unlikely(list_empty(&pci_devices))) {
-+		printk(KERN_NOTICE "pci_get_subsys() called while pci_devices is still empty\n");
-+		return NULL;
-+	}
- 	down_read(&pci_bus_sem);
- 	n = from ? from->global_list.next : pci_devices.next;
- 
+Regards,
+ismail
+
+-- 
+2 + 2 = 5 for very large values of 2

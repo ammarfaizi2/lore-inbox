@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965088AbWL3S2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965231AbWL3ScM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbWL3S2x (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 13:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWL3S2x
+	id S965231AbWL3ScM (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 13:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWL3ScM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 13:28:53 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:1920 "EHLO
-	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965088AbWL3S2w (ORCPT
+	Sat, 30 Dec 2006 13:32:12 -0500
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:1263 "EHLO
+	mcr-smtp-001.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965231AbWL3ScL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 13:28:52 -0500
+	Sat, 30 Dec 2006 13:32:11 -0500
 X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
 From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
+To: James Courtier-Dutton <James@superbug.co.uk>
 Subject: Re: Oops in 2.6.19.1
-Date: Sat, 30 Dec 2006 18:29:15 +0000
+Date: Sat, 30 Dec 2006 18:32:37 +0000
 User-Agent: KMail/1.9.5
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-References: <200612301224_MC3-1-D6C5-9FCD@compuserve.com>
-In-Reply-To: <200612301224_MC3-1-D6C5-9FCD@compuserve.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
+References: <200612201550_MC3-1-D5C7-74C6@compuserve.com> <4596AAA5.9020506@superbug.co.uk>
+In-Reply-To: <4596AAA5.9020506@superbug.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612301829.15980.s0348365@sms.ed.ac.uk>
+Message-Id: <200612301832.37373.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 December 2006 17:21, Chuck Ebbert wrote:
-> In-Reply-To: <200612301659.35982.s0348365@sms.ed.ac.uk>
+On Saturday 30 December 2006 18:06, James Courtier-Dutton wrote:
+> > I'd guess you have some kind of hardware problem.  It could also be
+> > a kernel problem where the saved address was corrupted during an
+> > interrupt, but that's not likely.
 >
-> On Sat, 30 Dec 2006 16:59:35 +0000, Alistair John Strachan wrote:
-> > I've eliminated 2.6.19.1 as the culprit, and also tried toggling
-> > "optimize for size", various debug options. 2.6.19 compiled with GCC
-> > 4.1.1 on an Via Nehemiah C3-2 seems to crash in pipe_poll reliably,
-> > within approximately 12 hours.
->
-> Which CPU are you compiling for?  You should try different options.
+> This looks rather strange.
+[snip]
 
-I should, I haven't thought of that. Currently it's compiling for 
-CONFIG_MVIAC3_2, but I could try i686 for example.
+> 2) Kernel modules compiled with different gcc than rest of kernel.
 
-> Can you post disassembly of pipe_poll() for both the one that crashes
-> and the one that doesn't?  Use 'objdump -D -r fs/pipe.o' so we get the
-> relocation info and post just the one function from each for now.
+Previously there was only one GCC version (4.1.1 totally replaced 3.4.3, and 
+is the system wide GCC), now I have installed 3.4.6 into /opt/gcc-3.4.6 and 
+it is only PATH'ed explicitly by me when I wish to compile a kernel using it:
 
-Sure, no problem:
+export PATH=/opt/gcc-3.4.6/bin:$PATH
+cp /boot/config-2.6.19-test .config
+make oldconfig
+make
 
-http://devzero.co.uk/~alistair/2.6.19-via-c3-pipe_poll/
+> 3) kernel headers do not match the kernel being used.
 
-Both use identical configs, neither are optimised for size. The config is 
-available from the same location.
+The tree is a pristine 2.6.19.
+
+> One way to start tracking this down would be to run it with the fewest
+> amount of kernel modules loaded as one can, but still reproduce the
+> problem.
+
+Crippling the machine, though. Impractical for something that isn't 
+immediately reproducible.
 
 -- 
 Cheers,

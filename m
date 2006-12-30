@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030358AbWL3WK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754431AbWL3WOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbWL3WK3 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 17:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWL3WK3
+	id S1754431AbWL3WOd (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 17:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbWL3WOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 17:10:29 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:50724 "EHLO uludag.org.tr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1030355AbWL3WK2 convert rfc822-to-8bit (ORCPT
+	Sat, 30 Dec 2006 17:14:33 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:39816 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754426AbWL3WOc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 17:10:28 -0500
-From: Ismail =?utf-8?q?D=C3=B6nmez?= <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: No sound in KDE with intel hda since 2.6.20-rc1
-Date: Sun, 31 Dec 2006 00:10:14 +0200
-User-Agent: KMail/1.9.5
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-sound@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-       PeiSen Hou <pshou@realtek.com.tw>
-References: <200612302227.48097.ismail@pardus.org.tr> <20061230204527.GB4338@mellanox.co.il>
-In-Reply-To: <20061230204527.GB4338@mellanox.co.il>
+	Sat, 30 Dec 2006 17:14:32 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Sat, 30 Dec 2006 17:08:53 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Denis Vlasenko <vda.linux@googlemail.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+In-Reply-To: <200612302149.35752.vda.linux@googlemail.com>
+Message-ID: <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
+ <200612302149.35752.vda.linux@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612310010.16261.ismail@pardus.org.tr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-30 Ara 2006 Cts 22:45 tarihinde, Michael S. Tsirkin şunları yazmıştı: 
-> > > > > > Virtual MIDI Card 1
-> > > > >
-> > > > > Compile this feature out, I bet things start working again.
-> > > >
-> > > > Yes, this helped, thanks.
-> > > > BTW, is this expected?
-> > >
-> > > It's a severe "misfeature" in my opinion that caused me problems years
-> > > ago. The first soundcard becomes "default", which can probably be
-> > > overridden in many different ways.
-> > >
-> > > However, I really think a hack should be put in to prevent "virtual
-> > > MIDI" from ever being in the first slot, it's just a bug asking to
-> > > happen.
+On Sat, 30 Dec 2006, Denis Vlasenko wrote:
+
+> On Friday 29 December 2006 07:16, Robert P. J. Day wrote:
 > >
-> > So should we enable Virtual MIDI in kernel config? Since I have it off
-> > and aRts have no sound with ALSA backend.
+> >   is there some reason there are so many calls of the form
+> >
+> >   memset(addr, 0, PAGE_SIZE)
+> >
+> > rather than the apparently equivalent invocation of
+> >
+> >   clear_page(addr)
+> >
+> > the majority of architectures appear to define the clear_page()
+> > macro in their include/<arch>/page.h header file, but not entirely
+> > identically, and in some cases that definition is conditional, as
+> > with i386:
+> >
+> > =============================================================
+> > #ifdef CONFIG_X86_USE_3DNOW
+> > ...
+> > #define clear_page(page)        mmx_clear_page((void *)(page))
+> > ...
+> > #else
+> > ...
+> > #define clear_page(page)        memset((void *)(page), 0, PAGE_SIZE)
+> > ...
+> > #endif
+> > ============================================================
+> >
+> >   should it perhaps be part of the CodingStyle doc to use the
+> > clear_page() macro rather than an explicit call to memset()?
+> > (and should all architectures be required to define that macro?)
 >
-> Try updating to latest git - I have
-> 7479b1ce5ea41a828002c60739cff37f47b62913 with Virtual MIDI off and ALSA
-> seems to work.
->
-> BTW, Amarok has an Engine dialog where you can easily switch between
-> backends which is good for testing.
+> clear_page assumes that given address is page aligned, I think. It
+> may fail if you feed it with misaligned region's address.
 
-Still no sound with latest git. But Amarok with ALSA backend works fine. Maybe 
-some other problem with aRts. Not sure yet but this is surely a new breakage.
+i don't see how that can be true, given that most of the definitions
+of the clear_page() macro are simply invocations of memset().  see for
+yourself:
 
-Regards,
-ismail
--- 
-2 + 2 = 5 for very large values of 2
+  $ grep -r "#define clear_page" include
+
+my only point here was that lots of code seems to be calling memset()
+when it would be clearer to invoke clear_page().  but there's still
+something a bit curious happening here.  i'll poke around a bit more
+before i ask, though.
+
+rday

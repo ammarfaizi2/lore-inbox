@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030347AbWL3Vcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030349AbWL3VdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030347AbWL3Vcq (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 16:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWL3Vcq
+	id S1030349AbWL3VdF (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 16:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbWL3VdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 16:32:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1218 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1030347AbWL3Vcp (ORCPT
+	Sat, 30 Dec 2006 16:33:04 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:40520 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030350AbWL3VdA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 16:32:45 -0500
-Date: Sat, 30 Dec 2006 22:32:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Larry Finger <larry.finger@lwfinger.net>
-Cc: Aaron Sethman <androsyn@ratbox.org>, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com, netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [OOPS] bcm43xx oops on 2.6.20-rc1 on x86_64
-Message-ID: <20061230213245.GD20714@stusta.de>
-References: <Pine.LNX.4.64.0612171510030.17532@squeaker.ratbox.org> <20061230192104.GB20714@stusta.de> <4596D8DE.2030408@lwfinger.net>
+	Sat, 30 Dec 2006 16:33:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=FPtOi41f7mUjDTfQhMkjhUvFQB48+KygBtuJl7hUu/+EACoqJyz2wJNDZ+ERrMfr2DpPKs9PWFrIsLkL3PxBjNYVIofhU3RMrSMVMUwsErl/QN/te3mgsYxhpTpw7ZBMsqRtCd1678ua4nkowT1u87Uf2g/dAy1wMAEInA59/DI=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [RFC,PATCHSET] Managed device resources
+Date: Sat, 30 Dec 2006 22:31:48 +0100
+User-Agent: KMail/1.8.2
+Cc: gregkh@suse.de, jeff@garzik.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+References: <1167146313307-git-send-email-htejun@gmail.com>
+In-Reply-To: <1167146313307-git-send-email-htejun@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4596D8DE.2030408@lwfinger.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200612302231.48510.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2006 at 03:23:42PM -0600, Larry Finger wrote:
-> Adrian Bunk wrote:
-> > On Sun, Dec 17, 2006 at 03:15:28PM -0500, Aaron Sethman wrote:
-> >> Just was loading the bcm43xx module and got the following oops. Note that 
-> >> this card is one of the newer PCI-E cards.  If any other info is needed 
-> >> let me know.
-> > 
-> > Is this issue still present in 2.6.10-rc2-git1?
-> > 
-> > If yes, was 2.6.19 working fine?
->...
+On Tuesday 26 December 2006 16:18, Tejun Heo wrote:
+> Hello, all.
 > 
-> Any oops involving wireless extensions is due to 2.6.20-rc1 and -rc2 not having the fix for softmac
-> that is necessitated by the 2.6.20 changes in the work structure.
+> This patchset implements managed device resources, in short, devres.
 
-"Any oops" are very strong words.
+I was working on a Linux device driver. Indeed, those error paths
+are notoriously prone to bugs.
 
-It wouldn't be the first time that we have several similar bug reports, 
-and it turns out that one is for a completely different issue...
-
-> The needed patch has now been
-> pushed by Jeff to Andrew and Linus, and should be in -rc3. In the meantime, it is attached.
-
-That's why I asked for testing with 2.6.20-rc2-git1 that includes the 
-two ieee80211softmac patches.
-
-> Larry
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Patchset looks like good idea to me.
+--
+vda

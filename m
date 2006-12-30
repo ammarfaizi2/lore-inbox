@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755120AbWL3OTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755129AbWL3Obx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755120AbWL3OTP (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 09:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755114AbWL3OTO
+	id S1755129AbWL3Obx (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 09:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755114AbWL3Obx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 09:19:14 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:41384 "EHLO
-	yue.st-paulia.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754471AbWL3OTN (ORCPT
+	Sat, 30 Dec 2006 09:31:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50589 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754562AbWL3Obw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 09:19:13 -0500
-Date: Sat, 30 Dec 2006 23:19:52 +0900 (JST)
-Message-Id: <20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-To: komurojun-mbn@nifty.com
-Cc: bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
- file-transfer
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20061230205931.9e430173.komurojun-mbn@nifty.com>
-References: <20061230185043.d31d2104.komurojun-mbn@nifty.com>
-	<20061230.102358.106876516.yoshfuji@linux-ipv6.org>
-	<20061230205931.9e430173.komurojun-mbn@nifty.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 3.3 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 30 Dec 2006 09:31:52 -0500
+Message-ID: <4596784A.1060001@torque.net>
+Date: Sat, 30 Dec 2006 09:31:38 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Randy Dunlap <rdunlap@xenotime.net>
+CC: Sumant Patro <sumantp@lsil.com>, James.Bottomley@SteelEye.com,
+       akpm@osdl.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       neela.kolli@lsi.com, bo.yang@lsi.com, sumant.patro@lsi.com
+Subject: Re: [Patch] scsi: megaraid_{mm,mbox}: init fix for kdump
+References: <1167408137.4154.8.camel@dumbo> <20061229133741.441a5933.rdunlap@xenotime.net>
+In-Reply-To: <20061229133741.441a5933.rdunlap@xenotime.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20061230205931.9e430173.komurojun-mbn@nifty.com> (at Sat, 30 Dec 2006 20:59:31 +0900), Komuro <komurojun-mbn@nifty.com> says:
-
-> > Do you see similar issue with other simple application?
+Randy Dunlap wrote:
+> On Fri, 29 Dec 2006 08:02:17 -0800 Sumant Patro wrote:
 > 
-> sorry, I don't reproduce this problem on other application.
+> See Documentation/SubmittingPatches:
+> Please include output of "diffstat -p1 -w70" so that we can easily see
+> the scope of the changes.
+> 
+> and see Documentation/CodingStyle for comments below:
+> 
+> 
+>> diff -uprN linux-2.6.orig/drivers/scsi/megaraid/megaraid_mbox.c linux-2.6.new/drivers/scsi/megaraid/megaraid_mbox.c
+>> --- linux-2.6.orig/drivers/scsi/megaraid/megaraid_mbox.c 2006-12-28 09:56:04.000000000 -0800
+>> +++ linux-2.6.new/drivers/scsi/megaraid/megaraid_mbox.c 2006-12-29 05:31:48.000000000 -0800
+>> @@ -779,6 +780,22 @@ megaraid_init_mbox(adapter_t *adapter)
+>>  		goto out_release_regions;
+>>  	}
+>>  
+>> +	// initialize the mutual exclusion lock for the mailbox
+>> +	spin_lock_init(&raid_dev->mailbox_lock);
+> 
+> Linux uses /*...*/ C89-style comments, not // C99 comments.
 
-Can you reproduce it with other ftp client and/or server?
+Randy
+It is about time this absurd stipulation was dropped.
+Are there any C compilers that can compile the linux
+kernel and that don't accept both _standard_ comment styles?
 
-
-Anyway...
-
-Please provide the output of "netstat -na" command during the
-transfer, and the output of "lsmod | grep conntrack" (just for
-sure).
-
-
-More questions:
-
-What kind of mode do you use? e.g. PORT/EPRT/LPRT/PASV/EPSV/LPSV
-
-When the transfer get stuck, are other communication still working?
-
-Are there any workaround?
-e.g. stop-start vsftpd cycle, ifdown-ifup cycle, rmmod/insmod cycle etc.
-
-
-Regards,
-
---yoshfuji
+Doug Gilbert

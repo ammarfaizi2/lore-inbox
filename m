@@ -1,65 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755180AbWL3SGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755192AbWL3SWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755180AbWL3SGc (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 13:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755187AbWL3SGc
+	id S1755192AbWL3SWV (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 13:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755191AbWL3SWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 13:06:32 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:3320 "EHLO
-	anchor-post-34.mail.demon.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755180AbWL3SGb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 13:06:31 -0500
-Message-ID: <4596AAA5.9020506@superbug.co.uk>
-Date: Sat, 30 Dec 2006 18:06:29 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061222)
+	Sat, 30 Dec 2006 13:22:21 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47548 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755188AbWL3SWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Dec 2006 13:22:20 -0500
+Date: Sat, 30 Dec 2006 10:21:29 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
+ that again
+In-Reply-To: <20061230163955.GA12622@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612301021180.4473@woody.osdl.org>
+References: <20061221152621.GB3958@flint.arm.linux.org.uk>
+ <E1GxQF2-0000i6-00@dorka.pomaz.szeredi.hu> <20061221171739.GE3958@flint.arm.linux.org.uk>
+ <20061230163955.GA12622@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.19.1
-References: <200612201550_MC3-1-D5C7-74C6@compuserve.com>
-In-Reply-To: <200612201550_MC3-1-D5C7-74C6@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> In-Reply-To: <200612201421.03514.s0348365@sms.ed.ac.uk>
-> 
-> On Wed, 20 Dec 2006 14:21:03 +0000, Alistair John Strachan wrote:
-> 
->> Any ideas?
->>
->> BUG: unable to handle kernel NULL pointer dereference at virtual address 
->> 00000009
-> 
->     83 ca 10                  or     $0x10,%edx
->     3b                        .byte 0x3b
->     87 68 01                  xchg   %ebp,0x1(%eax)   <=====
->     00 00                     add    %al,(%eax)
-> 
-> Somehow it is trying to execute code in the middle of an instruction.
-> That almost never works, even when the resulting fragment is a legal
-> opcode. :)
-> 
-> The real instruction is:
-> 
->     3b 87 68 01 00 00 00        cmp    0x168(%edi),%eax
-> 
-> I'd guess you have some kind of hardware problem.  It could also be
-> a kernel problem where the saved address was corrupted during an
-> interrupt, but that's not likely.
 
-This looks rather strange.
-The times I have seen this sort of problem is:
-1) when one bit of the kernel is corrupting another part of it.
-2) Kernel modules compiled with different gcc than rest of kernel.
-3) kernel headers do not match the kernel being used.
 
-One way to start tracking this down would be to run it with the fewest 
-amount of kernel modules loaded as one can, but still reproduce the problem.
+On Sat, 30 Dec 2006, Russell King wrote:
+>
+> Given that no one has any outstanding issues with the following patch, I'm
+> going to ask akpm to put this into -mm, and shortly after (a week or so)
+> I'll submit it and the ARM flush_anon_page() patch to Linus for -rc to fix
+> ARM data corruption issues.
+> 
+> If anyone _does_ have a problem, holler ASAP.
 
-James
+Looks fine to me. 
+
+		Linus

@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754238AbWL3C7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030227AbWL3DBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754238AbWL3C7Q (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 21:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755113AbWL3C7Q
+	id S1030227AbWL3DBJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 22:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755133AbWL3DBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 21:59:16 -0500
-Received: from mga03.intel.com ([143.182.124.21]:22685 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754232AbWL3C7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 21:59:15 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,220,1165219200"; 
-   d="scan'208"; a="163612446:sNHT22745513"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, <zach.brown@oracle.com>
-Cc: <linux-aio@kvack.org>, <linux-kernel@vger.kernel.org>,
-       "'Benjamin LaHaise'" <bcrl@kvack.org>, <suparna@in.ibm.com>
-Subject: [patch] aio: remove spurious ring head index modulo info->nr
-Date: Fri, 29 Dec 2006 18:59:14 -0800
-Message-ID: <000401c72bbe$7d715b30$d634030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 29 Dec 2006 22:01:09 -0500
+Received: from userg501.nifty.com ([202.248.238.81]:54428 "EHLO
+	userg501.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755129AbWL3DBH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 22:01:07 -0500
+DomainKey-Signature: a=rsa-sha1; s=userg501; d=nifty.com; c=simple; q=dns;
+	b=gmrs+XCw9XXR0NDUDFl9FG3nTN4CeYyeMWdsqNDL2n/TPgvv/sIQJAMWgKzfYAFw8
+	7vHP4xKp+1QY01XoauRwg==
+Date: Sat, 30 Dec 2006 20:59:31 +0900
+From: Komuro <komurojun-mbn@nifty.com>
+To: YOSHIFUJI Hideaki / =?ISO-2022-JP?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Cc: bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
+ file-transfer
+Message-Id: <20061230205931.9e430173.komurojun-mbn@nifty.com>
+In-Reply-To: <20061230.102358.106876516.yoshfuji@linux-ipv6.org>
+References: <20061217232311.f181302f.komurojun-mbn@nifty.com>
+	<20061218030113.GT10316@stusta.de>
+	<20061230185043.d31d2104.komurojun-mbn@nifty.com>
+	<20061230.102358.106876516.yoshfuji@linux-ipv6.org>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: Accrvn03oVunCq2SSY2aJCNOpa0k+Q==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In aio_read_evt(), the ring->head will never wrap info->nr because
-we already does the wrap when updating the ring head index:
 
-        if (head != ring->tail) {
-                ...
-                head = (head + 1) % info->nr;
-                ring->head = head;
-        }
+> 
+> > I investigated the ftp-file-transfer-stop problem by git-bisect method,
+> > and found this problem was introduced by
+> > "[TCP]: MD5 Signature Option (RFC2385) support" patch.
+> > 
+> > Mr.YOSHIFUJI san, please fix this problem.
+> 
+> Hmm, have you try disabling CONFIG_TCP_MD5SIG?
+> (Is it already disabled?)
 
-This makes the modulo of ring->head into local variable head unnecessary.
-This patch removes that bogus code.
+This problem happens both CONFIG_TCP_MD5SIG is disabled and enabled.
+
+> Are there any specific size of transfer to reproduce this?
+
+When I do ftp 40Mbytes file for 5-times or more,
+ this problem happens.
 
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> Do you see similar issue with other simple application?
 
+sorry, I don't reproduce this problem on other application.
 
---- ./fs/aio.c.orig	2006-12-24 22:01:36.000000000 -0800
-+++ ./fs/aio.c	2006-12-24 22:34:48.000000000 -0800
-@@ -1019,7 +1019,7 @@ static int aio_read_evt(struct kioctx *i
- {
- 	struct aio_ring_info *info = &ioctx->ring_info;
- 	struct aio_ring *ring;
--	unsigned long head;
-+	unsigned int head;
- 	int ret = 0;
- 
- 	ring = kmap_atomic(info->ring_pages[0], KM_USER0);
-@@ -1032,7 +1032,7 @@ static int aio_read_evt(struct kioctx *i
- 
- 	spin_lock(&info->ring_lock);
- 
--	head = ring->head % info->nr;
-+	head = ring->head;
- 	if (head != ring->tail) {
- 		struct io_event *evp = aio_ring_event(info, head, KM_USER1);
- 		*ent = *evp;
+Thanks,
+
+Best Regards
+Komuro.

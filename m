@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030178AbWL3A7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030190AbWL3BEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030178AbWL3A7n (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 19:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWL3A7n
+	id S1030190AbWL3BEr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 20:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWL3BEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 19:59:43 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:37331 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030178AbWL3A7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 19:59:42 -0500
-Date: Fri, 29 Dec 2006 16:58:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, guichaz@yahoo.fr, hugh@veritas.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ranma@tdiedrich.de, gordonfarquharson@gmail.com, a.p.zijlstra@chello.nl,
-       tbm@cyrius.com, arjan@infradead.org, andrei.popa@i-neo.ro
-Subject: Re: Ok, explained.. (was Re: [PATCH] mm: fix page_mkclean_one)
-In-Reply-To: <20061229163316.020fcda1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612291651350.4473@woody.osdl.org>
-References: <Pine.LNX.4.64.0612281125100.4473@woody.osdl.org>
- <20061228114517.3315aee7.akpm@osdl.org> <Pine.LNX.4.64.0612281156150.4473@woody.osdl.org>
- <20061228.143815.41633302.davem@davemloft.net> <3d6d8711f7b892a11801d43c5996ebdf@kernel.crashing.org>
- <Pine.LNX.4.64.0612282155400.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612290017050.4473@woody.osdl.org>
- <Pine.LNX.4.64.0612290202350.4473@woody.osdl.org> <20061229141632.51c8c080.akpm@osdl.org>
- <Pine.LNX.4.64.0612291431200.4473@woody.osdl.org> <20061229155118.3feb0c17.akpm@osdl.org>
- <Pine.LNX.4.64.0612291559540.4473@woody.osdl.org> <20061229163316.020fcda1.akpm@osdl.org>
+	Fri, 29 Dec 2006 20:04:47 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:40050 "EHLO
+	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030190AbWL3BEq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 20:04:46 -0500
+Date: Sat, 30 Dec 2006 02:04:45 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+In-Reply-To: <1167388475.6106.51.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> 
+ <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>  <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+  <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> 
+ <1166869106.3281.587.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> 
+ <4593890C.8030207@panasas.com>  <1167300352.3281.4183.camel@laptopd505.fenrus.org>
+  <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
+ <1167388475.6106.51.camel@lade.trondhjem.org>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 29 Dec 2006, Andrew Morton wrote:
+On Fri, 29 Dec 2006, Trond Myklebust wrote:
+
+> On Thu, 2006-12-28 at 19:14 +0100, Mikulas Patocka wrote:
+>> Why don't you rip off the support for colliding inode number from the
+>> kernel at all (i.e. remove iget5_locked)?
+>>
+>> It's reasonable to have either no support for colliding ino_t or full
+>> support for that (including syscalls that userspace can use to work with
+>> such filesystem) --- but I don't see any point in having half-way support
+>> in kernel as is right now.
 >
-> > > Somewhat nastily, but as ext3 directories are metadata it is appropriate
-> > > that modifications to them be done in terms of buffer_heads (ie: blocks).
-> > 
-> > No. There is nothing "appropriate" about using buffer_heads for metadata. 
-> 
-> I said "modification".
+> What would ino_t have to do with inode numbers? It is only used as a
+> hash table lookup. The inode number is set in the ->getattr() callback.
 
-You said "metadata".
+The question is: why does the kernel contain iget5 function that looks up 
+according to callback, if the filesystem cannot have more than 64-bit 
+inode identifier?
 
-Why do you think directories are any different from files? Yes, they are 
-metadata. So what? What does that have to do with anything?
+This lookup callback just induces writing bad filesystems with coliding 
+inode numbers. Either remove coda, smb (and possibly other) filesystems 
+from the kernel or make a proper support for userspace for them.
 
-They should still use virtual indexes, the way files do. That doesn't 
-preclude them from using buffer-heads to mark their (partial-page) 
-modifications and for keeping the virtual->physical translations cached.
+The situation is that current coreutils 6.7 fail to recursively copy 
+directories if some two directories in the tree have coliding inode 
+number, so you get random data corruption with these filesystems.
 
-I mean, really. Look at ext2. It does exactly that. It keeps the 
-directories in the page cache - virtually indexed. And it even modifies 
-them there. Exactly the same way it modifies regular file data.
-
-It all works exactly the same way it works for regular files. It uses
-
-	page->mapping->a_ops->prepare_write(NULL, page, from, to);
-	... do modification ...
-	ext2_commit_chunk(page, from, to);
-
-exactly the way regular file data works. 
-
-That's why I'm saying there is absolutely _zero_ thing about "metadata" 
-here, or even about "modifications". It all works better in a virtual 
-cache, because you get all the support that we give to page caches.
-
-So I really don't understand why you make excuses for ext3 and talk about 
-"modifications" and "metadata". It was a fine design ten years ago. It's 
-not really very good any longer.
-
-I suspect we're stuck with the design, but that doesn't make it any 
-_better_.
-
-		Linus
+Mikulas

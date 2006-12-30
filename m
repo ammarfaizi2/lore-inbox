@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755127AbWL3Cun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754238AbWL3C7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755127AbWL3Cun (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 21:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755129AbWL3Cun
+	id S1754238AbWL3C7Q (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 21:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755113AbWL3C7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 21:50:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57233 "EHLO mx1.redhat.com"
+	Fri, 29 Dec 2006 21:59:16 -0500
+Received: from mga03.intel.com ([143.182.124.21]:22685 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755127AbWL3Cum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 21:50:42 -0500
-Date: Fri, 29 Dec 2006 21:50:41 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: potential for buffer_head shrinkage.
-Message-ID: <20061230025041.GB12306@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061230024554.GA12306@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061230024554.GA12306@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+	id S1754232AbWL3C7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 21:59:15 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,220,1165219200"; 
+   d="scan'208"; a="163612446:sNHT22745513"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, <zach.brown@oracle.com>
+Cc: <linux-aio@kvack.org>, <linux-kernel@vger.kernel.org>,
+       "'Benjamin LaHaise'" <bcrl@kvack.org>, <suparna@in.ibm.com>
+Subject: [patch] aio: remove spurious ring head index modulo info->nr
+Date: Fri, 29 Dec 2006 18:59:14 -0800
+Message-ID: <000401c72bbe$7d715b30$d634030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accrvn03oVunCq2SSY2aJCNOpa0k+Q==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2006 at 09:45:54PM -0500, Dave Jones wrote:
- > Looking at struct buffer_head, it seems that b_state
- > uses at most 15 bits, where it's defined as a 64bit entity
- > due to it being used by bit_spin_lock and friends.
- > 
- > Given it's not uncommon for a few hundred thousand of these
- > to be present, I wonder if it's worth the effort of folding
- > b_count into the upper bits of b_state, thus shrinking
- > buffer_head by 16 bits?  This would still leave 32 bits
- > 'wasted' for further bh_state_bits expansion if necessary.
+In aio_read_evt(), the ring->head will never wrap info->nr because
+we already does the wrap when updating the ring head index:
 
-My math here based on a 64 bit compile btw in case that wasn't obvious.
-32 bit wouldn't leave room for expansion.
+        if (head != ring->tail) {
+                ...
+                head = (head + 1) % info->nr;
+                ring->head = head;
+        }
 
-		Dave
+This makes the modulo of ring->head into local variable head unnecessary.
+This patch removes that bogus code.
 
--- 
-http://www.codemonkey.org.uk
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+
+--- ./fs/aio.c.orig	2006-12-24 22:01:36.000000000 -0800
++++ ./fs/aio.c	2006-12-24 22:34:48.000000000 -0800
+@@ -1019,7 +1019,7 @@ static int aio_read_evt(struct kioctx *i
+ {
+ 	struct aio_ring_info *info = &ioctx->ring_info;
+ 	struct aio_ring *ring;
+-	unsigned long head;
++	unsigned int head;
+ 	int ret = 0;
+ 
+ 	ring = kmap_atomic(info->ring_pages[0], KM_USER0);
+@@ -1032,7 +1032,7 @@ static int aio_read_evt(struct kioctx *i
+ 
+ 	spin_lock(&info->ring_lock);
+ 
+-	head = ring->head % info->nr;
++	head = ring->head;
+ 	if (head != ring->tail) {
+ 		struct io_event *evp = aio_ring_event(info, head, KM_USER1);
+ 		*ent = *evp;

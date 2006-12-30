@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754338AbWL3LJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751738AbWL3LUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754338AbWL3LJ2 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 06:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754353AbWL3LJ2
+	id S1751738AbWL3LUE (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 06:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752647AbWL3LUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 06:09:28 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:42305 "EHLO tmailer.gwdg.de"
+	Sat, 30 Dec 2006 06:20:04 -0500
+Received: from smtp12.orange.fr ([193.252.22.20]:8941 "EHLO smtp12.orange.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754338AbWL3LJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 06:09:27 -0500
-Date: Sat, 30 Dec 2006 12:07:43 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Bodo Eggert <7eggert@gmx.de>
-cc: Daniel =?ISO-8859-1?Q?Marjam=E4ki?= <daniel.marjamaki@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Want comments regarding patch
-In-Reply-To: <E1H0Rec-00011Y-55@be1.lrz>
-Message-ID: <Pine.LNX.4.61.0612301206090.26556@yvahk01.tjqt.qr>
-References: <7x8ul-7NU-7@gated-at.bofh.it> <7x8E5-80F-13@gated-at.bofh.it>
- <7xdkq-7tB-25@gated-at.bofh.it> <7xjSQ-1fR-13@gated-at.bofh.it>
- <7xn0j-6rY-7@gated-at.bofh.it> <E1H0Rec-00011Y-55@be1.lrz>
+	id S1751738AbWL3LUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Dec 2006 06:20:02 -0500
+X-ME-UUID: 20061230111959809.C59351C00092@mwinf1201.orange.fr
+Message-ID: <45964B5E.2010909@free.fr>
+Date: Sat, 30 Dec 2006 12:19:58 +0100
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.7) Gecko/20060405 SeaMonkey/1.0.5
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-291633813-1167476863=:26556"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Rene Herman <rene.herman@gmail.com>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [BUG 2.6.20-rc2] atkbd.c: Spurious ACK
+References: <4592E685.5000602@gmail.com> <45950DD1.2010208@free.fr> <4595679F.6070905@gmail.com> <200612300025.06088.dtor@insightbb.com> <45961358.2010906@gmail.com>
+In-Reply-To: <45961358.2010906@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Le 30.12.2006 08:20, Rene Herman a écrit :
+> Dmitry Torokhov wrote:
+> 
+>> Somehow you get 2 ACks in a row, I wonder if on your boxes i8042
+>> pumps command and data into keyboard before i8042_interrupt gets a
+>> chance to run. Could you please apply the debug patch below and tell
+>> me the pattern of the data flow.
+> 
+> Yes, I believe the below trace confirms what you said? Both the ED and 
+> the 00/05 are sent before the first ACK gets back, by a 1 jiffie margin:
+> 
+> drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [N]
+> drivers/input/serio/i8042.c: 05 -> i8042 (panic blink) [N + 2]
+> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [N + 3]
+> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [N + 6]
+> drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [M]
+> drivers/input/serio/i8042.c: 00 -> i8042 (panic blink) [M + 2]
+> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [M + 3]
+> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [M + 6]
+> 
+> The +2, +3 and +6 are constant. Forgot to pay attention to M - N, but I 
+> suppose it's not too important.
+> 
+> For me, the patch as you posted it is actually good to go. No more 
+> spurious ACK complaints...
+> 
+> Thanks,
+> Rene.
 
---1283855629-291633813-1167476863=:26556
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Hi Dmitry, Rene
 
+I can confirm Rene's report: this patch works fine since there is no more "Spurious 
+ACK on isa0060/serio0" message.
 
-On Dec 30 2006 01:00, Bodo Eggert wrote:
->Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->> On Dec 29 2006 07:57, Daniel MarjamÃ¤ki wrote:
->
->>> It was my goal to improve the readability. I failed.
->>>
->>> I personally prefer to use standard functions instead of writing code.
->>> In my opinion using standard functions means less code that is easier to
->>> read.
->> 
->> Hm in that case, what about having something like
->> 
->> void *memset_int(void *a, int x, int n) {
->>     asm("mov %0, %%esi;
->>          mov %1, %%eax;
->>          mov %2, %%ecx;
->>          repz movsd;",
->>        a,x,n);
->> }
->
->This would copy the to-be-initialized buffer somewhere, if it compiles.
+Here is a debug output as requested:
 
-Yeah I don't do assembler soo often that I would know everything from heart.
-All your comments are valid of course. I just wanted to point out the idea.
-(However, if it's not repz, then it's repnz! :-)
+ <0>Kernel panic - not syncing: Fatal exception in interrupt
+ <7>drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, 0, 1) [49602]
+drivers/input/serio/i8042.c: 93 <- i8042 (interrupt, 0, 1) [49603]
+drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [49728]
+drivers/input/serio/i8042.c: 05 -> i8042 (panic blink) [49729]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49730]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49732]
+drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [49856]
+drivers/input/serio/i8042.c: 00 -> i8042 (panic blink) [49857]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49858]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49860]
+drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [49983]
+drivers/input/serio/i8042.c: 05 -> i8042 (panic blink) [49985]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49986]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [49988]
+drivers/input/serio/i8042.c: ed -> i8042 (panic blink) [50112]
+drivers/input/serio/i8042.c: 00 -> i8042 (panic blink) [50114]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [50115]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [50117]
 
-	-`J'
+thanks
 -- 
---1283855629-291633813-1167476863=:26556--
+laurent

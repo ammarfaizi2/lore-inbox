@@ -1,208 +1,193 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030218AbWL3CVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030205AbWL3Cbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWL3CVs (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 29 Dec 2006 21:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWL3CVs
+	id S1030205AbWL3Cbo (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 29 Dec 2006 21:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWL3Cbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Dec 2006 21:21:48 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:24690 "HELO
-	smtp104.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1030218AbWL3CVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Dec 2006 21:21:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Message-Id;
-  b=tPD0jZOSLvUyWrttPAMn+AtutjE47PgRS77cqjCdIonhjbzGp/Jfy1MgfVJTi5g+fK8Hqk8gSUN1284srbqwjhv8XUu+o0eOmrZ36f1zM+jpoChSsn8LbtpasbM/8Gg7spB+pqW7ztNaBLc9Yj62ap3ig1KVayXlfSWJ9wPS/4k=  ;
-X-YMail-OSG: IRdoejAVM1kKQCdZ8PQtiyXbVvA.3AQGt.6Xm.PWvO4oejS.n2eDfABXb2ZF0mhvZ9OWcsC4_2VFajYgFuvj.TF.7zE1iWPVv2qvpHtIJh7EHVZKxxQK0mQ2blWJi7.CcCTuVbfpDF2vy_6i3rwtm1rKQEuOoTS_WTCJw8y8EIpVOTFwlSnHD1umvIfM
-From: David Brownell <david-b@pacbell.net>
-To: "pHilipp Zabel" <philipp.zabel@gmail.com>
-Subject: Re: [patch 2.6.20-rc1 5/6] SA1100 GPIO wrappers
-Date: Fri, 29 Dec 2006 18:21:43 -0800
-User-Agent: KMail/1.7.1
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Victor" <andrew@sanpeople.com>,
-       "Bill Gatliff" <bgat@billgatliff.com>,
-       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Tony Lindgren" <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <20061220221328.ee3bfc5d.akpm@osdl.org> <74d0deb30612212316i12090ca0hfe8524a80f63475a@mail.gmail.com>
-In-Reply-To: <74d0deb30612212316i12090ca0hfe8524a80f63475a@mail.gmail.com>
+	Fri, 29 Dec 2006 21:31:43 -0500
+Received: from mga03.intel.com ([143.182.124.21]:27159 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030205AbWL3Cbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Dec 2006 21:31:43 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,220,1165219200"; 
+   d="scan'208"; a="163608391:sNHT20624401"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, <zach.brown@oracle.com>
+Cc: <linux-aio@kvack.org>, <linux-kernel@vger.kernel.org>,
+       "'Benjamin LaHaise'" <bcrl@kvack.org>, <suparna@in.ibm.com>
+Subject: [patch] aio: add per task aio wait event condition
+Date: Fri, 29 Dec 2006 18:31:42 -0800
+Message-ID: <000201c72bba$a44a1b60$d634030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_40clF66rUNt0aVa"
-Message-Id: <200612291821.44675.david-b@pacbell.net>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccruqQQI2TXAm/jQl6nLg5d9LwVLQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_40clF66rUNt0aVa
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The AIO wake-up notification from aio_complete is really inefficient
+in current AIO implementation in the presence of process waiting in
+io_getevents().
 
-Here's a version that compiles ...
+For example, if app calls io_getevents with min_nr > 1, and aio event
+queue doesn't have enough completed aio event, the process will block
+in read_events().  However, aio_complete() will wake up the waiting
+process for *each* complete I/O even though number of events that an
+app is waiting for is much larger than 1.  This makes excessive and
+unnecessary context switch because the waiting process will just reap
+one single event and goes back to sleep again.  It is much more efficient
+to wake up the waiting process when there are enough events for it to
+reap.
 
---Boundary-00=_40clF66rUNt0aVa
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="gen-gpio-sa1100.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="gen-gpio-sa1100.patch"
+This patch adds a wait condition to the wait queue and only wake-up
+process when that condition meets.  And this condition is added on a
+per task base for handling multi-threaded app that shares single ioctx.
 
-From: Philipp Zabel <philipp.zabel@gmail.com>
+To show the effect of this patch, here is an vmstat output before and
+after the patch. The app does random O_DIRECT AIO on 60 disks. Context
+switch is reduced from 13 thousand+ down to just 40+, an significant
+improvement.
 
-Arch-neutral GPIO calls for PXA.
+Before:
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0      0 3972608   7056  31312    0    0 14000     0 7840 13715  0  2 98  0
+ 0  0      0 3972608   7056  31312    0    0 14300     0 7793 13641  0  2 98  0
+ 0  0      0 3972608   7056  31312    0    0 14100     0 7885 13747  0  2 98  0
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+After:
+ 0  0      0 3972608   7056  31312    0    0 14000     0 7840    49  0  2 98  0
+ 0  0      0 3972608   7056  31312    0    0 13800     0 7793    53  0  2 98  0
+ 0  0      0 3972608   7056  31312    0    0 13800     0 7885    42  0  2 98  0
 
-Index: pxa/include/asm-arm/arch-sa1100/gpio.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ pxa/include/asm-arm/arch-sa1100/gpio.h	2006-12-29 18:21:00.000000000 -0800
-@@ -0,0 +1,100 @@
-+/*
-+ * linux/include/asm-arm/arch-sa1100/gpio.h
-+ *
-+ * SA1100 GPIO wrappers for arch-neutral GPIO calls
-+ *
-+ * Written by Philipp Zabel <philipp.zabel@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#ifndef __ASM_ARCH_SA1100_GPIO_H
-+#define __ASM_ARCH_SA1100_GPIO_H
-+
-+#include <asm/hardware.h>
-+#include <asm/arch/irqs.h>
-+
-+#include <asm/errno.h>
-+
-+static inline int gpio_request(unsigned gpio, const char *label)
-+{
-+	return 0;
-+}
-+
-+static inline void gpio_free(unsigned gpio)
-+{
-+	return;
-+}
-+
-+static inline int gpio_direction_input(unsigned gpio)
-+{
-+	if (gpio > GPIO_MAX)
-+		return -EINVAL;
-+	GPDR = (GPDR_In << gpio);
-+	return 0;
-+}
-+
-+static inline int gpio_direction_output(unsigned gpio)
-+{
-+	if (gpio > GPIO_MAX)
-+		return -EINVAL;
-+	GPDR = (GPDR_Out << gpio);
-+	return 0;
-+}
-+
-+extern int sa1100_gpio_get_value(unsigned gpio);
-+extern void sa1100_gpio_set_value(unsigned gpio, int value);
-+
-+static inline int __gpio_get_value(unsigned gpio)
-+{
-+	return GPLR & GPIO_GPIO(gpio);
-+}
-+
-+#define gpio_get_value(gpio)			\
-+	(__builtin_constant_p(gpio)		\
-+	? __gpio_get_value(gpio)		\
-+	: sa1100_gpio_get_value(gpio))
-+
-+static inline void __gpio_set_value(unsigned gpio, int value)
-+{
-+	if (value)
-+		GPSR = GPIO_GPIO(gpio);
-+	else
-+		GPCR = GPIO_GPIO(gpio);
-+}
-+
-+#define gpio_set_value(gpio,value)		\
-+	(__builtin_constant_p(gpio)		\
-+	? __gpio_set_value(gpio, value)		\
-+	: sa1100_gpio_set_value(gpio, value))
-+
-+static inline unsigned gpio_to_irq(unsigned gpio)
-+{
-+	if (gpio < 11)
-+		return IRQ_GPIO0 + gpio;
-+	else
-+		return IRQ_GPIO11 - 11 + gpio;
-+}
-+
-+static inline unsigned irq_to_gpio(unsigned irq)
-+{
-+	if (irq < IRQ_GPIO11_27)
-+		return irq - IRQ_GPIO0;
-+	else
-+		return irq - IRQ_GPIO11 + 11;
-+}
-+
-+#endif
-Index: pxa/arch/arm/mach-sa1100/generic.c
-===================================================================
---- pxa.orig/arch/arm/mach-sa1100/generic.c	2006-12-10 01:30:42.000000000 -0800
-+++ pxa/arch/arm/mach-sa1100/generic.c	2006-12-29 17:46:47.000000000 -0800
-@@ -28,6 +28,8 @@
- #include <asm/mach/flash.h>
- #include <asm/irq.h>
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+
+--- ./fs/aio.c.orig	2006-12-24 16:41:39.000000000 -0800
++++ ./fs/aio.c	2006-12-24 16:52:15.000000000 -0800
+@@ -193,6 +193,17 @@ static int aio_setup_ring(struct kioctx 
+ 	kunmap_atomic((void *)((unsigned long)__event & PAGE_MASK), km); \
+ } while(0)
  
-+#include <asm/arch/gpio.h>
++struct aio_wait_queue {
++	int		nr_wait;	/* wake-up condition */
++	wait_queue_t	wait;
++};
 +
- #include "generic.h"
- 
- #define NR_FREQS	16
-@@ -139,6 +141,26 @@ unsigned long long sched_clock(void)
- }
- 
- /*
-+ * Return GPIO level
-+ */
-+int sa1100_gpio_get_value(unsigned gpio)
++static inline void aio_init_wait(struct aio_wait_queue *wait)
 +{
-+	return __gpio_get_value(gpio);
++	wait->nr_wait = 0;
++	init_wait(&wait->wait);
 +}
 +
-+EXPORT_SYMBOL(sa1100_gpio_get_value);
-+
-+/*
-+ * Set output GPIO level
-+ */
-+void sa1100_gpio_set_value(unsigned gpio, int value)
-+{
-+	__gpio_set_value(gpio, value);
-+}
-+
-+EXPORT_SYMBOL(sa1100_gpio_set_value);
-+
-+/*
-  * Default power-off for SA1100
+ /* ioctx_alloc
+  *	Allocates and initializes an ioctx.  Returns an ERR_PTR if it failed.
   */
- static void sa1100_power_off(void)
+@@ -296,13 +307,14 @@ static void aio_cancel_all(struct kioctx
+ static void wait_for_all_aios(struct kioctx *ctx)
+ {
+ 	struct task_struct *tsk = current;
+-	DECLARE_WAITQUEUE(wait, tsk);
++	struct aio_wait_queue wait;
+ 
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	if (!ctx->reqs_active)
+ 		goto out;
+ 
+-	add_wait_queue(&ctx->wait, &wait);
++	aio_init_wait(&wait);
++	add_wait_queue(&ctx->wait, &wait.wait);
+ 	set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+ 	while (ctx->reqs_active) {
+ 		spin_unlock_irq(&ctx->ctx_lock);
+@@ -311,7 +323,7 @@ static void wait_for_all_aios(struct kio
+ 		spin_lock_irq(&ctx->ctx_lock);
+ 	}
+ 	__set_task_state(tsk, TASK_RUNNING);
+-	remove_wait_queue(&ctx->wait, &wait);
++	remove_wait_queue(&ctx->wait, &wait.wait);
+ 
+ out:
+ 	spin_unlock_irq(&ctx->ctx_lock);
+@@ -932,6 +944,7 @@ int fastcall aio_complete(struct kiocb *
+ 	unsigned long	flags;
+ 	unsigned long	tail;
+ 	int		ret;
++	int		nr_evt = 0;
+ 
+ 	/*
+ 	 * Special case handling for sync iocbs:
+@@ -992,6 +1005,9 @@ int fastcall aio_complete(struct kiocb *
+ 	info->tail = tail;
+ 	ring->tail = tail;
+ 
++	nr_evt = ring->tail - ring->head;
++	if (nr_evt < 0)
++		nr_evt += info->nr;
+ 	put_aio_ring_event(event, KM_IRQ0);
+ 	kunmap_atomic(ring, KM_IRQ1);
+ 
+@@ -1000,8 +1016,13 @@ put_rq:
+ 	/* everything turned out well, dispose of the aiocb. */
+ 	ret = __aio_put_req(ctx, iocb);
+ 
+-	if (waitqueue_active(&ctx->wait))
+-		wake_up(&ctx->wait);
++	if (waitqueue_active(&ctx->wait)) {
++		struct aio_wait_queue *wait;
++		wait = container_of(ctx->wait.task_list.next,
++				    struct aio_wait_queue, wait.task_list);
++		if (nr_evt >= wait->nr_wait)
++			wake_up(&ctx->wait);
++	}
+ 
+ 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+ 	return ret;
+@@ -1094,7 +1115,7 @@ static int read_events(struct kioctx *ct
+ {
+ 	long			start_jiffies = jiffies;
+ 	struct task_struct	*tsk = current;
+-	DECLARE_WAITQUEUE(wait, tsk);
++	struct aio_wait_queue	wait;
+ 	int			ret;
+ 	int			i = 0;
+ 	struct io_event		ent;
+@@ -1152,10 +1173,11 @@ retry:
+ 		set_timeout(start_jiffies, &to, &ts);
+ 	}
+ 
++	aio_init_wait(&wait);
+ 	while (likely(i < nr)) {
+-		add_wait_queue_exclusive(&ctx->wait, &wait);
+ 		do {
+-			set_task_state(tsk, TASK_INTERRUPTIBLE);
++			prepare_to_wait_exclusive(&ctx->wait, &wait.wait,
++						  TASK_INTERRUPTIBLE);
+ 			ret = aio_read_evt(ctx, &ent);
+ 			if (ret)
+ 				break;
+@@ -1164,6 +1186,7 @@ retry:
+ 			ret = 0;
+ 			if (to.timed_out)	/* Only check after read evt */
+ 				break;
++			wait.nr_wait = min_nr - i;
+ 			schedule();
+ 			if (signal_pending(tsk)) {
+ 				ret = -EINTR;
+@@ -1171,9 +1194,7 @@ retry:
+ 			}
+ 			/*ret = aio_read_evt(ctx, &ent);*/
+ 		} while (1) ;
+-
+-		set_task_state(tsk, TASK_RUNNING);
+-		remove_wait_queue(&ctx->wait, &wait);
++		finish_wait(&ctx->wait, &wait.wait);
+ 
+ 		if (unlikely(ret <= 0))
+ 			break;
 
---Boundary-00=_40clF66rUNt0aVa--

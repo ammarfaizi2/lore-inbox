@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755193AbWL3S1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965088AbWL3S2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755193AbWL3S1s (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 13:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755191AbWL3S1s
+	id S965088AbWL3S2x (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 13:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWL3S2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 13:27:48 -0500
-Received: from p02c11o146.mxlogic.net ([208.65.145.69]:57441 "EHLO
-	p02c11o146.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755193AbWL3S1r (ORCPT
+	Sat, 30 Dec 2006 13:28:53 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:1920 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965088AbWL3S2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 13:27:47 -0500
-Date: Sat, 30 Dec 2006 20:27:55 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: =?iso-8859-1?Q?Beno=EEt?= Rouits <brouits@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No sound in KDE with intel hda since 2.6.20-rc1
-Message-ID: <20061230182755.GA4225@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1167501651.14690.10.camel@chimay>
+	Sat, 30 Dec 2006 13:28:52 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Oops in 2.6.19.1
+Date: Sat, 30 Dec 2006 18:29:15 +0000
+User-Agent: KMail/1.9.5
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+References: <200612301224_MC3-1-D6C5-9FCD@compuserve.com>
+In-Reply-To: <200612301224_MC3-1-D6C5-9FCD@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1167501651.14690.10.camel@chimay>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 30 Dec 2006 18:29:58.0265 (UTC) FILETIME=[82854690:01C72C40]
-X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14904.000
-X-TM-AS-Result: No--5.480500-4.000000-31
-X-Spam: [F=0.0100000000; S=0.010(2006120601)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+Message-Id: <200612301829.15980.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> suggestion: change the Amarok audio backend options
->             and test every one until it sounds good.
-> 
-> reply with re results.
-> That will help to understand the problem, if any.
+On Saturday 30 December 2006 17:21, Chuck Ebbert wrote:
+> In-Reply-To: <200612301659.35982.s0348365@sms.ed.ac.uk>
+>
+> On Sat, 30 Dec 2006 16:59:35 +0000, Alistair John Strachan wrote:
+> > I've eliminated 2.6.19.1 as the culprit, and also tried toggling
+> > "optimize for size", various debug options. 2.6.19 compiled with GCC
+> > 4.1.1 on an Via Nehemiah C3-2 seems to crash in pipe_poll reliably,
+> > within approximately 12 hours.
+>
+> Which CPU are you compiling for?  You should try different options.
 
-OK.
-Under 2.6.19, both alsa and oss backends work.
-Under 2.6.20-rc2, oss works but alsa does not.
+I should, I haven't thought of that. Currently it's compiling for 
+CONFIG_MVIAC3_2, but I could try i686 for example.
 
-So I guess the problem is with ALSA interface in my 2.6.20-rc2?
+> Can you post disassembly of pipe_poll() for both the one that crashes
+> and the one that doesn't?  Use 'objdump -D -r fs/pipe.o' so we get the
+> relocation info and post just the one function from each for now.
 
+Sure, no problem:
+
+http://devzero.co.uk/~alistair/2.6.19-via-c3-pipe_poll/
+
+Both use identical configs, neither are optimised for size. The config is 
+available from the same location.
 
 -- 
-MST
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

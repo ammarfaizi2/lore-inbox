@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754266AbWL3I5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754276AbWL3JSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754266AbWL3I5j (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 03:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754268AbWL3I5j
+	id S1754276AbWL3JSE (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 04:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754280AbWL3JSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 03:57:39 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:4428 "EHLO argo2k.argo.co.il"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754264AbWL3I5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 03:57:38 -0500
-Message-ID: <459629F5.2000602@argo.co.il>
-Date: Sat, 30 Dec 2006 10:57:25 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: any chance to bypass BIOS check for VT?
-References: <b6a2187b0612290230g7e494670h6396e2f0a4ecea10@mail.gmail.com>
-In-Reply-To: <b6a2187b0612290230g7e494670h6396e2f0a4ecea10@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Dec 2006 08:57:33.0359 (UTC) FILETIME=[8B5C83F0:01C72BF0]
+	Sat, 30 Dec 2006 04:18:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36982 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754276AbWL3JSD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Dec 2006 04:18:03 -0500
+Date: Sat, 30 Dec 2006 09:18:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adam Megacz <megacz@cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OpenAFS gatekeepers request addition of AFS_SUPER_MAGIC to magic.h
+Message-ID: <20061230091800.GA14871@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adam Megacz <megacz@cs.berkeley.edu>, linux-kernel@vger.kernel.org
+References: <x3fyay2r4z.fsf@nowhere.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <x3fyay2r4z.fsf@nowhere.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
-> kvm: disabled by bios
->
-> I know this has been asked before and the answer was no. Does it still
-> stand or is there a way to bypass the bios? I'm using Lenovo X60s and
-> there's no option to enable VT in the BIOS setup.
+On Fri, Dec 29, 2006 at 03:56:12PM -0800, Adam Megacz wrote:
+> 
+> Hello,
+> 
+> Jeffrey Altman, one of the gatekeepers of OpenAFS (the open source
+> project which inherited the Transarc/IBM AFS codebase) has requested
+> that the magic number 0x5346414F (little endian 'OAFS') be allocated
+> for the f_type field of the fsinfo structure on Linux:
+> 
+>   https://lists.openafs.org/pipermail/openafs-info/2006-December/024829.html
+> 
+> I would like to offer the patch below for inclusion in the source
+> tree, if possible.  The patch adds it to include/linux/magic.h, mostly
+> as a way of publishing this number and ensuring that no other
+> filesystem accidentally uses it.
 
-When it says "disabled by bios" it means what it says.  There is no 
-workaround other than going to the bios and enabling it; if your bios 
-doesn't support enabling VT, complain to your vendor.
-
->
-> /proc/cpuinfo shows "VMX".
->
->
-> Another question ... how to enable "mouse" in KVM?
->
->
-
-A ps/2 mouse should be enabled automatically.  What makes you think it 
-is disabled?
-
-kvm questions are best asked on kvm-devel@lists.sourceforge.net, where 
-the developers and many users hang out.
+We're not allocating these number for any other out of teee junk like vxfs
+or gpfs either.  So I'd say stay away.
 
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+p.s. and please stop that namedropping - beeing a 'gatekeeper' doesn't
+	make you any more important than just beeing yourself
 

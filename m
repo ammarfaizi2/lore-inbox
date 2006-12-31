@@ -1,46 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933179AbWLaNud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932593AbWLaOOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933179AbWLaNud (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 08:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWLaNud
+	id S932593AbWLaOOH (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 09:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWLaOOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 08:50:33 -0500
-Received: from aa015msg.fastweb.it ([213.140.2.82]:33869 "EHLO
-	aa015msg.fastweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933179AbWLaNud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 08:50:33 -0500
-Date: Sun, 31 Dec 2006 14:50:31 +0100
-From: Andrea Gelmini <gelma@gelma.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
-Message-ID: <20061231135031.GC23445@gelma.net>
-References: <200612291859.kBTIx2kq031961@hera.kernel.org> <20061229224309.GA23445@gelma.net> <459734CE.1090001@yahoo.com.au>
+	Sun, 31 Dec 2006 09:14:07 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:33373 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932593AbWLaOOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 09:14:06 -0500
+Date: Sun, 31 Dec 2006 15:12:26 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mitch Bradley <wmb@firmworks.com>
+cc: "OLPC Developer's List" <devel@laptop.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+In-Reply-To: <459714A6.4000406@firmworks.com>
+Message-ID: <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
+References: <459714A6.4000406@firmworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <459734CE.1090001@yahoo.com.au>
-Weight: 77.8 kg (171.51964 lbs)
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2006 at 02:55:58PM +1100, Nick Piggin wrote:
-> This bug was only introduced in 2.6.19, due to a change that caused pte
-no, Linus said that with 2.6.19 it's easier to trigger this bug...
 
-> So if your corruption is years old, then it must be something else.
-> Maybe it is hidden by a timing change, or BDB isn't using msync properly.
-I can give you a complete image where just changing kernel (everything
-is same, of course) corruptions goes away.
-we spent a lot, I mean a *lot*, of time looking for our code mistake,
-and so on.
-I don't want to seem rude, but I am sure that Berkeley DB corruption we
-have seen (not just Klibido, but I also think about postgrey, and so on)
-depends on this bug.
-I repeat, if you have time/interest I can give you a complete machine
-to see the problem.
+On Dec 30 2006 15:38, Mitch Bradley wrote:
+>
+> Request for comments.
+>
+> It is similar in some respect to fs/proc/proc_devtree.c , but does
+> not use procfs, nor does it require an intermediate layer of code
+> to create a flattened representation of the device tree.
 
-thanks a lot for your time,
-gelma
+NB: openpromfs does not use procfs either. It just happens to be
+mounted somewhere down there.
+
+> +++ b/Documentation/filesystems/ofwfs.txt
+> +== Property Value Encoding ==
+> +
+> +A regular file in ofwfs contains the exact byte sequence that
+> +comprises the OFW property value.  Properties are not reformatted
+> +into text form, so numeric property values appear as binary
+> +integers.  While this is inconvenient for viewing, it is generally
+> +easier for programs that read property values, and it means that
+> +Open Firmware documentation about property values applies
+> +directly, without having to separately document an ASCII
+> +transformation (which would have to separately specified for
+> +different kinds of properties).
+
+I appreciate the ASCII formatting that openpromfs currently does.
+Perhaps, should OFWFS be used, it could offer both?
+
+> +== Environment Assumptions ==
+> +
+> +The ofwfs code assumes that the Open Firmware client interface
+> +callback can be executed during Linux kernel startup
+> +(specifically, at "core_initcall" time).  When ofwfs is
+> +initialized, it copies out the property values, so that subsequent
+> +accesses to the tree do not require callbacks into OFW.
+
+openpromfs also has many parts read-only, only one object,
+/options/security-password, is writable. Hence caching it once and
+forever seems ok.
+
+BUT, the eeprom utility may be used to modify values, and if used, I
+would like to see ofwfs show the updated value. openpromfs does it
+today:
+
+15:09 ares:/proc/openprom/options # cat oem-banner?
+false
+15:09 ares:/proc/openprom/options # eeprom 'oem-banner?=true'
+15:09 ares:/proc/openprom/options # cat oem-banner?
+true
+
+(BTW, why does not openpromfs have it rw?)
+
+> +== Recommended Mount Point ==
+> +
+> +The recommended mount point for ofwfs is /ofw.  (TBD: Should it be
+> +mounted somewhere under /sys instead?)
+
+Somewhere in /sys/firmware perhaps.
+
+
+	-`J'
+-- 

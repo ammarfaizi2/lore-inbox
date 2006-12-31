@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933178AbWLaNpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933180AbWLaNqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933178AbWLaNpn (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 08:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933180AbWLaNpn
+	id S933180AbWLaNqs (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 08:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933181AbWLaNqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 08:45:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57459 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933178AbWLaNpm (ORCPT
+	Sun, 31 Dec 2006 08:46:48 -0500
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:4559 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933180AbWLaNqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 08:45:42 -0500
-Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Denis Vlasenko <vda.linux@googlemail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061231133902.GA13521@vanheusden.com>
-References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
-	 <200612302149.35752.vda.linux@googlemail.com>
-	 <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
-	 <1167518748.20929.578.camel@laptopd505.fenrus.org>
-	 <20061231133902.GA13521@vanheusden.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 31 Dec 2006 14:45:34 +0100
-Message-Id: <1167572735.20929.750.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Sun, 31 Dec 2006 08:46:47 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Subject: Re: Oops in 2.6.19.1
+Date: Sun, 31 Dec 2006 13:47:09 +0000
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <200612280414.20266.s0348365@sms.ed.ac.uk> <200612301659.35982.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200612301659.35982.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200612311347.09297.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-31 at 14:39 +0100, Folkert van Heusden wrote:
-> > > i don't see how that can be true, given that most of the definitions
-> > > of the clear_page() macro are simply invocations of memset().  see for
-> > > yourself:
-> > *MOST*. Not all.
-> > For example an SSE version will at least assume 16 byte alignment, etc
-> > etc.
-> 
-> What about an if (adress & 15) { memset } else { sse stuff }
-> or is that too obvious? :-)
+On Saturday 30 December 2006 16:59, Alistair John Strachan wrote:
+> I have compiled GCC 3.4.6 and compiled 2.6.19 with an identical config
+> using this compiler (but the same binutils), and will report back if it
+> crashes. My bet is that it won't, however.
 
-
-it's only one example. clear_page() working only on a full page is a
-nice restriction that allows the implementation to be optimized (again
-the x86 hardware that had a hardware page zeroer comes to mind, the hw
-is only 4 years old or so... and future hw may have it again)
-
-clear_page() is more restricted than memset(). And that's good, it
-allows for a more focused implementation. Otherwise there'd be no reason
-to HAVE a clear_page(), if it just was a memset wrapper entirely.
-
-
+Still fine after >24 hours. Linux 2.6.19, GCC 3.4.6, Binutils 2.17.
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Cheers,
+Alistair.
 
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933194AbWLaQ23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933195AbWLaQ35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933194AbWLaQ23 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 11:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933195AbWLaQ23
+	id S933195AbWLaQ35 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 11:29:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933196AbWLaQ35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 11:28:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2497 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S933194AbWLaQ22 (ORCPT
+	Sun, 31 Dec 2006 11:29:57 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:40762 "EHLO
+	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933195AbWLaQ34 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 11:28:28 -0500
-Date: Sun, 31 Dec 2006 17:28:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.6.19.1
-Message-ID: <20061231162830.GL20714@stusta.de>
-References: <200612301224_MC3-1-D6C5-9FCD@compuserve.com> <200612301829.15980.s0348365@sms.ed.ac.uk>
+	Sun, 31 Dec 2006 11:29:56 -0500
+X-Sasl-enc: aCKOIeS8wYRuHWO/gkiKouSzQp5dSCMPVIkFeyLYQ8/9 1167582485
+Date: Sun, 31 Dec 2006 14:29:51 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ibm-acpi-devel@lists.sourceforge.net, Whoopie <whoopie79@gmx.net>
+Subject: Re: [PATCH] Add Ultrabay support for the T60p Thinkpad
+Message-ID: <20061231162951.GA13022@khazad-dum.debian.net>
+References: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612301829.15980.s0348365@sms.ed.ac.uk>
+In-Reply-To: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2006 at 06:29:15PM +0000, Alistair John Strachan wrote:
-> On Saturday 30 December 2006 17:21, Chuck Ebbert wrote:
-> > In-Reply-To: <200612301659.35982.s0348365@sms.ed.ac.uk>
-> >
-> > On Sat, 30 Dec 2006 16:59:35 +0000, Alistair John Strachan wrote:
-> > > I've eliminated 2.6.19.1 as the culprit, and also tried toggling
-> > > "optimize for size", various debug options. 2.6.19 compiled with GCC
-> > > 4.1.1 on an Via Nehemiah C3-2 seems to crash in pipe_poll reliably,
-> > > within approximately 12 hours.
-> >
-> > Which CPU are you compiling for?  You should try different options.
-> 
-> I should, I haven't thought of that. Currently it's compiling for 
-> CONFIG_MVIAC3_2, but I could try i686 for example.
-> 
-> > Can you post disassembly of pipe_poll() for both the one that crashes
-> > and the one that doesn't?  Use 'objdump -D -r fs/pipe.o' so we get the
-> > relocation info and post just the one function from each for now.
-> 
-> Sure, no problem:
-> 
-> http://devzero.co.uk/~alistair/2.6.19-via-c3-pipe_poll/
-> 
-> Both use identical configs, neither are optimised for size. The config is 
-> available from the same location.
+Whoopie from ThinkWiki just sent me an email, calling my attention to the
+fact that the patch you submitted is in fact different from the one I
+merged... something I should have triple-verified.  It appears the t60p has
+the bay in a different ACPI node than some other *60 ThinkPads.  Either
+that, or the node moves depending on ICHR mode set in the BIOS.
 
-Can you try enabling as many debug options as possible?
+So I apologise for the screw up, and:
 
-> Cheers,
-> Alistair.
+Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-cu
-Adrian
+I am merging your patch into the ibm-acpi tree and will ask Len to push it
+to Linus.  Now, please excuse me while I go look for a new brown-paperbag
+hat...
+
+On Sun, 10 Dec 2006, Theodore Ts'o wrote:
+> Add Ultrabay Support for the T60p Thinkpad
+> 
+> The following patch adds support for obtaining the status and ejecting
+> Ultrabay devices for the T60p Thinkpad; my guess is that it probably
+> works on T60 Thinkpads and probably more recent Lenovo latops as well.
+> 
+> With the 2.03 BIOS I have been able to eject a SATA drive in an Ultrabay
+> carrier by using the command:
+> 
+>   "echo 1 > /sys/class/scsi_device/1:0:0:0/device/delete"
+> 
+> and upon re-inserting the it back into the device and issuing the
+> command:
+> 
+>  "echo 0 0 0 > /sys/class/scsi_host/host1/scan"
+> 
+> have the device appear again.  (With the 1.02 BIOS the device does not
+> function when re-inserted, even after a warm boot; a cold reboot is
+> required to store the Ultrabay device's functionality.)
+> 
+> More complicated Ultrabay eject and insert scripts can be found on the
+> ThinkWiki, although it's important to comment out the "hdparm -Y" as it
+> apparently doesn't work or do anything, and causes the eject process to
+> hang for about a minute.
+> 
+> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+> 
+> Index: 2.6.19/drivers/acpi/ibm_acpi.c
+> ===================================================================
+> --- 2.6.19.orig/drivers/acpi/ibm_acpi.c	2006-12-09 18:35:09.000000000 -0500
+> +++ 2.6.19/drivers/acpi/ibm_acpi.c	2006-12-09 18:35:42.000000000 -0500
+> @@ -169,6 +169,7 @@
+>  #endif
+>  IBM_HANDLE(bay, root, "\\_SB.PCI.IDE.SECN.MAST",	/* 570 */
+>  	   "\\_SB.PCI0.IDE0.IDES.IDSM",	/* 600e/x, 770e, 770x */
+> +	   "\\_SB.PCI0.IDE0.PRIM.MSTR",	/* T60p */
+>  	   "\\_SB.PCI0.IDE0.SCND.MSTR",	/* all others */
+>      );				/* A21e, R30, R31 */
+>  
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

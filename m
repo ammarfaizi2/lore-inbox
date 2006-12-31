@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030376AbWLaRn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030378AbWLaRuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbWLaRn0 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 12:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWLaRn0
+	id S1030378AbWLaRuM (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 12:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWLaRuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 12:43:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:52259 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030376AbWLaRnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 12:43:25 -0500
-Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Folkert van Heusden <folkert@vanheusden.com>,
-       Denis Vlasenko <vda.linux@googlemail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612311118490.13153@localhost.localdomain>
-References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
-	 <200612302149.35752.vda.linux@googlemail.com>
-	 <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
-	 <1167518748.20929.578.camel@laptopd505.fenrus.org>
-	 <20061231133902.GA13521@vanheusden.com>
-	 <1167572735.20929.750.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612311118490.13153@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 31 Dec 2006 18:43:15 +0100
-Message-Id: <1167586995.20929.829.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Sun, 31 Dec 2006 12:50:12 -0500
+Received: from il.qumranet.com ([62.219.232.206]:55325 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030378AbWLaRuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 12:50:11 -0500
+Message-ID: <4597F851.8060800@qumranet.com>
+Date: Sun, 31 Dec 2006 19:50:09 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Luca Tettamanti <kronos.it@gmail.com>
+CC: linux-kernel@vger.kernel.org, kvm-devel@lists.sourceforge.net
+Subject: Re: [KVM][PATCH] smp_processor_id() and sleeping functions used in
+ invalid context
+References: <20061231170147.GA8695@dreamland.darkstar.lan>
+In-Reply-To: <20061231170147.GA8695@dreamland.darkstar.lan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luca Tettamanti wrote:
+> Hello,
+> I'm testing KVM on a Core2 CPU. I'm running kernel 2.6.20-git (pulled
+> few hours ago), configured with SMP and PREEMPT.
+>
+> I'm hitting 2 different warnings:
+> BUG: using smp_processor_id() in preemptible [00000001] code: kvm/7726
+> caller is vmx_create_vcpu+0x9/0x2f [kvm_intel]
+>
+>   
 
-> arjan, you and i actually agree on this.  i fully accept that the idea
-> of a "clear_page()" call might or should have extra semantics,
-> compared to the more simple and direct "memset(...,0,PAGE_SIZE)" call
-> (such as alignment requirements, for example). my observation is
-> simply that this is not what is currently happening.
+[...]
 
-that's fair
-> 
-> consider, for example, how many calls there are to clear_page() in the
-> drivers directory:
-> 
->   $ grep -rw clear_page drivers
-> 
-> not that many.
+> vmx_create_vcpu calls alloc_vmcs which uses smp_processor_id() in
+> preemptible context and pass the result to alloc_vmcs_cpu(); at a later
+> point the function may be running on a different CPU (hence the result
+> of cpu_to_node may be meaningless).
+>
+> Second one:
+> BUG: sleeping function called from invalid context at
+> /home/kronos/src/linux-2.6.git/mm/slab.c:3034
+> in_atomic():1, irqs_disabled():0
+> 1 lock held by kvm/12706:
+>  #0:  (&vcpu->mutex){--..}, at: [<f1b68d02>] kvm_dev_ioctl+0x113/0xf97
+> [kvm]
+>  [<b015c32a>] kmem_cache_alloc+0x1b/0x6f
+>   
+[...]
 
-the biggest user of clear_page and such is the pagefault code path in
-practice.
+There are patches for both (I think) flying around.  They should land in 
+Linus' tree in a few days.
 
-
-> i can't believe that at least *some* of those memset() calls couldn't
-> be re-written as clear_page() calls.  and that's just for the
-> drivers/ directory.
-
-yes I can believe that ....
-> 
->   sure, clear_page() might have extra semantics.  but if that's the
-> case, and those semantics happen to be in play, i'm suggesting that
-> not only *can* one use clear_page() at that point, one *should* use
-> it.
-> 
->   put another way, if a given situation is appropriate for a call to
-> clear_page(), then that's what should be used. 
-
-.... however there is potentially a bigger thing possible.
-These places that zero a whole full page may have just allocated it
-(that's an assumption on my side), and if that's the case, maybe those
-places instead should use the zeroing version of the allocator instead
-(which internally uses clear_page() ).
-
-So... yes I fully agree with you that it's worth looking at the
-memset( , PAGE_SIZE) users. If they are page aligned, yes absolutely
-make it a clear_page(), I think that's a very good idea. However also
-please check if they've been very recently allocated in that code, and
-if maybe the zeroing allocators are better suited there..
-(or maybe there's even double zeroing going on.. that's be a nice gain)
+Thanks,
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+error compiling committee.c: too many arguments to function
 

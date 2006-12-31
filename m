@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933131AbWLaPlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933188AbWLaQWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933131AbWLaPlL (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 10:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933151AbWLaPlL
+	id S933188AbWLaQWr (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 11:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933191AbWLaQWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 10:41:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33835 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933131AbWLaPlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 10:41:09 -0500
-Date: Sun, 31 Dec 2006 15:41:03 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: David Miller <davem@davemloft.net>
-Cc: dmk@flex.com, wmb@firmworks.com, devel@laptop.org,
-       linux-kernel@vger.kernel.org, jg@laptop.org
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Message-ID: <20061231154103.GA7409@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Miller <davem@davemloft.net>, dmk@flex.com, wmb@firmworks.com,
-	devel@laptop.org, linux-kernel@vger.kernel.org, jg@laptop.org
-References: <20061230.211941.74748799.davem@davemloft.net> <459784AD.1010308@firmworks.com> <45978CE9.7090700@flex.com> <20061231.024917.59652177.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 31 Dec 2006 11:22:47 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:53155 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933188AbWLaQWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 11:22:46 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Suspend problems on 2.6.20-rc2-git1
+Date: Sun, 31 Dec 2006 17:24:10 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       Dave Jones <davej@redhat.com>
+References: <459771A2.6060301@shaw.ca> <200612311427.02175.rjw@sisk.pl>
+In-Reply-To: <200612311427.02175.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061231.024917.59652177.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200612311724.11423.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2006 at 02:49:17AM -0800, David Miller wrote:
-> From: David Kahn <dmk@flex.com>
-> Date: Sun, 31 Dec 2006 02:11:53 -0800
+On Sunday, 31 December 2006 14:27, Rafael J. Wysocki wrote:
+> On Sunday, 31 December 2006 09:15, Robert Hancock wrote:
+> > Having some suspend problems on 2.6.20-rc2-git1 with Fedora Core 6. 
+> > First of all the normal user interface for hibernate isn't working 
+> > properly while it did in 2.6.19. When you select "Hibernate" it seems to 
+> > stop X and go into console mode but somehow doesn't seem to actually 
+> > start the process of suspending. I'm not sure at what point it is failing.
+> > 
+> > Secondly, if you try and suspend manually it claims there is no swap 
+> > device available when there clearly is:
+> > 
+> > [root@localhost rob]# cat /proc/swaps
+> > Filename                                Type            Size    Used 
+> > Priority
+> > /dev/mapper/VolGroup00-LogVol01         partition       1048568 0       -1
+> > [root@localhost rob]# echo disk > /sys/power/state
+> > bash: echo: write error: No such device or address
 > 
-> > All we've done is created a trivial implementation for exporting
-> > the device tree to userland that isn't burdened by the powerpc
-> > and sparc legacy code that's in there now.
-> 
-> So now we'll have _3_ different implementations of exporting
-> the OFW device tree via procfs.  Your's, the proc_devtree
-> of powerpc, and sparc's /proc/openprom
-> 
-> That doesn't make any sense to me, having 3 ways of doing the same
-> exact thing and making no attempt to share code at all.
-> 
-> If you want to do something new that consolidates everything, with the
-> goal of deprecating the existing stuff, that's great!  But with they
-> way you're doing this, all the sparc and powerpc implementations
-> really can't take advantage of it.
-> 
-> Am I the only person who sees something very wrong with this?
+> Hm, at first sight it looks like something broke the suspend to swap
+> partitions located on LVM.  For now I have no idea what it was.
 
-No, I completely agree with you on this.
+_Or_ something broke your initrd setup.
 
-If firmworks really wants to have a spearate filesystem that's fine.
-But please start with the ppc or sparc code and massage it into a
-a separate filesystem before adding support for a new platform.
+If your swap partition is on an LVM, some initrd script should take care of
+setting it up for the suspend.  If it fails, the kernel won't be able to
+suspend to this partition.
 
-The last thing we need is more duplication.
+Greetings,
+Rafael
 
-In case anyone wants to start this based on ppc I'd gladfully help
-to test this on pmac (32 and 64bit) and cell (64 bit).
+
+-- 
+If you don't have the time to read,
+you don't have the time or the tools to write.
+		- Stephen King

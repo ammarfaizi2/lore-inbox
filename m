@@ -1,112 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932345AbWLaBEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932342AbWLaBEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWLaBEV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 20:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWLaBEV
+	id S932342AbWLaBEa (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 20:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWLaBEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 20:04:21 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:45780 "EHLO cacti.profiwh.com"
+	Sat, 30 Dec 2006 20:04:30 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:45782 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932333AbWLaBEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 20:04:20 -0500
-Message-id: <152402571305932932@wsc.cz>
-Subject: [PATCH 1/8] Char: moxa, remove unused allocated page
+	id S932342AbWLaBE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Dec 2006 20:04:29 -0500
+Message-id: <1497922962154918808@wsc.cz>
+In-reply-to: <152402571305932932@wsc.cz>
+Subject: [PATCH 2/8] Char: moxa, do not initialize global static
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sun, 31 Dec 2006 02:04:19 +0100 (CET)
+Date: Sun, 31 Dec 2006 02:04:30 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moxa, remove unused allocated page
+moxa, do not initialize global static
 
-moxaXmitBuff is almost unused -- only one byte from the whole PAGE_SIZE
-bytes is used. Do not alloc so much space for almost anything. Also remove
-lock protecting this page allocation.
+Remove useless initialization of variables a) statically b) dynamically
+at module_init c) dynamically after kzalloc (those with '= 0/NULL')
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit fdcf97c855168c011b18ff68930bcc93e6c625c6
-tree a87c0cef9ad40eb3ff2a981ecaa7ac08711809ac
-parent c614729fee9638269d0881cf6ab895f19122225a
-author Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 01:08:54 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 01:08:54 +0059
+commit bc5dff44602d67db9d08ae1735e6f29162264704
+tree 02ad9d888e7a5f274d04214a52bb176b3c3ec89a
+parent fdcf97c855168c011b18ff68930bcc93e6c625c6
+author Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 01:37:23 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 01:37:23 +0059
 
- drivers/char/moxa.c |   24 +-----------------------
- 1 files changed, 1 insertions(+), 23 deletions(-)
+ drivers/char/moxa.c |   24 ++++--------------------
+ 1 files changed, 4 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/char/moxa.c b/drivers/char/moxa.c
-index f391a24..4db1dc4 100644
+index 4db1dc4..80a2bdf 100644
 --- a/drivers/char/moxa.c
 +++ b/drivers/char/moxa.c
-@@ -212,12 +212,10 @@ module_param(verbose, bool, 0644);
+@@ -194,9 +194,9 @@ static int verbose = 0;
+ static int ttymajor = MOXAMAJOR;
+ /* Variables for insmod */
+ #ifdef MODULE
+-static int baseaddr[] 	= 	{0, 0, 0, 0};
+-static int type[]	=	{0, 0, 0, 0};
+-static int numports[] 	=	{0, 0, 0, 0};
++static int baseaddr[4];
++static int type[4];
++static int numports[4];
+ #endif
  
- static struct tty_driver *moxaDriver;
- static struct moxa_str moxaChannels[MAX_PORTS];
--static unsigned char *moxaXmitBuff;
- static int moxaTimer_on;
- static struct timer_list moxaTimer;
- static int moxaEmptyTimer_on[MAX_PORTS];
- static struct timer_list moxaEmptyTimer[MAX_PORTS];
--static struct semaphore moxaBuffSem;
- 
- /*
-  * static functions:
-@@ -343,7 +341,6 @@ static int __init moxa_init(void)
- 	if (!moxaDriver)
- 		return -ENOMEM;
- 
--	init_MUTEX(&moxaBuffSem);
- 	moxaDriver->owner = THIS_MODULE;
- 	moxaDriver->name = "ttyMX";
- 	moxaDriver->major = ttymajor;
-@@ -360,8 +357,6 @@ static int __init moxa_init(void)
+ MODULE_AUTHOR("William Chen");
+@@ -348,10 +348,7 @@ static int __init moxa_init(void)
+ 	moxaDriver->type = TTY_DRIVER_TYPE_SERIAL;
+ 	moxaDriver->subtype = SERIAL_TYPE_NORMAL;
+ 	moxaDriver->init_termios = tty_std_termios;
+-	moxaDriver->init_termios.c_iflag = 0;
+-	moxaDriver->init_termios.c_oflag = 0;
+ 	moxaDriver->init_termios.c_cflag = B9600 | CS8 | CREAD | CLOCAL | HUPCL;
+-	moxaDriver->init_termios.c_lflag = 0;
+ 	moxaDriver->init_termios.c_ispeed = 9600;
+ 	moxaDriver->init_termios.c_ospeed = 9600;
  	moxaDriver->flags = TTY_DRIVER_REAL_RAW;
- 	tty_set_operations(moxaDriver, &moxa_ops);
- 
--	moxaXmitBuff = NULL;
--
- 	for (i = 0, ch = moxaChannels; i < MAX_PORTS; i++, ch++) {
+@@ -361,25 +358,13 @@ static int __init moxa_init(void)
  		ch->type = PORT_16550A;
  		ch->port = i;
-@@ -533,7 +528,6 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
- 	struct moxa_str *ch;
- 	int port;
- 	int retval;
--	unsigned long page;
- 
- 	port = PORTNO(tty);
- 	if (port == MAX_PORTS) {
-@@ -543,21 +537,6 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
- 		tty->driver_data = NULL;
- 		return (-ENODEV);
+ 		INIT_WORK(&ch->tqueue, do_moxa_softint);
+-		ch->tty = NULL;
+ 		ch->close_delay = 5 * HZ / 10;
+ 		ch->closing_wait = 30 * HZ;
+-		ch->count = 0;
+-		ch->blocked_open = 0;
+ 		ch->cflag = B9600 | CS8 | CREAD | CLOCAL | HUPCL;
+ 		init_waitqueue_head(&ch->open_wait);
+ 		init_waitqueue_head(&ch->close_wait);
  	}
--	down(&moxaBuffSem);
--	if (!moxaXmitBuff) {
--		page = get_zeroed_page(GFP_KERNEL);
--		if (!page) {
--			up(&moxaBuffSem);
--			return (-ENOMEM);
--		}
--		/* This test is guarded by the BuffSem so no longer needed
--		   delete me in 2.5 */
--		if (moxaXmitBuff)
--			free_page(page);
--		else
--			moxaXmitBuff = (unsigned char *) page;
--	}
--	up(&moxaBuffSem);
  
- 	ch = &moxaChannels[port];
- 	ch->count++;
-@@ -739,8 +718,7 @@ static void moxa_put_char(struct tty_struct *tty, unsigned char c)
- 		return;
- 	port = ch->port;
- 	spin_lock_irqsave(&moxa_lock, flags);
--	moxaXmitBuff[0] = c;
--	MoxaPortWriteData(port, moxaXmitBuff, 1);
-+	MoxaPortWriteData(port, &c, 1);
- 	spin_unlock_irqrestore(&moxa_lock, flags);
- 	/************************************************
- 	if ( !(ch->statusflags & LOWWAIT) && (MoxaPortTxFree(port) <= 100) )
+-	for (i = 0; i < MAX_BOARDS; i++) {
+-		moxa_boards[i].boardType = 0;
+-		moxa_boards[i].numPorts = 0;
+-		moxa_boards[i].baseAddr = 0;
+-		moxa_boards[i].busType = 0;
+-		moxa_boards[i].pciInfo.busNum = 0;
+-		moxa_boards[i].pciInfo.devNum = 0;
+-	}
+-	MoxaDriverInit();
+ 	printk("Tty devices major number = %d\n", ttymajor);
+ 
+ 	if (tty_register_driver(moxaDriver)) {
+@@ -391,7 +376,6 @@ static int __init moxa_init(void)
+ 		init_timer(&moxaEmptyTimer[i]);
+ 		moxaEmptyTimer[i].function = check_xmit_empty;
+ 		moxaEmptyTimer[i].data = (unsigned long) & moxaChannels[i];
+-		moxaEmptyTimer_on[i] = 0;
+ 	}
+ 
+ 	init_timer(&moxaTimer);
+@@ -1470,7 +1454,7 @@ static char moxaLowChkFlag[MAX_PORTS];
+ static int moxaLowWaterChk;
+ static int moxaCard;
+ static mon_st moxaLog;
+-static int moxaFuncTout;
++static int moxaFuncTout = HZ / 2;
+ static ushort moxaBreakCnt[MAX_PORTS];
+ 
+ static void moxadelay(int);

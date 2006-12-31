@@ -1,33 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933148AbWLaMHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933153AbWLaMWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933148AbWLaMHl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 07:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933147AbWLaMHl
+	id S933153AbWLaMWR (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 07:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933154AbWLaMWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 07:07:41 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:61949 "EHLO
-	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933149AbWLaMHk (ORCPT
+	Sun, 31 Dec 2006 07:22:17 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:21790 "EHLO
+	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933153AbWLaMWQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 07:07:40 -0500
-Subject: Re: [S390] cio: fix stsch_reset.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
+	Sun, 31 Dec 2006 07:22:16 -0500
+Date: Sun, 31 Dec 2006 13:22:03 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200612310135_MC3-1-D6D0-A862@compuserve.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Michael Holzheu <holzheu@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [S390] cio: fix stsch_reset.
+Message-ID: <20061231122203.GA11633@osiris.ibm.com>
 References: <200612310135_MC3-1-D6D0-A862@compuserve.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Sun, 31 Dec 2006 13:07:25 +0100
-Message-Id: <1167566845.27664.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612310135_MC3-1-D6D0-A862@compuserve.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-31 at 01:31 -0500, Chuck Ebbert wrote:
+On Sun, Dec 31, 2006 at 01:31:43AM -0500, Chuck Ebbert wrote:
+> In-Reply-To: <20061228103925.GB6270@skybase>
+> 
+> On Thu, 28 Dec 2006 11:39:25 +0100, Martin Schwidefsky wrote:
+> 
 > > @@ -881,10 +880,18 @@ static void cio_reset_pgm_check_handler(
 > >  static int stsch_reset(struct subchannel_id schid, volatile struct schib *addr)
 > >  {
@@ -52,24 +55,10 @@ On Sun, 2006-12-31 at 01:31 -0500, Chuck Ebbert wrote:
 > 
 > Can't you just put a barrier() before the stsch() call?
 
-You mean after. We have to prevent the sequence
-1) load pgm_check_occured,
-2) stsch and the execution of cio_reset_pgm_check_handler
-3) use of the the value loaded in 1)
-A barrier before 2) forces a reload of pgm_check_occured but it does not
-force the reload to be before the stsch call.
+Yes, that would work too and would look much nicer.
 
-But the basic idea is valid. The standard stsch() inline followed by a
-barrier() is equivalent to the new inline assembly.
-
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+I think we should change the reset program check handler, so that it searches
+the exception tables. At least for in-kernel addresses that should work.
+For addresses within modules this might cause deadlocks, since the module
+code takes spinlocks and we are in a context where we just killed all cpus
+not knowing what they executed... Hmm..

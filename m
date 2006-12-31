@@ -1,90 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932593AbWLaOOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933185AbWLaOW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbWLaOOH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 09:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWLaOOH
+	id S933185AbWLaOW2 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 09:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933184AbWLaOW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 09:14:07 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:33373 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932593AbWLaOOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 09:14:06 -0500
-Date: Sun, 31 Dec 2006 15:12:26 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Mitch Bradley <wmb@firmworks.com>
-cc: "OLPC Developer's List" <devel@laptop.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-In-Reply-To: <459714A6.4000406@firmworks.com>
-Message-ID: <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
-References: <459714A6.4000406@firmworks.com>
+	Sun, 31 Dec 2006 09:22:27 -0500
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:40470 "EHLO
+	mtiwmhc13.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933182AbWLaOW1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 09:22:27 -0500
+Message-ID: <4597C7AB.60403@lwfinger.net>
+Date: Sun, 31 Dec 2006 08:22:35 -0600
+From: Larry Finger <larry.finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
+       netdev@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [OOPS] bcm43xx oops on 2.6.20-rc1 on x86_64
+References: <Pine.LNX.4.64.0612171510030.17532@squeaker.ratbox.org> <20061230192104.GB20714@stusta.de> <4596D8DE.2030408@lwfinger.net> <20061230213245.GD20714@stusta.de> <4596EC01.3060508@lwfinger.net> <20061231134302.GJ20714@stusta.de>
+In-Reply-To: <20061231134302.GJ20714@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> 
+> To avoid any misunderstandings:
+> 
+> This wasn't in any way meant against you personally.
+> 
+> And in this case you were right, it was the same bug.
+> 
+> My answer was based on experiences like one during 2.6.19-rc where we 
+> had 4 bug reports for a regression with a patch available. And it turned 
+> out that one of them was for a completely different regression.
+> 
+> That's why I prefer to get confirmations that a user actually run into 
+> the same issue, and not into something completely different with similar 
+> symptoms.
 
-On Dec 30 2006 15:38, Mitch Bradley wrote:
->
-> Request for comments.
->
-> It is similar in some respect to fs/proc/proc_devtree.c , but does
-> not use procfs, nor does it require an intermediate layer of code
-> to create a flattened representation of the device tree.
+I certainly understood your intent and agree that confirmation is necessary. I was venting some
+frustration at it taking nearly 3 weeks to get a fix into the system for a bug that was caused by a
+change in an kernel structure that was not our doing. When Andrew posted a trial patch to fix the
+compilation error that resulted, I immediately responded with the two additional fixes that were
+needed, but they never made it into the code. Since then I have been seeing these obscure bug
+reports and quickly learned that if either softmac or bcm43xx WX were involved, this fix took care
+of the problem.
 
-NB: openpromfs does not use procfs either. It just happens to be
-mounted somewhere down there.
+Larry
 
-> +++ b/Documentation/filesystems/ofwfs.txt
-> +== Property Value Encoding ==
-> +
-> +A regular file in ofwfs contains the exact byte sequence that
-> +comprises the OFW property value.  Properties are not reformatted
-> +into text form, so numeric property values appear as binary
-> +integers.  While this is inconvenient for viewing, it is generally
-> +easier for programs that read property values, and it means that
-> +Open Firmware documentation about property values applies
-> +directly, without having to separately document an ASCII
-> +transformation (which would have to separately specified for
-> +different kinds of properties).
-
-I appreciate the ASCII formatting that openpromfs currently does.
-Perhaps, should OFWFS be used, it could offer both?
-
-> +== Environment Assumptions ==
-> +
-> +The ofwfs code assumes that the Open Firmware client interface
-> +callback can be executed during Linux kernel startup
-> +(specifically, at "core_initcall" time).  When ofwfs is
-> +initialized, it copies out the property values, so that subsequent
-> +accesses to the tree do not require callbacks into OFW.
-
-openpromfs also has many parts read-only, only one object,
-/options/security-password, is writable. Hence caching it once and
-forever seems ok.
-
-BUT, the eeprom utility may be used to modify values, and if used, I
-would like to see ofwfs show the updated value. openpromfs does it
-today:
-
-15:09 ares:/proc/openprom/options # cat oem-banner?
-false
-15:09 ares:/proc/openprom/options # eeprom 'oem-banner?=true'
-15:09 ares:/proc/openprom/options # cat oem-banner?
-true
-
-(BTW, why does not openpromfs have it rw?)
-
-> +== Recommended Mount Point ==
-> +
-> +The recommended mount point for ofwfs is /ofw.  (TBD: Should it be
-> +mounted somewhere under /sys instead?)
-
-Somewhere in /sys/firmware perhaps.
-
-
-	-`J'
--- 

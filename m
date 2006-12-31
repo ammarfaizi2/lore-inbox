@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932717AbWLaEF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932720AbWLaEOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932717AbWLaEF0 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 23:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbWLaEF0
+	id S932720AbWLaEOk (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 23:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWLaEOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 23:05:26 -0500
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:35589 "EHLO
-	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932717AbWLaEFZ (ORCPT
+	Sat, 30 Dec 2006 23:14:40 -0500
+Received: from squeaker.ratbox.org ([66.212.148.233]:50953 "EHLO
+	squeaker.ratbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932720AbWLaEOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 23:05:25 -0500
-Message-ID: <4597375A.2080804@gentoo.org>
-Date: Sat, 30 Dec 2006 23:06:50 -0500
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 2.0b1 (X11/20061221)
+	Sat, 30 Dec 2006 23:14:39 -0500
+Date: Sat, 30 Dec 2006 23:14:38 -0500 (EST)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org, Larry.Finger@lwfinger.net, st3@riseup.net,
+       linville@tuxdriver.com, netdev@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [OOPS] bcm43xx oops on 2.6.20-rc1 on x86_64
+In-Reply-To: <20061230192104.GB20714@stusta.de>
+Message-ID: <Pine.LNX.4.64.0612302312520.27190@squeaker.ratbox.org>
+References: <Pine.LNX.4.64.0612171510030.17532@squeaker.ratbox.org>
+ <20061230192104.GB20714@stusta.de>
+X-Reply-UID: (2 > )(1 1167538359 994)/home/androsyn/maildir/INBOX/
+X-Reply-Mbox: /home/androsyn/maildir/INBOX/
+X-Cursor-Pos: : 512
 MIME-Version: 1.0
-To: marcel@holtmann.org
-CC: bluez-devel@lists.sourceforge.net, billk@iinet.net.au,
-       linux-kernel@vger.kernel.org
-Subject: 2.6.19 bluetooth PPP (rfcomm) regression
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Testing from Bill Kenworthy indicates that commit 
-0a85b964e141a4b8db6eaf500ceace12f8f52f93 introduces a ppp-over-bluetooth 
-regression.
+On Sat, 30 Dec 2006, Adrian Bunk wrote:
 
-https://bugs.gentoo.org/show_bug.cgi?id=159277
+> On Sun, Dec 17, 2006 at 03:15:28PM -0500, Aaron Sethman wrote:
+>>
+>> Just was loading the bcm43xx module and got the following oops. Note that
+>> this card is one of the newer PCI-E cards.  If any other info is needed
+>> let me know.
+>
+> Is this issue still present in 2.6.10-rc2-git1?
+>
+> If yes, was 2.6.19 working fine?
+>
 
-Dec 28 21:56:54 rattus hcid[22749]: pin_code_request (sba=00:0A:3A:59:39:38,
-dba=00:07:E0:06:AC:7A)
-Dec 28 21:57:02 rattus hcid[22749]: link_key_notify (sba=00:0A:3A:59:39:38,
-dba=00:07:E0:06:AC:7A)
-Dec 28 21:57:37 rattus rfcomm_tty_ioctl: TIOCGSERIAL is not supported
-Dec 28 21:57:37 rattus dund[23081]: New connection from 00:07:E0:06:AC:7A
-Dec 28 21:57:37 rattus pppd[23094]: pppd 2.4.4 started by root, uid 0
-Dec 28 21:57:37 rattus pppd[23094]: Couldn't get channel number: 
-Input/output
-error
-Dec 28 21:57:37 rattus pppd[23094]: Exit.
+This seems to be fixed in 2.6.20-rc2-git1.  Still having other issues 
+with the driver, but the oops in the SoftMAC code is resolved now at 
+least.
 
-> diffing net/bluetooth/rfcomm/tty.c between the two kernels shows
-> 
-> 2.6.19-r2: tty_register_device(rfcomm_tty_driver, dev->id,
-> rfcomm_get_device(dev));
-> 
-> and
-> 
-> 2.16.18-r2: tty_register_device(rfcomm_tty_driver, dev->id, NULL);
-> 
-> Changing this line to match the earlier kernel (using NULL) removes the error
-> and ppp connects as it should.
-
-
-
-I see this has already been reported by Johannes Hoerhan on the bluez 
-list. http://thread.gmane.org/gmane.linux.bluez.devel/10148/focus=10232
-
-I don't really see how this could be a udev issue, since it's obviously 
-so intricately linked to that line of code.
-
-How can we help diagnose this further - any debugging flags we should 
-turn on?
-
-Thanks,
-Daniel
+-Aaron

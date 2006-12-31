@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030426AbWLaSk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030435AbWLaSzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbWLaSk5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 13:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWLaSk5
+	id S1030435AbWLaSzk (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 13:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWLaSzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 13:40:57 -0500
-Received: from smtp.ocgnet.org ([64.20.243.3]:54799 "EHLO smtp.ocgnet.org"
+	Sun, 31 Dec 2006 13:55:40 -0500
+Received: from rs27.luxsci.com ([66.216.127.24]:53186 "EHLO rs27.luxsci.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030426AbWLaSk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 13:40:56 -0500
-Date: Mon, 1 Jan 2007 03:39:49 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda.linux@googlemail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
-Message-ID: <20061231183949.GA8323@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	"Robert P. J. Day" <rpjday@mindspring.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Denis Vlasenko <vda.linux@googlemail.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain> <200612302149.35752.vda.linux@googlemail.com> <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain> <1167518748.20929.578.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612301750550.16519@localhost.localdomain>
+	id S1030435AbWLaSzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 13:55:40 -0500
+Message-ID: <459807A0.9080604@firmworks.com>
+Date: Sun, 31 Dec 2006 08:55:28 -1000
+From: Mitch Bradley <wmb@firmworks.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612301750550.16519@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: "OLPC Developer's List" <devel@laptop.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+References: <459714A6.4000406@firmworks.com> <84144f020612310524u5e2e179esd5af4a11c1c1d2f8@mail.gmail.com>
+In-Reply-To: <84144f020612310524u5e2e179esd5af4a11c1c1d2f8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2006 at 06:04:14PM -0500, Robert P. J. Day wrote:
-> fair enough.  *technically*, not every call of the form
-> "memset(ptr,0,PAGE_SIZE)" necessarily represents an address that's on
-> a page boundary.  but, *realistically*, i'm guessing most of them do.
-> just grabbing a random example from some grep output:
-> 
-> arch/sh/mm/init.c:
->   ...
->   /* clear the zero-page */
->   memset(empty_zero_page, 0, PAGE_SIZE);
->   ...
-> 
-The problem with random grepping is that it doesn't give you any context.
-clear_page() isn't available in this case since we have a couple of
-different ways of implementing it, and the optimal approach is selected
-later on. There are also additional assumptions regarding alignment that
-don't allow clear_page() to be used directly as replacement for the
-memset() callsites (as has already been pointed out for some of the other
-architectures). While the empty_zero_page in this case sits on a full page
-boundary, others do not.
+I made all the changes Pekka suggested, except:
 
-You might find some places in drivers that do this where you might be
-able to optimize things slightly with a clear_page() (or copy_page() in
-the memcpy() case), but it's going to need a lot of manual auditing
-rather than a find and replace. Any sort of wins you get out of this
-would be marginal at best, anyways.
+> +               security = strncmp(propname, "security-", 9) == 0;
+>> +               len = 0;
+>
+> Redundant assignment, no?
+>
+>> +               if (!security)
+>> +                       (void)callofw("getproplen", 2, 1, node, 
+>> propname, &len);
+>
+That assignment turns out not to be redundant.  If a security variable 
+is recognized, you want the length to be 0 so as not to expose the 
+password.  In that case the following "getproplen" call won't be executed.
 
-The more interesting case would be page clustering/bulk page clearing
-with offload engines, and there's certainly room to build on the SGI
-patches for this.
+That logic was adapted from the existing file fs/proc/devtree.c .  It 
+turns out that the code there has a bug: You really want to look for 
+just "security-password" ; there is no need to, and good reasons not to, 
+suppress the length of "security-mode" and "security-#badlogins".  (Good 
+OFW implementations won't leak the password length anyway, so check is 
+only needed as a workaround).
+
+I have rewritten the code for clarity and correctness thusly:
+
+        if (strcmp(propname, "security-password") == 0) {
+            len = 0;        /* Don't leak password length */
+        } else {
+            callofw("getproplen", 2, 1, node, propname, &len);
+        }
+
+
+

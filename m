@@ -1,75 +1,110 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933226AbWLaVMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933228AbWLaVMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933226AbWLaVMS (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 16:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933229AbWLaVMS
+	id S933228AbWLaVMT (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 16:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933229AbWLaVMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 16:12:18 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:36538 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933226AbWLaVMR (ORCPT
+	Sun, 31 Dec 2006 16:12:19 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40588
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S933228AbWLaVMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 16:12:17 -0500
-Subject: Re: [BUG 2.6.20-rc2-mm1] init segfaults when
-	CONFIG_PROFILE_LIKELY=y
-From: Daniel Walker <dwalker@mvista.com>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Fengguang Wu <fengguang.wu@gmail.com>, Hua Zhong <hzhong@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       mingo@elte.hu, johnstul@us.ibm.com
-In-Reply-To: <20061231124358.3b0837c2.rdunlap@xenotime.net>
-References: <20061231150422.GA5285@mail.ustc.edu.cn>
-	 <1167594309.14081.79.camel@imap.mvista.com>
-	 <20061231124358.3b0837c2.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Sun, 31 Dec 2006 13:11:26 -0800
-Message-Id: <1167599486.14081.89.camel@imap.mvista.com>
+	Sun, 31 Dec 2006 16:12:18 -0500
+Date: Sun, 31 Dec 2006 13:12:16 -0800 (PST)
+Message-Id: <20061231.131216.105428418.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: miklos@szeredi.hu, rmk+lkml@arm.linux.org.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, akpm@osdl.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
+ that again
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0612311249240.4473@woody.osdl.org>
+References: <E1H0zkD-0003uw-00@dorka.pomaz.szeredi.hu>
+	<20061231.124017.85689231.davem@davemloft.net>
+	<Pine.LNX.4.64.0612311249240.4473@woody.osdl.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-31 at 12:43 -0800, Randy Dunlap wrote:
-> On Sun, 31 Dec 2006 11:45:09 -0800 Daniel Walker wrote:
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Sun, 31 Dec 2006 12:58:45 -0800 (PST)
+
+> So there really is two different cases here:
 > 
-> > On Sun, 2006-12-31 at 23:04 +0800, Fengguang Wu wrote:
-> > > Hi,
-> > > 
-> > > The following messages keeps popping up when CONFIG_PROFILE_LIKELY=y:
-> > > 
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
-> > > 
-> > 
-> > 
-> > Does this seem like an appropriate solution? This just reconstitutes
-> > Ingo's patch by removing the unlikely calls that got added recently. 
+>  - flush the cache as seen by A PARTICULAR virtual mapping.
 > 
-> How does this fix the problem?  (if it does)
-> What is the real cause of the problem?
-
-Well I tested it so I sure hope it fixes it (unless I've gone mad). I
-guess we can wait for Fengguang to test it tho.
-
-> > Maybe a comment into vsyscall.c that says to stay away from all macro's
-> > and possible debug code that could be added might be helpful ?
+>    This is ptrace, but it's other things like "unmap page from this VM" 
+>    too.
 > 
-> Why?
+>  - flush the cache for all possible virtual mappings - simply because we 
+>    don't even know who has it mapped dirty. 
+> 
+>    And the thing is, the more I think about it, the more I end up 
+>    wondering:
+> 
+>    I'm not even sure how valid this is. Whatever path needs to do this is 
+>    likely doing something wrong anyway. If there are multiple possible 
+>    sources of cache conflicts, the thing is a disaster and the end result 
+>    depends on our ordering anyway, so I'd argue that it is just about as 
+>    correct to flush as it is to NOT flush.
+> 
+> So I have this nagging suspicion that "flush_dcache_page()" is always a 
+> bug when it is about "virtual caches". It should NEVER flush any virtual 
+> caches, since that whole operations is by necessity something where you 
+> should be talking about _which_ virtual cache you should flush.
 
-I don't know very much about vsyscalls, but from what I've read they
-actually reside in userspace. So with and "unlikely" added into that
-code, and profiling on, you will end up calling do_check_likely() which
-is in kernel space that's how the segfault happens. 
+It's the aliasing between the _1_ valid user mapping and the kernel's
+virtual mapping, that's the problem and that's very valid and that's
+why we have flush_dcache_page() to begin with.
 
-I imagine this goes for all debugging in kernel space, you can't add it
-into a vsyscall. That's my reasoning behind adding a comment.
+> So "flush_dcache_page()" is - I think - more validtly thought about as 
+> just DMA coherency (in a system where DMA does not participate in 
+> _physical_ cache coherency). Not about virtual caches at all.
 
-Daniel
+And I guess that's what you're trying to say here.
 
+I'm beginning to think that Ralf Baechle had the best idea here,
+where he recently made it such that platforms could override
+kmap() and friends even on non-HIGHMEM configurations.
+
+In theory it's the perfect interface to handle this problem,
+you flush exactly where the physical page is made visible to
+the kernel for a cpu load/store.  All the locations where that
+happens are perfectly annotated already with kmap() calls.
+
+So then there are two ways to touch user mapped pages:
+
+1) Inside of a kmap()/kunmap() region.
+
+2) Via copy_user_page()/clear_user_page()
+
+The only core requirement is that the interfaces know the
+virtual address the thing is mapped at, and after Ralf's
+changes both #1 and #2 do have this information.
+
+Using kmap() even takes care of the PIO "dma" cases where
+the CPU reads/writes to the buffer for the data transfer.
+
+Furthermore, an implementation of #1 and #2 can avoid
+cache flushing altogether.  Just like for HIGHMEM you
+have a kmap() TLB mapping area that sets up a mapping at
+the correct alias, and returns that pointer from kmap().
+Since the alias is good, no cache flush is needed to access
+the page in kernel space.
+
+In fact I think this is what Ralf's implementation on MIPS is doing.
+And, this is the scheme we use on sparc64 for {copy,clear}_user_page().
+
+Now, going in the opposite direction (kernel page made visible to
+userspace for the first time, so you have to kick out the kernel side
+mapping from the cache) can be handled either at set_pte_at() time
+(this is what sparc64 does) or in update_mmu_cache().
+
+This leaves only one (arguably broken) case of, as you mention, the
+user using MAP_SHARED at a set of several incompatible aliases.  As
+far as I can see, the only sane thing to do in that situation seems to
+be to mark the thing non-virtually-cacheable in the user mapping PTEs
+if the cpu architecture allows that.

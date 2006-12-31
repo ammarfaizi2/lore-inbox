@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754423AbWL3XoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932071AbWLaAMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754423AbWL3XoV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 30 Dec 2006 18:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754426AbWL3XoV
+	id S932071AbWLaAMF (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 30 Dec 2006 19:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWLaAMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Dec 2006 18:44:21 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:44921 "EHLO cacti.profiwh.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754416AbWL3XoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Dec 2006 18:44:20 -0500
-Message-id: <1097529576320308434@wsc.cz>
-Subject: [PATCH 1/1] Char: mxser_new, do not put pdev
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Sun, 31 Dec 2006 00:44:19 +0100 (CET)
+	Sat, 30 Dec 2006 19:12:05 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:42245 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932071AbWLaAME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Dec 2006 19:12:04 -0500
+Date: Sun, 31 Dec 2006 00:12:01 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Rik van Riel <riel@redhat.com>
+Cc: Alexander Nagel <feuerschwanz76@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: new harddrive with media error
+Message-ID: <20061231001201.GT17561@ftp.linux.org.uk>
+References: <en6q3j$2jk$1@sea.gmane.org> <4596F760.9010105@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4596F760.9010105@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, do not put pdev
+On Sat, Dec 30, 2006 at 06:33:52PM -0500, Rik van Riel wrote:
+> Alexander Nagel wrote:
+> >Hi all,
+> >
+> >i installed a new drive (WDC WD5000KS-00M) in my computer and installed 
+> >WinXP on it. Afterwards i installed Debian etch on the second one 
+> >(HDS722512VLSA80). Everything works fine so far, but during every boot i 
+> >get following messages in dmesg [1]
+> >Kernel [2] is 2.6.18 as default kernel in etch.
+> >the board is a asusboard with via chipset [3]
+> >The problem is that the boottime is very long, for every "media error" ~ 
+> >3 sec. :-(
+> 
+> That's because your hard disk has errors.
+> 
+> Maybe not on the whole disk, but some parts of the disk are
+> certainly broken.  It's a good thing you discovered this so
+> soon after installation, and are not relying on it yet with
+> all your personal data.
+> 
+> You'll want to exchange the disk for one without media errors.
 
-We don't call pci_dev_get, so do not call pci_dev_put in the pci release
-function.
-
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-
----
-commit c614729fee9638269d0881cf6ab895f19122225a
-tree 84e4d767dbd91faf59e2e4dd93ea780439451cfd
-parent 412f4e2b96e2d30da853368c2a04a2701c0be7b8
-author Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 00:09:28 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Sun, 31 Dec 2006 00:09:28 +0059
-
- drivers/char/mxser_new.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index f078ddf..0b66056 100644
---- a/drivers/char/mxser_new.c
-+++ b/drivers/char/mxser_new.c
-@@ -2348,7 +2348,6 @@ static void mxser_release_res(struct mxser_board *brd, struct pci_dev *pdev,
- #ifdef CONFIG_PCI
- 		pci_release_region(pdev, 2);
- 		pci_release_region(pdev, 3);
--		pci_dev_put(pdev);
- #endif
- 	} else {
- 		release_region(brd->ports[0].ioaddr, 8 * brd->info->nports);
+>From the look of it, I'd say that it's size reported by disk being
+more than what's accessible.  Take a look at the block numbers...

@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933171AbWLaNZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933175AbWLaNjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933171AbWLaNZj (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 08:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933172AbWLaNZj
+	id S933175AbWLaNjZ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 08:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933172AbWLaNjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 08:25:39 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:52942 "EHLO ogre.sisk.pl"
+	Sun, 31 Dec 2006 08:39:24 -0500
+Received: from ns.firmix.at ([62.141.48.66]:49345 "EHLO ns.firmix.at"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933171AbWLaNZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 08:25:38 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Suspend problems on 2.6.20-rc2-git1
-Date: Sun, 31 Dec 2006 14:27:01 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <459771A2.6060301@shaw.ca>
-In-Reply-To: <459771A2.6060301@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S933175AbWLaNjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 08:39:23 -0500
+Subject: Re: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Pavel Machek <pavel@ucw.cz>, Amit Choudhary <amit2030@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0612280952450.15825@yvahk01.tjqt.qr>
+References: <20061221234127.29189.qmail@web55606.mail.re4.yahoo.com>
+	 <20061227171010.GA4088@ucw.cz>
+	 <Pine.LNX.4.61.0612280952450.15825@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Sun, 31 Dec 2006 14:38:32 +0100
+Message-Id: <1167572312.3318.47.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-Firmix-Scanned-By: MIMEDefang 2.56 on ns.firmix.at
+X-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
+X-Firmix-Spam-Status: No, hits=-2.41 required=5
+X-Firmix-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
 Content-Disposition: inline
-Message-Id: <200612311427.02175.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 31 December 2006 09:15, Robert Hancock wrote:
-> Having some suspend problems on 2.6.20-rc2-git1 with Fedora Core 6. 
-> First of all the normal user interface for hibernate isn't working 
-> properly while it did in 2.6.19. When you select "Hibernate" it seems to 
-> stop X and go into console mode but somehow doesn't seem to actually 
-> start the process of suspending. I'm not sure at what point it is failing.
+On Thu, 2006-12-28 at 09:54 +0100, Jan Engelhardt wrote:
+> On Dec 27 2006 17:10, Pavel Machek wrote:
 > 
-> Secondly, if you try and suspend manually it claims there is no swap 
-> device available when there clearly is:
+> >> Was just wondering if the _var_ in kfree(_var_) could be set to
+> >> NULL after its freed. It may solve the problem of accessing some
+> >> freed memory as the kernel will crash since _var_ was set to NULL.
+> >> 
+> >> Does this make sense? If yes, then how about renaming kfree to
+> >> something else and providing a kfree macro that would do the
+> >> following:
+> >> 
+> >> #define kfree(x) do { \
+> >>                       new_kfree(x); \
+> >>                       x = NULL; \
+> >>                     } while(0)
+> >> 
+> >> There might be other better ways too.
+
+----  snip  ----
+(x) = NULL; \
+----  snip  ----
+?
+
+> >No, that would be very confusing. Otoh having
+> >KFREE() do kfree() and assignment might be acceptable.
 > 
-> [root@localhost rob]# cat /proc/swaps
-> Filename                                Type            Size    Used 
-> Priority
-> /dev/mapper/VolGroup00-LogVol01         partition       1048568 0       -1
-> [root@localhost rob]# echo disk > /sys/power/state
-> bash: echo: write error: No such device or address
+> What about setting x to some poison value from <linux/poison.h>?
 
-Hm, at first sight it looks like something broke the suspend to swap
-partitions located on LVM.  For now I have no idea what it was.
+That depends on the decision/definition if (so called) "double free" is
+an error or not (and "free(NULL)" must work in POSIX-compliant
+environments).
+Personally I think it is pointless to disallow "kfree(NULL)" by using
+some poison value and force people to add a "we have to free that
+variable" variable to work around it instead of keeping it NULL (which
+makes the "kfree($variable)" a no-op).
+Former discussions are to be found in the archives ......
 
-Have you tried any kernels between 2.6.19 and 2.6.20-rc2-git1?
-
-Greetings,
-Rafael
-
-
+	Bernd
 -- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933093AbWLaIJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933094AbWLaION@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933093AbWLaIJY (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 03:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933094AbWLaIJY
+	id S933094AbWLaION (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 03:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933095AbWLaION
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 03:09:24 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:35864 "EHLO
+	Sun, 31 Dec 2006 03:14:13 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:16206 "EHLO
 	pd5mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933093AbWLaIJV (ORCPT
+	with ESMTP id S933094AbWLaIOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 03:09:21 -0500
-Date: Sun, 31 Dec 2006 02:10:41 -0600
+	Sun, 31 Dec 2006 03:14:11 -0500
+Date: Sun, 31 Dec 2006 02:15:30 -0600
 From: Robert Hancock <hancockr@shaw.ca>
-Subject: ipw2200 device naming problems in 2.6.20-rc2-git1
+Subject: Suspend problems on 2.6.20-rc2-git1
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <45977081.6040303@shaw.ca>
+Message-id: <459771A2.6060301@shaw.ca>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Content-transfer-encoding: 7bit
@@ -22,14 +22,23 @@ User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having some intermittent problems using my ipw2200 wireless card on 
-2.6.20-rc2-git1 (may affect earlier versions as well) under Fedora Core 
-6 i386. It appears that sometimes on bootup the interface gets named 
-with a junk name like __tmp32284835 and it doesn't show up in ifconfig. 
-rmmod/insmod on ipw2200 fixes the problem and it shows up as eth1 again. 
-I don't think this problem happened with Fedora 2.6.18 kernels..
+Having some suspend problems on 2.6.20-rc2-git1 with Fedora Core 6. 
+First of all the normal user interface for hibernate isn't working 
+properly while it did in 2.6.19. When you select "Hibernate" it seems to 
+stop X and go into console mode but somehow doesn't seem to actually 
+start the process of suspending. I'm not sure at what point it is failing.
 
-Full dmesg:
+Secondly, if you try and suspend manually it claims there is no swap 
+device available when there clearly is:
+
+[root@localhost rob]# cat /proc/swaps
+Filename                                Type            Size    Used 
+Priority
+/dev/mapper/VolGroup00-LogVol01         partition       1048568 0       -1
+[root@localhost rob]# echo disk > /sys/power/state
+bash: echo: write error: No such device or address
+
+Full dmesg from bootup and attempted suspend:
 
 Linux version 2.6.20-rc2-git1 (rob@localhost.localdomain) (gcc version 
 4.1.1 20061011 (Red Hat 4.1.1-30)) #1 SMP Sun Dec 31 01:33:54 CST 2006
@@ -515,6 +524,106 @@ ACPI: PCI Interrupt 0000:02:02.0[A] -> Link [C0C5] -> GSI 5 (level, low)
 ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
 ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
 eth1: no IPv6 routers present
+Disabling non-boot CPUs ...
+Stopping tasks ... done.
+Shrinking memory...  -\|/-done (67667 pages freed)
+Freed 270668 kbytes in 0.55 seconds (492.12 MB/s)
+Suspending console(s)
+pnp: Device 00:05 disabled.
+pnp: Device 00:03 disabled.
+pnp: Device 00:02 disabled.
+eth1: Going into suspend...
+ACPI: PCI interrupt for device 0000:02:02.0 disabled
+ohci1394 does not fully support suspend and resume yet
+ACPI: PCI interrupt for device 0000:00:1f.6 disabled
+codec_write 0: semaphore is not ready for register 0x26
+ACPI: PCI interrupt for device 0000:00:1f.5 disabled
+ACPI: PCI interrupt for device 0000:00:1d.7 disabled
+ACPI: PCI interrupt for device 0000:00:1d.2 disabled
+ACPI: PCI interrupt for device 0000:00:1d.1 disabled
+ACPI: PCI interrupt for device 0000:00:1d.0 disabled
+swsusp: critical section:
+swsusp: Need to copy 56787 pages
+swsusp: critical section/: done (56787 pages copied)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+ACPI: PCI Interrupt 0000:00:1d.0[A] -> Link [C0C2] -> GSI 10 (level, 
+low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+ACPI: PCI Interrupt 0000:00:1d.1[B] -> Link [C0C5] -> GSI 5 (level, low) 
+-> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+ACPI: PCI Interrupt 0000:00:1d.2[C] -> Link [C0C4] -> GSI 5 (level, low) 
+-> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+PCI: Enabling device 0000:00:1d.7 (0000 -> 0002)
+ACPI: PCI Interrupt 0000:00:1d.7[D] -> Link [C0C9] -> GSI 5 (level, low) 
+-> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+PM: Writing back config space on device 0000:00:1d.7 at offset f (was 
+400, writing 405)
+PM: Writing back config space on device 0000:00:1d.7 at offset 4 (was 0, 
+writing a0000000)
+PCI: Setting latency timer of device 0000:00:1e.0 to 64
+PCI: Setting latency timer of device 0000:00:1f.1 to 64
+ACPI: PCI Interrupt 0000:00:1f.3[B] -> Link [C0C3] -> GSI 10 (level, 
+low) -> IRQ 10
+PM: Writing back config space on device 0000:00:1f.5 at offset f (was 
+200, writing 20a)
+PM: Writing back config space on device 0000:00:1f.5 at offset 7 (was 0, 
+writing a0300000)
+PM: Writing back config space on device 0000:00:1f.5 at offset 6 (was 0, 
+writing a0200000)
+PM: Writing back config space on device 0000:00:1f.5 at offset 5 (was 1, 
+writing 4881)
+PM: Writing back config space on device 0000:00:1f.5 at offset 4 (was 1, 
+writing 4001)
+PM: Writing back config space on device 0000:00:1f.5 at offset 1 (was 
+2900000, writing 2900003)
+ACPI: PCI Interrupt 0000:00:1f.5[B] -> Link [C0C3] -> GSI 10 (level, 
+low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+PM: Writing back config space on device 0000:00:1f.6 at offset f (was 
+200, writing 20a)
+PM: Writing back config space on device 0000:00:1f.6 at offset 5 (was 1, 
+writing 4801)
+PM: Writing back config space on device 0000:00:1f.6 at offset 4 (was 1, 
+writing 4401)
+PM: Writing back config space on device 0000:00:1f.6 at offset 1 (was 
+2900000, writing 2900001)
+ACPI: PCI Interrupt 0000:00:1f.6[B] -> Link [C0C3] -> GSI 10 (level, 
+low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [C0C2] -> GSI 10 (level, 
+low) -> IRQ 10
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[10] 
+MMIO=[90200000-902007ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
+eth1: Coming out of suspend...
+PCI: Enabling device 0000:02:02.0 (0000 -> 0002)
+ACPI: PCI Interrupt 0000:02:02.0[A] -> Link [C0C5] -> GSI 5 (level, low) 
+-> IRQ 5
+PM: Writing back config space on device 0000:02:02.0 at offset f (was 
+18030100, writing 1803010b)
+PM: Writing back config space on device 0000:02:02.0 at offset 4 (was 0, 
+writing 90000000)
+PM: Writing back config space on device 0000:02:02.0 at offset 3 (was 0, 
+writing 8008)
+PM: Writing back config space on device 0000:02:02.0 at offset 1 (was 
+2900002, writing 2900006)
+pnp: Device 00:02 activated.
+pnp: Device 00:03 activated.
+pnp: Device 00:05 activated.
+pnp: Device 00:0a does not support activation.
+pnp: Device 00:0b does not support activation.
+ata1: EH complete
+ata2: EH complete
+swsusp: Cannot find swap device, try swapon -a.
+Restarting tasks ... done.
+Enabling non-boot CPUs ...
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
+[drm] Loading R200 Microcode
 
 
 -- 

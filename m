@@ -1,68 +1,112 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933193AbWLaQhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933198AbWLaQoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933193AbWLaQhI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 11:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933198AbWLaQhI
+	id S933198AbWLaQoj (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 11:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933199AbWLaQoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 11:37:08 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:5701 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933197AbWLaQhG convert rfc822-to-8bit (ORCPT
+	Sun, 31 Dec 2006 11:44:39 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:43384 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933198AbWLaQoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 11:37:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PGDZWaWe7Y+A2Pq27p5GXMGxtXbX8X0CXz7Rc4d3s284RVNPPvlCxQkj8DPksvTWcr0V2sjB4Fb+FMj7Og3jEjyDmP74l+xGGlxW4zEF+d3HzsgENROoi73W8OuCE7rMWVGrTd6FIMW6LxBmQz0ckH3wZ5uSrwcU3/w4lvRL1GU=
-Message-ID: <80ec54e90612310837y786fd764oc18bf37c8f0b2b8c@mail.gmail.com>
-Date: Sun, 31 Dec 2006 17:37:05 +0100
-From: "=?ISO-8859-1?Q?Daniel_Marjam=E4ki?=" <daniel.marjamaki@gmail.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH] net/core/flow.c: compare data with memcmp
-Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+	Sun, 31 Dec 2006 11:44:38 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Sun, 31 Dec 2006 11:39:09 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Folkert van Heusden <folkert@vanheusden.com>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+In-Reply-To: <1167572735.20929.750.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0612311118490.13153@localhost.localdomain>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain> 
+ <200612302149.35752.vda.linux@googlemail.com> 
+ <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain> 
+ <1167518748.20929.578.camel@laptopd505.fenrus.org>  <20061231133902.GA13521@vanheusden.com>
+ <1167572735.20929.750.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Marjamäki
-This has been tested by me.
-Signed-off-by: Daniel Marjamäki <daniel.marjamaki@gmail.com>
---- linux-2.6.20-rc2/net/core/flow.c	2006-12-27 09:59:56.000000000 +0100
-+++ linux/net/core/flow.c	2006-12-31 18:26:06.000000000 +0100
-@@ -144,29 +144,16 @@ typedef u32 flow_compare_t;
+On Sun, 31 Dec 2006, Arjan van de Ven wrote:
 
- extern void flowi_is_missized(void);
+> On Sun, 2006-12-31 at 14:39 +0100, Folkert van Heusden wrote:
+> > > > i don't see how that can be true, given that most of the definitions
+> > > > of the clear_page() macro are simply invocations of memset().  see for
+> > > > yourself:
+> > > *MOST*. Not all.
+> > > For example an SSE version will at least assume 16 byte alignment, etc
+> > > etc.
+> >
+> > What about an if (adress & 15) { memset } else { sse stuff }
+> > or is that too obvious? :-)
+>
+> it's only one example. clear_page() working only on a full page is a
+> nice restriction that allows the implementation to be optimized
+> (again the x86 hardware that had a hardware page zeroer comes to
+> mind, the hw is only 4 years old or so... and future hw may have it
+> again)
+>
+> clear_page() is more restricted than memset(). And that's good, it
+> allows for a more focused implementation. Otherwise there'd be no
+> reason to HAVE a clear_page(), if it just was a memset wrapper
+> entirely.
 
--/* I hear what you're saying, use memcmp.  But memcmp cannot make
-- * important assumptions that we can here, such as alignment and
-- * constant size.
-- */
- static int flow_key_compare(struct flowi *key1, struct flowi *key2)
- {
--	flow_compare_t *k1, *k1_lim, *k2;
--	const int n_elem = sizeof(struct flowi) / sizeof(flow_compare_t);
--
- 	if (sizeof(struct flowi) % sizeof(flow_compare_t))
- 		flowi_is_missized();
+(just one more note about this, then i'll stop dragging it out.  i
+didn't mean to get this long-winded about it.)
 
--	k1 = (flow_compare_t *) key1;
--	k1_lim = k1 + n_elem;
--
--	k2 = (flow_compare_t *) key2;
--
--	do {
--		if (*k1++ != *k2++)
--			return 1;
--	} while (k1 < k1_lim);
-+	/* Number of elements to compare */
-+	const int n_elem = sizeof(struct flowi) / sizeof(flow_compare_t);
+arjan, you and i actually agree on this.  i fully accept that the idea
+of a "clear_page()" call might or should have extra semantics,
+compared to the more simple and direct "memset(...,0,PAGE_SIZE)" call
+(such as alignment requirements, for example). my observation is
+simply that this is not what is currently happening.
 
--	return 0;
-+	/* Compare all elements in key1 and key2. */
-+	return memcmp(key1, key2, n_elem * sizeof(flow_compare_t));
- }
+consider, for example, how many calls there are to clear_page() in the
+drivers directory:
 
- void *flow_cache_lookup(struct flowi *key, u16 family, u8 dir,
+  $ grep -rw clear_page drivers
+
+not that many.  now how many calls are there of the memset variety?
+
+  $ grep -Er "memset(.*0, ?PAGE_SIZE)" drivers
+
+i can't believe that at least *some* of those memset() calls couldn't
+be re-written as clear_page() calls.  and that's just for the
+drivers/ directory.
+
+  sure, clear_page() might have extra semantics.  but if that's the
+case, and those semantics happen to be in play, i'm suggesting that
+not only *can* one use clear_page() at that point, one *should* use
+it.
+
+  put another way, if a given situation is appropriate for a call to
+clear_page(), then that's what should be used.  because if one sees
+instead a call to an equivalent memset(), that might suggest that
+there's something *preventing* the use of clear_page() -- that it's
+not appropriate.  and, really, there's no need to be unnecessarily
+confusing.
+
+  this is just another example of the basic kernel infrastructure
+defining lots of useful features (ARRAY_SIZE, etc.) and lots of
+programmers not using them for one reason or another.  in this
+situation with clear_page(), the semantics of that call should be
+defined clearly and, when the situation arises, i think that call
+should be used unless there's a clear reason *not* to.  it just makes
+the code easier to read.
+
+  and on that note, i'll let this one go.  others are free to follow
+up.
+
+rday
+
+
+
+

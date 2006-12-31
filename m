@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933202AbWLaRH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933204AbWLaRK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933202AbWLaRH5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 12:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933204AbWLaRH5
+	id S933204AbWLaRK7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 12:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933205AbWLaRK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 12:07:57 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:1465 "EHLO
+	Sun, 31 Dec 2006 12:10:58 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:1890 "EHLO
 	anchor-post-32.mail.demon.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933202AbWLaRH4 (ORCPT
+	by vger.kernel.org with ESMTP id S933204AbWLaRK6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 12:07:56 -0500
-Date: Sun, 31 Dec 2006 15:10:06 +0000
+	Sun, 31 Dec 2006 12:10:58 -0500
+Date: Sun, 31 Dec 2006 17:08:20 +0000
 From: Darren Salt <linux@youmustbejoking.demon.co.uk>
-To: linux-kernel@vger.kernel.org, drzeus-mmc@drzeus.cx
-Mail-Followup-To: linux@youmustbejoking.demon.co.uk,linux-kernel@vger.kernel.org,drzeus-mmc@drzeus.cx
-Subject: Re: [PATCH 2.6.20-rc2] Add a quirk to allow at least some ENE PCI SD card readers to work again
-Message-ID: <4E9DE7C297%linux@youmustbejoking.demon.co.uk>
-References: <4E9DA5E8EB%linux@youmustbejoking.demon.co.uk> <4597A791.60007@drzeus.cx>
-In-Reply-To: <4597A791.60007@drzeus.cx>
+To: linux-kernel@vger.kernel.org, drzeus-mmc@drzeus.cx,
+       sdhci-devel@list.drzeus.cx
+Subject: [PATCH 2.6.20-rc2] Add a quirk to allow ENE PCI SD card readers to work again
+Message-ID: <4E9DF295D4%linux@youmustbejoking.demon.co.uk>
+References: <4E9DA5E8EB%linux@youmustbejoking.demon.co.uk> <4597A791.60007@drzeus.cx> <4E9DE7C297%linux@youmustbejoking.demon.co.uk>
+In-Reply-To: <4E9DE7C297%linux@youmustbejoking.demon.co.uk>
 User-Agent: Messenger-Pro/4.14b7 (MsgServe/3.26b1) (RISC-OS/4.02) POPstar/2.06+cvs
+Mail-Followup-To: linux@youmustbejoking.demon.co.uk,linux-kernel@vger.kernel.org,drzeus-mmc@drzeus.cx,sdhci-devel@list.drzeus.cx
 X-Editor: Zap 1.47 (27 Apr 2006) [TEST], ZapEmail 0.28.3 (25 Mar 2005) (32)
-X-SDate: Sun, 4870 Sep 1993 15:10:06 +0000
+X-SDate: Sun, 4870 Sep 1993 17:08:20 +0000
 X-Message-Flag: Outlook Express is broken. Upgrade to mail(1).
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -30,58 +31,75 @@ X-SA-Exim-Scanned: No (on pentagram.youmustbejoking.demon.co.uk); SAEximRunCond 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I demand that Pierre Ossman may or may not have written...
+Add a quirk to allow ENE PCI SD card readers to work again
 
-> Darren Salt wrote:
->> Add a quirk to allow at least some ENE PCI SD card readers to work again
+Support for these devices was broken for 2.6.18-rc1 and later by commit
+146ad66eac836c0b976c98f428d73e1f6a75270d, which added voltage level support.
 
->> Support for these devices was broken for 2.6.18-rc1 and later by commit
->> 146ad66eac836c0b976c98f428d73e1f6a75270d, which added voltage level
->> support.
+This restores the previous behaviour for these devices by ensuring that when
+the voltage is changed, only one write to set the voltage is performed.
 
->> This restores the previous behaviour for these devices (PCI ID 1524:0550).
+It may be that both writes are needed if the voltage is being changed between
+two non-zero values or that it's safe to ensure that only one write is done
+if the hardware only supports one voltage; I don't know whether either is the
+case nor can I test since I have only the one SD reader (1524:0550), and it
+supports just the one voltage.
 
->> Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
+Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
 
-> Oh? If this is the source of problems for ENE controllers then this is
-> indeed a magnificent find. Good work.
-
-> I'd like to know a little more about it though:
-
-> - Exactly what errors where you seeing without this patch?
-
-The device was recognised, but insertion of a card was effectively not being
-noticed, with no messages in the kernel log. (I say 'effectively': interrupts
-were definitely being received and processed.)
-
-> - The patch effectively sets only the highest power. Have you tried other
-> bit combinations to figure out if all of these are really needed?
-
-I have now... bits 4 to 7 are ignored, so 0x0F is fine; and it's what's
-needed since lower values don't work.
-
-It turns out that the reader only supports one voltage (caps &
-SDHCI_CAN_VDD_330 is true, the others are false) and the code was already
-selecting the correct value for the hardware. So I tried reverting the patch
-and ensuring that the first writeb() in sdhci_set_power() isn't done if the
-second one will be - and things started working properly again.
-
-> (This also means that the current patch is broken as the limited voltage
-> range needs to also be reported to the MMC layer).
-
-> - Could you change the patch so that it covers all ENE controllers and send
-> it out for testing on sdhci-devel? That way we could see if there are any
-> more ENE controllers that will benefit from this quirk. Just remember to
-> ask people for a lspci.
-
-Sent as a follow-up to this message.
-
-(BTW, is there a version of Thunderbird which preserves Mail-Followup-To in
-followups? I ask because I see that that header got lost...)
+diff -ur linux-2.6.20-rc2.orig/drivers/mmc/sdhci.c linux-2.6.20-rc2/drivers/mmc/sdhci.c
+--- linux-2.6.20-rc2.orig/drivers/mmc/sdhci.c	2006-12-30 15:34:11.000000000 +0000
++++ linux-2.6.20-rc2/drivers/mmc/sdhci.c	2006-12-31 16:43:50.000000000 +0000
+@@ -37,6 +37,7 @@
+ #define SDHCI_QUIRK_FORCE_DMA				(1<<1)
+ /* Controller doesn't like some resets when there is no card inserted. */
+ #define SDHCI_QUIRK_NO_CARD_NO_RESET			(1<<2)
++#define SDHCI_QUIRK_SINGLE_POWER_WRITE			(1<<3)
+ 
+ static const struct pci_device_id pci_ids[] __devinitdata = {
+ 	{
+@@ -65,6 +66,16 @@
+ 		.driver_data	= SDHCI_QUIRK_FORCE_DMA,
+ 	},
+ 
++	{
++		.class		= PCI_CLASS_SYSTEM_SDHCI << 8,
++		.class_mask	= 0xFFFF00,
++		.vendor		= PCI_VENDOR_ID_ENE,
++		.device		= PCI_ANY_ID,
++		.subvendor	= PCI_ANY_ID,
++		.subdevice	= PCI_ANY_ID,
++		.driver_data	= SDHCI_QUIRK_SINGLE_POWER_WRITE,
++	},
++
+ 	{	/* Generic SD host controller */
+ 		PCI_DEVICE_CLASS((PCI_CLASS_SYSTEM_SDHCI << 8), 0xFFFF00)
+ 	},
+@@ -669,16 +680,17 @@
+ 
+ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
+ {
+-	u8 pwr;
++	u8 pwr = 0;
+ 
+ 	if (host->power == power)
+ 		return;
+ 
+-	writeb(0, host->ioaddr + SDHCI_POWER_CONTROL);
+-
+ 	if (power == (unsigned short)-1)
+ 		goto out;
+ 
++	if ((host->chip->quirks & SDHCI_QUIRK_SINGLE_POWER_WRITE) == 0)
++		writeb(0, host->ioaddr + SDHCI_POWER_CONTROL);
++
+ 	pwr = SDHCI_POWER_ON;
+ 
+ 	switch (power) {
 
 -- 
 | Darren Salt    | linux or ds at              | nr. Ashington, | Toon
 | RISC OS, Linux | youmustbejoking,demon,co,uk | Northumberland | Army
-| + Generate power using sun, wind, water, nuclear.      FORGET COAL AND OIL.
+|   Kill all extremists!
 
-File already exists, 0:1
+Confucius say: Many pages make thick book.

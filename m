@@ -1,57 +1,135 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932948AbWLaFt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932995AbWLaFxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932948AbWLaFt5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 00:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932989AbWLaFt5
+	id S932995AbWLaFxB (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 00:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWLaFxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 00:49:57 -0500
-Received: from xenotime.net ([66.160.160.81]:38312 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932948AbWLaFt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 00:49:56 -0500
-Date: Sat, 30 Dec 2006 21:36:28 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-Cc: tali@admingilde.org, linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] DocBook/HTML: Generate chapter/section level TOCs for
- functions
-Message-Id: <20061230213628.76c22d13.rdunlap@xenotime.net>
-In-Reply-To: <200612310227.47721.pisa@cmp.felk.cvut.cz>
-References: <200612310227.47721.pisa@cmp.felk.cvut.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sun, 31 Dec 2006 00:53:00 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:62079 "EHLO gaz.sfgoth.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932995AbWLaFw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 00:52:59 -0500
+X-Greylist: delayed 847 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 Dec 2006 00:52:59 EST
+Date: Sat, 30 Dec 2006 21:59:07 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Amit Choudhary <amit2030@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, chas@cmf.nrl.navy.mil
+Subject: Re: [PATCH 2.6.20-rc2] [BUGFIX] drivers/atm/firestream.c: Fix infinite recursion when alignment passed is 0.
+Message-ID: <20061231055906.GE35756@gaz.sfgoth.com>
+References: <20061230182603.d3815dcb.amit2030@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061230182603.d3815dcb.amit2030@gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Sat, 30 Dec 2006 21:59:08 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2006 02:27:46 +0100 Pavel Pisa wrote:
+First, if you want to get patches merged you should send them to the subsystem
+maintained (in this case Chas, who I've cc:'ed)  Also if you feel it needs to
+be sent to mailing list you should usually use a more specific list first
+(like the ATM list or maybe netdev)  Please see Documentation/SubmittingPatches
 
-> Simple increase of section TOC level generation significantly
-> enhances navigation experience through generated kernel
-> API documentation.
-> 
-> This change restores back state from SGML tools time.
-> 
-> Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+Amit Choudhary wrote:
+> Description: Fix infinite recursion when alignment passed is 0 in function aligned_kmalloc(),
 
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+I'm curious how you hit this -- the only caller to aligned_kmalloc() passes
+a constant "0x10"
 
-Andrew, please put this into -mm for testing.
+Looking at aligned_kmalloc() it seems to be pretty badly broken -- its fallback
+if it gets a non-aligned buffer is to just try a larger size which doesn't
+necessarily fix the problem.  It looks like explicitly aligning the buffer
+is a better solution.
 
+Could you test this patch?  If it works feel free to forward it on to Chas.
 
-> Index: linux-2.6.19/Documentation/DocBook/stylesheet.xsl
-> ===================================================================
-> --- linux-2.6.19.orig/Documentation/DocBook/stylesheet.xsl
-> +++ linux-2.6.19/Documentation/DocBook/stylesheet.xsl
-> @@ -4,4 +4,5 @@
->  <param name="funcsynopsis.style">ansi</param>
->  <param name="funcsynopsis.tabular.threshold">80</param>
->  <!-- <param name="paper.type">A4</param> -->
-> +<param name="generate.section.toc.level">2</param>
->  </stylesheet>
-> -
+-Mitch
 
----
-~Randy
+[PATCH] [ATM] remove firestream.c's aligned_kmalloc()
+
+Signed-off-by: Mitchell Blank Jr <mitch@sfgoth.com>
+
+diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
+index 9c67df5..df8b0c0 100644
+--- a/drivers/atm/firestream.c
++++ b/drivers/atm/firestream.c
+@@ -1379,38 +1379,22 @@ static void reset_chip (struct fs_dev *d
+ 	}
+ }
+ 
+-static void __devinit *aligned_kmalloc (int size, gfp_t flags, int alignment)
+-{
+-	void  *t;
+-
+-	if (alignment <= 0x10) {
+-		t = kmalloc (size, flags);
+-		if ((unsigned long)t & (alignment-1)) {
+-			printk ("Kmalloc doesn't align things correctly! %p\n", t);
+-			kfree (t);
+-			return aligned_kmalloc (size, flags, alignment * 4);
+-		}
+-		return t;
+-	}
+-	printk (KERN_ERR "Request for > 0x10 alignment not yet implemented (hard!)\n");
+-	return NULL;
+-}
+-
+ static int __devinit init_q (struct fs_dev *dev, 
+ 			  struct queue *txq, int queue, int nentries, int is_rq)
+ {
+-	int sz = nentries * sizeof (struct FS_QENTRY);
++	unsigned sz = nentries * sizeof (struct FS_QENTRY);
+ 	struct FS_QENTRY *p;
++	void *vp;
+ 
+ 	func_enter ();
+ 
+ 	fs_dprintk (FS_DEBUG_INIT, "Inititing queue at %x: %d entries:\n", 
+ 		    queue, nentries);
+-
+-	p = aligned_kmalloc (sz, GFP_KERNEL, 0x10);
++	vp = kmalloc(sz + 0xF, GFP_KERNEL);
++	p = (struct FS_QENTRY *) ALIGN((unsigned long) vp, 0x10);
+ 	fs_dprintk (FS_DEBUG_ALLOC, "Alloc queue: %p(%d)\n", p, sz);
+ 
+-	if (!p) return 0;
++	if (!vp) return 0;
+ 
+ 	write_fs (dev, Q_SA(queue), virt_to_bus(p));
+ 	write_fs (dev, Q_EA(queue), virt_to_bus(p+nentries-1));
+@@ -1423,8 +1407,7 @@ static int __devinit init_q (struct fs_d
+ 		write_fs (dev, Q_CNF(queue), 0 ); 
+ 	}
+ 
+-	txq->sa = p;
+-	txq->ea = p;
++	txq->buf = vp;
+ 	txq->offset = queue; 
+ 
+ 	func_exit ();
+@@ -1529,8 +1512,8 @@ static void __devexit free_queue (struct
+ 	write_fs (dev, Q_WP(txq->offset), 0);
+ 	/* Configuration ? */
+ 
+-	fs_dprintk (FS_DEBUG_ALLOC, "Free queue: %p\n", txq->sa);
+-	kfree (txq->sa);
++	fs_dprintk (FS_DEBUG_ALLOC, "Free queue: %p\n", txq->buf);
++	kfree (txq->buf);
+ 
+ 	func_exit ();
+ }
+diff --git a/drivers/atm/firestream.h b/drivers/atm/firestream.h
+index 49e783e..5408766 100644
+--- a/drivers/atm/firestream.h
++++ b/drivers/atm/firestream.h
+@@ -455,7 +455,7 @@ struct fs_vcc {
+ 
+ 
+ struct queue {
+-	struct FS_QENTRY *sa, *ea;  
++	void *buf;  
+ 	int offset;
+ };
+ 
+

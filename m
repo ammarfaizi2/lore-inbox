@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933153AbWLaMWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933158AbWLaMZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933153AbWLaMWR (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 07:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933154AbWLaMWR
+	id S933158AbWLaMZd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 07:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933157AbWLaMZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 07:22:17 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:21790 "EHLO
-	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933153AbWLaMWQ (ORCPT
+	Sun, 31 Dec 2006 07:25:33 -0500
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:40225 "EHLO
+	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933154AbWLaMZc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 07:22:16 -0500
-Date: Sun, 31 Dec 2006 13:22:03 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Michael Holzheu <holzheu@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [S390] cio: fix stsch_reset.
-Message-ID: <20061231122203.GA11633@osiris.ibm.com>
-References: <200612310135_MC3-1-D6D0-A862@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612310135_MC3-1-D6D0-A862@compuserve.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Sun, 31 Dec 2006 07:25:32 -0500
+To: rmk+lkml@arm.linux.org.uk
+CC: davem@davemloft.net, arjan@infradead.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, akpm@osdl.org
+In-reply-to: <20061231100007.GC1702@flint.arm.linux.org.uk> (message from
+	Russell King on Sun, 31 Dec 2006 10:00:07 +0000)
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
+References: <20061230.212338.92583434.davem@davemloft.net> <20061231092318.GA1702@flint.arm.linux.org.uk> <1167557242.20929.647.camel@laptopd505.fenrus.org> <20061231.014756.112264804.davem@davemloft.net> <20061231100007.GC1702@flint.arm.linux.org.uk>
+Message-Id: <E1H0zkD-0003uw-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 31 Dec 2006 13:24:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2006 at 01:31:43AM -0500, Chuck Ebbert wrote:
-> In-Reply-To: <20061228103925.GB6270@skybase>
-> 
-> On Thu, 28 Dec 2006 11:39:25 +0100, Martin Schwidefsky wrote:
-> 
-> > @@ -881,10 +880,18 @@ static void cio_reset_pgm_check_handler(
-> >  static int stsch_reset(struct subchannel_id schid, volatile struct schib *addr)
-> >  {
-> >       int rc;
-> > +     register struct subchannel_id reg1 asm ("1") = schid;
-> >
-> >       pgm_check_occured = 0;
-> >       s390_reset_pgm_handler = cio_reset_pgm_check_handler;
-> > -     rc = stsch(schid, addr);
-> > +
-> > +     asm volatile(
-> > +             "       stsch   0(%2)\n"
-> > +             "       ipm     %0\n"
-> > +             "       srl     %0,28"
-> > +             : "=d" (rc)
-> > +             : "d" (reg1), "a" (addr), "m" (*addr) : "memory", "cc");
-> > +
-> >       s390_reset_pgm_handler = NULL;
-> >       if (pgm_check_occured)
-> >               return -EIO;
-> 
-> 
-> Can't you just put a barrier() before the stsch() call?
+> I'm willing to do that - and I guess this means we can probably do this
+> instead of walking the list of VMAs for the shared mapping, thereby
+> hitting both anonymous and shared mappings with the same code?
 
-Yes, that would work too and would look much nicer.
+But for the get_user_pages() case there's no point, is there?  The VMA
+and the virtual address is already available, so trying to find it
+again through RMAP doesn't much make sense.
 
-I think we should change the reset program check handler, so that it searches
-the exception tables. At least for in-kernel addresses that should work.
-For addresses within modules this might cause deadlocks, since the module
-code takes spinlocks and we are in a context where we just killed all cpus
-not knowing what they executed... Hmm..
+Users of get_user_pages() don't care about any other mappings (maybe
+ptrace does, I don't know) only about one single user mapping and one
+kernel mapping.
+
+So using flush_dcache_page() there is an overkill, trying to teach it
+about anonymous pages is not the real solution, flush_dcache_page()
+was never meant to be used on anything but file mapped pages.
+
+Miklos

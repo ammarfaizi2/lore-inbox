@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933239AbWLaWXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754556AbWLaXZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933239AbWLaWXQ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 17:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933240AbWLaWXQ
+	id S1754556AbWLaXZY (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 18:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754572AbWLaXZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 17:23:16 -0500
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:38128 "HELO
-	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S933239AbWLaWXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 17:23:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:Subject:Date:User-Agent:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=QhxHNOoaIWnlbKqEdd8GwvwPedq9ovH9g+TULYw6qzxpwxMjOC3Znc34sNDuT9sxIKJxv9OSI21W62WnZPVGf4Dl6AnNTPZEcbRopA2EsUoOyxcXxODlPzgMloPNHIGQPnfE7/8uBrEVONmcEd5x1lBdei5h97rCKjX09Nw1bIE=  ;
-X-YMail-OSG: 4tyCfsIVM1l2kD6ygSHAG5GtG.IxYT_EsEpHsqJpVynMlY01gjwePWWxGC2tYkWd6nNKZaUkjry5Up7RcCC0OeJ13yEE9QhxC59hqAUdQj9l.qGd1N8FFqcMlT5gmfbynrWXeej0IdWAmq8-
-From: David Brownell <david-b@pacbell.net>
-Subject: Fwd: [patch 2.6.19-rc1] rtc-at91rm9200 build fix
-Date: Sun, 31 Dec 2006 14:23:13 -0800
-User-Agent: KMail/1.7.1
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 31 Dec 2006 18:25:24 -0500
+Received: from xenotime.net ([66.160.160.81]:44039 "HELO xenotime.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1754556AbWLaXZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 18:25:23 -0500
+Date: Sun, 31 Dec 2006 15:12:00 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Fengguang Wu <fengguang.wu@gmail.com>, Hua Zhong <hzhong@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       mingo@elte.hu, johnstul@us.ibm.com
+Subject: Re: [BUG 2.6.20-rc2-mm1] init segfaults when
+ CONFIG_PROFILE_LIKELY=y
+Message-Id: <20061231151200.ae90b063.rdunlap@xenotime.net>
+In-Reply-To: <1167599486.14081.89.camel@imap.mvista.com>
+References: <20061231150422.GA5285@mail.ustc.edu.cn>
+	<1167594309.14081.79.camel@imap.mvista.com>
+	<20061231124358.3b0837c2.rdunlap@xenotime.net>
+	<1167599486.14081.89.camel@imap.mvista.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612311423.13502.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch still needs merging ...
+On Sun, 31 Dec 2006 13:11:26 -0800 Daniel Walker wrote:
 
-BTW, glad to see googlegroups finally returns rtc-linux when
-I search for it ... :)
+> On Sun, 2006-12-31 at 12:43 -0800, Randy Dunlap wrote:
+> > On Sun, 31 Dec 2006 11:45:09 -0800 Daniel Walker wrote:
+> > 
+> > > On Sun, 2006-12-31 at 23:04 +0800, Fengguang Wu wrote:
+> > > > Hi,
+> > > > 
+> > > > The following messages keeps popping up when CONFIG_PROFILE_LIKELY=y:
+> > > > 
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > init[1]: segfault at ffffffff8118c110 rip ffffffff8118c110 rsp 00007fff9a9d14d8 error 15
+> > > > 
+> > > 
+> > > 
+> > > Does this seem like an appropriate solution? This just reconstitutes
+> > > Ingo's patch by removing the unlikely calls that got added recently. 
+> > 
+> > How does this fix the problem?  (if it does)
+> > What is the real cause of the problem?
+> 
+> Well I tested it so I sure hope it fixes it (unless I've gone mad). I
+> guess we can wait for Fengguang to test it tho.
 
-----------  Forwarded Message  ----------
+Yes, it fixed it in my testing also.
 
-Subject: [patch 2.6.19-rc1] rtc-at91rm9200 build fix
-Date: Saturday 16 December 2006 3:38 pm
-From: David Brownell <david-b@pacbell.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Cc: Andrew Victor <andrew@sanpeople.com>
+> > > Maybe a comment into vsyscall.c that says to stay away from all macro's
+> > > and possible debug code that could be added might be helpful ?
+> > 
+> > Why?
+> 
+> I don't know very much about vsyscalls, but from what I've read they
+> actually reside in userspace. So with and "unlikely" added into that
+> code, and profiling on, you will end up calling do_check_likely() which
+> is in kernel space that's how the segfault happens. 
+> 
+> I imagine this goes for all debugging in kernel space, you can't add it
+> into a vsyscall. That's my reasoning behind adding a comment.
 
-The at91rm9200 RTC driver needs some assistance to build, because of
-recent header file rearrangement.
+OK, thanks.  The first explanation was a bit lacking IMO,
+but this one begins to help.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
-Index: at91/drivers/rtc/rtc-at91rm9200.c
-===================================================================
---- at91.orig/drivers/rtc/rtc-at91rm9200.c	2006-12-15 10:13:47.000000000 -0800
-+++ at91/drivers/rtc/rtc-at91rm9200.c	2006-12-15 13:06:02.000000000 -0800
-@@ -33,6 +33,8 @@
- 
- #include <asm/mach/time.h>
- 
-+#include <asm/arch/at91_rtc.h>
-+
- 
- #define AT91_RTC_FREQ		1
- #define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
-
-
--------------------------------------------------------
+---
+~Randy

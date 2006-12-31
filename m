@@ -1,152 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933156AbWLaMcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933160AbWLaMlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933156AbWLaMcP (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 07:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933157AbWLaMcP
+	id S933160AbWLaMlw (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 07:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933163AbWLaMlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 07:32:15 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40016 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933156AbWLaMcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 07:32:14 -0500
-Message-ID: <4597ADD2.90700@drzeus.cx>
-Date: Sun, 31 Dec 2006 13:32:18 +0100
-From: Pierre Ossman <drzeus-mmc@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-       dwmw2@infradead.org
-Subject: Re: [RFC] MTD driver for MMC cards
-References: <200612281418.20643.arnd@arndb.de>
-In-Reply-To: <200612281418.20643.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 31 Dec 2006 07:41:51 -0500
+Received: from ns.firmix.at ([62.141.48.66]:49241 "EHLO ns.firmix.at"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933160AbWLaMlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 07:41:50 -0500
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Valdis.Kletnieks@vt.edu, Giuseppe Bilotta <bilotta78@hotpop.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061222115921.GT3073@harddisk-recovery.com>
+References: <loom.20061215T220806-362@post.gmane.org>
+	 <200612162007.32110.marekw1977@yahoo.com.au>
+	 <4587097D.5070501@opensound.com>
+	 <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
+	 <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+	 <20061222115921.GT3073@harddisk-recovery.com>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Sun, 31 Dec 2006 13:41:39 +0100
+Message-Id: <1167568899.3318.39.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
+X-Firmix-Scanned-By: MIMEDefang 2.56 on ns.firmix.at
+X-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
+X-Firmix-Spam-Status: No, hits=-2.41 required=5
+X-Firmix-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> This is an experiment on how an SD/MMC card could be used in the MTD layer.
-> I don't currently have a system set up to test this, so this driver is
-> completely _untested_ and therefore you should consider it _broken_.
+On Fri, 2006-12-22 at 12:59 +0100, Erik Mouw wrote:
+> On Thu, Dec 21, 2006 at 01:16:15PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > At least nVidia *does* actually Get It, they just don't have a choice in
+> > implementing it, because all their current hardware includes patents that
+> > they licensed from other companies (I believe some of the OpenGL stuff that
+> > originated at SGI and got bought by Microsoft is involved, but I have no
+> > hard references for actual patent numbers).  And then they have the big
+> > problem - do they keep using the patent in order to boost performance,
+> > or no?
 > 
-> You can get similar functionality by using the mmc_block driver together
-> with block2mtd, so you may wonder what the point of another driver is.
-> IMHO, there are two separate advantages from using a special driver:
-> 
-> * better use of low-level interfaces: the MTD driver can detect the
->   erase block size of the card and erase sectors in advance instead of
->   blocking in the write path. The MTD file systems also expect the
->   underlying interface to be synchronous, so there is little point
->   in using extra kernel threads to operate on the card in the background.
-> 
+> Wasn't the whole idea about patents that you publish your invention?
 
-I'm a complete MTD noob, but what uses does the MTD layer have besides JFFS2. If it's none, than this advantage isn't that big of a deal.
+Of course.
+But it is much better for the patent-interested parties if it wouldn't
+be necessary (and said parties are actually complaining about the "must
+publish" thing).
+And the times are long gone when a patent was actually "publishing".
+They use since ages there own secret language so
+- the patent system as such doen not enforce "publisching" (except you
+  are one of speakers of "patent quak").
+- that even the most trivial idea looks like it is very complicated.
+- that even an already implemented idean looks like it is very new.
 
-> * It becomes possible to use MMC cards with jffs2 even with CONFIG_BLOCK
->   disabled, which can save a significant amount of kernel memory on
->   small machines that have an MMC slot but no other block device.
-> 
-
->From what I've heard, JFFS2 is close to unusuable on the sizes of modern SD/MMC cards. So I'd like to see some more use cases before I'm ready to let this in.
-
-> I still want to be sure that I'm on the right track with this driver
-> and did not make a conceptual mistake.
-> 
-
-I can comment it from a MMC perspective, but the MTD stuff I will have to assume is correct.
-
-> @@ -616,6 +616,8 @@ static void mmc_decode_csd(struct mmc_ca
->  		csd->r2w_factor = UNSTUFF_BITS(resp, 26, 3);
->  		csd->write_blkbits = UNSTUFF_BITS(resp, 22, 4);
->  		csd->write_partial = UNSTUFF_BITS(resp, 21, 1);
-> +		csd->erase_blksize = (UNSTUFF_BITS(resp, 37, 5) + 1) *
-> +					(UNSTUFF_BITS(resp, 42, 5) + 1);
->  	} else {
->  		/*
->  		 * We only understand CSD structure v1.1 and v1.2.
-
-NAK. SD uses another format for erase blocks. See the simplified physical spec.
-
-> +/*
-> + * transfer a block to/from the card. The block needs to be aligned
-> + * to mtd->writesize. If we want to implement an mtd_writev method,
-> + * this needs to use stream operations with an appropriate stop
-> + * command as well.
-> + */
-> +static int mmc_mtd_transfer_low(struct mmc_card *card, loff_t off, size_t len,
-> +			size_t *retlen, u_char *buf, int write)
-> +{
-> +	struct scatterlist sg;
-> +	struct mmc_data data = {
-> +		.blksz = 1 << card->csd.read_blkbits,
-> +		.blocks = len >> card->csd.read_blkbits,
-
-First of all, you cannot assume that read_blkbits is a valid block size when doing writes.
-
-Secondly, the cards default in a block size of 512 bytes, so you need to tell the card your desired block size during probe.
-
-> +		.flags = write ? MMC_DATA_WRITE : MMC_DATA_READ,
-> +		.sg = &sg,
-> +		.sg_len = 1,
-> +	};
-> +	struct mmc_command cmd = {
-> +		.arg = off,
-> +		.data = &data,
-> +		.flags = MMC_RSP_R1 | MMC_CMD_ADTC,
-> +		.opcode = write ? MMC_WRITE_BLOCK : MMC_READ_SINGLE_BLOCK,
-
-You set .blocks above, so I have to assume it can be more than 1. So you need to change the opcodes accordingly.
-
-> +	};
-> +	struct mmc_request mrq = {
-> +		.cmd = &cmd,
-> +		.data = &data,
-> +	};
-
-And it also means you need a stop command.
-
-> +
-> +	/* copied from the block driver, don't understand why this is needed */
-
-Now this gives me a bad feeling. Have you read any spec about the MMC protocol or are you just winging it?
-
-It is needed because the card goes into programming state after a write, where it is very unresponsive to other commands.
-
-> +
-> +	ret = mmc_card_claim_host(card);
-> +	if (ret) {
-> +		dev_warn(&card->dev, "%s: mmc_card_claim_host returned %d\n",
-> +			__FUNCTION__, ret);
-> +		ret = -EIO;
-> +		goto error;
-> +	}
-
-mmc_card_claim_host() is currently very stupid in that it requires you to call mmc_card_release_host() on error. I intend to fix that some time in the future.
-
-> +/*
-> + * Initialize an mmc card. We create a new MTD device for each
-> + * MMC card we find. The operations are rather straightforward,
-> + * so we don't even need our own data structure to contain the
-> + * mtd_info.
-> + */
-> +static int mmc_mtd_probe(struct mmc_card *card)
-> +{
-> +	struct mtd_info *mtd;
-> +	int ret;
-> +
-> +	if (!(card->csd.cmdclass & CCC_ERASE))
-> +		return -ENODEV;
-> +
-
-You should probably check for CCC_BLOCK_READ here.
-
-And your driver needs to check if the card support writes (both by mmc_card_readonly() and CCC_BLOCK_WRITE).
-
-Rgds
+	Bernd
 -- 
-     -- Pierre Ossman
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org

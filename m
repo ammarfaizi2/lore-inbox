@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933195AbWLaQ35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933193AbWLaQhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933195AbWLaQ35 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 11:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933196AbWLaQ35
+	id S933193AbWLaQhI (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 11:37:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933198AbWLaQhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 11:29:57 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:40762 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933195AbWLaQ34 (ORCPT
+	Sun, 31 Dec 2006 11:37:08 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:5701 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933197AbWLaQhG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 11:29:56 -0500
-X-Sasl-enc: aCKOIeS8wYRuHWO/gkiKouSzQp5dSCMPVIkFeyLYQ8/9 1167582485
-Date: Sun, 31 Dec 2006 14:29:51 -0200
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ibm-acpi-devel@lists.sourceforge.net, Whoopie <whoopie79@gmx.net>
-Subject: Re: [PATCH] Add Ultrabay support for the T60p Thinkpad
-Message-ID: <20061231162951.GA13022@khazad-dum.debian.net>
-References: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
+	Sun, 31 Dec 2006 11:37:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PGDZWaWe7Y+A2Pq27p5GXMGxtXbX8X0CXz7Rc4d3s284RVNPPvlCxQkj8DPksvTWcr0V2sjB4Fb+FMj7Og3jEjyDmP74l+xGGlxW4zEF+d3HzsgENROoi73W8OuCE7rMWVGrTd6FIMW6LxBmQz0ckH3wZ5uSrwcU3/w4lvRL1GU=
+Message-ID: <80ec54e90612310837y786fd764oc18bf37c8f0b2b8c@mail.gmail.com>
+Date: Sun, 31 Dec 2006 17:37:05 +0100
+From: "=?ISO-8859-1?Q?Daniel_Marjam=E4ki?=" <daniel.marjamaki@gmail.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH] net/core/flow.c: compare data with memcmp
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <E1GtH0P-0007WV-Q5@candygram.thunk.org>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoopie from ThinkWiki just sent me an email, calling my attention to the
-fact that the patch you submitted is in fact different from the one I
-merged... something I should have triple-verified.  It appears the t60p has
-the bay in a different ACPI node than some other *60 ThinkPads.  Either
-that, or the node moves depending on ICHR mode set in the BIOS.
+From: Daniel Marjamäki
+This has been tested by me.
+Signed-off-by: Daniel Marjamäki <daniel.marjamaki@gmail.com>
+--- linux-2.6.20-rc2/net/core/flow.c	2006-12-27 09:59:56.000000000 +0100
++++ linux/net/core/flow.c	2006-12-31 18:26:06.000000000 +0100
+@@ -144,29 +144,16 @@ typedef u32 flow_compare_t;
 
-So I apologise for the screw up, and:
+ extern void flowi_is_missized(void);
 
-Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+-/* I hear what you're saying, use memcmp.  But memcmp cannot make
+- * important assumptions that we can here, such as alignment and
+- * constant size.
+- */
+ static int flow_key_compare(struct flowi *key1, struct flowi *key2)
+ {
+-	flow_compare_t *k1, *k1_lim, *k2;
+-	const int n_elem = sizeof(struct flowi) / sizeof(flow_compare_t);
+-
+ 	if (sizeof(struct flowi) % sizeof(flow_compare_t))
+ 		flowi_is_missized();
 
-I am merging your patch into the ibm-acpi tree and will ask Len to push it
-to Linus.  Now, please excuse me while I go look for a new brown-paperbag
-hat...
+-	k1 = (flow_compare_t *) key1;
+-	k1_lim = k1 + n_elem;
+-
+-	k2 = (flow_compare_t *) key2;
+-
+-	do {
+-		if (*k1++ != *k2++)
+-			return 1;
+-	} while (k1 < k1_lim);
++	/* Number of elements to compare */
++	const int n_elem = sizeof(struct flowi) / sizeof(flow_compare_t);
 
-On Sun, 10 Dec 2006, Theodore Ts'o wrote:
-> Add Ultrabay Support for the T60p Thinkpad
-> 
-> The following patch adds support for obtaining the status and ejecting
-> Ultrabay devices for the T60p Thinkpad; my guess is that it probably
-> works on T60 Thinkpads and probably more recent Lenovo latops as well.
-> 
-> With the 2.03 BIOS I have been able to eject a SATA drive in an Ultrabay
-> carrier by using the command:
-> 
->   "echo 1 > /sys/class/scsi_device/1:0:0:0/device/delete"
-> 
-> and upon re-inserting the it back into the device and issuing the
-> command:
-> 
->  "echo 0 0 0 > /sys/class/scsi_host/host1/scan"
-> 
-> have the device appear again.  (With the 1.02 BIOS the device does not
-> function when re-inserted, even after a warm boot; a cold reboot is
-> required to store the Ultrabay device's functionality.)
-> 
-> More complicated Ultrabay eject and insert scripts can be found on the
-> ThinkWiki, although it's important to comment out the "hdparm -Y" as it
-> apparently doesn't work or do anything, and causes the eject process to
-> hang for about a minute.
-> 
-> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
-> 
-> Index: 2.6.19/drivers/acpi/ibm_acpi.c
-> ===================================================================
-> --- 2.6.19.orig/drivers/acpi/ibm_acpi.c	2006-12-09 18:35:09.000000000 -0500
-> +++ 2.6.19/drivers/acpi/ibm_acpi.c	2006-12-09 18:35:42.000000000 -0500
-> @@ -169,6 +169,7 @@
->  #endif
->  IBM_HANDLE(bay, root, "\\_SB.PCI.IDE.SECN.MAST",	/* 570 */
->  	   "\\_SB.PCI0.IDE0.IDES.IDSM",	/* 600e/x, 770e, 770x */
-> +	   "\\_SB.PCI0.IDE0.PRIM.MSTR",	/* T60p */
->  	   "\\_SB.PCI0.IDE0.SCND.MSTR",	/* all others */
->      );				/* A21e, R30, R31 */
->  
+-	return 0;
++	/* Compare all elements in key1 and key2. */
++	return memcmp(key1, key2, n_elem * sizeof(flow_compare_t));
+ }
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+ void *flow_cache_lookup(struct flowi *key, u16 family, u8 dir,

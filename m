@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933176AbWLaNnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933178AbWLaNpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933176AbWLaNnB (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 08:43:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933179AbWLaNnB
+	id S933178AbWLaNpn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 08:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933180AbWLaNpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 08:43:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2276 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S933172AbWLaNnA (ORCPT
+	Sun, 31 Dec 2006 08:45:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57459 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933178AbWLaNpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 08:43:00 -0500
-Date: Sun, 31 Dec 2006 14:43:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Larry Finger <larry.finger@lwfinger.net>
-Cc: Aaron Sethman <androsyn@ratbox.org>, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com, netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [OOPS] bcm43xx oops on 2.6.20-rc1 on x86_64
-Message-ID: <20061231134302.GJ20714@stusta.de>
-References: <Pine.LNX.4.64.0612171510030.17532@squeaker.ratbox.org> <20061230192104.GB20714@stusta.de> <4596D8DE.2030408@lwfinger.net> <20061230213245.GD20714@stusta.de> <4596EC01.3060508@lwfinger.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4596EC01.3060508@lwfinger.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 31 Dec 2006 08:45:42 -0500
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061231133902.GA13521@vanheusden.com>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
+	 <200612302149.35752.vda.linux@googlemail.com>
+	 <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
+	 <1167518748.20929.578.camel@laptopd505.fenrus.org>
+	 <20061231133902.GA13521@vanheusden.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 31 Dec 2006 14:45:34 +0100
+Message-Id: <1167572735.20929.750.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2006 at 04:45:21PM -0600, Larry Finger wrote:
-> Adrian Bunk wrote:
-> > On Sat, Dec 30, 2006 at 03:23:42PM -0600, Larry Finger wrote:
-> >> Adrian Bunk wrote:
-> >>> On Sun, Dec 17, 2006 at 03:15:28PM -0500, Aaron Sethman wrote:
-> >>>> Just was loading the bcm43xx module and got the following oops. Note that 
-> >>>> this card is one of the newer PCI-E cards.  If any other info is needed 
-> >>>> let me know.
-> >>> Is this issue still present in 2.6.10-rc2-git1?
-> >>>
-> >>> If yes, was 2.6.19 working fine?
-> >> ...
-> >>
-> >> Any oops involving wireless extensions is due to 2.6.20-rc1 and -rc2 not having the fix for softmac
-> >> that is necessitated by the 2.6.20 changes in the work structure.
-> > 
-> > "Any oops" are very strong words.
+On Sun, 2006-12-31 at 14:39 +0100, Folkert van Heusden wrote:
+> > > i don't see how that can be true, given that most of the definitions
+> > > of the clear_page() macro are simply invocations of memset().  see for
+> > > yourself:
+> > *MOST*. Not all.
+> > For example an SSE version will at least assume 16 byte alignment, etc
+> > etc.
 > 
-> Yes - but I have seen at least 7 or 8 different occurrences of that bug since the patch was first
-> made available on Dec. 10, and I have seen no bcm43xx oopses from any other cause.
->...
+> What about an if (adress & 15) { memset } else { sse stuff }
+> or is that too obvious? :-)
 
-To avoid any misunderstandings:
 
-This wasn't in any way meant against you personally.
+it's only one example. clear_page() working only on a full page is a
+nice restriction that allows the implementation to be optimized (again
+the x86 hardware that had a hardware page zeroer comes to mind, the hw
+is only 4 years old or so... and future hw may have it again)
 
-And in this case you were right, it was the same bug.
+clear_page() is more restricted than memset(). And that's good, it
+allows for a more focused implementation. Otherwise there'd be no reason
+to HAVE a clear_page(), if it just was a memset wrapper entirely.
 
-My answer was based on experiences like one during 2.6.19-rc where we 
-had 4 bug reports for a regression with a patch available. And it turned 
-out that one of them was for a completely different regression.
 
-That's why I prefer to get confirmations that a user actually run into 
-the same issue, and not into something completely different with similar 
-symptoms.
-
-> Larry
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

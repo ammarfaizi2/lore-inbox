@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933175AbWLaNjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933177AbWLaNjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933175AbWLaNjZ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 08:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933172AbWLaNjY
+	id S933177AbWLaNjb (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 08:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933172AbWLaNjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 08:39:24 -0500
-Received: from ns.firmix.at ([62.141.48.66]:49345 "EHLO ns.firmix.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933175AbWLaNjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 08:39:23 -0500
-Subject: Re: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Pavel Machek <pavel@ucw.cz>, Amit Choudhary <amit2030@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0612280952450.15825@yvahk01.tjqt.qr>
-References: <20061221234127.29189.qmail@web55606.mail.re4.yahoo.com>
-	 <20061227171010.GA4088@ucw.cz>
-	 <Pine.LNX.4.61.0612280952450.15825@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Sun, 31 Dec 2006 14:38:32 +0100
-Message-Id: <1167572312.3318.47.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-Firmix-Scanned-By: MIMEDefang 2.56 on ns.firmix.at
-X-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
-X-Firmix-Spam-Status: No, hits=-2.41 required=5
-X-Firmix-Spam-Score: -2.41 () AWL,BAYES_00,FORGED_RCVD_HELO
+	Sun, 31 Dec 2006 08:39:31 -0500
+Received: from smtp-vbr16.xs4all.nl ([194.109.24.36]:4215 "EHLO
+	smtp-vbr16.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933177AbWLaNja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 08:39:30 -0500
+Date: Sun, 31 Dec 2006 14:39:02 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+Message-ID: <20061231133902.GA13521@vanheusden.com>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
+	<200612302149.35752.vda.linux@googlemail.com>
+	<Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
+	<1167518748.20929.578.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1167518748.20929.578.camel@laptopd505.fenrus.org>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Mon Jan  1 01:26:42 CET 2007
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-28 at 09:54 +0100, Jan Engelhardt wrote:
-> On Dec 27 2006 17:10, Pavel Machek wrote:
-> 
-> >> Was just wondering if the _var_ in kfree(_var_) could be set to
-> >> NULL after its freed. It may solve the problem of accessing some
-> >> freed memory as the kernel will crash since _var_ was set to NULL.
-> >> 
-> >> Does this make sense? If yes, then how about renaming kfree to
-> >> something else and providing a kfree macro that would do the
-> >> following:
-> >> 
-> >> #define kfree(x) do { \
-> >>                       new_kfree(x); \
-> >>                       x = NULL; \
-> >>                     } while(0)
-> >> 
-> >> There might be other better ways too.
+> > i don't see how that can be true, given that most of the definitions
+> > of the clear_page() macro are simply invocations of memset().  see for
+> > yourself:
+> *MOST*. Not all.
+> For example an SSE version will at least assume 16 byte alignment, etc
+> etc.
 
-----  snip  ----
-(x) = NULL; \
-----  snip  ----
-?
+What about an if (adress & 15) { memset } else { sse stuff }
+or is that too obvious? :-)
 
-> >No, that would be very confusing. Otoh having
-> >KFREE() do kfree() and assignment might be acceptable.
-> 
-> What about setting x to some poison value from <linux/poison.h>?
+> clear_page() is supposed to be for full real pages only... for example
+> it allows the architecture to optimize for alignment, cache aliasing etc
+> etc. (and if there are cpus that get a "clear an entire page"
+> instruction.... there has been hardware like that in the past, even on
+> x86, just it's no longer sold afaik)
 
-That depends on the decision/definition if (so called) "double free" is
-an error or not (and "free(NULL)" must work in POSIX-compliant
-environments).
-Personally I think it is pointless to disallow "kfree(NULL)" by using
-some poison value and force people to add a "we have to free that
-variable" variable to work around it instead of keeping it NULL (which
-makes the "kfree($variable)" a no-op).
-Former discussions are to be found in the archives ......
 
-	Bernd
+Folkert van Heusden
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+www.biglumber.com <- site where one can exchange PGP key signatures 
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

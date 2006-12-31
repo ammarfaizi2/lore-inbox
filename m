@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933137AbWLaL6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933144AbWLaMFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933137AbWLaL6J (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 06:58:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933140AbWLaL6J
+	id S933144AbWLaMFd (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 07:05:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933145AbWLaMFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 06:58:09 -0500
-Received: from iona.labri.fr ([147.210.8.143]:34290 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933137AbWLaL6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 06:58:07 -0500
-Message-ID: <4597A5A9.70301@ens-lyon.org>
-Date: Sun, 31 Dec 2006 12:57:29 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Sun, 31 Dec 2006 07:05:33 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40014 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933144AbWLaMFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 07:05:33 -0500
+Message-ID: <4597A791.60007@drzeus.cx>
+Date: Sun, 31 Dec 2006 13:05:37 +0100
+From: Pierre Ossman <drzeus-mmc@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2200 device naming problems in 2.6.20-rc2-git1
-References: <45977081.6040303@shaw.ca>
-In-Reply-To: <45977081.6040303@shaw.ca>
-X-Enigmail-Version: 0.94.1.0
+To: linux@youmustbejoking.demon.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc2] Add a quirk to allow at least some ENE PCI
+ SD card readers to work again
+References: <4E9DA5E8EB%linux@youmustbejoking.demon.co.uk>
+In-Reply-To: <4E9DA5E8EB%linux@youmustbejoking.demon.co.uk>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Having some intermittent problems using my ipw2200 wireless card on
-> 2.6.20-rc2-git1 (may affect earlier versions as well) under Fedora
-> Core 6 i386. It appears that sometimes on bootup the interface gets
-> named with a junk name like __tmp32284835 and it doesn't show up in
-> ifconfig. rmmod/insmod on ipw2200 fixes the problem and it shows up as
-> eth1 again. I don't think this problem happened with Fedora 2.6.18
-> kernels..
->
+Darren Salt wrote:
+> Add a quirk to allow at least some ENE PCI SD card readers to work again
+> 
+> Support for these devices was broken for 2.6.18-rc1 and later by commit
+> 146ad66eac836c0b976c98f428d73e1f6a75270d, which added voltage level support.
+> 
+> This restores the previous behaviour for these devices (PCI ID 1524:0550).
+> 
+> Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
+> 
 
-I've seen some problems like this with kernels <= 2.6.19. But it is now
-fixed since the following commit (merged in rc1 IIRC). The symptoms were
-that it the interface was getting a strange name (something like
-"eth0_tmp") when udev was renaming it with DRIVERS=="?*" in the rule.
-See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=389250. I removed
-DRIVERS from the rule to avoid the problem, but the following commit was
-definitely fixing the problem at this point. I didn't check again recently.
+Oh? If this is the source of problems for ENE controllers then this is indeed a magnificent find. Good work.
 
-Brice
+I'd like to know a little more about it though:
 
+- Exactly what errors where you seeing without this patch?
 
+- The patch effectively sets only the highest power. Have you tried other bit combinations to figure out if all of these are really needed?
 
-commit 1901fb2604fbcd53201f38725182ea807581159e
-Author: Kay Sievers <kay.sievers@novell.com>
-Date:   Sat Oct 7 21:55:55 2006 +0200
+  (This also means that the current patch is broken as the limited voltage range needs to also be reported to the MMC layer).
 
-    Driver core: fix "driver" symlink timing
+- Could you change the patch so that it covers all ENE controllers and send it out for testing on sdhci-devel? That way we could see if there are any more ENE controllers that will benefit from this
+quirk. Just remember to ask people for a lspci.
 
-    Create the "driver" link before the child device may be created by
-    the probing logic. This makes it possible for userspace (udev), to
-    determine the driver property of the parent device, at the time the
-    child device is created.
+Again, very good work.
 
-    Signed-off-by: Kay Sievers <kay.sievers@novell.com>
-    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Rgds
+-- 
+     -- Pierre Ossman
 
-
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

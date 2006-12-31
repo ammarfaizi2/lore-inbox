@@ -1,135 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932995AbWLaFxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933028AbWLaGDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932995AbWLaFxB (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 00:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWLaFxA
+	id S933028AbWLaGDM (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 01:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933026AbWLaGDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 00:53:00 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:62079 "EHLO gaz.sfgoth.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932995AbWLaFw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 00:52:59 -0500
-X-Greylist: delayed 847 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 Dec 2006 00:52:59 EST
-Date: Sat, 30 Dec 2006 21:59:07 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Amit Choudhary <amit2030@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, chas@cmf.nrl.navy.mil
-Subject: Re: [PATCH 2.6.20-rc2] [BUGFIX] drivers/atm/firestream.c: Fix infinite recursion when alignment passed is 0.
-Message-ID: <20061231055906.GE35756@gaz.sfgoth.com>
-References: <20061230182603.d3815dcb.amit2030@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061230182603.d3815dcb.amit2030@gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Sat, 30 Dec 2006 21:59:08 -0800 (PST)
+	Sun, 31 Dec 2006 01:03:12 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:30836 "HELO
+	smtp109.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S933028AbWLaGDL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 01:03:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=lL/93qnaRrvgLUAyROZ7Sbu/PnvY6J8n1KeHmGle174YtuwtXCj28fYNZzGiR3mzP9O7qXRBg9T4gVm1nl4v3kfcnWHGgNU6RkcX8B4z0uUkcqEl8t3QPH1jqWGfC2LqDKvts7wtWpfnUQ5wxGro9NXE1firUQQAXNVCGjw4z4s=  ;
+X-YMail-OSG: fDxm7m0VM1kybZfMyK_LIcVq60pC4tsyOz1fX9T_7481dFvGR3.SHcDtD5JToEEZCoexRN_.Wd.JGciCiP9vNvcVcVqRMeT8I_AiAFaOx8dv3N9antx4I0bQ79jnPS537Fz0nG80DvqthjU-
+Message-ID: <45975274.6020909@yahoo.com.au>
+Date: Sun, 31 Dec 2006 17:02:28 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aubrey <aubreylee@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Page alignment issue
+References: <6d6a94c50612270749j77cd53a9mba6280e4129d9d5a@mail.gmail.com>
+In-Reply-To: <6d6a94c50612270749j77cd53a9mba6280e4129d9d5a@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, if you want to get patches merged you should send them to the subsystem
-maintained (in this case Chas, who I've cc:'ed)  Also if you feel it needs to
-be sent to mailing list you should usually use a more specific list first
-(like the ATM list or maybe netdev)  Please see Documentation/SubmittingPatches
+Aubrey wrote:
+> As for the buddy system, much of docs mention the physical address of
+> the first page frame of a block should be a multiple of the group
+> size. For example, the initial address of a 16-page-frame block should
+> be 16-page aligned. I happened to encounted an issue that the physical
+> addresss pf the block is not 4-page aligned(0x36c9000) while the order
+> of the block is 2. I want to know what out of buddy algorithm depend
+> on this feature?
 
-Amit Choudhary wrote:
-> Description: Fix infinite recursion when alignment passed is 0 in function aligned_kmalloc(),
+I think that's correct. The buddy allocator uses bitwise operations to
+find buddy pages and promote free pairs (eg. see __page_find_buddy()
+and __find_combined_index()).
 
-I'm curious how you hit this -- the only caller to aligned_kmalloc() passes
-a constant "0x10"
-
-Looking at aligned_kmalloc() it seems to be pretty badly broken -- its fallback
-if it gets a non-aligned buffer is to just try a larger size which doesn't
-necessarily fix the problem.  It looks like explicitly aligning the buffer
-is a better solution.
-
-Could you test this patch?  If it works feel free to forward it on to Chas.
-
--Mitch
-
-[PATCH] [ATM] remove firestream.c's aligned_kmalloc()
-
-Signed-off-by: Mitchell Blank Jr <mitch@sfgoth.com>
-
-diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
-index 9c67df5..df8b0c0 100644
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -1379,38 +1379,22 @@ static void reset_chip (struct fs_dev *d
- 	}
- }
- 
--static void __devinit *aligned_kmalloc (int size, gfp_t flags, int alignment)
--{
--	void  *t;
--
--	if (alignment <= 0x10) {
--		t = kmalloc (size, flags);
--		if ((unsigned long)t & (alignment-1)) {
--			printk ("Kmalloc doesn't align things correctly! %p\n", t);
--			kfree (t);
--			return aligned_kmalloc (size, flags, alignment * 4);
--		}
--		return t;
--	}
--	printk (KERN_ERR "Request for > 0x10 alignment not yet implemented (hard!)\n");
--	return NULL;
--}
--
- static int __devinit init_q (struct fs_dev *dev, 
- 			  struct queue *txq, int queue, int nentries, int is_rq)
- {
--	int sz = nentries * sizeof (struct FS_QENTRY);
-+	unsigned sz = nentries * sizeof (struct FS_QENTRY);
- 	struct FS_QENTRY *p;
-+	void *vp;
- 
- 	func_enter ();
- 
- 	fs_dprintk (FS_DEBUG_INIT, "Inititing queue at %x: %d entries:\n", 
- 		    queue, nentries);
--
--	p = aligned_kmalloc (sz, GFP_KERNEL, 0x10);
-+	vp = kmalloc(sz + 0xF, GFP_KERNEL);
-+	p = (struct FS_QENTRY *) ALIGN((unsigned long) vp, 0x10);
- 	fs_dprintk (FS_DEBUG_ALLOC, "Alloc queue: %p(%d)\n", p, sz);
- 
--	if (!p) return 0;
-+	if (!vp) return 0;
- 
- 	write_fs (dev, Q_SA(queue), virt_to_bus(p));
- 	write_fs (dev, Q_EA(queue), virt_to_bus(p+nentries-1));
-@@ -1423,8 +1407,7 @@ static int __devinit init_q (struct fs_d
- 		write_fs (dev, Q_CNF(queue), 0 ); 
- 	}
- 
--	txq->sa = p;
--	txq->ea = p;
-+	txq->buf = vp;
- 	txq->offset = queue; 
- 
- 	func_exit ();
-@@ -1529,8 +1512,8 @@ static void __devexit free_queue (struct
- 	write_fs (dev, Q_WP(txq->offset), 0);
- 	/* Configuration ? */
- 
--	fs_dprintk (FS_DEBUG_ALLOC, "Free queue: %p\n", txq->sa);
--	kfree (txq->sa);
-+	fs_dprintk (FS_DEBUG_ALLOC, "Free queue: %p\n", txq->buf);
-+	kfree (txq->buf);
- 
- 	func_exit ();
- }
-diff --git a/drivers/atm/firestream.h b/drivers/atm/firestream.h
-index 49e783e..5408766 100644
---- a/drivers/atm/firestream.h
-+++ b/drivers/atm/firestream.h
-@@ -455,7 +455,7 @@ struct fs_vcc {
- 
- 
- struct queue {
--	struct FS_QENTRY *sa, *ea;  
-+	void *buf;  
- 	int offset;
- };
- 
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,424 +1,187 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933096AbWLaI31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933098AbWLaI3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933096AbWLaI31 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 03:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933097AbWLaI31
+	id S933098AbWLaI3t (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 03:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933097AbWLaI3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 03:29:27 -0500
-Received: from sa2.bezeqint.net ([192.115.104.16]:45310 "EHLO sa2.bezeqint.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933096AbWLaI3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 03:29:25 -0500
-From: Shlomi Fish <shlomif@iglu.org.il>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.20-rc2] "make xconfig" Search Dialog
-User-Agent: KMail/1.9.4
+	Sun, 31 Dec 2006 03:29:49 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:16262 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933099AbWLaI3r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 03:29:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=cuzNUzdII3s1hceEZ64a6zFwWIrNvWX3FHcyEiH33hbCrrqOisOjrYWTH9b9rdNoyBiCWv6BZSuzhsSO6/tQ0r5RSMfZ1ephMkGNKhrYe3O+dt2M7KnzoQawBtTowp1bs0hS2pffyfPbeD7ZPP9YSoRMj7LdaXAQPC6/uXM8V40=
+Message-ID: <86802c440612310029l1bc73309h293172abda16817e@mail.gmail.com>
+Date: Sun, 31 Dec 2006 00:29:45 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: IO-APIC + timer doesn't work
+Cc: "Tobias Diedrich" <ranma+kernel@tdiedrich.de>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <m164c5nfid.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Date: Sun, 31 Dec 2006 10:25:26 +0200
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2P3lF7LSLxfCYV1"
-Message-Id: <200612311025.26053.shlomif@iglu.org.il>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_186039_18508521.1167553785954"
+References: <Pine.LNX.4.64.0612131744290.5718@woody.osdl.org>
+	 <Pine.LNX.4.64.0612161518080.3479@woody.osdl.org>
+	 <20061217145714.GA2987@melchior.yamamaya.is-a-geek.org>
+	 <m1bqm1s5vv.fsf@ebiederm.dsl.xmission.com>
+	 <20061218152333.GA2400@melchior.yamamaya.is-a-geek.org>
+	 <m1tzztqkev.fsf@ebiederm.dsl.xmission.com>
+	 <86802c440612190000k7eb5e68et9c0a776ef85b5177@mail.gmail.com>
+	 <m1ac1kqg6b.fsf@ebiederm.dsl.xmission.com>
+	 <86802c440612192250l50805d40h71baa7ce6f99a3e5@mail.gmail.com>
+	 <m164c5nfid.fsf@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: 8b9c00cc8b7d248b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_2P3lF7LSLxfCYV1
-Content-Type: text/plain;
-  charset="us-ascii"
+------=_Part_186039_18508521.1167553785954
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Hi all!
+Please check the revised patch
 
-[ I'm not subscribed to this list so please CC me on your replies. ]
+YH
 
-This patch is a reworked version of:
+------=_Part_186039_18508521.1167553785954
+Content-Type: text/x-patch; name=timers_12312006.diff; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ewd7at3d
+Content-Disposition: attachment; filename="timers_12312006.diff"
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0603.3/0990.html
-
-It adds a search dialog to the kernel's "make xconfig" configuration applet.
-
-Changes in this release include:
-
-1. Fixed formatting.
-
-2. The items are now displayed in a tree instead of in a flat list. (With all 
-the necessary changes).
-
-3. Updated to apply against the recent kernel version.
-
---------
-
-The To do is:
-
-1. Implemented more sophisticated querying.
-
-2. Fix the fact that the top categories in the QListView do not have a visible 
-[+] sign next to them to expand them. (Albeit they are expanded upon a double 
-click).
-
-3. Make sure double clicking an end-item opens and highlights it in the main 
-application.
-
---------
-
-The patch was tested against kernel 2.6.20-rc2.
-
-Enjoy and Happy New Year!
-
-Regards,
-
-	Shlomi Fish
-
----------------------------------------------------------------------
-Shlomi Fish      shlomif@iglu.org.il
-Homepage:        http://www.shlomifish.org/
-
-Chuck Norris wrote a complete Perl 6 implementation in a day but then
-destroyed all evidence with his bare hands, so no one will know his secrets.
-
---Boundary-00=_2P3lF7LSLxfCYV1
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="xconfig-search-patch-5.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="xconfig-search-patch-5.diff"
-
---- linux-2.6.20-rc2/scripts/kconfig/qconf.cc.orig	2006-12-28 01:12:27.384938513 +0200
-+++ linux-2.6.20-rc2/scripts/kconfig/qconf.cc	2006-12-30 23:05:15.409325133 +0200
-@@ -21,6 +21,10 @@
- #include <qfiledialog.h>
- #include <qdragobject.h>
- #include <qregexp.h>
-+#include <qdialog.h>
-+#include <qlayout.h>
-+#include <qlabel.h>
-+#include <qpushbutton.h>
- 
- #include <stdlib.h>
- 
-@@ -1323,6 +1327,8 @@
- 	  connect(splitViewAction, SIGNAL(activated()), SLOT(showSplitView()));
- 	QAction *fullViewAction = new QAction("Full View", QPixmap(xpm_tree_view), "Full View", 0, this);
- 	  connect(fullViewAction, SIGNAL(activated()), SLOT(showFullView()));
-+	QAction *findAction = new QAction("Find", QPixmap(xpm_save), "&Find", CTRL+Key_F, this);
-+	  connect(findAction, SIGNAL(activated()), SLOT(findEntries()));
- 
- 	QAction *showNameAction = new QAction(NULL, "Show Name", 0, this);
- 	  showNameAction->setToggleAction(TRUE);
-@@ -1376,6 +1382,11 @@
- 	config->insertSeparator();
- 	quitAction->addTo(config);
- 
-+	// create file menu
-+	QPopupMenu* editMenu = new QPopupMenu(this);
-+	menu->insertItem("&Edit", editMenu);
-+	findAction->addTo(editMenu);
-+
- 	// create options menu
- 	QPopupMenu* optionMenu = new QPopupMenu(this);
- 	menu->insertItem("&Option", optionMenu);
-@@ -1447,6 +1458,233 @@
- 		QMessageBox::information(this, "qconf", "Unable to save configuration!");
- }
- 
-+
-+FindDialog::FindDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
-+	: QDialog( parent, name, modal, fl )
-+{
-+	main_layout = new QVBoxLayout(this, 11, 6, "main_layout");
-+	main_layout->addWidget(new QLabel("Query:", this, "label1"));
-+	queryLineEdit = new QLineEdit(this, "queryLineEdit");
-+	main_layout->addWidget(queryLineEdit);
-+	findButton = new QPushButton("Find", this, "findButton");
-+	main_layout->addWidget(findButton);
-+	connect( findButton, SIGNAL( clicked() ), this, SLOT( performQuery() ) );
-+	results = new QListView(this, "results");
-+	results->addColumn("Item");
-+	main_layout->addWidget(results);
-+}
-+
-+FindDialog::~FindDialog()
-+{
-+}
-+
-+static QString * get_parent_disp(struct menu * menu)
-+{
-+	QString s;
-+	if (menu->sym)
-+	{
-+		if (menu->prompt)
-+		{
-+			s += menu->prompt->text;
-+			if (menu->sym->name)
-+			{
-+				s += " (";
-+				s += menu->sym->name;
-+				s += ")";
-+			}
-+		}
-+		else if (menu->sym->name)
-+		{
-+			s += menu->sym->name;
-+		}
-+	}
-+	else if (menu->prompt)
-+	{
-+		s += menu->prompt->text;
-+	}
-+	return new QString(s);
-+}
-+
-+QString * get_parent_string(struct menu * menu, int depth)
-+{
-+	QString * parent_disp = get_parent_disp(menu);
-+	QString s;
-+
-+	/*
-+	 * Append 'depth' tabs.
-+	 * */
-+	for(int i=0;i<depth;i++)
-+	{
-+		s += "\t";
-+	}
-+	s += *parent_disp;
-+	s += "\n";
-+
-+	delete parent_disp;
-+
-+	return new QString(s);
-+}
-+
-+static QString * get_item_display(MenuList * parents, struct menu * mymenu)
-+{
-+	MenuList::iterator it;
-+	QString * item;
-+#if 0
-+	int depth;
-+#else
-+	int depth=0;
-+#endif
-+
-+	item = new QString();
-+
-+#if 0
-+	for (depth=0, it = parents->begin(); it != parents->end() ; ++it, ++depth)
-+	{
-+		QString * parent_string = get_parent_string(*it, depth);
-+		*item += *parent_string;
-+		delete parent_string;
-+	}
-+#endif
-+
-+	QString * string = get_parent_string(mymenu, depth);
-+	*item += *string;
-+	delete string;
-+
-+	return item;
-+}
-+
-+QListViewItem * ListViewBranch::newItem(QString & s)
-+{
-+	if (which == ISNULL)
-+	{
-+		// Shouldn't happen.
-+		throw "Hello";
-+	}
-+	else if (which == ITEM)
-+	{
-+		return new QListViewItem(item, s);
-+	}
-+	else
-+	{
-+		return new QListViewItem(view, s);
-+	}
-+
-+}
-+
-+ListViewBranch ListViewBranch::insertItem(QString & s)
-+{
-+	return ListViewBranch(newItem(s));
-+}
-+
-+bool FindDialog::matches(struct menu * mymenu, QString & query)
-+{
-+	struct symbol * sym = mymenu->sym;
-+
-+	if (!sym)
-+	{
-+		return false;
-+	}
-+
-+	QString help(sym->help);
-+	QString name(sym->name);
-+
-+	return (help.contains(query, FALSE) || name.contains(query, FALSE));
-+}
-+
-+void FindDialog::handle_match(MenuList * parents, ListViewMenuList * * last_branch)
-+{
-+	// TODO : Name to something more meaningful than
-+	// it2
-+	MenuList::iterator it;
-+	ListViewMenuList::iterator it2;
-+
-+	// Find the last branch that was allocated
-+	it = parents->begin();
-+	it2 = (*last_branch)->begin();
-+
-+	for (;(*it2).menu == *it ; ++it, ++it2)
-+	{
-+	}
-+
-+	ListViewMenuList * new_branch = new ListViewMenuList;
-+	MenuList new_menu;
-+
-+	ListViewMenuList::iterator copy_branches;
-+	MenuList::iterator copy_menu;
-+	for (copy_branches = (*last_branch)->begin(),copy_menu = parents->begin();
-+		copy_branches != it2;
-+		++copy_branches, ++copy_menu)
-+	{
-+		new_branch->append(*copy_branches);
-+		new_menu.append(*copy_menu);
-+	}
-+
-+	for (; it != parents->end(); ++it)
-+	{
-+		ListViewMenuItem new_item;
-+		new_item.menu = *it;
-+
-+		QString * str = get_item_display(&new_menu, *it);
-+		new_item.branch = new_branch->back().branch.insertItem(*str);
-+
-+		new_branch->append(new_item);
-+		new_menu.append(*it);
-+		delete str;
-+	}
-+
-+	// Update to the the new branch
-+	delete *last_branch;
-+	*last_branch = new_branch;
-+}
-+
-+void FindDialog::search(QString & query, MenuList * parents, ListViewMenuList * * last_branch)
-+{
-+	struct menu * child;
-+
-+	struct menu * mymenu = parents->back();
-+
-+	if (matches(mymenu, query))
-+	{
-+		handle_match(parents, last_branch);
-+	}
-+
-+	for (child = mymenu->list; child ; child = child->next)
-+	{
-+		MenuList new_parents(*parents);
-+		new_parents.append(child);
-+		search(query, &new_parents, last_branch);
-+	}
-+}
-+
-+void FindDialog::performQuery(void)
-+{
-+	QString query = queryLineEdit->text();
-+	results->clear();
-+
-+	MenuList parents;
-+	ListViewMenuList * mybranch = new ListViewMenuList;
-+
-+	{
-+		ListViewMenuItem i;
-+		i.branch = ListViewBranch(results);
-+		i.menu = &rootmenu;
-+		mybranch->append(i);
-+	}
-+
-+	parents.append(&rootmenu);
-+
-+	search(query, &parents, &mybranch);
-+
-+	delete mybranch;
-+	// printf("Query for \"%s\"\n", (const char *)queryLineEdit->text());
-+}
-+
-+void ConfigMainWindow::findEntries(void)
-+{
-+	FindDialog * dlg = new FindDialog(this, "dialog", TRUE);
-+	dlg->exec();
-+}
-+
- void ConfigMainWindow::saveConfigAs(void)
- {
- 	QString s = QFileDialog::getSaveFileName(".config", NULL, this);
---- linux-2.6.20-rc2/scripts/kconfig/qconf.h.orig	2006-12-28 01:12:27.384938513 +0200
-+++ linux-2.6.20-rc2/scripts/kconfig/qconf.h	2006-12-30 23:05:54.335543414 +0200
-@@ -4,6 +4,7 @@
-  */
- 
- #include <qlistview.h>
-+#include <qlistbox.h>
- #if QT_VERSION >= 300
- #include <qsettings.h>
- #else
-@@ -304,6 +305,7 @@
- 	ConfigMainWindow(void);
- public slots:
- 	void changeMenu(struct menu *);
-+	void findEntries(void);
- 	void setMenuLink(struct menu *);
- 	void listFocusChanged(void);
- 	void goBack(void);
-@@ -332,3 +334,49 @@
- 	QSplitter* split1;
- 	QSplitter* split2;
- };
-+
-+typedef QValueList<struct menu *> MenuList;
-+
-+struct ListViewBranch
-+{
-+	enum { ISNULL, ITEM, VIEW } which;
-+	union
-+	{
-+		QListViewItem * item;
-+		QListView * view;
-+	};
-+	ListViewBranch() { which = ISNULL; item = NULL; }
-+	ListViewBranch(QListView * v) { view = v; which = VIEW; }
-+	ListViewBranch(QListViewItem * i) { item = i; which = ITEM; }
-+	QListViewItem * newItem(QString & s);
-+	ListViewBranch insertItem(QString & s);
-+};
-+
-+struct ListViewMenuItem
-+{
-+	ListViewBranch branch;
-+	struct menu * menu;
-+};
-+
-+typedef QValueList<struct ListViewMenuItem> ListViewMenuList;
-+
-+class FindDialog : public QDialog
-+{
-+	Q_OBJECT
-+	public:
-+	FindDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
-+	~FindDialog();
-+	QVBoxLayout * main_layout;
-+	QLineEdit * queryLineEdit;
-+	QPushButton * findButton;
-+	QListView * results;
-+public slots:
-+	void performQuery();
-+public:
-+	bool matches(struct menu * mymenu, QString & query);
-+	void search(QString & query, MenuList * parents,
-+			ListViewMenuList * * last_branch);
-+	void handle_match(MenuList * parents,
-+			ListViewMenuList * * last_branch);
-+};
-+
-
---Boundary-00=_2P3lF7LSLxfCYV1--
+W1BBVENIXSB4ODZfNjQ6IGNoZWNrX3RpbWVyIHdpdGggaW8gYXBpYyBzZXR1cCBiZWZvcmUgdHJ5
+X2FwaWNfcGluCgphZGQgaW8gYXBpYyBzZXR1cCBiZWZvcmUgdHJ5X2FwaWNfcGluIGZvciBjaGVj
+a190aW1lcgoKYWxzbyBhZGQgcmVtb3ZlX2lycV90b19waW4gY2FsbCBpbiBpb19hcGljLmMKCmNj
+OiBBbmRpIEtsZWVuIDxha0BzdXNlLmRlPgpjYzogRXJpYyBXLiBCaWVkZXJtYW4gPGViaWVkZXJt
+QHhtaXNzaW9uLmNvbT4KU2lnbmVkLW9mZi1ieTogWWluZ2hhaSBMdSA8eWluZ2hhaS5sdUBhbWQu
+Y29tPgoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvYXNtLXg4Nl82NC9tcHNwZWMuaCBiL2luY2x1ZGUv
+YXNtLXg4Nl82NC9tcHNwZWMuaAppbmRleCAwMTdmZGRiLi4xZGRmZDRkIDEwMDY0NAotLS0gYS9p
+bmNsdWRlL2FzbS14ODZfNjQvbXBzcGVjLmgKKysrIGIvaW5jbHVkZS9hc20teDg2XzY0L21wc3Bl
+Yy5oCkBAIC0xNjUsNiArMTY1LDcgQEAgZXh0ZXJuIGludCBtcF9idXNfaWRfdG9fcGNpX2J1cyBb
+TUFYX01QX0JVU1NFU107CiBleHRlcm4gdW5zaWduZWQgaW50IGJvb3RfY3B1X3BoeXNpY2FsX2Fw
+aWNpZDsKIGV4dGVybiBpbnQgc21wX2ZvdW5kX2NvbmZpZzsKIGV4dGVybiB2b2lkIGZpbmRfc21w
+X2NvbmZpZyAodm9pZCk7CitleHRlcm4gaW50IGFkZF9pcnFfZW50cnkgKGludCB0eXBlLCBpbnQg
+aXJxZmxhZywgaW50IGJ1cywgaW50IGlycSwgaW50IGFwaWMsIGludCBwaW4pOwogZXh0ZXJuIHZv
+aWQgZ2V0X3NtcF9jb25maWcgKHZvaWQpOwogZXh0ZXJuIGludCBucl9pb2FwaWNzOwogZXh0ZXJu
+IHVuc2lnbmVkIGNoYXIgYXBpY192ZXJzaW9uIFtNQVhfQVBJQ1NdOwpkaWZmIC0tZ2l0IGEvYXJj
+aC94ODZfNjQva2VybmVsL21wcGFyc2UuYyBiL2FyY2gveDg2XzY0L2tlcm5lbC9tcHBhcnNlLmMK
+aW5kZXggMDgwNzI1Ni4uYTA1NDc5OCAxMDA2NDQKLS0tIGEvYXJjaC94ODZfNjQva2VybmVsL21w
+cGFyc2UuYworKysgYi9hcmNoL3g4Nl82NC9rZXJuZWwvbXBwYXJzZS5jCkBAIC0zMTQsNiArMzE0
+LDM0IEBAIHN0YXRpYyBpbnQgX19pbml0IEVMQ1JfdHJpZ2dlcih1bnNpZ25lZCBpbnQgaXJxKQog
+CXJldHVybiAoaW5iKHBvcnQpID4+IChpcnEgJiA3KSkgJiAxOwogfQogCitpbnQgYWRkX2lycV9l
+bnRyeShpbnQgdHlwZSwgaW50IGlycWZsYWcsIGludCBidXMsIGludCBpcnEsIGludCBhcGljLCBp
+bnQgcGluKQoreworICAgICAgICBzdHJ1Y3QgbXBjX2NvbmZpZ19pbnRzcmMgaW50c3JjOworCWlu
+dCBpZHg7CisKKyAgICAgICAgaW50c3JjLm1wY190eXBlID0gTVBfSU5UU1JDOworICAgICAgICBp
+bnRzcmMubXBjX2lycWZsYWcgPSBpcnFmbGFnOyAvKiBjb25mb3JtaW5nICovCisgICAgICAgIGlu
+dHNyYy5tcGNfc3JjYnVzID0gYnVzOworICAgICAgICBpbnRzcmMubXBjX2RzdGFwaWMgPSAoYXBp
+YyAhPSAtMSkgPyBtcF9pb2FwaWNzW2FwaWNdLm1wY19hcGljaWQ6IE1QX0FQSUNfQUxMOworCisg
+ICAgICAgIGludHNyYy5tcGNfaXJxdHlwZSA9IHR5cGU7CisKKyAgICAgICAgaW50c3JjLm1wY19z
+cmNidXNpcnEgPSBpcnE7CisgICAgICAgIGludHNyYy5tcGNfZHN0aXJxID0gcGluOworCisgICAg
+ICAgIG1wX2lycXMgW21wX2lycV9lbnRyaWVzXSA9IGludHNyYzsKKyAgICAgICAgRHByaW50aygi
+SW50OiB0eXBlICVkLCBwb2wgJWQsIHRyaWcgJWQsIGJ1cyAlZCwiCisgICAgICAgICAgICAgICAg
+IiBJUlEgJTAyeCwgQVBJQyBJRCAleCwgQVBJQyBJTlQgJTAyeFxuIiwKKyAgICAgICAgICAgICAg
+ICAgICAgICAgIGludHNyYy5tcGNfaXJxdHlwZSwgaW50c3JjLm1wY19pcnFmbGFnICYgMywKKyAg
+ICAgICAgICAgICAgICAgICAgICAgIChpbnRzcmMubXBjX2lycWZsYWcgPj4gMikgJiAzLCBpbnRz
+cmMubXBjX3NyY2J1cywKKyAgICAgICAgICAgICAgICAgICAgICAgIGludHNyYy5tcGNfc3JjYnVz
+aXJxLCBpbnRzcmMubXBjX2RzdGFwaWMsIGludHNyYy5tcGNfZHN0aXJxKTsKKyAgICAgICAgaWR4
+ID0gbXBfaXJxX2VudHJpZXM7CisJaWYgKCsrbXBfaXJxX2VudHJpZXMgPj0gTUFYX0lSUV9TT1VS
+Q0VTKQorICAgICAgICAgICAgICAgIHBhbmljKCJNYXggIyBvZiBpcnEgc291cmNlcyBleGNlZWRl
+ZCEhXG4iKTsKKwlyZXR1cm4gaWR4OworCit9CisKIHN0YXRpYyB2b2lkIF9faW5pdCBjb25zdHJ1
+Y3RfZGVmYXVsdF9pb2lycV9tcHRhYmxlKGludCBtcGNfZGVmYXVsdF90eXBlKQogewogCXN0cnVj
+dCBtcGNfY29uZmlnX2ludHNyYyBpbnRzcmM7CmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9rZXJu
+ZWwvaW9fYXBpYy5jIGIvYXJjaC94ODZfNjQva2VybmVsL2lvX2FwaWMuYwppbmRleCAyYTFkY2Q1
+Li5hZDFhMjhhIDEwMDY0NAotLS0gYS9hcmNoL3g4Nl82NC9rZXJuZWwvaW9fYXBpYy5jCisrKyBi
+L2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMKQEAgLTI3MywxMCArMjczLDE3IEBAIHN0YXRp
+YyB2b2lkIGFkZF9waW5fdG9faXJxKHVuc2lnbmVkIGludCBpcnEsIGludCBhcGljLCBpbnQgcGlu
+KQogCXN0cnVjdCBpcnFfcGluX2xpc3QgKmVudHJ5ID0gaXJxXzJfcGluICsgaXJxOwogCiAJQlVH
+X09OKGlycSA+PSBOUl9JUlFTKTsKLQl3aGlsZSAoZW50cnktPm5leHQpCisJd2hpbGUgKGVudHJ5
+LT5uZXh0KSB7CisJCWlmIChlbnRyeS0+YXBpYyA9PSBhcGljICYmIGVudHJ5LT5waW4gPT0gcGlu
+KSAKKwkJCXJldHVybjsKKwkJaWYgKGVudHJ5LT5waW4gPT0gLTEpIAorCQkJYnJlYWs7CiAJCWVu
+dHJ5ID0gaXJxXzJfcGluICsgZW50cnktPm5leHQ7CisJfQogCiAJaWYgKGVudHJ5LT5waW4gIT0g
+LTEpIHsKKwkJaWYgKGVudHJ5LT5hcGljID09IGFwaWMgJiYgZW50cnktPnBpbiA9PSBwaW4pIAor
+CQkJcmV0dXJuOwogCQllbnRyeS0+bmV4dCA9IGZpcnN0X2ZyZWVfZW50cnk7CiAJCWVudHJ5ID0g
+aXJxXzJfcGluICsgZW50cnktPm5leHQ7CiAJCWlmICgrK2ZpcnN0X2ZyZWVfZW50cnkgPj0gUElO
+X01BUF9TSVpFKQpAQCAtMjg2LDYgKzI5MywzOSBAQCBzdGF0aWMgdm9pZCBhZGRfcGluX3RvX2ly
+cSh1bnNpZ25lZCBpbnQgaXJxLCBpbnQgYXBpYywgaW50IHBpbikKIAllbnRyeS0+cGluID0gcGlu
+OwogfQogCitzdGF0aWMgdm9pZCByZW1vdmVfcGluX3RvX2lycSh1bnNpZ25lZCBpbnQgaXJxLCBp
+bnQgYXBpYywgaW50IHBpbikKK3sKKwlzdHJ1Y3QgaXJxX3Bpbl9saXN0ICplbnRyeSA9IGlycV8y
+X3BpbiArIGlycTsKKwlzdHJ1Y3QgaXJxX3Bpbl9saXN0ICpwcmk7CisJc3RydWN0IGlycV9waW5f
+bGlzdCAqbmV4dDsKKworCUJVR19PTihpcnEgPj0gTlJfSVJRUyk7CisKKwlmb3IgKDs7KSB7CisJ
+CWlmIChlbnRyeS0+YXBpYyA9PSBhcGljICYmIGVudHJ5LT5waW4gPT0gcGluKSB7CisJCQlpZihl
+bnRyeS0+bmV4dCkgeworCQkJCW5leHQgPSBpcnFfMl9waW4gKyBlbnRyeS0+bmV4dDsKKwkJCQll
+bnRyeS0+YXBpYyA9IG5leHQtPmFwaWM7CisJCQkJZW50cnktPnBpbiA9IG5leHQtPnBpbjsKKwkJ
+CQllbnRyeS0+bmV4dCA9IG5leHQtPm5leHQ7CisJCQkJbmV4dC0+YXBpYyA9IC0xOworCQkJCW5l
+eHQtPnBpbiA9IC0xOworCQkJCW5leHQtPm5leHQgPSAwOworCQkJfSBlbHNlIHsKKwkJCQllbnRy
+eS0+YXBpYyA9IC0xOworCQkJCWVudHJ5LT5waW4gPSAtMTsKKwkJCX0KKwkJCXJldHVybjsKKwkJ
+fQorCQlwcmkgPSBlbnRyeTsKKwkJaWYgKHByaS0+bmV4dCkgCisJCQllbnRyeSA9IGlycV8yX3Bp
+biArIHByaS0+bmV4dDsKKwkJZWxzZQorCQkJYnJlYWs7CisJfSAKKworfQorCiAKICNkZWZpbmUg
+RE9fQUNUSU9OKG5hbWUsUixBQ1RJT04sIEZJTkFMKQkJCQkJXAogCQkJCQkJCQkJXApAQCAtMTU3
+MCw2ICsxNjEwLDIyIEBAIHN0YXRpYyBpbmxpbmUgdm9pZCB1bmxvY2tfRXh0SU5UX2xvZ2ljKHZv
+aWQpCiAgKiBmYW5hdGljYWxseSBvbiBoaXMgdHJ1bHkgYnVnZ3kgYm9hcmQuCiAgKi8KIAorc3Rh
+dGljIHZvaWQgc2V0X3RyeV9hcGljX3BpbihpbnQgYXBpYywgaW50IHBpbiwgaW50IHR5cGUpCit7
+CisJaW50IGlkeDsKKwlpbnQgaXJxID0gMDsKKwlpbnQgYnVzID0gMDsgLyogTVBfSVNBX0JVUyAq
+LworCWludCBpcnFmbGFnID0gNTsgLyogTVBfSVJRX1RSSUdHRVJfRURHRXxNUF9JUlFfUE9MQVJJ
+VFlfSElHSCAqLworCisJaWR4ID0gZmluZF9pcnFfZW50cnkoYXBpYyxwaW4sdHlwZSk7CisKKwlp
+ZiAoaWR4ID09IC0xKSAKKwkJaWR4ID0gYWRkX2lycV9lbnRyeSh0eXBlLCBpcnFmbGFnLCBidXMs
+IGlycSwgYXBpYywgcGluKTsKKworCWFkZF9waW5fdG9faXJxKGlycSwgYXBpYywgcGluKTsKKwlz
+ZXR1cF9JT19BUElDX2lycShhcGljLCBwaW4sIGlkeCwgaXJxKTsKK30KKwogc3RhdGljIGludCB0
+cnlfYXBpY19waW4oaW50IGFwaWMsIGludCBwaW4sIGNoYXIgKm1zZykKIHsKIAlhcGljX3ByaW50
+ayhBUElDX1ZFUkJPU0UsIEtFUk5fSU5GTwpAQCAtMTU4OCw3ICsxNjQ0LDcgQEAgc3RhdGljIGlu
+dCB0cnlfYXBpY19waW4oaW50IGFwaWMsIGludCBwaW4sIGNoYXIgKm1zZykKIAkJfQogCQlyZXR1
+cm4gMTsKIAl9Ci0JY2xlYXJfSU9fQVBJQ19waW4oYXBpYywgcGluKTsKKwogCWFwaWNfcHJpbnRr
+KEFQSUNfUVVJRVQsIEtFUk5fRVJSICIgLi4gZmFpbGVkXG4iKTsKIAlyZXR1cm4gMDsKIH0KQEAg
+LTE1OTksNiArMTY1NSw3IEBAIHN0YXRpYyB2b2lkIGNoZWNrX3RpbWVyKHZvaWQpCiAJaW50IGFw
+aWMxLCBwaW4xLCBhcGljMiwgcGluMjsKIAlpbnQgdmVjdG9yOwogCWNwdW1hc2tfdCBtYXNrOwor
+CWludCBpOwogCiAJLyoKIAkgKiBnZXQvc2V0IHRoZSB0aW1lciBJUlEgdmVjdG9yOgpAQCAtMTYy
+MSwzMyArMTY3OCw1MSBAQCBzdGF0aWMgdm9pZCBjaGVja190aW1lcih2b2lkKQogCXBpbjIgID0g
+aW9hcGljX2k4MjU5LnBpbjsKIAlhcGljMiA9IGlvYXBpY19pODI1OS5hcGljOwogCi0JLyogRG8g
+dGhpcyBmaXJzdCwgb3RoZXJ3aXNlIHdlIGdldCBkb3VibGUgaW50ZXJydXB0cyBvbiBBVEkgYm9h
+cmRzICovCi0JaWYgKChwaW4xICE9IC0xKSAmJiB0cnlfYXBpY19waW4oYXBpYzEsIHBpbjEsIndp
+dGggODI1OSBJUlEwIGRpc2FibGVkIikpCi0JCXJldHVybjsKKwlhcGljX3ByaW50ayhBUElDX1ZF
+UkJPU0UsS0VSTl9JTkZPICIuLlRJTUVSOiB2ZWN0b3I9MHglMDJYIGFwaWMxPSVkIHBpbjE9JWQg
+YXBpYzI9JWQgcGluMj0lZFxuIiwKKwkJdmVjdG9yLCBhcGljMSwgcGluMSwgYXBpYzIsIHBpbjIp
+OwogCi0JLyogTm93IHRyeSBhZ2FpbiB3aXRoIElSUTAgODI1OUEgZW5hYmxlZC4KLQkgICBBc3N1
+bWVzIHRpbWVyIGlzIG9uIElPLUFQSUMgMCA/IT8gKi8KLQllbmFibGVfODI1OUFfaXJxKDApOwot
+CXVubWFza19JT19BUElDX2lycSgwKTsKLQlpZiAodHJ5X2FwaWNfcGluKGFwaWMxLCBwaW4xLCAi
+d2l0aCA4MjU5IElSUTAgZW5hYmxlZCIpKQotCQlyZXR1cm47Ci0JZGlzYWJsZV84MjU5QV9pcnEo
+MCk7CisJaWYgKHBpbjEgIT0gLTEpIHsKKwkJLyogRG8gdGhpcyBmaXJzdCwgb3RoZXJ3aXNlIHdl
+IGdldCBkb3VibGUgaW50ZXJydXB0cyBvbiBBVEkgYm9hcmRzICovCisJCS8qIHNldF90cnlfYXBp
+Y19waW4gd2lsbCBjYWxsIGRpc2FibGVfODI1OUFfaXJxICovCisJCXNldF90cnlfYXBpY19waW4o
+YXBpYzEsIHBpbjEsIG1wX0lOVCk7CisJCXVubWFza19JT19BUElDX2lycSgwKTsKKwkJaWYgKHRy
+eV9hcGljX3BpbihhcGljMSwgcGluMSwid2l0aCA4MjU5IElSUTAgZGlzYWJsZWQiKSkKKwkJCXJl
+dHVybjsKIAotCS8qIEFsd2F5cyB0cnkgcGluMCBhbmQgcGluMiBvbiBBUElDIDAgdG8gaGFuZGxl
+IGJ1Z2d5IHRpbWVyIG92ZXJyaWRlcwotCSAgIG9uIE52aWRpYSBib2FyZHMgKi8KLQlpZiAoIShh
+cGljMSA9PSAwICYmIHBpbjEgPT0gMCkgJiYKLQkgICAgdHJ5X2FwaWNfcGluKDAsIDAsICJmYWxs
+YmFjayB3aXRoIDgyNTkgSVJRMCBkaXNhYmxlZCIpKQotCQlyZXR1cm47Ci0JaWYgKCEoYXBpYzEg
+PT0gMCAmJiBwaW4xID09IDIpICYmCi0JICAgIHRyeV9hcGljX3BpbigwLCAyLCAiZmFsbGJhY2sg
+d2l0aCA4MjU5IElSUTAgZGlzYWJsZWQiKSkKLQkJcmV0dXJuOworCQkvKiBOb3cgdHJ5IGFnYWlu
+IHdpdGggSVJRMCA4MjU5QSBlbmFibGVkLgorCQkgICBBc3N1bWVzIHRpbWVyIGlzIG9uIElPLUFQ
+SUMgMCA/IT8gKi8KKwkJZW5hYmxlXzgyNTlBX2lycSgwKTsKKwkJaWYgKHRyeV9hcGljX3Bpbihh
+cGljMSwgcGluMSwgIndpdGggODI1OSBJUlEwIGVuYWJsZWQiKSkKKwkJCXJldHVybjsKKwkJZGlz
+YWJsZV84MjU5QV9pcnEoMCk7CisKKyAgICAJICAgICAgICBjbGVhcl9JT19BUElDX3BpbihhcGlj
+MSwgcGluMSk7CisJCXJlbW92ZV9waW5fdG9faXJxKDAsIGFwaWMxLCBwaW4xKTsKKwl9CiAKIAkv
+KiBUaGVuIHRyeSBwdXJlIDgyNTlBIHJvdXRpbmcgb24gdGhlIDgyNTkgYXMgcmVwb3J0ZWQgYnkg
+QklPUyovCi0JZW5hYmxlXzgyNTlBX2lycSgwKTsKIAlpZiAocGluMiAhPSAtMSkgewogCQlzZXR1
+cF9FeHRJTlRfSVJRMF9waW4oYXBpYzIsIHBpbjIsIHZlY3Rvcik7CisJCWFkZF9waW5fdG9faXJx
+KDAsIGFwaWMyLCBwaW4yKTsKKwkJZW5hYmxlXzgyNTlBX2lycSgwKTsKIAkJaWYgKHRyeV9hcGlj
+X3BpbihhcGljMixwaW4yLCI4MjU5QSBicm9hZGNhc3QgRXh0SU5UIGZyb20gQklPUyIpKQogCQkJ
+cmV0dXJuOworCQljbGVhcl9JT19BUElDX3BpbihhcGljMiwgcGluMik7CisJCXJlbW92ZV9waW5f
+dG9faXJxKDAsIGFwaWMyLCBwaW4yKTsKKwl9CisKKwkvKiBBbHdheXMgdHJ5IHBpbjAgYW5kIHBp
+bjIgb24gQVBJQyAwIHRvIGhhbmRsZSBidWdneSB0aW1lciBvdmVycmlkZXMKKwkgICBvbiBOdmlk
+aWEgYm9hcmRzICovCisJZm9yIChpID0gMDsgaSA8PSAyOyBpICs9IDIpIAorCWlmICghKGFwaWMx
+ID09IDAgJiYgcGluMSA9PSBpKSkgeworCQkvKiBzZXRfdHJ5X2FwaWNfcGluIHdpbGwgY2FsbCBk
+aXNhYmxlXzgyNTlBX2lycSAqLworCQlzZXRfdHJ5X2FwaWNfcGluKDAsIGksIG1wX0lOVCk7IAor
+CQl1bm1hc2tfSU9fQVBJQ19pcnEoMCk7CisJCWlmICh0cnlfYXBpY19waW4oMCwgaSwgImZhbGxi
+YWNrIHdpdGggODI1OSBJUlEwIGRpc2FibGVkIikpCisJCQlyZXR1cm47CisKKwkJY2xlYXJfSU9f
+QVBJQ19waW4oMCwgaSk7CisJCXJlbW92ZV9waW5fdG9faXJxKDAsIDAsIGkpOwogCX0KIAogCS8q
+IFRyaWVkIGFsbCBwb3NzaWJpbGl0aWVzIHRvIGdvIHRocm91Z2ggdGhlIElPLUFQSUMuIE5vdyBj
+b21lIHRoZQo=
+------=_Part_186039_18508521.1167553785954--

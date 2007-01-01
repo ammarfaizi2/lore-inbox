@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933244AbXAACBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932874AbXAACk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933244AbXAACBi (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 21:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933242AbXAACBi
+	id S932874AbXAACk3 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 21:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932878AbXAACk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 21:01:38 -0500
-Received: from mail.tmr.com ([64.65.253.246]:36837 "EHLO gaimboi.tmr.com"
+	Sun, 31 Dec 2006 21:40:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:48410 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932861AbXAACBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 21:01:37 -0500
-Message-ID: <45986D2D.8090009@tmr.com>
-Date: Sun, 31 Dec 2006 21:08:45 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Denis Vlasenko <vda.linux@googlemail.com>,
-       Michael Tokarev <mjt@tls.msk.ru>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Raid 0 Swap?
-References: <44FB5AAD.7020307@perkel.com> <44FBFFFC.90309@tls.msk.ru>  <Pine.LNX.4.61.0609041242350.17115@yvahk01.tjqt.qr>  <200609181150.23091.vda.linux@googlemail.com> <e1a7ee0c0612272106y5e22dd21uc3f2fde567ab7532@mail.gmail.com> <Pine.LNX.4.61.0612281011530.15825@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0612281011530.15825@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id S932874AbXAACk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 21:40:28 -0500
+In-Reply-To: <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
+References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line macros.
+Date: Mon, 1 Jan 2007 03:40:19 +0100
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> On Dec 28 2006 00:06, Mike Huber wrote:
->> I would like to point out one key argument against raid0 swap partitions,
->> which is that, should a drive failure occur, the least used programs in
->> memory are most drastically affected.  Unfortunately, in the case of a
->> drastic drive failure in a standalone server, one of the most likely
->> programs to be affected is getty, disallowing you from manually logging in.
-> 
-> However, the footprint of getty is rather small, so its chance to run is higher
-> than an idle bigger task (dbus, resmgr, hal, perhaps cron or X)
+>> In this case, the second form
+>> should be used when the macro needs to return a value (and you can't
+>> use an inline function for whatever reason), whereas the first form
+>> should be used at all other times.
+>
+> that's a fair point, although it's certainly not the coding style
+> that's in play now.  for example,
+>
+>   #define setcc(cc) ({ \
+>     partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
+>     partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
 
-RAID-0 swap is not the thing to run if reliability is a must, clearly. 
-Interestingly, after a long fight with poor RAID-5 write speed, I moved 
-my swap to RAID-10, only to find that recovery disks don't know how to 
-use it. Tried Fedora and then a live CD (puppy, I think).
+This _does_ return a value though, bad example.
 
-Detail on the RAID-5 performance thing in the linux-raid archives, won't 
-rehash here.
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+
+Segher
+

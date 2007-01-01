@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932874AbXAACk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932879AbXAACki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932874AbXAACk3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 21:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932878AbXAACk3
+	id S932879AbXAACki (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 21:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbXAACki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 21:40:29 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48410 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932874AbXAACk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 21:40:28 -0500
-In-Reply-To: <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
-References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line macros.
-Date: Mon, 1 Jan 2007 03:40:19 +0100
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-X-Mailer: Apple Mail (2.623)
+	Sun, 31 Dec 2006 21:40:38 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:59786 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932879AbXAACkh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 21:40:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=P2jMJ2txiblskGAb19OKDYKOi/WdgRaNutVmdy96GWMoNU+Wh6neZeYwvlaL0BDu99hNX75ftL+dgZxa6KtN7GiBiwCT2kher+aP082/WuoW3UqEdhBpHgeBNYrNvidwkRjp/ib7wXzN/t1mRnn0G9U8JV5roi9hGOHzGO2wAMM=
+Date: Mon, 1 Jan 2007 05:40:32 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Happy New Year (and v2.6.20-rc3 released)
+Message-ID: <20070101024032.GA4951@martell.zuzino.mipt.ru>
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In this case, the second form
->> should be used when the macro needs to return a value (and you can't
->> use an inline function for whatever reason), whereas the first form
->> should be used at all other times.
->
-> that's a fair point, although it's certainly not the coding style
-> that's in play now.  for example,
->
->   #define setcc(cc) ({ \
->     partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
->     partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
+On Sun, Dec 31, 2006 at 05:19:44PM -0800, Linus Torvalds wrote:
+> Alexey Dobriyan (2):
+>       V4L/DVB (5012): Usbvision fix: It was using "&&" instead "&"
+>       fuse: fix typo
 
-This _does_ return a value though, bad example.
-
-
-Segher
+Second is from Thomas Hisch <t.hisch@gmail.com>, actually.
 

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933251AbXAAIng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933262AbXAAItI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933251AbXAAIng (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 03:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933256AbXAAIng
+	id S933262AbXAAItI (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 03:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933260AbXAAItI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 03:43:36 -0500
-Received: from smtp.ocgnet.org ([64.20.243.3]:46086 "EHLO smtp.ocgnet.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933251AbXAAInf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 03:43:35 -0500
-Date: Mon, 1 Jan 2007 17:42:31 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda.linux@googlemail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
-Message-ID: <20070101084231.GA9863@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Folkert van Heusden <folkert@vanheusden.com>,
-	"Robert P. J. Day" <rpjday@mindspring.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Denis Vlasenko <vda.linux@googlemail.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain> <200612302149.35752.vda.linux@googlemail.com> <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain> <1167518748.20929.578.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612301750550.16519@localhost.localdomain> <20061231183949.GA8323@linux-sh.org> <Pine.LNX.4.64.0612311355520.17978@localhost.localdomain> <20070101015932.GP13521@vanheusden.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070101015932.GP13521@vanheusden.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 1 Jan 2007 03:49:08 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40338
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S933258AbXAAItH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 03:49:07 -0500
+Date: Mon, 01 Jan 2007 00:49:05 -0800 (PST)
+Message-Id: <20070101.004905.98552337.davem@davemloft.net>
+To: daniel.marjamaki@gmail.com
+Cc: netdev@vger.kernel.org, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/core/flow.c: compare data with memcmp
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <80ec54e90612312347w2b906e5eg725a7761110c6897@mail.gmail.com>
+References: <80ec54e90612310837y786fd764oc18bf37c8f0b2b8c@mail.gmail.com>
+	<20061231.123715.115911390.davem@davemloft.net>
+	<80ec54e90612312347w2b906e5eg725a7761110c6897@mail.gmail.com>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2007 at 02:59:32AM +0100, Folkert van Heusden wrote:
-> > > regarding alignment that don't allow clear_page() to be used
-> > > copy_page() in the memcpy() case), but it's going to need a lot of
-> 
-> Maybe these optimalisations should be in the coding style docs?
-> 
-For what purpose? CodingStyle is not about documenting usage constraints
-for every minor part of the kernel. If someone intends to use an API,
-it's up to them to figure out the semantics for doing so. Let's not
-confuse common sense with style.
+From: "Daniel_Marjamäki" <daniel.marjamaki@gmail.com>
+Date: Mon, 1 Jan 2007 08:47:48 +0100
+
+> So you mean that in this particular case it's faster with a handcoded
+> comparison than memcmp? Because both key1 and key2 are located at
+> word-aligned addresses?
+> That's fascinating.
+
+Essentially, yes.
+
+However, I wonder.  GCC should be able to see this also, and
+if it expands the memset() inline the code emitted should be
+very similar.
+
+It is something to investigate on a few cpu types, for sure.

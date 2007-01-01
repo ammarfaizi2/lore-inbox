@@ -1,56 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933245AbXAADs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932895AbXAAEVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933245AbXAADs2 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 22:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933246AbXAADs2
+	id S932895AbXAAEVV (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 23:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932896AbXAAEVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 22:48:28 -0500
-Received: from gate.crashing.org ([63.228.1.57]:38855 "EHLO gate.crashing.org"
+	Sun, 31 Dec 2006 23:21:21 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47950 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933245AbXAADs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 22:48:28 -0500
-In-Reply-To: <4597A4A2.9060304@flex.com>
-References: <20061230.211941.74748799.davem@davemloft.net>	<459784AD.1010308@firmworks.com>	<45978CE9.7090700@flex.com> <20061231.024917.59652177.davem@davemloft.net> <4597A4A2.9060304@flex.com>
+	id S932895AbXAAEVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 23:21:21 -0500
+In-Reply-To: <459714A6.4000406@firmworks.com>
+References: <459714A6.4000406@firmworks.com>
 Mime-Version: 1.0 (Apple Message framework v623)
 Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <5798025b8c1eef2c3536c56ac7711560@kernel.crashing.org>
+Message-Id: <6288db25c3465ebca5af7760fe38d954@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, devel@laptop.org,
-       David Miller <davem@davemloft.net>, wmb@firmworks.com, jg@laptop.org
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "OLPC Developer's List" <devel@laptop.org>, Jim Gettys <jg@laptop.org>
 From: Segher Boessenkool <segher@kernel.crashing.org>
 Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Date: Mon, 1 Jan 2007 04:48:50 +0100
-To: David Kahn <dmk@flex.com>
+Date: Mon, 1 Jan 2007 05:21:48 +0100
+To: Mitch Bradley <wmb@firmworks.com>
 X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would not exactly call what we have for powerpc
-> "exporting the OFW device tree". I don't quite know
-> what it is, but it isn't as simple as exporting the
-> OFW device tree. I don't think we really wanted to
-> get into any of that here.
+Some comments, mostly coding style:
 
-The Linux PowerPC port uses an OF-like device tree on
-*every* platform, even those that don't have a native OF.
-It also has to work around lots of bugs in many OF
-implementations.  It's doing lots of stuff, and not all
-of it is nicely separated into logical modules I'm afraid.
+> - 0xb0 - 0x13f		Free. Add more parameters here if you really need them.
+> + 0xb0   16 bytes	Open Firmware information (magic, version, callback, 
+> idt)
 
-> Sure they can take advantage of it, if what they need
-> to export is a read-only copy of the actual device tree
-> without any legacy burden or having a writable/changeable
-> copy of it with a trivial implementation.
+Is there an OF ISA binding for x86 somewhere?  And don't
+point me to the source code, I'd like to see an actual
+reference doc ;-)
 
-So give them an interface that allows them to hook up to
-your new code :-)
+> +//	printk(KERN_WARNING "CALLOFW: %s\n", name);
 
-> This is a trivial implementation that suits it's purpose.
-> It's simple. I'm not sure what more is needed for this
-> project when it's pretty clear that i386 will never need
-> any additional support for open firmware.
+Please remove disabled code.  And don't use // comments
+at all please.
 
-Never say never...
+> +	if (call_firmware == NULL)
+> +		return (-1);
+
+No parentheses around return value.
+
+> +	argarray[0] = (int)name;
+
+This would warn on 64-bit systems, better write it as
+(u32)(u64)name (and make sure that "name" is somewhere
+in the low 4GB of memory).  This doesn't handle 64-bit
+client interface either btw.
+
+> +	while (numargs--) {
+> +		argarray[argnum++] = va_arg(ap, int);
+> +	}
+
+No braces around single statements.
+
+> +#undef	MAXARGS
+
+Why this #undef?  That's nasty style, and this is at the
+end of file anyway.
+
+> +#if 0
+
+Better use a normal comment.
+
+> +Here are call templates for all the standard OFW client services.
+
+You missed "instance-to-interposed-path" (standard, although
+not required).
+
+> + * By Mitch Bradley (wmb@firmworks.com), with assistance from David 
+> Kahn.
+> + * Most of the basic virtual file system structure was taken from a
+> + * "promfs" example written by Arnd Bergmann.  + *
+
+My mailer messed up this line, that means you have trailing
+spaces here :-)
+
+> +	    +	if (root == 0) {
+
+Same here.
+
+> +++ b/include/asm-i386/callofw.h
+> @@ -0,0 +1,22 @@
+> +#ifndef _I386_PROM_H
+> +#define _I386_PROM_H
+
+Better make the #define correspond to the file name.
 
 
 Segher

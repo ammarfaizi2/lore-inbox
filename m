@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932178AbXAAW60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754588AbXAAXB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbXAAW60 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 17:58:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbXAAW60
+	id S1754588AbXAAXB6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753623AbXAAXB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 17:58:26 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:55103 "EHLO
-	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932178AbXAAW6Y (ORCPT
+	Mon, 1 Jan 2007 18:01:58 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40404
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1753280AbXAAXB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 17:58:24 -0500
-Date: Mon, 1 Jan 2007 23:58:23 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <17816.29254.497543.329777@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.64.0701012356410.5162@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
- <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu> <20061221185850.GA16807@delft.aura.cs.cmu.edu>
- <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
- <1166869106.3281.587.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
- <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
- <1167388475.6106.51.camel@lade.trondhjem.org>
- <Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
- <17816.29254.497543.329777@gargle.gargle.HOWL>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 1 Jan 2007 18:01:57 -0500
+Date: Mon, 01 Jan 2007 15:01:52 -0800 (PST)
+Message-Id: <20070101.150152.15266001.davem@davemloft.net>
+To: James.Bottomley@SteelEye.com
+Cc: arjan@infradead.org, rmk+lkml@arm.linux.org.uk, torvalds@osdl.org,
+       miklos@szeredi.hu, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, akpm@osdl.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
+ that again
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1167669252.5302.57.camel@mulgrave.il.steeleye.com>
+References: <1167557242.20929.647.camel@laptopd505.fenrus.org>
+	<20061231.014756.112264804.davem@davemloft.net>
+	<1167669252.5302.57.camel@mulgrave.il.steeleye.com>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The question is: why does the kernel contain iget5 function that looks up
-> > according to callback, if the filesystem cannot have more than 64-bit
-> > inode identifier?
->
-> Generally speaking, file system might have two different identifiers for
-> files:
->
-> - one that makes it easy to tell whether two files are the same one;
->
-> - one that makes it easy to locate file on the storage.
->
-> According to POSIX, inode number should always work as identifier of the
-> first class, but not necessary as one of the second. For example, in
-> reiserfs something called "a key" is used to locate on-disk inode, which
-> in turn, contains inode number. Identifiers of the second class tend to
+From: James Bottomley <James.Bottomley@SteelEye.com>
+Date: Mon, 01 Jan 2007 10:34:12 -0600
 
-BTW. How does ReiserFS find that a given inode number (or object ID in 
-ReiserFS terminology) is free before assigning it to new file/directory?
+> Erm, well the whole reason for the flush_anon_pages() was that you told
+> me not to do it in flush_dcache_page() ...
+> 
+> Although this is perhaps part of the confusion over what
+> flush_dcache_page() is actually supposed to do.
 
-Mikulas
+I completely agree, it's confusing.  I've tried to make it
+"just a hook" where architectures do whatever is necessary
+at that point to synchronize things.  It's a poor definition
+and gives the implementor not much more than a rope with which
+to hang themselves :-)
 
-> live in directory entries, and during lookup we want to consult inode
-> cache _before_ reading inode from the disk (otherwise cache is mostly
-> useless), right? This means that some file systems want to index inodes
-> in a cache by something different than inode number.
+That's why I'm thinking strongly about perhaps encouraging
+people to go the kmap() route.  It would avoid all the flushing
+in exchange for some specialized TLB accesses.  If the flushes
+are really expensive, and the TLB operations to setup/teardown
+the kmap()'s can be relatively cheap, it might be the thing to
+do on PARISC.
+
+More and more I like Ralf's kmap() approach because you only
+do things exactly where the kernel actually touches the page.
+And if it would really help in some way, we can even tag the
+kmap() calls with "KMAP_READ" or "KMAP_WRITE" type attributes
+as appropriate.  Because let's say you don't want to do the
+TLB mapping thing, and still want to actually cache flush,
+then this hint about the access could guide what kind of flush
+you do.

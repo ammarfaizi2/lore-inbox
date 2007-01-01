@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755236AbXAAQ3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755241AbXAAQaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755236AbXAAQ3l (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 11:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755227AbXAAQ3l
+	id S1755241AbXAAQaK (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 11:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755227AbXAAQaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 11:29:41 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4664 "EHLO spitz.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755236AbXAAQ3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 11:29:33 -0500
-Date: Thu, 28 Dec 2006 13:32:12 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Scott Preece <sepreece@gmail.com>
-Cc: Wolfgang Draxinger <wdraxinger@darkstargames.de>,
-       LKML <linux-kernel@vger.kernel.org>, Rok Markovic <kernel@kanardia.eu>
-Subject: Re: Binary Drivers
-Message-ID: <20061228133211.GD3955@ucw.cz>
-References: <34142027@web.de> <458C308D.6070606@kanardia.eu> <200612222300.17463.wdraxinger@darkstargames.de> <7b69d1470612221414h7bca6dd3x89f52be55a47746d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7b69d1470612221414h7bca6dd3x89f52be55a47746d@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 1 Jan 2007 11:30:10 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:32847 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755242AbXAAQ3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 11:29:44 -0500
+Message-ID: <4599335D.9060905@oracle.com>
+Date: Mon, 01 Jan 2007 08:14:21 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Christoph Hellwig <hch@infradead.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org
+Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line
+ macros.
+References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20070101142020.GA16425@infradead.org> <Pine.LNX.4.64.0701010921460.7166@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0701010921460.7166@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >You're not alone, I think everybody who knows, how 
-> >things in a
-> >computer work shares this view.
-> ---
+Robert P. J. Day wrote:
+> On Mon, 1 Jan 2007, Christoph Hellwig wrote:
 > 
-> Two of the specific arguments I've heard are (a) that 
-> the board (and
-> its hardware interfaces that the documentation would 
-> describe) involve
-> IP licensed from a third party, which the board 
-> manufacturer does not
-> have a legal right to disclose, or (b) that there is, in 
-> fact, no
-> suitable documentation, because the boards are developed 
-> somewhat
-> fluidly and the driver is developed directly from 
-> low-level knowledge
-> that simply isn't written down in a form suitable for 
-> passing on.
+>> On Sun, Dec 31, 2006 at 02:32:25PM -0500, Robert P. J. Day wrote:
+>>> + (a) Enclose those statements in a do - while block:
+>>> +
+>>> +	#define macrofun(a, b, c) 		\
+>>> +		do {				\
+>>> +			if (a == 5)		\
+>>> +				do_this(b, c);	\
+>>> +		} while (0)
+>> nitpick, please don't add an indentaion level for the do {.  Do this
+>> should look like:
+>>
+>> 	#define macrofun(a, b, c) 	\
+>> 	do {				\
+>> 		if (a == 5)		\
+>> 			do_this(b, c);	\
+>> 	} while (0)
+> 
+> the former is the way it's presented in CodingStyle currently, it
+> wasn't my personal opinion on the subject.  i was just reproducing
+> what was already there.
+> 
+>>> + (b) Use the gcc extension that a compound statement enclosed in
+>>> +     parentheses represents an expression:
+>>> +
+>>> +	#define macrofun(a, b, c) ({		\
+>>>  		if (a == 5)			\
+>>>  			do_this(b, c);		\
+>>> -	} while (0)
+>>> +	})
+>> I'd rather document to not use this - it makes the code far less
+>> redable.  And it's a non-standard extension, something we only
+>> use if it provides us a benefit which it doesn't here.
+> 
+> it might be a bit late to put a cork in *that* bottle:
+> 
+>   $ grep -r "#define.*({" *
 
-So just opensource the driver. It is usually easy to port it, and
-possible to clean it up.
+We aren't trying to prevent its past use.  We just aren't encouraging
+the use of gcc extensions if there are reasonable & better ways to
+do something.
 
-I have once ported cd-rom driver from DOS to linux (do you still
-remember cdroms not talking ATA?) -- in 2days or so, and the comments
-in driver were in korean.
-
-							Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+~Randy

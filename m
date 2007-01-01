@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753655AbXAATNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753633AbXAATPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753655AbXAATNe (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 14:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753633AbXAATNe
+	id S1753633AbXAATPn (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 14:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbXAATPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 14:13:34 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:32449 "EHLO
-	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753635AbXAATNd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 14:13:33 -0500
-Date: Mon, 1 Jan 2007 19:13:29 +0000
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86 instability with 2.6.1{8,9}
-Message-ID: <20070101191329.GA29826@deepthought>
-References: <20070101160158.GA26547@deepthought> <200701011648.55460.s0348365@sms.ed.ac.uk> <20070101170758.GA28015@deepthought>
+	Mon, 1 Jan 2007 14:15:43 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:46364 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753633AbXAATPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 14:15:42 -0500
+Date: Mon, 1 Jan 2007 20:11:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+cc: "Robert P. J. Day" <rpjday@mindspring.com>, trivial@kernel.org,
+       Randy Dunlap <randy.dunlap@oracle.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line
+ macros.
+In-Reply-To: <fb88b3708d2228b345fe68a5a207d069@kernel.crashing.org>
+Message-ID: <Pine.LNX.4.61.0701012010180.24520@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain>
+ <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
+ <66cc662565c489fa9e604073ced64889@kernel.crashing.org> <45987EB0.1020505@oracle.com>
+ <Pine.LNX.4.61.0701011635420.24520@yvahk01.tjqt.qr>
+ <fb88b3708d2228b345fe68a5a207d069@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20070101170758.GA28015@deepthought>
-User-Agent: Mutt/1.5.12-2006-07-14
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2007 at 05:07:58PM +0000, Ken Moffat wrote:
-> On Mon, Jan 01, 2007 at 04:48:55PM +0000, Alistair John Strachan wrote:
-> > 
-> > Obviously papering over a severe bug, but why is it necessary for you to run a 
-> > 32bit kernel to test 32bit userspace? If your 64bit kernel is stable, use the 
-> > IA32 emulation surely?
-> > 
->  My 64-bit is pure64 on this machine, so it doesn't have any
-> suitable libs or tools.  Anyway, I really do need a 32-bit kernel
-> to test some linuxfromscratch build instructions.
-> 
- Sorry, I think last night is still interfering with my own logic
-circuits.  Yes, I could use 'linux32' to change the personality as a
-work-around now that I've built the system.  Mainly, I was hoping
-somebody would notice something bad in the config, but I might use
-the work-around in the meantime.  Thanks for reminding me about it.
 
-Ken
+On Jan 1 2007 18:51, Segher Boessenkool wrote:
+>> If people want to return something from a ({ }) construct, they should do
+>> it
+>> explicitly, e.g.
+>> 
+>> #define setcc(cc) ({ \
+>> partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
+>> partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); \
+>> partial_status; \
+>> })
+>
+> No, they generally should use an inline function instead.
+
+Perhaps. But that won't work with defines where typeof is involved.
+
+
+	-`J'
 -- 
-das eine Mal als Tragödie, das andere Mal als Farce

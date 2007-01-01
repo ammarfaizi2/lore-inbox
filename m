@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932894AbXAADig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933243AbXAADjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932894AbXAADig (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 22:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933245AbXAADig
+	id S933243AbXAADjl (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 22:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933246AbXAADjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 22:38:36 -0500
-Received: from flex.com ([206.126.0.13]:59684 "EHLO flex.com"
+	Sun, 31 Dec 2006 22:39:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:58175 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932894AbXAADif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 22:38:35 -0500
-Message-ID: <45988210.7070300@flex.com>
-Date: Sun, 31 Dec 2006 19:37:52 -0800
-From: David Kahn <dmk@flex.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: hch@infradead.org, wmb@firmworks.com, devel@laptop.org,
-       linux-kernel@vger.kernel.org, jg@laptop.org
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-References: <45978CE9.7090700@flex.com>	<20061231.024917.59652177.davem@davemloft.net>	<20061231154103.GA7409@infradead.org> <20061231.124612.21926488.davem@davemloft.net>
-In-Reply-To: <20061231.124612.21926488.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id S933243AbXAADjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 22:39:40 -0500
+In-Reply-To: <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
+References: <459714A6.4000406@firmworks.com> <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <ba169b0e106ecbaebf480bf218fdf91f@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "OLPC Developer's List" <devel@laptop.org>,
+       Mitch Bradley <wmb@firmworks.com>, Jim Gettys <jg@laptop.org>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Date: Mon, 1 Jan 2007 04:40:00 +0100
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> +A regular file in ofwfs contains the exact byte sequence that
+>> +comprises the OFW property value.  Properties are not reformatted
+>> +into text form, so numeric property values appear as binary
+>> +integers.  While this is inconvenient for viewing, it is generally
+>> +easier for programs that read property values, and it means that
+>> +Open Firmware documentation about property values applies
+>> +directly, without having to separately document an ASCII
+>> +transformation (which would have to separately specified for
+>> +different kinds of properties).
+>
+> I appreciate the ASCII formatting that openpromfs currently does.
 
-Folks,
+The text representation (in openpromfs) is *useless*, since it cannot
+be transformed back into the binary representation.
 
-If we reused the current code in fs/proc/proc_devtree.c
-and re-wrote the underlying of_* routines for i386 only,
-(in the hope of removing the complexity not needed for
-this implementation) would that be an acceptable
-implementation?
+Most tools have an easier time using the raw binary version too.
+If a user wants to see text, they can use an "lsdevtree" program.
 
-In other words, the of_* routines continue to define the
-interface between kernel and the firmware/OS
-layer. Although that code in proc_devtree.c defining
-the functions duplicate_name() and fixup_name() is still
-troubling to me.
+> Perhaps, should OFWFS be used, it could offer both?
 
-IMHO, the directory entries in the filesystem
-should be in the form "node-name@unit-address" (eg: /pci@1f,0,
-"pci" is the node name, "@" is the separator character defined
-by IEEE 1275, and "1f,0" is the unit-address,
-which are always guaranteed to be unique. That's part of the
-reason we did a separate implementation. I'm not sure
-how we'll resolve that part of it or what problem that
-code is trying to resolve by changing the directory names
-that appear in the filesystem in a rather odd way. It's
-not possible to have two ambiguously fully qualified nodes in the OFW
-device tree, otherwise you would never be able to select
-a specific one by name.
+Such transformations don't belong in the kernel but in userland.
 
--David
+>> +The recommended mount point for ofwfs is /ofw.  (TBD: Should it be
+>> +mounted somewhere under /sys instead?)
+>
+> Somewhere in /sys/firmware perhaps.
+
+While I hate deep paths, /sys/firmware/device-tree does sound good.
+
+
+Segher
 

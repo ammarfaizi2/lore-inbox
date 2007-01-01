@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754608AbXAAXF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754721AbXAAXIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754608AbXAAXF4 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 18:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbXAAXF4
+	id S1754721AbXAAXIg (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbXAAXIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 18:05:56 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:33300 "EHLO
-	mail.clusterfs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754608AbXAAXFz (ORCPT
+	Mon, 1 Jan 2007 18:08:36 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:55191
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1754621AbXAAXIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 18:05:55 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Jan 2007 18:08:35 -0500
+Date: Mon, 01 Jan 2007 15:08:31 -0800 (PST)
+Message-Id: <20070101.150831.17863014.davem@davemloft.net>
+To: segher@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, dmk@flex.com,
+       wmb@firmworks.com, hch@infradead.org, jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org>
+References: <445cb4c27a664491761ce4e219aa0960@kernel.crashing.org>
+	<20070101.005714.35017753.davem@davemloft.net>
+	<385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17817.37844.730977.13636@gargle.gargle.HOWL>
-Date: Tue, 2 Jan 2007 02:05:56 +0300
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <Pine.LNX.4.64.0701012356410.5162@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	<E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	<20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	<Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	<1166869106.3281.587.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	<4593890C.8030207@panasas.com>
-	<1167300352.3281.4183.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
-	<1167388475.6106.51.camel@lade.trondhjem.org>
-	<Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
-	<17816.29254.497543.329777@gargle.gargle.HOWL>
-	<Pine.LNX.4.64.0701012356410.5162@artax.karlin.mff.cuni.cz>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
-X-SystemSpamProbe: GOOD 0.0000330 b729264a8a9d5b9a826c32c43a66f4da
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka writes:
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Date: Mon, 1 Jan 2007 18:48:33 +0100
 
-[...]
+> If you *really* want (the option of) showing things as text
+> in the filesystem, you better make it so that there is a
+> one-to-one translation back to binary.  For example, what
+> does this mean, is it a text string or two bytes:
+> 
+> 01.02
+> 
+> Yes you as a user can guess, but scripts can't (reliably).
 
- > 
- > BTW. How does ReiserFS find that a given inode number (or object ID in 
- > ReiserFS terminology) is free before assigning it to new file/directory?
+We have some extensive code in fs/openpromfs/inode.c that
+determines whether a property is text or not.  I can't
+guarentee it works %100, but it's very context dependant
+(only the driver "knows") but it works for all the cases
+I've tried.
 
-reiserfs v3 has an extent map of free object identifiers in
-super-block. reiser4 used 64 bit object identifiers without reuse.
-
- > 
- > Mikulas
-
-Nikita.
-
+I really think you're making a mountain out of a mole hill, to be
+honest :-)

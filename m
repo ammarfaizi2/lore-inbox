@@ -1,170 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754781AbXAAXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754771AbXAAXqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754781AbXAAXpj (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 18:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbXAAXpj
+	id S1754771AbXAAXqU (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754788AbXAAXqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 18:45:39 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:55260 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754781AbXAAXpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 18:45:38 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Suspend problems on 2.6.20-rc2-git1
-Date: Tue, 2 Jan 2007 00:47:02 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
-       Dave Jones <davej@redhat.com>
-References: <459771A2.6060301@shaw.ca> <200612311427.02175.rjw@sisk.pl> <200612311724.11423.rjw@sisk.pl>
-In-Reply-To: <200612311724.11423.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Jan 2007 18:46:20 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4549 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754771AbXAAXqT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 18:46:19 -0500
+Date: Mon, 1 Jan 2007 23:45:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: davem@davemloft.net, arjan@infradead.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, akpm@osdl.org
+Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
+Message-ID: <20070101234559.GE30535@flint.arm.linux.org.uk>
+Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>, davem@davemloft.net,
+	arjan@infradead.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+	akpm@osdl.org
+References: <20061230.212338.92583434.davem@davemloft.net> <20061231092318.GA1702@flint.arm.linux.org.uk> <1167557242.20929.647.camel@laptopd505.fenrus.org> <20061231.014756.112264804.davem@davemloft.net> <20061231100007.GC1702@flint.arm.linux.org.uk> <E1H0zkD-0003uw-00@dorka.pomaz.szeredi.hu> <20061231173743.GD1702@flint.arm.linux.org.uk> <E1H1VQu-0005oJ-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701020047.02918.rjw@sisk.pl>
+In-Reply-To: <E1H1VQu-0005oJ-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 31 December 2006 17:24, Rafael J. Wysocki wrote:
-> On Sunday, 31 December 2006 14:27, Rafael J. Wysocki wrote:
-> > On Sunday, 31 December 2006 09:15, Robert Hancock wrote:
-> > > Having some suspend problems on 2.6.20-rc2-git1 with Fedora Core 6. 
-> > > First of all the normal user interface for hibernate isn't working 
-> > > properly while it did in 2.6.19. When you select "Hibernate" it seems to 
-> > > stop X and go into console mode but somehow doesn't seem to actually 
-> > > start the process of suspending. I'm not sure at what point it is failing.
+On Mon, Jan 01, 2007 at 11:15:04PM +0100, Miklos Szeredi wrote:
+> > > > I'm willing to do that - and I guess this means we can probably do this
+> > > > instead of walking the list of VMAs for the shared mapping, thereby
+> > > > hitting both anonymous and shared mappings with the same code?
 > > > 
-> > > Secondly, if you try and suspend manually it claims there is no swap 
-> > > device available when there clearly is:
+> > > But for the get_user_pages() case there's no point, is there?  The VMA
+> > > and the virtual address is already available, so trying to find it
+> > > again through RMAP doesn't much make sense.
 > > > 
-> > > [root@localhost rob]# cat /proc/swaps
-> > > Filename                                Type            Size    Used 
-> > > Priority
-> > > /dev/mapper/VolGroup00-LogVol01         partition       1048568 0       -1
-> > > [root@localhost rob]# echo disk > /sys/power/state
-> > > bash: echo: write error: No such device or address
+> > > Users of get_user_pages() don't care about any other mappings (maybe
+> > > ptrace does, I don't know) only about one single user mapping and one
+> > > kernel mapping.
+> > > 
+> > > So using flush_dcache_page() there is an overkill, trying to teach it
+> > > about anonymous pages is not the real solution, flush_dcache_page()
+> > > was never meant to be used on anything but file mapped pages.
 > > 
-> > Hm, at first sight it looks like something broke the suspend to swap
-> > partitions located on LVM.  For now I have no idea what it was.
+> > It's not actually.  For flush_anon_page() we currently have to flush the
+> > user mapping and the kernel mapping.  For flush_dcache_page(), it's
+> > exactly the same - we have to flush the kernel mapping and the user
+> > mapping.
 > 
-> _Or_ something broke your initrd setup.
+> I was never advocating flush_anon_page().  I was suggesting a _new_
+> cache operation:
+> 
+>    flush_kernel_user_page(page, vma, virt_addr)
+> 
+> which flushes the kernel mapping and the given user mapping.  Just
+> like flush_dcache_page() but without needing to find the user
+> mapping(s).
 
-No, this is a kernel problem, I think.
+There's a problem with defining cache coherency macros to that extent.
+You take away flexibility to efficiently implement them on various
+platforms which you didn't think about (eg, in the above case it's
+perfectly fine for VIVT, but not really VIPT.)
 
-Can you please check if the appended patch fixes the issue?
+> However the cache flushing in kmap/kunmap idea might be cleaner and
+> better.
 
-Thanks,
-Rafael
+It has the significant advantage that, unlike the flush* calls, they
+can't really be forgotten by folk programming on cache alias-free
+hardware.  That's a _very_ persuasive argument for this proposed
+interface.
 
-
----
- include/linux/swap.h |    2 +-
- kernel/power/swap.c  |    9 +++++----
- kernel/power/user.c  |    7 ++++---
- mm/swapfile.c        |    8 +++++++-
- 4 files changed, 17 insertions(+), 9 deletions(-)
-
-Index: linux-2.6.20-rc3/include/linux/swap.h
-===================================================================
---- linux-2.6.20-rc3.orig/include/linux/swap.h
-+++ linux-2.6.20-rc3/include/linux/swap.h
-@@ -245,7 +245,7 @@ extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
- extern void free_swap_and_cache(swp_entry_t);
--extern int swap_type_of(dev_t, sector_t);
-+extern int swap_type_of(dev_t, sector_t, struct block_device **);
- extern unsigned int count_swap_pages(int, int);
- extern sector_t map_swap_page(struct swap_info_struct *, pgoff_t);
- extern sector_t swapdev_block(int, pgoff_t);
-Index: linux-2.6.20-rc3/kernel/power/swap.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/swap.c
-+++ linux-2.6.20-rc3/kernel/power/swap.c
-@@ -165,14 +165,15 @@ static int swsusp_swap_check(void) /* Th
- {
- 	int res;
- 
--	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
-+	res = swap_type_of(swsusp_resume_device, swsusp_resume_block,
-+			&resume_bdev);
- 	if (res < 0)
- 		return res;
- 
- 	root_swap = res;
--	resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
--	if (IS_ERR(resume_bdev))
--		return PTR_ERR(resume_bdev);
-+	res = blkdev_get(resume_bdev, FMODE_WRITE, O_RDWR);
-+	if (res)
-+		return res;
- 
- 	res = set_blocksize(resume_bdev, PAGE_SIZE);
- 	if (res < 0)
-Index: linux-2.6.20-rc3/mm/swapfile.c
-===================================================================
---- linux-2.6.20-rc3.orig/mm/swapfile.c
-+++ linux-2.6.20-rc3/mm/swapfile.c
-@@ -434,7 +434,7 @@ void free_swap_and_cache(swp_entry_t ent
-  *
-  * This is needed for the suspend to disk (aka swsusp).
-  */
--int swap_type_of(dev_t device, sector_t offset)
-+int swap_type_of(dev_t device, sector_t offset, struct block_device **bdev_p)
- {
- 	struct block_device *bdev = NULL;
- 	int i;
-@@ -450,6 +450,9 @@ int swap_type_of(dev_t device, sector_t 
- 			continue;
- 
- 		if (!bdev) {
-+			if (bdev_p)
-+				*bdev_p = sis->bdev;
-+
- 			spin_unlock(&swap_lock);
- 			return i;
- 		}
-@@ -459,6 +462,9 @@ int swap_type_of(dev_t device, sector_t 
- 			se = list_entry(sis->extent_list.next,
- 					struct swap_extent, list);
- 			if (se->start_block == offset) {
-+				if (bdev_p)
-+					*bdev_p = sis->bdev;
-+
- 				spin_unlock(&swap_lock);
- 				bdput(bdev);
- 				return i;
-Index: linux-2.6.20-rc3/kernel/power/user.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/user.c
-+++ linux-2.6.20-rc3/kernel/power/user.c
-@@ -58,7 +58,7 @@ static int snapshot_open(struct inode *i
- 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
- 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
- 		data->swap = swsusp_resume_device ?
--				swap_type_of(swsusp_resume_device, 0) : -1;
-+			swap_type_of(swsusp_resume_device, 0, NULL) : -1;
- 		data->mode = O_RDONLY;
- 	} else {
- 		data->swap = -1;
-@@ -327,7 +327,8 @@ static int snapshot_ioctl(struct inode *
- 			 * so we need to recode them
- 			 */
- 			if (old_decode_dev(arg)) {
--				data->swap = swap_type_of(old_decode_dev(arg), 0);
-+				data->swap = swap_type_of(old_decode_dev(arg),
-+							0, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {
-@@ -427,7 +428,7 @@ static int snapshot_ioctl(struct inode *
- 			swdev = old_decode_dev(swap_area.dev);
- 			if (swdev) {
- 				offset = swap_area.offset;
--				data->swap = swap_type_of(swdev, offset);
-+				data->swap = swap_type_of(swdev, offset, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932852AbXAABvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932876AbXAAB7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932852AbXAABvb (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 20:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932859AbXAABvb
+	id S932876AbXAAB7s (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 20:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932861AbXAAB7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 20:51:31 -0500
-Received: from mail.tmr.com ([64.65.253.246]:36816 "EHLO gaimboi.tmr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932852AbXAABva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 20:51:30 -0500
-Message-ID: <45986AE5.9040903@tmr.com>
-Date: Sun, 31 Dec 2006 20:59:01 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	Sun, 31 Dec 2006 20:59:47 -0500
+Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:4220 "EHLO
+	smtp-vbr1.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932876AbXAAB7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 20:59:46 -0500
+Date: Mon, 1 Jan 2007 02:59:32 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Paul Mundt <lethal@linux-sh.org>, Arjan van de Ven <arjan@infradead.org>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+Message-ID: <20070101015932.GP13521@vanheusden.com>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
+	<200612302149.35752.vda.linux@googlemail.com>
+	<Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
+	<1167518748.20929.578.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0612301750550.16519@localhost.localdomain>
+	<20061231183949.GA8323@linux-sh.org>
+	<Pine.LNX.4.64.0612311355520.17978@localhost.localdomain>
 MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: Manish Regmi <regmi.manish@gmail.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: Linux disk performance.
-References: <652016d30612172007m58d7a828q378863121ebdc535@mail.gmail.com>	 <1166431020.3365.931.camel@laptopd505.fenrus.org> <652016d30612180439y6cd12089l115e4ef6ce2e59fe@mail.gmail.com> <4589B92F.2030006@tmr.com> <45929658.3030507@cfl.rr.com>
-In-Reply-To: <45929658.3030507@cfl.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612311355520.17978@localhost.localdomain>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Mon Jan  1 01:26:42 CET 2007
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
-> Bill Davidsen wrote:
->> Quite honestly, the main place I have found O_DIRECT useful is in 
->> keeping programs doing large i/o quantities from blowing the buffers 
->> and making the other applications run like crap. If you application is 
->> running alone, unless you are very short of CPU or memory avoiding the 
->> copy to an o/s buffer will be down in the measurement noise.
->>
->> I had a news (usenet) server which normally did 120 art/sec (~480 
->> tps), which dropped to about 50 tps when doing large file copies even 
->> at low priority. By using O_DIRECT the impact essentially vanished, at 
->> the cost of the copy running about 10-15% slower. Changing various 
->> programs to use O_DIRECT only helped when really large blocks of data 
->> were involved, and only when i/o clould be done in a way to satisfy 
->> the alignment and size requirements of O_DIRECT.
->>
->> If you upgrade to a newer kernel you can try other i/o scheduler 
->> options, default cfq or even deadline might be helpful.
-> 
-> I would point out that if you are looking for optimal throughput and 
-> reduced cpu overhead, and avoid blowing out the kernel fs cache, you 
-> need to couple aio with O_DIRECT.  By itself O_DIRECT will lower 
-> throughput because there will be brief pauses between each IO while the 
-> application prepares the next buffer.  You can overcome this by posting 
-> a few pending buffers concurrently with aio, allowing the kernel to 
-> always have a buffer ready for the next io as soon as the previous one 
-> completes.
+> > regarding alignment that don't allow clear_page() to be used
+> > copy_page() in the memcpy() case), but it's going to need a lot of
 
-A good point, but in this case there was no particular urgency, other 
-than not to stop the application while doing background data moves. The 
-best way to do it would have been to put it where it belonged in the 
-first place :-(
+Maybe these optimalisations should be in the coding style docs?
+
+
+Folkert van Heusden
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Ever wonder what is out there? Any alien races? Then please support
+the seti@home project: setiathome.ssl.berkeley.edu
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

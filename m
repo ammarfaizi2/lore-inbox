@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753633AbXAATPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932669AbXAATXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753633AbXAATPn (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 14:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbXAATPn
+	id S932669AbXAATXP (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 14:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754673AbXAATXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 14:15:43 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:46364 "EHLO tmailer.gwdg.de"
+	Mon, 1 Jan 2007 14:23:15 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:42254 "EHLO scrub.xs4all.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753633AbXAATPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 14:15:42 -0500
-Date: Mon, 1 Jan 2007 20:11:02 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-cc: "Robert P. J. Day" <rpjday@mindspring.com>, trivial@kernel.org,
-       Randy Dunlap <randy.dunlap@oracle.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line
- macros.
-In-Reply-To: <fb88b3708d2228b345fe68a5a207d069@kernel.crashing.org>
-Message-ID: <Pine.LNX.4.61.0701012010180.24520@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain>
- <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
- <66cc662565c489fa9e604073ced64889@kernel.crashing.org> <45987EB0.1020505@oracle.com>
- <Pine.LNX.4.61.0701011635420.24520@yvahk01.tjqt.qr>
- <fb88b3708d2228b345fe68a5a207d069@kernel.crashing.org>
+	id S1754657AbXAATXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 14:23:14 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [RFC] HZ free ntp
+Date: Mon, 1 Jan 2007 17:27:45 +0100
+User-Agent: KMail/1.9.5
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612132125450.1867@scrub.home> <1166578357.5594.3.camel@localhost>
+In-Reply-To: <1166578357.5594.3.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701011727.46944.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Jan 1 2007 18:51, Segher Boessenkool wrote:
->> If people want to return something from a ({ }) construct, they should do
->> it
->> explicitly, e.g.
->> 
->> #define setcc(cc) ({ \
->> partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
->> partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); \
->> partial_status; \
->> })
+On Wednesday 20 December 2006 02:32, john stultz wrote:
+
+> > I know and all you have to change in the ntp and some related code is to
+> > replace HZ there with a variable, thus make it changable, so you can
+> > increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
 >
-> No, they generally should use an inline function instead.
+> Untested patch below. Does this vibe better with you are suggesting?
 
-Perhaps. But that won't work with defines where typeof is involved.
+Yes, thanks.
+tick_nsec doesn't require special treatment, in the middle term it's obsolete 
+anyway, it could be replaced with (current_tick_length() >> 
+TICK_LENGTH_SHIFT) and current_tick_length() being inlined.
+NTP_INTERVAL_FREQ could be a real variable (so it can be initialized at 
+runtime), it's already gone from all important paths.
+In the short term I'd prefered a clock would store its frequency instead of 
+using NTP_INTERVAL_LENGTH in clocksource_calculate_interval(), so it doesn't 
+has to be derived there.
 
-
-	-`J'
--- 
+bye, Roman

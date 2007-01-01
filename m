@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754709AbXAAVik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932235AbXAAVlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754709AbXAAVik (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 16:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754721AbXAAVik
+	id S932235AbXAAVlP (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 16:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbXAAVlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 16:38:40 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:3876 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754709AbXAAVij (ORCPT
+	Mon, 1 Jan 2007 16:41:15 -0500
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:60488 "EHLO
+	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932235AbXAAVlO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 16:38:39 -0500
-Date: Mon, 1 Jan 2007 22:39:13 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-Id: <20070101223913.7b1fddbf.khali@linux-fr.org>
-In-Reply-To: <20061222104056.GB7009@in.ibm.com>
-References: <20061220141808.e4b8c0ea.khali@linux-fr.org>
-	<m1tzzqpt04.fsf@ebiederm.dsl.xmission.com>
-	<20061220214340.f6b037b1.khali@linux-fr.org>
-	<m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com>
-	<20061221101240.f7e8f107.khali@linux-fr.org>
-	<20061221145922.16ee8dd7.khali@linux-fr.org>
-	<1166723157.29546.281560884@webmail.messagingengine.com>
-	<20061221204408.GA7009@in.ibm.com>
-	<20061222090806.3ae56579.khali@linux-fr.org>
-	<20061222104056.GB7009@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Jan 2007 16:41:14 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Andreas Schwab <schwab@suse.de>
+Subject: Re: [PATCH] [DISCUSS] Make the variable NULL after freeing it.
+Date: Mon, 1 Jan 2007 22:40:58 +0100
+User-Agent: KMail/1.9.5
+Cc: Amit Choudhary <amit2030@yahoo.com>, Bernd Petrovitsch <bernd@firmix.at>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <88880.94256.qm@web55601.mail.re4.yahoo.com> <200701011709.48349.ioe-lkml@rameria.de> <je3b6uhfz4.fsf@sykes.suse.de>
+In-Reply-To: <je3b6uhfz4.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2672794.2fjJhaRq9u";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200701012241.08240.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vivek,
+--nextPart2672794.2fjJhaRq9u
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sorry for the delay, I'm just back from vacation. I tried it all again
-with 2.6.20-rc3 just in case, but the problem I've hit is still present.
+On Monday, 1. January 2007 17:25, Andreas Schwab wrote:
+> Ingo Oeser <ioe-lkml@rameria.de> writes:
+> > Then this works, because the side effect (+20) is evaluated only once.=
+=20
+>=20
+> It's not a side effect, it's a non-lvalue, and you can't take the address
+> of a non-lvalue.
 
-On Fri, 22 Dec 2006 16:10:56 +0530, Vivek Goyal wrote:
-> Can you please also upload boot/compressed/vmlinux.
+Just verified this. So If we cannot make it work in all cases, it will
+cause more problems then it will solve.
 
-I've shared the whole build tree so that you can peek at files without
-waiting for me to upload them. It is temporarily available at:
-  http://jdelvare.pck.nerim.net/linux/relocatable-bug/
-Hidden files are there too, just not listed.
+So we are left with a function, which will=20
+a) only be used by janitors to provide "kfree(x); x =3D NULL;"=20
+    with an macro KFREE(x) in all the simple cases.
 
-Thanks,
--- 
-Jean Delvare
+b) be used by developers, who are aware of the fact that reusable
+    pointer values should set to NULL after kfree().
+
+Doing a) and b) is "running into open doors", so doesn't prevent any
+error, obfuscates code more and works only sometimes.
+
+I give up here and would vote for dropping that idea then.
+
+
+Regards
+
+Ingo Oeser
+
+--nextPart2672794.2fjJhaRq9u
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBFmX/0U56oYWuOrkARAvjeAJ9har8a5I+JkKCCVtM02Pfk6EfGWACZAfGN
+vmzkSC2ExUY6QsxZjl4xTmY=
+=So/a
+-----END PGP SIGNATURE-----
+
+--nextPart2672794.2fjJhaRq9u--

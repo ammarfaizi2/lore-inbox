@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932312AbXAAXWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754757AbXAAXW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbXAAXWT (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 18:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbXAAXWT
+	id S1754757AbXAAXW4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754748AbXAAXW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 18:22:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4405 "EHLO spitz.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754724AbXAAXWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 18:22:18 -0500
-Date: Mon, 1 Jan 2007 17:28:03 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ollie Wild <aaw@google.com>, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-arch@vger.kernel.org, David Howells <dhowells@redhat.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: [patch] remove MAX_ARG_PAGES
-Message-ID: <20070101172803.GC4214@ucw.cz>
-References: <65dd6fd50610101705t3db93a72sc0847cd120aa05d3@mail.gmail.com> <1160572460.2006.79.camel@taijtu> <65dd6fd50610111448q7ff210e1nb5f14917c311c8d4@mail.gmail.com> <65dd6fd50610241048h24af39d9ob49c3816dfe1ca64@mail.gmail.com> <20061229200357.GA5940@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061229200357.GA5940@elte.hu>
-User-Agent: Mutt/1.5.9i
+	Mon, 1 Jan 2007 18:22:56 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:56910 "EHLO
+	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754747AbXAAXWz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 18:22:55 -0500
+Date: Tue, 2 Jan 2007 00:22:54 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+In-Reply-To: <17817.37844.730977.13636@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.64.0701020018330.5162@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
+ <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu> <20061221185850.GA16807@delft.aura.cs.cmu.edu>
+ <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
+ <1166869106.3281.587.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+ <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
+ <1167388475.6106.51.camel@lade.trondhjem.org>
+ <Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
+ <17816.29254.497543.329777@gargle.gargle.HOWL>
+ <Pine.LNX.4.64.0701012356410.5162@artax.karlin.mff.cuni.cz>
+ <17817.37844.730977.13636@gargle.gargle.HOWL>
+X-Personality-Disorder: Schizoid
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > BTW. How does ReiserFS find that a given inode number (or object ID in
+> > ReiserFS terminology) is free before assigning it to new file/directory?
+>
+> reiserfs v3 has an extent map of free object identifiers in
+> super-block.
 
-> FYI, i have forward ported your MAX_ARG_PAGES limit removal patch to 
-> 2.6.20-rc2 and have included it in the -rt kernel. It's working great - 
-> i can now finally do a "ls -t patches/*.patch" in my patch repository - 
-> something i havent been able to do for years ;-)
-> 
-> what is keeping this fix from going upstream?
+Inode free space can have at most 2^31 extents --- if inode numbers 
+alternate between "allocated", "free". How do you pack it to superblock?
 
-+1
+> reiser4 used 64 bit object identifiers without reuse.
 
-I like this. I've been running with MAX_ARG_PAGES raised to insane
-value, and I'd love to get rid of that hack.
+So you are going to hit the same problem as I did with SpadFS --- you 
+can't export 64-bit inode number to userspace (programs without 
+-D_FILE_OFFSET_BITS=64 will have stat() randomly failing with EOVERFLOW 
+then) and if you export only 32-bit number, it will eventually wrap-around 
+and colliding st_ino will cause data corruption with many userspace 
+programs.
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Mikulas

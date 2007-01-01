@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933262AbXAAItI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753615AbXAAIyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933262AbXAAItI (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 03:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933260AbXAAItI
+	id S1753615AbXAAIyL (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 03:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755161AbXAAIyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 03:49:08 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40338
+	Mon, 1 Jan 2007 03:54:11 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:41755
 	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S933258AbXAAItH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 03:49:07 -0500
-Date: Mon, 01 Jan 2007 00:49:05 -0800 (PST)
-Message-Id: <20070101.004905.98552337.davem@davemloft.net>
-To: daniel.marjamaki@gmail.com
-Cc: netdev@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/core/flow.c: compare data with memcmp
+	by vger.kernel.org with ESMTP id S1753615AbXAAIyK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 03:54:10 -0500
+Date: Mon, 01 Jan 2007 00:54:09 -0800 (PST)
+Message-Id: <20070101.005409.38712613.davem@davemloft.net>
+To: dmk@flex.com
+Cc: hch@infradead.org, wmb@firmworks.com, devel@laptop.org,
+       linux-kernel@vger.kernel.org, jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <80ec54e90612312347w2b906e5eg725a7761110c6897@mail.gmail.com>
-References: <80ec54e90612310837y786fd764oc18bf37c8f0b2b8c@mail.gmail.com>
-	<20061231.123715.115911390.davem@davemloft.net>
-	<80ec54e90612312347w2b906e5eg725a7761110c6897@mail.gmail.com>
+In-Reply-To: <45988210.7070300@flex.com>
+References: <20061231154103.GA7409@infradead.org>
+	<20061231.124612.21926488.davem@davemloft.net>
+	<45988210.7070300@flex.com>
 X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Daniel_Marjamäki" <daniel.marjamaki@gmail.com>
-Date: Mon, 1 Jan 2007 08:47:48 +0100
+From: David Kahn <dmk@flex.com>
+Date: Sun, 31 Dec 2006 19:37:52 -0800
 
-> So you mean that in this particular case it's faster with a handcoded
-> comparison than memcmp? Because both key1 and key2 are located at
-> word-aligned addresses?
-> That's fascinating.
+> IMHO, the directory entries in the filesystem
+> should be in the form "node-name@unit-address" (eg: /pci@1f,0,
+> "pci" is the node name, "@" is the separator character defined
+> by IEEE 1275, and "1f,0" is the unit-address,
+> which are always guaranteed to be unique. That's part of the
+> reason we did a separate implementation. I'm not sure
+> how we'll resolve that part of it or what problem that
+> code is trying to resolve by changing the directory names
+> that appear in the filesystem in a rather odd way. It's
+> not possible to have two ambiguously fully qualified nodes in the OFW
+> device tree, otherwise you would never be able to select
+> a specific one by name.
 
-Essentially, yes.
-
-However, I wonder.  GCC should be able to see this also, and
-if it expands the memset() inline the code emitted should be
-very similar.
-
-It is something to investigate on a few cpu types, for sure.
+Absolutely, and if you look that's how Sparc's openpromfs names
+things now.  It even goes through all of the trouble to make
+sure the unit addressing matches what the Sparc OBP uses
+precisely.

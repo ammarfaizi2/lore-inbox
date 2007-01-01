@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754771AbXAAXqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932531AbXAAXxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754771AbXAAXqU (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 18:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754788AbXAAXqU
+	id S932531AbXAAXxJ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbXAAXxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 18:46:20 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4549 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754771AbXAAXqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 18:46:19 -0500
-Date: Mon, 1 Jan 2007 23:45:59 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: davem@davemloft.net, arjan@infradead.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, akpm@osdl.org
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all that again
-Message-ID: <20070101234559.GE30535@flint.arm.linux.org.uk>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>, davem@davemloft.net,
-	arjan@infradead.org, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-	akpm@osdl.org
-References: <20061230.212338.92583434.davem@davemloft.net> <20061231092318.GA1702@flint.arm.linux.org.uk> <1167557242.20929.647.camel@laptopd505.fenrus.org> <20061231.014756.112264804.davem@davemloft.net> <20061231100007.GC1702@flint.arm.linux.org.uk> <E1H0zkD-0003uw-00@dorka.pomaz.szeredi.hu> <20061231173743.GD1702@flint.arm.linux.org.uk> <E1H1VQu-0005oJ-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1H1VQu-0005oJ-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 1 Jan 2007 18:53:09 -0500
+Received: from rtr.ca ([64.26.128.89]:4278 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932531AbXAAXxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 18:53:08 -0500
+X-Greylist: delayed 1461 seconds by postgrey-1.27 at vger.kernel.org; Mon, 01 Jan 2007 18:53:08 EST
+Message-ID: <4599992D.8000607@rtr.ca>
+Date: Mon, 01 Jan 2007 18:28:45 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+MIME-Version: 1.0
+To: jens.axboe@oracle.com
+Cc: Rene Herman <rene.herman@gmail.com>, Tejun Heo <htejun@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.20-rc2+: CFQ halving disk throughput.
+References: <45893CAD.9050909@gmail.com> <45921E73.1080601@gmail.com> <4592B25A.4040906@gmail.com> <45932AF1.9040900@gmail.com> <45998F62.6010904@gmail.com>
+In-Reply-To: <45998F62.6010904@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2007 at 11:15:04PM +0100, Miklos Szeredi wrote:
-> > > > I'm willing to do that - and I guess this means we can probably do this
-> > > > instead of walking the list of VMAs for the shared mapping, thereby
-> > > > hitting both anonymous and shared mappings with the same code?
-> > > 
-> > > But for the get_user_pages() case there's no point, is there?  The VMA
-> > > and the virtual address is already available, so trying to find it
-> > > again through RMAP doesn't much make sense.
-> > > 
-> > > Users of get_user_pages() don't care about any other mappings (maybe
-> > > ptrace does, I don't know) only about one single user mapping and one
-> > > kernel mapping.
-> > > 
-> > > So using flush_dcache_page() there is an overkill, trying to teach it
-> > > about anonymous pages is not the real solution, flush_dcache_page()
-> > > was never meant to be used on anything but file mapped pages.
-> > 
-> > It's not actually.  For flush_anon_page() we currently have to flush the
-> > user mapping and the kernel mapping.  For flush_dcache_page(), it's
-> > exactly the same - we have to flush the kernel mapping and the user
-> > mapping.
+Rene Herman wrote:
+> Tejun Heo wrote:
 > 
-> I was never advocating flush_anon_page().  I was suggesting a _new_
-> cache operation:
+>> Everything seems fine in the dmesg.  Performance degradation is
+>> probably some other issue in -rc kernel.  I'm suspecting recently
+>> fixed block layer bug.  If it's still the same in the next -rc,
+>> please report.
 > 
->    flush_kernel_user_page(page, vma, virt_addr)
+> In fact, it's CFQ. The PATA thing was a red herring. 2.6.20-rc2 and 3 
+> give me ~ 24 MB/s from "hdparm t /dev/hda" while 2.6.20-rc1 and below 
+> give me ~ 50 MB/s.
 > 
-> which flushes the kernel mapping and the given user mapping.  Just
-> like flush_dcache_page() but without needing to find the user
-> mapping(s).
+> Jens: this is due to "[PATCH] cfq-iosched: tighten allow merge 
+> criteria", 719d34027e1a186e46a3952e8a24bf91ecc33837:
+> 
+> http://www2.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=719d34027e1a186e46a3952e8a24bf91ecc33837 
+> 
+> 
+> If I revert that one, I have my 50 M/s back. config and dmesg attached 
+> in case they're useful.
 
-There's a problem with defining cache coherency macros to that extent.
-You take away flexibility to efficiently implement them on various
-platforms which you didn't think about (eg, in the above case it's
-perfectly fine for VIVT, but not really VIPT.)
+Wow.. same deal here -- sequential throughput drops from 40MB/sec to 28MB/sec
+with CFQ -- whereas the anticipatory scheduler maintains the 40MB/sec.
 
-> However the cache flushing in kmap/kunmap idea might be cleaner and
-> better.
+Jens.. I wonder if the new merging test is a bit too strict?
 
-It has the significant advantage that, unlike the flush* calls, they
-can't really be forgotten by folk programming on cache alias-free
-hardware.  That's a _very_ persuasive argument for this proposed
-interface.
+There are four possible combinations, and the new code
+allows merging for two of them:  sync+sync and async+async.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+But surely one of (not sure which) sync+async or async+sync may also be okay?
+Or would it?
+
+This is a huge performance hit.
+
+Cheers

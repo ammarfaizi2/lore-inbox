@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932876AbXAAB7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932859AbXAACAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932876AbXAAB7s (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 20:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932861AbXAAB7r
+	id S932859AbXAACAq (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 21:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932871AbXAACAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 20:59:47 -0500
-Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:4220 "EHLO
-	smtp-vbr1.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932876AbXAAB7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 20:59:46 -0500
-Date: Mon, 1 Jan 2007 02:59:32 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda.linux@googlemail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
-Message-ID: <20070101015932.GP13521@vanheusden.com>
-References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain>
-	<200612302149.35752.vda.linux@googlemail.com>
-	<Pine.LNX.4.64.0612301705250.16056@localhost.localdomain>
-	<1167518748.20929.578.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0612301750550.16519@localhost.localdomain>
-	<20061231183949.GA8323@linux-sh.org>
-	<Pine.LNX.4.64.0612311355520.17978@localhost.localdomain>
+	Sun, 31 Dec 2006 21:00:46 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:34546 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932859AbXAACAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 21:00:45 -0500
+Date: Mon, 1 Jan 2007 03:00:22 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Netfilter Mailing List <netfilter@lists.netfilter.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: chaostables 0.2
+Message-ID: <Pine.LNX.4.61.0701010248480.29991@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612311355520.17978@localhost.localdomain>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Mon Jan  1 01:26:42 CET 2007
-X-Message-Flag: MultiTail - tail on steroids
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > regarding alignment that don't allow clear_page() to be used
-> > copy_page() in the memcpy() case), but it's going to need a lot of
-
-Maybe these optimalisations should be in the coding style docs?
+Hi list(s),
 
 
-Folkert van Heusden
 
+chaostables is a small package containing some nice netfilter magic:
+a module xt_portscan which matches the nmap scan types (including -sS) 
+and more, and a xt_CHAOS module which slows down network scanners by 
+triggering their codepaths for handling slow-working/'broken' operating 
+systems.
+
+Documentation is not yet fully complete, but it explains the details 
+behind the portscan match and how it can be implemented without using 
+the xt_portscan.ko module. By looking at the code and some example 
+files, it should be possible to figure out how to use these (obviously, 
+-m portscan [types] and -j CHAOS -- but a little self-experimenting is 
+always good, too.)
+
+http://jengelh.hopto.org/f/chaostables/chaostables-0.2.tar.bz2
+(it is a remake of what was previously known, and now inaccessible, as 
+AS_IPFW)
+
+I happily take comments on anything.
+
+Thanks and, FWIW, happy  new Year(),
+Jan
 -- 
-Ever wonder what is out there? Any alien races? Then please support
-the seti@home project: setiathome.ssl.berkeley.edu
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

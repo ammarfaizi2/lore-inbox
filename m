@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932840AbXAAU4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754688AbXAAVQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932840AbXAAU4a (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 15:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932838AbXAAU4a
+	id S1754688AbXAAVQr (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 16:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754695AbXAAVQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 15:56:30 -0500
-Received: from py-out-1112.google.com ([64.233.166.182]:30047 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932840AbXAAU43 (ORCPT
+	Mon, 1 Jan 2007 16:16:47 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53541 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754688AbXAAVQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 15:56:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=i2gudX665WorfaEd0EiE0GGwdg1XiDKUzIXKlb4XuKBE4Ek/XGETHL/keLP83C4DUvhJxlGMJRb6wZ/vVFgY9ctKGZYr9vpuSHQ5mdAme43DP0gNozURgKJMN/n938prvmZ8HGOD17VqTLqk3+5um+EW7mmtAn4NVtOzkj3YTcI=
-Subject: Cut power to a USB port?
-From: Andrew Barr <andrew.james.barr@gmail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 01 Jan 2007 15:56:25 -0500
-Message-Id: <1167684985.28023.4.camel@localhost>
+	Mon, 1 Jan 2007 16:16:47 -0500
+Date: Mon, 1 Jan 2007 21:26:40 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Happy New Year (and v2.6.20-rc3 released)
+Message-ID: <20070101212640.7268fb1d@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	<5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com>
+	<Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a simple question perhaps someone can help me with here...
+On Mon, 1 Jan 2007 12:13:08 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-I have one of those simple LED keyboard lamps that get their power from
-the USB port. Is there some way in Linux, using files under /sys I would
-imagine, to cut power to the USB port into which this lamp is plugged? I
-know I would have to manually figure out what port it's plugged into, as
-it is not a "real" USB device...e.g. it just draws power. I would like
-to be able to programmatically switch the lamp on and off.
+> 
+> Jeff, 
+>  what was the resolution to this one? Just revert the offending commit, or 
+> what?
 
-Thanks in advance,
-Andrew Barr
+If you revert the commit you end with all the PCI resource tree breakage
+back
+> 
+> We're about five weeks into the 2.6.20-rc series. I was hoping for a 
+> two-month release rather than the usual dragged-out three months, so I'd 
+> like to get these regressions to be actively fixed. By forcible reverts if 
+> that is what it takes.
 
-Please CC any replies
+The patch I sent ages back is perfectly adequate for 2.6.20-rc/2.6.20
+final. Jeff is correct that it isn't perfection in all cases but it does
+no real harm and the right fix (removing the whole bogus combined mode
+garbage) is short and simple.
 
+If Jeff doesn't get you a patch please let me know before reverting it
+and I'll send you the one I'm using that folks have tested and works.
+
+Alan

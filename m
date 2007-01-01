@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755178AbXAAIbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751632AbXAAIba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755178AbXAAIbf (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 03:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755188AbXAAIbf
+	id S1751632AbXAAIba (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 03:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755178AbXAAIba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 03:31:35 -0500
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:38379 "EHLO
-	mtagate5.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755178AbXAAIbd (ORCPT
+	Mon, 1 Jan 2007 03:31:30 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:48016 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751632AbXAAIb3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 03:31:33 -0500
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: ak@suse.de
-Cc: jdmason@kudzu.us, linux-kernel@vger.kernel.org,
-       Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: [PATCH] x86-64 Calgary: tighten up printks
-Reply-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Date: Mon, 01 Jan 2007 10:31:31 +0200
-Message-Id: <11676402912842-git-send-email-muli@il.ibm.com>
-X-Mailer: git-send-email 1.4.1
+	Mon, 1 Jan 2007 03:31:29 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Mon, 1 Jan 2007 03:26:02 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Segher Boessenkool <segher@kernel.crashing.org>
+cc: Muli Ben-Yehuda <muli@il.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org
+Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line
+ macros.
+In-Reply-To: <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
+Message-ID: <Pine.LNX.4.64.0701010322320.2935@localhost.localdomain>
+References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain>
+ <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain>
+ <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
----
- arch/x86_64/kernel/pci-calgary.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+On Mon, 1 Jan 2007, Segher Boessenkool wrote:
 
-diff --git a/arch/x86_64/kernel/pci-calgary.c b/arch/x86_64/kernel/pci-calgary.c
-index 87d90cb..3d65b1d 100644
---- a/arch/x86_64/kernel/pci-calgary.c
-+++ b/arch/x86_64/kernel/pci-calgary.c
-@@ -1068,6 +1068,8 @@ void __init detect_calgary(void)
- 	if (!early_pci_allowed())
- 		return;
- 
-+	printk(KERN_DEBUG "Calgary: detecting Calgary via BIOS EBDA area\n");
-+
- 	ptr = (unsigned long)phys_to_virt(get_bios_ebda());
- 
- 	rio_table_hdr = NULL;
-@@ -1088,14 +1090,14 @@ void __init detect_calgary(void)
- 		offset = *((unsigned short *)(ptr + offset));
- 	}
- 	if (!rio_table_hdr) {
--		printk(KERN_ERR "Calgary: Unable to locate "
--				"Rio Grande Table in EBDA - bailing!\n");
-+		printk(KERN_DEBUG "Calgary: Unable to locate Rio Grande table "
-+		       "in EBDA - bailing!\n");
- 		return;
- 	}
- 
- 	ret = build_detail_arrays();
- 	if (ret) {
--		printk(KERN_ERR "Calgary: build_detail_arrays ret %d\n", ret);
-+		printk(KERN_DEBUG "Calgary: build_detail_arrays ret %d\n", ret);
- 		return;
- 	}
- 
-@@ -1128,6 +1130,9 @@ void __init detect_calgary(void)
- 		}
- 	}
- 
-+	printk(KERN_DEBUG "Calgary: finished detection, Calgary %s\n",
-+	       calgary_found ? "found" : "not found");
-+
- 	if (calgary_found) {
- 		iommu_detected = 1;
- 		calgary_detected = 1;
--- 
-1.4.1
+> > > In this case, the second form
+> > > should be used when the macro needs to return a value (and you can't
+> > > use an inline function for whatever reason), whereas the first form
+> > > should be used at all other times.
+> >
+> > that's a fair point, although it's certainly not the coding style
+> > that's in play now.  for example,
+> >
+> >   #define setcc(cc) ({ \
+> >     partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
+> >     partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
+>
+> This _does_ return a value though, bad example.
 
+sigh ... you're right.  here's a thought.  my original patch
+submission simply added an explanation for allowing the ({ }) notation
+for defining a multi-line macro, without getting into recommending an
+actual coding style.  at a minimum, something like that should be
+added to the style document.
+
+if someone wants to extend that explanation recommending *when* each
+of those two styles should be used, feel free.  but a simple
+decription of alternatives should *at least* be added, no?
+
+rday

@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933242AbXAADh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932894AbXAADig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933242AbXAADh6 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 22:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933243AbXAADh6
+	id S932894AbXAADig (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 22:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933245AbXAADig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 22:37:58 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:49890 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933242AbXAADh6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 22:37:58 -0500
-Message-ID: <45987EB0.1020505@oracle.com>
-Date: Sun, 31 Dec 2006 19:23:28 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Sun, 31 Dec 2006 22:38:36 -0500
+Received: from flex.com ([206.126.0.13]:59684 "EHLO flex.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932894AbXAADif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 22:38:35 -0500
+Message-ID: <45988210.7070300@flex.com>
+Date: Sun, 31 Dec 2006 19:37:52 -0800
+From: David Kahn <dmk@flex.com>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 MIME-Version: 1.0
-To: Segher Boessenkool <segher@kernel.crashing.org>
-CC: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line
- macros.
-References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain> <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
-In-Reply-To: <66cc662565c489fa9e604073ced64889@kernel.crashing.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: David Miller <davem@davemloft.net>
+CC: hch@infradead.org, wmb@firmworks.com, devel@laptop.org,
+       linux-kernel@vger.kernel.org, jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+References: <45978CE9.7090700@flex.com>	<20061231.024917.59652177.davem@davemloft.net>	<20061231154103.GA7409@infradead.org> <20061231.124612.21926488.davem@davemloft.net>
+In-Reply-To: <20061231.124612.21926488.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Segher Boessenkool wrote:
->>> In this case, the second form
->>> should be used when the macro needs to return a value (and you can't
->>> use an inline function for whatever reason), whereas the first form
->>> should be used at all other times.
->>
->> that's a fair point, although it's certainly not the coding style
->> that's in play now.  for example,
->>
->>   #define setcc(cc) ({ \
->>     partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
->>     partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
-> 
-> This _does_ return a value though, bad example.
 
-Where does it return a value?  I don't see any uses of it
-in arch/i386/math-emu/* that use it as returning a value.
+Folks,
 
-And with a small change to put it inside a do-while block
-instead of ({ ... }), it at least builds cleanly.
-I expected some complaints.
+If we reused the current code in fs/proc/proc_devtree.c
+and re-wrote the underlying of_* routines for i386 only,
+(in the hope of removing the complexity not needed for
+this implementation) would that be an acceptable
+implementation?
 
--- 
-~Randy
+In other words, the of_* routines continue to define the
+interface between kernel and the firmware/OS
+layer. Although that code in proc_devtree.c defining
+the functions duplicate_name() and fixup_name() is still
+troubling to me.
+
+IMHO, the directory entries in the filesystem
+should be in the form "node-name@unit-address" (eg: /pci@1f,0,
+"pci" is the node name, "@" is the separator character defined
+by IEEE 1275, and "1f,0" is the unit-address,
+which are always guaranteed to be unique. That's part of the
+reason we did a separate implementation. I'm not sure
+how we'll resolve that part of it or what problem that
+code is trying to resolve by changing the directory names
+that appear in the filesystem in a rather odd way. It's
+not possible to have two ambiguously fully qualified nodes in the OFW
+device tree, otherwise you would never be able to select
+a specific one by name.
+
+-David
+

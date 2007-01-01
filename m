@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753102AbXAATBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751728AbXAATGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753102AbXAATBX (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 14:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752724AbXAATBX
+	id S1751728AbXAATGK (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 14:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753580AbXAATGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 14:01:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47017 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753580AbXAATBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 14:01:22 -0500
-Date: Mon, 1 Jan 2007 20:01:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Marcel Holtmann <marcel@holtmann.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, maxk@qualcomm.com,
-       bluez-devel@lists.sourceforge.net
-Subject: Re: bluetooth memory corruption (was Re: ext3-related crash in 2.6.20-rc1)
-Message-ID: <20070101190112.GB4593@elf.ucw.cz>
-References: <20061223234305.GA1809@elf.ucw.cz> <20061223235501.GA1740@elf.ucw.cz> <1166971163.15485.21.camel@violet> <20061224233647.GB1761@elf.ucw.cz> <20061230215250.GF20714@stusta.de>
-MIME-Version: 1.0
+	Mon, 1 Jan 2007 14:06:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52588 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751728AbXAATGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 14:06:09 -0500
+Date: Mon, 1 Jan 2007 14:05:38 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+Message-ID: <20070101190538.GA20443@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Robert P. J. Day" <rpjday@mindspring.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Folkert van Heusden <folkert@vanheusden.com>,
+	Paul Mundt <lethal@linux-sh.org>,
+	Denis Vlasenko <vda.linux@googlemail.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200612302149.35752.vda.linux@googlemail.com> <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain> <1167518748.20929.578.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612301750550.16519@localhost.localdomain> <20061231183949.GA8323@linux-sh.org> <Pine.LNX.4.64.0612311355520.17978@localhost.localdomain> <20070101015932.GP13521@vanheusden.com> <Pine.LNX.4.64.0701010332130.3084@localhost.localdomain> <1167646450.20929.921.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0701010515560.6039@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061230215250.GF20714@stusta.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.64.0701010515560.6039@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jan 01, 2007 at 05:27:10AM -0500, Robert P. J. Day wrote:
 
-> > > > Okay, I spoke too soon. bluetooth & suspend memory corruption was
-> > > > _way_ harder to reproduce than expected. Took me 5-or-so-suspend
-> > > > cycles... so it is probably unrelated to the previous crash.
-> > > 
-> > > can you try to reproduce this with 2.6.20-rc2 as well.
-> > 
-> > Yep, here it is, reproduced on 6-th-or-so suspend.
-> > 
-> > bluetooth may need to be actively used in order for this to trigger;
-> > connecting to the net over my cellphone seems to work okay.
-> > 
-> > (Full logs in attachment).
-> 
-> Is this issue also present in 2.6.19 or is it a regression?
+ > > both look good... I'd be in favor of this. Maybe also add a part
+ > > about using GFP_KERNEL whenever possible, GFP_NOFS from filesystem
+ > > writeout code and GFP_NOIO from block writeout code (and never doing
+ > > in_interrupt()?GFP_ATOMIC:GFP_KERNEL !)
+ > 
+ > it strikes me that that latter part is starting to go beyond the scope
+ > of simple coding style aesthetics and getting into actual coding
+ > distinctions.  would that really be appropriate for the CodingStyle
+ > doc?  i'm just asking.
 
-Not sure... but I know there were some bluetooth & suspend problems
-before.
-								Pavel
+Adding a separate 'good practices' doc wouldn't be a bad idea.
+
+		Dave
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+http://www.codemonkey.org.uk

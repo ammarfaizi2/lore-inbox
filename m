@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753606AbXAARtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755244AbXAARvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753606AbXAARtz (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 12:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754453AbXAARtz
+	id S1755244AbXAARvX (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 12:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755245AbXAARvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 12:49:55 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40078 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753606AbXAARty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 12:49:54 -0500
-Message-ID: <459949C5.7010103@drzeus.cx>
-Date: Mon, 01 Jan 2007 18:49:57 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Philip Langdale <philipl@overt.org>, linux-kernel@vger.kernel.org,
-       John Gilmore <gnu@toad.com>
-Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards
-References: <458C22C0.1080307@vmware.com> <458C290B.4060003@overt.org> <20061228133652.GE3955@ucw.cz>
-In-Reply-To: <20061228133652.GE3955@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 1 Jan 2007 12:51:23 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59177 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755244AbXAARvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 12:51:22 -0500
+In-Reply-To: <Pine.LNX.4.61.0701011635420.24520@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain> <66cc662565c489fa9e604073ced64889@kernel.crashing.org> <45987EB0.1020505@oracle.com> <Pine.LNX.4.61.0701011635420.24520@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <fb88b3708d2228b345fe68a5a207d069@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>, trivial@kernel.org,
+       Randy Dunlap <randy.dunlap@oracle.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line macros.
+Date: Mon, 1 Jan 2007 18:51:05 +0100
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Would you describe what SDHC is? I know SD flash cards, and IIRC SDIO
-> cards exist, with functionality such as bluetooth...? But SDHC?
+> If people want to return something from a ({ }) construct, they should 
+> do it
+> explicitly, e.g.
 >
->   
+> #define setcc(cc) ({ \
+> 	partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
+> 	partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); \
+> 	partial_status; \
+> })
 
-SDHC is short for "Secure Digital High Capacity". It's simply SD flash
-cards than conform to a new version of the protocol, a version where
-addressing is done on a sector (512 byte) basis instead of bytes.
+No, they generally should use an inline function instead.
 
-Rgds
 
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Segher
 

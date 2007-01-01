@@ -1,238 +1,470 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932815AbXAAUQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932830AbXAAURT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932815AbXAAUQ5 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 15:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932813AbXAAUQ5
+	id S932830AbXAAURT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 15:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932817AbXAAURT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 15:16:57 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:45071 "HELO
+	Mon, 1 Jan 2007 15:17:19 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:45160 "HELO
 	smtp111.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932815AbXAAUQ4 (ORCPT
+	by vger.kernel.org with SMTP id S932822AbXAAURP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 15:16:56 -0500
+	Mon, 1 Jan 2007 15:17:15 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=w8SVknwAyoPYSsWEnQsqXIs/7V/WtgRXmyKxaiSx5L9LJPmmO8iFf7beoryBfdD3aIxTmTJXwRoh/JdQCRChoahrs83kGFpha20tHPWrNVeObSvjCHm8gdJBdN06f2mB3bl0ddru/g5dUaNjKMmFelaBZOxpi2s96NIjLZKM3iw=  ;
-X-YMail-OSG: 3JmR07AVM1ltqQ_zjoL.IxwtP.TmrW0VdaeJWfQvhYPQBp7Koml7MIdICvV9xCL1OzpqDeYx9QvmEGmUW6Sb0uKSHMHA.rPU3PMxd7jxGMqAJxfhM8LSwCGcu4oU2zFV0x96beadk6m31E4-
+  b=3zFFXKfn/LwvHqa3915sH1wbKfS4qIR2MOl+pp4On47N0YOaNWLKngJiWHaA2RZGvE3iqR10CVlFJo8ZMWHW8ANsRbmmEie3aRFPoRmZJXmNLw70UHBW4RP8dSuiJGwYMX277pVxvQ0EStJMuLT2etu1Jp+RABhx5YCVthRB/oY=  ;
+X-YMail-OSG: ZBSQivgVM1m_.5ZElq3DbWuXHxlt7vTYFk3DmlF4LIx8y3n.ows4xuyiThWZYcKXkCeRUOKDnqQw62hDu2COuYbeVvLd33A4viKsC5P3V3oFpuyU199V.dHfSGXpbELoQPsH1rcHKJvJFaA-
 From: David Brownell <david-b@pacbell.net>
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 2.6.20-rc1 4/6] PXA GPIO wrappers
-Date: Mon, 1 Jan 2007 11:43:51 -0800
+To: "Kevin O'Connor" <kevin@koconnor.net>
+Subject: Re: [patch 2.6.20-rc1 0/6] arch-neutral GPIO calls
+Date: Mon, 1 Jan 2007 12:06:19 -0800
 User-Agent: KMail/1.7.1
-Cc: pHilipp Zabel <philipp.zabel@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       Kevin Hilman <khilman@mvista.com>, Russell King <rmk@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200612281247.36869.david-b@pacbell.net> <Pine.LNX.4.64.0612292107580.18171@xanadu.home>
-In-Reply-To: <Pine.LNX.4.64.0612292107580.18171@xanadu.home>
+Cc: linux-kernel@vger.kernel.org
+References: <20061231191137.GA5290@double.lan>
+In-Reply-To: <20061231191137.GA5290@double.lan>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701011143.53254.david-b@pacbell.net>
+Message-Id: <200701011206.20132.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the list archives:  here's the latest version of this.
-The signed-off-by discussion is offlist right now, so this
-version has none; see what eventually merges.
+On Sunday 31 December 2006 11:11 am, Kevin O'Connor wrote:
+> > Based on earlier discussion, I'm sending a refresh of the generic GPIO
+> > patch, with several (ARM based) implementations in separate patches:
+> 
+> Hi Dave,
+> 
+> I'm very interested in seeing an abstraction for gpios.
 
-From: Philipp Zabel <philipp.zabel@gmail.com>
+Good!  I suspect most folk who've had to work on a few different
+embedded Linux boards have noticed lots of needlessly-different
+GPIO code.  Not many folk are actually seeing that as more than
+just ugliness though.
 
-Arch-neutral GPIO calls for PXA.
+
+> Unfortunately, I fear the implementation you propose is not robust
+> enough to handle the cases I need to handle. 
+
+The _interface_ allows those additional GPIO controllers though.
+Specifically of the type you mentioned ... that's why this version
+defined new "cansleep" call variants.
 
 
-Index: pxa/include/asm-arm/arch-pxa/gpio.h
+> The concern I have with your current implementation is that I don't
+> see a way to flexibly add in support for additional gpio pins on a
+> machine by machine basis.  The code does do a good job of abstracting
+> gpios based on the primary architecture (eg, PXA vs OMAP), but not on
+> a chip basis (eg, PXA vs ASIC3).
+
+You used the key word:  implementation.  The interface allows it,
+but such board-specific extensions haven't yet been needed; so
+they've not yet been implemented.
+
+See the appended for a patch roughly along the lines of what has
+previously been discussed here.  No interface change, just updated
+implementation code.  And the additional implementation logic won't
+kick on boards that don't need it.
+
+Note that the current implementations are a win even without yet
+being able to handle the board-specific external GPIO controllers.
+The API is clearer than chip-specific register access, and since
+it's arch-neutral it already solves integration problems (like
+having one SPI controller driver work on both AT91 and AVR).
+
+
+> > Other than clarifications, the main change in the doc is defining
+> > new calls safe for use with GPIOs on things like pcf8574 I2C gpio
+> > expanders; those new calls can sleep, but are otherwise the same as
+> > the spinlock-safe versions. The implementations above implement that
+> > as a wrapper (the asm-generic header) around the spinlock-safe calls.
+> 
+> As above, I'm confused how these expanders would work in practice.
+
+One approach:  updating implementations along the lines the patch below.
+Other implementations could work too.
+
+Note that I see that kind of update as happening after the first round
+of patches go upstream:  accept the interface first, then update boards
+to support it ... including later the cansleep calls, on some boards.
+
+I like the idea of first replacing the "old" GPIO accesses with ones
+using the new APIs ... and only then starting to convert old I2C (etc)
+accesses.
+
+
+> The expanders would be present on a machine by machine basis but the
+> code seems to be implemented on an arch by arch basis.  Perhaps an
+> example would help me.
+
+An example showing one way to implement that interface ... appended.
+The expanders would be board-specific, not arch/.../mach-* specific.
+(I try to avoid using the word "machine" there; it's too ambiguous.)
+
+The code below just show how boards could plug in; it doesn't actually
+convert any boards to use that infrastructure.  It should be obvious
+how to do that, if you've got a board needing it which works with the
+kernel.org GIT tree...
+
+- Dave
+
+=================	CUT HERE
+Preliminary version of support for board-specific declaring GPIO controllers,
+primarily for use with things like I2C access to GPIOs.
+
+  * GPIOs numbered 0..ARCH_GPIO_MAX always use internal arch/SOC specific
+    controller access, and are spinlock-safe.
+
+  * All other GPIO numbers are allocated semi-dynamically, as part of
+    declaring a GPIO controller, and are assumed spinlock-unsafe.
+
+  * Such external GPIO controllers provide a simple ops vector for
+    setting direction, and accessing GPIO values.
+
+Board-specific init code can declare the controllers, then hand out the
+GPIOs to code that needs them.
+
+Index: pxa/include/asm-generic/gpio.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ pxa/include/asm-arm/arch-pxa/gpio.h	2007-01-01 11:23:43.000000000 -0800
-@@ -0,0 +1,97 @@
-+/*
-+ * linux/include/asm-arm/arch-pxa/gpio.h
+--- pxa.orig/include/asm-generic/gpio.h	2007-01-01 11:20:14.000000000 -0800
++++ pxa/include/asm-generic/gpio.h	2007-01-01 11:34:42.000000000 -0800
+@@ -1,7 +1,51 @@
+ #ifndef _ASM_GENERIC_GPIO_H
+ #define _ASM_GENERIC_GPIO_H
+ 
+-/* platforms that don't directly support access to GPIOs through I2C, SPI,
++#ifdef	CONFIG_GPIOLIB
++
++/* Boards with GPIOs accessed through I2C etc can access them through some
++ * gpio expander library code:
 + *
-+ * PXA GPIO wrappers for arch-neutral GPIO calls
++ *  - Define ARCH_GPIO_MAX.  All GPIO ids accessed through such expanders
++ *    will be above this number.  Most other GPIOs are SOC-integrated, and
++ *    could be accessed by inlined direct register reads/writes.
 + *
-+ * Written by Philipp Zabel <philipp.zabel@gmail.com>
++ *  - Board-specific setup code declares each controller and how many GPIOs
++ *    it handles.  The return value is the first GPIO associated with that
++ *    controller; other GPIOs immediately follow.  These GPIO numbers are
++ *    then handed out to the drivers which need them.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
++ *  - Have the gpio management code (request, free, set direction) delegate
++ *    to gpiolib for GPIOs above ARCH_MAX; and fail gpio_to_irq() for them.
++ */
++struct gpio_ops {
++	int	(*direction_input)(void *, unsigned offset);
++	int	(*direction_output)(void *, unsigned offset);
++	int	(*get_value)(void *, unsigned offset);
++	int	(*set_value)(void *, unsigned offset, int value);
++};
++
++extern int __init gpiolib_define_controller(struct gpio_ops *, void *, int n);
++
++extern int gpiolib_request(unsigned gpio, const char *name);
++extern void gpiolib_free(unsigned gpio);
++extern int gpiolib_direction_input(unsigned gpio);
++extern int gpiolib_direction_output(unsigned gpio);
++
++
++/* for now, assume only arch/soc gpios are spinlock-safe */
++static inline int gpio_cansleep(unsigned gpio)
++{
++	return gpio <= ARCH_GPIO_MAX;
++}
++
++/* these standard gpio calls handle both kinds of GPIO */
++extern int gpio_get_value_cansleep(unsigned gpio);
++extern void gpio_set_value_cansleep(unsigned gpio, int value);
++
++#else
++
++/* boards that don't directly support access to GPIOs through I2C, SPI,
+  * or other blocking infrastructure can use these wrappers.
+  */
+ 
+@@ -22,4 +66,29 @@ static inline void gpio_set_value_cansle
+ 	gpio_set_value(gpio, value);
+ }
+ 
++/* having these gpiolib_*() inlines makes it easy to just kick in
++ * the library code for boards that need it
 + */
 +
-+#ifndef __ASM_ARCH_PXA_GPIO_H
-+#define __ASM_ARCH_PXA_GPIO_H
-+
-+#include <asm/errno.h>
-+#include <asm/hardware.h>
-+#include <asm/irq.h>
-+
-+#include <asm/arch/pxa-regs.h>
-+
-+static inline int gpio_get_value(unsigned gpio);
-+static inline void gpio_set_value(unsigned gpio, int value);
-+
-+#include <asm-generic/gpio.h>			/* cansleep wrappers */
-+
-+static inline int gpio_request(unsigned gpio, const char *label)
++static inline int gpiolib_request(unsigned gpio, const char *name)
 +{
-+	return 0;
-+}
-+
-+static inline void gpio_free(unsigned gpio)
-+{
-+	return;
-+}
-+
-+static inline int gpio_direction_input(unsigned gpio)
-+{
-+	return pxa_gpio_mode(gpio | GPIO_IN);
-+}
-+
-+static inline int gpio_direction_output(unsigned gpio)
-+{
-+	return pxa_gpio_mode(gpio | GPIO_OUT);
-+}
-+
-+static inline int __gpio_get_value(unsigned gpio)
-+{
-+	return GPLR(gpio) & GPIO_bit(gpio);
-+}
-+
-+static inline int gpio_get_value(unsigned gpio)
-+{
-+	if (__builtin_constant_p(gpio))
-+		return __gpio_get_value(gpio);
-+	else
-+		pxa_gpio_get_value(gpio);
-+}
-+
-+static inline void __gpio_set_value(unsigned gpio, int value)
-+{
-+	if (value)
-+		GPSR(gpio) = GPIO_bit(gpio);
-+	else
-+		GPCR(gpio) = GPIO_bit(gpio);
-+}
-+
-+static inline void gpio_set_value(unsigned gpio, int value)
-+{
-+	if (__builtin_constant_p(gpio))
-+		__gpio_set_value(gpio, value);
-+	else
-+		pxa_gpio_set_value(gpio, value);
-+}
-+
-+static inline int gpio_to_irq(unsigned gpio)
-+{
-+	if (gpio <= PXA_LAST_GPIO)
-+		return IRQ_GPIO(gpio);
 +	return -EINVAL;
 +}
 +
-+#define irq_to_gpio(irq)	IRQ_TO_GPIO(irq)
++static inline void gpiolib_free(unsigned gpio)
++{
++}
 +
++static inline int gpiolib_direction_input(unsigned gpio)
++{
++	return -EINVAL;
++}
++
++static inline int gpiolib_direction_output(unsigned gpio)
++{
++	return -EINVAL;
++}
 +
 +#endif
-Index: pxa/arch/arm/mach-pxa/generic.c
++
+ #endif /* _ASM_GENERIC_GPIO_H */
+Index: pxa/lib/Kconfig
 ===================================================================
---- pxa.orig/arch/arm/mach-pxa/generic.c	2006-12-31 17:03:59.000000000 -0800
-+++ pxa/arch/arm/mach-pxa/generic.c	2006-12-31 17:08:37.000000000 -0800
-@@ -36,6 +36,7 @@
- #include <asm/mach/map.h>
+--- pxa.orig/lib/Kconfig	2007-01-01 11:20:14.000000000 -0800
++++ pxa/lib/Kconfig	2007-01-01 11:34:42.000000000 -0800
+@@ -106,4 +106,10 @@ config IOMAP_COPY
+ 	depends on !UML
+ 	default y
  
- #include <asm/arch/pxa-regs.h>
-+#include <asm/arch/gpio.h>
- #include <asm/arch/udc.h>
- #include <asm/arch/pxafb.h>
- #include <asm/arch/mmc.h>
-@@ -104,13 +105,16 @@ unsigned long long sched_clock(void)
-  * Handy function to set GPIO alternate functions
-  */
++#
++# gpiolib support is selected on boards that need it
++#
++config GPIOLIB
++	boolean
++
+ endmenu
+Index: pxa/lib/Makefile
+===================================================================
+--- pxa.orig/lib/Makefile	2007-01-01 11:20:14.000000000 -0800
++++ pxa/lib/Makefile	2007-01-01 11:34:42.000000000 -0800
+@@ -57,6 +57,7 @@ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
  
--void pxa_gpio_mode(int gpio_mode)
-+int pxa_gpio_mode(int gpio_mode)
- {
- 	unsigned long flags;
- 	int gpio = gpio_mode & GPIO_MD_MASK_NR;
- 	int fn = (gpio_mode & GPIO_MD_MASK_FN) >> 8;
- 	int gafr;
+ obj-$(CONFIG_SWIOTLB) += swiotlb.o
+ obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
++obj-$(CONFIG_GPIOLIB) += gpiolib.o
  
-+	if (gpio > PXA_LAST_GPIO)
+ lib-$(CONFIG_GENERIC_BUG) += bug.o
+ 
+Index: pxa/lib/gpiolib.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ pxa/lib/gpiolib.c	2007-01-01 11:34:42.000000000 -0800
+@@ -0,0 +1,192 @@
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/bitops.h>
++#include <linux/spinlock.h>
++#include <linux/idr.h>
++#include <linux/mutex.h>
++#include <linux/module.h>
++
++#include <asm/gpio.h>
++
++
++/* This is a simple library to support GPIO controllers not integrated into
++ * system-on-chip level arch support.  These are reasonably common on embedded
++ * boards, where their hotpluggability is a non-issue.  They are often accessed
++ * through busses like I2C or SPI; getting or setting values for such GPIOs
++ * normally sleeps.  (Not always; ucb1x00 GPIOs are a counterexample.)
++ */
++
++struct gpio {
++	struct gpio_ops	*ops;
++	void		*controller;
++	int		base;
++	unsigned	n;
++	unsigned long	requested[1];
++};
++
++static DEFINE_MUTEX(gpio_lock);
++static struct idr gpio_idr;
++
++static struct gpio *gpionum2gpio(unsigned gpionum)
++{
++	struct gpio	*g;
++
++	mutex_lock(&gpio_lock);
++	g = idr_find(&gpio_idr, gpionum);
++	mutex_unlock(&gpio_lock);
++	return g;
++}
++
++/*-------------------------------------------------------------------------*/
++
++/* some controllers (e.g. simple FPGA logic) have fixed directions */
++
++int gpiolib_direction_input(unsigned gpionum)
++{
++	struct gpio	*g = gpionum2gpio(gpionum);
++
++	if (!g || !g->ops->direction_input)
++		return -EINVAL;
++	return g->ops->direction_input(g->controller, gpionum - g->base);
++}
++EXPORT_SYMBOL_GPL(gpiolib_direction_input);
++
++int gpiolib_direction_output(unsigned gpionum)
++{
++	struct gpio	*g = gpionum2gpio(gpionum);
++
++	if (!g || !g->ops->direction_output)
++		return -EINVAL;
++	return g->ops->direction_output(g->controller, gpionum - g->base);
++}
++EXPORT_SYMBOL_GPL(gpiolib_direction_output);
++
++
++/* Might as well have real implementations of request/free.  Debug versions
++ * might remember name and direction, and dump state in debugfs...
++ */
++
++int gpiolib_request(unsigned gpionum, const char *name)
++{
++	struct gpio	*g = gpionum2gpio(gpionum);
++	unsigned	offset;
++	int		value;
++
++	if (!g)
++		return -EINVAL;
++	offset = gpionum - g->base;
++
++	mutex_lock(&gpio_lock);
++	value = test_and_set_bit(offset, g->requested);
++	mutex_unlock(&gpio_lock);
++	return value ? -EBUSY : 0;
++}
++EXPORT_SYMBOL_GPL(gpiolib_request);
++
++void gpiolib_free(unsigned gpionum)
++{
++	struct gpio	*g = gpionum2gpio(gpionum);
++	unsigned	offset;
++
++	if (!g)
++		return;
++	offset = gpionum - g->base;
++
++	mutex_lock(&gpio_lock);
++	clear_bit(offset, g->requested);
++	mutex_unlock(&gpio_lock);
++}
++EXPORT_SYMBOL_GPL(gpiolib_free);
++
++/*-------------------------------------------------------------------------*/
++
++int gpio_get_value_cansleep(unsigned gpionum)
++{
++	struct gpio	*g;
++
++	might_sleep();
++	if (!gpio_cansleep(gpionum))
++		return gpio_get_value(gpionum);
++	g = gpionum2gpio(gpionum);
++	if (!g || !g->ops->get_value)
++		return 0;
++	return g->ops->get_value(g->controller, gpionum - g->base);
++}
++EXPORT_SYMBOL_GPL(gpio_get_value_cansleep);
++
++void gpio_set_value_cansleep(unsigned gpionum, int value)
++{
++	struct gpio	*g;
++
++	might_sleep();
++	if (!gpio_cansleep(gpionum)) {
++		gpio_set_value(gpionum, value);
++		return;
++	}
++	g = gpionum2gpio(gpionum);
++	if (!g || !g->ops->set_value)
++		return;
++	g->ops->set_value(g->controller, gpionum - g->base, value);
++}
++EXPORT_SYMBOL_GPL(gpio_set_value_cansleep);
++
++/*-------------------------------------------------------------------------*/
++
++/* board-specific arch_initcall() code usually defines external GPIO
++ * controllers available, along with the other board-specific devices.
++ */
++
++int __init
++gpiolib_define_controller(struct gpio_ops *ops, void *controller, int n)
++{
++	struct gpio	*g;
++	int		value;
++	int		gpionum;
++
++	if (n <= 0 || n > BITS_PER_LONG)
 +		return -EINVAL;
 +
- 	local_irq_save(flags);
- 	if (gpio_mode & GPIO_DFLT_LOW)
- 		GPCR(gpio) = GPIO_bit(gpio);
-@@ -123,11 +127,33 @@ void pxa_gpio_mode(int gpio_mode)
- 	gafr = GAFR(gpio) & ~(0x3 << (((gpio) & 0xf)*2));
- 	GAFR(gpio) = gafr |  (fn  << (((gpio) & 0xf)*2));
- 	local_irq_restore(flags);
++	idr_pre_get(&gpio_idr, GFP_KERNEL);
 +
++	g = kzalloc(sizeof *g, GFP_KERNEL);
++	if (!g)
++		return -ENOMEM;
++
++	g->ops = ops;
++	g->controller = controller;
++	g->n = n;
++
++	mutex_lock(&gpio_lock);
++
++	value = idr_get_new_above(&gpio_idr, g, ARCH_GPIO_MAX + 1, &g->base);
++	if (value < 0)
++		goto fail0;
++	gpionum = g->base;
++	while (n--) {
++		int	gpio;
++
++		gpionum++;
++		value = idr_get_new_above(&gpio_idr, g, gpionum, &gpio);
++		if (value < 0 || gpio != gpionum)
++			goto fail;
++	}
++
++	mutex_unlock(&gpio_lock);
++	return g->base;
++
++fail:
++	n = g->n;
++	while (n--)
++		idr_replace(&gpio_idr, NULL, g->base + n);
++fail0:
++	mutex_unlock(&gpio_lock);
++	kfree(g);
++	return value;
++}
++
++static int __init gpio_cansleep_init(void)
++{
++	idr_init(&gpio_idr);
 +	return 0;
++}
++postcore_initcall(gpio_cansleep_init);
+
+Index: pxa/include/asm-arm/arch-pxa/gpio.h
+===================================================================
+--- pxa.orig/include/asm-arm/arch-pxa/gpio.h	2007-01-01 11:34:30.000000000 -0800
++++ pxa/include/asm-arm/arch-pxa/gpio.h	2007-01-01 11:35:13.000000000 -0800
+@@ -30,6 +30,8 @@
+ 
+ #include <asm/arch/pxa-regs.h>
+ 
++#define	ARCH_GPIO_MAX	PXA_LAST_GPIO
++
+ static inline int gpio_get_value(unsigned gpio);
+ static inline void gpio_set_value(unsigned gpio, int value);
+ 
+@@ -47,11 +49,15 @@ static inline void gpio_free(unsigned gp
+ 
+ static inline int gpio_direction_input(unsigned gpio)
+ {
++	if (gpio_cansleep(gpio))
++		return gpiolib_direction_input(gpio);
+ 	return pxa_gpio_mode(gpio | GPIO_IN);
  }
  
- EXPORT_SYMBOL(pxa_gpio_mode);
+ static inline int gpio_direction_output(unsigned gpio)
+ {
++	if (gpio_cansleep(gpio))
++		return gpiolib_direction_output(gpio);
+ 	return pxa_gpio_mode(gpio | GPIO_OUT);
+ }
  
- /*
-+ * Return GPIO level
-+ */
-+int pxa_gpio_get_value(unsigned gpio)
-+{
-+	return __gpio_get_value(gpio);
-+}
-+
-+EXPORT_SYMBOL(pxa_gpio_get_value);
-+
-+/*
-+ * Set output GPIO level
-+ */
-+void pxa_gpio_set_value(unsigned gpio, int value)
-+{
-+	__gpio_set_value(gpio, value);
-+}
-+
-+EXPORT_SYMBOL(pxa_gpio_set_value);
-+
-+/*
-  * Routine to safely enable or disable a clock in the CKEN
-  */
- void pxa_set_cken(int clock, int enable)
-Index: pxa/include/asm-arm/arch-pxa/hardware.h
-===================================================================
---- pxa.orig/include/asm-arm/arch-pxa/hardware.h	2006-12-31 17:03:59.000000000 -0800
-+++ pxa/include/asm-arm/arch-pxa/hardware.h	2006-12-31 17:08:37.000000000 -0800
-@@ -65,7 +65,17 @@
- /*
-  * Handy routine to set GPIO alternate functions
-  */
--extern void pxa_gpio_mode( int gpio_mode );
-+extern int pxa_gpio_mode( int gpio_mode );
-+
-+/*
-+ * Return GPIO level, nonzero means high, zero is low
-+ */
-+extern int pxa_gpio_get_value(unsigned gpio);
-+
-+/*
-+ * Set output GPIO level
-+ */
-+extern void pxa_gpio_set_value(unsigned gpio, int value);
- 
- /*
-  * Routine to enable or disable CKEN

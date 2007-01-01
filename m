@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933255AbXAAITZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933253AbXAAIU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933255AbXAAITZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 03:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933253AbXAAITY
+	id S933253AbXAAIU4 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 03:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933254AbXAAIU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 03:19:24 -0500
-Received: from userg504.nifty.com ([202.248.238.84]:56664 "EHLO
-	userg504.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933252AbXAAITX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 03:19:23 -0500
-DomainKey-Signature: a=rsa-sha1; s=userg504; d=nifty.com; c=simple; q=dns;
-	b=Hg5Yk+HT6kzma+mnzVQUBcEQl1u/KIzeg34l8o1o3ALsOuW8Q582BMVISol29zg/9
-	LOa/VRC3TCLBkQ2Z7zEPg==
-Date: Tue, 2 Jan 2007 02:18:42 +0900
-From: Komuro <komurojun-mbn@nifty.com>
-To: YOSHIFUJI Hideaki / =?ISO-2022-JP?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-Cc: bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
- file-transfer
-Message-Id: <20070102021842.4fd202c7.komurojun-mbn@nifty.com>
-In-Reply-To: <20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-References: <20061230185043.d31d2104.komurojun-mbn@nifty.com>
-	<20061230.102358.106876516.yoshfuji@linux-ipv6.org>
-	<20061230205931.9e430173.komurojun-mbn@nifty.com>
-	<20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Jan 2007 03:20:56 -0500
+Received: from il.qumranet.com ([62.219.232.206]:55352 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933253AbXAAIUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 03:20:55 -0500
+Message-ID: <4598C465.5070308@qumranet.com>
+Date: Mon, 01 Jan 2007 10:20:53 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+Subject: Re: [PATCH 4/8] KVM: Implement a few system configuration msrs
+References: <45939755.7010603@qumranet.com> <20061228101117.65A392500F7@il.qumranet.com> <200701010107.18008.ioe-lkml@rameria.de>
+In-Reply-To: <200701010107.18008.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Oeser wrote:
+> Hi,
+>
+> On Thursday, 28. December 2006 11:11, Avi Kivity wrote:
+>   
+>> Index: linux-2.6/drivers/kvm/svm.c
+>> ===================================================================
+>> --- linux-2.6.orig/drivers/kvm/svm.c
+>> +++ linux-2.6/drivers/kvm/svm.c
+>> @@ -1068,6 +1068,9 @@ static int emulate_on_interception(struc
+>>  static int svm_get_msr(struct kvm_vcpu *vcpu, unsigned ecx, u64 *data)
+>>  {
+>>  	switch (ecx) {
+>> +	case 0xc0010010: /* SYSCFG */
+>> +	case 0xc0010015: /* HWCR */
+>> +	case MSR_IA32_PLATFORM_ID:
+>>  	case MSR_IA32_P5_MC_ADDR:
+>>  	case MSR_IA32_P5_MC_TYPE:
+>>  	case MSR_IA32_MC0_CTL:
+>>     
+>
+> What about just defining constants for these?
+> Then you can rip out these comments.
+>
+> Same for linux-2.6/drivers/kvm/vmx.c
+>   
 
-> 
-> Can you reproduce it with other ftp client and/or server?
+Yes, there are a few more of these as well.  I'll clean them up once 
+things quiet down a bit.
 
-I tried the proftpd-1.3.0a-1.fc6(kernel version is 2.6.19).
-The ftp stop problem does not happen.
-
-Therefore, this problem is reproduced when
-client's kernel-version is 2.6.20-rc1 or later
-and server is vsftpd.
-Server's kernel-version is not related with this problem.
-
-The ftp-stop-problem happens on client's PC.
-
-Please advise.
-
-Best Regards
-Komuro
-
-
-
- 
+-- 
+error compiling committee.c: too many arguments to function
 

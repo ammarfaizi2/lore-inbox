@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753712AbXAATor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754684AbXAATpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753712AbXAATor (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 14:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754094AbXAAToq
+	id S1754684AbXAATpT (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 14:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754700AbXAATpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 14:44:46 -0500
-Received: from mx5.mail.ru ([194.67.23.25]:5341 "EHLO mx5.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753712AbXAAToq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 14:44:46 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.20 regression: suspend to disk no more works
-Date: Mon, 1 Jan 2007 22:44:42 +0300
+	Mon, 1 Jan 2007 14:45:19 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:3553 "EHLO
+	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754684AbXAATpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 14:45:17 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Subject: Re: x86 instability with 2.6.1{8,9}
+Date: Mon, 1 Jan 2007 19:45:43 +0000
 User-Agent: KMail/1.9.5
-Cc: linux-pm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+References: <20070101160158.GA26547@deepthought> <20070101170758.GA28015@deepthought> <20070101191329.GA29826@deepthought>
+In-Reply-To: <20070101191329.GA29826@deepthought>
+MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701012244.42781.arvidjaar@mail.ru>
+Message-Id: <200701011945.43305.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 01 January 2007 19:13, Ken Moffat wrote:
+> On Mon, Jan 01, 2007 at 05:07:58PM +0000, Ken Moffat wrote:
+> > On Mon, Jan 01, 2007 at 04:48:55PM +0000, Alistair John Strachan wrote:
+> > > Obviously papering over a severe bug, but why is it necessary for you
+> > > to run a 32bit kernel to test 32bit userspace? If your 64bit kernel is
+> > > stable, use the IA32 emulation surely?
+> >
+> >  My 64-bit is pure64 on this machine, so it doesn't have any
+> > suitable libs or tools.  Anyway, I really do need a 32-bit kernel
+> > to test some linuxfromscratch build instructions.
+>
+>  Sorry, I think last night is still interfering with my own logic
+> circuits.  Yes, I could use 'linux32' to change the personality as a
+> work-around now that I've built the system.  Mainly, I was hoping
+> somebody would notice something bad in the config, but I might use
+> the work-around in the meantime.  Thanks for reminding me about it.
 
-In *the same* configuration STD now fails with "Cannot find swap device". The 
-reason is changes in kernel/power/swap.c. In 2.6.19 it did not require valid 
-swsusp_resume_device at all - it took first available swap device and saved 
-image. Later during resume swsusp_resume_device was set either by command 
-line or sysfs and everything worked nicely.
+Personally when I built an embedded LFS for a customer, I wrote a dummy "arch" 
+and "uname" and then bootstrapped the 32bit LFS book, then built a cross 
+compiler with the CLFS book and built a 64bit kernel. Seemed to work okay.
 
-Now swsusp_swap_check() unfortunately checks for swsusp_resume_device at 
-*suspend* time:
+However, there isn't 100% compatibility in a 64bit kernel for all syscalls, I 
+think one of the VFAT syscall wrappers is currently broken.
 
-        res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
-        if (res < 0)
-                return res;
+[ 5807.639755] ioctl32(war3.exe:4998): Unknown cmd fd(9) cmd(82187201){02} 
+arg(00221000) on /home/alistair/.wine/drive_c/Program Files/Warcraft III
 
-        root_swap = res;
-        resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
-        if (IS_ERR(resume_bdev))
-                return PTR_ERR(resume_bdev);
+Other than that, I've had no problem with running a purely 32bit userspace.
 
-but in case of modular driver for swap device this is likely to be undefined. 
-This is as of 2.6.20-rc3.
+-- 
+Cheers,
+Alistair.
 
-I already have seen these reports. While 'echo a:b > /sys/power/resume' before 
-suspend is a workaround, this still breaks perfectly valid setup that worked 
-before. Also 'echo a:b > /sys/power/resume' is actually wrong - we are not 
-going to resume at this point; but there is no way to just tell kernel "use 
-this device for next STD" ... also the error message is misleading, it should 
-complaint "no resume device found". Swap is there all right.
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFmWSqR6LMutpd94wRAu61AJ9mdbF4W6RNQ848PU0e4n/3MKtNnwCgzwOh
-HkZ9e8lHPMH1tRNzCw/2O58=
-=HlW4
------END PGP SIGNATURE-----
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

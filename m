@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753640AbXABReF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753595AbXABRfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753640AbXABReF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 12:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753665AbXABReF
+	id S1753595AbXABRfO (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 12:35:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753651AbXABRfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 12:34:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48165 "EHLO mx1.redhat.com"
+	Tue, 2 Jan 2007 12:35:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46654 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753640AbXABReE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 12:34:04 -0500
-Date: Tue, 2 Jan 2007 12:28:46 -0500
-From: Dave Jones <davej@redhat.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Theodore Tso <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Print sysrq-m messages with KERN_INFO priority
-Message-ID: <20070102172846.GC7656@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan <alan@lxorguk.ukuu.org.uk>, Theodore Tso <tytso@mit.edu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <E1H0Uq5-0003Fo-1W@candygram.thunk.org> <20061229204247.be66c972.akpm@osdl.org> <20070102043743.GB15718@thunk.org> <20070102103332.46de83bd@localhost.localdomain>
+	id S1753595AbXABRfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 12:35:11 -0500
+Date: Mon, 1 Jan 2007 09:32:12 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Larry Finger <larry.finger@lwfinger.net>
+Cc: Tobin Davis <tdavis@dsl-only.net>, Daniel Drake <dsd@gentoo.org>,
+       alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Regression in 2.6.19 and 2.6.20 for snd_hda_intel
+Message-ID: <20070101093212.6859f053@freekitty>
+In-Reply-To: <459741A1.9020909@lwfinger.net>
+References: <45971053.7040609@lwfinger.net>
+	<45971F39.4060301@gentoo.org>
+	<45972EFD.3010103@lwfinger.net>
+	<45973283.7060801@gentoo.org>
+	<1167538094.9563.230.camel@localhost>
+	<459741A1.9020909@lwfinger.net>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070102103332.46de83bd@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 10:33:32AM +0000, Alan Cox wrote:
- > On Mon, 1 Jan 2007 23:37:43 -0500
- > Theodore Tso <tytso@mit.edu> wrote:
- > > > Is this patch a consistency thing?
- > > 
- > > The goal of the patch was to avoid filling /var/log/messages huge
- > > amounts of sysrq text.  Some of the sysrq commands, especially sysrq-m
- > > and sysrq-t emit a truly vast amount of information, and it's not
- > > really nice to have that filling up /var/log/messages.  
- > 
- > I find it extremely useful that it ends up in /var/log/messages so that I
- > can review the dump later. Often the first glance through a set of dumps
- > on things like a process deadlock don't reveal the right information and
- > you need to go back and look again.
+On Sat, 30 Dec 2006 22:50:41 -0600
+Larry Finger <larry.finger@lwfinger.net> wrote:
 
-Seconded.  And with the limited scrollback of the ringbuffer, sometimes
-looking through the logs is the only way to get the info.
+> Tobin Davis wrote:
+> > Which alsa patch was this?  I'm not seeing anything in the hg logs for
+> > this.  Or is this something from the kernel side?
+> 
+> It seems to have come from suse. The full commit message is:
+> 
+> commit a7da6ce564a80952d9c0b210deca5a8cd3474a31
+> Author: Takashi Iwai <tiwai@suse.de>
+> Date:   Wed Sep 6 14:03:14 2006 +0200
+> 
+>     [ALSA] hda-codec - Add independent headphone volume control
+> 
+>     This patch addes the support of the independent 'Headphone' volume
+>     control to the generic codec parser.  Some codecs (e.g. Conexant)
+>     have separate connections to the headphone and the independent amp
+>     adjustment is needed.
+> 
+>     Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>     Signed-off-by: Jaroslav Kysela <perex@suse.cz>
+> 
+> :100644 100644 dedfc5b... 97e9af1... M  sound/pci/hda/hda_generic.c
+> 
+> Larry
+> 
+> 
 
-		Dave
+Just make sure you don't break the headphone jack on some systems.
+The headphone jack on the Panasonic T5 didn't work until recent kernels
+(probably this was the thing that made it work).
 
 -- 
-http://www.codemonkey.org.uk
+Stephen Hemminger <shemminger@osdl.org>

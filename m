@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932896AbXAAEbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932898AbXAAEcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932896AbXAAEbl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 31 Dec 2006 23:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932898AbXAAEbl
+	id S932898AbXAAEcZ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 31 Dec 2006 23:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932901AbXAAEcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Dec 2006 23:31:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:37588 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932896AbXAAEbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Dec 2006 23:31:41 -0500
-In-Reply-To: <45987EB0.1020505@oracle.com>
-References: <Pine.LNX.4.64.0612311430370.18269@localhost.localdomain> <20061231194501.GE3730@rhun.ibm.com> <Pine.LNX.4.64.0612311447030.18368@localhost.localdomain> <66cc662565c489fa9e604073ced64889@kernel.crashing.org> <45987EB0.1020505@oracle.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <8952abefff5a73bf24a0c80936fe7091@kernel.crashing.org>
+	Sun, 31 Dec 2006 23:32:25 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:39740 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932898AbXAAEcY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Dec 2006 23:32:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p84txeolnjXY7+cHEaxSn33ey5XHUTdv2Dw1JuuyHWKFYcDkfM2nQWSqG01ymbyTd/KcrJEOkV4uTtr7K49i0GKbRIzDthT4psaqgovyG0kCg8akDMs/0XyOWoy2h17oK0fHdwoKPHMVK6GmODlV8KpnsYD86boEEGjd7A5e/UY=
+Message-ID: <625fc13d0612312032t79cafcdt5595eff5ca6888b7@mail.gmail.com>
+Date: Sun, 31 Dec 2006 22:32:17 -0600
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [PATCH] Make JFFS depend on CONFIG_BROKEN
+Cc: "Jeff Garzik" <jeff@garzik.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       jffs-dev@axis.com, "David Woodhouse" <dwmw2@infradead.org>
+In-Reply-To: <20061230213749.GE20714@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Robert P. J. Day" <rpjday@mindspring.com>, trivial@kernel.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Documentation: Explain a second alternative for multi-line macros.
-Date: Mon, 1 Jan 2007 05:31:32 +0100
-To: Randy Dunlap <randy.dunlap@oracle.com>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+References: <625fc13d0612180525m500fcecdta08edebb3dd526a6@mail.gmail.com>
+	 <20061230213749.GE20714@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>   #define setcc(cc) ({ \
->>>     partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
->>>     partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
->> This _does_ return a value though, bad example.
+On 12/30/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Mon, Dec 18, 2006 at 07:25:56AM -0600, Josh Boyer wrote:
+> > +       NOTE: This filesystem is deprecated and is scheduled for removal in
+> > +       2.6.21.  See Documentation/feature-removal-schedule.txt
+> >...
 >
-> Where does it return a value?
+> $ grep -i jffs Documentation/feature-removal-schedule.txt
+> $
 
-partial_status |=
+This was a follow on patch to Jeff's 'kill-jffs' branch.  He asked me
+to resend it as a separate patch without all the quoted context.
 
-> I don't see any uses of it
+Jeff?
 
-Ah, that's a separate thing -- it returns a value, it's just
-never used.
-
-> And with a small change to put it inside a do-while block
-> instead of ({ ... }), it at least builds cleanly.
-
-Well please replace it then, statement expressions should be
-avoided where possible (to start with, they don't have well-
-defined semantics).
-
-
-Segher
-
+josh

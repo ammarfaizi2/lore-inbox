@@ -1,186 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754599AbXAAX1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754727AbXAAX2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754599AbXAAX1G (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 18:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbXAAX1G
+	id S1754727AbXAAX2q (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 18:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754748AbXAAX2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 18:27:06 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:55201 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754599AbXAAX1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 18:27:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: 2.6.20 regression: suspend to disk no more works
-Date: Tue, 2 Jan 2007 00:28:18 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-       Pavel Machek <pavel@ucw.cz>
-References: <200701012244.42781.arvidjaar@mail.ru>
-In-Reply-To: <200701012244.42781.arvidjaar@mail.ru>
+	Mon, 1 Jan 2007 18:28:46 -0500
+Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:54603 "EHLO
+	ppsw-2.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754727AbXAAX2p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 18:28:45 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 1 Jan 2007 23:28:42 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [2.6 PATCH] Export invalidate_mapping_pages() to modules.
+Message-ID: <Pine.LNX.4.64.0701012322050.1218@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701020028.19866.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Linus and Andrew,
 
-On Monday, 1 January 2007 20:44, Andrey Borzenkov wrote:
-> In *the same* configuration STD now fails with "Cannot find swap device". The
-> reason is changes in kernel/power/swap.c. In 2.6.19 it did not require valid
-> swsusp_resume_device at all - it took first available swap device and saved
-> image. Later during resume swsusp_resume_device was set either by command
-> line or sysfs and everything worked nicely.
-> 
-> Now swsusp_swap_check() unfortunately checks for swsusp_resume_device at
-> *suspend* time:
-> 
->         res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
->         if (res < 0)
->                 return res;
-> 
->         root_swap = res;
->         resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
->         if (IS_ERR(resume_bdev))
->                 return PTR_ERR(resume_bdev);
-> 
-> but in case of modular driver for swap device this is likely to be undefined.
-> This is as of 2.6.20-rc3.
+Please apply below patch which exports invalidate_mapping_pages() to 
+modules.  It makes no sense to me to export invalidate_inode_pages() and 
+not invalidate_mapping_pages() and I actually need 
+invalidate_mapping_pages() because of its range specification ability...
 
-Actually, if you look at the 2.6.19 code, the call to swap_type_of() is there
-in swsusp_swap_check() too.
+It would be great if this could make it into 2.6.20!
 
-The problem is with open_by_devnum(), I think, which obviously cannot succeed
-if swsusp_resume_device is not set.  I think we should return resume_bdev from
-swsusp_swap_check() like in the appended patch (untested).  Pavel?
+Thanks a lot in advance!
 
-> I already have seen these reports.
+Best regards,
 
-Yes, me too.
-
-> While 'echo a:b > /sys/power/resume' before 
-> suspend is a workaround, this still breaks perfectly valid setup that worked
-> before. Also 'echo a:b > /sys/power/resume' is actually wrong - we are not
-> going to resume at this point; but there is no way to just tell kernel "use
-> this device for next STD" ... also the error message is misleading, it should
-> complaint "no resume device found". Swap is there all right.
-
-Thanks for the report.
-
-Greetings,
-Rafael
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer, http://www.linux-ntfs.org/
 
 ---
- include/linux/swap.h |    2 +-
- kernel/power/swap.c  |    9 +++++----
- kernel/power/user.c  |    7 ++++---
- mm/swapfile.c        |    8 +++++++-
- 4 files changed, 17 insertions(+), 9 deletions(-)
 
-Index: linux-2.6.20-rc3/include/linux/swap.h
-===================================================================
---- linux-2.6.20-rc3.orig/include/linux/swap.h
-+++ linux-2.6.20-rc3/include/linux/swap.h
-@@ -245,7 +245,7 @@ extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
- extern void free_swap_and_cache(swp_entry_t);
--extern int swap_type_of(dev_t, sector_t);
-+extern int swap_type_of(dev_t, sector_t, struct block_device **);
- extern unsigned int count_swap_pages(int, int);
- extern sector_t map_swap_page(struct swap_info_struct *, pgoff_t);
- extern sector_t swapdev_block(int, pgoff_t);
-Index: linux-2.6.20-rc3/kernel/power/swap.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/swap.c
-+++ linux-2.6.20-rc3/kernel/power/swap.c
-@@ -165,14 +165,15 @@ static int swsusp_swap_check(void) /* Th
+Export invalidate_mapping_pages() to modules.
+
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+---
+
+diff --git a/mm/truncate.c b/mm/truncate.c
+index ecdfdcc..26acee6 100644
+--- a/mm/truncate.c
++++ b/mm/truncate.c
+@@ -303,6 +303,7 @@ unlock:
+ 	}
+ 	return ret;
+ }
++EXPORT_SYMBOL(invalidate_mapping_pages);
+ 
+ unsigned long invalidate_inode_pages(struct address_space *mapping)
  {
- 	int res;
- 
--	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
-+	res = swap_type_of(swsusp_resume_device, swsusp_resume_block,
-+			&resume_bdev);
- 	if (res < 0)
- 		return res;
- 
- 	root_swap = res;
--	resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
--	if (IS_ERR(resume_bdev))
--		return PTR_ERR(resume_bdev);
-+	res = blkdev_get(resume_bdev, FMODE_WRITE, O_RDWR);
-+	if (res)
-+		return res;
- 
- 	res = set_blocksize(resume_bdev, PAGE_SIZE);
- 	if (res < 0)
-Index: linux-2.6.20-rc3/mm/swapfile.c
-===================================================================
---- linux-2.6.20-rc3.orig/mm/swapfile.c
-+++ linux-2.6.20-rc3/mm/swapfile.c
-@@ -434,7 +434,7 @@ void free_swap_and_cache(swp_entry_t ent
-  *
-  * This is needed for the suspend to disk (aka swsusp).
-  */
--int swap_type_of(dev_t device, sector_t offset)
-+int swap_type_of(dev_t device, sector_t offset, struct block_device **bdev_p)
- {
- 	struct block_device *bdev = NULL;
- 	int i;
-@@ -450,6 +450,9 @@ int swap_type_of(dev_t device, sector_t 
- 			continue;
- 
- 		if (!bdev) {
-+			if (bdev_p)
-+				*bdev_p = sis->bdev;
-+
- 			spin_unlock(&swap_lock);
- 			return i;
- 		}
-@@ -459,6 +462,9 @@ int swap_type_of(dev_t device, sector_t 
- 			se = list_entry(sis->extent_list.next,
- 					struct swap_extent, list);
- 			if (se->start_block == offset) {
-+				if (bdev_p)
-+					*bdev_p = sis->bdev;
-+
- 				spin_unlock(&swap_lock);
- 				bdput(bdev);
- 				return i;
-Index: linux-2.6.20-rc3/kernel/power/user.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/user.c
-+++ linux-2.6.20-rc3/kernel/power/user.c
-@@ -58,7 +58,7 @@ static int snapshot_open(struct inode *i
- 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
- 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
- 		data->swap = swsusp_resume_device ?
--				swap_type_of(swsusp_resume_device, 0) : -1;
-+			swap_type_of(swsusp_resume_device, 0, NULL) : -1;
- 		data->mode = O_RDONLY;
- 	} else {
- 		data->swap = -1;
-@@ -327,7 +327,8 @@ static int snapshot_ioctl(struct inode *
- 			 * so we need to recode them
- 			 */
- 			if (old_decode_dev(arg)) {
--				data->swap = swap_type_of(old_decode_dev(arg), 0);
-+				data->swap = swap_type_of(old_decode_dev(arg),
-+							0, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {
-@@ -427,7 +428,7 @@ static int snapshot_ioctl(struct inode *
- 			swdev = old_decode_dev(swap_area.dev);
- 			if (swdev) {
- 				offset = swap_area.offset;
--				data->swap = swap_type_of(swdev, offset);
-+				data->swap = swap_type_of(swdev, offset, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {

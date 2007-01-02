@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932775AbXABK3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932795AbXABKbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932775AbXABK3T (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 05:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbXABK3T
+	id S932795AbXABKbY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 05:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbXABKbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 05:29:19 -0500
-Received: from poczta.o2.pl ([193.17.41.142]:55037 "EHLO poczta.o2.pl"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932777AbXABK3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 05:29:18 -0500
-Date: Tue, 2 Jan 2007 11:30:53 +0100
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: David Miller <davem@davemloft.net>
-Cc: hadi@cyberus.ca, netdev@vger.kernel.org, jeff@garzik.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: ifb error path loop fix
-Message-ID: <20070102103053.GA2798@ff.dom.local>
-Mime-Version: 1.0
+	Tue, 2 Jan 2007 05:31:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45511 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932795AbXABKbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 05:31:23 -0500
+Date: Tue, 2 Jan 2007 11:31:16 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+Subject: Re: Suspend problems on 2.6.20-rc2-git1
+Message-ID: <20070102103116.GB2122@elf.ucw.cz>
+References: <459771A2.6060301@shaw.ca> <200612311427.02175.rjw@sisk.pl> <200612311724.11423.rjw@sisk.pl> <200701020047.02918.rjw@sisk.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070101.235132.85409619.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <200701020047.02918.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02-01-2007 08:51, David Miller wrote:
-> From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> Date: Tue, 2 Jan 2007 00:55:51 +0100
+Hi!
+
+> > > > Secondly, if you try and suspend manually it claims there is no swap 
+> > > > device available when there clearly is:
+> > > > 
+> > > > [root@localhost rob]# cat /proc/swaps
+> > > > Filename                                Type            Size    Used 
+> > > > Priority
+> > > > /dev/mapper/VolGroup00-LogVol01         partition       1048568 0       -1
+> > > > [root@localhost rob]# echo disk > /sys/power/state
+> > > > bash: echo: write error: No such device or address
+> > > 
+> > > Hm, at first sight it looks like something broke the suspend to swap
+> > > partitions located on LVM.  For now I have no idea what it was.
+> > 
+> > _Or_ something broke your initrd setup.
 > 
->> On error we should start freeing resources at [i-1] not [i-2].
->>
->> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> No, this is a kernel problem, I think.
 > 
-> Patch applied, thanks Mariusz.
-> 
->> diff -upr linux-2.6.20-rc2-mm1-a/drivers/net/ifb.c linux-2.6.20-rc2-mm1-b/drivers/net/ifb.c
->> --- linux-2.6.20-rc2-mm1-a/drivers/net/ifb.c	2006-12-24 05:00:32.000000000 +0100
->> +++ linux-2.6.20-rc2-mm1-b/drivers/net/ifb.c	2007-01-02 00:25:34.000000000 +0100
->> @@ -271,8 +271,7 @@ static int __init ifb_init_module(void)
->>  	for (i = 0; i < numifbs && !err; i++)
->>  		err = ifb_init_one(i);
->>  	if (err) {
->> -		i--;
->> -		while (--i >= 0)
->> +		while (i--)
->>  			ifb_free_one(i);
->>  	}
+> Can you please check if the appended patch fixes the issue?
 
-After this patch:
+I never liked  someting **, but I guess it is okay in limited form...
+									Pavel
 
-for (i = 0 ...); // i == 0
-err = ifb_init_one(i); // err != 0
-i++; // i == 1
-for (... !err ...); // break 
-
-if (err) {
-	while (i--) // i == 1 (when testing)
-		ifb_free_one(i); // i == 0 (not initialized)
-}
-
-Btw. wasn't this place patched yet?
-
-Regards,
-Jarek P.
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

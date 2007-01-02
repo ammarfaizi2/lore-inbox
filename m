@@ -1,109 +1,153 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964826AbXABMGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964781AbXABMHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbXABMGp (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 07:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbXABMGo
+	id S964781AbXABMHz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 07:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbXABMHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 07:06:44 -0500
-Received: from ns.firmix.at ([62.141.48.66]:52393 "EHLO ns.firmix.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964808AbXABMGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 07:06:43 -0500
-Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Trent Waddington <trent.waddington@gmail.com>
-Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
-References: <loom.20061215T220806-362@post.gmane.org>
-	 <4587097D.5070501@opensound.com>
-	 <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
-	 <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
-	 <20061222115921.GT3073@harddisk-recovery.com>
-	 <1167568899.3318.39.camel@gimli.at.home>
-	 <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
-	 <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
-	 <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
-	 <1167730833.12526.35.camel@tara.firmix.at>
-	 <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 02 Jan 2007 13:06:33 +0100
-Message-Id: <1167739593.13369.27.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Tue, 2 Jan 2007 07:07:55 -0500
+Received: from wx-out-0506.google.com ([66.249.82.234]:12183 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964781AbXABMHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 07:07:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o+Ygm1BM0Fdlhu/K+gZoYEmhtd0u+Aehp/Pu3M40JS0SLuRaln8WxF1pmTAkrOddqU+5NbCJ9hLodVzIEDxKIsThbLDKc9gIiJoU2iJNLRBPtdwEF3NSYufWqFASLBg00n+8B49kwJ+izEgu433NLntIYbcOja3WrscdEQjwHr0=
+Message-ID: <5a4c581d0701020407w7c0c768bk7ce3ab2d2d7f19f5@mail.gmail.com>
+Date: Tue, 2 Jan 2007 13:07:53 +0100
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] libata: fix combined mode (was Re: Happy New Year (and v2.6.20-rc3 released))
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20070102115834.1e7644b2@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Firmix-Scanned-By: MIMEDefang 2.56 on ns.firmix.at
-X-Spam-Score: -2.411 () AWL,BAYES_00,FORGED_RCVD_HELO
-X-Firmix-Spam-Status: No, hits=-2.411 required=5
-X-Firmix-Spam-Score: -2.411 () AWL,BAYES_00,FORGED_RCVD_HELO
 Content-Disposition: inline
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	 <5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com>
+	 <Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>
+	 <459973F6.2090201@pobox.com>
+	 <20070102115834.1e7644b2@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 21:26 +1000, Trent Waddington wrote:
-> On 1/2/07, Bernd Petrovitsch <bernd@firmix.at> wrote:
-> > While this is true (at last in theory), there is one difference in
-> > practice: It is *much* easier to prove a/the patent violation if you
-> > have (original?) source code than to reverse engineer the assembler dump
-> > of the compiled code and prove the patent violation far enough to get to
-> > a so-called "agreement" on the costs.
-> 
-> On 1/2/07, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> > You are forgetting the 11th commandment - thou shalt not get caught.
-> > Most software patents (actually quite probably most patents) are held by
-> > people who don't have the skills to go disassembling megabytes of code in
-> > search of offenders.
-> 
-> The list of features which the driver supports is going to be
-> sufficient evidence for 99% of patents that relate to computer
-> graphics hardware.
+On 1/2/07, Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> This is a slight variant on the patch I posted December 16th to fix
+> libata combined mode handling. The only real change is that we now
+> correctly also reserve BAR1,2,4. That is basically a neatness issue.
 >
-> Regardless, in the *millions* of dollars that it costs to prosecute a
-> patent violation case I think they can find a few grand to throw at a
-> disassembler jockey.
+> Jeff was unhappy about two things
+>
+> 1. That it didn't work in the case of one channel native one channel
+> legacy.
+>
+> This is a silly complaint because the SFF layer in libata doesn't handle
+> this case yet anyway.
+>
+> 2. The case where combined mode is in use and IDE=n.
+>
+> In this case the libata quirk code reserves the resources in question
+> correctly already.
+>
+> Once the combined mode stuff is redone properly (2.6.21) then the entire
+> mess turns into a single pci_request_regions() for all cases and all the
+> ugly resource hackery goes away.
+>
+> I'm sending this now rather than after running full test suites so that
+> it can get the maximal testing in a short time. I'll be running tests on
+> this after lunch.
+>
+> Signed-off-by: Alan Cox <alan@redhat.com>
+>
+> --- linux.vanilla-2.6.20-rc3/drivers/ata/libata-sff.c   2007-01-01 21:43:27.000000000 +0000
+> +++ linux-2.6.20-rc3/drivers/ata/libata-sff.c   2007-01-02 11:15:53.000000000 +0000
+> @@ -1027,13 +1027,15 @@
+>  #endif
+>         }
+>
+> -       rc = pci_request_regions(pdev, DRV_NAME);
+> -       if (rc) {
+> -               disable_dev_on_err = 0;
+> -               goto err_out;
+> -       }
+> -
+> -       if (legacy_mode) {
+> +       if (!legacy_mode) {
+> +               rc = pci_request_regions(pdev, DRV_NAME);
+> +               if (rc) {
+> +                       disable_dev_on_err = 0;
+> +                       goto err_out;
+> +               }
+> +       } else {
+> +               /* Deal with combined mode hack. This side of the logic all
+> +                  goes away once the combined mode hack is killed in 2.6.21 */
+>                 if (!request_region(ATA_PRIMARY_CMD, 8, "libata")) {
+>                         struct resource *conflict, res;
+>                         res.start = ATA_PRIMARY_CMD;
+> @@ -1071,6 +1073,13 @@
+>                         }
+>                 } else
+>                         legacy_mode |= ATA_PORT_SECONDARY;
+> +
+> +               if (legacy_mode & ATA_PORT_PRIMARY)
+> +                       pci_request_region(pdev, 1, DRV_NAME);
+> +               if (legacy_mode & ATA_PORT_SECONDARY)
+> +                       pci_request_region(pdev, 3, DRV_NAME);
+> +               /* If there is a DMA resource, allocate it */
+> +               pci_request_region(pdev, 4, DRV_NAME);
+>         }
+>
+>         /* we have legacy mode, but all ports are unavailable */
+> @@ -1114,11 +1123,20 @@
+>  err_out_ent:
+>         kfree(probe_ent);
+>  err_out_regions:
+> -       if (legacy_mode & ATA_PORT_PRIMARY)
+> -               release_region(ATA_PRIMARY_CMD, 8);
+> -       if (legacy_mode & ATA_PORT_SECONDARY)
+> -               release_region(ATA_SECONDARY_CMD, 8);
+> -       pci_release_regions(pdev);
+> +       /* All this conditional stuff is needed for the combined mode hack
+> +          until 2.6.21 when it can go */
+> +       if (legacy_mode) {
+> +               pci_release_region(pdev, 4);
+> +               if (legacy_mode & ATA_PORT_PRIMARY) {
+> +                       release_region(ATA_PRIMARY_CMD, 8);
+> +                       pci_release_region(pdev, 1);
+> +               }
+> +               if (legacy_mode & ATA_PORT_SECONDARY) {
+> +                       release_region(ATA_SECONDARY_CMD, 8);
+> +                       pci_release_region(pdev, 3);
+> +               }
+> +       } else
+> +               pci_release_regions(pdev);
+>  err_out:
+>         if (disable_dev_on_err)
+>                 pci_disable_device(pdev);
+>
 
-Most of the cases (more or less "almost all" AFAIK) are handled/closed
-without really going to court (since it is cheaper for all - especially
-if the alleged patent violator is substantially smaller than the patent
-holder and will not survive the law suit. See it as "protection money").
-So there are no real statistics available on this issue.
-I don't know about others but I wouldn't write an offer with a fixed
-price for "look into assembler dumps, reverse engineer it and find an
-infringement on a list of given patents" so the patent holder has to
-list the patents and the amount of my time to invest (and then he will
-get a price for it and no guarantees of success).
-Thus the patent holder takes the whole risk that I don't find anything
-useful (independent of the presence of a patent violation or my
-inability to find/identify it).
-And you need people wo are literate in "patent quak" and the technical
-side so it will IMHP not work if you get someone not very expensive[0].
+Appears to work just fine here (compiles, boots and I'm
+ typing this email :).  The build warnings below seem new
+ to me - but I guess they're harmless...
 
-> So I'll take back what I said.. it does make some difference whether
-> you release patent violating source code or patent violating binaries.
->  It makes about a 1% difference to the overall cost of prosecuting a
-> patent lawsuit.
+  CC      drivers/ata/libata-sff.o
+drivers/ata/libata-sff.c: In function 'ata_pci_init_one':
+drivers/ata/libata-sff.c:1078: warning: ignoring return value of
+'pci_request_region', declared with attribute warn_unused_result
+drivers/ata/libata-sff.c:1080: warning: ignoring return value of
+'pci_request_region', declared with attribute warn_unused_result
+drivers/ata/libata-sff.c:1082: warning: ignoring return value of
+'pci_request_region', declared with attribute warn_unused_result
 
-Given the above, the difference (measured in money/effort/....) is in
-IMHO much larger than 1%.
+Thanks, ciao,
 
-> Now if you are done speculating why nvidia might have a reasonable
-> reason for not releasing source code, can we just take it as read that
-> the most likely reason is that they simply don't want to because they
-> don't see the benefit?   If that's the case, what benefit can we offer
-> them?
+--alessandro
 
-I don't know.
-For network cards it helped to recommend hardware with open drivers. In
-the graphic card department this didn't worked up to now.
+ "but I thought that I should let you know
+  the things that I don't always show
+  might not be worth the time it took"
 
-	Bernd
-
-[0]: That doesn't imply that hiring someone expensive guarantees
-success.
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+     (Steve Wynn, 'If My Life Was An Open Book')

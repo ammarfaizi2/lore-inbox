@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932740AbXABKpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932773AbXABKsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932740AbXABKpA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 05:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932770AbXABKpA
+	id S932773AbXABKsY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 05:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbXABKsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 05:45:00 -0500
-Received: from mx1.suse.de ([195.135.220.2]:43704 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932740AbXABKo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 05:44:59 -0500
-Date: Tue, 2 Jan 2007 11:44:38 +0100
-From: Stefan Seyfried <seife@suse.de>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: s2disk curiosity  :)
-Message-ID: <20070102104438.GB8693@suse.de>
-References: <20061218100612.02d807f7@localhost> <20061218093624.GC960@suse.de> <20061218111451.5ffce963@localhost>
+	Tue, 2 Jan 2007 05:48:24 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3008 "EHLO
+	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932749AbXABKsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 05:48:23 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] net: ifb error path loop fix
+Date: Tue, 2 Jan 2007 11:49:42 +0100
+User-Agent: KMail/1.9.5
+Cc: hadi@cyberus.ca, netdev@vger.kernel.org, jeff@garzik.org,
+       linux-kernel@vger.kernel.org
+References: <200701020055.51805.m.kozlowski@tuxland.pl> <20070101.235132.85409619.davem@davemloft.net>
+In-Reply-To: <20070101.235132.85409619.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061218111451.5ffce963@localhost>
-X-Operating-System: openSUSE 10.2 (i586), Kernel 2.6.18.2-34-default
-User-Agent: mutt-ng/devel-r804 (Linux)
+Message-Id: <200701021149.43365.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 11:14:51AM +0100, Paolo Ornati wrote:
-> On Mon, 18 Dec 2006 10:36:24 +0100
-> Stefan Seyfried <seife@suse.de> wrote:
-> 
-> > It depends on the BIOS. Many BIOSes have a setting where you can set the
-> > "power fail mode" to "on", "off" or "as before".
-> 
-> Ok, I've found the BIOS setting: Restore on AC Poer Loss = {Power Off,
-> Power On, Last State}.
-> 
-> Anyway I found strange that the "state" after s2disk is considered
-> "ON"  ;)
+Hello David, 
 
-Well, that is a decision of your BIOS, 'if the machine was suspended,
-treat "Restore on AC Power Loss" as "on" temporarily'. I don't know
-if there is anything that linux can do for you in this case, but you
-still can at least use shutdown mode to just "not tell the BIOS that
-we suspended" :-)
+> One could argue from a defensive programming perspective that
+> this bug comes from the fact that the ifb_init_one() loop
+> advances state before checking for errors ('i' is advanced before
+> the 'err' check due to the loop construct), and that's why the
+> error recovery code had to be coded specially :-)
+
+Now when I look at it I might be wrong and it is not a bug at all. 
+It's just coded in weird way. Anyway isn't there kfree(ifbs) missing
+on error path?
+
+The patch below should clear things a bit (against plain 2.6.20-rc2-mm1).
+
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+
+ drivers/net/ifb.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+--- linux-2.6.20-rc2-mm1-a/drivers/net/ifb.c	2006-12-24 05:00:32.000000000 +0100
++++ linux-2.6.20-rc2-mm1-b/drivers/net/ifb.c	2007-01-02 11:35:48.000000000 +0100
+@@ -264,18 +264,22 @@ static void ifb_free_one(int index)
+
+ static int __init ifb_init_module(void)
+ {
+-	int i, err = 0;
++	int i, err;
++
+ 	ifbs = kmalloc(numifbs * sizeof(void *), GFP_KERNEL);
+ 	if (!ifbs)
+ 		return -ENOMEM;
+-	for (i = 0; i < numifbs && !err; i++)
++	for (i = 0; i < numifbs; i++) {
+ 		err = ifb_init_one(i);
+-	if (err) {
+-		i--;
+-		while (--i >= 0)
+-			ifb_free_one(i);
++		if (err)
++			goto err;
+ 	}
++	return 0;
+
++err:
++	while (i--)
++		ifb_free_one(i);
++	kfree(ifbs);
+ 	return err;
+ }
+
+
+
 -- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Regards,
+
+	Mariusz Kozlowski

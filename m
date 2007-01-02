@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754835AbXABNMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755230AbXABN12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754835AbXABNMt (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 08:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755216AbXABNMt
+	id S1755230AbXABN12 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 08:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbXABN12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 08:12:49 -0500
-Received: from crystal.sipsolutions.net ([195.210.38.204]:59957 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754835AbXABNMt (ORCPT
+	Tue, 2 Jan 2007 08:27:28 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:49771 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755230AbXABN11 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 08:12:49 -0500
-Subject: Re: [PATCH] sound: aoa of_node_put and kfree cleanup
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <200701021350.57816.m.kozlowski@tuxland.pl>
-References: <200701021350.57816.m.kozlowski@tuxland.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rW6pTLpUqAYC6X5A8gHq"
-Date: Tue, 02 Jan 2007 14:12:08 +0100
-Message-Id: <1167743529.13592.44.camel@johannes.berg>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Tue, 2 Jan 2007 08:27:27 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Tue, 2 Jan 2007 08:22:21 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Theodore Tso <tytso@mit.edu>
+cc: Trent Waddington <trent.waddington@gmail.com>,
+       Bernd Petrovitsch <bernd@firmix.at>,
+       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+In-Reply-To: <20070102125026.GA4608@thunk.org>
+Message-ID: <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
+References: <4587097D.5070501@opensound.com> <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
+ <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+ <20061222115921.GT3073@harddisk-recovery.com> <1167568899.3318.39.camel@gimli.at.home>
+ <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
+ <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
+ <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
+ <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
+ <20070102125026.GA4608@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Jan 2007, Theodore Tso wrote:
 
---=-rW6pTLpUqAYC6X5A8gHq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I can very easily believe it.  The US patent system and "justice"
+> system in the US is completely and totally insane, and companies
+> often feel they have to act accordingly.  Remember this is the
+> country that has issued multi-million dollar awards to people who
+> spill hot coffee in their lap ...
 
-On Tue, 2007-01-02 at 13:50 +0100, Mariusz Kozlowski wrote:
+MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
+lap" story as an example of the idiocy of the justice system?  i'm
+guessing there's more to this story than most folks are aware of, and
+you're welcome to read the details here:
 
-> 	This patch removes redundant argument checks for of_node_put() and kfree=
-().
+  http://www.lectlaw.com/files/cur78.htm
 
-Looks good to me, thanks.
+as you can see, there are two salient points that change the
+complexion of this story thoroughly:
 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+1) mcdonald's was not merely serving their coffee "hot," but
+*scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
+will produce third-degree burns almost immediately, and
 
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
+2) there had, for a decade prior, been some *700* cases where people
+had burned themselves with mcdonald's coffee, so it's not as if
+mcdonald's was unaware of the danger, yet continued to ignore it.
 
->  sound/aoa/fabrics/snd-aoa-fabric-layout.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff -upr linux-2.6.20-rc2-mm1-a/sound/aoa/fabrics/snd-aoa-fabric-layout.=
-c linux-2.6.20-rc2-mm1-b/sound/aoa/fabrics/snd-aoa-fabric-layout.c
-> --- linux-2.6.20-rc2-mm1-a/sound/aoa/fabrics/snd-aoa-fabric-layout.c	2006=
--12-28 12:57:54.000000000 +0100
-> +++ linux-2.6.20-rc2-mm1-b/sound/aoa/fabrics/snd-aoa-fabric-layout.c	2007=
--01-02 01:50:26.000000000 +0100
-> @@ -1034,9 +1034,9 @@ static int aoa_fabric_layout_probe(struc
->  	list_del(&ldev->list);
->  	layouts_list_items--;
->   outnodev:
-> - 	if (sound) of_node_put(sound);
-> + 	of_node_put(sound);
->   	layout_device =3D NULL;
-> - 	if (ldev) kfree(ldev);
-> + 	kfree(ldev);
->  	return -ENODEV;
->  }
-> =20
->=20
->=20
+  yes, the american system of justice is brain-damaged.  but it's time
+to find another example to use as the evidence, ok?
 
---=-rW6pTLpUqAYC6X5A8gHq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iD8DBQBFmloo/ETPhpq3jKURAu0HAKCpstMghKAcQRj0bnPd/nhQsg1EIwCgpjHb
-xYW5pMEBpvHsE4u1cYfaITA=
-=GDsk
------END PGP SIGNATURE-----
-
---=-rW6pTLpUqAYC6X5A8gHq--
-
+rday

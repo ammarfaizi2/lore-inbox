@@ -1,119 +1,146 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932696AbXABJJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932780AbXABJQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932696AbXABJJe (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 04:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbXABJJd
+	id S932780AbXABJQx (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 04:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbXABJQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 04:09:33 -0500
-Received: from [61.51.204.190] ([61.51.204.190]:40771 "EHLO
-	freya.yggdrasil.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932683AbXABJJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 04:09:32 -0500
-X-Greylist: delayed 1206 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 04:08:59 EST
-Date: Tue, 2 Jan 2007 15:58:26 +0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Paul Moore <paul.moore@hp.com>
-Subject: Re: selinux networking: sleeping functin called from invalid context in 2.6.20-rc[12]
-Message-ID: <20070102155826.A14811@freya>
-References: <20061225052124.A10323@freya> <20061224162511.eaac4a89.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
+	Tue, 2 Jan 2007 04:16:53 -0500
+Received: from mx0.karneval.cz ([81.27.192.17]:45732 "EHLO av3.karneval.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932780AbXABJQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 04:16:52 -0500
+From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH] DocBook/HTML: Generate chapter/section level TOCs for functions
+Date: Tue, 2 Jan 2007 10:18:44 +0100
+User-Agent: KMail/1.9.4
+Cc: tali@admingilde.org, linux-kernel@vger.kernel.org
+References: <200612310227.47721.pisa@cmp.felk.cvut.cz> <20070101164147.3a6da015.rdunlap@xenotime.net>
+In-Reply-To: <20070101164147.3a6da015.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20061224162511.eaac4a89.akpm@osdl.org>; from akpm@osdl.org on Sun, Dec 24, 2006 at 04:25:11PM -0800
+Message-Id: <200701021018.45360.pisa@cmp.felk.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 02 January 2007 01:41, Randy Dunlap wrote:
+> On Sun, 31 Dec 2006 02:27:46 +0100 Pavel Pisa wrote:
+> > Simple increase of section TOC level generation significantly
+> > enhances navigation experience through generated kernel
+> > API documentation.
+> >
+> > This change restores back state from SGML tools time.
+> >
+> > Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+> >
+> > Index: linux-2.6.19/Documentation/DocBook/stylesheet.xsl
+> > ===================================================================
+> > --- linux-2.6.19.orig/Documentation/DocBook/stylesheet.xsl
+> > +++ linux-2.6.19/Documentation/DocBook/stylesheet.xsl
+> > @@ -4,4 +4,5 @@
+> >  <param name="funcsynopsis.style">ansi</param>
+> >  <param name="funcsynopsis.tabular.threshold">80</param>
+> >  <!-- <param name="paper.type">A4</param> -->
+> > +<param name="generate.section.toc.level">2</param>
+> >  </stylesheet>
+>
+> Hi,
+> Is it possible to make the TOC contain active links to their
+> sections/functions?  That would be even better, wouldn't it?
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello Randy,
 
-On Sun, Dec 24, 2006 at 04:25:11PM -0800, Andrew Morton wrote:
-> On Mon, 25 Dec 2006 05:21:24 +0800
-> "Adam J. Richter" <adam@yggdrasil.com> wrote:
-> 
->> 	Under 2.6.20-rc1 and 2.6.20-rc2, I get the following complaint
->> for several network programs running on my system:
->> 
->> [  156.381868] BUG: sleeping function called from invalid context at net/core/sock.c:1523
-[...]
-> There's a glaring bug in selinux_netlbl_inode_permission() - taking
-> lock_sock() inside rcu_read_lock().
-> 
-> I would again draw attention to Documentation/SubmitChecklist.  In
-> particular please always always always enable all kernel debugging options
-> when developing and testing new kernel code.  And everything else in that
-> file, too.
-> 
-> <guesses that this was tested on ia64>
+this is another sort of the problem.
+This problem has been probably introduced
+by switch from OpenJade to xsltproc for HTML
+generation as well.
 
-	I have not yet performed the 21 steps of
-linux-2.6.20-rc3/Documentation/SubmitChecklist, which I think is a
-great objectives list for future automation or some kind of community
-web site.  I hope to find time to make progress through that
-checklist, but, in the meantime, I think the world may nevertheless be
-infinitesmally better off if I post the patch that I'm currently
-using that seems to fix the problem, seeing as how rc3 has passed
-with no fix incorporated.
+I have found temporarily workaround on next
+pages
+  http://darkk.livejournal.com/
+  http://darkk.livejournal.com/7429.html
+I am attaching copy of the patch.
 
-	I think the intent of the offending code was to avoid doing
-a lock_sock() in a presumably common case where there was no need to
-take the lock.  So, I have kept the presumably fast test to exit
-early.
+The copy of generated HTML documentation can be seen there
 
-	When it turns out to be necessary to take lock_sock(), RCU is
-unlocked, then lock_sock is taken, the RCU is locked again, and
-the test is repeated.
+  http://cmp.felk.cvut.cz/~pisa/linux/lkdb-2.6.19.tar.gz
 
-	If I am wrong about lock_sock being expensive, I can
-delete the lines that do the early return.
+The problem is caused by nested <refentrytitle><phrase> tags.
 
-	By the way, in a change not included in this patch,
-I also tried consolidating the RCU locking in this file into a macro
-IF_NLBL_REQUIRE(sksec, action), where "action" is the code
-fragment to be executed with rcu_read_lock() held, although this
-required splitting a couple of functions in half.
+XML source:
 
-	Anyhow, here is my current patch as MIME attachment.
-Comments and labor in getting it through SubmitChecklist would
-both be welcome.
+  <refentrytitle><phrase id="API-struct-x">struct x</phrase></refentrytitle>
 
-Adam Richter
+Generates next malformed HTML with nested anchor <a> sections,
+which is interpreted as link with empty text by most browsers:
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="selinux.diff"
+  <a href="re02.html"><span><a id="API-struct-x"></a>struct x</span></a>
 
---- linux-2.6.20-rc3/security/selinux/ss/services.c	2007-01-02 01:47:40.000000000 +0800
-+++ linux/security/selinux/ss/services.c	2007-01-02 15:36:30.000000000 +0800
-@@ -2658,14 +2658,22 @@
- 	rcu_read_lock();
- 	if (sksec->nlbl_state != NLBL_REQUIRE) {
- 		rcu_read_unlock();
- 		return 0;
- 	}
-+	rcu_read_unlock();
-+
-+
-+	rc = 0;
- 	lock_sock(sock->sk);
--	rc = selinux_netlbl_socket_setsid(sock, sksec->sid);
--	release_sock(sock->sk);
-+	rcu_read_lock();
-+
-+	if (sksec->nlbl_state == NLBL_REQUIRE)
-+		rc = selinux_netlbl_socket_setsid(sock, sksec->sid);
-+
- 	rcu_read_unlock();
-+	release_sock(sock->sk);
- 
- 	return rc;
- }
- 
- /**
+I do not know, if nesting of <refentrytitle><phrase> is on the
+border of DocBook specification (but it seems, that it is not
+against DocBook DTD) or if this is bug of xsltproc / XML -> HTML
+DocBook formater. The valid HTML should read as
 
---0OAP2g/MAC+5xKAE--
+  <a href="re02.html" id="API-struct-x">struct x</span></a>
+
+I has not been sure, if it is only problem of my tools set.
+But is seems, that links are broken even on Free-Electrons
+from 2.6.14 or may it be 2.6.12 days
+
+  http://free-electrons.com/kerneldoc/latest/DocBook/kernel-api/
+
+It would be good if somebody with more knowledge about
+xsltproc and DocBook could help there to find clean
+solution. May it be, that somebody from
+  http://docbook.sourceforge.net/
+could help there.
+
+Best wishes
+
+           Pavel Pisa
+
+
+Index: linux-2.6.19/scripts/kernel-doc
+===================================================================
+--- linux-2.6.19.orig/scripts/kernel-doc
++++ linux-2.6.19/scripts/kernel-doc
+@@ -590,7 +590,7 @@ sub output_function_xml(%) {
+     print " <date>$man_date</date>\n";
+     print "</refentryinfo>\n";
+     print "<refmeta>\n";
+-    print " <refentrytitle><phrase id=\"$id\">".$args{'function'}."</phrase></refentrytitle>\n";
++    print " <refentrytitle>".$args{'function'}."</refentrytitle>\n";
+     print " <manvolnum>9</manvolnum>\n";
+     print "</refmeta>\n";
+     print "<refnamediv>\n";
+@@ -666,7 +666,7 @@ sub output_struct_xml(%) {
+     print " <date>$man_date</date>\n";
+     print "</refentryinfo>\n";
+     print "<refmeta>\n";
+-    print " <refentrytitle><phrase id=\"$id\">".$args{'type'}." ".$args{'struct'}."</phrase></refentrytitle>\n";
++    print " <refentrytitle>".$args{'type'}." ".$args{'struct'}."</refentrytitle>\n";
+     print " <manvolnum>9</manvolnum>\n";
+     print "</refmeta>\n";
+     print "<refnamediv>\n";
+@@ -750,7 +750,7 @@ sub output_enum_xml(%) {
+     print " <date>$man_date</date>\n";
+     print "</refentryinfo>\n";
+     print "<refmeta>\n";
+-    print " <refentrytitle><phrase id=\"$id\">enum ".$args{'enum'}."</phrase></refentrytitle>\n";
++    print " <refentrytitle>enum ".$args{'enum'}."</refentrytitle>\n";
+     print " <manvolnum>9</manvolnum>\n";
+     print "</refmeta>\n";
+     print "<refnamediv>\n";
+@@ -816,7 +816,7 @@ sub output_typedef_xml(%) {
+     print " <date>$man_date</date>\n";
+     print "</refentryinfo>\n";
+     print "<refmeta>\n";
+-    print " <refentrytitle><phrase id=\"$id\">typedef ".$args{'typedef'}."</phrase></refentrytitle>\n";
++    print " <refentrytitle>typedef ".$args{'typedef'}."</refentrytitle>\n";
+     print " <manvolnum>9</manvolnum>\n";
+     print "</refmeta>\n";
+     print "<refnamediv>\n";
+

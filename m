@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964947AbXABTe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964939AbXABTfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbXABTe1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbXABTe1
+	id S964939AbXABTfH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 14:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbXABTfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:34:27 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2455 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964947AbXABTe0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 14:34:26 -0500
-Date: Tue, 2 Jan 2007 20:34:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Borzenkov <arvidjaar@mail.ru>, Robert Hancock <hancockr@shaw.ca>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, pavel@suse.cz, linux-pm@osdl.org,
-       Jean Delvare <khali@linux-fr.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Marcel Holtmann <marcel@holtmann.org>,
-       bluez-devel@lists.sourceforge.net, Rene Herman <rene.herman@gmail.com>,
-       Mark Lord <lkml@rtr.ca>, Laurent Riffard <laurent.riffard@free.fr>,
-       Christoph Hellwig <hch@lst.de>, petero2@telia.com
-Subject: Re: 2.6.20-rc3: known regressions with patches available (part 1)
-Message-ID: <20070102193429.GX20714@stusta.de>
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org> <20070102192449.GV20714@stusta.de> <20070102192651.GM2483@kernel.dk>
+	Tue, 2 Jan 2007 14:35:06 -0500
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:44826 "EHLO
+	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964939AbXABTfE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 14:35:04 -0500
+Date: Tue, 2 Jan 2007 19:34:59 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Len Brown <lenb@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86 instability with 2.6.1{8,9}
+Message-ID: <20070102193459.GA19894@deepthought>
+References: <20070101160158.GA26547@deepthought> <200701021225.57708.lenb@kernel.org> <20070102180425.GA18680@deepthought> <200701021342.32195.lenb@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20070102192651.GM2483@kernel.dk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200701021342.32195.lenb@kernel.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 08:26:52PM +0100, Jens Axboe wrote:
-> On Tue, Jan 02 2007, Adrian Bunk wrote:
-> > Subject    : CFQ disk throughput halved
-> > References : http://lkml.org/lkml/2007/01/1/104
-> > Submitter  : Rene Herman <rene.herman@gmail.com>
-> >              Mark Lord <lkml@rtr.ca>
-> > Caused-By  : Jens Axboe <jens.axboe@oracle.com>
-> >              commit 719d34027e1a186e46a3952e8a24bf91ecc33837
-> > Handled-By : Jens Axboe <jens.axboe@oracle.com>
-> > Patch      : http://lkml.org/lkml/2007/1/2/75
-> > Status     : patch available
+On Tue, Jan 02, 2007 at 01:42:32PM -0500, Len Brown wrote:
 > 
-> Patch is already merged in -git.
+> You might remove and re-insert the DIMMS.
+> Sometimes there are poor contacts if the DIMMS are not fully seated and clicked in.
+> 
+> The real mystery is the 32 vs 64-bit thing.
+> Are the devices configured the same way -- ie are they both in IOAPIC mode
+> and /proc/interrupts looks the same for both modes?
+> 
+> -Len
 
-Thanks for this information, I missed this (as well as the merged SATA 
-fix) since it isn't yet at the git mirrors.
+ Too late, I've started memtest-86+.  If it seems ok after an
+overnight run, I'll take a look at /proc/interrupts.  How can I tell
+it is in IOAPIC mode, please ?  Google was not helpful for this, but
+if it's an override, the only things on my command lines are root=
+and video= settings.
 
-> Jens Axboe
+ Certainly, it seems likely that the configs could be fairly
+different in their detail.
 
-cu
-Adrian
-
+Ken
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+das eine Mal als Tragödie, das andere Mal als Farce

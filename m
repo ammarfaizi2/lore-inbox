@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755376AbXABQuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755374AbXABQuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755376AbXABQuP (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 11:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755374AbXABQuP
+	id S1755374AbXABQuT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 11:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755378AbXABQuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 11:50:15 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3018 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755376AbXABQuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 11:50:13 -0500
-Date: Tue, 2 Jan 2007 16:50:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [ARM] Regression somewhere between 2.6.19 and 2.6.19-rc1
-Message-ID: <20070102165004.GC12902@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20070102163923.GB12902@flint.arm.linux.org.uk>
+	Tue, 2 Jan 2007 11:50:18 -0500
+Received: from xenotime.net ([66.160.160.81]:36219 "HELO xenotime.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1755374AbXABQuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 11:50:17 -0500
+Date: Tue, 2 Jan 2007 08:36:50 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Andrew Barr <andrew.james.barr@gmail.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Cut power to a USB port?
+Message-Id: <20070102083650.c8a73253.rdunlap@xenotime.net>
+In-Reply-To: <1167751719.2653.7.camel@localhost>
+References: <1167684985.28023.4.camel@localhost>
+	<20070102083258.GA24516@kroah.com>
+	<1167751719.2653.7.camel@localhost>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070102163923.GB12902@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 04:39:23PM +0000, Russell King wrote:
-> I'm seeing utterly random behaviour from kernels on ARM SMP hardware
-> built after 2.6.19.  I won't bother trying to paste the kernel output;
-> sometimes the kernel locks solid (no IRQs, no output to say what's wrong).
-> Other times I get the first line of an oops repeating but with random
-> addresses.  Othertimes the oops doesn't complete.
+On Tue, 02 Jan 2007 10:28:38 -0500 Andrew Barr wrote:
+
+> On Tue, 2007-01-02 at 00:32 -0800, Greg KH wrote:
+> > On Mon, Jan 01, 2007 at 03:56:25PM -0500, Andrew Barr wrote:
+> > > I have a simple question perhaps someone can help me with here...
+> > > 
+> > > I have one of those simple LED keyboard lamps that get their power from
+> > > the USB port. Is there some way in Linux, using files under /sys I would
+> > > imagine, to cut power to the USB port into which this lamp is plugged? I
+> > > know I would have to manually figure out what port it's plugged into, as
+> > > it is not a "real" USB device...e.g. it just draws power. I would like
+> > > to be able to programmatically switch the lamp on and off.
+> > 
+> > Search the archives of the linux-usb-devel mailing list for a program
+> > that might do this for you (depending on your hardware.)
 > 
-> 2.6.19 runs fine.
->..
-> How do I tell git bisect "I can't test this, this is neither good nor bad,
-> please choose another to try" ?  Or is git bisect hopeless given the large
-> amount of unbuildable commits thanks to our weekly merges?
+> What search terms should I use? Searching on "power" and "port power" at
+> Gmane in the gmane.linux.usb.devel group doesn't readily give me
+> anything.
 
-Don't worry - viro suggested changing the problematical two strings, which
-allowed me to test that commit.
+You can try:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+usbpoweroff.c
+(http://www.informatik.uni-halle.de/~ladischc/usbpoweroff.c)
+or
+hub-ctrl-2.c (http://www.gniibe.org/log/linux)
+
+> For the record, my hardware:
+> 
+> 00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM
+> (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
+> 00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM
+> (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
+> 00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM
+> (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
+> 00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2
+> EHCI Controller (rev 01)
+> 
+> IBM Thinkpad R51 2883-ELU.
+
+
+---
+~Randy

@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753571AbXABQbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755361AbXABQeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753571AbXABQbs (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 11:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754887AbXABQbr
+	id S1755361AbXABQeI (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 11:34:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755365AbXABQeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 11:31:47 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:45857 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754879AbXABQbr (ORCPT
+	Tue, 2 Jan 2007 11:34:08 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47349 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755362AbXABQeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 11:31:47 -0500
-Message-ID: <459A88F1.70706@s5r6.in-berlin.de>
-Date: Tue, 02 Jan 2007 17:31:45 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+	Tue, 2 Jan 2007 11:34:06 -0500
+Date: Tue, 2 Jan 2007 16:33:39 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Jens Axboe <jens.axboe@oracle.com>
+cc: "Robert P. J. Day" <rpjday@mindspring.com>, Theodore Tso <tytso@mit.edu>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       Bernd Petrovitsch <bernd@firmix.at>,
+       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+In-Reply-To: <20070102151827.GH2483@kernel.dk>
+Message-ID: <Pine.LNX.4.64.0701021631460.13362@pentafluge.infradead.org>
+References: <20061222115921.GT3073@harddisk-recovery.com>
+ <1167568899.3318.39.camel@gimli.at.home> <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
+ <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
+ <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
+ <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
+ <20070102125026.GA4608@thunk.org> <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
+ <20070102151503.GA28150@vasa.acc.umu.se> <20070102151827.GH2483@kernel.dk>
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Kyuma Ohta <whatisthis@jcom.home.ne.jp>, Andreas Schwab <schwab@suse.de>,
-       linux-kernel@vger.kernel.org,
-       Linux1394-devel ML <linux1394-devel@lists.sourceforge.net>
-Subject: Re: 2.6.20-rc2: kernel BUG at include/asm/dma-mapping.h:110!
-References: <je7iwa1l8a.fsf@sykes.suse.de>	<1167550089.12593.11.camel@melchior>  <jey7oowgdo.fsf@sykes.suse.de> <1167708109.12382.26.camel@melchior> <459A800E.3010604@s5r6.in-berlin.de>
-In-Reply-To: <459A800E.3010604@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1831524198-193678424-1167755619=:13362"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(list address corrected, and a question added...)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On 1/2/2007 4:53 PM, I wrote:
-> Kyuma Ohta wrote:
-> ...
->> Now,I'm testing 2.6.20-rc3 for x86_64, submitted patch for this issue;
->> "Fault has happened  in 'cleanuped' sbp2/1394 module in *not 32bit*
->> architecture hardwares ."
->> 
->> As result of, sbp2 driver in 2.6.20-rc3 is seems to running 
->> w/o any faults,but communication both host and harddrive(s) 
->> was seems to be unstable yet :-(
->> Sometimes confuse packets,such as *very* older 1394 driver :-(
-> 
-> That is, sbp2 on 2.6.20-rc3 works less stable for you than on 2.6.19? Or
-> which previous kernel is the basis of your comparison? Are there any log
-> messages or other diagnostics? And what hardware do you have?
-> 
-> If you can tell which kernel was good for you, I could create a set of
-> patches for you which allows to revert sbp2 while keeping the rest of
-> the kernel at the level of 2.6.20-rc3, so that you could find the
-> destabilizing change (if it happened in sbp2, not somewhere else).
-> 
-> Although there was a certain volume of changes to sbp2 between 2.6.19
-> and 2.6.20-rc{1,3}, none of them should change the behavior except for:
-> 
->  - commit 0b885449ac6fab42cd6808c9ea8d6e456e0e65b7 "ieee1394: sbp2:
->    remove duplicate code" modifying the extremely unlikely case that
->    a bus reset occurs right after completion status of an unsuccessfully
->    completed command came in,
-> 
->  - commit 23077f1d72d279244536f11db51258fc4759c81a "ieee1394: sbp2:
->    slightly reorder sbp2scsi_abort" which improves a SCSI error handler,
->    mostly relevant if a command timed out.
-> 
->  - commit b2bb550c4a10c44e99fe469cfaee81e2e3109994 "ieee1394: sbp2: pass
->    REQUEST_SENSE through to the target" which exposes targets to a SCSI
->    command which was previously blocked out. But this command is either
->    never issued by stock Linux SCSI drivers to SBP-2 targets anyway
->    because they provide autosense data, or has to be be properly
->    supported by SBP-2 targets if targets don't send autosense data.
->    (This is also about error handling, unless special application
->    software is explicitly generating this command.)
-> 
-> The DMA mapping patch did only change behavior because it was just
-> faulty. After its correction in 2.6.20-rc3, it really is a trivial 1:1
-> conversion from the pci_dma_ API to the generic dma_ API. I neither
-> added nor removed anything from the mapping operations and they should
-> behave exactly the same as before with PCI FireWire controllers.
-> 
-> Or could there have been some hidden mistake in sbp2's old pci_dma_
-> usage which now turns into real problems after 1:1 conversion to the
-> dma_API?
-> 
-> Or are there any DMA related properties of hardware that the DMA mapping
-> infrastructure cannot figure out from the generic device (contained in a
-> pci_device) compared to the pci_device?
+---1831524198-193678424-1167755619=:13362
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 
-Or are there some restrictions implicit in mappings via pci_dma_ API
-which are lifted when using mappings via dma_ API?
--- 
-Stefan Richter
--=====-=-=== ---= ---=-
-http://arcgraph.de/sr/
+
+> > > > I can very easily believe it.  The US patent system and "justice"
+> > > > system in the US is completely and totally insane, and companies
+> > > > often feel they have to act accordingly.  Remember this is the
+> > > > country that has issued multi-million dollar awards to people who
+> > > > spill hot coffee in their lap ...
+> > > 
+> > > MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
+> > > lap" story as an example of the idiocy of the justice system?  i'm
+> > > guessing there's more to this story than most folks are aware of, and
+> > > you're welcome to read the details here:
+> > > 
+> > >   http://www.lectlaw.com/files/cur78.htm
+> > > 
+> > > as you can see, there are two salient points that change the
+> > > complexion of this story thoroughly:
+> > > 
+> > > 1) mcdonald's was not merely serving their coffee "hot," but
+> > > *scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
+> > > will produce third-degree burns almost immediately, and
+> > 
+> > That's less than 90°C.  Water boils at 100°C.  How the hell do 
+> > people expect coffee to be made without boiling water?  Magic?
+> 
+> I guess selling sharp kitchen knifes in the US is a law suit waiting to
+> happen as well then, people could seriously hurt themselves with those
+> things!  Talk about corporate irresponsibility.
+
+http://news.bbc.co.uk/2/hi/health/4581871.stm
+
+---1831524198-193678424-1167755619=:13362--

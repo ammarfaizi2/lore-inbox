@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755270AbXABVMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755413AbXABVPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755270AbXABVMH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755408AbXABVMH
+	id S1755413AbXABVPd (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755414AbXABVPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:12:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2640 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754973AbXABVME (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:12:04 -0500
-Date: Tue, 2 Jan 2007 22:12:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.6.19.1
-Message-ID: <20070102211206.GZ20714@stusta.de>
-References: <200612301224_MC3-1-D6C5-9FCD@compuserve.com> <200612301829.15980.s0348365@sms.ed.ac.uk> <20061231162830.GL20714@stusta.de> <200612311648.43159.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612311648.43159.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 2 Jan 2007 16:15:33 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59140 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755413AbXABVPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:15:32 -0500
+In-Reply-To: <1167768494.6165.63.camel@localhost.localdomain>
+References: <459714A6.4000406@firmworks.com> <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr> <20061231.124531.125895122.davem@davemloft.net> <1167709406.6165.6.camel@localhost.localdomain> <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org> <1167768494.6165.63.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c7212f93de62c2f7f50be71f257c8974@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, jengelh@linux01.gwdg.de,
+       David Miller <davem@davemloft.net>, wmb@firmworks.com, jg@laptop.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Date: Tue, 2 Jan 2007 22:15:50 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2006 at 04:48:43PM +0000, Alistair John Strachan wrote:
-> On Sunday 31 December 2006 16:28, Adrian Bunk wrote:
-> > On Sat, Dec 30, 2006 at 06:29:15PM +0000, Alistair John Strachan wrote:
-> > > On Saturday 30 December 2006 17:21, Chuck Ebbert wrote:
-> > > > In-Reply-To: <200612301659.35982.s0348365@sms.ed.ac.uk>
-> > > >
-> > > > On Sat, 30 Dec 2006 16:59:35 +0000, Alistair John Strachan wrote:
-> > > > > I've eliminated 2.6.19.1 as the culprit, and also tried toggling
-> > > > > "optimize for size", various debug options. 2.6.19 compiled with GCC
-> > > > > 4.1.1 on an Via Nehemiah C3-2 seems to crash in pipe_poll reliably,
-> > > > > within approximately 12 hours.
-> > > >
-> > > > Which CPU are you compiling for?  You should try different options.
-> > >
-> > > I should, I haven't thought of that. Currently it's compiling for
-> > > CONFIG_MVIAC3_2, but I could try i686 for example.
-> > >
-> > > > Can you post disassembly of pipe_poll() for both the one that crashes
-> > > > and the one that doesn't?  Use 'objdump -D -r fs/pipe.o' so we get the
-> > > > relocation info and post just the one function from each for now.
-> > >
-> > > Sure, no problem:
-> > >
-> > > http://devzero.co.uk/~alistair/2.6.19-via-c3-pipe_poll/
-> > >
-> > > Both use identical configs, neither are optimised for size. The config is
-> > > available from the same location.
-> >
-> > Can you try enabling as many debug options as possible?
-> 
-> Specifically what? I've already had:
-> 
-> CONFIG_DETECT_SOFTLOCKUP
-> CONFIG_FRAME_POINTER
-> CONFIG_UNWIND_INFO
-> 
-> Enabled. CONFIG_4KSTACKS is disabled. Are there any debugging features 
-> actually pertinent to this bug?
+>> Are you really suggesting that using a kernel copy of the
+>> device tree is the correct thing to do, and the only correct
+>> thing to do -- with the sole argument that "that's what the
+>> current ports do"?
+>
+> Well, there are reasons why that's what the current ports do :-)
 
-No, that's only an "enable as much as possible and hope one helps" shot 
-in the dark.
+Sure.  It might have been a good choice for the current two ports
+(probably was even, at least at that point in time the choice was
+made -- doesn't mean you can't ever step back on it).
 
-> Cheers,
-> Alistair.
+That doesn't mean it's a good choice for everything and certainly
+it's not the only realistic choice for everything.
 
-cu
-Adrian
+> We could of course have the interface work either on a copy of the tree
+> or on a real OF
 
--- 
+Yes.  I'd like to steer in that direction eventually.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> (though that means changing things like get_property on
+> powerpc
+
+You can keep the function name, and have it redirect through
+a struct device_tree_ops or similar.
+
+> and fixing the gazillions of users)
+
+which isn't needed if we can manage to keep the function arguments
+identical.
+
+We also can keep the old names as compatibility accessors for
+PowerPC only for a while, until everything is converted -- SPARC
+can do the same then.  You can't really keep the old PowerPC names
+in kernel-wide code anyway, "get_property" is a way too generic
+name for that for example.
+
+> but I tend to think that
+> working on a copy always is more efficient.
+
+In general, nothing using the device tree cares about a few
+cycles extra (well, a few thousand perhaps).  The sole exception
+would seem to be the filesystem; and it could easily keep a cache,
+one with a global invalidate (via callback?) on any device tree
+change even -- changes are infrequent, and basically non-existent
+after early kernel boot.  Does any generic such cache for all
+simple filesystems exist already?
+
+
+Segher
 

@@ -1,98 +1,127 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754981AbXABV5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964894AbXABV5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754981AbXABV5e (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754986AbXABV5e
+	id S964894AbXABV5T (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754959AbXABV5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:57:34 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2721 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754981AbXABV5c (ORCPT
+	Tue, 2 Jan 2007 16:57:19 -0500
+Received: from mga07.intel.com ([143.182.124.22]:18577 "EHLO
+	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754921AbXABV5R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:57:32 -0500
-Date: Tue, 2 Jan 2007 22:57:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Nick Piggin <npiggin@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] the scheduled find_trylock_page() removal
-Message-ID: <20070102215735.GD20714@stusta.de>
-MIME-Version: 1.0
+	Tue, 2 Jan 2007 16:57:17 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,227,1165219200"; 
+   d="scan'208"; a="164538405:sNHT25188702"
+Date: Tue, 2 Jan 2007 13:27:58 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Dave Jones <davej@redhat.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Gautham R Shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] cpufreq lock rewrite bugfix - Fix locking in cpufreq_get
+Message-ID: <20070102132758.A17649@unix-os.sc.intel.com>
+References: <20061229133543.C12358@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061229133543.C12358@unix-os.sc.intel.com>; from venkatesh.pallipadi@intel.com on Fri, Dec 29, 2006 at 01:35:43PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the scheduled find_trylock_page() removal.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Incremental bugfix to previous 3 patch patchset of cpufreq lock rewrite.
 
----
+There was one code path in cpufreq_get, that was using the write lock
+in place of read and also potential recursive lock with sysfs
+interface of cpuinfo_cur_freq.
 
- Documentation/feature-removal-schedule.txt |   12 ------------
- include/linux/pagemap.h                    |    2 --
- mm/filemap.c                               |   20 --------------------
- 3 files changed, 34 deletions(-)
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
 
---- linux-2.6.20-rc2-mm1/Documentation/feature-removal-schedule.txt.old	2007-01-02 21:34:57.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/Documentation/feature-removal-schedule.txt	2007-01-02 21:35:12.000000000 +0100
-@@ -163,18 +163,6 @@
+Index: linux-2.6.20-rc-mm/drivers/cpufreq/cpufreq.c
+===================================================================
+--- linux-2.6.20-rc-mm.orig/drivers/cpufreq/cpufreq.c
++++ linux-2.6.20-rc-mm/drivers/cpufreq/cpufreq.c
+@@ -101,6 +101,7 @@ EXPORT_SYMBOL_GPL(unlock_policy_rwsem_wr
  
- ---------------------------
- 
--What:	find_trylock_page
--When:	January 2007
--Why:	The interface no longer has any callers left in the kernel. It
--	is an odd interface (compared with other find_*_page functions), in
--	that it does not take a refcount to the page, only the page lock.
--	It should be replaced with find_get_page or find_lock_page if possible.
--	This feature removal can be reevaluated if users of the interface
--	cannot cleanly use something else.
--Who:	Nick Piggin <npiggin@suse.de>
--
-----------------------------
--
- What:	Interrupt only SA_* flags
- When:	Januar 2007
- Why:	The interrupt related SA_* flags are replaced by IRQF_* to move them
---- linux-2.6.20-rc2-mm1/include/linux/pagemap.h.old	2007-01-02 21:35:20.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/include/linux/pagemap.h	2007-01-02 21:35:26.000000000 +0100
-@@ -78,8 +78,6 @@
- 				unsigned long index);
- extern struct page * find_lock_page(struct address_space *mapping,
- 				unsigned long index);
--extern __deprecated_for_modules struct page * find_trylock_page(
--			struct address_space *mapping, unsigned long index);
- extern struct page * find_or_create_page(struct address_space *mapping,
- 				unsigned long index, gfp_t gfp_mask);
- unsigned find_get_pages(struct address_space *mapping, pgoff_t start,
---- linux-2.6.20-rc2-mm1/mm/filemap.c.old	2007-01-02 21:35:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/mm/filemap.c	2007-01-02 21:36:36.000000000 +0100
-@@ -630,26 +630,6 @@
- EXPORT_SYMBOL(find_get_page);
+ /* internal prototypes */
+ static int __cpufreq_governor(struct cpufreq_policy *policy, unsigned int event);
++static unsigned int __cpufreq_get(unsigned int cpu);
+ static void handle_update(struct work_struct *work);
  
  /**
-- * find_trylock_page - find and lock a page
-- * @mapping: the address_space to search
-- * @offset: the page index
-- *
-- * Same as find_get_page(), but trylock it instead of incrementing the count.
-- */
--struct page *find_trylock_page(struct address_space *mapping, unsigned long offset)
--{
--	struct page *page;
--
--	read_lock_irq(&mapping->tree_lock);
--	page = radix_tree_lookup(&mapping->page_tree, offset);
--	if (page && TestSetPageLocked(page))
--		page = NULL;
--	read_unlock_irq(&mapping->tree_lock);
--	return page;
--}
--EXPORT_SYMBOL(find_trylock_page);
--
+@@ -488,7 +489,7 @@ store_one(scaling_max_freq,max);
+ static ssize_t show_cpuinfo_cur_freq (struct cpufreq_policy * policy,
+ 							char *buf)
+ {
+-	unsigned int cur_freq = cpufreq_get(policy->cpu);
++	unsigned int cur_freq = __cpufreq_get(policy->cpu);
+ 	if (!cur_freq)
+ 		return sprintf(buf, "<unknown>");
+ 	return sprintf(buf, "%u\n", cur_freq);
+@@ -1074,25 +1075,13 @@ unsigned int cpufreq_quick_get(unsigned 
+ EXPORT_SYMBOL(cpufreq_quick_get);
+ 
+ 
 -/**
-  * find_lock_page - locate, pin and lock a pagecache page
-  * @mapping: the address_space to search
-  * @offset: the page index
-
+- * cpufreq_get - get the current CPU frequency (in kHz)
+- * @cpu: CPU number
+- *
+- * Get the CPU current (static) CPU frequency
+- */
+-unsigned int cpufreq_get(unsigned int cpu)
++static unsigned int __cpufreq_get(unsigned int cpu)
+ {
+-	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
++	struct cpufreq_policy *policy = cpufreq_cpu_data[cpu];
+ 	unsigned int ret_freq = 0;
+ 
+-	if (!policy)
+-		return 0;
+-
+ 	if (!cpufreq_driver->get)
+-		goto out;
+-
+-	if (unlikely(lock_policy_rwsem_write(cpu)))
+-		goto out;
++		return (ret_freq);
+ 
+ 	ret_freq = cpufreq_driver->get(cpu);
+ 
+@@ -1106,11 +1095,32 @@ unsigned int cpufreq_get(unsigned int cp
+ 		}
+ 	}
+ 
+-	unlock_policy_rwsem_write(cpu);
++	return (ret_freq);
++}
++
++/**
++ * cpufreq_get - get the current CPU frequency (in kHz)
++ * @cpu: CPU number
++ *
++ * Get the CPU current (static) CPU frequency
++ */
++unsigned int cpufreq_get(unsigned int cpu)
++{
++	unsigned int ret_freq = 0;
++	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
++
++	if (!policy)
++		goto out;
++
++	if (unlikely(lock_policy_rwsem_read(cpu)))
++		goto out;
++
++	ret_freq = __cpufreq_get(cpu);
++
++	unlock_policy_rwsem_read(cpu);
+ 
+ out:
+ 	cpufreq_cpu_put(policy);
+-
+ 	return (ret_freq);
+ }
+ EXPORT_SYMBOL(cpufreq_get);

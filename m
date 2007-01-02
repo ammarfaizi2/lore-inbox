@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754788AbXABCT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754370AbXABCYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754788AbXABCT0 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 21:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754803AbXABCT0
+	id S1754370AbXABCYJ (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 21:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755040AbXABCYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 21:19:26 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:52989 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754788AbXABCTZ (ORCPT
+	Mon, 1 Jan 2007 21:24:09 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:1622 "EHLO
+	arnor.apana.org.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754370AbXABCYH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 21:19:25 -0500
-Message-ID: <4599C125.10409@zytor.com>
-Date: Mon, 01 Jan 2007 18:19:17 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: gorcunov@gmail.com
-CC: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Happy New Year (and v2.6.20-rc3 released)
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org> <200701011022.54336.gorcunov@gmail.com>
-In-Reply-To: <200701011022.54336.gorcunov@gmail.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Jan 2007 21:24:07 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: jeff@garzik.org (Jeff Garzik)
+Subject: Re: [git patches] net driver fixes
+Cc: akpm@osdl.org, torvalds@osdl.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20061226224646.GA10417@havoc.gtf.org>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1H1ZJf-0002cA-00@gondolin.me.apana.org.au>
+Date: Tue, 02 Jan 2007 13:23:51 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cyrill V. Gorcnov wrote:
-> On Monday 01 January 2007 04:19, you wrote:
-> |  
-> |  In order to not get in trouble with MADR ("Mothers Against Drunk 
-> |  Releases") I decided to cut the 2.6.20-rc3 release early rather than wait 
-> |  for midnight, because it's bound to be new years _somewhere_ out there. So 
-> |  here's to a happy 2007 for everybody.
-> |  
+Jeff Garzik <jeff@garzik.org> wrote:
 > 
-> I've tried to clone linux git repo and got:
-> 
-> 	git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-> 	fatal: unexpected EOF
-> 	fetch-pack from 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git' failed.
-> 
-> What's wrong?
-> 
-> Happy New Year ;)
-> 
+>      e1000: Do not truncate TSO TCP header with 82544 workaround
 
-Look at http://www.kernel.org/.  Currently, the git daemon stops serving 
-new clients at loadavg 200.
+This change obsoletes the following change.
 
-	-hpa
+>      e1000: disable TSO on the 82544 with slab debugging
+
+So the slab debugging patch should be reverted.
+
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

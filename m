@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932993AbXABIov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752475AbXABI6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932993AbXABIov (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 03:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932994AbXABIov
+	id S1752475AbXABI6c (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 03:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754562AbXABI6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 03:44:51 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:29802 "EHLO kernel.dk"
+	Tue, 2 Jan 2007 03:58:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43134 "EHLO perch.kroah.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932996AbXABIou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 03:44:50 -0500
-Date: Tue, 2 Jan 2007 09:44:47 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rene Herman <rene.herman@gmail.com>, Tejun Heo <htejun@gmail.com>,
-       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.20-rc2+: CFQ halving disk throughput.
-Message-ID: <20070102084447.GS2483@kernel.dk>
-References: <45893CAD.9050909@gmail.com> <45921E73.1080601@gmail.com> <4592B25A.4040906@gmail.com> <45932AF1.9040900@gmail.com> <45998F62.6010904@gmail.com> <20070101213601.c526f779.akpm@osdl.org>
+	id S1752475AbXABI6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 03:58:31 -0500
+Date: Tue, 2 Jan 2007 00:32:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Barr <andrew.james.barr@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cut power to a USB port?
+Message-ID: <20070102083258.GA24516@kroah.com>
+References: <1167684985.28023.4.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070101213601.c526f779.akpm@osdl.org>
+In-Reply-To: <1167684985.28023.4.camel@localhost>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01 2007, Andrew Morton wrote:
-> On Mon, 01 Jan 2007 23:46:58 +0100
-> Rene Herman <rene.herman@gmail.com> wrote:
+On Mon, Jan 01, 2007 at 03:56:25PM -0500, Andrew Barr wrote:
+> I have a simple question perhaps someone can help me with here...
 > 
-> > > Everything seems fine in the dmesg.  Performance degradation is
-> > > probably some other issue in -rc kernel.  I'm suspecting recently
-> > > fixed block layer bug.  If it's still the same in the next -rc,
-> > > please report.
-> > 
-> > In fact, it's CFQ. The PATA thing was a red herring. 2.6.20-rc2 and 3 
-> > give me ~ 24 MB/s from "hdparm t /dev/hda" while 2.6.20-rc1 and below 
-> > give me ~ 50 MB/s.
-> > 
-> > Jens: this is due to "[PATCH] cfq-iosched: tighten allow merge 
-> > criteria", 719d34027e1a186e46a3952e8a24bf91ecc33837:
-> > 
-> > http://www2.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=719d34027e1a186e46a3952e8a24bf91ecc33837
-> > 
-> > If I revert that one, I have my 50 M/s back. config and dmesg attached 
-> > in case they're useful.
-> 
-> The patch would appear to need this fix:
-> 
-> --- a/block/cfq-iosched.c~a
-> +++ a/block/cfq-iosched.c
-> @@ -592,7 +592,7 @@ static int cfq_allow_merge(request_queue
->  	if (cfqq == RQ_CFQQ(rq))
->  		return 1;
->  
-> -	return 1;
-> +	return 0;
->  }
->  
->  static inline void
-> _
-> 
-> But that might not fix things...
+> I have one of those simple LED keyboard lamps that get their power from
+> the USB port. Is there some way in Linux, using files under /sys I would
+> imagine, to cut power to the USB port into which this lamp is plugged? I
+> know I would have to manually figure out what port it's plugged into, as
+> it is not a "real" USB device...e.g. it just draws power. I would like
+> to be able to programmatically switch the lamp on and off.
 
-Yeah it is, but I don't think it'll fix it (if anything, it'll be more
-conservative).
+Search the archives of the linux-usb-devel mailing list for a program
+that might do this for you (depending on your hardware.)
 
--- 
-Jens Axboe
+good luck,
 
+greg k-h

@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755366AbXABQjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755371AbXABQoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755366AbXABQjb (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 11:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755373AbXABQjb
+	id S1755371AbXABQoX (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 11:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755373AbXABQoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 11:39:31 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2988 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755366AbXABQja (ORCPT
+	Tue, 2 Jan 2007 11:44:23 -0500
+Received: from outbound-mail-61.bluehost.com ([69.89.21.21]:43493 "HELO
+	outbound-mail-61.bluehost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755371AbXABQoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 11:39:30 -0500
-Date: Tue, 2 Jan 2007 16:39:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [ARM] Regression somewhere between 2.6.19 and 2.6.19-rc1
-Message-ID: <20070102163923.GB12902@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Jan 2007 11:44:22 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 11:44:22 EST
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] quiet MMCONFIG related printks
+Date: Tue, 2 Jan 2007 08:37:44 -0800
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>
+References: <200701012101.38427.jbarnes@virtuousgeek.org> <20070102103602.28a873ea@localhost.localdomain>
+In-Reply-To: <20070102103602.28a873ea@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200701020837.45016.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing utterly random behaviour from kernels on ARM SMP hardware
-built after 2.6.19.  I won't bother trying to paste the kernel output;
-sometimes the kernel locks solid (no IRQs, no output to say what's wrong).
-Other times I get the first line of an oops repeating but with random
-addresses.  Othertimes the oops doesn't complete.
+On Tuesday, January 2, 2007 2:36 am, Alan wrote:
+> On Mon, 1 Jan 2007 21:01:38 -0800
+>
+> Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
+> > Using MMCONFIG for PCI config space access is simply an
+> > optimization, not a requirement.  Therefore, when it can't be used,
+> > there's no need for
+>
+> Some hardware reqires MCFG. In addition this is an error, a real
+> error on the vendors part or ours and could indicate there are many
+> other BIOS problems outstanding.
 
-2.6.19 runs fine.
+Ok, I was mistaken then.  However, I see this on several boxes, and the 
+broken BIOSen out in the wild are unlikely to be fixed.  Maybe this 
+should really be a KERN_WARNING instead since it may indicate that some 
+devices will fail to work?
 
-So I just tried using git bisect to track down the problem.  First issue
-that presky cmpxchg() causing a build error.  Ok, so I provide a version
-to get around that.
+> We shouldn't keep quiet about serious errors in tables, we need
+> people to know and be able to take appropriate action (eg new BIOSen,
+> refusing certifications etc).
 
-Next problem:
+Ok.
 
-fs/proc/proc_misc.c: In function `version_read_proc':
-fs/proc/proc_misc.c:256: warning: implicit declaration of function `utsname'
-fs/proc/proc_misc.c:256: error: invalid type argument of `->'
-fs/proc/proc_misc.c:256: error: invalid type argument of `->'
-make[3]: *** [fs/proc/proc_misc.o] Error 1
-make[2]: *** [fs/proc] Error 2
-make[1]: *** [fs] Error 2
-make: *** [uImage] Error 2
-
-It seems this breakage seems to have been introduced some 260-odd commits
-prior to the point which git bisect wants me to test.
-
-How do I tell git bisect "I can't test this, this is neither good nor bad,
-please choose another to try" ?  Or is git bisect hopeless given the large
-amount of unbuildable commits thanks to our weekly merges?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Jesse

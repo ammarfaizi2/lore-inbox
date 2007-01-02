@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932702AbXABRyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964868AbXABSED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbXABRyA (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 12:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932888AbXABRyA
+	id S964868AbXABSED (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 13:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932903AbXABSED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 12:54:00 -0500
-Received: from nz-out-0506.google.com ([64.233.162.237]:14220 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932702AbXABRx7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 12:53:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=uuyzi8VJLxPBcYS7laNo9Q/tZry+dW2BADMbeN73cm4CKE2alTB8Eh0OQu/ztBEpN3veum5OqYbwGl9kD3AdArvyLLllgrG/Od/SKvnuKDr6nNhNRyYYDbP68LwZpDVMQg/djEFfcB40MEMPFBrNh5DG3D3N09vq8HP+96K6sbU=
-Message-ID: <459A9C30.20204@gmail.com>
-Date: Wed, 03 Jan 2007 02:53:52 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Tue, 2 Jan 2007 13:04:03 -0500
+Received: from thunk.org ([69.25.196.29]:57527 "EHLO thunker.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932888AbXABSEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 13:04:01 -0500
+Date: Tue, 2 Jan 2007 13:03:54 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Print sysrq-m messages with KERN_INFO priority
+Message-ID: <20070102180354.GA892@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Alan <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <E1H0Uq5-0003Fo-1W@candygram.thunk.org> <20061229204247.be66c972.akpm@osdl.org> <20070102043743.GB15718@thunk.org> <20070102103332.46de83bd@localhost.localdomain>
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: Jens Axboe <jens.axboe@oracle.com>, Rene Herman <rene.herman@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.20-rc2+: CFQ halving disk throughput.
-References: <45893CAD.9050909@gmail.com> <45921E73.1080601@gmail.com> <4592B25A.4040906@gmail.com> <45932AF1.9040900@gmail.com> <45998F62.6010904@gmail.com> <4599992D.8000607@rtr.ca> <20070102083414.GQ2483@kernel.dk> <459A73CB.8010901@rtr.ca> <459A8E17.80601@gmail.com> <459A97EC.8090903@rtr.ca>
-In-Reply-To: <459A97EC.8090903@rtr.ca>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070102103332.46de83bd@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Tejun Heo wrote:
->>
->> OT but care to make -i and -I work equivalently?  Such that -i reports
->> more detailed info and user can dump stored id block.
+On Tue, Jan 02, 2007 at 10:33:32AM +0000, Alan wrote:
+> On Mon, 1 Jan 2007 23:37:43 -0500
+> Theodore Tso <tytso@mit.edu> wrote:
+> > > Is this patch a consistency thing?
+> > 
+> > The goal of the patch was to avoid filling /var/log/messages huge
+> > amounts of sysrq text.  Some of the sysrq commands, especially sysrq-m
+> > and sysrq-t emit a truly vast amount of information, and it's not
+> > really nice to have that filling up /var/log/messages.  
 > 
-> hdparm -I works just fine now.
+> I find it extremely useful that it ends up in /var/log/messages so that I
+> can review the dump later. Often the first glance through a set of dumps
+> on things like a process deadlock don't reveal the right information and
+> you need to go back and look again.
 
-No objection there.
+Maybe it's something that should be configurable?
 
-> hdparm -i requires the HDIO_GET_IDENTITY ioctl() from drivers/ide,
-> to retrieve the "boot time" copy of the identify block, before any
-> mods are made by the driver.  But in recent years, drivers/ide has
-> broken it, in that it tries to maintain the "boot time" copy in sync
-> with the on-drive copy.  Kinda makes -i pointless.
-> 
-> Is there a way to retrieve the libata cached copy of the ID block?
-> How?
+Usually I end up configuring a separate line in /etc/syslog.conf so
+that it gets logged to a file --- but not one which is subject to the
+same retention period as /var/log/messages.  The reason why this
+becomes an issue for me is that unfortunately, there is some
+information displayed by alt-sysrq-m that can't be found any other way
+--- it's not available in /proc/slabinfo, /proc/meminfo, etc.  So I
+have a script which I use when I'm trying to debug obscure customer
+problems which does an "echo m > /proc/sysrq-trigger" every 15
+minutes, so I can gather information that might help point towards the
+problem. 
 
-Just implemented and posted patch for HDIO_GET_IDENTITY in an attempt to
-access ATAPI IDENTIFY block using hdparm.
+Granted, most of the time the additional information shown by sysrq-m
+isn't necessary, but I usually get called in after the other Level 3
+support folks haven't been able to solve the problem, so like the
+Richard Feymenn story, it's a tool that everyone else doesn't have in
+their toolbox, so it often solves problems that others haven't been
+able to figure out.
 
->> Support for IDENTIFY PACKET DEVICE would be nice too.
-> 
-> It already does that, using HDIO_DRIVE_CMD to retrieve it
-> in the same way as for regular IDENTIFY DEVICE commands.
+So maybe the right solution is either to make the priority level
+configurable, or perhaps better, making the sysrq-m information
+available via either /proc or /sys?
 
-Hmmm... My hdparm doesn't seem to do that.
-
-# hdparm -V
-hdparm v6.9
-# hdparm -I /dev/sr0
-
-/dev/sr0:
- HDIO_DRIVE_CMD(identify) failed: Input/output error
-
-Am I missing something?
-
-> In hdparm-7.0, I'll have it use ATA passthrough when possible
-> for most/all commands.
-
-Glad to hear.
-
-Happy new year.
-
--- 
-tejun
+						- Ted

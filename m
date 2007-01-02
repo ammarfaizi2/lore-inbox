@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964971AbXABVEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964977AbXABVHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbXABVEa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbXABVEa
+	id S964977AbXABVHU (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbXABVHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:04:30 -0500
-Received: from smtp.ocgnet.org ([64.20.243.3]:49636 "EHLO smtp.ocgnet.org"
+	Tue, 2 Jan 2007 16:07:20 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60558 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964971AbXABVE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:04:29 -0500
-Date: Wed, 3 Jan 2007 06:03:22 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH] Sanely size hash tables when using large base pages. take 2.
-Message-ID: <20070102210322.GA20697@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	id S964977AbXABVHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:07:18 -0500
+Date: Tue, 2 Jan 2007 13:07:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Amit Choudhary <amit2030@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.20-rc2] fs/jffs2/scan.c: Fix error-path leak
+Message-Id: <20070102130709.0cd13b14.akpm@osdl.org>
+In-Reply-To: <20061229033202.5f008efc.amit2030@gmail.com>
+References: <20061229033202.5f008efc.amit2030@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resubmission of the earlier patch with the pidhash bits
-dropped.
+On Fri, 29 Dec 2006 03:32:02 -0800
+Amit Choudhary <amit2030@gmail.com> wrote:
 
-At the moment the inode/dentry cache hash tables (common by way of
-alloc_large_system_hash()) are incorrectly sized by their respective
-detection logic when we attempt to use large base pages on systems
-with little memory.
+> Description: Fix error-path leak in function jffs2_scan_medium(), in file fs/jffs2/scan.c
+> 
+> Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+> 
+> diff --git a/fs/jffs2/scan.c b/fs/jffs2/scan.c
+> index e241346..cd9ed6e 100644
+> --- a/fs/jffs2/scan.c
+> +++ b/fs/jffs2/scan.c
+> @@ -130,6 +130,8 @@ #endif
+>  	if (jffs2_sum_active()) {
+>  		s = kmalloc(sizeof(struct jffs2_summary), GFP_KERNEL);
+>  		if (!s) {
+> +			free(flashbuf);
+> +			flashbuf = NULL;
+>  			JFFS2_WARNING("Can't allocate memory for summary\n");
+>  			return -ENOMEM;
+>  		}
 
-This results in odd behaviour when using a 64kB PAGE_SIZE, such as:
+err, no.
 
-Dentry cache hash table entries: 8192 (order: -1, 32768 bytes)
-Inode-cache hash table entries: 4096 (order: -2, 16384 bytes)
+I merged the below, thanks.
 
-The mount cache hash table is seemingly the only one that gets this right
-by directly taking PAGE_SIZE in to account.
+--- a/fs/jffs2/scan.c~fs-jffs2-scanc-fix-error-path-leak
++++ a/fs/jffs2/scan.c
+@@ -130,6 +130,7 @@ int jffs2_scan_medium(struct jffs2_sb_in
+ 	if (jffs2_sum_active()) {
+ 		s = kzalloc(sizeof(struct jffs2_summary), GFP_KERNEL);
+ 		if (!s) {
++			kfree(flashbuf);
+ 			JFFS2_WARNING("Can't allocate memory for summary\n");
+ 			return -ENOMEM;
+ 		}
+_
 
-The following patch attempts to catch the bogus values and round it up to
-at least 0-order.
-
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-
---
-
- mm/page_alloc.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8c1a116..4a9a83f 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3321,6 +3321,10 @@ void *__init alloc_large_system_hash(con
- 			numentries >>= (scale - PAGE_SHIFT);
- 		else
- 			numentries <<= (PAGE_SHIFT - scale);
-+
-+		/* Make sure we've got at least a 0-order allocation.. */
-+		if (unlikely((numentries * bucketsize) < PAGE_SIZE))
-+			numentries = PAGE_SIZE / bucketsize;
- 	}
- 	numentries = roundup_pow_of_two(numentries);
- 

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753677AbXABTo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754923AbXABTqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753677AbXABTo0 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754923AbXABToZ
+	id S1754923AbXABTqT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 14:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754935AbXABTqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:44:25 -0500
-Received: from wx-out-0506.google.com ([66.249.82.225]:15586 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753677AbXABToZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 14:44:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=l0jOVXKZHQzToTSGmNS3E7+GfEJiaQHxZKoB5gMwQPQSohxMV81arJ7s8MZFse8nQeB4vO1QspUbcV+LF1A3jnR81qJTIFqVNeVRblBhNkd/x7CgyS+by88bbMyOyLaOL3oEGJvfhVr/bAYeWUNIxwLnU8YRxvS4Vzsni0wyhe0=
-Message-ID: <20f65d530701021144p2df613dbvd5fe654ffcd09f91@mail.gmail.com>
-Date: Wed, 3 Jan 2007 08:44:24 +1300
-From: "Keith Chew" <keith.chew@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Performance bttv versus sharedmem
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 2 Jan 2007 14:46:19 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:43018 "EHLO e1.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754923AbXABTqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 14:46:17 -0500
+Subject: Re: [RFC] HZ free ntp
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200701011727.46944.zippel@linux-m68k.org>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	 <Pine.LNX.4.64.0612132125450.1867@scrub.home>
+	 <1166578357.5594.3.camel@localhost>
+	 <200701011727.46944.zippel@linux-m68k.org>
+Content-Type: text/plain
+Date: Tue, 02 Jan 2007 11:42:12 -0800
+Message-Id: <1167766932.3141.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, 2007-01-01 at 17:27 +0100, Roman Zippel wrote:
+> On Wednesday 20 December 2006 02:32, john stultz wrote:
+> 
+> > > I know and all you have to change in the ntp and some related code is to
+> > > replace HZ there with a variable, thus make it changable, so you can
+> > > increase the update interval (i.e. it becomes 1s/hz instead of 1s/HZ).
+> >
+> > Untested patch below. Does this vibe better with you are suggesting?
+> 
+> Yes, thanks.
+> tick_nsec doesn't require special treatment, in the middle term it's obsolete
+> anyway, it could be replaced with (current_tick_length() >>
+> TICK_LENGTH_SHIFT) and current_tick_length() being inlined.
 
-This is just a general question to understand where the improvement
-can be made.
+If NTP_INTERVAL_FREQ is different then HZ, then tick_nsec still has a
+different meaning then (current_tick_length() >> TICK_LENGTH_SHIFT).
+So since tick_nsec is still used in quite a few places, so I'm hesitant
+to pull it.
 
-In the first setup, I have these processes:
-- mencoder recording from bttv chip at 8 fps (cpu 3.5 %)
-- mplayer playing from bttv chip at 10 fps (cpu 2.1 %)
+> NTP_INTERVAL_FREQ could be a real variable (so it can be initialized at
+> runtime), it's already gone from all important paths.
 
-In the second setup, I have these processes:
-- mencoder recording from bttv to shared mem at 25 fps (cpu 1.7%)
-- mencoder recording from shared mem at 8 fps (cpu 6.1%)
-- mplayer playing from shared mem at 10 fps (cpu 3.1 %)
+Wait, so you're suggesting NTP_INTERVAL_FREQ be a dynamic variable
+instead of a constant? Curious, could you give a bit more detail on why?
 
-For the shared mem setup, the access to the memory is efficient, only
-a memcopy to a buffer. Are the CPU usages inline with what you'd
-expect, that the shared mem being almost 2 times the CPU usage? How
-can I reduce the CPU usage in the shared mem setup?
+> In the short term I'd prefered a clock would store its frequency instead of
+> using NTP_INTERVAL_LENGTH in clocksource_calculate_interval(), so it doesn't
+> has to be derived there.
 
-Regards
-Keith
+I don't follow this at all. clocksources do store their own frequency
+(via mult/shift). Could you explain?
+
+thanks
+-john
+

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932970AbXABHve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755284AbXABIOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932970AbXABHve (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 02:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932965AbXABHve
+	id S1755284AbXABIOJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 03:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbXABIOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 02:51:34 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:36925
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932947AbXABHvd (ORCPT
+	Tue, 2 Jan 2007 03:14:09 -0500
+Received: from smtp.nokia.com ([131.228.20.171]:58859 "EHLO
+	mgw-ext12.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755284AbXABIOI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 02:51:33 -0500
-Date: Mon, 01 Jan 2007 23:51:32 -0800 (PST)
-Message-Id: <20070101.235132.85409619.davem@davemloft.net>
-To: m.kozlowski@tuxland.pl
-Cc: hadi@cyberus.ca, netdev@vger.kernel.org, jeff@garzik.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: ifb error path loop fix
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200701020055.51805.m.kozlowski@tuxland.pl>
-References: <200701020055.51805.m.kozlowski@tuxland.pl>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 2 Jan 2007 03:14:08 -0500
+Subject: Re: [PATCH] NAND: nandsim bad block injection
+From: Artem Bityutskiy <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Vijay Kumar <vijaykumar@bravegnu.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17815.54197.666735.904351@vaishnavi.localdomain>
+References: <17810.36897.44930.853654@vaishnavi.localdomain>
+	 <1167301341.4217.30.camel@sauron>
+	 <17815.54197.666735.904351@vaishnavi.localdomain>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 02 Jan 2007 10:13:37 +0200
+Message-Id: <1167725617.20245.8.camel@sauron>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 02 Jan 2007 08:13:38.0319 (UTC) FILETIME=[E7FE91F0:01C72E45]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Date: Tue, 2 Jan 2007 00:55:51 +0100
-
-> On error we should start freeing resources at [i-1] not [i-2].
+On Sun, 2006-12-31 at 20:43 +0530, Vijay Kumar wrote:
+> Artem Bityutskiy writes:
+>  > 1. Suppose we decided to emulate an erase failure for a certain
+>  > eraseblock. Then the MTD user re-tries the operation and succeeds.
+>  > Shouldn't we start always returning erase errors for this eraseblock
+>  > instead?
 > 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> You are right. We should be mantaining the bad block state within the
+> simulator. I will update the code accordingly.
 
-Patch applied, thanks Mariusz.
+Well, may be it is also useful to sporadically emulate errors which go
+away after re-try.
 
-> diff -upr linux-2.6.20-rc2-mm1-a/drivers/net/ifb.c linux-2.6.20-rc2-mm1-b/drivers/net/ifb.c
-> --- linux-2.6.20-rc2-mm1-a/drivers/net/ifb.c	2006-12-24 05:00:32.000000000 +0100
-> +++ linux-2.6.20-rc2-mm1-b/drivers/net/ifb.c	2007-01-02 00:25:34.000000000 +0100
-> @@ -271,8 +271,7 @@ static int __init ifb_init_module(void)
->  	for (i = 0; i < numifbs && !err; i++)
->  		err = ifb_init_one(i);
->  	if (err) {
-> -		i--;
-> -		while (--i >= 0)
-> +		while (i--)
->  			ifb_free_one(i);
->  	}
+>  > 2. In case of I/O errors, the correct MTD user should mark the bogus
+>  > eraseblock bad. So, after some time we end up with most of our
+>  > eraseblocks marked bad which is not very nice.
+>  > 
+>  > How would you comment this?
+> 
+> We can have an upper limit on the no. of blocks that can turn bad. It
+> can be provided as a module parameter.
 
-One could argue from a defensive programming perspective that
-this bug comes from the fact that the ifb_init_one() loop
-advances state before checking for errors ('i' is advanced before
-the 'err' check due to the loop construct), and that's why the
-error recovery code had to be coded specially :-)
+Yeah.
 
-Anyways, your fix is of course fine and I've applied it.
+Also, one more nice feature would be to emulate bit-flips from time to
+time. Just change one bit and let NAND level to fix it using ECC. This
+would be good for testing both NAND layer and applications (MTD returns
+-EUCLEAN in case of a bit flip, and applications should not panic in
+this case - because the bit-flip was corrected). That's just an idea.
+
+-- 
+Best regards,
+Artem Bityutskiy (Битюцкий Артём)
+

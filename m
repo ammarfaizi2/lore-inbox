@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754777AbXABAzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932512AbXABBVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754777AbXABAzK (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 19:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754792AbXABAzK
+	id S932512AbXABBVk (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 20:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbXABBVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 19:55:10 -0500
-Received: from xenotime.net ([66.160.160.81]:34917 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1754777AbXABAzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 19:55:09 -0500
-Date: Mon, 1 Jan 2007 16:41:47 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-Cc: tali@admingilde.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DocBook/HTML: Generate chapter/section level TOCs for
- functions
-Message-Id: <20070101164147.3a6da015.rdunlap@xenotime.net>
-In-Reply-To: <200612310227.47721.pisa@cmp.felk.cvut.cz>
-References: <200612310227.47721.pisa@cmp.felk.cvut.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Jan 2007 20:21:40 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:37565 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932512AbXABBVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 20:21:40 -0500
+Message-ID: <4599B38E.6020706@zytor.com>
+Date: Mon, 01 Jan 2007 17:21:18 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Bob Copeland <me@bobcopeland.com>, Dave Jones <davej@redhat.com>,
+       "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: my handy-dandy, "coding style" script
+References: <Pine.LNX.4.64.0612191044170.7588@localhost.localdomain>  <20061219164146.GI25461@redhat.com> <b6c5339f0612190942l5a3ea48ft3315ab991ffd4f32@mail.gmail.com> <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0612192125460.20733@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2006 02:27:46 +0100 Pavel Pisa wrote:
-
-> Simple increase of section TOC level generation significantly
-> enhances navigation experience through generated kernel
-> API documentation.
+Jan Engelhardt wrote:
+>>>>  just for fun, i threw the following together to peruse the tree (or
+>>>> any subdirectory) and look for stuff that violates the CodingStyle
+>>>> guide.  clearly, it's far from complete and very ad hoc, but it's
+>>>> amusing.  extra searches happily accepted.
+>>> I had a bunch of similar greps that I've recently been half-assedly
+>>> putting together into a single script too.
+>>> See http://www.codemonkey.org.uk/projects/findbugs/
+>> I don't know if anyone cares about them anymore, since I think gcc
+>> grew some smarts in the area recently, but there are a lot of lines of
+>> code matching "static int.*= *0;" and equivalents in the driver tree.
 > 
-> This change restores back state from SGML tools time.
+> I'd really like to see the C compiler being enhanced to detect
+> "stupid casts", i.e. those, which when removed, do not change (a) the outcome
+> (b) the compiler warnings/error output.
 > 
-> Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-> 
-> Index: linux-2.6.19/Documentation/DocBook/stylesheet.xsl
-> ===================================================================
-> --- linux-2.6.19.orig/Documentation/DocBook/stylesheet.xsl
-> +++ linux-2.6.19/Documentation/DocBook/stylesheet.xsl
-> @@ -4,4 +4,5 @@
->  <param name="funcsynopsis.style">ansi</param>
->  <param name="funcsynopsis.tabular.threshold">80</param>
->  <!-- <param name="paper.type">A4</param> -->
-> +<param name="generate.section.toc.level">2</param>
->  </stylesheet>
 
-Hi,
-Is it possible to make the TOC contain active links to their
-sections/functions?  That would be even better, wouldn't it?
+If you made it issue warnings for that, then it's going to be ever more 
+painful to write generic macros.
 
----
-~Randy
+	-hpa

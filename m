@@ -1,65 +1,114 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755316AbXABPiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755320AbXABPjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755316AbXABPiw (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 10:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755317AbXABPiw
+	id S1755320AbXABPjI (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 10:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755323AbXABPjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 10:38:52 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:39016 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755316AbXABPiv (ORCPT
+	Tue, 2 Jan 2007 10:39:07 -0500
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:42850 "EHLO
+	smtp-out4.blueyonder.co.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755320AbXABPjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 10:38:51 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: error handling in sysfs, fill_read_buffer()
-Date: Tue, 2 Jan 2007 16:38:49 +0100
-User-Agent: KMail/1.8
-Cc: Oliver Neukum <oliver@neukum.name>, gregkh@suse.de, maneesh@in.ibm.com,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0701021024110.4122-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0701021024110.4122-100000@iolanthe.rowland.org>
+	Tue, 2 Jan 2007 10:39:04 -0500
+Message-ID: <459A7C94.6030805@blueyonder.co.uk>
+Date: Tue, 02 Jan 2007 15:39:00 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jarek Poplawski <jarkao2@o2.pl>
+CC: linux-kernel@vger.kernel.org, Matti Aarnio <postmaster@vger.kernel.org>,
+       g3vbv@blueyonder.co.uk
+Subject: Re: 2.6.19 and up to  2.6.20-rc2 Ethernet problems x86_64
+References: <20061229063254.GA1628@ff.dom.local> <4595CD1B.2020102@blueyonder.co.uk> <20070102115050.GA3449@ff.dom.local>
+In-Reply-To: <20070102115050.GA3449@ff.dom.local>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701021638.49726.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 2. Januar 2007 16:26 schrieb Alan Stern:
-> On Tue, 2 Jan 2007, Oliver Neukum wrote:
+Jarek Poplawski wrote:
+> On Sat, Dec 30, 2006 at 02:21:15AM +0000, Sid Boyce wrote:
+>> Jarek Poplawski wrote:
+>>> On 28-12-2006 04:23, Sid Boyce wrote:
+>>>> I first saw the problem on the 64x2 box after upgrading to 2.6.19. The
+>>>> network appeared OK with ifconfig and route -n, but I had no network
+>>>> access. Pinging any other box, the box was responding, but no response
+>>> ...
+>>>> barrabas:/usr/src/linux-2.6.20-rc1-git5 # ssh Boycie ifconfig
+>>>> Password:
+>>>> eth0      Link encap:Ethernet  HWaddr 00:0A:E4:4E:A1:42
+>>>>          inet addr:192.168.10.5  Bcast:255.255.255.255  
+>>>>          Mask:255.255.255.0
+>>> This Bcast isn't probably what you need.
+>>>
+>>> Regards,
+>>> Jarek P.
+>>>
+>>>
+>> Corrected on the one box where it was not correct, problem is still there.
 > 
-> > Hi,
-> > 
-> > if a driver returns an error in fill_read_buffer(), the buffer will be
-> > marked as filled. Subsequent reads will return eof. But there is
-> > no data because of an error, not because it has been read.
-> > Not marking the buffer filled is the obvious fix.
-> > 
-> > 	Regards
-> > 		Oliver
-> > 
-> > Signed-off-by: Oliver Neukum <oliver@neukum.name>
-> > --
-> > 
-> > --- a/fs/sysfs/file.c	2006-12-24 05:00:32.000000000 +0100
-> > +++ b/fs/sysfs/file.c	2007-01-01 15:03:14.000000000 +0100
-> > @@ -70,7 +70,8 @@
-> >   *	Allocate @buffer->page, if it hasn't been already, then call the
-> >   *	kobject's show() method to fill the buffer with this attribute's 
-> >   *	data. 
-> > - *	This is called only once, on the file's first read. 
-> > + *	This is called only once, on the file's first read unless an error
-> > + *	is returned.
-> >   */
+> There are many things to suspect yet:
+> - firewall,
+> - switch,
+> - routing,
+> - ifconfig,
+> - other misonfigured box,
+> - connecting
+> and so on.
 > 
-> I don't think this matches what people expect of sysfs.  If a show method 
-> fails then the assumption is that the file cannot be read at all, so 
-> there's no point in trying to call the method again.
+> I think you should try with some linux networking group
+> at first and if you really think it's driver then
+> netdev@vger.kernel.org (instead of linux-kernel@).
+> 
+> If you could send full ifconfig, route -n (or ip route
+> if you use additional tables) and tcpdump (all packets)
+> from both boxes while pinging each other and a few words
+> how it is connected (other cards, other active boxes in
+> the network?) maybe something more could be found.
+> 
+> Cheers,
+> Jarek P. 
+> 
+> PS: Sorry for late responding.
+> 
+> 
+I have a problem with posting to linux-kernel and netdev, my mail got 
+returned as SPAM, now it just gets dropped. postmaster says the filter 
+is seeing a sub-string of something that is filtered. I shall try 
+posting under another email address.
 
-This would make handling ENOMEM very hard.
+Everything is fine with a eepro100 on the 64x2 box that gave the same 
+problem with a nVidia Corporation MCP51 Ethernet Controller (rev a1) 
+using the forcedeth module. On the x86_64 laptop the problem is with a 
+Broadcom NetXtreme BCM5788 using the tg3 module. Switching back to a 
+2.6.18.2 kernel, there is no problem.
+With all configurations of cards on both, route -n is the same on all 
+kernels and instantly reports back. With >=2.6.19 on the laptop, netstat 
+-r takes a very long time before returning the information ~30 seconds, 
+instantly on 2.6.18.2.
+Boycie:~ # netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt 
+Iface
+192.168.10.0    *               255.255.255.0   U         0 0          0 
+eth0
+loopback        *               255.0.0.0       U         0 0          0 lo
+default         Smoothie.site   0.0.0.0         UG        0 0          0 
+eth0
+Boycie:~ # route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use 
+Iface
+192.168.10.0    0.0.0.0         255.255.255.0   U     0      0        0 eth0
+127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
+0.0.0.0         192.168.10.102  0.0.0.0         UG    0      0        0 eth0
 
-	Regards
-		Oliver
+
+-- 
+Sid Boyce ... Hamradio License G3VBV, Licensed Private Pilot
+Emeritus IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
+Specialist, Cricket Coach
+Microsoft Windows Free Zone - Linux used for all Computing Tasks
+

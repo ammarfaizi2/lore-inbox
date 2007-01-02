@@ -1,39 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754841AbXABNun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755216AbXABNu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754841AbXABNun (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 08:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754845AbXABNun
+	id S1755216AbXABNu7 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 08:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754849AbXABNu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 08:50:43 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57586 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754841AbXABNun (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 08:50:43 -0500
-Date: Tue, 2 Jan 2007 14:00:43 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] libata: fix combined mode (was Re: Happy New Year (and
- v2.6.20-rc3 released))
-Message-ID: <20070102140043.29a59840@localhost.localdomain>
-In-Reply-To: <5a4c581d0701020407w7c0c768bk7ce3ab2d2d7f19f5@mail.gmail.com>
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
-	<5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com>
-	<Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>
-	<459973F6.2090201@pobox.com>
-	<20070102115834.1e7644b2@localhost.localdomain>
-	<5a4c581d0701020407w7c0c768bk7ce3ab2d2d7f19f5@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Jan 2007 08:50:58 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:16858 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754844AbXABNu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 08:50:57 -0500
+Date: Tue, 2 Jan 2007 14:50:53 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Jeremy Higdon <jeremy@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] cdrom: longer timeout for "Read Track Info" command
+Message-ID: <20070102135052.GA2483@kernel.dk>
+References: <20070102023623.GA3108@sgi.com> <20070102102829.4117b230@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070102102829.4117b230@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Appears to work just fine here (compiles, boots and I'm
->  typing this email :).  The build warnings below seem new
->  to me - but I guess they're harmless...
+On Tue, Jan 02 2007, Alan wrote:
+> On Mon, 1 Jan 2007 18:36:24 -0800
+> Jeremy Higdon <jeremy@sgi.com> wrote:
+> 
+> > I have a DVD combo drive and a CD in which the
+> > "READ TRACK INFORMATION" command (implemented in the
+> > cdrom_get_track_info() function) takes about 7 seconds to run.
+> > The current implementation of cdrom_get_track_info() uses the
+> > default timeout of 5 seconds.  So here's a patch that increases
+> > the timeout from 5 to 15 seconds.
+> > 
+> > The drive in question is a TSSTcorpCD/DVDW SN-S082D, and I have
+> > a Silicon Image 680A adapter, in case that's of interest.
+> > 
+> > signed-off-by: <jeremy@sgi.com>
+> 
+> Please test with a seven second timeout rather than fifteen which is way
+> longer than anyone wants to wait. Seven is the magic value used by
+> another major vendor so ought to be right for all hardware 8)
 
-They are harmless. For the 2.6.21 code base they will go away as well.
+Yep, I suspect this patch is long overdue. Jeremy, is this enough to fix
+it for you?
+
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index 66d028d..3105ddd 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -337,6 +337,12 @@ static const char *mrw_address_space[] = { "DMA", "GAA" };
+ /* used in the audio ioctls */
+ #define CHECKAUDIO if ((ret=check_for_audio_disc(cdi, cdo))) return ret
+ 
++/*
++ * Another popular OS uses 7 seconds as the hard timeout for default
++ * commands, so it is a good choice for us as well.
++ */
++#define CDROM_DEF_TIMEOUT	(7 * HZ)
++
+ /* Not-exported routines. */
+ static int open_for_data(struct cdrom_device_info * cdi);
+ static int check_for_audio_disc(struct cdrom_device_info * cdi,
+@@ -1528,7 +1534,7 @@ void init_cdrom_command(struct packet_command *cgc, void *buf, int len,
+ 	cgc->buffer = (char *) buf;
+ 	cgc->buflen = len;
+ 	cgc->data_direction = type;
+-	cgc->timeout = 5*HZ;
++	cgc->timeout = CDROM_DEF_TIMEOUT;
+ }
+ 
+ /* DVD handling */
+
+-- 
+Jens Axboe
+

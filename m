@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964964AbXABTgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964956AbXABTfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbXABTgG (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbXABTgF
+	id S964956AbXABTfQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 14:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbXABTfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:36:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:45748 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964964AbXABTgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 14:36:02 -0500
-Subject: Re: tty->low_latency + irq context
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Reply-To: Hollis Blanchard <hollisb@us.ibm.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       p.hardwick@option.com
-In-Reply-To: <20070102183829.10d861fc@localhost.localdomain>
-References: <45906820.10805@gmail.com> <1167758231.5616.22.camel@basalt>
-	 <20070102183829.10d861fc@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Tue, 02 Jan 2007 13:36:01 -0600
-Message-Id: <1167766562.5616.29.camel@basalt>
+	Tue, 2 Jan 2007 14:35:15 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4761 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964955AbXABTfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 14:35:13 -0500
+Date: Tue, 2 Jan 2007 19:15:05 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: bhalevy@panasas.com, arjan@infradead.org, mikulas@artax.karlin.mff.cuni.cz,
+       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+Message-ID: <20070102191504.GA5276@ucw.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz> <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu> <20061221185850.GA16807@delft.aura.cs.cmu.edu> <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz> <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org> <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 18:38 +0000, Alan wrote:
-> > with tty->low_latency set, but it doesn't AFAICS. One possibility
-> for
-> > deadlock is if the tty->buf.lock spinlock is taken on behalf of a
-> user
-> > process...
-> 
-> The case to watch out for is
-> 
->         flip_buffer_push -> ldisc -> driver write of echo/^S/^Q
-> 
-> if you call flip_buffer_push while holding your own lock you may get
-> in a mess on the echo path. 
+Hi!
 
-Agreed. However, that's not what the comment says:
+> > >> It seems like the posix idea of unique <st_dev, st_ino> doesn't
+> > >> hold water for modern file systems 
+> > > 
+> > > are you really sure?
+> > 
+> > Well Jan's example was of Coda that uses 128-bit internal file ids.
+> > 
+> > > and if so, why don't we fix *THAT* instead
+> > 
+> > Hmm, sometimes you can't fix the world, especially if the filesystem
+> > is exported over NFS and has a problem with fitting its file IDs uniquely
+> > into a 64-bit identifier.
+> 
+> Note, it's pretty easy to fit _anything_ into a 64-bit identifier with
+> the use of a good hash function.  The chance of an accidental
+> collision is infinitesimally small.  For a set of 
+> 
+>          100 files: 0.00000000000003%
+>    1,000,000 files: 0.000003%
 
- *      tty_flip_buffer_push    -       terminal
- *      @tty: tty to push
- *
- *      Queue a push of the terminal flip buffers to the line discipline. This
- *      function must not be called from IRQ context if tty->low_latency is set.
+I do not think we want to play with probability like this. I mean...
+imagine 4G files, 1KB each. That's 4TB disk space, not _completely_
+unreasonable, and collision probability is going to be ~100% due to
+birthday paradox.
 
+You'll still want to back up your 4TB server...
+
+							Pavel
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+Thanks for all the (sleeping) penguins.

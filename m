@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964860AbXABMhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964875AbXABMjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbXABMhV (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 07:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbXABMhU
+	id S964875AbXABMjt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 07:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbXABMjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 07:37:20 -0500
-Received: from gate.crashing.org ([63.228.1.57]:45601 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964860AbXABMhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 07:37:19 -0500
-In-Reply-To: <1167713825.6165.54.camel@localhost.localdomain>
-References: <445cb4c27a664491761ce4e219aa0960@kernel.crashing.org> <20070101.005714.35017753.davem@davemloft.net> <1167710760.6165.32.camel@localhost.localdomain> <20070101.203043.112622209.davem@davemloft.net> <1167713825.6165.54.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <69fccc6b0149520efdb3edc478e98304@kernel.crashing.org>
+	Tue, 2 Jan 2007 07:39:49 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:4260 "EHLO
+	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964875AbXABMjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 07:39:48 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: gregkh@suse.de
+Subject: [patch] fs: sysfs kobject_put cleanup
+Date: Tue, 2 Jan 2007 13:41:10 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, devel@laptop.org,
-       David Miller <davem@davemloft.net>, dmk@flex.com, wmb@firmworks.com,
-       hch@infradead.org, jg@laptop.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Date: Tue, 2 Jan 2007 13:36:19 +0100
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+Message-Id: <200701021341.11109.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Simple system tools should not need to interpret binary data in
->> order to provide access to simple structured data like this, that's
->> just stupid.
->
-> I would agree with you if the data was properly typed in the first 
-> place
-> but it's not,
+Hello,
 
-OF device tree properties are "properly typed" just fine -- it's
-just that only the intended consumers of the data know what to
-expect, you certainly can't derive the data structures from just
-looking at the data in one instance of a property.
+	This patch removes redundant argument checks for kobject_put().
 
-Put another way, if you know what you are looking for in the
-device tree, you can decode a property just fine -- if you're
-given a random property on the other hand, you can never get
-any better than the generic property structure of "array of bytes".
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+
+ fs/sysfs/bin.c  |    5 ++---
+ fs/sysfs/file.c |    5 ++---
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff -upr linux-2.6.20-rc2-mm1-a/fs/sysfs/bin.c linux-2.6.20-rc2-mm1-b/fs/sysfs/bin.c
+--- linux-2.6.20-rc2-mm1-a/fs/sysfs/bin.c	2006-12-24 05:00:32.000000000 +0100
++++ linux-2.6.20-rc2-mm1-b/fs/sysfs/bin.c	2007-01-02 02:34:32.000000000 +0100
+@@ -146,7 +146,7 @@ static int open(struct inode * inode, st
+  Error:
+ 	module_put(attr->attr.owner);
+  Done:
+-	if (error && kobj)
++	if (error)
+ 		kobject_put(kobj);
+ 	return error;
+ }
+@@ -157,8 +157,7 @@ static int release(struct inode * inode,
+ 	struct bin_attribute * attr = to_bin_attr(file->f_path.dentry);
+ 	u8 * buffer = file->private_data;
+ 
+-	if (kobj) 
+-		kobject_put(kobj);
++	kobject_put(kobj);
+ 	module_put(attr->attr.owner);
+ 	kfree(buffer);
+ 	return 0;
+diff -upr linux-2.6.20-rc2-mm1-a/fs/sysfs/file.c linux-2.6.20-rc2-mm1-b/fs/sysfs/file.c
+--- linux-2.6.20-rc2-mm1-a/fs/sysfs/file.c	2006-12-28 12:57:48.000000000 +0100
++++ linux-2.6.20-rc2-mm1-b/fs/sysfs/file.c	2007-01-02 02:34:03.000000000 +0100
+@@ -375,7 +375,7 @@ static int sysfs_open_file(struct inode 
+ 	error = -EACCES;
+ 	module_put(attr->owner);
+  Done:
+-	if (error && kobj)
++	if (error)
+ 		kobject_put(kobj);
+ 	return error;
+ }
+@@ -389,8 +389,7 @@ static int sysfs_release(struct inode * 
+ 
+ 	if (buffer)
+ 		remove_from_collection(buffer, inode);
+-	if (kobj) 
+-		kobject_put(kobj);
++	kobject_put(kobj);
+ 	/* After this point, attr should not be accessed. */
+ 	module_put(owner);
+ 
 
 
-Segher
+-- 
+Regards,
 
+	Mariusz Kozlowski

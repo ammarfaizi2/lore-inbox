@@ -1,80 +1,186 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753823AbXABX4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753813AbXABX5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753823AbXABX4N (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753846AbXABX4N
+	id S1753813AbXABX5g (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753846AbXABX5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:56:13 -0500
-Received: from tetsuo.zabbo.net ([207.173.201.20]:33573 "EHLO tetsuo.zabbo.net"
+	Tue, 2 Jan 2007 18:57:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59794 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753823AbXABX4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:56:12 -0500
-In-Reply-To: <20061227153855.GA25898@in.ibm.com>
-References: <20061227153855.GA25898@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <5A322D46-A73A-43DD-8667-CE218DDA48B0@oracle.com>
-Cc: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com, mingo@elte.hu
-Content-Transfer-Encoding: 7bit
-From: Zach Brown <zach.brown@oracle.com>
-Subject: Re: [RFC] Heads up on a series of AIO patchsets
-Date: Tue, 2 Jan 2007 15:56:09 -0800
-To: suparna@in.ibm.com
-X-Mailer: Apple Mail (2.752.3)
+	id S1753813AbXABX5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:57:35 -0500
+Date: Tue, 2 Jan 2007 18:57:33 -0500
+From: Dave Jones <davej@redhat.com>
+To: mingo@redhat.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: inaccurate migration cost calculation?
+Message-ID: <20070102235733.GG18033@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, mingo@redhat.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the delay, I'm finally back from the holiday break :)
+Across different boots using the same 2.6.19 kernel on a quad-core xeon
+I see huge variance in the migration_cost being reported during boot.
 
-> (1) The filesystem AIO patchset, attempts to address one part of  
-> the problem
->     which is to make regular file IO, (without O_DIRECT)  
-> asynchronous (mainly
->     the case of reads of uncached or partially cached files, and  
-> O_SYNC writes).
+-migration_cost=39,3940
++migration_cost=25,4941
 
-One of the properties of the currently implemented EIOCBRETRY aio  
-path is that ->mm is the only field in current which matches the  
-submitting task_struct while inside the retry path.
+This CPU has a very large cache which could be key here...
+ L1 Instruction cache: 32KB, 8-way associative. 64 byte line size.
+ L1 Data cache: 32KB, 8-way associative. 64 byte line size.
+ L3 unified cache: 4MB, 16-way associative. 64 byte line size.
 
-It looks like a retry-based aio write path would be broken because of  
-this.  generic_write_checks() could run in the aio thread and get its  
-task_struct instead of that of the submitter.  The wrong rlimit will  
-be tested and SIGXFSZ won't be raised.  remove_suid() could check the  
-capabilities of the aio thread instead of those of the submitter.
 
-I don't think EIOCBRETRY is the way to go because of this increased  
-(and subtle!) complexity.  What are the chances that we would have  
-ever found those bugs outside code review?  How do we make sure that  
-current references don't sneak back in after having initially audited  
-the paths?
+Here's the output of migration_debug=1 for another two boots..
 
-Take the io_cmd_epoll_wait patch..
+-> [0][1][  65536]   0.0 [  0.0] (1): (   42507    21253)
+-> [0][1][  72817]   0.0 [  0.0] (1): (   46350    12548)
+-> [0][1][  80907]   0.0 [  0.0] (1): (   58571    12384)
+-> [0][1][  89896]   0.0 [  0.0] (1): (   57738     6608)
+-> [0][1][  99884]   0.0 [  0.0] (1): (   60743     4806)
+-> [0][1][ 110982]   0.0 [  0.0] (1): (   67393     5728)
+-> [0][1][ 123313]   0.0 [  0.0] (1): (   72416     5375)
+-> [0][1][ 137014]   0.0 [  0.0] (1): (   73890     3424)
+-> [0][1][ 152237]   0.0 [  0.0] (1): (   75735     2634)
+-> [0][1][ 169152]   0.0 [  0.0] (1): (   91870     9384)
+-> [0][1][ 187946]   0.0 [  0.0] (1): (   88701     6276)
+-> [0][1][ 208828]   0.1 [  0.1] (1): (  102106     9840)
+-> [0][1][ 232031]   0.1 [  0.1] (1): (  112433    10083)
+-> [0][1][ 257812]   0.1 [  0.1] (1): (  118441     8045)
+-> [0][1][ 286457]   0.1 [  0.1] (1): (  126302     7953)
+-> [0][1][ 318285]   0.1 [  0.1] (1): (  135442     8546)
+-> [0][1][ 353650]   0.1 [  0.1] (1): (  165438    19271)
+-> [0][1][ 392944]   0.1 [  0.1] (1): (  196143    24988)
+-> [0][1][ 436604]   0.1 [  0.1] (1): (  180626    20252)
+-> [0][1][ 485115]   0.2 [  0.2] (1): (  209017    24321)
+-> [0][1][ 539016]   0.2 [  0.2] (1): (  231664    23484)
+-> [0][1][ 598906]   0.2 [  0.2] (1): (  277569    34694)
+-> [0][1][ 665451]   0.2 [  0.2] (1): (  276351    17956)
+-> [0][1][ 739390]   0.3 [  0.3] (1): (  318707    30156)
+-> [0][1][ 821544]   0.3 [  0.3] (1): (  382865    47157)
+-> [0][1][ 912826]   0.3 [  0.3] (1): (  398566    31429)
+-> [0][1][1014251]   0.4 [  0.4] (1): (  441757    37310)
+-> [0][1][1126945]   0.5 [  0.5] (1): (  516100    55826)
+-> [0][1][1252161]   0.5 [  0.5] (1): (  543549    41637)
+-> [0][1][1391290]   0.6 [  0.6] (1): (  603068    50578)
+-> [0][1][1545877]   0.6 [  0.6] (1): (  637083    42296)
+-> [0][1][1717641]   0.8 [  0.8] (1): (  800596   102904)
+-> [0][1][1908490]   0.8 [  0.8] (1): (  856786    79547)
+-> [0][1][2120544]   0.9 [  0.9] (1): (  919895    71328)
+-> [0][1][2356160]   0.9 [  0.9] (1): (  973085    62259)
+-> [0][1][2617955]   1.1 [  1.1] (1): ( 1114043   101608)
+-> [0][1][2908838]   1.2 [  1.2] (1): ( 1219850   103707)
+-> [0][1][3232042]   1.3 [  1.3] (1): ( 1327969   105913)
+-> [0][1][3591157]   1.4 [  1.4] (1): ( 1463296   120620)
+-> [0][1][3990174]   1.6 [  1.6] (1): ( 1630438   143881)
+-> [0][1][4433526]   1.7 [  1.7] (1): ( 1729272   121357)
+-> [0][1][4926140]   1.7 [  1.7] (1): ( 1733278    62681)
+-> [0][1][5473488]   1.9 [  1.9] (1): ( 1958482   143942)
+-> [0][1][6081653]   1.8 [  1.9] (1): ( 1872926   114749)
+-> [0][1][6757392]   1.7 [  1.9] (1): ( 1713013   137331)
+-> [0][1][7508213]   1.3 [  1.9] (1): ( 1392757   228793)
+-> [0][1][8342458]   1.1 [  1.9] (1): ( 1116378   252586)
+-> found max.
+[0][1] working set size found: 5473488, cost: 1958482
+-> [0][2][  65536]   0.0 [  0.0] (0): (    9187     4593)
+-> [0][2][  72817]   0.0 [  0.0] (0): (   13719     4562)
+-> [0][2][  80907]   0.0 [  0.0] (0): (    8008     5136)
+-> [0][2][  89896]   0.0 [  0.0] (0): (    7924     2610)
+-> [0][2][  99884]   0.0 [  0.0] (0): (    2640     3947)
+-> found max.
+[0][2] working set size found: 72817, cost: 13719
+migration: max_cache_size: 0, cpu: 2666 MHz:
+migration_cost=27,3916
+migration: 0 seconds
 
->     issues). The IO_CMD_EPOLL_WAIT patch (originally from Zach  
-> Brown with
->     modifications from Jeff Moyer and me) addresses this problem  
-> for native
->     linux aio in a simple manner.
 
-It's simple looking, sure.  This current flipping didn't even occur  
-to me while throwing the patch together!
 
-But that patch ends up calling ->poll (and poll_table->qproc) and  
-writing to userspace (so potentially calling ->nopage) from the aio  
-threads.  Are we sure that none of them will behave surprisingly  
-because current changed under them?
+-> [0][1][  65536]   0.0 [  0.0] (1): (   36355    18177)
+-> [0][1][  72817]   0.0 [  0.0] (1): (   49107    15464)
+-> [0][1][  80907]   0.0 [  0.0] (1): (   57124    11740)
+-> [0][1][  89896]   0.0 [  0.0] (1): (   57766     6191)
+-> [0][1][  99884]   0.0 [  0.0] (1): (   72324    10374)
+-> [0][1][ 110982]   0.0 [  0.0] (1): (   80125     9087)
+-> [0][1][ 123313]   0.0 [  0.0] (1): (   74042     7585)
+-> [0][1][ 137014]   0.0 [  0.0] (1): (   78227     5885)
+-> [0][1][ 152237]   0.0 [  0.0] (1): (   80157     3907)
+-> [0][1][ 169152]   0.0 [  0.0] (1): (   88881     6315)
+-> [0][1][ 187946]   0.0 [  0.0] (1): (   99344     8389)
+-> [0][1][ 208828]   0.1 [  0.1] (1): (  104998     7021)
+-> [0][1][ 232031]   0.1 [  0.1] (1): (  113660     7841)
+-> [0][1][ 257812]   0.1 [  0.1] (1): (  124690     9435)
+-> [0][1][ 286457]   0.1 [  0.1] (1): (  135835    10290)
+-> [0][1][ 318285]   0.1 [  0.1] (1): (  153135    13795)
+-> [0][1][ 353650]   0.1 [  0.1] (1): (  145024    10953)
+-> [0][1][ 392944]   0.2 [  0.2] (1): (  215998    40963)
+-> [0][1][ 436604]   0.2 [  0.2] (1): (  212086    22437)
+-> [0][1][ 485115]   0.2 [  0.2] (1): (  250632    30491)
+-> [0][1][ 539016]   0.2 [  0.2] (1): (  221014    30054)
+-> [0][1][ 598906]   0.2 [  0.2] (1): (  281687    45363)
+-> [0][1][ 665451]   0.2 [  0.2] (1): (  296981    30328)
+-> [0][1][ 739390]   0.3 [  0.3] (1): (  351999    42673)
+-> [0][1][ 821544]   0.4 [  0.4] (1): (  413272    51973)
+-> [0][1][ 912826]   0.4 [  0.4] (1): (  402094    31575)
+-> [0][1][1014251]   0.4 [  0.4] (1): (  461726    45603)
+-> [0][1][1126945]   0.5 [  0.5] (1): (  504549    44213)
+-> [0][1][1252161]   0.5 [  0.5] (1): (  570889    55276)
+-> [0][1][1391290]   0.6 [  0.6] (1): (  637668    61027)
+-> [0][1][1545877]   0.6 [  0.6] (1): (  660241    41800)
+-> [0][1][1717641]   0.8 [  0.8] (1): (  820951   101255)
+-> [0][1][1908490]   0.8 [  0.8] (1): (  860249    70276)
+-> [0][1][2120544]   0.9 [  0.9] (1): (  947017    78522)
+-> [0][1][2356160]   0.9 [  0.9] (1): (  999742    65623)
+-> [0][1][2617955]   1.1 [  1.1] (1): ( 1152233   109057)
+-> [0][1][2908838]   1.2 [  1.2] (1): ( 1247362   102093)
+-> [0][1][3232042]   1.3 [  1.3] (1): ( 1371438   113084)
+-> [0][1][3591157]   1.5 [  1.5] (1): ( 1518791   130218)
+-> [0][1][3990174]   1.6 [  1.6] (1): ( 1621385   116406)
+-> [0][1][4433526]   1.7 [  1.7] (1): ( 1775523   135272)
+-> [0][1][4926140]   1.7 [  1.7] (1): ( 1784080    71914)
+-> [0][1][5473488]   1.9 [  1.9] (1): ( 1970125   128979)
+-> [0][1][6081653]   1.9 [  1.9] (1): ( 1926772    86166)
+-> [0][1][6757392]   1.7 [  1.9] (1): ( 1722660   145139)
+-> [0][1][7508213]   1.4 [  1.9] (1): ( 1405442   231178)
+-> [0][1][8342458]   1.1 [  1.9] (1): ( 1107804   264408)
+-> found max.
+[0][1] working set size found: 5473488, cost: 1970125
+-> [0][2][  65536]   0.0 [  0.0] (0): (    8829     4414)
+-> [0][2][  72817]   0.0 [  0.0] (0): (    8027     2608)
+-> [0][2][  80907]   0.0 [  0.0] (0): (    7606     1514)
+-> [0][2][  89896]   0.0 [  0.0] (0): (    8161     1034)
+-> [0][2][  99884]   0.0 [  0.0] (0): (    7894      650)
+-> [0][2][ 110982]   0.0 [  0.0] (0): (    8264      510)
+-> [0][2][ 123313]   0.0 [  0.0] (0): (    7581      596)
+-> [0][2][ 137014]   0.0 [  0.0] (0): (    7079      549)
+-> [0][2][ 152237]   0.0 [  0.0] (0): (    7230      350)
+-> [0][2][ 169152]   0.0 [  0.0] (0): (    7699      409)
+-> [0][2][ 187946]   0.0 [  0.0] (0): (    5896     1106)
+-> [0][2][ 208828]   0.0 [  0.0] (0): (    9608     2409)
+-> [0][2][ 232031]   0.0 [  0.0] (0): (   12809     2805)
+-> [0][2][ 257812]   0.0 [  0.0] (0): (    7996     3809)
+-> [0][2][ 286457]   0.0 [  0.0] (0): (   18848     7330)
+-> [0][2][ 318285]   0.0 [  0.0] (0): (    7747     9215)
+-> [0][2][ 353650]   0.0 [  0.0] (0): (   11258     6363)
+-> [0][2][ 392944]   0.0 [  0.0] (0): (   18775     6940)
+-> [0][2][ 436604]   0.0 [  0.0] (0): (   12380     6667)
+-> [0][2][ 485115]   0.0 [  0.0] (0): (   19986     7136)
+-> [0][2][ 539016]   0.0 [  0.0] (0): (   -6102    16612)
+-> [0][2][ 598906]   0.0 [  0.0] (0): (    3783    13248)
+-> [0][2][ 665451]   0.0 [  0.0] (0): (   -3546    10288)
+-> found max.
+[0][2] working set size found: 485115, cost: 19986
+migration: max_cache_size: 0, cpu: 2666 MHz:
+migration_cost=39,3940
+migration: 0 seconds
 
-It might be safe now, but that isn't really the point.  I'd rather we  
-didn't have yet one more subtle invariant to audit and maintain.
 
-At the risk of making myself vulnerable to the charge of mentioning  
-vapourware, I will admit that I've been working on a (slightly mad)  
-implementation of async syscalls.  I've been quiet about it because I  
-don't want to whip up complicated discussion without being able to  
-show code that works, even if barely.  I mention it now only to make  
-it clear that I want to be constructive, not just critical :).
 
-- z
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

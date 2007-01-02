@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965102AbXABXWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752028AbXABXY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbXABXWH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbXABXWG
+	id S1752028AbXABXY1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbXABXY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:22:06 -0500
-Received: from pat.uio.no ([129.240.10.15]:42579 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965129AbXABXWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:22:04 -0500
-Subject: RE: [nfsv4] RE: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Halevy, Benny" <bhalevy@panasas.com>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, nfsv4@ietf.org,
-       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	 <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
-	 <4593DEF8.5020609@panasas.com>
-	 <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-	 <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>
-	 <1167388129.6106.45.camel@lade.trondhjem.org>
-	 <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>
-Content-Type: text/plain
-Date: Wed, 03 Jan 2007 00:21:37 +0100
-Message-Id: <1167780097.6090.104.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-7.6, required=12.0, autolearn=ham, BAYES_00=-2.599,UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: F5E92C552B1C3A374D3491DC5B09E4FD9F575F7F
-X-UiO-SPAM-Test: 83.109.147.16 spam_score -75 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+	Tue, 2 Jan 2007 18:24:27 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2839 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751336AbXABXY1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:24:27 -0500
+Date: Wed, 3 Jan 2007 00:24:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "D. Hazelton" <dhazelton@enter.net>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel + gcc 4.1 = several problems
+Message-ID: <20070102232429.GE20714@stusta.de>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de> <200701022156.48919.s0348365@sms.ed.ac.uk> <200701021706.15020.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701021706.15020.dhazelton@enter.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-31 at 16:25 -0500, Halevy, Benny wrote:
-> Trond Myklebust wrote:
-> >  
-> > On Thu, 2006-12-28 at 15:07 -0500, Halevy, Benny wrote:
-> > > Mikulas Patocka wrote:
-> > 
-> > > >BTW. how does (or how should?) NFS client deal with cache coherency if 
-> > > >filehandles for the same file differ?
+On Tue, Jan 02, 2007 at 05:06:14PM -0500, D. Hazelton wrote:
+> On Tuesday 02 January 2007 16:56, Alistair John Strachan wrote:
+> > On Tuesday 02 January 2007 21:10, Adrian Bunk wrote:
+> > [snip]
+> >
+> > > > > Comparing your report and [1], it seems that if these are the same
+> > > > > problem, it's not a hardware bug but a gcc or kernel bug.
 > > > >
-> > > 
-> > > Trond can probably answer this better than me...
-> > > As I read it, currently the nfs client matches both the fileid and the
-> > > filehandle (in nfs_find_actor). This means that different filehandles
-> > > for the same file would result in different inodes :(.
-> > > Strictly following the nfs protocol, comparing only the fileid should
-> > > be enough IF fileids are indeed unique within the filesystem.
-> > > Comparing the filehandle works as a workaround when the exported filesystem
-> > > (or the nfs server) violates that.  From a user stand point I think that
-> > > this should be configurable, probably per mount point.
-> > 
-> > Matching files by fileid instead of filehandle is a lot more trouble
-> > since fileids may be reused after a file has been deleted. Every time
-> > you look up a file, and get a new filehandle for the same fileid, you
-> > would at the very least have to do another GETATTR using one of the
-> > 'old' filehandles in order to ensure that the file is the same object as
-> > the one you have cached. Then there is the issue of what to do when you
-> > open(), read() or write() to the file: which filehandle do you use, are
-> > the access permissions the same for all filehandles, ...
-> > 
-> > All in all, much pain for little or no gain.
+> > > > This bug specifically indicates some kind of miscompilation in a
+> > > > driver, causing boot time hangs. My problem is quite different, and
+> > > > more subtle. The crash happens in the same place every time, which does
+> > > > suggest determinism (even with various options toggled on and off, and
+> > > > a 300K smaller kernel image), but it takes 8-12 hours to manifest and
+> > > > only happens with GCC 4.1.1. ...
+> > >
+> > > Sorry if my point goes a bit away from your problem:
+> > >
+> > > My point is that we have several reported problems only visible
+> > > with gcc 4.1.
+> > >
+> > > Other bug reports are e.g. [2] and [3], but they are only present with
+> > > using gcc 4.1 _and_ using -Os.
+> >
+> > I find [2] most compelling, and I can confirm that I do have the same
+> > problem with or without optimisation for size. I don't use selinux nor has
+> > it ever been enabled.
+> >
+> > At any rate, I have absolute confirmation that it is GCC 4.1.1, because
+> > with GCC 3.4.6 the same kernel I reported booting three days ago is still
+> > cheerfully working. I regularly get uptimes of 60+ days on that machine,
+> > rebooting only for kernel upgrades. 2.6.19 seems to be no worse in this
+> > regard.
+> >
+> > Perhaps fortunately, the configs I've tried have consistently failed to
+> > shake the crash, so I have a semi-reproducible test case here on C3-2
+> > hardware if somebody wants to investigate the problem (though it still
+> > takes 6-12 hours).
 > 
-> See my answer to your previous reply.  It seems like the current
-> implementation is in violation of the nfs protocol and the extra pain
-> is required.
+> The GCC code generator appears to have been rewritten between 3.4.6 and 
+> 4.1.1....
+> 
+> I took a look at the dump he posted and there are some minor and some massive 
+> differences between the code. In one case some of the code is swapped, in 
+> another there is code in the 3.4.6 version that isn't in the 4.1.1... Finally 
+> the 4.1.1 version of the function has what appears to be function calls and 
+> these don't appear in the code generated by 3.4.6
 
-...and we should care because...?
+Differences are expected since we disable unit-at-a-time for gcc < 4 
+and gcc development didn't stall between 3.4 and 4.1.
 
-Trond
+> In other words - the code generation for 4.1.1 appears to be broken when it 
+> comes to generating system code.
+
+Bug number for an either already open or created by you bug in the gcc 
+Bugzilla for what you claim to be a bug in gcc?
+
+> DRH
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

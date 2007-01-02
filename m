@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965019AbXABXPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965021AbXABXQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbXABXPF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbXABXPF
+	id S965021AbXABXQ6 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbXABXQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:15:05 -0500
-Received: from pat.uio.no ([129.240.10.15]:38826 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965019AbXABXPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:15:01 -0500
-Subject: Re: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-In-Reply-To: <Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	 <4593890C.8030207@panasas.com>
-	 <1167300352.3281.4183.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
-	 <1167388475.6106.51.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Date: Wed, 03 Jan 2007 00:14:28 +0100
-Message-Id: <1167779668.6090.95.camel@lade.trondhjem.org>
+	Tue, 2 Jan 2007 18:16:58 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42104 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S965021AbXABXQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:16:57 -0500
+Date: Tue, 2 Jan 2007 23:27:06 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] libata: fix combined mode (was Re: Happy New Year (and
+ v2.6.20-rc3 released))
+Message-ID: <20070102232706.49340349@localhost.localdomain>
+In-Reply-To: <459AE459.8030107@pobox.com>
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	<5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com>
+	<Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>
+	<459973F6.2090201@pobox.com>
+	<20070102115834.1e7644b2@localhost.localdomain>
+	<459AC808.1030807@pobox.com>
+	<20070102212701.4b4535cf@localhost.localdomain>
+	<459ACE9C.7020107@pobox.com>
+	<20070102224559.2089d28d@localhost.localdomain>
+	<459AE459.8030107@pobox.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-7.6, required=12.0, autolearn=ham, BAYES_00=-2.599,UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: 584C1768E0E076EAA777DDF21A46B22719B86EAF
-X-UiO-SPAM-Test: 83.109.147.16 spam_score -75 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-12-30 at 02:04 +0100, Mikulas Patocka wrote:
-> 
-> On Fri, 29 Dec 2006, Trond Myklebust wrote:
-> 
-> > On Thu, 2006-12-28 at 19:14 +0100, Mikulas Patocka wrote:
-> >> Why don't you rip off the support for colliding inode number from the
-> >> kernel at all (i.e. remove iget5_locked)?
-> >>
-> >> It's reasonable to have either no support for colliding ino_t or full
-> >> support for that (including syscalls that userspace can use to work with
-> >> such filesystem) --- but I don't see any point in having half-way support
-> >> in kernel as is right now.
-> >
-> > What would ino_t have to do with inode numbers? It is only used as a
-> > hash table lookup. The inode number is set in the ->getattr() callback.
-> 
-> The question is: why does the kernel contain iget5 function that looks up 
-> according to callback, if the filesystem cannot have more than 64-bit 
-> inode identifier?
+> 2.6.0 - 2.6.19:  libata guarantees that all PCI BARs are reserved to the 
+> libata driver.
 
-Huh? The filesystem can have as large a damned identifier as it likes.
-NFSv4 uses 128-byte filehandles, for instance.
+Please read the code Jeff. The old IDE quirk code in the PCI layer blanked
+BAR 0 to BAR 3 of a compatibility mode controller
 
-POSIX filesystems are another matter. They can only have 64-bit
-identifiers thanks to the requirement that inode numbers be 64-bit
-unique and permanently stored, however Linux caters for a whole
-truckload of filesystems which will never fit that label: look at all
-those users of iunique(), for one...
+You then request_region 0x1f0 and 0x170 (BAR 0 and BAR 2) directly. You
+never request the legacy BAR 1 and BAR 3 because they were erased by the
+PCI quirk code and thus never claim the other port. Thats been a bug since
+day one but it never seemed worth fixing in the short term.
 
-Trond
-
+Alan

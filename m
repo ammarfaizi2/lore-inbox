@@ -1,99 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752028AbXABXY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752326AbXABXZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752028AbXABXY1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbXABXY1
+	id S1752326AbXABXZM (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbXABXZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:24:27 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2839 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751336AbXABXY1 (ORCPT
+	Tue, 2 Jan 2007 18:25:11 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:36737
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1752326AbXABXZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:24:27 -0500
-Date: Wed, 3 Jan 2007 00:24:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "D. Hazelton" <dhazelton@enter.net>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-Message-ID: <20070102232429.GE20714@stusta.de>
-References: <200612201421.03514.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de> <200701022156.48919.s0348365@sms.ed.ac.uk> <200701021706.15020.dhazelton@enter.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701021706.15020.dhazelton@enter.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 2 Jan 2007 18:25:10 -0500
+Date: Tue, 02 Jan 2007 15:25:09 -0800 (PST)
+Message-Id: <20070102.152509.48799363.davem@davemloft.net>
+To: m.kozlowski@tuxland.pl
+Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: af_netlink module_put cleanup
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200701021347.37952.m.kozlowski@tuxland.pl>
+References: <200701021347.37952.m.kozlowski@tuxland.pl>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 05:06:14PM -0500, D. Hazelton wrote:
-> On Tuesday 02 January 2007 16:56, Alistair John Strachan wrote:
-> > On Tuesday 02 January 2007 21:10, Adrian Bunk wrote:
-> > [snip]
-> >
-> > > > > Comparing your report and [1], it seems that if these are the same
-> > > > > problem, it's not a hardware bug but a gcc or kernel bug.
-> > > >
-> > > > This bug specifically indicates some kind of miscompilation in a
-> > > > driver, causing boot time hangs. My problem is quite different, and
-> > > > more subtle. The crash happens in the same place every time, which does
-> > > > suggest determinism (even with various options toggled on and off, and
-> > > > a 300K smaller kernel image), but it takes 8-12 hours to manifest and
-> > > > only happens with GCC 4.1.1. ...
-> > >
-> > > Sorry if my point goes a bit away from your problem:
-> > >
-> > > My point is that we have several reported problems only visible
-> > > with gcc 4.1.
-> > >
-> > > Other bug reports are e.g. [2] and [3], but they are only present with
-> > > using gcc 4.1 _and_ using -Os.
-> >
-> > I find [2] most compelling, and I can confirm that I do have the same
-> > problem with or without optimisation for size. I don't use selinux nor has
-> > it ever been enabled.
-> >
-> > At any rate, I have absolute confirmation that it is GCC 4.1.1, because
-> > with GCC 3.4.6 the same kernel I reported booting three days ago is still
-> > cheerfully working. I regularly get uptimes of 60+ days on that machine,
-> > rebooting only for kernel upgrades. 2.6.19 seems to be no worse in this
-> > regard.
-> >
-> > Perhaps fortunately, the configs I've tried have consistently failed to
-> > shake the crash, so I have a semi-reproducible test case here on C3-2
-> > hardware if somebody wants to investigate the problem (though it still
-> > takes 6-12 hours).
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Date: Tue, 2 Jan 2007 13:47:37 +0100
+
+> Hello,
 > 
-> The GCC code generator appears to have been rewritten between 3.4.6 and 
-> 4.1.1....
+> 	This patch removes redundant argument check for module_put().
 > 
-> I took a look at the dump he posted and there are some minor and some massive 
-> differences between the code. In one case some of the code is swapped, in 
-> another there is code in the 3.4.6 version that isn't in the 4.1.1... Finally 
-> the 4.1.1 version of the function has what appears to be function calls and 
-> these don't appear in the code generated by 3.4.6
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-Differences are expected since we disable unit-at-a-time for gcc < 4 
-and gcc development didn't stall between 3.4 and 4.1.
-
-> In other words - the code generation for 4.1.1 appears to be broken when it 
-> comes to generating system code.
-
-Bug number for an either already open or created by you bug in the gcc 
-Bugzilla for what you claim to be a bug in gcc?
-
-> DRH
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Applied, thanks.

@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755371AbXABQoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755376AbXABQuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755371AbXABQoX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 11:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755373AbXABQoX
+	id S1755376AbXABQuP (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 11:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755374AbXABQuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 11:44:23 -0500
-Received: from outbound-mail-61.bluehost.com ([69.89.21.21]:43493 "HELO
-	outbound-mail-61.bluehost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1755371AbXABQoW (ORCPT
+	Tue, 2 Jan 2007 11:50:15 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3018 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755376AbXABQuN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 11:44:22 -0500
-X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 11:44:22 EST
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] quiet MMCONFIG related printks
-Date: Tue, 2 Jan 2007 08:37:44 -0800
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>
-References: <200701012101.38427.jbarnes@virtuousgeek.org> <20070102103602.28a873ea@localhost.localdomain>
-In-Reply-To: <20070102103602.28a873ea@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Jan 2007 11:50:13 -0500
+Date: Tue, 2 Jan 2007 16:50:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [ARM] Regression somewhere between 2.6.19 and 2.6.19-rc1
+Message-ID: <20070102165004.GC12902@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20070102163923.GB12902@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701020837.45016.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
+In-Reply-To: <20070102163923.GB12902@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, January 2, 2007 2:36 am, Alan wrote:
-> On Mon, 1 Jan 2007 21:01:38 -0800
->
-> Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
-> > Using MMCONFIG for PCI config space access is simply an
-> > optimization, not a requirement.  Therefore, when it can't be used,
-> > there's no need for
->
-> Some hardware reqires MCFG. In addition this is an error, a real
-> error on the vendors part or ours and could indicate there are many
-> other BIOS problems outstanding.
+On Tue, Jan 02, 2007 at 04:39:23PM +0000, Russell King wrote:
+> I'm seeing utterly random behaviour from kernels on ARM SMP hardware
+> built after 2.6.19.  I won't bother trying to paste the kernel output;
+> sometimes the kernel locks solid (no IRQs, no output to say what's wrong).
+> Other times I get the first line of an oops repeating but with random
+> addresses.  Othertimes the oops doesn't complete.
+> 
+> 2.6.19 runs fine.
+>..
+> How do I tell git bisect "I can't test this, this is neither good nor bad,
+> please choose another to try" ?  Or is git bisect hopeless given the large
+> amount of unbuildable commits thanks to our weekly merges?
 
-Ok, I was mistaken then.  However, I see this on several boxes, and the 
-broken BIOSen out in the wild are unlikely to be fixed.  Maybe this 
-should really be a KERN_WARNING instead since it may indicate that some 
-devices will fail to work?
+Don't worry - viro suggested changing the problematical two strings, which
+allowed me to test that commit.
 
-> We shouldn't keep quiet about serious errors in tables, we need
-> people to know and be able to take appropriate action (eg new BIOSen,
-> refusing certifications etc).
-
-Ok.
-
-Jesse
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

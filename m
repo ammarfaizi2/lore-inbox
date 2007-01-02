@@ -1,87 +1,101 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754980AbXABVeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754932AbXABVfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754980AbXABVeF (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754981AbXABVeF
+	id S1754932AbXABVfN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754966AbXABVfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:34:05 -0500
-Received: from mail.gmx.net ([213.165.64.20]:51458 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1754980AbXABVeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:34:03 -0500
-X-Authenticated: #1045983
-From: Helge Deller <deller@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] use cycle_t instead of u64 in struct time_interpolator
-Date: Tue, 2 Jan 2007 22:33:25 +0100
+	Tue, 2 Jan 2007 16:35:13 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:39735 "EHLO atlrel9.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754932AbXABVfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:35:11 -0500
+From: Paul Moore <paul.moore@hp.com>
+Organization: Hewlett-Packard
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: selinux networking: sleeping functin called from invalid context in 2.6.20-rc[12]
+Date: Tue, 2 Jan 2007 16:14:17 -0500
 User-Agent: KMail/1.9.5
-X-Face: *4/{KL3=jWs!v\UO#3e7~Vb1~CL@oP'~|*/M$!9`tb2[;fY@)WscF2iV7`,a$141g'o,7X
-	?Bt1Wb:L7K6z-<?-+-13|S_ixrq58*E`)ZkSe~NSI?u=89G'J<n]7\?[)LCCBZc}~[j(e}
-	`-QV{#%&[?^fAke6t8QbP;b'XB,ZU84HeThMrO(@/K.`jxq9P({V(AzezCKMxk\F2^p^+"
-	["ppalbA!zy-l)^Qa3*u/Z-1W3,o?2fes2_d\u=1\E9N+~Qo
-Cc: parisc-linux@lists.parisc-linux.org
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <20061225052124.A10323@freya> <20061224162511.eaac4a89.akpm@osdl.org>
+In-Reply-To: <20061224162511.eaac4a89.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200701022233.25697.deller@gmx.de>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200701021614.18148.paul.moore@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 32bit and 64bit PARISC Linux kernels suffers from the problem, that the gettimeofday() call sometimes returns non-monotonic times.
-The easiest way to fix this, is to drop the PARISC-specific implementation and switch over to the generic TIME_INTERPOLATION framework.
-But in order to make it even compile on 32bit PARISC, the patch below which touches the generic Linux code, is mandatory. 
-More information and the full patch with the parisc-specific changes is included in this thread: http://lists.parisc-linux.org/pipermail/parisc-linux/2006-December/031003.html
+On Sunday, December 24 2006 7:25 pm, Andrew Morton wrote:
+> On Mon, 25 Dec 2006 05:21:24 +0800
+>
+> "Adam J. Richter" <adam@yggdrasil.com> wrote:
+> > 	Under 2.6.20-rc1 and 2.6.20-rc2, I get the following complaint
+> > for several network programs running on my system:
+> >
+> > [  156.381868] BUG: sleeping function called from invalid context at
+> > net/core/sock.c:1523 [  156.381876] in_atomic():1, irqs_disabled():0
+> > [  156.381881] no locks held by kio_http/9693.
+> > [  156.381886]  [<c01057a2>] show_trace_log_lvl+0x1a/0x2f
+> > [  156.381900]  [<c0105dab>] show_trace+0x12/0x14
+> > [  156.381908]  [<c0105e48>] dump_stack+0x16/0x18
+> > [  156.381917]  [<c011e30f>] __might_sleep+0xe5/0xeb
+> > [  156.381926]  [<c025942a>] lock_sock_nested+0x1d/0xc4
+> > [  156.381937]  [<c01cc570>] selinux_netlbl_inode_permission+0x5a/0x8e
+> > [  156.381946]  [<c01c2505>] selinux_file_permission+0x96/0x9b
+> > [  156.381954]  [<c0175a0a>] vfs_write+0x8d/0x167
+> > [  156.381962]  [<c017605a>] sys_write+0x3f/0x63
+> > [  156.381971]  [<c01040c0>] syscall_call+0x7/0xb
+> > [  156.381980]  =======================
+>
+> There's a glaring bug in selinux_netlbl_inode_permission() - taking
+> lock_sock() inside rcu_read_lock().
 
-As far as I could see, this patch does not change anything for the existing architectures which use this framework (IA64 and SPARC64), since "cycles_t" is defined there as unsigned 64bit-integer anyway (which then makes this patch a no-change for them).
+Sorry for the delay, I'm finally back at a machine where I can look at the 
+code.
 
-Ok, not Ok ?
+I've been thinking about Parag Warudkar's and Ingo Molnar's patches as well as 
+what the selinux_netlbl_inode_permission() function actually needs to do; I 
+think the best answer isn't so much to change the socket locking calls, but 
+to restructure the function a bit.
 
-Regards, Helge
+Currently the function does the following (in order):
 
+ 1. do some quick sanity checks (is the inode a socket, etc)
+ 2. rcu_read_lock()
+ 3. check the nlbl_state is set to NLBL_REQUIRE (otherwise return)
+ 4. lock_sock()
+ 5. netlabel magic
+ 6. release_sock()
+ 7. rcu_read_unlock()
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+I propose changing it to the following (in order):
 
-diff --git a/include/linux/timex.h b/include/linux/timex.h
-index db501dc..9a24e50 100644
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -255,10 +255,10 @@ struct time_interpolator {
- 	u8 jitter;			/* if set compensate for fluctuations */
- 	u32 nsec_per_cyc;		/* set by register_time_interpolator() */
- 	void *addr;			/* address of counter or function */
--	u64 mask;			/* mask the valid bits of the counter */
-+	cycles_t mask;			/* mask the valid bits of the counter */
- 	unsigned long offset;		/* nsec offset at last update of interpolator */
- 	u64 last_counter;		/* counter value in units of the counter at last update */
--	u64 last_cycle;			/* Last timer value if TIME_SOURCE_JITTER is set */
-+	cycles_t last_cycle;		/* Last timer value if TIME_SOURCE_JITTER is set */
- 	u64 frequency;			/* frequency in counts/second */
- 	long drift;			/* drift in parts-per-million (or -1) */
- 	unsigned long skips;		/* skips forward */
-diff --git a/kernel/timer.c b/kernel/timer.c
-index c2a8ccf..d38801a 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1624,7 +1624,7 @@ struct time_interpolator *time_interpola
- static struct time_interpolator *time_interpolator_list __read_mostly;
- static DEFINE_SPINLOCK(time_interpolator_lock);
- 
--static inline u64 time_interpolator_get_cycles(unsigned int src)
-+static inline cycles_t time_interpolator_get_cycles(unsigned int src)
- {
- 	unsigned long (*x)(void);
- 
-@@ -1650,8 +1650,8 @@ static inline u64 time_interpolator_get_
- 
- 	if (time_interpolator->jitter)
- 	{
--		u64 lcycle;
--		u64 now;
-+		cycles_t lcycle;
-+		cycles_t now;
- 
- 		do {
- 			lcycle = time_interpolator->last_cycle;
+  1. do some quick sanity checks (is the inode a socket, etc)
+  2. rcu_read_lock()
+  3. check the nlbl_state is set to NLBL_REQUIRE (otherwise return)
+  4. rcu_read_unlock()
+  5. lock_sock()
+  6. rcu_read_lock()
+  7. verify that nlbl_state is still set to NLBL_REQUIRE (otherwise return)
+  8. netlabel magic
+  9. rcu_read_unlock()
+ 10. release_sock()
+
+This way we no longer need to worry about any special socket locking.  I 
+realize this adds a bit of duplicated work but it is my understanding that 
+RCU lock/unlock operations are *very* fast so the extra RCU lock operations 
+shouldn't be too bad and the extra nlbl_state check should be of minimal 
+cost.
+
+However, I'm not the expert here, just a guy learning as he goes so any 
+comments/feedback on the above proposal are welcome.  If it turns out this 
+approach has some merit I'll put together a patch and send it out.
+
+Once again, sorry for the regression.
+
+-- 
+paul moore
+linux security @ hp

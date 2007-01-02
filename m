@@ -1,69 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932566AbXABBlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754372AbXABCG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbXABBlp (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 20:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754803AbXABBlo
+	id S1754372AbXABCG3 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 21:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754767AbXABCG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 20:41:44 -0500
-Received: from flex.com ([206.126.0.13]:49895 "EHLO flex.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754800AbXABBlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 20:41:44 -0500
-Message-ID: <4599B809.1000300@flex.com>
-Date: Mon, 01 Jan 2007 17:40:25 -0800
-From: David Kahn <dmk@flex.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Mon, 1 Jan 2007 21:06:29 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:39798 "EHLO
+	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754372AbXABCG2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 21:06:28 -0500
+X-Greylist: delayed 937 seconds by postgrey-1.27 at vger.kernel.org; Mon, 01 Jan 2007 21:06:27 EST
+Message-ID: <4599BAE1.9050804@student.ltu.se>
+Date: Tue, 02 Jan 2007 02:52:33 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: segher@kernel.crashing.org, linux-kernel@vger.kernel.org, devel@laptop.org,
-       wmb@firmworks.com, hch@infradead.org, jg@laptop.org
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-References: <445cb4c27a664491761ce4e219aa0960@kernel.crashing.org>	<20070101.005714.35017753.davem@davemloft.net>	<385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org> <20070101.150831.17863014.davem@davemloft.net>
-In-Reply-To: <20070101.150831.17863014.davem@davemloft.net>
+To: Jeff Dike <jdike@addtoit.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/8] UML - audio driver formatting
+References: <200701011947.l01JlAMo020761@ccure.user-mode-linux.org>
+In-Reply-To: <200701011947.l01JlAMo020761@ccure.user-mode-linux.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Dike wrote:
+> Whitespace and style fixes.
+>
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> --
+>  arch/um/drivers/hostaudio_kern.c |  160 +++++++++++++++++----------------------
+>  1 file changed, 73 insertions(+), 87 deletions(-)
+>
+> Index: linux-2.6.18-mm/arch/um/drivers/hostaudio_kern.c
+> ===================================================================
+> --- linux-2.6.18-mm.orig/arch/um/drivers/hostaudio_kern.c	2006-12-29 21:13:41.000000000 -0500
+> +++ linux-2.6.18-mm/arch/um/drivers/hostaudio_kern.c	2006-12-29 21:13:42.000000000 -0500
+> @@ -15,11 +15,11 @@
+>  #include "os.h"
+>  
+>  struct hostaudio_state {
+> -  int fd;
+> +	int fd;
+>  };
+>  
+>  struct hostmixer_state {
+> -  int fd;
+> +	int fd;
+>  };
+>  
+>  #define HOSTAUDIO_DEV_DSP "/dev/sound/dsp"
+> @@ -72,12 +72,12 @@ MODULE_PARM_DESC(mixer, MIXER_HELP);
+>  static ssize_t hostaudio_read(struct file *file, char __user *buffer,
+>  			      size_t count, loff_t *ppos)
+>  {
+> -        struct hostaudio_state *state = file->private_data;
+> +	struct hostaudio_state *state = file->private_data;
+>  	void *kbuf;
+>  	int err;
+>  
+>  #ifdef DEBUG
+> -        printk("hostaudio: read called, count = %d\n", count);
+> +	printk("hostaudio: read called, count = %d\n", count);
+>  #endif
+>  
+>  	kbuf = kmalloc(count, GFP_KERNEL);
+> @@ -91,7 +91,7 @@ static ssize_t hostaudio_read(struct fil
+>  	if(copy_to_user(buffer, kbuf, err))
+>  		err = -EFAULT;
+>  
+> - out:
+> +out:
+>   
+Isn't labels _suppose_ to be spaced? (due to "grep", if I'm not mistaken)...
+>  	kfree(kbuf);
+>  	return(err);
+>  }
+> @@ -99,12 +99,12 @@ static ssize_t hostaudio_read(struct fil
+<snip>
 
-
-David Miller wrote:
-
-> We have some extensive code in fs/openpromfs/inode.c that
-> determines whether a property is text or not.  I can't
-> guarentee it works %100, but it's very context dependant
-> (only the driver "knows") but it works for all the cases
-> I've tried.
-
-The problem with guessing, as you've noted, is that you
-can't be 100% correct for device specific stuff.
-
-Sure, you can guess that standard properties defined
-by the core spec like "ranges" and "reg" consist of
-integer data, but you can't make any guess about
-device-specific stuff. (The heuristics you mentioned
-just look at the data to see if it consists of printable
-characters as far as I can tell, and that too isn't
-foolproof, as you noted.)
-
-Properties that consist of simple string data will just
-show up as printable string data, but it's usually best to
-leave the interpretation of binary properties up to the
-entity that's consuming them, since they have to
-know how to interpret them.
-
-Also, the sparc port doesn't have to deal with
-endian issues, since prop-encoding is big-endian.
-There's really no way to "guess" properly.
-
-A userland library or program can do whatever
-it wants to as a helper. The interpretation of
-the data should be done by the entity that consumes
-it.
-
-If that doesn't fit the model of /sys or /proc,
-I suppose it could be done in a separate file
-system, but that's overkill, isn't it?
-
--David
+Richard Knutsson
 

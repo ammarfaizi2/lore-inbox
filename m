@@ -1,95 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752410AbXABXeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965048AbXABXfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752410AbXABXeu (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752451AbXABXeu
+	id S965048AbXABXfQ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbXABXfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:34:50 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:43592 "EHLO
-	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752334AbXABXet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:34:49 -0500
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
-	that again
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: David Miller <davem@davemloft.net>
-Cc: rmk+lkml@arm.linux.org.uk, miklos@szeredi.hu, arjan@infradead.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20070102.151906.21595863.davem@davemloft.net>
-References: <E1H1VQu-0005oJ-00@dorka.pomaz.szeredi.hu>
-	 <20070101234559.GE30535@flint.arm.linux.org.uk>
-	 <1167778403.3687.1.camel@mulgrave.il.steeleye.com>
-	 <20070102.151906.21595863.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 17:34:18 -0600
-Message-Id: <1167780858.3687.13.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Jan 2007 18:35:15 -0500
+Received: from nevyn.them.org ([66.93.172.17]:45801 "EHLO nevyn.them.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965005AbXABXfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:35:12 -0500
+X-Greylist: delayed 1996 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 18:35:12 EST
+Date: Tue, 2 Jan 2007 18:01:49 -0500
+From: Daniel Jacobowitz <drow@false.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: [Bug 7210] New: Clone flag CLONE_PARENT_TIDPTR leaves invalid results in memory.
+Message-ID: <20070102230149.GA24475@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060927033048.AAB8D18007A@magilla.sf.frob.com> <Pine.LNX.4.64.0609262056150.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609262056150.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 15:19 -0800, David Miller wrote:
-> From: James Bottomley <James.Bottomley@SteelEye.com>
-> Date: Tue, 02 Jan 2007 16:53:23 -0600
+From: Daniel Jacobowitz <dan@codesourcery.com>
+
+Do not implement CLONE_PARENT_SETTID until we know that clone will succeed.
+If we do it too early NPTL's data structures temporarily reference a
+non-existant TID.
+
+Signed-off-by: Daniel Jacobowitz <dan@codesourcery.com>
+
+---
+On Tue, Sep 26, 2006 at 08:59:15PM -0700, Linus Torvalds wrote:
 > 
-> > OK, so lets get down to brass tacks and look at the API characteristics.
-> > 
-> > Some of the issues are:
-> > 
-> >      1. Should kmap() actually flush all the user spaces? 
-> >      2. Do we need additional hints in to kmap/kunmap?
-> > 
-> > My initial thought on 1. is no, since by and large we use kmap on pages
-> > that have come to use via an I/O path, so usually they've already had
-> > the user caches made coherent, unless you want do do this via a hint.
 > 
-> Who did this cache flush?  The idea is to make flush_dcache_page()
-> do nothing, and have all of the work be done via the kmap()/kunmap()
-> sequence.
-
-Erm ... for a device driver, if we're preparing to do I/O on the page
-something must have made the user caches coherent ... that can't be
-kmap, because the driver might elect to DMA on the page ... unless
-another component of this API is going to be to make dma_map_... also
-flush the user cache?
-
-> The case you're speaking about isn't a fault path, so it's not
-> like there will be a flush_cache_page() call somewhere either.
-
-well ... currently the pages come down to fuse via get_user_pages()
-which does have a flush_dcache_page() as part of its operation.
-
-> > For 2. like I said, I coded this on parisc without hints (using the page
-> > table information instead to deduce what type of access the page had
-> > taken) but we could equally well have used hints.
+> On Tue, 26 Sep 2006, Roland McGrath wrote:
+> >
+> > It can go last, right before return, after unlock.
+> > Userland only cares that parent_tidptr set before parent syscall returns,
+> > and child_tidptr set before child returns.
 > 
-> There are two important attributes 1) most permissive page protection
-> of the user mappings, essentially does anyone have a writable access
-> to the page and 2) the access the kernel will make, read or write.
+> Ok, as long as people are sure, I don't care. Then we have to just ignore 
+> the error, though, since we can't recover (we've already "exposed" the 
+> child on the task lists).
 > 
-> If the kernel is going to read, kmap() would need to flush any
-> writable user mappings, that's all.
+> I don't think it's a big deal. Ignoring the error just means that if you 
+> pass in an invalid ptr, it's as if the bit to set that value wasn't set. 
+> Not a problem.
+> 
+> Especially if there is a test-program, can we just have a patch to try 
+> that has been verified? It _sounded_ like somebody actually had a program 
+> that could trigger this with some horrid code that sent signals and cloned 
+> all the time?
 
-Agreed.
+I never got back to you about this...
 
-> If the kernel is going to write, all user mappings have to be
-> purged completely so that the writes are visible.
+Refresher, if there isn't enough above: CLONE_PARENT_SETTID is
+currently implemented right after a TID is assigned.  There's a lot of
+clone left to go at that point including a check for pending signals
+which can lead to clone failing.  This leaves a TID in NPTL's thread
+list which doesn't correspond to a thread.
 
-Agreed.
+I found Sunday another place where this is a problem, besides the
+process-global UID stuff in glibc.  GDB tries to attach to the
+nonexistant thread and gets upset.  I've made it cope, but at the same
+time it provides a convenient test case.
 
-> I'm going to coneniently remind you it's possible to avoid all of the
-> cache flushes by using TLB mappings at kmap() time.  I think PARISC
-> can even do this, to be honest.  What makes that scheme unusable on
-> PARISC?
+Without the attached patch, tls.exp in the GDB testsuite would
+intermittently report that it could not attach to a thread - always
+within half an hour.  With the patch it ran for four hours without
+a problem.
 
-You mean to map congruently for the page using something like our
-temporary cache alias scheme?  Yes ... it should be possible for the
-short lived kmap_atomic() type maps ... it will be a bit harder for the
-non-atomic longer lived maps ... but I think we're deprecating those.
+ kernel/fork.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-James
+Index: linux-source-2.6.18/kernel/fork.c
+===================================================================
+--- linux-source-2.6.18.orig/kernel/fork.c	2007-01-02 13:45:28.000000000 -0500
++++ linux-source-2.6.18/kernel/fork.c	2007-01-02 13:52:09.000000000 -0500
+@@ -1012,10 +1012,6 @@ static struct task_struct *copy_process(
+ 	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
+ 	copy_flags(clone_flags, p);
+ 	p->pid = pid;
+-	retval = -EFAULT;
+-	if (clone_flags & CLONE_PARENT_SETTID)
+-		if (put_user(p->pid, parent_tidptr))
+-			goto bad_fork_cleanup_delays_binfmt;
+ 
+ 	INIT_LIST_HEAD(&p->children);
+ 	INIT_LIST_HEAD(&p->sibling);
+@@ -1251,6 +1247,14 @@ static struct task_struct *copy_process(
+ 	total_forks++;
+ 	spin_unlock(&current->sighand->siglock);
+ 	write_unlock_irq(&tasklist_lock);
++
++	/*
++	 * Now that we know the fork has succeeded, record the new
++	 * TID.  It's too late to back out if this fails.
++	 */
++	if (clone_flags & CLONE_PARENT_SETTID)
++		put_user(p->pid, parent_tidptr);
++
+ 	proc_fork_connector(p);
+ 	return p;
+ 
+@@ -1281,7 +1285,6 @@ bad_fork_cleanup_policy:
+ bad_fork_cleanup_cpuset:
+ #endif
+ 	cpuset_exit(p);
+-bad_fork_cleanup_delays_binfmt:
+ 	delayacct_tsk_free(p);
+ 	if (p->binfmt)
+ 		module_put(p->binfmt->module);
 
-
+-- 
+Daniel Jacobowitz
+CodeSourcery

@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754832AbXABNkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754838AbXABNoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754832AbXABNkr (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 08:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754836AbXABNkr
+	id S1754838AbXABNoM (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 08:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754837AbXABNoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 08:40:47 -0500
-Received: from khepri.openbios.org ([80.190.231.112]:50978 "EHLO
-	khepri.openbios.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754832AbXABNkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 08:40:46 -0500
-X-Greylist: delayed 1108 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 08:40:46 EST
-Date: Tue, 2 Jan 2007 14:22:12 +0100
-From: Stefan Reinauer <stepan@coresystems.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       David Miller <davem@davemloft.net>, devel@laptop.org
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Message-ID: <20070102132212.GA10522@coresystems.de>
-References: <459714A6.4000406@firmworks.com> <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr> <20061231.124531.125895122.davem@davemloft.net> <1167709406.6165.6.camel@localhost.localdomain> <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
-X-Operating-System: Linux 2.6.18.2-4-default on an x86_64
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Duff: Orig. Duff, Duff Lite, Duff Dry, Duff Dark,
-	Raspberry Duff, Lady Duff, Red Duff, Tartar Control Duff
+	Tue, 2 Jan 2007 08:44:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:37385 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754838AbXABNoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 08:44:11 -0500
+In-Reply-To: <20070102102930.650db9ac.khali@linux-fr.org>
+References: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com> <20070101223913.7b1fddbf.khali@linux-fr.org> <20070102061147.GA30308@in.ibm.com> <20070102102930.650db9ac.khali@linux-fr.org>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4a3cca1be4bf059806a9108953a26709@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Alexander van Heukelum <heukelum@fastmail.fm>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
+Date: Tue, 2 Jan 2007 14:44:05 +0100
+To: Jean Delvare <khali@linux-fr.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Segher Boessenkool <segher@kernel.crashing.org> [070102 12:37]:
-> Are you really suggesting that using a kernel copy of the
-> device tree is the correct thing to do, and the only correct
-> thing to do -- with the sole argument that "that's what the
-> current ports do"?
+>> Segher had suggested to use .section command to specifically mark
+>> .text.head section as AX (allocatable and executable) to solve the
+>> problem.
 
-There might also be a speed advantage if any drivers or user space
-programs operate heavily on the device tree on those systems with _lots_
-of devices.. 
+Great to hear it works in real life too.
 
-Stefan 
+Here, have a From: line (or how should this patch history be
+encoded?) :-)
 
--- 
-coresystems GmbH • Brahmsstr. 16 • D-79104 Freiburg i. Br.
-      Tel.: +49 761 7668825 • Fax: +49 761 7664613
-Email: info@coresystems.de  • http://www.coresystems.de/
+From: Segher Boessenkool <segher@kernel.crashing.org>
+>> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+>> ---
+>>
+>>  arch/i386/boot/compressed/head.S |    2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff -puN arch/i386/boot/compressed/head.S~jean-reboot-issue-fix  
+>> arch/i386/boot/compressed/head.S
+>> ---  
+>> linux-2.6.20-rc2-reloc/arch/i386/boot/compressed/head.S~jean-reboot- 
+>> issue-fix	2007-01-02 09:54:56.000000000 +0530
+>> +++  
+>> linux-2.6.20-rc2-reloc-root/arch/i386/boot/compressed/head.S	2007-01 
+>> -02 09:57:46.000000000 +0530
+>> @@ -28,7 +28,7 @@
+>>  #include <asm/page.h>
+>>  #include <asm/boot.h>
+>>
+>> -.section ".text.head"
+>> +.section ".text.head","ax",@progbits
+>>  	.globl startup_32
+>>
+>>  startup_32:
+

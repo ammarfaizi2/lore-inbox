@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755297AbXABPQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755300AbXABPSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755297AbXABPQY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 10:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755296AbXABPQY
+	id S1755300AbXABPSc (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 10:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755303AbXABPSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 10:16:24 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:34639 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755297AbXABPQX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 10:16:23 -0500
-Date: Tue, 2 Jan 2007 10:16:21 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-cc: Greg KH <greg@kroah.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] OHCI: disallow autostop when wakeup is not available
-In-Reply-To: <200701012007.52396.arvidjaar@mail.ru>
-Message-ID: <Pine.LNX.4.44L0.0701021013470.4122-100000@iolanthe.rowland.org>
+	Tue, 2 Jan 2007 10:18:32 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:1435 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755300AbXABPSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 10:18:31 -0500
+Date: Tue, 2 Jan 2007 16:18:27 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>, Theodore Tso <tytso@mit.edu>,
+       Trent Waddington <trent.waddington@gmail.com>,
+       Bernd Petrovitsch <bernd@firmix.at>,
+       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+Message-ID: <20070102151827.GH2483@kernel.dk>
+References: <20061222115921.GT3073@harddisk-recovery.com> <1167568899.3318.39.camel@gimli.at.home> <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com> <200701020404.l0244n3b024582@turing-police.cc.vt.edu> <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com> <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com> <20070102125026.GA4608@thunk.org> <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain> <20070102151503.GA28150@vasa.acc.umu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070102151503.GA28150@vasa.acc.umu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jan 2007, Andrey Borzenkov wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Tue, Jan 02 2007, David Weinehall wrote:
+> On Tue, Jan 02, 2007 at 08:22:21AM -0500, Robert P. J. Day wrote:
+> > On Tue, 2 Jan 2007, Theodore Tso wrote:
+> > 
+> > > I can very easily believe it.  The US patent system and "justice"
+> > > system in the US is completely and totally insane, and companies
+> > > often feel they have to act accordingly.  Remember this is the
+> > > country that has issued multi-million dollar awards to people who
+> > > spill hot coffee in their lap ...
+> > 
+> > MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
+> > lap" story as an example of the idiocy of the justice system?  i'm
+> > guessing there's more to this story than most folks are aware of, and
+> > you're welcome to read the details here:
+> > 
+> >   http://www.lectlaw.com/files/cur78.htm
+> > 
+> > as you can see, there are two salient points that change the
+> > complexion of this story thoroughly:
+> > 
+> > 1) mcdonald's was not merely serving their coffee "hot," but
+> > *scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
+> > will produce third-degree burns almost immediately, and
 > 
-> On Wednesday 15 November 2006 00:28, Alan Stern wrote:
-> > This patch (as822) prevents the OHCI autostop mechanism from kicking in
-> > if the root hub is not able or not allowed to issue wakeup requests.
-> >
-> > Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> >
-> > ---
-> >
-> > Greg:
-> >
-> > This patch should go into 2.6.19-rc ASAP.  It does solve a real problem.
-> > The larger-scale changes Dave and I have been discussing will be submitted
-> > separately, for inclusion in 2.6.20.
-> >
-> 
-> Is the original problem (OHCI constantly attempting and failing to suspend 
-> root hub) supposed to be fixed in 2.6.20?
+> That's less than 90°C.  Water boils at 100°C.  How the hell do 
+> people expect coffee to be made without boiling water?  Magic?
 
-No.  It can't be fixed in the kernel because it is a hardware bug.
+I guess selling sharp kitchen knifes in the US is a law suit waiting to
+happen as well then, people could seriously hurt themselves with those
+things!  Talk about corporate irresponsibility.
 
->  Currently in rc3 I have
-...
-> ohci_hcd 0000:00:02.0: auto-stop root hub
-> ohci_hcd 0000:00:02.0: auto-wakeup root hub
-> ohci_hcd 0000:00:02.0: auto-stop root hub
-> ohci_hcd 0000:00:02.0: auto-wakeup root hub
-> ...
-> 
-> and it goes on and on until I stop it manually by usual method:
-> 
-> usb usb1: remote wakeup needed for autosuspend
-
-The patch mentioned above allows the manual method to work.  Without the 
-patch you would not be able to stop these messages at all, as you already 
-have seen.
-
-Alan Stern
+-- 
+Jens Axboe
 

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755394AbXABRTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755396AbXABRTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755394AbXABRTJ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 12:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755395AbXABRTJ
+	id S1755396AbXABRTu (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 12:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755398AbXABRTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 12:19:09 -0500
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:1497 "EHLO
-	smtp-vbr5.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755394AbXABRTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 12:19:07 -0500
-Subject: Re: Nothing since 2.6.19 will boot for me.
-References: <microsoft-free.87odphsx40.fsf@youngs.au.com>
-From: Paul Slootman <paul+nospam@wurtel.net>
-Organization: Wurtelization
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Date: 02 Jan 2007 17:18:55 GMT
-Message-ID: <459a93ff$0$335$e4fe514c@news.xs4all.nl>
-X-Trace: 1167758335 news.xs4all.nl 335 [::ffff:83.68.3.130]:45952
-X-Complaints-To: abuse@xs4all.nl
-In-Reply-To: <microsoft-free.87odphsx40.fsf@youngs.au.com>
+	Tue, 2 Jan 2007 12:19:50 -0500
+Received: from smtp.telefonica.net ([213.4.149.66]:64366 "EHLO
+	ctsmtpout3.frontal.correo" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755396AbXABRTt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 12:19:49 -0500
+From: Jose Alberto Reguero <jareguero@telefonica.net>
 To: linux-kernel@vger.kernel.org
+Subject: Re: pata_marvell and Marvell 88SE6121
+Date: Tue, 2 Jan 2007 18:19:46 +0100
+User-Agent: KMail/1.9.5
+References: <200612161841.26700.jareguero@telefonica.net>
+In-Reply-To: <200612161841.26700.jareguero@telefonica.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200701021819.47048.jareguero@telefonica.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Youngs  <steve@youngs.au.com> wrote:
+El Sábado, 16 de Diciembre de 2006 18:41, Jose Alberto Reguero escribió:
+> I am trying to make work the driver pata_marvell of linux-2.6.20-rc1 with
+> Marvell 88SE6121.
+> I added the PCI ID: 0x6121
 >
->The last kernel from Linus' tree[1] that boots for me is v2.6.19.  And
->before I take my first stab at git-bisect, I thought I'd ask here in
->case it's just a PEBCAK.
+>         { PCI_DEVICE(0x11AB, 0x6101), },
+>         { PCI_DEVICE(0x11AB, 0x6145), },
+>         { PCI_DEVICE(0x11AB, 0x6121), },
+>         { }     /* terminate list */
 >
->What happens in kernels since v2.6.19 is:
+> But not succes.
 >
->  o Choose the kernel to boot from lilo menu
->
->  o Lilo prints the first 2 lines of it's output
->
->        imagename.....................................
->        Bios data something or other (sorry, too quick for me to catch
->          what it actually says)
->
->  o At this point the machine reboots (right back to the video card
->    copyright/splash)
+It is posible to configure three ports (more than two ports) with this driver?
 
-What is your boot string?
-It sounds a lot like http://bugzilla.kernel.org/show_bug.cgi?id=7505
-
-
-Paul Slootman
+Thanks.
+Jose Alberto

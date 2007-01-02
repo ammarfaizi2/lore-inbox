@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964970AbXABWGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932684AbXABWGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbXABWGH (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 17:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbXABWGH
+	id S932684AbXABWGV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 17:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbXABWGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 17:06:07 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:50734 "HELO
-	mustang.oldcity.dca.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932907AbXABWGF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 17:06:05 -0500
-Subject: Re: [2.6.19] Scheduler starvation of audio?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Shawn Starr <sstarr@platform.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E2AC825D4FC7764DA86D9C8ECA27A2DE065B14@catoexm05.noam.corp.platform.com>
-References: <E2AC825D4FC7764DA86D9C8ECA27A2DE065B14@catoexm05.noam.corp.platform.com>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 17:07:04 -0500
-Message-Id: <1167775624.6670.89.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 2 Jan 2007 17:06:21 -0500
+Received: from mail.enter.net ([216.193.128.40]:23665 "EHLO mmail.enter.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932684AbXABWGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 17:06:19 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: kernel + gcc 4.1 = several problems
+Date: Tue, 2 Jan 2007 17:06:14 -0500
+User-Agent: KMail/1.9.5
+Cc: Adrian Bunk <bunk@stusta.de>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de> <200701022156.48919.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200701022156.48919.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701021706.15020.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-29 at 11:25 -0500, Shawn Starr wrote:
-> Hello, 
-> 
-> If any of you have used a Commodore 64 emulator in Linux (such as vice) noticed when using audio there is severe starvation while other activities of the system are going on. i.e.  moving a window in X or starting another application causing audio to chop (this goes away if you speed up the emulation to 200% then drop it back down to 100% The audio will resume chopping once you perform more activity on the desktop). Note, even increasing the audio buffer of the emulation app to its maximum does not help. Of note, the machine I ran this emulator on had a low load.
-> 
-> There are times when I hit starvation and I wonder if there's any interesting scheduler patches in -mm that might address this?
-> 
+On Tuesday 02 January 2007 16:56, Alistair John Strachan wrote:
+> On Tuesday 02 January 2007 21:10, Adrian Bunk wrote:
+> [snip]
+>
+> > > > Comparing your report and [1], it seems that if these are the same
+> > > > problem, it's not a hardware bug but a gcc or kernel bug.
+> > >
+> > > This bug specifically indicates some kind of miscompilation in a
+> > > driver, causing boot time hangs. My problem is quite different, and
+> > > more subtle. The crash happens in the same place every time, which does
+> > > suggest determinism (even with various options toggled on and off, and
+> > > a 300K smaller kernel image), but it takes 8-12 hours to manifest and
+> > > only happens with GCC 4.1.1. ...
+> >
+> > Sorry if my point goes a bit away from your problem:
+> >
+> > My point is that we have several reported problems only visible
+> > with gcc 4.1.
+> >
+> > Other bug reports are e.g. [2] and [3], but they are only present with
+> > using gcc 4.1 _and_ using -Os.
+>
+> I find [2] most compelling, and I can confirm that I do have the same
+> problem with or without optimisation for size. I don't use selinux nor has
+> it ever been enabled.
+>
+> At any rate, I have absolute confirmation that it is GCC 4.1.1, because
+> with GCC 3.4.6 the same kernel I reported booting three days ago is still
+> cheerfully working. I regularly get uptimes of 60+ days on that machine,
+> rebooting only for kernel upgrades. 2.6.19 seems to be no worse in this
+> regard.
+>
+> Perhaps fortunately, the configs I've tried have consistently failed to
+> shake the crash, so I have a semi-reproducible test case here on C3-2
+> hardware if somebody wants to investigate the problem (though it still
+> takes 6-12 hours).
 
-Must be an application bug, otherwise more apps would be affected.
+The GCC code generator appears to have been rewritten between 3.4.6 and 
+4.1.1....
 
-The best solution is to use a separate high priority thread for anything
-with a real time constraint, like audio playback or capture.
+I took a look at the dump he posted and there are some minor and some massive 
+differences between the code. In one case some of the code is swapped, in 
+another there is code in the 3.4.6 version that isn't in the 4.1.1... Finally 
+the 4.1.1 version of the function has what appears to be function calls and 
+these don't appear in the code generated by 3.4.6
 
-Lee
+In other words - the code generation for 4.1.1 appears to be broken when it 
+comes to generating system code.
 
+DRH

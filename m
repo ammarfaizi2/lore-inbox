@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753153AbXABLG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754805AbXABLLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753153AbXABLG4 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 06:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754805AbXABLG4
+	id S1754805AbXABLLM (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 06:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754562AbXABLLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 06:06:56 -0500
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:55780 "EHLO
-	smtpq3.tilbu1.nb.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753153AbXABLGz (ORCPT
+	Tue, 2 Jan 2007 06:11:12 -0500
+Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:33955 "EHLO
+	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754805AbXABLLL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 06:06:55 -0500
-Message-ID: <459A3C6E.7060503@gmail.com>
-Date: Tue, 02 Jan 2007 12:05:18 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Tue, 2 Jan 2007 06:11:11 -0500
+Message-ID: <459A3DCD.4020701@refactor.fi>
+Date: Tue, 02 Jan 2007 13:11:09 +0200
+From: Leonard Norrgard <leonard.norrgard@refactor.fi>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-To: Vivek Goyal <vgoyal@in.ibm.com>
-CC: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: CONFIG_PHYSICAL_ALIGN limited to 4M?
-Content-Type: multipart/mixed;
- boundary="------------060201010809000800010100"
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.20-rc3: bt878/bttv: Unknown symbols, despite being defined in
+ module depended on
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060201010809000800010100
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+This seems a bit odd. As the bt878 module loads, I get the following
+error messages, despite definitions in the bttv module that bt878
+depends on:
 
-Good day.
+# egrep '(bttv_read_gpio|bttv_write_gpio|bttv_gpio_enable)' /var/log/dmesg
+bt878: Unknown symbol bttv_read_gpio
+bt878: Unknown symbol bttv_write_gpio
+bt878: Unknown symbol bttv_gpio_enable
 
-A while ago it was remarked on list here that keeping the kernel 4M 
-aligned physically might be a performance win if the added 1M (it 
-normally loads at 1M) meant it would fit on one 4M aligned hugepage 
-instead of 2 and since that time I've been doing such.
+SMP kernel, the cpu is an AMD Athlon(tm) 64 X2 Dual Core Processor 5200+.
 
-In fact, while I was at it, I ran the kernel at 16M; while admittedly a 
-bit of a non-issue, having never experienced ZONE_DMA shortage, I am an 
-ISA user on a >16M machine so this seemed to make sense -- no kernel 
-eating up "precious" ISA-DMAable memory.
+Full dmesg output is at
+http://bugzilla.kernel.org/attachment.cgi?id=9987&action=view (unrelated
+bug, but same box).
 
-Recently CONFIG_PHYSICAL_START was replaced by CONFIG_PHYSICAL_ALIGN 
-(commit e69f202d0a1419219198566e1c22218a5c71a9a6) and while 4M alignment 
-is still possible, that's also the strictest alignment allowed meaning I 
-can't load my (non-relocatable) kernel at 16M anymore.
+Full config is at
+http://bugzilla.kernel.org/attachment.cgi?id=9988&action=view (likewise).
 
-If I just apply the following and set it to 16M, things seem to be 
-working for me. Was there an important reason to limit the alignment to 
-4M, and if so, even on non relocatable kernels?
+Output of lspci -nn -vvx is at:
+http://bugzilla.kernel.org/attachment.cgi?id=9989&action=view (likewise).
 
-Rene.
+# modinfo bt878 | grep depends
+depends:        bttv
 
+# nm dvb/bt8xx/bt878.ko | egrep
+'(bttv_read_gpio|bttv_write_gpio|bttv_gpio_enable)'
+                 U bttv_gpio_enable
+                 U bttv_read_gpio
+                 U bttv_write_gpio
 
---------------060201010809000800010100
-Content-Type: text/plain;
- name="config_physical_align_16m.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="config_physical_align_16m.diff"
+# nm video/bt8xx/bttv.ko | egrep
+'(bttv_read_gpio|bttv_write_gpio|bttv_gpio_enable)'
+0000000011dc4b6d A __crc_bttv_gpio_enable
+00000000bcf2d2fb A __crc_bttv_read_gpio
+000000008ecf4acc A __crc_bttv_write_gpio
+0000000000000018 r __kcrctab_bttv_gpio_enable
+0000000000000020 r __kcrctab_bttv_read_gpio
+0000000000000028 r __kcrctab_bttv_write_gpio
+0000000000000040 r __kstrtab_bttv_gpio_enable
+0000000000000051 r __kstrtab_bttv_read_gpio
+0000000000000060 r __kstrtab_bttv_write_gpio
+0000000000000030 r __ksymtab_bttv_gpio_enable
+0000000000000040 r __ksymtab_bttv_read_gpio
+0000000000000050 r __ksymtab_bttv_write_gpio
+000000000000898c T bttv_gpio_enable
+000000000000894d T bttv_read_gpio
+0000000000008909 T bttv_write_gpio
 
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 0d67a0a..aeadec2 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -793,7 +793,7 @@ config RELOCATABLE
- config PHYSICAL_ALIGN
- 	hex "Alignment value to which kernel should be aligned"
- 	default "0x100000"
--	range 0x2000 0x400000
-+	range 0x2000 0x1000000
- 	help
- 	  This value puts the alignment restrictions on physical address
-  	  where kernel is loaded and run from. Kernel is compiled for an
-
---------------060201010809000800010100--

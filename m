@@ -1,93 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964785AbXABMKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964786AbXABMOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbXABMKx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 07:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbXABMKx
+	id S964786AbXABMOr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 07:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbXABMOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 07:10:53 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:15549 "EHLO kernel.dk"
+	Tue, 2 Jan 2007 07:14:47 -0500
+Received: from ns2.suse.de ([195.135.220.15]:48223 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964785AbXABMKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 07:10:52 -0500
-Date: Tue, 2 Jan 2007 13:10:48 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Rene Herman <rene.herman@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Tejun Heo <htejun@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.20-rc2+: CFQ halving disk throughput.
-Message-ID: <20070102121048.GU2483@kernel.dk>
-References: <45893CAD.9050909@gmail.com> <45921E73.1080601@gmail.com> <4592B25A.4040906@gmail.com> <45932AF1.9040900@gmail.com> <45998F62.6010904@gmail.com> <20070101213601.c526f779.akpm@osdl.org> <20070102084447.GS2483@kernel.dk> <459A32E5.70506@gmail.com> <20070102115757.GT2483@kernel.dk>
+	id S964786AbXABMOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 07:14:46 -0500
+Date: Tue, 2 Jan 2007 13:14:36 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Lee Garrett <lee-in-berlin@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk than in 2.6.18
+Message-ID: <20070102121436.GA26069@suse.de>
+References: <200611121436.46436.arvidjaar@mail.ru> <45844374.60903@web.de> <20070102100513.GA8693@suse.de> <1167735483.19781.90.camel@frg-rhel40-em64t-03>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20070102115757.GT2483@kernel.dk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1167735483.19781.90.camel@frg-rhel40-em64t-03>
+X-Operating-System: openSUSE 10.2 (i586), Kernel 2.6.18.2-34-default
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02 2007, Jens Axboe wrote:
-> On Tue, Jan 02 2007, Rene Herman wrote:
-> > Jens Axboe wrote:
+On Tue, Jan 02, 2007 at 11:58:03AM +0100, Xavier Bestel wrote:
+> On Tue, 2007-01-02 at 11:05 +0100, Stefan Seyfried wrote:
+> > On Sat, Dec 16, 2006 at 08:05:24PM +0100, Lee Garrett wrote:
+> > > I had the same problem (/boot on reiserfs, grub hanging for ages after resume
+> > > with 2.6.19), but in 2.6.19.1 it seems fixed. Do you still have this bug,
+> > > Andrey? I didn't find an update on this issue on LKML.
 > > 
-> > >On Mon, Jan 01 2007, Andrew Morton wrote:
-> > 
-> > >>The patch would appear to need this fix:
-> > >>
-> > >>--- a/block/cfq-iosched.c~a
-> > >>+++ a/block/cfq-iosched.c
-> > >>@@ -592,7 +592,7 @@ static int cfq_allow_merge(request_queue
-> > >> 	if (cfqq == RQ_CFQQ(rq))
-> > >> 		return 1;
-> > >> 
-> > >>-	return 1;
-> > >>+	return 0;
-> > >> }
-> > >> 
-> > >> static inline void
-> > >>_
-> > >>
-> > >>But that might not fix things...
-> > >
-> > >Yeah it is, but I don't think it'll fix it (if anything, it'll be more
-> > >conservative).
-> > 
-> > (to possibly save others from trying -- no, doesn't fix any)
+> > I'm pretty sure this is just a coincidence, an issue about how the kernel
+> > image is actually layed out on your filesystem. I don't think it actually
+> > has to do anything with the version.
 > 
-> As expected. The issue is rq_is_sync(rq) takes the data direction into
-> account as well, while bio_sync() only checks the sync bit. This should
-> fix it.
+> Isn't the cause just that with that kernel the fs image is left unclean,
 
-And here a little more relaxed version, as Mark Lord suggested. We allow
-merge of async bio into a sync request, but not vice versa.
+with all kernels. I don't think it changed from 2.6.19 to 2.6.19.1
 
-Both patches pending testing, will do so now.
+> and grub has to replay the journal, which is slow ? 
 
-diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
-index 4b4217d..07b7062 100644
---- a/block/cfq-iosched.c
-+++ b/block/cfq-iosched.c
-@@ -577,9 +577,9 @@ static int cfq_allow_merge(request_queue
- 	pid_t key;
- 
- 	/*
--	 * Disallow merge, if bio and rq aren't both sync or async
-+	 * Disallow merge of a sync bio into an async request.
- 	 */
--	if (!!bio_sync(bio) != !!rq_is_sync(rq))
-+	if ((bio_data_dir(bio) == READ || bio_sync(bio)) && !rq_is_sync(rq))
- 		return 0;
- 
- 	/*
-@@ -592,7 +592,7 @@ static int cfq_allow_merge(request_queue
- 	if (cfqq == RQ_CFQQ(rq))
- 		return 1;
- 
--	return 1;
-+	return 0;
- }
- 
- static inline void
-
+Yes. But i think it depends on the actual disk layout _how slow_ it is :-)
 -- 
-Jens Axboe
-
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

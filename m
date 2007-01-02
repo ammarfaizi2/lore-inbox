@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932583AbXABAM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932652AbXABAN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbXABAM1 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 19:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbXABAM1
+	id S932652AbXABAN6 (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 19:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbXABAN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 19:12:27 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3472 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932583AbXABAM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 19:12:26 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH] usb: usbmixer error path fix
-Date: Tue, 2 Jan 2007 01:13:46 +0100
-User-Agent: KMail/1.9.5
-Cc: Greg KH <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 1 Jan 2007 19:13:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:50526 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932652AbXABAN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 19:13:57 -0500
+Subject: Re: [PATCH] radeonfb: add support for newer cards
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Luca Tettamanti <kronos.it@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Solomon Peachy <pizza@shaftnet.org>,
+       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <20070101212551.GA19598@dreamland.darkstar.lan>
+References: <20070101212551.GA19598@dreamland.darkstar.lan>
+Content-Type: text/plain
+Date: Tue, 02 Jan 2007 11:13:35 +1100
+Message-Id: <1167696815.23340.154.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701020113.47096.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2007-01-01 at 22:25 +0100, Luca Tettamanti wrote:
+> Hi Ben, Andrew,
+> I've rebased 'ATOM BIOS patch' from Solomon Peachy to apply to 2.6.20.
+> The patch adds support for newer Radeon cards and is mainly based on
+> X.Org code.
+> 
+> I've fixed a few things:
+> - Port sharing in radeon_get_conn_info_atom; old code didn't actually
+>   deal with it leading to wrong monitor detection
+> - Don't try to use I2C bus if BIOS says that there's no DDC channel,
+>   otherwise bad things happen:
+>   http://marc.theaimsgroup.com/?l=linux-fbdev-devel&m=116455601620186&w=2
+> - Make it compile on PPC (hopefully...)
+> - Cleanup whitespaces and coding style (only in the code alreay affected
+>   by the patch, I didn't touched all the driver...)
+> 
+> Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
+> Signed-Off-By: Solomon Peachy <pizza@shaftnet.org> (I guess...)
 
-	Without the patch below namelist[0] will not be freed in case
-of kmalloc error.
+I've done my own changes here. Can you send me a patch against Solomon's
+version of the driver instead of a combined patch ?
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- sound/usb/usbmixer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -upr linux-2.6.20-rc2-mm1-a/sound/usb/usbmixer.c linux-2.6.20-rc2-mm1-b/sound/usb/usbmixer.c
---- linux-2.6.20-rc2-mm1-a/sound/usb/usbmixer.c	2006-12-24 05:00:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1-b/sound/usb/usbmixer.c	2007-01-01 23:55:31.000000000 +0100
-@@ -1526,7 +1526,7 @@ static int parse_audio_selector_unit(str
- 		namelist[i] = kmalloc(MAX_ITEM_NAME_LEN, GFP_KERNEL);
- 		if (! namelist[i]) {
- 			snd_printk(KERN_ERR "cannot malloc\n");
--			while (--i > 0)
-+			while (i--)
- 				kfree(namelist[i]);
- 			kfree(namelist);
- 			kfree(cval);
+Ben.
 
 
--- 
-Regards,
-
-	Mariusz Kozlowski

@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755257AbXABEhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755263AbXABE6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755257AbXABEhq (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 23:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755260AbXABEhq
+	id S1755263AbXABE6k (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 23:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755264AbXABE6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 23:37:46 -0500
-Received: from THUNK.ORG ([69.25.196.29]:57292 "EHLO thunker.thunk.org"
+	Mon, 1 Jan 2007 23:58:40 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47401 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755257AbXABEhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 23:37:46 -0500
-Date: Mon, 1 Jan 2007 23:37:43 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Print sysrq-m messages with KERN_INFO priority
-Message-ID: <20070102043743.GB15718@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <E1H0Uq5-0003Fo-1W@candygram.thunk.org> <20061229204247.be66c972.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061229204247.be66c972.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	id S1755263AbXABE6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 23:58:39 -0500
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Miller <davem@davemloft.net>
+Cc: segher@kernel.crashing.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org, devel@laptop.org, dmk@flex.com,
+       wmb@firmworks.com, jg@laptop.org
+In-Reply-To: <20070101.203043.112622209.davem@davemloft.net>
+References: <445cb4c27a664491761ce4e219aa0960@kernel.crashing.org>
+	 <20070101.005714.35017753.davem@davemloft.net>
+	 <1167710760.6165.32.camel@localhost.localdomain>
+	 <20070101.203043.112622209.davem@davemloft.net>
+Content-Type: text/plain
+Date: Tue, 02 Jan 2007 15:57:05 +1100
+Message-Id: <1167713825.6165.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2006 at 08:42:47PM -0800, Andrew Morton wrote:
-> On Fri, 29 Dec 2006 22:24:53 -0500
-> "Theodore Ts'o" <tytso@mit.edu> wrote:
-> 
-> > Print messages resulting from sysrq-m with a KERN_INFO instead of the
-> > default KERN_WARNING priority
-> 
-> hm, I wonder why.  If someone does sysrq-<whatever> then they presumably want
-> to display the result?  Tricky.
-> 
-> Is this patch a consistency thing?
 
-The goal of the patch was to avoid filling /var/log/messages huge
-amounts of sysrq text.  Some of the sysrq commands, especially sysrq-m
-and sysrq-t emit a truly vast amount of information, and it's not
-really nice to have that filling up /var/log/messages.  
+> I think there is high value in an OFW filesystem representation
+> that gives you _EXACTLY_ what the OFW command line prompt does
+> when you try to traverse the device tree from there, and that
+> is what openpromfs tries to do.
 
-						- Ted
+Except that every OFW implementation I have here shows you different
+things for the same original binary data :-)
+
+> If you want raw access, use a character device or a similar auxilliary
+> access to the data items.  Another idea is to provide a seperate file
+> operation (such as ioctl) on the OFW property files in order to fetch
+> things raw and in binary.
+> 
+> When I get some binary data out of a procfs or sysfs file I feel like
+> strangling somebody.  I'm grovelling around in a filesystem from the
+> command line so that I can get some information as a user.  If you
+> don't give me text I can't tell what the heck it is.
+> 
+> Simple system tools should not need to interpret binary data in
+> order to provide access to simple structured data like this, that's
+> just stupid.
+
+I would agree with you if the data was properly typed in the first place
+but it's not, thus you end up with heuristics and I hate heuristics in
+the kernel :-) Now, that's also why everybody on ppc has "lsprop" at
+hand which does the "pretty printing" thing.
+
+I like being able to have a simple way (ie. tar /proc/device-tree) to
+tell user to send me their DT and have in the end an exact binary
+representation so I can actually dig for problems, like a wrong phandle
+in an interrupt-map or stuff like that...
+
+Cheers,
+Ben.
+
+

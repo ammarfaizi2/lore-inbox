@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932865AbXABLhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932856AbXABLhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932865AbXABLhP (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 06:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932856AbXABLhP
+	id S932856AbXABLhT (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 06:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932866AbXABLhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 06:37:15 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3689 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932865AbXABLhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 06:37:14 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: paulus@samba.org
-Subject: [PATCH] ppc: vio of_node_put cleanup
-Date: Tue, 2 Jan 2007 12:38:36 +0100
-User-Agent: KMail/1.9.5
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 2 Jan 2007 06:37:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:49137 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932856AbXABLhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 06:37:18 -0500
+In-Reply-To: <1167709406.6165.6.camel@localhost.localdomain>
+References: <459714A6.4000406@firmworks.com> <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr> <20061231.124531.125895122.davem@davemloft.net> <1167709406.6165.6.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701021238.36297.m.kozlowski@tuxland.pl>
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, jengelh@linux01.gwdg.de,
+       David Miller <davem@davemloft.net>, wmb@firmworks.com, jg@laptop.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Date: Tue, 2 Jan 2007 12:37:32 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>> So please do this crap right.
+>
+> I strongly agree. Nowadays, both powerpc and sparc use an in-memory 
+> copy
+> of the tree (wether you use the flattened format during the trampoline
+> from OF runtime to the kernel or not is a different matter, we created
+> that for the sake of kexec and embedded devices with no real OF, but 
+> the
+> end result is the same, a kernel based tree structure).
 
-	This patch removes redundant argument check for of_node_put().
+Are you really suggesting that using a kernel copy of the
+device tree is the correct thing to do, and the only correct
+thing to do -- with the sole argument that "that's what the
+current ports do"?
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> There is already powerpc's /proc/device-tree and sparc's openpromfs, 
+> I'm
+> all about converging that to a single implementation (a filesystem is
+> fine)
 
- arch/powerpc/kernel/vio.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+We all agree on that, the OLPC people too, they just didn't
+have time yet.
 
-diff -upr linux-2.6.20-rc2-mm1-a/arch/powerpc/kernel/vio.c linux-2.6.20-rc2-mm1-b/arch/powerpc/kernel/vio.c
---- linux-2.6.20-rc2-mm1-a/arch/powerpc/kernel/vio.c	2006-12-24 05:00:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1-b/arch/powerpc/kernel/vio.c	2007-01-02 01:55:31.000000000 +0100
-@@ -199,10 +199,8 @@ EXPORT_SYMBOL(vio_unregister_driver);
- /* vio_dev refcount hit 0 */
- static void __devinit vio_dev_release(struct device *dev)
- {
--	if (dev->archdata.of_node) {
--		/* XXX should free TCE table */
--		of_node_put(dev->archdata.of_node);
--	}
-+	/* XXX should free TCE table */
-+	of_node_put(dev->archdata.of_node);
- 	kfree(to_vio_dev(dev));
- }
- 
+> that uses the in-memory tree.
+
+...but to that I can't agree.
 
 
--- 
-Regards,
+Segher
 
-	Mariusz Kozlowski

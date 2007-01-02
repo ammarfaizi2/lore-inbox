@@ -1,47 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755078AbXABCg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755123AbXABCgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755078AbXABCg2 (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 21:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755093AbXABCg2
+	id S1755123AbXABCgt (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 21:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755198AbXABCgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 21:36:28 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34306 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755040AbXABCg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 21:36:27 -0500
-Date: Mon, 1 Jan 2007 18:36:24 -0800
-From: Jeremy Higdon <jeremy@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] cdrom: longer timeout for "Read Track Info" command
-Message-ID: <20070102023623.GA3108@sgi.com>
+	Mon, 1 Jan 2007 21:36:49 -0500
+Received: from xenotime.net ([66.160.160.81]:33124 "HELO xenotime.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1755123AbXABCgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 21:36:48 -0500
+Date: Mon, 1 Jan 2007 18:23:22 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/8] UML - audio driver formatting
+Message-Id: <20070101182322.b365543a.rdunlap@xenotime.net>
+In-Reply-To: <4599BAE1.9050804@student.ltu.se>
+References: <200701011947.l01JlAMo020761@ccure.user-mode-linux.org>
+	<4599BAE1.9050804@student.ltu.se>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a DVD combo drive and a CD in which the
-"READ TRACK INFORMATION" command (implemented in the
-cdrom_get_track_info() function) takes about 7 seconds to run.
-The current implementation of cdrom_get_track_info() uses the
-default timeout of 5 seconds.  So here's a patch that increases
-the timeout from 5 to 15 seconds.
+On Tue, 02 Jan 2007 02:52:33 +0100 Richard Knutsson wrote:
 
-The drive in question is a TSSTcorpCD/DVDW SN-S082D, and I have
-a Silicon Image 680A adapter, in case that's of interest.
+> Jeff Dike wrote:
+> > Whitespace and style fixes.
+> >
+> > Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> > --
+> >  arch/um/drivers/hostaudio_kern.c |  160 +++++++++++++++++----------------------
+> >  1 file changed, 73 insertions(+), 87 deletions(-)
+> >
+> > Index: linux-2.6.18-mm/arch/um/drivers/hostaudio_kern.c
+> > ===================================================================
+> > --- linux-2.6.18-mm.orig/arch/um/drivers/hostaudio_kern.c	2006-12-29 21:13:41.000000000 -0500
+> > +++ linux-2.6.18-mm/arch/um/drivers/hostaudio_kern.c	2006-12-29 21:13:42.000000000 -0500
+> > @@ -15,11 +15,11 @@
+> >  #include "os.h"
+> >  
+> >  struct hostaudio_state {
+> > -  int fd;
+> > +	int fd;
+> >  };
+> >  
+> >  struct hostmixer_state {
+> > -  int fd;
+> > +	int fd;
+> >  };
+> >  
+> >  #define HOSTAUDIO_DEV_DSP "/dev/sound/dsp"
+> > @@ -72,12 +72,12 @@ MODULE_PARM_DESC(mixer, MIXER_HELP);
+> >  static ssize_t hostaudio_read(struct file *file, char __user *buffer,
+> >  			      size_t count, loff_t *ppos)
+> >  {
+> > -        struct hostaudio_state *state = file->private_data;
+> > +	struct hostaudio_state *state = file->private_data;
+> >  	void *kbuf;
+> >  	int err;
+> >  
+> >  #ifdef DEBUG
+> > -        printk("hostaudio: read called, count = %d\n", count);
+> > +	printk("hostaudio: read called, count = %d\n", count);
+> >  #endif
+> >  
+> >  	kbuf = kmalloc(count, GFP_KERNEL);
+> > @@ -91,7 +91,7 @@ static ssize_t hostaudio_read(struct fil
+> >  	if(copy_to_user(buffer, kbuf, err))
+> >  		err = -EFAULT;
+> >  
+> > - out:
+> > +out:
+> >   
+> Isn't labels _suppose_ to be spaced? (due to "grep", if I'm not mistaken)...
 
-signed-off-by: <jeremy@sgi.com>
+There was some noise about that (due to 'patch' IIRC).
+I tested it and could not cause a problem with labels beginning
+in column 0.  Can you?
 
-diff -ur linux-2.6.20-rc3_ORIG/drivers/cdrom/cdrom.c linux-2.6.20-rc3/drivers/cdrom/cdrom.c
---- linux-2.6.20-rc3_ORIG/drivers/cdrom/cdrom.c	2006-12-31 16:53:20.000000000 -0800
-+++ linux-2.6.20-rc3/drivers/cdrom/cdrom.c	2007-01-01 18:13:50.135173456 -0800
-@@ -3094,6 +3094,7 @@
- 	cgc.cmd[5] = track & 0xff;
- 	cgc.cmd[8] = 8;
- 	cgc.quiet = 1;
-+	cgc.timeout = 15*HZ;
- 
- 	if ((ret = cdo->generic_packet(cdi, &cgc)))
- 		return ret;
+> >  	kfree(kbuf);
+> >  	return(err);
+> >  }
+
+
+
+---
+~Randy

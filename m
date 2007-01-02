@@ -1,111 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753672AbXABTFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754918AbXABTHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753672AbXABTFS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754921AbXABTFS
+	id S1754918AbXABTHW (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 14:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755402AbXABTHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:05:18 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:51475 "EHLO
-	ms-smtp-03.nyroc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753672AbXABTFQ (ORCPT
+	Tue, 2 Jan 2007 14:07:22 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2328 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754921AbXABTHU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 14:05:16 -0500
-Subject: [OT] Hot coffee (was: Open letter to Linux kernel developers (was
-	Re: Binary Drivers))
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Theodore Tso <tytso@mit.edu>,
-       Trent Waddington <trent.waddington@gmail.com>,
-       Bernd Petrovitsch <bernd@firmix.at>,
-       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
-References: <4587097D.5070501@opensound.com>
-	 <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
-	 <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
-	 <20061222115921.GT3073@harddisk-recovery.com>
-	 <1167568899.3318.39.camel@gimli.at.home>
-	 <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
-	 <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
-	 <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
-	 <1167730833.12526.35.camel@tara.firmix.at>
-	 <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
-	 <20070102125026.GA4608@thunk.org>
-	 <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 14:04:59 -0500
-Message-Id: <1167764699.17805.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Jan 2007 14:07:20 -0500
+Date: Tue, 2 Jan 2007 20:07:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Berthold Cogel <cogel@rrz.uni-koeln.de>, len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: Regression in kernel linux-2.6.20-rc1/2: Problems with poweroff
+Message-ID: <20070102190722.GT20714@stusta.de>
+References: <459069AA.20809@rrz.uni-koeln.de> <20061228221616.GI20714@stusta.de> <45999C47.40204@rrz.uni-koeln.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45999C47.40204@rrz.uni-koeln.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 08:22 -0500, Robert P. J. Day wrote:
-> On Tue, 2 Jan 2007, Theodore Tso wrote:
+On Tue, Jan 02, 2007 at 12:41:59AM +0100, Berthold Cogel wrote:
+> Adrian Bunk schrieb:
+> > On Tue, Dec 26, 2006 at 01:15:38AM +0100, Berthold Cogel wrote:
+> > 
+> >> Hello!
+> > 
+> > Hi Berthold!
+> > 
+> >> 'shutdown -h now' doesn't work for my system (Acer Extensa 3002 WLMi)
+> >> with linux-2.6.20-rc kernels. The system reboots instead.
+> >> I've checked linux-2.6.19.1 with an almost identical .config file
+> >> (differences because of new or changed options). For pre 2.6.20 kernels
+> >> shutdown works for my computer.
+> >> ...
+> > 
+> > Thanks for your report.
+> > 
+> > Please send:
+> > - the .config for 2.6.20-rc2
+> > - the output of "dmesg -s 1000000" with 2.6.20-rc2
+> > - the output of "dmesg -s 1000000" with 2.6.19
 > 
-> > I can very easily believe it.  The US patent system and "justice"
-> > system in the US is completely and totally insane, and companies
-> > often feel they have to act accordingly.  Remember this is the
-> > country that has issued multi-million dollar awards to people who
-> > spill hot coffee in their lap ...
+> Hello Adrian,
+
+Hi Berthold,
+
+> I've attached the informations you requested.
+
+thanks for this information.
+
+> In additon to the poweroff problem I see a lot of messages with
+> linux-2.6.20-rc2 that I do not see with linux-2.6.20-rc1:
 > 
-> MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
-> lap" story as an example of the idiocy of the justice system?  i'm
-> guessing there's more to this story than most folks are aware of, and
-> you're welcome to read the details here:
+> kernel: ACPI: EC: evaluating _Q80
+> kernel: ACPI: EC: evaluating _Q81
+> kernel: ACPI: EC: evaluating _Q09
+> kernel: ACPI: EC: evaluating _Q20
 > 
->   http://www.lectlaw.com/files/cur78.htm
+> I'm running Debian testing/unstable with 'homemade' kernels. The laptop
+> is one of those using the Smart Battery System.
 
-Thanks for the pointer.
+The ACPI warnings might be harmless, but there's nothing obvious I see 
+outside of ACPI that might be related to your problem (ACPI maintainers 
+Cc'ed).
 
-"The jury awarded Liebeck $200,000 in compensatory damages.  This amount
-was reduced to $160,000 because the jury found Liebeck 20 percent at
-fault in the spill.  The jury also awarded Liebeck $2.7 million in
-punitive damages, which equals about two days of McDonalds' coffee
-sales."
+> Berthold
 
-Although the punitive damages was later brought down to $480,000 (still
-extreme for the case) it wasn't just the law suit that caused the
-uproar. It was the $2.7 million that was (initially) rewarded. And for
-what? Spilling hot substance on your lap.  I highly doubt that this
-would have been big news if the reward was just the $200,000. Since
-that's not really a life changing reward now a days.  But there's too
-much "sue for the money" attitude in the US that the $2.7 mill got
-people upset.
+cu
+Adrian
 
-> 
-> as you can see, there are two salient points that change the
-> complexion of this story thoroughly:
-> 
-> 1) mcdonald's was not merely serving their coffee "hot," but
-> *scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
-> will produce third-degree burns almost immediately, and
-> 
-> 2) there had, for a decade prior, been some *700* cases where people
-> had burned themselves with mcdonald's coffee, so it's not as if
-> mcdonald's was unaware of the danger, yet continued to ignore it.
+-- 
 
-I'll admit that I burnt myself while driving and drinking McD's coffee,
-but I never even thought about complaining about it.
-
-> 
->   yes, the american system of justice is brain-damaged.  but it's time
-> to find another example to use as the evidence, ok?
-
-OK, I like Ted's example of the lawnmower :) 
-
-Well, the coffee one has gotten world news, and is just the "poster boy"
-for the frivolous lawsuits that are done in America.  A while back I met
-a guy and he told me that he was working on his motorcycle, and disabled
-the breaks. Someone came by and stole the bike when he went in his house
-to get some tools. The thief crashed the bike (totaling it) and received
-some major injuries. Then the thief sued the guy because of the faulty
-breaks!  He was in the middle of the case when I met him, so I don't
-know how it ended. But the fact that this wasn't laughed out of court
-just shows that the US system is screwed up.
-
--- Steve
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

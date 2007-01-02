@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755405AbXABUzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964955AbXABVBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755405AbXABUzX (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 15:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755408AbXABUzX
+	id S964955AbXABVBH (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbXABVBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 15:55:23 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:51090 "EHLO e5.ny.us.ibm.com"
+	Tue, 2 Jan 2007 16:01:06 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:46579 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755405AbXABUzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 15:55:22 -0500
-Subject: Re: [RFC] HZ free ntp
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1167767185.3141.15.camel@localhost>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	 <1166578357.5594.3.camel@localhost> <1166579658.5594.6.camel@localhost>
-	 <200701011929.28546.zippel@linux-m68k.org>
-	 <1167767185.3141.15.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 12:50:52 -0800
-Message-Id: <1167771052.3141.32.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	id S964955AbXABVBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:01:05 -0500
+Message-ID: <459AC808.1030807@pobox.com>
+Date: Tue, 02 Jan 2007 16:00:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
+CC: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] libata: fix combined mode (was Re: Happy New Year (and
+ v2.6.20-rc3 released))
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>	<5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com>	<Pine.LNX.4.64.0701011209140.4473@woody.osdl.org>	<459973F6.2090201@pobox.com> <20070102115834.1e7644b2@localhost.localdomain>
+In-Reply-To: <20070102115834.1e7644b2@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 11:46 -0800, john stultz wrote:
-> On Mon, 2007-01-01 at 19:29 +0100, Roman Zippel wrote:
-> > On Wednesday 20 December 2006 02:54, john stultz wrote:
-> > 
-> > > And here would be the follow on patch (again *untested*) for
-> > > CONFIG_NO_HZ slowing the time accumulation down to once per second.
-> > 
-> > Changing it to one creates a potential problem with calling second_overflow().
+Alan wrote:
+> This is a slight variant on the patch I posted December 16th to fix
+> libata combined mode handling. The only real change is that we now
+> correctly also reserve BAR1,2,4. That is basically a neatness issue.
+> 
+> Jeff was unhappy about two things
+> 
+> 1. That it didn't work in the case of one channel native one channel
+> legacy. 
 
-Wait, at first I thought I understood this, but looking closer, I'm not
-so sure I do.
+> This is a silly complaint because the SFF layer in libata doesn't handle
+> this case yet anyway.
 
-> > It should be called every NTP_INTERVAL_FREQ times, but occasionally it's off
+Yes, it's "silly" people people use configurations you find inconvenient.
 
-Wait, so second_overflow should be called every NTP_INTERVAL_FREQ times
-(instead of every second)? Surely that's not right.
+At least one embedded x86 case cares, that I know of.  They only needed 
+to make two minor changes to make it work.
 
-> > by one (when xtime is close to a full second and the tick length is different
-> > from 1sec). At a higher frequency that's not much of a problem, but at one it
-> > means second_overflow() is occasionally called twice a second or skipped for
-> > a second. Usually the error should be quite small, but sometimes it can be
-> > significant.
-> > So in this case the loop in update_wall_time() should rather look like this:
-> > 
-> > 	while (offset >= clock->cycle_interval) {
-> > 		...
-> > 		second_overflow();
-> > 		while (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
-> > 			clock->xtime_nsec -= (u64)NSEC_PER_SEC << clock->shift;
-> > 			xtime.tv_sec++;
-> > 		}
-> > 		...
-> > 	}
-> > 
-> > (Also note the change from "if" to "while".)
 
-This would assume that clock->cycle_interval would *always* be the
-length of a full second and that isn't what the patch trying to do.
+> 2. The case where combined mode is in use and IDE=n. 
 
-Maybe could you explain this some more?
+> In this case the libata quirk code reserves the resources in question
+> correctly already.
 
-thanks
--john
+Not /all/ the resources.  And YOU were the person harping me about 
+acquiring all resources, so that even races no one cares about[1] are 
+avoided.
+
+
+But those two items were just from my five-minute, on-vacation review. 
+Obvious bug #3:
+
+The code no long reserves resources for the "extra" PCI BAR that often 
+exists on PCI controllers regardless of legacy/native mode.  Previously, 
+the code called pci_request_regions() to reserve ALL regions attached to 
+the PCI device.
+
+You have suddenly decided that it's OK to --not reserve at all-- these 
+additional regions.
+
+Proof:  The AHCI PCI BAR (#5, zero-based) is clearly NOT reserved, even 
+though we talk to it, in piix_disable_ahci() of ata_piix.c.
+
+	Jeff
+
 
 

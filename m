@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753438AbXABSPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754894AbXABSWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753438AbXABSPz (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 13:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753651AbXABSPz
+	id S1754894AbXABSWG (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 13:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754893AbXABSWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 13:15:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35565 "EHLO mx1.redhat.com"
+	Tue, 2 Jan 2007 13:22:06 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:36473 "EHLO tetsuo.zabbo.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753438AbXABSPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 13:15:54 -0500
-Date: Tue, 2 Jan 2007 13:15:43 -0500
-From: Dave Jones <davej@redhat.com>
-To: Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Print sysrq-m messages with KERN_INFO priority
-Message-ID: <20070102181543.GF7656@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Theodore Tso <tytso@mit.edu>, Alan <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <E1H0Uq5-0003Fo-1W@candygram.thunk.org> <20061229204247.be66c972.akpm@osdl.org> <20070102043743.GB15718@thunk.org> <20070102103332.46de83bd@localhost.localdomain> <20070102180354.GA892@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070102180354.GA892@thunk.org>
-User-Agent: Mutt/1.4.2.2i
+	id S1754886AbXABSWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 13:22:05 -0500
+In-Reply-To: <20070102110136.GA20640@infradead.org>
+References: <000001c717c0$f82b5ea0$2589030a@amr.corp.intel.com> <28F99581-3A2A-45BD-8F00-B554313E2C26@oracle.com> <20070102110136.GA20640@infradead.org>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <712B05B5-F7E2-4F19-9980-2CA95C5D15AC@oracle.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Zach Brown <zach.brown@oracle.com>
+Subject: Re: [patch] remove redundant iov segment check
+Date: Tue, 2 Jan 2007 10:22:00 -0800
+To: Christoph Hellwig <hch@infradead.org>
+X-Mailer: Apple Mail (2.752.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 01:03:54PM -0500, Theodore Tso wrote:
+>> I wonder if it wouldn't be better to make this change as part of a
+>> larger change that moves towards an explicit iovec container struct
+>> rather than bare 'struct iov *' and 'nr_segs' arguments.
 
- > or perhaps better, making the sysrq-m information
- > available via either /proc or /sys?
+> I suspect it should be rather trivial to get this started.  As a first
+> step we simply add a
+>
+> struct iodesc {
+> 	int nr_segs;
+> 	struct iovec ioc[]
+> };
 
-or debugfs ?
+Agreed, does anyone plan to try this in the near future?  I can  
+always throw it at the bottom of the todo list :/.
 
-		Dave
-
-
--- 
-http://www.codemonkey.org.uk
+- z

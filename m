@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755275AbXABGLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755276AbXABG17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755275AbXABGLy (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 01:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755276AbXABGLy
+	id S1755276AbXABG17 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 01:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755277AbXABG17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 01:11:54 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:52830 "EHLO e1.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755275AbXABGLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 01:11:53 -0500
-Date: Tue, 2 Jan 2007 11:41:47 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, segher@kernel.crashing.org
-Subject: Re: Patch "i386: Relocatable kernel support" causes instant reboot
-Message-ID: <20070102061147.GA30308@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m1tzzqpt04.fsf@ebiederm.dsl.xmission.com> <20061220214340.f6b037b1.khali@linux-fr.org> <m1mz5ip5r7.fsf@ebiederm.dsl.xmission.com> <20061221101240.f7e8f107.khali@linux-fr.org> <20061221145922.16ee8dd7.khali@linux-fr.org> <1166723157.29546.281560884@webmail.messagingengine.com> <20061221204408.GA7009@in.ibm.com> <20061222090806.3ae56579.khali@linux-fr.org> <20061222104056.GB7009@in.ibm.com> <20070101223913.7b1fddbf.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Jan 2007 01:27:59 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:39160 "EHLO
+	liaag2ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755276AbXABG16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 01:27:58 -0500
+Date: Tue, 2 Jan 2007 01:22:21 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: CVE-2006-6106 (bluetooth CAPI) not fixed in mainline?
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harlan Lieberman-Berg <hlieberman@gentoo.org>,
+       Daniel Drake <dsd@gentoo.org>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Message-ID: <200701020126_MC3-1-D700-F808@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070101223913.7b1fddbf.khali@linux-fr.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2007 at 10:39:13PM +0100, Jean Delvare wrote:
-> Hi Vivek,
+In-Reply-To: <1167708139.30886.1.camel@violet>
+
+On Tue, 02 Jan 2007 04:22:19 +0100, Marcel Holtmann wrote:
+
+> > This patch went into 2.6.18.6:
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116614741607528&w=2
+> > 
+> > However it is not included in 2.6.19.x or 2.6.20-rc3. Was this solved in 
+> > mainline another way, are there issues with the patch, or was this 
+> > simply overlooked?
 > 
-> Sorry for the delay, I'm just back from vacation. I tried it all again
-> with 2.6.20-rc3 just in case, but the problem I've hit is still present.
-> 
+> it is sitting in my tree to be pulled. Don't worry, it is not forgotten.
 
-Hi Jean,
+It's not in the queue for 2.6.19.2, though.
 
-Problem in not fixed yet in -rc3. So testing -rc3 will not help.
-
-Segher had suggested to use .section command to specifically mark
-.text.head section as AX (allocatable and executable) to solve the
-problem.
-
-Can you please try the attached patch to see if it solves your
-problem.
-
-Thanks
-Vivek
-
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/i386/boot/compressed/head.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/i386/boot/compressed/head.S~jean-reboot-issue-fix arch/i386/boot/compressed/head.S
---- linux-2.6.20-rc2-reloc/arch/i386/boot/compressed/head.S~jean-reboot-issue-fix	2007-01-02 09:54:56.000000000 +0530
-+++ linux-2.6.20-rc2-reloc-root/arch/i386/boot/compressed/head.S	2007-01-02 09:57:46.000000000 +0530
-@@ -28,7 +28,7 @@
- #include <asm/page.h>
- #include <asm/boot.h>
- 
--.section ".text.head"
-+.section ".text.head","ax",@progbits
- 	.globl startup_32
- 
- startup_32:
-_
+-- 
+MBTI: IXTP
 

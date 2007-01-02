@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964854AbXABMfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964860AbXABMhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbXABMfx (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 07:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbXABMfx
+	id S964860AbXABMhV (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 07:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbXABMhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 07:35:53 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:1031 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964860AbXABMfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 07:35:52 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fs: proc module_put cleanup
-Date: Tue, 2 Jan 2007 13:37:15 +0100
-User-Agent: KMail/1.9.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 2 Jan 2007 07:37:20 -0500
+Received: from gate.crashing.org ([63.228.1.57]:45601 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964860AbXABMhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 07:37:19 -0500
+In-Reply-To: <1167713825.6165.54.camel@localhost.localdomain>
+References: <445cb4c27a664491761ce4e219aa0960@kernel.crashing.org> <20070101.005714.35017753.davem@davemloft.net> <1167710760.6165.32.camel@localhost.localdomain> <20070101.203043.112622209.davem@davemloft.net> <1167713825.6165.54.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <69fccc6b0149520efdb3edc478e98304@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701021337.15596.m.kozlowski@tuxland.pl>
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org,
+       David Miller <davem@davemloft.net>, dmk@flex.com, wmb@firmworks.com,
+       hch@infradead.org, jg@laptop.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Date: Tue, 2 Jan 2007 13:36:19 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>> Simple system tools should not need to interpret binary data in
+>> order to provide access to simple structured data like this, that's
+>> just stupid.
+>
+> I would agree with you if the data was properly typed in the first 
+> place
+> but it's not,
 
-	This patch removes redundant argument check for module_put().
+OF device tree properties are "properly typed" just fine -- it's
+just that only the intended consumers of the data know what to
+expect, you certainly can't derive the data structures from just
+looking at the data in one instance of a property.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- fs/proc/inode.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff -upr linux-2.6.20-rc2-mm1-a/fs/proc/inode.c linux-2.6.20-rc2-mm1-b/fs/proc/inode.c
---- linux-2.6.20-rc2-mm1-a/fs/proc/inode.c	2006-12-28 12:57:47.000000000 +0100
-+++ linux-2.6.20-rc2-mm1-b/fs/proc/inode.c	2007-01-02 02:25:44.000000000 +0100
-@@ -60,8 +60,7 @@ static void proc_delete_inode(struct ino
- 	/* Let go of any associated proc directory entry */
- 	de = PROC_I(inode)->pde;
- 	if (de) {
--		if (de->owner)
--			module_put(de->owner);
-+		module_put(de->owner);
- 		de_put(de);
- 	}
- 	clear_inode(inode);
+Put another way, if you know what you are looking for in the
+device tree, you can decode a property just fine -- if you're
+given a random property on the other hand, you can never get
+any better than the generic property structure of "array of bytes".
 
 
--- 
-Regards,
+Segher
 
-	Mariusz Kozlowski

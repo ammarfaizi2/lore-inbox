@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754865AbXABPcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755312AbXABPdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754865AbXABPcI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 10:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754866AbXABPcH
+	id S1755312AbXABPdg (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 10:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754866AbXABPdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 10:32:07 -0500
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:51523 "EHLO
-	smtp-out5.blueyonder.co.uk" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754865AbXABPcG (ORCPT
+	Tue, 2 Jan 2007 10:33:36 -0500
+Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:56600 "EHLO
+	smtp-out3.blueyonder.co.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755312AbXABPdf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 10:32:06 -0500
-Message-ID: <459A7AF1.5060702@blueyonder.co.uk>
-Date: Tue, 02 Jan 2007 15:32:01 +0000
+	Tue, 2 Jan 2007 10:33:35 -0500
+Message-ID: <459A7B4A.5060109@blueyonder.co.uk>
+Date: Tue, 02 Jan 2007 15:33:30 +0000
 From: Sid Boyce <sboyce@blueyonder.co.uk>
 Reply-To: sboyce@blueyonder.co.uk
 Organization: blueyonder.co.uk
 User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
 To: Jarek Poplawski <jarkao2@o2.pl>
-CC: linux-kernel@vger.kernel.org, g3vbv@blueyonder.co.uk
+CC: linux-kernel@vger.kernel.org, Matti Aarnio <postmaster@vger.kernel.org>
 Subject: Re: 2.6.19 and up to  2.6.20-rc2 Ethernet problems x86_64
 References: <20061229063254.GA1628@ff.dom.local> <4595CD1B.2020102@blueyonder.co.uk> <20070102115050.GA3449@ff.dom.local>
 In-Reply-To: <20070102115050.GA3449@ff.dom.local>
@@ -75,8 +75,7 @@ Jarek Poplawski wrote:
 > 
 I have a problem with posting to linux-kernel and netdev, my mail got
 returned as SPAM, now it just gets dropped. postmaster says the filter
-is seeing a sub-string of something that is filtered. I shall try under 
-my other email address.
+is seeing a sub-string of something that is filtered.
 
 Everything is fine with a eepro100 on the 64x2 box that gave the same
 problem with a nVidia Corporation MCP51 Ethernet Controller (rev a1)
@@ -104,7 +103,8 @@ Iface
 127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
 0.0.0.0         192.168.10.102  0.0.0.0         UG    0      0        0 eth0
 
-
+Regards
+Sid.
 -- 
 Sid Boyce ... Hamradio License G3VBV, Licensed Private Pilot
 Emeritus IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support

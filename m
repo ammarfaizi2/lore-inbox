@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964960AbXABWEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754959AbXABWFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbXABWEo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 17:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbXABWEn
+	id S1754959AbXABWFJ (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 17:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754893AbXABWFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 17:04:43 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36795 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964960AbXABWEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 17:04:42 -0500
-Date: Tue, 2 Jan 2007 14:01:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-In-Reply-To: <20070102211045.GY20714@stusta.de>
-Message-ID: <Pine.LNX.4.64.0701021349420.4473@woody.osdl.org>
-References: <200612201421.03514.s0348365@sms.ed.ac.uk>
- <200612301659.35982.s0348365@sms.ed.ac.uk> <20061231162731.GK20714@stusta.de>
- <200612311655.51928.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Jan 2007 17:05:08 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:47511
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S964970AbXABWFG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 17:05:06 -0500
+Date: Tue, 02 Jan 2007 14:05:04 -0800 (PST)
+Message-Id: <20070102.140504.71092282.davem@davemloft.net>
+To: segher@kernel.crashing.org
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, devel@laptop.org,
+       dmk@flex.com, wmb@firmworks.com, jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <bb0d56f649449edb8b5cc0e1c12ede29@kernel.crashing.org>
+References: <24a109a8fa0f45011daf3e2b55172392@kernel.crashing.org>
+	<1167768735.6165.68.camel@localhost.localdomain>
+	<bb0d56f649449edb8b5cc0e1c12ede29@kernel.crashing.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Date: Tue, 2 Jan 2007 22:28:21 +0100
 
-
-On Tue, 2 Jan 2007, Adrian Bunk wrote:
+> >> Not single thread -- but a "global OF lock" yes.  Not that
+> >> it matters too much, (almost) all property accesses are init
+> >> time anyway (which is effectively single threaded).
+> >
+> > Not that true anymore. A lot of driver probe is being threaded 
+> > nowadays,
+> > either bcs of the new multithread probing bits, or because they get
+> > loaded by userland from some initramfs etc..
 > 
-> My point is that we have several reported problems only visible
-> with gcc 4.1.
-> 
-> Other bug reports are e.g. [2] and [3], but they are only present with
-> using gcc 4.1 _and_ using -Os.
+> The kernel doesn't care if one CPU is in OF land while the others
+> are doing other stuff -- well you have to make sure the OF won't
+> try to use a hardware device at the same time as the kernel, true.
 
-Traditionally, afaik, -Os has tended to show compiler problems that 
-_could_ happen with -O2 too, but never do in practice. It may be that 
-gcc-4.1 without -Os miscompiles some very unusual code, and then with -Os 
-we just hit more cases of that.
+True, but at the very least you have to prevent multiple cpus
+from enterring OFW.  In fact this is very important.
 
-That said, I th ink gcc-4.1.1 is very common - I know it's the Fedora 
-compiler. Also, CC_OPTIMIZE_FOR_SIZE defaults to 'y' if you have 
-EXPERIMENTAL on, and from all the bug-reports about other features that 
-are marked EXPERIMENTAL, I know that a lot of people do seem to select for 
-it. So I would expect that gcc-4.1.1 and -Os is actually a fairly common 
-combination. I just checked, and it's what I use personally, for example.
+OFW is not multi-threaded therefore you can't let multiple CPUs call
+into OFW at one time.  You must use some kind of locking mechanism,
+and that locking mechanism is not simple because it has to not just
+stop the other cpus, it has to be able to stop the other cpus yet
+still allow them to receive SMP cross-calls from the firmware if the
+OFW call is 'stop' or similar.
 
-Of course, my main machine is an x86-64, and it has more registers. At 
-least some historical -Os bug was about bad things happening under 
-register pressure, iirc, and so x86-64 would show fewer problems than 
-regular 32-bit x86 (which has far fewer registers for the compiler to 
-use).
+> I'm a bit concerned about the 100kB or so of data duplication
+> (on a *quite big* device tree), and the extra code you need
+> (all changes have to be done to both tree copies).  Maybe
+> I shouldn't be worried; still, it's obviously not a great
+> idea to *require* any arch to get and keep a full copy of
+> the tree -- it's wasteful and unnecessary.
 
-It is a bit worrisome. These things seem to be about 50:50 real kernel 
-bugs (just hidden by some common code generation sequence) and real 
-honest-to-goodness compiler bugs. But they are hard as hell to find.
+The largest amount of memory I've ever seen consumed on sparc64
+was 76K and this is 1) 64-bit and 2) an ENORMOUS machine with
+lots of cpus and devices.  And I know because sparc64 prints
+a kernel message at boot which states how much memory was
+consumed by the in-kernel device tree copy.
 
-		Linus
+That ENORMOUS machine also had a lot of ram.
+
+76K, that's just over 8 FREAKIN PAGES.  It's nothing!
+
+I think all this worry is overblown, terribly so in fact.
+
+Please let's get over this memory consumption non-issue and move
+on to more productive talk.

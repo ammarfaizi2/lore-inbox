@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755243AbXABDgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755250AbXABDnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755243AbXABDgb (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 22:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755245AbXABDgb
+	id S1755250AbXABDnm (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 22:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755251AbXABDnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 22:36:31 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:46589
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1755243AbXABDgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 22:36:31 -0500
-Date: Mon, 01 Jan 2007 19:36:24 -0800 (PST)
-Message-Id: <20070101.193624.104645809.davem@davemloft.net>
-To: dmk@flex.com
-Cc: segher@kernel.crashing.org, linux-kernel@vger.kernel.org, devel@laptop.org,
-       wmb@firmworks.com, hch@infradead.org, jg@laptop.org
+	Mon, 1 Jan 2007 22:43:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:51150 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755250AbXABDnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 22:43:41 -0500
 Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4599B809.1000300@flex.com>
-References: <385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org>
-	<20070101.150831.17863014.davem@davemloft.net>
-	<4599B809.1000300@flex.com>
-X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Miller <davem@davemloft.net>
+Cc: jengelh@linux01.gwdg.de, wmb@firmworks.com, devel@laptop.org,
+       linux-kernel@vger.kernel.org, jg@laptop.org
+In-Reply-To: <20061231.124531.125895122.davem@davemloft.net>
+References: <459714A6.4000406@firmworks.com>
+	 <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
+	 <20061231.124531.125895122.davem@davemloft.net>
+Content-Type: text/plain
+Date: Tue, 02 Jan 2007 14:43:26 +1100
+Message-Id: <1167709406.6165.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Kahn <dmk@flex.com>
-Date: Mon, 01 Jan 2007 17:40:25 -0800
 
-> If that doesn't fit the model of /sys or /proc,
-> I suppose it could be done in a separate file
-> system, but that's overkill, isn't it?
+> I'm incredibly surprised how much resistence there is from the
+> i386 OFW folks to do this right.  It would be like 80 lines of
+> code to suck the device tree into kernel memory, or if they don't
+> want to do that they can use inline function wrappers to provide
+> the clean C-language interface to all of this and the cost to
+> i386-OFW would be zero with the benefit that other platforms could
+> use the code potentially.
+>
+> Doing the same thing 3 different ways, knowingly, is just very bad
+> engineering.  That is how you end up with a big fat pile of
+> unmaintainable poo instead of a clean maintainable source tree.  If we
+> fix a bug in one of these things, the other 2 are so different that if
+> the bug is in the others we'll never know and it's not easy to check
+> so people won't do it.
+> 
+> So please do this crap right.
 
-Or by a device driver, which is what OFW systems have
-been doing for years, and we have it already, it's called
-/dev/openprom and if you provide the of_*() API you could
-use it out of the box too.
+I strongly agree. Nowadays, both powerpc and sparc use an in-memory copy
+of the tree (wether you use the flattened format during the trampoline
+from OF runtime to the kernel or not is a different matter, we created
+that for the sake of kexec and embedded devices with no real OF, but the
+end result is the same, a kernel based tree structure).
+
+There is already powerpc's /proc/device-tree and sparc's openpromfs, I'm
+all about converging that to a single implementation (a filesystem is
+fine) that uses the in-memory tree.
+
+Ben.
+
+
+

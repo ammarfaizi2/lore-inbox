@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932767AbXABK6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753098AbXABLBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932767AbXABK6K (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 05:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbXABK6K
+	id S1753098AbXABLBz (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 06:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752703AbXABLBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 05:58:10 -0500
-Received: from smtp6.orange.fr ([193.252.22.25]:43918 "EHLO smtp6.orange.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932767AbXABK6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 05:58:09 -0500
-X-ME-UUID: 20070102105807344.541631C00086@mwinf0602.orange.fr
-Subject: Re: 2.6.19-rc5: grub is much slower resuming from suspend-to-disk
-	than in 2.6.18
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Stefan Seyfried <seife@suse.de>
-Cc: Lee Garrett <lee-in-berlin@web.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20070102100513.GA8693@suse.de>
-References: <200611121436.46436.arvidjaar@mail.ru> <45844374.60903@web.de>
-	 <20070102100513.GA8693@suse.de>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 11:58:03 +0100
-Message-Id: <1167735483.19781.90.camel@frg-rhel40-em64t-03>
+	Tue, 2 Jan 2007 06:01:55 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43036 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753098AbXABLBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 06:01:54 -0500
+Date: Tue, 2 Jan 2007 11:01:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [patch] remove redundant iov segment check
+Message-ID: <20070102110136.GA20640@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Zach Brown <zach.brown@oracle.com>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <000001c717c0$f82b5ea0$2589030a@amr.corp.intel.com> <28F99581-3A2A-45BD-8F00-B554313E2C26@oracle.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <28F99581-3A2A-45BD-8F00-B554313E2C26@oracle.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 11:05 +0100, Stefan Seyfried wrote:
-> On Sat, Dec 16, 2006 at 08:05:24PM +0100, Lee Garrett wrote:
-> > Andrey Borzenkov wrote:
-> > > [...]
-> > >This is rather funny; in 2.6.19-rc5 grub is *really* slow loading kernel when I switch on the 
-> > >system after suspend to disk. Actually, after kernel has been loaded, the whole resuming (up to 
-> > >the point I have usable desktop again) takes about three time less than the process of loading 
-> > >kernel + initrd. During loading disk LED is constantly lit. This almost looks like kernel leaves 
-> > >HDD in some strange state, although I always assumed HDD/IDE is completely reinitialized in this 
-> > >case.
-> > > [...]
-> > 
-> > I had the same problem (/boot on reiserfs, grub hanging for ages after resume
-> > with 2.6.19), but in 2.6.19.1 it seems fixed. Do you still have this bug,
-> > Andrey? I didn't find an update on this issue on LKML.
+> I wonder if it wouldn't be better to make this change as part of a  
+> larger change that moves towards an explicit iovec container struct  
+> rather than bare 'struct iov *' and 'nr_segs' arguments.  The struct  
+> could have a flag that expressed whether the elements had been  
+> checked.  A helper could be called by the upper and lower code paths  
+> which does the checking, marks the flag, and avoids checking again if  
+> the flag is set.
 > 
-> I'm pretty sure this is just a coincidence, an issue about how the kernel
-> image is actually layed out on your filesystem. I don't think it actually
-> has to do anything with the version.
+> We've wanted an explicit struct in the past to avoid the multiple  
+> walks of iovecs that various paths do for their own reasons.  The  
+> iovec walk that is checking for length wrapping could also be  
+> building a bitmap of length alignment that O_DIRECT could be using to  
+> test 512B alignment without having to walk the iovec again.
 
-Isn't the cause just that with that kernel the fs image is left unclean,
-and grub has to replay the journal, which is slow ? 
+I suspect it should be rather trivial to get this started.  As a first
+step we simply add a
 
-	Xav
+struct iodesc {
+	int nr_segs;
+	struct iovec ioc[]
+};
 
+And then we can add fields where nessecary.  First a full_length one
+to avoid the loops to calculate thw whole I/O size, then flags for
+the alignment check, etc..  

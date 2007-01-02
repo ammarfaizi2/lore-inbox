@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965017AbXABXMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965024AbXABXNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbXABXMl (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbXABXMl
+	id S965024AbXABXNR (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbXABXNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:12:41 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:40908
-	"EHLO gnuppy.monkey.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965017AbXABXMk (ORCPT
+	Tue, 2 Jan 2007 18:13:17 -0500
+Received: from mx1.cs.washington.edu ([128.208.5.52]:54798 "EHLO
+	mx1.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965024AbXABXNQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:12:40 -0500
-Date: Tue, 2 Jan 2007 15:12:34 -0800
-To: "Chen, Tim C" <tim.c.chen@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH] lock stat for -rt 2.6.20-rc2-rt2 [was Re: 2.6.19-rt14 slowdown compared to 2.6.19]
-Message-ID: <20070102231234.GA22627@gnuppy.monkey.org>
-References: <20061229232618.GA11239@gnuppy.monkey.org> <9D2C22909C6E774EBFB8B5583AE5291C019FA2B5@fmsmsx414.amr.corp.intel.com>
+	Tue, 2 Jan 2007 18:13:16 -0500
+Date: Tue, 2 Jan 2007 15:09:39 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Adrian Bunk <bunk@stusta.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel + gcc 4.1 = several problems
+In-Reply-To: <Pine.LNX.4.64.0701021349420.4473@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64N.0701021500480.6449@attu4.cs.washington.edu>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk>
+ <200612301659.35982.s0348365@sms.ed.ac.uk> <20061231162731.GK20714@stusta.de>
+ <200612311655.51928.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de>
+ <Pine.LNX.4.64.0701021349420.4473@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C019FA2B5@fmsmsx414.amr.corp.intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 02:51:05PM -0800, Chen, Tim C wrote:
-> Bill,
+On Tue, 2 Jan 2007, Linus Torvalds wrote:
+
+> Traditionally, afaik, -Os has tended to show compiler problems that 
+> _could_ happen with -O2 too, but never do in practice. It may be that 
+> gcc-4.1 without -Os miscompiles some very unusual code, and then with -Os 
+> we just hit more cases of that.
 > 
-> I'm having some problem getting this patch to run stablely.  I'm
-> encoutering errors like that in the trace that follow:
-> 
-> Thanks.
-> Tim
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000008
 
-Yes, those are the reason why I have some aggressive asserts in the code
-to try track down the problem. Try this:
+gcc optimizations were almost completely rewritten between 3.4.6 and 4.1, 
+and one of the subtle changes that may have been introduced is with regard 
+to the heuristics used to determine whether to inline an 'inline' function 
+or not when using -Os.  This problem can show up in dynamic linking and 
+break on certain architectures but should be detectable by using -Winline.
 
-http://mmlinux.sourceforge.net/public/patch-2.6.20-rc2-rt2.1.lock_stat.patch
-
-It's got some cosmestic clean up in it to make it more Linux-ish instead
-of me trying to reinvent some kind of Smalltalk system in the kernel. I'm
-trying to address all of Ingo's complaints about the code so it's still a
-work in progress, namely the style issues (I'd like help/suggestions on
-that) and assert conventions.
-
-It might the case that the lock isn't know to the lock stats code yet.
-It's got some technical overlap with lockdep in that a lock might not be
-known yet and is causing a crashing.
-
-Try that patch and report back to me what happens.
-
-bill
-
+		David

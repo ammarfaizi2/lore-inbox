@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754861AbXABUHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754851AbXABUIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754861AbXABUHW (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 15:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754851AbXABUHW
+	id S1754851AbXABUIa (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 15:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754893AbXABUIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 15:07:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:42082 "EHLO gate.crashing.org"
+	Tue, 2 Jan 2007 15:08:30 -0500
+Received: from gate.crashing.org ([63.228.1.57]:48815 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754861AbXABUHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 15:07:21 -0500
+	id S1754851AbXABUI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 15:08:29 -0500
 Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, devel@laptop.org,
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, jengelh@linux01.gwdg.de,
        David Miller <davem@davemloft.net>, wmb@firmworks.com, jg@laptop.org
-In-Reply-To: <9e8f8dbd7409cedd67c3b143e6d827b1@kernel.crashing.org>
+In-Reply-To: <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
 References: <459714A6.4000406@firmworks.com>
-	 <20061230.211941.74748799.davem@davemloft.net>
-	 <1167709531.6165.9.camel@localhost.localdomain>
-	 <9e8f8dbd7409cedd67c3b143e6d827b1@kernel.crashing.org>
+	 <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr>
+	 <20061231.124531.125895122.davem@davemloft.net>
+	 <1167709406.6165.6.camel@localhost.localdomain>
+	 <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
 Content-Type: text/plain
-Date: Wed, 03 Jan 2007 07:07:07 +1100
-Message-Id: <1167768427.6165.60.camel@localhost.localdomain>
+Date: Wed, 03 Jan 2007 07:08:14 +1100
+Message-Id: <1167768494.6165.63.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 12:45 +0100, Segher Boessenkool wrote:
-> > In addition, I haven't given on the idea one day of actually merging 
+On Tue, 2007-01-02 at 12:37 +0100, Segher Boessenkool wrote:
+> >> So please do this crap right.
+> >
+> > I strongly agree. Nowadays, both powerpc and sparc use an in-memory 
+> > copy
+> > of the tree (wether you use the flattened format during the trampoline
+> > from OF runtime to the kernel or not is a different matter, we created
+> > that for the sake of kexec and embedded devices with no real OF, but 
 > > the
-> > powerpc and sparc implementation of a lot of that stuff. Mostly the
-> > device-tree accessors proper, the of_device/of_platform bits etc... 
-> > into
-> > something like drivers/of1394 maybe.
+> > end result is the same, a kernel based tree structure).
 > 
-> 1394?  :-)
+> Are you really suggesting that using a kernel copy of the
+> device tree is the correct thing to do, and the only correct
+> thing to do -- with the sole argument that "that's what the
+> current ports do"?
 
-Yeah, I'm tired, of1275 :-)
+Well, there are reasons why that's what the current ports do :-)
 
-> > Thus if i386 is going to have a device-tree, please use the same
-> > interfaces.
-> 
-> Such a hypothetical "converged" interface would not be
-> identical to either the current SPARC or the PowerPC
-> code, nor just a mix of those two.  It's a great plan
-> to try to get to this eventually, but it will take time.
-> A lot of it perhaps.
+We could of course have the interface work either on a copy of the tree
+or on a real OF (though that means changing things like get_property on
+powerpc and fixing the gazillions of users) but I tend to think that
+working on a copy always is more efficient.
 
 Ben.
 

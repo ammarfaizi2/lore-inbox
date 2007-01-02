@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752638AbXABXgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964913AbXABXg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752638AbXABXgB (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752710AbXABXgB
+	id S964913AbXABXg2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752742AbXABXg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:36:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54477 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752638AbXABXgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:36:00 -0500
-Date: Tue, 2 Jan 2007 18:35:58 -0500
-From: Dave Jones <davej@redhat.com>
-To: mingo@redhat.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Shrink the held_lock struct by using bitfields.
-Message-ID: <20070102233558.GA4577@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, mingo@redhat.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Tue, 2 Jan 2007 18:36:28 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:45304
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1752710AbXABXg1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:36:27 -0500
+Date: Tue, 02 Jan 2007 15:36:26 -0800 (PST)
+Message-Id: <20070102.153626.14976011.davem@davemloft.net>
+To: daniel.marjamaki@gmail.com
+Cc: netdev@vger.kernel.org, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/core/flow.c: compare data with memcmp
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <80ec54e90701010116u27d02341kb2be785f17f18e3d@mail.gmail.com>
+References: <20061231.123715.115911390.davem@davemloft.net>
+	<80ec54e90612312347w2b906e5eg725a7761110c6897@mail.gmail.com>
+	<80ec54e90701010116u27d02341kb2be785f17f18e3d@mail.gmail.com>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shrink the held_lock struct by using bitfields.
-This shrinks task_struct on lockdep enabled kernels by 480 bytes.
+From: "Daniel_Marjamäki" <daniel.marjamaki@gmail.com>
+Date: Mon, 1 Jan 2007 10:16:02 +0100
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+> I have done a little testing on my own. My results is that memcpy is
+> many times faster even with aligned data.
 
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index ea097dd..ba81cce 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -175,11 +175,11 @@ struct held_lock {
- 	 * The following field is used to detect when we cross into an
- 	 * interrupt context:
- 	 */
--	int				irq_context;
--	int				trylock;
--	int				read;
--	int				check;
--	int				hardirqs_off;
-+	unsigned char irq_context:1;
-+	unsigned char trylock:1;
-+	unsigned char read:1;
-+	unsigned char check:1;
-+	unsigned char hardirqs_off:1;
- };
- 
- /*
+Your test program doesn't make any measurements, from where did
+you get these "results"?
 
--- 
-http://www.codemonkey.org.uk
+Also, your test program is broken because in the memcmp() case GCC
+totally optimizes away the call to memcmp() because it can see the
+comparison data at compile time and therefore it computes the memcmp()
+result at compile time.  There are no memcmp() calls made at all by
+your program.
+
+You should look at the assembler code emitted by a test program
+that is measuring performance, in detail, to make sure the test
+program really is doing what you think it is.

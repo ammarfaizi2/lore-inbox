@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932255AbXABDXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755219AbXABDbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbXABDXT (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 22:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbXABDXT
+	id S1755219AbXABDbq (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 22:31:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755230AbXABDbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 22:23:19 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:33319 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932255AbXABDXS (ORCPT
+	Mon, 1 Jan 2007 22:31:46 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:49410
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1755219AbXABDbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 22:23:18 -0500
-Subject: Re: CVE-2006-6106 (bluetooth CAPI) not fixed in mainline?
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: stable@kernel.org, holtmann@redhat.com, linux-kernel@vger.kernel.org,
-       Harlan Lieberman-Berg <hlieberman@gentoo.org>
-In-Reply-To: <4599B501.4050601@gentoo.org>
-References: <4599B501.4050601@gentoo.org>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 04:22:19 +0100
-Message-Id: <1167708139.30886.1.camel@violet>
+	Mon, 1 Jan 2007 22:31:46 -0500
+Date: Mon, 01 Jan 2007 19:31:44 -0800 (PST)
+Message-Id: <20070101.193144.74746471.davem@davemloft.net>
+To: segher@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, dmk@flex.com,
+       wmb@firmworks.com, hch@infradead.org, jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <a54f3f0a00e6e50cfd3ce90995943960@kernel.crashing.org>
+References: <385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org>
+	<20070101.150831.17863014.davem@davemloft.net>
+	<a54f3f0a00e6e50cfd3ce90995943960@kernel.crashing.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.9.4 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel,
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Date: Tue, 2 Jan 2007 00:52:36 +0100
 
-> This patch went into 2.6.18.6:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116614741607528&w=2
-> 
-> However it is not included in 2.6.19.x or 2.6.20-rc3. Was this solved in 
-> mainline another way, are there issues with the patch, or was this 
-> simply overlooked?
+> There is one big problem: text representation is useless
+> (to scripts etc.) unless it can be transformed back to binary;
+> i.e., it has to be possible to reliably detect _how_ some
+> property is represented into text, something that cannot be
+> done with how openpromfs handles it.
 
-it is sitting in my tree to be pulled. Don't worry, it is not forgotten.
+Text is text is text for many propertiers, in particular
+the ones you actually end up wanting to modify.
 
-Regards
+The biggest and most used example are the device aliases
+and the 'boot-device' and 'boot-file' environment variables.
 
-Marcel
+We even have a special case for that latter case on sparc
+via:
 
+	echo 'foo.image' >/proc/sys/kernel/reboot-cmd
 
+In order for a problem to exist, you have to show counter
+examples where the problem triggers and something fails.
+
+What in userspace wants to modify a OFW property, which
+is not text?
+
+In my experience all such cases are limited to ASCII text
+valued properties, such as device aliases, environment
+variables, and things like nvramrc.

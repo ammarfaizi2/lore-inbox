@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755230AbXABN12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754832AbXABNkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755230AbXABN12 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 08:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbXABN12
+	id S1754832AbXABNkr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 08:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754836AbXABNkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 08:27:28 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:49771 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755230AbXABN11 (ORCPT
+	Tue, 2 Jan 2007 08:40:47 -0500
+Received: from khepri.openbios.org ([80.190.231.112]:50978 "EHLO
+	khepri.openbios.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754832AbXABNkq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 08:27:27 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Tue, 2 Jan 2007 08:22:21 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Theodore Tso <tytso@mit.edu>
-cc: Trent Waddington <trent.waddington@gmail.com>,
-       Bernd Petrovitsch <bernd@firmix.at>,
-       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
-In-Reply-To: <20070102125026.GA4608@thunk.org>
-Message-ID: <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
-References: <4587097D.5070501@opensound.com> <13yc6wkb4m09f$.e9chic96695b.dlg@40tude.net>
- <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
- <20061222115921.GT3073@harddisk-recovery.com> <1167568899.3318.39.camel@gimli.at.home>
- <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
- <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
- <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
- <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
- <20070102125026.GA4608@thunk.org>
+	Tue, 2 Jan 2007 08:40:46 -0500
+X-Greylist: delayed 1108 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 08:40:46 EST
+Date: Tue, 2 Jan 2007 14:22:12 +0100
+From: Stefan Reinauer <stepan@coresystems.de>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       David Miller <davem@davemloft.net>, devel@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Message-ID: <20070102132212.GA10522@coresystems.de>
+References: <459714A6.4000406@firmworks.com> <Pine.LNX.4.61.0612311350060.32449@yvahk01.tjqt.qr> <20061231.124531.125895122.davem@davemloft.net> <1167709406.6165.6.camel@localhost.localdomain> <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b8370fecbb4a917934b0b163ea5774f5@kernel.crashing.org>
+X-Operating-System: Linux 2.6.18.2-4-default on an x86_64
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Duff: Orig. Duff, Duff Lite, Duff Dry, Duff Dark,
+	Raspberry Duff, Lady Duff, Red Duff, Tartar Control Duff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2007, Theodore Tso wrote:
+* Segher Boessenkool <segher@kernel.crashing.org> [070102 12:37]:
+> Are you really suggesting that using a kernel copy of the
+> device tree is the correct thing to do, and the only correct
+> thing to do -- with the sole argument that "that's what the
+> current ports do"?
 
-> I can very easily believe it.  The US patent system and "justice"
-> system in the US is completely and totally insane, and companies
-> often feel they have to act accordingly.  Remember this is the
-> country that has issued multi-million dollar awards to people who
-> spill hot coffee in their lap ...
+There might also be a speed advantage if any drivers or user space
+programs operate heavily on the device tree on those systems with _lots_
+of devices.. 
 
-MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
-lap" story as an example of the idiocy of the justice system?  i'm
-guessing there's more to this story than most folks are aware of, and
-you're welcome to read the details here:
+Stefan 
 
-  http://www.lectlaw.com/files/cur78.htm
-
-as you can see, there are two salient points that change the
-complexion of this story thoroughly:
-
-1) mcdonald's was not merely serving their coffee "hot," but
-*scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
-will produce third-degree burns almost immediately, and
-
-2) there had, for a decade prior, been some *700* cases where people
-had burned themselves with mcdonald's coffee, so it's not as if
-mcdonald's was unaware of the danger, yet continued to ignore it.
-
-  yes, the american system of justice is brain-damaged.  but it's time
-to find another example to use as the evidence, ok?
-
-rday
+-- 
+coresystems GmbH • Brahmsstr. 16 • D-79104 Freiburg i. Br.
+      Tel.: +49 761 7668825 • Fax: +49 761 7664613
+Email: info@coresystems.de  • http://www.coresystems.de/

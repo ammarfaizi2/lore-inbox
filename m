@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755390AbXABR0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753640AbXABReF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755390AbXABR0g (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 12:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755395AbXABR0g
+	id S1753640AbXABReF (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 12:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753665AbXABReF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 12:26:36 -0500
-Received: from hera.kernel.org ([140.211.167.34]:35182 "EHLO hera.kernel.org"
+	Tue, 2 Jan 2007 12:34:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48165 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755390AbXABR0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 12:26:35 -0500
-From: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Ken Moffat <zarniwhoop@ntlworld.com>
-Subject: Re: x86 instability with 2.6.1{8,9}
-Date: Tue, 2 Jan 2007 12:25:57 -0500
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20070101160158.GA26547@deepthought>
-In-Reply-To: <20070101160158.GA26547@deepthought>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S1753640AbXABReE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 12:34:04 -0500
+Date: Tue, 2 Jan 2007 12:28:46 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Theodore Tso <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Print sysrq-m messages with KERN_INFO priority
+Message-ID: <20070102172846.GC7656@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan <alan@lxorguk.ukuu.org.uk>, Theodore Tso <tytso@mit.edu>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <E1H0Uq5-0003Fo-1W@candygram.thunk.org> <20061229204247.be66c972.akpm@osdl.org> <20070102043743.GB15718@thunk.org> <20070102103332.46de83bd@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701021225.57708.lenb@kernel.org>
+In-Reply-To: <20070102103332.46de83bd@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it's been nothing but trouble in 32-bit mode.
-> It still works fine when I boot it in 64-bit mode. 
+On Tue, Jan 02, 2007 at 10:33:32AM +0000, Alan Cox wrote:
+ > On Mon, 1 Jan 2007 23:37:43 -0500
+ > Theodore Tso <tytso@mit.edu> wrote:
+ > > > Is this patch a consistency thing?
+ > > 
+ > > The goal of the patch was to avoid filling /var/log/messages huge
+ > > amounts of sysrq text.  Some of the sysrq commands, especially sysrq-m
+ > > and sysrq-t emit a truly vast amount of information, and it's not
+ > > really nice to have that filling up /var/log/messages.  
+ > 
+ > I find it extremely useful that it ends up in /var/log/messages so that I
+ > can review the dump later. Often the first glance through a set of dumps
+ > on things like a process deadlock don't reveal the right information and
+ > you need to go back and look again.
 
-A shot in the dark at the spontaneous reset issue, but no clue on the 32 vs 64-bit observation...
+Seconded.  And with the limited scrollback of the ringbuffer, sometimes
+looking through the logs is the only way to get the info.
 
-See if ACPI exports any temperature readings under /proc/acpi/thermal_zone/*/temperature
-and if so, keep an eye on them to see if there is an indication of a thermal problem.
+		Dave
 
-( And if ACPI doesn't, maybe lmsensors can find something.)
-
-cheers,
--Len
+-- 
+http://www.codemonkey.org.uk

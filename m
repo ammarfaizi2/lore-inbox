@@ -1,63 +1,33 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754928AbXABTua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754940AbXABTu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754928AbXABTua (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754936AbXABTua
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:50:30 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:42499 "EHLO e3.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754939AbXABTu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1754940AbXABTu3 (ORCPT <rfc822;w@1wt.eu>);
 	Tue, 2 Jan 2007 14:50:29 -0500
-Subject: Re: [RFC] HZ free ntp
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200701011929.28546.zippel@linux-m68k.org>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	 <1166578357.5594.3.camel@localhost> <1166579658.5594.6.camel@localhost>
-	 <200701011929.28546.zippel@linux-m68k.org>
-Content-Type: text/plain
-Date: Tue, 02 Jan 2007 11:46:24 -0800
-Message-Id: <1167767185.3141.15.camel@localhost>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754938AbXABTu3
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 2 Jan 2007 14:50:29 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54275 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754936AbXABTu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 14:50:28 -0500
+Date: Tue, 2 Jan 2007 11:55:43 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>, Daniel Drake <dsd@gentoo.org>,
+       Harlan Lieberman-Berg <hlieberman@gentoo.org>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] CVE-2006-6106 (bluetooth CAPI) not fixed in mainline?
+Message-ID: <20070102195543.GO10475@sequoia.sous-sol.org>
+References: <200701020126_MC3-1-D700-F808@compuserve.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701020126_MC3-1-D700-F808@compuserve.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-01 at 19:29 +0100, Roman Zippel wrote:
-> On Wednesday 20 December 2006 02:54, john stultz wrote:
-> 
-> > And here would be the follow on patch (again *untested*) for
-> > CONFIG_NO_HZ slowing the time accumulation down to once per second.
-> 
-> Changing it to one creates a potential problem with calling second_overflow().
-> It should be called every NTP_INTERVAL_FREQ times, but occasionally it's off
-> by one (when xtime is close to a full second and the tick length is different
-> from 1sec). At a higher frequency that's not much of a problem, but at one it
-> means second_overflow() is occasionally called twice a second or skipped for
-> a second. Usually the error should be quite small, but sometimes it can be
-> significant.
-> So in this case the loop in update_wall_time() should rather look like this:
-> 
-> 	while (offset >= clock->cycle_interval) {
-> 		...
-> 		second_overflow();
-> 		while (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
-> 			clock->xtime_nsec -= (u64)NSEC_PER_SEC << clock->shift;
-> 			xtime.tv_sec++;
-> 		}
-> 		...
-> 	}
-> 
-> (Also note the change from "if" to "while".)
+* Chuck Ebbert (76306.1226@compuserve.com) wrote:
+> It's not in the queue for 2.6.19.2, though.
 
-Ah, good catch! Thank you, I'll add that, retest and send it to akpm.
-
-thanks
--john
-
-
-
+Should be there shortly, thanks.
+-chris

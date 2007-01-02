@@ -1,69 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932838AbXABL1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753084AbXABLa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932838AbXABL1V (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 06:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932848AbXABL1V
+	id S1753084AbXABLa2 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 06:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbXABLa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 06:27:21 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59652 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932838AbXABL1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 06:27:21 -0500
-In-Reply-To: <20070101.193144.74746471.davem@davemloft.net>
-References: <385664dfd55cfdfb9f9651fc90bf46b0@kernel.crashing.org> <20070101.150831.17863014.davem@davemloft.net> <a54f3f0a00e6e50cfd3ce90995943960@kernel.crashing.org> <20070101.193144.74746471.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <e16f612db37ceee06392a0d7656d4242@kernel.crashing.org>
+	Tue, 2 Jan 2007 06:30:28 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3929 "EHLO
+	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753084AbXABLa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 06:30:27 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: paulus@samba.org
+Subject: [PATCH] ppc: prom of_node_(get|put) cleanup
+Date: Tue, 2 Jan 2007 12:31:47 +0100
+User-Agent: KMail/1.9.5
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, devel@laptop.org, dmk@flex.com,
-       wmb@firmworks.com, hch@infradead.org, jg@laptop.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-Date: Tue, 2 Jan 2007 12:26:21 +0100
-To: David Miller <davem@davemloft.net>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+Message-Id: <200701021231.48419.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> There is one big problem: text representation is useless
->> (to scripts etc.) unless it can be transformed back to binary;
->> i.e., it has to be possible to reliably detect _how_ some
->> property is represented into text, something that cannot be
->> done with how openpromfs handles it.
->
-> Text is text is text for many propertiers,
+Hello,
 
-Sure some properties contain (or _should_ contain!) just
-one simple text string.  You can simply "cat" those when
-they are binary in the filesystem too FWIW.
+	This patch removes redundant argument checks for of_node_get() and of_node_put().
 
-> in particular
-> the ones you actually end up wanting to modify.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-But that is just one simple use of the filesystem.  One that
-doesn't work at all on PowerPC btw -- at kernel run time,
-we don't have access to OF at all anymore.
+ arch/powerpc/kernel/prom.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-> In order for a problem to exist, you have to show counter
-> examples where the problem triggers and something fails.
->
-> What in userspace wants to modify a OFW property, which
-> is not text?
+diff -upr linux-2.6.20-rc2-mm1-a/arch/powerpc/kernel/prom.c linux-2.6.20-rc2-mm1-b/arch/powerpc/kernel/prom.c
+--- linux-2.6.20-rc2-mm1-a/arch/powerpc/kernel/prom.c	2006-12-24 05:00:32.000000000 +0100
++++ linux-2.6.20-rc2-mm1-b/arch/powerpc/kernel/prom.c	2007-01-02 02:05:47.000000000 +0100
+@@ -1221,8 +1221,7 @@ struct device_node *of_find_node_by_name
+ 		if (np->name != NULL && strcasecmp(np->name, name) == 0
+ 		    && of_node_get(np))
+ 			break;
+-	if (from)
+-		of_node_put(from);
++	of_node_put(from);
+ 	read_unlock(&devtree_lock);
+ 	return np;
+ }
+@@ -1250,8 +1249,7 @@ struct device_node *of_find_node_by_type
+ 		if (np->type != 0 && strcasecmp(np->type, type) == 0
+ 		    && of_node_get(np))
+ 			break;
+-	if (from)
+-		of_node_put(from);
++	of_node_put(from);
+ 	read_unlock(&devtree_lock);
+ 	return np;
+ }
+@@ -1285,8 +1283,7 @@ struct device_node *of_find_compatible_n
+ 		if (device_is_compatible(np, compatible) && of_node_get(np))
+ 			break;
+ 	}
+-	if (from)
+-		of_node_put(from);
++	of_node_put(from);
+ 	read_unlock(&devtree_lock);
+ 	return np;
+ }
+@@ -1329,8 +1326,7 @@ struct device_node *of_find_node_by_phan
+ 	for (np = allnodes; np != 0; np = np->allnext)
+ 		if (np->linux_phandle == handle)
+ 			break;
+-	if (np)
+-		of_node_get(np);
++	of_node_get(np);
+ 	read_unlock(&devtree_lock);
+ 	return np;
+ }
+@@ -1353,8 +1349,7 @@ struct device_node *of_find_all_nodes(st
+ 	for (; np != 0; np = np->allnext)
+ 		if (of_node_get(np))
+ 			break;
+-	if (prev)
+-		of_node_put(prev);
++	of_node_put(prev);
+ 	read_unlock(&devtree_lock);
+ 	return np;
+ }
+@@ -1399,8 +1394,7 @@ struct device_node *of_get_next_child(co
+ 	for (; next != 0; next = next->sibling)
+ 		if (of_node_get(next))
+ 			break;
+-	if (prev)
+-		of_node_put(prev);
++	of_node_put(prev);
+ 	read_unlock(&devtree_lock);
+ 	return next;
+ }
 
-I never was talking about modifying.  Most things that
-most users want to modify aren't normal OF properties
-anyway, but configuration variables.  In some/many OF
-implementations updating those via the device tree doesn't
-work.
 
-> In my experience all such cases are limited to ASCII text
-> valued properties, such as device aliases, environment
-> variables, and things like nvramrc.
+-- 
+Regards,
 
-If the text representation in the file system was unambiguous,
-it wouldn't be useless for scripts anymore, merely very
-inconvenient.
-
-
-Segher
-
+	Mariusz Kozlowski

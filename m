@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbXABAGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932626AbXABAIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbXABAGN (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 1 Jan 2007 19:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754800AbXABAGN
+	id S932626AbXABAIW (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 1 Jan 2007 19:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbXABAIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Jan 2007 19:06:13 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:4260 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754792AbXABAGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Jan 2007 19:06:12 -0500
-X-Greylist: delayed 700 seconds by postgrey-1.27 at vger.kernel.org; Mon, 01 Jan 2007 19:06:12 EST
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: james.smart@emulex.com
-Subject: [PATCH] scsi: lpfc error path fix
-Date: Tue, 2 Jan 2007 01:07:32 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 1 Jan 2007 19:08:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37652 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932626AbXABAIV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Jan 2007 19:08:21 -0500
+Subject: Re: [RFC] MTD driver for MMC cards
+From: David Woodhouse <dwmw2@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Pierre Ossman <drzeus-mmc@drzeus.cx>, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+In-Reply-To: <200701012322.14735.arnd@arndb.de>
+References: <200612281418.20643.arnd@arndb.de> <4597ADD2.90700@drzeus.cx>
+	 <200701012322.14735.arnd@arndb.de>
+Content-Type: text/plain
+Date: Tue, 02 Jan 2007 00:08:40 +0000
+Message-Id: <1167696520.18169.26.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701020107.32742.m.kozlowski@tuxland.pl>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2007-01-01 at 23:22 +0100, Arnd Bergmann wrote:
+> There are multiple efforts in progress to get a jffs2 replacement. NAND
+> flash in embedded devices has the same size as it has on MMC card
+> potentially, so we will need one soon. David Woodhouse has pushed the
+> limit that jffs2 can reasonably used to 512MB, which is the size used
+> in the OLPC XO laptop. If there are ways to get beyond that (which I
+> find unlikely), there will be a hard limit 2GB or 4GB because of
+> limitations in the fs layout.
 
-	Add kmalloc failure check and fix the loop on error path. Without the
-patch pool element at index [0] will not be freed.
+The main weakness of JFFS2 (at this kind of size) is that there _is_ no
+fs layout -- so there isn't a hard 2GiB or 4GiB limit in the format,
+because we never encode offsets anywhere but in memory.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- drivers/scsi/lpfc/lpfc_mem.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff -upr linux-2.6.20-rc2-mm1-a/drivers/scsi/lpfc/lpfc_mem.c linux-2.6.20-rc2-mm1-b/drivers/scsi/lpfc/lpfc_mem.c
---- linux-2.6.20-rc2-mm1-a/drivers/scsi/lpfc/lpfc_mem.c	2006-12-24 05:00:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1-b/drivers/scsi/lpfc/lpfc_mem.c	2007-01-02 00:17:25.000000000 +0100
-@@ -56,6 +56,9 @@ lpfc_mem_alloc(struct lpfc_hba * phba)
- 
- 	pool->elements = kmalloc(sizeof(struct lpfc_dmabuf) *
- 					 LPFC_MBUF_POOL_SIZE, GFP_KERNEL);
-+	if (!pool->elements)
-+		goto fail_free_lpfc_mbuf_pool;
-+
- 	pool->max_count = 0;
- 	pool->current_count = 0;
- 	for ( i = 0; i < LPFC_MBUF_POOL_SIZE; i++) {
-@@ -82,10 +85,11 @@ lpfc_mem_alloc(struct lpfc_hba * phba)
-  fail_free_mbox_pool:
- 	mempool_destroy(phba->mbox_mem_pool);
-  fail_free_mbuf_pool:
--	while (--i)
-+	while (i--)
- 		pci_pool_free(phba->lpfc_mbuf_pool, pool->elements[i].virt,
- 						 pool->elements[i].phys);
- 	kfree(pool->elements);
-+ fail_free_lpfc_mbuf_pool:
- 	pci_pool_destroy(phba->lpfc_mbuf_pool);
-  fail_free_dma_buf_pool:
- 	pci_pool_destroy(phba->lpfc_scsi_dma_buf_pool);
-
+We'll push JFFS2 further than the current 512MiB by enlarging the data
+nodes -- so each node covers something like 16KiB of data instead of
+only 4KiB, and then there'll be about 1/3 as many of them, which will
+cut the memory usage and reduce the amount we need to read in the
+"summary" blocks. But logfs is the way forward, I agree.
 
 -- 
-Regards,
+dwmw2
 
-	Mariusz Kozlowski

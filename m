@@ -1,98 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965136AbXABXkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965141AbXABXlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbXABXkS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 18:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbXABXkR
+	id S965141AbXABXlr (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 18:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbXABXlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 18:40:17 -0500
-Received: from main.gmane.org ([80.91.229.2]:60766 "EHLO ciao.gmane.org"
+	Tue, 2 Jan 2007 18:41:47 -0500
+Received: from mmail.enter.net ([216.193.128.40]:44766 "EHLO mmail.enter.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965136AbXABXkP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 18:40:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-From: Steve Youngs <steve@youngs.au.com>
-Subject: Re: Nothing since 2.6.19 will boot for me.
-Date: Wed, 03 Jan 2007 09:39:42 +1000
-Organization: Linux Users - Fanatics Dept.
-Message-ID: <microsoft-free.87bqlhkngh.fsf@youngs.au.com>
-References: <microsoft-free.87odphsx40.fsf@youngs.au.com>
-	<459a93ff$0$335$e4fe514c@news.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-X-Complaints-To: usenet@sea.gmane.org
-Keywords: kernel,video,lilo,boot
-X-Gmane-NNTP-Posting-Host: 203-206-170-37.perm.iinet.net.au
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Mail-Copies-To: never
-X-X-Day: Only 2430508 days till X-Day.  Got Slack?
-X-URL: <http://www.youngs.au.com/~steve/>
-X-Request-PGP: <http://www.youngs.au.com/~steve/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Now-Playing: The Sounds of Silence --- [Marcel Marceau]
-X-Discordian-Date: Pungenday, the 3rd day of Chaos, 3173. 
-X-Attribution: SY
-User-Agent: Gnus/5.110006 (No Gnus v0.6) SXEmacs/22.1.7 (De Lorean, linux)
-Cancel-Lock: sha1:cn2TCzmM/wNdYHGCfFAccgTFLJk=
+	id S965141AbXABXlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 18:41:46 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: kernel + gcc 4.1 = several problems
+Date: Tue, 2 Jan 2007 18:41:33 -0500
+User-Agent: KMail/1.9.5
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <200701021706.15020.dhazelton@enter.net> <20070102232429.GE20714@stusta.de>
+In-Reply-To: <20070102232429.GE20714@stusta.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200701021841.34002.dhazelton@enter.net>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-NotDashEscaped: You need GnuPG to verify this message
+On Tuesday 02 January 2007 18:24, you wrote:
+> On Tue, Jan 02, 2007 at 05:06:14PM -0500, D. Hazelton wrote:
+> > On Tuesday 02 January 2007 16:56, Alistair John Strachan wrote:
+> > > On Tuesday 02 January 2007 21:10, Adrian Bunk wrote:
+> > > [snip]
+> > >
+> > > > > > Comparing your report and [1], it seems that if these are the
+> > > > > > same problem, it's not a hardware bug but a gcc or kernel bug.
+> > > > >
+> > > > > This bug specifically indicates some kind of miscompilation in a
+> > > > > driver, causing boot time hangs. My problem is quite different, and
+> > > > > more subtle. The crash happens in the same place every time, which
+> > > > > does suggest determinism (even with various options toggled on and
+> > > > > off, and a 300K smaller kernel image), but it takes 8-12 hours to
+> > > > > manifest and only happens with GCC 4.1.1. ...
+> > > >
+> > > > Sorry if my point goes a bit away from your problem:
+> > > >
+> > > > My point is that we have several reported problems only visible
+> > > > with gcc 4.1.
+> > > >
+> > > > Other bug reports are e.g. [2] and [3], but they are only present
+> > > > with using gcc 4.1 _and_ using -Os.
+> > >
+> > > I find [2] most compelling, and I can confirm that I do have the same
+> > > problem with or without optimisation for size. I don't use selinux nor
+> > > has it ever been enabled.
+> > >
+> > > At any rate, I have absolute confirmation that it is GCC 4.1.1, because
+> > > with GCC 3.4.6 the same kernel I reported booting three days ago is
+> > > still cheerfully working. I regularly get uptimes of 60+ days on that
+> > > machine, rebooting only for kernel upgrades. 2.6.19 seems to be no
+> > > worse in this regard.
+> > >
+> > > Perhaps fortunately, the configs I've tried have consistently failed to
+> > > shake the crash, so I have a semi-reproducible test case here on C3-2
+> > > hardware if somebody wants to investigate the problem (though it still
+> > > takes 6-12 hours).
+> >
+> > The GCC code generator appears to have been rewritten between 3.4.6 and
+> > 4.1.1....
+> >
+> > I took a look at the dump he posted and there are some minor and some
+> > massive differences between the code. In one case some of the code is
+> > swapped, in another there is code in the 3.4.6 version that isn't in the
+> > 4.1.1... Finally the 4.1.1 version of the function has what appears to be
+> > function calls and these don't appear in the code generated by 3.4.6
+>
+> Differences are expected since we disable unit-at-a-time for gcc < 4
+> and gcc development didn't stall between 3.4 and 4.1.
 
-* Paul Slootman <paul+nospam@wurtel.net> writes:
+Okay. Thing is that these noted differences, aside from where 4.1.1 doesn't 
+generate an opcode that 3.4.6 does aren't all that fatal, IMHO. The fact that 
+there it does generate call's rather than jumps for local pointer moves 
+(IIRC - been a while since I looked at the dump of pipe_poll that he 
+provided) might be part of the problem
 
-  > Steve Youngs  <steve@youngs.au.com> wrote:
-  >> 
-  >> The last kernel from Linus' tree[1] that boots for me is v2.6.19.  And
-  >> before I take my first stab at git-bisect, I thought I'd ask here in
-  >> case it's just a PEBCAK.
-  >> 
-  >> What happens in kernels since v2.6.19 is:
-  >> 
-  >> o Choose the kernel to boot from lilo menu
-  >> 
-  >> o Lilo prints the first 2 lines of it's output
-  >> 
-  >> imagename.....................................
-  >> Bios data something or other (sorry, too quick for me to catch
-  >> what it actually says)
-  >> 
-  >> o At this point the machine reboots (right back to the video card
-  >> copyright/splash)
+> > In other words - the code generation for 4.1.1 appears to be broken when
+> > it comes to generating system code.
+>
+> Bug number for an either already open or created by you bug in the gcc
+> Bugzilla for what you claim to be a bug in gcc?
 
-  > What is your boot string?
+None. I didn't file a report on this because I didn't find the big, just noted 
+a problem that appears to occur. In this case the call's generated seem to 
+wrap loops - something I've never heard of anyone doing. These *might* be 
+causing the off-by-one that is causing the function to re-enter in the middle 
+of an instruction.
 
-Kernel command line: BOOT_IMAGE=Linus-git-old ro root=302 video=vesafb:mtrr:3,ywrap,1024x768-24
+Seeing this I'd guess that this follows for all system-level code generated by 
+4.1.1 and this is exactly what I was reporting. If you'd like I'll go dig up 
+the dumps he posted and post the two related segments side-by-side to give 
+you a better example what I'm referring to.
 
-That's not the string from the non-bootable kernels of course, but the
-only difference is the image name. (yes, I've tried without the
-`video=...') 
-
-  > It sounds a lot like http://bugzilla.kernel.org/show_bug.cgi?id=7505
-
-It looks similar, but I'm seeing different symptoms.  I don't see any
-errors, and earlyprintk doesn't print anything.  The machine just
-reboots after lilo outputs `BIOS data thing'.
-
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|                   Te audire no possum.                   |
-|             Musa sapientum fixa est in aure.             |
-|----------------------------------<steve@youngs.au.com>---|
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: The SXEmacs Project <http://www.sxemacs.org>
-Comment: Eicq - The SXEmacs ICQ Client <http://www.eicq.org/>
-
-iEYEARECAAYFAkWa7T8ACgkQHSfbS6lLMAORZwCgq0ilo4SreYTifPZALt3AdQPs
-HIgAnRAFO6BJdZiTaUztExdgm5uimJts
-=3vmj
------END PGP SIGNATURE-----
-
+DRH

@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964929AbXABTaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964944AbXABTa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbXABTaB (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 14:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbXABTaA
+	id S964944AbXABTa3 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 14:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbXABTa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 14:30:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2426 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964928AbXABT37 (ORCPT
+	Tue, 2 Jan 2007 14:30:29 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:34182 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S964931AbXABTaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 14:29:59 -0500
-Date: Tue, 2 Jan 2007 20:30:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, Paul Moore <paul.moore@hp.com>,
-       Parag Warudkar <paragw@paragw.zapto.org>, sds@tycho.nsa.gov,
-       jmorris@namei.org, netdev@vger.kernel.org,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
-       Ben Castricum <mail0612@bencastricum.nl>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: 2.6.20-rc3: known regressions with patches available (part 2)
-Message-ID: <20070102193001.GW20714@stusta.de>
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	Tue, 2 Jan 2007 14:30:24 -0500
+Date: Tue, 2 Jan 2007 20:30:17 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Weinehall <tao@acc.umu.se>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
+In-Reply-To: <20070102151503.GA28150@vasa.acc.umu.se>
+Message-ID: <Pine.LNX.4.62.0701022026430.17589@pademelon.sonytel.be>
+References: <200612211816.kBLIGFdf024664@turing-police.cc.vt.edu>
+ <20061222115921.GT3073@harddisk-recovery.com> <1167568899.3318.39.camel@gimli.at.home>
+ <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
+ <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
+ <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
+ <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
+ <20070102125026.GA4608@thunk.org> <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
+ <20070102151503.GA28150@vasa.acc.umu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-584337861-1368007157-1167766217=:17589"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
-with patches available
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+---584337861-1368007157-1167766217=:17589
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+On Tue, 2 Jan 2007, David Weinehall wrote:
+> On Tue, Jan 02, 2007 at 08:22:21AM -0500, Robert P. J. Day wrote:
+> > 1) mcdonald's was not merely serving their coffee "hot," but
+> > *scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
+> > will produce third-degree burns almost immediately, and
+> 
+> That's less than 90°C.  Water boils at 100°C.  How the hell do 
+> people expect coffee to be made without boiling water?  Magic?
 
+Ah, many thanks for converting from Fahrenheit to Celsius!
 
-Subject    : selinux networking: sleeping function called from invalid context
-References : http://lkml.org/lkml/2006/12/24/78
-Submitter  : Adam J. Richter <adam@yggdrasil.com>
-Caused-By  : Paul Moore <paul.moore@hp.com>
-Handled-By : Parag Warudkar <paragw@paragw.zapto.org>
-Patch      : http://lkml.org/lkml/2006/12/24/89
-Status     : patch available
+> > 2) there had, for a decade prior, been some *700* cases where people
+> > had burned themselves with mcdonald's coffee, so it's not as if
+> > mcdonald's was unaware of the danger, yet continued to ignore it.
 
+Given the population size of Fahrenheit-country, 700 burns must be an
+understatement...
 
-Subject    : kernel panics on boot (libata-sff)
-References : http://lkml.org/lkml/2006/12/3/99
-             http://lkml.org/lkml/2006/12/14/153
-             http://lkml.org/lkml/2006/12/24/33
-             http://lkml.org/lkml/2007/1/1/84
-Submitter  : Alessandro Suardi <alessandro.suardi@gmail.com>
-             Theodore Tso <tytso@mit.edu>
-Caused-By  : Alan Cox <alan@lxorguk.ukuu.org.uk>
-             commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f
-Handled-By : Alan Cox <alan@lxorguk.ukuu.org.uk>
-             Jeff Garzik <jeff@garzik.org>
-Patch      : http://lkml.org/lkml/2007/1/2/64
-Status     : patch available
+Gr{oetje,eeting}s,
 
+						Geert
 
-Subject    : PCI_MULTITHREAD_PROBE breakage
-References : http://lkml.org/lkml/2006/12/12/21
-Submitter  : Ben Castricum <mail0612@bencastricum.nl>
-Caused-By  : Greg Kroah-Hartman <gregkh@suse.de>
-             commit 009af1ff78bfc30b9a27807dd0207fc32848218a
-Handled-By : Greg Kroah-Hartman <gregkh@suse.de>
-Status     : patch available
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+---584337861-1368007157-1167766217=:17589--

@@ -1,144 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754987AbXABWL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754971AbXABWSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754987AbXABWL1 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 17:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754998AbXABWL1
+	id S1754971AbXABWSK (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 17:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754996AbXABWSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 17:11:27 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:58316 "EHLO ogre.sisk.pl"
+	Tue, 2 Jan 2007 17:18:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:37877 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754987AbXABWLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 17:11:25 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][Fix] swsusp: Do not fail if resume device is not set
-Date: Tue, 2 Jan 2007 23:12:48 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
+	id S1754971AbXABWSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 17:18:07 -0500
+Date: Tue, 2 Jan 2007 14:13:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Adrian Bunk <bunk@stusta.de>,
+       "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel + gcc 4.1 = several problems
+In-Reply-To: <200701022156.48919.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0701021408280.4473@woody.osdl.org>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk>
+ <200612311655.51928.s0348365@sms.ed.ac.uk> <20070102211045.GY20714@stusta.de>
+ <200701022156.48919.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701022312.49215.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the kernels later than 2.6.19 there is a regression that makes swsusp fail
-if the resume device is not explicitly specified.
 
-It can be fixed by adding an additional parameter to
-mm/swapfile.c:swap_type_of() allowing us to pass the (struct block_device *)
-corresponding to the first available swap back to the caller.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-Acked-by: Pavel Machek <pavel@ucw.cz>
----
- include/linux/swap.h |    2 +-
- kernel/power/swap.c  |    9 +++++----
- kernel/power/user.c  |    7 ++++---
- mm/swapfile.c        |    8 +++++++-
- 4 files changed, 17 insertions(+), 9 deletions(-)
+On Tue, 2 Jan 2007, Alistair John Strachan wrote:
+> 
+> At any rate, I have absolute confirmation that it is GCC 4.1.1, because with 
+> GCC 3.4.6 the same kernel I reported booting three days ago is still 
+> cheerfully working. I regularly get uptimes of 60+ days on that machine, 
+> rebooting only for kernel upgrades. 2.6.19 seems to be no worse in this 
+> regard.
+> 
+> Perhaps fortunately, the configs I've tried have consistently failed to shake 
+> the crash, so I have a semi-reproducible test case here on C3-2 hardware if 
+> somebody wants to investigate the problem (though it still takes 6-12 hours).
 
-Index: linux-2.6.20-rc3/include/linux/swap.h
-===================================================================
---- linux-2.6.20-rc3.orig/include/linux/swap.h
-+++ linux-2.6.20-rc3/include/linux/swap.h
-@@ -245,7 +245,7 @@ extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
- extern void free_swap_and_cache(swp_entry_t);
--extern int swap_type_of(dev_t, sector_t);
-+extern int swap_type_of(dev_t, sector_t, struct block_device **);
- extern unsigned int count_swap_pages(int, int);
- extern sector_t map_swap_page(struct swap_info_struct *, pgoff_t);
- extern sector_t swapdev_block(int, pgoff_t);
-Index: linux-2.6.20-rc3/kernel/power/swap.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/swap.c
-+++ linux-2.6.20-rc3/kernel/power/swap.c
-@@ -165,14 +165,15 @@ static int swsusp_swap_check(void) /* Th
- {
- 	int res;
- 
--	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
-+	res = swap_type_of(swsusp_resume_device, swsusp_resume_block,
-+			&resume_bdev);
- 	if (res < 0)
- 		return res;
- 
- 	root_swap = res;
--	resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
--	if (IS_ERR(resume_bdev))
--		return PTR_ERR(resume_bdev);
-+	res = blkdev_get(resume_bdev, FMODE_WRITE, O_RDWR);
-+	if (res)
-+		return res;
- 
- 	res = set_blocksize(resume_bdev, PAGE_SIZE);
- 	if (res < 0)
-Index: linux-2.6.20-rc3/mm/swapfile.c
-===================================================================
---- linux-2.6.20-rc3.orig/mm/swapfile.c
-+++ linux-2.6.20-rc3/mm/swapfile.c
-@@ -434,7 +434,7 @@ void free_swap_and_cache(swp_entry_t ent
-  *
-  * This is needed for the suspend to disk (aka swsusp).
-  */
--int swap_type_of(dev_t device, sector_t offset)
-+int swap_type_of(dev_t device, sector_t offset, struct block_device **bdev_p)
- {
- 	struct block_device *bdev = NULL;
- 	int i;
-@@ -450,6 +450,9 @@ int swap_type_of(dev_t device, sector_t 
- 			continue;
- 
- 		if (!bdev) {
-+			if (bdev_p)
-+				*bdev_p = sis->bdev;
-+
- 			spin_unlock(&swap_lock);
- 			return i;
- 		}
-@@ -459,6 +462,9 @@ int swap_type_of(dev_t device, sector_t 
- 			se = list_entry(sis->extent_list.next,
- 					struct swap_extent, list);
- 			if (se->start_block == offset) {
-+				if (bdev_p)
-+					*bdev_p = sis->bdev;
-+
- 				spin_unlock(&swap_lock);
- 				bdput(bdev);
- 				return i;
-Index: linux-2.6.20-rc3/kernel/power/user.c
-===================================================================
---- linux-2.6.20-rc3.orig/kernel/power/user.c
-+++ linux-2.6.20-rc3/kernel/power/user.c
-@@ -58,7 +58,7 @@ static int snapshot_open(struct inode *i
- 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
- 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
- 		data->swap = swsusp_resume_device ?
--				swap_type_of(swsusp_resume_device, 0) : -1;
-+			swap_type_of(swsusp_resume_device, 0, NULL) : -1;
- 		data->mode = O_RDONLY;
- 	} else {
- 		data->swap = -1;
-@@ -327,7 +327,8 @@ static int snapshot_ioctl(struct inode *
- 			 * so we need to recode them
- 			 */
- 			if (old_decode_dev(arg)) {
--				data->swap = swap_type_of(old_decode_dev(arg), 0);
-+				data->swap = swap_type_of(old_decode_dev(arg),
-+							0, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {
-@@ -427,7 +428,7 @@ static int snapshot_ioctl(struct inode *
- 			swdev = old_decode_dev(swap_area.dev);
- 			if (swdev) {
- 				offset = swap_area.offset;
--				data->swap = swap_type_of(swdev, offset);
-+				data->swap = swap_type_of(swdev, offset, NULL);
- 				if (data->swap < 0)
- 					error = -ENODEV;
- 			} else {
+Historically, some people have actually used horrible hacks like trying to 
+figure out which particular C file gets miscompiled by basically having 
+both compilers installed, and then trying out different subdirectories 
+with different compilers. And once the subdirectory has been pinpointed, 
+pinpointing which particular file it is.. etc.
+
+Pretty damn horrible to do, and I'm afraid we don't have any real helpful 
+scripts to do any of the work for you. So it's all effectively manual 
+(basically boils down to: "compile everything with known-good compiler. 
+Then replace the good compiler with the bad one, remove the object files 
+from one directory, and recompile the kernel". "Rinse and repeat".
+
+I don't think anybody has ever done that with something where triggering 
+the cause then also takes that long - that just ends up making the whole 
+thing even more painful. 
+
+What are the exact crash details? That might narrow things down enough 
+that maybe you could try just one or two files that are "suspect".
+
+		Linus

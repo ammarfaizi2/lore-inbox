@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755361AbXABQeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754898AbXABQhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755361AbXABQeI (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 11:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755365AbXABQeI
+	id S1754898AbXABQhN (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 11:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755365AbXABQhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 11:34:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47349 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755362AbXABQeG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 11:34:06 -0500
-Date: Tue, 2 Jan 2007 16:33:39 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-cc: "Robert P. J. Day" <rpjday@mindspring.com>, Theodore Tso <tytso@mit.edu>,
-       Trent Waddington <trent.waddington@gmail.com>,
-       Bernd Petrovitsch <bernd@firmix.at>,
-       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Open letter to Linux kernel developers (was Re: Binary Drivers)
-In-Reply-To: <20070102151827.GH2483@kernel.dk>
-Message-ID: <Pine.LNX.4.64.0701021631460.13362@pentafluge.infradead.org>
-References: <20061222115921.GT3073@harddisk-recovery.com>
- <1167568899.3318.39.camel@gimli.at.home> <3d57814d0612310503r282404afgd9b06ca57f44ab3c@mail.gmail.com>
- <200701020404.l0244n3b024582@turing-police.cc.vt.edu>
- <3d57814d0701012230v2e8b31eeqef7e542d73fc08d9@mail.gmail.com>
- <1167730833.12526.35.camel@tara.firmix.at> <3d57814d0701020326o2b3b5636mcf31147ad00e82c6@mail.gmail.com>
- <20070102125026.GA4608@thunk.org> <Pine.LNX.4.64.0701020815250.14284@localhost.localdomain>
- <20070102151503.GA28150@vasa.acc.umu.se> <20070102151827.GH2483@kernel.dk>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1831524198-193678424-1167755619=:13362"
+	Tue, 2 Jan 2007 11:37:13 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:55624 "EHLO atlrel8.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754898AbXABQhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 11:37:11 -0500
+X-Greylist: delayed 875 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 11:37:11 EST
+Subject: 2.6.20-rc2-mm1:  Makefile drops local version when checking headers
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: sam@ravnborg.org
+Content-Type: text/plain
+Organization: HP/OSLO
+Date: Tue, 02 Jan 2007 11:23:35 -0500
+Message-Id: <1167755015.5104.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+When building 2.6.20-rc2-mm1 with CHECK_HEADERS=y, the Makefile will
+build the target "include/config/kernel.release" twice.  The first time,
+the CONFIG_LOCALVERSION [and any auto local version] will correctly be
+appended.  Then, when it builds the "headers_check" target, the Makefile
+will build the "include/config/kernel.release" target again, dropping
+the local version information.  If you then do a "make
+[modules_]install" in this tree, the install will use the second version
+string w/o the localversion, installing modules in the wrong place and
+kernel/initrd with wrong name, possibly overwriting desired copies of
+the "2.6.20-rc2-mm1" kernel/modules.
 
----1831524198-193678424-1167755619=:13362
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+[Aside:  it also appears that several items, including the kernel
+itself, get rebuilt during "make [modules_]install" after a successful
+"make [all]".  I think this is new behavior.]
 
+This behavior appears to have been introduced by the patch:
 
-> > > > I can very easily believe it.  The US patent system and "justice"
-> > > > system in the US is completely and totally insane, and companies
-> > > > often feel they have to act accordingly.  Remember this is the
-> > > > country that has issued multi-million dollar awards to people who
-> > > > spill hot coffee in their lap ...
-> > > 
-> > > MASSIVELY OFF TOPIC:  can we please stop using this "hot coffee in
-> > > lap" story as an example of the idiocy of the justice system?  i'm
-> > > guessing there's more to this story than most folks are aware of, and
-> > > you're welcome to read the details here:
-> > > 
-> > >   http://www.lectlaw.com/files/cur78.htm
-> > > 
-> > > as you can see, there are two salient points that change the
-> > > complexion of this story thoroughly:
-> > > 
-> > > 1) mcdonald's was not merely serving their coffee "hot," but
-> > > *scalding* hot (180 to 190 degrees Fahrenheit), a temperature that
-> > > will produce third-degree burns almost immediately, and
-> > 
-> > That's less than 90°C.  Water boils at 100°C.  How the hell do 
-> > people expect coffee to be made without boiling water?  Magic?
-> 
-> I guess selling sharp kitchen knifes in the US is a law suit waiting to
-> happen as well then, people could seriously hurt themselves with those
-> things!  Talk about corporate irresponsibility.
+build-compileh-earlier.patch
 
-http://news.bbc.co.uk/2/hi/health/4581871.stm
+Sorry, no patch to propose.  Simple workaround is just to omit header
+checks.
 
----1831524198-193678424-1167755619=:13362--
+Here's the results of some instrumentation that I added to the Makefile
+showing the sequence of targets built and which dependents cause the
+build:
+
+-------------------
+<first build of target OK>
+
+generating include/config/kernel.release:  2.6.20-rc1-mm1+foo
+	KERNELVERSION = 2.6.20-rc1-mm1
+	localver-full = +foo
+ 		localver      = +foo
+		localver-auto = 
+Target:  include/linux/utsrelease.h
+Target:  prepare3
+Target:  prepare1
+
+<but later, for headers check>
+
+generating include/config/kernel.release:  2.6.20-rc1-mm1
+	KERNELVERSION = 2.6.20-rc1-mm1
+	localver-full = 
+ 		localver      = 
+		localver-auto = 
+Target:  include/linux/utsrelease.h
+Target:  headers_install
+Target:  headers_check
+----------------------------
+
+Regards,
+Lee
+

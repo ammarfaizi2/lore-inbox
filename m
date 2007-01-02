@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754975AbXABViS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755428AbXABVkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754975AbXABViS (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755416AbXABViR
+	id S1755428AbXABVkB (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755427AbXABVkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:38:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:27482 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754975AbXABViP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:38:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=TxEu+W5s2ebZeOmeHABKtAapUSJ17GeAgLXge7403Xq5QQm8knhA5LBvec78gciWUHH8FjL7E1TnUpjX+nql0XC7t+5+1x18wVsGtiDK5eaf8E5gQelcgnufypglFThSxbsnU1RcPxYQMCX8g3YLjfBxA60Nfbc3jTTjy0d5SqE=
-Message-ID: <e9c3a7c20701021338m4c229ef9rf4dbae9f53908e1b@mail.gmail.com>
-Date: Tue, 2 Jan 2007 14:38:13 -0700
-From: "Dan Williams" <dan.j.williams@intel.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: [RFC] Heads up on a series of AIO patchsets
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Suparna Bhattacharya" <suparna@in.ibm.com>, linux-aio@kvack.org,
-       akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-In-Reply-To: <20061228114127.GB26314@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 2 Jan 2007 16:40:00 -0500
+Received: from gate.crashing.org ([63.228.1.57]:52413 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755426AbXABVkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:40:00 -0500
+In-Reply-To: <1167773556.6165.79.camel@localhost.localdomain>
+References: <459714A6.4000406@firmworks.com> <20061230.211941.74748799.davem@davemloft.net> <459784AD.1010308@firmworks.com> <1167709992.6165.18.camel@localhost.localdomain> <24a109a8fa0f45011daf3e2b55172392@kernel.crashing.org> <1167768735.6165.68.camel@localhost.localdomain> <bb0d56f649449edb8b5cc0e1c12ede29@kernel.crashing.org> <1167773556.6165.79.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <578a242271c65db1cf8d85e943fab67a@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061227153855.GA25898@in.ibm.com>
-	 <20061227162530.GA23000@infradead.org>
-	 <20061228114127.GB26314@2ka.mipt.ru>
-X-Google-Sender-Auth: 227495929d2f8266
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org,
+       David Miller <davem@davemloft.net>, David Kahn <dmk@flex.com>,
+       Mitch Bradley <wmb@firmworks.com>, jg@laptop.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+Date: Tue, 2 Jan 2007 22:40:17 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/28/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> [ I'm only subscribed to linux-fsdevel@ from above Cc list, please keep this
-> list in Cc: for AIO related stuff. ]
+>> The kernel doesn't care if one CPU is in OF land while the others
+>> are doing other stuff -- well you have to make sure the OF won't
+>> try to use a hardware device at the same time as the kernel, true.
 >
-> On Wed, Dec 27, 2006 at 04:25:30PM +0000, Christoph Hellwig (hch@infradead.org) wrote:
-> > (1) note that there is another problem with the current kevent interface,
-> >       and that is that it duplicates the event infrastructure for it's
-> >       underlying subsystems instead of reusing existing code (e.g.
-> >       inotify, epoll, dio-aio).  If we want kevent to be _the_ unified
-> >       event system for Linux we need people to help out with straightening
-> >       out these even provides as Evgeny seems to be unwilling/unable to
-> >       do the work himself and the duplication is simply not acceptable.
->
-> I would rewrite inotify/epoll to use kevent, but I would strongly prefer
-> that it would be done by peopl who created original interfaces - it is
-> politic decision, not techinical - I do not want to be blamed on each
-> corner that I killed other people work :)
->
-> FS and network AIO kevent based stuff was dropped from kevent tree in
-> favour of upcoming project (description below).
->
-> According do AIO - my personal opinion is that AIO should be designed
-> asynchronously in all aspects. Here is brief note on how I plan to
-> iplement it (I plan to start in about a week after New Year vacations).
->
-> ===
->
-> All existing AIO - both mainline and kevent based lack major feature -
-> they are not fully asyncronous, i.e. they require synchronous set of
-> steps, some of which can be asynchronous. For example aio_sendfile() [1]
-> requires open of the file descriptor and only then aio_sendfile() call.
-> The same applies to mainline AIO and read/write calls.
->
-> My idea is to create real asyncronous IO - i.e. some entity which will
-> describe set of tasks which should be performed asynchronously (from
-> user point of view, although read and write obviously must be done after
-> open and before close), for example syscall which gets as parameter
-> destination socket and local filename (with optional offset and length
-> fields), which will asynchronously from user point of view open a file
-> and transfer requested part to the destination socket and then return
-> opened file descriptor (or it can be closed if requested). Similar
-> mechanism can be done for read/write calls.
->
-> This approach as long as asynchronous IO at all requires access to user
-> memory from kernels thread or even interrupt handler (that is where
-> kevent based AIO completes its requests) - it can be done in the way
-> similar to how existing kevent ring buffer implementation and also can
-> use dedicated kernel thread or workqueue to copy data into process
-> memory.
->
-Would you have time to comment on the approach I have taken to
-implement a standard asynchronous memcpy interface?  It seems it would
-be a good complement to what you are proposing.  The entity that
-describes the aio operation could take advantage of asynchronous
-engines to carry out copies or other transforms (maybe an acrypto tie
-in as well).
+> That statement alone hides an absolute can of worms btw ;-)
 
-Here is the posting for 2.6.19.  There has since been updates for
-2.6.20, but the overall approach remains the same.
-intro: http://marc.theaimsgroup.com/?l=linux-raid&m=116491661527161&w=2
-async_tx: http://marc.theaimsgroup.com/?l=linux-raid&m=116491753318175&w=2
+Oh I know.  With a sane OF implementation, things will work
+out fine though.
 
-Regards,
+>> I'm a bit concerned about the 100kB or so of data duplication
+>> (on a *quite big* device tree), and the extra code you need
+>> (all changes have to be done to both tree copies).  Maybe
+>> I shouldn't be worried; still, it's obviously not a great
+>> idea to *require* any arch to get and keep a full copy of
+>> the tree -- it's wasteful and unnecessary.
+>
+> Well, big device-trees generally are on big machines with enough memory
+> not to care and the only platform I know where the DT can actually
+> change over time is IBM pSeries when doing DLPAR, in which case, OF is
+> dead, it all happens via magic HV/RTAS calls and the kernel is
+> -supposed- to maintain it's own copy and add/remove nodes from it.
 
-Dan
+You're almost convincing me.  I'll sleep on it a night.
+
+
+Segher
+

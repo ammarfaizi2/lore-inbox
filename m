@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964769AbXABLvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932890AbXABLzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964769AbXABLvZ (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 06:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932875AbXABLvZ
+	id S932890AbXABLzg (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 06:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932893AbXABLzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 06:51:25 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:1833 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932884AbXABLvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 06:51:24 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: paulus@samba.org
-Subject: [PATCH] ppc: mpic of_node_get cleanup
-Date: Tue, 2 Jan 2007 12:52:47 +0100
-User-Agent: KMail/1.9.5
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+	Tue, 2 Jan 2007 06:55:36 -0500
+Received: from wx-out-0506.google.com ([66.249.82.236]:6930 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932890AbXABLzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 06:55:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=Y10qNDHs1XZZhqPm8FO8BX326s7s+TNP7n4BgM5xXhiI4LbbVrmeXbrhB4iN2Tda9aCx7+6/Zq0kdaFJEpwP5YNmTNf/j0CkcR6elwZcYmzK9dfmb2VC09+2MCmQ/eIQbv9fOggqBnJBm25CZWPnJ8mW2IPEbxl/Ql956f3vkhw=
+Message-ID: <459A482C.6020809@gmail.com>
+Date: Tue, 02 Jan 2007 20:55:24 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19.1, sata_sil: sata dvd writer doesn't work
+References: <45841710.9040900@t-online.de> <4587F87C.2050100@gmail.com> <45883299.2050209@t-online.de> <45887CD8.5090100@gmail.com> <458AE5FB.7080607@t-online.de> <4591FE96.1080606@gmail.com> <459346C4.1030802@gmail.com> <45941F1E.2080808@t-online.de>
+In-Reply-To: <45941F1E.2080808@t-online.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701021252.47425.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-	No need for ?: because of_node_get() can handle NULL argument.
+Harald Dunkel wrote:
+> Hi Tejun,
+> 
+> After the patch was applied (using 2.6.19.1 instead of 2.6.19, hope
+> you don't mind) I could play a DVD once. Unfortunately this was not
+> reproducible, using the same DVD. I have attached the requested log
+> files for the good and the last bad session. Hope this helps.
+> 
+> Which version of the SATA DVD writer have you received? The label
+> on my writer says
+> 
+> 	H/W:A     Ver:A     September 2006
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Mine is manufactured in December but other than that it's identical.
+Firmware version is the same too.
 
- arch/powerpc/sysdev/mpic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> I hope I don't break any netiquette by posting large log files.
+> Do I?
 
-diff -upr linux-2.6.20-rc2-mm1-a/arch/powerpc/sysdev/mpic.c linux-2.6.20-rc2-mm1-b/arch/powerpc/sysdev/mpic.c
---- linux-2.6.20-rc2-mm1-a/arch/powerpc/sysdev/mpic.c	2006-12-24 05:00:32.000000000 +0100
-+++ linux-2.6.20-rc2-mm1-b/arch/powerpc/sysdev/mpic.c	2007-01-02 02:02:54.000000000 +0100
-@@ -912,7 +912,7 @@ struct mpic * __init mpic_alloc(struct d
- 	
- 	memset(mpic, 0, sizeof(struct mpic));
- 	mpic->name = name;
--	mpic->of_node = node ? of_node_get(node) : NULL;
-+	mpic->of_node = of_node_get(node);
- 
- 	mpic->irqhost = irq_alloc_host(IRQ_HOST_MAP_LINEAR, 256,
- 				       &mpic_host_ops,
+That's okay for me.  vger might not be too happy tho.  ;-)
 
+Please do the following and post the result.
+
+# strace mplayer -v dvd:// > out 2>&1
+
+Happy new year.
 
 -- 
-Regards,
-
-	Mariusz Kozlowski
+tejun

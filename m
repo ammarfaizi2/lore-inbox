@@ -1,51 +1,33 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932903AbXABSEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932908AbXABSFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932903AbXABSEd (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 13:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932888AbXABSEd
+	id S932908AbXABSFb (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 13:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbXABSFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 13:04:33 -0500
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:13769 "EHLO
-	mtaout03-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932903AbXABSEc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 13:04:32 -0500
-Date: Tue, 2 Jan 2007 18:04:25 +0000
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Len Brown <lenb@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86 instability with 2.6.1{8,9}
-Message-ID: <20070102180425.GA18680@deepthought>
-References: <20070101160158.GA26547@deepthought> <200701021225.57708.lenb@kernel.org>
+	Tue, 2 Jan 2007 13:05:31 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:50194 "EHLO e5.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932910AbXABSFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 13:05:30 -0500
+In-Reply-To: <1167494007.14081.75.camel@imap.mvista.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, kjhall@linux.vnet.ibm.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200701021225.57708.lenb@kernel.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-Content-Transfer-Encoding: 8BIT
+Subject: Re: Should be [PATCH -mm] --  Re: [PATCH -rt] panic on SLIM + selinux
+X-Mailer: Lotus Notes Release 7.0.1P Oct 16, 2006
+Message-ID: <OF9AB42A1E.A7654F8F-ON85257257.0061FF6C-85257257.00642493@us.ibm.com>
+From: Mimi Zohar <zohar@us.ibm.com>
+Date: Tue, 2 Jan 2007 13:05:27 -0500
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
+ 01/02/2007 13:05:27,
+	Serialize complete at 01/02/2007 13:05:27
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 12:25:57PM -0500, Len Brown wrote:
-> > it's been nothing but trouble in 32-bit mode.
-> > It still works fine when I boot it in 64-bit mode. 
-> 
-> A shot in the dark at the spontaneous reset issue, but no clue on the 32 vs 64-bit observation...
-> 
-> See if ACPI exports any temperature readings under /proc/acpi/thermal_zone/*/temperature
-> and if so, keep an eye on them to see if there is an indication of a thermal problem.
-> 
-> ( And if ACPI doesn't, maybe lmsensors can find something.)
-> 
-> cheers,
-> -Len
+Being able to compile both SELinux and SLIM into the kernel was done
+intentionally.  The kernel parameters 'selinux' and 'slim' can enable
+or disable the LSM module at boot.  Perhaps, for the time being, the
+SECURITY_SLIM_BOOTPARAM_VALUE should default to 0.
 
- Thanks, but there is nothing there.  I never managed to get
-lmsensors configured (as in 'calibrated') for the hardware I tried it
-on, but I was starting to think about retrying it.  But first, I'm
-just about to start testing with memtest86+ in case something in the
-memory has gone bad.
-
-ĸen
--- 
-das eine Mal als Tragödie, das andere Mal als Farce
+Mimi

@@ -1,112 +1,119 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964984AbXABVIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964921AbXABVKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbXABVIa (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 16:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbXABVI3
+	id S964921AbXABVKo (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 16:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbXABVKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 16:08:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38989 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964984AbXABVI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 16:08:28 -0500
-Date: Tue, 2 Jan 2007 19:09:30 -0200
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Remove fastcall references in x86_64 code. 
-Message-ID: <20070102210930.GA15354@redhat.com>
+	Tue, 2 Jan 2007 16:10:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2630 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S964921AbXABVKn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 16:10:43 -0500
+Date: Tue, 2 Jan 2007 22:10:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: kernel + gcc 4.1 = several problems
+Message-ID: <20070102211045.GY20714@stusta.de>
+References: <200612201421.03514.s0348365@sms.ed.ac.uk> <200612301659.35982.s0348365@sms.ed.ac.uk> <20061231162731.GK20714@stusta.de> <200612311655.51928.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200612311655.51928.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 31, 2006 at 04:55:51PM +0000, Alistair John Strachan wrote:
+> On Sunday 31 December 2006 16:27, Adrian Bunk wrote:
+> > On Sat, Dec 30, 2006 at 04:59:35PM +0000, Alistair John Strachan wrote:
+> > > On Thursday 28 December 2006 04:14, Alistair John Strachan wrote:
+> > > > On Thursday 28 December 2006 04:02, Alistair John Strachan wrote:
+> > > > > On Thursday 28 December 2006 02:41, Zhang, Yanmin wrote:
+> > > > > [snip]
+> > > > >
+> > > > > > > Here's a current decompilation of vmlinux/pipe_poll() from the
+> > > > > > > running kernel, the addresses have changed slightly. There's no
+> > > > > > > xchg there either:
+> > > > > >
+> > > > > > Could you reproduce the bug by the new kernel, so we could get the
+> > > > > > exact address and instruction of the bug?
+> > > > >
+> > > > > It crashed again, but this time with no output (machine locked
+> > > > > solid). To be honest, the disassembly looks right (it's like Chuck
+> > > > > said, it's jumping back half way through an instruction):
+> > > > >
+> > > > > c0156f5f:       3b 87 68 01 00 00       cmp    0x168(%edi),%eax
+> > > > >
+> > > > > So c0156f60 is 87 68 01 00 00..
+> > > > >
+> > > > > This is with the GCC recompile, so it's not a distro problem. It
+> > > > > could still either be GCC 4.x, or a 2.6.19.1 specific bug, but it's
+> > > > > serious. 2.6.19 with GCC 3.4.3 is 100% stable.
+> > > >
+> > > > Looks like a similar crash here:
+> > > >
+> > > > http://ubuntuforums.org/showthread.php?p=1803389
+> > >
+> > > I've eliminated 2.6.19.1 as the culprit, and also tried toggling
+> > > "optimize for size", various debug options. 2.6.19 compiled with GCC
+> > > 4.1.1 on an Via Nehemiah C3-2 seems to crash in pipe_poll reliably,
+> > > within approximately 12 hours.
+> > >
+> > > The machine passes 6 hours of Prime95 (a CPU stability tester), four
+> > > memtest86 passes, and there are no heat problems.
+> > >
+> > > I have compiled GCC 3.4.6 and compiled 2.6.19 with an identical config
+> > > using this compiler (but the same binutils), and will report back if it
+> > > crashes. My bet is that it won't, however.
+> >
+> > There are occasional reports of problems with kernels compiled with
+> > gcc 4.1 that vanish when using older versions of gcc.
+> >
+> > AFAIK, until now noone has ever debugged whether that's a gcc bug,
+> > gcc exposing a kernel bug or gcc exposing a hardware bug.
+> >
+> > Comparing your report and [1], it seems that if these are the same
+> > problem, it's not a hardware bug but a gcc or kernel bug.
+> 
+> This bug specifically indicates some kind of miscompilation in a driver, 
+> causing boot time hangs. My problem is quite different, and more subtle. The 
+> crash happens in the same place every time, which does suggest determinism 
+> (even with various options toggled on and off, and a 300K smaller kernel 
+> image), but it takes 8-12 hours to manifest and only happens with GCC 4.1.1.
+>...
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry if my point goes a bit away from your problem:
 
-Unlike x86, x86_64 already passes arguments in registers. The use of
-regparm attribute makes no difference in produced code, and the use of
-fastcall just bloats the code.
+My point is that we have several reported problems only visible
+with gcc 4.1.
 
+Other bug reports are e.g. [2] and [3], but they are only present with
+using gcc 4.1 _and_ using -Os.
+
+There's simply a bunch of bugs only present with gcc 4.1, and what 
+worries me most is that the estimated number of unknown cases is most 
+likely very high since most people won't check different compiler 
+versions when running into a problem.
+
+> Cheers,
+> Alistair.
+
+cu
+Adrian
+
+[1] http://bugzilla.kernel.org/show_bug.cgi?id=7176
+[2] http://bugzilla.kernel.org/show_bug.cgi?id=7106
+[3] https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=186852
 
 -- 
-Glauber de Oliveira Costa
-Red Hat Inc.
-"Free as in Freedom"
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fastcall.patch"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-diff -rup linux-2.6.19.1-devel/arch/x86_64/kernel/acpi/sleep.c linux-2.6.19.1/arch/x86_64/kernel/acpi/sleep.c
---- linux-2.6.19.1-devel/arch/x86_64/kernel/acpi/sleep.c	2006-12-11 17:32:53.000000000 -0200
-+++ linux-2.6.19.1/arch/x86_64/kernel/acpi/sleep.c	2007-01-02 12:50:58.000000000 -0200
-@@ -58,7 +58,7 @@ unsigned long acpi_wakeup_address = 0;
- unsigned long acpi_video_flags;
- extern char wakeup_start, wakeup_end;
- 
--extern unsigned long FASTCALL(acpi_copy_wakeup_routine(unsigned long));
-+extern unsigned long acpi_copy_wakeup_routine(unsigned long);
- 
- static pgd_t low_ptr;
- 
-diff -rup linux-2.6.19.1-devel/arch/x86_64/kernel/x8664_ksyms.c linux-2.6.19.1/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.19.1-devel/arch/x86_64/kernel/x8664_ksyms.c	2006-12-11 17:32:53.000000000 -0200
-+++ linux-2.6.19.1/arch/x86_64/kernel/x8664_ksyms.c	2007-01-02 12:50:36.000000000 -0200
-@@ -34,8 +34,8 @@ EXPORT_SYMBOL(copy_page);
- EXPORT_SYMBOL(clear_page);
- 
- #ifdef CONFIG_SMP
--extern void FASTCALL( __write_lock_failed(rwlock_t *rw));
--extern void FASTCALL( __read_lock_failed(rwlock_t *rw));
-+extern void  __write_lock_failed(rwlock_t *rw);
-+extern void  __read_lock_failed(rwlock_t *rw);
- EXPORT_SYMBOL(__write_lock_failed);
- EXPORT_SYMBOL(__read_lock_failed);
- #endif
-diff -rup linux-2.6.19.1-devel/include/asm-x86_64/hw_irq.h linux-2.6.19.1/include/asm-x86_64/hw_irq.h
---- linux-2.6.19.1-devel/include/asm-x86_64/hw_irq.h	2006-12-11 17:32:53.000000000 -0200
-+++ linux-2.6.19.1/include/asm-x86_64/hw_irq.h	2007-01-02 12:51:30.000000000 -0200
-@@ -91,7 +91,7 @@ extern void enable_8259A_irq(unsigned in
- extern int i8259A_irq_pending(unsigned int irq);
- extern void make_8259A_irq(unsigned int irq);
- extern void init_8259A(int aeoi);
--extern void FASTCALL(send_IPI_self(int vector));
-+extern void send_IPI_self(int vector);
- extern void init_VISWS_APIC_irqs(void);
- extern void setup_IO_APIC(void);
- extern void disable_IO_APIC(void);
-diff -rup linux-2.6.19.1-devel/include/asm-x86_64/mutex.h linux-2.6.19.1/include/asm-x86_64/mutex.h
---- linux-2.6.19.1-devel/include/asm-x86_64/mutex.h	2006-12-11 17:32:53.000000000 -0200
-+++ linux-2.6.19.1/include/asm-x86_64/mutex.h	2007-01-02 12:49:42.000000000 -0200
-@@ -21,7 +21,7 @@ do {									\
- 	unsigned long dummy;						\
- 									\
- 	typecheck(atomic_t *, v);					\
--	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
-+	typecheck_fn(void (*)(atomic_t *), fail_fn);			\
- 									\
- 	__asm__ __volatile__(						\
- 		LOCK_PREFIX "   decl (%%rdi)	\n"			\
-@@ -47,7 +47,7 @@ do {									\
-  */
- static inline int
- __mutex_fastpath_lock_retval(atomic_t *count,
--			     int fastcall (*fail_fn)(atomic_t *))
-+			     int (*fail_fn)(atomic_t *))
- {
- 	if (unlikely(atomic_dec_return(count) < 0))
- 		return fail_fn(count);
-@@ -67,7 +67,7 @@ do {									\
- 	unsigned long dummy;						\
- 									\
- 	typecheck(atomic_t *, v);					\
--	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
-+	typecheck_fn(void (*)(atomic_t *), fail_fn);			\
- 									\
- 	__asm__ __volatile__(						\
- 		LOCK_PREFIX "   incl (%%rdi)	\n"			\
-
---ikeVEW9yuYc//A+q--

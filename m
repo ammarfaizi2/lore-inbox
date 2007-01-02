@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964917AbXABScM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754884AbXABSnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbXABScM (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 13:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbXABScL
+	id S1754884AbXABSnL (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 13:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754913AbXABSnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 13:32:11 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:36930
-	"EHLO gw.microgate.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964919AbXABScK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 13:32:10 -0500
-X-Greylist: delayed 1180 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 13:32:10 EST
-Message-ID: <459AA49E.6030005@microgate.com>
-Date: Tue, 02 Jan 2007 12:29:50 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Tue, 2 Jan 2007 13:43:10 -0500
+Received: from hera.kernel.org ([140.211.167.34]:43891 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754884AbXABSnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 13:43:09 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Subject: Re: x86 instability with 2.6.1{8,9}
+Date: Tue, 2 Jan 2007 13:42:32 -0500
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20070101160158.GA26547@deepthought> <200701021225.57708.lenb@kernel.org> <20070102180425.GA18680@deepthought>
+In-Reply-To: <20070102180425.GA18680@deepthought>
 MIME-Version: 1.0
-To: Paul Fulghum <paulkf@microgate.com>
-CC: Hollis Blanchard <hollisb@us.ibm.com>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       p.hardwick@option.com
-Subject: Re: tty->low_latency + irq context
-References: <45906820.10805@gmail.com>  <1167758231.5616.22.camel@basalt> <1167761531.3837.13.camel@amdx2.microgate.com>
-In-Reply-To: <1167761531.3837.13.camel@amdx2.microgate.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701021342.32195.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum wrote:
-> With low_latency == 1, flush_to_ldisc() is deferred
-> until the ISR is complete and the internal spinlock is released.
+On Tuesday 02 January 2007 13:04, Ken Moffat wrote:
+> On Tue, Jan 02, 2007 at 12:25:57PM -0500, Len Brown wrote:
+> > > it's been nothing but trouble in 32-bit mode.
+> > > It still works fine when I boot it in 64-bit mode. 
+> > 
+> > A shot in the dark at the spontaneous reset issue, but no clue on the 32 vs 64-bit observation...
+> > 
+> > See if ACPI exports any temperature readings under /proc/acpi/thermal_zone/*/temperature
+> > and if so, keep an eye on them to see if there is an indication of a thermal problem.
+> > 
+> > ( And if ACPI doesn't, maybe lmsensors can find something.)
+> > 
+> > cheers,
+> > -Len
+> 
+>  Thanks, but there is nothing there.  I never managed to get
+> lmsensors configured (as in 'calibrated') for the hardware I tried it
+> on, but I was starting to think about retrying it.  But first, I'm
+> just about to start testing with memtest86+ in case something in the
+> memory has gone bad.
 
-Oops, I meant low_latency == 0 of course.
+You might remove and re-insert the DIMMS.
+Sometimes there are poor contacts if the DIMMS are not fully seated and clicked in.
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd.
+The real mystery is the 32 vs 64-bit thing.
+Are the devices configured the same way -- ie are they both in IOAPIC mode
+and /proc/interrupts looks the same for both modes?
+
+-Len

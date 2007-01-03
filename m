@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932077AbXACUX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932083AbXACU0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbXACUX0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 15:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbXACUXZ
+	id S932083AbXACU0o (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 15:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbXACU0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 15:23:25 -0500
-Received: from mail.gmx.net ([213.165.64.20]:36547 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932077AbXACUXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 15:23:25 -0500
-X-Authenticated: #1045983
-From: Helge Deller <deller@gmx.de>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [RFC][PATCH] use cycle_t instead of u64 in struct time_interpolator
-Date: Wed, 3 Jan 2007 21:23:21 +0100
-User-Agent: KMail/1.9.5
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-References: <200701022233.25697.deller@gmx.de> <200701031936.36423.deller@gmx.de> <1167851879.5937.8.camel@localhost.localdomain>
-In-Reply-To: <1167851879.5937.8.camel@localhost.localdomain>
-X-Face: *4/{KL3=jWs!v\UO#3e7~Vb1~CL@oP'~|*/M$!9`tb2[;fY@)WscF2iV7`,a$141g'o,=?utf-8?q?7X=0A=09=3FBt1Wb=3AL7K6z-?=<?-+-13|S_ixrq58*E`)ZkSe~NSI?u=89G'J<n]7\?[)LCCBZc}~[j(=?utf-8?q?e=7D=0A=09=60-QV=7B=23=25=26=5B=3F=5EfAke6t8QbP=3Bb=27XB?=,ZU84HeThMrO(@/K.`jxq9P({V(AzezCKMxk\F2^p^+"=?utf-8?q?=0A=09=5B?="ppalbA!zy-l)^Qa3*u/Z-1W3,o?2fes2_d\u=1\E9N+~Qo
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Jan 2007 15:26:44 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:37023 "EHLO
+	janus.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932066AbXACU0n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 15:26:43 -0500
+Date: Wed, 3 Jan 2007 21:26:41 +0100
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Pavel Machek <pavel@suse.cz>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Finding hardlinks
+Message-ID: <20070103202641.GA3510@janus>
+References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <20061229100223.GF3955@ucw.cz> <Pine.LNX.4.64.0701012333380.5162@artax.karlin.mff.cuni.cz> <20070101235320.GS8104@delft.aura.cs.cmu.edu> <Pine.LNX.4.64.0701020055580.32128@artax.karlin.mff.cuni.cz> <20070103185815.GA2182@janus> <Pine.LNX.4.64.0701032009140.6871@artax.karlin.mff.cuni.cz> <20070103192616.GA3299@janus> <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701032123.21276.deller@gmx.de>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
+X-BotBait: val@frankvm.com, kuil@frankvm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Jan 3 2007, john stultz wrote:
-> On Wed, 2007-01-03 at 19:36 +0100, Helge Deller wrote:
-> > On Wed Jan 3 2007, Christoph Lameter wrote:
-> > > On Tue, 2 Jan 2007, Helge Deller wrote:
-> > >
-> > > > As far as I could see, this patch does not change anything for the
-> > > > existing architectures which use this framework (IA64 and SPARC64),
-> > > > since "cycles_t" is defined there as unsigned 64bit-integer anyway
-> > > > (which then makes this patch a no-change for them).
-> > >
-> > > The 64bit nature of some entities was so far necessary to get the
-> > > proper accuracy of interpolation. Maybe it can be made to work with 32 bit
-> > > entities. The macro GET_TI_SECS must work correctly and the less bits are
-> > > specified in shift the less self-tuning accuracy you will get.
-> > 
-> > Yes, it was easily possible to make it 32bit-ready without loosing the accuracy.
-> > 
-> > Nevertheless, in the meantime John Stultz pointed me to the CONFIG_GENERIC_TIME framework,  and I implemented it that way:
-> > http://git.parisc-linux.org/?p=linux-2.6.git;a=commit;h=b6de83b58b8b07f057deacdef8a95b6c32d1c4e6
+On Wed, Jan 03, 2007 at 08:31:32PM +0100, Mikulas Patocka wrote:
+> >>>>I didn't hardlink directories, I just patched stat, lstat and fstat to
+> >>>>always return st_ino == 0 --- and I've seen those failures. These 
+> >>>>failures
+> >>>>are going to happen on non-POSIX filesystems in real world too, very
+> >>>>rarely.
+> >>>
+> >>>I don't want to spoil your day but testing with st_ino==0 is a bad choice
+> >>>because it is a special number. Anyway, one can only find breakage,
+> >>>not prove that all the other programs handle this correctly so this is
+> >>>kind of pointless.
+> >>>
+> >>>On any decent filesystem st_ino should uniquely identify an object and
+> >>>reliably provide hardlink information. The UNIX world has relied upon 
+> >>>this
+> >>>for decades. A filesystem with st_ino collisions without being hardlinked
+> >>>(or the other way around) needs a fix.
+> >>
+> >>... and that's the problem --- the UNIX world specified something that
+> >>isn't implementable in real world.
+> >
+> >Sure it is. Numerous popular POSIX filesystems do that. There is a lot of
+> >inode number space in 64 bit (of course it is a matter of time for it to
+> >jump to 128 bit and more)
 > 
-> This looks pretty good, although setting the rating to 200 for a
-> clocksource you don't want to use seems a bit high (there's a rough
-> rating scale in clocksource.h). Zero is probably what you want to use
-> there.
-> 
-> > http://git.parisc-linux.org/?p=linux-2.6.git;a=commit;h=f70a979c843e4610edfb2a316648fe8ae8718f69
-> 
-> This looks to be correct, although as the clocksource infrastructure
-> evolves it looks like we'll be removing the update_callback code in the
-> future. So this is fine for now, but will probably need a reevaluation
-> at some point.
-> 
-> Also to avoid jumping between clocksources, I'd keep the initial
-> disqualification that occurs before you register the clocksource
-> (otherwise it will be used for one tick, then be disqualified and you're
-> back to jiffies).
+> If the filesystem was designed by someone not from Unix world (FAT, SMB, 
+> ...), then not. And users still want to access these filesystems.
 
-That's true, but James Bottomley noticed, that time_init() is called before 
-we've done system inventory (which detects if we have a SMP box with multiple CPUs),
-so num_online_cpus() would always be one. The update_callback function enables
-us to switch back to jiffies if we actually run on a SMP box.
+They can. Hey, it's not perfect but who expects FAT/SMB to be "perfect" anyway?
 
-That said, it would be nice to keep the update_callback() functionality or provide another
-nice solution around that problem...
+> 
+> 64-bit inode numbers space is not yet implemented on Linux --- the problem 
+> is that if you return ino >= 2^32, programs compiled without 
+> -D_FILE_OFFSET_BITS=64 will fail with stat() returning -EOVERFLOW --- this 
+> failure is specified in POSIX, but not very useful.
 
-Helge
+hmm, checking iunique(), ino_t, __kernel_ino_t... I see. Pity. So at
+some point in time we may need a sort of "ino64" mount option to be
+able to switch to a 64 bit number space on mount basis. Or (conversely)
+refuse to mount without that option if we know there are >32 bit st_ino
+out there. And invent iunique64() and use that when "ino64" specified
+for FAT/SMB/...  when those filesystems haven't been replaced by a
+successor by that time.
+
+At that time probably all programs are either compiled with
+-D_FILE_OFFSET_BITS=64 (most already are because of files bigger than 2G)
+or completely 64 bit. 
+
+-- 
+Frank

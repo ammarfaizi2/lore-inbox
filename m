@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754905AbXACHgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754870AbXACHgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754905AbXACHgr (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 02:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754896AbXACHgr
+	id S1754870AbXACHgw (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 02:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754896AbXACHgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 02:36:47 -0500
-Received: from www17.your-server.de ([213.133.104.17]:1859 "EHLO
-	www17.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754905AbXACHgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 02:36:46 -0500
-Message-ID: <459B5CAA.6080600@m3y3r.de>
-Date: Wed, 03 Jan 2007 08:35:06 +0100
-From: Thomas Meyer <thomas@m3y3r.de>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061222)
-MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: linux-kernel@vger.kernel.org,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Subject: Re: WARNING: Absolute relocations present
-References: <458BECA8.2080807@m3y3r.de> <20070103055312.GA25433@in.ibm.com>
-In-Reply-To: <20070103055312.GA25433@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: thomas@m3y3r.de
+	Wed, 3 Jan 2007 02:36:52 -0500
+Received: from pasmtpa.tele.dk ([80.160.77.114]:50068 "EHLO pasmtpA.tele.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754870AbXACHgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 02:36:51 -0500
+Date: Wed, 3 Jan 2007 08:36:37 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andres Salomon <dilinger@queued.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Andres Salomon <dilinger@debian.org>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz, warp@aehallh.com
+Subject: Re: [PATCH] psmouse split [01/03]
+Message-ID: <20070103073637.GA26825@uranus.ravnborg.org>
+References: <457F822E.4040404@debian.org> <200612130108.19447.dtor@insightbb.com> <457FAA01.9010807@debian.org> <d120d5000612130612v5d12adc0uc878b8307770d79@mail.gmail.com> <45802D98.7030608@debian.org> <d120d5000612130947w899614y68cf32cb1e3b35ec@mail.gmail.com> <459B51C4.8040906@queued.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <459B51C4.8040906@queued.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal schrieb:
-> What's your ld version. I don't remember but some particular versions
-> of ld will have this problem. These ld versions do some optimizations
-> and if a section size is zero then linker gets rid of that section and
-> any symbol defined w.r.t removed section, ld makes that symbol absolute
-> instead of section relative. That's why you see above warnings. 
->
-> I had raised this issue on binutils mailing list and they fixed it.
->
-> http://sourceware.org/ml/binutils/2006-09/msg00305.html
->
-> I am using following ld version and it works fine for me.
->
-> GNU ld version 2.17.50.0.6-2.el5 20061020
+Hi Andres.
+
+> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+> index 21a1de6..e7c7fbb 100644
+> --- a/drivers/input/mouse/Makefile
+> +++ b/drivers/input/mouse/Makefile
+> @@ -14,4 +14,24 @@ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+>  obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
+>  obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
 >  
-> So you will have to move to the latest ld version and problem should be
-> resolved.
->   
-Correct. I'm using binutils version 2.17. This is the current testing 
-branch of gentoo for x86.
+> -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o lifebook.o trackpoint.o
+> +psmouse-objs := psmouse-base.o
+> +
+> +ifeq ($(CONFIG_MOUSE_PS2_ALPS),y)
+> +psmouse-objs += alps.o
+> +endif
+> +
+> +ifeq ($(CONFIG_MOUSE_PS2_LOGIPS2PP),y)
+> +psmouse-objs += logips2pp.o
+> +endif
+> +
+> +ifeq ($(CONFIG_MOUSE_PS2_SYNAPTICS),y)
+> +psmouse-objs += synaptics.o
+> +endif
+> +
+> +ifeq ($(CONFIG_MOUSE_PS2_LIFEBOOK),y)
+> +psmouse-objs += lifebook.o
+> +endif
+> +
+> +ifeq ($(CONFIG_MOUSE_PS2_TRACKPOINT),y)
+> +psmouse-objs += trackpoint.o
+> +endif
+
+
+The above code should be redone to use list based assignement.
+Something like this:
+
+psmouse-y := psmouse-base.o
+psmouse-$(CONFIG_MOUSE_PS2_ALPS)       += alps.o
+psmouse-$(CONFIG_MOUSE_PS2_LOGIPS2PP)  += logips2pp.o
+psmouse-$(CONFIG_MOUSE_PS2_SYNAPTICS)  += synaptics.o
+psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)   += lifebook.o
+psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT) += trackpoint.o
+
+	Sam

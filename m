@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750861AbXACPMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750848AbXACPPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbXACPMK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 10:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbXACPMK
+	id S1750848AbXACPPu (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 10:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbXACPPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 10:12:10 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:36504 "EHLO
-	dev.mellanox.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750834AbXACPMJ (ORCPT
+	Wed, 3 Jan 2007 10:15:49 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:47761 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750846AbXACPPt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 10:12:09 -0500
-Date: Wed, 3 Jan 2007 17:10:16 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-Message-ID: <20070103151015.GQ6019@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1167836762.4187.15.camel@stevo-desktop>
-MIME-Version: 1.0
+	Wed, 3 Jan 2007 10:15:49 -0500
+Date: Wed, 3 Jan 2007 20:47:04 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Ingo Molnar <mingo@elte.hu>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, vatsa@in.ibm.com
+Subject: Re: [PATCH 3/2] fix flush_workqueue() vs CPU_DEAD race
+Message-ID: <20070103151704.GA28195@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061230161031.GA101@tv-sign.ru> <20070102162727.9ce2ae2b.akpm@osdl.org> <20070103140459.GA12620@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1167836762.4187.15.camel@stevo-desktop>
+In-Reply-To: <20070103140459.GA12620@in.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I've run this code with mthca and didn't notice any performance
-> > > degradation, but I wasn't specifically measuring cq_poll overhead in a
-> > > tight loop...
-> > 
-> > We were speaking about ib_req_notify_cq here, actually, not cq poll.
-> > So what was tested?
-> > 
+On Wed, Jan 03, 2007 at 07:34:59PM +0530, Gautham R Shenoy wrote:
 > 
-> Sorry, I meant req_notify.  I didn't specifically measure the cost of
-> req_notify before and after this change.
+> > handle-cpu_lock_acquire-and-cpu_lock_release-in-workqueue_cpu_callback.patch
 > 
-> I've been running the user mode perftest programs mainly.  
+> Again, this one ensures that workqueue_mutex is taken/released on
+> CPU_LOCK_ACQUIRE/CPU_LOCK_RELEASE events in the cpuhotplug callback
+> function. So this one is required, unless it conflicts with what Oleg
+> has posted. Will check that out tonite.
 
-So, it's not really activated a lot there.
-You want something like IPoIB BW test.
+We would still be needing this patch as it's complementing what Oleg has
+posted.
 
+Thanks and Regards
+gautham.
 -- 
-MST
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

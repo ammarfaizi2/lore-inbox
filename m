@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750793AbXACOBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750782AbXACODm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbXACOBA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 09:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbXACOBA
+	id S1750782AbXACODm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 09:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbXACODm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 09:01:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33429 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750793AbXACOA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 09:00:59 -0500
-Date: Wed, 3 Jan 2007 08:58:08 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, Grzegorz Kulewski <kangur@polcom.net>,
-       Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
-       torvalds@osdl.org, 76306.1226@compuserve.com, akpm@osdl.org,
-       bunk@stusta.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       yanmin_zhang@linux.intel.com
-Subject: Re: kernel + gcc 4.1 = several problems
-Message-ID: <20070103135808.GS29911@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <200701030212.l032CDXe015365@harpo.it.uu.se> <20070103102944.09e81786@localhost.localdomain> <Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net> <20070103124410.4cb191dd@localhost.localdomain> <1167831136.3095.8.camel@laptopd505.fenrus.org>
+	Wed, 3 Jan 2007 09:03:42 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:58549 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782AbXACODl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 09:03:41 -0500
+Date: Wed, 3 Jan 2007 19:34:59 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Gautham R Shenoy <ego@in.ibm.com>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, vatsa@in.ibm.com
+Subject: Re: [PATCH 3/2] fix flush_workqueue() vs CPU_DEAD race
+Message-ID: <20070103140459.GA12620@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061230161031.GA101@tv-sign.ru> <20070102162727.9ce2ae2b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1167831136.3095.8.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20070102162727.9ce2ae2b.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 05:32:16AM -0800, Arjan van de Ven wrote:
-> On Wed, 2007-01-03 at 12:44 +0000, Alan wrote:
-> > > > fixed. At that point an i686 kernel would contain i686 instructions and
-> > > > actually run on all i686 processors ending all the i586 pain for most
-> > > > users and distributions.
-> > > 
-> > > Could you explain why CMOV is pointless now? Are there any benchmarks 
-> > > proving that?
-> > 
-> > Take a look at the recent ffmpeg bits on the mplayer list for one example
-> > I have to hand - P4 cmov is pretty slow. The crypto folks find the same
-> > things.
-> 
-> cmov is effectively the same cost as a compare and jump, in both cases
-> the cpu needs to do a prediction, and on a mispredict, restart.
-> 
-> the reason cmov can make sense is because it's smaller code...
+Hi Andrew,
 
-BTW, from GCC POV availability of CMOV is the only difference between
--march=i586 -mtune=something and -march=i686 -mtune=something.  So this is
-just a naming thing, it could be called -march=i686cmov to make it more
-obvious but it is too late (and too unimportant) to change it now.
-Perhaps adding a note to info gcc/man gcc ought to be enough?
-If you don't want CMOV being emitted, compile with -march=i586 -mtune=generic
-(or whatever other tuning you pick up), with -march=i686 -mtune=generic
-you tell GCC you have CMOV.  Whether CMOV is actually used in generated
-code is another matter, which should be decided based on the selected
--mtune.  For -Os CMOV should be used whenever available, as that means
-usually smaller code, otherwise if on some particular chip CMOV is actually
-slower than compare, jump and assignment, then CMOV should not be selected
-for that particular tuning (say if Pentium4 has slower CMOV than
-compare+jump+assignment, -mtune=pentium4 should not emit CMOV, at least not
-often), if you have examples of that, please file a bug to
-http://gcc.gnu.org/bugzilla/.  -mtune=generic should emit resp. not emit
-CMOV depending on whether it is a win on the currently common CPUs.
+Sorry, I am yet to check out Venki's and Oleg's patches as I
+just returned from Vacation.
 
-	Jakub
+On Tue, Jan 02, 2007 at 04:27:27PM -0800, Andrew Morton wrote:
+> 
+> I have a mental note that these:
+> 
+> extend-notifier_call_chain-to-count-nr_calls-made.patch
+> extend-notifier_call_chain-to-count-nr_calls-made-fixes.patch
+> extend-notifier_call_chain-to-count-nr_calls-made-fixes-2.patch
+
+These patches are needed because they allow us to send out the "failed"
+notifications to only those subsystems that received the "prepare"
+notifications earlier.
+
+> define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release.patch
+> define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release-fix.patch
+
+These were posted inorder to have a common place where the subsystems
+could lock their per-subsystem hotplug mutexes/semaphore from within the
+cpu-hotplug-callback function. Hence they are needed IMO.
+
+> eliminate-lock_cpu_hotplug-in-kernel-schedc.patch
+> eliminate-lock_cpu_hotplug-in-kernel-schedc-fix.patch
+
+These patches define and use a mutex to handle cpu-hotplug and eliminate
+the use of lock_cpu_hotplug in sched.c. Hence they are still needed.
+
+> handle-cpu_lock_acquire-and-cpu_lock_release-in-workqueue_cpu_callback.patch
+
+Again, this one ensures that workqueue_mutex is taken/released on
+CPU_LOCK_ACQUIRE/CPU_LOCK_RELEASE events in the cpuhotplug callback
+function. So this one is required, unless it conflicts with what Oleg
+has posted. Will check that out tonite.
+
+> 
+> should be scrapped.  But really I forget what their status is.  Gautham,
+> can you please remind us where we're at?
+> 
+
+If all goes fine (w.r.t cpufreq and workqueue), eliminating
+lock_cpu_hotplug from kernel/*.c should be relatively easy.<fingers crossed>
+
+Thanks and Regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

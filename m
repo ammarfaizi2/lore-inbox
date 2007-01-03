@@ -1,68 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751096AbXACTbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751091AbXACTdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbXACTbe (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 14:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbXACTbe
+	id S1751091AbXACTdJ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 14:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbXACTdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 14:31:34 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:45809 "EHLO
-	artax.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751090AbXACTbd (ORCPT
+	Wed, 3 Jan 2007 14:33:09 -0500
+Received: from p02c11o145.mxlogic.net ([208.65.145.68]:45096 "EHLO
+	p02c11o145.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751091AbXACTdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 14:31:33 -0500
-Date: Wed, 3 Jan 2007 20:31:32 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Pavel Machek <pavel@suse.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Finding hardlinks
-In-Reply-To: <20070103192616.GA3299@janus>
-Message-ID: <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz>
-References: <20061221185850.GA16807@delft.aura.cs.cmu.edu>
- <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
- <1166869106.3281.587.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
- <20061229100223.GF3955@ucw.cz> <Pine.LNX.4.64.0701012333380.5162@artax.karlin.mff.cuni.cz>
- <20070101235320.GS8104@delft.aura.cs.cmu.edu>
- <Pine.LNX.4.64.0701020055580.32128@artax.karlin.mff.cuni.cz>
- <20070103185815.GA2182@janus> <Pine.LNX.4.64.0701032009140.6871@artax.karlin.mff.cuni.cz>
- <20070103192616.GA3299@janus>
-X-Personality-Disorder: Schizoid
+	Wed, 3 Jan 2007 14:33:07 -0500
+Date: Wed, 3 Jan 2007 21:33:24 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
+Message-ID: <20070103193324.GD29003@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <1167851839.4187.36.camel@stevo-desktop>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1167851839.4187.36.camel@stevo-desktop>
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 03 Jan 2007 19:34:32.0564 (UTC) FILETIME=[316F6340:01C72F6E]
+X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14912.003
+X-TM-AS-Result: No--0.603600-4.000000-31
+X-Spam: [F=0.0100000000; S=0.010(2006120601)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> I didn't hardlink directories, I just patched stat, lstat and fstat to
->>>> always return st_ino == 0 --- and I've seen those failures. These failures
->>>> are going to happen on non-POSIX filesystems in real world too, very
->>>> rarely.
->>>
->>> I don't want to spoil your day but testing with st_ino==0 is a bad choice
->>> because it is a special number. Anyway, one can only find breakage,
->>> not prove that all the other programs handle this correctly so this is
->>> kind of pointless.
->>>
->>> On any decent filesystem st_ino should uniquely identify an object and
->>> reliably provide hardlink information. The UNIX world has relied upon this
->>> for decades. A filesystem with st_ino collisions without being hardlinked
->>> (or the other way around) needs a fix.
->>
->> ... and that's the problem --- the UNIX world specified something that
->> isn't implementable in real world.
->
-> Sure it is. Numerous popular POSIX filesystems do that. There is a lot of
-> inode number space in 64 bit (of course it is a matter of time for it to
-> jump to 128 bit and more)
+> Without extra param (1000 iterations in cycles): 
+> 	ave 101.283 min 91 max 247
+> With extra param (1000 iterations in cycles):
+> 	ave 103.311 min 91 max 221
 
-If the filesystem was designed by someone not from Unix world (FAT, SMB, 
-...), then not. And users still want to access these filesystems.
+A 2% hit then. Not huge, but 0 either.
 
-64-bit inode numbers space is not yet implemented on Linux --- the problem 
-is that if you return ino >= 2^32, programs compiled without 
--D_FILE_OFFSET_BITS=64 will fail with stat() returning -EOVERFLOW --- this 
-failure is specified in POSIX, but not very useful.
+> Convert cycles to ns (3466.727 MHz CPU):
+> 
+> Without: 101.283 / 3466.727 = .02922us == 29.22ns
+> With:    103.311 / 3466.727 = .02980us == 29.80ns
+> 
+> So I measure a .58ns average increase for passing in the additional
+> parameter.
 
-Mikulas
+That depends on CPU speed though. Percentage is likely to be more universal.
+
+> Here is a snipit of the test:
+> 
+>         spin_lock_irq(&lock);
+>         do_gettimeofday(&start_tv);
+>         for (i=0; i<1000; i++) {
+>                 cycles_start[i] = get_cycles();
+>                 ib_req_notify_cq(cb->cq, IB_CQ_NEXT_COMP);
+>                 cycles_stop[i] = get_cycles();
+>         }
+>         do_gettimeofday(&stop_tv);
+>         spin_unlock_irq(&lock);
+> 
+>         if (stop_tv.tv_usec < start_tv.tv_usec) {
+>                 stop_tv.tv_usec += 1000000;
+>                 stop_tv.tv_sec  -= 1;
+>         }
+> 
+>         for (i=0; i < 1000; i++) {
+>                 cycles_t v = cycles_stop[i] - cycles_start[i];
+>                 sum += v;
+>                 if (v > max)
+>                         max = v;
+>                 if (min == 0 || v < min)
+>                         min = v;
+>         }
+> 
+>         printk(KERN_ERR PFX "FOO delta sec %lu usec %lu sum %llu min %llu max %llu\n",
+>                 stop_tv.tv_sec - start_tv.tv_sec,
+>                 stop_tv.tv_usec - start_tv.tv_usec,
+>                 (unsigned long long)sum, (unsigned long long)min,
+>                 (unsigned long long)max);
+
+Good job, the test looks good, thanks.
+
+So what does this tell you?
+To me it looks like there's a measurable speed difference,
+and so we should find a way (e.g. what I proposed) to enable chelsio userspace
+without adding overhead to other low level drivers or indeed chelsio kernel level code.
+
+What do you think? Roland?
+
+-- 
+MST

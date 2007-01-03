@@ -1,66 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932135AbXACVOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932138AbXACVRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbXACVOp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbXACVOp
+	id S932138AbXACVRF (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbXACVRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:14:45 -0500
-Received: from nz-out-0506.google.com ([64.233.162.225]:47520 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932135AbXACVOo (ORCPT
+	Wed, 3 Jan 2007 16:17:04 -0500
+Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:3258 "EHLO
+	smtp-vbr2.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932138AbXACVRD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:14:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=avaZSzVldZs9xFGi9uyXVHhes2gR/Gm/8KiGBMYVaDBVcjBh9EmKhp7NyHPNtD8OBrlUdt27jcZzmZYnRFKM9zOCtMqDviP1KUlB0hyyAanzz6fdOyZUceYknP1OptamBC8sVN1NPnbUAnMXDvm6Tun/oat+zzpKWXfPnsuzIHc=
-Message-ID: <6bb9c1030701031314l1b57bd2brffb61cce68a7174@mail.gmail.com>
-Date: Wed, 3 Jan 2007 22:14:43 +0100
-From: "Pelle Svensson" <pelle2004@gmail.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Subject: Re: Symbol links to only needed and targeted source files
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20070103162409.GA30071@uranus.ravnborg.org>
+	Wed, 3 Jan 2007 16:17:03 -0500
+X-Greylist: delayed 996 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 16:17:03 EST
+Message-ID: <459C1966.7040209@xs4all.nl>
+Date: Wed, 03 Jan 2007 22:00:22 +0100
+From: Bauke Jan Douma <bjdouma@xs4all.nl>
+Reply-To: bjdouma@xs4all.nl
+Organization: a training zoo
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: qconf: reproducible segfault
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6bb9c1030701030724k4ca544cfg364e28059cf5dfe@mail.gmail.com>
-	 <20070103162409.GA30071@uranus.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
 
-You misunderstand me I think, I already using a separate output directory.
-What I like to do is a separate 'source tree' with only valid files
-for my configuration. In that way, when I use grep for instance,
-I would only hit valid files and not 50 other files which are
-not in the current build configuration.
+Not a big deal (I just discovered 'make gconfig'), but I'm experiencing
+a reproducible segfault in 'make xconfig', i.e. qconf.
 
-On 1/3/07, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Wed, Jan 03, 2007 at 04:24:11PM +0100, Pelle Svensson wrote:
-> > Hi,
-> >
-> > I would like to set up a directory with only links to the source files
-> > I use during the building of the kernel. The development ide/editor
-> > will target this directory instead of main source tree. The benefit of this
-> > is that I don't need to bother about files that are not included
-> > by the configuration.
->
-> Anohter approach would be to use a separate output directory.
-> In this way you have all generated files in a separate place which
-> should solve your needs.
->
-> To use it do like this:
->
-> make mrproper <= To get a clean starting point
-> mkdir ../o
-> make O=../o defconfig   <= or some other config target
-> cd ../o
-> make
->
-> Se also README.
->
->         Sam
->
+I was wondering if anyone else can reproduce this:
+
+1. QTDIR=/usr/local/lib/qt make xconfig
+    mine by default has all qconf options OFF ('Show Name', 'Show Range',
+    'Show Data', 'Show All Options', 'Show Debug Info')
+
+2. from the kernel options, select:
+    Networking / Networking options / Network packet filtering (replaces ipchains)
+
+3. from the qconf options, now select 'Show Debug Info'
+    voila -> segfault
+
+
+This is with qt-3.3.3:
+
+ldd /usr/src/linux-2.6.19.1/scripts/kconfig/qconf
+	linux-gate.so.1 =>  (0xffffe000)
+	libqt-mt.so.3 => /usr/local/lib/qt/lib/libqt-mt.so.3 (0xb76c2000)
+	libdl.so.2 => /lib/libdl.so.2 (0xb76ad000)
+	libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0xb75c9000)
+	libm.so.6 => /lib/libm.so.6 (0xb75a4000)
+	libgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0xb7598000)
+	libc.so.6 => /lib/libc.so.6 (0xb746f000)
+	libpng.so.3 => /usr/local/lib/libpng.so.3 (0xb7449000)
+	libz.so.1 => /lib/libz.so.1 (0xb7435000)
+	libGL.so.1 => /usr/lib/libGL.so.1 (0xb73a9000)
+	libXmu.so.6 => /usr/X11R6/lib/libXmu.so.6 (0xb7393000)
+	libXrender.so.1 => /usr/X11R6/lib/libXrender.so.1 (0xb738b000)
+	libXrandr.so.2 => /usr/X11R6/lib/libXrandr.so.2 (0xb7387000)
+	libXcursor.so.1 => /usr/X11R6/lib/libXcursor.so.1 (0xb737e000)
+	libXinerama.so.1 => /usr/X11R6/lib/libXinerama.so.1 (0xb737b000)
+	libXft.so.2 => /usr/X11R6/lib/libXft.so.2 (0xb7369000)
+	libfreetype.so.6 => /usr/local/lib/libfreetype.so.6 (0xb72e4000)
+	libfontconfig.so.1 => /usr/local/lib/libfontconfig.so.1 (0xb72a6000)
+	libXext.so.6 => /usr/X11R6/lib/libXext.so.6 (0xb7298000)
+	libX11.so.6 => /usr/X11R6/lib/libX11.so.6 (0xb71cb000)
+	libSM.so.6 => /usr/X11R6/lib/libSM.so.6 (0xb71c2000)
+	libICE.so.6 => /usr/X11R6/lib/libICE.so.6 (0xb71aa000)
+	libpthread.so.0 => /lib/libpthread.so.0 (0xb7192000)
+	/lib/ld-linux.so.2 (0xb7f1b000)
+	libGLcore.so.1 => /usr/lib/libGLcore.so.1 (0xb690c000)
+	libnvidia-tls.so.1 => /usr/lib/tls/libnvidia-tls.so.1 (0xb690a000)
+	libXt.so.6 => /usr/X11R6/lib/libXt.so.6 (0xb68b8000)
+	libexpat.so.0 => /usr/local/lib/libexpat.so.0 (0xb688c000)
+	libiconv.so.2 => /lib/libiconv.so.2 (0xb67b1000)
+
+First I thought qconf window geometry and maybe font would make a
+telling difference here, but I can resize the window all I want and
+change fonts any which way I can, but the segfault persists.
+
+FWIW, my initial geometry is 957x843, font is usually LuciduxSans 7.
+
+Strace output didn't provide much of an apparent clue, just the
+SIGSEGV.
+
+Oh, kernel is 2.6.19.1 -- not important I'd say.
+
+Thanks for your time.
+
+bjd

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752881AbXACBSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752903AbXACBTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752881AbXACBSm (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 20:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752903AbXACBSm
+	id S1752903AbXACBTY (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 20:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752957AbXACBTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 20:18:42 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:35853 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752871AbXACBSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 20:18:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tNMMl4qaZrXKmsepr9ID8m/JvzHQbF9IVedc3YJMK0Lwv/PS/9S0PCGSMfdXcMlR1I47KhYSmFF5fONalvprxouqycjgMYHWpDJmv4H5qI7AzFkchmVtb6Mbom9LV0ENV/mwSPbUL5C9uiWjXjzjVKFqonLCNSO+Fcm9rpZQTJY=
-Message-ID: <6f703f960701021718qb85f4bdg58d8ee0923376191@mail.gmail.com>
-Date: Tue, 2 Jan 2007 16:18:40 -0900
-From: "Kent Overstreet" <kent.overstreet@gmail.com>
-To: "Zach Brown" <zach.brown@oracle.com>
-Subject: Re: [RFC] Heads up on a series of AIO patchsets
-Cc: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <A85B8249-FC4E-4612-8B28-02BC680DC812@oracle.com>
+	Tue, 2 Jan 2007 20:19:24 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:56037 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752903AbXACBTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 20:19:23 -0500
+Date: Wed, 3 Jan 2007 02:13:39 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, benh@kernel.crashing.org, wmb@firmworks.com,
+       jg@laptop.org
+Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
+In-Reply-To: <3676953abedcbe6d86da74a4997593cb@kernel.crashing.org>
+Message-ID: <Pine.LNX.4.61.0701030213100.19644@yvahk01.tjqt.qr>
+References: <459ABC7C.2030104@firmworks.com> <1167770882.6165.76.camel@localhost.localdomain>
+ <978466dd510f659cd69b67ee7309be28@kernel.crashing.org>
+ <20070102.140749.104035927.davem@davemloft.net>
+ <3676953abedcbe6d86da74a4997593cb@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061227153855.GA25898@in.ibm.com>
-	 <5A322D46-A73A-43DD-8667-CE218DDA48B0@oracle.com>
-	 <6f703f960701021640y444bc537w549fd6d74f3e9529@mail.gmail.com>
-	 <A85B8249-FC4E-4612-8B28-02BC680DC812@oracle.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Any details?
+
+On Jan 3 2007 01:52, Segher Boessenkool wrote:
+>> > Leaving aside the issue of in-memory or not, I don't think
+>> > it is realistic to think any completely common implementation
+>> > will work for this -- it might for current SPARC+PowerPC+OLPC,
+>> > but more stuff will be added over time...
+>> 
+>> I see nothing supporting this IMHO bogus claim.
 >
-> Well, one path I tried I couldn't help but post a blog entry about
-> for my friends.  I'm not sure it's the direction I'll take with linux-
-> kernel, but the fundamentals are there:  the api should be the
-> syscall interface, and there should be no difference between sync and
-> async behaviour.
->
-> http://www.zabbo.net/?p=72
+> Please keep in mind that not all systems want to kill OF
+> as soon as they enter the kernel -- some want to keep it
+> active basically forever (or only remove it when the user
+> asks for it).
 
-Any code you're willing to let people play with? I could at least have
-real test cases, and a library to go along with it as it gets
-finished.
+Kill OF? sparc does not want that IMO, how else should I return to
+the 'ok' prompt?
 
-Another pie in the sky idea:
-One thing that's been bugging me lately (working on a 9p server), is
-sendfile is hard to use in practice because you need packet headers
-and such, and they need to go out at the same time.
 
-Sendfile listio support would fix this, but it's not a general
-solution. What would be really usefull is a way to say that a certain
-batch of async ops either all succeed or all fail, and happen
-atomically; i.e., transactions for syscalls.
-
-Probably even harder to do than general async syscalls, but it'd be
-the best thing since sliced bread... and hey, it seems the logical
-next step.
+	-`J'
+-- 

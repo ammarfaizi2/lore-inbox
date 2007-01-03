@@ -1,94 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932115AbXACU7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932111AbXACVA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbXACU7p (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 15:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbXACU7p
+	id S932111AbXACVA2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbXACVA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 15:59:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4754 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932115AbXACU7n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 15:59:43 -0500
-Date: Wed, 3 Jan 2007 21:59:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Berthold Cogel <cogel@rrz.uni-koeln.de>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, Florin Iucha <florin@iucha.net>,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       Jon Smirl <jonsmirl@gmail.com>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, davem@davemloft.net,
-       sparclinux@vger.kernel.org, Komuro <komurojun-mbn@nifty.com>,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org,
-       Tobias Diedrich <ranma+kernel@tdiedrich.de>, Andi Kleen <ak@suse.de>,
-       Yinghai Lu <yinghai.lu@amd.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, discuss@x86-64.org,
-       mingo@redhat.com
-Subject: 2.6.20-rc3: known unfixed regressions (v2)
-Message-ID: <20070103205945.GK20714@stusta.de>
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	Wed, 3 Jan 2007 16:00:28 -0500
+Received: from smtp.telefonica.net ([213.4.149.66]:55398 "EHLO
+	ctsmtpout1.frontal.correo" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S932111AbXACVA1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:00:27 -0500
+From: Jose Alberto Reguero <jareguero@telefonica.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ahci and Marvell 88SE6121
+Date: Wed, 3 Jan 2007 22:00:25 +0100
+User-Agent: KMail/1.9.5
+References: <200701032035.06176.jareguero@telefonica.net>
+In-Reply-To: <200701032035.06176.jareguero@telefonica.net>
+Cc: Jose Alberto Reguero <jareguero@telefonica.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200701032200.26021.jareguero@telefonica.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
-that are not yet fixed in Linus' tree.
+El Miércoles, 3 de Enero de 2007 20:35, escribió:
+> I am trying to make work the driver ahci with Marvell 88SE6121 but not
+> succes. The log is good?
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+This line:
+ahci 0000:06:00.0: AHCI 0001.0000 32 slots 3 ports 3 Gbps 0x7 impl IDE mode
+Looks good for me except " IDE mode". I think must be "SATA mode"
 
-Due to the huge amount of recipients, please trim the Cc when answering.
-
-
-Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
-References : http://lkml.org/lkml/2006/12/25/40
-Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
-Status     : unknown
-
-
-Subject    : USB keyboard unresponsive after some time
-References : http://lkml.org/lkml/2006/12/25/35
-             http://lkml.org/lkml/2006/12/26/106
-Submitter  : Florin Iucha <florin@iucha.net>
-Status     : unknown
-
-
-Subject    : BUG: scheduling while atomic
-References : http://lkml.org/lkml/2006/12/26/105
-Submitter  : Jon Smirl <jonsmirl@gmail.com>
-Status     : unknown
-
-
-Subject    : SPARC64: Can't mount /
-References : http://lkml.org/lkml/2006/12/13/181
-Submitter  : Horst H. von Brand <vonbrand@inf.utfsm.cl>
-Status     : unknown
-
-
-Subject    : ftp: get or put stops during file-transfer
-References : http://lkml.org/lkml/2006/12/16/174
-Submitter  : Komuro <komurojun-mbn@nifty.com>
-Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
-Handled-By : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Status     : problem is being debugged
-
-
-Subject    : x86_64 boot failure: "IO-APIC + timer doesn't work"
-References : http://lkml.org/lkml/2006/12/16/101
-             http://lkml.org/lkml/2007/1/3/9
-Submitter  : Tobias Diedrich <ranma+kernel@tdiedrich.de>
-Caused-By  : Andi Kleen <ak@suse.de>
-             commit b026872601976f666bae77b609dc490d1834bf77
-Handled-By : Yinghai Lu <yinghai.lu@amd.com>
-             Eric W. Biederman <ebiederm@xmission.com>
-Status     : patches are being discussed
-
+Thanks.
+Jose Alberto

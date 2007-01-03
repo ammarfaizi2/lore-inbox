@@ -1,89 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750749AbXACNWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXACNZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbXACNWH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 08:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbXACNWG
+	id S1750773AbXACNZj (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 08:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbXACNZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 08:22:06 -0500
-Received: from gundega.hpl.hp.com ([192.6.19.190]:59928 "EHLO
-	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750749AbXACNWF (ORCPT
+	Wed, 3 Jan 2007 08:25:39 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:55197 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750773AbXACNZi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 08:22:05 -0500
-Date: Wed, 3 Jan 2007 05:20:15 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
-       Stephane Eranian <eranian@hpl.hp.com>
-Subject: Re: [PATCH] add i386 idle notifier (take 3)
-Message-ID: <20070103132015.GE7238@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de> <20061222100700.GB1895@frankl.hpl.hp.com> <20061223114015.GQ6993@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061223114015.GQ6993@stusta.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Wed, 3 Jan 2007 08:25:38 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Wed, 3 Jan 2007 08:20:09 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Folkert van Heusden <folkert@vanheusden.com>,
+       Denis Vlasenko <vda.linux@googlemail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: replace "memset(...,0,PAGE_SIZE)" calls with "clear_page()"?
+In-Reply-To: <1167586995.20929.829.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0701030818330.31668@localhost.localdomain>
+References: <Pine.LNX.4.64.0612290106550.4023@localhost.localdomain> 
+ <200612302149.35752.vda.linux@googlemail.com> 
+ <Pine.LNX.4.64.0612301705250.16056@localhost.localdomain> 
+ <1167518748.20929.578.camel@laptopd505.fenrus.org>  <20061231133902.GA13521@vanheusden.com>
+  <1167572735.20929.750.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.64.0612311118490.13153@localhost.localdomain>
+ <1167586995.20929.829.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian,
+On Sun, 31 Dec 2006, Arjan van de Ven wrote:
 
-On Sat, Dec 23, 2006 at 12:40:15PM +0100, Adrian Bunk wrote:
-> > 
-> > If you look at the perfmon-new-base patch, you'll see a base.diff patch which
-> > includes this one. I am slowly getting rid of this requirement by pushing
-> > those "infrastructure patches" to mainline so that the perfmon patch gets
-> > smaller over time. Submitting smaller patches makes it easier for maintainers
-> > to integrate.
-> 
-> No, the preferred way is to start with getting both the infrastructure 
-> and the users into -mm.
-> 
-> Adding infrastructure without users doesn't fit into the kernel 
-> development model.
-> 
+> So... yes I fully agree with you that it's worth looking at the
+> memset( , PAGE_SIZE) users. If they are page aligned, yes absolutely
+> make it a clear_page(), I think that's a very good idea. However
+> also please check if they've been very recently allocated in that
+> code, and if maybe the zeroing allocators are better suited there..
+> (or maybe there's even double zeroing going on.. that's be a nice
+> gain)
 
-I am hearing conflicting opinions on this one.
+  there's certainly some cleanup/speedup that could be done regarding
+these numerous "memset(...,0,PAGE_SIZE) calls.
 
-Perfmon is a fairly big patch. It is hard to take it as one. I have tried to
-split it up in smaller, more manageable pieces as requested by top-level
-maintainers. This process implies that I supply small patches which may not
-necessarily have users just yet.
+  first, there the obvious 1:1 replacement with a call to
+"clear_page()" ***if that's appropriate***.
 
-> The unused x86-64 idle notifiers are now bloating the kernel since 
-> nearly one year.
-> 
-> > > And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
-> > > perfmon-new-base-061204 doesn't seem to add any modular user?
-> > 
-> Where does the perfmon code use the EXPORT_SYMBOL's?
+  second, there's some possible simplification, given snippets like
+this one from arch/sparc/mm/sun4c.c
 
-The perfmon patch includes several kernel modules which make use of
-the exported entry points. The following symbols are exported:
+	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
+        if (pte)
+                memset(pte, 0, PAGE_SIZE);
 
-pfm_pmu_register/pfm_pmu_unregister:
-	* PMU description module registration.
-	* Used to describe PMU model.
-	* Used by perfmon_p4.c, perfmon_core.c, perfmon_mckinley.c, and others
+which seems to be an obvious candidate for replacement with:
 
-pfm_fmt_register/pfm_fmt_unregister:
-	* Sampling format module registration
-	* Used by perfmon_dfl_smpl.c, perfmon_pebs_smpl.c
+	pte = get_zeroed_page(GFP_KERNEL|__GFP_REPEAT)
 
-pfm_interrupt_handler:
-	* PMU interrupt handler
-	* Used by MIPS-specific perfmon code
+no?
 
-pfm_pmu_conf/pfm_controls:
-	* global state/control variable
+  finally, there is certainly some "double zeroing" going on, as with
+this snippet from drivers/atm/eni.c:
 
-All exported symbols are currently used. Why are you saying this adds bloat?
+	...
+	eni_dev->rx_map = (struct atm_vcc **) get_zeroed_page(GFP_KERNEL);
+                                              ^^^^^^^^^^^^^^^
+        if (!eni_dev->rx_map) {
+                printk(KERN_ERR DEV_LABEL "(itf %d): couldn't get free page\n",
+                    dev->number);
+                free_page((unsigned long) eni_dev->free_list);
+                return -ENOMEM;
+        }
+        memset(eni_dev->rx_map,0,PAGE_SIZE);	// redundant, no?
+	...
 
--- 
--Stephane
+  so, yes, there does appear to be room for cleanup/speedup.
+
+rday
+
+

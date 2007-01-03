@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932160AbXACW3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932157AbXACW3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbXACW3R (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 17:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbXACW3Q
+	id S932157AbXACW3l (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 17:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbXACW3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 17:29:16 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:33201 "EHLO smtp3-g19.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932157AbXACW3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 17:29:15 -0500
-Message-ID: <459C2E6D.2040406@yahoo.fr>
-Date: Wed, 03 Jan 2007 23:30:05 +0100
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Handle error in sync_sb_inodes()
-References: <45958E4F.5080105@yahoo.fr> <20070102132645.264d2b89.akpm@osdl.org>
-In-Reply-To: <20070102132645.264d2b89.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 3 Jan 2007 17:29:41 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:44993 "EHLO smtp.hispeed.ch"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932157AbXACW3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 17:29:39 -0500
+X-Greylist: delayed 2586 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 17:29:39 EST
+Subject: Re: kernel + gcc 4.1 = several problems
+From: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
+       76306.1226@compuserve.com, akpm@osdl.org, bunk@stusta.de,
+       greg@kroah.com, linux-kernel@vger.kernel.org,
+       yanmin_zhang@linux.intel.com
+In-Reply-To: <Pine.LNX.4.64.0701030731080.4473@woody.osdl.org>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se>
+	 <20070103102944.09e81786@localhost.localdomain>
+	 <Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net>
+	 <Pine.LNX.4.64.0701030731080.4473@woody.osdl.org>
+Content-Type: text/plain
+Date: Wed, 03 Jan 2007 22:44:19 +0100
+Message-Id: <1167860659.13394.41.camel@unreal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 1378;
+	Body=11 Fuz1=11 Fuz2=11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
->> @@ -365,7 +366,8 @@ sync_sb_inodes(struct super_block *sb, s
->>  		BUG_ON(inode->i_state & I_FREEING);
->>  		__iget(inode);
->>  		pages_skipped = wbc->pages_skipped;
->> -		__writeback_single_inode(inode, wbc);
->> +		ret = __writeback_single_inode(inode, wbc);
->> +		mapping_set_error(mapping, ret);
->>  		if (wbc->sync_mode == WB_SYNC_HOLD) {
->>  			inode->dirtied_when = jiffies;
->>  			list_move(&inode->i_list, &sb->s_dirty);
->>     
-> --- a/fs/buffer.c~a
-> +++ a/fs/buffer.c
-> @@ -1739,6 +1739,7 @@ recover:
->  		}
->  	} while ((bh = bh->b_this_page) != head);
->  	SetPageError(page);
-> +	mapping_set_error(page->mapping, err);
->  	BUG_ON(PageWriteback(page));
->  	set_page_writeback(page);
->  	unlock_page(page);
->   
+On Wed, 2007-01-03 at 08:03 -0800, Linus Torvalds wrote:
 
+> and assuming the branch is AT ALL predictable (and 95+% of all branches 
+> are), the branch-over will actually be a LOT better for a CPU.
 
-Unfortunately, with your patch and not mine, the problem is still 
-present: msync()
-does not return the error. Both pieces of code (yours and mine) are 
-called for the
-same mapping though, albeit yours more frequently.
+IF... Counterexample: Add-Compare-Select in a Viterbi Decoder. If the
+compare can be predicted, you botched the compression of the data (if
+you can predict the data, you could have compressed it better), or your
+noise is not white, i.e. you f*** up the whitening filter. So in any
+practical viterbi decoder, the compares cannot be predicted. I remember
+cmov made a big difference in Viterbi Decoder performance on a Cyrix
+6x86. But granted, nowadays these things are usually done with SIMD and
+masks.
 
-My interpretation (based more on imagination than experience) is that
-__writeback_single_inode() ends up calling __block_write_full_page() which
-sets the page flags (your patch), then calls wait_on_page_writeback_range()
-which clears the flags but returns the error as its return value. And this
-error code is dropped by sync_sb_inodes() (my patch not applied).
-
-With my patch, wait_on_page_writeback_range() would get the error code
-by some other mean, and sync_sb_inodes() would re-put it in the flags for
-msync() later.
-
-Sorry, for the speculation, but I would need some hint to debug this ;-)
-
-Thanks.
-
--- 
-Guillaume
+Tom
 

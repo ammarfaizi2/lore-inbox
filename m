@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752903AbXACBTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753015AbXACBXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752903AbXACBTY (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 20:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752957AbXACBTY
+	id S1753015AbXACBXO (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 20:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753027AbXACBXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 20:19:24 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:56037 "EHLO tmailer.gwdg.de"
+	Tue, 2 Jan 2007 20:23:14 -0500
+Received: from mga02.intel.com ([134.134.136.20]:43870 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752903AbXACBTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 20:19:23 -0500
-Date: Wed, 3 Jan 2007 02:13:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       devel@laptop.org, benh@kernel.crashing.org, wmb@firmworks.com,
-       jg@laptop.org
-Subject: Re: [PATCH] Open Firmware device tree virtual filesystem
-In-Reply-To: <3676953abedcbe6d86da74a4997593cb@kernel.crashing.org>
-Message-ID: <Pine.LNX.4.61.0701030213100.19644@yvahk01.tjqt.qr>
-References: <459ABC7C.2030104@firmworks.com> <1167770882.6165.76.camel@localhost.localdomain>
- <978466dd510f659cd69b67ee7309be28@kernel.crashing.org>
- <20070102.140749.104035927.davem@davemloft.net>
- <3676953abedcbe6d86da74a4997593cb@kernel.crashing.org>
+	id S1753015AbXACBXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 20:23:13 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,228,1165219200"; 
+   d="scan'208"; a="180832366:sNHT25228427"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Zach Brown'" <zach.brown@oracle.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       <linux-kernel@vger.kernel.org>, "'Benjamin LaHaise'" <bcrl@kvack.org>,
+       <suparna@in.ibm.com>
+Subject: RE: [patch] aio: make aio_ring_info->nr_pages an unsigned int
+Date: Tue, 2 Jan 2007 17:23:13 -0800
+Message-ID: <000e01c72ed5$bcbb9430$ff0da8c0@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accu1H4IK4ve1fHzQqSz/9L1tprcTgAAH/PQ
+In-Reply-To: <F7E6E752-C6CE-4A89-A716-3C7367EF1FF8@oracle.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zach Brown wrote on Tuesday, January 02, 2007 5:14 PM
+> To: Chen, Kenneth W
+> > --- ./include/linux/aio.h.orig	2006-12-24 22:31:55.000000000 -0800
+> > +++ ./include/linux/aio.h	2006-12-24 22:41:28.000000000 -0800
+> > @@ -165,7 +165,7 @@ struct aio_ring_info {
+> >
+> >  	struct page		**ring_pages;
+> >  	spinlock_t		ring_lock;
+> > -	long			nr_pages;
+> > +	unsigned		nr_pages;
+> >
+> >  	unsigned		nr, tail;
+> 
+> Hmm.
+> 
+> This seems so trivial as to not be worth it.  It'd be more compelling  
+> if it was more thorough -- doing things like updating the 'long i'  
+> iterators that a feww have over ->nr_pages.  That kind of thing.   
+> Giving some confidence that the references of ->nr_pages were audited.
 
-On Jan 3 2007 01:52, Segher Boessenkool wrote:
->> > Leaving aside the issue of in-memory or not, I don't think
->> > it is realistic to think any completely common implementation
->> > will work for this -- it might for current SPARC+PowerPC+OLPC,
->> > but more stuff will be added over time...
->> 
->> I see nothing supporting this IMHO bogus claim.
->
-> Please keep in mind that not all systems want to kill OF
-> as soon as they enter the kernel -- some want to keep it
-> active basically forever (or only remove it when the user
-> asks for it).
 
-Kill OF? sparc does not want that IMO, how else should I return to
-the 'ok' prompt?
+I had that changes earlier, but dropped it to make the patch smaller. It
+all started with head and tail index, which is defined as unsigned int in
+structure, but in aio.c, all local variables that does temporary head and
+tail calculation are unsigned long. While cleaning that, it got expanded
+into nr_pages etc.  Oh well.
 
+- Ken
 
-	-`J'
--- 

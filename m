@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750709AbXACKnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750710AbXACKqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbXACKnK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 05:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbXACKnK
+	id S1750710AbXACKqi (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 05:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbXACKqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 05:43:10 -0500
-Received: from mail.gmx.net ([213.165.64.20]:43368 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1750709AbXACKnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 05:43:09 -0500
-X-Authenticated: #5039886
-Date: Wed, 3 Jan 2007 11:43:05 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Zefang.Wang@nokia.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Any problem if softirq are done in a interrupt context (IRQ stack)?
-Message-ID: <20070103104305.GA3100@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Zefang.Wang@nokia.com, linux-kernel@vger.kernel.org
-References: <20070103092214.GA2628@atjola.homenet> <1E9D602D891FA142A769E9EF164712EC355CB0@beebe101.NOE.Nokia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 3 Jan 2007 05:46:38 -0500
+Received: from poczta.o2.pl ([193.17.41.142]:48955 "EHLO poczta.o2.pl"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750710AbXACKqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 05:46:37 -0500
+Date: Wed, 3 Jan 2007 11:48:14 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org, g3vbv@blueyonder.co.uk,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.19 and up to  2.6.20-rc2 Ethernet problems x86_64
+Message-ID: <20070103104814.GA2629@ff.dom.local>
+References: <20061229063254.GA1628@ff.dom.local> <4595CD1B.2020102@blueyonder.co.uk> <20070102115050.GA3449@ff.dom.local> <459A7AF1.5060702@blueyonder.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1E9D602D891FA142A769E9EF164712EC355CB0@beebe101.NOE.Nokia.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+In-Reply-To: <459A7AF1.5060702@blueyonder.co.uk>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Re-added lkml to the CC list, please don't drop anything from CC]
+On Tue, Jan 02, 2007 at 03:32:01PM +0000, Sid Boyce wrote:
+> Jarek Poplawski wrote:
+...
+> >If you could send full ifconfig, route -n (or ip route
+> >if you use additional tables) and tcpdump (all packets)
+> >from both boxes while pinging each other and a few words
+> >how it is connected (other cards, other active boxes in
+> >the network?) maybe something more could be found.
+...
+> Everything is fine with a eepro100 on the 64x2 box that gave the same
+> problem with a nVidia Corporation MCP51 Ethernet Controller (rev a1)
+> using the forcedeth module. On the x86_64 laptop the problem is with a
+> Broadcom NetXtreme BCM5788 using the tg3 module. Switching back to a
+> 2.6.18.2 kernel, there is no problem.
+> With all configurations of cards on both, route -n is the same on all
+> kernels and instantly reports back. With >=2.6.19 on the laptop, netstat
+> -r takes a very long time before returning the information ~30 seconds,
+> instantly on 2.6.18.2.
 
-On 2007.01.03 17:39:48 +0800, Zefang.Wang@nokia.com wrote:
-> Hi!
-> 
-> Thanks very much for your clear explanation !
-> 
-> I have another question about irq_exit(), hope you can help me.
-> 
-> void irq_exit(void)
-> {
-> 	account_system_vtime(current);          
-> 	trace_hardirq_exit();
-> 	sub_preempt_count(IRQ_EXIT_OFFSET);   
->            ====================================================================
-> 		Here, IRQ_EXIT_OFFSET is defined as (HARDIRQ_OFFSET-1),
-> 		so the purpose seems that it try to avoid the current process
-> 		from being switched-out druing do_softirq()?
-> 		And,  if the preempt_count is not zero,  then softirq for 
-> 		timer interrupt can set  _TIF_NEED_RESCHED flag to current
-> 		process?
-> 		What happened if the above sentence is changed to
-> 		sub_preept_count(HARDIRQ_OFFSET)?
-> 
-> 	if (!in_interrupt() && local_softirq_pending())
-> 		invoke_softirq();
-> 	preempt_enable_no_resched();
->              ==============================================
-> 	 The remaining 1 is decremented here.
-> }
+This could be a problem with DNS. Could you do all tests
+(including pinging) with -n option?
 
-I can't really help you with that one. I'd assume that you need to make
-sure that the current process context is kept while the softirq is
-running. Could be, that otherwise the process gets preempted and the
-stored process context would be assigned to the new process or
-something like that, but I'm just guessing wildly here.
-Note that IRQ_EXIT_OFFSET is defined as HARDIRQ_OFFSET if preemption is
-disabled, so that's probably key here, I just don't know what kind of
-havoc preempting would cause here ;)
+I've read your other message on netdev and see you
+have firewall working and addresses from various 
+networks in logs. I think it would be much easier
+to exclude possible network config errors and try
+to isolate pinging problems by connecting (with
+switch or even crossed cable if possible) only 2
+boxes with firewalls and other net devices disabled
+and try to repeat this pinging with tcpdumps.
 
-Björn
+Jarek P.

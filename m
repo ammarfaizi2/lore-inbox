@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750903AbXACQVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750906AbXACQWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbXACQVk (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 11:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbXACQVk
+	id S1750906AbXACQWE (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 11:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbXACQWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 11:21:40 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:3851 "EHLO parknet.jp"
+	Wed, 3 Jan 2007 11:22:04 -0500
+Received: from colo.lackof.org ([198.49.126.79]:58865 "EHLO colo.lackof.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750903AbXACQVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 11:21:39 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64: Fix dump_trace()
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 04 Jan 2007 01:21:28 +0900
-Message-ID: <87k604rshj.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.92 (gnu/linux)
+	id S1750906AbXACQWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 11:22:03 -0500
+X-Greylist: delayed 1448 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 11:22:02 EST
+Date: Wed, 3 Jan 2007 08:57:50 -0700
+From: dann frazier <dannf@debian.org>
+To: mark_salyzyn@adaptec.com, linux-kernel@vger.kernel.org, md@Linux.IT
+Cc: 404927@bugs.debian.org, 404927-submitter@bugs.debian.org,
+       debian-kernel@lists.debian.org
+Subject: udev/aacraid interaction - should aacraid set 'removable'?
+Message-ID: <20070103155749.GT13154@colo>
+References: <200612290952.kBT9qg6h009021@alpha.it.teithe.gr> <20061229102959.GB10643@bongo.bofh.it> <20070103080325.GN13154@colo> <20070103104951.GC11745@bongo.bofh.it>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070103104951.GC11745@bongo.bofh.it>
+User-Agent: mutt-ng/devel-r782 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If caller passed the tsk, we should use it to validate a stack ptr.
-Otherwise, sysrq-t and other debugging stuff doesn't work.
+(lkml readers: this concerns a security issue reported to debian by a
+user of udev/aacraid. udev gives the aacraid devices the floppy group
+because it reports block devices as 'removable'. See
+http://bugs.debian.org/404927 for the entire thread).
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+On Wed, Jan 03, 2007 at 11:49:51AM +0100, Marco d'Itri wrote:
+> On Jan 03, dann frazier <dannf@debian.org> wrote:
+> 
+> >  Can you elaborate on what you believe the kernel is doing
+> > incorrectly? My first guess would be the setting of the removable
+> > flag, but aacraid claims to be setting this to prevent partition table
+> > caching - do you believe that to be an incorrect usage?
+> Yes, this looks like an abuse of the interface to me.
 
- arch/x86_64/kernel/traps.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Ok, let's ask lkml
 
-diff -puN arch/x86_64/kernel/traps.c~x86_64-fix-show_trace arch/x86_64/kernel/traps.c
---- linux-2.6/arch/x86_64/kernel/traps.c~x86_64-fix-show_trace	2007-01-04 00:28:02.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/traps.c	2007-01-04 00:28:02.000000000 +0900
-@@ -319,7 +319,7 @@ void dump_trace(struct task_struct *tsk,
- 	/*
- 	 * This handles the process stack:
- 	 */
--	tinfo = current_thread_info();
-+	tinfo = task_thread_info(tsk);
- 	HANDLE_STACK (valid_stack_ptr(tinfo, stack));
- #undef HANDLE_STACK
- 	put_cpu();
-_
+> > It seems like there is precedence for workarounds for older kernels in
+> > permissions.rules, so would it be appropriate to add an override of
+> > the default floppy rule for aacraid devices for compatability even if
+> > this is a kernel bug?
+> There are workarounds for bugs which are going to be fixed, but looks
+> like this is going to stay forever...
+> Are there other drivers in this situation?
+
+I didn't turn up any otherwise when I was grepping yesterday, but my
+search terms may have been too naive. I also checked a machine I had
+w/ cciss - it did not have the removable flag set.
+
+I found a message from Mark Salyzyn from last year that suggested this
+was more pervasive:
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/1231.html
+Mark: Can you identify some of these other drivers?
+
 
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+dann frazier
+

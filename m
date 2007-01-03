@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932143AbXACVVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932149AbXACVWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbXACVVs (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbXACVVs
+	id S932149AbXACVWH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbXACVWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:21:48 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40155 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932143AbXACVVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:21:47 -0500
-Message-ID: <459C1E71.5010805@drzeus.cx>
-Date: Wed, 03 Jan 2007 22:21:53 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: emilus <emilus@galeria-m.art.pl>
-CC: sdhci-devel <sdhci-devel@list.drzeus.cx>, Alex Dubov <oakad@yahoo.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Sdhci-devel] sdhci ubuntu problem.
-References: <1167089660.5837.6.camel@wpilap>  <45951D8D.2090200@drzeus.cx>	 <1167408325.4306.10.camel@wpilap>  <4597A4C5.8030008@drzeus.cx> <1167780471.3666.17.camel@localhost>
-In-Reply-To: <1167780471.3666.17.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 3 Jan 2007 16:22:06 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:37226 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932147AbXACVWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:22:04 -0500
+Subject: Re: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
+From: Steve Wise <swise@opengridcomputing.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1167855618.4187.65.camel@stevo-desktop>
+References: <1167851839.4187.36.camel@stevo-desktop>
+	 <20070103193324.GD29003@mellanox.co.il>
+	 <1167855618.4187.65.camel@stevo-desktop>
+Content-Type: text/plain
+Date: Wed, 03 Jan 2007 15:22:00 -0600
+Message-Id: <1167859320.4187.81.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-emilus wrote:
-> Uff... 
-> I just change system back to debian because of other problems with
-> Ubuntu.
-> And suprise ... SD doesn't work! I'm very suprised...
-> There was no problem before. Card reader works with 2GB cards too and
-> everything was fine.
-> So I have installed the newest kernel 2.6.19 without succes.
-> but I found that there is a specific drivers for my TI (in 2.6.19) so I
->   
+> > 
+> > So what does this tell you?
+> > To me it looks like there's a measurable speed difference,
+> > and so we should find a way (e.g. what I proposed) to enable chelsio userspace
+> > without adding overhead to other low level drivers or indeed chelsio kernel level code.
+> > 
+> > What do you think? Roland?
+> > 
+> 
+> I think having a 2nd function to set the udata seems onerous.
+> 
+> 
 
-Ah... didn't notice that it was a TI controller you had. Then you
-usually need an ugly setpci hack for it to work with sdhci. But the new
-tifm_sd driver is the preferred solution.
+Roland, 
 
-> try it. And nothing better... but.
-> when card is inserted in card reader at boot time sth. happen.
-> I attach dmesg with it.
->   
+If you think I should not add the udata parameter to the req_notify_cq()
+provider verb, then I can rework the chelsio driver:
 
-As you have ndiswrapper rearing its ugly head just above, I would guess
-it starts up your wlan card at interrupt 21 and kills it. I would
-suggest trying without ndiswrapper loaded.
+1) at cq creation time, pass the virtual address of the u32 used by the
+library to track the current cq index.  That way the chelsio kernel
+driver can save the address in its kernel cq context for later use.
 
-As this is now a tifm_sd related issue, I would recommend that Alex
-Dubov takes over and the list of choice being the kernel mailing list
-(both cc:d).
+2) change chelsio's req_notify_cq() to copy in the current cq index
+value directly for rearming.
 
-Rgds
+This puts all the burden on the chelsio driver, which is apparently the
+only one that needs this functionality.  
 
--- 
-     -- Pierre Ossman
+Lemme know.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Steve.
+
+
 

@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932151AbXACW0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932158AbXACW2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbXACW0m (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 17:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbXACW0m
+	id S932158AbXACW2v (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 17:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbXACW2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 17:26:42 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:9897 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932151AbXACW0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 17:26:41 -0500
-Date: Wed, 3 Jan 2007 23:29:31 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>
-Subject: Re: [PATCH] 4/4 block: explicit plugging
-Message-ID: <20070103222930.GL11203@kernel.dk>
-References: <20070103082202.GG11203@kernel.dk> <98F3657447CE934E9ADA3A348D854FB602858A4F@scsmsx414.amr.corp.intel.com>
+	Wed, 3 Jan 2007 17:28:51 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:52363 "EHLO
+	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932154AbXACW2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 17:28:50 -0500
+Subject: Re: [PATCH 5/5] lpfc : Make Emulex lpfc driver legacy I/O port free
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Smart@Emulex.Com, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       e1000-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+In-Reply-To: <20070103142349.6f8b0310.akpm@osdl.org>
+References: <4564051C.3080908@jp.fujitsu.com> <4564706E.9060900@emulex.com>
+	 <1167862008.2789.81.camel@mulgrave.il.steeleye.com>
+	 <20070103142349.6f8b0310.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 03 Jan 2007 16:28:40 -0600
+Message-Id: <1167863321.2789.83.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98F3657447CE934E9ADA3A348D854FB602858A4F@scsmsx414.amr.corp.intel.com>
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03 2007, Chen, Kenneth W wrote:
-> Jens Axboe wrote on Wednesday, January 03, 2007 12:22 AM
-> > > Do you have any benchmarks which got faster with these changes?
-> > 
-> > On the hardware I have immediately available, I see no regressions wrt
-> > performance. With instrumentation it's simple to demonstrate that most
-> > of the queueing activity of an io heavy benchmark spends less time in
-> > the kernel (most merging activity takes place outside of the queue
-> lock,
-> > hence queueing is lock free).
-> > 
-> > I've asked Ken to run this series on some of his big iron, I hope
-> he'll
-> > have some results for us soonish.
+On Wed, 2007-01-03 at 14:23 -0800, Andrew Morton wrote:
+> > drivers/scsi/lpfc/lpfc_init.c: In function 'lpfc_pci_probe_one':
+> > drivers/scsi/lpfc/lpfc_init.c:1418: warning: implicit declaration of function 'pci_select_bars'
+> > drivers/scsi/lpfc/lpfc_init.c:1422: warning: implicit declaration of function 'pci_request_selected_regions'
+> > drivers/scsi/lpfc/lpfc_init.c:1734: warning: implicit declaration of function 'pci_release_selected_regions'
 > 
-> We are having some trouble with the patch set that some of our fiber
-> channel
-> host controller doesn't initialize properly anymore and thus lost whole
-> bunch
-> of disks (somewhere around 200 disks out of 900) at boot time.
-> Presumably FC
-> loop initialization command are done through block layer etc.  I haven't
-> looked into the problem closely.
+> That's here, in Greg's PCI tree:
+
+Ah, OK, thanks!
+
+> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-02-pci/pci-add-selected_regions-funcs.patch
 > 
-> Jens, I assume the spin lock bug in __blk_run_queue is fixed in this
-> patch
-> set?
+> > Is there any ETA on the rest of the infrastructure?
+> > 
+> 
+> It doesn't look like a bugfix :(
 
-It is. Are you still seeing problems after the initial mail exchange we
-had prior to christmas, or are you referencing that initial problem?
+OK, I'll defer this then ... someone remind me when 2.6.20 rolls around.
 
-It's not likely to be a block layer issue, more likely the SCSI <->
-block interactions. If you mail me a new dmesg (if your problem is with
-the __blk_run_queue() fixups), I can take a look. Otherwise please do
-test with the __blk_run_queue() fixup, just use the current patchset.
+James
 
--- 
-Jens Axboe
 

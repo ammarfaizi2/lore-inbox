@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932145AbXACVWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932125AbXACVcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbXACVWz (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbXACVWz
+	id S932125AbXACVcE (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbXACVcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:22:55 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:51481 "EHLO smtp.osdl.org"
+	Wed, 3 Jan 2007 16:32:04 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:35813 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932145AbXACVWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:22:54 -0500
-Date: Wed, 3 Jan 2007 13:22:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: minyard@acm.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Carol Hebert <cah@us.ibm.com>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] IPMI: Fix some RCU problems
-Message-Id: <20070103132232.f924227e.akpm@osdl.org>
-In-Reply-To: <20070103153130.GB16063@localdomain>
-References: <20070103153130.GB16063@localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S932125AbXACVcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:32:03 -0500
+Date: Wed, 3 Jan 2007 22:30:56 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.20-rc3: known regressions with patches (v2)
+In-Reply-To: <20070103210400.GL20714@stusta.de>
+Message-ID: <Pine.LNX.4.64.0701032229300.1665@twin.jikos.cz>
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+ <20070103210400.GL20714@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2007 09:31:30 -0600
-Corey Minyard <minyard@acm.org> wrote:
+On Wed, 3 Jan 2007, Adrian Bunk wrote:
 
->   found:
-> +	smp_rmb();
->  	/* Note that each existing user holds a refcount to the interface. */
->  	kref_get(&intf->refcount);
->  
-> @@ -2761,6 +2763,7 @@
->  		kref_put(&intf->refcount, intf_free);
->  	} else {
->  		/* After this point the interface is legal to use. */
-> +		smp_wmb(); /* Keep memory order straight for RCU readers. */
->  		intf->intf_num = i;
->  		mutex_unlock(&ipmi_interfaces_mutex);
->  		call_smi_watchers(i, intf->si_dev);
-> @@ -3924,6 +3927,8 @@
->  			/* Interface was not ready yet. */
->  			continue;
->  
-> +		smp_rmb();
-> +
+> This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
+> with patches available.
 
-It's nice to always have a comment explaining the use of open-coded
-barriers.  Because often the reader is left wondered what on earth it's
-barriering against what on earth else.
+Hi Adrian,
 
+where did the 
+
+Subject    : USB keyboard unresponsive after some time
+References : http://lkml.org/lkml/2006/12/25/35
+             http://lkml.org/lkml/2006/12/26/106
+Submitter  : Florin Iucha <florin@iucha.net>
+Status     : unknown
+
+go? (it was in a previous version of this list you sent on Tue, 2 Jan 2007 
+20:16:06 +0100 and I am not aware of any existing fix).
+
+Thanks,
+
+-- 
+Jiri Kosina

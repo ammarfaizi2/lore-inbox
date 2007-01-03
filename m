@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932140AbXACWOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932141AbXACWQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbXACWOj (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 17:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbXACWOj
+	id S932141AbXACWQm (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 17:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXACWQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 17:14:39 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:55452 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932136AbXACWOi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 17:14:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kMbtJaX2Qk3F4D392tR6JRwVUJTd+9lPSwpUYTwvF7pRn2ObAvnrmZ/WbAkxx+pHlgZLHh3KlB8F03FJe3vrpIDTrJdqsRkojs8RaFINQfMu2J43WLJ3qTMmfPzx+xfMtNkVHV3S8g9azgaucwuNb6KVr67YwJbb9BOXe13Wqb4=
-Message-ID: <4807377b0701031414o3eb8da81wededa7b7f6b26898@mail.gmail.com>
-Date: Wed, 3 Jan 2007 14:14:36 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Eric Piel" <Eric.Piel@tremplin-utc.net>
-Subject: Re: [2.6 patch] the scheduled eepro100 removal
-Cc: "Adrian Bunk" <bunk@stusta.de>, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, saw@saw.sw.com.sg,
-       "Kok, Auke-jan H" <auke-jan.h.kok@intel.com>,
-       "Brandeburg, Jesse" <jesse.brandeburg@intel.com>
-In-Reply-To: <459AF3DC.1040305@tremplin-utc.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 3 Jan 2007 17:16:41 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55228 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932141AbXACWQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 17:16:40 -0500
+Date: Wed, 3 Jan 2007 14:15:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: suparna@in.ibm.com
+Cc: linux-aio@kvack.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-Id: <20070103141556.82db0e81.akpm@osdl.org>
+In-Reply-To: <20061228082308.GA4476@in.ibm.com>
+References: <20061227153855.GA25898@in.ibm.com>
+	<20061228082308.GA4476@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070102215726.GC20714@stusta.de>
-	 <459AF3DC.1040305@tremplin-utc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/2/07, Eric Piel <Eric.Piel@tremplin-utc.net> wrote:
-> Hi, I've been using e100 for years with no problem, however more by
-> curiosity than necessity I'd like to know how will be handled the
-> devices which are (supposedly) supported by eepro100 and not by e100?
->
-> According to "modinfo eepro100" and "modinfo e100" those devices IDs are
-> only matched by eepro100:
-> +alias:          pci:v00008086d00001035sv
-> +alias:          pci:v00008086d00001036sv
-> +alias:          pci:v00008086d00001037sv
-These are phoneline (RJ-11) adapters, I doubt it would work with e100
-or eepro100
+On Thu, 28 Dec 2006 13:53:08 +0530
+Suparna Bhattacharya <suparna@in.ibm.com> wrote:
 
-> +alias:          pci:v00008086d00001227sv
-1227 doesn't exist as a pro/100 in our database, typo maybe?
+> This patchset implements changes to make filesystem AIO read
+> and write asynchronous for the non O_DIRECT case.
 
-> +alias:          pci:v00008086d00005200sv
-doesn't exist in our database
+Unfortunately the unplugging changes in Jen's block tree have trashed these
+patches to a degree that I'm not confident in my repair attempts.  So I'll
+drop the fasio patches from -mm.
 
-> +alias:          pci:v00008086d00005201sv
-This was the pro/100 intelligent server adapter with a pro/100 behind
-a 960.  There aren't too many of these out there, and they usually
-require some special configuration (although they can work as a dumb
-nic, but why would you want a full length pro/100 card?)
+Zach's observations regarding this code's reliance upon things at *current
+sounded pretty serious, so I expect we'd be seeing changes for that anyway?
 
-> Are they matched by some joker rule that I haven't noticed in e100, or
-> is support for them really going to disappear?
+Plus Jens's unplugging changes add more reliance upon context inside
+*current, for the plugging and unplugging operations.  I expect that the
+fsaio patches will need to be aware of the protocol which those proposed
+changes add.
 
-I think support for these devices can disappear (as I don't think they
-will work anyway) but if someone complains we can take into account
-what eepro100 did to support it (if anything) and enable it in e100.
-
-Jesse (e100 maintainer)

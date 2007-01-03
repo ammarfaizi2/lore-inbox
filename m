@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750973AbXACRUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750983AbXACR0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbXACRUr (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 12:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbXACRUr
+	id S1750983AbXACR0p (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 12:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbXACR0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 12:20:47 -0500
-Received: from outbound-mail-73.bluehost.com ([69.89.20.8]:44495 "HELO
-	outbound-mail-73.bluehost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750973AbXACRUq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 12:20:46 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] quiet MMCONFIG related printks
-Date: Wed, 3 Jan 2007 09:20:49 -0800
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200701012101.38427.jbarnes@virtuousgeek.org> <1167832386.3095.20.camel@laptopd505.fenrus.org>
-In-Reply-To: <1167832386.3095.20.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Jan 2007 12:26:45 -0500
+Received: from mail.screens.ru ([213.234.233.54]:45276 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750980AbXACR0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 12:26:44 -0500
+Date: Wed, 3 Jan 2007 20:26:57 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, vatsa@in.ibm.com
+Subject: Re: [PATCH 3/2] fix flush_workqueue() vs CPU_DEAD race
+Message-ID: <20070103172657.GA1597@tv-sign.ru>
+References: <20061230161031.GA101@tv-sign.ru> <20070102162727.9ce2ae2b.akpm@osdl.org> <20070103140459.GA12620@in.ibm.com> <20070103151704.GA28195@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701030920.49991.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
+In-Reply-To: <20070103151704.GA28195@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, January 3, 2007 5:53 am, Arjan van de Ven wrote:
-> On Mon, 2007-01-01 at 21:01 -0800, Jesse Barnes wrote:
-> > Using MMCONFIG for PCI config space access is simply an
-> > optimization, not a requirement.  Therefore, when it can't be used,
-> > there's no need for KERN_ERR level message.  This patch makes the
-> > message a KERN_INFO instead to reduce some of the noise in a kernel
-> > boot with the 'quiet' option. (Note that this has no effect on a
-> > normal boot, which is ridiculously verbose these days.)
+On 01/03, Gautham R Shenoy wrote:
 >
-> this is wrong, please leave this loud complaint in...
+> On Wed, Jan 03, 2007 at 07:34:59PM +0530, Gautham R Shenoy wrote:
+> > 
+> > > handle-cpu_lock_acquire-and-cpu_lock_release-in-workqueue_cpu_callback.patch
+> > 
+> > Again, this one ensures that workqueue_mutex is taken/released on
+> > CPU_LOCK_ACQUIRE/CPU_LOCK_RELEASE events in the cpuhotplug callback
+> > function. So this one is required, unless it conflicts with what Oleg
+> > has posted. Will check that out tonite.
+> 
+> We would still be needing this patch as it's complementing what Oleg has
+> posted.
 
-Or maybe the test is just wrong.  I'll try out the PCI MMConfig 
-per-chipset patches to see if they work.  That seems like a better long 
-term solution anyway.
+I thought that these patches don't depend on each other, flush_work/workueue
+don't care where cpu-hotplug takes workqueue_mutex, in CPU_LOCK_ACQUIRE or in
+CPU_UP_PREPARE case (or CPU_DEAD/CPU_LOCK_RELEASE for unlock).
 
-Thanks,
-Jesse
+Could you clarify? Just curious.
+
+Oleg.
+

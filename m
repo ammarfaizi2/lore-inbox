@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932159AbXACWah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932162AbXACWeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbXACWah (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 17:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbXACWah
+	id S932162AbXACWeo (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 17:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbXACWeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 17:30:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52165 "EHLO amd.ucw.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932159AbXACWag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 17:30:36 -0500
-Date: Wed, 3 Jan 2007 23:30:24 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Frank van Maarseveen <frankvm@frankvm.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Finding hardlinks
-Message-ID: <20070103223024.GA5078@elf.ucw.cz>
-References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <20061229100223.GF3955@ucw.cz> <Pine.LNX.4.64.0701012333380.5162@artax.karlin.mff.cuni.cz> <20070101235320.GS8104@delft.aura.cs.cmu.edu> <Pine.LNX.4.64.0701020055580.32128@artax.karlin.mff.cuni.cz> <20070103185815.GA2182@janus> <Pine.LNX.4.64.0701032009140.6871@artax.karlin.mff.cuni.cz> <20070103192616.GA3299@janus> <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz>
+	Wed, 3 Jan 2007 17:34:44 -0500
+Received: from mga03.intel.com ([143.182.124.21]:40816 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932162AbXACWen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 17:34:43 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,234,1165219200"; 
+   d="scan'208"; a="164939225:sNHT20326362"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Jens Axboe'" <jens.axboe@oracle.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Nick Piggin" <npiggin@suse.de>
+Subject: RE: [PATCH] 4/4 block: explicit plugging
+Date: Wed, 3 Jan 2007 14:34:38 -0800
+Message-ID: <000001c72f87$5bd8e520$ce34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701032027330.6871@artax.karlin.mff.cuni.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accvhj+zeMWg2e/YRHuOzuCIlbw1VQAAEf3w
+In-Reply-To: <20070103222930.GL11203@kernel.dk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Sure it is. Numerous popular POSIX filesystems do that. There is a lot of
-> >inode number space in 64 bit (of course it is a matter of time for it to
-> >jump to 128 bit and more)
+Jens Axboe wrote on Wednesday, January 03, 2007 2:30 PM
+> > We are having some trouble with the patch set that some of our fiber channel
+> > host controller doesn't initialize properly anymore and thus lost whole
+> > bunch of disks (somewhere around 200 disks out of 900) at boot time.
+> > Presumably FC loop initialization command are done through block layer etc.
+> > I haven't looked into the problem closely.
+> > 
+> > Jens, I assume the spin lock bug in __blk_run_queue is fixed in this patch
+> > set?
 > 
-> If the filesystem was designed by someone not from Unix world (FAT, SMB, 
-> ...), then not. And users still want to access these filesystems.
-> 
-> 64-bit inode numbers space is not yet implemented on Linux --- the problem 
-> is that if you return ino >= 2^32, programs compiled without 
-> -D_FILE_OFFSET_BITS=64 will fail with stat() returning -EOVERFLOW --- this 
-> failure is specified in POSIX, but not very useful.
+> It is. Are you still seeing problems after the initial mail exchange we
+> had prior to christmas,
 
-Hehe, can we simply -EOVERFLOW on VFAT all the time? ...probably not
-useful :-(. But ability to say "unknown" in st_ino field would
-help....
+Yes. Not the same kernel panic, but a problem with FC loop reset itself.
 
-								Pavel
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> or are you referencing that initial problem?
+
+No. we got passed that point thanks for the bug fix patch you give me
+prior to Christmas.  That fixed a kernel panic on boot up.
+
+
+> It's not likely to be a block layer issue, more likely the SCSI <->
+> block interactions. If you mail me a new dmesg (if your problem is with
+> the __blk_run_queue() fixups), I can take a look. Otherwise please do
+> test with the __blk_run_queue() fixup, just use the current patchset.
+
+I will just retake the tip of your plug tree and retest.

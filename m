@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932149AbXACVWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932145AbXACVWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbXACVWH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbXACVWG
+	id S932145AbXACVWz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbXACVWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:22:06 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:37226 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932147AbXACVWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:22:04 -0500
-Subject: Re: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
-From: Steve Wise <swise@opengridcomputing.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <1167855618.4187.65.camel@stevo-desktop>
-References: <1167851839.4187.36.camel@stevo-desktop>
-	 <20070103193324.GD29003@mellanox.co.il>
-	 <1167855618.4187.65.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Wed, 03 Jan 2007 15:22:00 -0600
-Message-Id: <1167859320.4187.81.camel@stevo-desktop>
+	Wed, 3 Jan 2007 16:22:55 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:51481 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932145AbXACVWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:22:54 -0500
+Date: Wed, 3 Jan 2007 13:22:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: minyard@acm.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Carol Hebert <cah@us.ibm.com>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] IPMI: Fix some RCU problems
+Message-Id: <20070103132232.f924227e.akpm@osdl.org>
+In-Reply-To: <20070103153130.GB16063@localdomain>
+References: <20070103153130.GB16063@localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > So what does this tell you?
-> > To me it looks like there's a measurable speed difference,
-> > and so we should find a way (e.g. what I proposed) to enable chelsio userspace
-> > without adding overhead to other low level drivers or indeed chelsio kernel level code.
-> > 
-> > What do you think? Roland?
-> > 
-> 
-> I think having a 2nd function to set the udata seems onerous.
-> 
-> 
+On Wed, 3 Jan 2007 09:31:30 -0600
+Corey Minyard <minyard@acm.org> wrote:
 
-Roland, 
+>   found:
+> +	smp_rmb();
+>  	/* Note that each existing user holds a refcount to the interface. */
+>  	kref_get(&intf->refcount);
+>  
+> @@ -2761,6 +2763,7 @@
+>  		kref_put(&intf->refcount, intf_free);
+>  	} else {
+>  		/* After this point the interface is legal to use. */
+> +		smp_wmb(); /* Keep memory order straight for RCU readers. */
+>  		intf->intf_num = i;
+>  		mutex_unlock(&ipmi_interfaces_mutex);
+>  		call_smi_watchers(i, intf->si_dev);
+> @@ -3924,6 +3927,8 @@
+>  			/* Interface was not ready yet. */
+>  			continue;
+>  
+> +		smp_rmb();
+> +
 
-If you think I should not add the udata parameter to the req_notify_cq()
-provider verb, then I can rework the chelsio driver:
-
-1) at cq creation time, pass the virtual address of the u32 used by the
-library to track the current cq index.  That way the chelsio kernel
-driver can save the address in its kernel cq context for later use.
-
-2) change chelsio's req_notify_cq() to copy in the current cq index
-value directly for rearming.
-
-This puts all the burden on the chelsio driver, which is apparently the
-only one that needs this functionality.  
-
-Lemme know.
-
-Steve.
-
-
+It's nice to always have a comment explaining the use of open-coded
+barriers.  Because often the reader is left wondered what on earth it's
+barriering against what on earth else.
 

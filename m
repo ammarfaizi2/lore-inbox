@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750734AbXACNCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750743AbXACNEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbXACNCi (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 08:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbXACNCi
+	id S1750743AbXACNEb (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 08:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbXACNEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 08:02:38 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:60401 "EHLO
-	ns9.hostinglmi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750734AbXACNCh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 08:02:37 -0500
-X-Greylist: delayed 6212 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 08:02:37 EST
-Date: Wed, 3 Jan 2007 12:19:36 +0100
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [KBUILD] I don't want initramfs in 2.6.19.1 but usr/ is still processed
-Message-ID: <20070103111936.GB18441@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Wed, 3 Jan 2007 08:04:31 -0500
+Received: from jabberwock.ucw.cz ([89.250.246.4]:56338 "EHLO jabberwock.ucw.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750743AbXACNEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 08:04:30 -0500
+Date: Wed, 3 Jan 2007 13:45:11 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: pavel@ucw.cz, bhalevy@panasas.com, arjan@infradead.org,
+       mikulas@artax.karlin.mff.cuni.cz, jaharkes@cs.cmu.edu,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+Message-ID: <mj+md-20070103.124124.9123.albireo@ucw.cz>
+References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org> <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.2i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+Hello!
 
-    I've noticed that, even if I say NO to initramfs (and even ramdisk
-support), the make process wants to GEN usr/initramfs_data.cpio.gz by
-running the scripts/gen_initramfs_list.sh script.
+> High probability is all you have.  Cosmic radiation hitting your
+> computer will more likly cause problems, than colliding 64bit inode
+> numbers ;)
 
-    Why is that script run no matter the initramfs support? Looks like
-it only depends on the contents of CONFIG_INITRAMFS_SOURCE :?
+No.
 
-    Thanks in advance :)
+If you assign 64-bit inode numbers randomly, 2^32 of them are sufficient
+to generate a collision with probability around 50%.
 
-    Raúl Núñez de Arenas Coronado
-
+				Have a nice fortnight
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-It's my PC and I'll cry if I want to... RAmen!
+Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+A Bash poem: time for echo in canyon; do echo $echo $echo; done

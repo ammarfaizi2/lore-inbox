@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752313AbXACAKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751749AbXACANi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752313AbXACAKB (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 19:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752426AbXACAKB
+	id S1751749AbXACANi (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 19:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbXACANi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 19:10:01 -0500
-Received: from postfix1-g20.free.fr ([212.27.60.42]:43282 "EHLO
-	postfix1-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752313AbXACAKA (ORCPT
+	Tue, 2 Jan 2007 19:13:38 -0500
+Received: from web50110.mail.yahoo.com ([206.190.38.38]:34190 "HELO
+	web50110.mail.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751749AbXACANh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 19:10:00 -0500
-Message-ID: <459AF3DC.1040305@tremplin-utc.net>
-Date: Wed, 03 Jan 2007 01:07:56 +0100
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+	Tue, 2 Jan 2007 19:13:37 -0500
+Message-ID: <20070103001336.84797.qmail@web50110.mail.yahoo.com>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=0FhOlnI8IDeIQARDxjKM2Otx4G9Wo0JGd7BljwrMUrS63lDpJ4gL6m0rMvaAdIrS3h4q/xOgEL13MDYy6oxoCZXUZ2pMf5+MxWkZhMweZIBiiiB23TV9KT4IyK19N+kgH5xvhMM8JfR/IRYkytGU57jl5RHb8WKXzS+dpE3/k3Q=;
+X-YMail-OSG: jpkuJJsVM1mF1_gxJYek8olQ_O9_hSajKC4UIzPzOeR9w3H3r3xBaq62o4euheyJaA--
+Date: Tue, 2 Jan 2007 16:13:36 -0800 (PST)
+From: Doug Thompson <norsk5@yahoo.com>
+Subject: [PATCH 1/2] EDAC: e752x-bit-mask-fix
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       saw@saw.sw.com.sg
-Subject: Re: [2.6 patch] the scheduled eepro100 removal
-References: <20070102215726.GC20714@stusta.de>
-In-Reply-To: <20070102215726.GC20714@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02.01.2007 22:57, Adrian Bunk wrote/a écrit:
-> This patch contains the scheduled removal of the eepro100 driver.
+from: Brian Pomerantz <bapper@mvista.com>
 
-Hi, I've been using e100 for years with no problem, however more by 
-curiosity than necessity I'd like to know how will be handled the 
-devices which are (supposedly) supported by eepro100 and not by e100?
+Description:
+    The fatal vs. non-fatal mask for the sysbus FERR status is
+incorrect
+    according to the E7520 datasheet.  This patch corrects the mask to
+correctly
+    handle fatal and non-fatal errors.
 
-According to "modinfo eepro100" and "modinfo e100" those devices IDs are 
-only matched by eepro100:
-+alias:          pci:v00008086d00001035sv
-+alias:          pci:v00008086d00001036sv
-+alias:          pci:v00008086d00001037sv
-+alias:          pci:v00008086d00001227sv
-+alias:          pci:v00008086d00005200sv
-+alias:          pci:v00008086d00005201sv
+Signed-off-by: Brian Pomerantz <bapper@mvista.com>
+Signed-off-by: Dave Jiang <djiang@mvista.com>
+Signed-off-by: Doug Thompson <norsk5@xmission.com>
 
-Are they matched by some joker rule that I haven't noticed in e100, or 
-is support for them really going to disappear?
+ e752x_edac.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-See you,
-Eric
+Index: linux-2.6.18/drivers/edac/e752x_edac.c
+===================================================================
+--- linux-2.6.18.orig/drivers/edac/e752x_edac.c
++++ linux-2.6.18/drivers/edac/e752x_edac.c
+@@ -561,17 +561,17 @@ static void e752x_check_sysbus(struct e7
+ 	error32 = (stat32 >> 16) & 0x3ff;
+ 	stat32 = stat32 & 0x3ff;
+ 
+-	if(stat32 & 0x083)
+-		sysbus_error(1, stat32 & 0x083, error_found, handle_error);
++	if(stat32 & 0x087)
++		sysbus_error(1, stat32 & 0x087, error_found, handle_error);
+ 
+-	if(stat32 & 0x37c)
+-		sysbus_error(0, stat32 & 0x37c, error_found, handle_error);
++	if(stat32 & 0x378)
++		sysbus_error(0, stat32 & 0x378, error_found, handle_error);
+ 
+-	if(error32 & 0x083)
+-		sysbus_error(1, error32 & 0x083, error_found, handle_error);
++	if(error32 & 0x087)
++		sysbus_error(1, error32 & 0x087, error_found, handle_error);
+ 
+-	if(error32 & 0x37c)
+-		sysbus_error(0, error32 & 0x37c, error_found, handle_error);
++	if(error32 & 0x378)
++		sysbus_error(0, error32 & 0x378, error_found, handle_error);
+ }
+ 
+ static void e752x_check_membuf (struct e752x_error_info *info,
+

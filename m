@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932089AbXACUaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932092AbXACUbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbXACUaf (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 15:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbXACUaf
+	id S932092AbXACUbG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 15:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbXACUbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 15:30:35 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:59191 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932094AbXACUae (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 15:30:34 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Wed, 3 Jan 2007 21:29:49 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [2.6 patch] the scheduled IEEE1394_EXPORT_FULL_API removal
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20070102215657.GB20714@stusta.de>
-Message-ID: <tkrat.ec886bbdc5e889bc@s5r6.in-berlin.de>
-References: <20070102215657.GB20714@stusta.de>
+	Wed, 3 Jan 2007 15:31:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:47665 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932096AbXACUbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 15:31:04 -0500
+Date: Wed, 3 Jan 2007 12:24:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+cc: l.genoni@oltrelinux.com, Grzegorz Kulewski <kangur@polcom.net>,
+       Alan <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@it.uu.se>,
+       s0348365@sms.ed.ac.uk, 76306.1226@compuserve.com, akpm@osdl.org,
+       bunk@stusta.de, greg@kroah.com, linux-kernel@vger.kernel.org,
+       yanmin_zhang@linux.intel.com
+Subject: Re: kernel + gcc 4.1 = several problems
+In-Reply-To: <Pine.LNX.4.63.0701031831160.29878@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.64.0701031212070.4473@woody.osdl.org>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se>
+ <20070103102944.09e81786@localhost.localdomain> <Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net>
+ <Pine.LNX.4.64.0701030731080.4473@woody.osdl.org>
+ <Pine.LNX.4.64.0701031759030.8415@Phoenix.oltrelinux.com>
+ <Pine.LNX.4.63.0701031831160.29878@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  2 Jan, Adrian Bunk wrote:
-> This patch contains the scheduled IEEE1394_EXPORT_FULL_API removal.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  Documentation/feature-removal-schedule.txt |    8 -------
->  drivers/ieee1394/Kconfig                   |    7 ------
->  drivers/ieee1394/ieee1394_core.c           |   22 ---------------------
->  3 files changed, 37 deletions(-)
-...
 
-Committed to linux1394-2.6.git with the proper section of
-feature-removal-schedule.txt pulled out.
--- 
-Stefan Richter
--=====-=-=== ---= ---==
-http://arcgraph.de/sr/
 
+On Wed, 3 Jan 2007, Tim Schmielau wrote:
+>
+> Well, on a P4 (which is supposed to be soo bad) I get:
+
+Interesting. My P4 gets basically exactly the same timings for the cmov 
+and branch cases.  And my Core 2 is consistently faster (something like 
+15%) for the branch version.
+
+Btw, the test-case should be the best possible one for cmov, since there 
+are no data-dependencies except for ALU operations, and everything is 
+totally independent (the actual values have no data dependencies at all, 
+since they are constants). So the critical path issue never show up.
+
+		Linus

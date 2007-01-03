@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750738AbXACMjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750744AbXACMmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbXACMjp (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 07:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbXACMjp
+	id S1750744AbXACMmY (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 07:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbXACMmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 07:39:45 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:57733 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750738AbXACMjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 07:39:44 -0500
-Date: Wed, 3 Jan 2007 13:35:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>
-Subject: Re: [PATCH 2.6.19.1-rt15][RFC] - futex_requeue_pi implementation (requeue from futex1 to PI-futex2)
-Message-ID: <20070103123536.GA9088@elte.hu>
-References: <459BA267.1020706@bull.net>
-Mime-Version: 1.0
+	Wed, 3 Jan 2007 07:42:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55845 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750741AbXACMmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 07:42:23 -0500
+Date: Wed, 3 Jan 2007 13:42:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: bhalevy@panasas.com, arjan@infradead.org, mikulas@artax.karlin.mff.cuni.cz,
+       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+Message-ID: <20070103124211.GF3062@elf.ucw.cz>
+References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org> <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <459BA267.1020706@bull.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
-
-> Hi,
+> > > > > the use of a good hash function.  The chance of an accidental
+> > > > > collision is infinitesimally small.  For a set of 
+> > > > > 
+> > > > >          100 files: 0.00000000000003%
+> > > > >    1,000,000 files: 0.000003%
+> > > > 
+> > > > I do not think we want to play with probability like this. I mean...
+> > > > imagine 4G files, 1KB each. That's 4TB disk space, not _completely_
+> > > > unreasonable, and collision probability is going to be ~100% due to
+> > > > birthday paradox.
+> > > > 
+> > > > You'll still want to back up your 4TB server...
+> > > 
+> > > Certainly, but tar isn't going to remember all the inode numbers.
+> > > Even if you solve the storage requirements (not impossible) it would
+> > > have to do (4e9^2)/2=8e18 comparisons, which computers don't have
+> > > enough CPU power just yet.
+> > 
+> > Storage requirements would be 16GB of RAM... that's small enough. If
+> > you sort, you'll only need 32*2^32 comparisons, and that's doable.
+> > 
+> > I do not claim it is _likely_. You'd need hardlinks, as you
+> > noticed. But system should work, not "work with high probability", and
+> > I believe we should solve this in long term.
 > 
-> First, thanks Ingo for your comments on my previous mail from 
-> december. I've taken all your remarks into account.
-> 
-> The 64-bit and compat versions have been implemented and tested. The 
-> glibc part has also been updated and the x86_64 version is now 
-> implemented too.
-> 
-> Here after is the updated patch for kernel 2.6.19-rt15.
+> High probability is all you have.  Cosmic radiation hitting your
+> computer will more likly cause problems, than colliding 64bit inode
+> numbers ;)
 
-looks good to me in principle. The size of the patch is scary - is there 
-really no simpler way? Also, could you send me a patch against a 
-20-rc3-rt0-ish kernel so that i can stick this into -rt for testing?
+As I have shown... no, that's not right. 32*2^32 operations is small
+enough not to have problems with cosmic radiation.
 
-	Ingo
+> But you could add a new interface for the extra paranoid.  The
+> proposed 'samefile(fd1, fd2)' syscall is severly limited by the heavy
+> weight of file descriptors.
+
+I guess that is the way to go. samefile(path1, path2) is unfortunately
+inherently racy.
+
+> Another idea is to export the filesystem internal ID as an arbitray
+> length cookie through the extended attribute interface.  That could be
+> stored/compared by the filesystem quite efficiently.
+
+How will that work for FAT?
+
+Or maybe we can relax that "inode may not change over rename" and
+"zero length files need unique inode numbers"...
+
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

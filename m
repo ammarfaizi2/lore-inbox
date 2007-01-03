@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750826AbXACO4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750818AbXACO6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbXACO4N (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 09:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbXACO4N
+	id S1750818AbXACO6E (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 09:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbXACO6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 09:56:13 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:38932 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750790AbXACO4M (ORCPT
+	Wed, 3 Jan 2007 09:58:03 -0500
+Received: from jeffindy.licquia.org ([216.54.159.123]:60438 "EHLO
+	jeffindy.licquia.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750818AbXACO6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 09:56:12 -0500
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-From: Steve Wise <swise@opengridcomputing.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20070103144153.GN6019@mellanox.co.il>
-References: <1167834348.4187.3.camel@stevo-desktop>
-	 <20070103144153.GN6019@mellanox.co.il>
+	Wed, 3 Jan 2007 09:58:02 -0500
+X-Greylist: delayed 1552 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 09:58:02 EST
+Subject: Re: Alternative msync() fix for 2.6.18?
+From: Jeff Licquia <licquia@debian.org>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       394392@bugs.debian.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20061229140107.GG2062@deprecation.cyrius.com>
+References: <20061226123106.GA32708@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612261305510.18364@blonde.wat.veritas.com>
+	 <20061226132547.GC6256@deprecation.cyrius.com>
+	 <Pine.LNX.4.64.0612261411580.20159@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0612270104020.11930@blonde.wat.veritas.com>
+	 <20061229140107.GG2062@deprecation.cyrius.com>
 Content-Type: text/plain
-Date: Wed, 03 Jan 2007 08:56:12 -0600
-Message-Id: <1167836172.4187.9.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+Date: Wed, 03 Jan 2007 09:32:07 -0500
+Message-Id: <1167834727.3798.6.camel@xenpc.internal.licquia.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 
-> > > It seems all Chelsio needs is to pass in a consumer index - so, how about a new
-> > > entry point? Something like void set_cq_udata(struct ib_cq *cq, struct ib_udata *udata)?
-> > > 
-> > 
-> > Adding a new entry point would hurt chelsio's user mode performance if
-> > if then requires 2 kernel transitions to rearm the cq.  
-> 
-> No, it won't need 2 transitions - just an extra function call,
-> so it won't hurt performance - it would improve performance.
-> 
-> ib_uverbs_req_notify_cq would call
-> 
-> 	ib_uverbs_req_notify_cq()
-> 	{
-> 			ib_set_cq_udata(cq, udata)
-> 			ib_req_notify_cq(cq, cmd.solicited_only ?
-> 				IB_CQ_SOLICITED : IB_CQ_NEXT_COMP);
-> 	}
-> 
+On Fri, 2006-12-29 at 15:01 +0100, Martin Michlmayr wrote:
+> Yes, I agree.  I'm CCing the linux-mm list in hope that someone can
+> review your patch.  In the meantime, I've asked the Debian LSB folks to
+> verify that your patch fixes the LSB problem.
 
-ib_set_cq_udata() would transition into the kernel to pass in the
-consumer's index.  In addition, ib_req_notify_cq would also transition
-into the kernel since its not a bypass function for chelsio.
+I am running the complete lsb-runtime-test suite against the new kernels
+(as installed yesterday from the sid apt repo at
+http://kernel-archive.buildserver.net/debian-kernel), but I also did a
+run with just the msync test, which passed.  I will report the results
+for the full suite when they become available.
 
-> This way kernel consumers don't incur any overhead,
-> and in userspace users extra function call is dwarfed
-> by system call overhead.
-> 
-> > Passing in user data is sort of SOP for these sorts of verbs.  
-> 
-> I don't see other examples. Where we did pass extra user data
-> is in non-data pass verbs such as create QP.
-> 
-> This is most inner tight loop in many ULPs, so we should be very careful
-> about adding code there - these things do add up.
-> See recent IRQ API update in kernel.
+FWIW, here's uname:
 
-Roland, do you have any comments on this?  You previously indicated
-these patches were good to go once chelsio's ethernet driver gets pulled
-in. 
-
-> > How much does passing one more param cost for kernel users?  
-> 
-> Donnu. I just reviewed the code.
-> It really should be up to patch submitter to check the performance
-> effect of his patch, if there might be any.
-
-I've run this code with mthca and didn't notice any performance
-degradation, but I wasn't specifically measuring cq_poll overhead in a
-tight loop...
-
-
-
-
-
+Linux xenpc 2.6.18-4-xen-686 #1 SMP Mon Jan 1 02:33:53 UTC 2007 i686 GNU/Linux
 

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932141AbXACWQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932153AbXACWRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbXACWQm (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 17:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXACWQl
+	id S932153AbXACWRD (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 17:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbXACWRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 17:16:41 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55228 "EHLO smtp.osdl.org"
+	Wed, 3 Jan 2007 17:17:01 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55259 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932141AbXACWQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 17:16:40 -0500
-Date: Wed, 3 Jan 2007 14:15:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: suparna@in.ibm.com
-Cc: linux-aio@kvack.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
-Message-Id: <20070103141556.82db0e81.akpm@osdl.org>
-In-Reply-To: <20061228082308.GA4476@in.ibm.com>
-References: <20061227153855.GA25898@in.ibm.com>
-	<20061228082308.GA4476@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S932153AbXACWRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 17:17:00 -0500
+Date: Wed, 3 Jan 2007 14:13:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+cc: Grzegorz Kulewski <kangur@polcom.net>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
+       76306.1226@compuserve.com, akpm@osdl.org, bunk@stusta.de,
+       greg@kroah.com, linux-kernel@vger.kernel.org,
+       yanmin_zhang@linux.intel.com
+Subject: Re: kernel + gcc 4.1 = several problems
+In-Reply-To: <200701032248.38653.vda.linux@googlemail.com>
+Message-ID: <Pine.LNX.4.64.0701031411350.4473@woody.osdl.org>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se>
+ <200701032047.02941.vda.linux@googlemail.com> <Pine.LNX.4.64.0701031225090.4473@woody.osdl.org>
+ <200701032248.38653.vda.linux@googlemail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2006 13:53:08 +0530
-Suparna Bhattacharya <suparna@in.ibm.com> wrote:
 
-> This patchset implements changes to make filesystem AIO read
-> and write asynchronous for the non O_DIRECT case.
 
-Unfortunately the unplugging changes in Jen's block tree have trashed these
-patches to a degree that I'm not confident in my repair attempts.  So I'll
-drop the fasio patches from -mm.
+On Wed, 3 Jan 2007, Denis Vlasenko wrote:
+> 
+> IOW: yet another slot in instruction opcode matrix and thousands of
+> transistors in instruction decoders are wasted because of this
+> "clever invention", eh?
 
-Zach's observations regarding this code's reliance upon things at *current
-sounded pretty serious, so I expect we'd be seeing changes for that anyway?
+Well, in all fairness, it can probably help more on certain 
+microarchitectures. Intel is fairly aggressively OoO, especially in Core 
+2, and predicted branches are not only free, they allow OoO to do a great 
+job around them. But an in-order architecture doesn't have that, and cmov 
+might show more of an advantage there.
 
-Plus Jens's unplugging changes add more reliance upon context inside
-*current, for the plugging and unplugging operations.  I expect that the
-fsaio patches will need to be aware of the protocol which those proposed
-changes add.
-
+		Linus

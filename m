@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932199AbXACXxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932200AbXADAAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbXACXxH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 18:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbXACXxH
+	id S932200AbXADAAT (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 19:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbXADAAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 18:53:07 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:24039 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932199AbXACXxF (ORCPT
+	Wed, 3 Jan 2007 19:00:19 -0500
+Received: from mga02.intel.com ([134.134.136.20]:30172 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932200AbXADAAS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 18:53:05 -0500
-Date: Wed, 3 Jan 2007 15:39:41 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Doug Thompson <norsk5@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] EDAC: e752x-bit-mask-fix
-Message-Id: <20070103153941.1486073f.randy.dunlap@oracle.com>
-In-Reply-To: <20070103001336.84797.qmail@web50110.mail.yahoo.com>
-References: <20070103001336.84797.qmail@web50110.mail.yahoo.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 3 Jan 2007 19:00:18 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,234,1165219200"; 
+   d="scan'208"; a="181195868:sNHT80969840"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Date: Wed, 3 Jan 2007 15:59:28 -0800
+Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C01A4FB27@fmsmsx414.amr.corp.intel.com>
+In-Reply-To: <20070103074124.GA25594@gnuppy.monkey.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Thread-Index: AccvCppHvAMyz9vrQKqJeaMpwiIGswAheiAg
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Bill Huey \(hui\)" <billh@gnuppy.monkey.org>,
+       "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 03 Jan 2007 23:59:32.0586 (UTC) FILETIME=[369634A0:01C72F93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2007 16:13:36 -0800 (PST) Doug Thompson wrote:
-
-> from: Brian Pomerantz <bapper@mvista.com>
+Bill Huey (hui) wrote:
 > 
-> Description:
->     The fatal vs. non-fatal mask for the sysbus FERR status is
-> incorrect
->     according to the E7520 datasheet.  This patch corrects the mask to
-> correctly
->     handle fatal and non-fatal errors.
+> Patch here:
 > 
-> Signed-off-by: Brian Pomerantz <bapper@mvista.com>
-> Signed-off-by: Dave Jiang <djiang@mvista.com>
-> Signed-off-by: Doug Thompson <norsk5@xmission.com>
+>
+http://mmlinux.sourceforge.net/public/patch-2.6.20-rc2-rt2.2.lock_stat.p
+atch
 > 
->  e752x_edac.c |   16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
-> 
-> Index: linux-2.6.18/drivers/edac/e752x_edac.c
-> ===================================================================
-> --- linux-2.6.18.orig/drivers/edac/e752x_edac.c
-> +++ linux-2.6.18/drivers/edac/e752x_edac.c
-> @@ -561,17 +561,17 @@ static void e752x_check_sysbus(struct e7
->  	error32 = (stat32 >> 16) & 0x3ff;
->  	stat32 = stat32 & 0x3ff;
->  
-> -	if(stat32 & 0x083)
-> -		sysbus_error(1, stat32 & 0x083, error_found, handle_error);
-> +	if(stat32 & 0x087)
-> +		sysbus_error(1, stat32 & 0x087, error_found, handle_error);
->  
-> -	if(stat32 & 0x37c)
-> -		sysbus_error(0, stat32 & 0x37c, error_found, handle_error);
-> +	if(stat32 & 0x378)
-> +		sysbus_error(0, stat32 & 0x378, error_found, handle_error);
->  
-> -	if(error32 & 0x083)
-> -		sysbus_error(1, error32 & 0x083, error_found, handle_error);
-> +	if(error32 & 0x087)
-> +		sysbus_error(1, error32 & 0x087, error_found, handle_error);
->  
-> -	if(error32 & 0x37c)
-> -		sysbus_error(0, error32 & 0x37c, error_found, handle_error);
-> +	if(error32 & 0x378)
-> +		sysbus_error(0, error32 & 0x378, error_found, handle_error);
->  }
+> bill
 
-	if (
+This version is much better and ran stablely.  
 
-Are these bit masks documented somewhere?
+If I'm reading the output correctly, the locks are listed by 
+their initialization point (function, file and line # that a lock is
+initialized).  
+That's good information to identify the lock.  
 
-You could make that almost readable by using some #defines for them.
+However, it will be more useful if there is information about where the
+locking
+was initiated from and who was trying to obtain the lock.
 
----
-~Randy
+Tim

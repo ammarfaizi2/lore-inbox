@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750948AbXACRA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750960AbXACRBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbXACRA4 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 12:00:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbXACRA4
+	id S1750960AbXACRBS (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 12:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbXACRBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 12:00:56 -0500
-Received: from mga05.intel.com ([192.55.52.89]:13704 "EHLO
-	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750948AbXACRAy (ORCPT
+	Wed, 3 Jan 2007 12:01:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35331 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750931AbXACRBQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 12:00:54 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,233,1165219200"; 
-   d="scan'208"; a="184136023:sNHT22000377"
-Date: Wed, 3 Jan 2007 08:56:48 -0800
-From: Mark Gross <mgross@linux.intel.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Cc: mark.gross@intel.com
-Subject: Re: [PATCH] tlclk: fix platform_device_register_simple() error check
-Message-ID: <20070103165648.GA3810@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <20061122184111.GC2985@APFDCB5C> <20061127203452.GA12279@linux.intel.com> <20061128060830.GA28689@APFDCB5C> <20061129211757.GB5267@linux.intel.com> <20061202040332.GA22330@localhost.localdomain> <20061205182543.GA19497@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061205182543.GA19497@linux.intel.com>
-User-Agent: Mutt/1.5.11
+	Wed, 3 Jan 2007 12:01:16 -0500
+Subject: Re: [PATCH] quiet MMCONFIG related printks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200701030849.33205.jbarnes@virtuousgeek.org>
+References: <200701012101.38427.jbarnes@virtuousgeek.org>
+	 <1167832386.3095.20.camel@laptopd505.fenrus.org>
+	 <200701030849.33205.jbarnes@virtuousgeek.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 03 Jan 2007 09:01:13 -0800
+Message-Id: <1167843673.3127.162.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 10:25:43AM -0800, Mark Gross wrote:
-> On Sat, Dec 02, 2006 at 01:03:32PM +0900, Akinobu Mita wrote:
-> > On Wed, Nov 29, 2006 at 01:17:57PM -0800, Mark Gross wrote:
-> > > > We expect platform_device_register_simple() returns proper errno as pointer
-> > > > when it fails.
-> > > 
-> > > What's wrong with EBUSY?
-> > 
-> > -ENOMEM or -EINVAL could be returned by platform_device_register_simple()
-> > logically. And we don't know what kind of change will be made into driver
-> > core in future.
+On Wed, 2007-01-03 at 08:49 -0800, Jesse Barnes wrote:
+> On Wednesday, January 3, 2007 5:53 am, Arjan van de Ven wrote:
+> > On Mon, 2007-01-01 at 21:01 -0800, Jesse Barnes wrote:
+> > > Using MMCONFIG for PCI config space access is simply an
+> > > optimization, not a requirement.  Therefore, when it can't be used,
+> > > there's no need for KERN_ERR level message.  This patch makes the
+> > > message a KERN_INFO instead to reduce some of the noise in a kernel
+> > > boot with the 'quiet' option. (Note that this has no effect on a
+> > > normal boot, which is ridiculously verbose these days.)
+> >
+> > this is wrong, please leave this loud complaint in...
 > 
-> Ok, would you like me to ack your earlier patch or will you send a new
-> one?
+> So the issues as I understand them:
+>   o some BIOSes are broken and don't properly map MCFG space (though
+>     according to Petr V. reserving MCFG space in e820 is optional, so
+>     the test may be slightly wrong as-is)
 
-I'm working on an update to the tlclk driver to avoid a race in the open
-and read functions.  Do you have any changes I should roll into the
-driver?
+it's optional but it's the best test we have for "is the bios total
+crap" ;(
 
---mgross
+>   o MCFG space is required for (many) PCIe devices (any regular PCI
+>     devices?)
+
+it's not required for *many* (it can't be, windows XP doesn't use MCFG),
+but it's required for some of the advanced PCI-E features
+
+>   o often, there's nothing the user can do to address the points above
+
+other than complain to the vendor.
+
+> 
+> So where does that leave us?  I've got what I consider to be a stupid 
+> error message in my log.
+
+contact your bios vendor.
+
+>   My system behavior isn't affected in any way 
+> (at least that I can tell), yet I get a loud complaint at boot time.
+> 
+> I guess I just have to live with it?
+
+We really really should complain about bios issues. If only to make sure
+vendors who do pay attention to linux have a chance of finding and
+fixing them (and via the firmware kit, several big vendors pay attention
+early on nowadays)
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

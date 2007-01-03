@@ -1,140 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753681AbXACCZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753839AbXACCc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753681AbXACCZ0 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 21:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753839AbXACCZ0
+	id S1753839AbXACCc1 (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 21:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753846AbXACCc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 21:25:26 -0500
-Received: from wx-out-0506.google.com ([66.249.82.238]:52023 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753690AbXACCZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 21:25:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=jPdUVY4jUkkazWVPN/+JMouDTvwK//u6SH3iQ4ozbp53NyxTcfmeR9u4Hq6DUliYdFefvb4ic0Wp+aciWtKtoIG+sD5LecBNSRHwqfo4sA988qnv9/4twVSNUknRDFN7t1QHXevn/DPQcyTzpzHo99UApxyaKXlXcOvd/XQBUUM=
-Message-ID: <459B140C.1060401@gmail.com>
-Date: Wed, 03 Jan 2007 11:25:16 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Tue, 2 Jan 2007 21:32:27 -0500
+Received: from mga02.intel.com ([134.134.136.20]:17850 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753839AbXACCc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 21:32:26 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,228,1165219200"; 
+   d="scan'208"; a="180849056:sNHT18893252"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Zach Brown'" <zach.brown@oracle.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-aio@kvack.org>,
+       <linux-kernel@vger.kernel.org>, "'Benjamin LaHaise'" <bcrl@kvack.org>,
+       <suparna@in.ibm.com>
+Subject: RE: [patch] aio: add per task aio wait event condition
+Date: Tue, 2 Jan 2007 18:32:25 -0800
+Message-ID: <001101c72edf$6821f8b0$ff0da8c0@amr.corp.intel.com>
 MIME-Version: 1.0
-To: bbee <bumble.bee@xs4all.nl>
-CC: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive
- 0x0) r0xj0
-References: <f4527be0612271812p7282de31j98462aebde16e5a1@mail.gmail.com> <45933A53.1090702@gmail.com> <loom.20070103T020347-255@post.gmane.org>
-In-Reply-To: <loom.20070103T020347-255@post.gmane.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: Accu28ojKMHj5LKaSaKVV4BZ3u6TNgAAGjTw
+In-Reply-To: <96568BA6-9ECD-4E1D-B5B3-3AA41463A8EE@oracle.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc'ing linux-ide]
-
-bbee wrote:
-> Tejun Heo <htejun <at> gmail.com> writes:
->> Andrew Lyon wrote:
->>> My system is gigabyte ds3 motherboard with onboard SATA JMicron
->>> 20360/20363 AHCI Controller (rev 02), drive connected is WDC
->>> WD740ADFD-00 20.0, I am running 2.6.18.6 32 bit, under heavy i/o I get
->>> the following messaegs:
->>>
->>> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
->>> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0)
->>>
->>> Is this condition dangerous?
->> Not usually.  Might indicate something is going wrong in some really
->> rare cases.  I think vendors are getting NCQ right these days.  Maybe
->> it's time to remove that printk.
+Zach Brown wrote on Tuesday, January 02, 2007 6:06 PM
+> On Jan 2, 2007, at 5:50 PM, Chen, Kenneth W wrote:
+> > Zach Brown wrote on Tuesday, January 02, 2007 5:24 PM
+> >>> That is not possible because when multiple tasks waiting for
+> >>> events, they
+> >>> enter the wait queue in FIFO order, prepare_to_wait_exclusive() does
+> >>> __add_wait_queue_tail().  So first io_getevents() with min_nr of 2
+> >>> will be woken up when 2 ops completes.
+> >>
+> >> So switch the order of the two sleepers in the example?
+> >
+> > Not sure why that would be a problem though:  whoever sleep first will
+> > be woken up first.
 > 
-> Hi Tejun, it's funny you should say that, because in the subthread at
-> http://thread.gmane.org/gmane.linux.ide/10264/focus=10334
-> you seemed to have major issues with this very error and were saying there
-> could even be data corruption.
-
-Yeap, I have major issues with SDB FISes which contains spurious
-completions but most other spurious interrupts shouldn't be dangerous
-and I haven't seen spurious completions for quite some time, so I was
-thinking either removing the message or printing it only on SDB FIS
-containing spurious completions.
-
-But, Andrew Lyon *is* reporting spurious completions.  Now I just wanna
-update those printks such that more info is reported only on spurious
-SDB FISes.
-
-> I too have this error, on a Asrock 939Dual-SATA2 board wich has the same
-> controller. Syslog lines like
-> ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0xf4)
-> every so often.
+> Why would the min_nr = 3 sleeper be woken up in that case?  Only 2  
+> ios were issued.
 > 
-> However, in my case it gets a lot worse. The following happens infrequently,
-> usually within 15 days of uptime on a light I/O load:
+> Maybe the app was relying on the min_nr = 2 completion to issue 3  
+> more ios for the min_nr = 3 sleeper, who knows.
 > 
-> ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-> ata1.00: (irq_stat 0x48000000, interface fatal error)
-> ata1.00: tag 0 cmd 0xea Emask 0x12 stat 0x37 err 0x0 (ATA bus error)
-> ata1: soft resetting port
-> ata1: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
-> ata1.00: qc timeout (cmd 0xec)
-> ata1.00: failed to IDENTIFY (I/O error, err_mask=0x104)
-> ata1.00: revalidation failed (errno=-5)
-> ata1: failed to recover some devices, retrying in 5 secs
-> ata1: hard resetting port
-> ata1: SATA link down (SStatus 0 SControl 300)
-> ata1: failed to recover some devices, retrying in 5 secs
-> ata1: hard resetting port
-> ata1: SATA link down (SStatus 0 SControl 300)
-> ata1.00: disabled
-> ata1: EH complete
-> ata1.00: detaching (SCSI 0:0:0:0)
-> scsi 0:0:0:0: rejecting I/O to dead device
-> 
-> The drive then dissapears from the system. This is not preceded by any
-> spurious interrupt messages, but I have a hunch it is related because
-> following your grave comments in the referenced thread, I looked for a kernel
-> option to disable NCQ. Astonished to find none, I changed the source using the
-> flag you added in this patch:
+> Does that clear up the confusion?
 
-Yeah, it usually indicates lousy NCQ implementation on drive's side.  I
-can't tell whether the drive going offline is directly related tho.
 
-> http://article.gmane.org/gmane.linux.ide/11527
-> With NCQ disabled, the spurious interrupt messages as well as the exceptions
-> go away.
+Not really. I don't think I understand your concern. You gave an example:
 
-Hmmm... How certain are you about disabling NCQ fixing the problem?  Are
-other conditions controlled?  How many times did you verify the fix?  If
-you undo the change and leave everything else the same, does the
-exception come back?  Can you post the results of 'dmesg' and 'hdparm -I
-/dev/sdX'?
+issue 2 ops
+first io_getevents sleeps with a min_nr of 2
+second io_getevents sleeps with min_nr of 3
+2 ops complete but only test the second sleeper's min_nr of 3
+first sleeper twiddles thumbs
 
-> This has been happening for a few months on a box whose log I'd been neglecting
-> and I hadn't even noticed the issue since the drive is part of a md array. The
-> drive would get re-detected when I rebooted the box and md would rebuild the
-> array.
-> 
-> Here comes the weird part. When I discovered the problem, I backtracked through
-> the syslog to see when the problems started. They started a few months ago when
-> I added a DVB card to the system (it is a mythtv box). I noticed in Andrew's
-> dmesg that he also has a DVB card.
-> 
-> Could the DVB subsystem have anything to do with this? I realize the systems
-> are completely unrelated..
-> Perhaps the JMicron chip has noise issues? These are often triggered by adding
-> tuner cards..
-> 
-> It probably won't make any difference to system performance, but it would be
-> nice if we could resolve this so I can re-enable NCQ and stop patching my
-> kernels ;)
+Or:
 
-Yeap, I'm definitely interested in resolving this problem.  It's not
-likely but possible that the *controller* is responsible for spurious
-interrupts.
+issue 2 ops
+first io_getevents sleeps with a min_nr of 3
+second io_getevents sleeps with min_nr of 2
+2 ops complete but only test the second sleeper's min_nr of 2
+first sleeper twiddles thumbs
 
-Thanks.
 
--- 
-tejun
+First scenario doesn't exist because in the new scheme, we test first
+sleeper (as in head of the queue) when 2 ops complete. It wakes up first.
+
+2nd scenario is OK to me because first sleeper waiting for 3 events,
+and there are only 2 ops completed, so it waits.
+
+The one scenario that I can think of that breaks down is that one task
+sleeps with min_nr of 100.  Then 50 ops completed.  Comes along 2nd
+thread does a io_getevents and it will take all 50 events in the 2nd
+thread.  Is that what you are talking about?  It doesn't involve two
+sleepers.  That I can fix by testing whether wait queue is active or
+not at the beginning of fast path in read_events().
+
+The bigger question is: what is the semantics on event reap order for
+thread? Random, FIFO or round robin?  It is not specified anywhere.
+What would be the most optimal policy?
+

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751520AbXACAXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751636AbXACAYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbXACAXo (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 19:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbXACAXo
+	id S1751636AbXACAYA (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 19:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbXACAYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 19:23:44 -0500
-Received: from gate.crashing.org ([63.228.1.57]:53933 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751520AbXACAXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 19:23:43 -0500
-In-Reply-To: <200701030057.08957.m.kozlowski@tuxland.pl>
-References: <200701021238.36297.m.kozlowski@tuxland.pl> <1220f3e52f791ff8871ca9328b027a5a@kernel.crashing.org> <200701030057.08957.m.kozlowski@tuxland.pl>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <fe1ade034ed253be4ed738a9a91d5718@kernel.crashing.org>
+	Tue, 2 Jan 2007 19:24:00 -0500
+Received: from hiauly1.hia.nrc.ca ([132.246.100.193]:2379 "EHLO
+	hiauly1.hia.nrc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751699AbXACAX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 19:23:58 -0500
+X-Greylist: delayed 1282 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 19:23:58 EST
+Message-Id: <200701030002.l0302Vx5017621@hiauly1.hia.nrc.ca>
+Subject: Re: [parisc-linux] [RFC][PATCH] use cycle_t instead of u64 in struct
+To: deller@gmx.de (Helge Deller)
+Date: Tue, 2 Jan 2007 19:02:31 -0500 (EST)
+From: "John David Anglin" <dave@hiauly1.hia.nrc.ca>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org
+In-Reply-To: <200701022233.25697.deller@gmx.de> from "Helge Deller" at Jan 2, 2007 10:33:25 pm
+X-Mailer: ELM [version 2.4 PL25]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] ppc: vio of_node_put cleanup
-Date: Wed, 3 Jan 2007 01:24:04 +0100
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The comment used to be inside the "if" block, is this
->> change correct?
->
-> You'd prefer an empty line in there?
+> The 32bit and 64bit PARISC Linux kernels suffers from the problem, that the gettimeofday() call sometimes returns non-monotonic times.
 
-Obviously, you should change the comment to include the
-conditional, if that is what is needed.
+This certainly needs to be fixed.  I see stuff like this from ping:
 
->> [And, do we want all these changes anyway?  I don't care
->> either way, both sides have their pros and their cons --
->> just asking :-) ]
->
-> You know my opinion already :-)
+64 bytes from 132.246.100.193: icmp_seq=19 ttl=255 time=0.4 ms
+64 bytes from 132.246.100.193: icmp_seq=20 ttl=255 time=429496729.5 ms
 
-Heh.  Ok, I'll rephrase: is there _consensus_ that this is a
-good thing :-)  [But never mind, I looked it up, and it is
-*documented* as being supported, so fine with me].
+tar also occasionally prints warning about times.  This is with a
+32bit kernel.
 
-
-Segher
-
+Dave
+-- 
+J. David Anglin                                  dave.anglin@nrc-cnrc.gc.ca
+National Research Council of Canada              (613) 990-0752 (FAX: 952-6602)

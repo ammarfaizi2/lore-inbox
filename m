@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751020AbXACE5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751615AbXACE5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbXACE5E (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 23:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbXACE5E
+	id S1751615AbXACE5X (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 23:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752415AbXACE5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 23:57:04 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:55975 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751020AbXACE5C (ORCPT
+	Tue, 2 Jan 2007 23:57:23 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:49906
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1752356AbXACE5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 23:57:02 -0500
-Date: Wed, 3 Jan 2007 10:26:59 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Rene Herman <rene.herman@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Subject: Re: CONFIG_PHYSICAL_ALIGN limited to 4M?
-Message-ID: <20070103045659.GC17546@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <459A3C6E.7060503@gmail.com>
+	Tue, 2 Jan 2007 23:57:22 -0500
+Date: Tue, 02 Jan 2007 20:57:21 -0800 (PST)
+Message-Id: <20070102.205721.98552646.davem@davemloft.net>
+To: dan@debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Contents of core dumps
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20070103020228.GA28762@nevyn.them.org>
+References: <20060406.153518.60508780.davem@davemloft.net>
+	<20060406.221807.114721185.davem@davemloft.net>
+	<20070103020228.GA28762@nevyn.them.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <459A3C6E.7060503@gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 12:05:18PM +0100, Rene Herman wrote:
-> Good day.
+From: Daniel Jacobowitz <dan@debian.org>
+Date: Tue, 2 Jan 2007 21:02:28 -0500
+
+> On Thu, Apr 06, 2006 at 10:18:07PM -0700, David S. Miller wrote:
+> > How about something like the following patch?  If it's executable
+> > and not written to, skip it.  This would skip the main executable
+> > image and all text segments of the shared libraries mapped in.
 > 
-> A while ago it was remarked on list here that keeping the kernel 4M
-> aligned physically might be a performance win if the added 1M (it
-> normally loads at 1M) meant it would fit on one 4M aligned hugepage
-> instead of 2 and since that time I've been doing such.
-> 
-> In fact, while I was at it, I ran the kernel at 16M; while admittedly a
-> bit of a non-issue, having never experienced ZONE_DMA shortage, I am an
-> ISA user on a >16M machine so this seemed to make sense -- no kernel
-> eating up "precious" ISA-DMAable memory.
-> 
-> Recently CONFIG_PHYSICAL_START was replaced by CONFIG_PHYSICAL_ALIGN
-> (commit e69f202d0a1419219198566e1c22218a5c71a9a6) and while 4M alignment
-> is still possible, that's also the strictest alignment allowed meaning I
-> can't load my (non-relocatable) kernel at 16M anymore.
-> 
-> If I just apply the following and set it to 16M, things seem to be
-> working for me. Was there an important reason to limit the alignment to
-> 4M, and if so, even on non relocatable kernels?
+> I've been going through GDB test failures (... again...) and I'm down
+> to a respectably small number on x86_64, but this is one of the
+> remaining ones.  I don't suppose there's been any change since we
+> discussed this in April?
 
-Hi Rene,
+Not to my knowledge.
 
-Can't think of any reason why we can't keep alignment uppper limit to
-16M. That time I had kept 4M as upper limit as that seemed to be only
-practical usage.
+> Does Linux need knobs for this?
 
-Rencetly I have restored back CONFIG_PHYSICAL_START option. That patch
-is still in -mm. IMHO, your case will fit more if we set
-CONFIG_PHYSICAL_START to 16M rather than increasing alignment upper limit
-for CONFIG_PHYSICAL_ALIGN. 
+I don't think so.
 
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc2/2.6.20-rc2-mm1/broken-out/i386-restore-config_physical_start-option.patch
+The current behavior is very non-intuitive.
 
-Andrew, Can you please push this patch to 2.6.20-rc3?
+As a person who hacks gdb, the kernel, and the interactions between
+them extensively, it took even me quite a while to track down this
+problem.
 
-Thanks
-Vivek
+Imagine some less skilled person trying to analyze a core dump
+expecting the necessary information to be there and being unable
+to figure out why?
+
+So I'd say we should just put this change in, as-is.  It fixes bugs,
+and in all the time that has passed since my initial posting there
+has not been any serious dissent.

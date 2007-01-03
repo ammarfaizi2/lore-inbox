@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750743AbXACNEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750749AbXACNWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbXACNEb (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 08:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbXACNEb
+	id S1750749AbXACNWH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 08:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbXACNWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 08:04:31 -0500
-Received: from jabberwock.ucw.cz ([89.250.246.4]:56338 "EHLO jabberwock.ucw.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750743AbXACNEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 08:04:30 -0500
-Date: Wed, 3 Jan 2007 13:45:11 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: pavel@ucw.cz, bhalevy@panasas.com, arjan@infradead.org,
-       mikulas@artax.karlin.mff.cuni.cz, jaharkes@cs.cmu.edu,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       nfsv4@ietf.org
-Subject: Re: Finding hardlinks
-Message-ID: <mj+md-20070103.124124.9123.albireo@ucw.cz>
-References: <1166869106.3281.587.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz> <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org> <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
+	Wed, 3 Jan 2007 08:22:06 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59928 "EHLO
+	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbXACNWF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 08:22:05 -0500
+Date: Wed, 3 Jan 2007 05:20:15 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
+       Stephane Eranian <eranian@hpl.hp.com>
+Subject: Re: [PATCH] add i386 idle notifier (take 3)
+Message-ID: <20070103132015.GE7238@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de> <20061222100700.GB1895@frankl.hpl.hp.com> <20061223114015.GQ6993@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061223114015.GQ6993@stusta.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Adrian,
 
-> High probability is all you have.  Cosmic radiation hitting your
-> computer will more likly cause problems, than colliding 64bit inode
-> numbers ;)
+On Sat, Dec 23, 2006 at 12:40:15PM +0100, Adrian Bunk wrote:
+> > 
+> > If you look at the perfmon-new-base patch, you'll see a base.diff patch which
+> > includes this one. I am slowly getting rid of this requirement by pushing
+> > those "infrastructure patches" to mainline so that the perfmon patch gets
+> > smaller over time. Submitting smaller patches makes it easier for maintainers
+> > to integrate.
+> 
+> No, the preferred way is to start with getting both the infrastructure 
+> and the users into -mm.
+> 
+> Adding infrastructure without users doesn't fit into the kernel 
+> development model.
+> 
 
-No.
+I am hearing conflicting opinions on this one.
 
-If you assign 64-bit inode numbers randomly, 2^32 of them are sufficient
-to generate a collision with probability around 50%.
+Perfmon is a fairly big patch. It is hard to take it as one. I have tried to
+split it up in smaller, more manageable pieces as requested by top-level
+maintainers. This process implies that I supply small patches which may not
+necessarily have users just yet.
 
-				Have a nice fortnight
+> The unused x86-64 idle notifiers are now bloating the kernel since 
+> nearly one year.
+> 
+> > > And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
+> > > perfmon-new-base-061204 doesn't seem to add any modular user?
+> > 
+> Where does the perfmon code use the EXPORT_SYMBOL's?
+
+The perfmon patch includes several kernel modules which make use of
+the exported entry points. The following symbols are exported:
+
+pfm_pmu_register/pfm_pmu_unregister:
+	* PMU description module registration.
+	* Used to describe PMU model.
+	* Used by perfmon_p4.c, perfmon_core.c, perfmon_mckinley.c, and others
+
+pfm_fmt_register/pfm_fmt_unregister:
+	* Sampling format module registration
+	* Used by perfmon_dfl_smpl.c, perfmon_pebs_smpl.c
+
+pfm_interrupt_handler:
+	* PMU interrupt handler
+	* Used by MIPS-specific perfmon code
+
+pfm_pmu_conf/pfm_controls:
+	* global state/control variable
+
+All exported symbols are currently used. Why are you saying this adds bloat?
+
 -- 
-Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-A Bash poem: time for echo in canyon; do echo $echo $echo; done
+-Stephane

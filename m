@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750735AbXACMh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750738AbXACMjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbXACMh2 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 07:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbXACMh2
+	id S1750738AbXACMjp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 07:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbXACMjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 07:37:28 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35293 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750735AbXACMh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 07:37:27 -0500
-Date: Wed, 3 Jan 2007 12:44:10 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
-       torvalds@osdl.org, 76306.1226@compuserve.com, akpm@osdl.org,
-       bunk@stusta.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       yanmin_zhang@linux.intel.com
-Subject: Re: kernel + gcc 4.1 = several problems
-Message-ID: <20070103124410.4cb191dd@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net>
-References: <200701030212.l032CDXe015365@harpo.it.uu.se>
-	<20070103102944.09e81786@localhost.localdomain>
-	<Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+	Wed, 3 Jan 2007 07:39:45 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57733 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750738AbXACMjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 07:39:44 -0500
+Date: Wed, 3 Jan 2007 13:35:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [PATCH 2.6.19.1-rt15][RFC] - futex_requeue_pi implementation (requeue from futex1 to PI-futex2)
+Message-ID: <20070103123536.GA9088@elte.hu>
+References: <459BA267.1020706@bull.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <459BA267.1020706@bull.net>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > fixed. At that point an i686 kernel would contain i686 instructions and
-> > actually run on all i686 processors ending all the i586 pain for most
-> > users and distributions.
+
+* Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+
+> Hi,
 > 
-> Could you explain why CMOV is pointless now? Are there any benchmarks 
-> proving that?
+> First, thanks Ingo for your comments on my previous mail from 
+> december. I've taken all your remarks into account.
+> 
+> The 64-bit and compat versions have been implemented and tested. The 
+> glibc part has also been updated and the x86_64 version is now 
+> implemented too.
+> 
+> Here after is the updated patch for kernel 2.6.19-rt15.
 
-Take a look at the recent ffmpeg bits on the mplayer list for one example
-I have to hand - P4 cmov is pretty slow. The crypto folks find the same
-things.
+looks good to me in principle. The size of the patch is scary - is there 
+really no simpler way? Also, could you send me a patch against a 
+20-rc3-rt0-ish kernel so that i can stick this into -rt for testing?
 
-Alan
-
+	Ingo

@@ -1,99 +1,136 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932104AbXACVjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932075AbXACVsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbXACVjh (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbXACVjh
+	id S932075AbXACVsp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbXACVsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:39:37 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:43139 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932104AbXACVjh (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:39:37 -0500
-Message-Id: <200701032139.l03LdX6Y000889@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Pelle Svensson <pelle2004@gmail.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: Symbol links to only needed and targeted source files
-In-Reply-To: Your message of "Wed, 03 Jan 2007 22:14:43 +0100."
-             <6bb9c1030701031314l1b57bd2brffb61cce68a7174@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <6bb9c1030701030724k4ca544cfg364e28059cf5dfe@mail.gmail.com> <20070103162409.GA30071@uranus.ravnborg.org>
-            <6bb9c1030701031314l1b57bd2brffb61cce68a7174@mail.gmail.com>
+	Wed, 3 Jan 2007 16:48:45 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:30515 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751112AbXACVso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:48:44 -0500
+Date: Wed, 3 Jan 2007 13:35:21 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: bjdouma@xs4all.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: qconf: reproducible segfault
+Message-Id: <20070103133521.555f97c3.randy.dunlap@oracle.com>
+In-Reply-To: <459C1966.7040209@xs4all.nl>
+References: <459C1966.7040209@xs4all.nl>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1167860373_9256P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Wed, 03 Jan 2007 16:39:33 -0500
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1167860373_9256P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 03 Jan 2007 22:00:22 +0100 Bauke Jan Douma wrote:
 
-On Wed, 03 Jan 2007 22:14:43 +0100, Pelle Svensson said:
-> Hi Sam,
 > 
-> You misunderstand me I think, I already using a separate output directory.
-> What I like to do is a separate 'source tree' with only valid files
-> for my configuration. In that way, when I use grep for instance,
-> I would only hit valid files and not 50 other files which are
-> not in the current build configuration.
+> Not a big deal (I just discovered 'make gconfig'), but I'm experiencing
+> a reproducible segfault in 'make xconfig', i.e. qconf.
+> 
+> I was wondering if anyone else can reproduce this:
 
-This is covered in the Kernel FAQ:
+Yes.
 
-http://www.tux.org/lkml/#s7-7
+> 1. QTDIR=/usr/local/lib/qt make xconfig
+>     mine by default has all qconf options OFF ('Show Name', 'Show Range',
+>     'Show Data', 'Show All Options', 'Show Debug Info')
+> 
+> 2. from the kernel options, select:
+>     Networking / Networking options / Network packet filtering (replaces ipchains)
+> 
+> 3. from the qconf options, now select 'Show Debug Info'
+>     voila -> segfault
+> 
+> 
+> This is with qt-3.3.3:
+> 
+> ldd /usr/src/linux-2.6.19.1/scripts/kconfig/qconf
+> 	linux-gate.so.1 =>  (0xffffe000)
+> 	libqt-mt.so.3 => /usr/local/lib/qt/lib/libqt-mt.so.3 (0xb76c2000)
+> 	libdl.so.2 => /lib/libdl.so.2 (0xb76ad000)
+> 	libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0xb75c9000)
+> 	libm.so.6 => /lib/libm.so.6 (0xb75a4000)
+> 	libgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0xb7598000)
+> 	libc.so.6 => /lib/libc.so.6 (0xb746f000)
+> 	libpng.so.3 => /usr/local/lib/libpng.so.3 (0xb7449000)
+> 	libz.so.1 => /lib/libz.so.1 (0xb7435000)
+> 	libGL.so.1 => /usr/lib/libGL.so.1 (0xb73a9000)
+> 	libXmu.so.6 => /usr/X11R6/lib/libXmu.so.6 (0xb7393000)
+> 	libXrender.so.1 => /usr/X11R6/lib/libXrender.so.1 (0xb738b000)
+> 	libXrandr.so.2 => /usr/X11R6/lib/libXrandr.so.2 (0xb7387000)
+> 	libXcursor.so.1 => /usr/X11R6/lib/libXcursor.so.1 (0xb737e000)
+> 	libXinerama.so.1 => /usr/X11R6/lib/libXinerama.so.1 (0xb737b000)
+> 	libXft.so.2 => /usr/X11R6/lib/libXft.so.2 (0xb7369000)
+> 	libfreetype.so.6 => /usr/local/lib/libfreetype.so.6 (0xb72e4000)
+> 	libfontconfig.so.1 => /usr/local/lib/libfontconfig.so.1 (0xb72a6000)
+> 	libXext.so.6 => /usr/X11R6/lib/libXext.so.6 (0xb7298000)
+> 	libX11.so.6 => /usr/X11R6/lib/libX11.so.6 (0xb71cb000)
+> 	libSM.so.6 => /usr/X11R6/lib/libSM.so.6 (0xb71c2000)
+> 	libICE.so.6 => /usr/X11R6/lib/libICE.so.6 (0xb71aa000)
+> 	libpthread.so.0 => /lib/libpthread.so.0 (0xb7192000)
+> 	/lib/ld-linux.so.2 (0xb7f1b000)
+> 	libGLcore.so.1 => /usr/lib/libGLcore.so.1 (0xb690c000)
+> 	libnvidia-tls.so.1 => /usr/lib/tls/libnvidia-tls.so.1 (0xb690a000)
+> 	libXt.so.6 => /usr/X11R6/lib/libXt.so.6 (0xb68b8000)
+> 	libexpat.so.0 => /usr/local/lib/libexpat.so.0 (0xb688c000)
+> 	libiconv.so.2 => /lib/libiconv.so.2 (0xb67b1000)
+> 
+> First I thought qconf window geometry and maybe font would make a
+> telling difference here, but I can resize the window all I want and
+> change fonts any which way I can, but the segfault persists.
+> 
+> FWIW, my initial geometry is 957x843, font is usually LuciduxSans 7.
+> 
+> Strace output didn't provide much of an apparent clue, just the
+> SIGSEGV.
+> 
+> Oh, kernel is 2.6.19.1 -- not important I'd say.
 
-"The kernel source is HUUUUGE and takes too long to download. Couldn't it be
-split in various tarballs?
+Here's thd gdb backtrace:
 
-The kernel (as of 2.1.110) has about 1.5 million lines of code in *.c, *.h and
-*.S files. Of those, about 253 k lines (17%) are in the architecture-specific
-subdirectories, and about 815 k lines (54%) are in platform-independent
-drivers. If, like most people, you are only interested in i386, you could save
-about 230 k lines by removing the other architecture-specific trees. That is a
-15% saving, which is not that much, really. The "core" kernel and filesystems
-take up about 433 k lines, or around 29%.
-
-If you want to start pruning drivers away, the problem becomes much harder,
-since most of that code is architecture independent. Or at least, is supposed
-to be/will be. There is some driver code which probably should be moved to an
-i386-specific subdirectory, and perhaps over time it will be (it will take a
-lot of work!), but you need to be careful. PCI cards for example should be
-architecture independent. Throwing out the non i386-specific drivers will save
-around 97 k lines, a saving of about 6%.
-
-But the most important argument for/against splitting the kernel sources is not
-about how much space/download time you could save. It's about the work involved
-for Linus or whoever will be putting together the kernel releases. Building
-tarballs (compressed tarfiles) of the whole kernel already represents a
-considerable amount of work; splitting it into various architecture-dependent
-tarballs would dramatically increase this effort and would probably pose
-serious maintainability problems too.
-
-If you are really desperate for a reduced kernel, set up some automated
-procedure yourself, which takes the patches which are made available, applies
-them to a base tree and then tars up the tree into multiple components. Once
-you've done all this, make it available to the world as a public service. There
-will be others who will appreciate your efforts."
-
-In other words, it won't help as much as you think.  And note that you'd
-*really* need to make it config-specific - the instant you change *any*
-option in that .config, you're likely now including some newoption.c file
-that will fail your kernel build...  Whoops.
+Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread 47045179778192 (LWP 8553)]
+0x0000000000422031 in ConfigInfoView::symbolInfo ()
+(gdb) bt
+#0  0x0000000000422031 in ConfigInfoView::symbolInfo ()
+#1  0x00000000004223bf in ConfigInfoView::setShowDebug ()
+#2  0x000000000042257c in ConfigInfoView::qt_invoke ()
+#3  0x00002ac98d24f79c in QObject::activate_signal ()
+   from /usr/lib64/libqt-mt.so.3
+#4  0x00002ac98d24ff40 in QObject::activate_signal_bool ()
+   from /usr/lib64/libqt-mt.so.3
+#5  0x00002ac98d36e7a5 in QAction::internalActivation ()
+   from /usr/lib64/libqt-mt.so.3
+#6  0x00002ac98d54c9b3 in QAction::qt_invoke () from /usr/lib64/libqt-mt.so.3
+#7  0x00002ac98d24f79c in QObject::activate_signal ()
+   from /usr/lib64/libqt-mt.so.3
+#8  0x00002ac98d531628 in QSignal::signal () from /usr/lib64/libqt-mt.so.3
+#9  0x00002ac98d2682a5 in QSignal::activate () from /usr/lib64/libqt-mt.so.3
+#10 0x00002ac98d33c6e5 in QPopupMenu::mouseReleaseEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#11 0x00002ac98d282657 in QWidget::event () from /usr/lib64/libqt-mt.so.3
+#12 0x00002ac98d1f8975 in QApplication::internalNotify ()
+   from /usr/lib64/libqt-mt.so.3
+#13 0x00002ac98d1f978b in QApplication::notify () from /usr/lib64/libqt-mt.so.3
+#14 0x00002ac98d1a197d in QETWidget::translateMouseEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#15 0x00002ac98d1a02a3 in QApplication::x11ProcessEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#16 0x00002ac98d1af22f in QEventLoop::processEvents ()
+   from /usr/lib64/libqt-mt.so.3
+#17 0x00002ac98d20d691 in QEventLoop::enterLoop () from /usr/lib64/libqt-mt.so.3
+#18 0x00002ac98d20d53a in QEventLoop::exec () from /usr/lib64/libqt-mt.so.3
+#19 0x0000000000426053 in main ()
 
 
-
---==_Exmh_1167860373_9256P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFnCKVcC3lWbTT17ARAlvkAJ9VmScW8i7N1tSB4EcR/xJ8ZgWN+gCgqXRO
-4nz28fXKyaSq9yQX6UO0XFs=
-=Mvfg
------END PGP SIGNATURE-----
-
---==_Exmh_1167860373_9256P--
+---
+~Randy

@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752663AbXACA7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752651AbXACBCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752663AbXACA7q (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 19:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbXACA7q
+	id S1752651AbXACBCm (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 20:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752628AbXACBCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 19:59:46 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54769 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752532AbXACA7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 19:59:45 -0500
-Date: Tue, 2 Jan 2007 16:59:42 -0800
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] cdrom: longer timeout for "Read Track Info" command
-Message-ID: <20070103005942.GB25765@sgi.com>
-References: <20070102023623.GA3108@sgi.com> <20070102102829.4117b230@localhost.localdomain> <20070102135052.GA2483@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070102135052.GA2483@kernel.dk>
-User-Agent: Mutt/1.4.1i
+	Tue, 2 Jan 2007 20:02:42 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:48325 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752651AbXACBCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 20:02:41 -0500
+Message-ID: <459B00AB.3090004@pobox.com>
+Date: Tue, 02 Jan 2007 20:02:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] libata: fix combined mode (was Re: Happy New Year (and
+ v2.6.20-rc3 released))
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org> <5a4c581d0701010528y3ba05247nc39f2ef096f84afa@mail.gmail.com> <Pine.LNX.4.64.0701011209140.4473@woody.osdl.org> <459973F6.2090201@pobox.com> <20070102115834.1e7644b2@localhost.localdomain> <459AC808.1030807@pobox.com> <20070102212701.4b4535cf@localhost.localdomain> <459ACE9C.7020107@pobox.com> <20070102224559.2089d28d@localhost.localdomain> <459AE459.8030107@pobox.com> <20070102232706.49340349@localhost.localdomain> <459AEE36.7080500@pobox.com> <20070103003635.626cdfb3@localhost.localdomain>
+In-Reply-To: <20070103003635.626cdfb3@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2007 at 02:50:53PM +0100, Jens Axboe wrote:
-> Yep, I suspect this patch is long overdue. Jeremy, is this enough to fix
-> it for you?
+Alan wrote:
+> Once combined mode is fixed not to abuse resources (and it originally
+> did it that way for a good reason I grant and am not criticising that) the
+> entire management for legacy mode, mixed mode and native mode resources
+> for an ATA device (including 0x170, 0x3F6 and other wacky magic) becomes
+> 
+> 	if (pci_request_regions(pdev, "libata")) ...
 
-Yes, the 7 second timeout is fine.  It actually takes about 6.7 seconds.
-I guess if "another popular OS" has a 7 second timeout that we won't find
-multimedia devices out there that take longer than that.  :-)
+> Make sense ?
 
-My 15 seconds assumed that the observed case wasn't the worst case, but
-it probably is.
+Yes.  For 2.6.21.  As I've always said.
 
-This patch looks good.
+But for 2.6.20, we are only HALFWAY there, and all these /new/ bugs 
+exist as a result.
 
-Thanks
+Your patch makes far more sense for 2.6.21, where the "halfway to 
+salvation" state, and associated rough edges, is not exposed to users.
 
-jeremy
+Fixing the resource tree was only half the solution, since the drivers 
+that /use/ the resource tree now need updating.
 
-> diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-> index 66d028d..3105ddd 100644
-> --- a/drivers/cdrom/cdrom.c
-> +++ b/drivers/cdrom/cdrom.c
-> @@ -337,6 +337,12 @@ static const char *mrw_address_space[] = { "DMA", "GAA" };
->  /* used in the audio ioctls */
->  #define CHECKAUDIO if ((ret=check_for_audio_disc(cdi, cdo))) return ret
->  
-> +/*
-> + * Another popular OS uses 7 seconds as the hard timeout for default
-> + * commands, so it is a good choice for us as well.
-> + */
-> +#define CDROM_DEF_TIMEOUT	(7 * HZ)
-> +
->  /* Not-exported routines. */
->  static int open_for_data(struct cdrom_device_info * cdi);
->  static int check_for_audio_disc(struct cdrom_device_info * cdi,
-> @@ -1528,7 +1534,7 @@ void init_cdrom_command(struct packet_command *cgc, void *buf, int len,
->  	cgc->buffer = (char *) buf;
->  	cgc->buflen = len;
->  	cgc->data_direction = type;
-> -	cgc->timeout = 5*HZ;
-> +	cgc->timeout = CDROM_DEF_TIMEOUT;
->  }
->  
->  /* DVD handling */
+	Jeff
+
+

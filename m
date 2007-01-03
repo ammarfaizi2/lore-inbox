@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752314AbXACAkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752061AbXACAnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752314AbXACAkm (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 19:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752426AbXACAkm
+	id S1752061AbXACAnt (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 19:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbXACAnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 19:40:42 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:60814 "EHLO ns2.lanforge.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752314AbXACAkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 19:40:41 -0500
-X-Greylist: delayed 2115 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 19:40:41 EST
-Message-ID: <459AF345.3080508@candelatech.com>
-Date: Tue, 02 Jan 2007 16:05:25 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 2 Jan 2007 19:43:49 -0500
+Received: from mail1.webmaster.com ([216.152.64.169]:3499 "EHLO
+	mail1.webmaster.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752061AbXACAns convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Jan 2007 19:43:48 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <BrianB@apcon.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Open letter to Linux kernel developers (was Re: Binary Drivers)
+Date: Tue, 2 Jan 2007 16:43:38 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEBKALAC.davids@webmaster.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: FWA7304 VIA C3 system work-around for power-off bug.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.3028
+In-Reply-To: <1167781933.2797.69.camel@brianb>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 02 Jan 2007 17:46:46 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 02 Jan 2007 17:46:47 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Older versions of the iBase FWA7304 BIOS have a bug that causes the
-system to use way too much power when you run 'init 0', causing
-the power brick to burn out after about 3 hours.
 
-The fix for this is to get an updated BIOS from the manufacturer:
-IB798F-T2-CP1A-1229
+> On Tue, 2007-01-02 at 12:14 -0800, David Schwartz wrote:
+> > > The recommendet _serving_ temperature for coffe is 55 °C or below.
+> > 
+> > Nonsense! 55C (100F) is ludicrously low for coffee.
+> > 
+> > 70C (125F) is the *minimum* recommended serving temperature. 
+> 165-190F is the
+> > preferred serving range. I can cite source after source for this. For
+> > example:
+> > http://www.bunn.com/pages/coffeebasics/cb6holding.html
+> > http://www.millcreekcoffee.com/holding.htm
+> 
+> Do you actually read your citations? Your cited sources both give the
+> SERVING temp as 155 - 175 F.
 
-The problem still happens if you enable ACPI, but at least it seems
-fixed if you disable ACPI.
+The conversion was incorrect. 70C is about 160F, and 55C is about 130F. As I said in the correction, every number is correct in the unit it was first posted in, and all the claims are correct.
 
-Hope this helps someone!
+160F is the mininum recommended serving temperature and 165-190F is the preferred range. 130F is a ludicrously low serving temperature for coffee. 180F seems to be about ideal.
 
-Ben
+Stella Liebeck's lawyers argued that coffee should never be served hotter than 140F. This is no different from arguing that knives should be dull.
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+DS
+
 

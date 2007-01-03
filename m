@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750794AbXACOTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750816AbXACOXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbXACOTJ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 09:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbXACOTJ
+	id S1750816AbXACOXt (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 09:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbXACOXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 09:19:09 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:1639 "EHLO
-	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750794AbXACOTH (ORCPT
+	Wed, 3 Jan 2007 09:23:49 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54520 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750816AbXACOXs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 09:19:07 -0500
-Date: Wed, 3 Jan 2007 15:18:59 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] i386 kernel instant reboot with older binutils fix
-Message-Id: <20070103151859.4f1e2937.khali@linux-fr.org>
-In-Reply-To: <20070103135326.GF20714@stusta.de>
-References: <20070103041645.GA17546@in.ibm.com>
-	<20070103135326.GF20714@stusta.de>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+	Wed, 3 Jan 2007 09:23:48 -0500
+Date: Wed, 3 Jan 2007 14:28:39 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, Mikael Pettersson <mikpe@it.uu.se>,
+       s0348365@sms.ed.ac.uk, torvalds@osdl.org, 76306.1226@compuserve.com,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, yanmin_zhang@linux.intel.com
+Subject: Re: kernel + gcc 4.1 = several problems
+Message-ID: <20070103142839.311717f2@localhost.localdomain>
+In-Reply-To: <1167831136.3095.8.camel@laptopd505.fenrus.org>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se>
+	<20070103102944.09e81786@localhost.localdomain>
+	<Pine.LNX.4.63.0701031128420.14187@alpha.polcom.net>
+	<20070103124410.4cb191dd@localhost.localdomain>
+	<1167831136.3095.8.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2007 14:53:26 +0100, Adrian Bunk wrote:
-> On Wed, Jan 03, 2007 at 09:46:45AM +0530, Vivek Goyal wrote:
-> > 
-> > o i386 kernel reboots instantly if compiled with binutils older than
-> >   2.6.15.
-> 
-> Should that have been "2.15"?
-> 
-> And is the following perhaps the same issue?
-> 
-> Subject    : kernel immediately reboots instead of booting
-> References : http://lkml.org/lkml/2007/1/2/15
-> Submitter  : Steve Youngs <steve@youngs.au.com>
-> Status     : unknown
+> cmov is effectively the same cost as a compare and jump, in both cases
+> the cpu needs to do a prediction, and on a mispredict, restart.
 
-Indeed this pretty much resembles my problem.
+On a P4 it appears to be slower than compare/jump in most cases
 
-> @Steve:
-> You had binutils 2.14.90.0.6 .
-> Does this patch fix it for you?
-
-I'd really expect it to, Steve please try the patch and confirm.
-
--- 
-Jean Delvare

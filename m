@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932128AbXACVGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932126AbXACVJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbXACVGA (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbXACVGA
+	id S932126AbXACVJp (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbXACVJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:06:00 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40147 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932128AbXACVF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:05:58 -0500
-Message-ID: <459C1ABB.3090500@drzeus.cx>
-Date: Wed, 03 Jan 2007 22:06:03 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
+	Wed, 3 Jan 2007 16:09:45 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:33076 "EHLO e2.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932129AbXACVJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:09:43 -0500
+In-Reply-To: <20070103185815.GA2182@janus>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Pavel Machek <pavel@suse.cz>
 MIME-Version: 1.0
-To: Philip Langdale <philipl@overt.org>
-CC: linux-kernel@vger.kernel.org, John Gilmore <gnu@toad.com>
-Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 2)
-References: <459928F3.9010804@overt.org>
-In-Reply-To: <459928F3.9010804@overt.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: Finding hardlinks
+X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
+Message-ID: <OF9726A29A.AA3902E2-ON85257258.0072E396-88257258.00740500@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Wed, 3 Jan 2007 13:09:41 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V80_M3_10312006|October 31, 2006) at
+ 01/03/2007 16:09:43,
+	Serialize complete at 01/03/2007 16:09:43
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Langdale wrote:
-> @@ -1386,10 +1420,37 @@
->  	 * all get the idea that they should be ready for CMD2.
->  	 * (My SanDisk card seems to need this.)
->  	 */
-> -	if (host->mode == MMC_MODE_SD)
-> -		mmc_send_app_op_cond(host, host->ocr, NULL);
-> -	else
-> +	if (host->mode == MMC_MODE_SD) {
-> +		struct mmc_command cmd;
-> +		int err, ocr = host->ocr;
-> +		static const u8 test_pattern = 0xAA;
-> +	
-> +		/*
-> +	 	* To support SD 2.0 cards, we must always invoke SD_SEND_IF_COND
-> +	 	* before SD_APP_OP_COND. This command will harmlessly fail for
-> +	 	* SD 1.0 cards.
-> +	 	*/
-> +		cmd.opcode = SD_SEND_IF_COND;
-> +		cmd.arg = ((host->ocr & 0xFF8000) != 0) << 8 | test_pattern;
-> +		cmd.flags = MMC_RSP_R7 | MMC_CMD_BCR;
-> +	
-> +		err = mmc_wait_for_cmd(host, &cmd, 0);
-> +		if (err != MMC_ERR_NONE ||
-> +		    (cmd.resp[0] & 0xFF) == test_pattern) {
-> +			if (err == MMC_ERR_NONE) {
-> +				/*
-> +				 * If SD_SEND_IF_COND succeeded, we are dealing
-> +				 * with an SD 2.0 compliant card and we should
-> +				 * set bit 30 of the ocr to indicate that we
-> +				 * can handle block-addressed SDHC cards.
-> +				 */
-> +				ocr |= 1 << 30;
-> +			}
-> +			mmc_send_app_op_cond(host, ocr, NULL);
-> +		}
-> +	} else {
->  		mmc_send_op_cond(host, host->ocr, NULL);
-> +	}
->
->  	mmc_discover_cards(host);
->
->   
+>On any decent filesystem st_ino should uniquely identify an object and
+>reliably provide hardlink information. The UNIX world has relied upon 
+this
+>for decades. A filesystem with st_ino collisions without being hardlinked
+>(or the other way around) needs a fix.
 
-Nah... I think a mmc_send_if_cond() would be cleaner. The setup routine
-should contain the sequence of events needed, while we abstract the
-really low level grunt work into functions.
+But for at least the last of those decades, filesystems that could not do 
+that were not uncommon.  They had to present 32 bit inode numbers and 
+either allowed more than 4G files or just didn't have the means of 
+assigning inode numbers with the proper uniqueness to files.  And the sky 
+did not fall.  I don't have an explanation why, but it makes it look to me 
+like there are worse things than not having total one-one correspondence 
+between inode numbers and files.  Having a stat or mount fail because 
+inodes are too big, having fewer than 4G files, and waiting for the 
+filesystem to generate a suitable inode number might fall in that 
+category.
 
-(more on that subject as soon as kernel.org has finished mirroring ;))
+I fully agree that much effort should be put into making inode numbers 
+work the way POSIX demands, but I also know that that sometimes requires 
+more than just writing some code.
 
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+--
+Bryan Henderson                               San Jose California
+IBM Almaden Research Center                   Filesystems
 

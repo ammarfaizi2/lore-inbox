@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751632AbXACAG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752313AbXACAKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751632AbXACAG3 (ORCPT <rfc822;w@1wt.eu>);
-	Tue, 2 Jan 2007 19:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbXACAG3
+	id S1752313AbXACAKB (ORCPT <rfc822;w@1wt.eu>);
+	Tue, 2 Jan 2007 19:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752426AbXACAKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Jan 2007 19:06:29 -0500
-Received: from mail.apcon.com ([66.213.199.210]:14388 "EHLO mail.apcon.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751632AbXACAG2 convert rfc822-to-8bit (ORCPT
+	Tue, 2 Jan 2007 19:10:01 -0500
+Received: from postfix1-g20.free.fr ([212.27.60.42]:43282 "EHLO
+	postfix1-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752313AbXACAKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Jan 2007 19:06:28 -0500
-X-Greylist: delayed 848 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jan 2007 19:06:28 EST
-Subject: RE: Open letter to Linux kernel developers (was Re: Binary Drivers)
-From: Brian Beattie <brianb@apcon.com>
-To: davids@webmaster.com, linux-kernel@vger.kernel.org
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEABALAC.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKOEABALAC.davids@webmaster.com>
-Content-Type: text/plain; charset=utf-8
-Organization: APCON, Inc.
-Date: Tue, 02 Jan 2007 15:52:13 -0800
-Message-Id: <1167781933.2797.69.camel@brianb>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 02 Jan 2007 23:52:20.0556 (UTC) FILETIME=[0AA9E8C0:01C72EC9]
+	Tue, 2 Jan 2007 19:10:00 -0500
+Message-ID: <459AF3DC.1040305@tremplin-utc.net>
+Date: Wed, 03 Jan 2007 01:07:56 +0100
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061110)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       saw@saw.sw.com.sg
+Subject: Re: [2.6 patch] the scheduled eepro100 removal
+References: <20070102215726.GC20714@stusta.de>
+In-Reply-To: <20070102215726.GC20714@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2007-01-02 at 12:14 -0800, David Schwartz wrote:
-> > The recommendet _serving_ temperature for coffe is 55 Â°C or below.
-> 
-> Nonsense! 55C (100F) is ludicrously low for coffee.
-> 
-> 70C (125F) is the *minimum* recommended serving temperature. 165-190F is the
-> preferred serving range. I can cite source after source for this. For
-> example:
-> http://www.bunn.com/pages/coffeebasics/cb6holding.html
-> http://www.millcreekcoffee.com/holding.htm
+02.01.2007 22:57, Adrian Bunk wrote/a écrit:
+> This patch contains the scheduled removal of the eepro100 driver.
 
-Do you actually read your citations? Your cited sources both give the
-SERVING temp as 155 - 175 F.
--- 
-Brian Beattie
-Firmware Engineer
-APCON, Inc.
-BrianB@apcon.com
+Hi, I've been using e100 for years with no problem, however more by 
+curiosity than necessity I'd like to know how will be handled the 
+devices which are (supposedly) supported by eepro100 and not by e100?
 
+According to "modinfo eepro100" and "modinfo e100" those devices IDs are 
+only matched by eepro100:
++alias:          pci:v00008086d00001035sv
++alias:          pci:v00008086d00001036sv
++alias:          pci:v00008086d00001037sv
++alias:          pci:v00008086d00001227sv
++alias:          pci:v00008086d00005200sv
++alias:          pci:v00008086d00005201sv
+
+Are they matched by some joker rule that I haven't noticed in e100, or 
+is support for them really going to disappear?
+
+See you,
+Eric

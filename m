@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750787AbXACPCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750825AbXACPC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbXACPCS (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 10:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbXACPCR
+	id S1750825AbXACPC2 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 10:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbXACPC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 10:02:17 -0500
-Received: from dev.mellanox.co.il ([194.90.237.44]:36493 "EHLO
-	dev.mellanox.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787AbXACPCQ (ORCPT
+	Wed, 3 Jan 2007 10:02:28 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:38644 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750825AbXACPC1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 10:02:16 -0500
-Date: Wed, 3 Jan 2007 17:00:13 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-Message-ID: <20070103150013.GO6019@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1167836172.4187.9.camel@stevo-desktop>
+	Wed, 3 Jan 2007 10:02:27 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Wed, 3 Jan 2007 09:55:48 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Jiri Slaby <jirislaby@gmail.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Replace __get_free_page() + memset(0) with get_zeroed_page()
+ calls.
+In-Reply-To: <459BBB36.1070907@gmail.com>
+Message-ID: <Pine.LNX.4.64.0701030954470.26882@localhost.localdomain>
+References: <Pine.LNX.4.64.0701030845500.5042@localhost.localdomain>
+ <459BBB36.1070907@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1167836172.4187.9.camel@stevo-desktop>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	timed out)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > No, it won't need 2 transitions - just an extra function call,
-> > so it won't hurt performance - it would improve performance.
-> > 
-> > ib_uverbs_req_notify_cq would call
-> > 
-> > 	ib_uverbs_req_notify_cq()
-> > 	{
-> > 			ib_set_cq_udata(cq, udata)
-> > 			ib_req_notify_cq(cq, cmd.solicited_only ?
-> > 				IB_CQ_SOLICITED : IB_CQ_NEXT_COMP);
-> > 	}
-> > 
-> 
-> ib_set_cq_udata() would transition into the kernel to pass in the
-> consumer's index.  In addition, ib_req_notify_cq would also transition
-> into the kernel since its not a bypass function for chelsio.
+On Wed, 3 Jan 2007, Jiri Slaby wrote:
 
-We misunderstand each other.
+> Robert P. J. Day wrote:
+> [...]
+> > index fd82411..b3932e5 100644
+> > --- a/include/asm-m68k/sun3_pgalloc.h
+> > +++ b/include/asm-m68k/sun3_pgalloc.h
+> > @@ -36,12 +36,11 @@ static inline void pte_free(struct page *page)
+> >  static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
+> >  					  unsigned long address)
+> >  {
+> > -	unsigned long page = __get_free_page(GFP_KERNEL|__GFP_REPEAT);
+> > +	unsigned long page = get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
+> >
+> >  	if (!page)
+> >  		return NULL;
+> >
+> > -	memset((void *)page, 0, PAGE_SIZE);
+> >  	return (pte_t *) (page);
+> >  }
+>
+> perhaps simply
+> return (pte_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
 
-ib_uverbs_req_notify_cq is in drivers/infiniband/core/uverbs_cmd.c -
-all this code runs inside the IB_USER_VERBS_CMD_REQ_NOTIFY_CQ command,
-so there is a single user to kernel transition.
+i thought about it, but figured i'd keep the change minimal and not
+get into any "editorializing."
 
--- 
-MST
+rday

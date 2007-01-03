@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750780AbXACNxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750777AbXACNx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbXACNxK (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 08:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbXACNxJ
+	id S1750777AbXACNx3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 08:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbXACNx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 08:53:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34758 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750781AbXACNxI (ORCPT
+	Wed, 3 Jan 2007 08:53:29 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3955 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750777AbXACNx0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 08:53:08 -0500
-Subject: Re: [PATCH] quiet MMCONFIG related printks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200701012101.38427.jbarnes@virtuousgeek.org>
-References: <200701012101.38427.jbarnes@virtuousgeek.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 03 Jan 2007 05:53:06 -0800
-Message-Id: <1167832386.3095.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 3 Jan 2007 08:53:26 -0500
+Date: Wed, 3 Jan 2007 14:53:26 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Jean Delvare <khali@linux-fr.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] i386 kernel instant reboot with older binutils fix
+Message-ID: <20070103135326.GF20714@stusta.de>
+References: <20070103041645.GA17546@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070103041645.GA17546@in.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2007-01-01 at 21:01 -0800, Jesse Barnes wrote:
-> Using MMCONFIG for PCI config space access is simply an optimization, not
-> a requirement.  Therefore, when it can't be used, there's no need for
-> KERN_ERR level message.  This patch makes the message a KERN_INFO instead
-> to reduce some of the noise in a kernel boot with the 'quiet' option.
-> (Note that this has no effect on a normal boot, which is ridiculously
-> verbose these days.)
+On Wed, Jan 03, 2007 at 09:46:45AM +0530, Vivek Goyal wrote:
+> 
+> o i386 kernel reboots instantly if compiled with binutils older than
+>   2.6.15.
 
+Should that have been "2.15"?
 
-this is wrong, please leave this loud complaint in...
+And is the following perhaps the same issue?
+
+Subject    : kernel immediately reboots instead of booting
+References : http://lkml.org/lkml/2007/1/2/15
+Submitter  : Steve Youngs <steve@youngs.au.com>
+Status     : unknown
+
+@Steve:
+You had binutils 2.14.90.0.6 .
+Does this patch fix it for you?
+
+> o Older binutils required explicit flags to mark a section allocatable
+>   and executable(AX). Newer binutils automatically mark a section AX if
+>   the name starts with .text.
+> 
+> o While defining a new section using assembler "section" directive,
+>   explicitly mention section flags. 
+> 
+> Signed-off-by: Segher Boessenkool <segher@kernel.crashing.org>
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> ---
+> 
+>  arch/i386/boot/compressed/head.S |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN arch/i386/boot/compressed/head.S~jean-reboot-issue-fix arch/i386/boot/compressed/head.S
+> --- linux-2.6.20-rc2-reloc/arch/i386/boot/compressed/head.S~jean-reboot-issue-fix	2007-01-02 09:54:56.000000000 +0530
+> +++ linux-2.6.20-rc2-reloc-root/arch/i386/boot/compressed/head.S	2007-01-02 09:57:46.000000000 +0530
+> @@ -28,7 +28,7 @@
+>  #include <asm/page.h>
+>  #include <asm/boot.h>
+>  
+> -.section ".text.head"
+> +.section ".text.head","ax",@progbits
+>  	.globl startup_32
+>  
+>  startup_32:
+> _
+
+cu
+Adrian
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

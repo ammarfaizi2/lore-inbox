@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750821AbXACOZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750791AbXACOfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbXACOZt (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 09:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbXACOZt
+	id S1750791AbXACOfk (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 09:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXACOfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 09:25:49 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:43423 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750818AbXACOZs (ORCPT
+	Wed, 3 Jan 2007 09:35:40 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:52887 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750791AbXACOfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 09:25:48 -0500
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-From: Steve Wise <swise@opengridcomputing.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: rdreier@cisco.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20061224084925.GD15106@mellanox.co.il>
-References: <20061214135233.21159.78613.stgit@dell3.ogc.int>
-	 <20061214135303.21159.61880.stgit@dell3.ogc.int>
-	 <20061224084925.GD15106@mellanox.co.il>
-Content-Type: text/plain
-Date: Wed, 03 Jan 2007 08:25:48 -0600
-Message-Id: <1167834348.4187.3.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Jan 2007 09:35:39 -0500
+Message-ID: <459BBF15.5070505@bull.net>
+Date: Wed, 03 Jan 2007 15:35:01 +0100
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       =?ISO-8859-1?Q?S=E9bastien?= =?ISO-8859-1?Q?_Dugu=E9?= 
+	<sebastien.dugue@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [PATCH 2.6.19.1-rt15][RFC] - futex_requeue_pi implementation
+ (requeue from futex1 to PI-futex2)
+References: <459BA267.1020706@bull.net> <20070103123536.GA9088@elte.hu>
+In-Reply-To: <20070103123536.GA9088@elte.hu>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/01/2007 15:43:34,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/01/2007 15:43:37,
+	Serialize complete at 03/01/2007 15:43:37
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > @@ -1373,7 +1374,7 @@ int ib_peek_cq(struct ib_cq *cq, int wc_
-> >  static inline int ib_req_notify_cq(struct ib_cq *cq,
-> >  				   enum ib_cq_notify cq_notify)
-> >  {
-> > -	return cq->device->req_notify_cq(cq, cq_notify);
-> > +	return cq->device->req_notify_cq(cq, cq_notify, NULL);
-> >  }
-> >  
-> >  /**
+Ingo Molnar a écrit :
 > 
-> Can't say I like this adding overhead in data path operations (and note this
-> can't be optimized out). And kernel consumers work without passing it in, so it
-> hurts kernel code even for Chelsio. Granted, the cost is small here, but these
-> things do tend to add up.
+> looks good to me in principle. The size of the patch is scary - is there 
+> really no simpler way? 
+
+Humf, in fact, for the 64-bit part, I've followed the rule of the existing 
+64-bit code in futex.c, which consists of duplicating all the functions which 
+can not be kept common, and add a suffix 64 to all duplicated functions.
+Perhaps I missed something ?
+
+> Also, could you send me a patch against a 
+> 20-rc3-rt0-ish kernel so that i can stick this into -rt for testing?
 > 
-> It seems all Chelsio needs is to pass in a consumer index - so, how about a new
-> entry point? Something like void set_cq_udata(struct ib_cq *cq, struct ib_udata *udata)?
-> 
+Ok, will do that.
 
-Adding a new entry point would hurt chelsio's user mode performance if
-if then requires 2 kernel transitions to rearm the cq.  
+Thanks,
 
-Passing in user data is sort of SOP for these sorts of verbs.  
-
-How much does passing one more param cost for kernel users?  
-
-
-
+-- 
+Pierre Peiffer

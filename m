@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753545AbXACJgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755046AbXACJhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753545AbXACJgN (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 04:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754471AbXACJgN
+	id S1755046AbXACJhG (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 04:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755007AbXACJhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 04:36:13 -0500
-Received: from fmmailgate01.web.de ([217.72.192.221]:50971 "EHLO
-	fmmailgate01.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753545AbXACJgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 04:36:12 -0500
-X-Greylist: delayed 1521 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 04:36:12 EST
-Message-ID: <459B731A.301@web.de>
-Date: Wed, 03 Jan 2007 10:10:50 +0100
-From: Jan Kiszka <jan.kiszka@web.de>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       saw@saw.sw.com.sg, Auke Kok <auke-jan.h.kok@intel.com>
-Subject: Re: [2.6 patch] the scheduled eepro100 removal
-References: <20070102215726.GC20714@stusta.de>
-In-Reply-To: <20070102215726.GC20714@stusta.de>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Jan 2007 04:37:06 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:7712 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754471AbXACJhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 04:37:03 -0500
+Date: Wed, 3 Jan 2007 10:39:51 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       akpm@osdl.org
+Subject: Re: [PATCH] 3/4 qrcu: add documentation
+Message-ID: <20070103093951.GM11203@kernel.dk>
+References: <11678105083001-git-send-email-jens.axboe@oracle.com> <20070103083123.GJ11203@kernel.dk> <459B7766.5050404@dbservice.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <459B7766.5050404@dbservice.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch contains the scheduled removal of the eepro100 driver.
+On Wed, Jan 03 2007, Tomas Carnecky wrote:
+> Jens Axboe wrote:
+> > diff --git a/Documentation/RCU/checklist.txt b/Documentation/RCU/checklist.txt
+> > index f4dffad..36d6185 100644
+> > --- a/Documentation/RCU/checklist.txt
+> > +++ b/Documentation/RCU/checklist.txt
+> > @@ -259,3 +259,16 @@ over a rather long period of time, but improvements are always welcome!
+> >  
+> >  	Note that, rcu_assign_pointer() and rcu_dereference() relate to
+> >  	SRCU just as they do to other forms of RCU.
+> > +
+> > +14.	QRCU is very similar to SRCU, but features very fast grace-period
+> > +	processing at the expense of heavier-weight read-side operations.
+> > +	The correspondance between QRCU and SRCU is as follows:
+> > +
+> > +		QRCU			SRCU
+> > +
+> > +		struct qrcu_struct	struct srcu_struct
+> > +		init_qrcu_struct()	init_srcu_struct()
+> > +		cleanup_qrcu_struct()	cleanup_srcu_struct()
+> > +		qrcu_read_lock()	srcu_read_lock()
+> > +		qrcu_read-unlock()	srcu_read_unlock()
 > 
+> A small typo: qrcu_read_unlock()
 
-I'm sorry to disturb the schedule, but I'm not sure right now if this
-pending issue of the e100 was meanwhile solved or declared a non-issue:
+Indeed, thanks, I'll update the repo.
 
-http://lkml.org/lkml/2006/9/8/105
+-- 
+Jens Axboe
 
-Auke, can you confirm that it makes sense to re-test? IIRC, our private
-thread ended without resolution after I discovered that the chip
-revision makes the difference for me. Looked like it is either handled
-incorrectly by e100 or screwed up on that board.
-
-Jan

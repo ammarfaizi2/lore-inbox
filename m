@@ -1,80 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750814AbXACOg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750819AbXACOg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbXACOg0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 09:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbXACOg0
+	id S1750819AbXACOg3 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 09:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXACOg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 09:36:26 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:52900 "EHLO madara.hpl.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750814AbXACOgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 09:36:25 -0500
-Date: Wed, 3 Jan 2007 06:36:02 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
-       suresh.b.siddha@intel.com, kenneth.w.chen@intel.com,
-       tony.luck@intel.com
-Subject: Re: sched_clock() on i386
-Message-ID: <20070103143602.GG7238@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061222104306.GC1895@frankl.hpl.hp.com> <1166889227.14081.13.camel@imap.mvista.com>
-Mime-Version: 1.0
+	Wed, 3 Jan 2007 09:36:29 -0500
+Received: from [217.111.56.2] ([217.111.56.2]:47285 "EHLO semtex.sncag.com"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750819AbXACOg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 09:36:28 -0500
+To: Greg KH <greg@kroah.com>,
+       "linux-kernel@vger.kernel.orgRainer Weikusat" <rweikusat@sncag.com>
+Cc: linux-kernel@vger.kernel.org, Rainer Weikusat <rweikusat@sncag.com>
+Subject: [PATCH 2.6.20-rc3] fix for bugzilla #7544 (keyspan USB-to-serial converter)
+In-Reply-To: <87irfodwk0.fsf@semtex.sncag.com> (Rainer Weikusat's message of "Wed, 03 Jan 2007 15:17:19 +0100")
+References: <877iw5l2eh.fsf@semtex.sncag.com>
+	<20070103013736.GA18198@kroah.com> <87d55w5q8s.fsf@semtex.sncag.com>
+	<87irfodwk0.fsf@semtex.sncag.com>
+From: Rainer Weikusat <rainer.weikusat@sncag.com>
+Date: Wed, 03 Jan 2007 15:36:25 +0100
+Message-ID: <87ejqcdvo6.fsf@semtex.sncag.com>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1166889227.14081.13.camel@imap.mvista.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
+At least the Keyspan USA-19HS USB-to-serial converter supports
+two different configurations, one where the input endpoints
+have interrupt transfer type and one where they are bulk endpoints.
+The default UHCI configuration uses the interrupt input endpoints.
+The keyspan driver, OTOH, assumes that the device has only bulk
+endpoints (all URBs are initialized by calling usb_fill_bulk_urb
+in keyspan.c/ keyspan_setup_urb). This causes the interval field
+of the input URBs to have a value of zero instead of one, which
+'accidentally' worked with Linux at least up to 2.6.17.11 but
+stopped to with 2.6.18, which changed the UHCI support code handling
+URBs for interrupt endpoints. The patch below modifies to driver to
+initialize its input URBs either as interrupt or as bulk URBs,
+depending on the transfertype contained in the associated endpoint
+descriptor (only tested with the default configuration) enabling
+the driver to again receive data from the serial converter.
 
-On Sat, Dec 23, 2006 at 07:53:47AM -0800, Daniel Walker wrote:
-> On Fri, 2006-12-22 at 02:43 -0800, Stephane Eranian wrote:
-> > Hello,
-> > 
-> > 
-> > The perfmon subsystems needs to compute per-CPU duration. It is using
-> > sched_clock() to provide this information. However, it seems they are
-> > big variations in the way sched_clock() is implemented for each architectures,
-> > especially in the accuracy of the returned value (going from TSC to jiffies).
-> > 
-> 
-> The vast majority of architectures return a scaled jiffies value for
-> sched_clock(). MIPS, and ARM for instance are two, and i386 does
-> sometimes. The function isn't very predictable in terms or what you'll
-> get as output. 
-> 
-My understanding is that you'll get a per-CPU timestamp expressed in nanoseconds.
-The granularity of the returned value is highly dependent on the CPU
-architecture (and apparently on how you've compiled your kernel).
+Signed-off-by: Rainer Weikusat <rweikusat@sncag.com>
+---
 
-> The most reliable way to get timing is to use gettimeofday() which in
-> turn uses a lowlevel clock. I'm not sure exactly what your application
-> is, but sometimes gettimeofday() can be a little complicated to use.
-> Which is why I create the following clocksource changes,
-> 
-I do NOT need a wall-clock time. I am looking for a simple per-CPU clock
-source with best possible granularity. I use the clock to compute elapsed
-execution duration. I initially was using TSC, then during the code review
-someone suggested I use sched_clock(). Using getttimeofday() can be failry
-expensive and I need to compute the duration in the context switch path.
+Modified to no longer call panic, but return NULL after having
+logged a KERN_WARNING message first.
 
-Now my understanding is that on some processors with frequence scaling,
-using TSC may not easily allow computing elapsed time. So there may not
-be any cheap solution to my problem.
-
-> ftp://source.mvista.com/pub/dwalker/clocksource/
-> 
-> the purpose of which is to allow generic access to suitable lowlevel
-> clocks. It just extends the mechanism already used by gettimeofday(). 
-> 
-
--- 
-
--Stephane
+diff -purN linux-2.6.20-rc3/drivers/usb/serial/keyspan.c linux-2.6.20-rc3-keyspan/drivers/usb/serial/keyspan.c
+--- linux-2.6.20-rc3/drivers/usb/serial/keyspan.c	2007-01-02 11:10:22.000000000 +0100
++++ linux-2.6.20-rc3-keyspan/drivers/usb/serial/keyspan.c	2007-01-03 15:18:24.000000000 +0100
+@@ -1275,11 +1275,32 @@ static int keyspan_fake_startup (struct 
+ }
+ 
+ /* Helper functions used by keyspan_setup_urbs */
++static struct usb_endpoint_descriptor const *
++find_ep_desc_for(struct usb_serial const *serial, int endpoint)
++{
++	struct usb_host_endpoint const *p, *e;
++
++	p = serial->interface->cur_altsetting->endpoint;
++	e = p + serial->interface->cur_altsetting->desc.bNumEndpoints;
++	while (p < e && p->desc.bEndpointAddress != endpoint) ++p;
++	
++	if (p == e) {
++		printk(KERN_WARNING "%s - found no endpoint descriptor for "
++		       "endpoint %d\n", __func__, endpoint);
++		return NULL;
++	}
++
++	return &p->desc;
++}
++
+ static struct urb *keyspan_setup_urb (struct usb_serial *serial, int endpoint,
+ 				      int dir, void *ctx, char *buf, int len,
+ 				      void (*callback)(struct urb *))
+ {
+ 	struct urb *urb;
++	struct usb_endpoint_descriptor const *ep_desc;
++	char const *ep_type_name;
++	unsigned ep_type;
+ 
+ 	if (endpoint == -1)
+ 		return NULL;		/* endpoint not needed */
+@@ -1290,12 +1311,34 @@ static struct urb *keyspan_setup_urb (st
+ 		dbg ("%s - alloc for endpoint %d failed.", __FUNCTION__, endpoint);
+ 		return NULL;
+ 	}
++	
++	ep_desc = find_ep_desc_for(serial, endpoint);
++	ep_type = ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
++	switch (ep_type) {
++	case USB_ENDPOINT_XFER_INT:
++		ep_type_name = "INT";
++		usb_fill_int_urb(urb, serial->dev,
++				 usb_sndintpipe(serial->dev, endpoint) | dir,
++				 buf, len, callback, ctx,
++				 ep_desc->bInterval);
++		break;
+ 
+-		/* Fill URB using supplied data. */
+-	usb_fill_bulk_urb(urb, serial->dev,
+-		      usb_sndbulkpipe(serial->dev, endpoint) | dir,
+-		      buf, len, callback, ctx);
++	case USB_ENDPOINT_XFER_BULK:
++		ep_type_name = "BULK";
++		usb_fill_bulk_urb(urb, serial->dev,
++				  usb_sndbulkpipe(serial->dev, endpoint) | dir,
++				  buf, len, callback, ctx);
++		break;
++
++	default:
++		printk(KERN_WARNING "%s - unsupported endpoint type %d\n",
++		       __func__, ep_type);
++		usb_free_urb(urb);
++		return NULL;
++	}
+ 
++	dbg("%s - using urb %p for %s endpoint %d",
++	    __func__, urb, ep_type_name, endpoint);
+ 	return urb;
+ }
+ 

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932124AbXACVFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932130AbXACVF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbXACVFl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 16:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbXACVFl
+	id S932130AbXACVF7 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 16:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbXACVF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 16:05:41 -0500
-Received: from pasmtpb.tele.dk ([80.160.77.98]:40151 "EHLO pasmtpB.tele.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932124AbXACVFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 16:05:40 -0500
-Date: Wed, 3 Jan 2007 22:05:35 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Shlomi Fish <shlomif@iglu.org.il>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] qconf Search Dialog
-Message-ID: <20070103210535.GA31780@uranus.ravnborg.org>
-References: <200701031954.36440.shlomif@iglu.org.il> <20070103095422.f89a88e5.randy.dunlap@oracle.com> <200701032201.28384.shlomif@iglu.org.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701032201.28384.shlomif@iglu.org.il>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 3 Jan 2007 16:05:59 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40144 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932127AbXACVF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 16:05:56 -0500
+Message-ID: <459C1AB7.9070901@drzeus.cx>
+Date: Wed, 03 Jan 2007 22:05:59 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
+MIME-Version: 1.0
+To: Philip Langdale <philipl@overt.org>
+CC: linux-kernel@vger.kernel.org, John Gilmore <gnu@toad.com>
+Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards
+References: <458C22C0.1080307@vmware.com> <4597A327.8030408@drzeus.cx> <459926B5.60505@overt.org>
+In-Reply-To: <459926B5.60505@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 10:01:28PM +0200, Shlomi Fish wrote:
-> 
-> Interesting. I didn't notice this search dialog before because its menu item 
-> was placed in the "File" menu, which is the wrong place for a find command 
-> (Which should be in an "Edit" or "Search" menu). I believe others have missed 
-> it as well. Also, it is possible it wasn't available when I wrote the 
-> preliminary version of the patch back in March.
-> 
-> Aside from that my search dialog has some advantages:
-> 
-> 1. Full text search - if you search for "available" in File->Search you won't 
-> find anything. Searching for it in Edit->Find will find many things. I think 
-> File->Search only searches using the identifiers or at most also the title.
-> 
-> 2. Regular expression search.
-> 
-> 3. Displaying the results in a tree, with their context.
-> 
-> All that said, I don't mind merging my modifications into the existing code, 
-> or replacing it entirely.
-Please merge the best of the existing and the new search dialog.
+Philip Langdale wrote:
+> Heh. I forget that you don't want to manually alter the email. Will do.
+>
+>   
 
-I would prefer it as separate smaller steps.
-So one patch where you move the dialog and another where you improve
-the search dialog.
+I'm rather reluctant to change anything once someone has put a
+signed-off-by line to it. Different people have different limits as to
+what they regard a trivial modification.
 
-	Sam
+> Done. I thought we needed it before both SD_APP_SEND_OP_COND calls but
+> it's only needed before the second one so I've moved it inline into
+> mmc_setup.
+>
+>   
+
+The spec says we need it at both (even though it might not be so in
+practice). We should follow the spec first and foremost.
+
+Rgds
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+

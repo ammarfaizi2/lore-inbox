@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751093AbXACTSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751078AbXACTSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbXACTSH (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 14:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbXACTSG
+	id S1751078AbXACTSz (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 14:18:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbXACTSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 14:18:06 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:43763 "EHLO e4.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751078AbXACTSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 14:18:04 -0500
-Subject: Re: [RFC][PATCH] use cycle_t instead of u64 in struct
-	time_interpolator
-From: john stultz <johnstul@us.ibm.com>
-To: Helge Deller <deller@gmx.de>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-In-Reply-To: <200701031936.36423.deller@gmx.de>
-References: <200701022233.25697.deller@gmx.de>
-	 <Pine.LNX.4.64.0701030942160.7909@schroedinger.engr.sgi.com>
-	 <200701031936.36423.deller@gmx.de>
-Content-Type: text/plain
-Date: Wed, 03 Jan 2007 11:17:59 -0800
-Message-Id: <1167851879.5937.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Wed, 3 Jan 2007 14:18:55 -0500
+Received: from mail.gmx.net ([213.165.64.20]:40694 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751078AbXACTSx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 14:18:53 -0500
+X-Authenticated: #815327
+From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Subject: Re: [BUG] panic 2.6.20-rc3 in nf_conntrack
+Date: Wed, 3 Jan 2007 20:18:47 +0100
+User-Agent: KMail/1.9.5
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
+       Patrick McHardy <kaber@trash.net>, berni@birkenwald.de,
+       netfilter-devel@lists.netfilter.org
+References: <200701020228_MC3-1-D707-115D@compuserve.com> <Pine.LNX.4.58.0701030913470.8163@tux.rsn.bth.se>
+In-Reply-To: <Pine.LNX.4.58.0701030913470.8163@tux.rsn.bth.se>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2684199.Im7JhXbk7i";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200701032018.51184.MalteSch@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-03 at 19:36 +0100, Helge Deller wrote:
-> On Wed Jan 3 2007, Christoph Lameter wrote:
-> > On Tue, 2 Jan 2007, Helge Deller wrote:
-> >
-> > > As far as I could see, this patch does not change anything for the
-> > > existing architectures which use this framework (IA64 and SPARC64),
-> > > since "cycles_t" is defined there as unsigned 64bit-integer anyway
-> > > (which then makes this patch a no-change for them).
-> >
-> > The 64bit nature of some entities was so far necessary to get the
-> > proper accuracy of interpolation. Maybe it can be made to work with 32 bit
-> > entities. The macro GET_TI_SECS must work correctly and the less bits are
-> > specified in shift the less self-tuning accuracy you will get.
-> 
-> Yes, it was easily possible to make it 32bit-ready without loosing the accuracy.
-> 
-> Nevertheless, in the meantime John Stultz pointed me to the CONFIG_GENERIC_TIME framework,  and I implemented it that way:
-> http://git.parisc-linux.org/?p=linux-2.6.git;a=commit;h=b6de83b58b8b07f057deacdef8a95b6c32d1c4e6
+--nextPart2684199.Im7JhXbk7i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This looks pretty good, although setting the rating to 200 for a
-clocksource you don't want to use seems a bit high (there's a rough
-rating scale in clocksource.h). Zero is probably what you want to use
-there.
+On Wednesday 03 January 2007 09:34, Martin Josefsson wrote:
+> I saw your (correct) analysis after having made the patch below, it has
+> been tested successfully by Bernhard Schmidt. (Netfilter bugzilla #528)
+>
+> Check the return value of nfct_nat() in device_cmp(), we might very well
+> have non NAT conntrack entries as well.
+>
 
-> http://git.parisc-linux.org/?p=linux-2.6.git;a=commit;h=f70a979c843e4610edfb2a316648fe8ae8718f69
+I was not capable to reproduce the problem. Thanks :)
 
-This looks to be correct, although as the clocksource infrastructure
-evolves it looks like we'll be removing the update_callback code in the
-future. So this is fine for now, but will probably need a reevaluation
-at some point.
+> Signed-off-by: Martin Josefsson <gandalf@wlug.westbo.se>
+>
+> --- linux-2.6.20-rc3/net/ipv4/netfilter/ipt_MASQUERADE.c.orig	2007-01-02
+> 22:47:14.000000000 +0100 +++
+> linux-2.6.20-rc3/net/ipv4/netfilter/ipt_MASQUERADE.c	2007-01-02
+> 22:57:11.000000000 +0100 @@ -127,10 +127,13 @@
+>  static inline int
+>  device_cmp(struct ip_conntrack *i, void *ifindex)
+>  {
+> +	int ret;
+>  #ifdef CONFIG_NF_NAT_NEEDED
+>  	struct nf_conn_nat *nat =3D nfct_nat(i);
+> +
+> +	if (!nat)
+> +		return 0;
+>  #endif
+> -	int ret;
+>
+>  	read_lock_bh(&masq_lock);
+>  #ifdef CONFIG_NF_NAT_NEEDED
 
-Also to avoid jumping between clocksources, I'd keep the initial
-disqualification that occurs before you register the clocksource
-(otherwise it will be used for one tick, then be disqualified and you're
-back to jiffies).
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
 
-thanks
--john
 
+--nextPart2684199.Im7JhXbk7i
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBFnAGb4q3E2oMjYtURAqkpAJ9QhAejAG/O3pkP1pSwy9j6aAsNbQCfYokT
+5/C4cjWTyICS2WUKBubm57U=
+=jjFi
+-----END PGP SIGNATURE-----
+
+--nextPart2684199.Im7JhXbk7i--

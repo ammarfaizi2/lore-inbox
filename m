@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932110AbXACUwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932113AbXACUxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbXACUwl (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 15:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbXACUwl
+	id S932113AbXACUxH (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 15:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbXACUxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 15:52:41 -0500
-Received: from igraine.blacknight.ie ([81.17.252.25]:51493 "EHLO
-	igraine.blacknight.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932110AbXACUwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 15:52:40 -0500
-X-Greylist: delayed 1555 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jan 2007 15:52:40 EST
-Date: Wed, 3 Jan 2007 20:25:55 +0000
-From: Robert Fitzsimons <robfitz@273k.net>
-To: Michael Krufky <mkrufky@linuxtv.org>, "J.H." <warthog19@eaglescrag.net>
-Cc: git@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
-       Michael Krufky <mkrufky@gmail.com>
-Subject: [PATCH] gitweb: Fix shortlog only showing HEAD revision.
-Message-ID: <20070103202555.GA25768@localhost>
-References: <459C0232.3090804@linuxtv.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <459C0232.3090804@linuxtv.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-blacknight-igraine-MailScanner-Information: Please contact the ISP for more information
-X-blacknight-igraine-MailScanner: Found to be clean
-X-blacknight-igraine-MailScanner-SpamCheck: not spam,
-	SpamAssassin (not cached, score=-0.012, required 7,
-	autolearn=disabled, RCVD_IN_NERDS_IE -2.00, RCVD_IN_SORBS_DUL 1.99)
-X-MailScanner-From: robfitz@273k.net
+	Wed, 3 Jan 2007 15:53:07 -0500
+Received: from gate.crashing.org ([63.228.1.57]:41133 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932113AbXACUxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 15:53:05 -0500
+Subject: Re: [PATCH] ppc: pic pmacpic_find_viaint cleanup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: linuxppc-dev@ozlabs.org, paulus@samba.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200701022020.04174.m.kozlowski@tuxland.pl>
+References: <200701022020.04174.m.kozlowski@tuxland.pl>
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 07:52:52 +1100
+Message-Id: <1167857572.6165.157.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My change in 190d7fdcf325bb444fa806f09ebbb403a4ae4ee6 had a small bug
-found by Michael Krufky which caused the passed in hash value to be
-ignored, so shortlog would only show the HEAD revision.
+On Tue, 2007-01-02 at 20:20 +0100, Mariusz Kozlowski wrote:
+> Hello,
+> 
+> 	Litte rework to supress this warning:
+> 
+> arch/powerpc/platforms/powermac/pic.c: In function 'pmacpic_find_viaint':
+> arch/powerpc/platforms/powermac/pic.c:625: warning: label 'not_found' defined but not used
+> 
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-Signed-off-by: Robert Fitzsimons <robfitz@273k.net>
----
+It's actually bogus (though the old code was too) now that we have
+refcounting of device-nodes. We should do an of_node_put() on the result
+of of_find_node_by_name() after we are done with it.
 
-Thanks for finding this Michael.  It' just a small bug introducted by a
-recent change I made.  Including John 'Warthog9' so hopefully he can add
-this to the version of gitweb which is hosted on kernel.org.
+Can you respin with that fix ?
 
-Robert
+Ben.
 
+>  arch/powerpc/platforms/powermac/pic.c |   13 +++++--------
+>  1 file changed, 5 insertions(+), 8 deletions(-)
+> 
+> --- linux-2.6.20-rc2-mm1-a/arch/powerpc/platforms/powermac/pic.c	2006-12-24 05:00:32.000000000 +0100
+> +++ linux-2.6.20-rc2-mm1-b/arch/powerpc/platforms/powermac/pic.c	2007-01-02 16:49:05.000000000 +0100
+> @@ -609,21 +609,18 @@ unsigned long sleep_save_mask[2];
+>   */
+>  static int pmacpic_find_viaint(void)
+>  {
+> -	int viaint = -1;
+> -
+>  #ifdef CONFIG_ADB_PMU
+>  	struct device_node *np;
+>  
+>  	if (pmu_get_model() != PMU_OHARE_BASED)
+> -		goto not_found;
+> +		return -1;
+>  	np = of_find_node_by_name(NULL, "via-pmu");
+>  	if (np == NULL)
+> -		goto not_found;
+> -	viaint = irq_of_parse_and_map(np, 0);;
+> +		return -1;
+> +	return irq_of_parse_and_map(np, 0);
+> +#else
+> +	return -1;
+>  #endif /* CONFIG_ADB_PMU */
+> -
+> -not_found:
+> -	return viaint;
+>  }
+>  
+>  static int pmacpic_suspend(struct sys_device *sysdev, pm_message_t state)
+> 
+> 
 
- gitweb/gitweb.perl |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/gitweb/gitweb.perl b/gitweb/gitweb.perl
-index d845e91..2e94c2c 100755
---- a/gitweb/gitweb.perl
-+++ b/gitweb/gitweb.perl
-@@ -4423,7 +4423,7 @@ sub git_shortlog {
- 	}
- 	my $refs = git_get_references();
- 
--	my @commitlist = parse_commits($head, 101, (100 * $page));
-+	my @commitlist = parse_commits($hash, 101, (100 * $page));
- 
- 	my $paging_nav = format_paging_nav('shortlog', $hash, $head, $page, (100 * ($page+1)));
- 	my $next_link = '';
--- 
-t1.gaaaa

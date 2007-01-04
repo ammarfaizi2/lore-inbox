@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030252AbXADXAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030244AbXADXCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbXADXAa (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 18:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbXADXAa
+	id S1030244AbXADXCT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 18:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbXADXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 18:00:30 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:52877 "EHLO gaz.sfgoth.com"
+	Thu, 4 Jan 2007 18:02:19 -0500
+Received: from mail.macqel.be ([194.78.208.39]:6579 "EHLO mail.macqel.be"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030252AbXADXA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 18:00:28 -0500
-Date: Thu, 4 Jan 2007 15:21:06 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
-Message-ID: <20070104232106.GK35756@gaz.sfgoth.com>
-References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com> <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
+	id S1030244AbXADXCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 18:02:18 -0500
+X-Greylist: delayed 1712 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 18:02:18 EST
+Date: Thu, 4 Jan 2007 23:33:45 +0100
+From: Philippe De Muyter <phdm@macqel.be>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH i2c/m41t00 do not forget to write year
+Message-ID: <20070104223345.GA786@ingate.macqel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 04 Jan 2007 15:21:07 -0800 (PST)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Well, that probably would work, but it's also true that returning a 64-bit 
-> value on a 32-bit platform really _does_ depend on more than the size.
+m41t00.c forgets to set the year field in set_rtc_time; fix that.
 
-Yeah, obviously this is restricted to the signed-integer case.  My point
-was just that you could have the compiler figure out which variant to pick
-for loff_t automatically.
+Signed-off-by: Philippe De Muyter <phdm@macqel.be>
 
-> "let's not play tricks with function types at all".
-
-I think I agree.  The real (but harder) fix for the wasted space issue
-would be to get the toolchain to automatically combine functions that
-end up compiling into identical assembly.
-
--Mitch
+--- drivers/i2c/chips/m41t00.c	2007-01-02 20:57:59.000000000 +0100
++++ drivers/i2c/chips/m41t00.c	2007-01-04 22:11:35.000000000 +0100
+@@ -209,6 +209,7 @@ m41t00_set(void *arg)
+ 	buf[m41t00_chip->hour] = (buf[m41t00_chip->hour] & ~0x3f) | (hour& 0x3f);
+ 	buf[m41t00_chip->day] = (buf[m41t00_chip->day] & ~0x3f) | (day & 0x3f);
+ 	buf[m41t00_chip->mon] = (buf[m41t00_chip->mon] & ~0x1f) | (mon & 0x1f);
++	buf[m41t00_chip->year] = year;
+ 
+ 	if (i2c_master_send(save_client, wbuf, 9) < 0)
+ 		dev_err(&save_client->dev, "m41t00_set: Write error\n");

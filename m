@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932306AbXADGvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932308AbXADG4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbXADGvq (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 01:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbXADGvq
+	id S932308AbXADG4K (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 01:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbXADG4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 01:51:46 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:27346 "HELO
-	smtp106.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932306AbXADGvn (ORCPT
+	Thu, 4 Jan 2007 01:56:09 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:44713
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S932308AbXADG4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 01:51:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uqp6W6sEGhjBTgU93CMNX+2HrvvuDDZ5xKtVyIzgiAussYQZuZ+JAQnaskG8xxZIfX6vx70i5c7HeqtP3XIA+JnkspiLdShRl9Jp006NjYZX8XZfLw1Wx23Ub3LV8AJO8lX/Vc/mQpBfrgFH54HOwDpYBSr9ytbBLTAjpuoWuGU=  ;
-X-YMail-OSG: eZjZlJ0VM1l606z1qUQBoY5zmQWrtiDjYEmVzlVyVozAVXrOBLR0VBKrihWBqoSIBNQC6s7vrwbxoKYxBr8Y4akcYTpSROAeEN24tnsGlhLgHJoFOhgjqh9Pi4v_5ni8wivKjGnqEbM8QqA-
-Message-ID: <459CA3BA.9040806@yahoo.com.au>
-Date: Thu, 04 Jan 2007 17:50:34 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
-       akpm@osdl.org, drepper@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jakub@redhat.com, mingo@elte.hu
-Subject: Re: [FSAIO][PATCH 6/8] Enable asynchronous wait page and lock page
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20061228084149.GF6971@in.ibm.com> <20061228115510.GA25644@infradead.org> <20061228144717.GA10156@in.ibm.com> <20070102142627.GA14954@infradead.org>
-In-Reply-To: <20070102142627.GA14954@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 4 Jan 2007 01:56:08 -0500
+Date: Wed, 03 Jan 2007 22:56:07 -0800 (PST)
+Message-Id: <20070103.225607.133169483.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: nickpiggin@yahoo.com.au, torvalds@osdl.org, gelma@gelma.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20070103221220.c4589831.akpm@osdl.org>
+References: <20070103214121.997be3e6.akpm@osdl.org>
+	<459C98BF.5080409@yahoo.com.au>
+	<20070103221220.c4589831.akpm@osdl.org>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Thu, Dec 28, 2006 at 08:17:17PM +0530, Suparna Bhattacharya wrote:
-> 
->>I am really bad with names :(  I tried using the _wq suffixes earlier and
->>that seemed confusing to some, but if no one else objects I'm happy to use
->>that. I thought aio_lock_page() might be misleading because it is
->>synchronous if a regular wait queue entry is passed in, but again it may not
->>be too bad.
->>
->>What's your preference ? Does anything more intuitive come to mind ?
-> 
-> 
-> Beein bad about naming seems to be a disease, at least I suffer from it
-> aswell.  I wouldn't mind either the _wq or aio_ naming - _wq describes
-> the way it's called and aio_ describes it's a special case for aio.
-> Similarly to how ->aio_read/->aio_write can be used for synchronous I/O
-> aswell.
+From: Andrew Morton <akpm@osdl.org>
+Date: Wed, 3 Jan 2007 22:12:20 -0800
 
-What about lock_page_async? A synchronous lock_page is the normal case,
-and for that guy it makes no sense to explicitly pass in a waitqueue, so
-it kind of falls into place?
+> On Thu, 04 Jan 2007 17:03:43 +1100
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> > > That bug was introduced in 2.6.19, with the dirty page tracking patches.
+> > > 
+> > > 2.6.18 and earlier used ->private_lock coverage in try_to_free_buffers() to
+> > > prevent it.
+> > 
+> > Ohh, right you are, I was looking at 2.6.19 sources. The comments above
+> > ttfb match that as well. Curious that the dirty page patches were allowed
+> > to mess with this...
+> 
+> Frankly, those patches scared the crap out of me, specifically because of
+> the delicacy and complexity of the various dirtiness state coherencies. 
+> But I just didn't have the bandwidth to go through them with a sufficiently
+> fine toothcomb, sorry.
+> 
+> > Anyway that leaves us with the question of why Andrea's database is getting
+> > corrupted. Hopefully he can give us a minimal test-case.
+> 
+> It'd odd that stories of pre-2.6.19 BerkeleyDB corruption are now coming
+> out of the woodwork.  It's the first I've ever heard of them.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Note that the original rtorrent debian bug report was against 2.6.18

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932146AbXADRy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932180AbXADR4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbXADRy2 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbXADRy2
+	id S932180AbXADR4T (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbXADR4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:54:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38518 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932146AbXADRy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:54:27 -0500
-Message-ID: <459D3F4A.5070904@redhat.com>
-Date: Thu, 04 Jan 2007 12:54:18 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061215)
+	Thu, 4 Jan 2007 12:56:19 -0500
+Received: from mis011.exch011.intermedia.net ([64.78.21.10]:27494 "EHLO
+	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932182AbXADR4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 12:56:18 -0500
+X-Greylist: delayed 852 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 12:56:18 EST
+Message-ID: <459D3C65.2090703@qumranet.com>
+Date: Thu, 04 Jan 2007 19:41:57 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Bill Davidsen <davidsen@tmr.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: open(O_DIRECT) on a tmpfs?
-References: <459CEA93.4000704@tls.msk.ru> <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com> <459D290B.1040703@tmr.com> <Pine.LNX.4.64.0701041653250.12920@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0701041653250.12920@blonde.wat.veritas.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 0/33] KVM: MMU: Cache shadow page tables
+References: <459D21DD.5090506@qumranet.com> <20070104092226.91fa2dfe.akpm@osdl.org>
+In-Reply-To: <20070104092226.91fa2dfe.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2007 17:42:05.0811 (UTC) FILETIME=[A6785430:01C73027]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Thu, 4 Jan 2007, Bill Davidsen wrote:
+Andrew Morton wrote:
+> Is this intended for 2.6.20, or would you prefer that we release what we
+> have now and hold this off for 2.6.21?
 >   
->> In many cases the use of O_DIRECT is purely to avoid impact on cache used by
->> other applications. An application which writes a large quantity of data will
->> have less impact on other applications by using O_DIRECT, assuming that the
->> data will not be read from cache due to application pattern or the data being
->> much larger than physical memory.
->>     
->
-> I see that as a good argument _not_ to allow O_DIRECT on tmpfs,
-> which inevitably impacts cache, even if O_DIRECT were requested.
->
-> But I'd also expect any app requesting O_DIRECT in that way, as a caring
-> citizen, to fall back to going without O_DIRECT when it's not supported.
 
-I suppose that one could also argue that the backing store for tmpfs
-is the memory itself and thus, O_DIRECT could or should be supported.
+Even though these patches are potentially destabilazing, I'd like them 
+(and a few other patches) to go into 2.6.20:
 
-    Thanx...
+- kvm did not exist in 2.6.19, hence we cannot regress from that
+- this patchset is the difference between a working proof of concept and 
+a generally usable system
+- from my testing, it's quite stable
 
-       ps
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

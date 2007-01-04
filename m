@@ -1,57 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932201AbXADAZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932208AbXADA04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbXADAZt (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 19:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbXADAZt
+	id S932208AbXADA04 (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 19:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbXADA04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 19:25:49 -0500
-Received: from mga01.intel.com ([192.55.52.88]:7748 "EHLO mga01.intel.com"
+	Wed, 3 Jan 2007 19:26:56 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35217 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932201AbXADAZs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 19:25:48 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.12,234,1165219200"; 
-   d="scan'208"; a="184283756:sNHT29270619"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
-Date: Wed, 3 Jan 2007 16:25:46 -0800
-Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C01A4FB7D@fmsmsx414.amr.corp.intel.com>
-In-Reply-To: <20070104001225.GA31434@gnuppy.monkey.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
-Thread-Index: AccvlQtznhyyAOpAS0KJGWyZ7ftWhgAAJmmw
-From: "Chen, Tim C" <tim.c.chen@intel.com>
-To: "Bill Huey \(hui\)" <billh@gnuppy.monkey.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Steven Rostedt" <rostedt@goodmis.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Daniel Walker" <dwalker@mvista.com>
-X-OriginalArrivalTime: 04 Jan 2007 00:25:47.0973 (UTC) FILETIME=[E1972F50:01C72F96]
+	id S932208AbXADA0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 19:26:55 -0500
+Date: Wed, 3 Jan 2007 16:26:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
+ bad_inode_ops return values
+Message-Id: <20070103162643.5c479836.akpm@osdl.org>
+In-Reply-To: <459C4038.6020902@redhat.com>
+References: <459C4038.6020902@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (hui) wrote:
+On Wed, 03 Jan 2007 17:46:00 -0600
+Eric Sandeen <sandeen@redhat.com> wrote:
+
+> Take 2... all in one file.  I suppose I really did know better than 
+> to create that new header.   ;-) 
 > 
-> Good to know that. What did the output reveal ?
+> Better?
 > 
-> What's your intended use again summarized ? futex contention ? I'll
-> read the first posting again.
+> ---
+> 
+> CVE-2006-5753 is for a case where an inode can be marked bad, switching 
+> the ops to bad_inode_ops, which are all connected as:
+> 
+> static int return_EIO(void)
+> {
+>         return -EIO;
+> }
+> 
+> #define EIO_ERROR ((void *) (return_EIO))
+> 
+> static struct inode_operations bad_inode_ops =
+> {
+>         .create         = bad_inode_create
+> ...etc...
+> 
+> The problem here is that the void cast causes return types to not be 
+> promoted, and for ops such as listxattr which expect more than 32 bits of
+> return value, the 32-bit -EIO is interpreted as a large positive 64-bit 
+> number, i.e. 0x00000000fffffffa instead of 0xfffffffa.
+> 
+> This goes particularly badly when the return value is taken as a number of
+> bytes to copy into, say, a user's buffer for example...
+> 
+> I originally had coded up the fix by creating a return_EIO_<TYPE> macro
+> for each return type, like this:
+> 
+> static int return_EIO_int(void)
+> {
+> 	return -EIO;
+> }
+> #define EIO_ERROR_INT ((void *) (return_EIO_int))
+> 
+> static struct inode_operations bad_inode_ops =
+> {
+> 	.create		= EIO_ERROR_INT,
+> ...etc...
+> 
+> but Al felt that it was probably better to create an EIO-returner for each 
+> actual op signature.  Since so few ops share a signature, I just went ahead 
+> & created an EIO function for each individual file & inode op that returns
+> a value.
 > 
 
-Earlier I used latency_trace and figured that there was read contention
-on mm->mmap_sem during call to _rt_down_read by java threads
-when I was running volanomark.  That caused the slowdown of the rt
-kernel
-compared to non-rt kernel.  The output from lock_stat confirm
-that mm->map_sem was indeed the most heavily contended lock.
+Al is correct, of course.  But the patch takes bad_inode.o from 280 up to 703
+bytes, which is a bit sad for some cosmetic thing which nobody ever looks
+at or modifies.
 
-Tim
+Perhaps you can do
+
+static int return_EIO_int(void)
+{
+	return -EIO;
+}
+
+static int bad_file_release(struct inode * inode, struct file * filp)
+	__attribute__((alias("return_EIO_int")));
+static int bad_file_fsync(struct inode * inode, struct file * filp)
+	__attribute__((alias("return_EIO_int")));
+
+etcetera?

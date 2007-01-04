@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030294AbXADXtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030286AbXADXwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbXADXtt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 18:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbXADXtt
+	id S1030286AbXADXwa (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 18:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbXADXwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 18:49:49 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:64814 "EHLO
-	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030294AbXADXts (ORCPT
+	Thu, 4 Jan 2007 18:52:30 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53128 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030286AbXADXwa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 18:49:48 -0500
-X-AuditID: d80ac21c-9e939bb00000021a-3e-459d929b4183 
-Date: Thu, 4 Jan 2007 23:50:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Greg KH <gregkh@suse.de>
-cc: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, yi.zhu@intel.com
-Subject: Re: 2.6.20-rc2-mm1 -- INFO: possible recursive locking detected
-In-Reply-To: <20070104214747.GD28445@suse.de>
-Message-ID: <Pine.LNX.4.64.0701042339080.4441@blonde.wat.veritas.com>
-References: <a44ae5cd0612300247n529f48a6t81edb503bc646f73@mail.gmail.com>
- <20070104214747.GD28445@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jan 2007 23:49:47.0432 (UTC) FILETIME=[04388A80:01C7305B]
-X-Brightmail-Tracker: AAAAAA==
+	Thu, 4 Jan 2007 18:52:30 -0500
+Date: Thu, 4 Jan 2007 23:52:26 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
+Message-ID: <20070104235226.GA17561@ftp.linux.org.uk>
+References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com> <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org> <20070104232106.GK35756@gaz.sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104232106.GK35756@gaz.sfgoth.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Greg KH wrote:
-> On Sat, Dec 30, 2006 at 02:47:20AM -0800, Miles Lane wrote:
-> > Sorry Andrew, I am not sure which maintainer to contact about this.  I
-> > CCed gregkh for sysfs and Yi for ipw2200.  Hopefully this is helpful.
-> > BTW, I also found that none of my network drivers were recognized by
-> > hal (lshal did not show their "net" entries) unless I set
-> > CONFIG_SYSFS_DEPRECATED=y.  I am running Ubuntu development (Feisty
-> > Fawn), so it seems like I ought to be running pretty current hal
-> > utilities:   hal-device-manager       0.5.8.1-4ubuntu1.  After
-> > reenabling CONFIG_SYSFS_DEPRECATED, I am able to use my IPW2200
-> > driver, in spite of this recursive locking message, so this INFO
-> > message may not indicate a problem.
+On Thu, Jan 04, 2007 at 03:21:06PM -0800, Mitchell Blank Jr wrote:
+> Linus Torvalds wrote:
+> > Well, that probably would work, but it's also true that returning a 64-bit 
+> > value on a 32-bit platform really _does_ depend on more than the size.
 > 
-> Does this show up on the 2.6.20-rc3 kernel too?
+> Yeah, obviously this is restricted to the signed-integer case.  My point
+> was just that you could have the compiler figure out which variant to pick
+> for loff_t automatically.
+> 
+> > "let's not play tricks with function types at all".
+> 
+> I think I agree.  The real (but harder) fix for the wasted space issue
+> would be to get the toolchain to automatically combine functions that
+> end up compiling into identical assembly.
 
-Yes.  Well, I can't speak for Miles on Ubuntu, but I have ipw2200
-on openSUSE 10.2 (using ifplugd if that matters), and have to build
-my 2.6.20-rc3 with CONFIG_SYSFS_DEPRECATED=y in order to get an IP
-address (no idea whether it's a hald issue in my case).  Likewise
-needed CONFIG_SYSFS_DEPRECATED=y with 2.6.19-rc-mm on SuSE 10.1.
+Can't do.
 
-Hugh
+int f(void)
+{
+	return 0;
+}
 
---- 2.6.20-rc3/init/Kconfig	2007-01-01 10:30:46.000000000 +0000
-+++ linux/init/Kconfig	2007-01-04 23:36:40.000000000 +0000
-@@ -266,7 +266,7 @@ config SYSFS_DEPRECATED
- 	  that belong to a class, back into the /sys/class heirachy, in
- 	  order to support older versions of udev.
- 
--	  If you are using a distro that was released in 2006 or later,
-+	  If you are using a distro that was released in 2008 or later,
- 	  it should be safe to say N here.
- 
- config RELAY
+int g(void)
+{
+	return 0;
+}
+
+int is_f(int (*p)(void))
+{
+	return p == f;
+}
+
+main()
+{
+	printf("%d %d\n", is_f(f), is_f(g));
+}
+
+would better produce
+1 0
+for anything resembling a sane C compiler.  Comparing pointers to
+functions for equality is a well-defined operation and it's not
+to be messed with.
+
+You _can_ compile g into jump to f, but that's it.  And that, AFAICS,
+is what gcc does.

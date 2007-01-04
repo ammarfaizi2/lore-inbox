@@ -1,116 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750699AbXADRVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751111AbXADRWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbXADRVU (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbXADRVU
+	id S1751111AbXADRWr (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbXADRWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:21:20 -0500
-Received: from smtp0.osdl.org ([65.172.181.24]:37858 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750699AbXADRVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:21:19 -0500
-Date: Thu, 4 Jan 2007 09:18:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
-Message-Id: <20070104091850.c1feee76.akpm@osdl.org>
-In-Reply-To: <20070104142936.GA179@tv-sign.ru>
-References: <20061217223416.GA6872@tv-sign.ru>
-	<20061218162701.a3b5bfda.akpm@osdl.org>
-	<20061219004319.GA821@tv-sign.ru>
-	<20070104113214.GA30377@in.ibm.com>
-	<20070104142936.GA179@tv-sign.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 4 Jan 2007 12:22:47 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56739 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751111AbXADRWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 12:22:46 -0500
+Date: Thu, 4 Jan 2007 17:32:49 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: [PATCH] hpt37x: Two important bug fixes
+Message-ID: <20070104173249.08d0ef41@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007 17:29:36 +0300
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
+The HPT37x driver very carefully handles DMA completions and the needed
+fixups are done on pci registers 0x50 and 0x52. This is unfortunate
+because the actual registers are 0x50 and 0x54. Fixing this offset cures
+the second channel problems reported.
 
-> > In brief:
-> > 
-> > keventd thread					hotplug thread
-> > --------------					--------------
-> > 
-> >   run_workqueue()
-> > 	|
-> >      work_fn()
-> > 	 |
-> > 	flush_workqueue()
-> > 	     |	
-> > 	   flush_cpu_workqueue
-> > 		|				cpu_down()
-> > 	     mutex_unlock(wq_mutex);		     |
-> > 	(above opens window for hotplug)	   mutex_lock(wq_mutex);
-> >     		|				   /* bring down cpu */	
-> > 	     wait_for_completition();		     notifier(CPU_DEAD, ..)
-> > 		| 				       workqueue_cpu_callback
-> > 		| 				        cleanup_workqueue_thread
-> > 		|					  kthread_stop()
-> > 		|
-> > 		|
-> > 	     mutex_lock(wq_mutex); <- Can deadlock
-> > 
-> > 
-> > The kthread_stop() will wait for keventd() thread to exit, but keventd()
-> > is blocked on mutex_lock(wq_mutex) leading to a deadlock.
+Secondly there are some problems with the HPT370 and certain ATA drives.
+The filter code however only filters ATAPI devices due to a
+reversed type check.
 
-This?
+Signed-off-by: Alan Cox <alan@redhat.com>
 
 
---- a/kernel/workqueue.c~flush_workqueue-use-preempt_disable-to-hold-off-cpu-hotplug
-+++ a/kernel/workqueue.c
-@@ -419,18 +419,22 @@ static void flush_cpu_workqueue(struct c
- 		 * Probably keventd trying to flush its own queue. So simply run
- 		 * it by hand rather than deadlocking.
- 		 */
--		mutex_unlock(&workqueue_mutex);
-+		preempt_enable();
-+		/*
-+		 * We can still touch *cwq here because we are keventd, and
-+		 * hot-unplug will be waiting us to exit.
-+		 */
- 		run_workqueue(cwq);
--		mutex_lock(&workqueue_mutex);
-+		preempt_disable();
- 	} else {
- 		struct wq_barrier barr;
+--- linux.vanilla-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-01 21:43:27.000000000 +0000
++++ linux-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-04 15:03:26.071994728 +0000
+@@ -25,7 +25,7 @@
+ #include <linux/libata.h>
  
- 		init_wq_barrier(&barr);
- 		__queue_work(cwq, &barr.work);
+ #define DRV_NAME	"pata_hpt37x"
+-#define DRV_VERSION	"0.5.1"
++#define DRV_VERSION	"0.5.2"
  
--		mutex_unlock(&workqueue_mutex);
-+		preempt_enable();	/* Can no longer touch *cwq */
- 		wait_for_completion(&barr.done);
--		mutex_lock(&workqueue_mutex);
-+		preempt_disable();
- 	}
- }
+ struct hpt_clock {
+ 	u8	xfer_speed;
+@@ -416,7 +416,7 @@
  
-@@ -449,7 +453,7 @@ static void flush_cpu_workqueue(struct c
-  */
- void fastcall flush_workqueue(struct workqueue_struct *wq)
+ static unsigned long hpt370_filter(const struct ata_port *ap, struct ata_device *adev, unsigned long mask)
  {
--	mutex_lock(&workqueue_mutex);
-+	preempt_disable();		/* CPU hotplug */
- 	if (is_single_threaded(wq)) {
- 		/* Always use first cpu's area. */
- 		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
-@@ -459,7 +463,7 @@ void fastcall flush_workqueue(struct wor
- 		for_each_online_cpu(cpu)
- 			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
- 	}
--	mutex_unlock(&workqueue_mutex);
-+	preempt_enable();
- }
- EXPORT_SYMBOL_GPL(flush_workqueue);
+-	if (adev->class != ATA_DEV_ATA) {
++	if (adev->class == ATA_DEV_ATA) {
+ 		if (hpt_dma_blacklisted(adev, "UDMA", bad_ata33))
+ 			mask &= ~ATA_MASK_UDMA;
+ 		if (hpt_dma_blacklisted(adev, "UDMA100", bad_ata100_5))
+@@ -749,7 +749,7 @@
+ {
+ 	struct ata_port *ap = qc->ap;
+ 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+-	int mscreg = 0x50 + 2 * ap->port_no;
++	int mscreg = 0x50 + 4 * ap->port_no;
+ 	u8 bwsr_stat, msc_stat;
  
-_
-
+ 	pci_read_config_byte(pdev, 0x6A, &bwsr_stat);

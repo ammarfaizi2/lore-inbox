@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751111AbXADRWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964941AbXADRW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbXADRWr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbXADRWr
+	id S964941AbXADRW6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbXADRW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:22:47 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56739 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751111AbXADRWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:22:46 -0500
-Date: Thu, 4 Jan 2007 17:32:49 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: [PATCH] hpt37x: Two important bug fixes
-Message-ID: <20070104173249.08d0ef41@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+	Thu, 4 Jan 2007 12:22:58 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:37959 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964941AbXADRW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 12:22:57 -0500
+Date: Thu, 4 Jan 2007 09:22:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 0/33] KVM: MMU: Cache shadow page tables
+Message-Id: <20070104092226.91fa2dfe.akpm@osdl.org>
+In-Reply-To: <459D21DD.5090506@qumranet.com>
+References: <459D21DD.5090506@qumranet.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The HPT37x driver very carefully handles DMA completions and the needed
-fixups are done on pci registers 0x50 and 0x52. This is unfortunate
-because the actual registers are 0x50 and 0x54. Fixing this offset cures
-the second channel problems reported.
+On Thu, 04 Jan 2007 17:48:45 +0200
+Avi Kivity <avi@qumranet.com> wrote:
 
-Secondly there are some problems with the HPT370 and certain ATA drives.
-The filter code however only filters ATAPI devices due to a
-reversed type check.
+> The current kvm shadow page table implementation does not cache shadow 
+> page tables (except for global translations, used for kernel addresses) 
+> across context switches.  This means that after a context switch, every 
+> memory access will trap into the host.  After a while, the shadow page 
+> tables will be rebuild, and the guest can proceed at native speed until 
+> the next context switch.
+> 
+> The natural solution, then, is to cache shadow page tables across 
+> context switches.  Unfortunately, this introduces a bucketload of problems:
+> 
+> - the guest does not notify the processor (and hence kvm) that it 
+> modifies a page table entry if it has reason to believe that the 
+> modification will be followed by a tlb flush.  It becomes necessary to 
+> write-protect guest page tables so that we can use the page fault when 
+> the access occurs as a notification.
+> - write protecting the guest page tables means we need to keep track of 
+> which ptes map those guest page table. We need to add reverse mapping 
+> for all mapped writable guest pages.
+> - when the guest does access the write-protected page, we need to allow 
+> it to perform the write in some way.  We do that either by emulating the 
+> write, or removing all shadow page tables for that page and allowing the 
+> write to proceed, depending on circumstances.
+> 
+> This patchset implements the ideas above.  While a lot of tuning remains 
+> to be done (for example, a sane page replacement algorithm), a guest 
+> running with this patchset applied is much faster and more responsive 
+> than with 2.6.20-rc3.  Some preliminary benchmarks are available in 
+> http://article.gmane.org/gmane.comp.emulators.kvm.devel/661.
+> 
+> The patchset is bisectable compile-wise.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
-
---- linux.vanilla-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-01 21:43:27.000000000 +0000
-+++ linux-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-04 15:03:26.071994728 +0000
-@@ -25,7 +25,7 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME	"pata_hpt37x"
--#define DRV_VERSION	"0.5.1"
-+#define DRV_VERSION	"0.5.2"
- 
- struct hpt_clock {
- 	u8	xfer_speed;
-@@ -416,7 +416,7 @@
- 
- static unsigned long hpt370_filter(const struct ata_port *ap, struct ata_device *adev, unsigned long mask)
- {
--	if (adev->class != ATA_DEV_ATA) {
-+	if (adev->class == ATA_DEV_ATA) {
- 		if (hpt_dma_blacklisted(adev, "UDMA", bad_ata33))
- 			mask &= ~ATA_MASK_UDMA;
- 		if (hpt_dma_blacklisted(adev, "UDMA100", bad_ata100_5))
-@@ -749,7 +749,7 @@
- {
- 	struct ata_port *ap = qc->ap;
- 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
--	int mscreg = 0x50 + 2 * ap->port_no;
-+	int mscreg = 0x50 + 4 * ap->port_no;
- 	u8 bwsr_stat, msc_stat;
- 
- 	pci_read_config_byte(pdev, 0x6A, &bwsr_stat);
+Is this intended for 2.6.20, or would you prefer that we release what we
+have now and hold this off for 2.6.21?

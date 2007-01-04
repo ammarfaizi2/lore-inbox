@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750955AbXADSxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932227AbXADS4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbXADSxI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbXADSxI
+	id S932227AbXADS4F (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbXADS4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:53:08 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2902 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750955AbXADSxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:53:04 -0500
-Date: Thu, 4 Jan 2007 19:53:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jdike@karaya.com
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove duplicate MMAPPER Kconfig option
-Message-ID: <20070104185307.GE20714@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 4 Jan 2007 13:56:04 -0500
+Received: from gate.crashing.org ([63.228.1.57]:55740 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932227AbXADS4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:56:01 -0500
+In-Reply-To: <Pine.LNX.4.64.0701040937460.3661@woody.osdl.org>
+References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com> <27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org> <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com> <8069085182dff3b0e63a661d81804dbb@kernel.crashing.org> <Pine.LNX.4.64.0701040937460.3661@woody.osdl.org>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <f73987269d58cee1b67fcf1d30c9df34@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, Albert Cahalan <acahalan@gmail.com>,
+       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
+       mikpe@it.uu.se
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: kernel + gcc 4.1 = several problems
+Date: Thu, 4 Jan 2007 19:53:59 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This option is already in arch/um/Kconfig.char
+>>> (in which case, nearly all real-world code is broken)
+>>
+>> Not "nearly all" -- but lots of code, yes.
+>
+> I wouldn't say "lots of code". I would say "all real projects".
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+All projects that tell the compiler they're written in ISO C,
+while they're not, can easily break, sure.  You can't say this
+is GCC's fault; sure in some cases decisions were made that
+resulted in more of those programs breaking than was really
+necessary, but it's obviously *impossible* to prevent all
+from breaking.
 
---- linux-2.6.20-rc2-mm1/drivers/block/Kconfig.old	2007-01-04 17:43:51.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/block/Kconfig	2007-01-04 17:44:19.000000000 +0100
-@@ -236,23 +236,6 @@
- 	bool
- 	default BLK_DEV_UBD
- 
--config MMAPPER
--	tristate "Example IO memory driver (BROKEN)"
--	depends on UML && BROKEN
--	---help---
--          The User-Mode Linux port can provide support for IO Memory
--          emulation with this option.  This allows a host file to be
--          specified as an I/O region on the kernel command line. That file
--          will be mapped into UML's kernel address space where a driver can
--          locate it and do whatever it wants with the memory, including
--          providing an interface to it for UML processes to use.
--
--          For more information, see
--          <http://user-mode-linux.sourceforge.net/iomem.html>.
--
--          If you'd like to be able to provide a simulated IO port space for
--          User-Mode Linux processes, say Y.  If unsure, say N.
--
- config BLK_DEV_LOOP
- 	tristate "Loopback device support"
- 	---help---
+And yes it's true: most people do not program in ISO C at all,
+_even if they think they do_, simply because they are not aware
+of all the rules.  For some of the areas where most of the
+mistakes are made, for example aliasing rules and signed overflow,
+GCC provides helpful options to switch behaviour to something
+that makes those people's programs work.  You can also use those
+options if you have made a conscious decision that you want to
+write your code in one of the resulting dialects of C.
+
+
+Segher
+
+p.s.  If it's decided to not use -fwrapv, a debug option that
+sets -ftrapv can be introduced -- it will make it a BUG() if
+any (accidental) signed overflow happens after all.
 

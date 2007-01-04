@@ -1,113 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030253AbXADWIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965087AbXADWN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbXADWIl (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbXADWIl
+	id S965087AbXADWN1 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbXADWN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:08:41 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:34623 "EHLO
-	pfepb.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030253AbXADWIk (ORCPT
+	Thu, 4 Jan 2007 17:13:27 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:41712 "EHLO
+	rwcrmhc14.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965087AbXADWN1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:08:40 -0500
-Subject: Re: BUG, 2.6.20-rc3 raid autodetection
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e0701041405l38641d97jba652ba6645c0d08@mail.gmail.com>
-References: <1167936465.6594.5.camel@localhost>
-	 <58cb370e0701041107n5369edfdj2efc871de0fe7d24@mail.gmail.com>
-	 <1167940677.8595.1.camel@localhost>
-	 <58cb370e0701041207s5c2e3e26j434dd7fe6809e50b@mail.gmail.com>
-	 <1167944429.8595.3.camel@localhost>
-	 <58cb370e0701041306w5c99c974j1137883b7b95a8@mail.gmail.com>
-	 <1167947115.8595.6.camel@localhost>
-	 <58cb370e0701041405l38641d97jba652ba6645c0d08@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 04 Jan 2007 23:08:34 +0100
-Message-Id: <1167948514.8595.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 4 Jan 2007 17:13:27 -0500
+X-Greylist: delayed 301 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:13:27 EST
+Message-ID: <459D7AC8.1000907@comcast.net>
+Date: Thu, 04 Jan 2007 17:08:08 -0500
+From: Ed Sweetman <safemode2@comcast.net>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: Mark Lord <lkml@rtr.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: S.M.A.R.T no longer available in 2.6.20-rc2-mm2 with libata
+References: <459C5D6C.5010509@comcast.net> <459D1E55.60206@rtr.ca>
+In-Reply-To: <459D1E55.60206@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2007-01-04 at 23:05 +0100, Bartlomiej Zolnierkiewicz wrote:
-> On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > On Thu, 2007-01-04 at 22:06 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > > On Thu, 2007-01-04 at 21:07 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > > > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > > > > On Thu, 2007-01-04 at 20:07 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > > > > > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > > > > > > Hello.
-> > > > > > > >
-> > > > > > > > i just attempted to test .20-rc3-git4 on a box, which has 6 drives in
-> > > > > > > > raid5. it uses raid autodetection, and 2 ide controllers (via and
-> > > > > > > > promise 20269).
-> > > > > > > >
-> > > > > > > > there are two problems.
-> > > > > > > >
-> > > > > > > > first, and most importantly, it doesent autodetect, i attempted with
-> > > > > > > > both the old ide drivers, and the new pata on libata drivers, the drives
-> > > > > > > > appears to be found, but the raid autoassembling just doesent happen.
-> > > > > > > >
-> > > > > > > > this is .17, which works:
-> > > > > > > > http://sh.nu/p/8001
-> > > > > > > >
-> > > > > > > > this is .20-rc3-git4 which doesent work, in pata-on-libata mode:
-> > > > > > > > http://sh.nu/p/8000
-> > > > > > > >
-> > > > > > > > this is .20-rc3-git4 which doesent work, in old ide mode:
-> > > > > > > > http://sh.nu/p/8002
-> > > > > > >
-> > > > > > > For some reason IDE disk driver is not claiming IDE devices.
-> > > > > > >
-> > > > > > > Could you please double check that IDE disk driver is built-in
-> > > > > > > (CONFIG_BLK_DEV_IDEDISK=y in the kernel configuration)
-> > > > > > > and not compiled as module?
-> > > > > > i need not check even once, i do not have module support enabled, so
-> > > > >
-> > > > > OK
-> > > > >
-> > > > > > everything 1000000% surely is built in. this is the case for .17 too
-> > > > > > (and earlier, this box was started with .15 i think.)
-> > > > >
-> > > > > Could you send me your config?
-> > > > > I'll try to reproduce this locally.
-> > > > sure thing.
-> > > >
-> > > > http://sh.nu/p/8004 <-- .17 working
-> > >
-> > > CONFIG_BLK_DEV_IDEDISK=y
-> > >
-> > > > http://sh.nu/p/8005 <-- .20-rc3-git4 nonworking, idemode, the one with
-> > > > libata i dont have anymore, but the only difference is that i use the
-> > > > libata drivers, but as its same result, shouldnt matter
-> > >
-> > > # CONFIG_BLK_DEV_IDEDISK is not set
-> > >
-> > > so not everything is "1000000% surely" built-in ;)
-> > i see your point, im afraid i may have misinterpreted you, since you
-> > said "and not compiled as module", so i thought you meant i had to make
-> > sure it wasnt moduled only.
-> 
-> You were right - I forgot about "CONFIG_BLK_DEV_IDEDISK=n" case.
-> 
-> > i will try with this now, what about pataonlibata, do i need this for
-> 
-> Please report if this fixes the issue.
-yeah it did.
-> 
-> > that too?
-> 
-> for libata you need SCSI disk driver: CONFIG_BLK_DEV_SD=y
-> 
-> [ libata is not independent subsystem like IDE but depends on SCSI,
->   and I really don't know why this is not mentioned in config help ]
-i knew that, i just thought it may select what it required, though i can
-see that it isnt strictly required, just what one wishes often. :)
+Mark Lord wrote:
+> Ed Sweetman wrote:
+>> Not sure what went on between 2.6.19-rc5-mm2 and 2.6.20-rc2-mm2 in 
+>> libata land but SMART is no longer available on my hdds. 
+>
+> It's working for me with 2.6.20-rc3, ata_piix libata driver.
+>
+> -ml
+>
 
-thanks for your help, will try with libata now.
-> 
-
+Well, not in the sata_nv libata driver.  The only change I make is the 
+kernel (config is basically the same and nothing in the bios or hardware 
+is altered).  

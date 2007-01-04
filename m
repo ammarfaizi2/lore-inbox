@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932303AbXADHLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932279AbXADHRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbXADHLp (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 02:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbXADHLp
+	id S932279AbXADHRM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 02:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbXADHRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 02:11:45 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:13268 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932303AbXADHLo (ORCPT
+	Thu, 4 Jan 2007 02:17:12 -0500
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:20583 "HELO
+	smtp104.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932279AbXADHRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 02:11:44 -0500
+	Thu, 4 Jan 2007 02:17:11 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=i1pQXVKbcvjXO0P3p4MnNPpFpMoJNN/w45l2+W8SbxPs/UFeUkx5YYIoPVmIhKi+J/BEdU7HuAEJrQ8cY89nIVyxDmDDNaUkCeYI1w62SZBM5YaT+y2aVvuSCHBPIDPAKNep9RUYesRoUa50OEYlGDZkBEmK3DSssL7QAyOQpjA=
-Message-ID: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>
-Date: Thu, 4 Jan 2007 02:11:42 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: mikpe@it.uu.se, s0348365@sms.ed.ac.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de
-Subject: Re: kernel + gcc 4.1 = several problems
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=TSUHqVY4tYRzGNDsSganj53SXISkmepBFTmxycRFmpCYaaL9r2wI/cW5E/jOZZGK8douJ2WingTG4PJnjY3ZVixYVPpzv/G6QcfH10wD6hrIbIY0GmUdD4/hS8KACHTUBJUy2Jcf9KNaC4eHE7CKyV0DCSYVHm+DFySVBzPRvmE=  ;
+X-YMail-OSG: NQNrRjQVM1lMsF9CXBg48XFT5OeNFyob.CVPJ.e4jFLDHuiit_mdQQVmwSYZ_tD0RFpRjMijRtQcOd9d95diCn_zatz6h9qNoHO_4Gi.wx2GomqjCo2RDXM8NSfRKisvUnZmtjVLeq6TD28-
+Message-ID: <459CA9D5.4080708@yahoo.com.au>
+Date: Thu, 04 Jan 2007 18:16:37 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: David Miller <davem@davemloft.net>, torvalds@osdl.org, gelma@gelma.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
+References: <20070103214121.997be3e6.akpm@osdl.org>	<459C98BF.5080409@yahoo.com.au>	<20070103221220.c4589831.akpm@osdl.org>	<20070103.225607.133169483.davem@davemloft.net> <20070103230629.a2e734b9.akpm@osdl.org>
+In-Reply-To: <20070103230629.a2e734b9.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> [probably Mikael Pettersson] writes:
+Andrew Morton wrote:
+> On Wed, 03 Jan 2007 22:56:07 -0800 (PST)
+> David Miller <davem@davemloft.net> wrote:
 
->> The suggestions I've had so far which I have not yet tried:
+>>>>Anyway that leaves us with the question of why Andrea's database is getting
+>>>>corrupted. Hopefully he can give us a minimal test-case.
+>>>
+>>>It'd odd that stories of pre-2.6.19 BerkeleyDB corruption are now coming
+>>>out of the woodwork.  It's the first I've ever heard of them.
 >>
->> - Select a different x86 CPU in the config.
->>   - Unfortunately the C3-2 flags seem to simply tell GCC to
->>     schedule for ppro (like i686) and enabled MMX and SSE
->>   - Probably useless
->
-> Actually, try this one. Try using something that doesn't like "cmov".
-> Maybe the C3-2 simply has some internal cmov bugginess.
+>>Note that the original rtorrent debian bug report was against 2.6.18
+> 
+> 
+> I think that was 2.6.18+debian-added-dirty-page-tracking-patches.
+> 
+> If that memory is correct, I'll assert (and emphasise) that the cause of the
+> alleged BerkeleyDB corruption is not known at this time.
 
-Of course that changes register usage, register spilling,
-and thus ultimately even the stack layout. :-(
+I think that's right. Even if it were plain 2.6.18 that had rtorrent
+corruption, then it would be more evidence we still have an unidentified
+bug, because none of the patches fixed anything we have found to be
+buggy in 2.6.18.
 
-Adjusting gcc flags to eliminate optimizations is another way to go.
-Adding -fwrapv would be an excellent start. Lack of this flag breaks
-most code which checks for integer wrap-around. The compiler "knows"
-that signed integers don't ever wrap, and thus eliminates any code
-which checks for values going negative after a wrap-around. I could
-imagine this affecting a switch() or other jump table.
+> The post-2.6.19 "fix" might make it go away.  But if it does, we do not know
+> why, and it might still be there, only harder to hit.
+
+Likely. I think it is only hiding the bug (maybe the writeout patterns
+from shared dirty accounting are changing timings or codepaths).
+
+Of course, this means that we still can't confirm whether or not it is a
+kernel bug. It could be a BDB bug that's being hidden.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

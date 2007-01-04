@@ -1,92 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964813AbXADM1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964795AbXADM2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbXADM1H (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 07:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbXADM1H
+	id S964795AbXADM2M (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 07:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbXADM2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 07:27:07 -0500
-Received: from mx2.go2.pl ([193.17.41.42]:45364 "EHLO poczta.o2.pl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S964812AbXADM1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 07:27:05 -0500
-Date: Thu, 4 Jan 2007 13:28:43 +0100
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: Jon Maloy <jon.maloy@ericsson.com>
-Cc: Eric Sesterhenn <snakebyte@gmx.de>, Per Liden <per.liden@ericsson.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "'tipc-discussion\@lists\.sourceforge\.net'" 
-	<tipc-discussion@lists.sourceforge.net>
-Subject: Re: [PATCH] tipc: checking returns and Re: Possible Circular Locking in TIPC
-Message-ID: <20070104122843.GC3175@ff.dom.local>
-References: <20061228121702.GA5076@ff.dom.local> <459C396B.1090508@ericsson.com>
+	Thu, 4 Jan 2007 07:28:12 -0500
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:3982 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S964795AbXADM2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 07:28:11 -0500
+Date: Thu, 4 Jan 2007 13:28:06 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux I2C <i2c@lm-sensors.org>
+Subject: [GIT PULL] More i2c updates for 2.6.20
+Message-Id: <20070104132806.79cf015e.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <459C396B.1090508@ericsson.com>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 11:16:59PM +0000, Jon Maloy wrote:
-> See my comments below.
-> Regards
-> ///jon
-> 
-> Jarek Poplawski wrote:
-> 
-> >..........
-> >
-> >Maybe I misinterpret this but, IMHO lockdep
-> >complains about locks acquired in different
-> >order: tipc_ref_acquire() gets ref_table_lock 
-> >and then tipc_ret_table.entries[index]->lock,
-> >but tipc_deleteport() inversely (with:
-> >tipc_port_lock() and tipc_ref_discard()).
-> >I hope maintainers will decide the correct
-> >order.
-> > 
-> >
-> This order is correct. There can never be parallel access to the
-> same _instance_ of tipc_ret_table.entries[index]->lock from
-> the two functions you mention.
-> Note that tipc_deleteport() takes as argument the reference (=index)
-> returned from tipc_ref_acquire(), so  it can not be (and is not) called
-> until and unless the latter function has returned a valid reference.
-> As a parallel, you can't do free() on a memory chunk until
-> malloc() has given you a pointer to it.
+Linus,
 
-I'm happy the order is correct! But the warning 
-probably will be back. I know lockdep is sometimes
-too careful but nevertheless some change is needed
-to fix a real bug or give additional information
-to lockdep. 
+Please pull the i2c subsystem updates for Linux 2.6.20 from:
 
-> >Btw. there is a problem with tipc_ref_discard():
-> >it should be called with tipc_port_lock, but
-> >how to discard a ref if this lock can't be
-> >acquired? Is it OK to call it without the lock
-> >like in subscr_named_msg_event()?
-> > 
-> >
-> I suspect you are mixing up things here. 
-> We are handling two different reference entries and two
-> different locks in this function.
-> One reference entry points to a subscription instance, and its
-> reference (index) is obtainable from subscriber->ref. So, we
-> could easily lock the entry if needed. However, in this
-> particular case it is unnecessary, since there is no chance that
-> anybody else could have obtained the new reference, and
-> hence no risk for race conditions.
-> The other reference entry was intended to point to a new port,
-> but, since we didn't obtain any reference in the first place,
-> there is no port to delete and no reference to discard.
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
-I admit I don't know this program and I hope I
-didn't mislead anybody with my message. I only
-tried to point at some doubts and maybe this
-function could be better commented about when
-the lock is needed.
+These are late fixes that I want to have in 2.6.20, fixing compilation
+breakage of the new i2c-pnx bus driver, and helping compatibility
+with regards to planned i2c-core cleanups.
 
-Thanks for explanations & best regards,
+ Documentation/feature-removal-schedule.txt |   17 +++++++++++++++++
+ MAINTAINERS                                |    6 ++++++
+ drivers/i2c/busses/Kconfig                 |    9 ---------
+ drivers/i2c/busses/i2c-pnx.c               |    7 +------
+ drivers/i2c/i2c-core.c                     |   28 ++++++++++++++++++++++++----
+ 5 files changed, 48 insertions(+), 19 deletions(-)
 
-Jarek P.
+---------------
+
+David Brownell:
+      i2c: Migration aids for i2c_adapter.dev removal
+
+Vitaly Wool:
+      i2c-pnx: Fix interrupt handler, get rid of EARLY config option
+      i2c-pnx: Add entry to MAINTAINERS
+
+Thanks,
+-- 
+Jean Delvare

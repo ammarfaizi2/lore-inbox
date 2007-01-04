@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965129AbXADWjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965084AbXADWsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbXADWjM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbXADWjM
+	id S965084AbXADWsg (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbXADWsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:39:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48851 "EHLO gate.crashing.org"
+	Thu, 4 Jan 2007 17:48:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37790 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965129AbXADWjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:39:12 -0500
-Subject: Re: [RFC: 2.6 patch] remove the broken VIDEO_PLANB driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mich Lanners <mlan@cpu.lu>
-Cc: Adrian Bunk <bunk@stusta.de>, linuxppc-dev@ozlabs.org,
-       v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
-       mchehab@infradead.org
-In-Reply-To: <tkrat.5fdfdb1db356c580@cpu.lu>
-References: <20070104185323.GF20714@stusta.de>
-	 <1167946479.5273.18.camel@localhost.localdomain>
-	 <tkrat.5fdfdb1db356c580@cpu.lu>
-Content-Type: text/plain
-Date: Fri, 05 Jan 2007 09:35:26 +1100
-Message-Id: <1167950126.5273.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	id S965084AbXADWsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:48:35 -0500
+Message-ID: <459D842C.4060900@redhat.com>
+Date: Thu, 04 Jan 2007 16:48:12 -0600
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Mitchell Blank Jr <mitch@sfgoth.com>, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops
+ return values
+References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com> <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> Anybody want to send in the patch that just generates separate versions 
+> for
+> 
+> 	loff_t eio_llseek(struct file *file, loff_t offset, int origin)
+> 	{
+> 		return -EIO;
+> 	}
+> 
+> 	int eio_readdir(struct file *filp, void *dirent, filldir_t filldir)
+> 	{
+> 		return -EIO;
+> 	..
+> 
+> and so on?
 
-> If you need explanations about the code or the hardware, don't hesitate
-> to ask. Not sure what I still remember, but I still have my old paper
-> notes.
+That's more or less what I sent at http://lkml.org/lkml/2007/1/3/244
 
-Heh, ok. No idea when I'll have time to look tho.
++static int bad_file_readdir(struct file * filp, void * dirent,
++			filldir_t filldir)
++{
++	return -EIO;
++}
 
-Ben.
+... etc
 
-
+Thanks,
+-Eric

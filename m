@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932284AbXADTHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964794AbXADTI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbXADTHM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:07:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbXADTHL
+	id S964794AbXADTI7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbXADTI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:07:11 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:57705 "EHLO
+	Thu, 4 Jan 2007 14:08:59 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:59437 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932284AbXADTHJ (ORCPT
+	with ESMTP id S964817AbXADTI6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:07:09 -0500
+	Thu, 4 Jan 2007 14:08:58 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=q53vZ80gQR6Rqrwr2U6deQXm82fF3qQMsKF5s35BUxA8seaXIyScHHRQVm7o3JFwo3nsvSO56ndmVo3C7WTDyNtuMjikmffDJIoWY2BNkeLtpX8fKRpvMLfzyIlz6BVEirVnLU3+2IXL5Y6OX6QLupqnpqzo3ETRfgVXXluWq/A=
-Message-ID: <58cb370e0701041107n5369edfdj2efc871de0fe7d24@mail.gmail.com>
-Date: Thu, 4 Jan 2007 20:07:08 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: "Kasper Sandberg" <lkml@metanurb.dk>
-Subject: Re: BUG, 2.6.20-rc3 raid autodetection
-Cc: "LKML Mailinglist" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1167936465.6594.5.camel@localhost>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=RpHWtbeo7kuF1IlfE6xKa+3Uzu3SurrMmSru5EOAlBKcXDaKTQJ0UE57+EEOVhsQi2tR6+SsA6tdghExJCcjEkNHjSmmyeFK6gbSFUhWjajvPO6pfE3IIvzdqJYfCVUtONngpaCe0Wt4/So/NkcxQSsMbkvshVYl6shdeYVfnY8=
+Date: Thu, 4 Jan 2007 19:07:00 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 8/8] user ns: implement user ns unshare
+Message-ID: <20070104190700.GB17863@slug>
+References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181310.GI11377@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1167936465.6594.5.camel@localhost>
+In-Reply-To: <20070104181310.GI11377@sergelap.austin.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> Hello.
->
-> i just attempted to test .20-rc3-git4 on a box, which has 6 drives in
-> raid5. it uses raid autodetection, and 2 ide controllers (via and
-> promise 20269).
->
-> there are two problems.
->
-> first, and most importantly, it doesent autodetect, i attempted with
-> both the old ide drivers, and the new pata on libata drivers, the drives
-> appears to be found, but the raid autoassembling just doesent happen.
->
-> this is .17, which works:
-> http://sh.nu/p/8001
->
-> this is .20-rc3-git4 which doesent work, in pata-on-libata mode:
-> http://sh.nu/p/8000
->
-> this is .20-rc3-git4 which doesent work, in old ide mode:
-> http://sh.nu/p/8002
+On Thu, Jan 04, 2007 at 12:13:10PM -0600, Serge E. Hallyn wrote:
+> From: Serge E. Hallyn <serue@us.ibm.com>
+> Subject: [PATCH -mm 8/8] user ns: implement user ns unshare
+> 
+> Implement CLONE_NEWUSER flag useable at clone/unshare.
+> 
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> ---
+  
+>  int copy_user_ns(int flags, struct task_struct *tsk)
+>  {
+> -	struct user_namespace *old_ns = tsk->nsproxy->user_ns;
+> +	struct user_namespace *new_ns, *old_ns = tsk->nsproxy->user_ns;
+>  	int err = 0;
+        ^^^^^^^^^^^^
+The "= 0" is superfluous here.
+>  
+>  	if (!old_ns)
+>  		return 0;
+>  
+>  	get_user_ns(old_ns);
+> -	return err;
+> +	if (!(flags & CLONE_NEWUSER))
+> +		return 0;
+> +	err = -EPERM;
+> +	if (!capable(CAP_SYS_ADMIN))
+> +		goto out;
+> +	err = -ENOMEM;
+> +	new_ns = clone_user_ns(old_ns);
+> +	if (!new_ns)
+> +		goto out;
+> +
+> +	tsk->nsproxy->user_ns = new_ns;
+> +	err = 0;
+> +out:
+> +	put_user_ns(old_ns);
+> +	return 0;
+        ^^^^^^^^^
+Should be "return err;"
 
-For some reason IDE disk driver is not claiming IDE devices.
-
-Could you please double check that IDE disk driver is built-in
-(CONFIG_BLK_DEV_IDEDISK=y in the kernel configuration)
-and not compiled as module?
-
-Bart
+Regards,
+Frederik
+>  }
+>  
+>  void free_user_ns(struct kref *kref)
+> -- 
+> 1.4.1
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

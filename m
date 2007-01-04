@@ -1,212 +1,98 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030212AbXADUvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030208AbXADUwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbXADUvH (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 15:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbXADUvG
+	id S1030208AbXADUwW (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 15:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbXADUwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 15:51:06 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:43520 "EHLO
-	mail.cs.helsinki.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030206AbXADUvF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 15:51:05 -0500
-Date: Thu, 4 Jan 2007 22:51:03 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.helsinki.fi>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
-In-Reply-To: <Pine.LNX.4.64.0701041042020.21800@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0701042249270.10892@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
- <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
- <Pine.LNX.4.64.0701041042020.21800@schroedinger.engr.sgi.com>
+	Thu, 4 Jan 2007 15:52:22 -0500
+Received: from smtp0.osdl.org ([65.172.181.24]:51802 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030208AbXADUwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 15:52:21 -0500
+Date: Thu, 4 Jan 2007 12:51:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Stelian Pop <stelian@popies.net>, Len Brown <lenb@kernel.org>,
+       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-Id: <20070104125107.b82db604.akpm@osdl.org>
+In-Reply-To: <20070104191512.GC25619@inferi.kami.home>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
+	<200701040024.29793.lenb@kernel.org>
+	<1167905384.7763.36.camel@localhost.localdomain>
+	<20070104191512.GC25619@inferi.kami.home>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+On Thu, 4 Jan 2007 20:15:12 +0100
+Mattia Dongili <malattia@linux.it> wrote:
 
-On Thu, 4 Jan 2007, Christoph Lameter wrote:
-> Good idea if you can make it so that it is clean. There is some 
-> additional processing in cache_grow() that would have to be taken into 
-> account.
+> On Thu, Jan 04, 2007 at 11:09:44AM +0100, Stelian Pop wrote:
+> > Le jeudi 04 janvier 2007 __ 00:24 -0500, Len Brown a __crit :
+> > 
+> > > > > I'd like to keep this driver out-of-tree
+> > > > > until we prove that we can't enhance the
+> > > > > generic code to handle this hardware
+> > > > > without the addition of a new driver.
+> > > > 
+> > > > How long is this going to take ?
+> > > 
+> > > How about 2.6.21?
+> > 
+> > Good news !
+> > 
+> > > What needs to happen is
+> > > 1. a maintainer for sony_acpi.c needs to step forward
+> > >     I can't do this, I'm not allowed to be in the reverse engineering business.
+> > 
+> > Well, I can't do this either, because I just don't have the required
+> > hardware anymore.
+> > 
+> > If someone want to step forward now it is a great time !
+> 
+> I have the hw and I'd be happy to do some basic working on the code
 
-Something like this (totally untested) patch?
+Neato, thanks.
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 0d4e574..48fa397 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1608,8 +1608,19 @@ static void *kmem_getpages(struct kmem_cache *cachep, gfp_t flags, int nodeid)
- {
- 	struct page *page;
- 	int nr_pages;
-+	void *ret;
- 	int i;
- 
-+	/*
-+	 * The test for missing atomic flag is performed here, rather than
-+	 * the more obvious place, simply to reduce the critical path length
-+	 * in kmem_cache_alloc(). If a caller is seriously mis-behaving they
-+	 * will eventually be caught here (where it matters).
-+	 */
-+	kmem_flagcheck(cachep, flags);
-+	if (flags & __GFP_WAIT)
-+		local_irq_enable();
-+
- #ifndef CONFIG_MMU
- 	/*
- 	 * Nommu uses slab's for process anonymous memory allocations, and thus
-@@ -1621,8 +1632,10 @@ static void *kmem_getpages(struct kmem_cache *cachep, gfp_t flags, int nodeid)
- 	flags |= cachep->gfpflags;
- 
- 	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
--	if (!page)
--		return NULL;
-+	if (!page) {
-+		ret = NULL;
-+		goto out;
-+	}
- 
- 	nr_pages = (1 << cachep->gfporder);
- 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
-@@ -1633,7 +1646,12 @@ static void *kmem_getpages(struct kmem_cache *cachep, gfp_t flags, int nodeid)
- 			NR_SLAB_UNRECLAIMABLE, nr_pages);
- 	for (i = 0; i < nr_pages; i++)
- 		__SetPageSlab(page + i);
--	return page_address(page);
-+
-+	ret = page_address(page);
-+  out:
-+	if (flags & __GFP_WAIT)
-+		local_irq_disable();
-+	return ret;
- }
- 
- /*
-@@ -2714,7 +2732,7 @@ static void slab_map_pages(struct kmem_cache *cache, struct slab *slab,
-  * Grow (by 1) the number of slabs within a cache.  This is called by
-  * kmem_cache_alloc() when there are no active objs left in a cache.
-  */
--static int cache_grow(struct kmem_cache *cachep,
-+static int __cache_grow(struct kmem_cache *cachep,
- 		gfp_t flags, int nodeid, void *objp)
- {
- 	struct slab *slabp;
-@@ -2754,39 +2772,17 @@ static int cache_grow(struct kmem_cache *cachep,
- 
- 	offset *= cachep->colour_off;
- 
--	if (local_flags & __GFP_WAIT)
--		local_irq_enable();
--
--	/*
--	 * The test for missing atomic flag is performed here, rather than
--	 * the more obvious place, simply to reduce the critical path length
--	 * in kmem_cache_alloc(). If a caller is seriously mis-behaving they
--	 * will eventually be caught here (where it matters).
--	 */
--	kmem_flagcheck(cachep, flags);
--
--	/*
--	 * Get mem for the objs.  Attempt to allocate a physical page from
--	 * 'nodeid'.
--	 */
--	if (!objp)
--		objp = kmem_getpages(cachep, flags, nodeid);
--	if (!objp)
--		goto failed;
--
- 	/* Get slab management. */
- 	slabp = alloc_slabmgmt(cachep, objp, offset,
- 			local_flags & ~GFP_THISNODE, nodeid);
- 	if (!slabp)
--		goto opps1;
-+		return 0;
- 
- 	slabp->nodeid = nodeid;
- 	slab_map_pages(cachep, slabp, objp);
- 
- 	cache_init_objs(cachep, slabp, ctor_flags);
- 
--	if (local_flags & __GFP_WAIT)
--		local_irq_disable();
- 	check_irq_off();
- 	spin_lock(&l3->list_lock);
- 
-@@ -2796,12 +2792,28 @@ static int cache_grow(struct kmem_cache *cachep,
- 	l3->free_objects += cachep->num;
- 	spin_unlock(&l3->list_lock);
- 	return 1;
--opps1:
--	kmem_freepages(cachep, objp);
--failed:
--	if (local_flags & __GFP_WAIT)
--		local_irq_disable();
--	return 0;
-+}
-+
-+static int cache_grow(struct kmem_cache *cachep, gfp_t flags, int nodeid)
-+{
-+	void *objp;
-+	int ret;
-+
-+	if (flags & __GFP_NO_GROW)
-+		return 0;
-+
-+	/*
-+	 * Get mem for the objs.  Attempt to allocate a physical page from
-+	 * 'nodeid'.
-+	 */
-+	objp = kmem_getpages(cachep, flags, nodeid);
-+	if (!objp)
-+		return 0;
-+	
-+	ret = __cache_grow(cachep, flags, nodeid, obj);
-+	if (!ret)
-+		kmem_freepages(cachep, objp);
-+	return ret;
- }
- 
- #if DEBUG
-@@ -3014,7 +3026,7 @@ alloc_done:
- 
- 	if (unlikely(!ac->avail)) {
- 		int x;
--		x = cache_grow(cachep, flags | GFP_THISNODE, node, NULL);
-+		x = cache_grow(cachep, flags | GFP_THISNODE, node);
- 
- 		/* cache_grow can reenable interrupts, then ac could change. */
- 		ac = cpu_cache_get(cachep);
-@@ -3288,18 +3300,13 @@ retry:
- 		 * We may trigger various forms of reclaim on the allowed
- 		 * set and go into memory reserves if necessary.
- 		 */
--		if (local_flags & __GFP_WAIT)
--			local_irq_enable();
--		kmem_flagcheck(cache, flags);
- 		obj = kmem_getpages(cache, flags, -1);
--		if (local_flags & __GFP_WAIT)
--			local_irq_disable();
- 		if (obj) {
- 			/*
- 			 * Insert into the appropriate per node queues
- 			 */
- 			nid = page_to_nid(virt_to_page(obj));
--			if (cache_grow(cache, flags, nid, obj)) {
-+			if (__cache_grow(cache, flags, nid, obj)) {
- 				obj = ____cache_alloc_node(cache,
- 					flags | GFP_THISNODE, nid);
- 				if (!obj)
-@@ -3370,7 +3377,7 @@ retry:
- 
- must_grow:
- 	spin_unlock(&l3->list_lock);
--	x = cache_grow(cachep, flags | GFP_THISNODE, nodeid, NULL);
-+	x = cache_grow(cachep, flags | GFP_THISNODE, nodeid);
- 	if (x)
- 		goto retry;
- 
+> but:
+> - I'll probably need some help;
+> - I'll have an almost-blackout between the end of February and the end
+>   of April as I'm moving to a different country and I'll need some time
+>   before I can be active again (I hope I'll have at least easy mail
+>   access for all the time though).
+> Anyway if it is still ok I can maintain the thing, to months seems
+> enough to give the driver a shape.
+> 
+> > > 2. /proc/acpi/sony API needs to be deleted
+> > > 
+> > > 3. source needs to move out of drivers/acpi, and into drivers/misc along with msi.
+> 
+> And turn extra-backlight features into platform_device stuff? So 2 and 3
+> can come together.
+> 
+> Moreover, I own an SZ72B and an older GR7 and have come to the same
+> findings of Cacy, plus a patch to allow a smarter "debug" mode.
+> So, how to proceed? (I've just cloned the linux-acpi-2.6 tree)
+> 
+
+I have a VGN-something-or-other notebook and I use this driver regularly.
+
+The place to start (please) is the patches in -mm:
+
+2.6-sony_acpi4.patch
+sony_apci-resume.patch
+sony_apci-resume-fix.patch
+acpi-add-backlight-support-to-the-sony_acpi.patch
+acpi-add-backlight-support-to-the-sony_acpi-v2.patch
+video-sysfs-support-take-2-add-dev-argument-for-backlight_device_register-sony_acpi-fix.patch
+
+It presently has both the /proc and /sys/.../backlight/.. interfaces, so the first
+job would be to chop out the /proc stuff.
+
+

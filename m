@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965119AbXADWZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965128AbXADW0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965119AbXADWZP (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbXADWZP
+	id S965128AbXADW0r (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbXADW0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:25:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3539 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S965119AbXADWZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:25:14 -0500
-Date: Thu, 4 Jan 2007 23:25:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.37
-Message-ID: <20070104222517.GL20714@stusta.de>
-References: <200612311709_MC3-1-D6E2-720A@compuserve.com>
+	Thu, 4 Jan 2007 17:26:47 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:33683 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965120AbXADW0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:26:46 -0500
+Message-ID: <459D7F23.7010807@garzik.org>
+Date: Thu, 04 Jan 2007 17:26:43 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612311709_MC3-1-D6E2-720A@compuserve.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Greg KH <gregkh@suse.de>
+CC: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [RFC,PATCHSET] Managed device resources
+References: <1167146313307-git-send-email-htejun@gmail.com> <20070104221916.GI28445@suse.de>
+In-Reply-To: <20070104221916.GI28445@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2006 at 05:05:55PM -0500, Chuck Ebbert wrote:
-> In-Reply-To: <20061228135308.GB20714@stusta.de>
-> 
-> On Thu, 28 Dec 2006 14:53:08 +0100, Adrian Bunk wrote:
-> 
-> > Changes since 2.6.16.36:
-> > ...
-> 
-> If you're not going to merge the critical x86 fixes I sent,
-> I won't bother sending anything more.
+Greg KH wrote:
+> Hm, but I guess without the follow-up patches for libata, it will not
+> really get tested much.  Jeff, if I accept this, what's your feelings of
+> letting libata be the "test bed" for it?
 
-Sorry, they didn't went in before 2.6.16.37-rc1, and except for 
-releasing 2.6.16.37-rc1 unchanged as 2.6.16.37 I didn't work on 2.6.16 
-during christmas and new year.
 
-I've now applied all three patches.
+It would be easiest for me to merge this through my 
+libata-dev.git#upstream tree.  That will auto-propagate it to -mm, and 
+ensure that both base and libata bits are sent in one batch.
 
-There's already a CVE number for
-"i386: save/restore eflags in context switch".
+Just shout if you see NAK-able bits...
 
-Are there also CVE numbers for the equivalent x86_64 patch and
-"x86_64: fix ia32 syscall count"?
+Work for you?
 
-Thanks for your patches
-Adrian
+	Jeff
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

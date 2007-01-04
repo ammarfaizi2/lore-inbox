@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964796AbXADMC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964802AbXADMFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbXADMC0 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 07:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbXADMC0
+	id S964802AbXADMFZ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 07:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbXADMFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 07:02:26 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:48774 "EHLO e5.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964796AbXADMCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 07:02:25 -0500
-Date: Thu, 4 Jan 2007 17:32:16 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
-Message-ID: <20070104120216.GA19228@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061217223416.GA6872@tv-sign.ru>
+	Thu, 4 Jan 2007 07:05:25 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:44141 "HELO mx0.towertech.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S964802AbXADMFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 07:05:24 -0500
+Date: Thu, 4 Jan 2007 13:05:19 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: "Voipio Riku" <Riku.Voipio@movial.fi>, rtc-linux@googlegroups.com,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       dan.j.williams@intel.com, i2c@lm-sensors.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.19-git] rts-rs5c372 updates:  more chips, alarm,
+ 12hr mode, etc
+Message-ID: <20070104130519.0acf9c0b@inspiron>
+In-Reply-To: <200701032023.36660.david-b@pacbell.net>
+References: <200612081859.42995.david-b@pacbell.net>
+	<200701021907.25701.david-b@pacbell.net>
+	<42235.80.222.56.248.1167864702.squirrel@webmail.movial.fi>
+	<200701032023.36660.david-b@pacbell.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061217223416.GA6872@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2006 at 01:34:16AM +0300, Oleg Nesterov wrote:
->  void fastcall flush_workqueue(struct workqueue_struct *wq)
->  {
-> -	might_sleep();
-> -
-> +	mutex_lock(&workqueue_mutex);
->  	if (is_single_threaded(wq)) {
->  		/* Always use first cpu's area. */
-> -		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
-> -					-1);
-> +		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
->  	} else {
->  		int cpu;
+On Wed, 3 Jan 2007 20:23:35 -0800
+David Brownell <david-b@pacbell.net> wrote:
+
+> > 
+> > Works fine, thanks! Unfortunately the i2c-ixp3xx issue has not advanced in
+> > the meantime, so we still need the third method.  
 > 
-> -		mutex_lock(&workqueue_mutex);
->  		for_each_online_cpu(cpu)
+> Right.  Thanks for confirming this!  Alessandro?
 
+ Given that we can not test on more boards, I'd keep
+ the most compatible method.
 
-Can compiler optimizations lead to cpu_online_map being cached in a register 
-while running this loop? AFAICS cpu_online_map is not declared to be
-volatile. If it can be cached, then we have the danger of invoking 
-flush_cpu_workqueue() on a dead cpu (because flush_cpu_workqueue drops
-workqueue_mutex, cpu hp events can change cpu_online_map while we are in
-flush_cpu_workqueue).
-
-> -			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu), cpu);
-> -		mutex_unlock(&workqueue_mutex);
-> +			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
-
+ Acked-by: Alessandro Zummo <a.zummo@towertech.it>
 
 -- 
-Regards,
-vatsa
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
+

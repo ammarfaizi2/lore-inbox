@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964898AbXADQnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964928AbXADQpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbXADQnP (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 11:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbXADQnP
+	id S964928AbXADQpr (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 11:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbXADQpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 11:43:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43530 "EHLO mx1.redhat.com"
+	Thu, 4 Jan 2007 11:45:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:49543 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964898AbXADQnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 11:43:14 -0500
-Date: Thu, 4 Jan 2007 14:44:14 -0200
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Use constant instead of raw number in x86_64 ioperm.c
-Message-ID: <20070104164414.GB27259@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="IJpNTDwzlM2Ie8A6"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	id S964928AbXADQpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 11:45:46 -0500
+In-Reply-To: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>
+References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk,
+       bunk@stusta.de, mikpe@it.uu.se, torvalds@osdl.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: kernel + gcc 4.1 = several problems
+Date: Thu, 4 Jan 2007 17:43:36 +0100
+To: "Albert Cahalan" <acahalan@gmail.com>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Adjusting gcc flags to eliminate optimizations is another way to go.
+> Adding -fwrapv would be an excellent start. Lack of this flag breaks
+> most code which checks for integer wrap-around.
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Lack of the flag does not break any valid C code, only code
+making unwarranted assumptions (i.e., buggy code).
 
-This is a tiny cleanup to increase readability
+> The compiler "knows"
+> that signed integers don't ever wrap, and thus eliminates any code
+> which checks for values going negative after a wrap-around.
 
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+You cannot assume it eliminates such code; the compiler is free
+to do whatever it wants in such a case.
 
--- 
-Glauber de Oliveira Costa
-Red Hat Inc.
-"Free as in Freedom"
+You should typically write such a computation using unsigned
+types, FWIW.
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="constant.patch"
+Anyway, with 4.1 you shouldn't see frequent problems due to
+"not using -fwrapv while my code is broken WRT signed overflow"
+yet; and if/when problems start to happen, to "correct" action
+to take is not to add the compiler flag, but to fix the code.
 
-diff -Nrup linux-2.6.19.1/arch/x86_64/kernel/ioport.c linux-2.6.19.1-devel/arch/x86_64/kernel/ioport.c
---- linux-2.6.19.1/arch/x86_64/kernel/ioport.c	2006-12-11 17:32:53.000000000 -0200
-+++ linux-2.6.19.1-devel/arch/x86_64/kernel/ioport.c	2007-01-04 07:44:46.000000000 -0200
-@@ -114,6 +114,6 @@ asmlinkage long sys_iopl(unsigned int le
- 		if (!capable(CAP_SYS_RAWIO))
- 			return -EPERM;
- 	}
--	regs->eflags = (regs->eflags &~ 0x3000UL) | (level << 12);
-+	regs->eflags = (regs->eflags &~ X86_EFLAGS_IOPL) | (level << 12);
- 	return 0;
- }
 
---IJpNTDwzlM2Ie8A6--
+Segher
+

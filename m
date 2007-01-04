@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965100AbXADWSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965106AbXADWS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbXADWSO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbXADWSO
+	id S965106AbXADWS3 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbXADWS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:18:14 -0500
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:59727 "EHLO
-	sccrmhc11.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965100AbXADWSN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:18:13 -0500
-X-Greylist: delayed 301 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:18:13 EST
-Message-ID: <459D7BC9.1050108@comcast.net>
-Date: Thu, 04 Jan 2007 17:12:25 -0500
-From: Ed Sweetman <safemode2@comcast.net>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: S.M.A.R.T no longer available in 2.6.20-rc2-mm2 with libata
-References: <459C5D6C.5010509@comcast.net> <200701040349.16650.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200701040349.16650.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Jan 2007 17:18:28 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:52545 "EHLO gaz.sfgoth.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965103AbXADWS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:18:27 -0500
+Date: Thu, 4 Jan 2007 14:38:56 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
+Message-ID: <20070104223856.GA79126@gaz.sfgoth.com>
+References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104215206.GZ17561@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104215206.GZ17561@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 04 Jan 2007 14:38:57 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> On Thursday 04 January 2007 01:50, Ed Sweetman wrote:
->   
->> Not sure what went on between 2.6.19-rc5-mm2 and 2.6.20-rc2-mm2 in
->> libata land but SMART is no longer available on my hdds.   I'm assuming
->> this is not the intended behavior.
->>
->> In case this is chipset specific, IDE interface: nVidia Corporation
->> CK804 Serial ATA Controller (rev f3)
->>
->> I'm using Libata nvidia driver, the drives happen to be sata drives, but
->> even the pata ones no longer report having SMART.
->>     
->
-> What program are you trying to use here? As I reported around -rc1 time, 
-> hddtemp is broken by 2.6.20-rc but Jens posted a patch to fix it.
->
->   
+Al Viro wrote:
+> At least 3 versions, unless you want to mess with ifdefs to reduce them to
+> two.
 
-I must have missed that blurb.   hddtemp is indeed the program I was 
-looking at.  And it does seem that it is the only one broken.  Just 
-re-installed the other smartctl tools and they do work.  Thanks.
+I don't think you need to do fancy #ifdef's:
+
+static s32 return_eio_32(void) { return -EIO; }
+static s64 return_eio_64(void) { return -EIO; }
+extern void return_eio_unknown(void);   /* Doesn't exist */
+#define return_eio(type)        ((sizeof(type) == 4)			\
+					? ((void *) return_eio_32)	\
+				: ((sizeof(type) == 8)			\
+					? ((void *) return_eio_64)	\
+					: ((void *) return_eio_unknown)))
+
+-Mitch

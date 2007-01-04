@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964879AbXADOiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964865AbXADOwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbXADOiE (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 09:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbXADOiE
+	id S964865AbXADOwp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 09:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbXADOwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 09:38:04 -0500
-Received: from mail.screens.ru ([213.234.233.54]:48576 "EHLO mail.screens.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964879AbXADOiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 09:38:03 -0500
-Date: Thu, 4 Jan 2007 17:38:56 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
-Message-ID: <20070104143856.GB179@tv-sign.ru>
-References: <20061217223416.GA6872@tv-sign.ru> <20070104120216.GA19228@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070104120216.GA19228@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Thu, 4 Jan 2007 09:52:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:56527 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964865AbXADOwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 09:52:44 -0500
+X-Greylist: delayed 314 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 09:52:44 EST
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: open(O_DIRECT) on a tmpfs?
+To: Michael Tokarev <mjt@tls.msk.ru>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Thu, 04 Jan 2007 15:47:19 +0100
+References: <7zzqw-SS-27@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1H2TsG-0000h9-0Z@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/04, Srivatsa Vaddagiri wrote:
->
-> On Mon, Dec 18, 2006 at 01:34:16AM +0300, Oleg Nesterov wrote:
-> >  void fastcall flush_workqueue(struct workqueue_struct *wq)
-> >  {
-> > -	might_sleep();
-> > -
-> > +	mutex_lock(&workqueue_mutex);
-> >  	if (is_single_threaded(wq)) {
-> >  		/* Always use first cpu's area. */
-> > -		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
-> > -					-1);
-> > +		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
-> >  	} else {
-> >  		int cpu;
-> > 
-> > -		mutex_lock(&workqueue_mutex);
-> >  		for_each_online_cpu(cpu)
+Michael Tokarev <mjt@tls.msk.ru> wrote:
+
+> I wonder why open() with O_DIRECT (for example) bit set is
+> disallowed on a tmpfs (again, for example) filesystem,
+> returning EINVAL.
 > 
-> 
-> Can compiler optimizations lead to cpu_online_map being cached in a register 
-> while running this loop? AFAICS cpu_online_map is not declared to be
-> volatile.
+> Yes, the question may seems strange a bit, because of two
+> somewhat conflicting reasons.  First, there's no reason to
+> use O_DIRECT with tmpfs in a first place, because tmpfs does
+> not have backing store at all, so there's no place to do
+> direct writes to.  But on another hand, again due to the very
+> nature of tmpfs, there's no reason not to allow O_DIRECT
+> open and just ignore it, -- exactly because there's no
+> backing store for this filesystem.
 
-But it is not const either,
+I'm using a tmpfs as a mostly-ramdisk, that is I've set up a large swap
+partition in case I need the RAM instead of using it for a filesystem.
+Therefore it will sometimes have a backing store.
 
->            If it can be cached,
+OTOH, ramfs does not have this property (the cache is the backing store),
+so it would make sense to allow it at least there.
 
-I believe this would be a compiler's bug. Let's take a more simple example,
+BTW: Maybe you could use a ramdisk instead of the loop-on-tmpfs.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-	while (!condition)
-		schedule();
-
-What if compiler will cache the value of global 'condition' ?
-
-                                  then we have the danger of invoking 
-> flush_cpu_workqueue() on a dead cpu (because flush_cpu_workqueue drops
-> workqueue_mutex, cpu hp events can change cpu_online_map while we are in
-> flush_cpu_workqueue).
-
-Oleg.
-
+http://david.woodhou.se/why-not-spf.html

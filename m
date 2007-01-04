@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932256AbXADFH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932273AbXADFOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbXADFH5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbXADFH5
+	id S932273AbXADFOm (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbXADFOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:07:57 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:43821 "HELO
-	smtp107.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932256AbXADFH4 (ORCPT
+	Thu, 4 Jan 2007 00:14:42 -0500
+Received: from p02c11o146.mxlogic.net ([208.65.145.69]:59698 "EHLO
+	p02c11o146.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932261AbXADFOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:07:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VJ6UewWl4sNn30eUmMiwUcz7Tucuu2bWxailen9rYSdxW+Au6PPpaYbujTJ0Ht1U2BZswjoP4YQtlz8hRODGDI4n1Y5QfaAHkXmMqg29VgVI108wgyLw20OfOKVna0Sx6DrWFrP2CjbrHkI3qXVw9LBiVbHBXl3YSsEv3pjrVEU=  ;
-X-YMail-OSG: _KyXKxoVM1kQ8sUwblO78v4r34KdwA2A2J.CAE4nIvIvTLlFnhWTGlAN9k07.YWvi_fvLdKJMy.P7EntENTaFsvjq.WMKejalo5efvQgxpQSSDxXOkmTgd29iC.jAvujdr2F4Nmf3shiqq4-
-Message-ID: <459C8B86.2050905@yahoo.com.au>
-Date: Thu, 04 Jan 2007 16:07:18 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 4 Jan 2007 00:14:41 -0500
+Date: Thu, 4 Jan 2007 07:07:22 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
+Message-ID: <20070104050722.GA9900@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <1167851839.4187.36.camel@stevo-desktop> <20070103193324.GD29003@mellanox.co.il> <1167855618.4187.65.camel@stevo-desktop> <1167859320.4187.81.camel@stevo-desktop>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrea Gelmini <gelma@gelma.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
-References: <200612291859.kBTIx2kq031961@hera.kernel.org> <20061229224309.GA23445@gelma.net> <459734CE.1090001@yahoo.com.au> <20061231135031.GC23445@gelma.net> <459C7B24.8080008@yahoo.com.au> <Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1167859320.4187.81.camel@stevo-desktop>
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 04 Jan 2007 05:08:27.0595 (UTC) FILETIME=[5E5021B0:01C72FBE]
+X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14914.001
+X-TM-AS-Result: No--9.493800-4.000000-31
+X-Spam: [F=0.0100000000; S=0.010(2006120601)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> If you think I should not add the udata parameter to the req_notify_cq()
+> provider verb, then I can rework the chelsio driver:
 > 
-> On Thu, 4 Jan 2007, Nick Piggin wrote:
+> 1) at cq creation time, pass the virtual address of the u32 used by the
+> library to track the current cq index.  That way the chelsio kernel
+> driver can save the address in its kernel cq context for later use.
 > 
->>Yhat's when the bug was introduced -- 2.6.19. 2.6.18 does not have
->>this bug, so it cannot be years old.
+> 2) change chelsio's req_notify_cq() to copy in the current cq index
+> value directly for rearming.
 > 
-> 
-> Actually, I think 2.6.18 may have a subtle variation on it. 
-> 
-> In particular, I look back at the try_to_free_buffers() thing that I hated 
-> so much, and it makes me wonder.. It used to do:
-> 
-> 	spin_lock(&mapping->private_lock);
-> 	ret = drop_buffers(page, &buffers_to_free);
-> 	spin_unlock(&mapping->private_lock);
-> 	if (ret) {
-> 		.. crappy comment ..
-> 		if (test_clear_page_dirty(page))
-> 			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
-> 	}
-> 
-> and I think that at least on SMP, we had a race with another CPU doing the 
-> "mark page dirty if it was dirty in the PTE" at the same time. Because the 
-> marking dirty would come in, find no buffers (they just got dropped), and 
-> then mark the page dirty (ignoring the lack of any buffers), but then the 
-> above would do the "test_clear_page_dirty()" thing on it.
-> 
-> Ie the race, I think, existed where that crappy comment was.
-> 
-> But that much older race would only trigger on SMP (or possibly UP with 
-> preempt).
+> This puts all the burden on the chelsio driver, which is apparently the
+> only one that needs this functionality.  
 
-Oh yes the try_to_free_buffers race, I think, does exist in older kernels.
-Yes according to our earlier analysis it would trigger with UP+preempt and
-SMP.
+Good thinking, I haven't thought of this approach.
 
-But the patch that Andrea was pointing to was your last patch (The Fix),
-which stopped page_mkclean caller throwing out dirty bits. You probably
-didn't see that in the mail I cc'ed you on.
+This way there won't be any API/core changes and no changes to
+other low level drivers, correct? And for chelsio, there's no overhead
+as compared to code you posted.
 
-So yes it would be interesting to see whether fixing try_to_free_buffers
-fixes Andrea's problem on older kernels.
+Sounds good.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+MST

@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030244AbXADXCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030258AbXADXCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbXADXCT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 18:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbXADXCT
+	id S1030258AbXADXCj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 18:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbXADXCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 18:02:19 -0500
-Received: from mail.macqel.be ([194.78.208.39]:6579 "EHLO mail.macqel.be"
+	Thu, 4 Jan 2007 18:02:38 -0500
+Received: from ra.tuxdriver.com ([70.61.120.52]:3102 "EHLO ra.tuxdriver.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030244AbXADXCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 18:02:18 -0500
-X-Greylist: delayed 1712 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 18:02:18 EST
-Date: Thu, 4 Jan 2007 23:33:45 +0100
-From: Philippe De Muyter <phdm@macqel.be>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH i2c/m41t00 do not forget to write year
-Message-ID: <20070104223345.GA786@ingate.macqel.be>
+	id S1030258AbXADXCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 18:02:37 -0500
+X-Greylist: delayed 1782 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 18:02:37 EST
+Date: Thu, 4 Jan 2007 17:14:23 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wireless Q
+Message-ID: <20070104221418.GA5684@tuxdriver.com>
+References: <200701040051.51930.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200701040051.51930.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-m41t00.c forgets to set the year field in set_rtc_time; fix that.
+On Thu, Jan 04, 2007 at 12:51:49AM -0500, Gene Heskett wrote:
 
-Signed-off-by: Philippe De Muyter <phdm@macqel.be>
+> I bought a Belkin Wireless G card, a pci 802-11 radio of some sort.
+> 
+> The main chip on it wears the label "RTL8185L"
+> 
+> Is there any support for making this a wireless server in the kernel at 
+> the present time?
+> 
+> I have visions of sticking it in the last pci slot of a box running DD-WRT 
+> if there is a driver available.
 
---- drivers/i2c/chips/m41t00.c	2007-01-02 20:57:59.000000000 +0100
-+++ drivers/i2c/chips/m41t00.c	2007-01-04 22:11:35.000000000 +0100
-@@ -209,6 +209,7 @@ m41t00_set(void *arg)
- 	buf[m41t00_chip->hour] = (buf[m41t00_chip->hour] & ~0x3f) | (hour& 0x3f);
- 	buf[m41t00_chip->day] = (buf[m41t00_chip->day] & ~0x3f) | (day & 0x3f);
- 	buf[m41t00_chip->mon] = (buf[m41t00_chip->mon] & ~0x1f) | (mon & 0x1f);
-+	buf[m41t00_chip->year] = year;
- 
- 	if (i2c_master_send(save_client, wbuf, 9) < 0)
- 		dev_err(&save_client->dev, "m41t00_set: Write error\n");
+Gene,
+
+There is no such driver in the kernel at this time.  There is an
+out-of-kernel driver available here:
+
+	http://rtl8180-sa2400.sourceforge.net/
+
+YMMV.
+
+FWIW, I know of at least one person working on a driver for the
+d80211-based stack in wireless-dev.  I'm not sure when that will be
+available publicly.
+
+Hth!
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

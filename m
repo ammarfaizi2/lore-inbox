@@ -1,65 +1,114 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964867AbXADOdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964882AbXADOgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbXADOdb (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 09:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbXADOdb
+	id S964882AbXADOgK (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 09:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbXADOgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 09:33:31 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40203 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964867AbXADOdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 09:33:31 -0500
-Message-ID: <459D103E.4080605@drzeus.cx>
-Date: Thu, 04 Jan 2007 15:33:34 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
-MIME-Version: 1.0
-To: Philip Langdale <philipl@overt.org>
-CC: linux-kernel@vger.kernel.org, Alex Dubov <oakad@yahoo.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 4)
-References: <459D0C4C.2050401@overt.org>
-In-Reply-To: <459D0C4C.2050401@overt.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Jan 2007 09:36:10 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:1616 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964879AbXADOgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 09:36:08 -0500
+Date: Thu, 4 Jan 2007 15:39:00 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>
+Subject: Re: [PATCH] 4/4 block: explicit plugging
+Message-ID: <20070104143900.GC11203@kernel.dk>
+References: <20070103222930.GL11203@kernel.dk> <000001c72f87$5bd8e520$ce34030a@amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000001c72f87$5bd8e520$ce34030a@amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Langdale wrote:
-> In the process of developing this patch, we realised that the R6 response definition
-> was incorrect and that it should have been identical to R1 (and so should R7).
-> Correcting this mistake revealed problems in a couple of host controller drivers that
-> relied on the response definitions to be unique. As we need a story for R7, I've
-> also fixed up the R6 handling in the affected drivers but I have no idea if it will
-> work in practice as I lack the hardware.
->
->   
+On Wed, Jan 03 2007, Chen, Kenneth W wrote:
+> Jens Axboe wrote on Wednesday, January 03, 2007 2:30 PM
+> > > We are having some trouble with the patch set that some of our fiber channel
+> > > host controller doesn't initialize properly anymore and thus lost whole
+> > > bunch of disks (somewhere around 200 disks out of 900) at boot time.
+> > > Presumably FC loop initialization command are done through block layer etc.
+> > > I haven't looked into the problem closely.
+> > > 
+> > > Jens, I assume the spin lock bug in __blk_run_queue is fixed in this patch
+> > > set?
+> > 
+> > It is. Are you still seeing problems after the initial mail exchange we
+> > had prior to christmas,
+> 
+> Yes. Not the same kernel panic, but a problem with FC loop reset itself.
+> 
+> 
+> > or are you referencing that initial problem?
+> 
+> No. we got passed that point thanks for the bug fix patch you give me
+> prior to Christmas.  That fixed a kernel panic on boot up.
+> 
+> 
+> > It's not likely to be a block layer issue, more likely the SCSI <->
+> > block interactions. If you mail me a new dmesg (if your problem is with
+> > the __blk_run_queue() fixups), I can take a look. Otherwise please do
+> > test with the __blk_run_queue() fixup, just use the current patchset.
+> 
+> I will just retake the tip of your plug tree and retest.
 
-Do this fix in a separate patch. And cc the relevant maintainers.
+That would be great! There's a busy race fixed in the current branch,
+make sure that one is included as well.
 
-> --- /usr/src/linux/drivers/mmc/imxmmc.c	2007-01-01 07:12:02.000000000 -0800
-> +++ linux-2.6.19-sdhc/drivers/mmc/imxmmc.c	2007-01-04 05:50:41.000000000 -0800
-> @@ -351,9 +360,6 @@
->  	case MMC_RSP_R3: /* short */
->  		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R3;
->  		break;
-> -	case MMC_RSP_R6: /* short CRC */
-> -		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R6;
-> -		break;
->  	default:
->  		break;
->  	}
->   
+>From 9174fea2184187209b1f851137bd1612728fae2c Mon Sep 17 00:00:00 2001
+From: Jens Axboe <jens.axboe@oracle.com>
+Date: Thu, 4 Jan 2007 10:42:33 +0100
+Subject: [PATCH] [PATCH] scsi: race in checking sdev->device_busy
 
-I think this chunk suffices. Until proven otherwise, regard R6 and R7 as
-information the hw does not need to know about. Same thing in tifm_sd.
+Save some code, create a new out label for the path that already checks
+the busy count and delays the queue if necessary.
 
-Rgds
+Signed-off-by: Jens Axboe <jens.axboe@oracle.com>
+---
+ drivers/scsi/scsi_lib.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index fce5e2f..3ffa35d 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -1509,12 +1509,9 @@ static void scsi_request_fn(struct request_queue *q)
+ 		 * Dispatch the command to the low-level driver.
+ 		 */
+ 		rtn = scsi_dispatch_cmd(cmd);
+-		if (rtn) {
+-			if (sdev->device_busy == 0)
+-				blk_delay_queue(q, SCSI_QUEUE_DELAY);
+-			goto out_nolock;
+-		}
+ 		spin_lock_irq(q->queue_lock);
++		if (rtn)
++			goto out_delay;
+ 	}
+ 
+ 	goto out;
+@@ -1533,13 +1530,13 @@ static void scsi_request_fn(struct request_queue *q)
+ 	spin_lock_irq(q->queue_lock);
+ 	blk_requeue_request(q, req);
+ 	sdev->device_busy--;
++out_delay:
+ 	if (sdev->device_busy == 0)
+ 		blk_delay_queue(q, SCSI_QUEUE_DELAY);
+- out:
++out:
+ 	/* must be careful here...if we trigger the ->remove() function
+ 	 * we cannot be holding the q lock */
+ 	spin_unlock_irq(q->queue_lock);
+- out_nolock:
+ 	put_device(&sdev->sdev_gendev);
+ 	spin_lock_irq(q->queue_lock);
+ }
+-- 
+1.5.0.rc0.gd222
+
 
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Jens Axboe
 

@@ -1,61 +1,121 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964814AbXADMdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964825AbXADMt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbXADMdo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 07:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbXADMdo
+	id S964825AbXADMt4 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 07:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbXADMt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 07:33:44 -0500
-Received: from myw-stp-196-34-113-139.sentechsa.net ([196.34.113.139]:38333
-	"EHLO craigdell.detnet.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S964814AbXADMdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 07:33:43 -0500
-X-Greylist: delayed 336 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 07:33:39 EST
-Date: Thu, 4 Jan 2007 14:23:30 +0200
-From: Craig Schlenter <craig@codefountain.com>
-To: Komuro <komurojun-mbn@nifty.com>
-Cc: YOSHIFUJI Hideaki / =?utf-8?B?5ZCJ6Jek6Iux5piO?= 
-	<yoshfuji@linux-ipv6.org>,
-       bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during file-transfer
-Message-ID: <20070104122330.GA2233@craigdell.detnet.com>
-References: <20061230185043.d31d2104.komurojun-mbn@nifty.com> <20061230.102358.106876516.yoshfuji@linux-ipv6.org> <20061230205931.9e430173.komurojun-mbn@nifty.com> <20061230.231952.16573563.yoshfuji@linux-ipv6.org> <20070105054546.953196e5.komurojun-mbn@nifty.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070105054546.953196e5.komurojun-mbn@nifty.com>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 4 Jan 2007 07:49:56 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40199 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964825AbXADMtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 07:49:55 -0500
+Message-ID: <459CF7F7.90507@drzeus.cx>
+Date: Thu, 04 Jan 2007 13:49:59 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] MMC updates
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 05:45:46AM +0900, Komuro wrote:
-> Hi,
-> 
-> I made a patch below.
-> With this patch, the ftp-transfer-stop problem does not happen.
-> Therefore, I think this is not a problem of vsftpd.
-> 
-> Mr.YOSHIFUJI san, why did you set TCPOLEN_TSTAMP_ALIGNED
-> to iov_len?
-> 
-> 
-> 
-> --- linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c.orig	2007-01-03 11:50:04.000000000 +0900
-> +++ linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c	2007-01-03 15:30:44.000000000 +0900
-> @@ -648,7 +648,7 @@ static void tcp_v4_send_ack(struct tcp_t
->  				   TCPOLEN_TIMESTAMP);
->  		rep.opt[1] = htonl(tcp_time_stamp);
->  		rep.opt[2] = htonl(ts);
-> -		arg.iov[0].iov_len = TCPOLEN_TSTAMP_ALIGNED;
-> +		arg.iov[0].iov_len = sizeof(rep);
+Linus, please pull from
 
-Perhaps this was supposed to be
-                arg.iov[0].iov_len += TCPOLEN_TSTAMP_ALIGNED;
+        git://git.kernel.org/pub/scm/linux/kernel/git/drzeus/mmc.git for-linus
 
-That's what the ipv6 stuff does in places.
+to receive the following updates:
 
-bye,
+ drivers/mmc/at91_mci.c |   11 +++++------
+ drivers/mmc/omap.c     |    6 +++---
+ 2 files changed, 8 insertions(+), 9 deletions(-)
 
---Craig
+David Brownell (1):
+      MMC: at91 mmc linkage updates
+
+Kyungmin Park (1):
+      ARM: OMAP: fix MMC workqueue changes
+
+diff --git a/drivers/mmc/at91_mci.c b/drivers/mmc/at91_mci.c
+index 08a33c3..aa152f3 100644
+--- a/drivers/mmc/at91_mci.c
++++ b/drivers/mmc/at91_mci.c
+@@ -768,7 +768,7 @@ static irqreturn_t at91_mmc_det_irq(int irq, void *_host)
+        return IRQ_HANDLED;
+ }
+
+-int at91_mci_get_ro(struct mmc_host *mmc)
++static int at91_mci_get_ro(struct mmc_host *mmc)
+ {
+        int read_only = 0;
+        struct at91mci_host *host = mmc_priv(mmc);
+@@ -794,7 +794,7 @@ static const struct mmc_host_ops at91_mci_ops = {
+ /*
+  * Probe for the device
+  */
+-static int at91_mci_probe(struct platform_device *pdev)
++static int __init at91_mci_probe(struct platform_device *pdev)
+ {
+        struct mmc_host *mmc;
+        struct at91mci_host *host;
+@@ -910,7 +910,7 @@ static int at91_mci_probe(struct platform_device *pdev)
+ /*
+  * Remove a device
+  */
+-static int at91_mci_remove(struct platform_device *pdev)
++static int __exit at91_mci_remove(struct platform_device *pdev)
+ {
+        struct mmc_host *mmc = platform_get_drvdata(pdev);
+        struct at91mci_host *host;
+@@ -972,8 +972,7 @@ static int at91_mci_resume(struct platform_device *pdev)
+ #endif
+
+ static struct platform_driver at91_mci_driver = {
+-       .probe          = at91_mci_probe,
+-       .remove         = at91_mci_remove,
++       .remove         = __exit_p(at91_mci_remove),
+        .suspend        = at91_mci_suspend,
+        .resume         = at91_mci_resume,
+        .driver         = {
+@@ -984,7 +983,7 @@ static struct platform_driver at91_mci_driver = {
+
+ static int __init at91_mci_init(void)
+ {
+-       return platform_driver_register(&at91_mci_driver);
++       return platform_driver_probe(&at91_mci_driver, at91_mci_probe);
+ }
+
+ static void __exit at91_mci_exit(void)
+diff --git a/drivers/mmc/omap.c b/drivers/mmc/omap.c
+index 435d331..9488408 100644
+--- a/drivers/mmc/omap.c
++++ b/drivers/mmc/omap.c
+@@ -581,9 +581,9 @@ static void mmc_omap_switch_timer(unsigned long arg)
+        schedule_work(&host->switch_work);
+ }
+
+-static void mmc_omap_switch_handler(void *data)
++static void mmc_omap_switch_handler(struct work_struct *work)
+ {
+-       struct mmc_omap_host *host = (struct mmc_omap_host *) data;
++       struct mmc_omap_host *host = container_of(work, struct mmc_omap_host, switch_work);
+        struct mmc_card *card;
+        static int complained = 0;
+        int cards = 0, cover_open;
+@@ -1116,7 +1116,7 @@ static int __init mmc_omap_probe(struct platform_device *pdev)
+        platform_set_drvdata(pdev, host);
+
+        if (host->switch_pin >= 0) {
+-               INIT_WORK(&host->switch_work, mmc_omap_switch_handler, host);
++               INIT_WORK(&host->switch_work, mmc_omap_switch_handler);
+                init_timer(&host->switch_timer);
+                host->switch_timer.function = mmc_omap_switch_timer;
+                host->switch_timer.data = (unsigned long) host;
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

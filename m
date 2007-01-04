@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030205AbXADTpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030183AbXADTqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbXADTpc (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbXADTpb
+	id S1030183AbXADTqn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbXADTqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:45:31 -0500
-Received: from hera.kernel.org ([140.211.167.34]:54019 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030205AbXADTpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:45:30 -0500
-From: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [Dumb question] 100k RTC interrupts/sec on SMP system: why?
-Date: Thu, 4 Jan 2007 14:44:45 -0500
-User-Agent: KMail/1.9.5
-Cc: Paul P Komkoff Jr <i@stingr.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20061109100953.GE2226@stingr.net> <20061110133504.GC18001@stingr.net> <1163166183.3138.707.camel@laptopd505.fenrus.org>
-In-Reply-To: <1163166183.3138.707.camel@laptopd505.fenrus.org>
+	Thu, 4 Jan 2007 14:46:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:39757 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030183AbXADTqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 14:46:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RxGrNnjTQjugFNIBvo5pSi2awvA/EOE/M8xuVJ5GcGIRsI1knUIOSpBRSLqK44+gLQ6GSTFvnSBI0BweR6Ec7/Z/2WlD1FCFnpKPP5G9ArjvM3BZppbK1InUsTlKixUu8PkSN3gTGvW3k1824m6+woNYJcFJ/+XoMcCHGvK9QH0=
+Message-ID: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
+Date: Fri, 5 Jan 2007 01:16:37 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Multi kernel tree support on the same distro?
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701041444.45250.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 November 2006 08:43, Arjan van de Ven wrote:
-> On Fri, 2006-11-10 at 16:35 +0300, Paul P Komkoff Jr wrote:
-> > Replying to Arjan van de Ven:
-> > > Also have you tried acpi=off or the linux firmware test kit (see url in
-> > 
-> > acpi=off fixed this.
-> >   8:          1          0    IO-APIC-edge  rtc
-> acpi=on had this
-> 
-> >  8: 3673166897 3674697116   IO-APIC-level  rtc
-> 
-> spot the level-vs-edge difference.... your acpi interrupt routing looks
-> bust.
-> 
-> 
-> > So I got rid of "interrupt storm" but what I've lost (except poweroff)?
-> 
-> you can get power off with APM as well.
+Hello All,
 
-Servers don't have APM.
+I am looking to use multiple kernel trees on the same distro. Example:-
 
-It seems this is an additional sighting of this BIOS bug:
+2.6.19.1 for - software/tools development
+2.4.34    for - embedded systems development.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7679
+I do know that 2.6 supports embedded in a big way....but still
+requirement demands to work with such boards as an example:-
 
-(perhaps you can note that in the bug report)
+http://www.embeddedarm.com/linux/ARM.htm
 
-pnpacpi=off should be a sufficient workaround for now.
+My question is HOW-TO enable a distro with multi kernel trees?
+Presently am using Fedora Core 5/6 for much of the development
+activities (Cell BE SDK related at Labs).
 
-thanks,
--Len
+Any hints/suggestions would be a great leap for me to do this on my own.
 
-ps. there is nothing dumb about this question:-)
+~Akula2

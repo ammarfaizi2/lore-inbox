@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751074AbXADEgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932248AbXADEjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbXADEgZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 23:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbXADEgZ
+	id S932248AbXADEjf (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 23:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbXADEjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 23:36:25 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:21412 "HELO
-	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750741AbXADEgY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 23:36:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=A3zhfDGrrAqo5u39jAjYmmKyTFwxh/u4IYWFF6chFNHf+kNEVCtqumiPTeceZPo6eakiVYGI6Y2hb+8zDp1zNqDQnngepJ6mQTJHmqlE7IFV+182bxc5+MBdu+gD7DEGHMw01nE2n2hKjOKizFRPOoRxdVxCbuBpgYTz2huB/DQ=  ;
-X-YMail-OSG: JJgOC8AVM1kZ9urtihGx95PEDwGtINwBRPlVllNm830Iptr48aaYW0y5vpHIZVMheXk9LM2zamY7G5o08X.e4rlA2CjZ0.idGqYSO9ptLs12pK6oH8nPsbRqBx_qOqkomtCY8tVU5onC80Y-
-Message-ID: <459C8427.9040704@yahoo.com.au>
-Date: Thu, 04 Jan 2007 15:35:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <jens.axboe@oracle.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, Nick Piggin <npiggin@suse.de>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Neil Brown <neilb@suse.de>, Mark Fasheh <mark.fasheh@oracle.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: [PATCH] 4/4 block: explicit plugging
-References: <11678105083001-git-send-email-jens.axboe@oracle.com> <1167810508576-git-send-email-jens.axboe@oracle.com>
-In-Reply-To: <1167810508576-git-send-email-jens.axboe@oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 3 Jan 2007 23:39:35 -0500
+Received: from ricci.tusc.com.au ([203.2.177.24]:19983 "EHLO ricci.tusc.com.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932248AbXADEje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 23:39:34 -0500
+Subject: [PATCH] X.25: Trivial, SOCK_DEBUG's in x25_facilities missing
+	newlines
+From: ahendry <ahendry@tusc.com.au>
+To: linux-x25@vger.kernel.org, eis@baty.hanse.de
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 04 Jan 2007 15:39:24 +1100
+Message-Id: <1167885564.5124.98.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> Nick writes:
-> 
-> This is a patch to perform block device plugging explicitly in the submitting
-> process context rather than implicitly by the block device.
+Trivial. Newlines missing on the SOCK_DEBUG's for X.25 facility negotiation.
 
-Hi Jens,
+Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
 
-Hey thanks for doing so much hard work with this, I couldn't have fixed
-all the block layer stuff myself. QRCU looks like a good solution for the
-barrier/sync operations (/me worried that one wouldn't exist), and a
-novel use of RCU!
 
-The only thing I had been thinking about before it is ready for primetime
--- as far as the VM side of things goes -- is whether we should change
-the hard calls to address_space operations, such that they might be
-avoided or customised when there is no backing block device?
+--- linux-2.6.19-vanilla/net/x25/x25_facilities.c	2006-12-31 22:31:07.000000000 +1100
++++ linux-2.6.19/net/x25/x25_facilities.c	2007-01-01 22:56:17.000000000 +1100
+@@ -254,7 +254,7 @@ int x25_negotiate_facilities(struct sk_b
+ 	 *	They want reverse charging, we won't accept it.
+ 	 */
+ 	if ((theirs.reverse & 0x01 ) && (ours->reverse & 0x01)) {
+-		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request");
++		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request\n");
+ 		return -1;
+ 	}
+ 
+@@ -262,29 +262,29 @@ int x25_negotiate_facilities(struct sk_b
+ 
+ 	if (theirs.throughput) {
+ 		if (theirs.throughput < ours->throughput) {
+-			SOCK_DEBUG(sk, "X.25: throughput negotiated down");
++			SOCK_DEBUG(sk, "X.25: throughput negotiated down\n");
+ 			new->throughput = theirs.throughput;
+ 		}
+ 	}
+ 
+ 	if (theirs.pacsize_in && theirs.pacsize_out) {
+ 		if (theirs.pacsize_in < ours->pacsize_in) {
+-			SOCK_DEBUG(sk, "X.25: packet size inwards negotiated down");
++			SOCK_DEBUG(sk, "X.25: packet size inwards negotiated down\n");
+ 			new->pacsize_in = theirs.pacsize_in;
+ 		}
+ 		if (theirs.pacsize_out < ours->pacsize_out) {
+-			SOCK_DEBUG(sk, "X.25: packet size outwards negotiated down");
++			SOCK_DEBUG(sk, "X.25: packet size outwards negotiated down\n");
+ 			new->pacsize_out = theirs.pacsize_out;
+ 		}
+ 	}
+ 
+ 	if (theirs.winsize_in && theirs.winsize_out) {
+ 		if (theirs.winsize_in < ours->winsize_in) {
+-			SOCK_DEBUG(sk, "X.25: window size inwards negotiated down");
++			SOCK_DEBUG(sk, "X.25: window size inwards negotiated down\n");
+ 			new->winsize_in = theirs.winsize_in;
+ 		}
+ 		if (theirs.winsize_out < ours->winsize_out) {
+-			SOCK_DEBUG(sk, "X.25: window size outwards negotiated down");
++			SOCK_DEBUG(sk, "X.25: window size outwards negotiated down\n");
+ 			new->winsize_out = theirs.winsize_out;
+ 		}
+ 	}
 
-I'm sure the answer to this is "yes", so I have an idea for a simple
-implementation... but I'd like to hear thoughts from network fs / raid
-people?
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

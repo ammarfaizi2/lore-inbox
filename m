@@ -1,45 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932274AbXADRJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965033AbXADRPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbXADRJa (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbXADRJa
+	id S965033AbXADRPb (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbXADRPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:09:30 -0500
-Received: from extu-mxob-2.symantec.com ([216.10.194.135]:59497 "EHLO
-	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932382AbXADRJ3 (ORCPT
+	Thu, 4 Jan 2007 12:15:30 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:36929 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965033AbXADRPa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:09:29 -0500
-X-AuditID: d80ac287-a10c4bb000002548-f3-459d35a05c4a 
-Date: Thu, 4 Jan 2007 17:09:45 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: open(O_DIRECT) on a tmpfs?
-In-Reply-To: <459D290B.1040703@tmr.com>
-Message-ID: <Pine.LNX.4.64.0701041653250.12920@blonde.wat.veritas.com>
-References: <459CEA93.4000704@tls.msk.ru> <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com>
- <459D290B.1040703@tmr.com>
+	Thu, 4 Jan 2007 12:15:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:reply-to:to:subject:date:user-agent:references:in-reply-to:cc:disposition-notification-to:mime-version:content-type:message-id;
+        b=g70i9NK70B9sgU145xwPGK5P/+Yd3sSbveIcZquYQROXw2i5SKKmQAqZqYbSGGaK+FtGXBT5vcarQsCsUe/xGBxmwhbmfUW8J/ehmg8nJIFAJhciHjCmDnw0vGvbh9RwdefLo1KXVz1kzVVorHB/LL2TVffvB92XSck8UN98OjY=
+From: "Cyrill V. Gorcunov" <gorcunov@gmail.com>
+Reply-To: gorcunov@gmail.com
+To: bjdouma@xs4all.nl
+Subject: Re: qconf: reproducible segfault
+Date: Thu, 4 Jan 2007 20:14:11 +0300
+User-Agent: KMail/1.9.5
+References: <459C1966.7040209@xs4all.nl>
+In-Reply-To: <459C1966.7040209@xs4all.nl>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jan 2007 17:09:28.0542 (UTC) FILETIME=[17D8C7E0:01C73023]
-X-Brightmail-Tracker: AAAAAA==
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_kXTnF27jy+nILiq"
+Message-Id: <200701042014.12473.gorcunov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Bill Davidsen wrote:
-> 
-> In many cases the use of O_DIRECT is purely to avoid impact on cache used by
-> other applications. An application which writes a large quantity of data will
-> have less impact on other applications by using O_DIRECT, assuming that the
-> data will not be read from cache due to application pattern or the data being
-> much larger than physical memory.
+--Boundary-00=_kXTnF27jy+nILiq
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I see that as a good argument _not_ to allow O_DIRECT on tmpfs,
-which inevitably impacts cache, even if O_DIRECT were requested.
+Please try patch I've enveloped. And write me does it fix your problem?
 
-But I'd also expect any app requesting O_DIRECT in that way, as a caring
-citizen, to fall back to going without O_DIRECT when it's not supported.
+-- 
+	- Cyrill
 
-Hugh
+--Boundary-00=_kXTnF27jy+nILiq
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch.diff"
+
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index 0b2fcc4..0694d1d 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -925,6 +925,8 @@ ConfigInfoView::ConfigInfoView(QWidget* parent, const char *name)
+ 		configSettings->endGroup();
+ 		connect(configApp, SIGNAL(aboutToQuit()), SLOT(saveSettings()));
+ 	}
++
++	has_dbg_info = 0;
+ }
+ 
+ void ConfigInfoView::saveSettings(void)
+@@ -953,10 +955,13 @@ void ConfigInfoView::setInfo(struct menu *m)
+ 	if (menu == m)
+ 		return;
+ 	menu = m;
+-	if (!menu)
++	if (!menu) {
++		has_dbg_info = 0;
+ 		clear();
+-	else
++	} else {
++		has_dbg_info = 1;
+ 		menuInfo();
++	}
+ }
+ 
+ void ConfigInfoView::setSource(const QString& name)
+@@ -991,6 +996,9 @@ void ConfigInfoView::symbolInfo(void)
+ {
+ 	QString str;
+ 
++	if (!has_dbg_info)
++		return;
++
+ 	str += "<big>Symbol: <b>";
+ 	str += print_filter(sym->name);
+ 	str += "</b></big><br><br>value: ";
+diff --git a/scripts/kconfig/qconf.h b/scripts/kconfig/qconf.h
+index 6fc1c5f..a397edb 100644
+--- a/scripts/kconfig/qconf.h
++++ b/scripts/kconfig/qconf.h
+@@ -273,6 +273,8 @@ protected:
+ 	struct symbol *sym;
+ 	struct menu *menu;
+ 	bool _showDebug;
++
++	int has_dbg_info;
+ };
+ 
+ class ConfigSearchWindow : public QDialog {
+
+--Boundary-00=_kXTnF27jy+nILiq--

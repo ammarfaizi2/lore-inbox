@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030206AbXADU4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030213AbXADU5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbXADU4F (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 15:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbXADU4F
+	id S1030213AbXADU5v (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 15:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbXADU5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 15:56:05 -0500
-Received: from py-out-1112.google.com ([64.233.166.178]:33209 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030206AbXADU4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 15:56:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tIU+hL5rvruMM6QGGO8uXGe+1/RFPgr5Ub7hoawQMMidbRQNhoBo2ns7I+zmBqwGxVN/75pnc7zjbN09rWvfD1BM3zX/YKK51a8xt6AQ9MB0S0TNnaUMhtbSzX+F/Oe89bPKywEk+/esrGsOzchkPe5zC5b5NUXYGx6XSc/GpgA=
-Message-ID: <5d96567b0701041256n616a4a5bn3948c2d3c3e673d@mail.gmail.com>
-Date: Thu, 4 Jan 2007 22:56:02 +0200
-From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: A Correct Design of a multi cpu/core rt application
+	Thu, 4 Jan 2007 15:57:50 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44340 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030213AbXADU5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 15:57:50 -0500
+Date: Thu, 4 Jan 2007 12:57:39 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
+In-Reply-To: <Pine.LNX.4.64.0701042249270.10892@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.64.0701041256560.23158@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
+ <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
+ <Pine.LNX.4.64.0701041042020.21800@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0701042249270.10892@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Thu, 4 Jan 2007, Pekka J Enberg wrote:
 
-I am trying to implement a (soft) real time kthread on a dual cpu
-machine. Basic design is very simple, the kthread  binds
-to cpu 1 sets itself to a high real time priority and never releases this
-cpu. Whenever it needs to wait a little I use the assembler pause command.
-The operating system should be running on cpu 0.
+> Something like this (totally untested) patch?
 
-Yet I have 3 problems:
-
-1. Rcu never unlocks ( dentry starvation ).
-
-2. I cannot ssh to the machine when this kthread is runing. This has to
-   do some how with events workqueue.
-
-3. What about all other kthreads,workqueue,tasklets in the system ? aio,md,
-   can I simply un-invoke them ?
-
-Is there an easy way to do it ?
-Is there a framework to do it ?
-
-thank you
-raz
-
-
--- 
-Raz
+Yup. Moving the GFP_WAIT processing into kmem_getpages() will clean up a 
+lot.

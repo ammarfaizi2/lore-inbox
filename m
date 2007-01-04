@@ -1,146 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964937AbXADP4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964945AbXADP5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbXADP4Q (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 10:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbXADP4P
+	id S964945AbXADP5M (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 10:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbXADP5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 10:56:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2484 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964937AbXADP4N (ORCPT
+	Thu, 4 Jan 2007 10:57:12 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:57247 "EHLO
+	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964942AbXADP5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 10:56:13 -0500
-Date: Thu, 4 Jan 2007 16:56:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-devel] [RFC: 2.6 patch] sound/: possible cleanups
-Message-ID: <20070104155613.GB20714@stusta.de>
-References: <20061218034639.GC10316@stusta.de> <s5htzzsdu0e.wl%tiwai@suse.de>
-MIME-Version: 1.0
+	Thu, 4 Jan 2007 10:57:09 -0500
+Date: Thu, 4 Jan 2007 21:26:49 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
+Message-ID: <20070104155649.GB27603@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5htzzsdu0e.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070104142936.GA179@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 12:06:57PM +0100, Takashi Iwai wrote:
-> At Mon, 18 Dec 2006 04:46:39 +0100,
-> Adrian Bunk wrote:
-> > 
-> > --- linux-2.6.19-rc6-mm2/sound/pci/hda/hda_codec.h.old	2006-12-04 17:03:15.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm2/sound/pci/hda/hda_codec.h	2006-12-04 17:03:23.000000000 +0100
-> > @@ -614,10 +614,6 @@
-> >  				int channel_id, int format);
-> >  unsigned int snd_hda_calc_stream_format(unsigned int rate, unsigned int channels,
-> >  					unsigned int format, unsigned int maxbps);
-> > -int snd_hda_query_supported_pcm(struct hda_codec *codec, hda_nid_t nid,
-> > -				u32 *ratesp, u64 *formatsp, unsigned int *bpsp);
-> > -int snd_hda_is_supported_format(struct hda_codec *codec, hda_nid_t nid,
-> > -				unsigned int format);
+On Thu, Jan 04, 2007 at 05:29:36PM +0300, Oleg Nesterov wrote:
+> Thanks, I need to think about this.
 > 
-> I'd like to keep them usable for codec support codes.
-
-If they are static, they can still become global again when required
-(this is not about removing them completely).
-
-> Removing EXPORT_SYMBOL() is fine, though.
-
-They weren't EXPORT_SYMBOL'ed.
-
-> > --- linux-2.6.19-rc6-mm2/sound/pci/ac97/ac97_local.h.old	2006-12-04 16:53:59.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm2/sound/pci/ac97/ac97_local.h	2006-12-04 16:54:52.000000000 +0100
-> > @@ -65,9 +65,6 @@
-> >  int snd_ac97_get_volsw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol);
-> >  int snd_ac97_put_volsw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol);
-> >  int snd_ac97_try_bit(struct snd_ac97 * ac97, int reg, int bit);
-> > -int snd_ac97_remove_ctl(struct snd_ac97 *ac97, const char *name, const char *suffix);
-> > -int snd_ac97_rename_ctl(struct snd_ac97 *ac97, const char *src, const char *dst, const char *suffix);
-> > -int snd_ac97_swap_ctl(struct snd_ac97 *ac97, const char *s1, const char *s2, const char *suffix);
+> However I am not sure I fully understand the problem.
 > 
-> These are used in ac97_patch.c, at least in pending patches after
-> 2.6.19.
+> First, this deadlock was not introduced by recent changes (including "single
+> threaded flush_workqueue() takes workqueue_mutex too"), yes?
 
-OK.
+AFAIK this deadlock originated from Andrew's patch here:
 
-> > --- linux-2.6.19-rc6-mm2/include/sound/core.h.old	2006-12-04 17:13:39.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm2/include/sound/core.h	2006-12-04 17:49:07.000000000 +0100
-> > @@ -22,6 +22,7 @@
-> >   *
-> >   */
-> >  
-> > +#include <sound/driver.h>
+	http://lkml.org/lkml/2006/12/7/231
+
+(Yes, your patches didnt introduce this. I was just reiterating here my
+earlier point that workqueue code is broken of late wrt cpu hotplug).
+
+> Also, it seems to me we have a much more simple scenario for deadlock.
 > 
-> This makes things a bit complicated, so please don't add it yet.
-> It's better to clean up into a single core.h in future.
+> events/0 runs run_workqueue(), work->func() sleeps or takes a preemtion. CPU 0
+> dies, keventd thread migrates to another CPU. CPU_DEAD calls kthread_stop() under
+> workqueue_mutex and waits for until kevents thread exits. Now, if this work (or
+> another work pending on cwq->worklist) takes workqueue_mutex (for example, does
+> flush_workqueue) we have a deadlock.
 > 
-> > @@ -35,6 +36,7 @@
-> >  #ifdef CONFIG_SBUS
-> >  struct sbus_dev;
-> >  #endif
-> > +struct snd_info_buffer;
-> >  
-> >  /* device allocation stuff */
-> >  
-> > @@ -287,6 +289,8 @@
-> >  int snd_card_file_add(struct snd_card *card, struct file *file);
-> >  int snd_card_file_remove(struct snd_card *card, struct file *file);
-> >  
-> > +void snd_card_info_read_oss(struct snd_info_buffer *buffer);
-> > +
-> >  #ifndef snd_card_set_dev
-> >  #define snd_card_set_dev(card,devptr) ((card)->parent = (devptr))
-> >  #endif
-> 
-> These should be rather in another file, e.g. info.h.
+> No?
 
-How much should move to info.h?
-All function prototypes?
+Yes, the above scenario also will cause a deadlock. 
 
-> > --- linux-2.6.19-rc6-mm2/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl.old	2006-12-04 17:17:34.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm2/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl	2006-12-04 17:18:34.000000000 +0100
-> > @@ -5648,8 +5648,7 @@
-> >      <para>
-> >  	As shown in the above, it's better to save registers after
-> >  	suspending the PCM operations via
-> > -	<function>snd_pcm_suspend_all()</function> or
-> > -	<function>snd_pcm_suspend()</function>.  It means that the PCM
-> > +	<function>snd_pcm_suspend_all()</function>.  It means that the PCM
-> >  	streams are already stoppped when the register snapshot is
-> >  	taken.  But, remind that you don't have to restart the PCM
-> >  	stream in the resume callback. It'll be restarted via 
-> > --- linux-2.6.19-rc6-mm2/include/sound/pcm.h.old	2006-12-04 17:14:50.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm2/include/sound/pcm.h	2006-12-04 17:20:10.000000000 +0100
-> > @@ -467,10 +467,7 @@
-> >  int snd_pcm_start(struct snd_pcm_substream *substream);
-> >  int snd_pcm_stop(struct snd_pcm_substream *substream, int status);
-> >  int snd_pcm_drain_done(struct snd_pcm_substream *substream);
-> > -#ifdef CONFIG_PM
-> > -int snd_pcm_suspend(struct snd_pcm_substream *substream);
-> >  int snd_pcm_suspend_all(struct snd_pcm *pcm);
-> > -#endif
-> >  int snd_pcm_kernel_ioctl(struct snd_pcm_substream *substream, unsigned int cmd, void *arg);
-> >  int snd_pcm_open_substream(struct snd_pcm *pcm, int stream, struct file *file,
-> >  			   struct snd_pcm_substream **rsubstream);
-> 
-> I tend to disagree this removal.
+I supposed one could avoid the deadlock by having a 'workqueue_mutex_held' 
+flag and avoid taking the mutex set under some conditions, but IMHO a
+more neater solution is to provide a cpu-hotplug lock which works under
+all these corner cases. One such proposal was made here:
 
-snd_pcm_suspend() becomes static, but doesn't get removed.
-Are there any users in other files pending for the forseeable future?
-Otherwise, reverting this change will never be a problem.
-
-> thanks,
-> 
-> Takashi
-
-cu
-Adrian
-
+	http://lkml.org/lkml/2006/10/26/65
+	
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Regards,
+vatsa

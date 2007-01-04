@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965106AbXADWS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030240AbXADWSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbXADWS3 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbXADWS2
+	id S1030240AbXADWSj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbXADWSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:18:28 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:52545 "EHLO gaz.sfgoth.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965103AbXADWS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:18:27 -0500
-Date: Thu, 4 Jan 2007 14:38:56 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
-Message-ID: <20070104223856.GA79126@gaz.sfgoth.com>
-References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104215206.GZ17561@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Jan 2007 17:18:39 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:25410 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030187AbXADWSh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:18:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=bEAwiSxYvTCIcshuokixoaHMwdr1OCx0c+82dxR3FY90FqGBhYNEMYAN3dYUGV5k/ofWmcpt2cgEZSZ9Ei/8xVbi1FT+Bf5HQ9YSokXVlWuRbIaUZOKdC9SwUN4jmk5cG/VSzQW6q8m6Hu0IUrBNDYhGVKZBriLBEZggwduaGuo=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: open(O_DIRECT) on a tmpfs?
+Date: Thu, 4 Jan 2007 23:17:02 +0100
+User-Agent: KMail/1.8.2
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+References: <459CEA93.4000704@tls.msk.ru> <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com> <459D290B.1040703@tmr.com>
+In-Reply-To: <459D290B.1040703@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070104215206.GZ17561@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 04 Jan 2007 14:38:57 -0800 (PST)
+Message-Id: <200701042317.02908.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> At least 3 versions, unless you want to mess with ifdefs to reduce them to
-> two.
+On Thursday 04 January 2007 17:19, Bill Davidsen wrote:
+> Hugh Dickins wrote:
+> In many cases the use of O_DIRECT is purely to avoid impact on cache 
+> used by other applications. An application which writes a large quantity 
+> of data will have less impact on other applications by using O_DIRECT, 
+> assuming that the data will not be read from cache due to application 
+> pattern or the data being much larger than physical memory.
 
-I don't think you need to do fancy #ifdef's:
+But O_DIRECT is _not_ about cache. At least I think it was not about
+cache initially, it was more about DMAing data directly from/to
+application address space to/from disks, saving memcpy's and double
+allocations. Why do you think it has that special alignment requirements?
+Are they cache related? Not at all!
 
-static s32 return_eio_32(void) { return -EIO; }
-static s64 return_eio_64(void) { return -EIO; }
-extern void return_eio_unknown(void);   /* Doesn't exist */
-#define return_eio(type)        ((sizeof(type) == 4)			\
-					? ((void *) return_eio_32)	\
-				: ((sizeof(type) == 8)			\
-					? ((void *) return_eio_64)	\
-					: ((void *) return_eio_unknown)))
+After that people started adding unrelated semantics on it -
+"oh, we use O_DIRECT in our database code and it pushes EVERYTHING
+else out of cache. This is bad. Let's overload O_DIRECT to also mean
+'do not pollute the cache'. Here's the patch".
 
--Mitch
+DB people from certain well-known commercial DB have zero coding
+taste. No wonder their binaries are nearly 100 MB (!!!) in size...
+
+In all fairness, O_DIRECT's direct-DMA makes is easier to implement
+"do-not-cache-me" than to do it for generic read()/write()
+(just because O_DIRECT is (was?) using different code path,
+not integrated into VM cache machinery that much).
+
+But _conceptually_ "direct DMAing" and "do-not-cache-me"
+are orthogonal, right?
+
+That's why we also have bona fide fadvise and madvise
+with FADV_DONTNEED/MADV_DONTNEED:
+
+http://www.die.net/doc/linux/man/man2/fadvise.2.html
+http://www.die.net/doc/linux/man/man2/madvise.2.html
+
+_This_ is the proper way to say "do not cache me".
+
+I think tmpfs should just ignore O_DIRECT bit.
+That won't require much coding.
+--
+vda

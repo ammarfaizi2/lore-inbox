@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751023AbXADTaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030195AbXADTal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbXADTaj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbXADTaj
+	id S1030195AbXADTal (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbXADTal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:30:39 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:46491 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751016AbXADTai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:30:38 -0500
-Date: Thu, 4 Jan 2007 11:30:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
- bad_inode_ops return values
-In-Reply-To: <20070104191451.GW17561@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>
-References: <459C4038.6020902@redhat.com> <20070103162643.5c479836.akpm@osdl.org>
- <459D3E8E.7000405@redhat.com> <20070104102659.8c61d510.akpm@osdl.org>
- <459D4897.4020408@redhat.com> <20070104105430.1de994a7.akpm@osdl.org>
- <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk>
+	Thu, 4 Jan 2007 14:30:41 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40223 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030195AbXADTak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 14:30:40 -0500
+Message-ID: <459D55E3.4000905@drzeus.cx>
+Date: Thu, 04 Jan 2007 20:30:43 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: NCPFS and brittle connections
+References: <459D1794.2060009@drzeus.cx> <459D38DA.4030803@vc.cvut.cz>
+In-Reply-To: <459D38DA.4030803@vc.cvut.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Petr Vandrovec wrote:
+>
+> Nobody is working on it (at least to my knowledge), and to me it is
+> feature - it always worked this way, like smbfs did back in the past -
+> if you send signal 9 to process using mount point, and there is some
+> transaction in progress, nobody can correctly finish that transaction
+> anymore.  Fixing it would require non-trivial amount of code, and
+> given that NCP itself is more or less dead protocol I do not feel that
+> it is necessary.
+>
 
+Someone needs to tell our customers then so they'll stop using it. :)
 
-On Thu, 4 Jan 2007, Al Viro wrote:
-> 
-> How about "makes call graph analysis easier"? ;-)  In principle, I have
-> no problem with force-casting, but it'd better be cast to the right
-> type...
+> If you want to fix it, feel free.  Culprit is RQ_INPROGRESS handling
+> in ncp_abort_request - it just aborts whole connection so it does not
+> have to provide temporary buffers and special handling for reply - as
+> buffers currently specified as reply buffers are owned by caller, so
+> after aborting request you cannot use them anymore.
 
-Do we really care in the kernel? We simply never use function pointer 
-casts like this for anything non-trivial, so if the graph analysis just 
-doesn't work for those cases, do we really even care?
+Do you have any pointers to how it was solved with smbfs? Relevant
+patches perhaps? Provided a similar solution can be applied here.
 
-The only case I can _remember_ us doing this for is literally the 
-error-returning functions, where the call graph finding them really 
-doesn't matter, I think.
+Rgds
 
-So I don't _object_ to that reason, I just wonder whether it's really a 
-big issue..
+-- 
+     -- Pierre Ossman
 
-			Linus
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+

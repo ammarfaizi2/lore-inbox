@@ -1,87 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965127AbXADWfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965086AbXADWhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbXADWfo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbXADWfo
+	id S965086AbXADWhN (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbXADWhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:35:44 -0500
-Received: from smtp0.osdl.org ([65.172.181.24]:60453 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965129AbXADWfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:35:44 -0500
-Date: Thu, 4 Jan 2007 14:35:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-cc: Al Viro <viro@ftp.linux.org.uk>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
- bad_inode_ops return values
-In-Reply-To: <20070104223856.GA79126@gaz.sfgoth.com>
-Message-ID: <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
-References: <20070104105430.1de994a7.akpm@osdl.org>
- <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk>
- <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk>
- <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Jan 2007 17:37:13 -0500
+Received: from pqueuea.post.tele.dk ([193.162.153.9]:37514 "EHLO
+	pqueuea.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965086AbXADWhL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:37:11 -0500
+X-Greylist: delayed 1773 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:37:11 EST
+Subject: Re: BUG, 2.6.20-rc3 raid autodetection [repost due to forgotten CC]
+From: Redeeman <redeeman@metanurb.dk>
+Reply-To: redeeman@metanurb.dk
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1167947115.8595.6.camel@localhost>
+References: <1167936465.6594.5.camel@localhost>
+	 <58cb370e0701041107n5369edfdj2efc871de0fe7d24@mail.gmail.com>
+	 <1167940677.8595.1.camel@localhost>
+	 <58cb370e0701041207s5c2e3e26j434dd7fe6809e50b@mail.gmail.com>
+	 <1167944429.8595.3.camel@localhost>
+	 <58cb370e0701041306w5c99c974j1137883b7b95a8@mail.gmail.com>
+	 <1167947115.8595.6.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 23:06:26 +0100
+Message-Id: <1167948386.8595.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 4 Jan 2007, Mitchell Blank Jr wrote:
+On Thu, 2007-01-04 at 22:45 +0100, Kasper Sandberg wrote:
+> On Thu, 2007-01-04 at 22:06 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > On Thu, 2007-01-04 at 21:07 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > > > On Thu, 2007-01-04 at 20:07 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > > > > On 1/4/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > > > > > Hello.
+> > > > > > >
+> > > > > > > i just attempted to test .20-rc3-git4 on a box, which has 6 drives in
+> > > > > > > raid5. it uses raid autodetection, and 2 ide controllers (via and
+> > > > > > > promise 20269).
+> > > > > > >
+> > > > > > > there are two problems.
+> > > > > > >
+> > > > > > > first, and most importantly, it doesent autodetect, i attempted with
+> > > > > > > both the old ide drivers, and the new pata on libata drivers, the drives
+> > > > > > > appears to be found, but the raid autoassembling just doesent happen.
+> > > > > > >
+> > > > > > > this is .17, which works:
+> > > > > > > http://sh.nu/p/8001
+> > > > > > >
+> > > > > > > this is .20-rc3-git4 which doesent work, in pata-on-libata mode:
+> > > > > > > http://sh.nu/p/8000
+> > > > > > >
+> > > > > > > this is .20-rc3-git4 which doesent work, in old ide mode:
+> > > > > > > http://sh.nu/p/8002
+> > > > > >
+> > > > > > For some reason IDE disk driver is not claiming IDE devices.
+> > > > > >
+> > > > > > Could you please double check that IDE disk driver is built-in
+> > > > > > (CONFIG_BLK_DEV_IDEDISK=y in the kernel configuration)
+> > > > > > and not compiled as module?
+> > > > > i need not check even once, i do not have module support enabled, so
+> > > >
+> > > > OK
+> > > >
+> > > > > everything 1000000% surely is built in. this is the case for .17 too
+> > > > > (and earlier, this box was started with .15 i think.)
+> > > >
+> > > > Could you send me your config?
+> > > > I'll try to reproduce this locally.
+> > > sure thing.
+> > >
+> > > http://sh.nu/p/8004 <-- .17 working
+> > 
+> > CONFIG_BLK_DEV_IDEDISK=y
+> > 
+> > > http://sh.nu/p/8005 <-- .20-rc3-git4 nonworking, idemode, the one with
+> > > libata i dont have anymore, but the only difference is that i use the
+> > > libata drivers, but as its same result, shouldnt matter
+> > 
+> > # CONFIG_BLK_DEV_IDEDISK is not set
+> > 
+> > so not everything is "1000000% surely" built-in ;)
+> i see your point, im afraid i may have misinterpreted you, since you
+> said "and not compiled as module", so i thought you meant i had to make
+> sure it wasnt moduled only.
 > 
-> I don't think you need to do fancy #ifdef's:
-> 
-> static s32 return_eio_32(void) { return -EIO; }
-> static s64 return_eio_64(void) { return -EIO; }
-> extern void return_eio_unknown(void);   /* Doesn't exist */
-> #define return_eio(type)        ((sizeof(type) == 4)			\
-> 					? ((void *) return_eio_32)	\
-> 				: ((sizeof(type) == 8)			\
-> 					? ((void *) return_eio_64)	\
-> 					: ((void *) return_eio_unknown)))
+> i will try with this now, what about pataonlibata, do i need this for
+> that too?
+> > 
+> > Bart
+> > 
+-- 
+Redeeman <redeeman@metanurb.dk>
 
-Well, that probably would work, but it's also true that returning a 64-bit 
-value on a 32-bit platform really _does_ depend on more than the size.
-
-For an example of this, try compiling this:
-
-	long long a(void)
-	{
-		return -1;
-	}
-
-	struct dummy { int a, b };
-
-	struct dummy b(void)
-	{
-		struct dummy retval = { -1 , -1 };
-		return retval;
-	}
-
-on x86.
-
-Now, I don't think we actually have anything like this in the kernel, and 
-your example is likely to work very well in practice, but once we start 
-doing tricks like this, I actually think it's getting easier to just say 
-"let's not play tricks with function types at all".
-
-Anybody want to send in the patch that just generates separate versions 
-for
-
-	loff_t eio_llseek(struct file *file, loff_t offset, int origin)
-	{
-		return -EIO;
-	}
-
-	int eio_readdir(struct file *filp, void *dirent, filldir_t filldir)
-	{
-		return -EIO;
-	..
-
-and so on?
-
-		Linus

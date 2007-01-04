@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965128AbXADW0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965126AbXADW1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbXADW0r (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbXADW0r
+	id S965126AbXADW1g (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbXADW1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:26:47 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:33683 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965120AbXADW0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:26:46 -0500
-Message-ID: <459D7F23.7010807@garzik.org>
-Date: Thu, 04 Jan 2007 17:26:43 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 4 Jan 2007 17:27:36 -0500
+Received: from wr-out-0506.google.com ([64.233.184.226]:32809 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965126AbXADW1f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:27:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JAaB8wHl26GYsBOZUMgJK73Tm8SZIv8hio4wFdINP2LD3SziJRoHg65CeOU93ImKwXkeweUiBSzgrMfCu9vaERABG64n7RBjmxF0H1QyGFQxEy4wdiBVzyTETT8ZTx/fuEBgwUbj+qeF3MI2lg3ynFnQ6TSwAa+utUT9neuyerQ=
+Message-ID: <f36b08ee0701041427u7aee90b7j46b06c3b7dd252bd@mail.gmail.com>
+Date: Fri, 5 Jan 2007 00:27:34 +0200
+From: "Yakov Lerner" <iler.ml@gmail.com>
+To: "Kernel Linux" <linux-kernel@vger.kernel.org>
+Subject: how to get serial_no from usb HD disk (HDIO_GET_IDENTITY ioctl, hdparm -i)
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [RFC,PATCHSET] Managed device resources
-References: <1167146313307-git-send-email-htejun@gmail.com> <20070104221916.GI28445@suse.de>
-In-Reply-To: <20070104221916.GI28445@suse.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Hm, but I guess without the follow-up patches for libata, it will not
-> really get tested much.  Jeff, if I accept this, what's your feelings of
-> letting libata be the "test bed" for it?
+How can I get serial_no from usb-attached HD drive ?
 
+ The HDIO_GET_IDENTITY ioctl fails (like 'hdparm -i').
+ Any advice on how to extract the drive serialNo from the usb disk ?
+ Can I write kernel module to extract the SerialNo ?
+ (I don't need whole 'struct hd_driveid', only the SerialNo).
 
-It would be easiest for me to merge this through my 
-libata-dev.git#upstream tree.  That will auto-propagate it to -mm, and 
-ensure that both base and libata bits are sent in one batch.
-
-Just shout if you see NAK-able bits...
-
-Work for you?
-
-	Jeff
-
-
+ Thanks
+ Yakov

@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030246AbXADVwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030250AbXADV7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbXADVwM (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 16:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbXADVwM
+	id S1030250AbXADV7A (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 16:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbXADV7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 16:52:12 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:54430 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030246AbXADVwL (ORCPT
+	Thu, 4 Jan 2007 16:59:00 -0500
+Received: from aa012msr.fastwebnet.it ([85.18.95.72]:42737 "EHLO
+	aa012msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030247AbXADV67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 16:52:11 -0500
-Date: Thu, 4 Jan 2007 21:52:06 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
-Message-ID: <20070104215206.GZ17561@ftp.linux.org.uk>
-References: <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk> <20070104130028.39aa44b8.akpm@osdl.org> <459D6BD1.7050406@redhat.com> <20070104131008.1d95cb0c.akpm@osdl.org> <459D6F17.2050208@redhat.com> <Pine.LNX.4.64.0701041325510.3661@woody.osdl.org>
-Mime-Version: 1.0
+	Thu, 4 Jan 2007 16:58:59 -0500
+Date: Thu, 4 Jan 2007 22:58:10 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
+       Len Brown <lenb@kernel.org>, Ismail Donmez <ismail@pardus.org.tr>,
+       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-ID: <20070104215810.GE25619@inferi.kami.home>
+Mail-Followup-To: Richard Hughes <hughsient@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
+	Len Brown <lenb@kernel.org>, Ismail Donmez <ismail@pardus.org.tr>,
+	Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+	linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701040024.29793.lenb@kernel.org> <1167905384.7763.36.camel@localhost.localdomain> <20070104191512.GC25619@inferi.kami.home> <20070104125107.b82db604.akpm@osdl.org> <20070104211830.GD25619@inferi.kami.home> <20070104132834.99a585c9.akpm@osdl.org> <1167946596.6816.7.camel@hughsie-laptop>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701041325510.3661@woody.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1167946596.6816.7.camel@hughsie-laptop>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.20-rc2-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 01:30:47PM -0800, Linus Torvalds wrote:
- 
-> I'll happily cast away arguments that aren't used, but I'm not sure that 
-> we ever should cast different return values (not "int" vs "long", but also 
-> not "loff_t" etc). 
+On Thu, Jan 04, 2007 at 09:36:36PM +0000, Richard Hughes wrote:
+> On Thu, 2007-01-04 at 13:28 -0800, Andrew Morton wrote:
+> > On Thu, 4 Jan 2007 22:18:30 +0100
+> > Mattia Dongili <malattia@linux.it> wrote:
+> > 
+> > > > The place to start (please) is the patches in -mm:
+> > > > 
+> > > > 2.6-sony_acpi4.patch
+> > > > sony_apci-resume.patch
+> > > > sony_apci-resume-fix.patch
+> > > > acpi-add-backlight-support-to-the-sony_acpi.patch
+> > > > acpi-add-backlight-support-to-the-sony_acpi-v2.patch
+> > > > video-sysfs-support-take-2-add-dev-argument-for-backlight_device_register-sony_acpi-fix.patch
+> > > > 
+> > > > It presently has both the /proc and /sys/.../backlight/.. interfaces, so the first
+> > > > job would be to chop out the /proc stuff.
+> > > 
+> > > Ok, I'll import all of them and start from there.
+> > > Is it ok to wipe all the /proc stuff without notice?
+> > 
+> > spose so.  I don't know if any apps are dependent upon the /proc file,
+> > but the driver isn't in mainline yet so it's unlikely that there's a
+> > mountain of software depending upon existing interfaces.
 > 
-> On 32-bit architectures, 64-bit entities may be returned totally different 
-> ways (ie things like "caller allocates space for them and passes in a 
-> magic pointer to the return value as the first _real_ argument").
+> Well, HAL has used it for changing the brightness for the last year or
+> so: /proc/acpi/sony/brightness
 > 
-> So with my previous email, I was definitely _not_ trying to say that 
-> casting function pointers is ok. In practice it is ok when the _arguments_ 
-> differ, but not necessarily when the _return-type_ differs.
-> 
-> I was cc'd into the discussion late, so I didn't realize that we 
-> apparently already have a situation where changing the return value to 
-> "long" might make a difference. If so, I agree that we shouldn't do this 
-> at all (although Andrew's change to "long" seems perfectly fine as a "make 
-> old cases continue to work" patch if it actually matters).
+> Although if you use a new enough HAL (CVS), the laptop will be supported
+> via the shiny new backlight class.
 
-We do.
-        loff_t (*llseek) (struct file *, loff_t, int);
-...
-        int (*readdir) (struct file *, void *, filldir_t);
+great, -mm already has the /sys/class/backlight in place for sony_acpi
+and I suppose the /proc entry can be kept until 2.6.20 is released, i.e.
+just before pushing things for .21.
 
-static const struct file_operations bad_file_ops =
-{
-        .llseek         = EIO_ERROR,
-...
-        .readdir        = EIO_ERROR,
+Len, would you allow it?
 
-
-Moreover, we have int, loff_t, ssize_t and long, plus the unsigned variants.
-At least 3 versions, unless you want to mess with ifdefs to reduce them to
-two.
+-- 
+mattia
+:wq!

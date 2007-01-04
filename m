@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030235AbXADVUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030202AbXADVXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbXADVUr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 16:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbXADVUr
+	id S1030202AbXADVXi (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 16:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbXADVXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 16:20:47 -0500
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:12165 "EHLO
-	sj-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030235AbXADVUq (ORCPT
+	Thu, 4 Jan 2007 16:23:37 -0500
+Received: from wr-out-0506.google.com ([64.233.184.226]:7378 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030202AbXADVXg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 16:20:46 -0500
-X-IronPort-AV: i="4.12,239,1165219200"; 
-   d="scan'208"; a="98147588:sNHT55079046"
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <hnguyen@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: do we have mmap abuse in ehca ?, was Re:  mmap abuse in ehca
-X-Message-Flag: Warning: May contain useful information
-References: <20061219113502.GA1416@infradead.org>
-	<OF78487656.FBBD715F-ONC125724A.00287BE6-C125724A.002F4756@de.ibm.com>
-	<20061220115116.GA25709@infradead.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 04 Jan 2007 13:20:40 -0800
-In-Reply-To: <20061220115116.GA25709@infradead.org> (Christoph Hellwig's message of "Wed, 20 Dec 2006 11:51:16 +0000")
-Message-ID: <ada8xgi5w0n.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Thu, 4 Jan 2007 16:23:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=sy70xlnglkx6IP7+eCjC0Nb+uSKybs15PKXjH+5qp6ovXx6ZbqT92G6v0e0/ruf4O+NYnzQY/mniR88t+4yHZ5l3eAOkFEVDsn2w7ky643kZSLS4L7C3EY1sazwvEMoIF6cy/LZ4Mg2lqDsNPdOS4GKFBtoib6hzK/IsKcHs/N8=
+Message-ID: <84144f020701041323m6a16420ak1f76fcc3e37763ce@mail.gmail.com>
+Date: Thu, 4 Jan 2007 23:23:35 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Christoph Hellwig" <hch@lst.de>
+Subject: Re: [PATCH] slab: cache alloc cleanups
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, apw@shadowen.org,
+       manfred@colorfullife.com, christoph@lameter.com, pj@sgi.com
+In-Reply-To: <20070104211543.GA21917@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Jan 2007 21:20:42.0666 (UTC) FILETIME=[30B990A0:01C73046]
-Authentication-Results: sj-dkim-2; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim2002 verified; ); 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0701021545290.21477@sbz-30.cs.Helsinki.FI>
+	 <20070104211543.GA21917@lst.de>
+X-Google-Sender-Auth: 76ac76f66768c0aa
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I missed this original thread (on vacation since mid-December,
-just back today).  Anyway...
+On 1/4/07, Christoph Hellwig <hch@lst.de> wrote:
+> Seems to work nicely on my 2node cell blade.
 
-ehca guys -- where do we stand on fixing this up?
+Thanks for testing. Unfortunately as the other Christoph pointed out,
+my patch reintroduces a bug that was fixed a while ago. kmalloc_node
+should not be using mempolicies...

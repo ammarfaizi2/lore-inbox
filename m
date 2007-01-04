@@ -1,154 +1,424 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964856AbXADONr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964866AbXADORj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbXADONr (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 09:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbXADONr
+	id S964866AbXADORj (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 09:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbXADORj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 09:13:47 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:9004 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964856AbXADONq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 09:13:46 -0500
-Date: Thu, 4 Jan 2007 15:16:38 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: saeed bishara <saeed.bishara@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using splice/vmsplice to improve file receive performance
-Message-ID: <20070104141638.GB11203@kernel.dk>
-References: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com> <20061222094858.GP17199@kernel.dk> <c70ff3ad0612220318i54e7569fn161cf781d9bf0669@mail.gmail.com> <20061222113917.GQ17199@kernel.dk> <c70ff3ad0612220359w3f568850qb720230bae76a698@mail.gmail.com> <20061222124710.GR17199@kernel.dk> <c70ff3ad0701031209g43cf5576v11b6409696af1ed4@mail.gmail.com> <20070104140813.GZ11203@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070104140813.GZ11203@kernel.dk>
+	Thu, 4 Jan 2007 09:17:39 -0500
+Received: from usul.saidi.cx ([204.11.33.34]:48093 "EHLO usul.overt.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964866AbXADORi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 09:17:38 -0500
+Message-ID: <459D0C4C.2050401@overt.org>
+Date: Thu, 04 Jan 2007 06:16:44 -0800
+From: Philip Langdale <philipl@overt.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>
+CC: Alex Dubov <oakad@yahoo.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 4)
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04 2007, Jens Axboe wrote:
-> On Wed, Jan 03 2007, saeed bishara wrote:
-> > On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > >On Fri, Dec 22 2006, saeed bishara wrote:
-> > >> On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > >> >On Fri, Dec 22 2006, saeed bishara wrote:
-> > >> >> On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > >> >> >On Thu, Dec 21 2006, saeed bishara wrote:
-> > >> >> >> Hi,
-> > >> >> >> I'm trying to use the splice/vmsplice system calls to improve the
-> > >> >> >> samba server write throughput, but before touching the smbd, I 
-> > >started
-> > >> >> >> to improve the ttcp tool since it simple and has the same flow. I'm
-> > >> >> >> expecting to avoid the "copy_from_user" path when using those
-> > >> >> >> syscalls.
-> > >> >> >> so far, I couldn't make any improvement, actually the throughput 
-> > >get
-> > >> >> >> worst. the new receive flow looks like this (code also attached):
-> > >> >> >> 1. read tcp packet (64 pages) to page aligned buffer.
-> > >> >> >> 2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
-> > >> >> >> 3. splice the pipe to the file, also with SPLICE_F_MOVE.
-> > >> >> >>
-> > >> >> >> the strace shows that the splice takes a lot of time. also when
-> > >> >> >> profiling the kernel, I found that the memcpy() called to often !!
-> > >> >> >
-> > >> >> >(didn't see this until now, axboe@suse.de doesn't work anymore)
-> > >> >> >
-> > >> >> >I'm assuming that you mean you vmsplice with SPLICE_F_GIFT, to hand
-> > >> >> >ownership of the pages to the kernel (in which case SPLICE_F_MOVE 
-> > >will
-> > >> >> >work, otherwise you get a copy)? If not, that'll surely cost you a 
-> > >data
-> > >> >> >copy
-> > >> >>   I'll try the vmplice with SPLICE_F_GIFT and splice with MOVE. btw,
-> > >> >> I noticed that the  splice system call takes the bulk of the time,
-> > >> >> does it mean anything?
-> > >> >
-> > >> >Hard to say without seeing some numbers :-)
-> > >> I'm out of the office, I'll send it later. btw, my test bed ( the
-> > >> receiver side ) is arm9. does it matter?
-> > >
-> > >The vmsplice is basically vm intensive, so it could matter.
-> > >
-> > >> >> >This sounds remarkably like a recent thread on lkml, you may want to
-> > >> >> >read up on that. Basically using splice for network receive is a bit 
-> > >of
-> > >> >> >a work-around now, since you do need the one copy and then vmsplice 
-> > >that
-> > >> >> >into a pipe. To realize the full potential of splice, we first need
-> > >> >> >socket receive support so you can skip that step (splice from socket 
-> > >to
-> > >> >> >pipe, splice pipe to file).
-> > >> >> Ashwini Kulkarni posted patches that implements that, see
-> > >> >> http://lkml.org/lkml/2006/9/20/272 .  is that right?
-> > >> >> >
-> > >> >> >There was no test code attached, btw.
-> > >> >> sorry, here it is.
-> > >> >> can you please add sample application to your test tools (splice,fio
-> > >> >> ,,) that demonstrates my flow; socket to file using read & vmsplice?
-> > >> >
-> > >> >I didn't add such an example, since I had hoped that we would have
-> > >> >splice from socket support sooner rather than later. But I can do so, of
-> > >> >course.
-> > >> do you any preliminary patches? I can start playing with it.
-> > >
-> > >I don't, Intel posted a set of patches a few months ago though. I didn't
-> > >have time to look that at the time being, but you should be able to find
-> > >them in the archives.
-> > >
-> > >> >I'll try your test. One thing that sticks out initially is that you
-> > >> >should be using full pages, the splice pipe will not merge page
-> > >> >segments. So don't use a buflen less than the page size.
-> > >>
-> > >> yes, actually I  run the ttcp with -l65536 ( 64KB ), and the buffer is
-> > >> always page aligned.also, the splice/vmsplice with MOVE or GIFT will
-> > >> fail if the buffer is not a whole pages. am I rigth?
-> > >
-> > >Yes.
-> > >
-> > >I added a simple splice-fromnet example in the splice git repo, see if
-> > >you can repeat your results with that. Doing:
-> > >
-> > ># ./splice-fromnet -g 2001 | ./splice-out -m /dev/null
-> > >
-> > >and
-> > >
-> > ># cat /dev/zero | netcat localhost 2001
-> > >
-> > >gets me about 490MiB/sec, using a recv/write loop is around 413MiB/sec.
-> > >Not migrating pages gets me around 422MiB/sec.
-> > >
-> > >--
-> > >Jens Axboe
-> > >
-> > >
-> > I've done some investigation in the splice flow and found the following:
-> > even when using vmsplice with GIFT and splice with MOVE, the user
-> > buffers still copied, I see that the memcpy from pipe_to_file() is
-> > called.
-> > I added debug messages in this function and here what I got:
-> > 1. the  generic_pipe_buf_steal always fails, this is because the
-> > page_count is 2.
-> > 2. after then, the find_lock_page fails as well.
-> > 3. page_cache_alloc_cold succeeds.
-> > 4. but, since the buf->page is differs from the page (returned by
-> > page_cache_alloc_cold) the memcpy function is called.
-> > 
-> > this behavior true for all the buffers that vmspliced to ext3 file.
-> > is this the expected behavior? is there any way to make the steal
-> > operation return with success?
-> 
-> It works for me, with most pages. Using the vmsplice/splice-out from the
-> splice tools, doing
-> 
-> $ ./vmsplice -g |  ./splice-out -m g
-> 
-> about half of the pages have count==1 and the steal suceeds.
-> 
-> find_lock_page() will only suceed, if the file exists and is cached
-> already. splice-out will truncate the file, so it should never suceed
-> for that case. For both the find_lock_page() success and failure case
-> (page being allocated), it's a given that we need to copy the data.
+Thanks to the generous donation of an SDHC card by John Gilmore, and the
+surprisingly enlightened decision by the SD Card Association to publish
+useful specs, I've been able to bash out support for SDHC. The changes
+are not too profound:
 
-Testing a simpler case (not switching buffers), all but one page was
-stolen. I tested with on-stack and posix_memalign returned buffers.
+i) Add a card flag indicating the card uses block level addressing and check
+it in the block driver. As we never took advantage of byte-level addressing,
+this simply involves skipping the block -> byte translation when sending commands.
 
--- 
-Jens Axboe
+ii) The layout of the CSD is changed - a set of fields are discarded to make space
+for a larger C_SIZE. We did not reference any of the discarded fields except those
+related to the C_SIZE.
+
+iii) Read and write timeouts are fixed values and not calculated from CSD values.
+
+iv) Before invoking SEND_APP_OP_COND, we must invoke the new SEND_IF_COND to inform
+the card we support SDHC.
+
+I've done some basic read and write tests and everything seems to work fine but one
+should obviously use caution in case it eats your data.
+
+In the process of developing this patch, we realised that the R6 response definition
+was incorrect and that it should have been identical to R1 (and so should R7).
+Correcting this mistake revealed problems in a couple of host controller drivers that
+relied on the response definitions to be unique. As we need a story for R7, I've
+also fixed up the R6 handling in the affected drivers but I have no idea if it will
+work in practice as I lack the hardware.
+
+Signed-off-by: Philipl Langdale <philipl@overt.org>
+---
+
+ drivers/mmc/imxmmc.c         |   14 +++-
+ drivers/mmc/mmc.c            |  138 ++++++++++++++++++++++++++++++++++---------
+ drivers/mmc/mmc_block.c      |    8 ++
+ drivers/mmc/omap.c           |    2
+ drivers/mmc/pxamci.c         |    2
+ drivers/mmc/tifm_sd.c        |   14 +++-
+ include/linux/mmc/card.h     |    3
+ include/linux/mmc/mmc.h      |    3
+ include/linux/mmc/protocol.h |   13 +++-
+ 9 files changed, 157 insertions(+), 40 deletions(-)
+
+--- /usr/src/linux/drivers/mmc/imxmmc.c	2007-01-01 07:12:02.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/imxmmc.c	2007-01-04 05:50:41.000000000 -0800
+@@ -343,7 +343,16 @@
+ 	switch (mmc_resp_type(cmd)) {
+ 	case MMC_RSP_R1: /* short CRC, OPCODE */
+ 	case MMC_RSP_R1B:/* short CRC, OPCODE, BUSY */
+-		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R1;
++		switch (cmd->opcode) {
++		case SD_SEND_RELATIVE_ADDR:
++			cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R6;
++			break;
++		case SD_SEND_IF_COND:
++			/* Assuming R7 should be mapped to R1. */
++		default:
++			cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R1;
++			break;
++		}
+ 		break;
+ 	case MMC_RSP_R2: /* long 136 bit + CRC */
+ 		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R2;
+@@ -351,9 +360,6 @@
+ 	case MMC_RSP_R3: /* short */
+ 		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R3;
+ 		break;
+-	case MMC_RSP_R6: /* short CRC */
+-		cmdat |= CMD_DAT_CONT_RESPONSE_FORMAT_R6;
+-		break;
+ 	default:
+ 		break;
+ 	}
+--- /usr/src/linux/drivers/mmc/mmc.c	2007-01-04 05:40:31.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/mmc.c	2007-01-03 22:16:24.000000000 -0800
+@@ -289,7 +289,10 @@
+ 		else
+ 			limit_us = 100000;
+
+-		if (timeout_us > limit_us) {
++		/*
++		 * SDHC cards always use these fixed values.
++		 */
++		if (timeout_us > limit_us || mmc_card_blockaddr(card)) {
+ 			data->timeout_ns = limit_us * 1000;
+ 			data->timeout_clks = 0;
+ 		}
+@@ -588,34 +591,65 @@
+
+ 	if (mmc_card_sd(card)) {
+ 		csd_struct = UNSTUFF_BITS(resp, 126, 2);
+-		if (csd_struct != 0) {
++
++		switch (csd_struct) {
++		case 0:
++			m = UNSTUFF_BITS(resp, 115, 4);
++			e = UNSTUFF_BITS(resp, 112, 3);
++			csd->tacc_ns	 = (tacc_exp[e] * tacc_mant[m] + 9) / 10;
++			csd->tacc_clks	 = UNSTUFF_BITS(resp, 104, 8) * 100;
++	
++			m = UNSTUFF_BITS(resp, 99, 4);
++			e = UNSTUFF_BITS(resp, 96, 3);
++			csd->max_dtr	  = tran_exp[e] * tran_mant[m];
++			csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
++	
++			e = UNSTUFF_BITS(resp, 47, 3);
++			m = UNSTUFF_BITS(resp, 62, 12);
++			csd->capacity	  = (1 + m) << (e + 2);
++	
++			csd->read_blkbits = UNSTUFF_BITS(resp, 80, 4);
++			csd->read_partial = UNSTUFF_BITS(resp, 79, 1);
++			csd->write_misalign = UNSTUFF_BITS(resp, 78, 1);
++			csd->read_misalign = UNSTUFF_BITS(resp, 77, 1);
++			csd->r2w_factor = UNSTUFF_BITS(resp, 26, 3);
++			csd->write_blkbits = UNSTUFF_BITS(resp, 22, 4);
++			csd->write_partial = UNSTUFF_BITS(resp, 21, 1);
++			break;
++		case 1:
++			/*
++			 * This is a block-addressed SDHC card. Most
++			 * interesting fields are unused and have fixed
++			 * values. To avoid getting tripped by buggy cards,
++			 * we assume those fixed values ourselves.
++			 */
++			mmc_card_set_blockaddr(card);
++
++			csd->tacc_ns	 = 0; /* Unused */
++			csd->tacc_clks	 = 0; /* Unused */
++	
++			m = UNSTUFF_BITS(resp, 99, 4);
++			e = UNSTUFF_BITS(resp, 96, 3);
++			csd->max_dtr	  = tran_exp[e] * tran_mant[m];
++			csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
++	
++			m = UNSTUFF_BITS(resp, 48, 22);
++			csd->capacity     = (1 + m) << 10;
++	
++			csd->read_blkbits = 9;
++			csd->read_partial = 0;
++			csd->write_misalign = 0;
++			csd->read_misalign = 0;
++			csd->r2w_factor = 4; /* Unused */
++			csd->write_blkbits = 9;
++			csd->write_partial = 0;
++			break;
++		default:
+ 			printk("%s: unrecognised CSD structure version %d\n",
+ 				mmc_hostname(card->host), csd_struct);
+ 			mmc_card_set_bad(card);
+ 			return;
+ 		}
+-
+-		m = UNSTUFF_BITS(resp, 115, 4);
+-		e = UNSTUFF_BITS(resp, 112, 3);
+-		csd->tacc_ns	 = (tacc_exp[e] * tacc_mant[m] + 9) / 10;
+-		csd->tacc_clks	 = UNSTUFF_BITS(resp, 104, 8) * 100;
+-
+-		m = UNSTUFF_BITS(resp, 99, 4);
+-		e = UNSTUFF_BITS(resp, 96, 3);
+-		csd->max_dtr	  = tran_exp[e] * tran_mant[m];
+-		csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
+-
+-		e = UNSTUFF_BITS(resp, 47, 3);
+-		m = UNSTUFF_BITS(resp, 62, 12);
+-		csd->capacity	  = (1 + m) << (e + 2);
+-
+-		csd->read_blkbits = UNSTUFF_BITS(resp, 80, 4);
+-		csd->read_partial = UNSTUFF_BITS(resp, 79, 1);
+-		csd->write_misalign = UNSTUFF_BITS(resp, 78, 1);
+-		csd->read_misalign = UNSTUFF_BITS(resp, 77, 1);
+-		csd->r2w_factor = UNSTUFF_BITS(resp, 26, 3);
+-		csd->write_blkbits = UNSTUFF_BITS(resp, 22, 4);
+-		csd->write_partial = UNSTUFF_BITS(resp, 21, 1);
+ 	} else {
+ 		/*
+ 		 * We only understand CSD structure v1.1 and v1.2.
+@@ -848,6 +882,41 @@
+ 	return err;
+ }
+
++static int mmc_send_if_cond(struct mmc_host *host, u32 ocr, int *rsd2)
++{
++	struct mmc_command cmd;
++	int err, sd2;
++	static const u8 test_pattern = 0xAA;
++
++	/*
++	* To support SD 2.0 cards, we must always invoke SD_SEND_IF_COND
++	* before SD_APP_OP_COND. This command will harmlessly fail for
++	* SD 1.0 cards.
++	*/
++	cmd.opcode = SD_SEND_IF_COND;
++	cmd.arg = ((ocr & 0xFF8000) != 0) << 8 | test_pattern;
++	cmd.flags = MMC_RSP_R7 | MMC_CMD_BCR;
++
++	err = mmc_wait_for_cmd(host, &cmd, 0);
++	if (err == MMC_ERR_NONE) {
++		if ((cmd.resp[0] & 0xFF) == test_pattern) {
++			sd2 = 1;
++		} else {
++			sd2 = 0;
++			err = MMC_ERR_FAILED;
++		}
++	} else {
++		/*
++		 * Treat errors as SD 1.0 card.
++		 */
++		sd2 = 0;
++		err = MMC_ERR_NONE;
++	}
++	if (rsd2)
++		*rsd2 = sd2;
++	return err;
++}
++
+ /*
+  * Discover cards by requesting their CID.  If this command
+  * times out, it is not an error; there are no further cards
+@@ -1334,6 +1403,10 @@
+ 		mmc_power_up(host);
+ 		mmc_idle_cards(host);
+
++		err = mmc_send_if_cond(host, host->ocr_avail, NULL);
++		if (err != MMC_ERR_NONE) {
++			return;
++		}
+ 		err = mmc_send_app_op_cond(host, 0, &ocr);
+
+ 		/*
+@@ -1386,10 +1459,21 @@
+ 	 * all get the idea that they should be ready for CMD2.
+ 	 * (My SanDisk card seems to need this.)
+ 	 */
+-	if (host->mode == MMC_MODE_SD)
+-		mmc_send_app_op_cond(host, host->ocr, NULL);
+-	else
++	if (host->mode == MMC_MODE_SD) {
++		int err, sd2;
++		err = mmc_send_if_cond(host, host->ocr, &sd2);
++		if (err == MMC_ERR_NONE) {
++			/*
++			* If SD_SEND_IF_COND indicates an SD 2.0
++			* compliant card and we should set bit 30
++			* of the ocr to indicate that we can handle
++			* block-addressed SDHC cards.
++			*/
++			mmc_send_app_op_cond(host, host->ocr | (sd2 << 30), NULL);
++		}
++	} else {
+ 		mmc_send_op_cond(host, host->ocr, NULL);
++	}
+
+ 	mmc_discover_cards(host);
+
+--- /usr/src/linux/drivers/mmc/mmc_block.c	2007-01-04 05:40:31.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/mmc_block.c	2007-01-01 06:42:37.000000000 -0800
+@@ -237,7 +237,9 @@
+ 		brq.mrq.cmd = &brq.cmd;
+ 		brq.mrq.data = &brq.data;
+
+-		brq.cmd.arg = req->sector << 9;
++		brq.cmd.arg = req->sector;
++		if (!mmc_card_blockaddr(card))
++			brq.cmd.arg <<= 9;
+ 		brq.cmd.flags = MMC_RSP_R1 | MMC_CMD_ADTC;
+ 		brq.data.blksz = 1 << md->block_bits;
+ 		brq.data.blocks = req->nr_sectors >> (md->block_bits - 9);
+@@ -494,6 +496,10 @@
+ 	struct mmc_command cmd;
+ 	int err;
+
++	/* Block-addressed cards ignore MMC_SET_BLOCKLEN. */
++	if (mmc_card_blockaddr(card))
++		return 0;
++
+ 	mmc_card_claim_host(card);
+ 	cmd.opcode = MMC_SET_BLOCKLEN;
+ 	cmd.arg = 1 << md->block_bits;
+--- /usr/src/linux/drivers/mmc/omap.c	2007-01-01 07:12:02.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/omap.c	2007-01-04 05:46:24.000000000 -0800
+@@ -206,7 +206,7 @@
+ 	/* Our hardware needs to know exact type */
+ 	switch (RSP_TYPE(mmc_resp_type(cmd))) {
+ 	case RSP_TYPE(MMC_RSP_R1):
+-		/* resp 1, resp 1b */
++		/* resp 1, 1b, 6, 7 */
+ 		resptype = 1;
+ 		break;
+ 	case RSP_TYPE(MMC_RSP_R2):
+--- /usr/src/linux/drivers/mmc/pxamci.c	2007-01-01 07:12:02.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/pxamci.c	2007-01-04 05:46:36.000000000 -0800
+@@ -171,7 +171,7 @@
+
+ #define RSP_TYPE(x)	((x) & ~(MMC_RSP_BUSY|MMC_RSP_OPCODE))
+ 	switch (RSP_TYPE(mmc_resp_type(cmd))) {
+-	case RSP_TYPE(MMC_RSP_R1): /* r1, r1b, r6 */
++	case RSP_TYPE(MMC_RSP_R1): /* r1, r1b, r6, r7 */
+ 		cmdat |= CMDAT_RESP_SHORT;
+ 		break;
+ 	case RSP_TYPE(MMC_RSP_R3):
+--- /usr/src/linux/drivers/mmc/tifm_sd.c	2006-12-03 12:46:56.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/tifm_sd.c	2007-01-04 05:51:17.000000000 -0800
+@@ -165,7 +165,16 @@
+ 	case MMC_RSP_R1B:
+ 		rc |= TIFM_MMCSD_RSP_BUSY; // deliberate fall-through
+ 	case MMC_RSP_R1:
+-		rc |= TIFM_MMCSD_RSP_R1;
++		switch (cmd->opcode) {
++		case SD_SEND_RELATIVE_ADDR:
++			rc |= TIFM_MMCSD_RSP_R6;
++			break;
++		case SD_SEND_IF_COND:
++			/* Assuming R7 should be mapped to R1. */
++		default:
++			rc |= TIFM_MMCSD_RSP_R1;
++			break;
++		}
+ 		break;
+ 	case MMC_RSP_R2:
+ 		rc |= TIFM_MMCSD_RSP_R2;
+@@ -173,9 +182,6 @@
+ 	case MMC_RSP_R3:
+ 		rc |= TIFM_MMCSD_RSP_R3;
+ 		break;
+-	case MMC_RSP_R6:
+-		rc |= TIFM_MMCSD_RSP_R6;
+-		break;
+ 	default:
+ 		BUG();
+ 	}
+--- /usr/src/linux/include/linux/mmc/card.h	2007-01-04 05:40:31.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/card.h	2006-12-31 19:00:43.000000000 -0800
+@@ -71,6 +71,7 @@
+ #define MMC_STATE_SDCARD	(1<<3)		/* is an SD card */
+ #define MMC_STATE_READONLY	(1<<4)		/* card is read-only */
+ #define MMC_STATE_HIGHSPEED	(1<<5)		/* card is in high speed mode */
++#define MMC_STATE_BLOCKADDR	(1<<6)		/* card uses block-addressing */
+ 	u32			raw_cid[4];	/* raw card CID */
+ 	u32			raw_csd[4];	/* raw card CSD */
+ 	u32			raw_scr[2];	/* raw card SCR */
+@@ -87,6 +88,7 @@
+ #define mmc_card_sd(c)		((c)->state & MMC_STATE_SDCARD)
+ #define mmc_card_readonly(c)	((c)->state & MMC_STATE_READONLY)
+ #define mmc_card_highspeed(c)	((c)->state & MMC_STATE_HIGHSPEED)
++#define mmc_card_blockaddr(c)	((c)->state & MMC_STATE_BLOCKADDR)
+
+ #define mmc_card_set_present(c)	((c)->state |= MMC_STATE_PRESENT)
+ #define mmc_card_set_dead(c)	((c)->state |= MMC_STATE_DEAD)
+@@ -94,6 +96,7 @@
+ #define mmc_card_set_sd(c)	((c)->state |= MMC_STATE_SDCARD)
+ #define mmc_card_set_readonly(c) ((c)->state |= MMC_STATE_READONLY)
+ #define mmc_card_set_highspeed(c) ((c)->state |= MMC_STATE_HIGHSPEED)
++#define mmc_card_set_blockaddr(c) ((c)->state |= MMC_STATE_BLOCKADDR)
+
+ #define mmc_card_name(c)	((c)->cid.prod_name)
+ #define mmc_card_id(c)		((c)->dev.bus_id)
+--- /usr/src/linux/include/linux/mmc/mmc.h	2007-01-04 05:40:31.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/mmc.h	2007-01-04 05:41:49.000000000 -0800
+@@ -42,7 +42,8 @@
+ #define MMC_RSP_R1B	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
+ #define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+ #define MMC_RSP_R3	(MMC_RSP_PRESENT)
+-#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC)
++#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
++#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+
+ #define mmc_resp_type(cmd)	((cmd)->flags & (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC|MMC_RSP_BUSY|MMC_RSP_OPCODE))
+
+--- /usr/src/linux/include/linux/mmc/protocol.h	2007-01-04 05:40:31.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/protocol.h	2006-12-31 19:00:43.000000000 -0800
+@@ -79,9 +79,12 @@
+ #define MMC_GEN_CMD              56   /* adtc [0] RD/WR          R1  */
+
+ /* SD commands                           type  argument     response */
+-  /* class 8 */
++  /* class 0 */
+ /* This is basically the same command as for MMC with some quirks. */
+ #define SD_SEND_RELATIVE_ADDR     3   /* bcr                     R6  */
++#define SD_SEND_IF_COND           8   /* bcr  [11:0] See below   R7  */
++
++  /* class 10 */
+ #define SD_SWITCH                 6   /* adtc [31:0] See below   R1  */
+
+   /* Application commands */
+@@ -115,6 +118,14 @@
+  */
+
+ /*
++ * SD_SEND_IF_COND argument format:
++ *
++ *	[31:12] Reserved (0)
++ *	[11:8] Host Voltage Supply Flags
++ *	[7:0] Check Pattern (0xAA)
++ */
++
++/*
+   MMC status in R1
+   Type
+   	e : error bit
 

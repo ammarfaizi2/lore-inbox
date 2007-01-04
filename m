@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964834AbXADNEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964841AbXADNIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbXADNEq (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 08:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbXADNEq
+	id S964841AbXADNIT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 08:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbXADNIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 08:04:46 -0500
-Received: from mail1.key-systems.net ([81.3.43.211]:44340 "HELO
-	mail1.key-systems.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S964834AbXADNEp (ORCPT
+	Thu, 4 Jan 2007 08:08:19 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:22854 "EHLO
+	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964841AbXADNIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 08:04:45 -0500
-Message-ID: <459CFB6A.5000607@scientia.net>
-Date: Thu, 04 Jan 2007 14:04:42 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Thu, 4 Jan 2007 08:08:18 -0500
+X-AuditID: d80ac21c-9f1c8bb000005c6b-19-459cfc41ec11 
+Date: Thu, 4 Jan 2007 13:08:35 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Michael Tokarev <mjt@tls.msk.ru>
+cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: open(O_DIRECT) on a tmpfs?
+In-Reply-To: <459CEA93.4000704@tls.msk.ru>
+Message-ID: <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com>
+References: <459CEA93.4000704@tls.msk.ru>
 MIME-Version: 1.0
-To: Karsten Weiss <K.Weiss@science-computing.de>
-CC: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-References: <Pine.LNX.4.64.0612021202000.2981@addx.localnet> <Pine.LNX.4.61.0612111001240.23470@palpatine.science-computing.de> <20061213202925.GA3909@codepoet.org>
-In-Reply-To: <20061213202925.GA3909@codepoet.org>
-Content-Type: multipart/mixed;
- boundary="------------080509000905070104030005"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Jan 2007 13:08:17.0648 (UTC) FILETIME=[66859700:01C73001]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080509000905070104030005
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Thu, 4 Jan 2007, Michael Tokarev wrote:
+> I wonder why open() with O_DIRECT (for example) bit set is
+> disallowed on a tmpfs (again, for example) filesystem,
+> returning EINVAL.
 
-Hi.
+Because it would be (a very small amount of) work and bloat to
+support O_DIRECT on tmpfs; because that work didn't seem useful;
+and because the nature of tmpfs (completely in page cache) is at
+odds with the nature of O_DIRECT (completely avoiding page cache),
+so it would seem misleading to support it.
 
-Just for you information: I've put the issue into the kernel.org bugzilla.
-http://bugzilla.kernel.org/show_bug.cgi?id=7768
+You have a valid view, that we should not forbid what can easily be
+allowed; and a valid (experimental) use for O_DIRECT on tmpfs; and
+a valid alternative perception, that the nature of tmpfs is already
+direct, so O_DIRECT should be allowed as a no-op upon it.
 
-Chris.
+On the other hand, I'm glad that you've found a good workaround,
+using loop, and suspect that it's appropriate that you should have
+to use such a workaround: if the app cares so much that it insists
+on O_DIRECT succeeding (for the ordering and persistence of its
+metadata), would it be right for tmpfs to deceive it?
 
---------------080509000905070104030005
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+I'm inclined to stick with the status quo;
+but could be persuaded by a chorus behind you.
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------080509000905070104030005--
+Hugh
+
+p.s.  You said "O_DIRECT (for example)" - what other open
+flag do you think tmpfs should support which it does not?

@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932117AbXADS5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932249AbXADTCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbXADS5m (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:57:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbXADS5l
+	id S932249AbXADTCP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbXADTCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:57:41 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:17919 "EHLO
-	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932117AbXADS5k (ORCPT
+	Thu, 4 Jan 2007 14:02:15 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:51944 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932249AbXADTCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:57:40 -0500
-X-AuditID: d80ac21c-9d537bb00000021a-51-459d4e23825f 
-Date: Thu, 4 Jan 2007 18:57:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
-In-Reply-To: <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0701041840360.23501@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
- <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
+	Thu, 4 Jan 2007 14:02:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=TfkR53gp4Quhyng3530FoIQ58U/mJW1yBuMSiy+Yo4VstLwW+WkZVWtt90IgKn+V4G8/VDKLSoNsYeZhg3w7kdrdtH4Ky8o0B6NVX4YZBBnnZ3KyujFTqbBIsJZzKMXv+CZ5OQM72BpUmFF5xtD1i4y+MjMp5kKG9vtqbjP1KyI=
+Date: Thu, 4 Jan 2007 19:00:15 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 5/8] user ns: prepare copy_tree, copy_mnt, and their callers to handle errs
+Message-ID: <20070104190014.GA17863@slug>
+References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181215.GF11377@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jan 2007 18:57:39.0277 (UTC) FILETIME=[34A057D0:01C73032]
-X-Brightmail-Tracker: AAAAAA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104181215.GF11377@sergelap.austin.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Pekka Enberg wrote:
+On Thu, Jan 04, 2007 at 12:12:15PM -0600, Serge E. Hallyn wrote:
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index 5da87e2..a4039a3 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -708,8 +708,9 @@ struct vfsmount *copy_tree(struct vfsmou
+>  		return NULL;
+>  
+>  	res = q = clone_mnt(mnt, dentry, flag);
+> -	if (!q)
+> -		goto Enomem;
+> +	if (!q || IS_ERR(q)) {
+> +		return q;
+> +	}
+>  	q->mnt_mountpoint = mnt->mnt_mountpoint;
+>  
+>  	p = mnt;
+> @@ -730,8 +731,9 @@ struct vfsmount *copy_tree(struct vfsmou
+>  			nd.mnt = q;
+>  			nd.dentry = p->mnt_mountpoint;
+>  			q = clone_mnt(p, p->mnt_root, flag);
+> -			if (!q)
+> -				goto Enomem;
+> +			if (!q || IS_ERR(q)) {
+> +				goto Error;
+> +			}
+>  			spin_lock(&vfsmount_lock);
+>  			list_add_tail(&q->mnt_list, &res->mnt_list);
+>  			attach_mnt(q, &nd);
+> @@ -739,7 +741,7 @@ struct vfsmount *copy_tree(struct vfsmou
+>  		}
+>  	}
+>  	return res;
+> -Enomem:
+> +Error:
+>  	if (res) {
+        ^^^^^^^^^^
+I think that this check can be safely skiped, as res is always non-NULL
+when Error: is now reached, isn't it?
 
-> Hi Hugh,
-> 
-> [Sorry, no access to kernel tree right now, so can't send a patch.]
-> 
-> On 1/4/07, Hugh Dickins <hugh@veritas.com> wrote:
-> > @@ -3310,7 +3310,7 @@ retry:
-> >                                         */
-> >                                         goto retry;
-> >                         } else {
-> > -                               kmem_freepages(cache, obj);
-> > +                               /* cache_grow already freed obj */
-> >                                 obj = NULL;
-> 
-> So, how about we rename the current cache_grow() to __cache_grow() and
-> move the kmem_freepages() to a higher level function like this:
-> 
-> static int cache_grow(struct kmem_cache *cache,
->                                gfp_t flags, int nodeid)
-> {
->        void *objp;
->        int ret;
-> 
->        if (flags & __GFP_NO_GROW)
->                return 0;
-> 
->        objp = kmem_getpages(cachep, flags, nodeid);
->        if (!objp)
->                return 0;
-> 
->        ret = __cache_grow(cache, flags, nodeid, objp);
->        if (!ret)
->                kmem_freepages(cachep, objp);
-> 
->        return ret;
-> }
-> 
-> And use the non-allocating __cache_grow version() in fallback_alloc() instead?
-
-That does indeed look more tasteful.  But there appears to be a fair
-bit more refactoring one would want to do, if aiming for good taste
-there: the kmem_flagcheck, the conditional local_irq_dis/enable...
-I think I'll leave that to you and Christoph to fight over later!
-
-Hugh
+Regards,
+Frederik

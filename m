@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964849AbXADNvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964864AbXADN7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbXADNvg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 08:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbXADNvg
+	id S964864AbXADN7h (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 08:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbXADN7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 08:51:36 -0500
-Received: from mail.atmel.fr ([81.80.104.162]:57109 "EHLO atmel-es2.atmel.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964849AbXADNvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 08:51:35 -0500
-Message-ID: <459D05EC.9010907@rfo.atmel.com>
-Date: Thu, 04 Jan 2007 14:49:32 +0100
-From: Nicolas Ferre <nicolas.ferre@rfo.atmel.com>
-Organization: atmel
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Thu, 4 Jan 2007 08:59:37 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:36483 "EHLO
+	mail.clusterfs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964855AbXADN7g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 08:59:36 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Dmitry Torokhov <dtor@insightbb.com>, Imre Deak <imre.deak@solidboot.com>,
-       linux-kernel@vger.kernel.org, tony@atomide.com
-Subject: Re: [patch 2.6.20-rc1 6/6] input: ads7846 directly senses PENUP state
-References: <20061222192536.A206A1F0CDB@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <200612281437.56888.david-b@pacbell.net>	
-	 <200612290122.52752.dtor@insightbb.com> <200612291226.46984.david-b@pacbell.net>
-In-Reply-To: <200612291226.46984.david-b@pacbell.net>
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: 8bit
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17821.2116.968666.182913@gargle.gargle.HOWL>
+Date: Thu, 4 Jan 2007 16:59:32 +0300
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>, Benny Halevy <bhalevy@panasas.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+Newsgroups: gmane.linux.file-systems,gmane.linux.kernel,gmane.ietf.nfsv4
+In-Reply-To: <Pine.LNX.4.64.0701020018330.5162@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
+	<E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
+	<20061221185850.GA16807@delft.aura.cs.cmu.edu>
+	<Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
+	<1166869106.3281.587.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
+	<4593890C.8030207@panasas.com>
+	<1167300352.3281.4183.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0612281909200.2960@artax.karlin.mff.cuni.cz>
+	<1167388475.6106.51.camel@lade.trondhjem.org>
+	<Pine.LNX.4.64.0612300154510.19928@artax.karlin.mff.cuni.cz>
+	<17816.29254.497543.329777@gargle.gargle.HOWL>
+	<Pine.LNX.4.64.0701012356410.5162@artax.karlin.mff.cuni.cz>
+	<17817.37844.730977.13636@gargle.gargle.HOWL>
+	<Pine.LNX.4.64.0701020018330.5162@artax.karlin.mff.cuni.cz>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-SystemSpamProbe: GOOD 0.0000177 428c16328e8128ff045be705f8632985
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell a écrit :
-> On Thursday 28 December 2006 10:22 pm, Dmitry Torokhov wrote:
->> I appied all patches except for hwmon as it had some issues with CONFIG_HWMON
->> handling. Could you please take a look at the patch below and tell me if it
->> works for you?
-> 
-> Looked OK, except:
-> 
->> +#if defined(CONFIG_HWMON) || (defined(MODULE) && defined(CONFIG_HWMON_MODULE))
-> 
-> That idiom is more usually written
-> 
-> 	#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
-> 
-> Thanks!  I'll be glad to see fewer versions of this driver floating around.
-> And to see the next version of the ads7843 patches ... :) 
+Mikulas Patocka writes:
+ > > > BTW. How does ReiserFS find that a given inode number (or object ID in
+ > > > ReiserFS terminology) is free before assigning it to new file/directory?
+ > >
+ > > reiserfs v3 has an extent map of free object identifiers in
+ > > super-block.
+ > 
+ > Inode free space can have at most 2^31 extents --- if inode numbers 
+ > alternate between "allocated", "free". How do you pack it to superblock?
 
-Hi, I am back on this task... I hope I will have a working patchset soon.
+In the worst case, when free/used extents are small, some free oids are
+"leaked", but this has never been problem in practice. In fact, there
+was a patch for reiserfs v3 to store this map in special hidden file but
+it wasn't included in mainline, as nobody ever complained about oid map
+fragmentation.
 
-I face an issue using the hrtimer instead of the old timer framework 
-(your patch #4/6). It seems that I do not sample at a sufficient rate 
-using hrtimer : I see squares when drawing circles ;-)
+ > 
+ > > reiser4 used 64 bit object identifiers without reuse.
+ > 
+ > So you are going to hit the same problem as I did with SpadFS --- you 
+ > can't export 64-bit inode number to userspace (programs without 
+ > -D_FILE_OFFSET_BITS=64 will have stat() randomly failing with EOVERFLOW 
+ > then) and if you export only 32-bit number, it will eventually wrap-around 
+ > and colliding st_ino will cause data corruption with many userspace 
+ > programs.
 
-Do you know if the hrtimer framework has an issue on at91 or do I have 
-to code something to have a low res timer support in the hrtimer framework ?
+Indeed, this is fundamental problem. Reiser4 tries to ameliorate it by
+using hash function that starts colliding only when there are billions
+of files, in which case 32bit inode number is screwed anyway.
 
-Cheers,
--- 
-Nicolas Ferre
+Note, that none of the above problems invalidates reasons for having
+long in-kernel inode identifiers that I outlined in other message.
 
+ > 
+ > Mikulas
+
+Nikita.
 

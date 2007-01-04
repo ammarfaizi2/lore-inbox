@@ -1,98 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932208AbXADA04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932206AbXADA3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbXADA04 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 19:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbXADA04
+	id S932206AbXADA3S (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 19:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbXADA3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 19:26:56 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:35217 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932208AbXADA0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 19:26:55 -0500
-Date: Wed, 3 Jan 2007 16:26:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Sandeen <sandeen@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
- bad_inode_ops return values
-Message-Id: <20070103162643.5c479836.akpm@osdl.org>
-In-Reply-To: <459C4038.6020902@redhat.com>
-References: <459C4038.6020902@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Jan 2007 19:29:18 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:37877
+	"EHLO gnuppy.monkey.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932206AbXADA3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 19:29:17 -0500
+Date: Wed, 3 Jan 2007 16:29:10 -0800
+To: "Chen, Tim C" <tim.c.chen@intel.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Message-ID: <20070104002909.GA31682@gnuppy.monkey.org>
+References: <20070104001225.GA31434@gnuppy.monkey.org> <9D2C22909C6E774EBFB8B5583AE5291C01A4FB7D@fmsmsx414.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C01A4FB7D@fmsmsx414.amr.corp.intel.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Jan 2007 17:46:00 -0600
-Eric Sandeen <sandeen@redhat.com> wrote:
+On Wed, Jan 03, 2007 at 04:25:46PM -0800, Chen, Tim C wrote:
+> Earlier I used latency_trace and figured that there was read contention
+> on mm->mmap_sem during call to _rt_down_read by java threads
+> when I was running volanomark.  That caused the slowdown of the rt
+> kernel
+> compared to non-rt kernel.  The output from lock_stat confirm
+> that mm->map_sem was indeed the most heavily contended lock.
 
-> Take 2... all in one file.  I suppose I really did know better than 
-> to create that new header.   ;-) 
-> 
-> Better?
-> 
-> ---
-> 
-> CVE-2006-5753 is for a case where an inode can be marked bad, switching 
-> the ops to bad_inode_ops, which are all connected as:
-> 
-> static int return_EIO(void)
-> {
->         return -EIO;
-> }
-> 
-> #define EIO_ERROR ((void *) (return_EIO))
-> 
-> static struct inode_operations bad_inode_ops =
-> {
->         .create         = bad_inode_create
-> ...etc...
-> 
-> The problem here is that the void cast causes return types to not be 
-> promoted, and for ops such as listxattr which expect more than 32 bits of
-> return value, the 32-bit -EIO is interpreted as a large positive 64-bit 
-> number, i.e. 0x00000000fffffffa instead of 0xfffffffa.
-> 
-> This goes particularly badly when the return value is taken as a number of
-> bytes to copy into, say, a user's buffer for example...
-> 
-> I originally had coded up the fix by creating a return_EIO_<TYPE> macro
-> for each return type, like this:
-> 
-> static int return_EIO_int(void)
-> {
-> 	return -EIO;
-> }
-> #define EIO_ERROR_INT ((void *) (return_EIO_int))
-> 
-> static struct inode_operations bad_inode_ops =
-> {
-> 	.create		= EIO_ERROR_INT,
-> ...etc...
-> 
-> but Al felt that it was probably better to create an EIO-returner for each 
-> actual op signature.  Since so few ops share a signature, I just went ahead 
-> & created an EIO function for each individual file & inode op that returns
-> a value.
-> 
+Can you sort the output ("sort -n" what ever..) and post it without the
+zeroed entries ?
 
-Al is correct, of course.  But the patch takes bad_inode.o from 280 up to 703
-bytes, which is a bit sad for some cosmetic thing which nobody ever looks
-at or modifies.
+I'm curious about how that statistical spike compares to the rest of the
+system activity. I'm sure that'll get the attention of Peter as well and
+maybe he'll do something about it ? :)
 
-Perhaps you can do
+bill
 
-static int return_EIO_int(void)
-{
-	return -EIO;
-}
-
-static int bad_file_release(struct inode * inode, struct file * filp)
-	__attribute__((alias("return_EIO_int")));
-static int bad_file_fsync(struct inode * inode, struct file * filp)
-	__attribute__((alias("return_EIO_int")));
-
-etcetera?

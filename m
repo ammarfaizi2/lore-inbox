@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965079AbXADUX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965082AbXADUYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbXADUX5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 15:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbXADUX5
+	id S965082AbXADUYR (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 15:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbXADUYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 15:23:57 -0500
-Received: from hoefnix.telenet-ops.be ([195.130.132.54]:49966 "EHLO
-	hoefnix.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965079AbXADUX5 (ORCPT
+	Thu, 4 Jan 2007 15:24:17 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55829 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965084AbXADUYP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 15:23:57 -0500
-Message-ID: <459D6239.7090601@telenet.be>
-Date: Thu, 04 Jan 2007 21:23:21 +0100
-From: Kristof Provost <Kristof.Provost@telenet.be>
-Reply-To: Kristof.Provost@telenet.be
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
-MIME-Version: 1.0
-To: Akula2 <akula2.shark@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multi kernel tree support on the same distro?
-References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
-In-Reply-To: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Jan 2007 15:24:15 -0500
+Date: Thu, 4 Jan 2007 20:24:12 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
+Message-ID: <20070104202412.GY17561@ftp.linux.org.uk>
+References: <459C4038.6020902@redhat.com> <20070103162643.5c479836.akpm@osdl.org> <459D3E8E.7000405@redhat.com> <20070104102659.8c61d510.akpm@osdl.org> <459D4897.4020408@redhat.com> <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+On Thu, Jan 04, 2007 at 11:30:22AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 4 Jan 2007, Al Viro wrote:
+> > 
+> > How about "makes call graph analysis easier"? ;-)  In principle, I have
+> > no problem with force-casting, but it'd better be cast to the right
+> > type...
+> 
+> Do we really care in the kernel? We simply never use function pointer 
+> casts like this for anything non-trivial, so if the graph analysis just 
+> doesn't work for those cases, do we really even care?
 
-> Hello All,
-> 
-> I am looking to use multiple kernel trees on the same distro. Example:-
-> 
-> 2.6.19.1 for - software/tools development
-> 2.4.34    for - embedded systems development.
-> 
-> I do know that 2.6 supports embedded in a big way....but still
-> requirement demands to work with such boards as an example:-
-> 
-> http://www.embeddedarm.com/linux/ARM.htm
-> 
-> My question is HOW-TO enable a distro with multi kernel trees?
-> Presently am using Fedora Core 5/6 for much of the development
-> activities (Cell BE SDK related at Labs).
-> 
-> Any hints/suggestions would be a great leap for me to do this on my own.
-> 
-> ~Akula2
+Umm...  Let me put it that way - amount of things that can be done to
+void * is much more than what can be done to function pointers.  So
+keeping track of them gets easier if we never do casts to/from void *.
+What's more, very few places in the kernel try to do that _and_ most
+of those that do are simply too lazy to declare local variable with
+the right type.  bad_inode.c covers most of what remains.
 
-I'm not sure I understood your problem correctly.
-I see no reason to have two kernel versions on your host system. You can
-keep 2.6.x on the host, and compile a 2.4.x for the target. You don't
-need to run 2.4.x on your host.
+IMO we ought to start checking for that kind of stuff; note that we _still_
+have strugglers from pt_regs removal where interrupt handler still takes
+3 arguments, but we don't notice since argument of request_irq() is cast
+to void * ;-/
 
-The TS-Kernel the website talks about is meant to run on the embedded
-target.
+That's local stuff; however, when trying to do non-local work (e.g. deduce
+that foo() may be called from BH, bar() is always called from process
+context, etc. _without_ fuckloads of annotations all over the place), the
+ban on mixing void * with function pointers helps a _lot_.
 
-Kristof
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFnWI5UEZ9DhGwDugRA/SCAKCgBfrAIreTa4k6IsmAi4Dr2jGa6wCfbTF7
-CexlUWurRHI20hHsp+TsN5k=
-=0kdG
------END PGP SIGNATURE-----
+So my main issue with fs/bad_inode.c is not even cast per se; it's that
+cast is to void *.

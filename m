@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030192AbXADTNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030194AbXADTOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbXADTNt (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbXADTNt
+	id S1030194AbXADTOz (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbXADTOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:13:49 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:21123 "EHLO
-	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030192AbXADTNs (ORCPT
+	Thu, 4 Jan 2007 14:14:54 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38423 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030194AbXADTOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:13:48 -0500
-X-AuditID: d80ac21c-a047dbb00000021a-b5-459d51ec5ccf 
-Date: Thu, 4 Jan 2007 19:14:04 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Hua Zhong <hzhong@gmail.com>
-cc: Christoph Hellwig <hch@infradead.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: open(O_DIRECT) on a tmpfs?
-In-Reply-To: <003f01c7302f$e72164b0$0200a8c0@nuitysystems.com>
-Message-ID: <Pine.LNX.4.64.0701041911470.27405@blonde.wat.veritas.com>
-References: <003f01c7302f$e72164b0$0200a8c0@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jan 2007 19:13:47.0871 (UTC) FILETIME=[75F40EF0:01C73034]
-X-Brightmail-Tracker: AAAAAA==
+	Thu, 4 Jan 2007 14:14:54 -0500
+Date: Thu, 4 Jan 2007 19:14:51 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
+Message-ID: <20070104191451.GW17561@ftp.linux.org.uk>
+References: <459C4038.6020902@redhat.com> <20070103162643.5c479836.akpm@osdl.org> <459D3E8E.7000405@redhat.com> <20070104102659.8c61d510.akpm@osdl.org> <459D4897.4020408@redhat.com> <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Hua Zhong wrote:
-> 
-> So I'd argue that it makes more sense to support O_DIRECT
-> on tmpfs as the memory IS the backing store.
+On Thu, Jan 04, 2007 at 11:09:31AM -0800, Linus Torvalds wrote:
+ 
+> But I'd argue we should only do it if there is an actual 
+> honest-to-goodness reason to do so.
 
-A few more voices in favour and I'll be persuaded.  Perhaps I'm
-out of date: when O_DIRECT came in, just a few filesystems supported
-it, and it was perfectly normal for open O_DIRECT to be failed; but
-I wouldn't want tmpfs to stand out now as a lone obstacle.
+How about "makes call graph analysis easier"? ;-)  In principle, I have
+no problem with force-casting, but it'd better be cast to the right
+type...
 
-Christoph, what's your take on this?
-
-Hugh
+(And yes, there's a bunch of sparse-based fun in making dealing with
+call graph analysis and sane annotations needed for that).

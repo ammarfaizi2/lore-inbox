@@ -1,54 +1,146 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964940AbXADP4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964937AbXADP4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbXADP4J (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 10:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbXADP4I
+	id S964937AbXADP4Q (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 10:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbXADP4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 10:56:08 -0500
-Received: from il.qumranet.com ([62.219.232.206]:46523 "EHLO il.qumranet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964937AbXADP4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 10:56:07 -0500
-Subject: [PATCH 7/33] KVM: MMU: Make the shadow page tables also special-case
-	pae
-From: Avi Kivity <avi@qumranet.com>
-Date: Thu, 04 Jan 2007 15:56:06 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <459D21DD.5090506@qumranet.com>
-In-Reply-To: <459D21DD.5090506@qumranet.com>
-Message-Id: <20070104155606.49BCF250048@il.qumranet.com>
+	Thu, 4 Jan 2007 10:56:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2484 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S964937AbXADP4N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 10:56:13 -0500
+Date: Thu, 4 Jan 2007 16:56:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] [RFC: 2.6 patch] sound/: possible cleanups
+Message-ID: <20070104155613.GB20714@stusta.de>
+References: <20061218034639.GC10316@stusta.de> <s5htzzsdu0e.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5htzzsdu0e.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+On Tue, Dec 19, 2006 at 12:06:57PM +0100, Takashi Iwai wrote:
+> At Mon, 18 Dec 2006 04:46:39 +0100,
+> Adrian Bunk wrote:
+> > 
+> > --- linux-2.6.19-rc6-mm2/sound/pci/hda/hda_codec.h.old	2006-12-04 17:03:15.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm2/sound/pci/hda/hda_codec.h	2006-12-04 17:03:23.000000000 +0100
+> > @@ -614,10 +614,6 @@
+> >  				int channel_id, int format);
+> >  unsigned int snd_hda_calc_stream_format(unsigned int rate, unsigned int channels,
+> >  					unsigned int format, unsigned int maxbps);
+> > -int snd_hda_query_supported_pcm(struct hda_codec *codec, hda_nid_t nid,
+> > -				u32 *ratesp, u64 *formatsp, unsigned int *bpsp);
+> > -int snd_hda_is_supported_format(struct hda_codec *codec, hda_nid_t nid,
+> > -				unsigned int format);
+> 
+> I'd like to keep them usable for codec support codes.
 
-Index: linux-2.6/drivers/kvm/paging_tmpl.h
-===================================================================
---- linux-2.6.orig/drivers/kvm/paging_tmpl.h
-+++ linux-2.6/drivers/kvm/paging_tmpl.h
-@@ -170,6 +170,11 @@ static u64 *FNAME(fetch)(struct kvm_vcpu
- 
- 	shadow_addr = vcpu->mmu.root_hpa;
- 	level = vcpu->mmu.shadow_root_level;
-+	if (level == PT32E_ROOT_LEVEL) {
-+		shadow_addr = vcpu->mmu.pae_root[(addr >> 30) & 3];
-+		shadow_addr &= PT64_BASE_ADDR_MASK;
-+		--level;
-+	}
- 
- 	for (; ; level--) {
- 		u32 index = SHADOW_PT_INDEX(addr, level);
-@@ -202,10 +207,8 @@ static u64 *FNAME(fetch)(struct kvm_vcpu
- 		shadow_addr = kvm_mmu_alloc_page(vcpu, shadow_ent);
- 		if (!VALID_PAGE(shadow_addr))
- 			return ERR_PTR(-ENOMEM);
--		shadow_pte = shadow_addr | PT_PRESENT_MASK;
--		if (vcpu->mmu.root_level > 3 || level != 3)
--			shadow_pte |= PT_ACCESSED_MASK
--				| PT_WRITABLE_MASK | PT_USER_MASK;
-+		shadow_pte = shadow_addr | PT_PRESENT_MASK | PT_ACCESSED_MASK
-+			| PT_WRITABLE_MASK | PT_USER_MASK;
- 		*shadow_ent = shadow_pte;
- 		prev_shadow_ent = shadow_ent;
- 	}
+If they are static, they can still become global again when required
+(this is not about removing them completely).
+
+> Removing EXPORT_SYMBOL() is fine, though.
+
+They weren't EXPORT_SYMBOL'ed.
+
+> > --- linux-2.6.19-rc6-mm2/sound/pci/ac97/ac97_local.h.old	2006-12-04 16:53:59.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm2/sound/pci/ac97/ac97_local.h	2006-12-04 16:54:52.000000000 +0100
+> > @@ -65,9 +65,6 @@
+> >  int snd_ac97_get_volsw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol);
+> >  int snd_ac97_put_volsw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol);
+> >  int snd_ac97_try_bit(struct snd_ac97 * ac97, int reg, int bit);
+> > -int snd_ac97_remove_ctl(struct snd_ac97 *ac97, const char *name, const char *suffix);
+> > -int snd_ac97_rename_ctl(struct snd_ac97 *ac97, const char *src, const char *dst, const char *suffix);
+> > -int snd_ac97_swap_ctl(struct snd_ac97 *ac97, const char *s1, const char *s2, const char *suffix);
+> 
+> These are used in ac97_patch.c, at least in pending patches after
+> 2.6.19.
+
+OK.
+
+> > --- linux-2.6.19-rc6-mm2/include/sound/core.h.old	2006-12-04 17:13:39.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm2/include/sound/core.h	2006-12-04 17:49:07.000000000 +0100
+> > @@ -22,6 +22,7 @@
+> >   *
+> >   */
+> >  
+> > +#include <sound/driver.h>
+> 
+> This makes things a bit complicated, so please don't add it yet.
+> It's better to clean up into a single core.h in future.
+> 
+> > @@ -35,6 +36,7 @@
+> >  #ifdef CONFIG_SBUS
+> >  struct sbus_dev;
+> >  #endif
+> > +struct snd_info_buffer;
+> >  
+> >  /* device allocation stuff */
+> >  
+> > @@ -287,6 +289,8 @@
+> >  int snd_card_file_add(struct snd_card *card, struct file *file);
+> >  int snd_card_file_remove(struct snd_card *card, struct file *file);
+> >  
+> > +void snd_card_info_read_oss(struct snd_info_buffer *buffer);
+> > +
+> >  #ifndef snd_card_set_dev
+> >  #define snd_card_set_dev(card,devptr) ((card)->parent = (devptr))
+> >  #endif
+> 
+> These should be rather in another file, e.g. info.h.
+
+How much should move to info.h?
+All function prototypes?
+
+> > --- linux-2.6.19-rc6-mm2/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl.old	2006-12-04 17:17:34.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm2/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl	2006-12-04 17:18:34.000000000 +0100
+> > @@ -5648,8 +5648,7 @@
+> >      <para>
+> >  	As shown in the above, it's better to save registers after
+> >  	suspending the PCM operations via
+> > -	<function>snd_pcm_suspend_all()</function> or
+> > -	<function>snd_pcm_suspend()</function>.  It means that the PCM
+> > +	<function>snd_pcm_suspend_all()</function>.  It means that the PCM
+> >  	streams are already stoppped when the register snapshot is
+> >  	taken.  But, remind that you don't have to restart the PCM
+> >  	stream in the resume callback. It'll be restarted via 
+> > --- linux-2.6.19-rc6-mm2/include/sound/pcm.h.old	2006-12-04 17:14:50.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm2/include/sound/pcm.h	2006-12-04 17:20:10.000000000 +0100
+> > @@ -467,10 +467,7 @@
+> >  int snd_pcm_start(struct snd_pcm_substream *substream);
+> >  int snd_pcm_stop(struct snd_pcm_substream *substream, int status);
+> >  int snd_pcm_drain_done(struct snd_pcm_substream *substream);
+> > -#ifdef CONFIG_PM
+> > -int snd_pcm_suspend(struct snd_pcm_substream *substream);
+> >  int snd_pcm_suspend_all(struct snd_pcm *pcm);
+> > -#endif
+> >  int snd_pcm_kernel_ioctl(struct snd_pcm_substream *substream, unsigned int cmd, void *arg);
+> >  int snd_pcm_open_substream(struct snd_pcm *pcm, int stream, struct file *file,
+> >  			   struct snd_pcm_substream **rsubstream);
+> 
+> I tend to disagree this removal.
+
+snd_pcm_suspend() becomes static, but doesn't get removed.
+Are there any users in other files pending for the forseeable future?
+Otherwise, reverting this change will never be a problem.
+
+> thanks,
+> 
+> Takashi
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

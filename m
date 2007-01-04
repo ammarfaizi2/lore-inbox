@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932305AbXADH7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932319AbXADIAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbXADH7L (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 02:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbXADH7L
+	id S932319AbXADIAS (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 03:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbXADIAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 02:59:11 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40183 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932305AbXADH7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 02:59:09 -0500
-Message-ID: <459CB3D2.4010707@drzeus.cx>
-Date: Thu, 04 Jan 2007 08:59:14 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
+	Thu, 4 Jan 2007 03:00:17 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58976 "EHLO
+	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932319AbXADIAP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 03:00:15 -0500
+Message-ID: <459CB3E6.9080906@bull.net>
+Date: Thu, 04 Jan 2007 08:59:34 +0100
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-To: LAK <linux-arm-kernel@lists.arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Singleton <dsingleton@mvista.com>,
-       Philip Langdale <philipl@overt.org>,
-       "Brandt, Todd E" <todd.e.brandt@intel.com>,
-       Stanley Cai <stanley.w.cai@gmail.com>
-Subject: [RFC][PATCH] MMC: Major restructuring and cleanup
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       =?ISO-8859-1?Q?S=E9bastien?= =?ISO-8859-1?Q?_Dugu=E9?= 
+	<sebastien.dugue@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [PATCH 2.6.19.1-rt15][RFC] - futex_requeue_pi implementation
+ (requeue from futex1 to PI-futex2)
+References: <459BA267.1020706@bull.net> <20070103123536.GA9088@elte.hu> <459BBF15.5070505@bull.net> <20070103155609.GB11066@elte.hu>
+In-Reply-To: <20070103155609.GB11066@elte.hu>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 04/01/2007 09:08:09,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 04/01/2007 09:08:12,
+	Serialize complete at 04/01/2007 09:08:12
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This mail is cross-posted in order to reach the people most affected, so make sure you edit your receiver list when replying)
+Ingo Molnar a écrit :
+> * Pierre Peiffer <pierre.peiffer@bull.net> wrote:
+> 
+>> Ingo Molnar a écrit :
+>>> looks good to me in principle. The size of the patch is scary - is there 
+>>> really no simpler way? 
+>> Humf, in fact, for the 64-bit part, I've followed the rule of the 
+>> existing 64-bit code in futex.c, which consists of duplicating all the 
+>> functions which can not be kept common, and add a suffix 64 to all 
+>> duplicated functions. Perhaps I missed something ?
+> 
+> i dont think you missed anything - but some consolidation here would be 
+> nice. Only if possible of course :-)
 
-Hi everyone,
+Ok ;-)
+So, you are not only speaking about "my" part of duplicated code, right ?
+But, just for information, what is the sys_futex64 for, exactly ? Is there a 
+plan to have in the future a 64-bit PID ? Because for now, 32-bits futex is 
+enough, so... ?
+Otherwise, I don't have a "clean" way to avoid this duplication.... :-/
 
-As I've mentioned to some of you, I've been working on restructuring the MMC layer in order to make it more easily maintained and to allow extensions like SDIO support. A first draft of this is now
-ready for public review. I've cc:d those who have been waiting for this patch set (and Russell since he always gives blunt, but valuable feedback ;)).
-
-Because of the size of the thing I decided to not attach it, but instead publish it in my public git tree:
-
-http://www.kernel.org/git/?p=linux/kernel/git/drzeus/mmc.git;a=log;h=mmc-ng
-
-One major mess right now is that the MMC layer handles two tasks: arbitrating who gets access to buses and cards, and initialising new cards as they are discovered. These two are currently intertwined
-and it is difficult to get a decent overview of the system.
-
-This first draft tries to solve this by moving all protocol stuff to their own files. The new core simply identifies what type of card that is present, then delegates the rest of the initialisation.
-
-The commits themselves are a bit rough and will be more fine grained in a final version, but the end result should be the same. So I'd like to get as much input as possible from anyone who has the
-time to review it. There are lots of changes, so I'm bound to have made mistakes in a few places.
-
-Rgds
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Pierre Peiffer

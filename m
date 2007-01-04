@@ -1,35 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964926AbXADPgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964927AbXADPjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbXADPgz (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 10:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbXADPgz
+	id S964927AbXADPjP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 10:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbXADPjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 10:36:55 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:3304 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964926AbXADPgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 10:36:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cEvD/DtAno9vAheuWzCKy9+9uA8i1qdVssWTLheJtqZmYP3VXCTelSiEx4MAYsOTfa/jLVEvJ03x7Lr1CqpfpROwlFhYC3KB2FS8+yjdIbpjvzAxfywYuZerdR+dRuyZoGm0v4XLK6Bpcdu3S/rV/O72ybqby43ia6t34XZ9C30=
-Message-ID: <ec8d0a9d0701040736j2d872a22ge65584a38bbfbd74@mail.gmail.com>
-Date: Thu, 4 Jan 2007 16:36:53 +0100
-From: "Tomasz Krynicki" <tomasz.krynicki@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ACL support patch for > 2.4.29
+	Thu, 4 Jan 2007 10:39:15 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:59069 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964927AbXADPjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 10:39:14 -0500
+Date: Thu, 4 Jan 2007 07:34:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+cc: Grzegorz Kulewski <kangur@polcom.net>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
+       76306.1226@compuserve.com, akpm@osdl.org, bunk@stusta.de,
+       greg@kroah.com, linux-kernel@vger.kernel.org,
+       yanmin_zhang@linux.intel.com
+Subject: RE: kernel + gcc 4.1 = several problems
+In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A086B84@pdsmsx411.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.64.0701040729360.3661@woody.osdl.org>
+References: <10EA09EFD8728347A513008B6B0DA77A086B84@pdsmsx411.ccr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-does anyone have ACL support patch for newest kernels (ex 2.4.33, or
-better 2.4.34)?
-Last patch at http://acl.bestbits.at/ is for 2.4.29, seems this project
-died.
 
-Best regards.
+
+On Thu, 4 Jan 2007, Zou, Nanhai wrote:
+> 
+> cmov will stall on eflags in your test program.
+
+And that is EXACTLY my point.
+
+CMOV is a piece of CRAP for most things, exactly because it serializes 
+three streams of data: the two inputs, and the conditional.
+
+My test-case was actually _good_ for cmov, because there was just the one 
+conditional (which was 100% ALU) thing that was serialized. In real life, 
+the two data sources also come from memory, and _any_ of them being 
+delayed ends up delaying the cmov, and screwing up your out-of-order 
+pipeline because you now introduced a serialization point that was very 
+possibly not necessary at all.
+
+In contrast, a conditional branch-around serializes absolutely NOTHING, 
+because branches get predicted.
+
+> I think you will see benefit of cmov if you can manage to put some 
+> instructions which does NOT modify eflags between testl and cmov.
+
+A lot of the time, the conditional _is_ the critical path.
+
+The whole point of this discussion was that cmov isn't really all that 
+great. It has fundamental problems that a conditional branch that gets 
+predicted simply does not have.
+
+That's qiute apart from the fact that cmov has rather limited semantics, 
+and that in 99% of all cases you have to use a conditional branch anyway.
+
+			Linus

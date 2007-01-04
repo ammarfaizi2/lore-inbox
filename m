@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030202AbXADVXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030239AbXADV3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbXADVXi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 16:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbXADVXh
+	id S1030239AbXADV3X (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 16:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbXADV3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 16:23:37 -0500
-Received: from wr-out-0506.google.com ([64.233.184.226]:7378 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030202AbXADVXg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 16:23:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=sy70xlnglkx6IP7+eCjC0Nb+uSKybs15PKXjH+5qp6ovXx6ZbqT92G6v0e0/ruf4O+NYnzQY/mniR88t+4yHZ5l3eAOkFEVDsn2w7ky643kZSLS4L7C3EY1sazwvEMoIF6cy/LZ4Mg2lqDsNPdOS4GKFBtoib6hzK/IsKcHs/N8=
-Message-ID: <84144f020701041323m6a16420ak1f76fcc3e37763ce@mail.gmail.com>
-Date: Thu, 4 Jan 2007 23:23:35 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Christoph Hellwig" <hch@lst.de>
-Subject: Re: [PATCH] slab: cache alloc cleanups
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, apw@shadowen.org,
-       manfred@colorfullife.com, christoph@lameter.com, pj@sgi.com
-In-Reply-To: <20070104211543.GA21917@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 4 Jan 2007 16:29:23 -0500
+Received: from smtp0.osdl.org ([65.172.181.24]:55252 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030239AbXADV3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 16:29:21 -0500
+Date: Thu, 4 Jan 2007 13:28:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Stelian Pop <stelian@popies.net>, Len Brown <lenb@kernel.org>,
+       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-Id: <20070104132834.99a585c9.akpm@osdl.org>
+In-Reply-To: <20070104211830.GD25619@inferi.kami.home>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
+	<200701040024.29793.lenb@kernel.org>
+	<1167905384.7763.36.camel@localhost.localdomain>
+	<20070104191512.GC25619@inferi.kami.home>
+	<20070104125107.b82db604.akpm@osdl.org>
+	<20070104211830.GD25619@inferi.kami.home>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0701021545290.21477@sbz-30.cs.Helsinki.FI>
-	 <20070104211543.GA21917@lst.de>
-X-Google-Sender-Auth: 76ac76f66768c0aa
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/07, Christoph Hellwig <hch@lst.de> wrote:
-> Seems to work nicely on my 2node cell blade.
+On Thu, 4 Jan 2007 22:18:30 +0100
+Mattia Dongili <malattia@linux.it> wrote:
 
-Thanks for testing. Unfortunately as the other Christoph pointed out,
-my patch reintroduces a bug that was fixed a while ago. kmalloc_node
-should not be using mempolicies...
+> > The place to start (please) is the patches in -mm:
+> > 
+> > 2.6-sony_acpi4.patch
+> > sony_apci-resume.patch
+> > sony_apci-resume-fix.patch
+> > acpi-add-backlight-support-to-the-sony_acpi.patch
+> > acpi-add-backlight-support-to-the-sony_acpi-v2.patch
+> > video-sysfs-support-take-2-add-dev-argument-for-backlight_device_register-sony_acpi-fix.patch
+> > 
+> > It presently has both the /proc and /sys/.../backlight/.. interfaces, so the first
+> > job would be to chop out the /proc stuff.
+> 
+> Ok, I'll import all of them and start from there.
+> Is it ok to wipe all the /proc stuff without notice?
+
+spose so.  I don't know if any apps are dependent upon the /proc file,
+but the driver isn't in mainline yet so it's unlikely that there's a
+mountain of software depending upon existing interfaces.

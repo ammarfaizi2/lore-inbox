@@ -1,69 +1,113 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932333AbXADIhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932330AbXADImA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbXADIhA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 03:37:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbXADIhA
+	id S932330AbXADImA (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 03:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbXADImA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 03:37:00 -0500
-Received: from pat.uio.no ([129.240.10.15]:41529 "EHLO pat.uio.no"
+	Thu, 4 Jan 2007 03:42:00 -0500
+Received: from ns2.suse.de ([195.135.220.15]:38264 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932329AbXADIg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 03:36:59 -0500
-Subject: Re: [nfsv4] RE: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Benny Halevy <bhalevy@panasas.com>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, nfsv4@ietf.org,
-       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <459BA30A.4020809@panasas.com>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	 <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
-	 <4593DEF8.5020609@panasas.com>
-	 <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-	 <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>
-	 <1167388129.6106.45.camel@lade.trondhjem.org>
-	 <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>
-	 <1167780097.6090.104.camel@lade.trondhjem.org>
-	 <459BA30A.4020809@panasas.com>
-Content-Type: text/plain
-Date: Thu, 04 Jan 2007 09:36:36 +0100
-Message-Id: <1167899796.6046.11.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5.0, required=12.0, autolearn=disabled, UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: FA51EB85769BC22C81BFAA5C267EDD402F88FADE
-X-UiO-SPAM-Test: 83.109.147.16 spam_score -49 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+	id S932330AbXADIl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 03:41:59 -0500
+Date: Thu, 4 Jan 2007 09:40:49 +0100
+From: Olaf Hering <olh@suse.de>
+To: Anton Blanchard <anton@samba.org>, linuxppc-dev@ozlabs.org,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] relax check for AIX in msdos partition table
+Message-ID: <20070104084049.GA19959@suse.de>
+References: <20061206211630.GB27857@krispykreme> <20061206222213.GA17446@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20061206222213.GA17446@localhost.localdomain>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-03 at 14:35 +0200, Benny Halevy wrote:
-> I sincerely expect you or anybody else for this matter to try to provide
-> feedback and object to the protocol specification in case they disagree
-> with it (or think it's ambiguous or self contradicting) rather than ignoring
-> it and implementing something else. I think we're shooting ourselves in the
-> foot when doing so and it is in our common interest to strive to reach a
-> realistic standard we can all comply with and interoperate with each other.
+On Thu, Dec 07, David Gibson wrote:
 
-You are reading the protocol wrong in this case.
+> On Thu, Dec 07, 2006 at 08:16:30AM +1100, Anton Blanchard wrote:
 
-While the protocol does allow the server to implement the behaviour that
-you've been advocating, it in no way mandates it. Nor does it mandate
-that the client should gather files with the same (fsid,fileid) and
-cache them together. Those are issues to do with _implementation_, and
-are thus beyond the scope of the IETF.
+> > The patch to identify AIX disks and ignore them has caused at least one
+> > machine to fail to find the root partition on 2.6.19. The patch is:
+> > 
+> > http://lkml.org/lkml/2006/7/31/117
+> > 
+> > The problem is some disk formatters do not blow away the first 4 bytes
+> > of the disk. If the disk we are installing to used to have AIX on it,
+> > then the first 4 bytes will still have IBMA in EBCDIC.
+> > 
+> > The install in question was debian etch. Im not sure what the best fix
+> > is, perhaps the AIX detection code could check more than the first 4
+> > bytes.
+> 
+> Yeah, I had this problem on paulus' old PReP machine - I had to
+> manually zap the AIX magic number to get it to see the perfectly good
+> partitions.
 
-In our case, the client will ignore the unique_handles attribute. It
-will use filehandles as our inode cache identifier. It will not jump
-through hoops to provide caching semantics that go beyond close-to-open
-for servers that set unique_handles to "false".
+What pre-historic fdisk was used to create the partition table? At least
+the current version of fdisk does not let me manipulate the existing
+partition table before I remove the AIX marker. The patch below should
+fix it. Partition table entries 2,3,4 from an AIX 4.3 install have type 0x41.
 
-Trond
+Also, the whole partition info for primary partitions is in this block:
 
+  dd if=/dev/sdb count=$(( 4 * 16 )) bs=1 skip=$(( 0x1be ))
+
+All other data do not matter, beside the 0x55aa marker at the end of the
+first block.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+---
+ fs/partitions/msdos.c |   12 +++++++++++-
+ include/linux/genhd.h |    2 ++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+Index: linux-2.6/fs/partitions/msdos.c
+===================================================================
+--- linux-2.6.orig/fs/partitions/msdos.c
++++ linux-2.6/fs/partitions/msdos.c
+@@ -63,15 +63,25 @@ msdos_magic_present(unsigned char *p)
+ #define AIX_LABEL_MAGIC4	0xC1
+ static int aix_magic_present(unsigned char *p, struct block_device *bdev)
+ {
++	struct partition *pt = (struct partition *) (p + 0x1be);
+ 	Sector sect;
+ 	unsigned char *d;
+-	int ret = 0;
++	int slot, ret = 0;
+ 
+ 	if (p[0] != AIX_LABEL_MAGIC1 &&
+ 		p[1] != AIX_LABEL_MAGIC2 &&
+ 		p[2] != AIX_LABEL_MAGIC3 &&
+ 		p[3] != AIX_LABEL_MAGIC4)
+ 		return 0;
++	/* Assume the partition table is valid if Linux partitions exists */
++	for (slot = 1; slot <= 4; slot++, pt++) {
++		if (pt->sys_ind == LINUX_SWAP_PARTITION ||
++			pt->sys_ind == LINUX_RAID_PARTITION ||
++			pt->sys_ind == LINUX_DATA_PARTITION ||
++			pt->sys_ind == LINUX_LVM_PARTITION ||
++			is_extended_partition(pt))
++			return 0;
++	}
+ 	d = read_dev_sector(bdev, 7, &sect);
+ 	if (d) {
+ 		if (d[0] == '_' && d[1] == 'L' && d[2] == 'V' && d[3] == 'M')
+Index: linux-2.6/include/linux/genhd.h
+===================================================================
+--- linux-2.6.orig/include/linux/genhd.h
++++ linux-2.6/include/linux/genhd.h
+@@ -21,6 +21,8 @@ enum {
+ 	WIN98_EXTENDED_PARTITION = 0x0f,
+ 
+ 	LINUX_SWAP_PARTITION = 0x82,
++	LINUX_DATA_PARTITION = 0x83,
++	LINUX_LVM_PARTITION = 0x8e,
+ 	LINUX_RAID_PARTITION = 0xfd,	/* autodetect RAID partition */
+ 
+ 	SOLARIS_X86_PARTITION =	LINUX_SWAP_PARTITION,

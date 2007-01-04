@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964999AbXADQPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965007AbXADQPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbXADQPT (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 11:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbXADQPT
+	id S965007AbXADQPu (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 11:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbXADQPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 11:15:19 -0500
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:57774 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964999AbXADQPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 11:15:17 -0500
-X-Greylist: delayed 1361 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 11:15:17 EST
-Date: Thu, 4 Jan 2007 16:53:15 +0100
-From: Martin Samuelsson <sam@home.se>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH] ks0127 status flags
-Message-Id: <20070104165315.7899e82a.sam@home.se>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Jan 2007 11:15:50 -0500
+Received: from wasp.net.au ([203.190.192.17]:34424 "EHLO wasp.net.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965005AbXADQPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 11:15:45 -0500
+X-Greylist: delayed 325 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 11:15:44 EST
+Message-ID: <459D26D4.3010601@wasp.net.au>
+Date: Thu, 04 Jan 2007 20:09:56 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Herbert Poetzl <herbert@13thfloor.at>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-ide@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: problem with pata_hpt37x ...
+References: <20070102070144.GA11270@MAIL.13thfloor.at> <20070102145855.170c03e2@localhost.localdomain>
+In-Reply-To: <20070102145855.170c03e2@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scan-Result: No virus found in message 1H2UuF-0007lZ-6S.
-X-Scan-Signature: ch-smtp02.sth.basefarm.net 1H2UuF-0007lZ-6S f9325dcd1a1c2147b46bbe5c0ed46627
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or status flags together in DECODER_GET_STATUS instead of and-zapping them.
+Alan wrote:
+> On Tue, 2 Jan 2007 08:01:45 +0100
+> Herbert Poetzl <herbert@13thfloor.at> wrote:
+> 
+>> if you are interested in investigating this, please
+>> let me know what kind of data you would like to see
+>> and/or what kind of tests would be appreciated.
+> 
+> I reviewed the 374 code a bit further to see what might be causing this
+> and found the slave channel end of DMA handling was using the wrong port
+> I think.
 
-Signed-off-by: Martin Samuelsson <sam@home.se>
----
- ks0127.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+This now passes all my stress tests Alan. No more "Interrupt disabled" or dmesg storms.
+I put the HPT Rocketraid 1540 (HPT374) back in a box and connected 4 200GB ata drives to it using 
+SATA-PATA bridgeboards as before. It looks to be rock solid now.
 
-diff -ruN linux-2.6.20-rc3/drivers/media/video/ks0127.c linux-2.6.20-rc3-sam/drivers/media/video/ks0127.c
---- linux-2.6.20-rc3/drivers/media/video/ks0127.c	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6.20-rc3-sam/drivers/media/video/ks0127.c	2006-12-31 17:01:35.000000000 +0100
-@@ -712,13 +712,13 @@
- 		*iarg = 0;
- 		status = ks0127_read(ks, KS_STAT);
- 		if (!(status & 0x20))		 /* NOVID not set */
--			*iarg = (*iarg & DECODER_STATUS_GOOD);
-+			*iarg = (*iarg | DECODER_STATUS_GOOD);
- 		if ((status & 0x01))		      /* CLOCK set */
--			*iarg = (*iarg & DECODER_STATUS_COLOR);
-+			*iarg = (*iarg | DECODER_STATUS_COLOR);
- 		if ((status & 0x08))		   /* PALDET set */
--			*iarg = (*iarg & DECODER_STATUS_PAL);
-+			*iarg = (*iarg | DECODER_STATUS_PAL);
- 		else
--			*iarg = (*iarg & DECODER_STATUS_NTSC);
-+			*iarg = (*iarg | DECODER_STATUS_NTSC);
- 		break;
- 
- 	//Catch any unknown command
+Brad
+-- 
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

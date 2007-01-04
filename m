@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965067AbXADSgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965069AbXADShp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbXADSgg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbXADSgg
+	id S965069AbXADShp (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbXADShp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:36:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:34252 "EHLO gate.crashing.org"
+	Thu, 4 Jan 2007 13:37:45 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:53102 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965067AbXADSgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:36:35 -0500
-In-Reply-To: <Pine.LNX.4.64.0701040921010.3661@woody.osdl.org>
-References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>  <27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org> <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com> <Pine.LNX.4.64.0701040921010.3661@woody.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <d913acf949f84c6dec496a1f52c1f9f5@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
-       mikpe@it.uu.se
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-Date: Thu, 4 Jan 2007 19:34:46 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-X-Mailer: Apple Mail (2.623)
+	id S965069AbXADSho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:37:44 -0500
+Date: Thu, 4 Jan 2007 12:37:34 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Mimi Zohar <zohar@us.ibm.com>
+Subject: [PATCH -mm] integrity: don't return a value from void function
+Message-ID: <20070104183734.GB21305@sergelap.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll happily turn off compiler features that are "clever optimizations
-> that never actually matter in practice, but are just likely to possible
-> cause problems".
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 1/1] integrity: don't return a value from void function
 
-The "signed wrap is undefined" thing doesn't fit in this category
-though:
+include/linux/integrity.h:integrity_measure() returns void,
+but the non-integrity dummy version does 'return 0;'.
 
--- It is an important optimisation for loops with a signed
-    induction variable;
--- "Random code" where it causes problems is typically buggy
-    already (i.e., code that doesn't take overflow into account
-    at all won't expect wraparound either);
--- Code that explicitly depends on signed overflow two's complement
-    wraparound can be trivially converted to use unsigned arithmetic
-    (and in almost all cases it really should have used that already).
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ include/linux/integrity.h |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-If GCC can generate warnings for things in the second bullet point
-(and it probably will, but nothing is finalised yet), I don't see
-a reason for the kernel to turn off the optimisation.  Why not try
-it out and only _if_ it causes troubles (after the compiler version
-is stable) turn it off.
-
-to take is not to add the compiler flag, but to fix the code.
->>
->> Nope, unless we decide that the performance advantages of
->> a language change are worth the risk and pain.
-
-But it's not a language change -- GCC has worked like this
-for a _long_ time already, since May 2003 if I read the
-ChangeLog correctly -- it's just that it starts to optimise
-some things more aggressively now.
-
-> With integer overflow optimizations, the same situation may be true. 
-> The
-> kernel has never been "strict ANSI C". We've always used C extensions. 
-> The
-> extension of "signed integer arithmetic follows 
-> 2's-complement-arithmetic"
-> is a perfectly sane extension to the language, and quite possibly worth
-> it.
-
-Could be.  Who knows, without testing.  I'm just saying to
-not add -fwrapv purely as a knee-jerk reaction.
-
-> And the fact that it's not "strict ANSI C" has absolutely _zero_
-> relevance.
-
-I certainly never claimed so, that's all in Albert's mind it seems :-)
-
-
-Segher
+diff --git a/include/linux/integrity.h b/include/linux/integrity.h
+index a318a2f..45f1d0c 100644
+--- a/include/linux/integrity.h
++++ b/include/linux/integrity.h
+@@ -86,7 +86,7 @@ static inline int integrity_verify_data(
+ static inline void integrity_measure(struct dentry *dentry,
+ 			const unsigned char *filename, int mask)
+ {
+-	return integrity_ops->measure(dentry, filename, mask);
++	integrity_ops->measure(dentry, filename, mask);
+ }
+ #else
+ static inline int integrity_verify_metadata(struct dentry *dentry,
+@@ -107,7 +107,6 @@ static inline int integrity_verify_data(
+ static inline void integrity_measure(struct dentry *dentry,
+ 			const unsigned char *filename, int mask)
+ {
+-	return 0;
+ }
+ #endif
+ #endif
+-- 
+1.4.1
 

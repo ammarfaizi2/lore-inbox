@@ -1,90 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932286AbXADFwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932287AbXADFwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbXADFwI (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbXADFwI
+	id S932287AbXADFwP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbXADFwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:52:08 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:57921 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932286AbXADFwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:52:07 -0500
-Date: Wed, 3 Jan 2007 21:51:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
-Subject: Re: Why to I2c drivers not autoload like other PCI devices?
-Message-ID: <20070104055128.GA8115@kroah.com>
-References: <20070103165020.4b277ebc@freekitty> <20070104005600.GA25712@kroah.com> <20070103172916.7f9ca11a@freekitty>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070103172916.7f9ca11a@freekitty>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 4 Jan 2007 00:52:15 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:62570 "EHLO
+	vms040pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932287AbXADFwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 00:52:14 -0500
+Date: Thu, 04 Jan 2007 00:51:49 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: wireless Q
+To: linux-kernel@vger.kernel.org
+Message-id: <200701040051.51930.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 05:29:16PM -0800, Stephen Hemminger wrote:
-> On Wed, 3 Jan 2007 16:56:00 -0800
-> Greg KH <greg@kroah.com> wrote:
-> 
-> > On Wed, Jan 03, 2007 at 04:50:20PM -0800, Stephen Hemminger wrote:
-> > > Is there some missing magic (udev rule?) that keeps i2c device modules
-> > > from loading? For example: the Intel i2c-i801 module ought to get loaded
-> > > automatically on boot up since it has a set of PCI id's that generate
-> > > the necessary module aliases. It would be better if I2C device's autoloaded
-> > > like other PCI devices.
-> > 
-> > No, it should autoload, if it has a MODULE_DEVICE_TABLE() in it.  In
-> > fact, the i2c-i801 autoloads on one of my machines just fine.  Are you
-> > sure your pci ids match properly?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> This laptop is running Ubuntu Edgy (6.10) and it doesn't autoload.
-> Everything works fine if I manually load the module with modprobe.
-> 
-> This device should match:
-> 
-> 00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 02)
-> 00: 86 80 da 27 01 00 80 02 02 00 05 0c 00 00 00 00
-> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 20: a1 18 00 00 00 00 00 00 00 00 00 00 cf 10 88 13
-> 30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 02 00 00
-> 
-> This driver modinfo:
-> 
-> filename:       /lib/modules/2.6.20-rc3/kernel/drivers/i2c/busses/i2c-i801.ko
+Greetings all;
 
-What does:
-	modprobe --show-depends `cat /sys/bus/pci/0000:00:1f.3/modalias`
-show?
+I bought a Belkin Wireless G card, a pci 802-11 radio of some sort.
 
-Is it different from:
-	modprobe --config /dev/null --show-depends `cat /sys/bus/pci/0000:00:1f.3/modalias`
-?
+The main chip on it wears the label "RTL8185L"
 
-> author:         Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, and Mark D. Studebaker <mdsxyz123@yahoo.com>
-> description:    I801 SMBus driver
-> license:        GPL
-> vermagic:       2.6.20-rc3 mod_unload PENTIUMM 4KSTACKS 
-> depends:        i2c-core
-> alias:          pci:v00008086d00002413sv*sd*bc*sc*i*
-> alias:          pci:v00008086d00002423sv*sd*bc*sc*i*
-> alias:          pci:v00008086d00002443sv*sd*bc*sc*i*
-> alias:          pci:v00008086d00002483sv*sd*bc*sc*i*
-> alias:          pci:v00008086d000024C3sv*sd*bc*sc*i*
-> alias:          pci:v00008086d000024D3sv*sd*bc*sc*i*
-> alias:          pci:v00008086d000025A4sv*sd*bc*sc*i*
-> alias:          pci:v00008086d0000266Asv*sd*bc*sc*i*
-> alias:          pci:v00008086d000027DAsv*sd*bc*sc*i*       <------- should match
+Is there any support for making this a wireless server in the kernel at 
+the present time?
 
-Yeah, I would think so.  What does:
-	cat /sys/bus/pci/0000:00:1f.3/modalias
-show?
+I have visions of sticking it in the last pci slot of a box running DD-WRT 
+if there is a driver available.
 
-thanks,
-
-greg k-h
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2007 by Maurice Eugene Heskett, all rights reserved.

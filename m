@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965096AbXADWdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965127AbXADWfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbXADWdL (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbXADWdL
+	id S965127AbXADWfo (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbXADWfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:33:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55531 "EHLO perch.kroah.org"
+	Thu, 4 Jan 2007 17:35:44 -0500
+Received: from smtp0.osdl.org ([65.172.181.24]:60453 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965099AbXADWdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:33:10 -0500
-X-Greylist: delayed 744 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:33:09 EST
-Date: Thu, 4 Jan 2007 14:32:47 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [RFC,PATCHSET] Managed device resources
-Message-ID: <20070104223247.GA29274@suse.de>
-References: <1167146313307-git-send-email-htejun@gmail.com> <20070104221916.GI28445@suse.de> <459D7F23.7010807@garzik.org>
+	id S965129AbXADWfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:35:44 -0500
+Date: Thu, 4 Jan 2007 14:35:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+cc: Al Viro <viro@ftp.linux.org.uk>, Eric Sandeen <sandeen@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
+ bad_inode_ops return values
+In-Reply-To: <20070104223856.GA79126@gaz.sfgoth.com>
+Message-ID: <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org>
+References: <20070104105430.1de994a7.akpm@osdl.org>
+ <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk>
+ <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk>
+ <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <459D7F23.7010807@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 05:26:43PM -0500, Jeff Garzik wrote:
-> Greg KH wrote:
-> >Hm, but I guess without the follow-up patches for libata, it will not
-> >really get tested much.  Jeff, if I accept this, what's your feelings of
-> >letting libata be the "test bed" for it?
-> 
-> 
-> It would be easiest for me to merge this through my 
-> libata-dev.git#upstream tree.  That will auto-propagate it to -mm, and 
-> ensure that both base and libata bits are sent in one batch.
-> 
-> Just shout if you see NAK-able bits...
-> 
-> Work for you?
 
-That works for me.
 
-The only question I have is on the EXPORT_SYMBOL() stuff for the new
-driver/base/ functions.  Tejun, traditionally the driver core has all
-exported symbols marked with EXPORT_SYMBOL_GPL().  So, any objection to
-marking the new ones (becides the "mirror" functions) in this manner?
+On Thu, 4 Jan 2007, Mitchell Blank Jr wrote:
+> 
+> I don't think you need to do fancy #ifdef's:
+> 
+> static s32 return_eio_32(void) { return -EIO; }
+> static s64 return_eio_64(void) { return -EIO; }
+> extern void return_eio_unknown(void);   /* Doesn't exist */
+> #define return_eio(type)        ((sizeof(type) == 4)			\
+> 					? ((void *) return_eio_32)	\
+> 				: ((sizeof(type) == 8)			\
+> 					? ((void *) return_eio_64)	\
+> 					: ((void *) return_eio_unknown)))
 
-thanks,
+Well, that probably would work, but it's also true that returning a 64-bit 
+value on a 32-bit platform really _does_ depend on more than the size.
 
-greg k-h
+For an example of this, try compiling this:
+
+	long long a(void)
+	{
+		return -1;
+	}
+
+	struct dummy { int a, b };
+
+	struct dummy b(void)
+	{
+		struct dummy retval = { -1 , -1 };
+		return retval;
+	}
+
+on x86.
+
+Now, I don't think we actually have anything like this in the kernel, and 
+your example is likely to work very well in practice, but once we start 
+doing tricks like this, I actually think it's getting easier to just say 
+"let's not play tricks with function types at all".
+
+Anybody want to send in the patch that just generates separate versions 
+for
+
+	loff_t eio_llseek(struct file *file, loff_t offset, int origin)
+	{
+		return -EIO;
+	}
+
+	int eio_readdir(struct file *filp, void *dirent, filldir_t filldir)
+	{
+		return -EIO;
+	..
+
+and so on?
+
+		Linus

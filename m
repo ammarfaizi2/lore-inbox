@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964798AbXADSIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964805AbXADSJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbXADSIy (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbXADSIy
+	id S964805AbXADSJP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:09:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbXADSJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:08:54 -0500
-Received: from mail.suse.de ([195.135.220.2]:37313 "EHLO mx1.suse.de"
+	Thu, 4 Jan 2007 13:09:15 -0500
+Received: from wasp.net.au ([203.190.192.17]:35053 "EHLO wasp.net.au"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964798AbXADSIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:08:53 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: "Albert Cahalan" <acahalan@gmail.com>
-Cc: "Segher Boessenkool" <segher@kernel.crashing.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
-       mikpe@it.uu.se, torvalds@osdl.org
-Subject: Re: kernel + gcc 4.1 = several problems
-References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>
-	<27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org>
-	<787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com>
-X-Yow: I was born in a Hostess Cupcake factory before the sexual revolution!
-Date: Thu, 04 Jan 2007 19:08:07 +0100
-In-Reply-To: <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com>
-	(Albert Cahalan's message of "Thu, 4 Jan 2007 12:04:18 -0500")
-Message-ID: <jed55uacmw.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
+	id S964817AbXADSJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:09:13 -0500
+Message-ID: <459D42B1.20604@wasp.net.au>
+Date: Thu, 04 Jan 2007 22:08:49 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Brad Campbell <brad@wasp.net.au>, Alan <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: problem with pata_hpt37x ...
+References: <20070102070144.GA11270@MAIL.13thfloor.at> <20070102145855.170c03e2@localhost.localdomain> <459D26D4.3010601@wasp.net.au> <20070104173058.GA2160@MAIL.13thfloor.at>
+In-Reply-To: <20070104173058.GA2160@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert Cahalan" <acahalan@gmail.com> writes:
+Herbert Poetzl wrote:
 
-> FYI, the kernel also assumes that a "char" is 8 bits.
-> Maybe you should run away screaming.
+> sounds great! where can I get that version?
+> should it be in 2.6.20-rc* or is there a separate
+> patch available somewhere?
 
-You are confusing "undefined" with "implementation defined".  Those are
-two quite different concepts.
+The patch was contained in the message from Alan to you that I replied to. I just applied it to a 
+vanilla 2.6.20-rc3 tree and fired it up.
 
-Andreas.
+(I've pasted it inline here for you but I'm using thunderbird and it's likely the resulting mess may 
+not apply - not hard to manually change the required lines however)
 
+--- linux.vanilla-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-01 21:43:27.000000000 +0000
++++ linux-2.6.20-rc3/drivers/ata/pata_hpt37x.c	2007-01-02 14:30:18.122801920 +0000
+@@ -25,7 +25,7 @@
+  #include <linux/libata.h>
+
+  #define DRV_NAME	"pata_hpt37x"
+-#define DRV_VERSION	"0.5.1"
++#define DRV_VERSION	"0.5.2"
+
+  struct hpt_clock {
+  	u8	xfer_speed;
+@@ -749,7 +749,7 @@
+  {
+  	struct ata_port *ap = qc->ap;
+  	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+-	int mscreg = 0x50 + 2 * ap->port_no;
++	int mscreg = 0x50 + 4 * ap->port_no;
+  	u8 bwsr_stat, msc_stat;
+
+  	pci_read_config_byte(pdev, 0x6A, &bwsr_stat);
+
+
+
+
+Brad
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

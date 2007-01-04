@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964859AbXADNYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964857AbXADNZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbXADNYi (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 08:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbXADNYi
+	id S964857AbXADNZl (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 08:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbXADNZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 08:24:38 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:45153 "EHLO inti.inf.utfsm.cl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964820AbXADNYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 08:24:37 -0500
-Message-Id: <200701041323.l04DNDgs007854@laptop13.inf.utfsm.cl>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sparclinux@vger.kernel.org, davem@davemloft.net
-Subject: Re: 2.6.20-rc3: known unfixed regressions (v2) 
-In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
-   of "Wed, 03 Jan 2007 21:59:45 BST." <20070103205945.GK20714@stusta.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Thu, 04 Jan 2007 10:23:13 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 04 Jan 2007 10:23:13 -0300 (CLST)
+	Thu, 4 Jan 2007 08:25:41 -0500
+Received: from extu-mxob-2.symantec.com ([216.10.194.135]:9702 "EHLO
+	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964857AbXADNZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 08:25:40 -0500
+X-AuditID: d80ac287-a3d59bb000002548-0e-459d0128bd2b 
+Date: Thu, 4 Jan 2007 13:25:55 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       torvalds@osdl.org, gelma@gelma.net, linux-kernel@vger.kernel.org
+Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
+In-Reply-To: <20070103230629.a2e734b9.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701041318020.29210@blonde.wat.veritas.com>
+References: <20070103214121.997be3e6.akpm@osdl.org> <459C98BF.5080409@yahoo.com.au>
+ <20070103221220.c4589831.akpm@osdl.org> <20070103.225607.133169483.davem@davemloft.net>
+ <20070103230629.a2e734b9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Jan 2007 13:25:39.0059 (UTC) FILETIME=[D3404C30:01C73003]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
-> This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
-> that are not yet fixed in Linus' tree.
+On Wed, 3 Jan 2007, Andrew Morton wrote:
+> On Wed, 03 Jan 2007 22:56:07 -0800 (PST)
+> David Miller <davem@davemloft.net> wrote:
+> > From: Andrew Morton <akpm@osdl.org>
+> > > 
+> > > It'd odd that stories of pre-2.6.19 BerkeleyDB corruption are now coming
+> > > out of the woodwork.  It's the first I've ever heard of them.
+> > 
+> > Note that the original rtorrent debian bug report was against 2.6.18
 > 
-> If you find your name in the Cc header, you are either submitter of one
-> of the bugs, maintainer of an affectected subsystem or driver, a patch
-> of you caused a breakage or I'm considering you in any other way possibly
-> involved with one or more of these issues.
-> 
-> Due to the huge amount of recipients, please trim the Cc when answering.
+> I think that was 2.6.18+debian-added-dirty-page-tracking-patches.
 
-I hope I cut it down sensibly...
+That's right.  Debian's 2.6.18-3, not -stable's 2.6.18.3 as Linus feared.
+I'll be sending 2.6.18-stable the fix to the msync ENOMEM-on-unmapped
+issue later today (that little buglet being what led them to integrate
+the much more interesting dirty page tracking patches, which happened
+to fix it in passing).
 
-[...]
-
-> Subject    : SPARC64: Can't mount /
-> References : http://lkml.org/lkml/2006/12/13/181
-> Submitter  : Horst H. von Brand <vonbrand@inf.utfsm.cl>
-> Status     : unknown
-
-Works for me now with 2.6.20-rc3. Might have been some form of pilot error
-(perhaps setting SCSI_TGT=m and/or SCSI_SCAN_ASYNC=y, I unset them for the
-current trial run).
-
-I see CONFIG_SCSI_SCAN_ASYNC introduced in
-21db1882f79a1ad5977cae6766376a63f60ec414 ([SCSI] Add Kconfig option for
-asynchronous SCSI scanning). If this is the cause, the override provided:
-
-  scsi_mod.scan="sync"
-
-seems not to work. Are the '"' necessary? How do you give them via silo,
-which in its configuration file for strings with spaces uses:
-
-  append="some string here"
-
-How do you say '"'? The silo documentation is silent on this.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+Hugh

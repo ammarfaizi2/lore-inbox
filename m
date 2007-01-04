@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751088AbXADEab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751074AbXADEgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbXADEab (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 23:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbXADEab
+	id S1751074AbXADEgZ (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 23:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbXADEgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 23:30:31 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:38360 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750741AbXADEaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 23:30:30 -0500
-Date: Thu, 4 Jan 2007 10:00:46 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com, vatsa@in.ibm.com
-Subject: Re: [PATCH 3/2] fix flush_workqueue() vs CPU_DEAD race
-Message-ID: <20070104043046.GA15162@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061230161031.GA101@tv-sign.ru> <20070102162727.9ce2ae2b.akpm@osdl.org> <20070103140459.GA12620@in.ibm.com> <20070103151704.GA28195@in.ibm.com> <20070103172657.GA1597@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070103172657.GA1597@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+	Wed, 3 Jan 2007 23:36:25 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:21412 "HELO
+	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1750741AbXADEgY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 23:36:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=A3zhfDGrrAqo5u39jAjYmmKyTFwxh/u4IYWFF6chFNHf+kNEVCtqumiPTeceZPo6eakiVYGI6Y2hb+8zDp1zNqDQnngepJ6mQTJHmqlE7IFV+182bxc5+MBdu+gD7DEGHMw01nE2n2hKjOKizFRPOoRxdVxCbuBpgYTz2huB/DQ=  ;
+X-YMail-OSG: JJgOC8AVM1kZ9urtihGx95PEDwGtINwBRPlVllNm830Iptr48aaYW0y5vpHIZVMheXk9LM2zamY7G5o08X.e4rlA2CjZ0.idGqYSO9ptLs12pK6oH8nPsbRqBx_qOqkomtCY8tVU5onC80Y-
+Message-ID: <459C8427.9040704@yahoo.com.au>
+Date: Thu, 04 Jan 2007 15:35:51 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, Nick Piggin <npiggin@suse.de>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Neil Brown <neilb@suse.de>, Mark Fasheh <mark.fasheh@oracle.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] 4/4 block: explicit plugging
+References: <11678105083001-git-send-email-jens.axboe@oracle.com> <1167810508576-git-send-email-jens.axboe@oracle.com>
+In-Reply-To: <1167810508576-git-send-email-jens.axboe@oracle.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 08:26:57PM +0300, Oleg Nesterov wrote:
+Jens Axboe wrote:
+> Nick writes:
 > 
-> I thought that these patches don't depend on each other, flush_work/workueue
-> don't care where cpu-hotplug takes workqueue_mutex, in CPU_LOCK_ACQUIRE or in
-> CPU_UP_PREPARE case (or CPU_DEAD/CPU_LOCK_RELEASE for unlock).
-> 
-> Could you clarify? Just curious.
+> This is a patch to perform block device plugging explicitly in the submitting
+> process context rather than implicitly by the block device.
 
-You are right. They don't depend on each other. 
+Hi Jens,
 
-The intention behind introducing CPU_LOCK_ACQUIRE and CPU_LOCK_RELEASE
-was to have a standard place where the subsystems could acquire/release
-the "cpu hotplug protection" mutex in the cpu_hotplug callback function.
+Hey thanks for doing so much hard work with this, I couldn't have fixed
+all the block layer stuff myself. QRCU looks like a good solution for the
+barrier/sync operations (/me worried that one wouldn't exist), and a
+novel use of RCU!
 
-The same can be acheived by acquiring these mutexes in
-CPU_UP_PREPARE/CPU_DOWN_PREPARE etc. 
+The only thing I had been thinking about before it is ready for primetime
+-- as far as the VM side of things goes -- is whether we should change
+the hard calls to address_space operations, such that they might be
+avoided or customised when there is no backing block device?
 
-This is true for every subsystem that is cpu-hotplug aware.
+I'm sure the answer to this is "yes", so I have an idea for a simple
+implementation... but I'd like to hear thoughts from network fs / raid
+people?
 
-> Oleg.
-> 
+Nick
 
-Thanks and Regards
-gautham.
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

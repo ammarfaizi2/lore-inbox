@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932212AbXADSIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964798AbXADSIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbXADSIg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbXADSIg
+	id S964798AbXADSIy (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbXADSIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:08:36 -0500
-Received: from mail.screens.ru ([213.234.233.54]:39857 "EHLO mail.screens.ru"
+	Thu, 4 Jan 2007 13:08:54 -0500
+Received: from mail.suse.de ([195.135.220.2]:37313 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964794AbXADSIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:08:35 -0500
-Date: Thu, 4 Jan 2007 21:09:01 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
-Message-ID: <20070104180901.GA344@tv-sign.ru>
-References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070104091850.c1feee76.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	id S964798AbXADSIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:08:53 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: "Albert Cahalan" <acahalan@gmail.com>
+Cc: "Segher Boessenkool" <segher@kernel.crashing.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
+       mikpe@it.uu.se, torvalds@osdl.org
+Subject: Re: kernel + gcc 4.1 = several problems
+References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com>
+	<27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org>
+	<787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com>
+X-Yow: I was born in a Hostess Cupcake factory before the sexual revolution!
+Date: Thu, 04 Jan 2007 19:08:07 +0100
+In-Reply-To: <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com>
+	(Albert Cahalan's message of "Thu, 4 Jan 2007 12:04:18 -0500")
+Message-ID: <jed55uacmw.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.91 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/04, Andrew Morton wrote:
->
-> On Thu, 4 Jan 2007 17:29:36 +0300
-> Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> 
-> > > In brief:
-> > > 
-> > > keventd thread					hotplug thread
-> > > --------------					--------------
-> > > 
-> > >   run_workqueue()
-> > > 	|
-> > >      work_fn()
-> > > 	 |
-> > > 	flush_workqueue()
-> > > 	     |	
-> > > 	   flush_cpu_workqueue
-> > > 		|				cpu_down()
-> > > 	     mutex_unlock(wq_mutex);		     |
-> > > 	(above opens window for hotplug)	   mutex_lock(wq_mutex);
-> > >     		|				   /* bring down cpu */	
-> > > 	     wait_for_completition();		     notifier(CPU_DEAD, ..)
-> > > 		| 				       workqueue_cpu_callback
-> > > 		| 				        cleanup_workqueue_thread
-> > > 		|					  kthread_stop()
-> > > 		|
-> > > 		|
-> > > 	     mutex_lock(wq_mutex); <- Can deadlock
-> > > 
-> > > 
-> > > The kthread_stop() will wait for keventd() thread to exit, but keventd()
-> > > is blocked on mutex_lock(wq_mutex) leading to a deadlock.
-> 
-> This?
-> 
-> 
-> --- a/kernel/workqueue.c~flush_workqueue-use-preempt_disable-to-hold-off-cpu-hotplug
-> +++ a/kernel/workqueue.c
-> @@ -419,18 +419,22 @@ static void flush_cpu_workqueue(struct c
->  		 * Probably keventd trying to flush its own queue. So simply run
->  		 * it by hand rather than deadlocking.
->  		 */
-> -		mutex_unlock(&workqueue_mutex);
-> +		preempt_enable();
+"Albert Cahalan" <acahalan@gmail.com> writes:
 
-Ah, (looking at _cpu_down()->stop_machine()), so preempt_disable() not only "pins"
-the current CPU, it blocks cpu_down(), yes ???
+> FYI, the kernel also assumes that a "char" is 8 bits.
+> Maybe you should run away screaming.
 
-I guess this should work then. I'll try to re-check this code on weekend.
+You are confusing "undefined" with "implementation defined".  Those are
+two quite different concepts.
 
-Oleg.
+Andreas.
 
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

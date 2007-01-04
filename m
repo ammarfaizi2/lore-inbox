@@ -1,89 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932197AbXADR6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932213AbXADR6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbXADR6a (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbXADR63
+	id S932213AbXADR6s (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbXADR6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:58:29 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:40262 "EHLO smtp.osdl.org"
+	Thu, 4 Jan 2007 12:58:48 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:58360 "EHLO mailgw.cvut.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932197AbXADR63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:58:29 -0500
-Date: Thu, 4 Jan 2007 09:54:12 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Greg KH <greg@kroah.com>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
-Subject: Re: [i2c] Why to I2c drivers not autoload like other PCI devices?
-Message-ID: <20070104095412.16ac9f53@localhost>
-In-Reply-To: <20070104175412.76ebce25.khali@linux-fr.org>
-References: <20070103165020.4b277ebc@freekitty>
-	<20070104005600.GA25712@kroah.com>
-	<20070103172916.7f9ca11a@freekitty>
-	<20070104055128.GA8115@kroah.com>
-	<20070104175412.76ebce25.khali@linux-fr.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S932217AbXADR6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 12:58:47 -0500
+X-Greylist: delayed 1855 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 12:58:47 EST
+Message-ID: <459D38DA.4030803@vc.cvut.cz>
+Date: Thu, 04 Jan 2007 09:26:50 -0800
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 Iceape/1.0.6 (Debian-1.0.6-1)
+MIME-Version: 1.0
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: NCPFS and brittle connections
+References: <459D1794.2060009@drzeus.cx>
+In-Reply-To: <459D1794.2060009@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007 17:54:12 +0100
-Jean Delvare <khali@linux-fr.org> wrote:
-
-> On Wed, 3 Jan 2007 21:51:28 -0800, Greg KH wrote:
-> > On Wed, Jan 03, 2007 at 05:29:16PM -0800, Stephen Hemminger wrote:
-> > > On Wed, 3 Jan 2007 16:56:00 -0800
-> > > Greg KH <greg@kroah.com> wrote:
-> > > 
-> > > > On Wed, Jan 03, 2007 at 04:50:20PM -0800, Stephen Hemminger wrote:
-> > > > > Is there some missing magic (udev rule?) that keeps i2c device modules
-> > > > > from loading? For example: the Intel i2c-i801 module ought to get loaded
-> > > > > automatically on boot up since it has a set of PCI id's that generate
-> > > > > the necessary module aliases. It would be better if I2C device's autoloaded
-> > > > > like other PCI devices.
-> > > > 
-> > > > No, it should autoload, if it has a MODULE_DEVICE_TABLE() in it.  In
-> > > > fact, the i2c-i801 autoloads on one of my machines just fine.  Are you
-> > > > sure your pci ids match properly?
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > greg k-h
-> > > 
-> > > This laptop is running Ubuntu Edgy (6.10) and it doesn't autoload.
-> > > Everything works fine if I manually load the module with modprobe.
-> > > 
-> > > This device should match:
-> > > 
-> > > 00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 02)
-> > > 00: 86 80 da 27 01 00 80 02 02 00 05 0c 00 00 00 00
-> > > 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > 20: a1 18 00 00 00 00 00 00 00 00 00 00 cf 10 88 13
-> > > 30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 02 00 00
-> > > 
-> > > This driver modinfo:
-> > > 
-> > > filename:       /lib/modules/2.6.20-rc3/kernel/drivers/i2c/busses/i2c-i801.ko
-> > 
-> > What does:
-> > 	modprobe --show-depends `cat /sys/bus/pci/0000:00:1f.3/modalias`
-> > show? 
+Pierre Ossman wrote:
+> Hi Petr,
 > 
-> Greg really means:
-> 	modprobe --show-depends `cat /sys/bus/pci/devices/0000:00:1f.3/modalias`
-> and same for the other commands below.
+> What is the status of this bug?
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=3328
+> 
+> I do not see anything in the history of fs/ncpfs that seems to suggest that this, rather critical, issue has been resolved. Is anyone working on it?
 
+Nobody is working on it (at least to my knowledge), and to me it is 
+feature - it always worked this way, like smbfs did back in the past - 
+if you send signal 9 to process using mount point, and there is some 
+transaction in progress, nobody can correctly finish that transaction 
+anymore.  Fixing it would require non-trivial amount of code, and given 
+that NCP itself is more or less dead protocol I do not feel that it is 
+necessary.
 
-Ahak
-$ modprobe --show-depends `cat /sys/bus/pci/devices/0000:00:1f.3/modalias`
-WARNING: Not loading blacklisted module i2c_i801
-FATAL: Module pci:v00008086d000027DAsv000010CFsd00001388bc0Csc05i00 not found.
+If you want to fix it, feel free.  Culprit is RQ_INPROGRESS handling in 
+ncp_abort_request - it just aborts whole connection so it does not have 
+to provide temporary buffers and special handling for reply - as buffers 
+currently specified as reply buffers are owned by caller, so after 
+aborting request you cannot use them anymore.
+							Petr Vandrovec
 
-And the blacklist entry is:
-
-# causes failure to suspend on HP compaq nc6000 (Ubuntu: #10306)
-blacklist i2c_i801
-
-Looks like Ubuntu decided to wallpaper over a problem rather than fixing it

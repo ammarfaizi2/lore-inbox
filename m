@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030261AbXADXR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030262AbXADXS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbXADXR5 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 18:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbXADXR5
+	id S1030262AbXADXS6 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 18:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbXADXS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 18:17:57 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:35332 "EHLO smtp.osdl.org"
+	Thu, 4 Jan 2007 18:18:58 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:35393 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030261AbXADXR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 18:17:56 -0500
-Date: Thu, 4 Jan 2007 15:17:44 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Mitchell Blank Jr <mitch@sfgoth.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Eric Sandeen <sandeen@redhat.com>,
+	id S1030262AbXADXS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 18:18:57 -0500
+Date: Thu, 4 Jan 2007 15:18:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Stelian Pop <stelian@popies.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
- bad_inode_ops return values
-In-Reply-To: <20070104150651.5bafddfc.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0701041514470.3661@woody.osdl.org>
-References: <20070104105430.1de994a7.akpm@osdl.org>
- <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk>
- <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org> <20070104202412.GY17561@ftp.linux.org.uk>
- <20070104215206.GZ17561@ftp.linux.org.uk> <20070104223856.GA79126@gaz.sfgoth.com>
- <Pine.LNX.4.64.0701041428510.3661@woody.osdl.org> <20070104150651.5bafddfc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Linus Torvalds <torvalds@osdl.org>, v4l-dvb-maintainer@linuxtv.org
+Subject: Re: [PATCH] Fix __ucmpdi2 in v4l2_norm_to_name()
+Message-Id: <20070104151837.1a878a20.akpm@osdl.org>
+In-Reply-To: <1167951548.12012.55.camel@praia>
+References: <1167909014.20853.8.camel@localhost.localdomain>
+	<20070104144825.68fec948.akpm@osdl.org>
+	<1167951548.12012.55.camel@praia>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 04 Jan 2007 20:59:08 -0200
+Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
 
+> > The largest value we use here is 0x02000000.  Perhaps v4l2_std_id shouldn't
+> > be 64-bit?
+> Too late to change it to 32 bits. It is at V4L2 userspace API since
+> kernel 2.6.0.
 
-On Thu, 4 Jan 2007, Andrew Morton wrote:
-> 
-> That's what I currently have queued.  It increases bad_inode.o text from 
-> 200-odd bytes to 700-odd :(
+You could perhaps make it 32-bit internally, and still 64-bit on the
+kernel<->userspace boundary.   64-bit quantities are expensive..
 
-Then I think we're ok. We do care about bytes, but we care more about 
-bytes that actually ever hit the icache or dcache, and this will 
-effectively do neither.
+> We can, however use this approach as a workaround, with
+> the proper documentation. I'll handle it after I return from vacations
+> next week.
 
-> <looks at sys_ni_syscall>
-
-That one should be ok. System calls by definition have the same return 
-type, since they all have the same call site. So that one really does fit 
-the "argument types differ, but the return type is the same" case. 
-
-		Linus
+Thanks.

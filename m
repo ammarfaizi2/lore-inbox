@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932288AbXADFwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932291AbXADF7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbXADFwg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbXADFwe
+	id S932291AbXADF7B (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbXADF7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:52:34 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:29644 "HELO
-	smtp108.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932288AbXADFwc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:52:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=N7uDNxg1RQw3x0lmtg8rDtJTeo6OwdSF60mojpaNFKlqm0znTjkiYPniBIeLxLXULYODblB8LfIEM001fYVt/Uxxb57XUcPtvSMk38KP/B5h034TWkteNTrobaxzKjJ4qYU2o4DVdSqoxWuyyXl9EVqng3x2p3rnW4kAMow+fFs=  ;
-X-YMail-OSG: aSa80BEVM1nTm1RtRzPj0Jh5ofB6IfaY4AqldtxOUNKKQkq3oxpY4X54742BkDBNv6EvoUtKGIHELODr4hq1RzCaHetw4jrrxxA2JPC5_jAve2GZWzXdVXeYTsG.4HS0bRVVyGt8iMLstJI-
-Message-ID: <459C95FE.1090802@yahoo.com.au>
-Date: Thu, 04 Jan 2007 16:51:58 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 4 Jan 2007 00:59:01 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40169 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932291AbXADF7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 00:59:00 -0500
+Message-ID: <459C97A9.3060907@drzeus.cx>
+Date: Thu, 04 Jan 2007 06:59:05 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
 MIME-Version: 1.0
-To: suparna@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, linux-aio@kvack.org, drepper@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com, mingo@elte.hu
-Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com>
-In-Reply-To: <20070104045621.GA8353@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Philip Langdale <philipl@overt.org>
+CC: Alex Dubov <oakad@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 2)
+References: <459928F3.9010804@overt.org> <20070103150620.ac733abb.akpm@osdl.org> <459C8FA4.7080709@overt.org>
+In-Reply-To: <459C8FA4.7080709@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya wrote:
-> On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
+Philip Langdale wrote:
+> This is a bug. The MMC_RSP_R? #defines do not fully characterise the
+> responses (specically, the way that the response is parsed is not
+> characterised) and consequently there is no guarantee of uniqueness.
+> Given this reality - the way that the tifm_sd driver works is unsafe.
+>
+>   
 
->>Plus Jens's unplugging changes add more reliance upon context inside
->>*current, for the plugging and unplugging operations.  I expect that the
->>fsaio patches will need to be aware of the protocol which those proposed
->>changes add.
-> 
-> 
-> Whatever logic applies to background writeout etc should also just apply
-> as is to aio worker threads, shouldn't it ? At least at a quick glance I
-> don't see anything special that needs to be done for fsaio, but its good
-> to be aware of this anyway, thanks !
+Amen to that. All hw vendors that implement this particular form of
+brain damage should be dragged out and shot.
 
-The submitting process plugs itself, submits all its IO, then unplugs
-itself (ie. so the plug is now on the process, rather than the block
-device).
+I'll fix a patch for this later on.
 
-So long as AIO threads do the same, there would be no problem (plugging
-is optional, of course).
-
-This (is supposed to) give a number of improvements over the traditional
-plugging (although some downsides too). Most notably for me, the VM gets
-cleaner ;)
-
-However AIO could be an interesting case to test for explicit plugging
-because of the way they interact. What kind of improvements do you see
-with samba and do you have any benchmark setups?
-
-Thanks,
-Nick
+Rgds
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+

@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932225AbXADBA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932230AbXADBBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbXADBA7 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 20:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbXADBA7
+	id S932230AbXADBBu (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 20:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbXADBBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 20:00:59 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:41088
-	"EHLO gnuppy.monkey.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932225AbXADBA6 (ORCPT
+	Wed, 3 Jan 2007 20:01:50 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:47611 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932230AbXADBBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 20:00:58 -0500
-Date: Wed, 3 Jan 2007 17:00:49 -0800
-To: "Chen, Tim C" <tim.c.chen@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
-Message-ID: <20070104010049.GA31943@gnuppy.monkey.org>
-References: <20070104002909.GA31682@gnuppy.monkey.org> <9D2C22909C6E774EBFB8B5583AE5291C01A4FBBA@fmsmsx414.amr.corp.intel.com>
+	Wed, 3 Jan 2007 20:01:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UggyFkFwWD9xNrQPWJ17K/gBK0TNnyrMUylM2iSLcJzjueWlwfvsmWJCEQrlxACxe5cKWQqVB52rwmfh8qW7+dIFweiRAnbYOaM7wkassGLb3+p3ydd9mZLyTc3/MyuqM5qj7IsNntEP7V4QWHDejla3ArT3C6N8PZO0BvVRJvA=
+Message-ID: <f4527be0701031701q4eaafe63sfd5dcbbfddc89f51@mail.gmail.com>
+Date: Thu, 4 Jan 2007 01:01:46 +0000
+From: "Andrew Lyon" <andrew.lyon@gmail.com>
+To: bbee <bumble.bee@xs4all.nl>
+Subject: Re: ata1: spurious interrupt (irq_stat 0x8 active_tag -84148995 sactive 0x0) r0xj0
+Cc: "Tejun Heo" <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0701031733001.1969@dolores.legate.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9D2C22909C6E774EBFB8B5583AE5291C01A4FBBA@fmsmsx414.amr.corp.intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+References: <f4527be0612271812p7282de31j98462aebde16e5a1@mail.gmail.com>
+	 <45933A53.1090702@gmail.com> <loom.20070103T020347-255@post.gmane.org>
+	 <459B140C.1060401@gmail.com>
+	 <Pine.LNX.4.64.0701030334460.12309@dolores.legate.org>
+	 <459B2DEA.8080202@gmail.com>
+	 <Pine.LNX.4.64.0701031733001.1969@dolores.legate.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2007 at 04:46:37PM -0800, Chen, Tim C wrote:
-> Bill Huey (hui) wrote:
-> > Can you sort the output ("sort -n" what ever..) and post it without
-> > the zeroed entries ?
-> > 
-> > I'm curious about how that statistical spike compares to the rest of
-> > the system activity. I'm sure that'll get the attention of Peter as
-> > well and maybe he'll do something about it ? :)
-... 
-> @contention events = 247149
-> @failure_events = 146
-> @lookup_failed_scope = 175
-> @lookup_failed_static = 43
-> @static_found = 16
-> [1, 113, 77 -- 32768, 0]            {tcp_init, net/ipv4/tcp.c, 2426}
-> [2, 759, 182 -- 1, 0]           	{lock_kernel, -, 0}
-> [13, 0, 7 -- 4, 0]              	{kmem_cache_free, -, 0}
-> [25, 3564, 9278 -- 1, 0]            {lock_timer_base, -, 0}
-> [56, 9528, 24552 -- 3, 0]           {init_timers_cpu, kernel/timer.c, 1842}
-> [471, 52845, 17682 -- 10448, 0]     {sock_lock_init, net/core/sock.c, 817}
-> [32251, 9024, 242 -- 256, 0]        {init, kernel/futex.c, 2781}
-> [173724, 11899638, 9886960 -- 11194, 0]         {mm_init, kernel/fork.c, 369}
+On 1/3/07, bbee <bumble.bee@xs4all.nl> wrote:
+> On Wed, 3 Jan 2007, Tejun Heo wrote:
+> > bbee wrote:
+> >>> Yeap, I have major issues with SDB FISes which contains spurious
+> >>> completions but most other spurious interrupts shouldn't be dangerous
+> >>> and I haven't seen spurious completions for quite some time, so I was
+> >>> thinking either removing the message or printing it only on SDB FIS
+> >>> containing spurious completions.
+> >>>
+> >>> But, Andrew Lyon *is* reporting spurious completions.  Now I just wanna
+> >>> update those printks such that more info is reported only on spurious
+> >>> SDB FISes.
+> >>
+> >> That would certainly help verify that I'm having the exact same problem,
+> >> since Andrew didn't say anything about his drive going offline.
+> >
+> > Okay.
+>
+> Sorry, I thought you meant you would need to update it *further*. I applied
+> the patch you gave to Andrew with this result so far:
+>
+> $ dmesg | grep -A1 "spurious interrupt"
+> ata1: spurious interrupt (irq_stat 0x8 active_tag 0xfafbfcfd sactive 0x0)
+> ata1: issue=0x0 SAct=0x0 SDB_FIS=004040a1:00000008
+> --
+> ata1: spurious interrupt (irq_stat 0x8 active_tag 0xfafbfcfd sactive 0x0)
+> ata1: issue=0x0 SAct=0x0 SDB_FIS=004040a1:00000001
+>
+> No luck yet triggering the exception.
+>
+> On Wed, 3 Jan 2007, Andrew Lyon wrote:
+> > Alan said he was going to add the drive to a blacklist he was
+> > maintaining for NCQ, perhaps that has been done in kernel 2.6.19, I
+> > dont know as I am still running 2.6.18.
+> >
+> > Perhaps the WD Raptor drive that I have does have lousy NCQ and that
+> > explains both the poor performance and the spurious interrupts.
+>
+> Blacklisting NCQ on the drive(s) for all controllers might be ill advised,
+> since it could be a JMicron-specific issue (or ahci-specific, since the
+> person in the thread I referenced had a different ahci controller..).
+> Either that, or both our drive models have "lousy NCQ"..
+>
+>
+> Thanks,
+>
+> bbee
+>
 
-Thanks, the numbers look a bit weird in that the first column should
-have a bigger number of events than that second column since it is a
-special case subset. Looking at the lock_stat_note() code should show
-that to be the case. Did you make a change to the output ?
+Is there anything more I can do to assist? I plan to upgrade to
+2.6.19/latest at the weekend, let me know if there is anything more i
+can do.
 
-I can't tell which are "steal", actively running or overall contention
-stats against the lock from your output.
-
-Thanks
-
-bill
-
+Andy

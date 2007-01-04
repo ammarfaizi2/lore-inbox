@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964930AbXADSLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964833AbXADSMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbXADSLj (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbXADSLj
+	id S964833AbXADSMF (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbXADSMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:11:39 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:59689 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964809AbXADSLh (ORCPT
+	Thu, 4 Jan 2007 13:12:03 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:34215 "EHLO
+	e32.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964833AbXADSL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:11:37 -0500
-Date: Thu, 4 Jan 2007 12:11:32 -0600
+	Thu, 4 Jan 2007 13:11:58 -0500
+Date: Thu, 4 Jan 2007 12:11:54 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH -mm 3/8] user ns: add user_namespace ptr to vfsmount
-Message-ID: <20070104181132.GD11377@sergelap.austin.ibm.com>
+Subject: [PATCH -mm 4/8] user ns: hook permission
+Message-ID: <20070104181154.GE11377@sergelap.austin.ibm.com>
 References: <20070104180635.GA11377@sergelap.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,104 +26,37 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Serge E. Hallyn <serue@us.ibm.com>
-Subject: [PATCH -mm 3/8] user ns: add user_namespace ptr to vfsmount
+Subject: [PATCH -mm 4/8] user ns: hook permission
 
-Add user_namespace ptr to vfsmount, and define a helper to compare it
-to the task's user_ns.
+Hook permission to check vfsmnt->user_ns against current.
 
 Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 ---
- fs/namespace.c        |    3 +++
- include/linux/mount.h |    2 ++
- include/linux/sched.h |   20 ++++++++++++++++++++
- 3 files changed, 25 insertions(+), 0 deletions(-)
+ fs/namei.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index fd999ca..5da87e2 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -25,6 +25,7 @@ #include <linux/namei.h>
- #include <linux/security.h>
- #include <linux/mount.h>
- #include <linux/ramfs.h>
-+#include <linux/user_namespace.h>
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
- #include "pnode.h"
-@@ -55,6 +56,7 @@ struct vfsmount *alloc_vfsmnt(const char
- {
- 	struct vfsmount *mnt = kmem_cache_zalloc(mnt_cache, GFP_KERNEL);
- 	if (mnt) {
-+		mnt->mnt_user_ns = get_user_ns(current->nsproxy->user_ns);
- 		atomic_set(&mnt->mnt_count, 1);
- 		INIT_LIST_HEAD(&mnt->mnt_hash);
- 		INIT_LIST_HEAD(&mnt->mnt_child);
-@@ -87,6 +89,7 @@ EXPORT_SYMBOL(simple_set_mnt);
+diff --git a/fs/namei.c b/fs/namei.c
+index e4f108f..d6687af 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -246,6 +246,8 @@ int permission(struct inode *inode, int 
+ 			return -EACCES;
+ 	}
  
- void free_vfsmnt(struct vfsmount *mnt)
- {
-+	put_user_ns(mnt->mnt_user_ns);
- 	kfree(mnt->mnt_devname);
- 	kmem_cache_free(mnt_cache, mnt);
- }
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index dab69af..e438195 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -21,6 +21,7 @@ struct super_block;
- struct vfsmount;
- struct dentry;
- struct mnt_namespace;
-+struct user_namespace;
++	if (nd && !task_mnt_same_uidns(current, nd->mnt))
++		return -EACCES;
  
- #define MNT_NOSUID	0x01
- #define MNT_NODEV	0x02
-@@ -53,6 +54,7 @@ struct vfsmount {
- 	struct list_head mnt_slave;	/* slave list entry */
- 	struct vfsmount *mnt_master;	/* slave is on master->mnt_slave_list */
- 	struct mnt_namespace *mnt_ns;	/* containing namespace */
-+	struct user_namespace *mnt_user_ns; /* namespace for uid interpretation */
  	/*
- 	 * We put mnt_count & mnt_expiry_mark at the end of struct vfsmount
- 	 * to let these frequently modified fields in a separate cache line
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 5a3f630..450fc39 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -83,6 +83,8 @@ #include <linux/resource.h>
- #include <linux/timer.h>
- #include <linux/hrtimer.h>
- #include <linux/task_io_accounting.h>
-+#include <linux/nsproxy.h>
-+#include <linux/mount.h>
+ 	 * MAY_EXEC on regular files requires special handling: We override
+@@ -433,6 +435,8 @@ static int exec_permission_lite(struct i
+ {
+ 	umode_t	mode = inode->i_mode;
  
- #include <asm/processor.h>
++	if (!task_mnt_same_uidns(current, nd->mnt))
++		return -EACCES;
+ 	if (inode->i_op && inode->i_op->permission)
+ 		return -EAGAIN;
  
-@@ -1586,6 +1588,24 @@ extern int cond_resched_lock(spinlock_t 
- extern int cond_resched_softirq(void);
- 
- /*
-+ * Check whether a task and a vfsmnt belong to the same uidns.
-+ * Since the initial namespace is exempt from these checks,
-+ * return 1 if so.  Also return 1 if the vfsmnt is exempt from
-+ * such checking.  Otherwise, if the uid namespaces are different,
-+ * return 0.
-+ */
-+static inline int task_mnt_same_uidns(struct task_struct *tsk,
-+					struct vfsmount *mnt)
-+{
-+	if (tsk->nsproxy == init_task.nsproxy)
-+		return 1;
-+	if (mnt->mnt_user_ns == tsk->nsproxy->user_ns)
-+		return 1;
-+	return 0;
-+}
-+
-+
-+/*
-  * Does a critical section need to be broken due to another
-  * task waiting?:
-  */
 -- 
 1.4.1
 

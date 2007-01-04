@@ -1,63 +1,193 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965054AbXADRbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965039AbXADRic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbXADRbA (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbXADRbA
+	id S965039AbXADRic (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbXADRic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:31:00 -0500
-Received: from MAIL.13thfloor.at ([213.145.232.33]:36818 "EHLO
-	MAIL.13thfloor.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965043AbXADRa7 (ORCPT
+	Thu, 4 Jan 2007 12:38:32 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:20811 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965039AbXADRic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:30:59 -0500
-Date: Thu, 4 Jan 2007 18:30:58 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: problem with pata_hpt37x ...
-Message-ID: <20070104173058.GA2160@MAIL.13thfloor.at>
-Mail-Followup-To: Brad Campbell <brad@wasp.net.au>,
-	Alan <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-ide@vger.kernel.org,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20070102070144.GA11270@MAIL.13thfloor.at> <20070102145855.170c03e2@localhost.localdomain> <459D26D4.3010601@wasp.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Jan 2007 12:38:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T7CH6/vkDQB+KNSutnPSD0wQkRTgyjDkxlTogcfR6btF3036aYa3w3Ssne0O0qSdYEXZEFKOOnbl1nD1y57989ZIWpJwrgmQHw/jWSkm/TjbAnt9+wYxaMeZuGyE+3rmxq550//hh37NqRlH0giFdU7iZT2ZO9S9UD8GbvMfRG8=
+Message-ID: <c70ff3ad0701040938k640f4e9bh34664aa1f392a57@mail.gmail.com>
+Date: Thu, 4 Jan 2007 19:38:30 +0200
+From: "saeed bishara" <saeed.bishara@gmail.com>
+To: "Jens Axboe" <jens.axboe@oracle.com>
+Subject: Re: using splice/vmsplice to improve file receive performance
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c70ff3ad0701040827n5551eb01sb62f65e493a810c8@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <459D26D4.3010601@wasp.net.au>
-User-Agent: Mutt/1.5.11
+References: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
+	 <20061222094858.GP17199@kernel.dk>
+	 <c70ff3ad0612220318i54e7569fn161cf781d9bf0669@mail.gmail.com>
+	 <20061222113917.GQ17199@kernel.dk>
+	 <c70ff3ad0612220359w3f568850qb720230bae76a698@mail.gmail.com>
+	 <20061222124710.GR17199@kernel.dk>
+	 <c70ff3ad0701031209g43cf5576v11b6409696af1ed4@mail.gmail.com>
+	 <20070104140813.GZ11203@kernel.dk> <20070104141638.GB11203@kernel.dk>
+	 <c70ff3ad0701040827n5551eb01sb62f65e493a810c8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 08:09:56PM +0400, Brad Campbell wrote:
-> Alan wrote:
-> >On Tue, 2 Jan 2007 08:01:45 +0100
-> >Herbert Poetzl <herbert@13thfloor.at> wrote:
+On 1/4/07, saeed bishara <saeed.bishara@gmail.com> wrote:
+> On 1/4/07, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > On Thu, Jan 04 2007, Jens Axboe wrote:
+> > > On Wed, Jan 03 2007, saeed bishara wrote:
+> > > > On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > > > >On Fri, Dec 22 2006, saeed bishara wrote:
+> > > > >> On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > > > >> >On Fri, Dec 22 2006, saeed bishara wrote:
+> > > > >> >> On 12/22/06, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > > > >> >> >On Thu, Dec 21 2006, saeed bishara wrote:
+> > > > >> >> >> Hi,
+> > > > >> >> >> I'm trying to use the splice/vmsplice system calls to improve the
+> > > > >> >> >> samba server write throughput, but before touching the smbd, I
+> > > > >started
+> > > > >> >> >> to improve the ttcp tool since it simple and has the same flow. I'm
+> > > > >> >> >> expecting to avoid the "copy_from_user" path when using those
+> > > > >> >> >> syscalls.
+> > > > >> >> >> so far, I couldn't make any improvement, actually the throughput
+> > > > >get
+> > > > >> >> >> worst. the new receive flow looks like this (code also attached):
+> > > > >> >> >> 1. read tcp packet (64 pages) to page aligned buffer.
+> > > > >> >> >> 2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
+> > > > >> >> >> 3. splice the pipe to the file, also with SPLICE_F_MOVE.
+> > > > >> >> >>
+> > > > >> >> >> the strace shows that the splice takes a lot of time. also when
+> > > > >> >> >> profiling the kernel, I found that the memcpy() called to often !!
+> > > > >> >> >
+> > > > >> >> >(didn't see this until now, axboe@suse.de doesn't work anymore)
+> > > > >> >> >
+> > > > >> >> >I'm assuming that you mean you vmsplice with SPLICE_F_GIFT, to hand
+> > > > >> >> >ownership of the pages to the kernel (in which case SPLICE_F_MOVE
+> > > > >will
+> > > > >> >> >work, otherwise you get a copy)? If not, that'll surely cost you a
+> > > > >data
+> > > > >> >> >copy
+> > > > >> >>   I'll try the vmplice with SPLICE_F_GIFT and splice with MOVE. btw,
+> > > > >> >> I noticed that the  splice system call takes the bulk of the time,
+> > > > >> >> does it mean anything?
+> > > > >> >
+> > > > >> >Hard to say without seeing some numbers :-)
+> > > > >> I'm out of the office, I'll send it later. btw, my test bed ( the
+> > > > >> receiver side ) is arm9. does it matter?
+> > > > >
+> > > > >The vmsplice is basically vm intensive, so it could matter.
+> > > > >
+> > > > >> >> >This sounds remarkably like a recent thread on lkml, you may want to
+> > > > >> >> >read up on that. Basically using splice for network receive is a bit
+> > > > >of
+> > > > >> >> >a work-around now, since you do need the one copy and then vmsplice
+> > > > >that
+> > > > >> >> >into a pipe. To realize the full potential of splice, we first need
+> > > > >> >> >socket receive support so you can skip that step (splice from socket
+> > > > >to
+> > > > >> >> >pipe, splice pipe to file).
+> > > > >> >> Ashwini Kulkarni posted patches that implements that, see
+> > > > >> >> http://lkml.org/lkml/2006/9/20/272 .  is that right?
+> > > > >> >> >
+> > > > >> >> >There was no test code attached, btw.
+> > > > >> >> sorry, here it is.
+> > > > >> >> can you please add sample application to your test tools (splice,fio
+> > > > >> >> ,,) that demonstrates my flow; socket to file using read & vmsplice?
+> > > > >> >
+> > > > >> >I didn't add such an example, since I had hoped that we would have
+> > > > >> >splice from socket support sooner rather than later. But I can do so, of
+> > > > >> >course.
+> > > > >> do you any preliminary patches? I can start playing with it.
+> > > > >
+> > > > >I don't, Intel posted a set of patches a few months ago though. I didn't
+> > > > >have time to look that at the time being, but you should be able to find
+> > > > >them in the archives.
+> > > > >
+> > > > >> >I'll try your test. One thing that sticks out initially is that you
+> > > > >> >should be using full pages, the splice pipe will not merge page
+> > > > >> >segments. So don't use a buflen less than the page size.
+> > > > >>
+> > > > >> yes, actually I  run the ttcp with -l65536 ( 64KB ), and the buffer is
+> > > > >> always page aligned.also, the splice/vmsplice with MOVE or GIFT will
+> > > > >> fail if the buffer is not a whole pages. am I rigth?
+> > > > >
+> > > > >Yes.
+> > > > >
+> > > > >I added a simple splice-fromnet example in the splice git repo, see if
+> > > > >you can repeat your results with that. Doing:
+> > > > >
+> > > > ># ./splice-fromnet -g 2001 | ./splice-out -m /dev/null
+> > > > >
+> > > > >and
+> > > > >
+> > > > ># cat /dev/zero | netcat localhost 2001
+> > > > >
+> > > > >gets me about 490MiB/sec, using a recv/write loop is around 413MiB/sec.
+> > > > >Not migrating pages gets me around 422MiB/sec.
+> > > > >
+> > > > >--
+> > > > >Jens Axboe
+> > > > >
+> > > > >
+> > > > I've done some investigation in the splice flow and found the following:
+> > > > even when using vmsplice with GIFT and splice with MOVE, the user
+> > > > buffers still copied, I see that the memcpy from pipe_to_file() is
+> > > > called.
+> > > > I added debug messages in this function and here what I got:
+> > > > 1. the  generic_pipe_buf_steal always fails, this is because the
+> > > > page_count is 2.
+> > > > 2. after then, the find_lock_page fails as well.
+> > > > 3. page_cache_alloc_cold succeeds.
+> > > > 4. but, since the buf->page is differs from the page (returned by
+> > > > page_cache_alloc_cold) the memcpy function is called.
+> > > >
+> > > > this behavior true for all the buffers that vmspliced to ext3 file.
+> > > > is this the expected behavior? is there any way to make the steal
+> > > > operation return with success?
+> > >
+> > > It works for me, with most pages. Using the vmsplice/splice-out from the
+> > > splice tools, doing
+> > >
+> > > $ ./vmsplice -g |  ./splice-out -m g
+> > >
+> > > about half of the pages have count==1 and the steal suceeds.
+> > >
+> > > find_lock_page() will only suceed, if the file exists and is cached
+> > > already. splice-out will truncate the file, so it should never suceed
+> > > for that case. For both the find_lock_page() success and failure case
+> > > (page being allocated), it's a given that we need to copy the data.
 > >
-> >>if you are interested in investigating this, please
-> >>let me know what kind of data you would like to see
-> >>and/or what kind of tests would be appreciated.
+> > Testing a simpler case (not switching buffers), all but one page was
+> > stolen. I tested with on-stack and posix_memalign returned buffers.
 > >
-> >I reviewed the 374 code a bit further to see what might be causing this
-> >and found the slave channel end of DMA handling was using the wrong port
-> >I think.
-> 
-> This now passes all my stress tests Alan. No more "Interrupt disabled"
-> or dmesg storms. I put the HPT Rocketraid 1540 (HPT374) back in a box
-> and connected 4 200GB ata drives to it using SATA-PATA bridgeboards as
-> before. It looks to be rock solid now.
+> > --
+> > Jens Axboe
+> >
+> >
+>
+> your test (./vmsplice -g |  ./splice-out -m) works for me. but I'm
+> trying to do the vmsplice and the splice in the same process. so I
+> modified the vmsplice test (attached)  to do the splice to file. in
+> this case no pages are stolen.
+> IMHO, when doing it in two process as your example, then the count of
+> some of the pages decreased when the first process exits, this why
+> those pages can be stolen.
+>
+> saeed
+>
+>
+>
 
-sounds great! where can I get that version?
-should it be in 2.6.20-rc* or is there a separate
-patch available somewhere?
-
-TIA,
-Herbert
-
-> Brad
-> -- 
-> "Human beings, who are almost unique in having the ability
-> to learn from the experience of others, are also remarkable
-> for their apparent disinclination to do so." -- Douglas Adams
+when I free the user bufffer before calling splice, the steal
+operation succeeds.
+is this how the application should use the vmsplice/splice? i.e.to use
+the following sequence:
+- malloc
+- vmsplice
+- free
+- splice

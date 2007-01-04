@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030180AbXADTJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964821AbXADTLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030180AbXADTJn (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbXADTJn
+	id S964821AbXADTLJ (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbXADTLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:09:43 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:44722 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964821AbXADTJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:09:42 -0500
-Date: Thu, 4 Jan 2007 11:09:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Eric Sandeen <sandeen@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
- bad_inode_ops return values
-In-Reply-To: <20070104105430.1de994a7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org>
-References: <459C4038.6020902@redhat.com> <20070103162643.5c479836.akpm@osdl.org>
- <459D3E8E.7000405@redhat.com> <20070104102659.8c61d510.akpm@osdl.org>
- <459D4897.4020408@redhat.com> <20070104105430.1de994a7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Jan 2007 14:11:08 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:48342 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964821AbXADTLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 14:11:07 -0500
+Date: Thu, 4 Jan 2007 19:10:46 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>,
+       Albert Cahalan <acahalan@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
+       mikpe@it.uu.se
+Subject: Re: kernel + gcc 4.1 = several problems
+Message-ID: <20070104191046.GV17561@ftp.linux.org.uk>
+References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com> <27e6f108b713bb175dd2e77156ef61d0@kernel.crashing.org> <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com> <8069085182dff3b0e63a661d81804dbb@kernel.crashing.org> <Pine.LNX.4.64.0701040937460.3661@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701040937460.3661@woody.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 4 Jan 2007, Andrew Morton wrote:
-
-> On Thu, 04 Jan 2007 12:33:59 -0600
-> Eric Sandeen <sandeen@redhat.com> wrote:
+On Thu, Jan 04, 2007 at 09:47:01AM -0800, Linus Torvalds wrote:
+> NOBODY will guarantee you that they follow all standards to the letter. 
+> Some use compiler extensions knowingly, but pretty much _everybody_ ends 
+> up depending on subtle issues without even realizing it. It's almost 
+> impossible to write a real program that has no bugs, and if they don't 
+> show up in testing (because the compiler didn't generate buggy assembly 
+> code from source code that had the _potential_ for bugs), they often won't 
+> get fixed.
 > 
-> > Andrew Morton wrote:
-> > > On Thu, 04 Jan 2007 11:51:10 -0600
-> > > Eric Sandeen <sandeen@redhat.com> wrote:
-> > 
-> > >> Also - is it ok to alias a function with one signature to a function with
-> > >> another signature?
-> > > 
-> > > Ordinarily I'd say no wucking fay, but that's effectively what we've been
-> > > doing in there for ages, and it seems to work.
-> > 
-> > Hmm that gives me a lot of confidence ;-)  I'd hate to carry along bad
-> > assumptions while we try to make this all kosher... but I'm willing to
-> > defer to popular opinion on this one....
+> The kernel does things like compare pointers across objects, and the 
+> kernel EXPECTS it to work. I seriously doubt that the kernel is even 
+> unusual in this. The common way to avoid AB-BA deadlocks in any threaded 
+> code (whether kernel or user space) is to just take two locks in a 
+> specific order, and the common way to do that for locks of the same type 
+> is simply to compare the addresses).
 > 
-> yeah, I'm a bit wobbly about it.  Linus, what do you think?
+> The fact that this is "undefined" behaviour matters not a _whit_. Not for 
+> the kernel, and I bet not for a lot of other applications either.
 
-I don't much care. If we ever find an architecture where it matters, we'll 
-unalias them. In the meantime, we've for the longest time just known that 
-calling conventions don't care about argument types on all the 
-architectures we've been on, so we've aliased things to the same function.
-
-But it's not very common, so we can stop doing it. 
-
-But I'd argue we should only do it if there is an actual 
-honest-to-goodness reason to do so. Usually it only matters for
-
- - return types are fundamentally different (FP vs integer vs pointer)
-
- - calling convention has callee popping the arguments (normal in Pascal, 
-   very unusual in C, because it also breaks lots of historical code, 
-   and is simply not workable with K&R C, where perfectly normal things 
-   like "open()" take either two or three arguments without being 
-   varargs).
-
-In general, this just isn't an issue for the kernel. Other systems have 
-had basically NO typing what-so-ever for functions, and use aliasing much 
-more extensively. We only do it for a few ratehr rare things.
-
-			Linus
+True, but we'd better understand what assumptions we are making.  I have
+seen patches seriously attempting to _subtract_ unrelated pointers.  And
+that simply doesn't work for obvious reasons...

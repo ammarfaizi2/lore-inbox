@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932079AbXADSxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932101AbXADSxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbXADSxd (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbXADSxd
+	id S932101AbXADSxw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbXADSxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:53:33 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2909 "HELO
+	Thu, 4 Jan 2007 13:53:50 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2913 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932086AbXADSx2 (ORCPT
+	with SMTP id S932101AbXADSxg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:53:28 -0500
-Date: Thu, 4 Jan 2007 19:53:30 +0100
+	Thu, 4 Jan 2007 13:53:36 -0500
+Date: Thu, 4 Jan 2007 19:53:38 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] remove the broken OAKNET driver
-Message-ID: <20070104185330.GG20714@stusta.de>
+To: sparclinux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] remove the broken SUN_AURORA driver
+Message-ID: <20070104185338.GH20714@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,7 +23,7 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The OAKNET driver:
+The SUN_AURORA driver:
 - has been marked as BROKEN for more than two years and
 - is still marked as BROKEN.
 
@@ -38,707 +37,2937 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/net/Kconfig  |   10 
- drivers/net/Makefile |    2 
- drivers/net/oaknet.c |  666 -------------------------------------------
- 3 files changed, 678 deletions(-)
+ Documentation/magic-number.txt |    1 
+ drivers/sbus/char/Kconfig      |    7 
+ drivers/sbus/char/Makefile     |    1 
+ drivers/sbus/char/aurora.c     | 2364 ---------------------------------
+ drivers/sbus/char/aurora.h     |  276 ---
+ drivers/sbus/char/cd180.h      |  240 ---
+ 6 files changed, 2889 deletions(-)
 
---- linux-2.6.20-rc2-mm1/drivers/net/Kconfig.old	2007-01-04 17:59:09.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/net/Kconfig	2007-01-04 17:59:21.000000000 +0100
-@@ -235,16 +235,6 @@
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called bmac.
+--- linux-2.6.20-rc2-mm1/drivers/sbus/char/Kconfig.old	2007-01-04 18:09:26.000000000 +0100
++++ linux-2.6.20-rc2-mm1/drivers/sbus/char/Kconfig	2007-01-04 18:09:37.000000000 +0100
+@@ -46,13 +46,6 @@
+ 	  based on the Phillips SAA9051, can handle NTSC and PAL/SECAM and
+ 	  SVIDEO signals.
  
--config OAKNET
--	tristate "National DP83902AV (Oak ethernet) support"
--	depends on NET_ETHERNET && PPC && BROKEN
--	select CRC32
+-config SUN_AURORA
+-	tristate "Aurora Multiboard 1600se (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && BROKEN
 -	help
--	  Say Y if your machine has this type of Ethernet network card.
+-	  The Aurora Multiboard is a multi-port high-speed serial controller.
+-	  If you have one of these, say Y.
 -
--	  To compile this driver as a module, choose M here: the module
--	  will be called oaknet.
--
- config ARIADNE
- 	tristate "Ariadne support"
- 	depends on NET_ETHERNET && ZORRO
---- linux-2.6.20-rc2-mm1/drivers/net/Makefile.old	2007-01-04 17:59:30.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/drivers/net/Makefile	2007-01-04 17:59:35.000000000 +0100
-@@ -37,8 +37,6 @@
- obj-$(CONFIG_MACE) += mace.o
- obj-$(CONFIG_BMAC) += bmac.o
- 
--obj-$(CONFIG_OAKNET) += oaknet.o 8390.o
--
- obj-$(CONFIG_DGRS) += dgrs.o
- obj-$(CONFIG_VORTEX) += 3c59x.o
- obj-$(CONFIG_TYPHOON) += typhoon.o
---- linux-2.6.20-rc2-mm1/drivers/net/oaknet.c	2006-11-29 22:57:37.000000000 +0100
+ config TADPOLE_TS102_UCTRL
+ 	tristate "Tadpole TS102 Microcontroller support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL && SPARC32
+--- linux-2.6.20-rc2-mm1/drivers/sbus/char/Makefile.old	2007-01-04 18:09:46.000000000 +0100
++++ linux-2.6.20-rc2-mm1/drivers/sbus/char/Makefile	2007-01-04 18:09:49.000000000 +0100
+@@ -19,7 +19,6 @@
+ obj-$(CONFIG_SUN_MOSTEK_RTC)		+= rtc.o
+ obj-$(CONFIG_SUN_BPP)			+= bpp.o
+ obj-$(CONFIG_SUN_VIDEOPIX)		+= vfc.o
+-obj-$(CONFIG_SUN_AURORA)		+= aurora.o
+ obj-$(CONFIG_TADPOLE_TS102_UCTRL)	+= uctrl.o
+ obj-$(CONFIG_SUN_JSFLASH)		+= jsflash.o
+ obj-$(CONFIG_BBC_I2C)			+= bbc.o
+--- linux-2.6.20-rc2-mm1/Documentation/magic-number.txt.old	2007-01-04 18:10:07.000000000 +0100
++++ linux-2.6.20-rc2-mm1/Documentation/magic-number.txt	2007-01-04 18:10:13.000000000 +0100
+@@ -65,7 +65,6 @@
+ MKISS_DRIVER_MAGIC    0x04bf      mkiss_channel     drivers/net/mkiss.h
+ RISCOM8_MAGIC         0x0907      riscom_port       drivers/char/riscom8.h
+ SPECIALIX_MAGIC       0x0907      specialix_port    drivers/char/specialix_io8.h
+-AURORA_MAGIC          0x0A18      Aurora_port       drivers/sbus/char/aurora.h
+ HDLC_MAGIC            0x239e      n_hdlc            drivers/char/n_hdlc.c
+ APM_BIOS_MAGIC        0x4101      apm_user          arch/i386/kernel/apm.c
+ CYCLADES_MAGIC        0x4359      cyclades_port     include/linux/cyclades.h
+--- linux-2.6.20-rc2-mm1/drivers/sbus/char/aurora.h	2006-11-29 22:57:37.000000000 +0100
 +++ /dev/null	2006-09-19 00:45:31.000000000 +0200
-@@ -1,666 +0,0 @@
+@@ -1,276 +0,0 @@
+-/*	$Id: aurora.h,v 1.6 2001/06/05 12:23:38 davem Exp $
+- *	linux/drivers/sbus/char/aurora.h -- Aurora multiport driver
+- *
+- *	Copyright (c) 1999 by Oliver Aldulea (oli@bv.ro)
+- *
+- *	This code is based on the RISCom/8 multiport serial driver written
+- *	by Dmitry Gorodchanin (pgmdsg@ibi.com), based on the Linux serial
+- *	driver, written by Linus Torvalds, Theodore T'so and others.
+- *	The Aurora multiport programming info was obtained mainly from the
+- *	Cirrus Logic CD180 documentation (available on the web), and by
+- *	doing heavy tests on the board. Many thanks to Eddie C. Dost for the
+- *	help on the sbus interface.
+- *
+- *	This program is free software; you can redistribute it and/or modify
+- *	it under the terms of the GNU General Public License as published by
+- *	the Free Software Foundation; either version 2 of the License, or
+- *	(at your option) any later version.
+- *
+- *	This program is distributed in the hope that it will be useful,
+- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *	GNU General Public License for more details.
+- *
+- *	You should have received a copy of the GNU General Public License
+- *	along with this program; if not, write to the Free Software
+- *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- *	Revision 1.0
+- *
+- *	This is the first public release.
+- *
+- *	This version needs a lot of feedback. This is the version that works
+- *	with _my_ board. My board is model 1600se, revision '@(#)1600se.fth
+- *	1.2 3/28/95 1'. The driver might work with your board, but I do not
+- *	guarantee it. If you have _any_ type of board, I need to know if the
+- *	driver works or not, I need to know exactly your board parameters
+- *	(get them with 'cd /proc/openprom/iommu/sbus/sio16/; ls *; cat *')
+- *	Also, I need your board revision code, which is written on the board.
+- *	Send me the output of my driver too (it outputs through klogd).
+- *
+- *	If the driver does not work, you can try enabling the debug options
+- *	to see what's wrong or what should be done.
+- *
+- *	I'm sorry about the alignment of the code. It was written in a
+- *	128x48 environment.
+- *
+- *	I must say that I do not like Aurora Technologies' policy. I asked
+- *	them to help me do this driver faster, but they ended by something
+- *	like "don't call us, we'll call you", and I never heard anything
+- *	from them. They told me "knowing the way the board works, I don't
+- *	doubt you and others on the net will make the driver."
+- *	The truth about this board is that it has nothing intelligent on it.
+- *	If you want to say to somebody what kind of board you have, say that
+- *	it uses Cirrus Logic processors (CD180). The power of the board is
+- *	in those two chips. The rest of the board is the interface to the
+- *	sbus and to the peripherals. Still, they did something smart: they
+- *	reversed DTR and RTS to make on-board automatic hardware flow
+- *	control usable.
+- *	Thanks to Aurora Technologies for wasting my time, nerves and money.
+- */
+-
+-#ifndef __LINUX_AURORA_H
+-#define __LINUX_AURORA_H
+-
+-#include <linux/serial.h>
+-#include <linux/serialP.h>
+-
+-#ifdef __KERNEL__
+-
+-/* This is the number of boards to support. I've only tested this driver with
+- * one board, so it might not work.
+- */
+-#define AURORA_NBOARD 1
+-
+-/* Useful ? Yes. But you can safely comment the warnings if they annoy you
+- * (let me say that again: the warnings in the code, not this define). 
+- */
+-#define AURORA_PARANOIA_CHECK
+-
+-/* Well, after many lost nights, I found that the IRQ for this board is
+- * selected from four built-in values by writing some bits in the
+- * configuration register. This causes a little problem to occur: which
+- * IRQ to select ? Which one is the best for the user ? Well, I finally
+- * decided for the following algorithm: if the "bintr" value is not acceptable
+- * (not within type_1_irq[], then test the "intr" value, if that fails too,
+- * try each value from type_1_irq until succeded. Hope it's ok.
+- * You can safely reorder the irq's.
+- */
+-#define TYPE_1_IRQS 4
+-unsigned char type_1_irq[TYPE_1_IRQS] = {
+-	3, 5, 9, 13
+-};
+-/* I know something about another method of interrupt setting, but not enough.
+- * Also, this is for another type of board, so I first have to learn how to
+- * detect it.
+-#define TYPE_2_IRQS 3
+-unsigned char type_2_irq[TYPE_2_IRQS] = {
+-	0, 0, 0 ** could anyone find these for me ? (see AURORA_ALLIRQ below) **
+-	};
+-unsigned char type_2_mask[TYPE_2_IRQS] = {
+-	32, 64, 128
+-	};
+-*/
+-
+-/* The following section should only be modified by those who know what
+- * they're doing (or don't, but want to help with some feedback). Modifying
+- * anything raises a _big_ probability for your system to hang, but the
+- * sacrifice worths. (I sacrificed my ext2fs many, many times...)
+- */
+-
+-/* This one tries to dump to console the name of almost every function called,
+- * and many other debugging info.
+- */
+-#undef AURORA_DEBUG
+-
+-/* These are the most dangerous and useful defines. They do printk() during
+- * the interrupt processing routine(s), so if you manage to get "flooded" by
+- * irq's, start thinking about the "Power off/on" button...
+- */
+-#undef AURORA_INTNORM	/* This one enables the "normal" messages, but some
+-			 * of them cause flood, so I preffered putting
+-			 * them under a define */
+-#undef AURORA_INT_DEBUG /* This one is really bad. */
+-
+-/* Here's something helpful: after n irq's, the board will be disabled. This
+- * prevents irq flooding during debug (no need to think about power
+- * off/on anymore...)
+- */
+-#define AURORA_FLOODPRO	10
+-
+-/* This one helps finding which irq the board calls, in case of a strange/
+- * unsupported board. AURORA_INT_DEBUG should be enabled, because I don't
+- * think /proc/interrupts or any command will be available in case of an irq
+- * flood... "allirq" is the list of all free irq's.
+- */
 -/*
+-#define AURORA_ALLIRQ 6
+-int allirq[AURORA_ALLIRQ]={
+-	2,3,5,7,9,13
+-	};
+-*/
+-
+-/* These must not be modified. These values are assumed during the code for
+- * performance optimisations.
+- */
+-#define AURORA_NCD180 2 /* two chips per board */
+-#define AURORA_NPORT 8  /* 8 ports per chip */
+-
+-/* several utilities */
+-#define AURORA_BOARD(line)	(((line) >> 4) & 0x01)
+-#define AURORA_CD180(line)	(((line) >> 3) & 0x01)
+-#define AURORA_PORT(line)	((line) & 15)
+-
+-#define AURORA_TNPORTS (AURORA_NBOARD*AURORA_NCD180*AURORA_NPORT)
+-
+-/* Ticks per sec. Used for setting receiver timeout and break length */
+-#define AURORA_TPS		4000
+-
+-#define AURORA_MAGIC	0x0A18
+-
+-/* Yeah, after heavy testing I decided it must be 6.
+- * Sure, You can change it if needed.
+- */
+-#define AURORA_RXFIFO		6	/* Max. receiver FIFO size (1-8) */
+-
+-#define AURORA_RXTH		7
+-
+-struct aurora_reg1 {
+-	__volatile__ unsigned char r;
+-};
+-
+-struct aurora_reg128 {
+-	__volatile__ unsigned char r[128];
+-};
+-	
+-struct aurora_reg4 {
+-	__volatile__ unsigned char r[4];
+-};
+-
+-struct Aurora_board {
+-	unsigned long		flags;
+-	struct aurora_reg1	* r0;	/* This is the board configuration
+-					 * register (write-only). */
+-	struct aurora_reg128	* r[2];	/* These are the registers for the
+-					 * two chips. */
+-	struct aurora_reg4	* r3;	/* These are used for hardware-based
+-					 * acknowledge. Software-based ack is
+-					 * not supported by CD180. */
+-	unsigned int		oscfreq; /* The on-board oscillator
+-					  * frequency, in Hz. */
+-	unsigned char		irq;
+-#ifdef MODULE
+-	signed char		count;	/* counts the use of the board */
+-#endif
+-	/* Values for the dtr_rts swapped mode. */
+-	unsigned char		DTR;
+-	unsigned char		RTS;
+-	unsigned char		MSVDTR;
+-	unsigned char		MSVRTS;
+-	/* Values for hardware acknowledge. */
+-	unsigned char		ACK_MINT, ACK_TINT, ACK_RINT;
+-};
+-
+-/* Board configuration register */
+-#define AURORA_CFG_ENABLE_IO	8
+-#define AURORA_CFG_ENABLE_IRQ	4
+-
+-/* Board flags */
+-#define AURORA_BOARD_PRESENT		0x00000001
+-#define AURORA_BOARD_ACTIVE		0x00000002
+-#define AURORA_BOARD_TYPE_2		0x00000004	/* don't know how to
+-							 * detect this yet */
+-#define AURORA_BOARD_DTR_FLOW_OK	0x00000008
+-
+-/* The story goes like this: Cirrus programmed the CD-180 chip to do automatic
+- * hardware flow control, and do it using CTS and DTR. CTS is ok, but, if you
+- * have a modem and the chip drops DTR, then the modem will drop the carrier
+- * (ain't that cute...). Luckily, the guys at Aurora decided to swap DTR and
+- * RTS, which makes the flow control usable. I hope that all the boards made
+- * by Aurora have these two signals swapped. If your's doesn't but you have a
+- * breakout box, you can try to reverse them yourself, then set the following
+- * flag.
+- */
+-#undef AURORA_FORCE_DTR_FLOW
+-
+-/* In fact, a few more words have to be said about hardware flow control.
+- * This driver handles "output" flow control through the on-board facility
+- * CTS Auto Enable. For the "input" flow control there are two cases when
+- * the flow should be controlled. The first case is when the kernel is so
+- * busy that it cannot process IRQ's in time; this flow control can only be
+- * activated by the on-board chip, and if the board has RTS and DTR swapped,
+- * this facility is usable. The second case is when the application is so
+- * busy that it cannot receive bytes from the kernel, and this flow must be
+- * activated by software. This second case is not yet implemented in this
+- * driver. Unfortunately, I estimate that the second case is the one that
+- * occurs the most.
+- */
+-
+-
+-struct Aurora_port {
+-	int			magic;
+-	int			baud_base;
+-	int			flags;
+-	struct tty_struct 	* tty;
+-	int			count;
+-	int			blocked_open;
+-	long			event;
+-	int			timeout;
+-	int			close_delay;
+-	unsigned char 		* xmit_buf;
+-	int			custom_divisor;
+-	int			xmit_head;
+-	int			xmit_tail;
+-	int			xmit_cnt;
+-	wait_queue_head_t	open_wait;
+-	wait_queue_head_t	close_wait;
+-	struct tq_struct	tqueue;
+-	struct tq_struct	tqueue_hangup;
+-	short			wakeup_chars;
+-	short			break_length;
+-	unsigned short		closing_wait;
+-	unsigned char		mark_mask;
+-	unsigned char		SRER;
+-	unsigned char		MSVR;
+-	unsigned char		COR2;
+-#ifdef AURORA_REPORT_OVERRUN
+-	unsigned long		overrun;
+-#endif	
+-#ifdef AURORA_REPORT_FIFO
+-	unsigned long		hits[10];
+-#endif
+-};
+-
+-#endif
+-#endif /*__LINUX_AURORA_H*/
+-
+--- linux-2.6.20-rc2-mm1/drivers/sbus/char/cd180.h	2006-11-29 22:57:37.000000000 +0100
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,240 +0,0 @@
+-
+-/* Definitions for Cirrus Logic CL-CD180 8-port async mux chip */
+-#define CD180_NCH       8       /* Total number of channels                */
+-#define CD180_TPC       16      /* Ticks per character                     */
+-#define CD180_NFIFO	8	/* TX FIFO size                            */
+-
+-/* Global registers */
+-#define CD180_GFRCR	0x6b	/* Global Firmware Revision Code Register  */
+-#define CD180_SRCR	0x66	/* Service Request Configuration Register  */
+-#define CD180_PPRH	0x70	/* Prescaler Period Register High	   */
+-#define CD180_PPRL	0x71	/* Prescaler Period Register Low	   */
+-#define CD180_MSMR	0x61	/* Modem Service Match Register		   */
+-#define CD180_TSMR	0x62	/* Transmit Service Match Register	   */
+-#define CD180_RSMR	0x63	/* Receive Service Match Register	   */
+-#define CD180_GSVR	0x40	/* Global Service Vector Register	   */
+-#define CD180_SRSR	0x65	/* Service Request Status Register	   */
+-#define CD180_GSCR	0x41	/* Global Service Channel Register	   */
+-#define CD180_CAR	0x64	/* Channel Access Register		   */
+-
+-/* Indexed registers */
+-#define CD180_RDCR	0x07	/* Receive Data Count Register		   */
+-#define CD180_RDR	0x78	/* Receiver Data Register		   */
+-#define CD180_RCSR	0x7a	/* Receiver Character Status Register	   */
+-#define CD180_TDR	0x7b	/* Transmit Data Register		   */
+-#define CD180_EOSRR	0x7f	/* End of Service Request Register	   */
+-
+-/* Channel Registers */
+-#define CD180_SRER      0x02    /* Service Request Enable Register         */
+-#define CD180_CCR       0x01    /* Channel Command Register                */
+-#define CD180_COR1      0x03    /* Channel Option Register 1               */
+-#define CD180_COR2      0x04    /* Channel Option Register 2               */
+-#define CD180_COR3      0x05    /* Channel Option Register 3               */
+-#define CD180_CCSR      0x06    /* Channel Control Status Register         */
+-#define CD180_RTPR      0x18    /* Receive Timeout Period Register         */
+-#define CD180_RBPRH     0x31    /* Receive Bit Rate Period Register High  */
+-#define CD180_RBPRL     0x32    /* Receive Bit Rate Period Register Low   */
+-#define CD180_TBPRH     0x39    /* Transmit Bit Rate Period Register High */
+-#define CD180_TBPRL     0x3a    /* Transmit Bit Rate Period Register Low  */
+-#define CD180_SCHR1     0x09    /* Special Character Register 1            */
+-#define CD180_SCHR2     0x0a    /* Special Character Register 2            */
+-#define CD180_SCHR3     0x0b    /* Special Character Register 3            */
+-#define CD180_SCHR4     0x0c    /* Special Character Register 4            */
+-#define CD180_MCR       0x12    /* Modem Change Register                   */
+-#define CD180_MCOR1     0x10    /* Modem Change Option 1 Register          */
+-#define CD180_MCOR2     0x11    /* Modem Change Option 2 Register          */
+-#define CD180_MSVR      0x28    /* Modem Signal Value Register             */
+-#define CD180_MSVRTS    0x29    /* Modem Signal Value RTS                  */
+-#define CD180_MSVDTR    0x2a    /* Modem Signal Value DTR                  */
+-
+-/* Global Interrupt Vector Register (R/W) */
+-
+-#define GSVR_ITMASK     0x07     /* Interrupt type mask                     */
+-#define  GSVR_IT_MDM     0x01    /* Modem Signal Change Interrupt           */
+-#define  GSVR_IT_TX      0x02    /* Transmit Data Interrupt                 */
+-#define  GSVR_IT_RGD     0x03    /* Receive Good Data Interrupt             */
+-#define  GSVR_IT_REXC    0x07    /* Receive Exception Interrupt             */
+-
+-
+-/* Global Interrupt Channel Register (R/W) */
+- 
+-#define GSCR_CHAN       0x1c    /* Channel Number Mask                     */
+-#define GSCR_CHAN_OFF   2       /* Channel Number Offset                   */
+-
+-
+-/* Channel Address Register (R/W) */
+-
+-#define CAR_CHAN        0x07    /* Channel Number Mask                     */
+-
+-
+-/* Receive Character Status Register (R/O) */
+-
+-#define RCSR_TOUT       0x80    /* Rx Timeout                              */
+-#define RCSR_SCDET      0x70    /* Special Character Detected Mask         */
+-#define  RCSR_NO_SC      0x00   /* No Special Characters Detected          */
+-#define  RCSR_SC_1       0x10   /* Special Char 1 (or 1 & 3) Detected      */
+-#define  RCSR_SC_2       0x20   /* Special Char 2 (or 2 & 4) Detected      */
+-#define  RCSR_SC_3       0x30   /* Special Char 3 Detected                 */
+-#define  RCSR_SC_4       0x40   /* Special Char 4 Detected                 */
+-#define RCSR_BREAK      0x08    /* Break has been detected                 */
+-#define RCSR_PE         0x04    /* Parity Error                            */
+-#define RCSR_FE         0x02    /* Frame Error                             */
+-#define RCSR_OE         0x01    /* Overrun Error                           */
+-
+-
+-/* Channel Command Register (R/W) (commands in groups can be OR-ed) */
+-
+-#define CCR_HARDRESET   0x81    /* Reset the chip                          */
+-
+-#define CCR_SOFTRESET   0x80    /* Soft Channel Reset                      */
+-
+-#define CCR_CORCHG1     0x42    /* Channel Option Register 1 Changed       */
+-#define CCR_CORCHG2     0x44    /* Channel Option Register 2 Changed       */
+-#define CCR_CORCHG3     0x48    /* Channel Option Register 3 Changed       */
+-
+-#define CCR_SSCH1       0x21    /* Send Special Character 1                */
+-
+-#define CCR_SSCH2       0x22    /* Send Special Character 2                */
+-
+-#define CCR_SSCH3       0x23    /* Send Special Character 3                */
+-
+-#define CCR_SSCH4       0x24    /* Send Special Character 4                */
+-
+-#define CCR_TXEN        0x18    /* Enable Transmitter                      */
+-#define CCR_RXEN        0x12    /* Enable Receiver                         */
+-
+-#define CCR_TXDIS       0x14    /* Disable Transmitter                     */
+-#define CCR_RXDIS       0x11    /* Disable Receiver                        */
+-
+-
+-/* Service Request Enable Register (R/W) */
+-
+-#define SRER_DSR         0x80    /* Enable interrupt on DSR change          */
+-#define SRER_CD          0x40    /* Enable interrupt on CD change           */
+-#define SRER_CTS         0x20    /* Enable interrupt on CTS change          */
+-#define SRER_RXD         0x10    /* Enable interrupt on Receive Data        */
+-#define SRER_RXSC        0x08    /* Enable interrupt on Receive Spec. Char  */
+-#define SRER_TXRDY       0x04    /* Enable interrupt on TX FIFO empty       */
+-#define SRER_TXEMPTY     0x02    /* Enable interrupt on TX completely empty */
+-#define SRER_RET         0x01    /* Enable interrupt on RX Exc. Timeout     */
+-
+-
+-/* Channel Option Register 1 (R/W) */
+-
+-#define COR1_ODDP       0x80    /* Odd Parity                              */
+-#define COR1_PARMODE    0x60    /* Parity Mode mask                        */
+-#define  COR1_NOPAR      0x00   /* No Parity                               */
+-#define  COR1_FORCEPAR   0x20   /* Force Parity                            */
+-#define  COR1_NORMPAR    0x40   /* Normal Parity                           */
+-#define COR1_IGNORE     0x10    /* Ignore Parity on RX                     */
+-#define COR1_STOPBITS   0x0c    /* Number of Stop Bits                     */
+-#define  COR1_1SB        0x00   /* 1 Stop Bit                              */
+-#define  COR1_15SB       0x04   /* 1.5 Stop Bits                           */
+-#define  COR1_2SB        0x08   /* 2 Stop Bits                             */
+-#define COR1_CHARLEN    0x03    /* Character Length                        */
+-#define  COR1_5BITS      0x00   /* 5 bits                                  */
+-#define  COR1_6BITS      0x01   /* 6 bits                                  */
+-#define  COR1_7BITS      0x02   /* 7 bits                                  */
+-#define  COR1_8BITS      0x03   /* 8 bits                                  */
+-
+-
+-/* Channel Option Register 2 (R/W) */
+-
+-#define COR2_IXM        0x80    /* Implied XON mode                        */
+-#define COR2_TXIBE      0x40    /* Enable In-Band (XON/XOFF) Flow Control  */
+-#define COR2_ETC        0x20    /* Embedded Tx Commands Enable             */
+-#define COR2_LLM        0x10    /* Local Loopback Mode                     */
+-#define COR2_RLM        0x08    /* Remote Loopback Mode                    */
+-#define COR2_RTSAO      0x04    /* RTS Automatic Output Enable             */
+-#define COR2_CTSAE      0x02    /* CTS Automatic Enable                    */
+-#define COR2_DSRAE      0x01    /* DSR Automatic Enable                    */
+-
+-
+-/* Channel Option Register 3 (R/W) */
+-
+-#define COR3_XONCH      0x80    /* XON is a pair of characters (1 & 3)     */
+-#define COR3_XOFFCH     0x40    /* XOFF is a pair of characters (2 & 4)    */
+-#define COR3_FCT        0x20    /* Flow-Control Transparency Mode          */
+-#define COR3_SCDE       0x10    /* Special Character Detection Enable      */
+-#define COR3_RXTH       0x0f    /* RX FIFO Threshold value (1-8)           */
+-
+-
+-/* Channel Control Status Register (R/O) */
+-
+-#define CCSR_RXEN       0x80    /* Receiver Enabled                        */
+-#define CCSR_RXFLOFF    0x40    /* Receive Flow Off (XOFF was sent)        */
+-#define CCSR_RXFLON     0x20    /* Receive Flow On (XON was sent)          */
+-#define CCSR_TXEN       0x08    /* Transmitter Enabled                     */
+-#define CCSR_TXFLOFF    0x04    /* Transmit Flow Off (got XOFF)            */
+-#define CCSR_TXFLON     0x02    /* Transmit Flow On (got XON)              */
+-
+-
+-/* Modem Change Option Register 1 (R/W) */
+-
+-#define MCOR1_DSRZD     0x80    /* Detect 0->1 transition of DSR           */
+-#define MCOR1_CDZD      0x40    /* Detect 0->1 transition of CD            */
+-#define MCOR1_CTSZD     0x20    /* Detect 0->1 transition of CTS           */
+-#define MCOR1_DTRTH     0x0f    /* Auto DTR flow control Threshold (1-8)   */
+-#define  MCOR1_NODTRFC   0x0     /* Automatic DTR flow control disabled     */
+-
+-
+-/* Modem Change Option Register 2 (R/W) */
+-
+-#define MCOR2_DSROD     0x80    /* Detect 1->0 transition of DSR           */
+-#define MCOR2_CDOD      0x40    /* Detect 1->0 transition of CD            */
+-#define MCOR2_CTSOD     0x20    /* Detect 1->0 transition of CTS           */
+-
+-
+-/* Modem Change Register (R/W) */
+-
+-#define MCR_DSRCHG      0x80    /* DSR Changed                             */
+-#define MCR_CDCHG       0x40    /* CD Changed                              */
+-#define MCR_CTSCHG      0x20    /* CTS Changed                             */
+-
+-
+-/* Modem Signal Value Register (R/W) */
+-
+-#define MSVR_DSR        0x80    /* Current state of DSR input              */
+-#define MSVR_CD         0x40    /* Current state of CD input               */
+-#define MSVR_CTS        0x20    /* Current state of CTS input              */
+-#define MSVR_DTR        0x02    /* Current state of DTR output             */
+-#define MSVR_RTS        0x01    /* Current state of RTS output             */
+-
+-
+-/* Service Request Status Register */
+-
+-#define SRSR_CMASK	0xC0	/* Current Service Context Mask            */
+-#define  SRSR_CNONE	0x00	/* Not in a service context		   */
+-#define  SRSR_CRX	0x40	/* Rx Context				   */
+-#define  SRSR_CTX	0x80	/* Tx Context				   */
+-#define  SRSR_CMDM	0xC0	/* Modem Context			   */
+-#define SRSR_ANYINT	0x6F	/* Any interrupt flag			   */
+-#define SRSR_RINT	0x10	/* Receive Interrupt			   */
+-#define SRSR_TINT	0x04	/* Transmit Interrupt			   */
+-#define SRSR_MINT	0x01	/* Modem Interrupt			   */
+-#define SRSR_REXT	0x20	/* Receive External Interrupt		   */
+-#define SRSR_TEXT	0x08	/* Transmit External Interrupt		   */
+-#define SRSR_MEXT	0x02	/* Modem External Interrupt		   */
+-
+-
+-/* Service Request Configuration Register */
+-
+-#define SRCR_PKGTYPE    0x80
+-#define SRCR_REGACKEN   0x40
+-#define SRCR_DAISYEN    0x20
+-#define SRCR_GLOBPRI    0x10
+-#define SRCR_UNFAIR     0x08
+-#define SRCR_AUTOPRI    0x02
+-#define SRCR_PRISEL     0x01
+-
+-/* Values for register-based Interrupt ACKs */
+-#define CD180_ACK_MINT	0x75	/* goes to MSMR				   */
+-#define CD180_ACK_TINT	0x76	/* goes to TSMR				   */
+-#define CD180_ACK_RINT	0x77	/* goes to RSMR				   */
+-
+-/* Escape characters */
+-
+-#define CD180_C_ESC     0x00    /* Escape character                        */
+-#define CD180_C_SBRK    0x81    /* Start sending BREAK                     */
+-#define CD180_C_DELAY   0x82    /* Delay output                            */
+-#define CD180_C_EBRK    0x83    /* Stop sending BREAK                      */
+--- linux-2.6.20-rc2-mm1/drivers/sbus/char/aurora.c	2006-11-29 22:57:37.000000000 +0100
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,2364 +0,0 @@
+-/*	$Id: aurora.c,v 1.19 2002/01/08 16:00:16 davem Exp $
+- *	linux/drivers/sbus/char/aurora.c -- Aurora multiport driver
 - *
-- *    Copyright (c) 1999-2000 Grant Erickson <grant@lcse.umn.edu>
+- *	Copyright (c) 1999 by Oliver Aldulea (oli at bv dot ro)
 - *
-- *    Module name: oaknet.c
+- *	This code is based on the RISCom/8 multiport serial driver written
+- *	by Dmitry Gorodchanin (pgmdsg@ibi.com), based on the Linux serial
+- *	driver, written by Linus Torvalds, Theodore T'so and others.
+- *	The Aurora multiport programming info was obtained mainly from the
+- *	Cirrus Logic CD180 documentation (available on the web), and by
+- *	doing heavy tests on the board. Many thanks to Eddie C. Dost for the
+- *	help on the sbus interface.
 - *
-- *    Description:
-- *      Driver for the National Semiconductor DP83902AV Ethernet controller
-- *      on-board the IBM PowerPC "Oak" evaluation board. Adapted from the
-- *      various other 8390 drivers written by Donald Becker and Paul Gortmaker.
+- *	This program is free software; you can redistribute it and/or modify
+- *	it under the terms of the GNU General Public License as published by
+- *	the Free Software Foundation; either version 2 of the License, or
+- *	(at your option) any later version.
 - *
-- *      Additional inspiration from the "tcd8390.c" driver from TiVo, Inc.
-- *      and "enetLib.c" from IBM.
+- *	This program is distributed in the hope that it will be useful,
+- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *	GNU General Public License for more details.
 - *
+- *	You should have received a copy of the GNU General Public License
+- *	along with this program; if not, write to the Free Software
+- *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- *	Revision 1.0
+- *
+- *	This is the first public release.
+- *
+- *	Most of the information you need is in the aurora.h file. Please
+- *	read that file before reading this one.
+- *
+- *	Several parts of the code do not have comments yet.
+- * 
+- * n.b.  The board can support 115.2 bit rates, but only on a few
+- * ports. The total badwidth of one chip (ports 0-7 or 8-15) is equal
+- * to OSC_FREQ div 16. In case of my board, each chip can take 6
+- * channels of 115.2 kbaud.  This information is not well-tested.
+- * 
+- * Fixed to use tty_get_baud_rate().
+- *   Theodore Ts'o <tytso@mit.edu>, 2001-Oct-12
 - */
 -
 -#include <linux/module.h>
+-
 -#include <linux/errno.h>
--#include <linux/delay.h>
--#include <linux/netdevice.h>
--#include <linux/etherdevice.h>
+-#include <linux/sched.h>
+-#ifdef AURORA_INT_DEBUG
+-#include <linux/timer.h>
+-#endif
+-#include <linux/interrupt.h>
+-#include <linux/tty.h>
+-#include <linux/tty_flip.h>
+-#include <linux/major.h>
+-#include <linux/string.h>
+-#include <linux/fcntl.h>
+-#include <linux/mm.h>
+-#include <linux/kernel.h>
 -#include <linux/init.h>
--#include <linux/jiffies.h>
+-#include <linux/delay.h>
+-#include <linux/bitops.h>
 -
--#include <asm/board.h>
 -#include <asm/io.h>
+-#include <asm/irq.h>
+-#include <asm/oplib.h>
+-#include <asm/system.h>
+-#include <asm/kdebug.h>
+-#include <asm/sbus.h>
+-#include <asm/uaccess.h>
 -
--#include "8390.h"
+-#include "aurora.h"
+-#include "cd180.h"
 -
+-unsigned char irqs[4] = {
+-	0, 0, 0, 0
+-};
 -
--/* Preprocessor Defines */
--
--#if !defined(TRUE) || TRUE != 1
--#define	TRUE	1
+-#ifdef AURORA_INT_DEBUG
+-int irqhit=0;
 -#endif
 -
--#if !defined(FALSE) || FALSE != 0
--#define	FALSE	0
+-static struct tty_driver *aurora_driver;
+-static struct Aurora_board aurora_board[AURORA_NBOARD] = {
+-	{0,},
+-};
+-
+-static struct Aurora_port aurora_port[AURORA_TNPORTS] =  {
+-	{ 0, },
+-};
+-
+-/* no longer used. static struct Aurora_board * IRQ_to_board[16] = { NULL, } ;*/
+-static unsigned char * tmp_buf = NULL;
+-
+-DECLARE_TASK_QUEUE(tq_aurora);
+-
+-static inline int aurora_paranoia_check(struct Aurora_port const * port,
+-				    char *name, const char *routine)
+-{
+-#ifdef AURORA_PARANOIA_CHECK
+-	static const char *badmagic =
+-		KERN_DEBUG "aurora: Warning: bad aurora port magic number for device %s in %s\n";
+-	static const char *badinfo =
+-		KERN_DEBUG "aurora: Warning: null aurora port for device %s in %s\n";
+-
+-	if (!port) {
+-		printk(badinfo, name, routine);
+-		return 1;
+-	}
+-	if (port->magic != AURORA_MAGIC) {
+-		printk(badmagic, name, routine);
+-		return 1;
+-	}
 -#endif
--
--#define	OAKNET_START_PG		0x20	/* First page of TX buffer */
--#define	OAKNET_STOP_PG		0x40	/* Last pagge +1 of RX ring */
--
--#define	OAKNET_WAIT		(2 * HZ / 100)	/* 20 ms */
--
--/* Experimenting with some fixes for a broken driver... */
--
--#define	OAKNET_DISINT
--#define	OAKNET_HEADCHECK
--#define	OAKNET_RWFIX
--
--
--/* Global Variables */
--
--static const char *name = "National DP83902AV";
--
--static struct net_device *oaknet_devs;
--
--
--/* Function Prototypes */
--
--static int	 oaknet_open(struct net_device *dev);
--static int	 oaknet_close(struct net_device *dev);
--
--static void	 oaknet_reset_8390(struct net_device *dev);
--static void	 oaknet_get_8390_hdr(struct net_device *dev,
--				     struct e8390_pkt_hdr *hdr, int ring_page);
--static void	 oaknet_block_input(struct net_device *dev, int count,
--				    struct sk_buff *skb, int ring_offset);
--static void	 oaknet_block_output(struct net_device *dev, int count,
--				     const unsigned char *buf, int start_page);
--
--static void	 oaknet_dma_error(struct net_device *dev, const char *name);
--
+-	return 0;
+-}
 -
 -/*
-- * int oaknet_init()
-- *
-- * Description:
-- *   This routine performs all the necessary platform-specific initiali-
-- *   zation and set-up for the IBM "Oak" evaluation board's National
-- *   Semiconductor DP83902AV "ST-NIC" Ethernet controller.
-- *
-- * Input(s):
-- *   N/A
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   0 if OK, otherwise system error number on error.
-- *
+- * 
+- *  Service functions for aurora driver.
+- * 
 - */
--static int __init oaknet_init(void)
+-
+-/* Get board number from pointer */
+-static inline int board_No (struct Aurora_board const * bp)
 -{
--	register int i;
--	int reg0, regd;
--	int ret = -ENOMEM;
--	struct net_device *dev;
--#if 0
--	unsigned long ioaddr = OAKNET_IO_BASE;
--#else
--	unsigned long ioaddr = ioremap(OAKNET_IO_BASE, OAKNET_IO_SIZE);
+-	return bp - aurora_board;
+-}
+-
+-/* Get port number from pointer */
+-static inline int port_No (struct Aurora_port const * port)
+-{
+-	return AURORA_PORT(port - aurora_port); 
+-}
+-
+-/* Get pointer to board from pointer to port */
+-static inline struct Aurora_board * port_Board(struct Aurora_port const * port)
+-{
+-	return &aurora_board[AURORA_BOARD(port - aurora_port)];
+-}
+-
+-/* Wait for Channel Command Register ready */
+-static inline void aurora_wait_CCR(struct aurora_reg128 * r)
+-{
+-	unsigned long delay;
+-
+-#ifdef AURORA_DEBUG
+-printk("aurora_wait_CCR\n");
 -#endif
--	bd_t *bip = (bd_t *)__res;
+-	/* FIXME: need something more descriptive than 100000 :) */
+-	for (delay = 100000; delay; delay--) 
+-		if (!sbus_readb(&r->r[CD180_CCR]))
+-			return;
+-	printk(KERN_DEBUG "aurora: Timeout waiting for CCR.\n");
+-}
 -
--	if (!ioaddr)
--		return -ENOMEM;
+-/*
+- *  aurora probe functions.
+- */
 -
--	dev = alloc_ei_netdev();
--	if (!dev)
--		goto out_unmap;
+-/* Must be called with enabled interrupts */
+-static inline void aurora_long_delay(unsigned long delay)
+-{
+-	unsigned long i;
 -
--	ret = -EBUSY;
--	if (!request_region(OAKNET_IO_BASE, OAKNET_IO_SIZE, name))
--		goto out_dev;
--
--	/* Quick register check to see if the device is really there. */
--
--	ret = -ENODEV;
--	if ((reg0 = ei_ibp(ioaddr)) == 0xFF)
--		goto out_region;
--
--	/*
--	 * That worked. Now a more thorough check, using the multicast
--	 * address registers, that the device is definitely out there
--	 * and semi-functional.
--	 */
--
--	ei_obp(E8390_NODMA + E8390_PAGE1 + E8390_STOP, ioaddr + E8390_CMD);
--	regd = ei_ibp(ioaddr + 0x0D);
--	ei_obp(0xFF, ioaddr + 0x0D);
--	ei_obp(E8390_NODMA + E8390_PAGE0, ioaddr + E8390_CMD);
--	ei_ibp(ioaddr + EN0_COUNTER0);
--
--	/* It's no good. Fix things back up and leave. */
--
--	ret = -ENODEV;
--	if (ei_ibp(ioaddr + EN0_COUNTER0) != 0) {
--		ei_obp(reg0, ioaddr);
--		ei_obp(regd, ioaddr + 0x0D);
--		goto out_region;
--	}
--
--	SET_MODULE_OWNER(dev);
--
--	/*
--	 * This controller is on an embedded board, so the base address
--	 * and interrupt assignments are pre-assigned and unchageable.
--	 */
--
--	dev->base_addr = ioaddr;
--	dev->irq = OAKNET_INT;
--
--	/*
--	 * Disable all chip interrupts for now and ACK all pending
--	 * interrupts.
--	 */
--
--	ei_obp(0x0, ioaddr + EN0_IMR);
--	ei_obp(0xFF, ioaddr + EN0_ISR);
--
--	/* Attempt to get the interrupt line */
--
--	ret = -EAGAIN;
--	if (request_irq(dev->irq, ei_interrupt, 0, name, dev)) {
--		printk("%s: unable to request interrupt %d.\n",
--		       name, dev->irq);
--		goto out_region;
--	}
--
--	/* Tell the world about what and where we've found. */
--
--	printk("%s: %s at", dev->name, name);
--	for (i = 0; i < ETHER_ADDR_LEN; ++i) {
--		dev->dev_addr[i] = bip->bi_enetaddr[i];
--		printk("%c%.2x", (i ? ':' : ' '), dev->dev_addr[i]);
--	}
--	printk(", found at %#lx, using IRQ %d.\n", dev->base_addr, dev->irq);
--
--	/* Set up some required driver fields and then we're done. */
--
--	ei_status.name		= name;
--	ei_status.word16	= FALSE;
--	ei_status.tx_start_page	= OAKNET_START_PG;
--	ei_status.rx_start_page = OAKNET_START_PG + TX_PAGES;
--	ei_status.stop_page	= OAKNET_STOP_PG;
--
--	ei_status.reset_8390	= &oaknet_reset_8390;
--	ei_status.block_input	= &oaknet_block_input;
--	ei_status.block_output	= &oaknet_block_output;
--	ei_status.get_8390_hdr	= &oaknet_get_8390_hdr;
--
--	dev->open = oaknet_open;
--	dev->stop = oaknet_close;
--#ifdef CONFIG_NET_POLL_CONTROLLER
--	dev->poll_controller = ei_poll;
+-#ifdef AURORA_DEBUG
+-	printk("aurora_long_delay: start\n");
 -#endif
+-	for (i = jiffies + delay; time_before(jiffies, i); ) ;
+-#ifdef AURORA_DEBUG
+-	printk("aurora_long_delay: end\n");
+-#endif
+-}
 -
--	NS8390_init(dev, FALSE);
--	ret = register_netdev(dev);
--	if (ret)
--		goto out_irq;
+-/* Reset and setup CD180 chip */
+-static int aurora_init_CD180(struct Aurora_board * bp, int chip)
+-{
+-	unsigned long flags;
+-	int id;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_init_CD180: start %d:%d\n",
+-	       board_No(bp), chip);
+-#endif
+-	save_flags(flags); cli();
+-	sbus_writeb(0, &bp->r[chip]->r[CD180_CAR]);
+-	sbus_writeb(0, &bp->r[chip]->r[CD180_GSVR]);
 -
--	oaknet_devs = dev;
+-	/* Wait for CCR ready        */
+-	aurora_wait_CCR(bp->r[chip]);
+-
+-	/* Reset CD180 chip          */
+-	sbus_writeb(CCR_HARDRESET, &bp->r[chip]->r[CD180_CCR]);
+-	udelay(1);
+-	sti();
+-	id=1000;
+-	while((--id) &&
+-	      (sbus_readb(&bp->r[chip]->r[CD180_GSVR])!=0xff))udelay(100);
+-	if(!id) {
+-		printk(KERN_ERR "aurora%d: Chip %d failed init.\n",
+-		       board_No(bp), chip);
+-		restore_flags(flags);
+-		return(-1);
+-	}
+-	cli();
+-	sbus_writeb((board_No(bp)<<5)|((chip+1)<<3),
+-		    &bp->r[chip]->r[CD180_GSVR]); /* Set ID for this chip      */
+-	sbus_writeb(0x80|bp->ACK_MINT,
+-		    &bp->r[chip]->r[CD180_MSMR]); /* Prio for modem intr       */
+-	sbus_writeb(0x80|bp->ACK_TINT,
+-		    &bp->r[chip]->r[CD180_TSMR]); /* Prio for transmitter intr */
+-	sbus_writeb(0x80|bp->ACK_RINT,
+-		    &bp->r[chip]->r[CD180_RSMR]); /* Prio for receiver intr    */
+-	/* Setting up prescaler. We need 4 tick per 1 ms */
+-	sbus_writeb((bp->oscfreq/(1000000/AURORA_TPS)) >> 8,
+-		    &bp->r[chip]->r[CD180_PPRH]);
+-	sbus_writeb((bp->oscfreq/(1000000/AURORA_TPS)) & 0xff,
+-		    &bp->r[chip]->r[CD180_PPRL]);
+-
+-	sbus_writeb(SRCR_AUTOPRI|SRCR_GLOBPRI,
+-		    &bp->r[chip]->r[CD180_SRCR]);
+-
+-	id = sbus_readb(&bp->r[chip]->r[CD180_GFRCR]);
+-	printk(KERN_INFO "aurora%d: Chip %d id %02x: ",
+-	       board_No(bp), chip,id);
+-	if(sbus_readb(&bp->r[chip]->r[CD180_SRCR]) & 128) {
+-		switch (id) {
+-			case 0x82:printk("CL-CD1864 rev A\n");break;
+-			case 0x83:printk("CL-CD1865 rev A\n");break;
+-			case 0x84:printk("CL-CD1865 rev B\n");break;
+-			case 0x85:printk("CL-CD1865 rev C\n");break;
+-			default:printk("Unknown.\n");
+-		};
+-	} else {
+-		switch (id) {
+-			case 0x81:printk("CL-CD180 rev B\n");break;
+-			case 0x82:printk("CL-CD180 rev C\n");break;
+-			default:printk("Unknown.\n");
+-		};
+-	}
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_init_CD180: end\n");
+-#endif
 -	return 0;
+-}
 -
--out_irq;
--	free_irq(dev->irq, dev);
--out_region:
--	release_region(OAKNET_IO_BASE, OAKNET_IO_SIZE);
--out_dev:
--	free_netdev(dev);
--out_unmap:
--	iounmap(ioaddr);
+-static int valid_irq(unsigned char irq)
+-{
+-int i;
+-for(i=0;i<TYPE_1_IRQS;i++)
+-	if (type_1_irq[i]==irq) return 1;
+-return 0;
+-}
+-
+-static irqreturn_t aurora_interrupt(int irq, void * dev_id);
+-
+-/* Main probing routine, also sets irq. */
+-static int aurora_probe(void)
+-{
+-	struct sbus_bus *sbus;
+-	struct sbus_dev *sdev;
+-	int grrr;
+-	char buf[30];
+-	int bn = 0;
+-	struct Aurora_board *bp;
+-
+-	for_each_sbus(sbus) {
+-		for_each_sbusdev(sdev, sbus) {
+-/*			printk("Try: %x %s\n",sdev,sdev->prom_name);*/
+-			if (!strcmp(sdev->prom_name, "sio16")) {
+-#ifdef AURORA_DEBUG
+-				printk(KERN_INFO "aurora: sio16 at %p\n",sdev);
+-#endif
+-				if((sdev->reg_addrs[0].reg_size!=1) &&
+-				   (sdev->reg_addrs[1].reg_size!=128) &&
+-				   (sdev->reg_addrs[2].reg_size!=128) &&
+-				   (sdev->reg_addrs[3].reg_size!=4)) {
+-				   	printk(KERN_ERR "aurora%d: registers' sizes "
+-					       "do not match.\n", bn);
+-				   	break;
+-				}
+-				bp = &aurora_board[bn];
+-				bp->r0 = (struct aurora_reg1 *)
+-					sbus_ioremap(&sdev->resource[0], 0,
+-						     sdev->reg_addrs[0].reg_size,
+-						     "sio16");
+-				if (bp->r0 == NULL) {
+-					printk(KERN_ERR "aurora%d: can't map "
+-					       "reg_addrs[0]\n", bn);
+-					break;
+-				}
+-#ifdef AURORA_DEBUG
+-				printk("Map reg 0: %p\n", bp->r0);
+-#endif
+-				bp->r[0] = (struct aurora_reg128 *)
+-					sbus_ioremap(&sdev->resource[1], 0,
+-						     sdev->reg_addrs[1].reg_size,
+-						     "sio16");
+-				if (bp->r[0] == NULL) {
+-					printk(KERN_ERR "aurora%d: can't map "
+-					       "reg_addrs[1]\n", bn);
+-					break;
+-				}
+-#ifdef AURORA_DEBUG
+-				printk("Map reg 1: %p\n", bp->r[0]);
+-#endif
+-				bp->r[1] = (struct aurora_reg128 *)
+-					sbus_ioremap(&sdev->resource[2], 0,
+-						     sdev->reg_addrs[2].reg_size,
+-						     "sio16");
+-				if (bp->r[1] == NULL) {
+-					printk(KERN_ERR "aurora%d: can't map "
+-					       "reg_addrs[2]\n", bn);
+-					break;
+-				}
+-#ifdef AURORA_DEBUG
+-				printk("Map reg 2: %p\n", bp->r[1]);
+-#endif
+-				bp->r3 = (struct aurora_reg4 *)
+-					sbus_ioremap(&sdev->resource[3], 0,
+-						     sdev->reg_addrs[3].reg_size,
+-						     "sio16");
+-				if (bp->r3 == NULL) {
+-					printk(KERN_ERR "aurora%d: can't map "
+-					       "reg_addrs[3]\n", bn);
+-					break;
+-				}
+-#ifdef AURORA_DEBUG
+-				printk("Map reg 3: %p\n", bp->r3);
+-#endif
+-				/* Variables setup */
+-				bp->flags = 0;
+-#ifdef AURORA_DEBUG
+-				grrr=prom_getint(sdev->prom_node,"intr");
+-				printk("intr pri %d\n", grrr);
+-#endif
+-				if ((bp->irq=irqs[bn]) && valid_irq(bp->irq) &&
+-				    !request_irq(bp->irq|0x30, aurora_interrupt, IRQF_SHARED, "sio16", bp)) {
+-					free_irq(bp->irq|0x30, bp);
+-				} else
+-				if ((bp->irq=prom_getint(sdev->prom_node, "bintr")) && valid_irq(bp->irq) &&
+-				    !request_irq(bp->irq|0x30, aurora_interrupt, IRQF_SHARED, "sio16", bp)) {
+-					free_irq(bp->irq|0x30, bp);
+-				} else
+-				if ((bp->irq=prom_getint(sdev->prom_node, "intr")) && valid_irq(bp->irq) &&
+-				    !request_irq(bp->irq|0x30, aurora_interrupt, IRQF_SHARED, "sio16", bp)) {
+-					free_irq(bp->irq|0x30, bp);
+-				} else
+-				for(grrr=0;grrr<TYPE_1_IRQS;grrr++) {
+-					if ((bp->irq=type_1_irq[grrr])&&!request_irq(bp->irq|0x30, aurora_interrupt, IRQF_SHARED, "sio16", bp)) {
+-						free_irq(bp->irq|0x30, bp);
+-						break;
+-					} else {
+-					printk(KERN_ERR "aurora%d: Could not get an irq for this board !!!\n",bn);
+-					bp->flags=0xff;
+-					}
+-				}
+-				if(bp->flags==0xff)break;
+-				printk(KERN_INFO "aurora%d: irq %d\n",bn,bp->irq&0x0f);
+-				buf[0]=0;
+-				grrr=prom_getproperty(sdev->prom_node,"dtr_rts",buf,sizeof(buf));
+-				if(!strcmp(buf,"swapped")){
+-					printk(KERN_INFO "aurora%d: Swapped DTR and RTS\n",bn);
+-					bp->DTR=MSVR_RTS;
+-					bp->RTS=MSVR_DTR;
+-					bp->MSVDTR=CD180_MSVRTS;
+-					bp->MSVRTS=CD180_MSVDTR;
+-					bp->flags|=AURORA_BOARD_DTR_FLOW_OK;
+-					}else{
+-					#ifdef AURORA_FORCE_DTR_FLOW
+-					printk(KERN_INFO "aurora%d: Forcing swapped DTR-RTS\n",bn);
+-					bp->DTR=MSVR_RTS;
+-					bp->RTS=MSVR_DTR;
+-					bp->MSVDTR=CD180_MSVRTS;
+-					bp->MSVRTS=CD180_MSVDTR;
+-					bp->flags|=AURORA_BOARD_DTR_FLOW_OK;
+-					#else
+-					printk(KERN_INFO "aurora%d: Normal DTR and RTS\n",bn);
+-					bp->DTR=MSVR_DTR;
+-					bp->RTS=MSVR_RTS;
+-					bp->MSVDTR=CD180_MSVDTR;
+-					bp->MSVRTS=CD180_MSVRTS;
+-					#endif
+-				}
+-				bp->oscfreq=prom_getint(sdev->prom_node,"clk")*100;
+-				printk(KERN_INFO "aurora%d: Oscillator: %d Hz\n",bn,bp->oscfreq);
+-				grrr=prom_getproperty(sdev->prom_node,"chip",buf,sizeof(buf));
+-				printk(KERN_INFO "aurora%d: Chips: %s\n",bn,buf);
+-				grrr=prom_getproperty(sdev->prom_node,"manu",buf,sizeof(buf));
+-				printk(KERN_INFO "aurora%d: Manufacturer: %s\n",bn,buf);
+-				grrr=prom_getproperty(sdev->prom_node,"model",buf,sizeof(buf));
+-				printk(KERN_INFO "aurora%d: Model: %s\n",bn,buf);
+-				grrr=prom_getproperty(sdev->prom_node,"rev",buf,sizeof(buf));
+-				printk(KERN_INFO "aurora%d: Revision: %s\n",bn,buf);
+-				grrr=prom_getproperty(sdev->prom_node,"mode",buf,sizeof(buf));
+-				printk(KERN_INFO "aurora%d: Mode: %s\n",bn,buf);
+-				#ifdef MODULE
+-				bp->count=0;
+-				#endif
+-				bp->flags = AURORA_BOARD_PRESENT;
+-				/* hardware ack */
+-				bp->ACK_MINT=1;
+-				bp->ACK_TINT=2;
+-				bp->ACK_RINT=3;
+-				bn++;
+-			}
+-		}
+-	}
+-	return bn;
+-}
+-
+-static void aurora_release_io_range(struct Aurora_board *bp)
+-{
+-	sbus_iounmap((unsigned long)bp->r0, 1);
+-	sbus_iounmap((unsigned long)bp->r[0], 128);
+-	sbus_iounmap((unsigned long)bp->r[1], 128);
+-	sbus_iounmap((unsigned long)bp->r3, 4);
+-}
+-
+-static inline void aurora_mark_event(struct Aurora_port * port, int event)
+-{
+-#ifdef AURORA_DEBUG
+-	printk("aurora_mark_event: start\n");
+-#endif
+-	set_bit(event, &port->event);
+-	queue_task(&port->tqueue, &tq_aurora);
+-	mark_bh(AURORA_BH);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_mark_event: end\n");
+-#endif
+-}
+-
+-static __inline__ struct Aurora_port * aurora_get_port(struct Aurora_board const * bp,
+-						       int chip,
+-						       unsigned char const *what)
+-{
+-	unsigned char channel;
+-	struct Aurora_port * port;
+-
+-	channel = ((chip << 3) |
+-		   ((sbus_readb(&bp->r[chip]->r[CD180_GSCR]) & GSCR_CHAN) >> GSCR_CHAN_OFF));
+-	port = &aurora_port[board_No(bp) * AURORA_NPORT * AURORA_NCD180 + channel];
+-	if (port->flags & ASYNC_INITIALIZED)
+-		return port;
+-
+-	printk(KERN_DEBUG "aurora%d: %s interrupt from invalid port %d\n",
+-	       board_No(bp), what, channel);
+-	return NULL;
+-}
+-
+-static void aurora_receive_exc(struct Aurora_board const * bp, int chip)
+-{
+-	struct Aurora_port *port;
+-	struct tty_struct *tty;
+-	unsigned char status;
+-	unsigned char ch;
+-	
+-	if (!(port = aurora_get_port(bp, chip, "Receive_x")))
+-		return;
+-
+-	tty = port->tty;
+-	if (tty->flip.count >= TTY_FLIPBUF_SIZE)  {
+-#ifdef AURORA_INTNORM
+-		printk("aurora%d: port %d: Working around flip buffer overflow.\n",
+-		       board_No(bp), port_No(port));
+-#endif
+-		return;
+-	}
+-	
+-#ifdef AURORA_REPORT_OVERRUN	
+-	status = sbus_readb(&bp->r[chip]->r[CD180_RCSR]);
+-	if (status & RCSR_OE)  {
+-		port->overrun++;
+-#if 1
+-		printk("aurora%d: port %d: Overrun. Total %ld overruns.\n",
+-		       board_No(bp), port_No(port), port->overrun);
+-#endif		
+-	}
+-	status &= port->mark_mask;
+-#else	
+-	status = sbus_readb(&bp->r[chip]->r[CD180_RCSR]) & port->mark_mask;
+-#endif	
+-	ch = sbus_readb(&bp->r[chip]->r[CD180_RDR]);
+-	if (!status)
+-		return;
+-
+-	if (status & RCSR_TOUT)  {
+-/*		printk("aurora%d: port %d: Receiver timeout. Hardware problems ?\n",
+-		       board_No(bp), port_No(port));*/
+-		return;
+-		
+-	} else if (status & RCSR_BREAK)  {
+-		printk(KERN_DEBUG "aurora%d: port %d: Handling break...\n",
+-		       board_No(bp), port_No(port));
+-		*tty->flip.flag_buf_ptr++ = TTY_BREAK;
+-		if (port->flags & ASYNC_SAK)
+-			do_SAK(tty);
+-		
+-	} else if (status & RCSR_PE) 
+-		*tty->flip.flag_buf_ptr++ = TTY_PARITY;
+-	
+-	else if (status & RCSR_FE) 
+-		*tty->flip.flag_buf_ptr++ = TTY_FRAME;
+-	
+-        else if (status & RCSR_OE)
+-		*tty->flip.flag_buf_ptr++ = TTY_OVERRUN;
+-	
+-	else
+-		*tty->flip.flag_buf_ptr++ = 0;
+-	
+-	*tty->flip.char_buf_ptr++ = ch;
+-	tty->flip.count++;
+-	queue_task(&tty->flip.tqueue, &tq_timer);
+-}
+-
+-static void aurora_receive(struct Aurora_board const * bp, int chip)
+-{
+-	struct Aurora_port *port;
+-	struct tty_struct *tty;
+-	unsigned char count,cnt;
+-
+-	if (!(port = aurora_get_port(bp, chip, "Receive")))
+-		return;
+-	
+-	tty = port->tty;
+-	
+-	count = sbus_readb(&bp->r[chip]->r[CD180_RDCR]);
+-
+-#ifdef AURORA_REPORT_FIFO
+-	port->hits[count > 8 ? 9 : count]++;
+-#endif
+-
+-	while (count--)  {
+-		if (tty->flip.count >= TTY_FLIPBUF_SIZE)  {
+-#ifdef AURORA_INTNORM
+-			printk("aurora%d: port %d: Working around flip buffer overflow.\n",
+-			       board_No(bp), port_No(port));
+-#endif
+-			break;
+-		}
+-		cnt = sbus_readb(&bp->r[chip]->r[CD180_RDR]);
+-		*tty->flip.char_buf_ptr++ = cnt;
+-		*tty->flip.flag_buf_ptr++ = 0;
+-		tty->flip.count++;
+-	}
+-	queue_task(&tty->flip.tqueue, &tq_timer);
+-}
+-
+-static void aurora_transmit(struct Aurora_board const * bp, int chip)
+-{
+-	struct Aurora_port *port;
+-	struct tty_struct *tty;
+-	unsigned char count;
+-	
+-	if (!(port = aurora_get_port(bp, chip, "Transmit")))
+-		return;
+-		
+-	tty = port->tty;
+-	
+-	if (port->SRER & SRER_TXEMPTY)  {
+-		/* FIFO drained */
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		port->SRER &= ~SRER_TXEMPTY;
+-		sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-		return;
+-	}
+-	
+-	if ((port->xmit_cnt <= 0 && !port->break_length)
+-	    || tty->stopped || tty->hw_stopped)  {
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		port->SRER &= ~SRER_TXRDY;
+-		sbus_writeb(port->SRER,
+-			    &bp->r[chip]->r[CD180_SRER]);
+-		return;
+-	}
+-	
+-	if (port->break_length)  {
+-		if (port->break_length > 0)  {
+-			if (port->COR2 & COR2_ETC)  {
+-				sbus_writeb(CD180_C_ESC,
+-					    &bp->r[chip]->r[CD180_TDR]);
+-				sbus_writeb(CD180_C_SBRK,
+-					    &bp->r[chip]->r[CD180_TDR]);
+-				port->COR2 &= ~COR2_ETC;
+-			}
+-			count = min(port->break_length, 0xff);
+-			sbus_writeb(CD180_C_ESC,
+-				    &bp->r[chip]->r[CD180_TDR]);
+-			sbus_writeb(CD180_C_DELAY,
+-				    &bp->r[chip]->r[CD180_TDR]);
+-			sbus_writeb(count,
+-				    &bp->r[chip]->r[CD180_TDR]);
+-			if (!(port->break_length -= count))
+-				port->break_length--;
+-		} else  {
+-			sbus_writeb(CD180_C_ESC,
+-				    &bp->r[chip]->r[CD180_TDR]);
+-			sbus_writeb(CD180_C_EBRK,
+-				    &bp->r[chip]->r[CD180_TDR]);
+-			sbus_writeb(port->COR2,
+-				    &bp->r[chip]->r[CD180_COR2]);
+-			aurora_wait_CCR(bp->r[chip]);
+-			sbus_writeb(CCR_CORCHG2,
+-				    &bp->r[chip]->r[CD180_CCR]);
+-			port->break_length = 0;
+-		}
+-		return;
+-	}
+-	
+-	count = CD180_NFIFO;
+-	do {
+-		u8 byte = port->xmit_buf[port->xmit_tail++];
+-
+-		sbus_writeb(byte, &bp->r[chip]->r[CD180_TDR]);
+-		port->xmit_tail = port->xmit_tail & (SERIAL_XMIT_SIZE-1);
+-		if (--port->xmit_cnt <= 0)
+-			break;
+-	} while (--count > 0);
+-	
+-	if (port->xmit_cnt <= 0)  {
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		port->SRER &= ~SRER_TXRDY;
+-		sbus_writeb(port->SRER,
+-			    &bp->r[chip]->r[CD180_SRER]);
+-	}
+-	if (port->xmit_cnt <= port->wakeup_chars)
+-		aurora_mark_event(port, RS_EVENT_WRITE_WAKEUP);
+-}
+-
+-static void aurora_check_modem(struct Aurora_board const * bp, int chip)
+-{
+-	struct Aurora_port *port;
+-	struct tty_struct *tty;
+-	unsigned char mcr;
+-	
+-	if (!(port = aurora_get_port(bp, chip, "Modem")))
+-		return;
+-		
+-	tty = port->tty;
+-	
+-	mcr = sbus_readb(&bp->r[chip]->r[CD180_MCR]);
+-	if (mcr & MCR_CDCHG)  {
+-		if (sbus_readb(&bp->r[chip]->r[CD180_MSVR]) & MSVR_CD) 
+-			wake_up_interruptible(&port->open_wait);
+-		else
+-			schedule_task(&port->tqueue_hangup);
+-	}
+-	
+-/* We don't have such things yet. My aurora board has DTR and RTS swapped, but that doesn't count in this driver. Let's hope
+- * Aurora didn't made any boards with CTS or DSR broken...
+- */
+-/* #ifdef AURORA_BRAIN_DAMAGED_CTS
+-	if (mcr & MCR_CTSCHG)  {
+-		if (aurora_in(bp, CD180_MSVR) & MSVR_CTS)  {
+-			tty->hw_stopped = 0;
+-			port->SRER |= SRER_TXRDY;
+-			if (port->xmit_cnt <= port->wakeup_chars)
+-				aurora_mark_event(port, RS_EVENT_WRITE_WAKEUP);
+-		} else  {
+-			tty->hw_stopped = 1;
+-			port->SRER &= ~SRER_TXRDY;
+-		}
+-		sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	}
+-	if (mcr & MCR_DSRCHG)  {
+-		if (aurora_in(bp, CD180_MSVR) & MSVR_DSR)  {
+-			tty->hw_stopped = 0;
+-			port->SRER |= SRER_TXRDY;
+-			if (port->xmit_cnt <= port->wakeup_chars)
+-				aurora_mark_event(port, RS_EVENT_WRITE_WAKEUP);
+-		} else  {
+-			tty->hw_stopped = 1;
+-			port->SRER &= ~SRER_TXRDY;
+-		}
+-		sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	}
+-#endif AURORA_BRAIN_DAMAGED_CTS */
+-	
+-	/* Clear change bits */
+-	sbus_writeb(0, &bp->r[chip]->r[CD180_MCR]);
+-}
+-
+-/* The main interrupt processing routine */
+-static irqreturn_t aurora_interrupt(int irq, void * dev_id)
+-{
+-	unsigned char status;
+-	unsigned char ack,chip/*,chip_id*/;
+-	struct Aurora_board * bp = (struct Aurora_board *) dev_id;
+-	unsigned long loop = 0;
+-
+-#ifdef AURORA_INT_DEBUG
+-	printk("IRQ%d %d\n",irq,++irqhit);
+-#ifdef AURORA_FLOODPRO
+-	if (irqhit>=AURORA_FLOODPRO)
+-		sbus_writeb(8, &bp->r0->r);
+-#endif
+-#endif
+-	
+-/* old	bp = IRQ_to_board[irq&0x0f];*/
+-	
+-	if (!bp || !(bp->flags & AURORA_BOARD_ACTIVE))
+-		return IRQ_NONE;
+-
+-/*	The while() below takes care of this.
+-	status = sbus_readb(&bp->r[0]->r[CD180_SRSR]);
+-#ifdef AURORA_INT_DEBUG
+-	printk("mumu: %02x\n", status);
+-#endif
+-	if (!(status&SRSR_ANYINT))
+-		return IRQ_NONE; * Nobody has anything to say, so exit *
+-*/
+-	while ((loop++ < 48) &&
+-	       (status = sbus_readb(&bp->r[0]->r[CD180_SRSR]) & SRSR_ANYINT)){
+-#ifdef AURORA_INT_DEBUG
+-		printk("SRSR: %02x\n", status);
+-#endif
+-		if (status & SRSR_REXT) {
+-			ack = sbus_readb(&bp->r3->r[bp->ACK_RINT]);
+-#ifdef AURORA_INT_DEBUG
+-			printk("R-ACK %02x\n", ack);
+-#endif
+-			if ((ack >> 5) == board_No(bp)) {
+-				if ((chip=((ack>>3)&3)-1) < AURORA_NCD180) {
+-					if ((ack&GSVR_ITMASK)==GSVR_IT_RGD) {
+-						aurora_receive(bp,chip);
+-						sbus_writeb(0,
+-							 &bp->r[chip]->r[CD180_EOSRR]);
+-					} else if ((ack & GSVR_ITMASK) == GSVR_IT_REXC) {
+-						aurora_receive_exc(bp,chip);
+-						sbus_writeb(0,
+-							 &bp->r[chip]->r[CD180_EOSRR]);
+-					}
+-				}
+-			}
+-		} else if (status & SRSR_TEXT) {
+-			ack = sbus_readb(&bp->r3->r[bp->ACK_TINT]);
+-#ifdef AURORA_INT_DEBUG
+-			printk("T-ACK %02x\n", ack);
+-#endif
+-			if ((ack >> 5) == board_No(bp)) {
+-				if ((chip=((ack>>3)&3)-1) < AURORA_NCD180) {
+-					if ((ack&GSVR_ITMASK)==GSVR_IT_TX) {
+-						aurora_transmit(bp,chip);
+-						sbus_writeb(0,
+-							 &bp->r[chip]->r[CD180_EOSRR]);
+-					}
+-				}
+-			}
+-		} else if (status & SRSR_MEXT) {
+-			ack = sbus_readb(&bp->r3->r[bp->ACK_MINT]);
+-#ifdef AURORA_INT_DEBUG
+-			printk("M-ACK %02x\n", ack);
+-#endif
+-			if ((ack >> 5) == board_No(bp)) {
+-				if ((chip = ((ack>>3)&3)-1) < AURORA_NCD180) {
+-					if ((ack&GSVR_ITMASK)==GSVR_IT_MDM) {
+-						aurora_check_modem(bp,chip);
+-						sbus_writeb(0,
+-							 &bp->r[chip]->r[CD180_EOSRR]);
+-					}
+-				}
+-			}
+-		}
+-	}
+-/* I guess this faster code can be used with CD1865, using AUROPRI and GLOBPRI. */
+-#if 0
+-	while ((loop++ < 48)&&(status=bp->r[0]->r[CD180_SRSR]&SRSR_ANYINT)){
+-#ifdef AURORA_INT_DEBUG
+-		printk("SRSR: %02x\n",status);
+-#endif
+-		ack = sbus_readb(&bp->r3->r[0]);
+-#ifdef AURORA_INT_DEBUG
+-		printk("ACK: %02x\n",ack);
+-#endif
+-		if ((ack>>5)==board_No(bp)) {
+-			if ((chip=((ack>>3)&3)-1) < AURORA_NCD180) {
+-				ack&=GSVR_ITMASK;
+-				if (ack==GSVR_IT_RGD) {
+-					aurora_receive(bp,chip);
+-					sbus_writeb(0,
+-						    &bp->r[chip]->r[CD180_EOSRR]);
+-				} else if (ack==GSVR_IT_REXC) {
+-					aurora_receive_exc(bp,chip);
+-					sbus_writeb(0,
+-						    &bp->r[chip]->r[CD180_EOSRR]);
+-				} else if (ack==GSVR_IT_TX) {
+-					aurora_transmit(bp,chip);
+-					sbus_writeb(0,
+-						    &bp->r[chip]->r[CD180_EOSRR]);
+-				} else if (ack==GSVR_IT_MDM) {
+-					aurora_check_modem(bp,chip);
+-					sbus_writeb(0,
+-						    &bp->r[chip]->r[CD180_EOSRR]);
+-				}
+-			}
+-		}
+-	}
+-#endif
+-
+-/* This is the old handling routine, used in riscom8 for only one CD180. I keep it here for reference. */
+-#if 0
+-	for(chip=0;chip<AURORA_NCD180;chip++){
+-		chip_id=(board_No(bp)<<5)|((chip+1)<<3);
+-		loop=0;
+-		while ((loop++ < 1) &&
+-		       ((status = sbus_readb(&bp->r[chip]->r[CD180_SRSR])) &
+-			(SRSR_TEXT | SRSR_MEXT | SRSR_REXT))) {
+-
+-			if (status & SRSR_REXT) {
+-				ack = sbus_readb(&bp->r3->r[bp->ACK_RINT]);
+-				if (ack == (chip_id | GSVR_IT_RGD)) {
+-#ifdef AURORA_INTMSG
+-					printk("RX ACK\n");
+-#endif
+-					aurora_receive(bp,chip);
+-				} else if (ack == (chip_id | GSVR_IT_REXC)) {
+-#ifdef AURORA_INTMSG
+-					printk("RXC ACK\n");
+-#endif
+-					aurora_receive_exc(bp,chip);
+-				} else {
+-#ifdef AURORA_INTNORM
+-					printk("aurora%d-%d: Bad receive ack 0x%02x.\n",
+-					       board_No(bp), chip, ack);
+-#endif
+-				}
+-			} else if (status & SRSR_TEXT) {
+-				ack = sbus_readb(&bp->r3->r[bp->ACK_TINT]);
+-				if (ack == (chip_id | GSVR_IT_TX)){
+-#ifdef AURORA_INTMSG
+-					printk("TX ACK\n");
+-#endif
+-					aurora_transmit(bp,chip);
+-				} else {
+-#ifdef AURORA_INTNORM
+-					printk("aurora%d-%d: Bad transmit ack 0x%02x.\n",
+-					       board_No(bp), chip, ack);
+-#endif
+-				}
+-			} else  if (status & SRSR_MEXT)  {
+-				ack = sbus_readb(&bp->r3->r[bp->ACK_MINT]);
+-				if (ack == (chip_id | GSVR_IT_MDM)){
+-#ifdef AURORA_INTMSG
+-					printk("MDM ACK\n");
+-#endif
+-					aurora_check_modem(bp,chip);
+-				} else {
+-#ifdef AURORA_INTNORM
+-					printk("aurora%d-%d: Bad modem ack 0x%02x.\n",
+-					       board_No(bp), chip, ack);
+-#endif
+-				}
+-			}
+-			sbus_writeb(0, &bp->r[chip]->r[CD180_EOSRR]);
+-		}
+-	}
+-#endif
+-
+-	return IRQ_HANDLED;
+-}
+-
+-#ifdef AURORA_INT_DEBUG
+-static void aurora_timer (unsigned long ignored);
+-
+-static DEFINE_TIMER(aurora_poll_timer, aurora_timer, 0, 0);
+-
+-static void
+-aurora_timer (unsigned long ignored)
+-{
+-	unsigned long flags;
+-	int i;
+-
+-	save_flags(flags); cli();
+-
+-	printk("SRSR: %02x,%02x - ",
+-	       sbus_readb(&aurora_board[0].r[0]->r[CD180_SRSR]),
+-	       sbus_readb(&aurora_board[0].r[1]->r[CD180_SRSR]));
+-	for (i = 0; i < 4; i++) {
+-		udelay(1);
+-		printk("%02x ",
+-		       sbus_readb(&aurora_board[0].r3->r[i]));
+-	}
+-	printk("\n");
+-
+-	aurora_poll_timer.expires = jiffies + 300;
+-	add_timer (&aurora_poll_timer);
+-
+-	restore_flags(flags);
+-}
+-#endif
+-
+-/*
+- *  Routines for open & close processing.
+- */
+-
+-/* Called with disabled interrupts */
+-static int aurora_setup_board(struct Aurora_board * bp)
+-{
+-	int error;
+-	
+-#ifdef AURORA_ALLIRQ
+-	int i;
+-	for (i = 0; i < AURORA_ALLIRQ; i++) {
+-		error = request_irq(allirq[i]|0x30, aurora_interrupt, IRQF_SHARED,
+-				    "sio16", bp);
+-		if (error)
+-			printk(KERN_ERR "IRQ%d request error %d\n",
+-			       allirq[i], error);
+-	}
+-#else
+-	error = request_irq(bp->irq|0x30, aurora_interrupt, IRQF_SHARED,
+-			    "sio16", bp);
+-	if (error) {
+-		printk(KERN_ERR "IRQ request error %d\n", error);
+-		return error;
+-	}
+-#endif
+-	/* Board reset */
+-	sbus_writeb(0, &bp->r0->r);
+-	udelay(1);
+-	if (bp->flags & AURORA_BOARD_TYPE_2) {
+-		/* unknown yet */
+-	} else {
+-		sbus_writeb((AURORA_CFG_ENABLE_IO | AURORA_CFG_ENABLE_IRQ |
+-			     (((bp->irq)&0x0f)>>2)),
+-			    &bp->r0->r);
+-	}
+-	udelay(10000);
+-
+-	if (aurora_init_CD180(bp,0))error=1;error=0;
+-	if (aurora_init_CD180(bp,1))error++;
+-	if (error == AURORA_NCD180) {
+-		printk(KERN_ERR "Both chips failed initialisation.\n");
+-		return -EIO;
+-	}
+-
+-#ifdef AURORA_INT_DEBUG
+-	aurora_poll_timer.expires= jiffies + 1;
+-	add_timer(&aurora_poll_timer);
+-#endif
+-#ifdef AURORA_DEBUG
+-	printk("aurora_setup_board: end\n");
+-#endif
+-	return 0;
+-}
+-
+-/* Called with disabled interrupts */
+-static void aurora_shutdown_board(struct Aurora_board *bp)
+-{
+-	int i;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_shutdown_board: start\n");
+-#endif
+-
+-#ifdef AURORA_INT_DEBUG
+-	del_timer(&aurora_poll_timer);
+-#endif
+-
+-#ifdef AURORA_ALLIRQ
+-	for(i=0;i<AURORA_ALLIRQ;i++){
+-		free_irq(allirq[i]|0x30, bp);
+-/*		IRQ_to_board[allirq[i]&0xf] = NULL;*/
+-	}
+-#else
+-	free_irq(bp->irq|0x30, bp);
+-/*	IRQ_to_board[bp->irq&0xf] = NULL;*/
+-#endif	
+-	/* Drop all DTR's */
+-	for(i=0;i<16;i++){
+-		sbus_writeb(i & 7, &bp->r[i>>3]->r[CD180_CAR]);
+-		udelay(1);
+-		sbus_writeb(0, &bp->r[i>>3]->r[CD180_MSVR]);
+-		udelay(1);
+-	}
+-	/* Board shutdown */
+-	sbus_writeb(0, &bp->r0->r);
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_shutdown_board: end\n");
+-#endif
+-}
+-
+-/* Setting up port characteristics. 
+- * Must be called with disabled interrupts
+- */
+-static void aurora_change_speed(struct Aurora_board *bp, struct Aurora_port *port)
+-{
+-	struct tty_struct *tty;
+-	unsigned long baud;
+-	long tmp;
+-	unsigned char cor1 = 0, cor3 = 0;
+-	unsigned char mcor1 = 0, mcor2 = 0,chip;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_change_speed: start\n");
+-#endif
+-	if (!(tty = port->tty) || !tty->termios)
+-		return;
+-		
+-	chip = AURORA_CD180(port_No(port));
+-
+-	port->SRER  = 0;
+-	port->COR2 = 0;
+-	port->MSVR = MSVR_RTS|MSVR_DTR;
+-	
+-	baud = tty_get_baud_rate(tty);
+-	
+-	/* Select port on the board */
+-	sbus_writeb(port_No(port) & 7,
+-		    &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-	
+-	if (!baud)  {
+-		/* Drop DTR & exit */
+-		port->MSVR &= ~(bp->DTR|bp->RTS);
+-		sbus_writeb(port->MSVR,
+-			    &bp->r[chip]->r[CD180_MSVR]);
+-		return;
+-	} else  {
+-		/* Set DTR on */
+-		port->MSVR |= bp->DTR;
+-		sbus_writeb(port->MSVR,
+-			    &bp->r[chip]->r[CD180_MSVR]);
+-	}
+-	
+-	/* Now we must calculate some speed dependent things. */
+-	
+-	/* Set baud rate for port. */
+-	tmp = (((bp->oscfreq + baud/2) / baud +
+-		CD180_TPC/2) / CD180_TPC);
+-
+-/*	tmp = (bp->oscfreq/7)/baud;
+-	if((tmp%10)>4)tmp=tmp/10+1;else tmp=tmp/10;*/
+-/*	printk("Prescaler period: %d\n",tmp);*/
+-
+-	sbus_writeb((tmp >> 8) & 0xff,
+-		    &bp->r[chip]->r[CD180_RBPRH]);
+-	sbus_writeb((tmp >> 8) & 0xff,
+-		    &bp->r[chip]->r[CD180_TBPRH]);
+-	sbus_writeb(tmp & 0xff, &bp->r[chip]->r[CD180_RBPRL]);
+-	sbus_writeb(tmp & 0xff, &bp->r[chip]->r[CD180_TBPRL]);
+-	
+-	baud = (baud + 5) / 10;   /* Estimated CPS */
+-	
+-	/* Two timer ticks seems enough to wakeup something like SLIP driver */
+-	tmp = ((baud + HZ/2) / HZ) * 2 - CD180_NFIFO;		
+-	port->wakeup_chars = (tmp < 0) ? 0 : ((tmp >= SERIAL_XMIT_SIZE) ?
+-					      SERIAL_XMIT_SIZE - 1 : tmp);
+-	
+-	/* Receiver timeout will be transmission time for 1.5 chars */
+-	tmp = (AURORA_TPS + AURORA_TPS/2 + baud/2) / baud;
+-	tmp = (tmp > 0xff) ? 0xff : tmp;
+-	sbus_writeb(tmp, &bp->r[chip]->r[CD180_RTPR]);
+-	
+-	switch (C_CSIZE(tty))  {
+-	 case CS5:
+-		cor1 |= COR1_5BITS;
+-		break;
+-	 case CS6:
+-		cor1 |= COR1_6BITS;
+-		break;
+-	 case CS7:
+-		cor1 |= COR1_7BITS;
+-		break;
+-	 case CS8:
+-		cor1 |= COR1_8BITS;
+-		break;
+-	}
+-	
+-	if (C_CSTOPB(tty)) 
+-		cor1 |= COR1_2SB;
+-	
+-	cor1 |= COR1_IGNORE;
+-	if (C_PARENB(tty))  {
+-		cor1 |= COR1_NORMPAR;
+-		if (C_PARODD(tty)) 
+-			cor1 |= COR1_ODDP;
+-		if (I_INPCK(tty)) 
+-			cor1 &= ~COR1_IGNORE;
+-	}
+-	/* Set marking of some errors */
+-	port->mark_mask = RCSR_OE | RCSR_TOUT;
+-	if (I_INPCK(tty)) 
+-		port->mark_mask |= RCSR_FE | RCSR_PE;
+-	if (I_BRKINT(tty) || I_PARMRK(tty)) 
+-		port->mark_mask |= RCSR_BREAK;
+-	if (I_IGNPAR(tty)) 
+-		port->mark_mask &= ~(RCSR_FE | RCSR_PE);
+-	if (I_IGNBRK(tty))  {
+-		port->mark_mask &= ~RCSR_BREAK;
+-		if (I_IGNPAR(tty)) 
+-			/* Real raw mode. Ignore all */
+-			port->mark_mask &= ~RCSR_OE;
+-	}
+-	/* Enable Hardware Flow Control */
+-	if (C_CRTSCTS(tty))  {
+-/*#ifdef AURORA_BRAIN_DAMAGED_CTS
+-		port->SRER |= SRER_DSR | SRER_CTS;
+-		mcor1 |= MCOR1_DSRZD | MCOR1_CTSZD;
+-		mcor2 |= MCOR2_DSROD | MCOR2_CTSOD;
+-		tty->hw_stopped = !(aurora_in(bp, CD180_MSVR) & (MSVR_CTS|MSVR_DSR));
+-#else*/
+-		port->COR2 |= COR2_CTSAE;
+-/*#endif*/
+-		if (bp->flags&AURORA_BOARD_DTR_FLOW_OK) {
+-			mcor1 |= AURORA_RXTH;
+-		}
+-	}
+-	/* Enable Software Flow Control. FIXME: I'm not sure about this */
+-	/* Some people reported that it works, but I still doubt */
+-	if (I_IXON(tty))  {
+-		port->COR2 |= COR2_TXIBE;
+-		cor3 |= (COR3_FCT | COR3_SCDE);
+-		if (I_IXANY(tty))
+-			port->COR2 |= COR2_IXM;
+-		sbus_writeb(START_CHAR(tty),
+-			    &bp->r[chip]->r[CD180_SCHR1]);
+-		sbus_writeb(STOP_CHAR(tty),
+-			    &bp->r[chip]->r[CD180_SCHR2]);
+-		sbus_writeb(START_CHAR(tty),
+-			    &bp->r[chip]->r[CD180_SCHR3]);
+-		sbus_writeb(STOP_CHAR(tty),
+-			    &bp->r[chip]->r[CD180_SCHR4]);
+-	}
+-	if (!C_CLOCAL(tty))  {
+-		/* Enable CD check */
+-		port->SRER |= SRER_CD;
+-		mcor1 |= MCOR1_CDZD;
+-		mcor2 |= MCOR2_CDOD;
+-	}
+-	
+-	if (C_CREAD(tty)) 
+-		/* Enable receiver */
+-		port->SRER |= SRER_RXD;
+-	
+-	/* Set input FIFO size (1-8 bytes) */
+-	cor3 |= AURORA_RXFIFO; 
+-	/* Setting up CD180 channel registers */
+-	sbus_writeb(cor1, &bp->r[chip]->r[CD180_COR1]);
+-	sbus_writeb(port->COR2, &bp->r[chip]->r[CD180_COR2]);
+-	sbus_writeb(cor3, &bp->r[chip]->r[CD180_COR3]);
+-	/* Make CD180 know about registers change */
+-	aurora_wait_CCR(bp->r[chip]);
+-	sbus_writeb(CCR_CORCHG1 | CCR_CORCHG2 | CCR_CORCHG3,
+-		    &bp->r[chip]->r[CD180_CCR]);
+-	/* Setting up modem option registers */
+-	sbus_writeb(mcor1, &bp->r[chip]->r[CD180_MCOR1]);
+-	sbus_writeb(mcor2, &bp->r[chip]->r[CD180_MCOR2]);
+-	/* Enable CD180 transmitter & receiver */
+-	aurora_wait_CCR(bp->r[chip]);
+-	sbus_writeb(CCR_TXEN | CCR_RXEN, &bp->r[chip]->r[CD180_CCR]);
+-	/* Enable interrupts */
+-	sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	/* And finally set RTS on */
+-	sbus_writeb(port->MSVR, &bp->r[chip]->r[CD180_MSVR]);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_change_speed: end\n");
+-#endif
+-}
+-
+-/* Must be called with interrupts enabled */
+-static int aurora_setup_port(struct Aurora_board *bp, struct Aurora_port *port)
+-{
+-	unsigned long flags;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_setup_port: start %d\n",port_No(port));
+-#endif
+-	if (port->flags & ASYNC_INITIALIZED)
+-		return 0;
+-		
+-	if (!port->xmit_buf) {
+-		/* We may sleep in get_zeroed_page() */
+-		unsigned long tmp;
+-		
+-		if (!(tmp = get_zeroed_page(GFP_KERNEL)))
+-			return -ENOMEM;
+-		    
+-		if (port->xmit_buf) {
+-			free_page(tmp);
+-			return -ERESTARTSYS;
+-		}
+-		port->xmit_buf = (unsigned char *) tmp;
+-	}
+-		
+-	save_flags(flags); cli();
+-		
+-	if (port->tty) 
+-		clear_bit(TTY_IO_ERROR, &port->tty->flags);
+-		
+-#ifdef MODULE
+-	if ((port->count == 1) && ((++bp->count) == 1))
+-			bp->flags |= AURORA_BOARD_ACTIVE;
+-#endif
+-
+-	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+-	aurora_change_speed(bp, port);
+-	port->flags |= ASYNC_INITIALIZED;
+-		
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_setup_port: end\n");
+-#endif
+-	return 0;
+-}
+-
+-/* Must be called with interrupts disabled */
+-static void aurora_shutdown_port(struct Aurora_board *bp, struct Aurora_port *port)
+-{
+-	struct tty_struct *tty;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_shutdown_port: start\n");
+-#endif
+-	if (!(port->flags & ASYNC_INITIALIZED)) 
+-		return;
+-	
+-	chip = AURORA_CD180(port_No(port));
+-	
+-#ifdef AURORA_REPORT_OVERRUN
+-	printk("aurora%d: port %d: Total %ld overruns were detected.\n",
+-	       board_No(bp), port_No(port), port->overrun);
+-#endif	
+-#ifdef AURORA_REPORT_FIFO
+-	{
+-		int i;
+-		
+-		printk("aurora%d: port %d: FIFO hits [ ",
+-		       board_No(bp), port_No(port));
+-		for (i = 0; i < 10; i++)  {
+-			printk("%ld ", port->hits[i]);
+-		}
+-		printk("].\n");
+-	}
+-#endif	
+-	if (port->xmit_buf)  {
+-		free_page((unsigned long) port->xmit_buf);
+-		port->xmit_buf = NULL;
+-	}
+-
+-	if (!(tty = port->tty) || C_HUPCL(tty))  {
+-		/* Drop DTR */
+-		port->MSVR &= ~(bp->DTR|bp->RTS);
+-		sbus_writeb(port->MSVR,
+-			    &bp->r[chip]->r[CD180_MSVR]);
+-	}
+-	
+-        /* Select port */
+-	sbus_writeb(port_No(port) & 7,
+-		    &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-
+-	/* Reset port */
+-	aurora_wait_CCR(bp->r[chip]);
+-	sbus_writeb(CCR_SOFTRESET, &bp->r[chip]->r[CD180_CCR]);
+-
+-	/* Disable all interrupts from this port */
+-	port->SRER = 0;
+-	sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	
+-	if (tty)  
+-		set_bit(TTY_IO_ERROR, &tty->flags);
+-	port->flags &= ~ASYNC_INITIALIZED;
+-
+-#ifdef MODULE
+-	if (--bp->count < 0)  {
+-		printk(KERN_DEBUG "aurora%d: aurora_shutdown_port: "
+-		       "bad board count: %d\n",
+-		       board_No(bp), bp->count);
+-		bp->count = 0;
+-	}
+-	
+-	if (!bp->count)
+-		bp->flags &= ~AURORA_BOARD_ACTIVE;
+-#endif
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_shutdown_port: end\n");
+-#endif
+-}
+-
+-	
+-static int block_til_ready(struct tty_struct *tty, struct file * filp,
+-			   struct Aurora_port *port)
+-{
+-	DECLARE_WAITQUEUE(wait, current);
+-	struct Aurora_board *bp = port_Board(port);
+-	int    retval;
+-	int    do_clocal = 0;
+-	int    CD;
+-	unsigned char chip;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("block_til_ready: start\n");
+-#endif
+-	chip = AURORA_CD180(port_No(port));
+-
+-	/* If the device is in the middle of being closed, then block
+-	 * until it's done, and then try again.
+-	 */
+-	if (tty_hung_up_p(filp) || port->flags & ASYNC_CLOSING) {
+-		interruptible_sleep_on(&port->close_wait);
+-		if (port->flags & ASYNC_HUP_NOTIFY)
+-			return -EAGAIN;
+-		else
+-			return -ERESTARTSYS;
+-	}
+-
+-	/* If non-blocking mode is set, or the port is not enabled,
+-	 * then make the check up front and then exit.
+-	 */
+-	if ((filp->f_flags & O_NONBLOCK) ||
+-	    (tty->flags & (1 << TTY_IO_ERROR))) {
+-		port->flags |= ASYNC_NORMAL_ACTIVE;
+-		return 0;
+-	}
+-
+-	if (C_CLOCAL(tty))  
+-		do_clocal = 1;
+-
+-	/* Block waiting for the carrier detect and the line to become
+-	 * free (i.e., not in use by the callout).  While we are in
+-	 * this loop, info->count is dropped by one, so that
+-	 * rs_close() knows when to free things.  We restore it upon
+-	 * exit, either normal or abnormal.
+-	 */
+-	retval = 0;
+-	add_wait_queue(&port->open_wait, &wait);
+-	cli();
+-	if (!tty_hung_up_p(filp))
+-		port->count--;
+-	sti();
+-	port->blocked_open++;
+-	while (1) {
+-		cli();
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		CD = sbus_readb(&bp->r[chip]->r[CD180_MSVR]) & MSVR_CD;
+-		port->MSVR=bp->RTS;
+-
+-		/* auto drops DTR */
+-		sbus_writeb(port->MSVR, &bp->r[chip]->r[CD180_MSVR]);
+-		sti();
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		if (tty_hung_up_p(filp) ||
+-		    !(port->flags & ASYNC_INITIALIZED)) {
+-			if (port->flags & ASYNC_HUP_NOTIFY)
+-				retval = -EAGAIN;
+-			else
+-				retval = -ERESTARTSYS;	
+-			break;
+-		}
+-		if (!(port->flags & ASYNC_CLOSING) &&
+-		    (do_clocal || CD))
+-			break;
+-		if (signal_pending(current)) {
+-			retval = -ERESTARTSYS;
+-			break;
+-		}
+-		schedule();
+-	}
+-	current->state = TASK_RUNNING;
+-	remove_wait_queue(&port->open_wait, &wait);
+-	if (!tty_hung_up_p(filp))
+-		port->count++;
+-	port->blocked_open--;
+-	if (retval)
+-		return retval;
+-	
+-	port->flags |= ASYNC_NORMAL_ACTIVE;
+-#ifdef AURORA_DEBUG
+-	printk("block_til_ready: end\n");
+-#endif
+-	return 0;
+-}	
+-
+-static int aurora_open(struct tty_struct * tty, struct file * filp)
+-{
+-	int board;
+-	int error;
+-	struct Aurora_port * port;
+-	struct Aurora_board * bp;
+-	unsigned long flags;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_open: start\n");
+-#endif
+-	
+-	board = AURORA_BOARD(tty->index);
+-	if (board > AURORA_NBOARD ||
+-	    !(aurora_board[board].flags & AURORA_BOARD_PRESENT)) {
+-#ifdef AURORA_DEBUG
+-		printk("aurora_open: error board %d present %d\n",
+-		       board, aurora_board[board].flags & AURORA_BOARD_PRESENT);
+-#endif
+-		return -ENODEV;
+-	}
+-	
+-	bp = &aurora_board[board];
+-	port = aurora_port + board * AURORA_NPORT * AURORA_NCD180 + AURORA_PORT(tty->index);
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_open")) {
+-#ifdef AURORA_DEBUG
+-		printk("aurora_open: error paranoia check\n");
+-#endif
+-		return -ENODEV;
+-	}
+-	
+-	port->count++;
+-	tty->driver_data = port;
+-	port->tty = tty;
+-	
+-	if ((error = aurora_setup_port(bp, port))) {
+-#ifdef AURORA_DEBUG
+-		printk("aurora_open: error aurora_setup_port ret %d\n",error);
+-#endif
+-		return error;
+-	}
+-
+-	if ((error = block_til_ready(tty, filp, port))) {
+-#ifdef AURORA_DEBUG
+-		printk("aurora_open: error block_til_ready ret %d\n",error);
+-#endif
+-		return error;
+-	}
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_open: end\n");
+-#endif
+-	return 0;
+-}
+-
+-static void aurora_close(struct tty_struct * tty, struct file * filp)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	unsigned long flags;
+-	unsigned long timeout;
+-	unsigned char chip;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_close: start\n");
+-#endif
+-	
+-	if (!port || (aurora_paranoia_check(port, tty->name, "close"))
+-		return;
+-	
+-	chip = AURORA_CD180(port_No(port));
+-
+-	save_flags(flags); cli();
+-	if (tty_hung_up_p(filp))  {
+-		restore_flags(flags);
+-		return;
+-	}
+-	
+-	bp = port_Board(port);
+-	if ((tty->count == 1) && (port->count != 1))  {
+-		printk(KERN_DEBUG "aurora%d: aurora_close: bad port count; "
+-		       "tty->count is 1, port count is %d\n",
+-		       board_No(bp), port->count);
+-		port->count = 1;
+-	}
+-	if (--port->count < 0)  {
+-		printk(KERN_DEBUG "aurora%d: aurora_close: bad port "
+-		       "count for tty%d: %d\n",
+-		       board_No(bp), port_No(port), port->count);
+-		port->count = 0;
+-	}
+-	if (port->count)  {
+-		restore_flags(flags);
+-		return;
+-	}
+-	port->flags |= ASYNC_CLOSING;
+-
+-	/* Now we wait for the transmit buffer to clear; and we notify 
+-	 * the line discipline to only process XON/XOFF characters.
+-	 */
+-	tty->closing = 1;
+-	if (port->closing_wait != ASYNC_CLOSING_WAIT_NONE){
+-#ifdef AURORA_DEBUG
+-		printk("aurora_close: waiting to flush...\n");
+-#endif
+-		tty_wait_until_sent(tty, port->closing_wait);
+-	}
+-
+-	/* At this point we stop accepting input.  To do this, we
+-	 * disable the receive line status interrupts, and tell the
+-	 * interrupt driver to stop checking the data ready bit in the
+-	 * line status register.
+-	 */
+-	port->SRER &= ~SRER_RXD;
+-	if (port->flags & ASYNC_INITIALIZED) {
+-		port->SRER &= ~SRER_TXRDY;
+-		port->SRER |= SRER_TXEMPTY;
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-		/*
+-		 * Before we drop DTR, make sure the UART transmitter
+-		 * has completely drained; this is especially
+-		 * important if there is a transmit FIFO!
+-		 */
+-		timeout = jiffies+HZ;
+-		while(port->SRER & SRER_TXEMPTY)  {
+-			msleep_interruptible(jiffies_to_msecs(port->timeout));
+-			if (time_after(jiffies, timeout))
+-				break;
+-		}
+-	}
+-#ifdef AURORA_DEBUG
+-	printk("aurora_close: shutdown_port\n");
+-#endif
+-	aurora_shutdown_port(bp, port);
+-	if (tty->driver->flush_buffer)
+-		tty->driver->flush_buffer(tty);
+-	tty_ldisc_flush(tty);
+-	tty->closing = 0;
+-	port->event = 0;
+-	port->tty = 0;
+-	if (port->blocked_open) {
+-		if (port->close_delay) {
+-			msleep_interruptible(jiffies_to_msecs(port->close_delay));
+-		}
+-		wake_up_interruptible(&port->open_wait);
+-	}
+-	port->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
+-	wake_up_interruptible(&port->close_wait);
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_close: end\n");
+-#endif
+-}
+-
+-static int aurora_write(struct tty_struct * tty, 
+-			const unsigned char *buf, int count)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	int c, total = 0;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_write: start %d\n",count);
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_write"))
+-		return 0;
+-		
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	bp = port_Board(port);
+-
+-	if (!tty || !port->xmit_buf || !tmp_buf)
+-		return 0;
+-
+-	save_flags(flags);
+-	while (1) {
+-		cli();
+-		c = min(count, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
+-				   SERIAL_XMIT_SIZE - port->xmit_head));
+-		if (c <= 0) {
+-			restore_flags(flags);
+-			break;
+-		}
+-		memcpy(port->xmit_buf + port->xmit_head, buf, c);
+-		port->xmit_head = (port->xmit_head + c) & (SERIAL_XMIT_SIZE-1);
+-		port->xmit_cnt += c;
+-		restore_flags(flags);
+-
+-		buf += c;
+-		count -= c;
+-		total += c;
+-	}
+-
+-	cli();
+-	if (port->xmit_cnt && !tty->stopped && !tty->hw_stopped &&
+-	    !(port->SRER & SRER_TXRDY)) {
+-		port->SRER |= SRER_TXRDY;
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	}
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_write: end %d\n",total);
+-#endif
+-	return total;
+-}
+-
+-static void aurora_put_char(struct tty_struct * tty, unsigned char ch)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	unsigned long flags;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_put_char: start %c\n",ch);
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_put_char"))
+-		return;
+-
+-	if (!tty || !port->xmit_buf)
+-		return;
+-
+-	save_flags(flags); cli();
+-	
+-	if (port->xmit_cnt >= SERIAL_XMIT_SIZE - 1) {
+-		restore_flags(flags);
+-		return;
+-	}
+-
+-	port->xmit_buf[port->xmit_head++] = ch;
+-	port->xmit_head &= SERIAL_XMIT_SIZE - 1;
+-	port->xmit_cnt++;
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_put_char: end\n");
+-#endif
+-}
+-
+-static void aurora_flush_chars(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-/*#ifdef AURORA_DEBUG
+-	printk("aurora_flush_chars: start\n");
+-#endif*/
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_flush_chars"))
+-		return;
+-		
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	if (port->xmit_cnt <= 0 || tty->stopped || tty->hw_stopped ||
+-	    !port->xmit_buf)
+-		return;
+-
+-	save_flags(flags); cli();
+-	port->SRER |= SRER_TXRDY;
+-	sbus_writeb(port_No(port) & 7,
+-		    &port_Board(port)->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-	sbus_writeb(port->SRER,
+-		    &port_Board(port)->r[chip]->r[CD180_SRER]);
+-	restore_flags(flags);
+-/*#ifdef AURORA_DEBUG
+-	printk("aurora_flush_chars: end\n");
+-#endif*/
+-}
+-
+-static int aurora_write_room(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	int	ret;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_write_room: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_write_room"))
+-		return 0;
+-
+-	ret = SERIAL_XMIT_SIZE - port->xmit_cnt - 1;
+-	if (ret < 0)
+-		ret = 0;
+-#ifdef AURORA_DEBUG
+-	printk("aurora_write_room: end\n");
+-#endif
 -	return ret;
 -}
 -
--/*
-- * static int oaknet_open()
-- *
-- * Description:
-- *   This routine is a modest wrapper around ei_open, the 8390-generic,
-- *   driver open routine. This just increments the module usage count
-- *   and passes along the status from ei_open.
-- *
-- * Input(s):
-- *  *dev - Pointer to the device structure for this driver.
-- *
-- * Output(s):
-- *  *dev - Pointer to the device structure for this driver, potentially
-- *         modified by ei_open.
-- *
-- * Returns:
-- *   0 if OK, otherwise < 0 on error.
-- *
-- */
--static int
--oaknet_open(struct net_device *dev)
+-static int aurora_chars_in_buffer(struct tty_struct *tty)
 -{
--	int status = ei_open(dev);
--	return (status);
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-				
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_chars_in_buffer"))
+-		return 0;
+-	
+-	return port->xmit_cnt;
 -}
 -
--/*
-- * static int oaknet_close()
-- *
-- * Description:
-- *   This routine is a modest wrapper around ei_close, the 8390-generic,
-- *   driver close routine. This just decrements the module usage count
-- *   and passes along the status from ei_close.
-- *
-- * Input(s):
-- *  *dev - Pointer to the device structure for this driver.
-- *
-- * Output(s):
-- *  *dev - Pointer to the device structure for this driver, potentially
-- *         modified by ei_close.
-- *
-- * Returns:
-- *   0 if OK, otherwise < 0 on error.
-- *
-- */
--static int
--oaknet_close(struct net_device *dev)
+-static void aurora_flush_buffer(struct tty_struct *tty)
 -{
--	int status = ei_close(dev);
--	return (status);
--}
--
--/*
-- * static void oaknet_reset_8390()
-- *
-- * Description:
-- *   This routine resets the DP83902 chip.
-- *
-- * Input(s):
-- *  *dev - Pointer to the device structure for this driver.
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   N/A
-- *
-- */
--static void
--oaknet_reset_8390(struct net_device *dev)
--{
--	int base = E8390_BASE;
--
--	/*
--	 * We have no provision of reseting the controller as is done
--	 * in other drivers, such as "ne.c". However, the following
--	 * seems to work well enough in the TiVo driver.
--	 */
--
--	printk("Resetting %s...\n", dev->name);
--	ei_obp(E8390_STOP | E8390_NODMA | E8390_PAGE0, base + E8390_CMD);
--	ei_status.txing = 0;
--	ei_status.dmaing = 0;
--}
--
--/*
-- * static void oaknet_get_8390_hdr()
-- *
-- * Description:
-- *   This routine grabs the 8390-specific header. It's similar to the
-- *   block input routine, but we don't need to be concerned with ring wrap
-- *   as the header will be at the start of a page, so we optimize accordingly.
-- *
-- * Input(s):
-- *  *dev       - Pointer to the device structure for this driver.
-- *  *hdr       - Pointer to storage for the 8390-specific packet header.
-- *   ring_page - ?
-- *
-- * Output(s):
-- *  *hdr       - Pointer to the 8390-specific packet header for the just-
-- *               received frame.
-- *
-- * Returns:
-- *   N/A
-- *
-- */
--static void
--oaknet_get_8390_hdr(struct net_device *dev, struct e8390_pkt_hdr *hdr,
--		    int ring_page)
--{
--	int base = dev->base_addr;
--
--	/*
--	 * This should NOT happen. If it does, it is the LAST thing you'll
--	 * see.
--	 */
--
--	if (ei_status.dmaing) {
--		oaknet_dma_error(dev, "oaknet_get_8390_hdr");
--		return;
--	}
--
--	ei_status.dmaing |= 0x01;
--	outb_p(E8390_NODMA + E8390_PAGE0 + E8390_START, base + OAKNET_CMD);
--	outb_p(sizeof(struct e8390_pkt_hdr), base + EN0_RCNTLO);
--	outb_p(0, base + EN0_RCNTHI);
--	outb_p(0, base + EN0_RSARLO);		/* On page boundary */
--	outb_p(ring_page, base + EN0_RSARHI);
--	outb_p(E8390_RREAD + E8390_START, base + OAKNET_CMD);
--
--	if (ei_status.word16)
--		insw(base + OAKNET_DATA, hdr,
--		     sizeof(struct e8390_pkt_hdr) >> 1);
--	else
--		insb(base + OAKNET_DATA, hdr,
--		     sizeof(struct e8390_pkt_hdr));
--
--	/* Byte-swap the packet byte count */
--
--	hdr->count = le16_to_cpu(hdr->count);
--
--	outb_p(ENISR_RDC, base + EN0_ISR);	/* ACK Remote DMA interrupt */
--	ei_status.dmaing &= ~0x01;
--}
--
--/*
-- * XXX - Document me.
-- */
--static void
--oaknet_block_input(struct net_device *dev, int count, struct sk_buff *skb,
--		   int ring_offset)
--{
--	int base = OAKNET_BASE;
--	char *buf = skb->data;
--
--	/*
--	 * This should NOT happen. If it does, it is the LAST thing you'll
--	 * see.
--	 */
--
--	if (ei_status.dmaing) {
--		oaknet_dma_error(dev, "oaknet_block_input");
--		return;
--	}
--
--#ifdef OAKNET_DISINT
--	save_flags(flags);
--	cli();
--#endif
--
--	ei_status.dmaing |= 0x01;
--	ei_obp(E8390_NODMA + E8390_PAGE0 + E8390_START, base + E8390_CMD);
--	ei_obp(count & 0xff, base + EN0_RCNTLO);
--	ei_obp(count >> 8, base + EN0_RCNTHI);
--	ei_obp(ring_offset & 0xff, base + EN0_RSARLO);
--	ei_obp(ring_offset >> 8, base + EN0_RSARHI);
--	ei_obp(E8390_RREAD + E8390_START, base + E8390_CMD);
--	if (ei_status.word16) {
--		ei_isw(base + E8390_DATA, buf, count >> 1);
--		if (count & 0x01) {
--			buf[count - 1] = ei_ib(base + E8390_DATA);
--#ifdef OAKNET_HEADCHECK
--			bytes++;
--#endif
--		}
--	} else {
--		ei_isb(base + E8390_DATA, buf, count);
--	}
--#ifdef OAKNET_HEADCHECK
--	/*
--	 * This was for the ALPHA version only, but enough people have
--	 * been encountering problems so it is still here.  If you see
--	 * this message you either 1) have a slightly incompatible clone
--	 * or 2) have noise/speed problems with your bus.
--	 */
--
--	/* DMA termination address check... */
--	{
--		int addr, tries = 20;
--		do {
--			/* DON'T check for 'ei_ibp(EN0_ISR) & ENISR_RDC' here
--			   -- it's broken for Rx on some cards! */
--			int high = ei_ibp(base + EN0_RSARHI);
--			int low = ei_ibp(base + EN0_RSARLO);
--			addr = (high << 8) + low;
--			if (((ring_offset + bytes) & 0xff) == low)
--				break;
--		} while (--tries > 0);
--	 	if (tries <= 0)
--			printk("%s: RX transfer address mismatch,"
--			       "%#4.4x (expected) vs. %#4.4x (actual).\n",
--			       dev->name, ring_offset + bytes, addr);
--	}
--#endif
--	ei_obp(ENISR_RDC, base + EN0_ISR);	/* ACK Remote DMA interrupt */
--	ei_status.dmaing &= ~0x01;
--
--#ifdef OAKNET_DISINT
--	restore_flags(flags);
--#endif
--}
--
--/*
-- * static void oaknet_block_output()
-- *
-- * Description:
-- *   This routine...
-- *
-- * Input(s):
-- *  *dev        - Pointer to the device structure for this driver.
-- *   count      - Number of bytes to be transferred.
-- *  *buf        -
-- *   start_page -
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   N/A
-- *
-- */
--static void
--oaknet_block_output(struct net_device *dev, int count,
--		    const unsigned char *buf, int start_page)
--{
--	int base = E8390_BASE;
--#if 0
--	int bug;
--#endif
--	unsigned long start;
--#ifdef OAKNET_DISINT
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
 -	unsigned long flags;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_flush_buffer: start\n");
 -#endif
--#ifdef OAKNET_HEADCHECK
--	int retries = 0;
--#endif
--
--	/* Round the count up for word writes. */
--
--	if (ei_status.word16 && (count & 0x1))
--		count++;
--
--	/*
--	 * This should NOT happen. If it does, it is the LAST thing you'll
--	 * see.
--	 */
--
--	if (ei_status.dmaing) {
--		oaknet_dma_error(dev, "oaknet_block_output");
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_flush_buffer"))
 -		return;
--	}
 -
--#ifdef OAKNET_DISINT
--	save_flags(flags);
--	cli();
--#endif
--
--	ei_status.dmaing |= 0x01;
--
--	/* Make sure we are in page 0. */
--
--	ei_obp(E8390_PAGE0 + E8390_START + E8390_NODMA, base + E8390_CMD);
--
--#ifdef OAKNET_HEADCHECK
--retry:
--#endif
--
--#if 0
--	/*
--	 * The 83902 documentation states that the processor needs to
--	 * do a "dummy read" before doing the remote write to work
--	 * around a chip bug they don't feel like fixing.
--	 */
--
--	bug = 0;
--	while (1) {
--		unsigned int rdhi;
--		unsigned int rdlo;
--
--		/* Now the normal output. */
--		ei_obp(ENISR_RDC, base + EN0_ISR);
--		ei_obp(count & 0xff, base + EN0_RCNTLO);
--		ei_obp(count >> 8,   base + EN0_RCNTHI);
--		ei_obp(0x00, base + EN0_RSARLO);
--		ei_obp(start_page, base + EN0_RSARHI);
--
--		if (bug++)
--			break;
--
--		/* Perform the dummy read */
--		rdhi = ei_ibp(base + EN0_CRDAHI);
--		rdlo = ei_ibp(base + EN0_CRDALO);
--		ei_obp(E8390_RREAD + E8390_START, base + E8390_CMD);
--
--		while (1) {
--			unsigned int nrdhi;
--			unsigned int nrdlo;
--			nrdhi = ei_ibp(base + EN0_CRDAHI);
--			nrdlo = ei_ibp(base + EN0_CRDALO);
--			if ((rdhi != nrdhi) || (rdlo != nrdlo))
--				break;
--		}
--	}
--#else
--#ifdef OAKNET_RWFIX
--	/*
--	 * Handle the read-before-write bug the same way as the
--	 * Crynwr packet driver -- the Nat'l Semi. method doesn't work.
--	 * Actually this doesn't always work either, but if you have
--	 * problems with your 83902 this is better than nothing!
--	 */
--
--	ei_obp(0x42, base + EN0_RCNTLO);
--	ei_obp(0x00, base + EN0_RCNTHI);
--	ei_obp(0x42, base + EN0_RSARLO);
--	ei_obp(0x00, base + EN0_RSARHI);
--	ei_obp(E8390_RREAD + E8390_START, base + E8390_CMD);
--	/* Make certain that the dummy read has occurred. */
--	udelay(6);
--#endif
--
--	ei_obp(ENISR_RDC, base + EN0_ISR);
--
--	/* Now the normal output. */
--	ei_obp(count & 0xff, base + EN0_RCNTLO);
--	ei_obp(count >> 8,   base + EN0_RCNTHI);
--	ei_obp(0x00, base + EN0_RSARLO);
--	ei_obp(start_page, base + EN0_RSARHI);
--#endif /* 0/1 */
--
--	ei_obp(E8390_RWRITE + E8390_START, base + E8390_CMD);
--	if (ei_status.word16) {
--		ei_osw(E8390_BASE + E8390_DATA, buf, count >> 1);
--	} else {
--		ei_osb(E8390_BASE + E8390_DATA, buf, count);
--	}
--
--#ifdef OAKNET_DISINT
+-	save_flags(flags); cli();
+-	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
 -	restore_flags(flags);
+-	
+-	tty_wakeup(tty);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_flush_buffer: end\n");
 -#endif
+-}
 -
--	start = jiffies;
+-static int aurora_tiocmget(struct tty_struct *tty, struct file *file)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board * bp;
+-	unsigned char status,chip;
+-	unsigned int result;
+-	unsigned long flags;
 -
--#ifdef OAKNET_HEADCHECK
--	/*
--	 * This was for the ALPHA version only, but enough people have
--	 * been encountering problems so it is still here.
--	 */
--
--	{
--		/* DMA termination address check... */
--		int addr, tries = 20;
--		do {
--			int high = ei_ibp(base + EN0_RSARHI);
--			int low = ei_ibp(base + EN0_RSARLO);
--			addr = (high << 8) + low;
--			if ((start_page << 8) + count == addr)
--				break;
--		} while (--tries > 0);
--
--		if (tries <= 0) {
--			printk("%s: Tx packet transfer address mismatch,"
--			       "%#4.4x (expected) vs. %#4.4x (actual).\n",
--			       dev->name, (start_page << 8) + count, addr);
--			if (retries++ == 0)
--				goto retry;
--		}
--	}
+-#ifdef AURORA_DEBUG
+-	printk("aurora_get_modem_info: start\n");
 -#endif
+-	if ((aurora_paranoia_check(port, tty->name, __FUNCTION__))
+-		return -ENODEV;
 -
--	while ((ei_ibp(base + EN0_ISR) & ENISR_RDC) == 0) {
--		if (time_after(jiffies, start + OAKNET_WAIT)) {
--			printk("%s: timeout waiting for Tx RDC.\n", dev->name);
--			oaknet_reset_8390(dev);
--			NS8390_init(dev, TRUE);
--			break;
--		}
+-	chip = AURORA_CD180(port_No(port));
+-
+-	bp = port_Board(port);
+-
+-	save_flags(flags); cli();
+-
+-	sbus_writeb(port_No(port) & 7, &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-
+-	status = sbus_readb(&bp->r[chip]->r[CD180_MSVR]);
+-	result = 0/*bp->r[chip]->r[AURORA_RI] & (1u << port_No(port)) ? 0 : TIOCM_RNG*/;
+-
+-	restore_flags(flags);
+-
+-	result |= ((status & bp->RTS) ? TIOCM_RTS : 0)
+-		| ((status & bp->DTR) ? TIOCM_DTR : 0)
+-		| ((status & MSVR_CD)  ? TIOCM_CAR : 0)
+-		| ((status & MSVR_DSR) ? TIOCM_DSR : 0)
+-		| ((status & MSVR_CTS) ? TIOCM_CTS : 0);
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_get_modem_info: end\n");
+-#endif
+-	return result;
+-}
+-
+-static int aurora_tiocmset(struct tty_struct *tty, struct file *file,
+-			   unsigned int set, unsigned int clear)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	unsigned int arg;
+-	unsigned long flags;
+-	struct Aurora_board *bp = port_Board(port);
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_modem_info: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, __FUNCTION__))
+-		return -ENODEV;
+-
+-	chip = AURORA_CD180(port_No(port));
+-
+-	save_flags(flags); cli();
+-	if (set & TIOCM_RTS)
+-		port->MSVR |= bp->RTS;
+-	if (set & TIOCM_DTR)
+-		port->MSVR |= bp->DTR;
+-	if (clear & TIOCM_RTS)
+-		port->MSVR &= ~bp->RTS;
+-	if (clear & TIOCM_DTR)
+-		port->MSVR &= ~bp->DTR;
+-
+-	sbus_writeb(port_No(port) & 7, &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-
+-	sbus_writeb(port->MSVR, &bp->r[chip]->r[CD180_MSVR]);
+-
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_modem_info: end\n");
+-#endif
+-	return 0;
+-}
+-
+-static void aurora_send_break(struct Aurora_port * port, unsigned long length)
+-{
+-	struct Aurora_board *bp = port_Board(port);
+-	unsigned long flags;
+-	unsigned char chip;
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_send_break: start\n");
+-#endif
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	save_flags(flags); cli();
+-
+-	port->break_length = AURORA_TPS / HZ * length;
+-	port->COR2 |= COR2_ETC;
+-	port->SRER  |= SRER_TXRDY;
+-	sbus_writeb(port_No(port) & 7, &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-
+-	sbus_writeb(port->COR2, &bp->r[chip]->r[CD180_COR2]);
+-	sbus_writeb(port->SRER, &bp->r[chip]->r[CD180_SRER]);
+-	aurora_wait_CCR(bp->r[chip]);
+-
+-	sbus_writeb(CCR_CORCHG2, &bp->r[chip]->r[CD180_CCR]);
+-	aurora_wait_CCR(bp->r[chip]);
+-
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_send_break: end\n");
+-#endif
+-}
+-
+-static int aurora_set_serial_info(struct Aurora_port * port,
+-				  struct serial_struct * newinfo)
+-{
+-	struct serial_struct tmp;
+-	struct Aurora_board *bp = port_Board(port);
+-	int change_speed;
+-	unsigned long flags;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_serial_info: start\n");
+-#endif
+-	if (copy_from_user(&tmp, newinfo, sizeof(tmp)))
+-		return -EFAULT;
+-#if 0	
+-	if ((tmp.irq != bp->irq) ||
+-	    (tmp.port != bp->base) ||
+-	    (tmp.type != PORT_CIRRUS) ||
+-	    (tmp.baud_base != (bp->oscfreq + CD180_TPC/2) / CD180_TPC) ||
+-	    (tmp.custom_divisor != 0) ||
+-	    (tmp.xmit_fifo_size != CD180_NFIFO) ||
+-	    (tmp.flags & ~AURORA_LEGAL_FLAGS))
+-		return -EINVAL;
+-#endif	
+-	
+-	change_speed = ((port->flags & ASYNC_SPD_MASK) !=
+-			(tmp.flags & ASYNC_SPD_MASK));
+-	
+-	if (!capable(CAP_SYS_ADMIN)) {
+-		if ((tmp.close_delay != port->close_delay) ||
+-		    (tmp.closing_wait != port->closing_wait) ||
+-		    ((tmp.flags & ~ASYNC_USR_MASK) !=
+-		     (port->flags & ~ASYNC_USR_MASK)))  
+-			return -EPERM;
+-		port->flags = ((port->flags & ~ASYNC_USR_MASK) |
+-			       (tmp.flags & ASYNC_USR_MASK));
+-	} else  {
+-		port->flags = ((port->flags & ~ASYNC_FLAGS) |
+-			       (tmp.flags & ASYNC_FLAGS));
+-		port->close_delay = tmp.close_delay;
+-		port->closing_wait = tmp.closing_wait;
 -	}
+-	if (change_speed)  {
+-		save_flags(flags); cli();
+-		aurora_change_speed(bp, port);
+-		restore_flags(flags);
+-	}
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_serial_info: end\n");
+-#endif
+-	return 0;
+-}
 -
--	ei_obp(ENISR_RDC, base + EN0_ISR);	/* Ack intr. */
--	ei_status.dmaing &= ~0x01;
+-extern int aurora_get_serial_info(struct Aurora_port * port,
+-				  struct serial_struct * retinfo)
+-{
+-	struct serial_struct tmp;
+-	struct Aurora_board *bp = port_Board(port);
+-	
+-#ifdef AURORA_DEBUG
+-	printk("aurora_get_serial_info: start\n");
+-#endif
+-	if (!access_ok(VERIFY_WRITE, (void *) retinfo, sizeof(tmp)))
+-		return -EFAULT;
+-	
+-	memset(&tmp, 0, sizeof(tmp));
+-	tmp.type = PORT_CIRRUS;
+-	tmp.line = port - aurora_port;
+-	tmp.port = 0;
+-	tmp.irq  = bp->irq;
+-	tmp.flags = port->flags;
+-	tmp.baud_base = (bp->oscfreq + CD180_TPC/2) / CD180_TPC;
+-	tmp.close_delay = port->close_delay * HZ/100;
+-	tmp.closing_wait = port->closing_wait * HZ/100;
+-	tmp.xmit_fifo_size = CD180_NFIFO;
+-	copy_to_user(retinfo, &tmp, sizeof(tmp));
+-#ifdef AURORA_DEBUG
+-printk("aurora_get_serial_info: end\n");
+-#endif
+-	return 0;
+-}
+-
+-static int aurora_ioctl(struct tty_struct * tty, struct file * filp, 
+-		    unsigned int cmd, unsigned long arg)
+-		    
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	int retval;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_ioctl: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_ioctl"))
+-		return -ENODEV;
+-	
+-	switch (cmd) {
+-	case TCSBRK:	/* SVID version: non-zero arg --> no break */
+-		retval = tty_check_change(tty);
+-		if (retval)
+-			return retval;
+-		tty_wait_until_sent(tty, 0);
+-		if (!arg)
+-			aurora_send_break(port, HZ/4);	/* 1/4 second */
+-		return 0;
+-	case TCSBRKP:	/* support for POSIX tcsendbreak() */
+-		retval = tty_check_change(tty);
+-		if (retval)
+-			return retval;
+-		tty_wait_until_sent(tty, 0);
+-		aurora_send_break(port, arg ? arg*(HZ/10) : HZ/4);
+-		return 0;
+-	case TIOCGSOFTCAR:
+-		return put_user(C_CLOCAL(tty) ? 1 : 0, (unsigned long *)arg);
+-	case TIOCSSOFTCAR:
+-		if (get_user(arg,(unsigned long *)arg))
+-			return -EFAULT;
+-		tty->termios->c_cflag =
+-			((tty->termios->c_cflag & ~CLOCAL) |
+-			 (arg ? CLOCAL : 0));
+-		return 0;
+-	case TIOCGSERIAL:	
+-		return aurora_get_serial_info(port, (struct serial_struct *) arg);
+-	case TIOCSSERIAL:	
+-		return aurora_set_serial_info(port, (struct serial_struct *) arg);
+-	default:
+-		return -ENOIOCTLCMD;
+-	};
+-#ifdef AURORA_DEBUG
+-	printk("aurora_ioctl: end\n");
+-#endif
+-	return 0;
+-}
+-
+-static void aurora_throttle(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_throttle: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_throttle"))
+-		return;
+-	
+-	bp = port_Board(port);
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	save_flags(flags); cli();
+-	port->MSVR &= ~bp->RTS;
+-	sbus_writeb(port_No(port) & 7, &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-	if (I_IXOFF(tty))  {
+-		aurora_wait_CCR(bp->r[chip]);
+-		sbus_writeb(CCR_SSCH2, &bp->r[chip]->r[CD180_CCR]);
+-		aurora_wait_CCR(bp->r[chip]);
+-	}
+-	sbus_writeb(port->MSVR, &bp->r[chip]->r[CD180_MSVR]);
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_throttle: end\n");
+-#endif
+-}
+-
+-static void aurora_unthrottle(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_unthrottle: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_unthrottle"))
+-		return;
+-	
+-	bp = port_Board(port);
+-	
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	save_flags(flags); cli();
+-	port->MSVR |= bp->RTS;
+-	sbus_writeb(port_No(port) & 7,
+-		    &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-	if (I_IXOFF(tty))  {
+-		aurora_wait_CCR(bp->r[chip]);
+-		sbus_writeb(CCR_SSCH1,
+-			    &bp->r[chip]->r[CD180_CCR]);
+-		aurora_wait_CCR(bp->r[chip]);
+-	}
+-	sbus_writeb(port->MSVR, &bp->r[chip]->r[CD180_MSVR]);
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_unthrottle: end\n");
+-#endif
+-}
+-
+-static void aurora_stop(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_stop: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_stop"))
+-		return;
+-	
+-	bp = port_Board(port);
+-	
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	save_flags(flags); cli();
+-	port->SRER &= ~SRER_TXRDY;
+-	sbus_writeb(port_No(port) & 7,
+-		    &bp->r[chip]->r[CD180_CAR]);
+-	udelay(1);
+-	sbus_writeb(port->SRER,
+-		    &bp->r[chip]->r[CD180_SRER]);
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_stop: end\n");
+-#endif
+-}
+-
+-static void aurora_start(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-	unsigned long flags;
+-	unsigned char chip;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_start: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_start"))
+-		return;
+-	
+-	bp = port_Board(port);
+-	
+-	chip = AURORA_CD180(port_No(port));
+-	
+-	save_flags(flags); cli();
+-	if (port->xmit_cnt && port->xmit_buf && !(port->SRER & SRER_TXRDY))  {
+-		port->SRER |= SRER_TXRDY;
+-		sbus_writeb(port_No(port) & 7,
+-			    &bp->r[chip]->r[CD180_CAR]);
+-		udelay(1);
+-		sbus_writeb(port->SRER,
+-			    &bp->r[chip]->r[CD180_SRER]);
+-	}
+-	restore_flags(flags);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_start: end\n");
+-#endif
 -}
 -
 -/*
-- * static void oaknet_dma_error()
+- * This routine is called from the scheduler tqueue when the interrupt
+- * routine has signalled that a hangup has occurred.  The path of
+- * hangup processing is:
 - *
-- * Description:
-- *   This routine prints out a last-ditch informative message to the console
-- *   indicating that a DMA error occurred. If you see this, it's the last
-- *   thing you'll see.
-- *
-- * Input(s):
-- *  *dev  - Pointer to the device structure for this driver.
-- *  *name - Informative text (e.g. function name) indicating where the
-- *          DMA error occurred.
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   N/A
-- *
+- * 	serial interrupt routine -> (scheduler tqueue) ->
+- * 	do_aurora_hangup() -> tty->hangup() -> aurora_hangup()
+- * 
 - */
--static void
--oaknet_dma_error(struct net_device *dev, const char *name)
+-static void do_aurora_hangup(void *private_)
 -{
--	printk(KERN_EMERG "%s: DMAing conflict in %s."
--	       "[DMAstat:%d][irqlock:%d][intr:%ld]\n",
--	       dev->name, name, ei_status.dmaing, ei_status.irqlock,
--	       dev->interrupt);
+-	struct Aurora_port	*port = (struct Aurora_port *) private_;
+-	struct tty_struct	*tty;
+-
+-#ifdef AURORA_DEBUG
+-	printk("do_aurora_hangup: start\n");
+-#endif
+-	tty = port->tty;
+-	if (tty != NULL) {
+-		tty_hangup(tty);	/* FIXME: module removal race - AKPM */
+-#ifdef AURORA_DEBUG
+-		printk("do_aurora_hangup: end\n");
+-#endif
+-	}
+-}
+-
+-static void aurora_hangup(struct tty_struct * tty)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	struct Aurora_board *bp;
+-				
+-#ifdef AURORA_DEBUG
+-	printk("aurora_hangup: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_hangup"))
+-		return;
+-	
+-	bp = port_Board(port);
+-	
+-	aurora_shutdown_port(bp, port);
+-	port->event = 0;
+-	port->count = 0;
+-	port->flags &= ~ASYNC_NORMAL_ACTIVE;
+-	port->tty = 0;
+-	wake_up_interruptible(&port->open_wait);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_hangup: end\n");
+-#endif
+-}
+-
+-static void aurora_set_termios(struct tty_struct * tty, struct termios * old_termios)
+-{
+-	struct Aurora_port *port = (struct Aurora_port *) tty->driver_data;
+-	unsigned long flags;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_termios: start\n");
+-#endif
+-	if ((aurora_paranoia_check(port, tty->name, "aurora_set_termios"))
+-		return;
+-	
+-	if (tty->termios->c_cflag == old_termios->c_cflag &&
+-	    tty->termios->c_iflag == old_termios->c_iflag)
+-		return;
+-
+-	save_flags(flags); cli();
+-	aurora_change_speed(port_Board(port), port);
+-	restore_flags(flags);
+-
+-	if ((old_termios->c_cflag & CRTSCTS) &&
+-	    !(tty->termios->c_cflag & CRTSCTS)) {
+-		tty->hw_stopped = 0;
+-		aurora_start(tty);
+-	}
+-#ifdef AURORA_DEBUG
+-	printk("aurora_set_termios: end\n");
+-#endif
+-}
+-
+-static void do_aurora_bh(void)
+-{
+-	 run_task_queue(&tq_aurora);
+-}
+-
+-static void do_softint(void *private_)
+-{
+-	struct Aurora_port	*port = (struct Aurora_port *) private_;
+-	struct tty_struct	*tty;
+-
+-#ifdef AURORA_DEBUG
+-	printk("do_softint: start\n");
+-#endif
+-	tty = port->tty;
+-	if (tty == NULL)
+-		return;
+-
+-	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event)) {
+-		tty_wakeup(tty);
+-	}
+-#ifdef AURORA_DEBUG
+-	printk("do_softint: end\n");
+-#endif
+-}
+-
+-static const struct tty_operations aurora_ops = {
+-	.open  = aurora_open,
+-	.close = aurora_close,
+-	.write = aurora_write,
+-	.put_char = aurora_put_char,
+-	.flush_chars = aurora_flush_chars,
+-	.write_room = aurora_write_room,
+-	.chars_in_buffer = aurora_chars_in_buffer,
+-	.flush_buffer = aurora_flush_buffer,
+-	.ioctl = aurora_ioctl,
+-	.throttle = aurora_throttle,
+-	.unthrottle = aurora_unthrottle,
+-	.set_termios = aurora_set_termios,
+-	.stop = aurora_stop,
+-	.start = aurora_start,
+-	.hangup = aurora_hangup,
+-	.tiocmget = aurora_tiocmget,
+-	.tiocmset = aurora_tiocmset,
+-};
+-
+-static int aurora_init_drivers(void)
+-{
+-	int error;
+-	int i;
+-
+-#ifdef AURORA_DEBUG
+-	printk("aurora_init_drivers: start\n");
+-#endif
+-	tmp_buf = (unsigned char *) get_zeroed_page(GFP_KERNEL);
+-	if (tmp_buf == NULL) {
+-		printk(KERN_ERR "aurora: Couldn't get free page.\n");
+-		return 1;
+-	}
+-	init_bh(AURORA_BH, do_aurora_bh);
+-	aurora_driver = alloc_tty_driver(AURORA_INPORTS);
+-	if (!aurora_driver) {
+-		printk(KERN_ERR "aurora: Couldn't allocate tty driver.\n");
+-		free_page((unsigned long) tmp_buf);
+-		return 1;
+-	}
+-	aurora_driver->owner = THIS_MODULE;
+-	aurora_driver->name = "ttyA";
+-	aurora_driver->major = AURORA_MAJOR;
+-	aurora_driver->type = TTY_DRIVER_TYPE_SERIAL;
+-	aurora_driver->subtype = SERIAL_TYPE_NORMAL;
+-	aurora_driver->init_termios = tty_std_termios;
+-	aurora_driver->init_termios.c_cflag =
+-		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	aurora_driver->flags = TTY_DRIVER_REAL_RAW;
+-	tty_set_operations(aurora_driver, &aurora_ops);
+-	error = tty_register_driver(aurora_driver);
+-	if (error) {
+-		put_tty_driver(aurora_driver);
+-		free_page((unsigned long) tmp_buf);
+-		printk(KERN_ERR "aurora: Couldn't register aurora driver, error = %d\n",
+-		       error);
+-		return 1;
+-	}
+-	
+-	memset(aurora_port, 0, sizeof(aurora_port));
+-	for (i = 0; i < AURORA_TNPORTS; i++)  {
+-		aurora_port[i].magic = AURORA_MAGIC;
+-		aurora_port[i].tqueue.routine = do_softint;
+-		aurora_port[i].tqueue.data = &aurora_port[i];
+-		aurora_port[i].tqueue_hangup.routine = do_aurora_hangup;
+-		aurora_port[i].tqueue_hangup.data = &aurora_port[i];
+-		aurora_port[i].close_delay = 50 * HZ/100;
+-		aurora_port[i].closing_wait = 3000 * HZ/100;
+-		init_waitqueue_head(&aurora_port[i].open_wait);
+-		init_waitqueue_head(&aurora_port[i].close_wait);
+-	}
+-#ifdef AURORA_DEBUG
+-	printk("aurora_init_drivers: end\n");
+-#endif
+-	return 0;
+-}
+-
+-static void aurora_release_drivers(void)
+-{
+-#ifdef AURORA_DEBUG
+-	printk("aurora_release_drivers: start\n");
+-#endif
+-	free_page((unsigned long)tmp_buf);
+-	tty_unregister_driver(aurora_driver);
+-	put_tty_driver(aurora_driver);
+-#ifdef AURORA_DEBUG
+-	printk("aurora_release_drivers: end\n");
+-#endif
 -}
 -
 -/*
-- * Oak Ethernet module unload interface.
+- * Called at boot time.
+- *
+- * You can specify IO base for up to RC_NBOARD cards,
+- * using line "riscom8=0xiobase1,0xiobase2,.." at LILO prompt.
+- * Note that there will be no probing at default
+- * addresses in this case.
+- *
 - */
--static void __exit oaknet_cleanup_module (void)
+-void __init aurora_setup(char *str, int *ints)
 -{
--	/* Convert to loop once driver supports multiple devices. */
--	unregister_netdev(oaknet_dev);
--	free_irq(oaknet_devs->irq, oaknet_devs);
--	release_region(oaknet_devs->base_addr, OAKNET_IO_SIZE);
--	iounmap(ioaddr);
--	free_netdev(oaknet_devs);
+-	int i;
+-
+-	for(i=0;(i<ints[0])&&(i<4);i++) {
+-		if (ints[i+1]) irqs[i]=ints[i+1];
+-		}
 -}
 -
--module_init(oaknet_init);
--module_exit(oaknet_cleanup_module);
+-static int __init aurora_real_init(void)
+-{
+-	int found;
+-	int i;
+-
+-	printk(KERN_INFO "aurora: Driver starting.\n");
+-	if(aurora_init_drivers())
+-		return -EIO;
+-	found = aurora_probe();
+-	if(!found) {
+-		aurora_release_drivers();
+-		printk(KERN_INFO "aurora: No Aurora Multiport boards detected.\n");
+-		return -EIO;
+-	} else {
+-		printk(KERN_INFO "aurora: %d boards found.\n", found);
+-	}
+-	for (i = 0; i < found; i++) {
+-		int ret = aurora_setup_board(&aurora_board[i]);
+-
+-		if (ret) {
+-#ifdef AURORA_DEBUG
+-			printk(KERN_ERR "aurora_init: error aurora_setup_board ret %d\n",
+-			       ret);
+-#endif
+-			return ret;
+-		}
+-	}
+-	return 0;
+-}
+-
+-int irq  = 0;
+-int irq1 = 0;
+-int irq2 = 0;
+-int irq3 = 0;
+-module_param(irq , int, 0);
+-module_param(irq1, int, 0);
+-module_param(irq2, int, 0);
+-module_param(irq3, int, 0);
+-
+-static int __init aurora_init(void) 
+-{
+-	if (irq ) irqs[0]=irq ;
+-	if (irq1) irqs[1]=irq1;
+-	if (irq2) irqs[2]=irq2;
+-	if (irq3) irqs[3]=irq3;
+-	return aurora_real_init();
+-}
+-	
+-static void __exit aurora_cleanup(void)
+-{
+-	int i;
+-	
+-#ifdef AURORA_DEBUG
+-printk("cleanup_module: aurora_release_drivers\n");
+-#endif
+-
+-	aurora_release_drivers();
+-	for (i = 0; i < AURORA_NBOARD; i++)
+-		if (aurora_board[i].flags & AURORA_BOARD_PRESENT) {
+-			aurora_shutdown_board(&aurora_board[i]);
+-			aurora_release_io_range(&aurora_board[i]);
+-		}
+-}
+-
+-module_init(aurora_init);
+-module_exit(aurora_cleanup);
 -MODULE_LICENSE("GPL");
+

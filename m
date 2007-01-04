@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965122AbXADW3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965096AbXADWdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbXADW3P (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 17:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbXADW3P
+	id S965096AbXADWdL (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 17:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbXADWdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 17:29:15 -0500
-Received: from smtp-out.coditel.net ([212.95.66.33]:36510 "EHLO
-	smtp-out.coditel.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965122AbXADW3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 17:29:14 -0500
-X-Greylist: delayed 1698 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:29:14 EST
-Date: Thu, 4 Jan 2007 23:00:42 +0100 (CET)
-From: Mich Lanners <mlan@cpu.lu>
-Subject: Re: [RFC: 2.6 patch] remove the broken VIDEO_PLANB driver
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Adrian Bunk <bunk@stusta.de>
-Cc: linuxppc-dev@ozlabs.org, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, mchehab@infradead.org
-In-Reply-To: <1167946479.5273.18.camel@localhost.localdomain>
-Message-ID: <tkrat.5fdfdb1db356c580@cpu.lu>
-References: <20070104185323.GF20714@stusta.de>
- <1167946479.5273.18.camel@localhost.localdomain>
+	Thu, 4 Jan 2007 17:33:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:55531 "EHLO perch.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965099AbXADWdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 17:33:10 -0500
+X-Greylist: delayed 744 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 17:33:09 EST
+Date: Thu, 4 Jan 2007 14:32:47 -0800
+From: Greg KH <gregkh@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [RFC,PATCHSET] Managed device resources
+Message-ID: <20070104223247.GA29274@suse.de>
+References: <1167146313307-git-send-email-htejun@gmail.com> <20070104221916.GI28445@suse.de> <459D7F23.7010807@garzik.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-AV-Checked: clean on smtp.coditel.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <459D7F23.7010807@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian, hi Ben,
-
-On   5 Jan, this message from Benjamin Herrenschmidt echoed through
-cyberspace:
-> On Thu, 2007-01-04 at 19:53 +0100, Adrian Bunk wrote:
->> The VIDEO_PLANB driver:
->> - has been marked as BROKEN for more than two years and
->> - is still marked as BROKEN.
->> 
->> Drivers that had been marked as BROKEN for such a long time seem to
->> be unlikely to be revived in the forseeable future.
-
-I was waiting for this one :-) I have to admit I don't have the time to
-work on this anymore, so either Ben can fix something, or I will sadly
-add my s-o-b.
-
->> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Thu, Jan 04, 2007 at 05:26:43PM -0500, Jeff Garzik wrote:
+> Greg KH wrote:
+> >Hm, but I guess without the follow-up patches for libata, it will not
+> >really get tested much.  Jeff, if I accept this, what's your feelings of
+> >letting libata be the "test bed" for it?
 > 
-> I suppose I could give it a go as I do have a machine with that
-> hardware rusting somewhere... Don't remove it right away, I'll have a
-> look.
+> 
+> It would be easiest for me to merge this through my 
+> libata-dev.git#upstream tree.  That will auto-propagate it to -mm, and 
+> ensure that both base and libata bits are sent in one batch.
+> 
+> Just shout if you see NAK-able bits...
+> 
+> Work for you?
 
-If you need explanations about the code or the hardware, don't hesitate
-to ask. Not sure what I still remember, but I still have my old paper
-notes.
+That works for me.
 
-Cheers
+The only question I have is on the EXPORT_SYMBOL() stuff for the new
+driver/base/ functions.  Tejun, traditionally the driver core has all
+exported symbols marked with EXPORT_SYMBOL_GPL().  So, any objection to
+marking the new ones (becides the "mirror" functions) in this manner?
 
-Michel
+thanks,
 
--------------------------------------------------------------------------
-Michel Lanners                 |  " Read Philosophy.  Study Art.
-23, Rue Paul Henkes            |    Ask Questions.  Make Mistakes.
-L-1710 Luxembourg              |
-email   mlan@cpu.lu            |
-http://www.cpu.lu/~mlan        |                     Learn Always. "
+greg k-h

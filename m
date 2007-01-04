@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932319AbXADIAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932323AbXADIEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbXADIAS (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 03:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbXADIAR
+	id S932323AbXADIEP (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 03:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbXADIEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 03:00:17 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58976 "EHLO
-	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932319AbXADIAP (ORCPT
+	Thu, 4 Jan 2007 03:04:15 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:36042 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932323AbXADIEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 03:00:15 -0500
-Message-ID: <459CB3E6.9080906@bull.net>
-Date: Thu, 04 Jan 2007 08:59:34 +0100
-From: Pierre Peiffer <pierre.peiffer@bull.net>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Thu, 4 Jan 2007 03:04:14 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Thu, 4 Jan 2007 02:59:20 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Simplify some code to use the container_of() macro.
+In-Reply-To: <20070103165034.13935d8a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0701040258450.2450@localhost.localdomain>
+References: <Pine.LNX.4.64.0612311547200.30821@localhost.localdomain>
+ <20070103165034.13935d8a.akpm@osdl.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dinakar Guniguntala <dino@in.ibm.com>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       =?ISO-8859-1?Q?S=E9bastien?= =?ISO-8859-1?Q?_Dugu=E9?= 
-	<sebastien.dugue@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>, Darren Hart <dvhltc@us.ibm.com>
-Subject: Re: [PATCH 2.6.19.1-rt15][RFC] - futex_requeue_pi implementation
- (requeue from futex1 to PI-futex2)
-References: <459BA267.1020706@bull.net> <20070103123536.GA9088@elte.hu> <459BBF15.5070505@bull.net> <20070103155609.GB11066@elte.hu>
-In-Reply-To: <20070103155609.GB11066@elte.hu>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 04/01/2007 09:08:09,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 04/01/2007 09:08:12,
-	Serialize complete at 04/01/2007 09:08:12
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar a écrit :
-> * Pierre Peiffer <pierre.peiffer@bull.net> wrote:
-> 
->> Ingo Molnar a écrit :
->>> looks good to me in principle. The size of the patch is scary - is there 
->>> really no simpler way? 
->> Humf, in fact, for the 64-bit part, I've followed the rule of the 
->> existing 64-bit code in futex.c, which consists of duplicating all the 
->> functions which can not be kept common, and add a suffix 64 to all 
->> duplicated functions. Perhaps I missed something ?
-> 
-> i dont think you missed anything - but some consolidation here would be 
-> nice. Only if possible of course :-)
+On Wed, 3 Jan 2007, Andrew Morton wrote:
 
-Ok ;-)
-So, you are not only speaking about "my" part of duplicated code, right ?
-But, just for information, what is the sys_futex64 for, exactly ? Is there a 
-plan to have in the future a 64-bit PID ? Because for now, 32-bits futex is 
-enough, so... ?
-Otherwise, I don't have a "clean" way to avoid this duplication.... :-/
+> On Sun, 31 Dec 2006 15:55:22 -0500 (EST)
+> "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+>
+> > --- a/net/ipv4/netfilter/nf_nat_core.c
+> > +++ b/net/ipv4/netfilter/nf_nat_core.c
+> > @@ -168,7 +168,7 @@ find_appropriate_src(const struct nf_conntrack_tuple *tuple,
+> >
+> >  	read_lock_bh(&nf_nat_lock);
+> >  	list_for_each_entry(nat, &bysource[h], info.bysource) {
+> > -		ct = (struct nf_conn *)((char *)nat - offsetof(struct nf_conn, data));
+> > +		ct = container_of(nat, struct nf_conn, data);
+>
+> This one isn't right.  Please always carefully compile-test these
+> things.
 
--- 
-Pierre Peiffer
+whoops, you're right, i'm not sure why i didn't catch that.  my
+apologies.
+
+rday

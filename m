@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932088AbXADRqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932136AbXADRsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbXADRqd (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbXADRqd
+	id S932136AbXADRsv (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbXADRsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:46:33 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2749 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932085AbXADRqa (ORCPT
+	Thu, 4 Jan 2007 12:48:51 -0500
+Received: from extu-mxob-2.symantec.com ([216.10.194.135]:2535 "EHLO
+	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932136AbXADRsu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:46:30 -0500
-Date: Thu, 4 Jan 2007 18:46:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jon Smirl <jonsmirl@gmail.com>, Damien Wyart <damien.wyart@free.fr>,
-       Aaron Sethman <androsyn@ratbox.org>, alan@lxorguk.ukuu.org.uk,
-       linux-ide@vger.kernel.org, Berthold Cogel <cogel@rrz.uni-koeln.de>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Florin Iucha <florin@iucha.net>, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com,
-       linux-input@atrey.karlin.mff.cuni.cz, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, Komuro <komurojun-mbn@nifty.com>,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org,
-       Tobias Diedrich <ranma+kernel@tdiedrich.de>, Andi Kleen <ak@suse.de>,
-       Yinghai Lu <yinghai.lu@amd.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, discuss@x86-64.org,
-       mingo@redhat.com
-Subject: 2.6.20-rc3: known unfixed regressions (v3)
-Message-ID: <20070104174632.GC20714@stusta.de>
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+	Thu, 4 Jan 2007 12:48:50 -0500
+X-AuditID: d80ac287-a06c3bb000002548-f8-459d3ed90143 
+Date: Thu, 4 Jan 2007 17:49:00 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Christoph Lameter <clameter@sgi.com>,
+       Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
+Message-ID: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Jan 2007 17:48:43.0716 (UTC) FILETIME=[93A3D040:01C73028]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
-that are not yet fixed in Linus' tree.
+pdflush hit the BUG_ON(!PageSlab(page)) in kmem_freepages called from
+fallback_alloc: cache_grow already freed those pages when alloc_slabmgmt
+failed.  But it wouldn't have freed them if __GFP_NO_GROW, so make sure
+fallback_alloc doesn't waste its time on that case.
 
-If you find your name in the Cc header, you are either submitter of one
-of the bugs, maintainer of an affectected subsystem or driver, a patch
-of you caused a breakage or I'm considering you in any other way possibly
-involved with one or more of these issues.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+___
+Fixes a CONFIG_NUMA regression introduced in 2.6.20-rc1.  Or you may
+feel it's cleaner for cache_grow to skip its kmem_freepages when objp
+is input: patch below is slightly simpler, but I've no strong feeling.
 
-Due to the huge amount of recipients, please trim the Cc when answering.
+ mm/slab.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-Subject    : BUG: scheduling while atomic: hald-addon-stor/...
-             cdrom_{open,release,ioctl} in trace
-References : http://lkml.org/lkml/2006/12/26/105
-             http://lkml.org/lkml/2006/12/29/22
-             http://lkml.org/lkml/2006/12/31/133
-Submitter  : Jon Smirl <jonsmirl@gmail.com>
-             Damien Wyart <damien.wyart@free.fr>
-             Aaron Sethman <androsyn@ratbox.org>
-Status     : unknown
-
-
-Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
-References : http://lkml.org/lkml/2006/12/25/40
-Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
-Status     : unknown
-
-
-Subject    : USB keyboard unresponsive after some time
-References : http://lkml.org/lkml/2006/12/25/35
-             http://lkml.org/lkml/2006/12/26/106
-Submitter  : Florin Iucha <florin@iucha.net>
-Status     : unknown
-
-
-Subject    : SPARC64: Can't mount /  (CONFIG_SCSI_SCAN_ASYNC=y ?)
-References : http://lkml.org/lkml/2006/12/13/181
-             http://lkml.org/lkml/2007/01/04/75
-Submitter  : Horst H. von Brand <vonbrand@inf.utfsm.cl>
-Status     : unknown
-
-
-Subject    : ftp: get or put stops during file-transfer
-References : http://lkml.org/lkml/2006/12/16/174
-Submitter  : Komuro <komurojun-mbn@nifty.com>
-Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
-Handled-By : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Status     : problem is being debugged
-
-
-Subject    : x86_64 boot failure: "IO-APIC + timer doesn't work"
-References : http://lkml.org/lkml/2006/12/16/101
-             http://lkml.org/lkml/2007/1/3/9
-Submitter  : Tobias Diedrich <ranma+kernel@tdiedrich.de>
-Caused-By  : Andi Kleen <ak@suse.de>
-             commit b026872601976f666bae77b609dc490d1834bf77
-Handled-By : Yinghai Lu <yinghai.lu@amd.com>
-             Eric W. Biederman <ebiederm@xmission.com>
-Status     : patches are being discussed
+--- 2.6.20-rc3/mm/slab.c	2007-01-01 10:30:46.000000000 +0000
++++ linux/mm/slab.c	2007-01-04 17:30:11.000000000 +0000
+@@ -3281,7 +3281,7 @@ retry:
+ 					flags | GFP_THISNODE, nid);
+ 	}
+ 
+-	if (!obj) {
++	if (!obj && !(flags & __GFP_NO_GROW)) {
+ 		/*
+ 		 * This allocation will be performed within the constraints
+ 		 * of the current cpuset / memory policy requirements.
+@@ -3310,7 +3310,7 @@ retry:
+ 					 */
+ 					goto retry;
+ 			} else {
+-				kmem_freepages(cache, obj);
++				/* cache_grow already freed obj */
+ 				obj = NULL;
+ 			}
+ 		}

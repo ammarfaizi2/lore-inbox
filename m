@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964927AbXADPjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932309AbXADPsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbXADPjP (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 10:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbXADPjP
+	id S932309AbXADPsr (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 10:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbXADPsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 10:39:15 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:59069 "EHLO smtp.osdl.org"
+	Thu, 4 Jan 2007 10:48:47 -0500
+Received: from il.qumranet.com ([62.219.232.206]:34432 "EHLO il.qumranet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964927AbXADPjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 10:39:14 -0500
-Date: Thu, 4 Jan 2007 07:34:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-cc: Grzegorz Kulewski <kangur@polcom.net>, Alan <alan@lxorguk.ukuu.org.uk>,
-       Mikael Pettersson <mikpe@it.uu.se>, s0348365@sms.ed.ac.uk,
-       76306.1226@compuserve.com, akpm@osdl.org, bunk@stusta.de,
-       greg@kroah.com, linux-kernel@vger.kernel.org,
-       yanmin_zhang@linux.intel.com
-Subject: RE: kernel + gcc 4.1 = several problems
-In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A086B84@pdsmsx411.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.64.0701040729360.3661@woody.osdl.org>
-References: <10EA09EFD8728347A513008B6B0DA77A086B84@pdsmsx411.ccr.corp.intel.com>
+	id S932309AbXADPsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 10:48:47 -0500
+Message-ID: <459D21DD.5090506@qumranet.com>
+Date: Thu, 04 Jan 2007 17:48:45 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kvm-devel <kvm-devel@lists.sourceforge.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH 0/33] KVM: MMU: Cache shadow page tables
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The current kvm shadow page table implementation does not cache shadow 
+page tables (except for global translations, used for kernel addresses) 
+across context switches.  This means that after a context switch, every 
+memory access will trap into the host.  After a while, the shadow page 
+tables will be rebuild, and the guest can proceed at native speed until 
+the next context switch.
 
+The natural solution, then, is to cache shadow page tables across 
+context switches.  Unfortunately, this introduces a bucketload of problems:
 
-On Thu, 4 Jan 2007, Zou, Nanhai wrote:
-> 
-> cmov will stall on eflags in your test program.
+- the guest does not notify the processor (and hence kvm) that it 
+modifies a page table entry if it has reason to believe that the 
+modification will be followed by a tlb flush.  It becomes necessary to 
+write-protect guest page tables so that we can use the page fault when 
+the access occurs as a notification.
+- write protecting the guest page tables means we need to keep track of 
+which ptes map those guest page table. We need to add reverse mapping 
+for all mapped writable guest pages.
+- when the guest does access the write-protected page, we need to allow 
+it to perform the write in some way.  We do that either by emulating the 
+write, or removing all shadow page tables for that page and allowing the 
+write to proceed, depending on circumstances.
 
-And that is EXACTLY my point.
+This patchset implements the ideas above.  While a lot of tuning remains 
+to be done (for example, a sane page replacement algorithm), a guest 
+running with this patchset applied is much faster and more responsive 
+than with 2.6.20-rc3.  Some preliminary benchmarks are available in 
+http://article.gmane.org/gmane.comp.emulators.kvm.devel/661.
 
-CMOV is a piece of CRAP for most things, exactly because it serializes 
-three streams of data: the two inputs, and the conditional.
+The patchset is bisectable compile-wise.
 
-My test-case was actually _good_ for cmov, because there was just the one 
-conditional (which was 100% ALU) thing that was serialized. In real life, 
-the two data sources also come from memory, and _any_ of them being 
-delayed ends up delaying the cmov, and screwing up your out-of-order 
-pipeline because you now introduced a serialization point that was very 
-possibly not necessary at all.
+-- 
+error compiling committee.c: too many arguments to function
 
-In contrast, a conditional branch-around serializes absolutely NOTHING, 
-because branches get predicted.
-
-> I think you will see benefit of cmov if you can manage to put some 
-> instructions which does NOT modify eflags between testl and cmov.
-
-A lot of the time, the conditional _is_ the critical path.
-
-The whole point of this discussion was that cmov isn't really all that 
-great. It has fundamental problems that a conditional branch that gets 
-predicted simply does not have.
-
-That's qiute apart from the fact that cmov has rather limited semantics, 
-and that in 99% of all cases you have to use a conditional branch anyway.
-
-			Linus

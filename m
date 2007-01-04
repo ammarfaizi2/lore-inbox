@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932283AbXADFl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932286AbXADFwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbXADFl1 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbXADFl1
+	id S932286AbXADFwI (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbXADFwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:41:27 -0500
-Received: from smtp0.osdl.org ([65.172.181.24]:49465 "EHLO smtp.osdl.org"
+	Thu, 4 Jan 2007 00:52:08 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:57921 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932283AbXADFl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:41:26 -0500
-Date: Wed, 3 Jan 2007 21:41:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrea Gelmini <gelma@gelma.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
-Message-Id: <20070103214121.997be3e6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
-References: <200612291859.kBTIx2kq031961@hera.kernel.org>
-	<20061229224309.GA23445@gelma.net>
-	<459734CE.1090001@yahoo.com.au>
-	<20061231135031.GC23445@gelma.net>
-	<459C7B24.8080008@yahoo.com.au>
-	<Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S932286AbXADFwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 00:52:07 -0500
+Date: Wed, 3 Jan 2007 21:51:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: Why to I2c drivers not autoload like other PCI devices?
+Message-ID: <20070104055128.GA8115@kroah.com>
+References: <20070103165020.4b277ebc@freekitty> <20070104005600.GA25712@kroah.com> <20070103172916.7f9ca11a@freekitty>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070103172916.7f9ca11a@freekitty>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2007 20:44:36 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
-
-> Actually, I think 2.6.18 may have a subtle variation on it. 
+On Wed, Jan 03, 2007 at 05:29:16PM -0800, Stephen Hemminger wrote:
+> On Wed, 3 Jan 2007 16:56:00 -0800
+> Greg KH <greg@kroah.com> wrote:
 > 
-> In particular, I look back at the try_to_free_buffers() thing that I hated 
-> so much, and it makes me wonder.. It used to do:
+> > On Wed, Jan 03, 2007 at 04:50:20PM -0800, Stephen Hemminger wrote:
+> > > Is there some missing magic (udev rule?) that keeps i2c device modules
+> > > from loading? For example: the Intel i2c-i801 module ought to get loaded
+> > > automatically on boot up since it has a set of PCI id's that generate
+> > > the necessary module aliases. It would be better if I2C device's autoloaded
+> > > like other PCI devices.
+> > 
+> > No, it should autoload, if it has a MODULE_DEVICE_TABLE() in it.  In
+> > fact, the i2c-i801 autoloads on one of my machines just fine.  Are you
+> > sure your pci ids match properly?
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> 	spin_lock(&mapping->private_lock);
-> 	ret = drop_buffers(page, &buffers_to_free);
-> 	spin_unlock(&mapping->private_lock);
-> 	if (ret) {
-> 		.. crappy comment ..
-> 		if (test_clear_page_dirty(page))
-> 			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
-> 	}
+> This laptop is running Ubuntu Edgy (6.10) and it doesn't autoload.
+> Everything works fine if I manually load the module with modprobe.
 > 
-> and I think that at least on SMP, we had a race with another CPU doing the 
-> "mark page dirty if it was dirty in the PTE" at the same time. Because the 
-> marking dirty would come in, find no buffers (they just got dropped), and 
-> then mark the page dirty (ignoring the lack of any buffers), but then the 
-> above would do the "test_clear_page_dirty()" thing on it.
+> This device should match:
 > 
+> 00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 02)
+> 00: 86 80 da 27 01 00 80 02 02 00 05 0c 00 00 00 00
+> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 20: a1 18 00 00 00 00 00 00 00 00 00 00 cf 10 88 13
+> 30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 02 00 00
+> 
+> This driver modinfo:
+> 
+> filename:       /lib/modules/2.6.20-rc3/kernel/drivers/i2c/busses/i2c-i801.ko
 
-That bug was introduced in 2.6.19, with the dirty page tracking patches.
+What does:
+	modprobe --show-depends `cat /sys/bus/pci/0000:00:1f.3/modalias`
+show?
 
-2.6.18 and earlier used ->private_lock coverage in try_to_free_buffers() to
-prevent it.
+Is it different from:
+	modprobe --config /dev/null --show-depends `cat /sys/bus/pci/0000:00:1f.3/modalias`
+?
 
-> Ie the race, I think, existed where that crappy comment was.
+> author:         Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, and Mark D. Studebaker <mdsxyz123@yahoo.com>
+> description:    I801 SMBus driver
+> license:        GPL
+> vermagic:       2.6.20-rc3 mod_unload PENTIUMM 4KSTACKS 
+> depends:        i2c-core
+> alias:          pci:v00008086d00002413sv*sd*bc*sc*i*
+> alias:          pci:v00008086d00002423sv*sd*bc*sc*i*
+> alias:          pci:v00008086d00002443sv*sd*bc*sc*i*
+> alias:          pci:v00008086d00002483sv*sd*bc*sc*i*
+> alias:          pci:v00008086d000024C3sv*sd*bc*sc*i*
+> alias:          pci:v00008086d000024D3sv*sd*bc*sc*i*
+> alias:          pci:v00008086d000025A4sv*sd*bc*sc*i*
+> alias:          pci:v00008086d0000266Asv*sd*bc*sc*i*
+> alias:          pci:v00008086d000027DAsv*sd*bc*sc*i*       <------- should match
 
-The comment was complete, accurate and needed.
+Yeah, I would think so.  What does:
+	cat /sys/bus/pci/0000:00:1f.3/modalias
+show?
+
+thanks,
+
+greg k-h

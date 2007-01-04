@@ -1,61 +1,105 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932314AbXADHb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932315AbXADHmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbXADHb7 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 02:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbXADHb7
+	id S932315AbXADHmy (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 02:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbXADHmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 02:31:59 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40173 "EHLO
+	Thu, 4 Jan 2007 02:42:53 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:40177 "EHLO
 	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932314AbXADHb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 02:31:59 -0500
-Message-ID: <459CAD72.9060207@drzeus.cx>
-Date: Thu, 04 Jan 2007 08:32:02 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
+	id S932315AbXADHmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 02:42:52 -0500
+Message-ID: <459CB001.4010800@drzeus.cx>
+Date: Thu, 04 Jan 2007 08:42:57 +0100
+From: Pierre Ossman <drzeus-mmc@drzeus.cx>
 User-Agent: Thunderbird 1.5.0.9 (X11/20061223)
 MIME-Version: 1.0
-To: Philip Langdale <philipl@overt.org>
-CC: Alex Dubov <oakad@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 2)
-References: <459928F3.9010804@overt.org> <20070103150620.ac733abb.akpm@osdl.org> <459C8FA4.7080709@overt.org> <459C97A9.3060907@drzeus.cx> <459CA049.2080505@overt.org>
-In-Reply-To: <459CA049.2080505@overt.org>
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+       dwmw2@infradead.org,
+       "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+Subject: Re: [RFC] MTD driver for MMC cards
+References: <200612281418.20643.arnd@arndb.de> <4597ADD2.90700@drzeus.cx> <200701012322.14735.arnd@arndb.de>
+In-Reply-To: <200701012322.14735.arnd@arndb.de>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Langdale wrote:
-> Pierre Ossman wrote:
->   
->> Amen to that. All hw vendors that implement this particular form of
->> brain damage should be dragged out and shot.
->>
->> I'll fix a patch for this later on.
->>     
->
-> See my updated Take 3 patch. I've implemented a uniqueness fix by
-> adding additional RSP flags do make R6 and R7 unique. I don't know
-> if this is what you wanted, but it works without being too ugly.
->
->   
+Arnd Bergmann wrote:
+> 
+> One promising effort for a replacement is Jörn's logfs
+> (http://wiki.laptop.org/go/Logfs), which should scale well to many
+> gigabytes. A driver based on MMC would be a nice development tool
+> for that, since it enables regular PCs as a debugging machine
+> instead of having to load test kernels onto an actual embedded
+> machine.
+> 
 
-NAK. If two response types look the same over the wire, then they should
-have the same definition. Hardware that uses type codes is simply
-broken. There are a lot of sinners unfortunately...
+A bit of a niche area, but as long as this driver doesn't look like high maintenance then it could be enough.
 
-> However, also note my caveat that it's not clear if tifm or imxmmc
-> can ever be made to work with SD 2.0 cards. *sigh*
->   
+> Another thing I have been thinking about was an MTD version of
+> fat16/fat32. There are a number of optimizations that you can
+> do for flash media, including:
+> 
+> - limiting the number of writes to the FAT
+> - erasing blocks when they are freed in the FS
+> - always writing full erase blocks if the erase block
+>   size matches the cluster size
+> - optimize for wear leveling instead of avoiding
+>   fragmentation
+> 
 
-They probably can. They just need a fix for their switch statements.
+These sound like they would be nicer in the block layer, to cover other devices where you know there is flash at the bottom.
+
+> I read that the SD cards have some restrictions of how
+> the fat fs needs to be laid out on them, presumably to
+> make sure clusters are aligned with erase blocks.
+> Do you have any specific information on what SD actually
+> requires?
+> 
+
+No, as we don't give a rats ass about them. I don't know why they stuck a FAT requirement into the spec. Perhaps Microsoft wanted a chance at the extortio^Wlicense money for any patent issues.
+
+> 
+> ok, I'll have a look. I keep having trouble identifying the right
+> specifications (physical spec sounded like it was only about wiring
+> and electric properties, so I did not look at that). Maybe it would
+
+That had me fooled for quite a while as well.
+
+> be good if you could put pointers to the relevant documents into
+> your Wiki?
+
+Probably. I haven't really put that much time into the wiki lately. It turned out to be a one man show, so I'm doubting its usefulness.
+
+>> First of all, you cannot assume that read_blkbits is a valid block
+>> size when doing writes. 
+> 
+> Right, I see. I introduced that bug when I merged parts of the read and
+> write paths.
+> 
+> Is it fair to assume that write_blkbits is always bigger than
+> read_blkbits, so that one can be used in both cases?
+> 
+
+There is some relation, yes, but I don't remember the details right now. More important is that the card can only be set to one block size at any given time (both read and write). So unless you want
+terrible latency by switching block size back and forth I'd suggest selecting one size and sticking with it.
+
+As the newer cards only support a block size of 512 bytes, the most future proof would be to use that.
+
+> 
+> I tried to do multiple block access at first, but then took it out again.
+> If it turns out valuable to have these, I'll implement it properly later.
+> Does it make a difference performance-wise to do larger accesses?
+> 
+
+Yes. On my rather slow ISA device, the speedup was over 100% for writes.
 
 Rgds
-
 -- 
      -- Pierre Ossman
 
   Linux kernel, MMC maintainer        http://www.kernel.org
   PulseAudio, core developer          http://pulseaudio.org
   rdesktop, core developer          http://www.rdesktop.org
-

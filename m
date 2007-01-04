@@ -1,101 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030236AbXADVSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030237AbXADVTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbXADVSX (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 16:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbXADVSX
+	id S1030237AbXADVTY (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 16:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbXADVTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 16:18:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58310 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030236AbXADVSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 16:18:22 -0500
-Message-ID: <459D6F17.2050208@redhat.com>
-Date: Thu, 04 Jan 2007 15:18:15 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
+	Thu, 4 Jan 2007 16:19:24 -0500
+Received: from aa011msr.fastwebnet.it ([85.18.95.71]:51196 "EHLO
+	aa011msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030237AbXADVTX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 16:19:23 -0500
+Date: Thu, 4 Jan 2007 22:18:30 +0100
+From: Mattia Dongili <malattia@linux.it>
 To: Andrew Morton <akpm@osdl.org>
-CC: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops
- return values
-References: <459C4038.6020902@redhat.com>	<20070103162643.5c479836.akpm@osdl.org>	<459D3E8E.7000405@redhat.com>	<20070104102659.8c61d510.akpm@osdl.org>	<459D4897.4020408@redhat.com>	<20070104105430.1de994a7.akpm@osdl.org>	<Pine.LNX.4.64.0701041104021.3661@woody.osdl.org>	<20070104191451.GW17561@ftp.linux.org.uk>	<Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>	<20070104202412.GY17561@ftp.linux.org.uk>	<20070104130028.39aa44b8.akpm@osdl.org>	<459D6BD1.7050406@redhat.com> <20070104131008.1d95cb0c.akpm@osdl.org>
-In-Reply-To: <20070104131008.1d95cb0c.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: Stelian Pop <stelian@popies.net>, Len Brown <lenb@kernel.org>,
+       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-ID: <20070104211830.GD25619@inferi.kami.home>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Stelian Pop <stelian@popies.net>, Len Brown <lenb@kernel.org>,
+	Ismail Donmez <ismail@pardus.org.tr>,
+	Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+	linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701040024.29793.lenb@kernel.org> <1167905384.7763.36.camel@localhost.localdomain> <20070104191512.GC25619@inferi.kami.home> <20070104125107.b82db604.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104125107.b82db604.akpm@osdl.org>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.20-rc2-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 04 Jan 2007 15:04:17 -0600
-> Eric Sandeen <sandeen@redhat.com> wrote:
+On Thu, Jan 04, 2007 at 12:51:07PM -0800, Andrew Morton wrote:
+> On Thu, 4 Jan 2007 20:15:12 +0100
+> Mattia Dongili <malattia@linux.it> wrote:
+[...]
+> > but:
+> > - I'll probably need some help;
+> > - I'll have an almost-blackout between the end of February and the end
+> >   of April as I'm moving to a different country and I'll need some time
+> >   before I can be active again (I hope I'll have at least easy mail
+> >   access for all the time though).
+> > Anyway if it is still ok I can maintain the thing, to months seems
+> > enough to give the driver a shape.
+> > 
+> > > > 2. /proc/acpi/sony API needs to be deleted
+> > > > 
+> > > > 3. source needs to move out of drivers/acpi, and into drivers/misc along with msi.
+> > 
+> > And turn extra-backlight features into platform_device stuff? So 2 and 3
+> > can come together.
+> > 
+> > Moreover, I own an SZ72B and an older GR7 and have come to the same
+> > findings of Cacy, plus a patch to allow a smarter "debug" mode.
+> > So, how to proceed? (I've just cloned the linux-acpi-2.6 tree)
+> > 
 > 
->> Andrew Morton wrote:
->>> On Thu, 4 Jan 2007 20:24:12 +0000
->>> Al Viro <viro@ftp.linux.org.uk> wrote:
->>>
->>>> So my main issue with fs/bad_inode.c is not even cast per se; it's that
->>>> cast is to void *.
->>> But Eric's latest patch is OK in that regard, isn't it?  It might confuse
->>> parsers (in fixable ways), but it is type-correct and has no casts.  (Well,
->>> it kinda has an link-time cast).
->> Even if it is, I'm starting to wonder if all this tricksiness is really
->> worth it for 400 bytes or so.  :)
->>
+> I have a VGN-something-or-other notebook and I use this driver regularly.
+
+Hehehe, I think all the sony lappies are VGN-something :)
+
+> The place to start (please) is the patches in -mm:
 > 
-> Ah, but it's a learning opportunity!
-
-*grin*
-
-> btw, couldn't we fix this bug with a simple old
+> 2.6-sony_acpi4.patch
+> sony_apci-resume.patch
+> sony_apci-resume-fix.patch
+> acpi-add-backlight-support-to-the-sony_acpi.patch
+> acpi-add-backlight-support-to-the-sony_acpi-v2.patch
+> video-sysfs-support-take-2-add-dev-argument-for-backlight_device_register-sony_acpi-fix.patch
 > 
-> --- a/fs/bad_inode.c~a
-> +++ a/fs/bad_inode.c
-> @@ -15,7 +15,7 @@
->  #include <linux/smp_lock.h>
->  #include <linux/namei.h>
->  
-> -static int return_EIO(void)
-> +static long return_EIO(void)
->  {
->  	return -EIO;
->  }
-> _
-> 
-> ?
+> It presently has both the /proc and /sys/.../backlight/.. interfaces, so the first
+> job would be to chop out the /proc stuff.
 
-What about ops that return loff_t (64 bits) on 32-bit arches and stuff
-it into 2 registers....
+Ok, I'll import all of them and start from there.
+Is it ok to wipe all the /proc stuff without notice?
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/errno.h>
-
-static long return_EIO(void)
-{
-        return -EIO;
-}
-
-#define EIO_ERROR ((void *) (return_EIO))
-
-int main(int argc, char ** argv)
-{
-        loff_t error;
-        loff_t (*fn_ptr) (int);
-
-        fn_ptr = EIO_ERROR;
-
-        error = fn_ptr(0);
-        printf("and... error is %lld\n", error);
-        return 0;
-}
-
-[root]# ./ssize_eio
-and... error is 8589934587
-[root]# uname -m
-i686
-
-I'm still not convinced that this is the best place to be clever :)
-
--Eric
+-- 
+mattia
+:wq!

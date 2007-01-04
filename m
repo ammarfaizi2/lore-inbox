@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965076AbXADSnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750942AbXADSr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbXADSnQ (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbXADSnQ
+	id S1750942AbXADSr7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbXADSr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:43:16 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41785 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965076AbXADSnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:43:15 -0500
-Date: Thu, 4 Jan 2007 10:43:09 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
-In-Reply-To: <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0701041042020.21800@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
- <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Jan 2007 13:47:59 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:44049 "EHLO
+	pfepa.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750942AbXADSr7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:47:59 -0500
+Subject: BUG, 2.6.20-rc3 raid autodetection
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 19:47:45 +0100
+Message-Id: <1167936465.6594.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Pekka Enberg wrote:
+Hello.
 
-> So, how about we rename the current cache_grow() to __cache_grow() and
-> move the kmem_freepages() to a higher level function like this:
-> 
-> static int cache_grow(struct kmem_cache *cache,
->                                gfp_t flags, int nodeid)
-> {
->        void *objp;
->        int ret;
-> 
->        if (flags & __GFP_NO_GROW)
->                return 0;
-> 
->        objp = kmem_getpages(cachep, flags, nodeid);
->        if (!objp)
->                return 0;
-> 
->        ret = __cache_grow(cache, flags, nodeid, objp);
->        if (!ret)
->                kmem_freepages(cachep, objp);
-> 
->        return ret;
-> }
-> 
-> And use the non-allocating __cache_grow version() in fallback_alloc() instead?
+i just attempted to test .20-rc3-git4 on a box, which has 6 drives in
+raid5. it uses raid autodetection, and 2 ide controllers (via and
+promise 20269).
 
-Good idea if you can make it so that it is clean. There is some 
-additional processing in cache_grow() that would have to be taken into 
-account.
+there are two problems.
+
+first, and most importantly, it doesent autodetect, i attempted with
+both the old ide drivers, and the new pata on libata drivers, the drives
+appears to be found, but the raid autoassembling just doesent happen.
+
+this is .17, which works:
+http://sh.nu/p/8001
+
+this is .20-rc3-git4 which doesent work, in pata-on-libata mode:
+http://sh.nu/p/8000
+
+this is .20-rc3-git4 which doesent work, in old ide mode:
+http://sh.nu/p/8002
+
+
+second bug:
+notice on these pastes the lines at bottom, the keyboard stuff, these
+are repeated constantly, and caps/scrolllock button on keyboard is
+blinking.
+
+
+mvh.
+Kasper Sandberg
 

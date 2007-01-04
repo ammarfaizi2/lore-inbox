@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751081AbXADCJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751067AbXADCOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbXADCJF (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 21:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbXADCJF
+	id S1751067AbXADCOt (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 21:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbXADCOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 21:09:05 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:55476 "EHLO mail.dvmed.net"
+	Wed, 3 Jan 2007 21:14:49 -0500
+Received: from mga09.intel.com ([134.134.136.24]:8467 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751052AbXADCJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 21:09:04 -0500
-Message-ID: <459C61BB.70205@garzik.org>
-Date: Wed, 03 Jan 2007 21:08:59 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	id S1751067AbXADCOs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 21:14:48 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,234,1165219200"; 
+   d="scan'208"; a="32737316:sNHT20035386"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Initial Promise SX4 hw docs opened
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Date: Wed, 3 Jan 2007 18:14:11 -0800
+Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C01A4FC37@fmsmsx414.amr.corp.intel.com>
+In-Reply-To: <20070104012709.GC31943@gnuppy.monkey.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Thread-Index: Accvn5kd6FyeLx+yQ5Kb9puf/7bXTwABkKhg
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Bill Huey \(hui\)" <billh@gnuppy.monkey.org>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 04 Jan 2007 02:14:12.0727 (UTC) FILETIME=[06B9E070:01C72FA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first open hardware docs for the Promise SX4 (sata_sx4) series are 
-now available:
-http://gkernel.sourceforge.net/specs/promise/pdc20621-pguide-dimm-1.6.pdf.bz2
-http://gkernel.sourceforge.net/specs/promise/pdc20621-pguide-pll-ata-timing-1.2.pdf.bz2
+Bill Huey (hui) wrote:
+> This should have the fix.
+> 
+>
+http://mmlinux.sf.net/public/patch-2.6.20-rc2-rt2.3.lock_stat.patch
+> 
+> If you can rerun it and post the results, it'll hopefully show the
+> behavior of that lock acquisition better.
+> 
 
-These are only small, ancillary guides; the main hardware doc should be 
-opened soon.
+Here's the run with fix to produce correct statistics.
 
-However, I would like to take this opportunity to point hackers looking 
-for a project at this hardware.  The Promise SX4 is pretty neat, and it 
-needs more attention than I can give, to reach its full potential.
+Tim
 
-Here's a braindump:
-
-* It's an older chipset/board, probably not actively sold anymore
-
-* ATA programming interface very close to sata_promise (PDC2037x)
-
-* Contains on-board DIMM, to be used for any purpose the driver desires
-
-* Contains on-board RAID5 XOR, also fully programmable
-
-A key problem is that, under Linux, sata_sx4 cannot fully exploit the 
-RAID-centric power of this hardware by driving the hardware in "dumb ATA 
-mode" as it does.
-
-A better driver would notice when a RAID1 or RAID5 array contains 
-multiple components attached to the SX4, and send only a single copy of 
-the data to the card (saving PCI bus bandwidth tremendously). 
-Similarly, a better driver would take advantage of the RAID5 XOR offload 
-capabilities, to offload the entire RAID5 read or write transaction to 
-the card.
-
-All this is difficult within either the MD or DM RAID frameworks, 
-because optimizing each RAID transaction requires intimate knowledge of 
-the hardware.  We have the knowledge...  but I don't have good ideas -- 
-aside from an SX4-specific RAID 0/1/5/6 driver -- on how to exploit this 
-knowledge.
-
-Traditionally the vendor has distributed a SCSI driver that implements 
-the necessary RAID stack pieces entirely in the hardware driver itself. 
-  That sort of approach definitely works, but is traditionally rejected 
-by upstream maintainers because it essentially requires a third (if h/w 
-specific) RAID stack.
-
-	Jeff
-
-
+@contention events = 848858
+@failure_events = 10
+@lookup_failed_scope = 175
+@lookup_failed_static = 47
+@static_found = 17
+[2, 0, 0 -- 1, 0]               {journal_init_common, fs/jbd/journal.c,
+667}
+[2, 0, 0 -- 31, 0]              {blk_init_queue_node, block/ll_rw_blk.c,
+1910}
+[2, 0, 0 -- 31, 0]              {create_workqueue_thread,
+kernel/workqueue.c, 474}
+[3, 3, 2 -- 16384, 0]           {tcp_init, net/ipv4/tcp.c, 2426}
+[4, 4, 1 -- 1, 0]               {lock_kernel, -, 0}
+[19, 0, 0 -- 1, 0]              {kmem_cache_alloc, -, 0}
+[25, 0, 0 -- 1, 0]              {kfree, -, 0}
+[49, 0, 0 -- 2, 0]              {kmem_cache_free, -, 0}
+[69, 38, 176 -- 1, 0]           {lock_timer_base, -, 0}
+[211, 117, 517 -- 3, 0]         {init_timers_cpu, kernel/timer.c, 1842}
+[1540, 778, 365 -- 7326, 0]             {sock_lock_init,
+net/core/sock.c, 817}
+[112584, 150, 6 -- 256, 0]              {init, kernel/futex.c, 2781}
+[597012, 183895, 136277 -- 9546, 0]             {mm_init, kernel/fork.c,
+369}

@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965059AbXADSXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965062AbXADS1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbXADSXy (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 13:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbXADSXy
+	id S965062AbXADS1R (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 13:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbXADS1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 13:23:54 -0500
-Received: from wr-out-0506.google.com ([64.233.184.226]:62952 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965059AbXADSXx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 13:23:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=J/Jsa4F2GcahJ7bztwYVt5mRGowEEoFt82WQbsR83DNyvKWj3mn++3vlFg5TOe4XQOGCbtwZJESlO81qawygph0LhQDC6JgydCH5C2a/JxizxT9xBy2ebh6JXOUh6hoPrBpXjzLPmU/8+KmMkkBKtGNXnVJd23fSV/Fe4qVZ6Gk=
-Message-ID: <84144f020701041023g5910f40ej19a80905c9ed370@mail.gmail.com>
-Date: Thu, 4 Jan 2007 20:23:52 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Hugh Dickins" <hugh@veritas.com>
-Subject: Re: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
-Cc: "Andrew Morton" <akpm@osdl.org>, "Christoph Lameter" <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 4 Jan 2007 13:27:17 -0500
+Received: from smtp0.osdl.org ([65.172.181.24]:42111 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965062AbXADS1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 13:27:16 -0500
+Date: Thu, 4 Jan 2007 10:26:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Sandeen <sandeen@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted
+ bad_inode_ops return values
+Message-Id: <20070104102659.8c61d510.akpm@osdl.org>
+In-Reply-To: <459D3E8E.7000405@redhat.com>
+References: <459C4038.6020902@redhat.com>
+	<20070103162643.5c479836.akpm@osdl.org>
+	<459D3E8E.7000405@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
-X-Google-Sender-Auth: c0a83069bd69e5f1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hugh,
+On Thu, 04 Jan 2007 11:51:10 -0600
+Eric Sandeen <sandeen@redhat.com> wrote:
 
-[Sorry, no access to kernel tree right now, so can't send a patch.]
+> Andrew Morton wrote:
+> 
+> > Al is correct, of course.  But the patch takes bad_inode.o from 280 up to 703
+> > bytes, which is a bit sad for some cosmetic thing which nobody ever looks
+> > at or modifies.
+> >
+> > Perhaps you can do
+> >
+> > static int return_EIO_int(void)
+> > {
+> > 	return -EIO;
+> > }
+> >
+> > static int bad_file_release(struct inode * inode, struct file * filp)
+> > 	__attribute__((alias("return_EIO_int")));
+> > static int bad_file_fsync(struct inode * inode, struct file * filp)
+> > 	__attribute__((alias("return_EIO_int")));
+> >
+> > etcetera?
+> Ok, try this on for size.  Even though the gcc manual says alias doesn't work
+> on all target machines, I assume linux arches are ok since alias is used
+> in the core module init & exit code...
+> 
+> Also - is it ok to alias a function with one signature to a function with
+> another signature?
 
-On 1/4/07, Hugh Dickins <hugh@veritas.com> wrote:
-> @@ -3310,7 +3310,7 @@ retry:
->                                          */
->                                         goto retry;
->                         } else {
-> -                               kmem_freepages(cache, obj);
-> +                               /* cache_grow already freed obj */
->                                 obj = NULL;
+Ordinarily I'd say no wucking fay, but that's effectively what we've been
+doing in there for ages, and it seems to work.
 
-So, how about we rename the current cache_grow() to __cache_grow() and
-move the kmem_freepages() to a higher level function like this:
+I'd be a bit worried if any of these functions were returning pointers,
+because one could certainly conceive of an arch+compiler combo which
+returns pointers in a different register from integers (680x0?) but that's
+not happening here.
 
-static int cache_grow(struct kmem_cache *cache,
-                                gfp_t flags, int nodeid)
-{
-        void *objp;
-        int ret;
+> Note... I also realized that there are a couple of file ops which expect unsigned
+> returns... poll and get_unmapped_area.  The latter seems to be handled just fine by
+> the caller, which does IS_ERR gyrations to check for errnos.
+> 
+> I'm not so sure about poll; some callers put the return in a signed int, others
+> unsigned, not sure anyone is really checking for -EIO... I think this op should
+> probably be returning POLLERR, so that's what I've got in this version.
 
-        if (flags & __GFP_NO_GROW)
-                return 0;
+Yeah, that should all be OK.
 
-        objp = kmem_getpages(cachep, flags, nodeid);
-        if (!objp)
-                return 0;
-
-        ret = __cache_grow(cache, flags, nodeid, objp);
-        if (!ret)
-                kmem_freepages(cachep, objp);
-
-        return ret;
-}
-
-And use the non-allocating __cache_grow version() in fallback_alloc() instead?

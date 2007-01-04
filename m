@@ -1,41 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750937AbXADRm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932088AbXADRqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbXADRm3 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbXADRm3
+	id S932088AbXADRqd (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbXADRqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:42:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:43111 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750937AbXADRm2 (ORCPT
+	Thu, 4 Jan 2007 12:46:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2749 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932085AbXADRqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:42:28 -0500
-Date: Thu, 4 Jan 2007 17:42:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: useless asm/page.h exported to userspace for some architectures
-Message-ID: <20070104174227.GA7593@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mike Frysinger <vapier.adi@gmail.com>, linux-kernel@vger.kernel.org
-References: <8bd0f97a0701032300u1b1b45c7jebd3dbddfb1df27d@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 4 Jan 2007 12:46:30 -0500
+Date: Thu, 4 Jan 2007 18:46:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jon Smirl <jonsmirl@gmail.com>, Damien Wyart <damien.wyart@free.fr>,
+       Aaron Sethman <androsyn@ratbox.org>, alan@lxorguk.ukuu.org.uk,
+       linux-ide@vger.kernel.org, Berthold Cogel <cogel@rrz.uni-koeln.de>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org,
+       Florin Iucha <florin@iucha.net>, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com,
+       linux-input@atrey.karlin.mff.cuni.cz, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, Komuro <komurojun-mbn@nifty.com>,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org,
+       Tobias Diedrich <ranma+kernel@tdiedrich.de>, Andi Kleen <ak@suse.de>,
+       Yinghai Lu <yinghai.lu@amd.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, discuss@x86-64.org,
+       mingo@redhat.com
+Subject: 2.6.20-rc3: known unfixed regressions (v3)
+Message-ID: <20070104174632.GC20714@stusta.de>
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8bd0f97a0701032300u1b1b45c7jebd3dbddfb1df27d@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 02:00:20AM -0500, Mike Frysinger wrote:
-> most architectures (pretty much everyone but like x86/x86_64/s390)
-> export empty asm/page.h headers ... considering how useless these are,
-> why bother exporting them at all ?  clearly userspace is unable to
-> rely on it across architectures, so by making it available to the two
-> most common (x86/x86_64), applications crop up that build "fine" on
-> them but fail just about everywhere else
+This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
+that are not yet fixed in Linus' tree.
 
-It should not be exported to userspace at all.  Care to submit a patch?
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
+Due to the huge amount of recipients, please trim the Cc when answering.
+
+
+Subject    : BUG: scheduling while atomic: hald-addon-stor/...
+             cdrom_{open,release,ioctl} in trace
+References : http://lkml.org/lkml/2006/12/26/105
+             http://lkml.org/lkml/2006/12/29/22
+             http://lkml.org/lkml/2006/12/31/133
+Submitter  : Jon Smirl <jonsmirl@gmail.com>
+             Damien Wyart <damien.wyart@free.fr>
+             Aaron Sethman <androsyn@ratbox.org>
+Status     : unknown
+
+
+Subject    : Acer Extensa 3002 WLMi: 'shutdown -h now' reboots the system
+References : http://lkml.org/lkml/2006/12/25/40
+Submitter  : Berthold Cogel <cogel@rrz.uni-koeln.de>
+Status     : unknown
+
+
+Subject    : USB keyboard unresponsive after some time
+References : http://lkml.org/lkml/2006/12/25/35
+             http://lkml.org/lkml/2006/12/26/106
+Submitter  : Florin Iucha <florin@iucha.net>
+Status     : unknown
+
+
+Subject    : SPARC64: Can't mount /  (CONFIG_SCSI_SCAN_ASYNC=y ?)
+References : http://lkml.org/lkml/2006/12/13/181
+             http://lkml.org/lkml/2007/01/04/75
+Submitter  : Horst H. von Brand <vonbrand@inf.utfsm.cl>
+Status     : unknown
+
+
+Subject    : ftp: get or put stops during file-transfer
+References : http://lkml.org/lkml/2006/12/16/174
+Submitter  : Komuro <komurojun-mbn@nifty.com>
+Caused-By  : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+             commit cfb6eeb4c860592edd123fdea908d23c6ad1c7dc
+Handled-By : YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Status     : problem is being debugged
+
+
+Subject    : x86_64 boot failure: "IO-APIC + timer doesn't work"
+References : http://lkml.org/lkml/2006/12/16/101
+             http://lkml.org/lkml/2007/1/3/9
+Submitter  : Tobias Diedrich <ranma+kernel@tdiedrich.de>
+Caused-By  : Andi Kleen <ak@suse.de>
+             commit b026872601976f666bae77b609dc490d1834bf77
+Handled-By : Yinghai Lu <yinghai.lu@amd.com>
+             Eric W. Biederman <ebiederm@xmission.com>
+Status     : patches are being discussed

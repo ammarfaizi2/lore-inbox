@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965082AbXADUYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030189AbXADUdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbXADUYR (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 15:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbXADUYR
+	id S1030189AbXADUdq (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 15:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbXADUdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 15:24:17 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55829 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965084AbXADUYP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 15:24:15 -0500
-Date: Thu, 4 Jan 2007 20:24:12 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops return values
-Message-ID: <20070104202412.GY17561@ftp.linux.org.uk>
-References: <459C4038.6020902@redhat.com> <20070103162643.5c479836.akpm@osdl.org> <459D3E8E.7000405@redhat.com> <20070104102659.8c61d510.akpm@osdl.org> <459D4897.4020408@redhat.com> <20070104105430.1de994a7.akpm@osdl.org> <Pine.LNX.4.64.0701041104021.3661@woody.osdl.org> <20070104191451.GW17561@ftp.linux.org.uk> <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>
+	Thu, 4 Jan 2007 15:33:46 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1032 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1030189AbXADUdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 15:33:45 -0500
+Date: Thu, 4 Jan 2007 20:33:13 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: Zach Brown <zach.brown@oracle.com>, linux-aio@kvack.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Heads up on a series of AIO patchsets
+Message-ID: <20070104203313.GA3953@ucw.cz>
+References: <20061227153855.GA25898@in.ibm.com> <5A322D46-A73A-43DD-8667-CE218DDA48B0@oracle.com> <6f703f960701021640y444bc537w549fd6d74f3e9529@mail.gmail.com> <A85B8249-FC4E-4612-8B28-02BC680DC812@oracle.com> <6f703f960701021718qb85f4bdg58d8ee0923376191@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701041127350.3661@woody.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <6f703f960701021718qb85f4bdg58d8ee0923376191@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 11:30:22AM -0800, Linus Torvalds wrote:
+On Tue 2007-01-02 16:18:40, Kent Overstreet wrote:
+> >> Any details?
+> >
+> >Well, one path I tried I couldn't help but post a blog 
+> >entry about
+> >for my friends.  I'm not sure it's the direction I'll 
+> >take with linux-
+> >kernel, but the fundamentals are there:  the api should 
+> >be the
+> >syscall interface, and there should be no difference 
+> >between sync and
+> >async behaviour.
+> >
+> >http://www.zabbo.net/?p=72
 > 
+> Any code you're willing to let people play with? I could 
+> at least have
+> real test cases, and a library to go along with it as it 
+> gets
+> finished.
 > 
-> On Thu, 4 Jan 2007, Al Viro wrote:
-> > 
-> > How about "makes call graph analysis easier"? ;-)  In principle, I have
-> > no problem with force-casting, but it'd better be cast to the right
-> > type...
-> 
-> Do we really care in the kernel? We simply never use function pointer 
-> casts like this for anything non-trivial, so if the graph analysis just 
-> doesn't work for those cases, do we really even care?
+> Another pie in the sky idea:
+> One thing that's been bugging me lately (working on a 9p 
+> server), is
+> sendfile is hard to use in practice because you need 
+> packet headers
+> and such, and they need to go out at the same time.
 
-Umm...  Let me put it that way - amount of things that can be done to
-void * is much more than what can be done to function pointers.  So
-keeping track of them gets easier if we never do casts to/from void *.
-What's more, very few places in the kernel try to do that _and_ most
-of those that do are simply too lazy to declare local variable with
-the right type.  bad_inode.c covers most of what remains.
+splice()?
+							Pavel
 
-IMO we ought to start checking for that kind of stuff; note that we _still_
-have strugglers from pt_regs removal where interrupt handler still takes
-3 arguments, but we don't notice since argument of request_irq() is cast
-to void * ;-/
-
-That's local stuff; however, when trying to do non-local work (e.g. deduce
-that foo() may be called from BH, bar() is always called from process
-context, etc. _without_ fuckloads of annotations all over the place), the
-ban on mixing void * with function pointers helps a _lot_.
-
-So my main issue with fs/bad_inode.c is not even cast per se; it's that
-cast is to void *.
+-- 
+Thanks for all the (sleeping) penguins.

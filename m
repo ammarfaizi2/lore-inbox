@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964800AbXADLqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964784AbXADLw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbXADLqb (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 06:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbXADLqb
+	id S964784AbXADLw7 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 06:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbXADLw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 06:46:31 -0500
-Received: from userg503.nifty.com ([202.248.238.83]:21304 "EHLO
-	userg503.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964800AbXADLqa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 06:46:30 -0500
-DomainKey-Signature: a=rsa-sha1; s=userg503; d=nifty.com; c=simple; q=dns;
-	b=kSy72UUQuhGrXIN1oEM3V5fopHf05NuAanL92bwp+F5rwsZnNoFuXx9LuVQ3ogTC2
-	ozzSo2VTyeRskJJqc8QyA==
-Date: Fri, 5 Jan 2007 05:45:46 +0900
-From: Komuro <komurojun-mbn@nifty.com>
-To: YOSHIFUJI Hideaki / =?ISO-2022-JP?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-Cc: bunk@stusta.de, jgarzik@pobox.com, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [BUG KERNEL 2.6.20-rc1] ftp: get or put stops during
- file-transfer
-Message-Id: <20070105054546.953196e5.komurojun-mbn@nifty.com>
-In-Reply-To: <20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-References: <20061230185043.d31d2104.komurojun-mbn@nifty.com>
-	<20061230.102358.106876516.yoshfuji@linux-ipv6.org>
-	<20061230205931.9e430173.komurojun-mbn@nifty.com>
-	<20061230.231952.16573563.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Jan 2007 06:52:59 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:24172 "EHLO hobbit.corpit.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964784AbXADLw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 06:52:58 -0500
+Message-ID: <459CEA93.4000704@tls.msk.ru>
+Date: Thu, 04 Jan 2007 14:52:51 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Icedove 1.5.0.8 (X11/20061128)
+MIME-Version: 1.0
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: open(O_DIRECT) on a tmpfs?
+X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I wonder why open() with O_DIRECT (for example) bit set is
+disallowed on a tmpfs (again, for example) filesystem,
+returning EINVAL.
 
-I made a patch below.
-With this patch, the ftp-transfer-stop problem does not happen.
-Therefore, I think this is not a problem of vsftpd.
+Yes, the question may seems strange a bit, because of two
+somewhat conflicting reasons.  First, there's no reason to
+use O_DIRECT with tmpfs in a first place, because tmpfs does
+not have backing store at all, so there's no place to do
+direct writes to.  But on another hand, again due to the very
+nature of tmpfs, there's no reason not to allow O_DIRECT
+open and just ignore it, -- exactly because there's no
+backing store for this filesystem.
 
-Mr.YOSHIFUJI san, why did you set TCPOLEN_TSTAMP_ALIGNED
-to iov_len?
+Why I'm asking is:  Currently I'm trying to evaluate a disk
+subsystem for large loaded database (currently running with
+Oracle, but there's no reason not to try Mysql or Postgres -
+the stuff below equally applies to any database).
 
+Almost any database uses two different I/O patterns for two
+different kinds of files.  They are - regular data files, with
+mostly random relatively large-block I/O, and control+redolog
+files, which are small and receives very many relatively small
+updates.
 
+The same two kinds of load (large random I/O and small I/O)
+applies to any journalling filesystem too, and even to linux
+software raid devices.
 
---- linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c.orig	2007-01-03 11:50:04.000000000 +0900
-+++ linux-2.6.20-rc3/net/ipv4/tcp_ipv4.c	2007-01-03 15:30:44.000000000 +0900
-@@ -648,7 +648,7 @@ static void tcp_v4_send_ack(struct tcp_t
- 				   TCPOLEN_TIMESTAMP);
- 		rep.opt[1] = htonl(tcp_time_stamp);
- 		rep.opt[2] = htonl(ts);
--		arg.iov[0].iov_len = TCPOLEN_TSTAMP_ALIGNED;
-+		arg.iov[0].iov_len = sizeof(rep);
- 	}
- 
- 	/* Swap the send and the receive. */
+I was thinking about trying to place those small redolog files
+which receives alot of small updates to a battery-backed RAM.
+The reason is simple: with fast I/O subsystem (composed of many
+spindles, nicely distributed and so on), those redo-log files,
+which can not be distributed, becomes real bottleneck.
 
+But since such devices - battery-backed RAM - are relatively
+expensive, I want to see how it works BEFORE buying a real
+device.  So I just placed the redo-log files into a tmpfs,
+because that's the most close "alternative", and tried to
+start a database.  And it failed.
 
-Best Regards
-Komuro
+Failed because it rightly tries to open all the files with
+O_DIRECT flag set, including control and redolog files.  And
+tmpfs returns EINVAL.
 
+Ok, I was able to work around this.. "issue" by creating a
+loop device on a file residing on a tmpfs, creating a filesystem
+on it and placing my files there.
+
+But the original question remains...  Why tmpfs and similar
+filesystems disallows O_DIRECT opens?
+
+Thanks.
+
+/mjt

@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932136AbXADRsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932175AbXADRtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbXADRsv (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 12:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbXADRsv
+	id S932175AbXADRtX (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 12:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbXADRtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 12:48:51 -0500
-Received: from extu-mxob-2.symantec.com ([216.10.194.135]:2535 "EHLO
-	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932136AbXADRsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 12:48:50 -0500
-X-AuditID: d80ac287-a06c3bb000002548-f8-459d3ed90143 
-Date: Thu, 4 Jan 2007 17:49:00 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
+	Thu, 4 Jan 2007 12:49:23 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:20016 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932122AbXADRtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 12:49:22 -0500
+Date: Thu, 4 Jan 2007 18:49:38 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Lameter <clameter@sgi.com>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix BUG_ON(!PageSlab) from fallback_alloc
-Message-ID: <Pine.LNX.4.64.0701041741490.16466@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jan 2007 17:48:43.0716 (UTC) FILETIME=[93A3D040:01C73028]
-X-Brightmail-Tracker: AAAAAA==
+Cc: suparna@in.ibm.com, linux-aio@kvack.org, drepper@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com, mingo@elte.hu
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20070104174938.GI11203@kernel.dk>
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070104090242.44dd8165.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pdflush hit the BUG_ON(!PageSlab(page)) in kmem_freepages called from
-fallback_alloc: cache_grow already freed those pages when alloc_slabmgmt
-failed.  But it wouldn't have freed them if __GFP_NO_GROW, so make sure
-fallback_alloc doesn't waste its time on that case.
+On Thu, Jan 04 2007, Andrew Morton wrote:
+> > Please let know how you want this fixed up.
+> >
+> > >From what I can tell the comments in the unplug patches seem to say that
+> > it needs more work and testing, so perhaps a separate fixup patch may be
+> > a better idea rather than make the fsaio patchset dependent on this.
+> 
+> Patches against next -mm would be appreciated, please.  Sorry about that.
+> 
+> I _assume_ Jens is targetting 2.6.21?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-___
-Fixes a CONFIG_NUMA regression introduced in 2.6.20-rc1.  Or you may
-feel it's cleaner for cache_grow to skip its kmem_freepages when objp
-is input: patch below is slightly simpler, but I've no strong feeling.
+Only if everything works perfectly, 2.6.22 is also a viable target.
 
- mm/slab.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+-- 
+Jens Axboe
 
---- 2.6.20-rc3/mm/slab.c	2007-01-01 10:30:46.000000000 +0000
-+++ linux/mm/slab.c	2007-01-04 17:30:11.000000000 +0000
-@@ -3281,7 +3281,7 @@ retry:
- 					flags | GFP_THISNODE, nid);
- 	}
- 
--	if (!obj) {
-+	if (!obj && !(flags & __GFP_NO_GROW)) {
- 		/*
- 		 * This allocation will be performed within the constraints
- 		 * of the current cpuset / memory policy requirements.
-@@ -3310,7 +3310,7 @@ retry:
- 					 */
- 					goto retry;
- 			} else {
--				kmem_freepages(cache, obj);
-+				/* cache_grow already freed obj */
- 				obj = NULL;
- 			}
- 		}

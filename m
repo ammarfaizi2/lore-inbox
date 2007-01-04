@@ -1,89 +1,167 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932341AbXADJU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932332AbXADJXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbXADJU0 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 04:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbXADJU0
+	id S932332AbXADJXc (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 04:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbXADJXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 04:20:26 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:49411 "EHLO e6.ny.us.ibm.com"
+	Thu, 4 Jan 2007 04:23:32 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:45858 "EHLO e4.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932339AbXADJUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 04:20:24 -0500
-Date: Thu, 4 Jan 2007 14:57:33 +0530
+	id S932332AbXADJXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 04:23:31 -0500
+Date: Thu, 4 Jan 2007 15:00:55 +0530
 From: Bharata B Rao <bharata@in.ibm.com>
 To: Suparna Bhattacharya <suparna@in.ibm.com>
 Cc: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        jakub@redhat.com, mingo@elte.hu,
        =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Subject: [PATCHSET 3][PATCH 0/5][AIO] - AIO completion signal notification v4
-Message-ID: <20070104092733.GD9608@in.ibm.com>
+Subject: [PATCHSET 3][PATCH 1/5][AIO] - Rework compat_sys_io_submit
+Message-ID: <20070104093055.GE9608@in.ibm.com>
 Reply-To: bharata@in.ibm.com
-References: <20061227153855.GA25898@in.ibm.com>
+References: <20061227153855.GA25898@in.ibm.com> <20070104092733.GD9608@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="i9LlY+UWpKt15+FH"
 Content-Disposition: inline
-In-Reply-To: <20061227153855.GA25898@in.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070104092733.GD9608@in.ibm.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi
 
-  Here is a repost of Sebastien's AIO completion signal notification v4
-  patches along with the syscall based listio support patch. The goal
-  of this patchset is to improve the POSIX AIO support in the kernel.
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  While the 1st 4 patches provide the AIO completion signal notification
-  support, the 5th one provides the listio support.
 
-  Sebastien's original patchset had a different listio support patch
-  (patch number 5) based on overloading the io_submit() with a new
-  aio_lio_opcode (IOCB_CMD_GROUP). But here listio support is provided
-  by a separate system call.
+                 compat_sys_io_submit() cleanup
 
-  As mentioned, this set consists of 5 patches:
+  Cleanup compat_sys_io_submit by duplicating some of the native syscall
+logic in the compat layer and directly calling io_submit_one() instead
+of fooling the syscall into thinking it is called from a native 64-bit
+caller.
 
-	1. rework-compat-sys-io-submit: cleanup the sys_io_submit() compat
-	layer, making it more efficient and laying out the base for the
-	following patches
+  This eliminates:
 
-	2. aio-header-fix-includes: fixes the double inclusion of uio.h in aio.h
+  - the overhead of copying the nr iocb pointers on the userspace stack
 
-	3. export-good_sigevent: move good_sigevent into signal.c and make it
-	   non-static
+  - the PAGE_SIZE/(sizeof(void *)) limit on the number of iocbs that
+    can be submitted.
 
-	4. aio-notify-sig: the AIO completion signal notification
+  This is also needed for the completion notification patch to avoid having
+to rewrite each iocb on the caller stack for io_submit_one() to find the
+sigevents.
 
-	5. listio: adds listio support
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment; filename="rework-compat-sys-io-submit.patch"
+Content-Transfer-Encoding: 8bit
 
-  Description are in the individual patches.
 
-  Original v4 post is present at http://lkml.org/lkml/2006/11/30/223
+From: Sébastien Dugué <sebastien.dugue@bull.net>
 
-  Changes from v3:
-	All changes following comments from Zach Brown and Christoph Hellwig
+  Cleanup compat_sys_io_submit by duplicating some of the native syscall
+logic in the compat layer and directly calling io_submit_one() instead
+of fooling the syscall into thinking it is called from a native 64-bit
+caller.
 
-	- added justification for the compat_sys_io_submit() cleanup
-	- more cleanups in compat_sys_io_submit() to put it in line with
-	  sys_io_submit()
-	- Changed "Export good_sigevent()" patch name to "Make good_sigevent()
-	  non-static" to better describe what it does.=20
-	- Reworked good_sigevent() to make it more readable.
-	- Simplified the use of the SIGEV_* constants in signal notification
-	- Take a reference on the target task both for the SIGEV_THREAD_ID and
-	  SIGEV_SIGNAL cases.
+  This eliminates:
 
-  Changes from v2:
-	- rebased to 2.6.19-rc6-mm2
-	- reworked the sys_io_submit() compat layer as suggested by Zach Brown
-	- fixed saving of a pointer to a task struct in aio-notify-sig as
-	  pointed out by Andrew Morton
+  - the overhead of copying the nr iocb pointers on the userspace stack
 
-  Changes from v1:
-	- cleanups suggested by Christoph Hellwig, Badari Pulavarty and
-	Zach Brown
-	- added lisio patch
+  - the PAGE_SIZE/(sizeof(void *)) limit on the number of iocbs that
+    can be submitted.
 
-Regards,
-Bharata.
+  This is also needed for the completion notification patch to avoid having
+to rewrite each iocb on the caller stack for io_submit_one() to find the
+sigevents.
+
+Signed-off-by: Sébastien Dugué <sebastien.dugue@bull.net>
+Signed-off-by: Bharata B Rao <bharata@in.ibm.com>
+---
+
+ fs/compat.c |   61 +++++++++++++++++++++++++++++++++---------------------------
+ 1 files changed, 34 insertions(+), 27 deletions(-)
+
+diff -puN fs/compat.c~rework-compat-sys-io-submit fs/compat.c
+--- linux-2.6.20-rc2/fs/compat.c~rework-compat-sys-io-submit	2007-01-03 10:15:03.000000000 +0530
++++ linux-2.6.20-rc2-bharata/fs/compat.c	2007-01-04 13:21:28.000000000 +0530
+@@ -644,40 +644,47 @@ out:
+ 	return ret;
+ }
+ 
+-static inline long
+-copy_iocb(long nr, u32 __user *ptr32, struct iocb __user * __user *ptr64)
+-{
+-	compat_uptr_t uptr;
+-	int i;
+-
+-	for (i = 0; i < nr; ++i) {
+-		if (get_user(uptr, ptr32 + i))
+-			return -EFAULT;
+-		if (put_user(compat_ptr(uptr), ptr64 + i))
+-			return -EFAULT;
+-	}
+-	return 0;
+-}
+-
+-#define MAX_AIO_SUBMITS 	(PAGE_SIZE/sizeof(struct iocb *))
+-
+ asmlinkage long
+ compat_sys_io_submit(aio_context_t ctx_id, int nr, u32 __user *iocb)
+ {
+-	struct iocb __user * __user *iocb64; 
+-	long ret;
++	struct kioctx *ctx;
++	long ret = 0;
++	int i;
+ 
+ 	if (unlikely(nr < 0))
+ 		return -EINVAL;
+ 
+-	if (nr > MAX_AIO_SUBMITS)
+-		nr = MAX_AIO_SUBMITS;
+-	
+-	iocb64 = compat_alloc_user_space(nr * sizeof(*iocb64));
+-	ret = copy_iocb(nr, iocb, iocb64);
+-	if (!ret)
+-		ret = sys_io_submit(ctx_id, nr, iocb64);
+-	return ret;
++	if (unlikely(!access_ok(VERIFY_READ, iocb, (nr * sizeof(u32)))))
++		return -EFAULT;
++
++	ctx = lookup_ioctx(ctx_id);
++	if (unlikely(!ctx))
++		return -EINVAL;
++
++	for (i=0; i<nr; i++) {
++		compat_uptr_t uptr;
++		struct iocb __user *user_iocb;
++		struct iocb tmp;
++
++		if (unlikely(get_user(uptr, iocb + i))) {
++			ret = -EFAULT;
++			break;
++		}
++
++		user_iocb = compat_ptr(uptr);
++
++		if (unlikely(copy_from_user(&tmp, user_iocb, sizeof(tmp)))) {
++			ret = -EFAULT;
++			break;
++		}
++
++		ret = io_submit_one(ctx, user_iocb, &tmp);
++		if (ret)
++			break;
++	}
++
++	put_ioctx(ctx);
++	return i ? i: ret;
+ }
+ 
+ struct compat_ncp_mount_data {
+_
+
+--i9LlY+UWpKt15+FH--

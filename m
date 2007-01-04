@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932223AbXADBJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932229AbXADBLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbXADBJ0 (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 20:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbXADBJ0
+	id S932229AbXADBLN (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 20:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbXADBLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 20:09:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1223 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932223AbXADBJ0 (ORCPT
+	Wed, 3 Jan 2007 20:11:12 -0500
+Received: from mga09.intel.com ([134.134.136.24]:13093 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932229AbXADBLL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 20:09:26 -0500
-Date: Thu, 4 Jan 2007 00:09:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@vger.kernel.org, eis@baty.hanse.de
-Cc: linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
-Subject: [2.6 patch] proper prototype for x25_init_timers()
-Message-ID: <20070103230928.GP20714@stusta.de>
+	Wed, 3 Jan 2007 20:11:11 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,234,1165219200"; 
+   d="scan'208"; a="32722967:sNHT22704210"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Date: Wed, 3 Jan 2007 17:11:04 -0800
+Message-ID: <9D2C22909C6E774EBFB8B5583AE5291C01A4FBE5@fmsmsx414.amr.corp.intel.com>
+In-Reply-To: <20070104010049.GA31943@gnuppy.monkey.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] lock stat for -rt 2.6.20-rc2-rt2.2.lock_stat.patch
+Thread-Index: Accvm9BFtBP1R1q0Tk2V5qgrXcdf3AAADizg
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Bill Huey \(hui\)" <billh@gnuppy.monkey.org>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 04 Jan 2007 01:11:04.0903 (UTC) FILETIME=[3501CD70:01C72F9D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a proper prototype for x25_init_timers() in 
-include/net/x25.h
+Bill Huey (hui) wrote:
+> 
+> Thanks, the numbers look a bit weird in that the first column should
+> have a bigger number of events than that second column since it is a
+> special case subset. Looking at the lock_stat_note() code should show
+> that to be the case. Did you make a change to the output ?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+No, I did not change the output.  I did reset to the contention content
 
----
+by doing echo "0" > /proc/lock_stat/contention.
 
- include/net/x25.h |    1 +
- net/x25/af_x25.c  |    2 --
- 2 files changed, 1 insertion(+), 2 deletions(-)
+I noticed that the first column get reset but not the second column. So
+the reset code probably need to be checked.
 
---- linux-2.6.20-rc2-mm1/include/net/x25.h.old	2007-01-03 22:57:52.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/include/net/x25.h	2007-01-03 22:58:17.000000000 +0100
-@@ -259,6 +259,7 @@
- extern void x25_disconnect(struct sock *, int, unsigned char, unsigned char);
- 
- /* x25_timer.c */
-+extern void x25_init_timers(struct sock *sk);
- extern void x25_start_heartbeat(struct sock *);
- extern void x25_start_t2timer(struct sock *);
- extern void x25_start_t21timer(struct sock *);
---- linux-2.6.20-rc2-mm1/net/x25/af_x25.c.old	2007-01-03 22:58:28.000000000 +0100
-+++ linux-2.6.20-rc2-mm1/net/x25/af_x25.c	2007-01-03 22:58:35.000000000 +0100
-@@ -484,8 +484,6 @@
- 	return sk;
- }
- 
--void x25_init_timers(struct sock *sk);
--
- static int x25_create(struct socket *sock, int protocol)
- {
- 	struct sock *sk;
-
+Tim

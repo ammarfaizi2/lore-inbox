@@ -1,176 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932257AbXADDwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932250AbXADD6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbXADDwZ (ORCPT <rfc822;w@1wt.eu>);
-	Wed, 3 Jan 2007 22:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbXADDwY
+	id S932250AbXADD6C (ORCPT <rfc822;w@1wt.eu>);
+	Wed, 3 Jan 2007 22:58:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbXADD6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Jan 2007 22:52:24 -0500
-Received: from ricci.tusc.com.au ([203.2.177.24]:19490 "EHLO ricci.tusc.com.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932248AbXADDwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Jan 2007 22:52:19 -0500
-Subject: [PATCH 2.6.19 2/2] X.25: Adds /proc/net/x25/forward to view active
-	forwarded calls.
-From: ahendry <ahendry@tusc.com.au>
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Content-Type: text/plain
+	Wed, 3 Jan 2007 22:58:01 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:41519 "HELO
+	smtp102.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932250AbXADD6A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Jan 2007 22:58:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=BQldCuGzOtql4LSOc++5i9SUKkcRwGUW2/NU74LCqt7VKnMFIl3cZkBihP/n5/8tSfIOcfZ2un+ODBq6kiavLzZ2Lh0dO64wgXWm1hbFjVaz7P5vC3Istoe+/kYBT07ISWQvjZL4Mg4EXaB1tnxSc3A/yWQcD1Vbd0ARrOI9GYg=  ;
+X-YMail-OSG: dmYBDngVM1l8kYKqK1DnspjqGqdnhVHhyMJMp04bvX1hCkRFsIxvryHiELr4nD7t75d2cartfoWFo6je2_8QX8wYBX6LA7KLgSsbzJoiYJK5U0W9OtK6.BGONjT3U3fgs1mfqusz_Hj.q.E-
+Message-ID: <459C7B24.8080008@yahoo.com.au>
+Date: Thu, 04 Jan 2007 14:57:24 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Gelmini <gelma@gelma.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
+References: <200612291859.kBTIx2kq031961@hera.kernel.org> <20061229224309.GA23445@gelma.net> <459734CE.1090001@yahoo.com.au> <20061231135031.GC23445@gelma.net>
+In-Reply-To: <20061231135031.GC23445@gelma.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 04 Jan 2007 14:37:15 +1100
-Message-Id: <1167881835.5124.89.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-View the active forwarded call list
-cat /proc/net/x25/forward
+Andrea Gelmini wrote:
+> On Sun, Dec 31, 2006 at 02:55:58PM +1100, Nick Piggin wrote:
+> 
+>>This bug was only introduced in 2.6.19, due to a change that caused pte
+> 
+> no, Linus said that with 2.6.19 it's easier to trigger this bug...
 
-Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+Yhat's when the bug was introduced -- 2.6.19. 2.6.18 does not have
+this bug, so it cannot be years old.
 
---- linux-2.6.19-vanilla/net/x25/x25_proc.c	2006-12-31 22:31:07.000000000 +1100
-+++ linux-2.6.19/net/x25/x25_proc.c	2007-01-01 19:16:56.000000000 +1100
-@@ -165,6 +165,75 @@ out:
- 	return 0;
- } 
- 
-+static __inline__ struct x25_forward *x25_get_forward_idx(loff_t pos)
-+{
-+	struct x25_forward *f;
-+	struct list_head *entry;
-+
-+	list_for_each(entry, &x25_forward_list) {
-+		f = list_entry(entry, struct x25_forward, node);
-+		if (!pos--)
-+			goto found;
-+	}
-+
-+	f = NULL;
-+found:
-+	return f;
-+}
-+
-+static void *x25_seq_forward_start(struct seq_file *seq, loff_t *pos)
-+{
-+	loff_t l = *pos;
-+
-+	read_lock_bh(&x25_forward_list_lock);
-+	return l ? x25_get_forward_idx(--l) : SEQ_START_TOKEN;
-+}
-+
-+static void *x25_seq_forward_next(struct seq_file *seq, void *v, loff_t *pos)
-+{
-+	struct x25_forward *f;
-+
-+	++*pos;
-+	if (v == SEQ_START_TOKEN) {
-+		f = NULL;
-+		if (!list_empty(&x25_forward_list))
-+			f = list_entry(x25_forward_list.next,
-+					struct x25_forward, node);
-+		goto out;
-+	}
-+	f = v;
-+	if (f->node.next != &x25_forward_list)
-+		f = list_entry(f->node.next, struct x25_forward, node);
-+	else 
-+		f = NULL;
-+out:
-+	return f;
-+
-+}
-+
-+static void x25_seq_forward_stop(struct seq_file *seq, void *v)
-+{
-+	read_unlock_bh(&x25_forward_list_lock);
-+}
-+
-+static int x25_seq_forward_show(struct seq_file *seq, void *v)
-+{
-+	struct x25_forward *f;
-+
-+	if (v == SEQ_START_TOKEN) {
-+		seq_printf(seq, "lci dev1       dev2\n");
-+		goto out;
-+	}
-+
-+	f = v;
-+
-+	seq_printf(seq, "%d %-10s %-10s\n",
-+			f->lci, f->dev1->name, f->dev2->name);
-+
-+out:
-+	return 0;
-+} 
-+
- static struct seq_operations x25_seq_route_ops = {
- 	.start  = x25_seq_route_start,
- 	.next   = x25_seq_route_next,
-@@ -179,6 +248,13 @@ static struct seq_operations x25_seq_soc
- 	.show   = x25_seq_socket_show,
- };
- 
-+static struct seq_operations x25_seq_forward_ops = {
-+	.start  = x25_seq_forward_start,
-+	.next   = x25_seq_forward_next,
-+	.stop   = x25_seq_forward_stop,
-+	.show   = x25_seq_forward_show,
-+};
-+
- static int x25_seq_socket_open(struct inode *inode, struct file *file)
- {
- 	return seq_open(file, &x25_seq_socket_ops);
-@@ -189,6 +265,11 @@ static int x25_seq_route_open(struct ino
- 	return seq_open(file, &x25_seq_route_ops);
- }
- 
-+static int x25_seq_forward_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &x25_seq_forward_ops);
-+}
-+
- static struct file_operations x25_seq_socket_fops = {
- 	.owner		= THIS_MODULE,
- 	.open		= x25_seq_socket_open,
-@@ -205,6 +286,14 @@ static struct file_operations x25_seq_ro
- 	.release	= seq_release,
- };
- 
-+static struct file_operations x25_seq_forward_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= x25_seq_forward_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
- static struct proc_dir_entry *x25_proc_dir;
- 
- int __init x25_proc_init(void)
-@@ -225,9 +314,17 @@ int __init x25_proc_init(void)
- 	if (!p)
- 		goto out_socket;
- 	p->proc_fops = &x25_seq_socket_fops;
-+
-+	p = create_proc_entry("forward", S_IRUGO, x25_proc_dir);
-+	if (!p)
-+		goto out_forward;
-+	p->proc_fops = &x25_seq_forward_fops;
- 	rc = 0;
-+
- out:
- 	return rc;
-+out_forward:
-+	remove_proc_entry("socket", x25_proc_dir);
- out_socket:
- 	remove_proc_entry("route", x25_proc_dir);
- out_route:
-@@ -237,6 +334,7 @@ out_route:
- 
- void __exit x25_proc_exit(void)
- {
-+	remove_proc_entry("forward", x25_proc_dir);
- 	remove_proc_entry("route", x25_proc_dir);
- 	remove_proc_entry("socket", x25_proc_dir);
- 	remove_proc_entry("x25", proc_net);
+>>So if your corruption is years old, then it must be something else.
+>>Maybe it is hidden by a timing change, or BDB isn't using msync properly.
+> 
+> I can give you a complete image where just changing kernel (everything
+> is same, of course) corruptions goes away.
+> we spent a lot, I mean a *lot*, of time looking for our code mistake,
+> and so on.
+> I don't want to seem rude, but I am sure that Berkeley DB corruption we
+> have seen (not just Klibido, but I also think about postgrey, and so on)
+> depends on this bug.
+> I repeat, if you have time/interest I can give you a complete machine
+> to see the problem.
 
+You're not being rude, but I just wanted to point out that this patch
+(nor the dirty page accounting also in 2.6.19) doesn't fix anything
+that was in 2.6.18, AFAIKS.
+
+I wouldn't discount a kernel bug, but it will be hard to track down
+unless you can find an earlier kernel that did not cause the corruptions
+and/or provide source for a minimal test case to reproduce.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

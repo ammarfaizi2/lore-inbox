@@ -1,221 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030200AbXADTgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030201AbXADTmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbXADTgB (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 14:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbXADTgA
+	id S1030201AbXADTmw (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 14:42:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbXADTmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 14:36:00 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:40547 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030202AbXADTf7 (ORCPT
+	Thu, 4 Jan 2007 14:42:52 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:4368 "EHLO
+	outbound0.mx.meer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030201AbXADTmv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 14:35:59 -0500
-Date: Thu, 4 Jan 2007 13:35:55 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 5/8] user ns: prepare copy_tree, copy_mnt, and their callers to handle errs
-Message-ID: <20070104193555.GA17506@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104181215.GF11377@sergelap.austin.ibm.com> <20070104190014.GA17863@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070104190014.GA17863@slug>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 4 Jan 2007 14:42:51 -0500
+X-Greylist: delayed 5202 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 14:42:51 EST
+Subject: [PATCH] kbuild: move tags from ARCH and include/ ahead of drivers
+From: Don Mullis <dwm@meer.net>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Cc: kai <kai@germaschewski.name>, sam <sam@ravnborg.org>
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 10:14:52 -0800
+Message-Id: <1167934492.2668.97.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Frederik Deweerdt (deweerdt@free.fr):
-> On Thu, Jan 04, 2007 at 12:12:15PM -0600, Serge E. Hallyn wrote:
-> > diff --git a/fs/namespace.c b/fs/namespace.c
-> > index 5da87e2..a4039a3 100644
-> > --- a/fs/namespace.c
-> > +++ b/fs/namespace.c
-> > @@ -708,8 +708,9 @@ struct vfsmount *copy_tree(struct vfsmou
-> >  		return NULL;
-> >
-> >  	res = q = clone_mnt(mnt, dentry, flag);
-> > -	if (!q)
-> > -		goto Enomem;
-> > +	if (!q || IS_ERR(q)) {
-> > +		return q;
-> > +	}
-> >  	q->mnt_mountpoint = mnt->mnt_mountpoint;
-> >
-> >  	p = mnt;
-> > @@ -730,8 +731,9 @@ struct vfsmount *copy_tree(struct vfsmou
-> >  			nd.mnt = q;
-> >  			nd.dentry = p->mnt_mountpoint;
-> >  			q = clone_mnt(p, p->mnt_root, flag);
-> > -			if (!q)
-> > -				goto Enomem;
-> > +			if (!q || IS_ERR(q)) {
-> > +				goto Error;
-> > +			}
-> >  			spin_lock(&vfsmount_lock);
-> >  			list_add_tail(&q->mnt_list, &res->mnt_list);
-> >  			attach_mnt(q, &nd);
-> > @@ -739,7 +741,7 @@ struct vfsmount *copy_tree(struct vfsmou
-> >  		}
-> >  	}
-> >  	return res;
-> > -Enomem:
-> > +Error:
-> >  	if (res) {
->         ^^^^^^^^^^
-> I think that this check can be safely skiped, as res is always non-NULL
-> when Error: is now reached, isn't it?
+Move tags extracted from the ARCH and include/ sub-trees ahead of
+those from device drivers, so that the former will appear first
+during searches. 
 
-Good point.  In addition, we can clean the code up a little by not
-letting clone_mnt return NULL.  Compile-tested patch follows.  Though
-really it starts to look like clone_mnt should be split into two
-parts, with the original clone_mnt static inline, and the new clone_mnt
-doing the permission check and return value conversion...
+Saves user time during interactive searches for certain patterns
+that happen to find unwanted matches in driver files.
 
-From: Serge E. Hallyn <serue@us.ibm.com>
-Subject: [PATCH 1/1] userns: cleanups with clone_mnt
+Example in emacs:
+	 "M-x find-tag PAGE_SIZE"
+	 "M-1 M-." (repeated until definition from asm-i386/page.h appears)
 
-As Frederik Deweerdt points out, the Error: case in copy_tree()
-can no longer have res==NULL, so remove that check.
-
-Also make clone_mnt always return -ENOMEM in place of NULL.
-
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Signed-off-by: Don Mullis <dwm@meer.net>
 ---
- fs/namespace.c |   90 ++++++++++++++++++++++++++++----------------------------
- 1 files changed, 45 insertions(+), 45 deletions(-)
+Tested with emacs/etags/ctags v22.0.92 by:
+ 1) running `make TAGS`, `make tags` with and without patch (ARCH=i386).
+ 2) verifying improved behavior of tag definition searching with
+   "M-x find-tag PAGE_SIZE", "M-1 M-." in emacs
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 60ca9b5..2ed89d4 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -243,41 +243,43 @@ static struct vfsmount *clone_mnt(struct
+ Makefile |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+Index: linux-2.6.19/Makefile
+===================================================================
+--- linux-2.6.19.orig/Makefile
++++ linux-2.6.19/Makefile
+@@ -1292,10 +1292,7 @@ endif
+ ALLSOURCE_ARCHS := $(ARCH)
  
- 	mnt = alloc_vfsmnt(old->mnt_devname);
+ define find-sources
+-        ( find $(__srctree) $(RCS_FIND_IGNORE) \
+-	       \( -name include -o -name arch \) -prune -o \
+-	       -name $1 -print; \
+-	  for ARCH in $(ALLSOURCE_ARCHS) ; do \
++        ( for ARCH in $(ALLSOURCE_ARCHS) ; do \
+ 	       find $(__srctree)arch/$${ARCH} $(RCS_FIND_IGNORE) \
+ 	            -name $1 -print; \
+ 	  done ; \
+@@ -1309,7 +1306,11 @@ define find-sources
+ 	            -name $1 -print; \
+ 	  done ; \
+ 	  find $(__srctree)include/asm-generic $(RCS_FIND_IGNORE) \
+-	       -name $1 -print )
++	       -name $1 -print; \
++	  find $(__srctree) $(RCS_FIND_IGNORE) \
++	       \( -name include -o -name arch \) -prune -o \
++	       -name $1 -print; \
++	  )
+ endef
  
--	if (mnt) {
--		mnt->mnt_flags = old->mnt_flags;
--		atomic_inc(&sb->s_active);
--		mnt->mnt_sb = sb;
--		mnt->mnt_root = dget(root);
--		mnt->mnt_mountpoint = mnt->mnt_root;
--		mnt->mnt_parent = mnt;
--
--		if (flag & CL_SLAVE) {
--			list_add(&mnt->mnt_slave, &old->mnt_slave_list);
--			mnt->mnt_master = old;
--			CLEAR_MNT_SHARED(mnt);
--		} else {
--			if ((flag & CL_PROPAGATION) || IS_MNT_SHARED(old))
--				list_add(&mnt->mnt_share, &old->mnt_share);
--			if (IS_MNT_SLAVE(old))
--				list_add(&mnt->mnt_slave, &old->mnt_slave);
--			mnt->mnt_master = old->mnt_master;
--		}
--		if (flag & CL_MAKE_SHARED)
--			set_mnt_shared(mnt);
--		if (flag & CL_SHARE_NS)
--			mnt->mnt_flags |= MNT_SHARE_NS;
--		else
--			mnt->mnt_flags &= ~MNT_SHARE_NS;
--
--		/* stick the duplicate mount on the same expiry list
--		 * as the original if that was on one */
--		if (flag & CL_EXPIRE) {
--			spin_lock(&vfsmount_lock);
--			if (!list_empty(&old->mnt_expire))
--				list_add(&mnt->mnt_expire, &old->mnt_expire);
--			spin_unlock(&vfsmount_lock);
--		}
-+	if (!mnt)
-+		return ERR_PTR(-ENOMEM);
-+
-+	mnt->mnt_flags = old->mnt_flags;
-+	atomic_inc(&sb->s_active);
-+	mnt->mnt_sb = sb;
-+	mnt->mnt_root = dget(root);
-+	mnt->mnt_mountpoint = mnt->mnt_root;
-+	mnt->mnt_parent = mnt;
-+
-+	if (flag & CL_SLAVE) {
-+		list_add(&mnt->mnt_slave, &old->mnt_slave_list);
-+		mnt->mnt_master = old;
-+		CLEAR_MNT_SHARED(mnt);
-+	} else {
-+		if ((flag & CL_PROPAGATION) || IS_MNT_SHARED(old))
-+			list_add(&mnt->mnt_share, &old->mnt_share);
-+		if (IS_MNT_SLAVE(old))
-+			list_add(&mnt->mnt_slave, &old->mnt_slave);
-+		mnt->mnt_master = old->mnt_master;
- 	}
-+	if (flag & CL_MAKE_SHARED)
-+		set_mnt_shared(mnt);
-+	if (flag & CL_SHARE_NS)
-+		mnt->mnt_flags |= MNT_SHARE_NS;
-+	else
-+		mnt->mnt_flags &= ~MNT_SHARE_NS;
-+
-+	/* stick the duplicate mount on the same expiry list
-+	 * as the original if that was on one */
-+	if (flag & CL_EXPIRE) {
-+		spin_lock(&vfsmount_lock);
-+		if (!list_empty(&old->mnt_expire))
-+			list_add(&mnt->mnt_expire, &old->mnt_expire);
-+		spin_unlock(&vfsmount_lock);
-+	}
-+	
- 	return mnt;
- }
- 
-@@ -715,14 +717,15 @@ struct vfsmount *copy_tree(struct vfsmou
- {
- 	struct vfsmount *res, *p, *q, *r, *s;
- 	struct nameidata nd;
-+	LIST_HEAD(umount_list);
- 
- 	if (!(flag & CL_COPY_ALL) && IS_MNT_UNBINDABLE(mnt))
- 		return NULL;
- 
- 	res = q = clone_mnt(mnt, dentry, flag);
--	if (!q || IS_ERR(q)) {
-+	if (IS_ERR(q))
- 		return q;
--	}
-+
- 	q->mnt_mountpoint = mnt->mnt_mountpoint;
- 
- 	p = mnt;
-@@ -743,9 +746,8 @@ struct vfsmount *copy_tree(struct vfsmou
- 			nd.mnt = q;
- 			nd.dentry = p->mnt_mountpoint;
- 			q = clone_mnt(p, p->mnt_root, flag);
--			if (!q || IS_ERR(q)) {
-+			if (IS_ERR(q))
- 				goto Error;
--			}
- 			spin_lock(&vfsmount_lock);
- 			list_add_tail(&q->mnt_list, &res->mnt_list);
- 			attach_mnt(q, &nd);
-@@ -754,13 +756,11 @@ struct vfsmount *copy_tree(struct vfsmou
- 	}
- 	return res;
- Error:
--	if (res) {
--		LIST_HEAD(umount_list);
--		spin_lock(&vfsmount_lock);
--		umount_tree(res, 0, &umount_list);
--		spin_unlock(&vfsmount_lock);
--		release_mounts(&umount_list);
--	}
-+	spin_lock(&vfsmount_lock);
-+	umount_tree(res, 0, &umount_list);
-+	spin_unlock(&vfsmount_lock);
-+	release_mounts(&umount_list);
-+
- 	return q;
- }
- 
--- 
-1.4.1
+ define all-sources
+
 

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932273AbXADFOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932265AbXADFZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbXADFOm (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbXADFOm
+	id S932265AbXADFZn (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbXADFZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:14:42 -0500
-Received: from p02c11o146.mxlogic.net ([208.65.145.69]:59698 "EHLO
-	p02c11o146.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932261AbXADFOl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:14:41 -0500
-Date: Thu, 4 Jan 2007 07:07:22 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH  v4 01/13] Linux RDMA Core Changes
-Message-ID: <20070104050722.GA9900@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1167851839.4187.36.camel@stevo-desktop> <20070103193324.GD29003@mellanox.co.il> <1167855618.4187.65.camel@stevo-desktop> <1167859320.4187.81.camel@stevo-desktop>
+	Thu, 4 Jan 2007 00:25:43 -0500
+Received: from usul.saidi.cx ([204.11.33.34]:51096 "EHLO usul.overt.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932265AbXADFZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 00:25:42 -0500
+Message-ID: <459C8FA4.7080709@overt.org>
+Date: Wed, 03 Jan 2007 21:24:52 -0800
+From: Philip Langdale <philipl@overt.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1167859320.4187.81.camel@stevo-desktop>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 04 Jan 2007 05:08:27.0595 (UTC) FILETIME=[5E5021B0:01C72FBE]
-X-TM-AS-Product-Ver: SMEX-7.0.0.1526-3.6.1039-14914.001
-X-TM-AS-Result: No--9.493800-4.000000-31
-X-Spam: [F=0.0100000000; S=0.010(2006120601)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+To: Pierre Ossman <drzeus-list@drzeus.cx>, Alex Dubov <oakad@yahoo.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 2)
+References: <459928F3.9010804@overt.org> <20070103150620.ac733abb.akpm@osdl.org>
+In-Reply-To: <20070103150620.ac733abb.akpm@osdl.org>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you think I should not add the udata parameter to the req_notify_cq()
-> provider verb, then I can rework the chelsio driver:
+Andrew Morton wrote:
+> On Mon, 01 Jan 2007 07:29:55 -0800
+> Philip Langdale <philipl@overt.org> wrote:
 > 
-> 1) at cq creation time, pass the virtual address of the u32 used by the
-> library to track the current cq index.  That way the chelsio kernel
-> driver can save the address in its kernel cq context for later use.
+>>  #define MMC_RSP_R1B	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
+>>  #define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+>>  #define MMC_RSP_R3	(MMC_RSP_PRESENT)
+>> -#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC)
+>> +#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+>> +#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 > 
-> 2) change chelsio's req_notify_cq() to copy in the current cq index
-> value directly for rearming.
+> This gives MMC_RSP_R1 and MMC_RSP_R6 the same value, so
 > 
-> This puts all the burden on the chelsio driver, which is apparently the
-> only one that needs this functionality.  
+> drivers/mmc/tifm_sd.c: In function 'tifm_sd_op_flags':
+> drivers/mmc/tifm_sd.c:190: error: duplicate case value
+> drivers/mmc/tifm_sd.c:181: error: previously used here
 
-Good thinking, I haven't thought of this approach.
+This is a bug. The MMC_RSP_R? #defines do not fully characterise the
+responses (specically, the way that the response is parsed is not
+characterised) and consequently there is no guarantee of uniqueness.
+Given this reality - the way that the tifm_sd driver works is unsafe.
 
-This way there won't be any API/core changes and no changes to
-other low level drivers, correct? And for chelsio, there's no overhead
-as compared to code you posted.
+If R6 had not been incorrectly defined (the missing RSP_OPCODE should
+always have been there), then this code would not have worked. As things
+currently stand, it is necessary to also check the command number to
+decide on the correct response type - that's suboptimal and it's probably
+good to uniquely identify the response in the mmc_command in some other
+fashion.
 
-Sounds good.
+I'm going to remove the R6 fix from my next diff to keep these things
+distinct but this needs to be resolved.
 
--- 
-MST
+--phil

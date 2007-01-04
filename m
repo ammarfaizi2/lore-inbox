@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932337AbXADJJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932341AbXADJU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbXADJJO (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 04:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbXADJJO
+	id S932341AbXADJU0 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 04:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbXADJU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 04:09:14 -0500
-Received: from mx33.mail.ru ([194.67.23.194]:2089 "EHLO mx33.mail.ru"
+	Thu, 4 Jan 2007 04:20:26 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:49411 "EHLO e6.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932337AbXADJJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 04:09:12 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] [PATCH] OHCI: disallow autostop when wakeup is not available
-Date: Thu, 4 Jan 2007 12:09:08 +0300
-User-Agent: KMail/1.9.5
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0701021013470.4122-100000@iolanthe.rowland.org> <200701031350.08679.david-b@pacbell.net>
-In-Reply-To: <200701031350.08679.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S932339AbXADJUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 04:20:24 -0500
+Date: Thu, 4 Jan 2007 14:57:33 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, akpm@osdl.org, drepper@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com, mingo@elte.hu,
+       =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Subject: [PATCHSET 3][PATCH 0/5][AIO] - AIO completion signal notification v4
+Message-ID: <20070104092733.GD9608@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <20061227153855.GA25898@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200701041209.09081.arvidjaar@mail.ru>
+In-Reply-To: <20061227153855.GA25898@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+  Hi
 
-On Thursday 04 January 2007 00:50, David Brownell wrote:
-> On Tuesday 02 January 2007 7:16 am, Alan Stern wrote:
-> > On Mon, 1 Jan 2007, Andrey Borzenkov wrote:
-> > > Is the original problem (OHCI constantly attempting and failing to
-> > > suspend root hub) supposed to be fixed in 2.6.20?
-> >
-> > No.  It can't be fixed in the kernel because it is a hardware bug.
->
-> I'm curious though:  did older kernels, say 2.6.18, have such issues?
+  Here is a repost of Sebastien's AIO completion signal notification v4
+  patches along with the syscall based listio support patch. The goal
+  of this patchset is to improve the POSIX AIO support in the kernel.
 
-Yes. It is hardware problem all right.
+  While the 1st 4 patches provide the AIO completion signal notification
+  support, the 5th one provides the listio support.
 
-[...]
->
-> Not just that ... it also fixed the problem where quirk entries
-> saying "don't even try using remote wakeup" stopped working.
->
+  Sebastien's original patchset had a different listio support patch
+  (patch number 5) based on overloading the io_submit() with a new
+  aio_lio_opcode (IOCB_CMD_GROUP). But here listio support is provided
+  by a separate system call.
 
-Exactly. I am sorry for being unclear - actually the question was, whether 
-quirks are implemented in 2.6.20 (because I remember them being mentioned 
-before).
+  As mentioned, this set consists of 5 patches:
 
-> Once some pending PPC-related OHCI patches merge (support for
-> PS3 and other CELL systems), there will be infrastructure that
-> makes it easier to add quirk entries that say "this board can't
-> do remote wakeup properly".  At that point, we can start to
-> collect quirks for boards like this one.
->
+	1. rework-compat-sys-io-submit: cleanup the sys_io_submit() compat
+	layer, making it more efficient and laying out the base for the
+	following patches
 
-OK so this answers the question - it is not yet being implemented.
+	2. aio-header-fix-includes: fixes the double inclusion of uio.h in aio.h
 
-thank you
+	3. export-good_sigevent: move good_sigevent into signal.c and make it
+	   non-static
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+	4. aio-notify-sig: the AIO completion signal notification
 
-iD8DBQFFnMQ1R6LMutpd94wRAqayAKDQrqfpERc4F5LjqWMQgI6oxqqOmACdH++H
-r6aDgoAQDw2SHRq+2yLaoyw=
-=95Oh
------END PGP SIGNATURE-----
+	5. listio: adds listio support
+
+  Description are in the individual patches.
+
+  Original v4 post is present at http://lkml.org/lkml/2006/11/30/223
+
+  Changes from v3:
+	All changes following comments from Zach Brown and Christoph Hellwig
+
+	- added justification for the compat_sys_io_submit() cleanup
+	- more cleanups in compat_sys_io_submit() to put it in line with
+	  sys_io_submit()
+	- Changed "Export good_sigevent()" patch name to "Make good_sigevent()
+	  non-static" to better describe what it does.=20
+	- Reworked good_sigevent() to make it more readable.
+	- Simplified the use of the SIGEV_* constants in signal notification
+	- Take a reference on the target task both for the SIGEV_THREAD_ID and
+	  SIGEV_SIGNAL cases.
+
+  Changes from v2:
+	- rebased to 2.6.19-rc6-mm2
+	- reworked the sys_io_submit() compat layer as suggested by Zach Brown
+	- fixed saving of a pointer to a task struct in aio-notify-sig as
+	  pointed out by Andrew Morton
+
+  Changes from v1:
+	- cleanups suggested by Christoph Hellwig, Badari Pulavarty and
+	Zach Brown
+	- added lisio patch
+
+Regards,
+Bharata.

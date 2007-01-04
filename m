@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932121AbXADFCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932256AbXADFH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbXADFCg (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 00:02:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbXADFCg
+	id S932256AbXADFH5 (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 00:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbXADFH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 00:02:36 -0500
-Received: from wx-out-0506.google.com ([66.249.82.238]:19717 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932121AbXADFCf (ORCPT
+	Thu, 4 Jan 2007 00:07:57 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:43821 "HELO
+	smtp107.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932256AbXADFH4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 00:02:35 -0500
+	Thu, 4 Jan 2007 00:07:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type;
-        b=gq1SouQcfgZXtDVOo87PmCsBsuIYszOZ18Z6c28U9bnam8wYQpTNdkDUazOwlFqyrGc5XDacsc7s0F6z3dbr1aTGMKpM0ahnBYim8Pfh5dnCfVygym7u5gu5DYxwGTBbH1UcAbBqGv5at1l38zK9hr4rehVSQq+K1woSmz+vKN8=
-Message-ID: <459C8A5E.5010206@gmail.com>
-Date: Thu, 04 Jan 2007 14:02:22 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=VJ6UewWl4sNn30eUmMiwUcz7Tucuu2bWxailen9rYSdxW+Au6PPpaYbujTJ0Ht1U2BZswjoP4YQtlz8hRODGDI4n1Y5QfaAHkXmMqg29VgVI108wgyLw20OfOKVna0Sx6DrWFrP2CjbrHkI3qXVw9LBiVbHBXl3YSsEv3pjrVEU=  ;
+X-YMail-OSG: _KyXKxoVM1kQ8sUwblO78v4r34KdwA2A2J.CAE4nIvIvTLlFnhWTGlAN9k07.YWvi_fvLdKJMy.P7EntENTaFsvjq.WMKejalo5efvQgxpQSSDxXOkmTgd29iC.jAvujdr2F4Nmf3shiqq4-
+Message-ID: <459C8B86.2050905@yahoo.com.au>
+Date: Thu, 04 Jan 2007 16:07:18 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pablo Sebastian Greco <lkml@fliagreco.com.ar>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA problems
-References: <459A674B.3060304@fliagreco.com.ar> <459B9F91.9070908@gmail.com> <459BC703.9000207@fliagreco.com.ar>
-In-Reply-To: <459BC703.9000207@fliagreco.com.ar>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/mixed;
- boundary="------------080909090305090104090408"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrea Gelmini <gelma@gelma.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM: Fix nasty and subtle race in shared mmap'ed page writeback
+References: <200612291859.kBTIx2kq031961@hera.kernel.org> <20061229224309.GA23445@gelma.net> <459734CE.1090001@yahoo.com.au> <20061231135031.GC23445@gelma.net> <459C7B24.8080008@yahoo.com.au> <Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0701032031400.3661@woody.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080909090305090104090408
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Linus Torvalds wrote:
+> 
+> On Thu, 4 Jan 2007, Nick Piggin wrote:
+> 
+>>Yhat's when the bug was introduced -- 2.6.19. 2.6.18 does not have
+>>this bug, so it cannot be years old.
+> 
+> 
+> Actually, I think 2.6.18 may have a subtle variation on it. 
+> 
+> In particular, I look back at the try_to_free_buffers() thing that I hated 
+> so much, and it makes me wonder.. It used to do:
+> 
+> 	spin_lock(&mapping->private_lock);
+> 	ret = drop_buffers(page, &buffers_to_free);
+> 	spin_unlock(&mapping->private_lock);
+> 	if (ret) {
+> 		.. crappy comment ..
+> 		if (test_clear_page_dirty(page))
+> 			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
+> 	}
+> 
+> and I think that at least on SMP, we had a race with another CPU doing the 
+> "mark page dirty if it was dirty in the PTE" at the same time. Because the 
+> marking dirty would come in, find no buffers (they just got dropped), and 
+> then mark the page dirty (ignoring the lack of any buffers), but then the 
+> above would do the "test_clear_page_dirty()" thing on it.
+> 
+> Ie the race, I think, existed where that crappy comment was.
+> 
+> But that much older race would only trigger on SMP (or possibly UP with 
+> preempt).
 
-Pablo Sebastian Greco wrote:
-> By crash I mean the whole system going down, having to reset the entire
-> machine.
-> I'm sending you 4 files:
-> dmesg: current boot dmesg, just a boot, because no errors appeared after
-> last crash, since the server is out of production right now (errors
-> usually appear under heavy load, and this primarily a transparent proxy
-> for about 1000 simultaneous users)
-> lspci: the way you asked for it
-> messages and messages.1: files where you can see old boots and crashes
-> (even a soft lockup).
-> If there is anything else I can do, let me know. If you need direct
-> access to the server, I can arrange that too.
+Oh yes the try_to_free_buffers race, I think, does exist in older kernels.
+Yes according to our earlier analysis it would trigger with UP+preempt and
+SMP.
 
-Can you try 2.6.20-rc3 and see if 'CLO not available' message goes away
-(please post boot dmesg)?
+But the patch that Andrea was pointing to was your last patch (The Fix),
+which stopped page_mkclean caller throwing out dirty bits. You probably
+didn't see that in the mail I cc'ed you on.
 
-The crash/lock is because filesystem code does not cope with IO errors
-very well.  I can't tell why timeouts are occurring in the first place.
- It seems that only samsung drives are affected (sda2, 3, 4).  Hmmm...
-Please apply the attached patch to 2.6.20-rc3 and test it.
-
-Thanks.
+So yes it would be interesting to see whether fixing try_to_free_buffers
+fixes Andrea's problem on older kernels.
 
 -- 
-tejun
-
---------------080909090305090104090408
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 0d51d13..f8cf349 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3327,6 +3327,8 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
- 	/* NCQ is slow */
-         { "WDC WD740ADFD-00",   NULL,		ATA_HORKAGE_NONCQ },
- 
-+	{ "SAMSUNG SP2504C",	NULL,		ATA_HORKAGE_NONCQ },
-+
- 	/* Devices with NCQ limits */
- 
- 	/* End Marker */
-
---------------080909090305090104090408--
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

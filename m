@@ -1,798 +1,375 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932299AbXADG2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932293AbXADGdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbXADG2o (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 01:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbXADG2o
+	id S932293AbXADGdx (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 01:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbXADGdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 01:28:44 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:36599 "HELO
-	smtp111.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932299AbXADG2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 01:28:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=RYQGfFA0UMPyklswoqDRdwSk0QJnW/4mmsGdTlu2D027lGetf7IMoWNFmrP9lWB9Sq5rVDxKkX5p+dcis9hM8eSQZ2dnYBha3MmscdNKdMFJrarvPpxYl6w7f0SKzwMX808IvJ5G716hrG6+4iW/GnZT6RR0iEN3KOhHxuyW7po=  ;
-X-YMail-OSG: OeKE2_MVM1lVVTYL9wLP94.k0sguaZ04vIsocVEr_vRFJzSHvr0qCE8Fe3pfXqXk6nz.HzVPKd5CaDGuFZQEbaJqQI_9j0hHcFsUIxwq9RFj5DoKHDPizaKj8s95U.UH90v0pNC1tjI31bI-
-From: David Brownell <david-b@pacbell.net>
-To: "Voipio Riku" <Riku.Voipio@movial.fi>
-Subject: Re: [patch 2.6.19-git] rts-rs5c372 updates:  more chips, alarm, 12hr mode, etc
-Date: Wed, 3 Jan 2007 20:23:35 -0800
-User-Agent: KMail/1.7.1
-Cc: rtc-linux@googlegroups.com,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Alessandro Zummo" <alessandro.zummo@towertech.it>,
-       dan.j.williams@intel.com, i2c@lm-sensors.org
-References: <200612081859.42995.david-b@pacbell.net> <200701021907.25701.david-b@pacbell.net> <42235.80.222.56.248.1167864702.squirrel@webmail.movial.fi>
-In-Reply-To: <42235.80.222.56.248.1167864702.squirrel@webmail.movial.fi>
+	Thu, 4 Jan 2007 01:33:53 -0500
+Received: from usul.saidi.cx ([204.11.33.34]:56498 "EHLO usul.overt.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932293AbXADGdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 01:33:52 -0500
+Message-ID: <459C9F9D.9090503@overt.org>
+Date: Wed, 03 Jan 2007 22:33:01 -0800
+From: Philip Langdale <philipl@overt.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+       Alex Dubov <oakad@yahoo.com>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.19] mmc: Add support for SDHC cards (Take 3)
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701032023.36660.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 January 2007 2:51 pm, Voipio Riku wrote:
-> 
-> > Yes, the patch you sent (switching to "method 3" to work around the
-> > evident bug in the i2c-ixp3xx driver) works on the platform I was
-> > using too (after unrelated tweaks).
-> 
-> > Here's an updated patch, using "method 3".  If it still behaves
-> > for you, it'd seem ready to merge...
-> 
-> Works fine, thanks! Unfortunately the i2c-ixp3xx issue has not advanced in
-> the meantime, so we still need the third method.
+Thanks to the generous donation of an SDHC card by John Gilmore, and the
+surprisingly enlightened decision by the SD Card Association to publish
+useful specs, I've been able to bash out support for SDHC. The changes
+are not too profound:
 
-Right.  Thanks for confirming this!  Alessandro?
+i) Add a card flag indicating the card uses block level addressing and check
+it in the block driver. As we never took advantage of byte-level addressing,
+this simply involves skipping the block -> byte translation when sending commands.
 
-Here's a version with corrected patch comments.  (Against 2.6.20-rc3 now,
-but I didn't change $SUBJECT).
+ii) The layout of the CSD is changed - a set of fields are discarded to make space
+for a larger C_SIZE. We did not reference any of the discarded fields except those
+related to the C_SIZE.
 
-- Dave
+iii) Read and write timeouts are fixed values and not calculated from CSD values.
 
-===========	CUT HERE
-Update the rtc-rs5c372 driver:
+iv) Before invoking SEND_APP_OP_COND, we must invoke the new SEND_IF_COND to inform
+the card we support SDHC.
 
- Bugfixes:
-  - Handle RTCs which are configured to use 12-hour mode.
-  - Never report bogus/un-initialized times.
-  - Displaying "raw trim" requires not masking it first!
-  - Fix the sysfs and procfs display of crystal and trim data.
+I've done some basic read and write tests and everything seems to work fine but one
+should obviously use caution in case it eats your data.
 
- Features:
-  - Handle other RTCs in this family, notably rv5c386/rv5c387.
-  - Declare the other registers.
-  - Provide alarm get/set functionality.
-  - Handle AIE and UIE; but no IRQ handling yet.
+Caveat:
 
- Cleanup:
-  - Shrink object by not including needless sysfs or procfs support
-  - We don't need no steenkin' forward declarations.  (Except one.)
+Due to braindead hardware design, some drivers have to tell the host controller
+what response code an issued command uses. This leads to two problems:
 
-Until the I2C framework merges "new style" driver support, matching
-the driver model better, using rv5c chips or alarm IRQs requires a
-separate board-specific patch.  (And an IRQ handler, handing off labor
-through a work_struct...)
+1) Before this change, R1 and R6 were actually identical except R6 was incorrectly
+defined and appeared different. Fixing this means the tifm_sd driver is unhappy as
+it can't distinguish them. I have fixed it by adding new flags that describe the
+response a bit more so that R6 and R7 are unique and correct.
 
-This uses the "method 3" register reads, but notes that it's done
-to work around an evident i2c adapter driver bug.
+2) What happens if the hardware doesn't grok R7? Is there anything we can
+do or have they managed to build hardware that will never work with SD 2.0 cards?
+Right now, if you stick an SDHC card in, the tifm_sd driver will BUG() due to
+the unknown response type while the imxmmc driver will probably fail to dispatch
+the command correctly. All other supported controllers except SDHCI do some work
+based on response type but appear to be able to cope with the new R7.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Philipl Langdale <philipl@overt.org>
+---
+ drivers/mmc/mmc.c            |  138 ++++++++++++++++++++++++++++++++++---------
+ drivers/mmc/mmc_block.c      |    8 ++
+ include/linux/mmc/card.h     |    3
+ include/linux/mmc/mmc.h      |   23 ++++---
+ include/linux/mmc/protocol.h |   13 +++-
+ 5 files changed, 149 insertions(+), 36 deletions(-)
 
-Index: g26/drivers/rtc/rtc-rs5c372.c
-===================================================================
---- g26.orig/drivers/rtc/rtc-rs5c372.c	2006-12-27 17:19:55.000000000 -0800
-+++ g26/drivers/rtc/rtc-rs5c372.c	2007-01-02 18:44:35.000000000 -0800
-@@ -1,5 +1,5 @@
- /*
-- * An I2C driver for the Ricoh RS5C372 RTC
-+ * An I2C driver for Ricoh RS5C372 and RV5C38[67] RTCs
-  *
-  * Copyright (C) 2005 Pavel Mironchik <pmironchik@optifacio.net>
-  * Copyright (C) 2006 Tower Technologies
-@@ -13,7 +13,7 @@
- #include <linux/rtc.h>
- #include <linux/bcd.h>
- 
--#define DRV_VERSION "0.3"
-+#define DRV_VERSION "0.4"
- 
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { /* 0x32,*/ I2C_CLIENT_END };
-@@ -21,6 +21,13 @@ static unsigned short normal_i2c[] = { /
- /* Insmod parameters */
- I2C_CLIENT_INSMOD;
- 
-+
-+/*
-+ * Ricoh has a family of I2C based RTCs, which differ only slightly from
-+ * each other.  Differences center on pinout (e.g. how many interrupts,
-+ * output clock, etc) and how the control registers are used.  The '372
-+ * is significant only because that's the one this driver first supported.
-+ */
- #define RS5C372_REG_SECS	0
- #define RS5C372_REG_MINS	1
- #define RS5C372_REG_HOURS	2
-@@ -29,59 +36,142 @@ I2C_CLIENT_INSMOD;
- #define RS5C372_REG_MONTH	5
- #define RS5C372_REG_YEAR	6
- #define RS5C372_REG_TRIM	7
-+#	define RS5C372_TRIM_XSL		0x80
-+#	define RS5C372_TRIM_MASK	0x7F
- 
--#define RS5C372_TRIM_XSL	0x80
--#define RS5C372_TRIM_MASK	0x7F
--
--#define RS5C372_REG_BASE	0
--
--static int rs5c372_attach(struct i2c_adapter *adapter);
--static int rs5c372_detach(struct i2c_client *client);
--static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind);
-+#define RS5C_REG_ALARM_A_MIN	8			/* or ALARM_W */
-+#define RS5C_REG_ALARM_A_HOURS	9
-+#define RS5C_REG_ALARM_A_WDAY	10
-+
-+#define RS5C_REG_ALARM_B_MIN	11			/* or ALARM_D */
-+#define RS5C_REG_ALARM_B_HOURS	12
-+#define RS5C_REG_ALARM_B_WDAY	13			/* (ALARM_B only) */
-+
-+#define RS5C_REG_CTRL1		14
-+#	define RS5C_CTRL1_AALE		(1 << 7)	/* or WALE */
-+#	define RS5C_CTRL1_BALE		(1 << 6)	/* or DALE */
-+#	define RV5C387_CTRL1_24		(1 << 5)
-+#	define RS5C372A_CTRL1_SL1	(1 << 5)
-+#	define RS5C_CTRL1_CT_MASK	(7 << 0)
-+#	define RS5C_CTRL1_CT0		(0 << 0)	/* no periodic irq */
-+#	define RS5C_CTRL1_CT4		(4 << 0)	/* 1 Hz level irq */
-+#define RS5C_REG_CTRL2		15
-+#	define RS5C372_CTRL2_24		(1 << 5)
-+#	define RS5C_CTRL2_XSTP		(1 << 4)
-+#	define RS5C_CTRL2_CTFG		(1 << 2)
-+#	define RS5C_CTRL2_AAFG		(1 << 1)	/* or WAFG */
-+#	define RS5C_CTRL2_BAFG		(1 << 0)	/* or DAFG */
-+
-+
-+/* to read (style 1) or write registers starting at R */
-+#define RS5C_ADDR(R)		(((R) << 4) | 0)
-+
-+
-+enum rtc_type {
-+	rtc_undef = 0,
-+	rtc_rs5c372a,
-+	rtc_rs5c372b,
-+	rtc_rv5c386,
-+	rtc_rv5c387a,
-+};
- 
-+/* REVISIT:  this assumes that:
-+ *  - we're in the 21st century, so it's safe to ignore the century
-+ *    bit for rv5c38[67] (REG_MONTH bit 7);
-+ *  - we should use ALARM_A not ALARM_B (may be wrong on some boards)
-+ */
- struct rs5c372 {
--	u8 reg_addr;
--	u8 regs[17];
--	struct i2c_msg msg[1];
--	struct i2c_client client;
--	struct rtc_device *rtc;
--};
-+	struct i2c_client	*client;
-+	struct rtc_device	*rtc;
-+	enum rtc_type		type;
-+	unsigned		time24:1;
-+	unsigned		has_irq:1;
-+	char			buf[17];
-+	char			*regs;
- 
--static struct i2c_driver rs5c372_driver = {
--	.driver		= {
--		.name	= "rs5c372",
--	},
--	.attach_adapter	= &rs5c372_attach,
--	.detach_client	= &rs5c372_detach,
-+	/* on conversion to a "new style" i2c driver, this vanishes */
-+	struct i2c_client	dev;
- };
- 
--static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int rs5c_get_regs(struct rs5c372 *rs5c)
- {
--
--	struct rs5c372 *rs5c372 = i2c_get_clientdata(client);
--	u8 *buf = &(rs5c372->regs[1]);
--
--	/* this implements the 3rd reading method, according
--	 * to the datasheet. rs5c372 defaults to internal
--	 * address 0xF, so 0x0 is in regs[1]
-+	struct i2c_client	*client = rs5c->client;
-+	struct i2c_msg		msgs[] = {
-+		{ client->addr, I2C_M_RD, sizeof rs5c->buf, rs5c->buf },
-+	};
-+
-+	/* This implements the third reading method from the datasheet, using
-+	 * an internal address that's reset after each transaction (by STOP)
-+	 * to 0x0f ... so we read extra registers, and skip the first one.
-+	 *
-+	 * The first method doesn't work with the iop3xx adapter driver, on at
-+	 * least 80219 chips; this works around that bug.
- 	 */
--
--	if ((i2c_transfer(client->adapter, rs5c372->msg, 1)) != 1) {
--		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+	if ((i2c_transfer(client->adapter, msgs, 1)) != 1) {
-+		pr_debug("%s: can't read registers\n", rs5c->rtc->name);
- 		return -EIO;
- 	}
- 
--	tm->tm_sec = BCD2BIN(buf[RS5C372_REG_SECS] & 0x7f);
--	tm->tm_min = BCD2BIN(buf[RS5C372_REG_MINS] & 0x7f);
--	tm->tm_hour = BCD2BIN(buf[RS5C372_REG_HOURS] & 0x3f);
--	tm->tm_wday = BCD2BIN(buf[RS5C372_REG_WDAY] & 0x07);
--	tm->tm_mday = BCD2BIN(buf[RS5C372_REG_DAY] & 0x3f);
-+	dev_dbg(&client->dev,
-+		"%02x %02x %02x (%02x) %02x %02x %02x (%02x), "
-+		"%02x %02x %02x, %02x %02x %02x; %02x %02x\n",
-+		rs5c->regs[0],  rs5c->regs[1],  rs5c->regs[2],  rs5c->regs[3],
-+		rs5c->regs[4],  rs5c->regs[5],  rs5c->regs[6],  rs5c->regs[7],
-+		rs5c->regs[8],  rs5c->regs[9],  rs5c->regs[10], rs5c->regs[11],
-+		rs5c->regs[12], rs5c->regs[13], rs5c->regs[14], rs5c->regs[15]);
-+
-+	return 0;
-+}
-+
-+static unsigned rs5c_reg2hr(struct rs5c372 *rs5c, unsigned reg)
-+{
-+	unsigned	hour;
-+
-+	if (rs5c->time24)
-+		return BCD2BIN(reg & 0x3f);
-+
-+	hour = BCD2BIN(reg & 0x1f);
-+	if (hour == 12)
-+		hour = 0;
-+	if (reg & 0x20)
-+		hour += 12;
-+	return hour;
-+}
-+
-+static unsigned rs5c_hr2reg(struct rs5c372 *rs5c, unsigned hour)
-+{
-+	if (rs5c->time24)
-+		return BIN2BCD(hour);
-+
-+	if (hour > 12)
-+		return 0x20 | BIN2BCD(hour - 12);
-+	if (hour == 12)
-+		return 0x20 | BIN2BCD(12);
-+	if (hour == 0)
-+		return BIN2BCD(12);
-+	return BIN2BCD(hour);
-+}
-+
-+static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	struct rs5c372	*rs5c = i2c_get_clientdata(client);
-+	int		status = rs5c_get_regs(rs5c);
-+
-+	if (status < 0)
-+		return status;
-+
-+	tm->tm_sec = BCD2BIN(rs5c->regs[RS5C372_REG_SECS] & 0x7f);
-+	tm->tm_min = BCD2BIN(rs5c->regs[RS5C372_REG_MINS] & 0x7f);
-+	tm->tm_hour = rs5c_reg2hr(rs5c, rs5c->regs[RS5C372_REG_HOURS]);
-+
-+	tm->tm_wday = BCD2BIN(rs5c->regs[RS5C372_REG_WDAY] & 0x07);
-+	tm->tm_mday = BCD2BIN(rs5c->regs[RS5C372_REG_DAY] & 0x3f);
- 
- 	/* tm->tm_mon is zero-based */
--	tm->tm_mon = BCD2BIN(buf[RS5C372_REG_MONTH] & 0x1f) - 1;
-+	tm->tm_mon = BCD2BIN(rs5c->regs[RS5C372_REG_MONTH] & 0x1f) - 1;
- 
- 	/* year is 1900 + tm->tm_year */
--	tm->tm_year = BCD2BIN(buf[RS5C372_REG_YEAR]) + 100;
-+	tm->tm_year = BCD2BIN(rs5c->regs[RS5C372_REG_YEAR]) + 100;
- 
- 	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n",
-@@ -89,22 +179,25 @@ static int rs5c372_get_datetime(struct i
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	return 0;
-+	/* rtc might need initialization */
-+	return rtc_valid_tm(tm);
- }
- 
- static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
--	unsigned char buf[8] = { RS5C372_REG_BASE };
-+	struct rs5c372	*rs5c = i2c_get_clientdata(client);
-+	unsigned char	buf[8];
- 
--	dev_dbg(&client->dev,
--		"%s: secs=%d, mins=%d, hours=%d "
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n",
--		__FUNCTION__, tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
-+	buf[0] = RS5C_ADDR(RS5C372_REG_SECS);
- 	buf[1] = BIN2BCD(tm->tm_sec);
- 	buf[2] = BIN2BCD(tm->tm_min);
--	buf[3] = BIN2BCD(tm->tm_hour);
-+	buf[3] = rs5c_hr2reg(rs5c, tm->tm_hour);
- 	buf[4] = BIN2BCD(tm->tm_wday);
- 	buf[5] = BIN2BCD(tm->tm_mday);
- 	buf[6] = BIN2BCD(tm->tm_mon + 1);
-@@ -118,21 +211,43 @@ static int rs5c372_set_datetime(struct i
- 	return 0;
- }
- 
-+#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+#define	NEED_TRIM
-+#endif
-+
-+#if defined(CONFIG_RTC_INTF_SYSFS) || defined(CONFIG_RTC_INTF_SYSFS_MODULE)
-+#define	NEED_TRIM
-+#endif
-+
-+#ifdef	NEED_TRIM
- static int rs5c372_get_trim(struct i2c_client *client, int *osc, int *trim)
- {
- 	struct rs5c372 *rs5c372 = i2c_get_clientdata(client);
--	u8 tmp = rs5c372->regs[RS5C372_REG_TRIM + 1];
-+	u8 tmp = rs5c372->regs[RS5C372_REG_TRIM];
- 
- 	if (osc)
- 		*osc = (tmp & RS5C372_TRIM_XSL) ? 32000 : 32768;
- 
- 	if (trim) {
--		*trim = tmp & RS5C372_TRIM_MASK;
--		dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, *trim);
-+		dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, tmp);
-+		tmp &= RS5C372_TRIM_MASK;
-+		if (tmp & 0x3e) {
-+			int t = tmp & 0x3f;
-+
-+			if (tmp & 0x40)
-+				t = (~t | (s8)0xc0) + 1;
-+			else
-+				t = t - 1;
-+
-+			tmp = t * 2;
-+		} else
-+			tmp = 0;
-+		*trim = tmp;
- 	}
- 
- 	return 0;
- }
-+#endif
- 
- static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-@@ -144,25 +259,190 @@ static int rs5c372_rtc_set_time(struct d
- 	return rs5c372_set_datetime(to_i2c_client(dev), tm);
- }
- 
-+#if defined(CONFIG_RTC_INTF_DEV) || defined(CONFIG_RTC_INTF_DEV_MODULE)
-+
-+static int
-+rs5c_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct i2c_client	*client = to_i2c_client(dev);
-+	struct rs5c372		*rs5c = i2c_get_clientdata(client);
-+	unsigned char		buf[2];
-+	int			status;
-+
-+	buf[1] = rs5c->regs[RS5C_REG_CTRL1];
-+	switch (cmd) {
-+	case RTC_UIE_OFF:
-+	case RTC_UIE_ON:
-+		/* some 327a modes use a different IRQ pin for 1Hz irqs */
-+		if (rs5c->type == rtc_rs5c372a
-+				&& (buf[1] & RS5C372A_CTRL1_SL1))
-+			return -ENOIOCTLCMD;
-+	case RTC_AIE_OFF:
-+	case RTC_AIE_ON:
-+		/* these irq management calls only make sense for chips
-+		 * which are wired up to an IRQ.
+--- /usr/src/linux/drivers/mmc/mmc.c	2007-01-03 22:17:11.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/mmc.c	2007-01-03 22:16:24.000000000 -0800
+@@ -289,7 +289,10 @@
+ 		else
+ 			limit_us = 100000;
+
+-		if (timeout_us > limit_us) {
++		/*
++		 * SDHC cards always use these fixed values.
 +		 */
-+		if (!rs5c->has_irq)
-+			return -ENOIOCTLCMD;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
++		if (timeout_us > limit_us || mmc_card_blockaddr(card)) {
+ 			data->timeout_ns = limit_us * 1000;
+ 			data->timeout_clks = 0;
+ 		}
+@@ -588,34 +591,65 @@
+
+ 	if (mmc_card_sd(card)) {
+ 		csd_struct = UNSTUFF_BITS(resp, 126, 2);
+-		if (csd_struct != 0) {
 +
-+	status = rs5c_get_regs(rs5c);
-+	if (status < 0)
-+		return status;
++		switch (csd_struct) {
++		case 0:
++			m = UNSTUFF_BITS(resp, 115, 4);
++			e = UNSTUFF_BITS(resp, 112, 3);
++			csd->tacc_ns	 = (tacc_exp[e] * tacc_mant[m] + 9) / 10;
++			csd->tacc_clks	 = UNSTUFF_BITS(resp, 104, 8) * 100;
++	
++			m = UNSTUFF_BITS(resp, 99, 4);
++			e = UNSTUFF_BITS(resp, 96, 3);
++			csd->max_dtr	  = tran_exp[e] * tran_mant[m];
++			csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
++	
++			e = UNSTUFF_BITS(resp, 47, 3);
++			m = UNSTUFF_BITS(resp, 62, 12);
++			csd->capacity	  = (1 + m) << (e + 2);
++	
++			csd->read_blkbits = UNSTUFF_BITS(resp, 80, 4);
++			csd->read_partial = UNSTUFF_BITS(resp, 79, 1);
++			csd->write_misalign = UNSTUFF_BITS(resp, 78, 1);
++			csd->read_misalign = UNSTUFF_BITS(resp, 77, 1);
++			csd->r2w_factor = UNSTUFF_BITS(resp, 26, 3);
++			csd->write_blkbits = UNSTUFF_BITS(resp, 22, 4);
++			csd->write_partial = UNSTUFF_BITS(resp, 21, 1);
++			break;
++		case 1:
++			/*
++			 * This is a block-addressed SDHC card. Most
++			 * interesting fields are unused and have fixed
++			 * values. To avoid getting tripped by buggy cards,
++			 * we assume those fixed values ourselves.
++			 */
++			mmc_card_set_blockaddr(card);
 +
-+	buf[0] = RS5C_ADDR(RS5C_REG_CTRL1);
-+	switch (cmd) {
-+	case RTC_AIE_OFF:	/* alarm off */
-+		buf[1] &= ~RS5C_CTRL1_AALE;
-+		break;
-+	case RTC_AIE_ON:	/* alarm on */
-+		buf[1] |= RS5C_CTRL1_AALE;
-+		break;
-+	case RTC_UIE_OFF:	/* update off */
-+		buf[1] &= ~RS5C_CTRL1_CT_MASK;
-+		break;
-+	case RTC_UIE_ON:	/* update on */
-+		buf[1] &= ~RS5C_CTRL1_CT_MASK;
-+		buf[1] |= RS5C_CTRL1_CT4;
-+		break;
-+	}
-+	if ((i2c_master_send(client, buf, 2)) != 2) {
-+		printk(KERN_WARNING "%s: can't update alarm\n",
-+			rs5c->rtc->name);
-+		status = -EIO;
-+	} else
-+		rs5c->regs[RS5C_REG_CTRL1] = buf[1];
-+	return status;
-+}
-+
-+#else
-+#define	rs5c_rtc_ioctl	NULL
-+#endif
-+
-+
-+/* NOTE:  Since RTC_WKALM_{RD,SET} were originally defined for EFI,
-+ * which only exposes a polled programming interface; and since
-+ * these calls map directly to those EFI requests; we don't demand
-+ * we have an IRQ for this chip when we go through this API.
-+ *
-+ * The older x86_pc derived RTC_ALM_{READ,SET} calls require irqs
-+ * though, managed through RTC_AIE_{ON,OFF} requests.
-+ */
-+
-+static int rs5c_read_alarm(struct device *dev, struct rtc_wkalrm *t)
++			csd->tacc_ns	 = 0; /* Unused */
++			csd->tacc_clks	 = 0; /* Unused */
++	
++			m = UNSTUFF_BITS(resp, 99, 4);
++			e = UNSTUFF_BITS(resp, 96, 3);
++			csd->max_dtr	  = tran_exp[e] * tran_mant[m];
++			csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
++	
++			m = UNSTUFF_BITS(resp, 48, 22);
++			csd->capacity     = (1 + m) << 10;
++	
++			csd->read_blkbits = 9;
++			csd->read_partial = 0;
++			csd->write_misalign = 0;
++			csd->read_misalign = 0;
++			csd->r2w_factor = 4; /* Unused */
++			csd->write_blkbits = 9;
++			csd->write_partial = 0;
++			break;
++		default:
+ 			printk("%s: unrecognised CSD structure version %d\n",
+ 				mmc_hostname(card->host), csd_struct);
+ 			mmc_card_set_bad(card);
+ 			return;
+ 		}
+-
+-		m = UNSTUFF_BITS(resp, 115, 4);
+-		e = UNSTUFF_BITS(resp, 112, 3);
+-		csd->tacc_ns	 = (tacc_exp[e] * tacc_mant[m] + 9) / 10;
+-		csd->tacc_clks	 = UNSTUFF_BITS(resp, 104, 8) * 100;
+-
+-		m = UNSTUFF_BITS(resp, 99, 4);
+-		e = UNSTUFF_BITS(resp, 96, 3);
+-		csd->max_dtr	  = tran_exp[e] * tran_mant[m];
+-		csd->cmdclass	  = UNSTUFF_BITS(resp, 84, 12);
+-
+-		e = UNSTUFF_BITS(resp, 47, 3);
+-		m = UNSTUFF_BITS(resp, 62, 12);
+-		csd->capacity	  = (1 + m) << (e + 2);
+-
+-		csd->read_blkbits = UNSTUFF_BITS(resp, 80, 4);
+-		csd->read_partial = UNSTUFF_BITS(resp, 79, 1);
+-		csd->write_misalign = UNSTUFF_BITS(resp, 78, 1);
+-		csd->read_misalign = UNSTUFF_BITS(resp, 77, 1);
+-		csd->r2w_factor = UNSTUFF_BITS(resp, 26, 3);
+-		csd->write_blkbits = UNSTUFF_BITS(resp, 22, 4);
+-		csd->write_partial = UNSTUFF_BITS(resp, 21, 1);
+ 	} else {
+ 		/*
+ 		 * We only understand CSD structure v1.1 and v1.2.
+@@ -848,6 +882,41 @@
+ 	return err;
+ }
+
++static int mmc_send_if_cond(struct mmc_host *host, u32 ocr, int *rsd2)
 +{
-+	struct i2c_client	*client = to_i2c_client(dev);
-+	struct rs5c372		*rs5c = i2c_get_clientdata(client);
-+	int			status;
++	struct mmc_command cmd;
++	int err, sd2;
++	static const u8 test_pattern = 0xAA;
 +
-+	status = rs5c_get_regs(rs5c);
-+	if (status < 0)
-+		return status;
++	/*
++	* To support SD 2.0 cards, we must always invoke SD_SEND_IF_COND
++	* before SD_APP_OP_COND. This command will harmlessly fail for
++	* SD 1.0 cards.
++	*/
++	cmd.opcode = SD_SEND_IF_COND;
++	cmd.arg = ((ocr & 0xFF8000) != 0) << 8 | test_pattern;
++	cmd.flags = MMC_RSP_R7 | MMC_CMD_BCR;
 +
-+	/* report alarm time */
-+	t->time.tm_sec = 0;
-+	t->time.tm_min = BCD2BIN(rs5c->regs[RS5C_REG_ALARM_A_MIN] & 0x7f);
-+	t->time.tm_hour = rs5c_reg2hr(rs5c, rs5c->regs[RS5C_REG_ALARM_A_HOURS]);
-+	t->time.tm_mday = -1;
-+	t->time.tm_mon = -1;
-+	t->time.tm_year = -1;
-+	t->time.tm_wday = -1;
-+	t->time.tm_yday = -1;
-+	t->time.tm_isdst = -1;
-+
-+	/* ... and status */
-+	t->enabled = !!(rs5c->regs[RS5C_REG_CTRL1] & RS5C_CTRL1_AALE);
-+	t->pending = !!(rs5c->regs[RS5C_REG_CTRL2] & RS5C_CTRL2_AAFG);
-+
-+	return 0;
-+}
-+
-+static int rs5c_set_alarm(struct device *dev, struct rtc_wkalrm *t)
-+{
-+	struct i2c_client	*client = to_i2c_client(dev);
-+	struct rs5c372		*rs5c = i2c_get_clientdata(client);
-+	int			status;
-+	unsigned char		buf[4];
-+
-+	/* only handle up to 24 hours in the future, like RTC_ALM_SET */
-+	if (t->time.tm_mday != -1
-+			|| t->time.tm_mon != -1
-+			|| t->time.tm_year != -1)
-+		return -EINVAL;
-+
-+	/* REVISIT: round up tm_sec */
-+
-+	/* if needed, disable irq (clears pending status) */
-+	status = rs5c_get_regs(rs5c);
-+	if (status < 0)
-+		return status;
-+	if (rs5c->regs[RS5C_REG_CTRL1] & RS5C_CTRL1_AALE) {
-+		buf[0] = RS5C_ADDR(RS5C_REG_CTRL1);
-+		buf[1] = rs5c->regs[RS5C_REG_CTRL1] & ~RS5C_CTRL1_AALE;
-+		if (i2c_master_send(client, buf, 2) != 2) {
-+			pr_debug("%s: can't disable alarm\n", rs5c->rtc->name);
-+			return -EIO;
++	err = mmc_wait_for_cmd(host, &cmd, 0);
++	if (err == MMC_ERR_NONE) {
++		if ((cmd.resp[0] & 0xFF) == test_pattern) {
++			sd2 = 1;
++		} else {
++			sd2 = 0;
++			err = MMC_ERR_FAILED;
 +		}
-+		rs5c->regs[RS5C_REG_CTRL1] = buf[1];
++	} else {
++		/*
++		 * Treat errors as SD 1.0 card.
++		 */
++		sd2 = 0;
++		err = MMC_ERR_NONE;
 +	}
-+
-+	/* set alarm */
-+	buf[0] = RS5C_ADDR(RS5C_REG_ALARM_A_MIN);
-+	buf[1] = BIN2BCD(t->time.tm_min);
-+	buf[2] = rs5c_hr2reg(rs5c, t->time.tm_hour);
-+	buf[3] = 0x7f;	/* any/all days */
-+	if ((i2c_master_send(client, buf, 4)) != 4) {
-+		pr_debug("%s: can't set alarm time\n", rs5c->rtc->name);
-+		return -EIO;
-+	}
-+
-+	/* ... and maybe enable its irq */
-+	if (t->enabled) {
-+		buf[0] = RS5C_ADDR(RS5C_REG_CTRL1);
-+		buf[1] = rs5c->regs[RS5C_REG_CTRL1] | RS5C_CTRL1_AALE;
-+		if ((i2c_master_send(client, buf, 2)) != 2)
-+			printk(KERN_WARNING "%s: can't enable alarm\n",
-+				rs5c->rtc->name);
-+		rs5c->regs[RS5C_REG_CTRL1] = buf[1];
-+	}
-+
-+	return 0;
-+}
-+
-+#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+
- static int rs5c372_rtc_proc(struct device *dev, struct seq_file *seq)
- {
- 	int err, osc, trim;
- 
- 	err = rs5c372_get_trim(to_i2c_client(dev), &osc, &trim);
- 	if (err == 0) {
--		seq_printf(seq, "%d.%03d KHz\n", osc / 1000, osc % 1000);
--		seq_printf(seq, "trim\t: %d\n", trim);
-+		seq_printf(seq, "crystal\t\t: %d.%03d KHz\n",
-+				osc / 1000, osc % 1000);
-+		seq_printf(seq, "trim\t\t: %d\n", trim);
- 	}
- 
- 	return 0;
- }
- 
-+#else
-+#define	rs5c372_rtc_proc	NULL
-+#endif
-+
- static const struct rtc_class_ops rs5c372_rtc_ops = {
- 	.proc		= rs5c372_rtc_proc,
-+	.ioctl		= rs5c_rtc_ioctl,
- 	.read_time	= rs5c372_rtc_read_time,
- 	.set_time	= rs5c372_rtc_set_time,
-+	.read_alarm	= rs5c_read_alarm,
-+	.set_alarm	= rs5c_set_alarm,
- };
- 
-+#if defined(CONFIG_RTC_INTF_SYSFS) || defined(CONFIG_RTC_INTF_SYSFS_MODULE)
-+
- static ssize_t rs5c372_sysfs_show_trim(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
-@@ -172,7 +452,7 @@ static ssize_t rs5c372_sysfs_show_trim(s
- 	if (err)
- 		return err;
- 
--	return sprintf(buf, "0x%2x\n", trim);
-+	return sprintf(buf, "%d\n", trim);
- }
- static DEVICE_ATTR(trim, S_IRUGO, rs5c372_sysfs_show_trim, NULL);
- 
-@@ -189,16 +469,35 @@ static ssize_t rs5c372_sysfs_show_osc(st
- }
- static DEVICE_ATTR(osc, S_IRUGO, rs5c372_sysfs_show_osc, NULL);
- 
--static int rs5c372_attach(struct i2c_adapter *adapter)
-+static int rs5c_sysfs_register(struct device *dev)
- {
--	return i2c_probe(adapter, &addr_data, rs5c372_probe);
-+	int err;
-+
-+	err = device_create_file(dev, &dev_attr_trim);
-+	if (err)
-+		return err;
-+	err = device_create_file(dev, &dev_attr_osc);
-+	if (err)
-+		device_remove_file(dev, &dev_attr_trim);
-+
++	if (rsd2)
++		*rsd2 = sd2;
 +	return err;
 +}
 +
-+#else
-+static int rs5c_sysfs_register(struct device *dev)
-+{
-+	return 0;
- }
-+#endif	/* SYSFS */
-+
-+static struct i2c_driver rs5c372_driver;
- 
- static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind)
- {
- 	int err = 0;
- 	struct i2c_client *client;
- 	struct rs5c372 *rs5c372;
-+	struct rtc_time tm;
- 
- 	dev_dbg(adapter->class_dev.dev, "%s\n", __FUNCTION__);
- 
-@@ -211,7 +510,15 @@ static int rs5c372_probe(struct i2c_adap
- 		err = -ENOMEM;
- 		goto exit;
- 	}
--	client = &rs5c372->client;
-+
-+	/* we read registers 0x0f then 0x00-0x0f; skip the first one */
-+	rs5c372->regs=&rs5c372->buf[1];
-+
-+	/* On conversion to a "new style" i2c driver, we'll be handed
-+	 * the i2c_client (we won't create it)
-+	 */
-+	client = &rs5c372->dev;
-+	rs5c372->client = client;
- 
- 	/* I2C client */
- 	client->addr = address;
-@@ -222,16 +529,99 @@ static int rs5c372_probe(struct i2c_adap
- 
- 	i2c_set_clientdata(client, rs5c372);
- 
--	rs5c372->msg[0].addr = address;
--	rs5c372->msg[0].flags = I2C_M_RD;
--	rs5c372->msg[0].len = sizeof(rs5c372->regs);
--	rs5c372->msg[0].buf = rs5c372->regs;
--
- 	/* Inform the i2c layer */
- 	if ((err = i2c_attach_client(client)))
- 		goto exit_kfree;
- 
--	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
-+	err = rs5c_get_regs(rs5c372);
-+	if (err < 0)
-+		goto exit_detach;
-+
-+	/* For "new style" drivers, irq is in i2c_client and chip type
-+	 * info comes from i2c_client.dev.platform_data.  Meanwhile:
-+	 *
-+	 * STICK BOARD-SPECIFIC SETUP CODE RIGHT HERE
-+	 */
-+	if (rs5c372->type == rtc_undef) {
-+		rs5c372->type = rtc_rs5c372b;
-+		dev_warn(&client->dev, "assuming rs5c372b\n");
-+	}
-+
-+	/* clock may be set for am/pm or 24 hr time */
-+	switch (rs5c372->type) {
-+	case rtc_rs5c372a:
-+	case rtc_rs5c372b:
-+		/* alarm uses ALARM_A; and nINTRA on 372a, nINTR on 372b.
-+		 * so does periodic irq, except some 327a modes.
-+		 */
-+		if (rs5c372->regs[RS5C_REG_CTRL2] & RS5C372_CTRL2_24)
-+			rs5c372->time24 = 1;
-+		break;
-+	case rtc_rv5c386:
-+	case rtc_rv5c387a:
-+		if (rs5c372->regs[RS5C_REG_CTRL1] & RV5C387_CTRL1_24)
-+			rs5c372->time24 = 1;
-+		/* alarm uses ALARM_W; and nINTRB for alarm and periodic
-+		 * irq, on both 386 and 387
-+		 */
-+		break;
-+	default:
-+		dev_err(&client->dev, "unknown RTC type\n");
-+		goto exit_detach;
-+	}
-+
-+	/* if the oscillator lost power and no other software (like
-+	 * the bootloader) set it up, do it here.
-+	 */
-+	if (rs5c372->regs[RS5C_REG_CTRL2] & RS5C_CTRL2_XSTP) {
-+		unsigned char buf[3];
-+
-+		rs5c372->regs[RS5C_REG_CTRL2] &= ~RS5C_CTRL2_XSTP;
-+
-+		buf[0] = RS5C_ADDR(RS5C_REG_CTRL1);
-+		buf[1] = rs5c372->regs[RS5C_REG_CTRL1];
-+		buf[2] = rs5c372->regs[RS5C_REG_CTRL2];
-+
-+		/* use 24hr mode */
-+		switch (rs5c372->type) {
-+		case rtc_rs5c372a:
-+		case rtc_rs5c372b:
-+			buf[2] |= RS5C372_CTRL2_24;
-+			rs5c372->time24 = 1;
-+			break;
-+		case rtc_rv5c386:
-+		case rtc_rv5c387a:
-+			buf[1] |= RV5C387_CTRL1_24;
-+			rs5c372->time24 = 1;
-+			break;
-+		default:
-+			/* impossible */
-+			break;
+ /*
+  * Discover cards by requesting their CID.  If this command
+  * times out, it is not an error; there are no further cards
+@@ -1334,6 +1403,10 @@
+ 		mmc_power_up(host);
+ 		mmc_idle_cards(host);
+
++		err = mmc_send_if_cond(host, host->ocr_avail, NULL);
++		if (err != MMC_ERR_NONE) {
++			return;
 +		}
-+
-+		if ((i2c_master_send(client, buf, 3)) != 3) {
-+			dev_err(&client->dev, "setup error\n");
-+			goto exit_detach;
+ 		err = mmc_send_app_op_cond(host, 0, &ocr);
+
+ 		/*
+@@ -1386,10 +1459,21 @@
+ 	 * all get the idea that they should be ready for CMD2.
+ 	 * (My SanDisk card seems to need this.)
+ 	 */
+-	if (host->mode == MMC_MODE_SD)
+-		mmc_send_app_op_cond(host, host->ocr, NULL);
+-	else
++	if (host->mode == MMC_MODE_SD) {
++		int err, sd2;
++		err = mmc_send_if_cond(host, host->ocr, &sd2);
++		if (err == MMC_ERR_NONE) {
++			/*
++			* If SD_SEND_IF_COND indicates an SD 2.0
++			* compliant card and we should set bit 30
++			* of the ocr to indicate that we can handle
++			* block-addressed SDHC cards.
++			*/
++			mmc_send_app_op_cond(host, host->ocr | (sd2 << 30), NULL);
 +		}
-+		rs5c372->regs[RS5C_REG_CTRL1] = buf[1];
-+		rs5c372->regs[RS5C_REG_CTRL2] = buf[2];
++	} else {
+ 		mmc_send_op_cond(host, host->ocr, NULL);
 +	}
-+
-+	if (rs5c372_get_datetime(client, &tm) < 0)
-+		dev_warn(&client->dev, "clock needs to be set\n");
-+
-+	dev_info(&client->dev, "%s found, %s, driver version " DRV_VERSION "\n",
-+			({ char *s; switch (rs5c372->type) {
-+			case rtc_rs5c372a:	s = "rs5c372a"; break;
-+			case rtc_rs5c372b:	s = "rs5c372b"; break;
-+			case rtc_rv5c386:	s = "rv5c386"; break;
-+			case rtc_rv5c387a:	s = "rv5c387a"; break;
-+			default:		s = "chip"; break;
-+			}; s;}),
-+			rs5c372->time24 ? "24hr" : "am/pm"
-+			);
-+
-+	/* FIXME when client->irq exists, use it to register alarm irq */
- 
- 	rs5c372->rtc = rtc_device_register(rs5c372_driver.driver.name,
- 				&client->dev, &rs5c372_rtc_ops, THIS_MODULE);
-@@ -241,18 +631,12 @@ static int rs5c372_probe(struct i2c_adap
- 		goto exit_detach;
- 	}
- 
--	err = device_create_file(&client->dev, &dev_attr_trim);
-+	err = rs5c_sysfs_register(&client->dev);
- 	if (err)
- 		goto exit_devreg;
--	err = device_create_file(&client->dev, &dev_attr_osc);
--	if (err)
--		goto exit_trim;
- 
- 	return 0;
- 
--exit_trim:
--	device_remove_file(&client->dev, &dev_attr_trim);
--
- exit_devreg:
- 	rtc_device_unregister(rs5c372->rtc);
- 
-@@ -266,6 +650,11 @@ exit:
- 	return err;
- }
- 
-+static int rs5c372_attach(struct i2c_adapter *adapter)
-+{
-+	return i2c_probe(adapter, &addr_data, rs5c372_probe);
-+}
-+
- static int rs5c372_detach(struct i2c_client *client)
- {
+
+ 	mmc_discover_cards(host);
+
+--- /usr/src/linux/drivers/mmc/mmc_block.c	2007-01-03 22:17:11.000000000 -0800
++++ linux-2.6.19-sdhc/drivers/mmc/mmc_block.c	2007-01-01 06:42:37.000000000 -0800
+@@ -237,7 +237,9 @@
+ 		brq.mrq.cmd = &brq.cmd;
+ 		brq.mrq.data = &brq.data;
+
+-		brq.cmd.arg = req->sector << 9;
++		brq.cmd.arg = req->sector;
++		if (!mmc_card_blockaddr(card))
++			brq.cmd.arg <<= 9;
+ 		brq.cmd.flags = MMC_RSP_R1 | MMC_CMD_ADTC;
+ 		brq.data.blksz = 1 << md->block_bits;
+ 		brq.data.blocks = req->nr_sectors >> (md->block_bits - 9);
+@@ -494,6 +496,10 @@
+ 	struct mmc_command cmd;
  	int err;
-@@ -274,6 +663,8 @@ static int rs5c372_detach(struct i2c_cli
- 	if (rs5c372->rtc)
- 		rtc_device_unregister(rs5c372->rtc);
- 
-+	/* REVISIT properly destroy the sysfs files ... */
+
++	/* Block-addressed cards ignore MMC_SET_BLOCKLEN. */
++	if (mmc_card_blockaddr(card))
++		return 0;
 +
- 	if ((err = i2c_detach_client(client)))
- 		return err;
- 
-@@ -281,6 +672,14 @@ static int rs5c372_detach(struct i2c_cli
- 	return 0;
- }
- 
-+static struct i2c_driver rs5c372_driver = {
-+	.driver		= {
-+		.name	= "rtc-rs5c372",
-+	},
-+	.attach_adapter	= &rs5c372_attach,
-+	.detach_client	= &rs5c372_detach,
-+};
+ 	mmc_card_claim_host(card);
+ 	cmd.opcode = MMC_SET_BLOCKLEN;
+ 	cmd.arg = 1 << md->block_bits;
+--- /usr/src/linux/include/linux/mmc/card.h	2007-01-03 22:17:11.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/card.h	2006-12-31 19:00:43.000000000 -0800
+@@ -71,6 +71,7 @@
+ #define MMC_STATE_SDCARD	(1<<3)		/* is an SD card */
+ #define MMC_STATE_READONLY	(1<<4)		/* card is read-only */
+ #define MMC_STATE_HIGHSPEED	(1<<5)		/* card is in high speed mode */
++#define MMC_STATE_BLOCKADDR	(1<<6)		/* card uses block-addressing */
+ 	u32			raw_cid[4];	/* raw card CID */
+ 	u32			raw_csd[4];	/* raw card CSD */
+ 	u32			raw_scr[2];	/* raw card SCR */
+@@ -87,6 +88,7 @@
+ #define mmc_card_sd(c)		((c)->state & MMC_STATE_SDCARD)
+ #define mmc_card_readonly(c)	((c)->state & MMC_STATE_READONLY)
+ #define mmc_card_highspeed(c)	((c)->state & MMC_STATE_HIGHSPEED)
++#define mmc_card_blockaddr(c)	((c)->state & MMC_STATE_BLOCKADDR)
+
+ #define mmc_card_set_present(c)	((c)->state |= MMC_STATE_PRESENT)
+ #define mmc_card_set_dead(c)	((c)->state |= MMC_STATE_DEAD)
+@@ -94,6 +96,7 @@
+ #define mmc_card_set_sd(c)	((c)->state |= MMC_STATE_SDCARD)
+ #define mmc_card_set_readonly(c) ((c)->state |= MMC_STATE_READONLY)
+ #define mmc_card_set_highspeed(c) ((c)->state |= MMC_STATE_HIGHSPEED)
++#define mmc_card_set_blockaddr(c) ((c)->state |= MMC_STATE_BLOCKADDR)
+
+ #define mmc_card_name(c)	((c)->cid.prod_name)
+ #define mmc_card_id(c)		((c)->dev.bus_id)
+--- /usr/src/linux/include/linux/mmc/mmc.h	2007-01-03 22:17:11.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/mmc.h	2007-01-03 22:17:08.000000000 -0800
+@@ -26,11 +26,13 @@
+ #define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
+ #define MMC_RSP_BUSY	(1 << 3)		/* card may send busy */
+ #define MMC_RSP_OPCODE	(1 << 4)		/* response contains opcode */
+-#define MMC_CMD_MASK	(3 << 5)		/* command type */
+-#define MMC_CMD_AC	(0 << 5)
+-#define MMC_CMD_ADTC	(1 << 5)
+-#define MMC_CMD_BC	(2 << 5)
+-#define MMC_CMD_BCR	(3 << 5)
++#define MMC_RSP_RCA	(1 << 5)		/* response contains RCA */
++#define MMC_RSP_IF_COND	(1 << 6)		/* response contains interface condition */
++#define MMC_CMD_MASK	(3 << 7)		/* command type */
++#define MMC_CMD_AC	(0 << 7)
++#define MMC_CMD_ADTC	(1 << 7)
++#define MMC_CMD_BC	(2 << 7)
++#define MMC_CMD_BCR	(3 << 7)
+
+ /*
+  * These are the response types, and correspond to valid bit
+@@ -42,9 +44,16 @@
+ #define MMC_RSP_R1B	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
+ #define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+ #define MMC_RSP_R3	(MMC_RSP_PRESENT)
+-#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC)
++#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_RCA)
++#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_IF_COND)
+
+-#define mmc_resp_type(cmd)	((cmd)->flags & (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC|MMC_RSP_BUSY|MMC_RSP_OPCODE))
++#define mmc_resp_type(cmd) ((cmd)->flags & (MMC_RSP_PRESENT | \
++					    MMC_RSP_136 | \
++					    MMC_RSP_CRC | \
++					    MMC_RSP_BUSY | \
++					    MMC_RSP_OPCODE | \
++					    MMC_RSP_RCA | \
++					    MMC_RSP_IF_COND))
+
+ /*
+  * These are the command types.
+--- /usr/src/linux/include/linux/mmc/protocol.h	2007-01-03 22:17:11.000000000 -0800
++++ linux-2.6.19-sdhc/include/linux/mmc/protocol.h	2006-12-31 19:00:43.000000000 -0800
+@@ -79,9 +79,12 @@
+ #define MMC_GEN_CMD              56   /* adtc [0] RD/WR          R1  */
+
+ /* SD commands                           type  argument     response */
+-  /* class 8 */
++  /* class 0 */
+ /* This is basically the same command as for MMC with some quirks. */
+ #define SD_SEND_RELATIVE_ADDR     3   /* bcr                     R6  */
++#define SD_SEND_IF_COND           8   /* bcr  [11:0] See below   R7  */
 +
- static __init int rs5c372_init(void)
- {
- 	return i2c_add_driver(&rs5c372_driver);
++  /* class 10 */
+ #define SD_SWITCH                 6   /* adtc [31:0] See below   R1  */
+
+   /* Application commands */
+@@ -115,6 +118,14 @@
+  */
+
+ /*
++ * SD_SEND_IF_COND argument format:
++ *
++ *	[31:12] Reserved (0)
++ *	[11:8] Host Voltage Supply Flags
++ *	[7:0] Check Pattern (0xAA)
++ */
++
++/*
+   MMC status in R1
+   Type
+   	e : error bit

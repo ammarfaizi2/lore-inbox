@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030358AbXAEHOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030360AbXAEHWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbXAEHOp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 02:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbXAEHOp
+	id S1030360AbXAEHWr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 02:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbXAEHWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 02:14:45 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:26962 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030358AbXAEHOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 02:14:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=A/b9YX4LZLUYn6CVm95uAwznpUvsVEf/jLe0j6B/ZOzMNzU3C6MnxYwbCZe0iglS8QARwu/K22ak+pWfcPYTLIS3lA7gfDlX3CSeYFl6IY/616Jt67Ii9l+W4qdSIH9Q59BKkajtWEtR4EuQBlhv06WcRGqscNnakXA/osyC51o=
-Date: Fri, 5 Jan 2007 09:14:37 +0200
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
-Message-ID: <20070105071437.GB13571@Ahmed>
-Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-	linux-kernel@vger.kernel.org
-References: <20070105063600.GA13571@Ahmed> <Pine.LNX.4.64.0701050154020.21674@localhost.localdomain>
-MIME-Version: 1.0
+	Fri, 5 Jan 2007 02:22:47 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:13251 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030360AbXAEHWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 02:22:46 -0500
+Date: Fri, 5 Jan 2007 08:23:05 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Nick Piggin <npiggin@suse.de>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Neil Brown <neilb@suse.de>, Mark Fasheh <mark.fasheh@oracle.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH] 4/4 block: explicit plugging
+Message-ID: <20070105072305.GN11203@kernel.dk>
+References: <11678105083001-git-send-email-jens.axboe@oracle.com> <1167810508576-git-send-email-jens.axboe@oracle.com> <459C8427.9040704@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701050154020.21674@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+In-Reply-To: <459C8427.9040704@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 01:56:09AM -0500, Robert P. J. Day wrote:
-> On Fri, 5 Jan 2007, Ahmed S. Darwish wrote:
+On Thu, Jan 04 2007, Nick Piggin wrote:
+> Jens Axboe wrote:
+> >Nick writes:
+> >
+> >This is a patch to perform block device plugging explicitly in the 
+> >submitting
+> >process context rather than implicitly by the block device.
 > 
-> > Remove unnecessary kmalloc casts in drivers/char/tty_io.c
+> Hi Jens,
 > 
-> rather than remove these casts a file or two at a time, why not just
-> do them all at once and submit a single patch?  there aren't that many
-> of them:
+> Hey thanks for doing so much hard work with this, I couldn't have fixed
+> all the block layer stuff myself. QRCU looks like a good solution for the
+> barrier/sync operations (/me worried that one wouldn't exist), and a
+> novel use of RCU!
+> 
+> The only thing I had been thinking about before it is ready for primetime
+> -- as far as the VM side of things goes -- is whether we should change
+> the hard calls to address_space operations, such that they might be
+> avoided or customised when there is no backing block device?
+> 
+> I'm sure the answer to this is "yes", so I have an idea for a simple
+> implementation... but I'd like to hear thoughts from network fs / raid
+> people?
 
-OK, Thanks for the tip ..
+I suppose that would be the proper thing to do, for non __make_request()
+operated backing devices. I'll add the hooks, then we can cook up a raid
+implementation if need be.
 
 -- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+Jens Axboe
+

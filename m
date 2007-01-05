@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161137AbXAEPwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161126AbXAEP40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161137AbXAEPwy (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 10:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbXAEPwy
+	id S1161126AbXAEP40 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 10:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbXAEP40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 10:52:54 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:4456 "EHLO
-	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161137AbXAEPwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 10:52:53 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: kernel + gcc 4.1 = several problems
-Date: Fri, 5 Jan 2007 15:53:04 +0000
-User-Agent: KMail/1.9.5
-Cc: torvalds@osdl.org, 76306.1226@compuserve.com, akpm@osdl.org,
-       bunk@stusta.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       yanmin_zhang@linux.intel.com
-References: <200701030212.l032CDXe015365@harpo.it.uu.se> <200701030220.24897.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200701030220.24897.s0348365@sms.ed.ac.uk>
+	Fri, 5 Jan 2007 10:56:26 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:49207 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161126AbXAEP4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 10:56:25 -0500
+Date: Fri, 5 Jan 2007 16:55:18 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-acpi@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: ACPI bay - 2.6.20-rc3-mm1 hangs on boot
+In-Reply-To: <20070105155119.GA6804@khazad-dum.debian.net>
+Message-ID: <Pine.LNX.4.64.0701051654170.16747@twin.jikos.cz>
+References: <Pine.LNX.4.64.0701051351200.16747@twin.jikos.cz>
+ <20070105143356.GA29782@khazad-dum.debian.net> <Pine.LNX.4.64.0701051610540.16747@twin.jikos.cz>
+ <20070105155119.GA6804@khazad-dum.debian.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701051553.04673.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 January 2007 02:20, Alistair John Strachan wrote:
-> On Wednesday 03 January 2007 02:12, Mikael Pettersson wrote:
-> > On Tue, 2 Jan 2007 17:43:00 -0800 (PST), Linus Torvalds wrote:
-> > > > The suggestions I've had so far which I have not yet tried:
-> > > >
-> > > > -	Select a different x86 CPU in the config.
-> > > > 		-	Unfortunately the C3-2 flags seem to simply tell GCC
-> > > > 			to schedule for ppro (like i686) and enabled MMX and SSE
-> > > > 		-	Probably useless
-> > >
-> > > Actually, try this one. Try using something that doesn't like "cmov".
-> > > Maybe the C3-2 simply has some internal cmov bugginess.
-> >
-> > That's a good suggestion. Earlier C3s didn't have cmov so it's
-> > not entirely unlikely that cmov in C3-2 is broken in some cases.
-> > Configuring for P5MMX or 486 should be good safe alternatives.
->
-> Or just C3 (not C3-2), which is what I've done.
->
-> I'll report back whether it crashes or not.
+On Fri, 5 Jan 2007, Henrique de Moraes Holschuh wrote:
 
-This didn't help. After about 14 hours, the machine crashed again.
+> > > I trust you have ACPI_IBM_BAY=n to use ACPI_BAY=y ?  I don't think it has
+> > > anything to do with the issue you have, but just in case...
+> > The kernel hangs with CONFIG_ACPI_BAY, with CONFIG_ACPI_IBM_BAY it works 
+> > just fine.
+> I mean don't do it with both CONFIG_ACPI_BAY and CONFIG_ACPI_IBM_BAY set to
+> y (i.e. loaded at the same time).
 
-cmov is not the culprit.
+Kconfig doesn't allow this, so that's not a problem.
+
+config ACPI_IBM_BAY
+        bool "Legacy Removable Bay Support"
+        depends on ACPI_IBM
+        depends on ACPI_BAY=n
 
 -- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Jiri Kosina

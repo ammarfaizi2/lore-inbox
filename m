@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750912AbXAEX50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750921AbXAEX6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbXAEX50 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 18:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbXAEX50
+	id S1750921AbXAEX6Y (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 18:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbXAEX6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 18:57:26 -0500
-Received: from iabervon.org ([66.92.72.58]:4246 "EHLO iabervon.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750911AbXAEX50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 18:57:26 -0500
-Date: Fri, 5 Jan 2007 18:57:24 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Roland Dreier <rdreier@cisco.com>
-cc: Petr Vandrovec <petr@vandrovec.name>, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Unbreak MSI on ATI devices
-In-Reply-To: <ada4pr61mie.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.64.0701051847310.20138@iabervon.org>
-References: <20061221075540.GA21152@vana.vc.cvut.cz> <ada4pr61mie.fsf@cisco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Jan 2007 18:58:24 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:50602 "EHLO
+	pd2mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750919AbXAEX6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 18:58:24 -0500
+Date: Fri, 05 Jan 2007 17:58:19 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] increment pos before looking for the next cap in
+ __pci_find_next_ht_cap
+In-reply-to: <fa.HKQ/+MClSV6hJeIdmFjKhgngCZQ@ifi.uio.no>
+To: Brice Goglin <brice@myri.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Greg KH <gregkh@suse.de>, Michael Ellerman <michael@ellerman.id.au>
+Message-id: <459EE61B.2070408@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.HKQ/+MClSV6hJeIdmFjKhgngCZQ@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Roland Dreier wrote:
-
->  > So my question is - what is real reason for disabling INTX when in MSI mode?
->  > According to PCI spec it should not be needed, and it hurts at least chips
->  > listed below:
->  > 
->  > 00:13.0 0c03: 1002:4374 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
->  > 00:13.1 0c03: 1002:4375 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
->  > 00:13.2 0c03: 1002:4373 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller 
+Brice Goglin wrote:
+> Hi,
 > 
-> heh... I'm not gloating or anything... but I am glad that some ASIC
-> designer was careless enough to prove me right when I said going
-> beyond what the PCI spec requires is dangerous.
+> While testing 2.6.20-rc3 on a machine with some CK804 chipsets, we
+> noticed that quirk_nvidia_ck804_msi_ht_cap() was not detecting HT
+> MSI capabilities anymore. It is actually caused by the MSI mapping
+> on the root chipset being the 2nd HT capability in the chain.
+> pci_find_ht_capability() does not seem to find anything but the
+> first HT cap correctly, because it forgets to increment the position
+> before looking for the next cap. The following patch seems to fix it.
+> 
+> At least, this prooves that having a ttl is good idea since the
+> machine would have been stucked in an infinite loop if we didn't
+> have a ttl :)
+> 
+> The patch should go in 2.6.20 since this quirk was working fine in 2.6.19.
 
-No more dangerous than expecting exactly following the PCI spec to be 
-sufficient; at least some nVidia devices misbehave if you don't disable 
-INTx when using MSI, while at least some ATI devices misehave if you do 
-disable INTx. The only *safe* thing is to ignore the PCI spec and match 
-the behavior of Windows. In this case, that's just don't use MSI yet.
+Yes, I saw this on my A8N-SLI Deluxe board as well. This is a regression 
+since MSI is being disabled on the PCI Express slots when it wasn't before..
 
-Of course, this should be relatively easy to handle with quirks, 
-especially if it's predictable which hardware bug you get from the vendor 
-id.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-	-Daniel
-*This .sig left intentionally blank*

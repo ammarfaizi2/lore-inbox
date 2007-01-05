@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030354AbXAEGl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030353AbXAEG5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030354AbXAEGl5 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 01:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbXAEGl5
+	id S1030353AbXAEG5w (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 01:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbXAEG5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 01:41:57 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:48261 "EHLO
-	pd5mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030354AbXAEGl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 01:41:56 -0500
-Date: Fri, 05 Jan 2007 00:17:57 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: JMicron JMB363 problems
-In-reply-to: <fa.BLvaVGUEaalCt5SgPUsZ22hFA44@ifi.uio.no>
-To: xt knight <xtknight.l@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <459DED95.7080509@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.BLvaVGUEaalCt5SgPUsZ22hFA44@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Fri, 5 Jan 2007 01:57:52 -0500
+Received: from mga03.intel.com ([143.182.124.21]:7853 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030353AbXAEG5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 01:57:52 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.12,240,1165219200"; 
+   d="scan'208"; a="165476854:sNHT37816394"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>, "Hua Zhong" <hzhong@gmail.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "Christoph Hellwig" <hch@infradead.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'Linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: open(O_DIRECT) on a tmpfs?
+Date: Thu, 4 Jan 2007 22:57:49 -0800
+Message-ID: <000001c73096$d0e7d370$ab80030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccwNM9cHxJq19o3Qiygnsvs07VjhgAYJdIw
+In-Reply-To: <Pine.LNX.4.64.0701041911470.27405@blonde.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xt knight wrote:
-> I've been receiving odd error messages (accompanied by freezing up)
-> over the days.  They are originating from the JMicron controller.
+Hugh Dickins wrote on Thursday, January 04, 2007 11:14 AM
+> On Thu, 4 Jan 2007, Hua Zhong wrote:
+> > So I'd argue that it makes more sense to support O_DIRECT
+> > on tmpfs as the memory IS the backing store.
 > 
-> Setup:
-> Gigabyte GA-965P-DS3 (Intel 965P Express) rev 2.0, latest BIOS (F9)
-> -Intel ICH8 on-board [IDE emulation mode]
-> --250G Maxtor SATA --   /dev/sda
-> --250G Western Digital SATA  --   /dev/sdb
-> 
-> -JMicron JBM363 on-board [IDE mode]
-> --Toshiba-Samsung DVD burner IDE (primary) --  /dev/hde
-> --HP DVD burner IDE (slave) --  /dev/hdf
+> A few more voices in favour and I'll be persuaded.  Perhaps I'm
+> out of date: when O_DIRECT came in, just a few filesystems supported
+> it, and it was perfectly normal for open O_DIRECT to be failed; but
+> I wouldn't want tmpfs to stand out now as a lone obstacle.
 
-Have you tried running this controller with the libata driver in AHCI mode?
+Maybe a bit hackish, all we need is to have an empty .direct_IO method
+in shmem_aops to make __dentry_open() to pass the O_DIRECT check.  The
+following patch adds 40 bytes to kernel text on x86-64.  An even more
+hackish but zero cost route is to make .direct_IO variable non-zero via
+a cast of -1 or some sort (that is probably ugly as hell).
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 
+diff -Nurp linus-2.6.git/mm/shmem.c linus-2.6.git.ken/mm/shmem.c
+--- linus-2.6.git/mm/shmem.c	2006-12-27 19:06:11.000000000 -0800
++++ linus-2.6.git.ken/mm/shmem.c	2007-01-04 21:03:14.000000000 -0800
+@@ -2314,10 +2314,18 @@ static void destroy_inodecache(void)
+ 	kmem_cache_destroy(shmem_inode_cachep);
+ }
+ 
++ssize_t shmem_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
++			loff_t offset, unsigned long nr_segs)
++{
++	/* dummy direct_IO function.  Not to be executed */
++	BUG();
++}
++
+ static const struct address_space_operations shmem_aops = {
+ 	.writepage	= shmem_writepage,
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
+ #ifdef CONFIG_TMPFS
++	.direct_IO	= shmem_direct_IO,
+ 	.prepare_write	= shmem_prepare_write,
+ 	.commit_write	= simple_commit_write,
+ #endif

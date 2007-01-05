@@ -1,107 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030329AbXAEEEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030318AbXAEESM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbXAEEEE (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 23:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbXAEEED
+	id S1030318AbXAEESM (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 23:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbXAEESM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 23:04:03 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:50552 "EHLO smtp.osdl.org"
+	Thu, 4 Jan 2007 23:18:12 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:51307 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030327AbXAEEEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 23:04:01 -0500
-Date: Thu, 4 Jan 2007 20:03:23 -0800
+	id S1030312AbXAEESK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 23:18:10 -0500
+Date: Thu, 4 Jan 2007 20:16:53 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 0/8] user ns: Introduction
-Message-Id: <20070104200323.3b09f81a.akpm@osdl.org>
-In-Reply-To: <20070104180635.GA11377@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: Mattia Dongili <malattia@linux.it>, Len Brown <lenb@kernel.org>,
+       Ismail Donmez <ismail@pardus.org.tr>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Cacy Rodney <cacy-rodney-cacy@tlen.pl>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-Id: <20070104201653.f1939617.akpm@osdl.org>
+In-Reply-To: <1167954872.4901.12.camel@localhost.localdomain>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
+	<200701040024.29793.lenb@kernel.org>
+	<1167905384.7763.36.camel@localhost.localdomain>
+	<20070104191512.GC25619@inferi.kami.home>
+	<20070104125107.b82db604.akpm@osdl.org>
+	<1167953784.4901.5.camel@localhost.localdomain>
+	<20070104154434.7e1a7c83.akpm@osdl.org>
+	<1167954872.4901.12.camel@localhost.localdomain>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007 12:06:35 -0600
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+On Fri, 05 Jan 2007 00:54:32 +0100
+Stelian Pop <stelian@popies.net> wrote:
 
-> This patchset adds a user namespace, which allows a process to
-> unshare its user_struct table,  allowing for separate accounting
-> per user namespace.
+> Le jeudi 04 janvier 2007 à 15:44 -0800, Andrew Morton a écrit :
+> > On Fri, 05 Jan 2007 00:36:23 +0100
+> > Stelian Pop <stelian@popies.net> wrote:
+> > 
+> > > Added acpi_bus_generate event for forwarding Fn-keys pressed to acpi subsystem,
+> > > and made correspondent necessary changes for this to work.
+> > 
+> > neato.
+> > 
+> > err, how does one use this?
+> 
+> :)
+> 
+> Well, it seems that on some Vaios (including Nilton's pcg-frv26 but not
+> only this one), the Fn key events aren't seen by sonypi or sony_acpi
+> GHKE method, but do generate an ACPI notify event.
 
-With these patches applied and with CONFIG_USER_NS=n, my selinux-enabled
-standard FC5 machine throws a complete fit:
+Speak English ;)
 
-[   12.323958] EDAC MC: Ver: 2.0.1 Jan  4 2007
-[   12.357476] TCP cubic registered
-[   12.360784] NET: Registered protocol family 1
-[   12.364125] NET: Registered protocol family 17
-[   12.367761] speedstep-centrino with X86_SPEEDSTEP_CENTRINO_ACPI config is deprecated.
-[   12.367763]  Use X86_ACPI_CPUFREQ (acpi-cpufreq) instead.
-[   12.374666] Using IPI Shortcut mode
-[   12.378222] Time: tsc clocksource has been installed.
-[   12.381987] Time: acpi_pm clocksource has been installed.
-[   12.386522] ACPI: (supports S0 S3 S4 S5)
-[    6.344000] Freeing unused kernel memory: 184k freed
-[    6.560000] input: PS/2 Mouse as /class/input/input1
-[    6.580000] input: AlpsPS/2 ALPS GlidePoint as /class/input/input2
-[    6.760000] Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-[    6.764000] ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-[    6.824000] EXT3-fs: INFO: recovery required on readonly filesystem.
-[    6.824000] EXT3-fs: write access will be enabled during recovery.
-[   10.832000] kjournald starting.  Commit interval 5 seconds
-[   10.836000] EXT3-fs: recovery complete.
-[   10.840000] EXT3-fs: mounted filesystem with ordered data mode.
-[   11.852000] audit(1167940353.844:2): enforcing=1 old_enforcing=0 auid=4294967295
-[   11.948000] security:  3 users, 6 roles, 1417 types, 151 bools, 1 sens, 256 cats
-[   11.952000] security:  57 classes, 41080 rules
-[   11.956000] security:  class key not defined in policy
-[   11.956000] security:  class context not defined in policy
-[   11.960000] security:  class dccp_socket not defined in policy
-[   11.964000] security:  permission dccp_recv in class node not defined in policy
-[   11.964000] security:  permission dccp_send in class node not defined in policy
-[   11.968000] security:  permission dccp_recv in class netif not defined in policy
-[   11.972000] security:  permission dccp_send in class netif not defined in policy
-[   11.972000] security:  permission setkeycreate in class process not defined in policy
-[   11.976000] security:  permission setsockcreate in class process not defined in policy
-[   11.980000] security:  permission polmatch in class association not defined in policy
-[   11.980000] SELinux:  Completing initialization.
-[   11.984000] SELinux:  Setting up existing superblocks.
-[   12.004000] SELinux: initialized (dev sda6, type ext3), uses xattr
-[   12.204000] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
-[   12.208000] SELinux: initialized (dev debugfs, type debugfs), uses genfs_contexts
-[   12.208000] SELinux: initialized (dev selinuxfs, type selinuxfs), uses genfs_contexts
-[   12.212000] SELinux: initialized (dev mqueue, type mqueue), uses transition SIDs
-[   12.216000] SELinux: initialized (dev hugetlbfs, type hugetlbfs), uses genfs_contexts
-[   12.216000] SELinux: initialized (dev devpts, type devpts), uses transition SIDs
-[   12.220000] SELinux: initialized (dev eventpollfs, type eventpollfs), uses genfs_contexts
-[   12.224000] SELinux: initialized (dev inotifyfs, type inotifyfs), uses genfs_contexts
-[   12.224000] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
-[   12.228000] SELinux: initialized (dev futexfs, type futexfs), uses genfs_contexts
-[   12.232000] SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
-[   12.232000] SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
-[   12.236000] SELinux: initialized (dev proc, type proc), uses genfs_contexts
-[   12.240000] SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
-[   12.240000] SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
-[   12.244000] SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
-[   12.260000] audit(1167940354.256:3): policy loaded auid=4294967295
-[   12.944000] SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
-[   15.376000] audit(1167969158.994:4): avc:  denied  { audit_write } for  pid=386 comm="hwclock" capability=29 scontext=system_u:system_r:hwclock_t:s0 tcontext=system_u:system_r:hwclock_t:s0 tclass=capability
-[   33.936000] audit(1167969177.567:2292): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.940000] audit(1167969177.579:2293): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.952000] audit(1167969177.591:2294): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.956000] audit(1167969177.607:2295): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.960000] audit(1167969177.615:2296): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.964000] audit(1167969177.627:2297): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.968000] audit(1167969177.639:2298): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.972000] audit(1167969177.651:2299): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.976000] audit(1167969177.667:2300): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.980000] audit(1167969177.679:2301): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-[   33.984000] audit(1167969177.695:2302): avc:  denied  { search } for  pid=2141 comm="klogd" name="/" dev=tmpfs ino=1225 scontext=system_u:system_r:klogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
-<ad infinitum>
+> For those laptops, the patch forwards the ACPI event to the ACPI system
+> and can be later interpreted in userspace using
+> acpid's /etc/acpi/default.sh (example directly from Nilton):
 
+The only things Mr Red Hat gave me are /etc/acpi/events/sample.conf and
+/etc/acpi/events/video.conf.
 
-Setting CONFIG_USER_NS=y fixes this.
+> > case "$group" in
+> >     button)
+> >         case "$action" in
+> >             power) /usr/sbin/hibernate
+> >                 ;;
+> >
+> >             lid) cat /proc/acpi/button/lid/LID/state
+> >                 ;;
+> > 
+> >             *)  logger "ACPI action $action is not defined ($@)"
+> >                 ;;
+> >         esac
+> >         ;;
+> > 
+> >     SNC) echo "$@" > /dev/tcp/localhost/50007
+> >         ;;
+> > 
+> >     *) logger "ACPI group $group / action $action is not defined"
+> >         ;;
+> > esac
+> > 
+> > In which I just forward the SNC event to another userspace application
+> > listening on a TCP port.
+> 
+
+I pressed then released a button and dmesg said
+
+[   76.961568] evbug.c: Event. Dev: <NULL>, Type: 1, Code: 148, Value: 1
+[   76.961576] evbug.c: Event. Dev: <NULL>, Type: 0, Code: 0, Value: 0
+[   76.963277] evbug.c: Event. Dev: <NULL>, Type: 1, Code: 148, Value: 0
+[   76.963284] evbug.c: Event. Dev: <NULL>, Type: 0, Code: 0, Value: 0
+[   76.967341] evbug.c: Event. Dev: <NULL>, Type: 1, Code: 148, Value: 1
+[   76.967349] evbug.c: Event. Dev: <NULL>, Type: 0, Code: 0, Value: 0
+[   76.968136] evbug.c: Event. Dev: <NULL>, Type: 1, Code: 148, Value: 0
+[   76.968143] evbug.c: Event. Dev: <NULL>, Type: 0, Code: 0, Value: 0
+
+Nothing else happened.
 

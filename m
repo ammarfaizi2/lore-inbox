@@ -1,118 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422660AbXAESQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422650AbXAES0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbXAESQ7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 13:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbXAESQ7
+	id S1422650AbXAES0N (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 13:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbXAES0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 13:16:59 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:27181 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422651AbXAESQ6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 13:16:58 -0500
-X-Greylist: delayed 2610 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 13:16:58 EST
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 5 Jan 2007 13:26:13 -0500
+Received: from mx0.karneval.cz ([81.27.192.122]:7412 "EHLO av2.karneval.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422650AbXAES0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 13:26:13 -0500
+X-Greylist: delayed 1289 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 13:26:12 EST
+From: Pavel Pisa <ppisa4lists@pikron.com>
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: ARM i.MX serial: fix tx buffer overflows
+Date: Fri, 5 Jan 2007 19:01:52 +0100
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org,
+       Konstantin Kletschke <kletschke@synertronixx.de>
+References: <20070105155144.GD5838@localhost.localdomain>
+In-Reply-To: <20070105155144.GD5838@localhost.localdomain>
+Organization: PiKRON Ltd.
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
-Date: Fri, 5 Jan 2007 09:32:19 -0800
-Message-ID: <8A71B368A89016469F72CD08050AD334F3BE50@maui.asicdesigners.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
-Thread-Index: Accw1SsiEqvnR96ZSkOdmcOVDF0AiQAGYbZA
-From: "Felix Marti" <felix@chelsio.com>
-To: "Steve Wise" <swise@opengridcomputing.com>,
-       "Roland Dreier" <rdreier@cisco.com>
-Cc: <linux-kernel@vger.kernel.org>, <openib-general@openib.org>,
-       <netdev@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701051901.52486.ppisa4lists@pikron.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 05 January 2007 16:51, Sascha Hauer wrote:
+> This patch fixes occasional tx buffer overflows in the i.MX serial
+> driver which came from the fact that space in the buffer was checked
+> after sending the first byte. Also, fifosize is 32 bytes, not 8.
+>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de
+
+Acked-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+
+Hello Sascha,
+
+I have tested your change on 2.6.19-rt14 kernel
+which I have on hand there. It is only very short
+test, but I have not noticed any problems.
+
+In the fact, I think, that it is possible, that
+I have noticed some mentioned problem during
+my CPU-Freq testing on RT kernels before.
+I have noticed some problems sometimes with BusyBox
+shell history editing during frequency throttling.
+May it be, that RT+changed frequency invoked the problem.
+
+I have some other small fix for i.MX uart there.
+Can you add it into patch, or should I send it
+as separate one-liner?
+
+If RTS interrupt is caused by RTS senzing logic inside
+i.MX UART module the IRQ type cannot be set.
+
+It applies only for interrupts going through GPIO layer.
+The problem has been noticed by Konstantin Kletschke
+some time ago.
+
+  No IRQF_TRIGGER set_type function for IRQ 26 (MPU)
+
+I would not change type to fixed 0, because it could
+be possible to use different GPIO MX1 pin for RTS
+in the theory. On the other hand it is only for documentation
+purposes now, because RTS read code would have to be adjusted
+in such case.
+
+Health and success wishes
+in year 2007 from
+
+                     Pavel Pisa
+
+---
+
+ drivers/serial/imx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.19-rt/drivers/serial/imx.c
+===================================================================
+--- linux-2.6.19-rt.orig/drivers/serial/imx.c
++++ linux-2.6.19-rt/drivers/serial/imx.c
+@@ -403,7 +403,8 @@ static int imx_startup(struct uart_port 
+ 	if (retval) goto error_out2;
+ 
+ 	retval = request_irq(sport->rtsirq, imx_rtsint,
+-			     IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
++			     (sport->rtsirq < IMX_IRQS) ? 0 :
++			       IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+ 			     DRIVER_NAME, sport);
+ 	if (retval) goto error_out3;
+ 
 
 
-> -----Original Message-----
-> From: openib-general-bounces@openib.org [mailto:openib-general-
-> bounces@openib.org] On Behalf Of Steve Wise
-> Sent: Friday, January 05, 2007 6:22 AM
-> To: Roland Dreier
-> Cc: linux-kernel@vger.kernel.org; openib-general@openib.org;
-> netdev@vger.kernel.org
-> Subject: Re: [openib-general] [PATCH v4 01/13] Linux RDMA Core Changes
-> 
-> On Thu, 2007-01-04 at 13:34 -0800, Roland Dreier wrote:
-> > OK, I'm back from vacation today.
-> >
-> > Anyway I don't have a definitive statement on this right now.  I
-guess
-> > I agree that I don't like having an extra parameter to a function
-that
-> > should be pretty fast (although req notify isn't quite as hot as
-> > something like posting a send request or polling a cq), given that
-it
-> > adds measurable overhead.  (And I am surprised that the overhead is
-> > measurable, since 3 arguments still fit in registers, but OK).
-> >
-> > I also agree that adding an extra entry point just to pass in the
-user
-> > data is ugly, and also racy.
-> >
-> > Giving the kernel driver a pointer it can read seems OK I guess,
-> > although it's a little ugly to have a backdoor channel like that.
-> >
-> 
-> Another alternative is for the cq-index u32 memory to be allocated by
-> the kernel and mapped into the user process.  So the lib can
-read/write
-> it, and the kernel can read it directly.  This is the fastest way
-> perfwise, but I didn't want to do it because of the page granularity
-of
-> mapping.  IE it would require a page of address space (and backing
-> memory I guess) just for 1 u32.  The CQ element array memory is
-already
-> allocated this way (and its DMA coherent too), but I didn't want to
-> overload that memory with this extra variable either.  Mapping just
-> seemed ugly and wasteful to me.
-> 
-> So given 3 approaches:
-> 
-> 1) allow user data to be passed into ib_req_notify_cq() via the
-standard
-> uverbs mechanisms.
-> 
-> 2) hide this in the chelsio driver and have the driver copyin the info
-> directly.
-> 
-> 3) allocate the memory for this in the kernel and map it to the user
-> process.
-> 
-> I chose 1 because it seemed the cleanest from an architecture point of
-> view and I didn't think it would impact performance much.
 
-[Felix Marti] In addition, is arming the CQ really in the performance
-path? - Don't apps poll the CQ as long as there are pending CQEs and
-only arm the CQ for notification once there is nothing left to do? If
-this is the case, it would mean that we waste a few cycles 'idle'
-cycles. Steve, next to the micro benchmark that you did, did you run any
-performance benchmark that actually moves traffic? If so, did you see a
-difference in performance?
-
-> 
-> 
-> Steve.
-> 
-> 
-> 
-> 
-> 
-> _______________________________________________
-> openib-general mailing list
-> openib-general@openib.org
-> http://openib.org/mailman/listinfo/openib-general
-> 
-> To unsubscribe, please visit
-http://openib.org/mailman/listinfo/openib-general
 

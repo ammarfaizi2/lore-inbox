@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161069AbXAELxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161078AbXAELxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbXAELxH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 06:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbXAELxH
+	id S1161078AbXAELxo (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 06:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbXAELxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 06:53:07 -0500
-Received: from www.sf-tec.de ([62.27.20.187]:36679 "EHLO mail.sf-mail.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1161069AbXAELxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 06:53:06 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
-Date: Fri, 5 Jan 2007 12:54:21 +0100
-User-Agent: KMail/1.9.5
-References: <20070105063600.GA13571@Ahmed> <200701051126.13682.eike-kernel@sf-tec.de> <20070105103247.GC382@Ahmed>
-In-Reply-To: <20070105103247.GC382@Ahmed>
-Cc: "Ahmed S. Darwish" <darwish.07@gmail.com>
+	Fri, 5 Jan 2007 06:53:43 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:41644 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161076AbXAELxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 06:53:42 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Fri, 5 Jan 2007 06:48:33 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Remove unnecessary memset(0) calls after kzalloc() calls.
+Message-ID: <Pine.LNX.4.64.0701050640540.24278@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2211652.RijxarK1Ia";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200701051254.21618.eike-kernel@sf-tec.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2211652.RijxarK1Ia
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Am Freitag, 5. Januar 2007 11:32 schrieb Ahmed S. Darwish:
-> On Fri, Jan 05, 2007 at 11:26:07AM +0100, Rolf Eike Beer wrote:
-> > One big patch for the whole kernel will not work anyway. You have to
-> > split it up to allow subsystems to integrate them in their own trees.
-> > With one big patch you would get collisions all over the tree causing t=
-he
-> > complete patch to get dropped. Also CC subsystem maintainers on their
-> > parts. And please send the patches as replies to the first one as it
-> > cleans up readability of lkml a lot :)
->
-> Oops, Just read this warning after sending the (big) patch. Sorry It's my
-> first patch :). I'll split it and do as written. Thanks alot :).
+  Delete the few remaining unnecessary calls to memset(0) after a call
+to kzalloc().
 
-That wasn't meant for resending. If you resend the whole series it's good t=
-o=20
-start a new thread. But if you have several related patches (usually this=20
-[PATCH N/xx] thing) it helps if you either send a 0/xx first describing the=
-=20
-whole series or at least sending everything as reply to 1/xx. This way the=
-=20
-mail program will help everybody by keeping this things together.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-Eike
+---
 
---nextPart2211652.RijxarK1Ia
-Content-Type: application/pgp-signature
+  AFAICT, these are the few remaining instances of this.  if you're
+aware of any others, let me know and i can resubmit a revised patch.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+ arch/x86_64/kernel/mce_amd.c   |    2 --
+ drivers/input/gameport/ns558.c |    1 -
+ drivers/pnp/pnpbios/rsparser.c |    1 -
+ 3 files changed, 4 deletions(-)
 
-iD8DBQBFnjxtXKSJPmm5/E4RAtCtAJ9ICcRg63B0UEVsxk5iO2vH5O5//ACdGaVz
-bZItGzyHVJvhbjz4CLrJESE=
-=bp8e
------END PGP SIGNATURE-----
+diff --git a/arch/x86_64/kernel/mce_amd.c b/arch/x86_64/kernel/mce_amd.c
+index fa09deb..93c7072 100644
+--- a/arch/x86_64/kernel/mce_amd.c
++++ b/arch/x86_64/kernel/mce_amd.c
+@@ -401,7 +401,6 @@ static __cpuinit int allocate_threshold_blocks(unsigned int cpu,
+ 	b = kzalloc(sizeof(struct threshold_block), GFP_KERNEL);
+ 	if (!b)
+ 		return -ENOMEM;
+-	memset(b, 0, sizeof(struct threshold_block));
 
---nextPart2211652.RijxarK1Ia--
+ 	b->block = block;
+ 	b->bank = bank;
+@@ -490,7 +489,6 @@ static __cpuinit int threshold_create_bank(unsigned int cpu, unsigned int bank)
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(b, 0, sizeof(struct threshold_bank));
+
+ 	kobject_set_name(&b->kobj, "threshold_bank%i", bank);
+ 	b->kobj.parent = &per_cpu(device_mce, cpu).kobj;
+diff --git a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
+index f68dbe6..7b7a546 100644
+--- a/drivers/input/gameport/ns558.c
++++ b/drivers/input/gameport/ns558.c
+@@ -151,7 +151,6 @@ static int ns558_isa_probe(int io)
+ 		return -ENOMEM;
+ 	}
+
+-	memset(ns558, 0, sizeof(struct ns558));
+ 	ns558->io = io;
+ 	ns558->size = 1 << i;
+ 	ns558->gameport = port;
+diff --git a/drivers/pnp/pnpbios/rsparser.c b/drivers/pnp/pnpbios/rsparser.c
+index 95b7968..3c2ab83 100644
+--- a/drivers/pnp/pnpbios/rsparser.c
++++ b/drivers/pnp/pnpbios/rsparser.c
+@@ -530,7 +530,6 @@ pnpbios_parse_compatible_ids(unsigned char *p, unsigned char *end, struct pnp_de
+ 			dev_id =  kzalloc(sizeof (struct pnp_id), GFP_KERNEL);
+ 			if (!dev_id)
+ 				return NULL;
+-			memset(dev_id, 0, sizeof(struct pnp_id));
+ 			pnpid32_to_pnpid(p[1] | p[2] << 8 | p[3] << 16 | p[4] << 24,id);
+ 			memcpy(&dev_id->id, id, 7);
+ 			pnp_add_id(dev_id, dev);
+
+
+

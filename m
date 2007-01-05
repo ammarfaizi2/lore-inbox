@@ -1,140 +1,86 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161167AbXAERM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161160AbXAEROS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161167AbXAERM7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 12:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbXAERMK
+	id S1161160AbXAEROS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 12:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbXAEROS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 12:12:10 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:51022 "EHLO cacti.profiwh.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161154AbXAERLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 12:11:52 -0500
-Message-id: <16195189622607828668@wsc.cz>
-In-reply-to: <16079316021425814645@wsc.cz>
-Subject: [PATCH 6/7] Char: moxa, pci_probing prepare
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Fri,  5 Jan 2007 18:12:00 +0100 (CET)
+	Fri, 5 Jan 2007 12:14:18 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:42402 "EHLO
+	metis.extern.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161160AbXAEROR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 12:14:17 -0500
+X-Greylist: delayed 2357 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 12:14:17 EST
+Date: Fri, 5 Jan 2007 16:51:44 +0100
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: linux-kernel@vger.kernel.org, Pavel Pisa <pisa@cmp.felk.cvut.cz>
+Subject: ARM i.MX serial: fix tx buffer overflows
+Message-ID: <20070105155144.GD5838@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moxa, pci_probing prepare
+This patch fixes occasional tx buffer overflows in the i.MX serial
+driver which came from the fact that space in the buffer was checked
+after sending the first byte. Also, fifosize is 32 bytes, not 8.
 
-- change pci conf prototype and rename it to moxa_pci_probe
-- move some code to moxa_pci_probe
-- create moxa_pci_remove
-
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de
 
 ---
-commit cd7aa5e22313e6a0f2ec6a02960793fc54c26416
-tree 8ff42a1436ecfa86ef0297f7d68317a0b8a454d3
-parent d35a569e31595b9b8f70bfd1d3aae7f830d183fe
-author Jiri Slaby <jirislaby@gmail.com> Wed, 03 Jan 2007 15:04:59 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 17:55:22 +0059
+ drivers/serial/imx.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
- drivers/char/moxa.c |   64 +++++++++++++++++++++++++++++++++++++--------------
- 1 files changed, 46 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/char/moxa.c b/drivers/char/moxa.c
-index 8849d66..9b7067b 100644
---- a/drivers/char/moxa.c
-+++ b/drivers/char/moxa.c
-@@ -275,10 +275,35 @@ static DEFINE_TIMER(moxaTimer, moxa_poll, 0, 0);
- static DEFINE_SPINLOCK(moxa_lock);
- 
- #ifdef CONFIG_PCI
--static int moxa_get_PCI_conf(struct pci_dev *p, int board_type,
--		struct moxa_board_conf *board)
-+static int __devinit moxa_pci_probe(struct pci_dev *pdev,
-+		const struct pci_device_id *ent)
+Index: linux-2.6.20-rc3/drivers/serial/imx.c
+===================================================================
+--- linux-2.6.20-rc3.orig/drivers/serial/imx.c
++++ linux-2.6.20-rc3/drivers/serial/imx.c
+@@ -154,7 +154,7 @@ static inline void imx_transmit_buffer(s
  {
--	board->baseAddr = pci_resource_start (p, 2);
-+	struct moxa_board_conf *board;
-+	unsigned int i;
-+	int board_type = ent->driver_data;
-+	int retval;
-+
-+	retval = pci_enable_device(pdev);
-+	if (retval)
-+		goto err;
-+
-+	for (i = 0; i < MAX_BOARDS; i++)
-+		if (moxa_boards[i].basemem == NULL)
-+			break;
-+
-+	retval = -ENODEV;
-+	if (i >= MAX_BOARDS) {
-+		if (verbose)
-+			printk("More than %d MOXA Intellio family boards "
-+				"found. Board is ignored.\n", MAX_BOARDS);
-+		goto err;
+ 	struct circ_buf *xmit = &sport->port.info->xmit;
+ 
+-	do {
++	while (!(UTS((u32)sport->port.membase) & UTS_TXFULL)) {
+ 		/* send xmit->buf[xmit->tail]
+ 		 * out the port here */
+ 		URTX0((u32)sport->port.membase) = xmit->buf[xmit->tail];
+@@ -163,7 +163,7 @@ static inline void imx_transmit_buffer(s
+ 		sport->port.icount.tx++;
+ 		if (uart_circ_empty(xmit))
+ 			break;
+-	} while (!(UTS((u32)sport->port.membase) & UTS_TXFULL));
 +	}
-+
-+	board = &moxa_boards[i];
-+	board->basemem = pci_iomap(pdev, 2, 0x4000);
-+	if (board->basemem == NULL)
-+		goto err;
-+
- 	board->boardType = board_type;
- 	switch (board_type) {
- 	case MOXA_BOARD_C218_ISA:
-@@ -295,9 +320,21 @@ static int moxa_get_PCI_conf(struct pci_dev *p, int board_type,
- 	}
- 	board->busType = MOXA_BUS_TYPE_PCI;
- 	/* don't lose the reference in the next pci_get_device iteration */
--	board->pdev = pci_dev_get(p);
-+	board->pdev = pci_dev_get(pdev);
-+	pci_set_drvdata(pdev, board);
  
- 	return (0);
-+err:
-+	return retval;
-+}
-+
-+static void __devexit moxa_pci_remove(struct pci_dev *pdev)
-+{
-+	struct moxa_board_conf *brd = pci_get_drvdata(pdev);
-+
-+	pci_iounmap(pdev, brd->basemem);
-+	brd->basemem = NULL;
-+	pci_dev_put(pdev);
+ 	if (uart_circ_empty(xmit))
+ 		imx_stop_tx(&sport->port);
+@@ -178,8 +178,7 @@ static void imx_start_tx(struct uart_por
+ 
+ 	UCR1((u32)sport->port.membase) |= UCR1_TXMPTYEN;
+ 
+-	if(UTS((u32)sport->port.membase) & UTS_TXEMPTY)
+-		imx_transmit_buffer(sport);
++	imx_transmit_buffer(sport);
  }
- #endif /* CONFIG_PCI */
  
-@@ -401,18 +438,7 @@ static int __init moxa_init(void)
- 		i = 0;
- 		while (i < n) {
- 			while ((p = pci_get_device(moxa_pcibrds[i].vendor, moxa_pcibrds[i].device, p))!=NULL)
--			{
--				if (pci_enable_device(p))
--					continue;
--				if (numBoards >= MAX_BOARDS) {
--					if (verbose)
--						printk("More than %d MOXA Intellio family boards found. Board is ignored.", MAX_BOARDS);
--				} else {
--					moxa_get_PCI_conf(p, moxa_pcibrds[i].driver_data,
--						&moxa_boards[numBoards]);
--					numBoards++;
--				}
--			}
-+				moxa_pci_probe(p, &moxa_pcibrds[i]);
- 			i++;
- 		}
- 	}
-@@ -442,10 +468,12 @@ static void __exit moxa_exit(void)
- 	put_tty_driver(moxaDriver);
- 
- 	for (i = 0; i < MAX_BOARDS; i++) {
-+#ifdef CONFIG_PCI
-+		if (moxa_boards[i].busType == MOXA_BUS_TYPE_PCI)
-+			moxa_pci_remove(moxa_boards[i].pdev);
-+#endif
- 		if (moxa_boards[i].basemem)
- 			iounmap(moxa_boards[i].basemem);
--		if (moxa_boards[i].busType == MOXA_BUS_TYPE_PCI)
--			pci_dev_put(moxa_boards[i].pdev);
- 	}
- 
- 	if (verbose)
+ static irqreturn_t imx_rtsint(int irq, void *dev_id)
+@@ -678,7 +677,7 @@ static struct imx_port imx_ports[] = {
+ 		.mapbase	= IMX_UART1_BASE, /* FIXME */
+ 		.irq		= UART1_MINT_RX,
+ 		.uartclk	= 16000000,
+-		.fifosize	= 8,
++		.fifosize	= 32,
+ 		.flags		= UPF_BOOT_AUTOCONF,
+ 		.ops		= &imx_pops,
+ 		.line		= 0,
+@@ -694,7 +693,7 @@ static struct imx_port imx_ports[] = {
+ 		.mapbase	= IMX_UART2_BASE, /* FIXME */
+ 		.irq		= UART2_MINT_RX,
+ 		.uartclk	= 16000000,
+-		.fifosize	= 8,
++		.fifosize	= 32,
+ 		.flags		= UPF_BOOT_AUTOCONF,
+ 		.ops		= &imx_pops,
+ 		.line		= 1,
+

@@ -1,91 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161018AbXAEIc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030375AbXAEIon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbXAEIc0 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 03:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbXAEIc0
+	id S1030375AbXAEIon (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 03:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbXAEIon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 03:32:26 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:26999 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030369AbXAEIcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 03:32:25 -0500
-Date: Fri, 5 Jan 2007 09:32:44 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-aio@kvack.org, drepper@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com, mingo@elte.hu
-Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
-Message-ID: <20070105083244.GS11203@kernel.dk>
-References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org> <20070105062841.GA2653@in.ibm.com> <20070105070230.GJ11203@kernel.dk> <20070105080820.GA5504@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070105080820.GA5504@in.ibm.com>
+	Fri, 5 Jan 2007 03:44:43 -0500
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:44251 "EHLO
+	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030375AbXAEIom (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 03:44:42 -0500
+To: pavel@ucw.cz
+CC: matthew@wil.cx, bhalevy@panasas.com, arjan@infradead.org,
+       mikulas@artax.karlin.mff.cuni.cz, jaharkes@cs.cmu.edu,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+In-reply-to: <20070104225929.GC8243@elf.ucw.cz> (message from Pavel Machek on
+	Thu, 4 Jan 2007 23:59:29 +0100)
+Subject: Re: Finding hardlinks
+References: <4593890C.8030207@panasas.com> <1167300352.3281.4183.camel@laptopd505.fenrus.org> <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu> <20070103135455.GA24620@parisc-linux.org> <E1H28Oi-0003kw-00@dorka.pomaz.szeredi.hu> <20070104225929.GC8243@elf.ucw.cz>
+Message-Id: <E1H2kfa-0007Jl-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 05 Jan 2007 09:43:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05 2007, Suparna Bhattacharya wrote:
-> On Fri, Jan 05, 2007 at 08:02:33AM +0100, Jens Axboe wrote:
-> > On Fri, Jan 05 2007, Suparna Bhattacharya wrote:
-> > > On Thu, Jan 04, 2007 at 09:02:42AM -0800, Andrew Morton wrote:
-> > > > On Thu, 4 Jan 2007 10:26:21 +0530
-> > > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> > > >
-> > > > > On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
-> > > > > > On Thu, 28 Dec 2006 13:53:08 +0530
-> > > > > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> > > > > >
-> > > > > > > This patchset implements changes to make filesystem AIO read
-> > > > > > > and write asynchronous for the non O_DIRECT case.
-> > > > > >
-> > > > > > Unfortunately the unplugging changes in Jen's block tree have trashed these
-> > > > > > patches to a degree that I'm not confident in my repair attempts.  So I'll
-> > > > > > drop the fasio patches from -mm.
-> > > > >
-> > > > > I took a quick look and the conflicts seem pretty minor to me, the unplugging
-> > > > > changes mostly touch nearby code.
-> > > >
-> > > > Well...  the conflicts (both mechanical and conceptual) are such that a
-> > > > round of retesting is needed.
-> > > >
-> > > > > Please let know how you want this fixed up.
-> > > > >
-> > > > > >From what I can tell the comments in the unplug patches seem to say that
-> > > > > it needs more work and testing, so perhaps a separate fixup patch may be
-> > > > > a better idea rather than make the fsaio patchset dependent on this.
-> > > >
-> > > > Patches against next -mm would be appreciated, please.  Sorry about that.
-> > > >
-> > > > I _assume_ Jens is targetting 2.6.21?
-> > >
-> > > When is the next -mm likely to be out ?
-> > >
-> > > I was considering regenerating the blk unplug patches against the
-> > > fsaio changes instead of the other way around, if Jens were willing to
-> > > accept that. But if the next -mm is just around the corner then its
-> > > not an issue.
+> > > > High probability is all you have.  Cosmic radiation hitting your
+> > > > computer will more likly cause problems, than colliding 64bit inode
+> > > > numbers ;)
+> > > 
+> > > Some of us have machines designed to cope with cosmic rays, and would be
+> > > unimpressed with a decrease in reliability.
 > > 
-> > I don't really care much, but I work against mainline and anything but
-> > occasional one-off generations of a patch against a different base is
-> > not very likely.
+> > With the suggested samefile() interface you'd get a failure with just
+> > about 100% reliability for any application which needs to compare a
+> > more than a few files.  The fact is open files are _very_ expensive,
+> > no wonder they are limited in various ways.
 > > 
-> > The -mm order should just reflect the merge order of the patches, what
-> > is the fsaio target?
+> > What should 'tar' do when it runs out of open files, while searching
+> > for hardlinks?  Should it just give up?  Then the samefile() interface
+> > would be _less_ reliable than the st_ino one by a significant margin.
 > 
-> 2.6.21 was what I had in mind, to enable the glibc folks to proceed with
-> conversion to native AIO.
-> 
-> Regenerating my patches against the unplug stuff is not a problem, I only
-> worry about being queued up behind something that may take longer to
-> stabilize and is likely to change ... If that is not the case, I don't
-> mind.
+> You need at most two simultenaously open files for examining any
+> number of hardlinks. So yes, you can make it reliable.
 
-Same here, hence the suggestion to base then in merging order. If your
-target is 2.6.21, then I think fsaio should be first. While I think the
-plug changes are safe and as such mergable, we still need to see lots of
-results and do more testing.
+Well, sort of.  Samefile without keeping fds open doesn't have any
+protection against the tree changing underneath between first
+registering a file and later opening it.  The inode number is more
+useful in this respect.  In fact inode number + generation number will
+give you a unique identifier in time as well, which is a _lot_ more
+useful to determine if the file you are checking is actually the same
+as one that you've come across previously.
 
--- 
-Jens Axboe
+So instead of samefile() I'd still suggest an extended attribute
+interface which exports the file's unique (in space and time)
+identifier as an opaque cookie.
 
+For filesystems like FAT you can basically only guarantee that two
+files are the same as long as those files are in the icache, no matter
+if you use samefile() or inode numbers.  Userpace _can_ make the
+inodes stay in the cache by keeping the files open, which works for
+samefile as well as checking by inode number.
+
+Miklos

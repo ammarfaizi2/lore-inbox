@@ -1,34 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161003AbXAEHtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161004AbXAEHur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbXAEHtG (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 02:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbXAEHtG
+	id S1161004AbXAEHur (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 02:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbXAEHur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 02:49:06 -0500
-Received: from mis011.exch011.intermedia.net ([64.78.21.10]:22907 "EHLO
-	mis011.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161003AbXAEHtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 02:49:05 -0500
-Message-ID: <459E02E7.5020407@qumranet.com>
-Date: Fri, 05 Jan 2007 09:48:55 +0200
+	Fri, 5 Jan 2007 02:50:47 -0500
+Received: from il.qumranet.com ([62.219.232.206]:35862 "EHLO il.qumranet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161004AbXAEHuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 02:50:46 -0500
+Subject: [PATCH 1/9] KVM: Improve reporting of vmwrite errors
 From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
+Date: Fri, 05 Jan 2007 07:50:45 -0000
 To: kvm-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH 0/9] KVM: Flush out my patch queue
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jan 2007 07:49:03.0291 (UTC) FILETIME=[F80C68B0:01C7309D]
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <459E02E7.5020407@qumranet.com>
+In-Reply-To: <459E02E7.5020407@qumranet.com>
+Message-Id: <20070105075045.225C3250048@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patchset is mostly fallout from the mmu stuff that I've neglected 
-to integrate with the main patchset sent yesterday.  It includes a 
-fashionable missing dirty bit fix, and other fixes and cleanups.
+This will allow us to see the root cause when a vmwrite error happens.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
+Index: linux-2.6/drivers/kvm/vmx.c
+===================================================================
+--- linux-2.6.orig/drivers/kvm/vmx.c
++++ linux-2.6/drivers/kvm/vmx.c
+@@ -152,15 +152,21 @@ static u64 vmcs_read64(unsigned long fie
+ #endif
+ }
+ 
++static noinline void vmwrite_error(unsigned long field, unsigned long value)
++{
++	printk(KERN_ERR "vmwrite error: reg %lx value %lx (err %d)\n",
++	       field, value, vmcs_read32(VM_INSTRUCTION_ERROR));
++	dump_stack();
++}
++
+ static void vmcs_writel(unsigned long field, unsigned long value)
+ {
+ 	u8 error;
+ 
+ 	asm volatile (ASM_VMX_VMWRITE_RAX_RDX "; setna %0"
+ 		       : "=q"(error) : "a"(value), "d"(field) : "cc" );
+-	if (error)
+-		printk(KERN_ERR "vmwrite error: reg %lx value %lx (err %d)\n",
+-		       field, value, vmcs_read32(VM_INSTRUCTION_ERROR));
++	if (unlikely(error))
++		vmwrite_error(field, value);
+ }
+ 
+ static void vmcs_write16(unsigned long field, u16 value)

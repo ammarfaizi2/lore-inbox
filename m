@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161009AbXAEHzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161015AbXAEH4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbXAEHzr (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 02:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbXAEHzr
+	id S1161015AbXAEH4r (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 02:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbXAEH4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 02:55:47 -0500
-Received: from il.qumranet.com ([62.219.232.206]:39630 "EHLO il.qumranet.com"
+	Fri, 5 Jan 2007 02:56:47 -0500
+Received: from il.qumranet.com ([62.219.232.206]:53276 "EHLO il.qumranet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161009AbXAEHzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 02:55:46 -0500
-Subject: [PATCH 6/9] KVM: MMU: Add missing dirty bit
+	id S1161015AbXAEH4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 02:56:47 -0500
+Subject: [PATCH 7/9] KVM: Make loading cr3 more robust
 From: Avi Kivity <avi@qumranet.com>
-Date: Fri, 05 Jan 2007 07:55:45 -0000
+Date: Fri, 05 Jan 2007 07:56:45 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
 References: <459E02E7.5020407@qumranet.com>
 In-Reply-To: <459E02E7.5020407@qumranet.com>
-Message-Id: <20070105075545.83E2F250048@il.qumranet.com>
+Message-Id: <20070105075645.900B6250048@il.qumranet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If we emulate a write, we fail to set the dirty bit on the guest pte, leading
-the guest to believe the page is clean, and thus lose data.  Bad.
+From: Ingo Molnar <mingo@elte.hu>
 
-Fix by setting the guest pte dirty bit under such conditions.
+Prevent the guest's loading of a corrupt cr3 (pointing at no guest phsyical
+page) from crashing the host.
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/paging_tmpl.h
+Index: linux-2.6/drivers/kvm/kvm_main.c
 ===================================================================
---- linux-2.6.orig/drivers/kvm/paging_tmpl.h
-+++ linux-2.6/drivers/kvm/paging_tmpl.h
-@@ -317,6 +317,7 @@ static int FNAME(fix_write_pf)(struct kv
- 	} else if (kvm_mmu_lookup_page(vcpu, gfn)) {
- 		pgprintk("%s: found shadow page for %lx, marking ro\n",
- 			 __FUNCTION__, gfn);
-+		*guest_ent |= PT_DIRTY_MASK;
- 		*write_pt = 1;
- 		return 0;
- 	}
+--- linux-2.6.orig/drivers/kvm/kvm_main.c
++++ linux-2.6/drivers/kvm/kvm_main.c
+@@ -463,7 +463,19 @@ void set_cr3(struct kvm_vcpu *vcpu, unsi
+ 
+ 	vcpu->cr3 = cr3;
+ 	spin_lock(&vcpu->kvm->lock);
+-	vcpu->mmu.new_cr3(vcpu);
++	/*
++	 * Does the new cr3 value map to physical memory? (Note, we
++	 * catch an invalid cr3 even in real-mode, because it would
++	 * cause trouble later on when we turn on paging anyway.)
++	 *
++	 * A real CPU would silently accept an invalid cr3 and would
++	 * attempt to use it - with largely undefined (and often hard
++	 * to debug) behavior on the guest side.
++	 */
++	if (unlikely(!gfn_to_memslot(vcpu->kvm, cr3 >> PAGE_SHIFT)))
++		inject_gp(vcpu);
++	else
++		vcpu->mmu.new_cr3(vcpu);
+ 	spin_unlock(&vcpu->kvm->lock);
+ }
+ EXPORT_SYMBOL_GPL(set_cr3);

@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161106AbXAEOVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161108AbXAEOW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161106AbXAEOVp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 09:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbXAEOVp
+	id S1161108AbXAEOW0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 09:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbXAEOW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 09:21:45 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35968 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161106AbXAEOVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 09:21:44 -0500
-In-Reply-To: <1167952757.20260.6.camel@voyager.dsnet>
-References: <1167909014.20853.8.camel@localhost.localdomain> <20070104144825.68fec948.akpm@osdl.org>  <1167951548.12012.55.camel@praia> <1167952757.20260.6.camel@voyager.dsnet>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6bae980b60fd869e7067f3df2f5e2f6a@kernel.crashing.org>
+	Fri, 5 Jan 2007 09:22:26 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:32822 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161108AbXAEOWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 09:22:25 -0500
+Subject: Re: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
+From: Steve Wise <swise@opengridcomputing.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <adawt424gt8.fsf@cisco.com>
+References: <1167851839.4187.36.camel@stevo-desktop>
+	 <20070103193324.GD29003@mellanox.co.il>
+	 <1167855618.4187.65.camel@stevo-desktop>
+	 <1167859320.4187.81.camel@stevo-desktop>  <adawt424gt8.fsf@cisco.com>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 08:22:25 -0600
+Message-Id: <1168006945.10259.17.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Cc: v4l-dvb-maintainer@linuxtv.org, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Fix __ucmpdi2 in v4l2_norm_to_name()
-Date: Fri, 5 Jan 2007 15:20:16 +0100
-To: Stelian Pop <stelian@popies.net>
-X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> The largest value we use here is 0x02000000.  Perhaps v4l2_std_id 
->>> shouldn't
->>> be 64-bit?
->> Too late to change it to 32 bits. It is at V4L2 userspace API since
->> kernel 2.6.0. We can, however use this approach as a workaround, with
->> the proper documentation.
->
-> Maybe with a BUG_ON(id > UINT_MAX) ?
+On Thu, 2007-01-04 at 13:34 -0800, Roland Dreier wrote:
+> OK, I'm back from vacation today.
+> 
+> Anyway I don't have a definitive statement on this right now.  I guess
+> I agree that I don't like having an extra parameter to a function that
+> should be pretty fast (although req notify isn't quite as hot as
+> something like posting a send request or polling a cq), given that it
+> adds measurable overhead.  (And I am surprised that the overhead is
+> measurable, since 3 arguments still fit in registers, but OK).
+> 
+> I also agree that adding an extra entry point just to pass in the user
+> data is ugly, and also racy.
+> 
+> Giving the kernel driver a pointer it can read seems OK I guess,
+> although it's a little ugly to have a backdoor channel like that.
+> 
 
-If the code code is like
+Another alternative is for the cq-index u32 memory to be allocated by
+the kernel and mapped into the user process.  So the lib can read/write
+it, and the kernel can read it directly.  This is the fastest way
+perfwise, but I didn't want to do it because of the page granularity of
+mapping.  IE it would require a page of address space (and backing
+memory I guess) just for 1 u32.  The CQ element array memory is already
+allocated this way (and its DMA coherent too), but I didn't want to
+overload that memory with this extra variable either.  Mapping just
+seemed ugly and wasteful to me. 
 
-	u64 user_id;
-	u32 kernel_id = user_id;
+So given 3 approaches:
 
-(or different types, just showing the difference in word
-lengths here) it's easiest and safest to do
+1) allow user data to be passed into ib_req_notify_cq() via the standard
+uverbs mechanisms.
 
-	BUG_ON(kernel_id != user_id);
+2) hide this in the chelsio driver and have the driver copyin the info
+directly.
 
-i.e. cast back up to 64-bit, see if it's identical to the
-original.  You won't have to worry about sign extensions or
-similar that way, the BUG_ON() condition expresses the actual
-requirement directly.
+3) allocate the memory for this in the kernel and map it to the user
+process.
+
+I chose 1 because it seemed the cleanest from an architecture point of
+view and I didn't think it would impact performance much.
 
 
-Segher
+Steve.
+
+
+
 

@@ -1,59 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161155AbXAEQ4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161153AbXAEQ5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161155AbXAEQ4z (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 11:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbXAEQ4y
+	id S1161153AbXAEQ5H (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 11:57:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161156AbXAEQ5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 11:56:54 -0500
-Received: from pat.uio.no ([129.240.10.15]:40856 "EHLO pat.uio.no"
+	Fri, 5 Jan 2007 11:57:07 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:41179 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161152AbXAEQ4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 11:56:53 -0500
-Subject: Re: [nfsv4] RE: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Nicolas Williams <Nicolas.Williams@sun.com>
-Cc: Benny Halevy <bhalevy@panasas.com>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       Miklos Szeredi <miklos@szeredi.hu>, nfsv4@ietf.org,
-       linux-kernel@vger.kernel.org,
-       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20070105164008.GA1010@binky.Central.Sun.COM>
-References: <4593C524.8070209@poochiereds.net>
-	 <4593DEF8.5020609@panasas.com>
-	 <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-	 <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>
-	 <1167388129.6106.45.camel@lade.trondhjem.org>
-	 <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>
-	 <1167780097.6090.104.camel@lade.trondhjem.org>
-	 <459BA30A.4020809@panasas.com>
-	 <1167899796.6046.11.camel@lade.trondhjem.org>
-	 <459CD11E.3000200@panasas.com>
-	 <20070105164008.GA1010@binky.Central.Sun.COM>
-Content-Type: text/plain
-Date: Fri, 05 Jan 2007 17:56:24 +0100
-Message-Id: <1168016184.6050.71.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.3, required=12.0, autolearn=disabled, AWL=1.667,UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: 003C39055A0D86C106D4318399B8A57DB9593F76
-X-UiO-SPAM-Test: 83.109.170.63 spam_score -32 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+	id S1161153AbXAEQ5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 11:57:05 -0500
+Date: Fri, 5 Jan 2007 08:49:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Mikael Pettersson <mikpe@it.uu.se>, 76306.1226@compuserve.com,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, yanmin_zhang@linux.intel.com
+Subject: Re: kernel + gcc 4.1 = several problems
+In-Reply-To: <200701051619.54977.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0701050827290.3661@woody.osdl.org>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se>
+ <200701051553.04673.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0701050757320.3661@woody.osdl.org>
+ <200701051619.54977.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-05 at 10:40 -0600, Nicolas Williams wrote:
-> What I don't understand is why getting the fileid is so hard -- always
-> GETATTR when you GETFH and you'll be fine.  I'm guessing that's not as
-> difficult as it is to maintain a hash table of fileids.
 
-You've been sleeping in class. We always try to get the fileid together
-with the GETFH. The irritating bit is having to redo a GETATTR using the
-old filehandle in order to figure out if the 2 filehandles refer to the
-same file. Unlike filehandles, fileids can be reused.
 
-Then there is the point of dealing with that servers can (and do!)
-actually lie to you.
+On Fri, 5 Jan 2007, Alistair John Strachan wrote:
+> 
+> (I realise with problems like these it's almost always some sort of obscure 
+> hardware problem, but I find that very difficult to believe when I can toggle 
+> from 3 years of stability to 6-18 hours crashing by switching compiler. I've 
+> also ran extensive stability test programs on the hardware with absolutely no 
+> negative results.)
 
-Trond
+The thing is, I agree with you - it does seem to be compiler-related. But 
+at the same time, I'm almost positive that it's not in "pipe_poll()" 
+itself, because that function is just too simple, and looking at the 
+assembly code, I don't see how what you describe could happen in THAT 
+function.
 
+HOWEVER.
+
+I can easily see an NMI coming in, or another interrupt, or something, and 
+that one corrupting the stack under it because of a compiler bug (or a 
+kernel bug that just needs a specific compiler to trigger). For example, 
+we've had problems before with the compiler thinking it owns the stack 
+frame for an "asmlinkage" function, and us having no way to tell the 
+compiler to keep its hands off - so the compiler ended up touching 
+registers that were actually in the "save area" of the interrupt or system 
+call, and then returning with corrupted state.
+
+Here's a stupid patch. It just adds more debugging to the oops message, 
+and shows all the code pointers it can find on the WHOLE stack.
+
+It also makes the raw stack dumping print out as much of the stack 
+contents _under_ the stack pointer as it does above it too.
+
+However, this patch is mostly useless if you have a separate stack for 
+IRQ's (since if that happens, any interrupt will be taken on a different 
+stack which we don't see any more), so you should NOT enable the 4KSTACKS 
+config option if you try this out.
+
+I'm not sure how enlightening any of the output might be, but it is 
+probably worth trying.
+
+		Linus
+
+---
+diff --git a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
+index 0efad8a..2359eed 100644
+--- a/arch/i386/kernel/traps.c
++++ b/arch/i386/kernel/traps.c
+@@ -243,6 +243,20 @@ void show_trace(struct task_struct *task, struct pt_regs *regs,
+ 	show_trace_log_lvl(task, regs, stack, "");
+ }
+ 
++static void show_all_stack_addresses(unsigned long *esp)
++{
++	struct thread_info *tinfo = (void *) ((unsigned long)esp & (~(THREAD_SIZE - 1)));
++	unsigned long *stack = (unsigned long *)(tinfo+1);
++
++	printk("All stack code pointers:\n");
++	while (valid_stack_ptr(tinfo, stack)) {
++		unsigned long addr = *stack++;
++		if (__kernel_text_address(addr))
++			print_symbol(" %s", addr);
++	}
++	printk("\n");
++}
++
+ static void show_stack_log_lvl(struct task_struct *task, struct pt_regs *regs,
+ 			       unsigned long *esp, char *log_lvl)
+ {
+@@ -256,8 +270,10 @@ static void show_stack_log_lvl(struct task_struct *task, struct pt_regs *regs,
+ 			esp = (unsigned long *)&esp;
+ 	}
+ 
++	show_all_stack_addresses(esp);
+ 	stack = esp;
+-	for(i = 0; i < kstack_depth_to_print; i++) {
++	stack -= kstack_depth_to_print;
++	for(i = 0; i < 2*kstack_depth_to_print; i++) {
+ 		if (kstack_end(stack))
+ 			break;
+ 		if (i && ((i % 8) == 0))

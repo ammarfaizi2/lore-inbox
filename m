@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161043AbXAEK3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161044AbXAEKdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161043AbXAEK3j (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 05:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbXAEK3i
+	id S1161044AbXAEKdE (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 05:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbXAEKdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 05:29:38 -0500
-Received: from pat.uio.no ([129.240.10.15]:40210 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161043AbXAEK3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 05:29:37 -0500
-Subject: Re: [nfsv4] RE: Finding hardlinks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Benny Halevy <bhalevy@panasas.com>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, nfsv4@ietf.org,
-       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <459E0C11.4020203@panasas.com>
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>
-	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>
-	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>
-	 <1166869106.3281.587.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>
-	 <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>
-	 <4593DEF8.5020609@panasas.com>
-	 <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>
-	 <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>
-	 <1167388129.6106.45.camel@lade.trondhjem.org>
-	 <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>
-	 <1167780097.6090.104.camel@lade.trondhjem.org>
-	 <459BA30A.4020809@panasas.com>
-	 <1167899796.6046.11.camel@lade.trondhjem.org>
-	 <459CD11E.3000200@panasas.com>
-	 <1167907640.6046.44.camel@lade.trondhjem.org>
-	 <459E0C11.4020203@panasas.com>
-Content-Type: text/plain
-Date: Fri, 05 Jan 2007 11:29:13 +0100
-Message-Id: <1167992953.6050.21.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.5, required=12.0, autolearn=disabled, AWL=2.500,UIO_MAIL_IS_INTERNAL=-5)
-X-UiO-Scanned: 0352CDEBA746EF61ADEE97B31D98111588B354F8
-X-UiO-SPAM-Test: 83.109.147.16 spam_score -24 maxlevel 200 minaction 2 bait 0 blacklist 0 greylist 0 ratelimit 0
+	Fri, 5 Jan 2007 05:33:04 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:34646 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161044AbXAEKdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 05:33:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=X15hrUNB3SinMdmWv0x4cctY6xfzOrTwoyhzePXGGs2+JLsUVtEd+WJqPkHqCk9/CyDK6NicQ7a3cgf/DvNXr6h1M8vUXUA+B4Q6hGYa0GHk8XK/vMHgg7u9zFVtWehiWcHU07bxqJ41p4UZg8oRs6m7eGEGpO+hxNYjfZvctHQ=
+Date: Fri, 5 Jan 2007 12:32:47 +0200
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
+Message-ID: <20070105103247.GC382@Ahmed>
+Mail-Followup-To: Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	linux-kernel@vger.kernel.org
+References: <20070105063600.GA13571@Ahmed> <200701050910.11828.eike-kernel@sf-tec.de> <20070105100610.GA382@Ahmed> <200701051126.13682.eike-kernel@sf-tec.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701051126.13682.eike-kernel@sf-tec.de>
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-05 at 10:28 +0200, Benny Halevy wrote:
-> Trond Myklebust wrote:
-> > Exactly where do you see us violating the close-to-open cache
-> > consistency guarantees?
-> > 
+On Fri, Jan 05, 2007 at 11:26:07AM +0100, Rolf Eike Beer wrote:
+
+> One big patch for the whole kernel will not work anyway. You have to split it 
+> up to allow subsystems to integrate them in their own trees. With one big 
+> patch you would get collisions all over the tree causing the complete patch 
+> to get dropped. Also CC subsystem maintainers on their parts. And please send 
+> the patches as replies to the first one as it cleans up readability of lkml a 
+> lot :)
+
+Oops, Just read this warning after sending the (big) patch. Sorry It's my first
+patch :). I'll split it and do as written. Thanks alot :).
+
+> > I think this will be better done in another patch to let every patch do one
+> > single thing. right ?
 > 
-> I haven't seen that. What I did see is cache inconsistency when opening
-> the same file with different file descriptors when the filehandle changes.
-> My testing shows that at least fsync and close fail with EIO when the filehandle
-> changed while there was dirty data in the cache and that's good. Still,
-> not sharing the cache while the file is opened (even on a different file
-> descriptors by the same process) seems impractical.
+> Yes. But I would suggest starting with the kmalloc()->kzalloc() things. When 
+> you do this conversions just remove the casts of the lines you're touching. 
+> This will reduce the size of the complete thing avoiding two rather trivial 
+> patches touching the same line twice.
+> 
+> Eike
 
-Tough. I'm not going to commit to adding support for multiple
-filehandles. The fact is that RFC3530 contains masses of rope with which
-to allow server and client vendors to hang themselves. The fact that the
-protocol claims support for servers that use multiple filehandles per
-inode does not mean it is necessarily a good idea. It adds unnecessary
-code complexity, it screws with server scalability (extra GETATTR calls
-just in order to probe existing filehandles), and it is insufficiently
-well documented in the RFC: SECINFO information is, for instance, given
-out on a per-filehandle basis, does that mean that the server will have
-different security policies? In some places, people haven't even started
-to think about the consequences:
+OK. In progress
 
-      If GETATTR directed to the two filehandles does not return the
-      fileid attribute for both of the handles, then it cannot be
-      determined whether the two objects are the same.  Therefore,
-      operations which depend on that knowledge (e.g., client side data
-      caching) cannot be done reliably.
-
-This implies the combination is legal, but offers no indication as to
-how you would match OPEN/CLOSE requests via different paths. AFAICS you
-would have to do non-cached I/O with no share modes (i.e. NFSv3-style
-"special" stateids). There is no way in hell we will ever support
-non-cached I/O in NFS other than the special case of O_DIRECT.
-
-
-...and no, I'm certainly not interested in "fixing" the RFC on this
-point in any way other than getting this crap dropped from the spec. I
-see no use for it at all.
-
-Trond
-
+-- 
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

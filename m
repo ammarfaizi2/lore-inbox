@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161050AbXAEKqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161052AbXAEKsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161050AbXAEKqH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 05:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbXAEKqH
+	id S1161052AbXAEKsy (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 05:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbXAEKsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 05:46:07 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:32812 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161050AbXAEKqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 05:46:05 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Fri, 5 Jan 2007 05:41:05 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Alan <alan@lxorguk.ukuu.org.uk>
-cc: "Ahmed S. Darwish" <darwish.07@gmail.com>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
-In-Reply-To: <20070105105113.120d72c9@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0701050540470.23540@localhost.localdomain>
-References: <20070105063600.GA13571@Ahmed> <200701050910.11828.eike-kernel@sf-tec.de>
- <20070105100610.GA382@Ahmed> <Pine.LNX.4.64.0701050513360.23145@localhost.localdomain>
- <20070105105113.120d72c9@localhost.localdomain>
+	Fri, 5 Jan 2007 05:48:54 -0500
+Received: from sa5.bezeqint.net ([192.115.104.19]:50167 "EHLO sa5.bezeqint.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161052AbXAEKsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 05:48:53 -0500
+From: Shlomi Fish <shlomif@iglu.org.il>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 2.6.20-rc3] qconf Search Dialog
+Date: Fri, 5 Jan 2007 12:44:13 +0200
+User-Agent: KMail/1.9.4
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
+References: <200701031954.36440.shlomif@iglu.org.il> <200701032201.28384.shlomif@iglu.org.il> <20070103210535.GA31780@uranus.ravnborg.org>
+In-Reply-To: <20070103210535.GA31780@uranus.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701051244.14029.shlomif@iglu.org.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2007, Alan wrote:
-
-> > represents a kmalloc->kzalloc cleanup (there's lots of those), and
-> > also see if you can replace one of these:
+On Wednesday 03 January 2007 23:05, Sam Ravnborg wrote:
+> On Wed, Jan 03, 2007 at 10:01:28PM +0200, Shlomi Fish wrote:
+> > Interesting. I didn't notice this search dialog before because its menu
+> > item was placed in the "File" menu, which is the wrong place for a find
+> > command (Which should be in an "Edit" or "Search" menu). I believe others
+> > have missed it as well. Also, it is possible it wasn't available when I
+> > wrote the preliminary version of the patch back in March.
 > >
-> >   sizeof(struct blah)
+> > Aside from that my search dialog has some advantages:
 > >
-> > with one of these:
+> > 1. Full text search - if you search for "available" in File->Search you
+> > won't find anything. Searching for it in Edit->Find will find many
+> > things. I think File->Search only searches using the identifiers or at
+> > most also the title.
 > >
-> >   sizeof(*blahptr)
+> > 2. Regular expression search.
+> >
+> > 3. Displaying the results in a tree, with their context.
+> >
+> > All that said, I don't mind merging my modifications into the existing
+> > code, or replacing it entirely.
 >
-> Patches that do this will get rejected by the tty maintainer in favour of
-> the clarity of the sizeof(struct xyz) format 8)
+> Please merge the best of the existing and the new search dialog.
+>
 
-ok, i was just going by the recommendations of the CodingStyle guide.
+OK.
 
-rday
+> I would prefer it as separate smaller steps.
+> So one patch where you move the dialog and another where you improve
+> the search dialog.
+>
+
+Move the dialog from where, to where, and in what respect?
+
+Regards,
+
+	Shlomi Fish
+
+---------------------------------------------------------------------
+Shlomi Fish      shlomif@iglu.org.il
+Homepage:        http://www.shlomifish.org/
+
+Chuck Norris wrote a complete Perl 6 implementation in a day but then
+destroyed all evidence with his bare hands, so no one will know his secrets.

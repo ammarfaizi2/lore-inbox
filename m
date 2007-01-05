@@ -1,67 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161091AbXAENUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161092AbXAENgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbXAENUH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 08:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161092AbXAENUH
+	id S1161092AbXAENgv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 08:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbXAENgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 08:20:07 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:34918 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161091AbXAENUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 08:20:05 -0500
-Date: Fri, 5 Jan 2007 14:19:41 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>
-cc: linux-acpi@intel.com, linux-kernel@vger.kernel.org
-Subject: ACPI bay - 2.6.20-rc3-mm1 hangs on boot
-Message-ID: <Pine.LNX.4.64.0701051351200.16747@twin.jikos.cz>
+	Fri, 5 Jan 2007 08:36:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4978 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1161092AbXAENgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 08:36:50 -0500
+Date: Fri, 5 Jan 2007 14:36:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] add i386 idle notifier (take 3)
+Message-ID: <20070105133653.GS20714@stusta.de>
+References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de> <20061222100700.GB1895@frankl.hpl.hp.com> <20061223114015.GQ6993@stusta.de> <20070103132015.GE7238@frankl.hpl.hp.com> <20070103230708.GM20714@stusta.de> <20070105105514.GF10599@frankl.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070105105514.GF10599@frankl.hpl.hp.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jan 05, 2007 at 02:55:14AM -0800, Stephane Eranian wrote:
+> Adrian,
+> 
+> On Thu, Jan 04, 2007 at 12:07:08AM +0100, Adrian Bunk wrote:
+> > > I am hearing conflicting opinions on this one.
+> > > 
+> > > Perfmon is a fairly big patch. It is hard to take it as one. I have tried to
+> > > split it up in smaller, more manageable pieces as requested by top-level
+> > > maintainers. This process implies that I supply small patches which may not
+> > > necessarily have users just yet.
+> > 
+> > There should be a big patchset consisting of manageable pieces, if 
+> > possible all of it in -mm.
+> 
+> I have already split up the pieces: generic vs. per-arch. I have also
+> divided it between modified vs. new files. It becomes harder to go
+> much beyond that without creating also one patch per modified file.
 
-2.6.20-rc3-mm1 hangs on boot on my IBM T42p when compiled with ACPI_BAY=y. 
-Below is the trace of two BUGs I get.
+That's not my point.
 
-When compiled with ACPI_BAY=n, it boots fine.
+My point is that while big changes should come in manageable pieces, 
+it's also important to have the whole.
 
-The traces are hand-rewritten (no serial console on that machine), so I 
-have omitted the code offsets in the stacktraces.
+Is there any reason against getting all your patches into -mm?
 
-ACPI: ACPI Dock Station Driver
-ACPI: \_SB_PCI0.IDE0.SCND.MSTR: found ejectable bay
-ACPI: \_SB_PCI0.IDE0.SCND.MSTR: Adding notify handler
-PM: Adding info for platform:bay.0
-ACPI: Bay [\_SB_.PCI0.IDE0.SCND.MSTR] Added
-BUG: at lib/kref.c:32 kref_get()
-	kref_get+0x34/0x3b
-	kobject_get+0xf/0x13
-	get_bus+0xe/0x1d
-	bus_add_driver+0x13/0x165
-	init_waitqueue_head+0x12/0x1e
-	bay_init+0x57/0x79
-	find_bay+0x0/0x2c4
-	init+0x88/0x16d
-	restore_nocheck+0x12/0x15
-	init+0x0/0x16d
-	init+0x0/0x16d
-	kernel_thread_helper+0x7/0x10
-	==========
-BUG: at lib/kref.c:32 kref_get()
-	kref_get+0x34/0x3b
-	kobject_get+0xf/0x13
-	kobject_init+0x5d/0x70
-	kobject_set_name+0x5c/0x92
-	bus_add_driver+0x50/0x79
-	bay_init+0x57/0x79
-	find_bay+0x0/0x2c4
-	init+0x88/0x16d
-	init+0x88/0x16d
-	kernel_thread_helper+0x7/0x10
-	=========
+> > > > The unused x86-64 idle notifiers are now bloating the kernel since 
+> > > > nearly one year.
+> > > > 
+> > > > > > And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
+> > > > > > perfmon-new-base-061204 doesn't seem to add any modular user?
+> > > > > 
+> > > > Where does the perfmon code use the EXPORT_SYMBOL's?
+> > > 
+> > > The perfmon patch includes several kernel modules which make use of
+> > > the exported entry points. The following symbols are exported:
+> > > 
+> > > pfm_pmu_register/pfm_pmu_unregister:
+> > > 	* PMU description module registration.
+> > > 	* Used to describe PMU model.
+> > > 	* Used by perfmon_p4.c, perfmon_core.c, perfmon_mckinley.c, and others
+> > > 
+> > > pfm_fmt_register/pfm_fmt_unregister:
+> > > 	* Sampling format module registration
+> > > 	* Used by perfmon_dfl_smpl.c, perfmon_pebs_smpl.c
+> > > 
+> > > pfm_interrupt_handler:
+> > > 	* PMU interrupt handler
+> > > 	* Used by MIPS-specific perfmon code
+> > > 
+> > > pfm_pmu_conf/pfm_controls:
+> > > 	* global state/control variable
+> > > 
+> > > All exported symbols are currently used. Why are you saying this adds bloat?
+> > 
+> > Which module uses idle_notifier_register/idle_notifier_unregister?
+> > 
+> None.
+> 
+> I have no issue with removing the EXPORT_SYMBOL on i386 and x86_64 if you
+> think that would help.
+
+OK, thanks.
+
+> -Stephane
+
+cu
+Adrian
 
 -- 
-Jiri Kosina
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

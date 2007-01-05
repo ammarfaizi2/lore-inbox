@@ -1,102 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161092AbXAENgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161102AbXAEN4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbXAENgv (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 08:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbXAENgv
+	id S1161102AbXAEN4A (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 08:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbXAEN4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 08:36:51 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4978 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1161092AbXAENgu (ORCPT
+	Fri, 5 Jan 2007 08:56:00 -0500
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:54644 "EHLO
+	mail-gw1.sa.eol.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161099AbXAENz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 08:36:50 -0500
-Date: Fri, 5 Jan 2007 14:36:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] add i386 idle notifier (take 3)
-Message-ID: <20070105133653.GS20714@stusta.de>
-References: <20061220140500.GB30752@frankl.hpl.hp.com> <20061220210514.42ed08cc.akpm@osdl.org> <20061221091242.GA32601@frankl.hpl.hp.com> <20061222010641.GK6993@stusta.de> <20061222100700.GB1895@frankl.hpl.hp.com> <20061223114015.GQ6993@stusta.de> <20070103132015.GE7238@frankl.hpl.hp.com> <20070103230708.GM20714@stusta.de> <20070105105514.GF10599@frankl.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070105105514.GF10599@frankl.hpl.hp.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 5 Jan 2007 08:55:59 -0500
+To: pavel@ucw.cz
+CC: matthew@wil.cx, bhalevy@panasas.com, arjan@infradead.org,
+       mikulas@artax.karlin.mff.cuni.cz, jaharkes@cs.cmu.edu,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+In-reply-to: <20070105131235.GB4662@ucw.cz> (message from Pavel Machek on Fri,
+	5 Jan 2007 13:12:35 +0000)
+Subject: Re: Finding hardlinks
+References: <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu> <20070103135455.GA24620@parisc-linux.org> <E1H28Oi-0003kw-00@dorka.pomaz.szeredi.hu> <20070104225929.GC8243@elf.ucw.cz> <E1H2kfa-0007Jl-00@dorka.pomaz.szeredi.hu> <20070105131235.GB4662@ucw.cz>
+Message-Id: <E1H2pXI-0007jY-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 05 Jan 2007 14:55:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 02:55:14AM -0800, Stephane Eranian wrote:
-> Adrian,
+> > Well, sort of.  Samefile without keeping fds open doesn't have any
+> > protection against the tree changing underneath between first
+> > registering a file and later opening it.  The inode number is more
 > 
-> On Thu, Jan 04, 2007 at 12:07:08AM +0100, Adrian Bunk wrote:
-> > > I am hearing conflicting opinions on this one.
-> > > 
-> > > Perfmon is a fairly big patch. It is hard to take it as one. I have tried to
-> > > split it up in smaller, more manageable pieces as requested by top-level
-> > > maintainers. This process implies that I supply small patches which may not
-> > > necessarily have users just yet.
-> > 
-> > There should be a big patchset consisting of manageable pieces, if 
-> > possible all of it in -mm.
-> 
-> I have already split up the pieces: generic vs. per-arch. I have also
-> divided it between modified vs. new files. It becomes harder to go
-> much beyond that without creating also one patch per modified file.
+> You only need to keep one-file-per-hardlink-group open during final
+> verification, checking that inode hashing produced reasonable results.
 
-That's not my point.
+What final verification?  I wasn't just talking about 'tar' but all
+cases where st_ino might be used to check the identity of two files at
+possibly different points in time.
 
-My point is that while big changes should come in manageable pieces, 
-it's also important to have the whole.
+Time A:    remember identity of file X
+Time B:    check if identity of file Y matches that of file X
 
-Is there any reason against getting all your patches into -mm?
+With samefile() if you open X at A, and keep it open till B, you can
+accumulate large numbers of open files and the application can fail.
 
-> > > > The unused x86-64 idle notifiers are now bloating the kernel since 
-> > > > nearly one year.
-> > > > 
-> > > > > > And why does it bloat the kernel with EXPORT_SYMBOL's although even your 
-> > > > > > perfmon-new-base-061204 doesn't seem to add any modular user?
-> > > > > 
-> > > > Where does the perfmon code use the EXPORT_SYMBOL's?
-> > > 
-> > > The perfmon patch includes several kernel modules which make use of
-> > > the exported entry points. The following symbols are exported:
-> > > 
-> > > pfm_pmu_register/pfm_pmu_unregister:
-> > > 	* PMU description module registration.
-> > > 	* Used to describe PMU model.
-> > > 	* Used by perfmon_p4.c, perfmon_core.c, perfmon_mckinley.c, and others
-> > > 
-> > > pfm_fmt_register/pfm_fmt_unregister:
-> > > 	* Sampling format module registration
-> > > 	* Used by perfmon_dfl_smpl.c, perfmon_pebs_smpl.c
-> > > 
-> > > pfm_interrupt_handler:
-> > > 	* PMU interrupt handler
-> > > 	* Used by MIPS-specific perfmon code
-> > > 
-> > > pfm_pmu_conf/pfm_controls:
-> > > 	* global state/control variable
-> > > 
-> > > All exported symbols are currently used. Why are you saying this adds bloat?
-> > 
-> > Which module uses idle_notifier_register/idle_notifier_unregister?
-> > 
-> None.
-> 
-> I have no issue with removing the EXPORT_SYMBOL on i386 and x86_64 if you
-> think that would help.
+If you don't keep an open file, just remember the path, then renaming
+X will foil the later identity check.  Changing the file at this path
+between A and B can even give you a false positive.  This applies to
+'tar' as well as the other uses.
 
-OK, thanks.
-
-> -Stephane
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Miklos

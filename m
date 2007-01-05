@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161072AbXAELum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161069AbXAELxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161072AbXAELum (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 06:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbXAELum
+	id S1161069AbXAELxH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 06:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbXAELxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 06:50:42 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:48339 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161072AbXAELul (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 06:50:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LnvvbhK4TaR830uTb8uHkOhDapbvFdRzMMMC+TFtLhYN5nTXa1YyGT0QfU97QLfJt8fiUoq0MR8JX2+ncdtD7GU7SueL5Iigj0rVc48M5LwEypgdeXA8zTxon94G5z0F6Dzya4cBeWvyWv4C5gH5t/pNiW93nytPu+xkVYgeroQ=
-Message-ID: <8355959a0701050350o64e3af1en559ee26385b1e748@mail.gmail.com>
-Date: Fri, 5 Jan 2007 17:20:39 +0530
-From: Akula2 <akula2.shark@gmail.com>
-To: Kristof.Provost@telenet.be
-Subject: Re: Multi kernel tree support on the same distro?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <459D6239.7090601@telenet.be>
+	Fri, 5 Jan 2007 06:53:07 -0500
+Received: from www.sf-tec.de ([62.27.20.187]:36679 "EHLO mail.sf-mail.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1161069AbXAELxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 06:53:06 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
+Date: Fri, 5 Jan 2007 12:54:21 +0100
+User-Agent: KMail/1.9.5
+References: <20070105063600.GA13571@Ahmed> <200701051126.13682.eike-kernel@sf-tec.de> <20070105103247.GC382@Ahmed>
+In-Reply-To: <20070105103247.GC382@Ahmed>
+Cc: "Ahmed S. Darwish" <darwish.07@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2211652.RijxarK1Ia";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
-	 <459D6239.7090601@telenet.be>
+Message-Id: <200701051254.21618.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not sure I understood your problem correctly.
-> I see no reason to have two kernel versions on your host system. You can
-> keep 2.6.x on the host, and compile a 2.4.x for the target. You don't
-> need to run 2.4.x on your host.
+--nextPart2211652.RijxarK1Ia
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I would like to have 2.4.x & 2.6.x on my host FC6 machine.
-But am not sure whether FC6 would permit this or not?
-
-> The TS-Kernel the website talks about is meant to run on the embedded
-> target.
+Am Freitag, 5. Januar 2007 11:32 schrieb Ahmed S. Darwish:
+> On Fri, Jan 05, 2007 at 11:26:07AM +0100, Rolf Eike Beer wrote:
+> > One big patch for the whole kernel will not work anyway. You have to
+> > split it up to allow subsystems to integrate them in their own trees.
+> > With one big patch you would get collisions all over the tree causing t=
+he
+> > complete patch to get dropped. Also CC subsystem maintainers on their
+> > parts. And please send the patches as replies to the first one as it
+> > cleans up readability of lkml a lot :)
 >
-> Kristof
+> Oops, Just read this warning after sending the (big) patch. Sorry It's my
+> first patch :). I'll split it and do as written. Thanks alot :).
 
-Yep, that's true. Here (TS-7300) am trying to port 2.6.18 kernel
-(another story :))
+That wasn't meant for resending. If you resend the whole series it's good t=
+o=20
+start a new thread. But if you have several related patches (usually this=20
+[PATCH N/xx] thing) it helps if you either send a 0/xx first describing the=
+=20
+whole series or at least sending everything as reply to 1/xx. This way the=
+=20
+mail program will help everybody by keeping this things together.
 
-~Akula2
+Eike
+
+--nextPart2211652.RijxarK1Ia
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFnjxtXKSJPmm5/E4RAtCtAJ9ICcRg63B0UEVsxk5iO2vH5O5//ACdGaVz
+bZItGzyHVJvhbjz4CLrJESE=
+=bp8e
+-----END PGP SIGNATURE-----
+
+--nextPart2211652.RijxarK1Ia--

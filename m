@@ -1,96 +1,253 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965135AbXAEJq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161021AbXAEJzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbXAEJq4 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 04:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbXAEJq4
+	id S1161021AbXAEJzv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 04:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbXAEJzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 04:46:56 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:1689 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965135AbXAEJqz (ORCPT
+	Fri, 5 Jan 2007 04:55:51 -0500
+Received: from v813.rev.tld.pl ([195.149.226.213]:39007 "EHLO
+	smtp.host4.kei.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161021AbXAEJzu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 04:46:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=ogS9SyQzT/Hy205KJKb0LeojjI8uykmOv6EhR39hkaPNIHYwWbM6cGiim6RDLKTUGcn5Ct+QUT5SfPEGZwbi0f5SjiFmMRPaocXk3kDf5KRfKPXISffKLXCfC21yCNyZ/kLtixD4hZndItv+rYFxBucw79hWlzpe7KnyMwPrSbk=
-Date: Fri, 5 Jan 2007 09:44:55 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] lockdep: unbalance at generic_sync_sb_inodes
-Message-ID: <20070105094455.GC17863@slug>
-References: <20070104220200.ae4e9a46.akpm@osdl.org>
+	Fri, 5 Jan 2007 04:55:50 -0500
+X-clamdmail: clamdmail 0.18a
+From: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] backlight control for Frontpath ProGear HX1050+
+Date: Fri, 5 Jan 2007 10:55:45 +0100
+User-Agent: KMail/1.9.5
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Richard Purdie <rpurdie@rpsys.net>
+References: <200701050903.31859.openembedded@hrw.one.pl> <20070105082351.GA32582@flint.arm.linux.org.uk>
+In-Reply-To: <20070105082351.GA32582@flint.arm.linux.org.uk>
+Organization: OpenEmbedded
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20070104220200.ae4e9a46.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Message-Id: <200701051055.45845.openembedded@hrw.one.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 10:02:00PM -0800, Andrew Morton wrote:
- 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
-Hi,
+Dnia pi±tek, 5 stycznia 2007 09:23, Russell King napisa³:
+> On Fri, Jan 05, 2007 at 09:03:30AM +0100, Marcin Juszkiewicz wrote:
+> > Index: linux-2.6.18/drivers/video/backlight/progear_bl.c
+> > +		printk("ALI M7101 PMU not found.\n");
+> > +		return(-1);
+>
+> There are enumerated constants for these return values.  Please use the
+> proper and appropriate constants.
 
-The reiser4-sb_sync_inodes.patch, which goal is to:
-"This patch moves spin_lock/spin_unlock down to sync_sb_inodes."
-Only really moved the spin_unlock, thus triggering the following
-lockdep message:
-[   65.267402] =====================================
-[   65.267508] [ BUG: bad unlock balance detected! ]
-[   65.267563] -------------------------------------
-[   65.267619] swapper/0 is trying to release lock (inode_lock) at:
-[   65.267751] [<c018f573>] generic_sync_sb_inodes+0xa6/0x2e8
-[   65.267853] but there are no more locks to release!
-[   65.267908]
-[   65.267909] other info that might help us debug this:
-[   65.268014] 1 lock held by swapper/0:
-[   65.268068]  #0:  (&type->s_umount_key){--..}, at: [<c0174c18>] alloc_super+0xe8/0x1a5
-[   65.268330]
-[   65.268330] stack backtrace:
-[   65.268433]  [<c010390d>] show_trace_log_lvl+0x1a/0x30
-[   65.268528]  [<c0103935>] show_trace+0x12/0x14
-[   65.268621]  [<c0103a2f>] dump_stack+0x16/0x18
-[   65.268714]  [<c013b2a0>] print_unlock_inbalance_bug+0xce/0xd8
-[   65.268811]  [<c013b39b>] lock_release_non_nested+0x6f/0x172
-[   65.268907]  [<c013b4d2>] lock_release_nested+0x34/0xdc
-[   65.269001]  [<c013b5ce>] __lock_release+0x54/0x56
-[   65.269095]  [<c013b809>] lock_release+0x46/0x60
-[   65.269188]  [<c03e8660>] _spin_unlock+0x16/0x40
-[   65.269284]  [<c018f573>] generic_sync_sb_inodes+0xa6/0x2e8
-[   65.269379]  [<c018f7d5>] sync_sb_inodes+0x20/0x23
-[   65.269472]  [<c018f937>] sync_inodes_sb+0x82/0x8a
-[   65.269566]  [<c0174eab>] __fsync_super+0xd/0x84
-[   65.269659]  [<c0174f2d>] fsync_super+0xb/0x19
-[   65.269753]  [<c017558a>] do_remount_sb+0x30/0xee
-[   65.269846]  [<c0175aa2>] get_sb_single+0x66/0x8b
-[   65.269940]  [<c01b45c1>] sysfs_get_sb+0x1d/0x2c
-[   65.270036]  [<c0175b49>] vfs_kern_mount+0x82/0xfb
-[   65.270130]  [<c0175c19>] kern_mount+0x16/0x1d
-[   65.270223]  [<c055ddb6>] sysfs_init+0x57/0xad
-[   65.270319]  [<c055c8d2>] mnt_init+0xbf/0x13b
-[   65.270412]  [<c055c555>] vfs_caches_init+0x97/0xa7
-[   65.270506]  [<c0544bd4>] start_kernel+0x1ca/0x261
-[   65.270600]  [<00000000>] 0x0
-[   65.270691]  =======================
+Thx. Fixed version below.
 
-Regards,
-Frederik
+From: Marcin Juszkiewicz <openembedded@hrw.one.pl>
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+Add control of LCD backlight for Frontpath ProGear HX1050+.
+Patch is based on http://downloads.sf.net/progear/progear-lcd-0.2.tar.gz
+driver by M Schacht.
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index ea054f7..7e84b93 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -306,6 +306,8 @@ int generic_sync_sb_inodes(struct super_
- 	const unsigned long start = jiffies;	/* livelock avoidance */
- 	int ret = 0;
- 
-+	spin_lock(&inode_lock);
+Signed-Off-By: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+
+---
+Patch follow kernel version 2.6.19-rc6
+
+ Kconfig      |    8 +++
+ Makefile     |    1
+ progear_bl.c |  155 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 164 insertions(+)
+
+
+Index: linux-2.6.18/drivers/video/backlight/Kconfig
+===================================================================
+--- linux-2.6.18.orig/drivers/video/backlight/Kconfig   2007-01-04 22:27:59.000000000 +0100
++++ linux-2.6.18/drivers/video/backlight/Kconfig        2007-01-04 22:29:39.000000000 +0100
+@@ -66,3 +66,11 @@
+         If you have a HP Jornada 680, say y to enable the
+         backlight driver.
+
++config BACKLIGHT_PROGEAR
++       tristate "Frontpath ProGear Backlight Driver"
++       depends on BACKLIGHT_DEVICE && PCI
++       default y
++       help
++         If you have a Frontpath ProGear say Y to enable the
++         backlight driver.
 +
- 	if (!wbc->for_kupdate || list_empty(&sb->s_io))
- 		list_splice_init(&sb->s_dirty, &sb->s_io);
- 
+Index: linux-2.6.18/drivers/video/backlight/Makefile
+===================================================================
+--- linux-2.6.18.orig/drivers/video/backlight/Makefile  2007-01-04 22:27:59.000000000 +0100
++++ linux-2.6.18/drivers/video/backlight/Makefile       2007-01-04 22:28:43.000000000 +0100
+@@ -5,3 +5,4 @@
+ obj-$(CONFIG_BACKLIGHT_CORGI)  += corgi_bl.o
+ obj-$(CONFIG_BACKLIGHT_HP680)  += hp680_bl.o
+ obj-$(CONFIG_BACKLIGHT_LOCOMO) += locomolcd.o
++obj-$(CONFIG_BACKLIGHT_PROGEAR)        += progear_bl.o
+Index: linux-2.6.18/drivers/video/backlight/progear_bl.c
+===================================================================
+--- /dev/null   1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.18/drivers/video/backlight/progear_bl.c   2007-01-05 08:48:41.000000000 +0100
+@@ -0,0 +1,155 @@
++/*
++ *  Backlight Driver for Frontpath ProGear HX1050+
++ *
++ *  Copyright (c) 2006 Marcin Juszkiewicz
++ *
++ *  Based on Progear LCD driver by M Schacht
++ *  <mschacht at alumni dot washington dot edu>
++ *
++ *  Based on Sharp's Corgi Backlight Driver
++ *  Based on Backlight Driver for HP Jornada 680
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/mutex.h>
++#include <linux/fb.h>
++#include <linux/backlight.h>
++#include <linux/pci.h>
++#include <linux/pci_ids.h>
++#include <asm/uaccess.h>
++
++#define PMU_LPCR                       0xB0
++#define SB_MPS1                                0x61
++#define HW_LEVEL_MAX           0x77
++#define HW_LEVEL_MIN           0x4f
++
++static int progearbl_intensity;
++static struct backlight_properties progearbl_data;
++static struct backlight_device *progear_backlight_device;
++
++struct pci_dev *pmu_dev = NULL;
++struct pci_dev *sb_dev  = NULL;
++
++static int progearbl_send_intensity(struct backlight_device *bd)
++{
++       int intensity = bd->props->brightness;
++
++       if (bd->props->power != FB_BLANK_UNBLANK)
++               intensity = 0;
++       if (bd->props->fb_blank != FB_BLANK_UNBLANK)
++               intensity = 0;
++
++       pci_write_config_byte(pmu_dev, PMU_LPCR, intensity + HW_LEVEL_MIN);
++
++       progearbl_intensity = intensity;
++
++       return 0;
++}
++
++static int progearbl_get_intensity(struct backlight_device *bd)
++{
++       return progearbl_intensity;
++}
++
++static int progearbl_set_intensity(struct backlight_device *bd)
++{
++       progearbl_send_intensity(progear_backlight_device);
++       return 0;
++}
++
++static struct backlight_properties progearbl_data = {
++       .owner          = THIS_MODULE,
++       .get_brightness = progearbl_get_intensity,
++       .update_status  = progearbl_set_intensity,
++};
++
++static int progearbl_probe(struct platform_device *pdev)
++{
++       u8 temp;
++
++       pmu_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, 0);
++       if(!pmu_dev) {
++               printk("ALI M7101 PMU not found.\n");
++               return -ENODEV;
++       }
++
++       sb_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, 0);
++       if(!sb_dev) {
++               printk("ALI 1533 SB not found.\n");
++               return -ENODEV;
++       }
++
++/*     Set SB_MPS1 to enable brightness control.*/
++       pci_read_config_byte(sb_dev, SB_MPS1, &temp);
++       pci_write_config_byte(sb_dev, SB_MPS1, temp | 0x20);
++
++       progear_backlight_device = backlight_device_register ("progear-bl",
++               NULL, &progearbl_data);
++       if (IS_ERR (progear_backlight_device))
++               return PTR_ERR (progear_backlight_device);
++
++       progearbl_data.power = FB_BLANK_UNBLANK;
++       progearbl_data.brightness = HW_LEVEL_MAX - HW_LEVEL_MIN;
++       progearbl_data.max_brightness = HW_LEVEL_MAX - HW_LEVEL_MIN;
++       progearbl_send_intensity(progear_backlight_device);
++
++       printk("ProGear Backlight Driver Initialized.\n");
++       return 0;
++}
++
++static int progearbl_remove(struct platform_device *dev)
++{
++       backlight_device_unregister(progear_backlight_device);
++
++       printk("ProGear Backlight Driver Unloaded\n");
++       return 0;
++}
++
++static struct platform_driver progearbl_driver = {
++       .probe          = progearbl_probe,
++       .remove         = progearbl_remove,
++       .driver         = {
++               .name   = "progear-bl",
++       },
++};
++
++static struct platform_device *progearbl_device;
++
++static int __init progearbl_init(void)
++{
++       int ret = platform_driver_register(&progearbl_driver);
++       if (!ret) {
++               progearbl_device = platform_device_alloc("progear-bl", -1);
++               if (!progearbl_device)
++                       return -ENOMEM;
++
++               ret = platform_device_add(progearbl_device);
++
++               if (ret) {
++                       platform_device_put(progearbl_device);
++                       platform_driver_unregister(&progearbl_driver);
++               }
++       }
++       return ret;
++}
++
++static void __exit progearbl_exit(void)
++{
++       platform_device_unregister(progearbl_device);
++       platform_driver_unregister(&progearbl_driver);
++}
++
++module_init(progearbl_init);
++module_exit(progearbl_exit);
++
++MODULE_AUTHOR("Marcin Juszkiewicz <linux@hrw.one.pl>");
++MODULE_DESCRIPTION("ProGear Backlight Driver");
++MODULE_LICENSE("GPL");
+
+-- 
+JID: hrw-jabber.org
+OpenEmbedded developer/consultant
+
+    42? 7 and a half million years and all you can come up with is 42?!
+
+

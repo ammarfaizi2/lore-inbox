@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422696AbXAETfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030372AbXAETf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422696AbXAETfF (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 14:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422697AbXAETfF
+	id S1030372AbXAETf4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 14:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbXAETfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 14:35:05 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:41223 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422696AbXAETfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 14:35:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: 2.6.20-rc3-git4 oops on suspend: __drain_pages
-Date: Fri, 5 Jan 2007 20:36:09 +0100
-User-Agent: KMail/1.9.1
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <459DB116.9070805@shaw.ca> <Pine.LNX.4.64.0701051114200.28395@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0701051114200.28395@schroedinger.engr.sgi.com>
+	Fri, 5 Jan 2007 14:35:55 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:39830 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030372AbXAETfy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 14:35:54 -0500
+Date: Fri, 5 Jan 2007 20:36:05 +0100
+From: Olaf Hering <olaf@aepfle.de>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       kernel@bardioc.dyndns.org
+Subject: Re: [PATCH] sysrq: showBlockedTasks is sysrq-X
+Message-ID: <20070105193605.GA14592@aepfle.de>
+References: <20070105110628.5f1e487d.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200701052036.10647.rjw@sisk.pl>
+In-Reply-To: <20070105110628.5f1e487d.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jan 05, Randy Dunlap wrote:
 
-On Friday, 5 January 2007 20:15, Christoph Lameter wrote:
-> On Thu, 4 Jan 2007, Robert Hancock wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
 > 
-> > Saw this oops on 2.6.20-rc3-git4 when attempting to suspend. This only
-> > happened in 1 of 3 attempts.
-> 
-> See the fix that I posted yesterday to linux-mm. Its now in Andrew's tree.
+> SysRq showBlockedTasks is not done via B or T, it's done via X,
+> so put that in the Help message.
 
-I can't find it in -mm.
+Weird, who failed to run this command before adding new stuff?!
+find * -type f -print0 | xargs -0 env -i grep -nw register_sysrq_key
 
-Could you please post it here?
-
-Greetings,
-Rafael
-
-
--- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+sysrq x is for xmon, see arch/powerpc/xmon/xmon.c
+Better switch the new stuff to 'z' or 'w'

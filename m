@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422656AbXAESHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422658AbXAESLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422656AbXAESHu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 13:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbXAESHu
+	id S1422658AbXAESLg (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 13:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422657AbXAESLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 13:07:50 -0500
-Received: from aa014msr.fastwebnet.it ([85.18.95.74]:41050 "EHLO
-	aa014msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422651AbXAESHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 13:07:48 -0500
-Date: Fri, 5 Jan 2007 19:06:59 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Len Brown <lenb@kernel.org>
-Cc: Richard Hughes <hughsient@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Stelian Pop <stelian@popies.net>, Ismail Donmez <ismail@pardus.org.tr>,
-       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Message-ID: <20070105180659.GH13533@inferi.kami.home>
-Mail-Followup-To: Len Brown <lenb@kernel.org>,
-	Richard Hughes <hughsient@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	Stelian Pop <stelian@popies.net>,
-	Ismail Donmez <ismail@pardus.org.tr>,
-	Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
-References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <1167946596.6816.7.camel@hughsie-laptop> <20070104215810.GE25619@inferi.kami.home> <200701051202.31208.lenb@kernel.org>
+	Fri, 5 Jan 2007 13:11:36 -0500
+Received: from hera.kernel.org ([140.211.167.34]:49952 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422653AbXAESLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 13:11:35 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: MoRpHeUz <morpheuz@gmail.com>
+Subject: Re: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
+Date: Fri, 5 Jan 2007 13:10:40 -0500
+User-Agent: KMail/1.9.5
+Cc: "Andrew Morton" <akpm@osdl.org>, "Stelian Pop" <stelian@popies.net>,
+       "Mattia Dongili" <malattia@linux.it>,
+       "Ismail Donmez" <ismail@pardus.org.tr>,
+       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, "Cacy Rodney" <cacy-rodney-cacy@tlen.pl>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701051211.08458.lenb@kernel.org> <7ce7bf330701050924h47546970w36ed189ed147ddb3@mail.gmail.com>
+In-Reply-To: <7ce7bf330701050924h47546970w36ed189ed147ddb3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200701051202.31208.lenb@kernel.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.20-rc2-mm1-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200701051310.41131.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 12:02:30PM -0500, Len Brown wrote:
-> > > Well, HAL has used it for changing the brightness for the last year or
-> > > so: /proc/acpi/sony/brightness
-> > > 
-> > > Although if you use a new enough HAL (CVS), the laptop will be supported
-> > > via the shiny new backlight class.
-> > 
-> > great, -mm already has the /sys/class/backlight in place for sony_acpi
-> > and I suppose the /proc entry can be kept until 2.6.20 is released, i.e.
-> > just before pushing things for .21.
-> > 
-> > Len, would you allow it?
+On Friday 05 January 2007 12:24, MoRpHeUz wrote:
+> > What workaround are you using?
 > 
-> Sure, no problem.
-> Checking it into my tree with /proc/acpi/sony is
-> no different than what is in -mm today.
+>  This one: http://bugzilla.kernel.org/show_bug.cgi?id=7465
+
+Ah yes, the duplicate MADT issue is clearly a BIOS bug.
+It is possible that we can tweak our Linux workaround for it to be more
+Microsoft Windows Bug Compatbile(TM).
+
+> > The frequency scaling issue sounds like a BIOS/Linux incompatibility.
+
+It looks like this issue results from that above,
+rather than being an additional problem.
+
+> > The nvidia issue sounds like an interrupt issue, so please reproduce
+> > it using the open source nvidia driver (not the nvidia binary),
+> > and include the lspci -vv output, dmesg, and /proc/interrupts.
 > 
-> When we push upstream, however, the /proc/acpi/sony part should be gone,
-> or at least scheduled for removal.
+>   Will try that !
 
-I'd rather avoid pushing mainline something already scheduled for
-removal. Also, a workaround can eventually be implemented in the
-userspace tools using /proc/acpi/sony
+If interrupts fail using the open source nvidia driver, (and using the workaround
+from the bug above to use the right MADT, please open a new bug report
+as I think it would be an independent issue.
 
-[...]
-> thanks for stepping forward Mattia,
-
-It's me who should thank :)
-Thanks
--- 
-mattia
-:wq!
+thanks,
+-Len

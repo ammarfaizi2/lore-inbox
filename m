@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161105AbXAEOUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161106AbXAEOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161105AbXAEOUk (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 09:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbXAEOUk
+	id S1161106AbXAEOVp (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 09:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbXAEOVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 09:20:40 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:18590 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161105AbXAEOUj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 09:20:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iFIJcgH0kMg3cH6+WpMbZEEi5dxkFATav6aHHvfpvdU+UNtmNYtDGQl1aXATTu4MC2EeQvnIbOxPk+9tsLesHan/a4hko4xIumGFHi/88NnpfAqmt8SZNl+WTtU2+Apa81Z3D8khxU9/orRZmh4HwqzBEgv/IdqYWDM7UFFhbmk=
-Message-ID: <5157576d0701050620l14fd0a6emdf5793c5214931a8@mail.gmail.com>
-Date: Fri, 5 Jan 2007 17:20:38 +0300
-From: "Tomasz Kvarsin" <kvarsin@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>
-Subject: [BUG] 2.6.20-rc3-mm1: can not mount root
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 5 Jan 2007 09:21:45 -0500
+Received: from gate.crashing.org ([63.228.1.57]:35968 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161106AbXAEOVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 09:21:44 -0500
+In-Reply-To: <1167952757.20260.6.camel@voyager.dsnet>
+References: <1167909014.20853.8.camel@localhost.localdomain> <20070104144825.68fec948.akpm@osdl.org>  <1167951548.12012.55.camel@praia> <1167952757.20260.6.camel@voyager.dsnet>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <6bae980b60fd869e7067f3df2f5e2f6a@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Cc: v4l-dvb-maintainer@linuxtv.org, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Fix __ucmpdi2 in v4l2_norm_to_name()
+Date: Fri, 5 Jan 2007 15:20:16 +0100
+To: Stelian Pop <stelian@popies.net>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can not boot machine with 2.6.20-rc3-mm1 and  2.6.20-rc2-mm1.
-I made binary search, patch bellow cause this bug:
-$quilt top
-patches/sched-improve-sched_clock-on-i686.patch
+>>> The largest value we use here is 0x02000000.  Perhaps v4l2_std_id 
+>>> shouldn't
+>>> be 64-bit?
+>> Too late to change it to 32 bits. It is at V4L2 userspace API since
+>> kernel 2.6.0. We can, however use this approach as a workaround, with
+>> the proper documentation.
+>
+> Maybe with a BUG_ON(id > UINT_MAX) ?
 
-backtrace which I got by connecting "gdb" to machine:
+If the code code is like
 
-_raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:108
-108                     for (i = 0; i < loops; i++) {
-(gdb) bt
-#0  _raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:108
-#1  0xc056ac42 in _spin_lock (lock=0xc06c0c60) at kernel/spinlock.c:182
-#2  0xc011c3bb in vprintk (fmt=0xc0649c00 "<0>BUG: spinlock %s on
-CPU#%d, %s/%d\n",
-    args=0xc1167a84 "") at kernel/printk.c:534
-#3  0xc011c6c7 in printk (fmt=0xc0649c00 "<0>BUG: spinlock %s on
-CPU#%d, %s/%d\n")
-    at kernel/printk.c:508
-#4  0xc027be42 in spin_bug (lock=0xc06c0c60, msg=0xc065fc00
-"recursion") at lib/spinlock_debug.c:61
-#5  0xc027c178 in _raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:79
-#6  0xc056ac42 in _spin_lock (lock=0xc06c0c60) at kernel/spinlock.c:182
-#7  0xc011c3bb in vprintk (fmt=0xc0626ed0 "<1>BUG: unable to handle
-kernel paging request",
-    args=0xc1167b8c "") at kernel/printk.c:534
-#8  0xc011c6c7 in printk (fmt=0xc0626ed0 "<1>BUG: unable to handle
-kernel paging request")
-    at kernel/printk.c:508
-#9  0xc0116de4 in do_page_fault (regs=0xc1167bcc, error_code=0) at
-arch/i386/mm/fault.c:555
-#10 0xc056b11c in page_fault ()
-#11 0xc0808160 in ?? ()
-#12 0xc0626ed0 in kallsyms_token_index ()
-#13 0xc1167cac in ?? ()
-#14 0x00000001 in ?? ()
-#15 0xc0808163 in printk_buf.19225 ()
-#16 0xc1167c0c in ?? ()
-#17 0x00000000 in ?? ()
+	u64 user_id;
+	u32 kernel_id = user_id;
+
+(or different types, just showing the difference in word
+lengths here) it's easiest and safest to do
+
+	BUG_ON(kernel_id != user_id);
+
+i.e. cast back up to 64-bit, see if it's identical to the
+original.  You won't have to worry about sign extensions or
+similar that way, the BUG_ON() condition expresses the actual
+requirement directly.
+
+
+Segher
+

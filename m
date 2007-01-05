@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161071AbXAEMdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965144AbXAEMmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbXAEMdn (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 07:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbXAEMdn
+	id S965144AbXAEMmI (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 07:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbXAEMmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 07:33:43 -0500
-Received: from smtp-02.mandic.com.br ([200.225.81.133]:47790 "EHLO
-	smtp-02.mandic.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161071AbXAEMdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 07:33:42 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 07:33:42 EST
-Message-ID: <459E4455.8050704@mandic.com.br>
-Date: Fri, 05 Jan 2007 10:28:05 -0200
-From: "Renato S. Yamane" <renatoyamane@mandic.com.br>
-User-Agent: Thunderbird 1.5.0.9 (X11/20060911)
-MIME-Version: 1.0
-To: Akula2 <akula2.shark@gmail.com>
-CC: Auke Kok <sofar@foo-projects.org>, linux-kernel@vger.kernel.org
-Subject: Re: Multi kernel tree support on the same distro?
-References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>	 <459D9872.8090603@foo-projects.org>	 <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com>	 <459DFE9F.9050904@foo-projects.org> <8355959a0701050404t46ff7c56i52737051b8725c74@mail.gmail.com>
-In-Reply-To: <8355959a0701050404t46ff7c56i52737051b8725c74@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.1
-OpenPGP: id=D420515A;
-	url=http://pgp.mit.edu
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Jan 2007 07:42:07 -0500
+Received: from mail.screens.ru ([213.234.233.54]:41104 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965144AbXAEMmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 07:42:06 -0500
+Date: Fri, 5 Jan 2007 15:42:46 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
+Message-ID: <20070105124246.GA83@tv-sign.ru>
+References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070105085634.GB18088@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070105085634.GB18088@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Em 05-01-2007 10:04, Akula2 escreveu:
-> On 1/5/07, Auke Kok <sofar@foo-projects.org> wrote:
->> Steve Brueggeman wrote:
->> gcc 3.4.x works great on both 2.6 and 2.4, no issues whatsoever.
+On 01/05, Srivatsa Vaddagiri wrote:
+>
+> On Thu, Jan 04, 2007 at 09:18:50AM -0800, Andrew Morton wrote:
+> > This?
 > 
-> Do you mean I need to discard gcc 4.1.x on the distro? Or keep both?
+> This can still lead to the problem spotted by Oleg here:
+> 
+> 	http://lkml.org/lkml/2006/12/30/37
+> 
+> and you would need a similar patch he posted there.
 
-I use GCC 4.1.2 with vendor Kernel (OpenSuSE) 2.6.18.2 with no problem.
-In next weekend I will compile a new Kernel. 2.6.19.1
+preempt_disable() can't prevent cpu_up, but flush_workqueue() doesn't care
+_unless_ cpu_down also happened meantime (and hence a fresh CPU may have
+pending work_structs which were moved from a dead CPU).
 
-- --
-Renato S. Yamane
-Fingerprint: 68AE A381 938A F4B9 8A23  D11A E351 5030 D420 515A
-PGP Server: http://pgp.mit.edu/ --> KeyID: 0xD420515A
-<http://www.renatoyamane.com>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+So you are right, we still need the patch above, but I think we don't have
+new problems with preempt_disable().
 
-iD8DBQFFnkRV41FQMNQgUVoRAgPVAJ958dCTNmKUDaxIj/uFkc4esHC30wCdFHs4
-Vk6doj/x9lnT3jwgaGkcfCA=
-=2ELR
------END PGP SIGNATURE-----
+I might have missed your point though.
+
+Oleg.
+

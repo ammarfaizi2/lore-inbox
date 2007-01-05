@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030312AbXAEFlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030343AbXAEFqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbXAEFlw (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 00:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbXAEFlw
+	id S1030343AbXAEFqH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 00:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbXAEFqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 00:41:52 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:59168 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030312AbXAEFlv (ORCPT
+	Fri, 5 Jan 2007 00:46:07 -0500
+Received: from web7703.mail.in.yahoo.com ([202.86.4.41]:46338 "HELO
+	web7703.mail.in.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1030343AbXAEFqG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 00:41:51 -0500
+	Fri, 5 Jan 2007 00:46:06 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 00:46:04 EST
+Message-ID: <20070105053919.75196.qmail@web7703.mail.in.yahoo.com>
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:from;
-        b=GdqVfLurwASphrnStwlGCzE7sv7l106UK+ni8nOCX54kctwz3Y4MYoqFNpqRUGwDSa3ykLGQJ7j54rJJioCHsgdOeRLSZsIABPuBN2lSskUzTLf3Nvb8pS5Yt32zwM/8x7bZM7AqMYUIyqL3ow2+/U5yi6pEfRaWthK0Xx3650o=
-Date: Fri, 5 Jan 2007 07:41:43 +0200
-To: yi.zhu@intel.com, jketreno@linux.intel.com,
-       ipw2100-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.20-rc3] Remove unneeded kmalloc casts
-Message-ID: <20070105054143.GA10679@Ahmed>
-Mail-Followup-To: yi.zhu@intel.com, jketreno@linux.intel.com,
-	ipw2100-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+  s=s1024; d=yahoo.co.in;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=PSkotNX/Oc6Hf1MmNefntiEzk+pYTTxbiB7FJqmbzkaLknvCCaDkajPGA+knJt32COdrQDL8z4le1uaFIyU62pTU6P4Hyazu5dKOtMNbzxJXDtxRaDQ4nfpk4Lax0nGZbvTKRMiNyt79ZVNC8kBJIJMxqk3DJMnmIjgF/Qc0VJM=;
+X-YMail-OSG: HO3s.hcVM1mFhWkH0VDSqEvBShnb9ZYVnDXpHtU89Q1pWrYR_iYNCd5eOUaiMAobMKwcLm_QEO0tIByFSrtRLCbEYhzwRxLeCjpS80Ktbf6RpXwfXh8fgLXMDT2GbgYC
+Date: Fri, 5 Jan 2007 05:39:19 +0000 (GMT)
+From: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>
+Subject: how can we use assert in non-debug version kernel ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unneeded kmalloc casts
+Hi all,
 
-Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
+can you please give me hint that -
+ "how can we use assert in non-debug version kernel ?"
 
-diff --git a/drivers/net/wireless/ipw2100.c b/drivers/net/wireless/ipw2100.c
-index 0e94fbb..682b1bb 100644
---- a/drivers/net/wireless/ipw2100.c
-+++ b/drivers/net/wireless/ipw2100.c
-@@ -3361,11 +3361,9 @@ static int ipw2100_msg_allocate(struct ipw2100_priv *priv)
- 	void *v;
- 	dma_addr_t p;
- 
--	priv->msg_buffers =
--	    (struct ipw2100_tx_packet *)kmalloc(IPW_COMMAND_POOL_SIZE *
--						sizeof(struct
--						       ipw2100_tx_packet),
--						GFP_KERNEL);
-+	priv->msg_buffers = kmalloc(IPW_COMMAND_POOL_SIZE * 
-+				    sizeof(struct ipw2100_tx_packet), 
-+				    GFP_KERNEL);
- 	if (!priv->msg_buffers) {
- 		printk(KERN_ERR DRV_NAME ": %s: PCI alloc failed for msg "
- 		       "buffers.\n", priv->net_dev->name);
-@@ -4395,11 +4393,9 @@ static int ipw2100_tx_allocate(struct ipw2100_priv *priv)
- 		return err;
- 	}
- 
--	priv->tx_buffers =
--	    (struct ipw2100_tx_packet *)kmalloc(TX_PENDED_QUEUE_LENGTH *
--						sizeof(struct
--						       ipw2100_tx_packet),
--						GFP_ATOMIC);
-+	priv->tx_buffers = kmalloc(TX_PENDED_QUEUE_LENGTH *
-+				   sizeof(struct ipw2100_tx_packet), 
-+				   GFP_ATOMIC);
- 	if (!priv->tx_buffers) {
- 		printk(KERN_ERR DRV_NAME
- 		       ": %s: alloc failed form tx buffers.\n",
-@@ -4548,9 +4544,9 @@ static int ipw2100_rx_allocate(struct ipw2100_priv *priv)
- 	/*
- 	 * allocate packets
- 	 */
--	priv->rx_buffers = (struct ipw2100_rx_packet *)
--	    kmalloc(RX_QUEUE_LENGTH * sizeof(struct ipw2100_rx_packet),
--		    GFP_KERNEL);
-+	priv->rx_buffers = kmalloc(RX_QUEUE_LENGTH * 
-+				   sizeof(struct ipw2100_rx_packet),
-+				   GFP_KERNEL);
- 	if (!priv->rx_buffers) {
- 		IPW_DEBUG_INFO("can't allocate rx packet buffer table\n");
- 
+Thanks
+Seetharam
 
--- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+
+Send free SMS to your Friends on Mobile from your Yahoo! Messenger. Download Now! http://messenger.yahoo.com/download.php

@@ -1,146 +1,94 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750774AbXAEVfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750787AbXAEVoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbXAEVfu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 16:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbXAEVft
+	id S1750787AbXAEVoJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 16:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAEVoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 16:35:49 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:53608 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750774AbXAEVfs (ORCPT
+	Fri, 5 Jan 2007 16:44:09 -0500
+Received: from shards.monkeyblade.net ([192.83.249.58]:37816 "EHLO
+	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750787AbXAEVoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 16:35:48 -0500
-Date: Fri, 5 Jan 2007 13:34:30 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Sumant Patro <sumantp@lsil.com>
-Cc: James.Bottomley@SteelEye.com, akpm@osdl.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, neela.kolli@lsi.com, bo.yang@lsi.com,
-       sumant.patro@lsi.com
-Subject: Re: [PATCH] scsi: megaraid_{mm,mbox} init fix for kdump
-Message-Id: <20070105133430.07a338e4.randy.dunlap@oracle.com>
-In-Reply-To: <1168009809.4188.10.camel@dumbo>
-References: <1168009809.4188.10.camel@dumbo>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 5 Jan 2007 16:44:08 -0500
+X-Greylist: delayed 1017 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 16:44:08 EST
+Subject: Re: [PATCH] gitweb: Fix shortlog only showing HEAD revision.
+From: "J.H." <warthog19@eaglescrag.net>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Robert Fitzsimons <robfitz@273k.net>, git@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Krufky <mkrufky@gmail.com>
+In-Reply-To: <459EC16F.1070809@linuxtv.org>
+References: <459C0232.3090804@linuxtv.org>
+	 <20070103202555.GA25768@localhost>  <459EC16F.1070809@linuxtv.org>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 13:25:58 -0800
+Message-Id: <1168032358.2505.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-X-Whitelist: TRUE
-X-Whitelist: TRUE
-X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 05 Jan 2007 07:10:09 -0800 Sumant Patro wrote:
-
-Hi,
-
-> ---
+On Fri, 2007-01-05 at 16:21 -0500, Michael Krufky wrote:
+> Robert Fitzsimons wrote:
+> > My change in 190d7fdcf325bb444fa806f09ebbb403a4ae4ee6 had a small bug
+> > found by Michael Krufky which caused the passed in hash value to be
+> > ignored, so shortlog would only show the HEAD revision.
+> > 
+> > Signed-off-by: Robert Fitzsimons <robfitz@273k.net>
+> > ---
+> > 
+> > Thanks for finding this Michael.  It' just a small bug introducted by a
+> > recent change I made.  Including John 'Warthog9' so hopefully he can add
+> > this to the version of gitweb which is hosted on kernel.org.
+> > 
+> > Robert
 > 
->  Documentation/scsi/ChangeLog.megaraid |   16 ++
->  drivers/scsi/megaraid/megaraid_mbox.c |  140 +++++++++++++++++++-----
->  drivers/scsi/megaraid/megaraid_mbox.h |    4
->  3 files changed, 130 insertions(+), 30 deletions(-)
+> Robert,
 > 
-> diff -uprN linux-2.6.orig/drivers/scsi/megaraid/megaraid_mbox.c linux-2.6.new/drivers/scsi/megaraid/megaraid_mbox.c
-> --- linux-2.6.orig/drivers/scsi/megaraid/megaraid_mbox.c	2006-12-28 09:56:04.000000000 -0800
-> +++ linux-2.6.new/drivers/scsi/megaraid/megaraid_mbox.c	2007-01-04 11:22:21.000000000 -0800
-> @@ -3380,6 +3386,84 @@ megaraid_mbox_flush_cache(adapter_t *ada
->  
->  
->  /**
-> + * megaraid_mbox_fire_sync_cmd - fire the sync cmd
-> + * @param adapter	: soft state for the controller
+> Thank you for fixing this bug so quickly.  I've noticed that the gitweb
+> templates on kernel.org have changed at least once since you wrote this email to
+> me... (I can tell, based on the fact that the git:// link has moved from the
+> project column to a link labeled, "git" all the way to the right.)
+> 
+> Unfortunately, however, the bug that I had originally reported has not yet been
+> fixed on the kernel.org www server.  Either the patch in question hasn't yet
+> been applied to that installation, or it HAS in fact been applied, but doesn't
+> fix the problem as intended.
 
-That (above) should just be:
- * @adapter:  (plus its description; the description there
-   doesn't seem to agree with its parameter name).
+Simple answer - it's sitting in my tree waiting for me to have enough
+time to get back to gitweb.  There are several things in flight and I'm
+not prepared to push them out in their current state.
 
+So yes the problem is fixed, but it will probably be sometime this
+weekend before it gets pushed out to the kernel.org servers.
 
-> + *
-> + * Clears the pending cmds in FW and reinits its RAID structs
-> + */
-> +static int
-> +megaraid_mbox_fire_sync_cmd(adapter_t *adapter)
-> +{
-> +	mbox_t	*mbox;
-> +	uint8_t	raw_mbox[sizeof(mbox_t)];
-> +	mraid_device_t	*raid_dev = ADAP2RAIDDEV(adapter);
-> +	mbox64_t *mbox64;
-> +	int	status = 0;
-> +	int i;
-> +	uint32_t dword;
-> +
-> +	mbox = (mbox_t *)raw_mbox;
-> +
-> +	memset((caddr_t)raw_mbox, 0, sizeof(mbox_t));
-> +
-> +	raw_mbox[0] = 0xFF;
-> +
-> +	mbox64	= raid_dev->mbox64;
-> +	mbox	= raid_dev->mbox;
-> +
-> +	/* Wait until mailbox is free */
-> +	if (megaraid_busywait_mbox(raid_dev) != 0) {
-> +		status = 1;
-> +		goto blocked_mailbox;
-> +	}
-> +
-> +	/* Copy mailbox data into host structure */
-> +	memcpy((caddr_t)mbox, (caddr_t)raw_mbox, 16);
-> +	mbox->cmdid		= 0xFE;
-> +	mbox->busy		= 1;
-> +	mbox->poll		= 0;
-> +	mbox->ack		= 0;
-> +	mbox->numstatus		= 0;
-> +	mbox->status		= 0;
-> +
-> +	wmb();
-> +	WRINDOOR(raid_dev, raid_dev->mbox_dma | 0x1);
-> +
-> +	/* Wait for maximum 1 min for status to post.
-> +	 * If the Firmware SUPPORTS the ABOVE COMMAND,
-> +	 * mbox->cmd will be set to 0
-> +	 * else
-> +	 * the firmware will reject the command with
-> +	 * mbox->numstatus set to 1
-> +	 */
-> +
-> +	i = 0;
-> +	status = 0;
-> +	while (!mbox->numstatus && mbox->cmd == 0xFF) {
-> +		rmb();
-> +		msleep(1);
-> +		i++;
-> +		if (i > 1000 * 60) {
-> +			status = 1;
-> +			break;
-> +		}
-> +	}
-> +	if (mbox->numstatus == 1)
-> +		status = 1; /*cmd not supported*/
-> +
-> +	/* Check for interrupt line */
-> +	dword = RDOUTDOOR(raid_dev);
-> +	WROUTDOOR(raid_dev, dword);
-> +	WRINDOOR(raid_dev,2);
-> +
-> +	return status;
-> +
-> +blocked_mailbox:
-> +	con_log(CL_ANN, (KERN_WARNING "megaraid: blocked mailbox\n"));
-> +	return status;
-> +}
-> +
-> +/**
->   * megaraid_mbox_display_scb - display SCB information, mostly debug purposes
->   * @param adapter	: controllers' soft state
->   * @param scb  : SCB to be displayed
+> 
+> Do you know which of the above is true?
+> 
+> Thanks again,
+> 
+> Mike Krufky
+> 
+> >  gitweb/gitweb.perl |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/gitweb/gitweb.perl b/gitweb/gitweb.perl
+> > index d845e91..2e94c2c 100755
+> > --- a/gitweb/gitweb.perl
+> > +++ b/gitweb/gitweb.perl
+> > @@ -4423,7 +4423,7 @@ sub git_shortlog {
+> >  	}
+> >  	my $refs = git_get_references();
+> >  
+> > -	my @commitlist = parse_commits($head, 101, (100 * $page));
+> > +	my @commitlist = parse_commits($hash, 101, (100 * $page));
+> >  
+> >  	my $paging_nav = format_paging_nav('shortlog', $hash, $head, $page, (100 * ($page+1)));
+> >  	my $next_link = '';
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe git" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-I haven't looked at the entire source file, but these extra
-"param" words should not be there.  kernel-doc syntax is just
-  @name: description
-
-
----
-~Randy

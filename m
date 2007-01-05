@@ -1,117 +1,133 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161159AbXAERLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161168AbXAERMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161159AbXAERLo (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 12:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbXAERLn
+	id S1161168AbXAERMK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 12:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161167AbXAERMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 12:11:43 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:51019 "EHLO cacti.profiwh.com"
+	Fri, 5 Jan 2007 12:12:08 -0500
+Received: from cacti.profiwh.com ([85.93.165.66]:51025 "EHLO cacti.profiwh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161159AbXAERLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 12:11:41 -0500
-Message-id: <404263291482327299@wsc.cz>
+	id S1161168AbXAERMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 12:12:02 -0500
+Message-id: <17884197232932515771@wsc.cz>
 In-reply-to: <16079316021425814645@wsc.cz>
-Subject: [PATCH 5/7] Char: moxa, remove useless vairables
+Subject: [PATCH 7/7] Char: moxa, pci probing
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Fri,  5 Jan 2007 18:11:50 +0100 (CET)
+Date: Fri,  5 Jan 2007 18:12:10 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moxa, remove useless vairables
+moxa, pci probing
 
-Remove temporary or once used variables, that can be defined locally to
-save some bytes.
+Alter the driver to use the pci probing.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit d35a569e31595b9b8f70bfd1d3aae7f830d183fe
-tree ef1ddd6847925a86aa7041a540646dc0dc543c62
-parent 5ac07b4e2356931b4548316037b537f980bd8ab9
-author Jiri Slaby <jirislaby@gmail.com> Wed, 03 Jan 2007 14:48:38 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 17:38:54 +0059
+commit 4ee85fa4bf20967f94b61219c39189a8ae3c511c
+tree c09d6cfa7b38541e2fa39f882fca88bee20e917c
+parent cd7aa5e22313e6a0f2ec6a02960793fc54c26416
+author Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 18:08:08 +0059
+committer Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 18:08:08 +0059
 
- drivers/char/moxa.c |   35 ++++++++++++++---------------------
- 1 files changed, 14 insertions(+), 21 deletions(-)
+ drivers/char/moxa.c |   40 ++++++++++++++++++++--------------------
+ 1 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/char/moxa.c b/drivers/char/moxa.c
-index 0c34bc5..8849d66 100644
+index 9b7067b..7dbaee8 100644
 --- a/drivers/char/moxa.c
 +++ b/drivers/char/moxa.c
-@@ -146,8 +146,6 @@ struct moxa_port {
- 	wait_queue_head_t close_wait;
+@@ -107,7 +107,6 @@ static struct moxa_board_conf {
+ 	int numPorts;
+ 	unsigned long baseAddr;
+ 	int busType;
+-	struct pci_dev *pdev;
  
- 	struct timer_list emptyTimer;
--	struct mxser_mstatus GMStatus;
--	struct moxaq_str temp_queue;
+ 	int loadstat;
  
- 	char chkPort;
- 	char lineCtrl;
-@@ -1487,17 +1485,15 @@ int MoxaDriverIoctl(unsigned int cmd, unsigned long arg, int port)
- 		return (0);
- 	case MOXA_GET_IOQUEUE: {
- 		struct moxaq_str __user *argm = argp;
--		struct moxa_port *p;
-+		struct moxaq_str tmp;
+@@ -319,8 +318,7 @@ static int __devinit moxa_pci_probe(struct pci_dev *pdev,
+ 		break;
+ 	}
+ 	board->busType = MOXA_BUS_TYPE_PCI;
+-	/* don't lose the reference in the next pci_get_device iteration */
+-	board->pdev = pci_dev_get(pdev);
++
+ 	pci_set_drvdata(pdev, board);
  
- 		for (i = 0; i < MAX_PORTS; i++, argm++) {
--			p = &moxa_ports[i];
--			memset(&p->temp_queue, 0, sizeof(p->temp_queue));
--			if (p->chkPort) {
--				p->temp_queue.inq = MoxaPortRxQueue(i);
--				p->temp_queue.outq = MoxaPortTxQueue(i);
-+			memset(&tmp, 0, sizeof(tmp));
-+			if (moxa_ports[i].chkPort) {
-+				tmp.inq = MoxaPortRxQueue(i);
-+				tmp.outq = MoxaPortTxQueue(i);
- 			}
--			if (copy_to_user(argm, &p->temp_queue,
--						sizeof(p->temp_queue)))
-+			if (copy_to_user(argm, &tmp, sizeof(tmp)))
- 				return -EFAULT;
+ 	return (0);
+@@ -334,13 +332,19 @@ static void __devexit moxa_pci_remove(struct pci_dev *pdev)
+ 
+ 	pci_iounmap(pdev, brd->basemem);
+ 	brd->basemem = NULL;
+-	pci_dev_put(pdev);
+ }
++
++static struct pci_driver moxa_pci_driver = {
++	.name = "moxa",
++	.id_table = moxa_pcibrds,
++	.probe = moxa_pci_probe,
++	.remove = __devexit_p(moxa_pci_remove)
++};
+ #endif /* CONFIG_PCI */
+ 
+ static int __init moxa_init(void)
+ {
+-	int i, numBoards;
++	int i, numBoards, retval = 0;
+ 	struct moxa_port *ch;
+ 
+ 	printk(KERN_INFO "MOXA Intellio family driver version %s\n", MOXA_VERSION);
+@@ -430,25 +434,22 @@ static int __init moxa_init(void)
  		}
- 		return (0);
-@@ -1518,33 +1514,30 @@ int MoxaDriverIoctl(unsigned int cmd, unsigned long arg, int port)
- 		return 0;
- 	case MOXA_GETMSTATUS: {
- 		struct mxser_mstatus __user *argm = argp;
-+		struct mxser_mstatus tmp;
- 		struct moxa_port *p;
+ 	}
+ #endif
+-	/* Find PCI boards here */
++
+ #ifdef CONFIG_PCI
+-	{
+-		struct pci_dev *p = NULL;
+-		int n = ARRAY_SIZE(moxa_pcibrds) - 1;
+-		i = 0;
+-		while (i < n) {
+-			while ((p = pci_get_device(moxa_pcibrds[i].vendor, moxa_pcibrds[i].device, p))!=NULL)
+-				moxa_pci_probe(p, &moxa_pcibrds[i]);
+-			i++;
+-		}
++	retval = pci_register_driver(&moxa_pci_driver);
++	if (retval) {
++		printk(KERN_ERR "Can't register moxa pci driver!\n");
++		if (numBoards)
++			retval = 0;
+ 	}
+ #endif
++
+ 	for (i = 0; i < numBoards; i++) {
+ 		moxa_boards[i].basemem = ioremap(moxa_boards[i].baseAddr,
+ 				0x4000);
+ 	}
  
- 		for (i = 0; i < MAX_PORTS; i++, argm++) {
- 			p = &moxa_ports[i];
--			p->GMStatus.ri = 0;
--			p->GMStatus.dcd = 0;
--			p->GMStatus.dsr = 0;
--			p->GMStatus.cts = 0;
-+			memset(&tmp, 0, sizeof(tmp));
- 			if (!p->chkPort) {
- 				goto copy;
- 			} else {
- 				status = MoxaPortLineStatus(p->port);
- 				if (status & 1)
--					p->GMStatus.cts = 1;
-+					tmp.cts = 1;
- 				if (status & 2)
--					p->GMStatus.dsr = 1;
-+					tmp.dsr = 1;
- 				if (status & 4)
--					p->GMStatus.dcd = 1;
-+					tmp.dcd = 1;
- 			}
+-	return (0);
++	return retval;
+ }
  
- 			if (!p->tty || !p->tty->termios)
--				p->GMStatus.cflag = p->cflag;
-+				tmp.cflag = p->cflag;
- 			else
--				p->GMStatus.cflag = p->tty->termios->c_cflag;
-+				tmp.cflag = p->tty->termios->c_cflag;
- copy:
--			if (copy_to_user(argm, &p->GMStatus,
--						sizeof(p->GMStatus)))
-+			if (copy_to_user(argm, &tmp, sizeof(tmp)))
- 				return -EFAULT;
- 		}
- 		return 0;
+ static void __exit moxa_exit(void)
+@@ -467,14 +468,13 @@ static void __exit moxa_exit(void)
+ 		printk("Couldn't unregister MOXA Intellio family serial driver\n");
+ 	put_tty_driver(moxaDriver);
+ 
+-	for (i = 0; i < MAX_BOARDS; i++) {
+ #ifdef CONFIG_PCI
+-		if (moxa_boards[i].busType == MOXA_BUS_TYPE_PCI)
+-			moxa_pci_remove(moxa_boards[i].pdev);
++	pci_unregister_driver(&moxa_pci_driver);
+ #endif
++
++	for (i = 0; i < MAX_BOARDS; i++)
+ 		if (moxa_boards[i].basemem)
+ 			iounmap(moxa_boards[i].basemem);
+-	}
+ 
+ 	if (verbose)
+ 		printk("Done\n");

@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161060AbXAEMAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161079AbXAEMEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbXAEMAt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 07:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbXAEMAt
+	id S1161079AbXAEMEv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 07:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbXAEMEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 07:00:49 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:22072 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161060AbXAEMAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 07:00:48 -0500
-Message-ID: <459E3DE8.9050100@tls.msk.ru>
-Date: Fri, 05 Jan 2007 15:00:40 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Fri, 5 Jan 2007 07:04:50 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:38804 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161079AbXAEMEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 07:04:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=deyUaOsPnkH6sAgOfIlVofvlZaNPrN83KfvhDGVX3QEYi8RI6hO/TztXq85VvzhU4FPvF7w2/iZagU1k7hGTr4o/fUEbFWwmqWkYd77EraAjhCmo/6SY7LXptpI+vyV54UL6v/XugvYFn+PFpfBOeNFdaedZnIdPb9t6Xq8BKUo=
+Message-ID: <8355959a0701050404t46ff7c56i52737051b8725c74@mail.gmail.com>
+Date: Fri, 5 Jan 2007 17:34:48 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: "Auke Kok" <sofar@foo-projects.org>
+Subject: Re: Multi kernel tree support on the same distro?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <459DFE9F.9050904@foo-projects.org>
 MIME-Version: 1.0
-To: Pelle Svensson <pelle2004@gmail.com>
-CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: Symbol links to only needed and targeted source files
-References: <6bb9c1030701030724k4ca544cfg364e28059cf5dfe@mail.gmail.com>	 <20070103162409.GA30071@uranus.ravnborg.org> <6bb9c1030701031314l1b57bd2brffb61cce68a7174@mail.gmail.com>
-In-Reply-To: <6bb9c1030701031314l1b57bd2brffb61cce68a7174@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
+	 <459D9872.8090603@foo-projects.org>
+	 <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com>
+	 <459DFE9F.9050904@foo-projects.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pelle Svensson wrote:
-> Hi Sam,
-> 
-> You misunderstand me I think, I already using a separate output directory.
-> What I like to do is a separate 'source tree' with only valid files
-> for my configuration. In that way, when I use grep for instance,
-> I would only hit valid files and not 50 other files which are
-> not in the current build configuration.
+On 1/5/07, Auke Kok <sofar@foo-projects.org> wrote:
+> Steve Brueggeman wrote:
+Thanks Steve for your inputs.
 
-So take a look at those generated files - there are .dep files in there,
-which lists dependencies of every file which has been compiled for your
-configuration.   Take them, build a list of filenames, and (sym)link them
-into separate dir.  Some small awk/sed/grep/sort/uniq/xargs/ln magic and
-you're done... ;)
+> gcc 3.4.x works great on both 2.6 and 2.4, no issues whatsoever.
 
-/mjt
+Do you mean I need to discard gcc 4.1.x on the distro? Or keep both?
+
+
+> Most binary distro's won't support this, but I think all of the source distro's and more
+> specific ones support it and a few handle it out of the box.
+
+Hmm. How to solve this? Build a distro from scratch?  Which distro you suggest?
+I do have Fedora based custom distro experience (right from the
+ripping of Anaconda to X building, etc).
+
+> Cheers,
+>
+> Auke
+>
+~Akula2

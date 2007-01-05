@@ -1,133 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161168AbXAERMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161171AbXAERMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161168AbXAERMK (ORCPT <rfc822;w@1wt.eu>);
+	id S1161171AbXAERMK (ORCPT <rfc822;w@1wt.eu>);
 	Fri, 5 Jan 2007 12:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161167AbXAERMI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbXAERMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 12:12:08 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:51025 "EHLO cacti.profiwh.com"
+	Fri, 5 Jan 2007 12:12:06 -0500
+Received: from hera.kernel.org ([140.211.167.34]:51882 "EHLO hera.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161168AbXAERMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 12:12:02 -0500
-Message-id: <17884197232932515771@wsc.cz>
-In-reply-to: <16079316021425814645@wsc.cz>
-Subject: [PATCH 7/7] Char: moxa, pci probing
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Fri,  5 Jan 2007 18:12:10 +0100 (CET)
+	id S1161167AbXAERMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 12:12:00 -0500
+From: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: MoRpHeUz <morpheuz@gmail.com>
+Subject: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
+Date: Fri, 5 Jan 2007 12:11:08 -0500
+User-Agent: KMail/1.9.5
+Cc: "Andrew Morton" <akpm@osdl.org>, "Stelian Pop" <stelian@popies.net>,
+       "Mattia Dongili" <malattia@linux.it>,
+       "Ismail Donmez" <ismail@pardus.org.tr>,
+       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, "Cacy Rodney" <cacy-rodney-cacy@tlen.pl>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <20070104154434.7e1a7c83.akpm@osdl.org> <7ce7bf330701041820l5132ddbfsd3dd2b6ea826f3ae@mail.gmail.com>
+In-Reply-To: <7ce7bf330701041820l5132ddbfsd3dd2b6ea826f3ae@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701051211.08458.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moxa, pci probing
+On Thursday 04 January 2007 21:20, MoRpHeUz wrote:
+> Hi,
+> 
+>   I own a Sony Vaio VGN-SZ340 and I had problems regarding acpi + it's
+> dual core processor. The guys from Intel gave me a workaround and now
+> it recognises both cores.
 
-Alter the driver to use the pci probing.
+What workaround are you using?
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+>   The problem is that it does not do cpu frequency scaling for both
+> cores, just for cpu0...And when I boot with acpi the Nvidia graphic
+> card doesnt work also.
+> 
+>   I don't know if you know about these problems regarding sony acpi.
+> The guys from Intel said that this notebook have 2 dst's. So to detect
+> both cores the workaround just uses the second dst (although frequency
+> scaling does work for both.)
+> 
+>   I can help you to fix this bug...I have the machine where we can do
+> some tests..
 
----
-commit 4ee85fa4bf20967f94b61219c39189a8ae3c511c
-tree c09d6cfa7b38541e2fa39f882fca88bee20e917c
-parent cd7aa5e22313e6a0f2ec6a02960793fc54c26416
-author Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 18:08:08 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 05 Jan 2007 18:08:08 +0059
+The frequency scaling issue sounds like a BIOS/Linux incompatibility.
+Please open a bugzilla, if you haven't already, and include the
+output from acpidump.
 
- drivers/char/moxa.c |   40 ++++++++++++++++++++--------------------
- 1 files changed, 20 insertions(+), 20 deletions(-)
+The nvidia issue sounds like an interrupt issue, so please reproduce
+it using the open source nvidia driver (not the nvidia binary),
+and include the lspci -vv output, dmesg, and /proc/interrupts.
 
-diff --git a/drivers/char/moxa.c b/drivers/char/moxa.c
-index 9b7067b..7dbaee8 100644
---- a/drivers/char/moxa.c
-+++ b/drivers/char/moxa.c
-@@ -107,7 +107,6 @@ static struct moxa_board_conf {
- 	int numPorts;
- 	unsigned long baseAddr;
- 	int busType;
--	struct pci_dev *pdev;
- 
- 	int loadstat;
- 
-@@ -319,8 +318,7 @@ static int __devinit moxa_pci_probe(struct pci_dev *pdev,
- 		break;
- 	}
- 	board->busType = MOXA_BUS_TYPE_PCI;
--	/* don't lose the reference in the next pci_get_device iteration */
--	board->pdev = pci_dev_get(pdev);
-+
- 	pci_set_drvdata(pdev, board);
- 
- 	return (0);
-@@ -334,13 +332,19 @@ static void __devexit moxa_pci_remove(struct pci_dev *pdev)
- 
- 	pci_iounmap(pdev, brd->basemem);
- 	brd->basemem = NULL;
--	pci_dev_put(pdev);
- }
-+
-+static struct pci_driver moxa_pci_driver = {
-+	.name = "moxa",
-+	.id_table = moxa_pcibrds,
-+	.probe = moxa_pci_probe,
-+	.remove = __devexit_p(moxa_pci_remove)
-+};
- #endif /* CONFIG_PCI */
- 
- static int __init moxa_init(void)
- {
--	int i, numBoards;
-+	int i, numBoards, retval = 0;
- 	struct moxa_port *ch;
- 
- 	printk(KERN_INFO "MOXA Intellio family driver version %s\n", MOXA_VERSION);
-@@ -430,25 +434,22 @@ static int __init moxa_init(void)
- 		}
- 	}
- #endif
--	/* Find PCI boards here */
-+
- #ifdef CONFIG_PCI
--	{
--		struct pci_dev *p = NULL;
--		int n = ARRAY_SIZE(moxa_pcibrds) - 1;
--		i = 0;
--		while (i < n) {
--			while ((p = pci_get_device(moxa_pcibrds[i].vendor, moxa_pcibrds[i].device, p))!=NULL)
--				moxa_pci_probe(p, &moxa_pcibrds[i]);
--			i++;
--		}
-+	retval = pci_register_driver(&moxa_pci_driver);
-+	if (retval) {
-+		printk(KERN_ERR "Can't register moxa pci driver!\n");
-+		if (numBoards)
-+			retval = 0;
- 	}
- #endif
-+
- 	for (i = 0; i < numBoards; i++) {
- 		moxa_boards[i].basemem = ioremap(moxa_boards[i].baseAddr,
- 				0x4000);
- 	}
- 
--	return (0);
-+	return retval;
- }
- 
- static void __exit moxa_exit(void)
-@@ -467,14 +468,13 @@ static void __exit moxa_exit(void)
- 		printk("Couldn't unregister MOXA Intellio family serial driver\n");
- 	put_tty_driver(moxaDriver);
- 
--	for (i = 0; i < MAX_BOARDS; i++) {
- #ifdef CONFIG_PCI
--		if (moxa_boards[i].busType == MOXA_BUS_TYPE_PCI)
--			moxa_pci_remove(moxa_boards[i].pdev);
-+	pci_unregister_driver(&moxa_pci_driver);
- #endif
-+
-+	for (i = 0; i < MAX_BOARDS; i++)
- 		if (moxa_boards[i].basemem)
- 			iounmap(moxa_boards[i].basemem);
--	}
- 
- 	if (verbose)
- 		printk("Done\n");
+thanks,
+-Len

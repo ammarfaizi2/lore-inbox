@@ -1,77 +1,99 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030277AbXAECU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030281AbXAECXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbXAECU1 (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 21:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbXAECU1
+	id S1030281AbXAECXT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 21:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbXAECXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 21:20:27 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:35437 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030277AbXAECUZ (ORCPT
+	Thu, 4 Jan 2007 21:23:18 -0500
+Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:44984 "EHLO
+	pne-smtpout3-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1030281AbXAECXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 21:20:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rFDYqZ5U+7B3rw89xWqVgU0LvCXqoh0uxUFLiK3I01P91DSGr03s4cSk2lJK3xi1Jf7h7+BFepkBHqk5oxol1AjDucna8qI/pIDCh+6x/CnHSRuPsJWFtpQwyZ5sElaY8HSy1zlrTcs9sPdJ2n8MoKZb+Igz89uIfJ6AutXcXOI=
-Message-ID: <7ce7bf330701041820l5132ddbfsd3dd2b6ea826f3ae@mail.gmail.com>
-Date: Fri, 5 Jan 2007 00:20:23 -0200
-From: MoRpHeUz <morpheuz@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Cc: "Stelian Pop" <stelian@popies.net>, "Mattia Dongili" <malattia@linux.it>,
-       "Len Brown" <lenb@kernel.org>, "Ismail Donmez" <ismail@pardus.org.tr>,
-       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, "Cacy Rodney" <cacy-rodney-cacy@tlen.pl>
-In-Reply-To: <20070104154434.7e1a7c83.akpm@osdl.org>
+	Thu, 4 Jan 2007 21:23:18 -0500
+X-Greylist: delayed 4197 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jan 2007 21:23:18 EST
+Date: Fri, 5 Jan 2007 03:13:17 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       James Morris <jmorris@namei.org>
+Subject: Re: execve hanging in selinux_bprm_post_apply_creds
+Message-ID: <20070105011317.GA8772@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+	James Morris <jmorris@namei.org>
+References: <20070104222642.GA9440@m.safari.iki.fi> <20070104160334.3237a2ac.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
-	 <200701040024.29793.lenb@kernel.org>
-	 <1167905384.7763.36.camel@localhost.localdomain>
-	 <20070104191512.GC25619@inferi.kami.home>
-	 <20070104125107.b82db604.akpm@osdl.org>
-	 <1167953784.4901.5.camel@localhost.localdomain>
-	 <20070104154434.7e1a7c83.akpm@osdl.org>
+In-Reply-To: <20070104160334.3237a2ac.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 04, 2007 at 16:03:34 -0800, Andrew Morton wrote:
+> On Fri, 5 Jan 2007 00:26:42 +0200
+> Sami Farin <7atbggg02@sneakemail.com> wrote:
+> 
+> > Kernel 2.6.19.1 SMP on Pentium D.  I ran command restorecon -R /wrk.
+> > After a while or two programs stopped responding and I had to reboot.
+> > 
+> > I'm not sure is this bug or feature...
+> 
+> bug ;)
+ 
+=)
 
-  I own a Sony Vaio VGN-SZ340 and I had problems regarding acpi + it's
-dual core processor. The guys from Intel gave me a workaround and now
-it recognises both cores.
+> > 2007-01-04 22:41:55.360538500 <4>softlimit     D 61707865     0 18679  18678                     (NOTLB)
+> > 2007-01-04 22:41:55.360549500 <4>       ec5efdd0 00000046 f8964fda 61707865 0000006a 00000072 00000043 0000005b 
+> > 2007-01-04 22:41:55.360551500 <4>       f7264580 000000a9 000000fb 0000000e 000000cc 00000055 c1805700 f4f2e13c
+> > 2007-01-04 22:41:55.360553500 <4>       0001be4d 1f64183b 0000073d f4f2e030 c05785ac 00000246 f4f2e030 ec5efe18 
+> > 2007-01-04 22:41:55.360554500 <4>Call Trace:
+> > 2007-01-04 22:41:55.360571500 <4> [<c04b490e>] __mutex_lock_slowpath+0x85/0x1df
+> > 2007-01-04 22:41:55.360572500 <4> [<c04b487c>] mutex_lock+0x21/0x24
+> > 2007-01-04 22:41:55.360573500 <4> [<c0279dde>] selinux_bprm_post_apply_creds+0x65/0x40a
+> > 2007-01-04 22:41:55.360575500 <4> [<c01720cb>] compute_creds+0x4f/0x52
+> > 2007-01-04 22:41:55.360576500 <4> [<c019a788>] load_elf_binary+0x944/0xd0e
+> > 2007-01-04 22:41:55.360589500 <4> [<c01721f3>] search_binary_handler+0x9a/0x24c
+> > 2007-01-04 22:41:55.360590500 <4> [<c0172508>] do_execve+0x163/0x1f1
+> > 2007-01-04 22:41:55.360592500 <4> [<c01019fd>] sys_execve+0x32/0x84
+> > 2007-01-04 22:41:55.360593500 <4> [<c0102e73>] syscall_call+0x7/0xb
+> > 2007-01-04 22:41:55.360594500 <4> [<00ecc410>] 0xecc410
+> > 2007-01-04 22:41:55.360620500 <4> =======================
+> > 
+> > ...
+> > 
+> > 2007-01-04 22:41:55.359020500 <4>crond         D DDC59E64     0 18627   1837         18668       (NOTLB)
+> > 2007-01-04 22:41:55.359022500 <4>       ddc59e78 00000046 c01454c5 ddc59e64 ddc59e58 c04f4d56 ddc59e74 000000d0 
+> > 2007-01-04 22:41:55.359033500 <4>       f7a50ac0 f78d8a5e 000006e3 000011f7 00000000 c1967030 c17fd700 d10a6b7c 
+> > 2007-01-04 22:41:55.359034500 <4>       000166f0 f78db4eb 000006e3 d10a6a70 c05785ac 00000246 d10a6a70 ddc59ec0 
+> > 2007-01-04 22:41:55.359036500 <4>Call Trace:
+> > 2007-01-04 22:41:55.359037500 <4> [<c04b490e>] __mutex_lock_slowpath+0x85/0x1df
+> > 2007-01-04 22:41:55.359047500 <4> [<c04b487c>] mutex_lock+0x21/0x24
+> > 2007-01-04 22:41:55.359049500 <4> [<c01491b7>] audit_log_exit+0x120/0x799
+> > 2007-01-04 22:41:55.359050500 <4> [<c0149c1b>] audit_syscall_exit+0x75/0x325
+> > 2007-01-04 22:41:55.359051500 <4> [<c010677a>] do_syscall_trace+0x1a5/0x1eb
+> > --
+> > 2007-01-04 22:41:55.359305500 <4>       00002d6d 33456ed0 000006e5 e7163a70 7fffffff 7fffffff ed0aa9e0 e4c03d5c 
+> > 2007-01-04 22:41:55.359306500 <4>Call Trace:
+> > 2007-01-04 22:41:55.359319500 <4> [<c04b464c>] schedule_timeout+0x94/0x96
+> > 2007-01-04 22:41:55.359321500 <4> [<c048802c>] unix_stream_data_wait+0xa0/0xe7
+> > 2007-01-04 22:41:55.359322500 <4> [<c0488334>] unix_stream_recvmsg+0x2c1/0x414
+> > 2007-01-04 22:41:55.359323500 <4> [<c0418be3>] do_sock_read+0xc4/0xcc
+> > 2007-01-04 22:41:55.359334500 <4> [<c0418c55>] sock_aio_read+0x6a/0x7b
+> > 2007-01-04 22:41:55.359335500 <4> [<c016d3c9>] do_sync_read+0xca/0x119
+> > 2007-01-04 22:41:55.359337500 <4> [<c016d4cc>] vfs_read+0xb4/0x18a
+> > 2007-01-04 22:41:55.359338500 <4> [<c016d884>] sys_read+0x3d/0x64
+> > 2007-01-04 22:41:55.359349500 <4> [<c0102e73>] syscall_call+0x7/0xb
+> > 2007-01-04 22:41:55.359350500 <4> [<00ecc410>] 0xecc410
+> 
+> Curious.  It look like running restorecon left tty_mutex held.  I just did
+> a full tty_mutex audit on 2.6.20-rc3 and all looks to be OK.
+> 
+> Is it repeatable?
 
-  The problem is that it does not do cpu frequency scaling for both
-cores, just for cpu0...And when I boot with acpi the Nvidia graphic
-card doesnt work also.
+Once in a lifetime.
 
-  I don't know if you know about these problems regarding sony acpi.
-The guys from Intel said that this notebook have 2 dst's. So to detect
-both cores the workaround just uses the second dst (although frequency
-scaling does work for both.)
+But... system didn't blow up when I ran
+"restorecon -R /wrk" again after reboot.
 
-  I can help you to fix this bug...I have the machine where we can do
-some tests..
-
-
-Best regards,
-
-
-On 1/4/07, Andrew Morton <akpm@osdl.org> wrote:
-> On Fri, 05 Jan 2007 00:36:23 +0100
-> Stelian Pop <stelian@popies.net> wrote:
->
-> > Added acpi_bus_generate event for forwarding Fn-keys pressed to acpi subsystem,
-> > and made correspondent necessary changes for this to work.
->
-> neato.
->
-> err, how does one use this?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+-- 

@@ -1,35 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965118AbXAEA7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030181AbXAEBBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbXAEA7o (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 19:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbXAEA7o
+	id S1030181AbXAEBBT (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 20:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbXAEBBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 19:59:44 -0500
-Received: from smtp0.osdl.org ([65.172.181.24]:40837 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965118AbXAEA7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 19:59:43 -0500
-Date: Thu, 4 Jan 2007 16:59:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Justin Rosander <myrddinemrys@neo.rr.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: PROBLEM: LSIFC909 mpt card fails to recognize devices
-Message-Id: <20070104165922.137c6df9.akpm@osdl.org>
-In-Reply-To: <1167955606.5133.13.camel@localhost>
-References: <1167955606.5133.13.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 4 Jan 2007 20:01:19 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:53209
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S965134AbXAEBBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 20:01:18 -0500
+Date: Thu, 04 Jan 2007 17:01:18 -0800 (PST)
+Message-Id: <20070104.170118.129774527.davem@davemloft.net>
+To: ahendry@tusc.com.au
+Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] X.25: Trivial, SOCK_DEBUG's in x25_facilities missing
+ newlines
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1167885564.5124.98.camel@localhost>
+References: <1167885564.5124.98.camel@localhost>
+X-Mailer: Mew version 5.1.52 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Jan 2007 19:06:46 -0500
-Justin Rosander <myrddinemrys@neo.rr.com> wrote:
+From: ahendry <ahendry@tusc.com.au>
+Date: Thu, 04 Jan 2007 15:39:24 +1100
 
-> Please forward this to the appropriate maintainer.  Thank you.
+> Trivial. Newlines missing on the SOCK_DEBUG's for X.25 facility negotiation.
 > 
-> [1.] One line summary of the problem:    My fibre channel drives fail to
-> be recognized by my LSIFC909 card. 
+> Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
 
-Please send the output of `lspci -vn'
+Applied, thanks Andrew.

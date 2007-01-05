@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965133AbXAEJQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965132AbXAEJ1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbXAEJQh (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 04:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbXAEJQh
+	id S965132AbXAEJ1m (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 04:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbXAEJ1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 04:16:37 -0500
-Received: from aa013msr.fastwebnet.it ([85.18.95.73]:47091 "EHLO
-	aa013msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965112AbXAEJQg (ORCPT
+	Fri, 5 Jan 2007 04:27:42 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:49105 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965132AbXAEJ1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 04:16:36 -0500
-Date: Fri, 5 Jan 2007 10:15:40 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Stelian Pop <stelian@popies.net>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <lenb@kernel.org>, Ismail Donmez <ismail@pardus.org.tr>,
-       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Message-ID: <20070105091539.GA13533@inferi.kami.home>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Stelian Pop <stelian@popies.net>, Andrew Morton <akpm@osdl.org>,
-	Len Brown <lenb@kernel.org>, Ismail Donmez <ismail@pardus.org.tr>,
-	Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, Cacy Rodney <cacy-rodney-cacy@tlen.pl>
-References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <200701040024.29793.lenb@kernel.org> <1167905384.7763.36.camel@localhost.localdomain> <20070104191512.GC25619@inferi.kami.home> <20070104125107.b82db604.akpm@osdl.org> <1167953784.4901.5.camel@localhost.localdomain> <Pine.LNX.4.61.0701050110170.8556@yvahk01.tjqt.qr>
+	Fri, 5 Jan 2007 04:27:41 -0500
+X-Greylist: delayed 1225 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 04:27:41 EST
+Message-ID: <459E1535.5020105@vandrovec.name>
+Date: Fri, 05 Jan 2007 01:07:01 -0800
+From: Petr Vandrovec <petr@vandrovec.name>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.9) Gecko/20061219 Iceape/1.0.7 (Debian-1.0.7-1)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0701050110170.8556@yvahk01.tjqt.qr>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.20-rc2-mm1-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Roland Dreier <rdreier@cisco.com>
+CC: jeff@garzik.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Unbreak MSI on ATI devices
+References: <20061221075540.GA21152@vana.vc.cvut.cz> <ada4pr61mie.fsf@cisco.com>
+In-Reply-To: <ada4pr61mie.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Jan 2007 09:07:01.0640 (UTC) FILETIME=[DC8FD080:01C730A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 01:11:16AM +0100, Jan Engelhardt wrote:
+Roland Dreier wrote:
+>  > So my question is - what is real reason for disabling INTX when in MSI mode?
+>  > According to PCI spec it should not be needed, and it hurts at least chips
+>  > listed below:
+>  > 
+>  > 00:13.0 0c03: 1002:4374 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
+>  > 00:13.1 0c03: 1002:4375 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
+>  > 00:13.2 0c03: 1002:4373 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller 
 > 
-> On Jan 5 2007 00:36, Stelian Pop wrote:
-> >@@ -61,6 +61,7 @@ static struct acpi_driver sony_acpi_driv
-> > 
-> > static acpi_handle sony_acpi_handle;
-> > static struct proc_dir_entry *sony_acpi_dir;
-> >+static struct acpi_device *sony_acpi_acpi_device = NULL;
-> 
-> acpi_acpi?
-> 
-> >@@ -310,7 +315,7 @@ static int sony_acpi_add(struct acpi_dev
-> > 		    		 item->acpiset, &handle)))
-> > 		    	continue;
-> > 
-> >-		item->proc = create_proc_entry(item->name, 0600,
-> >+		item->proc = create_proc_entry(item->name, 0666,
-> > 					       acpi_device_dir(device));
-> > 		if (!item->proc) {
-> > 			printk(LOG_PFX "unable to create proc entry\n");
-> 
-> Is this safe? I would not want normal users to poke on that.
+> heh... I'm not gloating or anything... but I am glad that some ASIC
+> designer was careless enough to prove me right when I said going
+> beyond what the PCI spec requires is dangerous.
 
-Hmmm, seconded. It also seems quite a gratuitous change and I have a
-different patch that takes care of permissions and the /proc stuff is
-going away in any case.
+Hi,
+   unfortunately it is not everything :-(
 
--- 
-mattia
-:wq!
+I cannot get MSI to work on IDE interface under any circumstances - in 
+legacy mode it always uses IRQ14/15 regardless of whether MSI is enabled 
+or not (that's probably correct), but in native mode as soon as I enable 
+MSI it either does not deliver interrupts at all (definitely not through 
+IRQ14/15, and, if I got routing right, also not through its INTA#), or 
+it delivers them somewhere else than where programmed.  As my boot 
+device is connected to this adapter, and it is a notebook, it is not 
+easy to debug what's really going on :-(
+
+00:14.1 0101: 1002:4376  IDE interface: ATI Technologies Inc Standard 
+Dual Channel PCI IDE Controller ATI  (prog-if 8f [Master SecP SecO PriP 
+PriO])
+         Subsystem: Rioworks Unknown device 2043
+         Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 18
+         I/O ports at 01f0 [size=8]
+         I/O ports at 03f4 [size=4]
+         I/O ports at 0170 [size=8]
+         I/O ports at 0374 [size=4]
+         I/O ports at 8410 [size=16]
+         Capabilities: [70] Message Signalled Interrupts: Mask- 64bit- 
+Queue=0/0 Enable-
+
+
+							Petr

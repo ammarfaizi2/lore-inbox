@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161001AbXAEIRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161000AbXAEIYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbXAEIRb (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 03:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbXAEIRb
+	id S1161000AbXAEIYA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 03:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbXAEIYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 03:17:31 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:49373 "EHLO
-	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030364AbXAEIRa (ORCPT
+	Fri, 5 Jan 2007 03:24:00 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4391 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030364AbXAEIX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 03:17:30 -0500
-In-Reply-To: <ada8xgi5w0n.fsf@cisco.com>
-Subject: Re: do we have mmap abuse in ehca ?, was Re:  mmap abuse in ehca
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Hoang-Nam Nguyen <hnguyen@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
-Message-ID: <OFBD9A4186.C6AB9FD1-ONC125725A.002D32C5-C125725A.002D8B42@de.ibm.com>
-From: Christoph Raisch <RAISCH@de.ibm.com>
-Date: Fri, 5 Jan 2007 09:17:27 +0100
-X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.5.5HF882 | September 26, 2006) at
- 05/01/2007 09:17:27
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 5 Jan 2007 03:23:59 -0500
+Date: Fri, 5 Jan 2007 08:23:51 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+Cc: linux-kernel@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH] backlight control for Frontpath ProGear HX1050+
+Message-ID: <20070105082351.GA32582@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcin Juszkiewicz <openembedded@hrw.one.pl>,
+	linux-kernel@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+References: <200701050903.31859.openembedded@hrw.one.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701050903.31859.openembedded@hrw.one.pl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 05, 2007 at 09:03:30AM +0100, Marcin Juszkiewicz wrote:
+> Index: linux-2.6.18/drivers/video/backlight/progear_bl.c
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.18/drivers/video/backlight/progear_bl.c	2007-01-05 08:48:41.000000000 +0100
+> +static int progearbl_probe(struct platform_device *pdev)
+> +{
+> +	u8 temp;
+> +
+> +	pmu_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, 0);
+> +	if(!pmu_dev) {
+> +		printk("ALI M7101 PMU not found.\n"); 
+> +		return(-1);
 
-Roland Dreier <rdreier@cisco.com> wrote on 04.01.2007 22:20:40:
+There are enumerated constants for these return values.  Please use the
+proper and appropriate constants.
 
-> Sorry I missed this original thread (on vacation since mid-December,
-> just back today).  Anyway...
->
-> ehca guys -- where do we stand on fixing this up?
+> +	}
+> +	
+> +	sb_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, 0);
+> +	if(!sb_dev) {
+> +		printk("ALI 1533 SB not found.\n"); 
+> +		return(-1);
 
-We're looking into it.
-It's a non-trivial change, because both kernel and userspace
-driver have to be in sync again and need a good amount of test.
+Ditto.
 
-And beginning next week the christmas holiday season will be over.
-
-Christoph Raisch
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161016AbXAEI3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161018AbXAEIc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbXAEI3O (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 03:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161010AbXAEI3O
+	id S1161018AbXAEIc0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 03:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbXAEIc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 03:29:14 -0500
-Received: from gw-e.panasas.com ([65.194.124.178]:44782 "EHLO
-	cassoulet.panasas.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1030369AbXAEI3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 03:29:13 -0500
-Message-ID: <459E0C11.4020203@panasas.com>
-Date: Fri, 05 Jan 2007 10:28:01 +0200
-From: Benny Halevy <bhalevy@panasas.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org, nfsv4@ietf.org,
-       linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@poochiereds.net>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [nfsv4] RE: Finding hardlinks
-References: <Pine.LNX.4.64.0612200942060.28362@artax.karlin.mff.cuni.cz>	 <E1GwzsI-0004Y1-00@dorka.pomaz.szeredi.hu>	 <20061221185850.GA16807@delft.aura.cs.cmu.edu>	 <Pine.LNX.4.64.0612220038520.4677@artax.karlin.mff.cuni.cz>	 <1166869106.3281.587.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.64.0612231458060.5182@artax.karlin.mff.cuni.cz>	 <4593890C.8030207@panasas.com> <4593C524.8070209@poochiereds.net>	 <4593DEF8.5020609@panasas.com>	 <Pine.LNX.4.64.0612281916230.2960@artax.karlin.mff.cuni.cz>	 <E472128B1EB43941B4E7FB268020C89B149CEC@riverside.int.panasas.com>	 <1167388129.6106.45.camel@lade.trondhjem.org>	 <E472128B1EB43941B4E7FB268020C89B149CF1@riverside.int.panasas.com>	 <1167780097.6090.104.camel@lade.trondhjem.org>	 <459BA30A.4020809@panasas.com>	 <1167899796.6046.11.camel@lade.trondhjem.org>	 <459CD11E.3000200@panasas.com> <1167907640.6046.44.camel@lade.trondhjem.org>
-In-Reply-To: <1167907640.6046.44.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jan 2007 08:27:40.0600 (UTC) FILETIME=[5D45B380:01C730A3]
+	Fri, 5 Jan 2007 03:32:26 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:26999 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030369AbXAEIcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 03:32:25 -0500
+Date: Fri, 5 Jan 2007 09:32:44 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-aio@kvack.org, drepper@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com, mingo@elte.hu
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20070105083244.GS11203@kernel.dk>
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org> <20070105062841.GA2653@in.ibm.com> <20070105070230.GJ11203@kernel.dk> <20070105080820.GA5504@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070105080820.GA5504@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Thu, 2007-01-04 at 12:04 +0200, Benny Halevy wrote:
->> I agree that the way the client implements its cache is out of the protocol
->> scope. But how do you interpret "correct behavior" in section 4.2.1?
->>  "Clients MUST use filehandle comparisons only to improve performance, not for correct behavior. All clients need to be prepared for situations in which it cannot be determined whether two filehandles denote the same object and in such cases, avoid making invalid assumptions which might cause incorrect behavior."
->> Don't you consider data corruption due to cache inconsistency an incorrect behavior?
+On Fri, Jan 05 2007, Suparna Bhattacharya wrote:
+> On Fri, Jan 05, 2007 at 08:02:33AM +0100, Jens Axboe wrote:
+> > On Fri, Jan 05 2007, Suparna Bhattacharya wrote:
+> > > On Thu, Jan 04, 2007 at 09:02:42AM -0800, Andrew Morton wrote:
+> > > > On Thu, 4 Jan 2007 10:26:21 +0530
+> > > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > > >
+> > > > > On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
+> > > > > > On Thu, 28 Dec 2006 13:53:08 +0530
+> > > > > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > > > > >
+> > > > > > > This patchset implements changes to make filesystem AIO read
+> > > > > > > and write asynchronous for the non O_DIRECT case.
+> > > > > >
+> > > > > > Unfortunately the unplugging changes in Jen's block tree have trashed these
+> > > > > > patches to a degree that I'm not confident in my repair attempts.  So I'll
+> > > > > > drop the fasio patches from -mm.
+> > > > >
+> > > > > I took a quick look and the conflicts seem pretty minor to me, the unplugging
+> > > > > changes mostly touch nearby code.
+> > > >
+> > > > Well...  the conflicts (both mechanical and conceptual) are such that a
+> > > > round of retesting is needed.
+> > > >
+> > > > > Please let know how you want this fixed up.
+> > > > >
+> > > > > >From what I can tell the comments in the unplug patches seem to say that
+> > > > > it needs more work and testing, so perhaps a separate fixup patch may be
+> > > > > a better idea rather than make the fsaio patchset dependent on this.
+> > > >
+> > > > Patches against next -mm would be appreciated, please.  Sorry about that.
+> > > >
+> > > > I _assume_ Jens is targetting 2.6.21?
+> > >
+> > > When is the next -mm likely to be out ?
+> > >
+> > > I was considering regenerating the blk unplug patches against the
+> > > fsaio changes instead of the other way around, if Jens were willing to
+> > > accept that. But if the next -mm is just around the corner then its
+> > > not an issue.
+> > 
+> > I don't really care much, but I work against mainline and anything but
+> > occasional one-off generations of a patch against a different base is
+> > not very likely.
+> > 
+> > The -mm order should just reflect the merge order of the patches, what
+> > is the fsaio target?
 > 
-> Exactly where do you see us violating the close-to-open cache
-> consistency guarantees?
+> 2.6.21 was what I had in mind, to enable the glibc folks to proceed with
+> conversion to native AIO.
 > 
+> Regenerating my patches against the unplug stuff is not a problem, I only
+> worry about being queued up behind something that may take longer to
+> stabilize and is likely to change ... If that is not the case, I don't
+> mind.
 
-I haven't seen that. What I did see is cache inconsistency when opening
-the same file with different file descriptors when the filehandle changes.
-My testing shows that at least fsync and close fail with EIO when the filehandle
-changed while there was dirty data in the cache and that's good. Still,
-not sharing the cache while the file is opened (even on a different file
-descriptors by the same process) seems impractical.
+Same here, hence the suggestion to base then in merging order. If your
+target is 2.6.21, then I think fsaio should be first. While I think the
+plug changes are safe and as such mergable, we still need to see lots of
+results and do more testing.
 
-Benny
+-- 
+Jens Axboe
+

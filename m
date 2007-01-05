@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030350AbXAEGgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030354AbXAEGl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbXAEGgK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 01:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbXAEGgK
+	id S1030354AbXAEGl5 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 01:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbXAEGl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 01:36:10 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:51173 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030350AbXAEGgI (ORCPT
+	Fri, 5 Jan 2007 01:41:57 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:48261 "EHLO
+	pd5mo2so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030354AbXAEGl4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 01:36:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:from;
-        b=I5N+bRJHIBKtt2wxbcZnrrHcguOk1mlzEPPbb+dUQ8/ruc6GwVVJ1JTmn3YjRhl0OX/4xCFD/rQXNK4/XFdc+HkI60RuRQ3TGd/zKT2OTrq26FvzSMxxnRMYvZ8AMmF5fTkiByf92k7jwpXaDYFFrygraE2jE5LKRBbBC9eh9qU=
-Date: Fri, 5 Jan 2007 08:36:00 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.20-rc3] TTY_IO: Remove unnecessary kmalloc casts
-Message-ID: <20070105063600.GA13571@Ahmed>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
+	Fri, 5 Jan 2007 01:41:56 -0500
+Date: Fri, 05 Jan 2007 00:17:57 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: JMicron JMB363 problems
+In-reply-to: <fa.BLvaVGUEaalCt5SgPUsZ22hFA44@ifi.uio.no>
+To: xt knight <xtknight.l@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <459DED95.7080509@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.BLvaVGUEaalCt5SgPUsZ22hFA44@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unnecessary kmalloc casts in drivers/char/tty_io.c
+xt knight wrote:
+> I've been receiving odd error messages (accompanied by freezing up)
+> over the days.  They are originating from the JMicron controller.
+> 
+> Setup:
+> Gigabyte GA-965P-DS3 (Intel 965P Express) rev 2.0, latest BIOS (F9)
+> -Intel ICH8 on-board [IDE emulation mode]
+> --250G Maxtor SATA --   /dev/sda
+> --250G Western Digital SATA  --   /dev/sdb
+> 
+> -JMicron JBM363 on-board [IDE mode]
+> --Toshiba-Samsung DVD burner IDE (primary) --  /dev/hde
+> --HP DVD burner IDE (slave) --  /dev/hdf
 
-Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
-
-diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
-index 47a6eac..97f54b0 100644
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -1932,16 +1932,14 @@ static int init_dev(struct tty_driver *driver, int idx,
- 	}
- 
- 	if (!*tp_loc) {
--		tp = (struct ktermios *) kmalloc(sizeof(struct ktermios),
--						GFP_KERNEL);
-+		tp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
- 		if (!tp)
- 			goto free_mem_out;
- 		*tp = driver->init_termios;
- 	}
- 
- 	if (!*ltp_loc) {
--		ltp = (struct ktermios *) kmalloc(sizeof(struct ktermios),
--						 GFP_KERNEL);
-+		ltp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
- 		if (!ltp)
- 			goto free_mem_out;
- 		memset(ltp, 0, sizeof(struct ktermios));
-@@ -1965,16 +1963,14 @@ static int init_dev(struct tty_driver *driver, int idx,
- 		}
- 
- 		if (!*o_tp_loc) {
--			o_tp = (struct ktermios *)
--				kmalloc(sizeof(struct ktermios), GFP_KERNEL);
-+			o_tp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
- 			if (!o_tp)
- 				goto free_mem_out;
- 			*o_tp = driver->other->init_termios;
- 		}
- 
- 		if (!*o_ltp_loc) {
--			o_ltp = (struct ktermios *)
--				kmalloc(sizeof(struct ktermios), GFP_KERNEL);
-+			o_ltp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
- 			if (!o_ltp)
- 				goto free_mem_out;
- 			memset(o_ltp, 0, sizeof(struct ktermios));
+Have you tried running this controller with the libata driver in AHCI mode?
 
 -- 
-Ahmed S. Darwish
-http://darwish-07.blogspot.com
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030300AbXAEADo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965090AbXAEAGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbXAEADo (ORCPT <rfc822;w@1wt.eu>);
-	Thu, 4 Jan 2007 19:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbXAEADo
+	id S965090AbXAEAGt (ORCPT <rfc822;w@1wt.eu>);
+	Thu, 4 Jan 2007 19:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbXAEAGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Jan 2007 19:03:44 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:38256 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030300AbXAEADn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Jan 2007 19:03:43 -0500
-Date: Thu, 4 Jan 2007 16:03:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sami Farin <7atbggg02@sneakemail.com>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>
-Subject: Re: execve hanging in selinux_bprm_post_apply_creds
-Message-Id: <20070104160334.3237a2ac.akpm@osdl.org>
-In-Reply-To: <20070104222642.GA9440@m.safari.iki.fi>
-References: <20070104222642.GA9440@m.safari.iki.fi>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 4 Jan 2007 19:06:48 -0500
+Received: from ms-smtp-04.ohiordc.rr.com ([65.24.5.138]:61658 "EHLO
+	ms-smtp-04.ohiordc.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965090AbXAEAGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Jan 2007 19:06:48 -0500
+Subject: PROBLEM: LSIFC909 mpt card fails to recognize devices
+From: Justin Rosander <myrddinemrys@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 19:06:46 -0500
+Message-Id: <1167955606.5133.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2007 00:26:42 +0200
-Sami Farin <7atbggg02@sneakemail.com> wrote:
+Hello,
+Please forward this to the appropriate maintainer.  Thank you.
 
-> Kernel 2.6.19.1 SMP on Pentium D.  I ran command restorecon -R /wrk.
-> After a while or two programs stopped responding and I had to reboot.
-> 
-> I'm not sure is this bug or feature...
+[1.] One line summary of the problem:    My fibre channel drives fail to
+be recognized by my LSIFC909 card. 
+[2.] Full description of the problem/report:  see #1.
+[3.] Keywords (i.e., modules, networking, kernel):
+[4.] Kernel version (from /proc/version): 2.6.17-rt3 
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+[6.] A small shell script or example program which triggers the
+     problem (if possible) 
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
 
-bug ;)
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-> I upgraded selinux policy before running restorecon.
-> 
-> 2007-01-04 22:41:55.360538500 <4>softlimit     D 61707865     0 18679  18678                     (NOTLB)
-> 2007-01-04 22:41:55.360549500 <4>       ec5efdd0 00000046 f8964fda 61707865 0000006a 00000072 00000043 0000005b 
-> 2007-01-04 22:41:55.360551500 <4>       f7264580 000000a9 000000fb 0000000e 000000cc 00000055 c1805700 f4f2e13c
-> 2007-01-04 22:41:55.360553500 <4>       0001be4d 1f64183b 0000073d f4f2e030 c05785ac 00000246 f4f2e030 ec5efe18 
-> 2007-01-04 22:41:55.360554500 <4>Call Trace:
-> 2007-01-04 22:41:55.360571500 <4> [<c04b490e>] __mutex_lock_slowpath+0x85/0x1df
-> 2007-01-04 22:41:55.360572500 <4> [<c04b487c>] mutex_lock+0x21/0x24
-> 2007-01-04 22:41:55.360573500 <4> [<c0279dde>] selinux_bprm_post_apply_creds+0x65/0x40a
-> 2007-01-04 22:41:55.360575500 <4> [<c01720cb>] compute_creds+0x4f/0x52
-> 2007-01-04 22:41:55.360576500 <4> [<c019a788>] load_elf_binary+0x944/0xd0e
-> 2007-01-04 22:41:55.360589500 <4> [<c01721f3>] search_binary_handler+0x9a/0x24c
-> 2007-01-04 22:41:55.360590500 <4> [<c0172508>] do_execve+0x163/0x1f1
-> 2007-01-04 22:41:55.360592500 <4> [<c01019fd>] sys_execve+0x32/0x84
-> 2007-01-04 22:41:55.360593500 <4> [<c0102e73>] syscall_call+0x7/0xb
-> 2007-01-04 22:41:55.360594500 <4> [<00ecc410>] 0xecc410
-> 2007-01-04 22:41:55.360620500 <4> =======================
-> 
-> ...
-> 
-> 2007-01-04 22:41:55.359020500 <4>crond         D DDC59E64     0 18627   1837         18668       (NOTLB)
-> 2007-01-04 22:41:55.359022500 <4>       ddc59e78 00000046 c01454c5 ddc59e64 ddc59e58 c04f4d56 ddc59e74 000000d0 
-> 2007-01-04 22:41:55.359033500 <4>       f7a50ac0 f78d8a5e 000006e3 000011f7 00000000 c1967030 c17fd700 d10a6b7c 
-> 2007-01-04 22:41:55.359034500 <4>       000166f0 f78db4eb 000006e3 d10a6a70 c05785ac 00000246 d10a6a70 ddc59ec0 
-> 2007-01-04 22:41:55.359036500 <4>Call Trace:
-> 2007-01-04 22:41:55.359037500 <4> [<c04b490e>] __mutex_lock_slowpath+0x85/0x1df
-> 2007-01-04 22:41:55.359047500 <4> [<c04b487c>] mutex_lock+0x21/0x24
-> 2007-01-04 22:41:55.359049500 <4> [<c01491b7>] audit_log_exit+0x120/0x799
-> 2007-01-04 22:41:55.359050500 <4> [<c0149c1b>] audit_syscall_exit+0x75/0x325
-> 2007-01-04 22:41:55.359051500 <4> [<c010677a>] do_syscall_trace+0x1a5/0x1eb
-> --
-> 2007-01-04 22:41:55.359305500 <4>       00002d6d 33456ed0 000006e5 e7163a70 7fffffff 7fffffff ed0aa9e0 e4c03d5c 
-> 2007-01-04 22:41:55.359306500 <4>Call Trace:
-> 2007-01-04 22:41:55.359319500 <4> [<c04b464c>] schedule_timeout+0x94/0x96
-> 2007-01-04 22:41:55.359321500 <4> [<c048802c>] unix_stream_data_wait+0xa0/0xe7
-> 2007-01-04 22:41:55.359322500 <4> [<c0488334>] unix_stream_recvmsg+0x2c1/0x414
-> 2007-01-04 22:41:55.359323500 <4> [<c0418be3>] do_sock_read+0xc4/0xcc
-> 2007-01-04 22:41:55.359334500 <4> [<c0418c55>] sock_aio_read+0x6a/0x7b
-> 2007-01-04 22:41:55.359335500 <4> [<c016d3c9>] do_sync_read+0xca/0x119
-> 2007-01-04 22:41:55.359337500 <4> [<c016d4cc>] vfs_read+0xb4/0x18a
-> 2007-01-04 22:41:55.359338500 <4> [<c016d884>] sys_read+0x3d/0x64
-> 2007-01-04 22:41:55.359349500 <4> [<c0102e73>] syscall_call+0x7/0xb
-> 2007-01-04 22:41:55.359350500 <4> [<00ecc410>] 0xecc410
-> 
+Linux pelleas 2.6.17-rt3 #1 PREEMPT Thu Jan 4 00:25:15 EST 2007 i686 GNU/Linux
 
-Curious.  It look like running restorecon left tty_mutex held.  I just did
-a full tty_mutex audit on 2.6.20-rc3 and all looks to be OK.
+Gnu C                  4.1.2 Gnu make               3.81
+binutils               2.17 util-linux             2.12r
+mount                  2.12r module-init-tools      3.3-pre2
+e2fsprogs              1.39 xfsprogs               2.8.11
+PPP                    2.4.4 Linux C Library        2.3.6 Dynamic
+linker (ldd)   2.3.6 Procps                 3.2.7
+Net-tools              1.60 Console-tools          0.2.3
+Sh-utils               5.96 udev                   100 
+Modules Loaded         mptctl mptfc mptscsih mptbase nvidia ppdev lp ipv6
+dm_mod it87 hwmon_vid eeprom i2c_isa i2c_viapro snd_emu10k1_synth
+snd_emux_synth snd_seq_virmidi snd_seq_midi_emul snd_seq_dummy
+snd_seq_oss snd_seq_midi snd_seq_midi_event snd_seq tda9887 tuner
+sd_mod snd_emu10k1 shpchp snd_rawmidi snd_ac97_codec snd_ac97_bus
+pci_hotplug snd_pcm_oss snd_mixer_oss saa7134 video_buf compat_ioctl32
+v4l2_common v4l1_compat snd_pcm snd_seq_device ir_kbd_i2c snd_timer
+snd_page_alloc snd_util_mem snd_hwdep ir_common snd i2c_core psmouse
+via_agp agpgart rtc eth1394 videodev analog evdev hci_usb joydev
+mousedev pcspkr tsdev soundcore 8250_pnp bluetooth serio_raw ns558
+gameport usblp parport_pc parport floppy ext3 jbd mbcache usb_storage
+ide_cd cdrom ide_disk usbhid via82cxxx ohci1394 ieee1394 generic
+ide_core scsi_transport_fc scsi_mod uhci_hcd ehci_hcd usbcore via_rhine
+mii thermal processor fan
 
-Is it repeatable?
+
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+[7.3.] Module information (from /proc/modules):
+mptctl 22468 0 - Live 0xd0d56000
+mptfc 12872 0 - Live 0xd085a000
+mptscsih 21376 1 mptfc, Live 0xd0cc8000
+mptbase 46048 3 mptctl,mptfc,mptscsih, Live 0xd087d000
+sd_mod 18952 0 - Live 0xd0aa8000
+scsi_mod 123528 5 mptfc,mptscsih,sd_mod,usb_storage,scsi_transport_fc, Live 0xd08a4000
+
+
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+[7.5.] PCI information ('lspci -vvv' as root)
+[7.6.] SCSI information (from /proc/scsi/scsi)
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+[X.] Other notes, patches, fixes, workarounds:
+
+
 

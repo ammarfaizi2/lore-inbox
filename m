@@ -1,94 +1,118 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750787AbXAEVoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750786AbXAEVzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbXAEVoJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 16:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAEVoJ
+	id S1750786AbXAEVzi (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 16:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbXAEVzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 16:44:09 -0500
-Received: from shards.monkeyblade.net ([192.83.249.58]:37816 "EHLO
-	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787AbXAEVoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 16:44:08 -0500
-X-Greylist: delayed 1017 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 16:44:08 EST
-Subject: Re: [PATCH] gitweb: Fix shortlog only showing HEAD revision.
-From: "J.H." <warthog19@eaglescrag.net>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Robert Fitzsimons <robfitz@273k.net>, git@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Michael Krufky <mkrufky@gmail.com>
-In-Reply-To: <459EC16F.1070809@linuxtv.org>
-References: <459C0232.3090804@linuxtv.org>
-	 <20070103202555.GA25768@localhost>  <459EC16F.1070809@linuxtv.org>
-Content-Type: text/plain
-Date: Fri, 05 Jan 2007 13:25:58 -0800
-Message-Id: <1168032358.2505.10.camel@localhost.localdomain>
+	Fri, 5 Jan 2007 16:55:37 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37649 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750786AbXAEVzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 16:55:37 -0500
+Date: Fri, 5 Jan 2007 22:52:23 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: kvm-devel <kvm-devel@lists.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>
+Subject: [announce] [patch] KVM paravirtualization for Linux
+Message-ID: <20070105215223.GA5361@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2007-01-05 at 16:21 -0500, Michael Krufky wrote:
-> Robert Fitzsimons wrote:
-> > My change in 190d7fdcf325bb444fa806f09ebbb403a4ae4ee6 had a small bug
-> > found by Michael Krufky which caused the passed in hash value to be
-> > ignored, so shortlog would only show the HEAD revision.
-> > 
-> > Signed-off-by: Robert Fitzsimons <robfitz@273k.net>
-> > ---
-> > 
-> > Thanks for finding this Michael.  It' just a small bug introducted by a
-> > recent change I made.  Including John 'Warthog9' so hopefully he can add
-> > this to the version of gitweb which is hosted on kernel.org.
-> > 
-> > Robert
-> 
-> Robert,
-> 
-> Thank you for fixing this bug so quickly.  I've noticed that the gitweb
-> templates on kernel.org have changed at least once since you wrote this email to
-> me... (I can tell, based on the fact that the git:// link has moved from the
-> project column to a link labeled, "git" all the way to the right.)
-> 
-> Unfortunately, however, the bug that I had originally reported has not yet been
-> fixed on the kernel.org www server.  Either the patch in question hasn't yet
-> been applied to that installation, or it HAS in fact been applied, but doesn't
-> fix the problem as intended.
 
-Simple answer - it's sitting in my tree waiting for me to have enough
-time to get back to gitweb.  There are several things in flight and I'm
-not prepared to push them out in their current state.
+i'm pleased to announce the first release of paravirtualized KVM (Linux 
+under Linux), which includes support for the hardware cr3-cache feature 
+of Intel-VMX CPUs. (which speeds up context switches and TLB flushes)
 
-So yes the problem is fixed, but it will probably be sometime this
-weekend before it gets pushed out to the kernel.org servers.
+the patch is against 2.6.20-rc3 + KVM trunk and can be found at:
 
-> 
-> Do you know which of the above is true?
-> 
-> Thanks again,
-> 
-> Mike Krufky
-> 
-> >  gitweb/gitweb.perl |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/gitweb/gitweb.perl b/gitweb/gitweb.perl
-> > index d845e91..2e94c2c 100755
-> > --- a/gitweb/gitweb.perl
-> > +++ b/gitweb/gitweb.perl
-> > @@ -4423,7 +4423,7 @@ sub git_shortlog {
-> >  	}
-> >  	my $refs = git_get_references();
-> >  
-> > -	my @commitlist = parse_commits($head, 101, (100 * $page));
-> > +	my @commitlist = parse_commits($hash, 101, (100 * $page));
-> >  
-> >  	my $paging_nav = format_paging_nav('shortlog', $hash, $head, $page, (100 * ($page+1)));
-> >  	my $next_link = '';
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe git" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+   http://redhat.com/~mingo/kvm-paravirt-patches/
 
+Some aspects of the code are still a bit ad-hoc and incomplete, but the 
+code is stable enough in my testing and i'd like to have some feedback. 
+
+Firstly, here are some numbers:
+
+2-task context-switch performance (in microseconds, lower is better):
+
+ native:                       1.11
+ ----------------------------------
+ Qemu:                        61.18
+ KVM upstream:                53.01
+ KVM trunk:                    6.36
+ KVM trunk+paravirt/cr3:       1.60
+
+i.e. 2-task context-switch performance is faster by a factor of 4, and 
+is now quite close to native speed!
+
+"hackbench 1" (utilizes 40 tasks, numbers in seconds, lower is better):
+
+ native:                       0.25
+ ----------------------------------
+ Qemu:                         7.8
+ KVM upstream:                 2.8
+ KVM trunk:                    0.55
+ KVM paravirt/cr3:             0.36
+
+almost twice as fast.
+
+"hackbench 5" (utilizes 200 tasks, numbers in seconds, lower is better):
+
+ native:                       0.9
+ ----------------------------------
+ Qemu:                        35.2
+ KVM upstream:                 9.4
+ KVM trunk:                    2.8
+ KVM paravirt/cr3:             2.2
+
+still a 30% improvement - which isnt too bad considering that 200 tasks 
+are context-switching in this workload and the cr3 cache in current CPUs 
+is only 4 entries.
+
+the patchset does the following:
+
+- it provides an ad-hoc paravirtualization hypercall API between a Linux 
+  guest and a Linux host. (this will be replaced with a proper
+  hypercall later on.)
+
+- using the hypercall API it utilizes the "cr3 target cache" feature in 
+  Intel VMX CPUs, and extends KVM to make use of that cache. This 
+  feature allows the avoidance of expensive VM exits into hypervisor 
+  context. (The guest needs to be 'aware' and the cache has to be
+  shared between the guest and the hypervisor. So fully emulated OSs
+  wont benefit from this feature.)
+
+- a few simpler paravirtualization changes are done for Linux guests: IO 
+  port delays do not cause a VM exit anymore, the i8259A IRQ controller 
+  code got simplified (this will be replaced with a proper, hypercall
+  based and host-maintained IRQ controller implementation) and TLB 
+  flushes are more efficient, because no cr3 reads happen which would 
+  otherwise cause a VM exit. These changes have a visible effect
+  already: they reduce qemu's CPU usage when a guest idles in HLT, by 
+  about 25%. (from ~20% CPU usage to 14% CPU usage if an -rt guest has 
+  HZ=1000)
+
+Paravirtualization is triggered via the kvm_paravirt=1 boot option (for 
+now, this too is ad-hoc) - if that is passed then the KVM guest will 
+probe for paravirtualization availability on the hypervisor side - and 
+will use it if found. (If the guest does not find KVM-paravirt support 
+on the hypervisor side then it will continue as a fully emulated guest.)
+
+Issues: i only tested this on 32-bit VMX. (64-bit should work with not 
+too many changes, the paravirt.c bits can be carried over to 64-bit 
+almost as-is. But i didnt want to spread the code too wide.)
+
+Comments, suggestions are welcome!
+
+	Ingo

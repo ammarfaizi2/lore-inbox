@@ -1,79 +1,167 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750903AbXAEXyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750908AbXAEX4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbXAEXyF (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 18:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbXAEXyF
+	id S1750908AbXAEX4Z (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 18:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbXAEX4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 18:54:05 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:56354 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750905AbXAEXyD (ORCPT
+	Fri, 5 Jan 2007 18:56:25 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:31075 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750907AbXAEX4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 18:54:03 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Finding hardlinks
-To: Miklos Szeredi <miklos@szeredi.hu>, matthew@wil.cx, bhalevy@panasas.com,
-       arjan@infradead.org, mikulas@artax.karlin.mff.cuni.cz,
-       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, nfsv4@ietf.org, pavel@ucw.cz
-Reply-To: 7eggert@gmx.de
-Date: Sat, 06 Jan 2007 00:54:28 +0100
-References: <7x5mR-2wX-3@gated-at.bofh.it> <7x9Ad-18O-35@gated-at.bofh.it> <7yXEy-UI-39@gated-at.bofh.it> <7yYKa-2Ds-3@gated-at.bofh.it> <7zcWP-7ET-5@gated-at.bofh.it> <7zdzA-jc-27@gated-at.bofh.it> <7zeP5-2ic-15@gated-at.bofh.it> <7zgH9-5my-17@gated-at.bofh.it> <7zJSM-14t-9@gated-at.bofh.it> <7zSW5-6cj-9@gated-at.bofh.it> <7zX9l-4rS-7@gated-at.bofh.it> <7zXMb-5g5-27@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 5 Jan 2007 18:56:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:from;
+        b=Pb4VSu6h6j8fxb3HjjAPSp79v8bySSx/i01CtMVuySphsbfrv0K2f3UNGZp4QpcpjNikl/1/xOsdSiYbhZwkgnZ0eGJVTRqryk/ouWfQ/Mu+GFfy5+zPNA9hU05+pGpD6ZoaB4xW4IJJ5TMMhvWQDwOd5Ydb4C6rU8byF48stUE=
+Date: Sat, 6 Jan 2007 01:56:04 +0200
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.20-rc3] TTY_IO code cleanups
+Message-ID: <20070105235604.GA24091@Ahmed>
+Mail-Followup-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1H2ytI-0000p2-Qg@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
+Hi all,
 
->> > Well, sort of.  Samefile without keeping fds open doesn't have any
->> > protection against the tree changing underneath between first
->> > registering a file and later opening it.  The inode number is more
->> 
->> You only need to keep one-file-per-hardlink-group open during final
->> verification, checking that inode hashing produced reasonable results.
-> 
-> What final verification?  I wasn't just talking about 'tar' but all
-> cases where st_ino might be used to check the identity of two files at
-> possibly different points in time.
-> 
-> Time A:    remember identity of file X
-> Time B:    check if identity of file Y matches that of file X
-> 
-> With samefile() if you open X at A, and keep it open till B, you can
-> accumulate large numbers of open files and the application can fail.
-> 
-> If you don't keep an open file, just remember the path, then renaming
-> X will foil the later identity check.  Changing the file at this path
-> between A and B can even give you a false positive.  This applies to
-> 'tar' as well as the other uses.
+>From Alan:
+> if you can send me a patch for the tty_io/tty_ioctl code which
+> switches to kzalloc where it makes sense and removes un-needed casts I'll
+> review it and push the bits that look sane upstream. 
 
-If you open Y, this open file descriptor will guarantee that no distinct
-file will have the same inode number while all hardliked files must have
-the same inode number. (AFAIK)
+Cleanups to switch kmalloc->kzalloc and to remove little redundant code found
+(including the k[mz]alloc casts).
 
-Now you will check this against the list of hardlink candidates using the
-stored inode number. If the inode number has changed, this will result in
-a false negative. If you removed X, recreated it with the same inode number
-and linked that to Y, you'll get a false positive (which could be identified
-by the [mc]time changes).
+Thanks for your time.
 
-Samefile without keeping the files open will result in the same false
-positive as open+fstat+stat, while samefile with keeping the files open
-will occasionally overflow the files table, Therefore I think it's not
-worth while introducing samefile as long as the inode is unique for open
-files. OTOH you'll want to keep the inode number as stable as possible,
-since it's the only sane way to find sets of hardlinked files and some
-important programs may depend on it.
+Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
+
+diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+index 47a6eac..7b42c55 100644
+--- a/drivers/char/tty_io.c
++++ b/drivers/char/tty_io.c
+@@ -331,7 +331,7 @@ static struct tty_buffer *tty_buffer_alloc(struct tty_struct *tty, size_t size)
+ 	p->next = NULL;
+ 	p->commit = 0;
+ 	p->read = 0;
+-	p->char_buf_ptr = (char *)(p->data);
++	p->char_buf_ptr = (char *)p->data;
+ 	p->flag_buf_ptr = (unsigned char *)p->char_buf_ptr + size;
+ 	tty->buf.memory_used += size;
+ 	return p;
+@@ -640,7 +640,6 @@ static struct tty_ldisc tty_ldiscs[NR_LDISCS];	/* line disc dispatch table */
+ int tty_register_ldisc(int disc, struct tty_ldisc *new_ldisc)
+ {
+ 	unsigned long flags;
+-	int ret = 0;
+ 	
+ 	if (disc < N_TTY || disc >= NR_LDISCS)
+ 		return -EINVAL;
+@@ -652,7 +651,7 @@ int tty_register_ldisc(int disc, struct tty_ldisc *new_ldisc)
+ 	tty_ldiscs[disc].refcount = 0;
+ 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+ 	
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL(tty_register_ldisc);
+ 
+@@ -791,17 +790,15 @@ static int tty_ldisc_try(struct tty_struct *tty)
+ {
+ 	unsigned long flags;
+ 	struct tty_ldisc *ld;
+-	int ret = 0;
+ 	
+ 	spin_lock_irqsave(&tty_ldisc_lock, flags);
+ 	ld = &tty->ldisc;
+-	if(test_bit(TTY_LDISC, &tty->flags))
+-	{
++	if(test_bit(TTY_LDISC, &tty->flags)) {
+ 		ld->refcount++;
+-		ret = 1;
++		return 1;
+ 	}
+ 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+-	return ret;
++	return 0;
+ }
+ 
+ /**
+@@ -1932,19 +1929,16 @@ static int init_dev(struct tty_driver *driver, int idx,
+ 	}
+ 
+ 	if (!*tp_loc) {
+-		tp = (struct ktermios *) kmalloc(sizeof(struct ktermios),
+-						GFP_KERNEL);
++		tp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
+ 		if (!tp)
+ 			goto free_mem_out;
+ 		*tp = driver->init_termios;
+ 	}
+ 
+ 	if (!*ltp_loc) {
+-		ltp = (struct ktermios *) kmalloc(sizeof(struct ktermios),
+-						 GFP_KERNEL);
++		ltp = kzalloc(sizeof(struct ktermios), GFP_KERNEL);
+ 		if (!ltp)
+ 			goto free_mem_out;
+-		memset(ltp, 0, sizeof(struct ktermios));
+ 	}
+ 
+ 	if (driver->type == TTY_DRIVER_TYPE_PTY) {
+@@ -1965,19 +1959,16 @@ static int init_dev(struct tty_driver *driver, int idx,
+ 		}
+ 
+ 		if (!*o_tp_loc) {
+-			o_tp = (struct ktermios *)
+-				kmalloc(sizeof(struct ktermios), GFP_KERNEL);
++			o_tp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
+ 			if (!o_tp)
+ 				goto free_mem_out;
+ 			*o_tp = driver->other->init_termios;
+ 		}
+ 
+ 		if (!*o_ltp_loc) {
+-			o_ltp = (struct ktermios *)
+-				kmalloc(sizeof(struct ktermios), GFP_KERNEL);
++			o_ltp = kzalloc(sizeof(struct ktermios), GFP_KERNEL);
+ 			if (!o_ltp)
+ 				goto free_mem_out;
+-			memset(o_ltp, 0, sizeof(struct ktermios));
+ 		}
+ 
+ 		/*
+@@ -3605,9 +3596,8 @@ struct tty_driver *alloc_tty_driver(int lines)
+ {
+ 	struct tty_driver *driver;
+ 
+-	driver = kmalloc(sizeof(struct tty_driver), GFP_KERNEL);
++	driver = kzalloc(sizeof(struct tty_driver), GFP_KERNEL);
+ 	if (driver) {
+-		memset(driver, 0, sizeof(struct tty_driver));
+ 		driver->magic = TTY_DRIVER_MAGIC;
+ 		driver->num = lines;
+ 		/* later we'll move allocation of tables here */
+@@ -3667,10 +3657,9 @@ int tty_register_driver(struct tty_driver *driver)
+ 		return 0;
+ 
+ 	if (!(driver->flags & TTY_DRIVER_DEVPTS_MEM)) {
+-		p = kmalloc(driver->num * 3 * sizeof(void *), GFP_KERNEL);
++		p = kzalloc(driver->num * 3 * sizeof(void *), GFP_KERNEL);
+ 		if (!p)
+ 			return -ENOMEM;
+-		memset(p, 0, driver->num * 3 * sizeof(void *));
+ 	}
+ 
+ 	if (!driver->major) {
+
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

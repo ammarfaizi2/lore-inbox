@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161086AbXAEMsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161089AbXAENMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161086AbXAEMsc (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 07:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbXAEMsc
+	id S1161089AbXAENMs (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 08:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbXAENMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 07:48:32 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:55261 "HELO ustc.edu.cn"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1161086AbXAEMsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 07:48:31 -0500
-Message-ID: <368001275.26960@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 5 Jan 2007 20:48:22 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Neil Brown <neilb@suse.de>,
-       linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "svc: unknown version (3)" when CONFIG_NFSD_V4=y
-Message-ID: <20070105124822.GA7901@mail.ustc.edu.cn>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Neil Brown <neilb@suse.de>,
-	linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20070105024226.GA6076@mail.ustc.edu.cn> <1167999939.6050.42.camel@lade.trondhjem.org>
-MIME-Version: 1.0
+	Fri, 5 Jan 2007 08:12:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1465 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965152AbXAENMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 08:12:46 -0500
+Date: Fri, 5 Jan 2007 13:12:35 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: matthew@wil.cx, bhalevy@panasas.com, arjan@infradead.org,
+       mikulas@artax.karlin.mff.cuni.cz, jaharkes@cs.cmu.edu,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       nfsv4@ietf.org
+Subject: Re: Finding hardlinks
+Message-ID: <20070105131235.GB4662@ucw.cz>
+References: <4593E1B7.6080408@panasas.com> <E1H01Og-0007TF-00@dorka.pomaz.szeredi.hu> <20070102191504.GA5276@ucw.cz> <E1H1qRa-0001t7-00@dorka.pomaz.szeredi.hu> <20070103115632.GA3062@elf.ucw.cz> <E1H25JD-0003SN-00@dorka.pomaz.szeredi.hu> <20070103135455.GA24620@parisc-linux.org> <E1H28Oi-0003kw-00@dorka.pomaz.szeredi.hu> <20070104225929.GC8243@elf.ucw.cz> <E1H2kfa-0007Jl-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1167999939.6050.42.camel@lade.trondhjem.org>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <E1H2kfa-0007Jl-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 01:25:39PM +0100, Trond Myklebust wrote:
-> On Fri, 2007-01-05 at 10:42 +0800, Fengguang Wu wrote:
-> > Hi Neil,
+Hi!
+
+> > > > Some of us have machines designed to cope with cosmic rays, and would be
+> > > > unimpressed with a decrease in reliability.
+> > > 
+> > > With the suggested samefile() interface you'd get a failure with just
+> > > about 100% reliability for any application which needs to compare a
+> > > more than a few files.  The fact is open files are _very_ expensive,
+> > > no wonder they are limited in various ways.
+> > > 
+> > > What should 'tar' do when it runs out of open files, while searching
+> > > for hardlinks?  Should it just give up?  Then the samefile() interface
+> > > would be _less_ reliable than the st_ino one by a significant margin.
 > > 
-> > NFS mounting succeeded, but the kernel gives a warning.
-> > I'm running 2.6.20-rc2-mm1.
-> > 
-> > # mount -o vers=3 localhost:/suse /mnt
-> > [  689.651606] svc: unknown version (3)
-> > # mount | grep suse
-> > localhost:/suse on /mnt type nfs (rw,nfsvers=3,addr=127.0.0.1)
+> > You need at most two simultenaously open files for examining any
+> > number of hardlinks. So yes, you can make it reliable.
 > 
-> Are you perhaps running the userland NFS server instead of knfsd? The
-> former will only support NFSv2.
+> Well, sort of.  Samefile without keeping fds open doesn't have any
+> protection against the tree changing underneath between first
+> registering a file and later opening it.  The inode number is more
 
-I'm running kernel nfs servers:
+You only need to keep one-file-per-hardlink-group open during final
+verification, checking that inode hashing produced reasonable results.
 
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root      5451  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5452  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5453  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5454  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5455  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5456  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5457  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5458  0.0  0.0      0     0 ?        S    19:30   0:00 [nfsd]
-root      5449  0.0  0.0      0     0 ?        S<   19:30   0:00 [rpciod/0]
-root      5450  0.0  0.0      0     0 ?        S<   19:30   0:00 [rpciod/1]
-root      5462  0.0  0.0   7940   672 ?        Ss   19:30   0:00 /usr/sbin/rpc.mountd
-statd     5527  0.0  0.0   7892  1084 ?        Ss   19:30   0:00 /sbin/rpc.statd
-root      5538  0.0  0.0  23168   764 ?        Ss   19:30   0:00 /usr/sbin/rpc.idmapd
-
-My system is Debian etch. And I just found that CONFIG_NFSD_V4 is irrelevant,
-the message remains even if it is disabled. I'll check more kernel versions.
-
-Thanks,
-Wu
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

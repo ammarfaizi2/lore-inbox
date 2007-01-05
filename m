@@ -1,83 +1,100 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161140AbXAEQT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161141AbXAEQTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161140AbXAEQT3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 11:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbXAEQT3
+	id S1161141AbXAEQTk (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 11:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbXAEQTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 11:19:29 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:1888 "EHLO
-	mcr-smtp-002.bulldogdsl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1161140AbXAEQT2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 11:19:28 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-Date: Fri, 5 Jan 2007 16:19:54 +0000
-User-Agent: KMail/1.9.5
-Cc: Mikael Pettersson <mikpe@it.uu.se>, 76306.1226@compuserve.com,
-       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, yanmin_zhang@linux.intel.com
-References: <200701030212.l032CDXe015365@harpo.it.uu.se> <200701051553.04673.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0701050757320.3661@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701050757320.3661@woody.osdl.org>
+	Fri, 5 Jan 2007 11:19:40 -0500
+Received: from mail.tmr.com ([64.65.253.246]:36384 "EHLO gaimboi.tmr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161141AbXAEQTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 11:19:39 -0500
+Message-ID: <459E7AB3.8080802@tmr.com>
+Date: Fri, 05 Jan 2007 11:20:03 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Denis Vlasenko <vda.linux@googlemail.com>
+CC: Hugh Dickins <hugh@veritas.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: open(O_DIRECT) on a tmpfs?
+References: <459CEA93.4000704@tls.msk.ru> <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com> <459D290B.1040703@tmr.com> <200701042317.02908.vda.linux@googlemail.com>
+In-Reply-To: <200701042317.02908.vda.linux@googlemail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701051619.54977.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 January 2007 16:02, Linus Torvalds wrote:
-> On Fri, 5 Jan 2007, Alistair John Strachan wrote:
-> > This didn't help. After about 14 hours, the machine crashed again.
-> >
-> > cmov is not the culprit.
+Denis Vlasenko wrote:
+> On Thursday 04 January 2007 17:19, Bill Davidsen wrote:
+>   
+>> Hugh Dickins wrote:
+>> In many cases the use of O_DIRECT is purely to avoid impact on cache 
+>> used by other applications. An application which writes a large quantity 
+>> of data will have less impact on other applications by using O_DIRECT, 
+>> assuming that the data will not be read from cache due to application 
+>> pattern or the data being much larger than physical memory.
+>>     
 >
-> Ok. Have you ever tried to limit the drivers you have loaded? I notice you
-> had the prism54 wireless thing in your modules list and the vt1211 hw
-> monitoring thing. I'm wondering about the vt1211 thing - it probably isn't
-> too common.
+> But O_DIRECT is _not_ about cache. At least I think it was not about
+> cache initially, it was more about DMAing data directly from/to
+> application address space to/from disks, saving memcpy's and double
+> allocations. Why do you think it has that special alignment requirements?
+> Are they cache related? Not at all!
+>   
+I'm not sure I can see how you find "don't use cache" not cache related. 
+Saving the resources needed for cache would seem to obviously leave them 
+for other processes.
+> After that people started adding unrelated semantics on it -
+> "oh, we use O_DIRECT in our database code and it pushes EVERYTHING
+> else out of cache. This is bad. Let's overload O_DIRECT to also mean
+> 'do not pollute the cache'. Here's the patch".
+>   
+Did O_DIRECT ever use cache in some way? Doing DMA directly out of user 
+space would seem to avoid using cache unless code was actually added to 
+write to cache as well as disk, since the data isn't needed in any buffer.
+> DB people from certain well-known commercial DB have zero coding
+> taste. No wonder their binaries are nearly 100 MB (!!!) in size...
+>
+> In all fairness, O_DIRECT's direct-DMA makes is easier to implement
+> "do-not-cache-me" than to do it for generic read()/write()
+> (just because O_DIRECT is (was?) using different code path,
+> not integrated into VM cache machinery that much).
+>
+> But _conceptually_ "direct DMAing" and "do-not-cache-me"
+> are orthogonal, right?
+>   
+In the sense that you must do DMA or use cache, yes.
+> That's why we also have bona fide fadvise and madvise
+> with FADV_DONTNEED/MADV_DONTNEED:
+>
+> http://www.die.net/doc/linux/man/man2/fadvise.2.html
+> http://www.die.net/doc/linux/man/man2/madvise.2.html
+>
+> _This_ is the proper way to say "do not cache me".
+>   
+But none of those advisories says how to cache or not, only what the 
+expected behavior will be. So FADV_NOREUSE does not control cache use, 
+it simply allows the system to make assumptions. If I still had the load 
+which generated my cache problems I would try both methods while doing a 
+large data copy, and see if the end result was similar. In theory 
+NOREUSE "could be" more efficient of disk, but also use a lot of cache 
+depending  on the implementation.
 
-Sure, and it only got added to 2.6.19 anyway (however GCC 3.4.6 really does 
-seem to have no problem with it).
+One of the problems with RAID-5 and large data is that you can read it a 
+lot faster than you can write it (in most cases), resulting in filling 
+the cache with data from one process. Perhaps a scheduler tunable for 
+allowed queued disk data would help with this, but copying a TB data set 
+has a very bad effect on other i/o.
+> I think tmpfs should just ignore O_DIRECT bit.
+> That won't require much coding.
 
-> But if you can use that machine without the wireless too, it
-> might be good to try without either.
-
-Required, plus I've been running prism54 on three different machines with a 
-huge number of compilers since the early 2.6 days with no problems.
-
-> (The rest of your module list looked bog-standard, so if it's not
-> hardware-specific, I don't think it's there)
-
-Agreed, the config is already _very_ minimal for this machine.
-
-> Turning of the VIA sound driver just in case would be good too.
-
-I'm not even really sure why that's enabled. I can do that.
-
-> The reason I mention vt1211 in particular is that it does things like
-> regulate fan activity etc. Is the problem perhaps heat-related?
-
-It definitely isn't heat related. This CPU puts out 7-10W, has a ridiculous 
-5000 RPM fan on it (that works) and the temp never exceeds 40C. If anything, 
-the -O2, 3.4.6 kernel with CMOV ran the chip a little hotter.
-
-As far as I can see, all the other components are either cool to touch or have 
-stupidly big heatsinks on them.
-
-(I realise with problems like these it's almost always some sort of obscure 
-hardware problem, but I find that very difficult to believe when I can toggle 
-from 3 years of stability to 6-18 hours crashing by switching compiler. I've 
-also ran extensive stability test programs on the hardware with absolutely no 
-negative results.)
+Since tmpfs is useful for testing programs, this would have an actual 
+user benefit.
 
 -- 
-Cheers,
-Alistair.
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,80 +1,106 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422679AbXAESuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422680AbXAETAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422679AbXAESuz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 13:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422674AbXAESuH
+	id S1422680AbXAETAA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 14:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbXAETAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 13:50:07 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:51171 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422680AbXAEStg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 13:49:36 -0500
-Date: Fri, 5 Jan 2007 10:49:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Tomasz Kvarsin" <kvarsin@gmail.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.20-rc3-mm1: can not mount root
-Message-Id: <20070105104927.b2dfd2d7.akpm@osdl.org>
-In-Reply-To: <5157576d0701050620l14fd0a6emdf5793c5214931a8@mail.gmail.com>
-References: <5157576d0701050620l14fd0a6emdf5793c5214931a8@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 5 Jan 2007 14:00:00 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:42654 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1422673AbXAES77 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 13:59:59 -0500
+Subject: RE: [openib-general] [PATCH  v4 01/13] Linux RDMA Core Changes
+From: Steve Wise <swise@opengridcomputing.com>
+To: Felix Marti <felix@chelsio.com>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, netdev@vger.kernel.org
+In-Reply-To: <8A71B368A89016469F72CD08050AD334F3BE50@maui.asicdesigners.com>
+References: <8A71B368A89016469F72CD08050AD334F3BE50@maui.asicdesigners.com>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 12:59:59 -0600
+Message-Id: <1168023599.14028.38.camel@stevo-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2007 17:20:38 +0300
-"Tomasz Kvarsin" <kvarsin@gmail.com> wrote:
-
-> I can not boot machine with 2.6.20-rc3-mm1 and  2.6.20-rc2-mm1.
-> I made binary search, patch bellow cause this bug:
-> $quilt top
-> patches/sched-improve-sched_clock-on-i686.patch
+On Fri, 2007-01-05 at 09:32 -0800, Felix Marti wrote:
 > 
-> backtrace which I got by connecting "gdb" to machine:
+> > -----Original Message-----
+> > From: openib-general-bounces@openib.org [mailto:openib-general-
+> > bounces@openib.org] On Behalf Of Steve Wise
+> > Sent: Friday, January 05, 2007 6:22 AM
+> > To: Roland Dreier
+> > Cc: linux-kernel@vger.kernel.org; openib-general@openib.org;
+> > netdev@vger.kernel.org
+> > Subject: Re: [openib-general] [PATCH v4 01/13] Linux RDMA Core Changes
+> > 
+> > On Thu, 2007-01-04 at 13:34 -0800, Roland Dreier wrote:
+> > > OK, I'm back from vacation today.
+> > >
+> > > Anyway I don't have a definitive statement on this right now.  I
+> guess
+> > > I agree that I don't like having an extra parameter to a function
+> that
+> > > should be pretty fast (although req notify isn't quite as hot as
+> > > something like posting a send request or polling a cq), given that
+> it
+> > > adds measurable overhead.  (And I am surprised that the overhead is
+> > > measurable, since 3 arguments still fit in registers, but OK).
+> > >
+> > > I also agree that adding an extra entry point just to pass in the
+> user
+> > > data is ugly, and also racy.
+> > >
+> > > Giving the kernel driver a pointer it can read seems OK I guess,
+> > > although it's a little ugly to have a backdoor channel like that.
+> > >
+> > 
+> > Another alternative is for the cq-index u32 memory to be allocated by
+> > the kernel and mapped into the user process.  So the lib can
+> read/write
+> > it, and the kernel can read it directly.  This is the fastest way
+> > perfwise, but I didn't want to do it because of the page granularity
+> of
+> > mapping.  IE it would require a page of address space (and backing
+> > memory I guess) just for 1 u32.  The CQ element array memory is
+> already
+> > allocated this way (and its DMA coherent too), but I didn't want to
+> > overload that memory with this extra variable either.  Mapping just
+> > seemed ugly and wasteful to me.
+> > 
+> > So given 3 approaches:
+> > 
+> > 1) allow user data to be passed into ib_req_notify_cq() via the
+> standard
+> > uverbs mechanisms.
+> > 
+> > 2) hide this in the chelsio driver and have the driver copyin the info
+> > directly.
+> > 
+> > 3) allocate the memory for this in the kernel and map it to the user
+> > process.
+> > 
+> > I chose 1 because it seemed the cleanest from an architecture point of
+> > view and I didn't think it would impact performance much.
+> 
+> [Felix Marti] In addition, is arming the CQ really in the performance
+> path? - Don't apps poll the CQ as long as there are pending CQEs and
+> only arm the CQ for notification once there is nothing left to do? If
+> this is the case, it would mean that we waste a few cycles 'idle'
+> cycles. 
 
-How did you manage to use gdb on an i386 kernel?  Using qemu or something?
+I tend to agree.  This shouldn't be the hot perf path like
+post_send/recv and poll.
 
-> _raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:108
-> 108                     for (i = 0; i < loops; i++) {
-> (gdb) bt
-> #0  _raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:108
-> #1  0xc056ac42 in _spin_lock (lock=0xc06c0c60) at kernel/spinlock.c:182
-> #2  0xc011c3bb in vprintk (fmt=0xc0649c00 "<0>BUG: spinlock %s on
-> CPU#%d, %s/%d\n",
->     args=0xc1167a84 "") at kernel/printk.c:534
-> #3  0xc011c6c7 in printk (fmt=0xc0649c00 "<0>BUG: spinlock %s on
-> CPU#%d, %s/%d\n")
->     at kernel/printk.c:508
-> #4  0xc027be42 in spin_bug (lock=0xc06c0c60, msg=0xc065fc00
-> "recursion") at lib/spinlock_debug.c:61
-> #5  0xc027c178 in _raw_spin_lock (lock=0xc06c0c60) at lib/spinlock_debug.c:79
-> #6  0xc056ac42 in _spin_lock (lock=0xc06c0c60) at kernel/spinlock.c:182
-> #7  0xc011c3bb in vprintk (fmt=0xc0626ed0 "<1>BUG: unable to handle
-> kernel paging request",
->     args=0xc1167b8c "") at kernel/printk.c:534
-> #8  0xc011c6c7 in printk (fmt=0xc0626ed0 "<1>BUG: unable to handle
-> kernel paging request")
->     at kernel/printk.c:508
-> #9  0xc0116de4 in do_page_fault (regs=0xc1167bcc, error_code=0) at
-> arch/i386/mm/fault.c:555
-> #10 0xc056b11c in page_fault ()
-> #11 0xc0808160 in ?? ()
-> #12 0xc0626ed0 in kallsyms_token_index ()
-> #13 0xc1167cac in ?? ()
-> #14 0x00000001 in ?? ()
-> #15 0xc0808163 in printk_buf.19225 ()
-> #16 0xc1167c0c in ?? ()
-> #17 0x00000000 in ?? ()
+> Steve, next to the micro benchmark that you did, did you run any
+> performance benchmark that actually moves traffic? If so, did you see a
+> difference in performance?
+> 
 
-It looks like the machine was trying to oops, only it gets stuck on
-logbuf_lock.  Perhaps it hit an oops while running printk_clock() inside
-vprintk() then tried to go recursive.
+No.  But I didn't explicitly measure with and without this one single
+change.
 
-oopses while holding logbuf_lock are rare, and appear to be fatal.  Perhaps
-we should ignore logbuf_lock if oops_in_progress, but the chances are we'll
-just hit the same oops again..
 
-Do you have "time" on the kernel boot command line?  If so, does removing
-that option make the hang go away?  

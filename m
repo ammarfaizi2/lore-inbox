@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750773AbXAEVPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750778AbXAEVPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbXAEVPR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 16:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbXAEVPR
+	id S1750778AbXAEVPr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 16:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbXAEVPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 16:15:17 -0500
-Received: from mail-gw3.adaptec.com ([216.52.22.36]:41671 "EHLO
-	mail-gw3.adaptec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750773AbXAEVPQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 16:15:16 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: udev/aacraid interaction - should aacraid set 'removable'?
-Date: Fri, 5 Jan 2007 16:15:13 -0500
-Message-ID: <AE4F746F2AECFC4DA4AADD66A1DFEF0134FEBF@otce2k301.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: udev/aacraid interaction - should aacraid set 'removable'?
-Thread-Index: AccxBgRT/J7Xv86OSjWi4TeYmAtL2gAB2lJg
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "dann frazier" <dannf@dannf.org>
-Cc: <linux-kernel@vger.kernel.org>, <md@Linux.IT>, <404927@bugs.debian.org>,
-       <404927-submitter@bugs.debian.org>, <debian-kernel@lists.debian.org>
+	Fri, 5 Jan 2007 16:15:47 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:32937 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750780AbXAEVPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 16:15:46 -0500
+Date: Fri, 5 Jan 2007 13:15:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: 2.6.20-rc3-mm1
+Message-Id: <20070105131516.bd9d8f45.akpm@osdl.org>
+In-Reply-To: <1168030536.22458.28.camel@localhost.localdomain>
+References: <20070104220200.ae4e9a46.akpm@osdl.org>
+	<200701051723.08112.m.kozlowski@tuxland.pl>
+	<1168030536.22458.28.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do not have any close at hand (cleaned out the hardware closet to
-hazardous waste) :-(
+On Sat, 06 Jan 2007 07:55:36 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-But, as far as I am concerned :-), if it says 'DPT' or 'Adaptec' as the
-manufacturer's name portion of the inquiry field, or has 'RAID' or
-'Array' somewhere in the product name inquiry field, you have covered
-most, if not all, of the possibilities I can come up with!
+> On Fri, 2007-01-05 at 17:23 +0100, Mariusz Kozlowski wrote:
+> > Hello, 
+> > 
+> > 	Doesn't build on my iMac G3 based garage jukebox ;-)
+> > 
+> > arch/powerpc/kernel/of_platform.c:479: error: unknown field 'multithread_probe' specified in initializer
+> > arch/powerpc/kernel/of_platform.c:479: warning: initialization makes pointer from integer without a cast
+> > make[1]: *** [arch/powerpc/kernel/of_platform.o] Blad 1
+> > make: *** [arch/powerpc/kernel] Blad 2
+> > 
+> > I guess someone who knows multithread code should take a look at it.
+> 
+> Hrm. struct driver -> multithread_probe is gone in -mm ?
+> 
 
-Hope that helps.
+yeah, it moved into struct bus_type.
 
-Sincerely -- Mark Salyzyn
-
-> -----Original Message-----
-> From: dann frazier [mailto:dannf@dannf.org] 
-> Sent: Friday, January 05, 2007 3:14 PM
-> To: Salyzyn, Mark
-> Cc: linux-kernel@vger.kernel.org; md@Linux.IT; 
-> 404927@bugs.debian.org; 404927-submitter@bugs.debian.org; 
-> debian-kernel@lists.debian.org
-> Subject: Re: udev/aacraid interaction - should aacraid set 
-> 'removable'?
-> 
-> 
-> On Wed, Jan 03, 2007 at 12:17:47PM -0500, Salyzyn, Mark wrote:
-> > The ips driver, indirectly via Firmware as it spoofs it's 
-> own inquiry
-> > data, reports the Removable bit set in the inquiry response for the
-> > arrays. The dpt_i2o driver similarly has the firmware 
-> constructing the
-> > bit set. Some of the Array Bridges and external RAID boxes 
-> do the same
-> > thing.
-> 
-> Thanks Mark. If you have any of these devices, could you help supply
-> the udevinfo information? Our udev maintainer has asked for this so
-> that he can workaround this issue by special casing these
-> devices. (See http://bugs.debian.org/404927 for details).
-> 
-> -- 
-> dann frazier
-> 
-> 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/broken-out/driver-core-per-subsystem-multithreaded-probing.patch

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1422652AbXAERr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1422639AbXAESBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422652AbXAERr3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 12:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbXAERr1
+	id S1422639AbXAESBK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 13:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbXAESBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 12:47:27 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:47806 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422647AbXAERr0 (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 12:47:26 -0500
-Message-Id: <200701051747.l05HlOpX010735@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Seetharam Dharmosoth <seetharam_kernel@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how can we use assert in non-debug version kernel ?
-In-Reply-To: Your message of "Fri, 05 Jan 2007 05:39:19 GMT."
-             <20070105053919.75196.qmail@web7703.mail.in.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20070105053919.75196.qmail@web7703.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1168019244_3135P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 5 Jan 2007 13:01:10 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:28805 "HELO
+	smtp105.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1161172AbXAESBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 13:01:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=xtVJu92kmC8aNKQyrZGzUQQnYCO9PS6h8mzfxEN/D1puAfqqJIYjzWtYQr0BvBXNiloAIZMcuTXXS0RWvXKpD/LM6AyxkhcE06LWFEqxazjaaJIilEctAzsIOmOlB4A5ix4+XRVUgQEEHn3Z4nkI/GX0EfQXpQeKzM9ir5XSZ0Q=  ;
+X-YMail-OSG: j6O8zlwVM1nrn47ItXeRU6hvXTgPUG1m0qJXmnU68YLVW5akU105nvUK3nyiVl__QyV2BFksGiyNY8TvQYat.SSugq78.N85OOL5FXiP8JVZJ._4DJBZFfAvOdNkE_71V4NyXRDDe57RFWIFYntMeocK_3OCfWy4qds-
+From: David Brownell <david-b@pacbell.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       rtc-linux@googlegroups.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.20-rc3 0/3] rtc-cmos driver and support
+Date: Fri, 5 Jan 2007 09:50:36 -0800
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Jan 2007 12:47:24 -0500
+Message-Id: <200701050950.37383.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1168019244_3135P
-Content-Type: text/plain; charset=us-ascii
+Here's the latest version of an "rtc-cmos" driver, which lets PCs
+(and other systems now using drivers/char/rtc.c) use the same RTC
+class framework that other Linuxes use.
 
-On Fri, 05 Jan 2007 05:39:19 GMT, Seetharam Dharmosoth said:
+ - Patch #1 is the rtc-cmos driver itself.  Configure PNPACPI
+   and up it comes ... in vanilla mode.
 
-> can you please give me hint that -
->  "how can we use assert in non-debug version kernel ?"
+ - Patch #2 adds platform_device support for x86 PCs, so you
+   can get that same vanilla functionality without PNPACPI.
 
-BUG_ON(your_condition_here);
+ - Patch #3 adds the first non-vanilla functionality, exporting
+   some extensions (notably, longer alarms) that ACPI knows about.
 
-may be what you're looking for?
+This is all pretty clean, and AFAICT ready to merge.  On hardware
+I have handy, it's a clean replacement for drivers/char/rtc.c code.
 
---==_Exmh_1168019244_3135P
-Content-Type: application/pgp-signature
+This particular version doesn't supplant the /proc/acpi/alarm
+mechanism, since I ripped that logic out for now.  Eventually
+that can (and should!!) vanish(*), in favor of the portable
+userspace interfaces supported by earlier patch versions, but
+I figure there's no rush for that just now.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+- Dave
 
-iD8DBQFFno8scC3lWbTT17ARAmLsAKDmg9dX5CERKAvQGXRszGQx/G5EXwCeKM1R
-xf0sZgye5QcBVaWW9otrucY=
-=W4o1
------END PGP SIGNATURE-----
-
---==_Exmh_1168019244_3135P--
+(*) I'd be interested in hearing from anyone who actually uses
+    that interface ... if there is anyone.  What do you do with
+    it, and how.

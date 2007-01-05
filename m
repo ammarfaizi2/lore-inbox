@@ -1,143 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030356AbXAEHBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030361AbXAEHCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbXAEHBs (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 02:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbXAEHBs
+	id S1030361AbXAEHCR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 02:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbXAEHCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 02:01:48 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:43944 "EHLO e4.ny.us.ibm.com"
+	Fri, 5 Jan 2007 02:02:17 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:2407 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030356AbXAEHBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 02:01:47 -0500
-Date: Fri, 5 Jan 2007 01:00:42 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 0/8] user ns: Introduction
-Message-ID: <20070105070042.GA24802@sergelap.austin.ibm.com>
-References: <20070104180635.GA11377@sergelap.austin.ibm.com> <20070104200323.3b09f81a.akpm@osdl.org> <20070105054337.GB1412@sergelap.austin.ibm.com>
-MIME-Version: 1.0
+	id S1030355AbXAEHCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 02:02:14 -0500
+Date: Fri, 5 Jan 2007 08:02:33 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-aio@kvack.org, drepper@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com, mingo@elte.hu
+Subject: Re: [PATCHSET 1][PATCH 0/6] Filesystem AIO read/write
+Message-ID: <20070105070230.GJ11203@kernel.dk>
+References: <20061227153855.GA25898@in.ibm.com> <20061228082308.GA4476@in.ibm.com> <20070103141556.82db0e81.akpm@osdl.org> <20070104045621.GA8353@in.ibm.com> <20070104090242.44dd8165.akpm@osdl.org> <20070105062841.GA2653@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070105054337.GB1412@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070105062841.GA2653@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Serge E. Hallyn (serue@us.ibm.com):
-> Quoting Andrew Morton (akpm@osdl.org):
-> > On Thu, 4 Jan 2007 12:06:35 -0600
-> > "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> >
-> > > This patchset adds a user namespace, which allows a process to
-> > > unshare its user_struct table,  allowing for separate accounting
-> > > per user namespace.
-> >
-> > With these patches applied and with CONFIG_USER_NS=n, my selinux-enabled
-> > standard FC5 machine throws a complete fit:
-...
-> >
-> > Setting CONFIG_USER_NS=y fixes this.
+On Fri, Jan 05 2007, Suparna Bhattacharya wrote:
+> On Thu, Jan 04, 2007 at 09:02:42AM -0800, Andrew Morton wrote:
+> > On Thu, 4 Jan 2007 10:26:21 +0530
+> > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > 
+> > > On Wed, Jan 03, 2007 at 02:15:56PM -0800, Andrew Morton wrote:
+> > > > On Thu, 28 Dec 2006 13:53:08 +0530
+> > > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > > >
+> > > > > This patchset implements changes to make filesystem AIO read
+> > > > > and write asynchronous for the non O_DIRECT case.
+> > > >
+> > > > Unfortunately the unplugging changes in Jen's block tree have trashed these
+> > > > patches to a degree that I'm not confident in my repair attempts.  So I'll
+> > > > drop the fasio patches from -mm.
+> > >
+> > > I took a quick look and the conflicts seem pretty minor to me, the unplugging
+> > > changes mostly touch nearby code.
+> > 
+> > Well...  the conflicts (both mechanical and conceptual) are such that a
+> > round of retesting is needed.
+> > 
+> > > Please let know how you want this fixed up.
+> > >
+> > > >From what I can tell the comments in the unplug patches seem to say that
+> > > it needs more work and testing, so perhaps a separate fixup patch may be
+> > > a better idea rather than make the fsaio patchset dependent on this.
+> > 
+> > Patches against next -mm would be appreciated, please.  Sorry about that.
+> > 
+> > I _assume_ Jens is targetting 2.6.21?
 > 
-> Ok, I see.  The CONFIG_USER_NS split is absolutely horrible.  Should
-> really get rid of the user_ns pointers altogether when !CONFIG_USER_NS.
-> I'll try to fix it up without putting ifdefs all over - planning to send
-> a patch tomorrow.
+> When is the next -mm likely to be out ? 
+> 
+> I was considering regenerating the blk unplug patches against the
+> fsaio changes instead of the other way around, if Jens were willing to
+> accept that. But if the next -mm is just around the corner then its
+> not an issue.
 
-Actually it's not that bad.  Following patch fixes what I believe is
-the underlying problem, and in any case was a definite bug.
+I don't really care much, but I work against mainline and anything but
+occasional one-off generations of a patch against a different base is
+not very likely.
 
-thanks,
--serge
+The -mm order should just reflect the merge order of the patches, what
+is the fsaio target?
 
-From: Serge E. Hallyn <serue@us.ibm.com>
-Subject: [PATCH 1/1] user ns: fix !CONFIG_USER_NS mount denial
-
-Don't do user_ns permission checks when !CONFIG_USER_NS.
-
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
----
- fs/namespace.c                 |    6 ++----
- include/linux/sched.h          |    8 ++++++++
- include/linux/user_namespace.h |   15 +++++++++++++++
- 3 files changed, 25 insertions(+), 4 deletions(-)
-
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 2ed89d4..664c6f2 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -236,10 +236,8 @@ static struct vfsmount *clone_mnt(struct
- 	struct super_block *sb = old->mnt_sb;
- 	struct vfsmount *mnt;
- 
--	if (!(old->mnt_flags & MNT_SHARE_NS)) {
--		if (old->mnt_user_ns != current->nsproxy->user_ns)
--			return ERR_PTR(-EPERM);
--	}
-+	if (!clone_mnt_userns_permission(old))
-+		return ERR_PTR(-EPERM);
- 
- 	mnt = alloc_vfsmnt(old->mnt_devname);
- 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 55ecf81..0542f34 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1588,6 +1588,7 @@ extern int cond_resched(void);
- extern int cond_resched_lock(spinlock_t * lock);
- extern int cond_resched_softirq(void);
- 
-+#ifdef CONFIG_USER_NS
- /*
-  * Check whether a task and a vfsmnt belong to the same uidns.
-  * Since the initial namespace is exempt from these checks,
-@@ -1606,6 +1607,13 @@ static inline int task_mnt_same_uidns(st
- 		return 1;
- 	return 0;
- }
-+#else
-+static inline int task_mnt_same_uidns(struct task_struct *tsk,
-+					struct vfsmount *mnt)
-+{
-+	return 1;
-+}
-+#endif
- 
- 
- /*
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index be3e484..e4ce9cb 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -35,6 +35,16 @@ static inline void put_user_ns(struct us
- 		kref_put(&ns->kref, free_user_ns);
- }
- 
-+static inline int clone_mnt_userns_permission(struct vfsmount *old)
-+{
-+	if (!(old->mnt_flags & MNT_SHARE_NS)) {
-+		if (old->mnt_user_ns != current->nsproxy->user_ns)
-+			return 0;
-+	}
-+
-+	return 1;
-+}
-+
- #else
- 
- static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-@@ -59,6 +69,11 @@ static inline int copy_user_ns(int flags
- static inline void put_user_ns(struct user_namespace *ns)
- {
- }
-+
-+static inline int clone_mnt_userns_permission(struct vfsmount *old)
-+{
-+	return 1;
-+}
- #endif
- 
- #endif /* _LINUX_USER_H */
 -- 
-1.4.1
+Jens Axboe
 

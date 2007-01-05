@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161096AbXAEOZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161109AbXAEO0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbXAEOZu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 09:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbXAEOZt
+	id S1161109AbXAEO0L (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 09:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbXAEO0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 09:25:49 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:61386 "EHLO
-	pd3mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161096AbXAEOZt (ORCPT
+	Fri, 5 Jan 2007 09:26:11 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:41446 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1161111AbXAEO0K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 09:25:49 -0500
-Date: Fri, 05 Jan 2007 08:25:44 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Linux Redhat 9.0 - SATA HDD compatibility
-In-reply-to: <1167988994.999206.298700@s80g2000cwa.googlegroups.com>
-To: indyszeto <indyszeto@yahoo.com.hk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <459E5FE8.3080208@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=Big5
-Content-transfer-encoding: 7bit
-References: <1167988994.999206.298700@s80g2000cwa.googlegroups.com>
-User-Agent: Thunderbird 1.5.0.9 (Windows/20061207)
+	Fri, 5 Jan 2007 09:26:10 -0500
+Date: Fri, 5 Jan 2007 09:26:08 -0500
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: wireless Q
+Message-ID: <20070105142608.GA17269@csclub.uwaterloo.ca>
+References: <200701040051.51930.gene.heskett@verizon.net> <20070104221418.GA5684@tuxdriver.com> <200701042148.36521.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701042148.36521.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-indyszeto wrote:
-> Hi,
-> 
-> I had one set of RH9 installation disk made around 1-2 years ago. I've
-> just bought one new WD 320GB SATA II HDD (320KS) and intend to install
-> RH9 there. I used my existing PC (P4 CPU, Gigabyte motherboard),
-> unplugged all existing HDD (w/ Windows XP installed) power so that the
-> new SATA II HDD was the only HDD connected. I powered on PC after
-> physical installation, everything seemed ran alright (BIOS could detect
-> CPU, RAM, DVD drive, HDD, etc). RH9 installation program ran as
-> expected but terminated at 'Disk Partition Setup', error was 'No drives
-> found'.
-> 
-> I haven't done any partition or formatting work to this new SATA II HDD
-> since I bought it. Why RH9 couldn't detect the drive while BIOS could ?
-> Do I need to use more updated version of Redhat Linux to enable
-> installation on this SATA II HDD ?
+On Thu, Jan 04, 2007 at 09:48:36PM -0500, Gene Heskett wrote:
+> Possibly in the future John.  I took the Belkin back and got a Netgear 
+> WG311T for another $35.  Staples let me open it there and based on the 
+> fact that the cd has some drivers on it that start with ATHE_* (the 
+> chipset has a tincover soldered to the board over it so we can't ID it 
+> that way), I'm assuming its an Atheros chipset, and Brian does has that 
+> support available in DD-WRT, which is where this puppy will live.  But 
+> I'm up to my butt in alligators ATM, so it may be a day or 3 till I can 
+> try it.  I have a 160GB drive laying on the lappies carry case in the 
+> doorway, to go up and be installed in the neighbors box to replace a 30GB 
+> that upchucked all over their windows install, and convince it to let me 
+> install windows on that box the 2nd time.  M$ are such rectums over that.  
+> Its piracy you know. :(
 
-Red Hat 9 had very little support for SATA controllers, it's way out of
-date now. You need a newer Linux distribution.
+Atheros makes a lot of different chipsets.  Not all are supported.  Many
+newer ones require annoying firmware loaded into an arm processor on the
+card.  Hopefully you found one that does have a working driver.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+--
+Len Sorensen

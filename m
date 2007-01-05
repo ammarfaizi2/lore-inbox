@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161147AbXAEQjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161145AbXAEQox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161147AbXAEQjE (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 11:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbXAEQjE
+	id S1161145AbXAEQox (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 11:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbXAEQox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 11:39:04 -0500
-Received: from moutng.kundenserver.de ([212.227.126.174]:61456 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161147AbXAEQjC (ORCPT
+	Fri, 5 Jan 2007 11:44:53 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:11450 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161145AbXAEQow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 11:39:02 -0500
-X-Greylist: delayed 334 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 11:39:02 EST
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [UPDATED PATCH] fix memory corruption from misinterpreted bad_inode_ops  return values
-To: Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Reply-To: 7eggert@gmx.de
-Date: Fri, 05 Jan 2007 17:33:58 +0100
-References: <7zo1U-ht-9@gated-at.bofh.it> <7zoEG-1kW-19@gated-at.bofh.it> <7zF2R-1wJ-33@gated-at.bofh.it> <7zFvU-2p5-21@gated-at.bofh.it> <7zFFr-2AP-1@gated-at.bofh.it> <7zFYY-31i-19@gated-at.bofh.it> <7zGie-3Ji-17@gated-at.bofh.it> <7zGif-3Ji-21@gated-at.bofh.it> <7zGBC-49g-39@gated-at.bofh.it> <7zHnX-5rJ-25@gated-at.bofh.it> <7zI0B-6x2-5@gated-at.bofh.it> <7zI0B-6x2-3@gated-at.bofh.it> <7zIak-6JF-15@gated-at.bofh.it> <7zIak-6JF-13@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 5 Jan 2007 11:44:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=IwXDLfTMOhdJD1kjC1OC55GddledAE5LiTrzKCX6wcuINL315OHqDb1cwogudYzoZAyqKcr5facvTkAHwYGQvfB0vNqbReKD2t09k7HTKWuTRmvx30XkylNR+gZEInx06kWWCYvrdmXYrWOJV53u/PiU78jiGU+94UCrfF6OLqk=
+Date: Fri, 5 Jan 2007 16:42:52 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, maneesh@in.ibm.com, oliver@neukum.name
+Subject: Re: [-mm patch] lockdep: possible deadlock in sysfs
+Message-ID: <20070105164252.GG17863@slug>
+References: <20070104220200.ae4e9a46.akpm@osdl.org> <20070105121643.GE17863@slug> <200701051613.25882.oliver@neukum.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1H2s10-0001MH-Kk@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701051613.25882.oliver@neukum.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen <sandeen@redhat.com> wrote:
-> Andrew Morton wrote:
+On Fri, Jan 05, 2007 at 04:13:25PM +0100, Oliver Neukum wrote:
+> Am Freitag, 5. Januar 2007 13:16 schrieb Frederik Deweerdt:
+> > On Thu, Jan 04, 2007 at 10:02:00PM -0800, Andrew Morton wrote:
+> > > 
+> > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
+> > > 
+> are you sure there's a code path that takes these locks in the reverse order?
+> I've looked through the code twice and not found any. It doesn't make much
+> sense to first lock the file and afterwards the directory.
+You're right, an annotation should be enough, what do you think?
 
->> +++ a/fs/bad_inode.c
+Regards,
+Frederik
 
->> -static int return_EIO(void)
->> +static long return_EIO(void)
 
-> What about ops that return loff_t (64 bits) on 32-bit arches and stuff
-> it into 2 registers....
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
 
-*If* it uses an additional register for the high bits, it will set e.g.:
-EDX << 32 | EAX == (s64) -EIO
- and therefore
-EAX == -EIO // < -MAXLONGINT-1
-EDX == -1
-
-EAX will be the return register for s32. Therefore you can use one function
-for both cases on i386:
-
-long long f()
-{
-        return -42;
-}
-
-long      (*l )() = (void*)f; // hide warning
-long long (*ll)() =        f;
-
-int main(){
-        printf("%ld %lld\n", l(), ll());
-}
-
-> I'm still not convinced that this is the best place to be clever :)
-
-ACK, not too clever, but not too stupid, too. Having #ifdef I386 etc.
-isn't nice, and something like this shouldn't be arch-specific.
-OTOH, C calling convention allows having a different argument signature,
-so you can safely use it. It's a feature.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+index 8c533cb..3b5574b 100644
+--- a/fs/sysfs/inode.c
++++ b/fs/sysfs/inode.c
+@@ -214,7 +214,7 @@ static inline void orphan_all_buffers(st
+ 	struct sysfs_buffer_collection *set = node->i_private;
+ 	struct sysfs_buffer *buf;
+ 
+-	mutex_lock(&node->i_mutex);
++	mutex_lock_nested(&node->i_mutex, I_MUTEX_CHILD);
+ 	if (node->i_private) {
+ 		list_for_each_entry(buf, &set->associates, associates) {
+ 			down(&buf->sem);
+@@ -271,7 +271,7 @@ int sysfs_hash_and_remove(struct dentry
+ 		return -ENOENT;
+ 
+ 	parent_sd = dir->d_fsdata;
+-	mutex_lock(&dir->d_inode->i_mutex);
++	mutex_lock_nested(&dir->d_inode->i_mutex, I_MUTEX_PARENT);
+ 	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
+ 		if (!sd->s_element)
+ 			continue;
+ 
+> Regarding your patch, it should work, but I don't see the need for it.
+> 
+> 	Regards
+> 		Oliver
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

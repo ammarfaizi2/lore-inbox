@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161070AbXAELts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1161072AbXAELum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161070AbXAELts (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 06:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbXAELts
+	id S1161072AbXAELum (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 06:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbXAELum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 06:49:48 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:24947 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161070AbXAELtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 06:49:47 -0500
-Message-ID: <459E3B56.3040907@tls.msk.ru>
-Date: Fri, 05 Jan 2007 14:49:42 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
+	Fri, 5 Jan 2007 06:50:42 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:48339 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161072AbXAELul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 06:50:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LnvvbhK4TaR830uTb8uHkOhDapbvFdRzMMMC+TFtLhYN5nTXa1YyGT0QfU97QLfJt8fiUoq0MR8JX2+ncdtD7GU7SueL5Iigj0rVc48M5LwEypgdeXA8zTxon94G5z0F6Dzya4cBeWvyWv4C5gH5t/pNiW93nytPu+xkVYgeroQ=
+Message-ID: <8355959a0701050350o64e3af1en559ee26385b1e748@mail.gmail.com>
+Date: Fri, 5 Jan 2007 17:20:39 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: Kristof.Provost@telenet.be
+Subject: Re: Multi kernel tree support on the same distro?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <459D6239.7090601@telenet.be>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: open(O_DIRECT) on a tmpfs?
-References: <459CEA93.4000704@tls.msk.ru> <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0701041242530.27899@blonde.wat.veritas.com>
-X-Enigmail-Version: 0.94.1.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
+	 <459D6239.7090601@telenet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Thu, 4 Jan 2007, Michael Tokarev wrote:
->> I wonder why open() with O_DIRECT (for example) bit set is
->> disallowed on a tmpfs (again, for example) filesystem,
->> returning EINVAL.
-[]
-> p.s.  You said "O_DIRECT (for example)" - what other open
-> flag do you think tmpfs should support which it does not?
+> I'm not sure I understood your problem correctly.
+> I see no reason to have two kernel versions on your host system. You can
+> keep 2.6.x on the host, and compile a 2.4.x for the target. You don't
+> need to run 2.4.x on your host.
 
-Well.  Somehow I was under an impression O_SYNC behaves the
-same as O_DIRECT on a tmpfs.  But I was wrong - tmpfs permits
-O_SYNC opens just fine.  Strange thing to do having in mind
-its behaviour with O_DIRECT - to me it's inconsistent ;)
-But that's it - looks like only O_DIRECT is "mishandled"
-(which is not a big deal obviously).
+I would like to have 2.4.x & 2.6.x on my host FC6 machine.
+But am not sure whether FC6 would permit this or not?
 
-Thanks for your time!
+> The TS-Kernel the website talks about is meant to run on the embedded
+> target.
+>
+> Kristof
 
-/mjt
+Yep, that's true. Here (TS-7300) am trying to port 2.6.18 kernel
+(another story :))
+
+~Akula2

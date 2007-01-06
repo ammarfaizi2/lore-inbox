@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751412AbXAFOzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751409AbXAFOz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbXAFOzI (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 09:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbXAFOzI
+	id S1751409AbXAFOz0 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 09:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbXAFOz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 09:55:08 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:43817 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751409AbXAFOzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 09:55:04 -0500
-Date: Sat, 6 Jan 2007 15:20:09 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Chris Wright <chrisw@sous-sol.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
-       bunk@stusta.de, Georg Chini <georg.chini@triaton-webhosting.com>
-Subject: Re: [patch 43/50] SOUND: Sparc CS4231: Fix IRQ return value and
- initialization.
-In-Reply-To: <20070106023628.119087000@sous-sol.org>
-Message-ID: <Pine.LNX.4.61.0701061518530.22558@yvahk01.tjqt.qr>
-References: <20070106022753.334962000@sous-sol.org> <20070106023628.119087000@sous-sol.org>
+	Sat, 6 Jan 2007 09:55:26 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:49226 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751409AbXAFOzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 09:55:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=XqB8V0gqjeTF8zskUKkNXw/kVc3FcK/NR9u8A8ft8qkZRDSorLmffweHIdPk2gcKE79cpEb1h1/27P4nzHSkxqBEeslsdRnjbIMqEw/Qz30Ywb4dRSjQKs2vEjWLLvJPI4VAVvLU+3iqyZTVH+CEAky3K0pAVcLuaDVvNvqIBKs=
+Date: Sat, 6 Jan 2007 16:55:03 +0200
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
+Message-ID: <20070106145503.GG19020@Ahmed>
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	linux-kernel@vger.kernel.org
+References: <20070106131725.GB19020@Ahmed> <Pine.LNX.4.64.0701060833150.12420@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701060833150.12420@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 06, 2007 at 08:36:23AM -0500, Robert P. J. Day wrote:
+>   a couple bits of advice here.  you should start your patch
+> submission with *only* that descriptive text you want included in the
+> log, followed by your "Signed-off-by" line, then a line containing
+> "---".
+> 
+>   *after* that "---" line, and *before* you start the actual patch,
+> you can add superfluous text, like asking about who the maintainer is,
+> so that informal dialogue like that doesn't become part of the
+> permanent patch record.
 
->Subject: [patch 43/50] SOUND: Sparc CS4231: Fix IRQ return value and
->    initialization.
->
->--- linux-2.6.19.1.orig/sound/sparc/cs4231.c
->+++ linux-2.6.19.1/sound/sparc/cs4231.c
->@@ -1268,7 +1268,7 @@ static struct snd_pcm_hardware snd_cs423
-> 	.channels_min		= 1,
-> 	.channels_max		= 2,
-> 	.buffer_bytes_max	= (32*1024),
->-	.period_bytes_min	= 4096,
->+	.period_bytes_min	= 256,
-> 	.period_bytes_max	= (32*1024),
-> 	.periods_min		= 1,
-> 	.periods_max		= 1024,
+> rday
 
+Thanks for all the good notes ..
 
->Subject: [patch 44/50] SOUND: Sparc CS4231: Use 64 for period_bytes_min
->--- linux-2.6.19.1.orig/sound/sparc/cs4231.c
->+++ linux-2.6.19.1/sound/sparc/cs4231.c
->@@ -1268,7 +1268,7 @@ static struct snd_pcm_hardware snd_cs423
-> 	.channels_min		= 1,
-> 	.channels_max		= 2,
-> 	.buffer_bytes_max	= (32*1024),
->-	.period_bytes_min	= 256,
->+	.period_bytes_min	= 64,
-> 	.period_bytes_max	= (32*1024),
-> 	.periods_min		= 1,
-> 	.periods_max		= 1024,
-
-Can't 44 be folded into 43?
-
-
-	-`J'
 -- 
+Ahmed S. Darwish
+http://darwish-07.blogspot.com

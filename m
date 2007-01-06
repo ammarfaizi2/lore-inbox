@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751351AbXAFPMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751357AbXAFPPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbXAFPMF (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 10:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbXAFPMF
+	id S1751357AbXAFPPg (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 10:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbXAFPPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 10:12:05 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:45047 "EHLO e5.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751351AbXAFPMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 10:12:02 -0500
-Date: Sat, 6 Jan 2007 20:41:53 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH, RFC] reimplement flush_workqueue()
-Message-ID: <20070106151153.GA24274@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070105085634.GB18088@in.ibm.com> <20070105124246.GA83@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Jan 2007 10:15:36 -0500
+Received: from nz-out-0506.google.com ([64.233.162.228]:7422 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751357AbXAFPPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 10:15:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=ZCZYte12irBp1vi5Icr69wBiQGddS2SdI6P5WZSV7KkYT3IHEIppawKARuIk1yBQUpC4J/LphH8GNcdm292K8eO8hkdPaegUcaEz+Mtou8FRKUZV/3tW1AzlFc/ypvIHilqfcbNXy16jqRozXbLeiaf7+FK5gcSkhqgJYjIXc2o=
+Message-ID: <3ae72650701060715q4f036274xb6f8b664ab3233c@mail.gmail.com>
+Date: Sat, 6 Jan 2007 16:15:34 +0100
+From: "Kay Sievers" <kay.sievers@vrfy.org>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: how to get serial_no from usb HD disk (HDIO_GET_IDENTITY ioctl, hdparm -i)
+Cc: "Yakov Lerner" <iler.ml@gmail.com>,
+       "Kernel Linux" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20070106045147.GA6081@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070105124246.GA83@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+References: <f36b08ee0701041427u7aee90b7j46b06c3b7dd252bd@mail.gmail.com>
+	 <20070106045147.GA6081@kroah.com>
+X-Google-Sender-Auth: 481237e07a3ec317
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 03:42:46PM +0300, Oleg Nesterov wrote:
-> preempt_disable() can't prevent cpu_up, but flush_workqueue() doesn't care
-> _unless_ cpu_down also happened meantime (and hence a fresh CPU may have
-> pending work_structs which were moved from a dead CPU).
+On 1/6/07, Greg KH <greg@kroah.com> wrote:
+> On Fri, Jan 05, 2007 at 12:27:34AM +0200, Yakov Lerner wrote:
+> > How can I get serial_no from usb-attached HD drive ?
+>
+> use the *_id programs that come with udev, they show you how to properly
+> do that.
 
-Yes, that was what I had in mind.
+Only "advanced" ATA-USB bridges will offer you the serial number the
+adapter reads from the disk on power-up. The usual id-tools will just
+work fine on theses bridges.
 
-> So you are right, we still need the patch above, but I think we don't have
-> new problems with preempt_disable().
+There is no way to reach that information with most of the cheap USB
+storage-adapters.
 
-Right, preempt_disable() hasn't added any new problem. Its just
-revealing the same problem as earlier, by opening up window for cpu
-hotplug events to happen in the middle of flush_workqueue().
-
-Ideally I would have liked a lock_cpu_hotplug() equivalent which blocks
-all cpu hotplug events during the entire flush_workqueue(). In its
-absence, I guess we just need to deal with all these ugly races ..
-
-In summary, I think we need to go ahead with the preemp_disable() patch
-in flush_workqueue() from Andrew and the race fix you posted here:
-
-	http://lkml.org/lkml/2006/12/30/37
-
--- 
-Regards,
-vatsa
+Kay

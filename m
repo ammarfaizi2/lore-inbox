@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751329AbXAFJuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751330AbXAFJuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbXAFJuf (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 04:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbXAFJuf
+	id S1751330AbXAFJuy (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 04:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbXAFJuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 04:50:35 -0500
-Received: from postfix1-g20.free.fr ([212.27.60.42]:42117 "EHLO
-	postfix1-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751329AbXAFJue (ORCPT
+	Sat, 6 Jan 2007 04:50:54 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:43661 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751330AbXAFJux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 04:50:34 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Leonard Norrgard <leonard.norrgard@refactor.fi>
-Subject: Re: 2.6.20-rc3: bt878/bttv: Unknown symbols, despite being defined in module depended on
-Date: Sat, 6 Jan 2007 10:16:47 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <459A3DCD.4020701@refactor.fi>
-In-Reply-To: <459A3DCD.4020701@refactor.fi>
+	Sat, 6 Jan 2007 04:50:53 -0500
+Message-ID: <459F70FC.6090908@vmware.com>
+Date: Sat, 06 Jan 2007 01:50:52 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: Rusty Russell <rusty@rustcorp.com.au>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [patch] paravirt: isolate module ops
+References: <20070106000715.GA6688@elte.hu> <459EEDEB.8090800@vmware.com> <1168064710.20372.28.camel@localhost.localdomain> <20070106071424.GB11232@elte.hu>
+In-Reply-To: <20070106071424.GB11232@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701061016.48397.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 2 January 2007 12:11, Leonard Norrgard wrote:
-> This seems a bit odd. As the bt878 module loads, I get the following
-> error messages, despite definitions in the bttv module that bt878
-> depends on:
-> 
-> # egrep '(bttv_read_gpio|bttv_write_gpio|bttv_gpio_enable)' /var/log/dmesg
-> bt878: Unknown symbol bttv_read_gpio
-> bt878: Unknown symbol bttv_write_gpio
-> bt878: Unknown symbol bttv_gpio_enable
+Ingo Molnar wrote:
+> * Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+>   
+>> +EXPORT_SYMBOL(clts);
+>> +EXPORT_SYMBOL(read_cr0);
+>> +EXPORT_SYMBOL(write_cr0);
+>>     
+>
+> mark these a _GPL export. Perhaps even mark the symbol deprecated, to be 
+> unexported once we fix raid6.
+>   
 
-This may be related to MODULE_FORCE_UNLOAD=y.
+read / write cr0 must not be GPL, since kernel_fpu_end uses them and is 
+inline.  clts I don't think matters.
 
-Best wishes,
 
-Duncan.
+>> +EXPORT_SYMBOL(wbinvd);
+>> +EXPORT_SYMBOL(raw_safe_halt);
+>> +EXPORT_SYMBOL(halt);
+>> +EXPORT_SYMBOL_GPL(apic_write);
+>> +EXPORT_SYMBOL_GPL(apic_read);
+>>     
+>
+> these should be _GPL too. If any module uses it and breaks a user's box 
+> we need that big licensing hint to be able to debug them ...
+>   
+
+Perhaps also, MSRs are too dangerous for binary modules to be messing with.
+
+Agree on halt - but wbinvd can theoretically be used for device mapped 
+memory consistency.
+
+Zach

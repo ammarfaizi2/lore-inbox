@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932268AbXAFXvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932270AbXAFXwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbXAFXvI (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 18:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAFXvI
+	id S932270AbXAFXwr (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 18:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAFXwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 18:51:08 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:56888 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932268AbXAFXvG (ORCPT
+	Sat, 6 Jan 2007 18:52:47 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:46213 "HELO
+	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932270AbXAFXwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 18:51:06 -0500
-Message-ID: <45A035D1.6070701@zytor.com>
-Date: Sat, 06 Jan 2007 15:50:41 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sat, 6 Jan 2007 18:52:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=JY7nq7I8dOHOo5BW+aLrzwro25QjdSFrFhewlnLMpZmimQeGqR2pKdkG+PaOu+sS6xcMP/yYWQHDcPOFBrXoMP1hPeIqdj7RewEeIQu4ter1EHBFIs1fQpSL+3LbVE7tDa83G0ir+lVulMCSdXVjqeKxVfdrbZ+W0JtRXwCTMUs=  ;
+X-YMail-OSG: kcQhJ6cVM1mELKGha3hk0Zm3opIhbnEmdzDvNh4ka.f3kDx7C9Q9BaBrOWBBtaT7ZPNwTCsljYLk0e9eJ5_9Y2qJZlUQttXheObCXWTDzFsAhClswFknQZL3Dzkj7Gb3M6boUu_k0xVPRM5_K7XwZar_9ijFsNpTvBOy.wu9nNakPk6TZWYgPVz4ufsS
+From: David Brownell <david-b@pacbell.net>
+To: Woody Suwalski <woodys@xandros.com>
+Subject: Re: [patch 2.6.20-rc3 1/3] rtc-cmos driver
+Date: Sat, 6 Jan 2007 13:17:25 -0800
+User-Agent: KMail/1.7.1
+Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       rtc-linux@googlegroups.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>
+References: <200701051001.58472.david-b@pacbell.net> <200701051933.26368.david-b@pacbell.net> <459FD993.3070909@xandros.com>
+In-Reply-To: <459FD993.3070909@xandros.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nicholas Miell <nmiell@comcast.net>,
-       Randy Dunlap <randy.dunlap@oracle.com>, "J.H." <warthog9@kernel.org>,
-       Willy Tarreau <w@1wt.eu>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-References: <20061214223718.GA3816@elf.ucw.cz>	<20061216094421.416a271e.randy.dunlap@oracle.com>	<20061216095702.3e6f1d1f.akpm@osdl.org>	<458434B0.4090506@oracle.com>	<1166297434.26330.34.camel@localhost.localdomain>	<20061219063413.GI24090@1wt.eu>	<1166511171.26330.120.camel@localhost.localdomain>	<20070106103331.48150aed.randy.dunlap@oracle.com>	<459FF60D.7080901@zytor.com>	<1168112266.2821.2.camel@entropy> <20070106121301.d07de0c9.akpm@osdl.org>
-In-Reply-To: <20070106121301.d07de0c9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200701061317.25567.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->>>
->>> The most fundamental problem seems to be that I can't tell currnt Linux 
->>> kernels that the dcache/icache is precious, and that it's way too eager 
->>> to dump dcache and icache in favour of data blocks.  If I could do that, 
->>> this problem would be much, much smaller.
+On Saturday 06 January 2007 9:17 am, Woody Suwalski wrote:
+> >> There are PPC, M68K, SPARC, and other boards that could also
+> >> use this; ARMs tend to integrate some other RTC on-chip.  ...
 > 
-> Usually people complain about the exact opposite of this.
+> > Let me put that differently.  That should be done as a separate
+> > patch, adding (a) that platform_device, and maybe platform_data
+> > if it's got additional alarm registers, and (b) Kconfig support
+> > to let that work.  I'd call it a "patch #4 of 3".  ;)
+> > ...
 > 
->> Isn't setting the vm.vfs_cache_pressure sysctl below 100 supposed to do
->> this?
-> 
-> yup.
+> I will try to play with the new code on Monday on ARM...
 
-Well, it appears that even a setting of 1 is too aggressive for 
-kernel.org.  We're still ending up with each and every getdents() call 
-taking anywhere from 200 ms to over a second.
+Thanks.  Could you describe your ARM board?  None of mine have an
+RTC using this register API.  Does it support system sleep states
+(/sys/power/state) with a wakeup-capable (enable_irq_wake) RTC irq? 
 
-	-hpa
+- Dave
+

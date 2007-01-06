@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751114AbXAFC3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751088AbXAFCaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbXAFC3X (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbXAFC3H
+	id S1751088AbXAFCaF (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbXAFC3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:29:07 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36426 "EHLO
+	Fri, 5 Jan 2007 21:29:03 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36427 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751088AbXAFC2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751103AbXAFC2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 5 Jan 2007 21:28:45 -0500
-Message-Id: <20070106023250.569101000@sous-sol.org>
+Message-Id: <20070106023240.129725000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:28:14 -0800
+Date: Fri, 05 Jan 2007 18:28:13 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,39 +21,48 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, jeff@garzik.org, vitalywool@gmail.com
-Subject: [patch 21/50] smc911x: fix netpoll compilation faliure
-Content-Disposition: inline; filename=smc911x-fix-netpoll-compilation-faliure.patch
+       alan@lxorguk.ukuu.org.uk, hugh@veritas.com, pbadari@us.ibm.com
+Subject: [patch 20/50] Fix for shmem_truncate_range() BUG_ON()
+Content-Disposition: inline; filename=fix-for-shmem_truncate_range-bug_on.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Vitaly Wool <vitalywool@gmail.com>
+From: Badari Pulavarty <pbadari@us.ibm.com>
 
-Fix the compilation failure for smc911x.c when NET_POLL_CONTROLLER is set.
+Ran into BUG() while doing madvise(REMOVE) testing.  If we are punching a
+hole into shared memory segment using madvise(REMOVE) and the entire hole
+is below the indirect blocks, we hit following assert.
 
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Cc: Jeff Garzik <jeff@garzik.org>
+	        BUG_ON(limit <= SHMEM_NR_DIRECT);
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Hugh Dickins <hugh@veritas.com>
 Cc: <stable@kernel.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- drivers/net/smc911x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/shmem.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- linux-2.6.19.1.orig/drivers/net/smc911x.c
-+++ linux-2.6.19.1/drivers/net/smc911x.c
-@@ -1331,7 +1331,7 @@ smc911x_rx_dma_irq(int dma, void *data)
- static void smc911x_poll_controller(struct net_device *dev)
- {
- 	disable_irq(dev->irq);
--	smc911x_interrupt(dev->irq, dev, NULL);
-+	smc911x_interrupt(dev->irq, dev);
- 	enable_irq(dev->irq);
- }
- #endif
+--- linux-2.6.19.1.orig/mm/shmem.c
++++ linux-2.6.19.1/mm/shmem.c
+@@ -515,7 +515,12 @@ static void shmem_truncate_range(struct 
+ 			size = SHMEM_NR_DIRECT;
+ 		nr_swaps_freed = shmem_free_swp(ptr+idx, ptr+size);
+ 	}
+-	if (!topdir)
++
++	/*
++	 * If there are no indirect blocks or we are punching a hole
++	 * below indirect blocks, nothing to be done.
++	 */
++	if (!topdir || (punch_hole && (limit <= SHMEM_NR_DIRECT)))
+ 		goto done2;
+ 
+ 	BUG_ON(limit <= SHMEM_NR_DIRECT);
 
 --

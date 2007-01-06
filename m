@@ -1,598 +1,478 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750895AbXAFRmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751036AbXAFRmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbXAFRmR (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 12:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbXAFRmR
+	id S1751036AbXAFRmu (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 12:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbXAFRmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 12:42:17 -0500
-Received: from top.qwarx.com ([80.248.178.170]:40334 "EHLO top.qwarx.com"
+	Sat, 6 Jan 2007 12:42:49 -0500
+Received: from ozlabs.org ([203.10.76.45]:55090 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750712AbXAFRmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 12:42:15 -0500
-X-Greylist: delayed 1941 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Jan 2007 12:42:15 EST
-Date: Sat, 6 Jan 2007 17:09:44 +0000 (GMT)
-From: Chris Wilson <chris@qwirx.com>
-X-X-Sender: chris@top.qwarx.com
-To: linux-kernel@vger.kernel.org
-cc: Alan Stern <stern@rowland.harvard.edu>
-Subject: IRQ: Nobody cared (2.6.19.1)
-In-Reply-To: <Pine.LNX.4.44L0.0701052212330.8955-100000@netrider.rowland.org>
-Message-ID: <Pine.LNX.4.62.0701061657010.17685@top.qwarx.com>
-References: <Pine.LNX.4.44L0.0701052212330.8955-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-128931150-1717684004-1168103384=:17685"
+	id S1751032AbXAFRms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 12:42:48 -0500
+Subject: Re: [patch] paravirt: isolate module ops
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zachary Amsden <zach@vmware.com>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>,
+       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <20070106070807.GA11232@elte.hu>
+References: <20070106000715.GA6688@elte.hu> <459EEDEB.8090800@vmware.com>
+	 <1168064710.20372.28.camel@localhost.localdomain>
+	 <20070106070807.GA11232@elte.hu>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 04:42:33 +1100
+Message-Id: <1168105353.20372.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 2007-01-06 at 08:08 +0100, Ingo Molnar wrote:
+> btw., your patch does not apply to current -git - could you please 
+> rebase this patch to the head of your queue so that upstream can pick it 
+> up?
 
----128931150-1717684004-1168103384=:17685
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+OK, here it is against rc3-git4.
 
-Hi all,
+Name: don't export paravirt_ops structure, do individual functions
 
-Forwarded to lkml as suggested by Alan Stern. Please copy any replies to 
-me, as I'm not on the list (too much traffic, sorry!).
+Wrap the paravirt_ops members we want to export in wrapper functions.
+Since we binary-patch the critical ones, this doesn't make a speed
+impact.
 
-On Fri, 5 Jan 2007, Alan Stern wrote:
-> On Sat, 6 Jan 2007, Chris Wilson wrote:
->>
->> I keep getting the following errors:
->>
->> Jan  5 23:48:38 gcc kernel: irq 10: nobody cared (try booting with the
->>    "irqpoll" option)
->
->> Jan  5 23:48:38 gcc kernel: handlers:
->
->> Jan  5 23:48:38 gcc kernel: [<e0866a00>] (usb_hcd_irq+0x0/0x70 [usbcore])
->> Jan  5 23:48:38 gcc kernel: Disabling IRQ #10
->>
->> There are no devices attached to that USB port, and it's the only device
->> registered for IRQ 10.
->>
->> This is a 2.6.19.1 kernel, last booted less than an hour ago. I had the
->> same problem with 2.6.14.3 and older kernels, but less frequently.
->>
->> Hardware is dual p3 coppermine, Gigabyte 6VXDC7 motherboard. Otherwise
->> very stable, last up for 297 days (until I booted this kernel).
->
->> /proc/interrupts:
->>
->>             CPU0       CPU1
->>    0:     424892     412866   IO-APIC-edge      timer
->>    1:       2706       2034   IO-APIC-edge      i8042
->>    4:          5          1   IO-APIC-edge      serial
->>    5:          0          0   IO-APIC-fasteoi   acpi
->>    6:          5          0   IO-APIC-edge      floppy
->>    7:          0          0   IO-APIC-edge      parport0
->>   10:      75964      63749   IO-APIC-fasteoi   uhci_hcd:usb1,
->>    uhci_hcd:usb2
->>   12:      38217      29601   IO-APIC-edge      i8042
->>   14:      24424      14372   IO-APIC-edge      ide0
->>   15:          1         10   IO-APIC-edge      ide1
->>   16:      44129          1   IO-APIC-fasteoi   eth0
->>   17:         35     209490   IO-APIC-fasteoi   eth1
->>   18:      49348      50382   IO-APIC-fasteoi   EMU10K1
->> NMI:          0          0
->> LOC:     837636     837635
->> ERR:          0
->> MIS:          0
->>
->> Please let me know if I can provide any more information that might help,
->> or anything I can do to help fix this. I expect that the USB port is now
->> useless until I reload the module.
->
-> This almost certainly is not caused by a problem in the USB hardware.
-> More likely some other device is using IRQ 10 and the kernel doesn't
-> realize it.  In other words, it's a problem in IRQ assignment.
->
-> You can try booting with acpi=off on the boot command line, or acpi=noirq,
-> or noapic.
->
-> You can go ahead and report this on LKML; you don't have to subscribe to
-> the list in order to post on it.  (That's what I do.)  Include the dmesg
-> log showing the IRQ assignments during boot-up.
->
-> Alan Stern
+I moved drm_follow_page into the core, to avoid having to wrap the
+various pte ops.  Unlining kernel_fpu_end and using that in the RAID6
+code would remove the need to export clts/read_cr0/write_cr0 too.
 
-Dmesg boot log attached. Any suggestions gratefully received.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-It seems a bit drastic to disable a whole IRQ if it receives spurious 
-interrupts that are not claimed by any driver. That could kill a machine 
-if the IRQ is used for something critical like disks.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/arch/i386/kernel/paravirt.c working-2.6.20-rc3-git4/arch/i386/kernel/paravirt.c
+--- linux-2.6.20-rc3-git4/arch/i386/kernel/paravirt.c	2007-01-07 03:41:32.000000000 +1100
++++ working-2.6.20-rc3-git4/arch/i386/kernel/paravirt.c	2007-01-07 04:21:59.000000000 +1100
+@@ -482,6 +482,123 @@ static int __init print_banner(void)
+ }
+ core_initcall(print_banner);
+ 
++unsigned long paravirt_save_flags(void)
++{
++	return paravirt_ops.save_fl();
++}
++EXPORT_SYMBOL(paravirt_save_flags);
++
++void paravirt_restore_flags(unsigned long flags)
++{
++	paravirt_ops.restore_fl(flags);
++}
++EXPORT_SYMBOL(paravirt_restore_flags);
++
++void paravirt_irq_disable(void)
++{
++	paravirt_ops.irq_disable();
++}
++EXPORT_SYMBOL(paravirt_irq_disable);
++
++void paravirt_irq_enable(void)
++{
++	paravirt_ops.irq_enable();
++}
++EXPORT_SYMBOL(paravirt_irq_enable);
++
++void paravirt_io_delay(void)
++{
++	paravirt_ops.io_delay();
++}
++EXPORT_SYMBOL(paravirt_io_delay);
++
++void paravirt_const_udelay(unsigned long loops)
++{
++	paravirt_ops.const_udelay(loops);
++}
++EXPORT_SYMBOL(paravirt_const_udelay);
++
++u64 paravirt_read_msr(unsigned int msr, int *err)
++{
++	return paravirt_ops.read_msr(msr, err);
++}
++EXPORT_SYMBOL(paravirt_read_msr);
++
++int paravirt_write_msr(unsigned int msr, u64 val)
++{
++	return paravirt_ops.write_msr(msr, val);
++}
++EXPORT_SYMBOL(paravirt_write_msr);
++
++u64 paravirt_read_tsc(void)
++{
++	return paravirt_ops.read_tsc();
++}
++EXPORT_SYMBOL(paravirt_read_tsc);
++
++int paravirt_enabled(void)
++{
++	return paravirt_ops.paravirt_enabled;
++}
++EXPORT_SYMBOL(paravirt_enabled);
++
++void clts(void)
++{
++	paravirt_ops.clts();
++}
++EXPORT_SYMBOL(clts);
++
++unsigned long read_cr0(void)
++{
++	return paravirt_ops.read_cr0();
++}
++EXPORT_SYMBOL_GPL(read_cr0);
++
++void write_cr0(unsigned long cr0)
++{
++	paravirt_ops.write_cr0(cr0);
++}
++EXPORT_SYMBOL_GPL(write_cr0);
++
++void wbinvd(void)
++{
++	paravirt_ops.wbinvd();
++}
++EXPORT_SYMBOL(wbinvd);
++
++void raw_safe_halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(raw_safe_halt);
++
++void halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(halt);
++
++#ifdef CONFIG_X86_LOCAL_APIC
++void apic_write(unsigned long reg, unsigned long v)
++{
++	paravirt_ops.apic_write(reg,v);
++}
++EXPORT_SYMBOL_GPL(apic_write);
++
++unsigned long apic_read(unsigned long reg)
++{
++	return paravirt_ops.apic_read(reg);
++}
++EXPORT_SYMBOL_GPL(apic_read);
++#endif
++
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx)
++{
++	paravirt_ops.cpuid(eax, ebx, ecx, edx);
++}
++EXPORT_SYMBOL(__cpuid);
++
+ /* We simply declare start_kernel to be the paravirt probe of last resort. */
+ paravirt_probe(start_kernel);
+ 
+@@ -566,4 +683,3 @@ struct paravirt_ops paravirt_ops = {
+ 	.irq_enable_sysexit = native_irq_enable_sysexit,
+ 	.iret = native_iret,
+ };
+-EXPORT_SYMBOL(paravirt_ops);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/drivers/char/drm/drm_memory.h working-2.6.20-rc3-git4/drivers/char/drm/drm_memory.h
+--- linux-2.6.20-rc3-git4/drivers/char/drm/drm_memory.h	2006-09-22 15:36:13.000000000 +1000
++++ working-2.6.20-rc3-git4/drivers/char/drm/drm_memory.h	2007-01-07 04:19:07.000000000 +1100
+@@ -58,11 +58,7 @@
+ 
+ static inline unsigned long drm_follow_page(void *vaddr)
+ {
+-	pgd_t *pgd = pgd_offset_k((unsigned long)vaddr);
+-	pud_t *pud = pud_offset(pgd, (unsigned long)vaddr);
+-	pmd_t *pmd = pmd_offset(pud, (unsigned long)vaddr);
+-	pte_t *ptep = pte_offset_kernel(pmd, (unsigned long)vaddr);
+-	return pte_pfn(*ptep) << PAGE_SHIFT;
++	return __follow_page(vaddr);
+ }
+ 
+ #else				/* __OS_HAS_AGP */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/include/asm-i386/delay.h working-2.6.20-rc3-git4/include/asm-i386/delay.h
+--- linux-2.6.20-rc3-git4/include/asm-i386/delay.h	2007-01-07 03:42:32.000000000 +1100
++++ working-2.6.20-rc3-git4/include/asm-i386/delay.h	2007-01-07 04:08:46.000000000 +1100
+@@ -17,9 +17,9 @@ extern void __const_udelay(unsigned long
+ extern void __delay(unsigned long loops);
+ 
+ #if defined(CONFIG_PARAVIRT) && !defined(USE_REAL_TIME_DELAY)
+-#define udelay(n) paravirt_ops.const_udelay((n) * 0x10c7ul)
++#define udelay(n) paravirt_const_udelay((n) * 0x10c7ul)
+ 
+-#define ndelay(n) paravirt_ops.const_udelay((n) * 5ul)
++#define ndelay(n) paravirt_const_udelay((n) * 5ul)
+ 
+ #else /* !PARAVIRT || USE_REAL_TIME_DELAY */
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/include/asm-i386/paravirt.h working-2.6.20-rc3-git4/include/asm-i386/paravirt.h
+--- linux-2.6.20-rc3-git4/include/asm-i386/paravirt.h	2007-01-07 03:42:33.000000000 +1100
++++ working-2.6.20-rc3-git4/include/asm-i386/paravirt.h	2007-01-07 04:13:44.000000000 +1100
+@@ -152,8 +152,6 @@ struct paravirt_ops
+ 
+ extern struct paravirt_ops paravirt_ops;
+ 
+-#define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+-
+ static inline void load_esp0(struct tss_struct *tss,
+ 			     struct thread_struct *thread)
+ {
+@@ -177,11 +175,8 @@ static inline void do_time_init(void)
+ }
+ 
+ /* The paravirtualized CPUID instruction. */
+-static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
+-			   unsigned int *ecx, unsigned int *edx)
+-{
+-	paravirt_ops.cpuid(eax, ebx, ecx, edx);
+-}
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx);
+ 
+ /*
+  * These special macros can be used to get or set a debugging register
+@@ -189,11 +184,6 @@ static inline void __cpuid(unsigned int 
+ #define get_debugreg(var, reg) var = paravirt_ops.get_debugreg(reg)
+ #define set_debugreg(val, reg) paravirt_ops.set_debugreg(reg, val)
+ 
+-#define clts() paravirt_ops.clts()
+-
+-#define read_cr0() paravirt_ops.read_cr0()
+-#define write_cr0(x) paravirt_ops.write_cr0(x)
+-
+ #define read_cr2() paravirt_ops.read_cr2()
+ #define write_cr2(x) paravirt_ops.write_cr2(x)
+ 
+@@ -204,62 +194,51 @@ static inline void __cpuid(unsigned int 
+ #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
+ #define write_cr4(x) paravirt_ops.write_cr4(x)
+ 
+-static inline void raw_safe_halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-
+-static inline void halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-#define wbinvd() paravirt_ops.wbinvd()
+-
+ #define get_kernel_rpl()  (paravirt_ops.kernel_rpl)
+ 
+ #define rdmsr(msr,val1,val2) do {				\
+ 	int _err;						\
+-	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l = paravirt_read_msr(msr,&_err);			\
+ 	val1 = (u32)_l;						\
+ 	val2 = _l >> 32;					\
+ } while(0)
+ 
+ #define wrmsr(msr,val1,val2) do {				\
+ 	u64 _l = ((u64)(val2) << 32) | (val1);			\
+-	paravirt_ops.write_msr((msr), _l);			\
++	paravirt_write_msr((msr), _l);				\
+ } while(0)
+ 
+ #define rdmsrl(msr,val) do {					\
+ 	int _err;						\
+-	val = paravirt_ops.read_msr((msr),&_err);		\
++	val = paravirt_read_msr((msr),&_err);			\
+ } while(0)
+ 
+-#define wrmsrl(msr,val) (paravirt_ops.write_msr((msr),(val)))
++#define wrmsrl(msr,val) (paravirt_write_msr((msr),(val)))
+ #define wrmsr_safe(msr,a,b) ({					\
+ 	u64 _l = ((u64)(b) << 32) | (a);			\
+-	paravirt_ops.write_msr((msr),_l);			\
++	paravirt_write_msr((msr),_l);				\
+ })
+ 
+ /* rdmsr with exception handling */
+ #define rdmsr_safe(msr,a,b) ({					\
+ 	int _err;						\
+-	u64 _l = paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l = paravirt_read_msr(msr,&_err);			\
+ 	(*a) = (u32)_l;						\
+ 	(*b) = _l >> 32;					\
+ 	_err; })
+ 
+ #define rdtsc(low,high) do {					\
+-	u64 _l = paravirt_ops.read_tsc();			\
++	u64 _l = paravirt_read_tsc();				\
+ 	low = (u32)_l;						\
+ 	high = _l >> 32;					\
+ } while(0)
+ 
+ #define rdtscl(low) do {					\
+-	u64 _l = paravirt_ops.read_tsc();			\
++	u64 _l = paravirt_read_tsc();				\
+ 	low = (int)_l;						\
+ } while(0)
+ 
+-#define rdtscll(val) (val = paravirt_ops.read_tsc())
++#define rdtscll(val) (val = paravirt_read_tsc())
+ 
+ #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+ 
+@@ -345,6 +324,26 @@ static inline void pte_update_defer(stru
+ 	paravirt_ops.pte_update_defer(mm, addr, ptep);
+ }
+ 
++/* These are the functions exported to modules. */
++int paravirt_enabled(void);
++unsigned long paravirt_save_flags(void);
++void paravirt_restore_flags(unsigned long flags);
++void paravirt_irq_disable(void);
++void paravirt_irq_enable(void);
++void paravirt_const_udelay(unsigned long loops);
++void paravirt_io_delay(void);
++u64 paravirt_read_msr(unsigned int msr, int *err);
++int paravirt_write_msr(unsigned int msr, u64 val);
++u64 paravirt_read_tsc(void);
++void raw_safe_halt(void);
++void halt(void);
++void wbinvd(void);
++
++/* These will be unexported once raid6 is fixed... */
++void clts(void);
++unsigned long read_cr0(void);
++void write_cr0(unsigned long);
++
+ #ifdef CONFIG_X86_PAE
+ static inline void set_pte_atomic(pte_t *ptep, pte_t pteval)
+ {
+@@ -394,42 +393,38 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ 
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_save_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=a"(f): "m"(paravirt_ops.save_fl)
+-			     : "memory", "cc");
++			     : "=a"(f) : : "memory", "cc");
+ 	return f;
+ }
+ 
+ static inline void raw_local_irq_restore(unsigned long f)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_restore_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
+-			     : "memory", "cc");
++			     : "=a"(f) : "0"(f) : "memory", "cc");
+ }
+ 
+ static inline void raw_local_irq_disable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_disable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ 
+ static inline void raw_local_irq_enable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_enable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ 
+ static inline unsigned long __raw_local_irq_save(void)
+@@ -437,15 +432,13 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ 
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
++					   "call paravirt_save_flags;"
++					   "pushl %%eax;"
++					   "call paravirt_irq_disable;"
++					   "popl %%eax;popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+ 					  CLBR_NONE)
+-			     : "=a"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++			     : "=a"(f) : : "memory", "cc");
+ 	return f;
+ }
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/include/linux/irqflags.h working-2.6.20-rc3-git4/include/linux/irqflags.h
+--- linux-2.6.20-rc3-git4/include/linux/irqflags.h	2006-09-22 15:37:14.000000000 +1000
++++ working-2.6.20-rc3-git4/include/linux/irqflags.h	2007-01-07 04:08:46.000000000 +1100
+@@ -74,11 +74,11 @@
+ #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+-#define safe_halt()						\
+-	do {							\
+-		trace_hardirqs_on();				\
+-		raw_safe_halt();				\
+-	} while (0)
++static inline void safe_halt(void)
++{
++	trace_hardirqs_on();
++	raw_safe_halt();
++}
+ 
+ #define local_save_flags(flags)		raw_local_save_flags(flags)
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/include/linux/mm.h working-2.6.20-rc3-git4/include/linux/mm.h
+--- linux-2.6.20-rc3-git4/include/linux/mm.h	2007-01-07 03:42:43.000000000 +1100
++++ working-2.6.20-rc3-git4/include/linux/mm.h	2007-01-07 04:20:41.000000000 +1100
+@@ -1127,6 +1127,8 @@ struct page *follow_page(struct vm_area_
+ #define FOLL_GET	0x04	/* do get_page on page */
+ #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
+ 
++unsigned long __follow_page(void *vaddr);
++
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, long);
+ #else
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.20-rc3-git4/mm/memory.c working-2.6.20-rc3-git4/mm/memory.c
+--- linux-2.6.20-rc3-git4/mm/memory.c	2007-01-07 03:42:49.000000000 +1100
++++ working-2.6.20-rc3-git4/mm/memory.c	2007-01-07 04:19:20.000000000 +1100
+@@ -976,6 +976,17 @@ no_page_table:
+ 	return page;
+ }
+ 
++/* You don't want to use this function.  It's for drm_memory.c. */
++unsigned long __follow_page(void *vaddr)
++{
++	pgd_t *pgd = pgd_offset_k((unsigned long)vaddr);
++	pud_t *pud = pud_offset(pgd, (unsigned long)vaddr);
++	pmd_t *pmd = pmd_offset(pud, (unsigned long)vaddr);
++	pte_t *ptep = pte_offset_kernel(pmd, (unsigned long)vaddr);
++	return pte_pfn(*ptep) << PAGE_SHIFT;
++}
++EXPORT_SYMBOL_GPL(__follow_page);
++
+ int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+ 		unsigned long start, int len, int write, int force,
+ 		struct page **pages, struct vm_area_struct **vmas)
 
-I'd rather not boot without ACPI if possible, as I don't want to lose 
-power saving. I'm not sure about the negative consequences of booting with 
-acpi=noirq or noapic, so I haven't tried that yet.
 
-Cheers, Chris.
--- 
-_ ___ __     _
-  / __/ / ,__(_)_  | Chris Wilson <0000 at qwirx.com> - Cambs UK |
-/ (_/ ,\/ _/ /_ \ | Security/C/C++/Java/Perl/SQL/HTML Developer |
-\ _/_/_/_//_/___/ | We are GNU-free your mind-and your software |
-
----128931150-1717684004-1168103384=:17685
-Content-Type: TEXT/plain; charset=US-ASCII; name=boot.log.txt
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.62.0701061709440.17685@top.qwarx.com>
-Content-Description: dmesg boot log
-Content-Disposition: attachment; filename=boot.log.txt
-
-SmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IGtsb2dkIDEuNC4xLCBsb2cg
-c291cmNlID0gL3Byb2Mva21zZyBzdGFydGVkLg0KSmFuICA1IDIzOjAyOjQ1
-IGdjYyBrZXJuZWw6IEluc3BlY3RpbmcgL2Jvb3QvU3lzdGVtLm1hcC0yLjYu
-MTkuMQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IExvYWRlZCAyNTc4
-OCBzeW1ib2xzIGZyb20gL2Jvb3QvU3lzdGVtLm1hcC0yLjYuMTkuMS4NCkph
-biAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBTeW1ib2xzIG1hdGNoIGtlcm5l
-bCB2ZXJzaW9uIDIuNi4xOS4NCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVs
-OiBObyBtb2R1bGUgc3ltYm9scyBsb2FkZWQgLSBrZXJuZWwgbW9kdWxlcyBu
-b3QgZW5hYmxlZC4gDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogTGlu
-dXggdmVyc2lvbiAyLjYuMTkuMSAoY2hyaXNAZ2NjLmZsZXhkbnMubmV0KSAo
-Z2NjIHZlcnNpb24gMy4zLjMgMjAwNDA0MTIgKFJlZCBIYXQgTGludXggMy4z
-LjMtNykpICMxIFNNUCBQUkVFTVBUIEZyaSBKYW4gNSAwMDowNzoyNyBHTVQg
-MjAwNw0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IEJJT1MtcHJvdmlk
-ZWQgcGh5c2ljYWwgUkFNIG1hcDoNCkphbiAgNSAyMzowMjo0NSBnY2Mga2Vy
-bmVsOiAgQklPUy1lODIwOiAwMDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAw
-MDA5ZmMwMCAodXNhYmxlKQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6
-ICBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEw
-MDAwIChyZXNlcnZlZCkNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAg
-QklPUy1lODIwOiAwMDAwMDAwMDAwMGYwMDAwIC0gMDAwMDAwMDAwMDEwMDAw
-MCAocmVzZXJ2ZWQpDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogIEJJ
-T1MtZTgyMDogMDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAwMWZmZjAwMDAg
-KHVzYWJsZSkNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAgQklPUy1l
-ODIwOiAwMDAwMDAwMDFmZmYwMDAwIC0gMDAwMDAwMDAxZmZmODAwMCAoQUNQ
-SSBkYXRhKQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6ICBCSU9TLWU4
-MjA6IDAwMDAwMDAwMWZmZjgwMDAgLSAwMDAwMDAwMDIwMDAwMDAwIChBQ1BJ
-IE5WUykNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAgQklPUy1lODIw
-OiAwMDAwMDAwMGZlYzAwMDAwIC0gMDAwMDAwMDBmZWMwMTAwMCAocmVzZXJ2
-ZWQpDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogIEJJT1MtZTgyMDog
-MDAwMDAwMDBmZWUwMDAwMCAtIDAwMDAwMDAwZmVlMDEwMDAgKHJlc2VydmVk
-KQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6ICBCSU9TLWU4MjA6IDAw
-MDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChyZXNlcnZlZCkN
-CkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAwTUIgSElHSE1FTSBhdmFp
-bGFibGUuDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogNTExTUIgTE9X
-TUVNIGF2YWlsYWJsZS4NCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBm
-b3VuZCBTTVAgTVAtdGFibGUgYXQgMDAwZmIyNjANCkphbiAgNSAyMzowMjo0
-NSBnY2Mga2VybmVsOiBab25lIFBGTiByYW5nZXM6DQpKYW4gIDUgMjM6MDI6
-NDUgZ2NjIGtlcm5lbDogICBETUEgICAgICAgICAgICAgMCAtPiAgICAgNDA5
-Ng0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6ICAgTm9ybWFsICAgICAg
-IDQwOTYgLT4gICAxMzEwNTYNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVs
-OiAgIEhpZ2hNZW0gICAgMTMxMDU2IC0+ICAgMTMxMDU2DQpKYW4gIDUgMjM6
-MDI6NDUgZ2NjIGtlcm5lbDogZWFybHlfbm9kZV9tYXBbMV0gYWN0aXZlIFBG
-TiByYW5nZXMNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAgICAgMDog
-ICAgICAgIDAgLT4gICAxMzEwNTYNCkphbiAgNSAyMzowMjo0NSBnY2Mga2Vy
-bmVsOiBETUkgMi4zIHByZXNlbnQuDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtl
-cm5lbDogQUNQSTogUE0tVGltZXIgSU8gUG9ydDogMHg4MDgNCkphbiAgNSAy
-MzowMjo0NSBnY2Mga2VybmVsOiBBQ1BJOiBMQVBJQyAoYWNwaV9pZFsweDAx
-XSBsYXBpY19pZFsweDAwXSBlbmFibGVkKQ0KSmFuICA1IDIzOjAyOjQ1IGdj
-YyBrZXJuZWw6IFByb2Nlc3NvciAjMCA2OjggQVBJQyB2ZXJzaW9uIDE3DQpK
-YW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogQUNQSTogTEFQSUMgKGFjcGlf
-aWRbMHgwMl0gbGFwaWNfaWRbMHgwMV0gZW5hYmxlZCkNCkphbiAgNSAyMzow
-Mjo0NSBnY2Mga2VybmVsOiBQcm9jZXNzb3IgIzEgNjo4IEFQSUMgdmVyc2lv
-biAxNw0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IEFDUEk6IElPQVBJ
-QyAoaWRbMHgwMl0gYWRkcmVzc1sweGZlYzAwMDAwXSBnc2lfYmFzZVswXSkN
-CkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBJT0FQSUNbMF06IGFwaWNf
-aWQgMiwgdmVyc2lvbiAxNywgYWRkcmVzcyAweGZlYzAwMDAwLCBHU0kgMC0y
-Mw0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IEFDUEk6IElOVF9TUkNf
-T1ZSIChidXMgMCBidXNfaXJxIDAgZ2xvYmFsX2lycSAyIGRmbCBkZmwpDQpK
-YW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogQUNQSTogSU5UX1NSQ19PVlIg
-KGJ1cyAwIGJ1c19pcnEgNSBnbG9iYWxfaXJxIDUgbG93IGxldmVsKQ0KSmFu
-ICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IEVuYWJsaW5nIEFQSUMgbW9kZTog
-IEZsYXQuICBVc2luZyAxIEkvTyBBUElDcw0KSmFuICA1IDIzOjAyOjQ1IGdj
-YyBrZXJuZWw6IFVzaW5nIEFDUEkgKE1BRFQpIGZvciBTTVAgY29uZmlndXJh
-dGlvbiBpbmZvcm1hdGlvbg0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6
-IEFsbG9jYXRpbmcgUENJIHJlc291cmNlcyBzdGFydGluZyBhdCAzMDAwMDAw
-MCAoZ2FwOiAyMDAwMDAwMDpkZWMwMDAwMCkNCkphbiAgNSAyMzowMjo0NSBn
-Y2Mga2VybmVsOiBEZXRlY3RlZCA5MzAuMTU0IE1IeiBwcm9jZXNzb3IuDQpK
-YW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogQnVpbHQgMSB6b25lbGlzdHMu
-ICBUb3RhbCBwYWdlczogMTMwMDMzDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtl
-cm5lbDogS2VybmVsIGNvbW1hbmQgbGluZTogcm9vdD0vZGV2L2hkYTYNCkph
-biAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBFbmFibGluZyBmYXN0IEZQVSBz
-YXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuDQpKYW4gIDUgMjM6MDI6NDUgZ2Nj
-IGtlcm5lbDogRW5hYmxpbmcgdW5tYXNrZWQgU0lNRCBGUFUgZXhjZXB0aW9u
-IHN1cHBvcnQuLi4gZG9uZS4NCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVs
-OiBJbml0aWFsaXppbmcgQ1BVIzANCkphbiAgNSAyMzowMjo0NSBnY2Mga2Vy
-bmVsOiBQSUQgaGFzaCB0YWJsZSBlbnRyaWVzOiAyMDQ4IChvcmRlcjogMTEs
-IDgxOTIgYnl0ZXMpDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogQ29u
-c29sZTogY29sb3VyIFZHQSsgODB4MjUNCkphbiAgNSAyMzowMjo0NSBnY2Mg
-a2VybmVsOiBEZW50cnkgY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUz
-NiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykNCkphbiAgNSAyMzowMjo0NSBn
-Y2Mga2VybmVsOiBJbm9kZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMy
-NzY4IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KSmFuICA1IDIzOjAyOjQ1
-IGdjYyBrZXJuZWw6IE1lbW9yeTogNTE1ODc2ay81MjQyMjRrIGF2YWlsYWJs
-ZSAoMjE2NWsga2VybmVsIGNvZGUsIDc4NjRrIHJlc2VydmVkLCA2NjJrIGRh
-dGEsIDIxMmsgaW5pdCwgMGsgaGlnaG1lbSkNCkphbiAgNSAyMzowMjo0NSBn
-Y2Mga2VybmVsOiB2aXJ0dWFsIGtlcm5lbCBtZW1vcnkgbGF5b3V0Og0KSmFu
-ICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6ICAgICBmaXhtYXAgIDogMHhmZmY5
-ZDAwMCAtIDB4ZmZmZmYwMDAgICAoIDM5MiBrQikNCkphbiAgNSAyMzowMjo0
-NSBnY2Mga2VybmVsOiAgICAgcGttYXAgICA6IDB4ZmY4MDAwMDAgLSAweGZm
-YzAwMDAwICAgKDQwOTYga0IpDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5l
-bDogICAgIHZtYWxsb2MgOiAweGUwODAwMDAwIC0gMHhmZjdmZTAwMCAgICgg
-NDk1IE1CKQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6ICAgICBsb3dt
-ZW0gIDogMHhjMDAwMDAwMCAtIDB4ZGZmZjAwMDAgICAoIDUxMSBNQikNCkph
-biAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiAgICAgICAuaW5pdCA6IDB4YzAz
-YzkwMDAgLSAweGMwM2ZlMDAwICAgKCAyMTIga0IpDQpKYW4gIDUgMjM6MDI6
-NDUgZ2NjIGtlcm5lbDogICAgICAgLmRhdGEgOiAweGMwMzFkNGRiIC0gMHhj
-MDNjMzA5NCAgICggNjYyIGtCKQ0KSmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJu
-ZWw6ICAgICAgIC50ZXh0IDogMHhjMDEwMDAwMCAtIDB4YzAzMWQ0ZGIgICAo
-MjE2NSBrQikNCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBDaGVja2lu
-ZyBpZiB0aGlzIHByb2Nlc3NvciBob25vdXJzIHRoZSBXUCBiaXQgZXZlbiBp
-biBzdXBlcnZpc29yIG1vZGUuLi4gT2suDQpKYW4gIDUgMjM6MDI6NDUgZ2Nj
-IGtlcm5lbDogQ2FsaWJyYXRpbmcgZGVsYXkgdXNpbmcgdGltZXIgc3BlY2lm
-aWMgcm91dGluZS4uIDE4NjIuNTggQm9nb01JUFMgKGxwaj0zNzI1MTc3KQ0K
-SmFuICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IE1vdW50LWNhY2hlIGhhc2gg
-dGFibGUgZW50cmllczogNTEyDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5l
-bDogQ1BVOiBMMSBJIGNhY2hlOiAxNkssIEwxIEQgY2FjaGU6IDE2Sw0KSmFu
-ICA1IDIzOjAyOjQ1IGdjYyBrZXJuZWw6IENQVTogTDIgY2FjaGU6IDI1NksN
-CkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBJbnRlbCBtYWNoaW5lIGNo
-ZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuDQpKYW4gIDUgMjM6MDI6NDUg
-Z2NjIGtlcm5lbDogSW50ZWwgbWFjaGluZSBjaGVjayByZXBvcnRpbmcgZW5h
-YmxlZCBvbiBDUFUjMC4NCkphbiAgNSAyMzowMjo0NSBnY2Mga2VybmVsOiBD
-b21wYXQgdkRTTyBtYXBwZWQgdG8gZmZmZmUwMDAuDQpKYW4gIDUgMjM6MDI6
-NDUgZ2NjIGtlcm5lbDogQ2hlY2tpbmcgJ2hsdCcgaW5zdHJ1Y3Rpb24uLi4g
-T0suDQpKYW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogRnJlZWluZyBTTVAg
-YWx0ZXJuYXRpdmVzOiAxMmsgZnJlZWQNCkphbiAgNSAyMzowMjo0NSBnY2Mg
-a2VybmVsOiBBQ1BJOiBDb3JlIHJldmlzaW9uIDIwMDYwNzA3DQpKYW4gIDUg
-MjM6MDI6NDUgZ2NjIGtlcm5lbDogQ1BVMDogSW50ZWwgUGVudGl1bSBJSUkg
-KENvcHBlcm1pbmUpIHN0ZXBwaW5nIDA2DQpKYW4gIDUgMjM6MDI6NDUgZ2Nj
-IGtlcm5lbDogQm9vdGluZyBwcm9jZXNzb3IgMS8xIGVpcCAyMDAwDQpKYW4g
-IDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogSW5pdGlhbGl6aW5nIENQVSMxDQpK
-YW4gIDUgMjM6MDI6NDUgZ2NjIGtlcm5lbDogQ2FsaWJyYXRpbmcgZGVsYXkg
-dXNpbmcgdGltZXIgc3BlY2lmaWMgcm91dGluZS4uIDE4NjAuMzYgQm9nb01J
-UFMgKGxwaj0zNzIwNzM0KQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6
-IENQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksNCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBDUFU6IEwyIGNhY2hlOiAyNTZLDQpK
-YW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogSW50ZWwgbWFjaGluZSBjaGVj
-ayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLg0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IEludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJs
-ZWQgb24gQ1BVIzEuDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogQ1BV
-MTogSW50ZWwgUGVudGl1bSBJSUkgKENvcHBlcm1pbmUpIHN0ZXBwaW5nIDA2
-DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogVG90YWwgb2YgMiBwcm9j
-ZXNzb3JzIGFjdGl2YXRlZCAoMzcyMi45NSBCb2dvTUlQUykuDQpKYW4gIDUg
-MjM6MDI6NDYgZ2NjIGtlcm5lbDogRU5BQkxJTkcgSU8tQVBJQyBJUlFzDQpK
-YW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogLi5USU1FUjogdmVjdG9yPTB4
-MzEgYXBpYzE9MCBwaW4xPTIgYXBpYzI9LTEgcGluMj0tMQ0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IGNoZWNraW5nIFRTQyBzeW5jaHJvbml6YXRp
-b24gYWNyb3NzIDIgQ1BVczogcGFzc2VkLg0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IEJyb3VnaHQgdXAgMiBDUFVzDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogbWlncmF0aW9uX2Nvc3Q9NjU0DQpKYW4gIDUgMjM6MDI6
-NDYgZ2NjIGtlcm5lbDogTkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWls
-eSAxNg0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6IGJ1cyB0
-eXBlIHBjaSByZWdpc3RlcmVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmRi
-MDEsIGxhc3QgYnVzPTENCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBQ
-Q0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxDQpKYW4gIDUgMjM6MDI6
-NDYgZ2NjIGtlcm5lbDogU2V0dGluZyB1cCBzdGFuZGFyZCBQQ0kgcmVzb3Vy
-Y2VzDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogbXRycjogeW91ciBD
-UFVzIGhhZCBpbmNvbnNpc3RlbnQgdmFyaWFibGUgTVRSUiBzZXR0aW5ncw0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IG10cnI6IHByb2JhYmx5IHlv
-dXIgQklPUyBkb2VzIG5vdCBzZXR1cCBhbGwgQ1BVcy4NCkphbiAgNSAyMzow
-Mjo0NiBnY2Mga2VybmVsOiBtdHJyOiBjb3JyZWN0ZWQgY29uZmlndXJhdGlv
-bi4NCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBBQ1BJOiBJbnRlcnBy
-ZXRlciBlbmFibGVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogQUNQ
-STogVXNpbmcgSU9BUElDIGZvciBpbnRlcnJ1cHQgcm91dGluZw0KSmFuICA1
-IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6IFBDSSBSb290IEJyaWRnZSBb
-UENJMF0gKDAwMDA6MDApDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDog
-UENJIHF1aXJrOiByZWdpb24gMDgwMC0wOGZmIGNsYWltZWQgYnkgdnQ4MmM1
-ODYgQUNQSQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFBDSSBxdWly
-azogcmVnaW9uIDBjMDAtMGM3ZiBjbGFpbWVkIGJ5IHZ0ODJjNjg2IEhXLW1v
-bg0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFBDSSBxdWlyazogcmVn
-aW9uIDA0MDAtMDQwZiBjbGFpbWVkIGJ5IHZ0ODJjNjg2IFNNQg0KSmFuICA1
-IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6IFBvd2VyIFJlc291cmNlIFtV
-UlAxXSAob2ZmKQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6
-IFBvd2VyIFJlc291cmNlIFtVUlAyXSAob2ZmKQ0KSmFuICA1IDIzOjAyOjQ2
-IGdjYyBrZXJuZWw6IEFDUEk6IFBvd2VyIFJlc291cmNlIFtGRERQXSAob2Zm
-KQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6IFBvd2VyIFJl
-c291cmNlIFtMUFRQXSAob2ZmKQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJu
-ZWw6IEFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQV0gKElSUXMgMyA0
-IDUgNiA3IDkgMTAgMTEgMTIgMTQgMTUpICowLCBkaXNhYmxlZC4NCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBBQ1BJOiBQQ0kgSW50ZXJydXB0IExp
-bmsgW0xOS0JdIChJUlFzIDMgNCA1IDYgNyA5IDEwICoxMSAxMiAxNCAxNSkN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBBQ1BJOiBQQ0kgSW50ZXJy
-dXB0IExpbmsgW0xOS0NdIChJUlFzIDMgNCA1IDYgNyAqOSAxMCAxMSAxMiAx
-NCAxNSkNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBBQ1BJOiBQQ0kg
-SW50ZXJydXB0IExpbmsgW0xOS0RdIChJUlFzIDMgNCA1IDYgNyA5ICoxMCAx
-MSAxMiAxNCAxNSkNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBMaW51
-eCBQbHVnIGFuZCBQbGF5IFN1cHBvcnQgdjAuOTcgKGMpIEFkYW0gQmVsYXkN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBwbnA6IFBuUCBBQ1BJIGlu
-aXQNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBwbnA6IFBuUCBBQ1BJ
-OiBmb3VuZCAxMSBkZXZpY2VzDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogUENJOiBVc2luZyBBQ1BJIGZvciBJUlEgcm91dGluZw0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IFBDSTogSWYgYSBkZXZpY2UgZG9lc24ndCB3
-b3JrLCB0cnkgInBjaT1yb3V0ZWlycSIuICBJZiBpdCBoZWxwcywgcG9zdCBh
-IHJlcG9ydA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFBDSTogQnJp
-ZGdlOiAwMDAwOjAwOjAxLjANCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVs
-OiAgIElPIHdpbmRvdzogNjAwMC02ZmZmDQpKYW4gIDUgMjM6MDI6NDYgZ2Nj
-IGtlcm5lbDogICBNRU0gd2luZG93OiBkZmQwMDAwMC1kZmRmZmZmZg0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6ICAgUFJFRkVUQ0ggd2luZG93OiBk
-ZGIwMDAwMC1kZGJmZmZmZg0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6
-IE5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBmYW1pbHkgMg0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IElQIHJvdXRlIGNhY2hlIGhhc2ggdGFibGUg
-ZW50cmllczogNDA5NiAob3JkZXI6IDIsIDE2Mzg0IGJ5dGVzKQ0KSmFuICA1
-IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFRDUCBlc3RhYmxpc2hlZCBoYXNoIHRh
-YmxlIGVudHJpZXM6IDE2Mzg0IChvcmRlcjogNSwgMTk2NjA4IGJ5dGVzKQ0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFRDUCBiaW5kIGhhc2ggdGFi
-bGUgZW50cmllczogODE5MiAob3JkZXI6IDQsIDk4MzA0IGJ5dGVzKQ0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFRDUDogSGFzaCB0YWJsZXMgY29u
-ZmlndXJlZCAoZXN0YWJsaXNoZWQgMTYzODQgYmluZCA4MTkyKQ0KSmFuICA1
-IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFRDUCByZW5vIHJlZ2lzdGVyZWQNCkph
-biAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBNYWNoaW5lIGNoZWNrIGV4Y2Vw
-dGlvbiBwb2xsaW5nIHRpbWVyIHN0YXJ0ZWQuDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogYXVkaXQ6IGluaXRpYWxpemluZyBuZXRsaW5rIHNvY2tl
-dCAoZGlzYWJsZWQpDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogYXVk
-aXQoMTE2ODAzODEyOS42NjA6MSk6IGluaXRpYWxpemVkDQpKYW4gIDUgMjM6
-MDI6NDYgZ2NjIGtlcm5lbDogVkZTOiBEaXNrIHF1b3RhcyBkcXVvdF82LjUu
-MQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IERxdW90LWNhY2hlIGhh
-c2ggdGFibGUgZW50cmllczogMTAyNCAob3JkZXIgMCwgNDA5NiBieXRlcykN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBpbyBzY2hlZHVsZXIgbm9v
-cCByZWdpc3RlcmVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogaW8g
-c2NoZWR1bGVyIGFudGljaXBhdG9yeSByZWdpc3RlcmVkDQpKYW4gIDUgMjM6
-MDI6NDYgZ2NjIGtlcm5lbDogaW8gc2NoZWR1bGVyIGRlYWRsaW5lIHJlZ2lz
-dGVyZWQNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBpbyBzY2hlZHVs
-ZXIgY2ZxIHJlZ2lzdGVyZWQgKGRlZmF1bHQpDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogUENJOiBFbmFibGluZyBWaWEgZXh0ZXJuYWwgQVBJQyBy
-b3V0aW5nDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogSGFuZ2NoZWNr
-OiBzdGFydGluZyBoYW5nY2hlY2sgdGltZXIgMC45LjAgKHRpY2sgaXMgMTgw
-IHNlY29uZHMsIG1hcmdpbiBpcyA2MCBzZWNvbmRzKS4NCkphbiAgNSAyMzow
-Mjo0NiBnY2Mga2VybmVsOiBIYW5nY2hlY2s6IFVzaW5nIGdldF9jeWNsZXMo
-KS4NCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBTZXJpYWw6IDgyNTAv
-MTY1NTAgZHJpdmVyICRSZXZpc2lvbjogMS45MCAkIDQgcG9ydHMsIElSUSBz
-aGFyaW5nIGRpc2FibGVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDog
-c2VyaWFsODI1MDogdHR5UzAgYXQgSS9PIDB4M2Y4IChpcnEgPSA0KSBpcyBh
-IDE2NTUwQQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IHNlcmlhbDgy
-NTA6IHR0eVMxIGF0IEkvTyAweDJmOCAoaXJxID0gMykgaXMgYSAxNjU1MEEN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiAwMDowODogdHR5UzAgYXQg
-SS9PIDB4M2Y4IChpcnEgPSA0KSBpcyBhIDE2NTUwQQ0KSmFuICA1IDIzOjAy
-OjQ2IGdjYyBrZXJuZWw6IDAwOjA5OiB0dHlTMSBhdCBJL08gMHgyZjggKGly
-cSA9IDMpIGlzIGEgMTY1NTBBDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogcGFycG9ydDA6IFBDLXN0eWxlIGF0IDB4Mzc4ICgweDc3OCksIGlycSA3
-IFtQQ1NQUCgsLi4uKV0NCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBw
-YXJwb3J0X3BjOiBWSUEgcGFyYWxsZWwgcG9ydDogaW89MHgzNzgsIGlycT03
-DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogRmxvcHB5IGRyaXZlKHMp
-OiBmZDAgaXMgMS40NE0NCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBG
-REMgMCBpcyBhIHBvc3QtMTk5MSA4MjA3Nw0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IFVuaWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVy
-IFJldmlzaW9uOiA3LjAwYWxwaGEyDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtl
-cm5lbDogaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0ZW0gYnVzIHNwZWVkIGZv
-ciBQSU8gbW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4DQpKYW4gIDUg
-MjM6MDI6NDYgZ2NjIGtlcm5lbDogVlBfSURFOiBJREUgY29udHJvbGxlciBh
-dCBQQ0kgc2xvdCAwMDAwOjAwOjA3LjENCkphbiAgNSAyMzowMjo0NiBnY2Mg
-a2VybmVsOiBWUF9JREU6IGNoaXBzZXQgcmV2aXNpb24gMTYNCkphbiAgNSAy
-MzowMjo0NiBnY2Mga2VybmVsOiBWUF9JREU6IG5vdCAxMDAlJSBuYXRpdmUg
-bW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVyDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogVlBfSURFOiBWSUEgdnQ4MmM2ODZhIChyZXYgMjIpIElE
-RSBVRE1BNjYgY29udHJvbGxlciBvbiBwY2kwMDAwOjAwOjA3LjENCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiAgICAgaWRlMDogQk0tRE1BIGF0IDB4
-ZmZhMC0weGZmYTcsIEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUEN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiAgICAgaWRlMTogQk0tRE1B
-IGF0IDB4ZmZhOC0weGZmYWYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhk
-ZDpwaW8NCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBoZGE6IE1heHRv
-ciA2WTE2MEwwLCBBVEEgRElTSyBkcml2ZQ0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IGhkYjogU1QzODAwMjFBLCBBVEEgRElTSyBkcml2ZQ0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IGlkZTAgYXQgMHgxZjAtMHgxZjcs
-MHgzZjYgb24gaXJxIDE0DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDog
-aGRjOiBMSVRFLU9OIExUUi0yNDEwMkIsIEFUQVBJIENEL0RWRC1ST00gZHJp
-dmUNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBpZGUxIGF0IDB4MTcw
-LTB4MTc3LDB4Mzc2IG9uIGlycSAxNQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBr
-ZXJuZWw6IGhkYTogbWF4IHJlcXVlc3Qgc2l6ZTogNTEyS2lCDQpKYW4gIDUg
-MjM6MDI6NDYgZ2NjIGtlcm5lbDogaGRhOiAzMjAxNzMwNTYgc2VjdG9ycyAo
-MTYzOTI4IE1CKSB3LzIwNDhLaUIgQ2FjaGUsIENIUz0xOTkyOS8yNTUvNjMs
-IFVETUEoNjYpDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogaGRhOiBj
-YWNoZSBmbHVzaGVzIHN1cHBvcnRlZA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBr
-ZXJuZWw6ICBoZGE6IGhkYTEgaGRhMiBoZGEzIDwgaGRhNSBoZGE2ID4NCkph
-biAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBoZGI6IG1heCByZXF1ZXN0IHNp
-emU6IDEyOEtpQg0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IGhkYjog
-MTU2MzAxNDg4IHNlY3RvcnMgKDgwMDI2IE1CKSB3LzIwNDhLaUIgQ2FjaGUs
-IENIUz02NTUzNS8xNi82MywgVURNQSg2NikNCkphbiAgNSAyMzowMjo0NiBn
-Y2Mga2VybmVsOiBoZGI6IGNhY2hlIGZsdXNoZXMgbm90IHN1cHBvcnRlZA0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6ICBoZGI6IGhkYjENCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBQTlA6IFBTLzIgQ29udHJvbGxlciBb
-UE5QMDMwMzpQUzJLLFBOUDBmMDM6UFMyTV0gYXQgMHg2MCwweDY0IGlycSAx
-LDEyDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogc2VyaW86IGk4MDQy
-IEtCRCBwb3J0IGF0IDB4NjAsMHg2NCBpcnEgMQ0KSmFuICA1IDIzOjAyOjQ2
-IGdjYyBrZXJuZWw6IHNlcmlvOiBpODA0MiBBVVggcG9ydCBhdCAweDYwLDB4
-NjQgaXJxIDEyDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogbWljZTog
-UFMvMiBtb3VzZSBkZXZpY2UgY29tbW9uIGZvciBhbGwgbWljZQ0KSmFuICA1
-IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFRDUCBjdWJpYyByZWdpc3RlcmVkDQpK
-YW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogTkVUOiBSZWdpc3RlcmVkIHBy
-b3RvY29sIGZhbWlseSAxDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDog
-TkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAxNw0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IFN0YXJ0aW5nIGJhbGFuY2VkX2lycQ0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFVzaW5nIElQSSBTaG9ydGN1dCBt
-b2RlDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogVGltZTogdHNjIGNs
-b2Nrc291cmNlIGhhcyBiZWVuIGluc3RhbGxlZC4NCkphbiAgNSAyMzowMjo0
-NiBnY2Mga2VybmVsOiBpbnB1dDogQVQgVHJhbnNsYXRlZCBTZXQgMiBrZXli
-b2FyZCBhcyAvY2xhc3MvaW5wdXQvaW5wdXQwDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogaW5wdXQ6IEltUFMvMiBHZW5lcmljIFdoZWVsIE1vdXNl
-IGFzIC9jbGFzcy9pbnB1dC9pbnB1dDENCkphbiAgNSAyMzowMjo0NiBnY2Mg
-a2VybmVsOiBram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwg
-NSBzZWNvbmRzDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogRVhUMy1m
-czogbW91bnRlZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUu
-DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogVkZTOiBNb3VudGVkIHJv
-b3QgKGV4dDMgZmlsZXN5c3RlbSkgcmVhZG9ubHkuDQpKYW4gIDUgMjM6MDI6
-NDYgZ2NjIGtlcm5lbDogRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTog
-MjEyayBmcmVlZA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6
-IFBvd2VyIEJ1dHRvbiAoRkYpIFtQV1JGXQ0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IEFDUEk6IFBvd2VyIEJ1dHRvbiAoQ00pIFtQV1JCXQ0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6IFNsZWVwIEJ1dHRvbiAo
-Q00pIFtTTFBCXQ0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEFDUEk6
-IFRoZXJtYWwgWm9uZSBbVEhSTV0gKDQwIEMpDQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogdXNiY29yZTogcmVnaXN0ZXJlZCBuZXcgaW50ZXJmYWNl
-IGRyaXZlciB1c2Jmcw0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IHVz
-YmNvcmU6IHJlZ2lzdGVyZWQgbmV3IGludGVyZmFjZSBkcml2ZXIgaHViDQpK
-YW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogdXNiY29yZTogcmVnaXN0ZXJl
-ZCBuZXcgZGV2aWNlIGRyaXZlciB1c2INCkphbiAgNSAyMzowMjo0NiBnY2Mg
-a2VybmVsOiBVU0IgVW5pdmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZh
-Y2UgZHJpdmVyIHYzLjANCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBB
-Q1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0RdIGVuYWJsZWQgYXQgSVJR
-IDEwDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogQUNQSTogUENJIElu
-dGVycnVwdCAwMDAwOjAwOjA3LjJbRF0gLT4gTGluayBbTE5LRF0gLT4gR1NJ
-IDEwIChsZXZlbCwgbG93KSAtPiBJUlEgMTANCkphbiAgNSAyMzowMjo0NiBn
-Y2Mga2VybmVsOiB1aGNpX2hjZCAwMDAwOjAwOjA3LjI6IFVIQ0kgSG9zdCBD
-b250cm9sbGVyDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogdWhjaV9o
-Y2QgMDAwMDowMDowNy4yOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3Np
-Z25lZCBidXMgbnVtYmVyIDENCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVs
-OiB1aGNpX2hjZCAwMDAwOjAwOjA3LjI6IGlycSAxMCwgaW8gYmFzZSAweDAw
-MDBhYzAwDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogdXNiIHVzYjE6
-IGNvbmZpZ3VyYXRpb24gIzEgY2hvc2VuIGZyb20gMSBjaG9pY2UNCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBodWIgMS0wOjEuMDogVVNCIGh1YiBm
-b3VuZA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IGh1YiAxLTA6MS4w
-OiAyIHBvcnRzIGRldGVjdGVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogQUNQSTogUENJIEludGVycnVwdCAwMDAwOjAwOjA3LjNbRF0gLT4gTGlu
-ayBbTE5LRF0gLT4gR1NJIDEwIChsZXZlbCwgbG93KSAtPiBJUlEgMTANCkph
-biAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiB1aGNpX2hjZCAwMDAwOjAwOjA3
-LjM6IFVIQ0kgSG9zdCBDb250cm9sbGVyDQpKYW4gIDUgMjM6MDI6NDYgZ2Nj
-IGtlcm5lbDogdWhjaV9oY2QgMDAwMDowMDowNy4zOiBuZXcgVVNCIGJ1cyBy
-ZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDINCkphbiAgNSAyMzow
-Mjo0NiBnY2Mga2VybmVsOiB1aGNpX2hjZCAwMDAwOjAwOjA3LjM6IGlycSAx
-MCwgaW8gYmFzZSAweDAwMDBiMDAwDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtl
-cm5lbDogdXNiIHVzYjI6IGNvbmZpZ3VyYXRpb24gIzEgY2hvc2VuIGZyb20g
-MSBjaG9pY2UNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBodWIgMi0w
-OjEuMDogVVNCIGh1YiBmb3VuZA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJu
-ZWw6IGh1YiAyLTA6MS4wOiAyIHBvcnRzIGRldGVjdGVkDQpKYW4gIDUgMjM6
-MDI6NDYgZ2NjIGtlcm5lbDogRVhUMyBGUyBvbiBoZGE2LCBpbnRlcm5hbCBq
-b3VybmFsDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogZGV2aWNlLW1h
-cHBlcjogaW9jdGw6IDQuMTAuMC1pb2N0bCAoMjAwNi0wOS0xNCkgaW5pdGlh
-bGlzZWQ6IGRtLWRldmVsQHJlZGhhdC5jb20NCkphbiAgNSAyMzowMjo0NiBn
-Y2Mga2VybmVsOiBBZGRpbmcgMTA1MjIxNmsgc3dhcCBvbiAvZGV2L2hkYTUu
-ICBQcmlvcml0eTotMSBleHRlbnRzOjEgYWNyb3NzOjEwNTIyMTZrDQpKYW4g
-IDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDoga2pvdXJuYWxkIHN0YXJ0aW5nLiAg
-Q29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IEVYVDMgRlMgb24gaGRhMSwgaW50ZXJuYWwgam91cm5hbA0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IEVYVDMtZnM6IG1vdW50ZWQg
-ZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IFNDU0kgc3Vic3lzdGVtIGluaXRpYWxpemVk
-DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogSUEtMzIgTWljcm9jb2Rl
-IFVwZGF0ZSBEcml2ZXI6IHYxLjE0YSA8dGlncmFuQHZlcml0YXMuY29tPg0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IG1pY3JvY29kZTogZXJyb3Ih
-IEJhZCB0b3RhbCBzaXplIGluIG1pY3JvY29kZSBkYXRhIGZpbGUNCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBBQ1BJOiBQQ0kgSW50ZXJydXB0IDAw
-MDA6MDA6MGQuMFtBXSAtPiBHU0kgMTcgKGxldmVsLCBsb3cpIC0+IElSUSAx
-Ng0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IGF0YTE6IFNBVEEgbWF4
-IFVETUEvMTAwIGNtZCAweEUwODM2RTgwIGN0bCAweEUwODM2RThBIGJtZG1h
-IDB4RTA4MzZFMDAgaXJxIDE2DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogYXRhMjogU0FUQSBtYXggVURNQS8xMDAgY21kIDB4RTA4MzZFQzAgY3Rs
-IDB4RTA4MzZFQ0EgYm1kbWEgMHhFMDgzNkUwOCBpcnEgMTYNCkphbiAgNSAy
-MzowMjo0NiBnY2Mga2VybmVsOiBzY3NpMCA6IHNhdGFfc2lsDQpKYW4gIDUg
-MjM6MDI6NDYgZ2NjIGtlcm5lbDogYXRhMTogU0FUQSBsaW5rIHVwIDEuNSBH
-YnBzIChTU3RhdHVzIDExMyBTQ29udHJvbCAzMTApDQpKYW4gIDUgMjM6MDI6
-NDYgZ2NjIGtlcm5lbDogYXRhMS4wMDogQVRBLTYsIG1heCBVRE1BLzEwMCwg
-NjI1MTQyNDQ4IHNlY3RvcnM6IExCQTQ4IA0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IGF0YTEuMDA6IGF0YTE6IGRldiAwIG11bHRpIGNvdW50IDAN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBhdGExLjAwOiBjb25maWd1
-cmVkIGZvciBVRE1BLzEwMA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6
-IHNjc2kxIDogc2F0YV9zaWwNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVs
-OiBhdGEyOiBTQVRBIGxpbmsgZG93biAoU1N0YXR1cyAwIFNDb250cm9sIDMx
-MCkNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBzY3NpIDA6MDowOjA6
-IERpcmVjdC1BY2Nlc3MgICAgIEFUQSAgICAgIFdEQyBXRDMyMDBKRC0yMksg
-MDguMCBQUTogMCBBTlNJOiA1DQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogU0NTSSBkZXZpY2Ugc2RhOiA2MjUxNDI0NDggNTEyLWJ5dGUgaGR3ciBz
-ZWN0b3JzICgzMjAwNzMgTUIpDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogc2RhOiBXcml0ZSBQcm90ZWN0IGlzIG9mZg0KSmFuICA1IDIzOjAyOjQ2
-IGdjYyBrZXJuZWw6IFNDU0kgZGV2aWNlIHNkYTogZHJpdmUgY2FjaGU6IHdy
-aXRlIGJhY2sNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBTQ1NJIGRl
-dmljZSBzZGE6IDYyNTE0MjQ0OCA1MTItYnl0ZSBoZHdyIHNlY3RvcnMgKDMy
-MDA3MyBNQikNCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBzZGE6IFdy
-aXRlIFByb3RlY3QgaXMgb2ZmDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5l
-bDogU0NTSSBkZXZpY2Ugc2RhOiBkcml2ZSBjYWNoZTogd3JpdGUgYmFjaw0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6ICBzZGE6IHNkYTENCkphbiAg
-NSAyMzowMjo0NiBnY2Mga2VybmVsOiBzZCAwOjA6MDowOiBBdHRhY2hlZCBz
-Y3NpIGRpc2sgc2RhDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogc2Qg
-MDowOjA6MDogQXR0YWNoZWQgc2NzaSBnZW5lcmljIHNnMCB0eXBlIDANCkph
-biAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBhdGExLjAwOiBkaXNhYmxlZA0K
-SmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IFN5bmNocm9uaXppbmcgU0NT
-SSBjYWNoZSBmb3IgZGlzayBzZGE6IA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBr
-ZXJuZWw6IEZBSUxFRA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6ICAg
-c3RhdHVzID0gMCwgbWVzc2FnZSA9IDAwLCBob3N0ID0gNCwgZHJpdmVyID0g
-MDANCkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiAgIDw2PkFDUEk6IFBD
-SSBpbnRlcnJ1cHQgZm9yIGRldmljZSAwMDAwOjAwOjBkLjAgZGlzYWJsZWQN
-CkphbiAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiA4MTM5dG9vIEZhc3QgRXRo
-ZXJuZXQgZHJpdmVyIDAuOS4yOA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJu
-ZWw6IEFDUEk6IFBDSSBJbnRlcnJ1cHQgMDAwMDowMDowOS4wW0FdIC0+IEdT
-SSAxNyAobGV2ZWwsIGxvdykgLT4gSVJRIDE2DQpKYW4gIDUgMjM6MDI6NDYg
-Z2NjIGtlcm5lbDogZXRoMDogUmVhbFRlayBSVEw4MTM5IGF0IDB4YjQwMCwg
-MDA6NTA6YmY6M2Y6Y2U6OTUsIElSUSAxNg0KSmFuICA1IDIzOjAyOjQ2IGdj
-YyBrZXJuZWw6IEFDUEk6IFBDSSBJbnRlcnJ1cHQgMDAwMDowMDowYS4wW0Fd
-IC0+IEdTSSAxOCAobGV2ZWwsIGxvdykgLT4gSVJRIDE3DQpKYW4gIDUgMjM6
-MDI6NDYgZ2NjIGtlcm5lbDogM2M1OXg6IERvbmFsZCBCZWNrZXIgYW5kIG90
-aGVycy4gd3d3LnNjeWxkLmNvbS9uZXR3b3JrL3ZvcnRleC5odG1sDQpKYW4g
-IDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogMDAwMDowMDowYS4wOiAzQ29tIFBD
-SSAzYzkwNUMgVG9ybmFkbyBhdCBlMDgzOGQ4MC4NCkphbiAgNSAyMzowMjo0
-NiBnY2Mga2VybmVsOiBBQ1BJOiBQQ0kgaW50ZXJydXB0IGZvciBkZXZpY2Ug
-MDAwMDowMDowOS4wIGRpc2FibGVkDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtl
-cm5lbDogQUNQSTogUENJIGludGVycnVwdCBmb3IgZGV2aWNlIDAwMDA6MDA6
-MGEuMCBkaXNhYmxlZA0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IDgx
-Mzl0b28gRmFzdCBFdGhlcm5ldCBkcml2ZXIgMC45LjI4DQpKYW4gIDUgMjM6
-MDI6NDYgZ2NjIGtlcm5lbDogQUNQSTogUENJIEludGVycnVwdCAwMDAwOjAw
-OjA5LjBbQV0gLT4gR1NJIDE3IChsZXZlbCwgbG93KSAtPiBJUlEgMTYNCkph
-biAgNSAyMzowMjo0NiBnY2Mga2VybmVsOiBldGgwOiBSZWFsVGVrIFJUTDgx
-MzkgYXQgMHhiNDAwLCAwMDo1MDpiZjozZjpjZTo5NSwgSVJRIDE2DQpKYW4g
-IDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogZXRoMDogbGluayB1cCwgMTAwTWJw
-cywgZnVsbC1kdXBsZXgsIGxwYSAweDQ1RTENCkphbiAgNSAyMzowMjo0NiBn
-Y2Mga2VybmVsOiBBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MGEuMFtB
-XSAtPiBHU0kgMTggKGxldmVsLCBsb3cpIC0+IElSUSAxNw0KSmFuICA1IDIz
-OjAyOjQ2IGdjYyBrZXJuZWw6IDNjNTl4OiBEb25hbGQgQmVja2VyIGFuZCBv
-dGhlcnMuIHd3dy5zY3lsZC5jb20vbmV0d29yay92b3J0ZXguaHRtbA0KSmFu
-ICA1IDIzOjAyOjQ2IGdjYyBrZXJuZWw6IDAwMDA6MDA6MGEuMDogM0NvbSBQ
-Q0kgM2M5MDVDIFRvcm5hZG8gYXQgZTA4MzhkODAuDQpKYW4gIDUgMjM6MDI6
-NDYgZ2NjIGtlcm5lbDogZXRoMTogIHNldHRpbmcgaGFsZi1kdXBsZXguDQpK
-YW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogaXBfdGFibGVzOiAoQykgMjAw
-MC0yMDA2IE5ldGZpbHRlciBDb3JlIFRlYW0NCkphbiAgNSAyMzowMjo0NiBn
-Y2Mga2VybmVsOiBOZXRmaWx0ZXIgbWVzc2FnZXMgdmlhIE5FVExJTksgdjAu
-MzAuDQpKYW4gIDUgMjM6MDI6NDYgZ2NjIGtlcm5lbDogaXBfY29ubnRyYWNr
-IHZlcnNpb24gMi40ICg0MDk1IGJ1Y2tldHMsIDMyNzYwIG1heCkgLSAyMjgg
-Ynl0ZXMgcGVyIGNvbm50cmFjaw0KSmFuICA1IDIzOjAyOjQ2IGdjYyBrZXJu
-ZWw6IHByb2Nlc3MgYHN5c2xvZ2QnIGlzIHVzaW5nIG9ic29sZXRlIHNldHNv
-Y2tvcHQgU09fQlNEQ09NUEFUDQpKYW4gIDUgMjM6MDI6NTEgZ2NjIGtlcm5l
-bDogbHAwOiB1c2luZyBwYXJwb3J0MCAoaW50ZXJydXB0LWRyaXZlbikuDQpK
-YW4gIDUgMjM6MDM6MTIgZ2NjIGtlcm5lbDogdHVuOiBVbml2ZXJzYWwgVFVO
-L1RBUCBkZXZpY2UgZHJpdmVyLCAxLjYNCkphbiAgNSAyMzowMzoxMiBnY2Mg
-a2VybmVsOiB0dW46IChDKSAxOTk5LTIwMDQgTWF4IEtyYXNueWFuc2t5IDxt
-YXhrQHF1YWxjb21tLmNvbT4NCkphbiAgNSAyMzowMzoxMyBnY2Mga2VybmVs
-OiBoZGM6IEFUQVBJIDQwWCBDRC1ST00gQ0QtUi9SVyBkcml2ZSwgMjA0OGtC
-IENhY2hlLCBVRE1BKDMzKQ0KSmFuICA1IDIzOjAzOjEzIGdjYyBrZXJuZWw6
-IFVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4yMA0KSmFuICA1
-IDIzOjAzOjEzIGdjYyBrZXJuZWw6IEFDUEk6IFBDSSBJbnRlcnJ1cHQgMDAw
-MDowMDowYi4wW0FdIC0+IEdTSSAxOSAobGV2ZWwsIGxvdykgLT4gSVJRIDE4
-DQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5lbDogaXJxIDEwOiBub2JvZHkg
-Y2FyZWQgKHRyeSBib290aW5nIHdpdGggdGhlICJpcnFwb2xsIiBvcHRpb24p
-DQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5lbDogIFtfX3JlcG9ydF9iYWRf
-aXJxKzQyLzE2MF0gX19yZXBvcnRfYmFkX2lycSsweDJhLzB4YTANCkphbiAg
-NSAyMzo0ODozOCBnY2Mga2VybmVsOiAgWzxjMDE0ZGJmYT5dIF9fcmVwb3J0
-X2JhZF9pcnErMHgyYS8weGEwDQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5l
-bDogIFtub3RlX2ludGVycnVwdCsxMTYvMjQwXSBub3RlX2ludGVycnVwdCsw
-eDc0LzB4ZjANCkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiAgWzxjMDE0
-ZGQwND5dIG5vdGVfaW50ZXJydXB0KzB4NzQvMHhmMA0KSmFuICA1IDIzOjQ4
-OjM4IGdjYyBrZXJuZWw6ICBbaGFuZGxlX2Zhc3Rlb2lfaXJxKzE4MS8yMDhd
-IGhhbmRsZV9mYXN0ZW9pX2lycSsweGI1LzB4ZDANCkphbiAgNSAyMzo0ODoz
-OCBnY2Mga2VybmVsOiAgWzxjMDE0ZTU3NT5dIGhhbmRsZV9mYXN0ZW9pX2ly
-cSsweGI1LzB4ZDANCkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiAgW2Rv
-X0lSUSs5My8xNzZdIGRvX0lSUSsweDVkLzB4YjANCkphbiAgNSAyMzo0ODoz
-OCBnY2Mga2VybmVsOiAgWzxjMDEwNWJlZD5dIGRvX0lSUSsweDVkLzB4YjAN
-CkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiAgW3NjaGVkdWxlKzk5NC8x
-OTg0XSBzY2hlZHVsZSsweDNlMi8weDdjMA0KSmFuICA1IDIzOjQ4OjM4IGdj
-YyBrZXJuZWw6ICBbPGMwMzFhNzcyPl0gc2NoZWR1bGUrMHgzZTIvMHg3YzAN
-CkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiAgW2NvbW1vbl9pbnRlcnJ1
-cHQrMjYvMzJdIGNvbW1vbl9pbnRlcnJ1cHQrMHgxYS8weDIwDQpKYW4gIDUg
-MjM6NDg6MzggZ2NjIGtlcm5lbDogIFs8YzAxMDNiZWE+XSBjb21tb25faW50
-ZXJydXB0KzB4MWEvMHgyMA0KSmFuICA1IDIzOjQ4OjM4IGdjYyBrZXJuZWw6
-ICBbZGVmYXVsdF9pZGxlKzQ5Lzk2XSBkZWZhdWx0X2lkbGUrMHgzMS8weDYw
-DQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5lbDogIFs8YzAxMDBlNzE+XSBk
-ZWZhdWx0X2lkbGUrMHgzMS8weDYwDQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtl
-cm5lbDogIFtjcHVfaWRsZSsxMzAvMTYwXSBjcHVfaWRsZSsweDgyLzB4YTAN
-CkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiAgWzxjMDEwMGY0Mj5dIGNw
-dV9pZGxlKzB4ODIvMHhhMA0KSmFuICA1IDIzOjQ4OjM4IGdjYyBrZXJuZWw6
-ICA9PT09PT09PT09PT09PT09PT09PT09PQ0KSmFuICA1IDIzOjQ4OjM4IGdj
-YyBrZXJuZWw6IGhhbmRsZXJzOg0KSmFuICA1IDIzOjQ4OjM4IGdjYyBrZXJu
-ZWw6IFtwZzArNTQxMzAxMjQ4LzEwNjkzNTYwMzJdICh1c2JfaGNkX2lycSsw
-eDAvMHg3MCBbdXNiY29yZV0pDQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5l
-bDogWzxlMDg2NmEwMD5dICh1c2JfaGNkX2lycSsweDAvMHg3MCBbdXNiY29y
-ZV0pDQpKYW4gIDUgMjM6NDg6MzggZ2NjIGtlcm5lbDogW3BnMCs1NDEzMDEy
-NDgvMTA2OTM1NjAzMl0gKHVzYl9oY2RfaXJxKzB4MC8weDcwIFt1c2Jjb3Jl
-XSkNCkphbiAgNSAyMzo0ODozOCBnY2Mga2VybmVsOiBbPGUwODY2YTAwPl0g
-KHVzYl9oY2RfaXJxKzB4MC8weDcwIFt1c2Jjb3JlXSkNCkphbiAgNSAyMzo0
-ODozOCBnY2Mga2VybmVsOiBEaXNhYmxpbmcgSVJRICMxMA0K
-
----128931150-1717684004-1168103384=:17685--

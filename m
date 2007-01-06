@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932188AbXAFWrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932247AbXAFXIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbXAFWrn (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 17:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbXAFWrn
+	id S932247AbXAFXIK (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 18:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbXAFXIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 17:47:43 -0500
-Received: from adsl-64-172-73-26.dsl.lsan03.pacbell.net ([64.172.73.26]:1876
-	"EHLO myri.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932188AbXAFWrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 17:47:42 -0500
-X-Greylist: delayed 1911 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Jan 2007 17:47:42 EST
-Message-ID: <45A01D76.8080009@myri.com>
-Date: Sat, 06 Jan 2007 23:06:46 +0100
-From: Brice Goglin <brice@myri.com>
-User-Agent: Icedove 1.5.0.9 (X11/20061220)
+	Sat, 6 Jan 2007 18:08:09 -0500
+Received: from bilbo.bmiag.de ([62.154.210.131]:2088 "HELO bilbo.bmiag.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S932247AbXAFXII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 18:08:08 -0500
+X-Greylist: delayed 401 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Jan 2007 18:08:08 EST
+From: Juergen Ruehle <j.ruehle@bmiag.de>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.20-rc3: known unfixed regressions (v4)
-References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org> <20070106210417.GA20714@stusta.de>
-In-Reply-To: <20070106210417.GA20714@stusta.de>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17824.10800.924000.352959@lapjr.intranet.kiel.bmiag.de>
+Date: Sun, 7 Jan 2007 00:01:04 +0100
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Guilt 0.16
+In-Reply-To: <Pine.LNX.4.61.0701062104480.27682@yvahk01.tjqt.qr>
+References: <20070106184639.GC12543@filer.fsl.cs.sunysb.edu>
+	<Pine.LNX.4.61.0701062104480.27682@yvahk01.tjqt.qr>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
-> that are not yet fixed in Linus' tree.
->   
+Jan Engelhardt writes:
+ > 
+ > On Jan 6 2007 13:46, Josef Sipek wrote:
+ > >
+ > >Guilt (Git Quilt) is a series of bash scripts which add a Mercurial
+ > 
+ > "I feel so guilty when using guilt!"
+ > 
+ > Oh well I should point out that people should give
+ > tools a better naming. :-)
 
-I reported another one yesterday, about HT MSI capability lookup being
-broken (can only find the first one in the chain). See
-http://lkml.org/lkml/2007/1/5/215. The patch works well here, but I
-didn't get any comment so far.
+I didn't know there was a tool name 'goodness' metric:-)
 
-The regression has been confirmed by Robert Hancock.
-
-Brice
+I rather like 'Guilt'.
 

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751156AbXAFDOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751142AbXAFDV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbXAFDOo (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 22:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbXAFDOo
+	id S1751142AbXAFDV1 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 22:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbXAFDV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 22:14:44 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:46898 "EHLO scrub.xs4all.nl"
+	Fri, 5 Jan 2007 22:21:27 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:46910 "EHLO scrub.xs4all.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751156AbXAFDOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 22:14:43 -0500
+	id S1751142AbXAFDV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 22:21:26 -0500
+Date: Sat, 6 Jan 2007 04:20:48 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
-To: Shlomi Fish <shlomif@iglu.org.il>
-Subject: Re: [PATCH 2.6.20-rc3] qconf Search Dialog
-Date: Sat, 6 Jan 2007 04:13:49 +0100
-User-Agent: KMail/1.9.5
-Cc: Sam Ravnborg <sam@ravnborg.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       linux-kernel@vger.kernel.org
-References: <200701031954.36440.shlomif@iglu.org.il> <20070103210535.GA31780@uranus.ravnborg.org> <200701051244.14029.shlomif@iglu.org.il>
-In-Reply-To: <200701051244.14029.shlomif@iglu.org.il>
+X-X-Sender: roman@localhost.localdomain
+To: "Cyrill V. Gorcunov" <gorcunov@gmail.com>
+cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] qconf: fix SIGSEGV on empty menu items
+In-Reply-To: <200701042106.37338.gorcunov@gmail.com>
+Message-ID: <Pine.LNX.4.64.0701060415130.12512@localhost.localdomain>
+References: <200701042106.37338.gorcunov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701060413.52331.zippel@linux-m68k.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 January 2007 11:44, Shlomi Fish wrote:
+Hi,
 
-> > I would prefer it as separate smaller steps.
-> > So one patch where you move the dialog and another where you improve
-> > the search dialog.
->
-> Move the dialog from where, to where, and in what respect?
+On Thu, 4 Jan 2007, Cyrill V. Gorcunov wrote:
 
-Move the Find entry to a separate menu and then add improvements on top of the 
-current find infrastructure and please don't just change the current 
-behaviour, give the user a choice.
+> qconf may cause SIGSEGV by trying to show debug
+> information on empty menu items
+
+Thanks, but this is more complex than necessary.
+It simply lacks some initializers.
 
 bye, Roman
+
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+
+---
+Index: linux-2.6/scripts/kconfig/qconf.cc
+===================================================================
+--- linux-2.6.orig/scripts/kconfig/qconf.cc	2007-01-05 01:47:54.000000000 +0100
++++ linux-2.6/scripts/kconfig/qconf.cc	2007-01-05 01:56:54.000000000 +0100
+@@ -915,7 +915,7 @@ void ConfigView::updateListAll(void)
+ }
+ 
+ ConfigInfoView::ConfigInfoView(QWidget* parent, const char *name)
+-	: Parent(parent, name), menu(0)
++	: Parent(parent, name), menu(0), sym(0)
+ {
+ 	if (name) {
+ 		configSettings->beginGroup(name);
+@@ -951,6 +951,7 @@ void ConfigInfoView::setInfo(struct menu
+ 	if (menu == m)
+ 		return;
+ 	menu = m;
++	sym = NULL;
+ 	if (!menu)
+ 		clear();
+ 	else

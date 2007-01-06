@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751180AbXAFElu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751177AbXAFExc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbXAFElu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 23:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbXAFElu
+	id S1751177AbXAFExc (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 23:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbXAFExb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 23:41:50 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:37795 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751180AbXAFElt (ORCPT
+	Fri, 5 Jan 2007 23:53:31 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:42449 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751177AbXAFExa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 23:41:49 -0500
-Message-ID: <459F288C.1070809@vmware.com>
-Date: Fri, 05 Jan 2007 20:41:48 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch] paravirt: isolate module ops
-References: <20070106000715.GA6688@elte.hu>  <459EF537.6090301@vmware.com> <1168049229.3101.15.camel@laptopd505.fenrus.org>
-In-Reply-To: <1168049229.3101.15.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 5 Jan 2007 23:53:30 -0500
+Subject: Re: [PATCH] Fix sparsemem on Cell (take 3)
+From: John Rose <johnrose@austin.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, External List <linuxppc-dev@ozlabs.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>, hch@infradead.org,
+       linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>,
+       mkravetz@us.ibm.com, gone@us.ibm.com, cbe-oss-dev@ozlabs.org,
+       Arnd Bergmann <arnd@arndb.de>
+In-Reply-To: <1168045803.8945.14.camel@localhost.localdomain>
+References: <20061215165335.61D9F775@localhost.localdomain>
+	 <200612182354.47685.arnd@arndb.de>
+	 <1166483780.8648.26.camel@localhost.localdomain>
+	 <200612190959.47344.arnd@arndb.de>
+	 <1168045803.8945.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1168059162.23226.1.camel@sinatra.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 05 Jan 2007 22:52:42 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> I would suggest a slightly different carving.  For one, no TLB flushes.  
->> If you can't modify PTEs, why do you need to have TLB flushes?  And I 
->> would allow CR0 read / write for code which saves and restores FPU state 
->>     
->
-> no that is abstracted away by kernel_fpu_begin/end. Modules have no
-> business doing that themselves
->   
+> I dropped this on the floor over Christmas.  This has had a few smoke
+> tests on ppc64 and i386 and is ready for -mm.  Against 2.6.20-rc2-mm1.
 
-As long as they don't rely on inlines for that... checking and 
-kernel_fpu_end is inline and uses stts(), which requires CR0 read / 
-write.  One can easily imagine binary modules which do use the fpu, and 
-these were not broken before, so breaking them now seems the wrong thing 
-to do.
+Could this break ia64, given that it uses memmap_init_zone()?
 
-I agree on debug registers - anything touching them is way too shady.  
-And there is no reason modules should be doing raw page table 
-operations, they should use proper mm functions and leave the page 
-details to the mm layer, which doesn't do these things inline.
 
-Basically, it is just the things that do get inlined that I think we 
-should worry about.  If you all feel strongly that this should be fixed 
-in 2.6.20, perhaps the best thing to do is in fact 
-EXPORT_SYMBOL_GPL(paravirt_ops), and we can queue up a patch in -mm 
-which will export those paravirt_ops required inline by modules for 
-2.6.21.  Otherwise, I think there will be too many rejects against the 
-paravirt code in Andrew's tree.
-
-Zach

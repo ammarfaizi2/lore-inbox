@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751134AbXAFCbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751124AbXAFCb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbXAFCbz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbXAFCbZ
+	id S1751124AbXAFCb4 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbXAFCbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:31:25 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36729 "EHLO
+	Fri, 5 Jan 2007 21:31:04 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36679 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751108AbXAFCbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:31:21 -0500
-Message-Id: <20070106023521.635299000@sous-sol.org>
+	id S1751124AbXAFCaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:30:55 -0500
+Message-Id: <20070106023449.914553000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:28:28 -0800
+Date: Fri, 05 Jan 2007 18:28:25 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,101 +21,54 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>
-Subject: [patch 35/50] SPARC64: Handle ISA devices with no regs property.
-Content-Disposition: inline; filename=sparc64-handle-isa-devices-with-no-regs-property.patch
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       sandeen@redhat.com
+Subject: [patch 32/50] ext2: skip pages past number of blocks in ext2_find_entry (CVE-2006-6054)
+Content-Disposition: inline; filename=ext2-skip-pages-past-number-of-blocks-in-ext2_find_entry.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: David Miller <davem@davemloft.net>
+From: Eric Sandeen <sandeen@redhat.com>
 
-And this points out that the return value from
-isa_dev_get_resource() and the 'pregs' arg to
-isa_dev_get_irq() are totally unused.
+This one was pointed out on the MOKB site:
+http://kernelfun.blogspot.com/2006/11/mokb-09-11-2006-linux-26x-ext2checkpage.html
 
-Based upon a patch from Richard Mortimer <richm@oldelvet.org.uk>
+If a directory's i_size is corrupted, ext2_find_entry() will keep processing
+pages until the i_size is reached, even if there are no more blocks associated
+with the directory inode.  This patch puts in some minimal sanity-checking
+so that we don't keep checking pages (and issuing errors) if we know there
+can be no more data to read, based on the block count of the directory inode.
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is somewhat similar in approach to the ext3 patch I sent earlier this
+year.
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
 ---
- arch/sparc64/kernel/isa.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+Not upstream yet
 
---- linux-2.6.19.1.orig/arch/sparc64/kernel/isa.c
-+++ linux-2.6.19.1/arch/sparc64/kernel/isa.c
-@@ -22,14 +22,15 @@ static void __init report_dev(struct spa
- 		printk(" [%s", isa_dev->prom_node->name);
- }
- 
--static struct linux_prom_registers * __init
--isa_dev_get_resource(struct sparc_isa_device *isa_dev)
-+static void __init isa_dev_get_resource(struct sparc_isa_device *isa_dev)
- {
- 	struct linux_prom_registers *pregs;
- 	unsigned long base, len;
- 	int prop_len;
- 
- 	pregs = of_get_property(isa_dev->prom_node, "reg", &prop_len);
-+	if (!pregs)
-+		return;
- 
- 	/* Only the first one is interesting. */
- 	len = pregs[0].reg_size;
-@@ -44,12 +45,9 @@ isa_dev_get_resource(struct sparc_isa_de
- 
- 	request_resource(&isa_dev->bus->parent->io_space,
- 			 &isa_dev->resource);
--
--	return pregs;
- }
- 
--static void __init isa_dev_get_irq(struct sparc_isa_device *isa_dev,
--				   struct linux_prom_registers *pregs)
-+static void __init isa_dev_get_irq(struct sparc_isa_device *isa_dev)
- {
- 	struct of_device *op = of_find_device_by_node(isa_dev->prom_node);
- 
-@@ -69,7 +67,6 @@ static void __init isa_fill_children(str
- 
- 	printk(" ->");
- 	while (dp) {
--		struct linux_prom_registers *regs;
- 		struct sparc_isa_device *isa_dev;
- 
- 		isa_dev = kmalloc(sizeof(*isa_dev), GFP_KERNEL);
-@@ -87,8 +84,8 @@ static void __init isa_fill_children(str
- 		isa_dev->bus = parent_isa_dev->bus;
- 		isa_dev->prom_node = dp;
- 
--		regs = isa_dev_get_resource(isa_dev);
--		isa_dev_get_irq(isa_dev, regs);
-+		isa_dev_get_resource(isa_dev);
-+		isa_dev_get_irq(isa_dev);
- 
- 		report_dev(isa_dev, 1);
- 
-@@ -101,7 +98,6 @@ static void __init isa_fill_devices(stru
- 	struct device_node *dp = isa_br->prom_node->child;
- 
- 	while (dp) {
--		struct linux_prom_registers *regs;
- 		struct sparc_isa_device *isa_dev;
- 
- 		isa_dev = kmalloc(sizeof(*isa_dev), GFP_KERNEL);
-@@ -141,8 +137,8 @@ static void __init isa_fill_devices(stru
- 		isa_dev->bus = isa_br;
- 		isa_dev->prom_node = dp;
- 
--		regs = isa_dev_get_resource(isa_dev);
--		isa_dev_get_irq(isa_dev, regs);
-+		isa_dev_get_resource(isa_dev);
-+		isa_dev_get_irq(isa_dev);
- 
- 		report_dev(isa_dev, 0);
- 
+ fs/ext2/dir.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- linux-2.6.19.1.orig/fs/ext2/dir.c
++++ linux-2.6.19.1/fs/ext2/dir.c
+@@ -368,6 +368,14 @@ struct ext2_dir_entry_2 * ext2_find_entr
+ 		}
+ 		if (++n >= npages)
+ 			n = 0;
++		/* next page is past the blocks we've got */
++		if (unlikely(n > (dir->i_blocks >> (PAGE_CACHE_SHIFT - 9)))) {
++			ext2_error(dir->i_sb, __FUNCTION__,
++				"dir %lu size %lld exceeds block count %llu",
++				dir->i_ino, dir->i_size,
++				(unsigned long long)dir->i_blocks);
++				goto out;
++		}
+ 	} while (n != start);
+ out:
+ 	return NULL;
 
 --

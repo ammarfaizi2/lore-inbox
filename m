@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751081AbXAFCHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751083AbXAFCZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbXAFCHV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbXAFCHV
+	id S1751083AbXAFCZJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbXAFCZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:07:21 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55655 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081AbXAFCHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:07:20 -0500
-Subject: Re: [patch] paravirt: isolate module ops
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <459EF537.6090301@vmware.com>
-References: <20070106000715.GA6688@elte.hu>  <459EF537.6090301@vmware.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 05 Jan 2007 18:07:09 -0800
-Message-Id: <1168049229.3101.15.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 5 Jan 2007 21:25:08 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47661 "EHLO
+	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751083AbXAFCZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:25:07 -0500
+Message-Id: <20070106022753.334962000@sous-sol.org>
+User-Agent: quilt/0.45-1
+Date: Fri, 05 Jan 2007 18:27:53 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: [patch 00/50] -stable review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I would suggest a slightly different carving.  For one, no TLB flushes.  
-> If you can't modify PTEs, why do you need to have TLB flushes?  And I 
-> would allow CR0 read / write for code which saves and restores FPU state 
+This is the start of the stable review cycle for the 2.6.19.2 release.
+There are 50 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let us know.  If anyone is a maintainer of the proper subsystem, and
+wants to add a Signed-off-by: line to the patch, please respond with it.
 
-no that is abstracted away by kernel_fpu_begin/end. Modules have no
-business doing that themselves
+These patches are sent out with a number of different people on the
+Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+to add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-> - possibly even debug register access, although any code which touches 
-> DRs could be doing something sneaky.  I'm on the fence about that one.
+Responses should be made by Mon Jan 8 02:30 UTC.
+Anything received after that time might be too late.
 
-lets not allow it at all
+thanks,
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+the -stable release team
+--

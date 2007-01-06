@@ -1,116 +1,252 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751132AbXAFCbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751123AbXAFCbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbXAFCbz (ORCPT <rfc822;w@1wt.eu>);
+	id S1751123AbXAFCbz (ORCPT <rfc822;w@1wt.eu>);
 	Fri, 5 Jan 2007 21:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbXAFCbJ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbXAFCbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:31:09 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36674 "EHLO
+	Fri, 5 Jan 2007 21:31:13 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36664 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751123AbXAFCay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:30:54 -0500
-Message-Id: <20070106023429.759044000@sous-sol.org>
+	id S1751119AbXAFCas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:30:48 -0500
+Message-Id: <20070106023229.297246000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:28:23 -0800
+Date: Fri, 05 Jan 2007 18:28:12 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, Greg KH <gregkh@suse.de>,
+       Chris Wright <chrisw@kernel.org>, Adrian Bunk <bunk@stusta.de>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
-       sandeen@redhat.com, <linux-ext4@vger.kernel.org>
-Subject: [patch 30/50] handle ext3 directory corruption better (CVE-2006-6053)
-Content-Disposition: inline; filename=handle-ext3-directory-corruption-better.patch
+       alan@lxorguk.ukuu.org.uk, Ingo Molnar <mingo@elte.hu>
+Subject: [patch 19/50] sched: fix bad missed wakeups in the i386, x86_64, ia64, ACPI and APM idle code
+Content-Disposition: inline; filename=sched-fix-bad-missed-wakeups-in-the-i386-x86_64-ia64-acpi-and-apm-idle-code.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Ingo Molnar <mingo@elte.hu>
 
-I've been using Steve Grubb's purely evil "fsfuzzer" tool, at
-http://people.redhat.com/sgrubb/files/fsfuzzer-0.4.tar.gz
+Fernando Lopez-Lezcano reported frequent scheduling latencies and audio 
+xruns starting at the 2.6.18-rt kernel, and those problems persisted all 
+until current -rt kernels. The latencies were serious and unjustified by 
+system load, often in the milliseconds range.
 
-Basically it makes a filesystem, splats some random bits over it, then
-tries to mount it and do some simple filesystem actions.
+After a patient and heroic multi-month effort of Fernando, where he 
+tested dozens of kernels, tried various configs, boot options, 
+test-patches of mine and provided latency traces of those incidents, the 
+following 'smoking gun' trace was captured by him:
 
-At best, the filesystem catches the corruption gracefully.  At worst,
-things spin out of control.
+                 _------=> CPU#
+                / _-----=> irqs-off
+               | / _----=> need-resched
+               || / _---=> hardirq/softirq
+               ||| / _--=> preempt-depth
+               |||| /
+               |||||     delay
+   cmd     pid ||||| time  |   caller
+      \   /    |||||   \   |   /
+  IRQ_19-1479  1D..1    0us : __trace_start_sched_wakeup (try_to_wake_up)
+  IRQ_19-1479  1D..1    0us : __trace_start_sched_wakeup <<...>-5856> (37 0)
+  IRQ_19-1479  1D..1    0us : __trace_start_sched_wakeup (c01262ba 0 0)
+  IRQ_19-1479  1D..1    0us : resched_task (try_to_wake_up)
+  IRQ_19-1479  1D..1    0us : __spin_unlock_irqrestore (try_to_wake_up)
+  ...
+  <idle>-0     1...1   11us!: default_idle (cpu_idle)
+  ...
+  <idle>-0     0Dn.1  602us : smp_apic_timer_interrupt (c0103baf 1 0)
+  ...
+   <...>-5856  0D..2  618us : __switch_to (__schedule)
+   <...>-5856  0D..2  618us : __schedule <<idle>-0> (20 162)
+   <...>-5856  0D..2  619us : __spin_unlock_irq (__schedule)
+   <...>-5856  0...1  619us : trace_stop_sched_switched (__schedule)
+   <...>-5856  0D..1  619us : trace_stop_sched_switched <<...>-5856> (37 0)
 
-As you might guess, we found a couple places in ext3 where things spin out
-of control :)
+what is visible in this trace is that CPU#1 ran try_to_wake_up() for 
+PID:5856, it placed PID:5856 on CPU#0's runqueue and ran resched_task() 
+for CPU#0. But it decided to not send an IPI that no CPU - due to 
+TS_POLLING. But CPU#0 never woke up after its NEED_RESCHED bit was set, 
+and only rescheduled to PID:5856 upon the next lapic timer IRQ. The 
+result was a 600+ usecs latency and a missed wakeup!
 
-First, we had a corrupted directory that was never checked for
-consistency...  it was corrupt, and pointed to another bad "entry" of
-length 0.  The for() loop looped forever, since the length of
-ext3_next_entry(de) was 0, and we kept looking at the same pointer over and
-over and over and over...  I modeled this check and subsequent action on
-what is done for other directory types in ext3_readdir...
+the bug turned out to be an idle-wakeup bug introduced into the mainline 
+kernel this summer via an optimization in the x86_64 tree:
 
-(adding this check adds some computational expense; I am testing a followup
-patch to reduce the number of times we check and re-check these directory
-entries, in all cases.  Thanks for the idea, Andreas).
+    commit 495ab9c045e1b0e5c82951b762257fe1c9d81564
+    Author: Andi Kleen <ak@suse.de>
+    Date:   Mon Jun 26 13:59:11 2006 +0200
 
-Next we had a root directory inode which had a corrupted size, claimed to
-be > 200M on a 4M filesystem.  There was only really 1 block in the
-directory, but because the size was so large, readdir kept coming back for
-more, spewing thousands of printk's along the way.
+    [PATCH] i386/x86-64/ia64: Move polling flag into thread_info_status
 
-Per Andreas' suggestion, if we're in this read error condition and we're
-trying to read an offset which is greater than i_blocks worth of bytes,
-stop trying, and break out of the loop.
+    During some profiling I noticed that default_idle causes a lot of
+    memory traffic. I think that is caused by the atomic operations
+    to clear/set the polling flag in thread_info. There is actually
+    no reason to make this atomic - only the idle thread does it
+    to itself, other CPUs only read it. So I moved it into ti->status.
 
-With these two changes fsfuzz test survives quite well on ext3.
+the problem is this type of change:
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Cc: <linux-ext4@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+        if (!hlt_counter && boot_cpu_data.hlt_works_ok) {
+-               clear_thread_flag(TIF_POLLING_NRFLAG);
++               current_thread_info()->status &= ~TS_POLLING;
+                smp_mb__after_clear_bit();
+                while (!need_resched()) {
+                        local_irq_disable();
+
+this changes clear_thread_flag() to an explicit clearing of TS_POLLING. 
+clear_thread_flag() is defined as:
+
+        clear_bit(flag, &ti->flags);
+
+and clear_bit() is a LOCK-ed atomic instruction on all x86 platforms:
+
+  static inline void clear_bit(int nr, volatile unsigned long * addr)
+  {
+          __asm__ __volatile__( LOCK_PREFIX
+                  "btrl %1,%0"
+
+hence smp_mb__after_clear_bit() is defined as a simple compile barrier:
+
+  #define smp_mb__after_clear_bit()       barrier()
+
+but the explicit TS_POLLING clearing introduced by the patch:
+
++               current_thread_info()->status &= ~TS_POLLING;
+
+is not an atomic op! So the clearing of the TS_POLLING bit is freely 
+reorderable with the reading of the NEED_RESCHED bit - and both now 
+reside in different memory addresses.
+
+CPU idle wakeup very much depends on ordered memory ops, the clearing of 
+the TS_POLLING flag must always be done before we test need_resched() 
+and hit the idle instruction(s). [Symmetrically, the wakeup code needs 
+to set NEED_RESCHED before it tests the TS_POLLING flag, so memory 
+ordering is paramount.]
+
+Fernando's dual-core Athlon64 system has a sufficiently advanced memory 
+ordering model so that it triggered this scenario very often.
+
+( And it also turned out that the reason why these latencies never
+  triggered on my testsystems is that i routinely use idle=poll, which
+  was the only idle variant not affected by this bug. )
+
+The fix is to change the smp_mb__after_clear_bit() to an smp_mb(), to 
+act as an absolute barrier between the TS_POLLING write and the 
+NEED_RESCHED read. This affects almost all idling methods (default, 
+ACPI, APM), on all 3 x86 architectures: i386, x86_64, ia64.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Tested-by: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+[chrisw: backport to 2.6.19.1]
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
-Date: Thu, 7 Dec 2006 04:36:26 +0000 (-0800)
-Subject: [patch 30/50] [PATCH] handle ext3 directory corruption better
-X-Git-Tag: v2.6.20-rc1
-X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=40b851348fe9bf49c26025b34261d25142269b60
+ arch/i386/kernel/apm.c        |    6 +++++-
+ arch/i386/kernel/process.c    |    7 ++++++-
+ arch/ia64/kernel/process.c    |   10 ++++++++--
+ arch/x86_64/kernel/process.c  |    6 +++++-
+ drivers/acpi/processor_idle.c |   12 ++++++++++--
+ 5 files changed, 34 insertions(+), 7 deletions(-)
 
- fs/ext3/dir.c   |    3 +++
- fs/ext3/namei.c |    9 +++++++++
- 2 files changed, 12 insertions(+)
-
---- linux-2.6.19.1.orig/fs/ext3/dir.c
-+++ linux-2.6.19.1/fs/ext3/dir.c
-@@ -154,6 +154,9 @@ static int ext3_readdir(struct file * fi
- 			ext3_error (sb, "ext3_readdir",
- 				"directory #%lu contains a hole at offset %lu",
- 				inode->i_ino, (unsigned long)filp->f_pos);
-+			/* corrupt size?  Maybe no more blocks to read */
-+			if (filp->f_pos > inode->i_blocks << 9)
-+				break;
- 			filp->f_pos += sb->s_blocksize - offset;
- 			continue;
- 		}
---- linux-2.6.19.1.orig/fs/ext3/namei.c
-+++ linux-2.6.19.1/fs/ext3/namei.c
-@@ -552,6 +552,15 @@ static int htree_dirblock_to_tree(struct
- 					   dir->i_sb->s_blocksize -
- 					   EXT3_DIR_REC_LEN(0));
- 	for (; de < top; de = ext3_next_entry(de)) {
-+		if (!ext3_check_dir_entry("htree_dirblock_to_tree", dir, de, bh,
-+					(block<<EXT3_BLOCK_SIZE_BITS(dir->i_sb))
-+						+((char *)de - bh->b_data))) {
-+			/* On error, skip the f_pos to the next block. */
-+			dir_file->f_pos = (dir_file->f_pos |
-+					(dir->i_sb->s_blocksize - 1)) + 1;
-+			brelse (bh);
-+			return count;
+--- linux-2.6.19.1.orig/arch/i386/kernel/apm.c
++++ linux-2.6.19.1/arch/i386/kernel/apm.c
+@@ -784,7 +784,11 @@ static int apm_do_idle(void)
+ 	polling = !!(current_thread_info()->status & TS_POLLING);
+ 	if (polling) {
+ 		current_thread_info()->status &= ~TS_POLLING;
+-		smp_mb__after_clear_bit();
++		/*
++		 * TS_POLLING-cleared state must be visible before we
++		 * test NEED_RESCHED:
++		 */
++		smp_mb();
+ 	}
+ 	if (!need_resched()) {
+ 		idled = 1;
+--- linux-2.6.19.1.orig/arch/i386/kernel/process.c
++++ linux-2.6.19.1/arch/i386/kernel/process.c
+@@ -103,7 +103,12 @@ void default_idle(void)
+ 
+ 	if (!hlt_counter && boot_cpu_data.hlt_works_ok) {
+ 		current_thread_info()->status &= ~TS_POLLING;
+-		smp_mb__after_clear_bit();
++		/*
++		 * TS_POLLING-cleared state must be visible before we
++		 * test NEED_RESCHED:
++		 */
++		smp_mb();
++
+ 		while (!need_resched()) {
+ 			local_irq_disable();
+ 			if (!need_resched())
+--- linux-2.6.19.1.orig/arch/ia64/kernel/process.c
++++ linux-2.6.19.1/arch/ia64/kernel/process.c
+@@ -268,10 +268,16 @@ cpu_idle (void)
+ 
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+-		if (can_do_pal_halt)
++		if (can_do_pal_halt) {
+ 			current_thread_info()->status &= ~TS_POLLING;
+-		else
++			/*
++			 * TS_POLLING-cleared state must be visible before we
++			 * test NEED_RESCHED:
++			 */
++			smp_mb();
++		} else {
+ 			current_thread_info()->status |= TS_POLLING;
 +		}
- 		ext3fs_dirhash(de->name, de->name_len, hinfo);
- 		if ((hinfo->hash < start_hash) ||
- 		    ((hinfo->hash == start_hash) &&
+ 
+ 		if (!need_resched()) {
+ 			void (*idle)(void);
+--- linux-2.6.19.1.orig/arch/x86_64/kernel/process.c
++++ linux-2.6.19.1/arch/x86_64/kernel/process.c
+@@ -111,7 +111,11 @@ static void default_idle(void)
+ 	local_irq_enable();
+ 
+ 	current_thread_info()->status &= ~TS_POLLING;
+-	smp_mb__after_clear_bit();
++	/*
++	 * TS_POLLING-cleared state must be visible before we
++	 * test NEED_RESCHED:
++	 */
++	smp_mb();
+ 	while (!need_resched()) {
+ 		local_irq_disable();
+ 		if (!need_resched())
+--- linux-2.6.19.1.orig/drivers/acpi/processor_idle.c
++++ linux-2.6.19.1/drivers/acpi/processor_idle.c
+@@ -211,7 +211,11 @@ acpi_processor_power_activate(struct acp
+ static void acpi_safe_halt(void)
+ {
+ 	current_thread_info()->status &= ~TS_POLLING;
+-	smp_mb__after_clear_bit();
++	/*
++	 * TS_POLLING-cleared state must be visible before we
++	 * test NEED_RESCHED:
++	 */
++	smp_mb();
+ 	if (!need_resched())
+ 		safe_halt();
+ 	current_thread_info()->status |= TS_POLLING;
+@@ -345,7 +349,11 @@ static void acpi_processor_idle(void)
+ 	 */
+ 	if (cx->type == ACPI_STATE_C2 || cx->type == ACPI_STATE_C3) {
+ 		current_thread_info()->status &= ~TS_POLLING;
+-		smp_mb__after_clear_bit();
++		/*
++		 * TS_POLLING-cleared state must be visible before we
++		 * test NEED_RESCHED:
++		 */
++		smp_mb();
+ 		if (need_resched()) {
+ 			current_thread_info()->status |= TS_POLLING;
+ 			local_irq_enable();
 
 --

@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751395AbXAFNmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751396AbXAFNp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbXAFNmv (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 08:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbXAFNmv
+	id S1751396AbXAFNp1 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 08:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbXAFNp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 08:42:51 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:40521 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751395AbXAFNmu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 08:42:50 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Sat, 6 Jan 2007 08:36:23 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: "Ahmed S. Darwish" <darwish.07@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
-In-Reply-To: <20070106131725.GB19020@Ahmed>
-Message-ID: <Pine.LNX.4.64.0701060833150.12420@localhost.localdomain>
-References: <20070106131725.GB19020@Ahmed>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+	Sat, 6 Jan 2007 08:45:27 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48798 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751396AbXAFNp0 (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 08:45:26 -0500
+Message-Id: <200701061344.l06DipYC003610@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.20-rc3-mm1 - rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues.patch
+In-Reply-To: Your message of "Thu, 04 Jan 2007 22:02:00 PST."
+             <20070104220200.ae4e9a46.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20070104220200.ae4e9a46.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1168091091_3205P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 06 Jan 2007 08:44:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2007, Ahmed S. Darwish wrote:
+--==_Exmh_1168091091_3205P
+Content-Type: text/plain; charset=us-ascii
 
-> Hi all,
-> I'm not able to find the DAC960 block driver maintainer. If someones knows
-> please reply :).
->
-> A patch to switch kmalloc->kzalloc and to clean unneeded kammloc,
-> pci_alloc_consistent casts
->
-> Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
->
-> diff --git a/drivers/block/DAC960.c b/drivers/block/DAC960.c
+On Thu, 04 Jan 2007 22:02:00 PST, Andrew Morton said:
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
 
-  a couple bits of advice here.  you should start your patch
-submission with *only* that descriptive text you want included in the
-log, followed by your "Signed-off-by" line, then a line containing
-"---".
+One of these 3 patches:
 
-  *after* that "---" line, and *before* you start the actual patch,
-you can add superfluous text, like asking about who the maintainer is,
-so that informal dialogue like that doesn't become part of the
-permanent patch record.
+rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues.patch
+rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues-fix.patch
+ondemand-governor-restructure-the-work-callback.patch
 
-  in short, your patch should look like:
+causes an oops in kref_put during early boot ("unable to handle paging
+request at 00078"). 
 
-A patch to switch...
+Dell Latitude D820 laptop, Core2 T7200 with a 64-bit kernel.
 
-Signed-off-by: ...
+Hand-copied trace of the oops:
 
----
+kobject_put+0x19/0x1b
+cpufreq_cpu_put+0xd/0x1e
+cpufreq_get+0x45/0x51
+handle_cpufreq_delayed_get+0x1e/0x41
+run_workqueue+0x9c/0x14e
+worker_thread+0x0/0x145
+worker_thread+0x10e/0x145
+default_wake_function+0x0/0xf
+worker_thread+0x0/0x145
+kthread+0x8/0x10b
+schedule_tail+0x38/0xa1
+child_rip+0xa/0x12
+kthread+0x0/0x10b
+child_rip+0x0/0x12
 
-  i'm not sure who the maintainer is.  can anyone help?
+With the 3 listed patches plus:
+ondemand-governor-use-new-cpufreq-rwsem-locking-in-work-callback.patch
+reverted, the system boots OK.
+This ring any bells?
 
-diff --git ...
+--==_Exmh_1168091091_3205P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFFn6fTcC3lWbTT17ARAuRAAKDvF1DsEhoD3EiAwB6srxfKRsB0RwCgojFt
+6nljOf4UqZwx1zy/xqIzZQI=
+=Vly7
+-----END PGP SIGNATURE-----
 
-rday
+--==_Exmh_1168091091_3205P--

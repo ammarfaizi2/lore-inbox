@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751178AbXAFEjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751180AbXAFElu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbXAFEjz (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 23:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbXAFEjz
+	id S1751180AbXAFElu (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 23:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbXAFElu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 23:39:55 -0500
-Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:58436 "EHLO
-	pne-smtpout4-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751178AbXAFEjz (ORCPT
+	Fri, 5 Jan 2007 23:41:50 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:37795 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751180AbXAFElt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 23:39:55 -0500
-X-Greylist: delayed 4162 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 23:39:55 EST
-Date: Sat, 6 Jan 2007 05:30:29 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: warning at mm/truncate.c:60/cancel_dirty_page()
-Message-ID: <20070106033029.GD8772@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20070106023907.GA7766@m.safari.iki.fi>
+	Fri, 5 Jan 2007 23:41:49 -0500
+Message-ID: <459F288C.1070809@vmware.com>
+Date: Fri, 05 Jan 2007 20:41:48 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070106023907.GA7766@m.safari.iki.fi>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [patch] paravirt: isolate module ops
+References: <20070106000715.GA6688@elte.hu>  <459EF537.6090301@vmware.com> <1168049229.3101.15.camel@laptopd505.fenrus.org>
+In-Reply-To: <1168049229.3101.15.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 04:39:07 +0200, Sami Farin wrote:
-> Linux 2.6.19.1 SMP [2] on Pentium D...
-> I was running dt-15.14 [2] and I ran
-> "cinfo datafile" (it does mincore()).
-> Well it went OK but when I ran "strace cinfo datafile"...:
-> 04:18:48.062466 mincore(0x37f1f000, 2147266560, 
+Arjan van de Ven wrote:
+>> I would suggest a slightly different carving.  For one, no TLB flushes.  
+>> If you can't modify PTEs, why do you need to have TLB flushes?  And I 
+>> would allow CR0 read / write for code which saves and restores FPU state 
+>>     
+>
+> no that is abstracted away by kernel_fpu_begin/end. Modules have no
+> business doing that themselves
+>   
 
-Forgot to do "git-whatchanged mm/mincore.c"...
-Looks like git and 2.6.19.2 review patch include a fix for mincore.
-Maybe it fixes this issue.
+As long as they don't rely on inlines for that... checking and 
+kernel_fpu_end is inline and uses stts(), which requires CR0 read / 
+write.  One can easily imagine binary modules which do use the fpu, and 
+these were not broken before, so breaking them now seems the wrong thing 
+to do.
 
--- 
+I agree on debug registers - anything touching them is way too shady.  
+And there is no reason modules should be doing raw page table 
+operations, they should use proper mm functions and leave the page 
+details to the mm layer, which doesn't do these things inline.
+
+Basically, it is just the things that do get inlined that I think we 
+should worry about.  If you all feel strongly that this should be fixed 
+in 2.6.20, perhaps the best thing to do is in fact 
+EXPORT_SYMBOL_GPL(paravirt_ops), and we can queue up a patch in -mm 
+which will export those paravirt_ops required inline by modules for 
+2.6.21.  Otherwise, I think there will be too many rejects against the 
+paravirt code in Andrew's tree.
+
+Zach

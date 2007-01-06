@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751129AbXAFClG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751136AbXAFCiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbXAFClG (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbXAFCkv
+	id S1751136AbXAFCiy (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbXAFCch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:40:51 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36700 "EHLO
+	Fri, 5 Jan 2007 21:32:37 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36830 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751125AbXAFCbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:31:03 -0500
-Message-Id: <20070106023511.043532000@sous-sol.org>
+	id S1751137AbXAFCcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:32:18 -0500
+Message-Id: <20070106023542.365678000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:28:27 -0800
+Date: Fri, 05 Jan 2007 18:28:31 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,199 +21,134 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>
-Subject: [patch 34/50] SPARC64: Fix "mem=xxx" handling.
-Content-Disposition: inline; filename=sparc64-fix-mem-xxx-handling.patch
+       alan@lxorguk.ukuu.org.uk, Linus Torvalds <torvalds@macmini.osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Martin J Bligh <mbligh@google.com>, Martin Michlmayr <tbm@cyrius.com>,
+       Martin Johansson <martin@fatbob.nu>, Ingo Molnar <mingo@elte.hu>,
+       Andrei Popa <andrei.popa@i-neo.ro>, High Dickins <hugh@veritas.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Gordon Farquharson <gordonfarquharson@gmail.com>,
+       Guillaume Chazarain <guichaz@yahoo.fr>,
+       Kenneth Cheng <kenneth.w.chen@intel.com>,
+       Tobias Diedrich <ranma@tdiedrich.de>
+Subject: [patch 38/50] VM: Fix nasty and subtle race in shared mmaped page writeback
+Content-Disposition: inline; filename=vm-fix-nasty-and-subtle-race-in-shared-mmap-ed-page-writeback.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: David Miller <davem@davemloft.net>
+From: Linus Torvalds <torvalds@macmini.osdl.org>
 
-We were not being careful enough.  When we trim the physical
-memory areas, we have to make sure we don't remove the kernel
-image or initial ramdisk image ranges.
+The VM layer (on the face of it, fairly reasonably) expected that when
+it does a ->writepage() call to the filesystem, it would write out the
+full page at that point in time.  Especially since it had earlier marked
+the whole page dirty with "set_page_dirty()".
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+But that isn't actually the case: ->writepage() does not actually write
+a page, it writes the parts of the page that have been explicitly marked
+dirty before, *and* that had not got written out for other reasons since
+the last time we told it they were dirty.
+
+That last caveat is the important one.
+
+Which _most_ of the time ends up being the whole page (since we had
+called "set_page_dirty()" on the page earlier), but if the filesystem
+had done any dirty flushing of its own (for example, to honor some
+internal write ordering guarantees), it might end up doing only a
+partial page IO (or none at all) when ->writepage() is actually called.
+
+That is the correct thing in general (since we actually often _want_
+only the known-dirty parts of the page to be written out), but the
+shared dirty page handling had implicitly forgotten about these details,
+and had a number of cases where it was doing just the "->writepage()"
+part, without telling the low-level filesystem that the whole page might
+have been re-dirtied as part of being mapped writably into user space.
+
+Since most of the time the FS did actually write out the full page, we
+didn't notice this for a loong time, and this needed some really odd
+patterns to trigger.  But it caused occasional corruption with rtorrent
+and with the Debian "apt" database, because both use shared mmaps to
+update the end result.
+
+This fixes it. Finally. After way too much hair-pulling.
+
+Acked-by: Nick Piggin <nickpiggin@yahoo.com.au>
+Acked-by: Martin J. Bligh <mbligh@google.com>
+Acked-by: Martin Michlmayr <tbm@cyrius.com>
+Acked-by: Martin Johansson <martin@fatbob.nu>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+Acked-by: Andrei Popa <andrei.popa@i-neo.ro>
+Cc: High Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: David Miller <davem@davemloft.net>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Cc: Gordon Farquharson <gordonfarquharson@gmail.com>
+Cc: Guillaume Chazarain <guichaz@yahoo.fr>
+Cc: Theodore Tso <tytso@mit.edu>
+Cc: Kenneth Cheng <kenneth.w.chen@intel.com>
+Cc: Tobias Diedrich <ranma@tdiedrich.de>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+[chrisw: backport to 2.6.19.1]
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
 ---
- arch/sparc64/mm/init.c |  147 +++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 124 insertions(+), 23 deletions(-)
+ mm/page-writeback.c |   39 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 34 insertions(+), 5 deletions(-)
 
---- linux-2.6.19.1.orig/arch/sparc64/mm/init.c
-+++ linux-2.6.19.1/arch/sparc64/mm/init.c
-@@ -872,6 +872,115 @@ static unsigned long __init choose_bootm
- 	prom_halt();
- }
- 
-+static void __init trim_pavail(unsigned long *cur_size_p,
-+			       unsigned long *end_of_phys_p)
-+{
-+	unsigned long to_trim = *cur_size_p - cmdline_memory_size;
-+	unsigned long avoid_start, avoid_end;
-+	int i;
-+
-+	to_trim = PAGE_ALIGN(to_trim);
-+
-+	avoid_start = avoid_end = 0;
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	avoid_start = initrd_start;
-+	avoid_end = PAGE_ALIGN(initrd_end);
-+#endif
-+
-+	/* Trim some pavail[] entries in order to satisfy the
-+	 * requested "mem=xxx" kernel command line specification.
-+	 *
-+	 * We must not trim off the kernel image area nor the
-+	 * initial ramdisk range (if any).  Also, we must not trim
-+	 * any pavail[] entry down to zero in order to preserve
-+	 * the invariant that all pavail[] entries have a non-zero
-+	 * size which is assumed by all of the code in here.
-+	 */
-+	for (i = 0; i < pavail_ents; i++) {
-+		unsigned long start, end, kern_end;
-+		unsigned long trim_low, trim_high, n;
-+
-+		kern_end = PAGE_ALIGN(kern_base + kern_size);
-+
-+		trim_low = start = pavail[i].phys_addr;
-+		trim_high = end = start + pavail[i].reg_size;
-+
-+		if (kern_base >= start &&
-+		    kern_base < end) {
-+			trim_low = kern_base;
-+			if (kern_end >= end)
-+				continue;
-+		}
-+		if (kern_end >= start &&
-+		    kern_end < end) {
-+			trim_high = kern_end;
-+		}
-+		if (avoid_start &&
-+		    avoid_start >= start &&
-+		    avoid_start < end) {
-+			if (trim_low > avoid_start)
-+				trim_low = avoid_start;
-+			if (avoid_end >= end)
-+				continue;
-+		}
-+		if (avoid_end &&
-+		    avoid_end >= start &&
-+		    avoid_end < end) {
-+			if (trim_high < avoid_end)
-+				trim_high = avoid_end;
-+		}
-+
-+		if (trim_high <= trim_low)
-+			continue;
-+
-+		if (trim_low == start && trim_high == end) {
-+			/* Whole chunk is available for trimming.
-+			 * Trim all except one page, in order to keep
-+			 * entry non-empty.
-+			 */
-+			n = (end - start) - PAGE_SIZE;
-+			if (n > to_trim)
-+				n = to_trim;
-+
-+			if (n) {
-+				pavail[i].phys_addr += n;
-+				pavail[i].reg_size -= n;
-+				to_trim -= n;
-+			}
-+		} else {
-+			n = (trim_low - start);
-+			if (n > to_trim)
-+				n = to_trim;
-+
-+			if (n) {
-+				pavail[i].phys_addr += n;
-+				pavail[i].reg_size -= n;
-+				to_trim -= n;
-+			}
-+			if (to_trim) {
-+				n = end - trim_high;
-+				if (n > to_trim)
-+					n = to_trim;
-+				if (n) {
-+					pavail[i].reg_size -= n;
-+					to_trim -= n;
-+				}
-+			}
-+		}
-+
-+		if (!to_trim)
-+			break;
-+	}
-+
-+	/* Recalculate.  */
-+	*cur_size_p = 0UL;
-+	for (i = 0; i < pavail_ents; i++) {
-+		*end_of_phys_p = pavail[i].phys_addr +
-+			pavail[i].reg_size;
-+		*cur_size_p += pavail[i].reg_size;
-+	}
-+}
-+
- static unsigned long __init bootmem_init(unsigned long *pages_avail,
- 					 unsigned long phys_base)
+--- linux-2.6.19.1.orig/mm/page-writeback.c
++++ linux-2.6.19.1/mm/page-writeback.c
+@@ -893,12 +893,41 @@ int clear_page_dirty_for_io(struct page 
  {
-@@ -889,31 +998,13 @@ static unsigned long __init bootmem_init
- 		end_of_phys_memory = pavail[i].phys_addr +
- 			pavail[i].reg_size;
- 		bytes_avail += pavail[i].reg_size;
--		if (cmdline_memory_size) {
--			if (bytes_avail > cmdline_memory_size) {
--				unsigned long slack = bytes_avail - cmdline_memory_size;
--
--				bytes_avail -= slack;
--				end_of_phys_memory -= slack;
--
--				pavail[i].reg_size -= slack;
--				if ((long)pavail[i].reg_size <= 0L) {
--					pavail[i].phys_addr = 0xdeadbeefUL;
--					pavail[i].reg_size = 0UL;
--					pavail_ents = i;
--				} else {
--					pavail[i+1].reg_size = 0Ul;
--					pavail[i+1].phys_addr = 0xdeadbeefUL;
--					pavail_ents = i + 1;
--				}
--				break;
+ 	struct address_space *mapping = page_mapping(page);
+ 
+-	if (mapping) {
++	if (mapping && mapping_cap_account_dirty(mapping)) {
++		/*
++		 * Yes, Virginia, this is indeed insane.
++		 *
++		 * We use this sequence to make sure that
++		 *  (a) we account for dirty stats properly
++		 *  (b) we tell the low-level filesystem to
++		 *      mark the whole page dirty if it was
++		 *      dirty in a pagetable. Only to then
++		 *  (c) clean the page again and return 1 to
++		 *      cause the writeback.
++		 *
++		 * This way we avoid all nasty races with the
++		 * dirty bit in multiple places and clearing
++		 * them concurrently from different threads.
++		 *
++		 * Note! Normally the "set_page_dirty(page)"
++		 * has no effect on the actual dirty bit - since
++		 * that will already usually be set. But we
++		 * need the side effects, and it can help us
++		 * avoid races.
++		 *
++		 * We basically use the page "master dirty bit"
++		 * as a serialization point for all the different
++		 * threads doing their things.
++		 *
++		 * FIXME! We still have a race here: if somebody
++		 * adds the page back to the page tables in
++		 * between the "page_mkclean()" and the "TestClearPageDirty()",
++		 * we might have it mapped without the dirty bit set.
++		 */
++		if (page_mkclean(page))
++			set_page_dirty(page);
+ 		if (TestClearPageDirty(page)) {
+-			if (mapping_cap_account_dirty(mapping)) {
+-				page_mkclean(page);
+-				dec_zone_page_state(page, NR_FILE_DIRTY);
 -			}
--		}
- 	}
- 
--	*pages_avail = bytes_avail >> PAGE_SHIFT;
--
--	end_pfn = end_of_phys_memory >> PAGE_SHIFT;
-+	/* Determine the location of the initial ramdisk before trying
-+	 * to honor the "mem=xxx" command line argument.  We must know
-+	 * where the kernel image and the ramdisk image are so that we
-+	 * do not trim those two areas from the physical memory map.
-+	 */
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	/* Now have to check initial ramdisk, so that bootmap does not overwrite it */
-@@ -932,6 +1023,16 @@ static unsigned long __init bootmem_init
++			dec_zone_page_state(page, NR_FILE_DIRTY);
+ 			return 1;
  		}
- 	}
- #endif	
-+
-+	if (cmdline_memory_size &&
-+	    bytes_avail > cmdline_memory_size)
-+		trim_pavail(&bytes_avail,
-+			    &end_of_phys_memory);
-+
-+	*pages_avail = bytes_avail >> PAGE_SHIFT;
-+
-+	end_pfn = end_of_phys_memory >> PAGE_SHIFT;
-+
- 	/* Initialize the boot-time allocator. */
- 	max_pfn = max_low_pfn = end_pfn;
- 	min_low_pfn = (phys_base >> PAGE_SHIFT);
+ 		return 0;
 
 --

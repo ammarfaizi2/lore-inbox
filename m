@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751419AbXAFPpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751425AbXAFQSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbXAFPpQ (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 10:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbXAFPpQ
+	id S1751425AbXAFQSS (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 11:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbXAFQSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 10:45:16 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:42929 "EHLO
-	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751419AbXAFPpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 10:45:15 -0500
-Date: Sat, 6 Jan 2007 21:15:06 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
-Message-ID: <20070106154506.GC24274@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070106151036.GA951@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+	Sat, 6 Jan 2007 11:18:17 -0500
+Received: from styx.suse.cz ([82.119.242.94]:46346 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751425AbXAFQSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 11:18:17 -0500
+Date: Sat, 6 Jan 2007 17:18:09 +0100 (CET)
+From: Jiri Kosina <jkosina@suse.cz>
+To: "Ahmed S. Darwish" <darwish.07@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] HID-Core: Tiny patch to remove a kmalloc cast
+In-Reply-To: <20070106131852.GF19020@Ahmed>
+Message-ID: <Pine.LNX.4.64.0701061715300.3771@jikos.suse.cz>
+References: <20070106131852.GF19020@Ahmed>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 06:10:36PM +0300, Oleg Nesterov wrote:
-> Increment hotplug_sequence earlier, under CPU_DOWN_PREPARE. We can't
-> miss the event, the task running flush_workqueue() will be re-scheduled
-> at least once before CPU actually disappears from cpu_online_map.
+On Sat, 6 Jan 2007, Ahmed S. Darwish wrote:
 
-Eww ..what happens if flush_workqueue() starts after CPU_DOWN_PREPARE?
+> Signed-off-by: Ahmed Darwish <darwish.07@gmail.com>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 18c2b3c..2fcfdbb 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -656,7 +656,7 @@ struct hid_device *hid_parse_report(__u8 *start, unsigned size)
+>  	for (i = 0; i < HID_REPORT_TYPES; i++)
+>  		INIT_LIST_HEAD(&device->report_enum[i].report_list);
+>  
+> -	if (!(device->rdesc = (__u8 *)kmalloc(size, GFP_KERNEL))) {
+> +	if (!(device->rdesc = kmalloc(size, GFP_KERNEL))) {
+>  		kfree(device->collection);
+>  		kfree(device);
+>  		return NULL;
 
-CPU_DOWN_PREPARE(8)
-	hotplug_sequence++ = 10
+Queued for upstream, thanks.
 
-					flush_workqueue()
-						sequence = 10
-						flush cpus 1 ....7
-
-CPU_DEAD(8)
-	take_over_work(8->1)
-
-					return not flushing dead cpu8 (=BUG)
-
-
-??
- 
 -- 
-Regards,
-vatsa
+Jiri Kosina
+SUSE Labs

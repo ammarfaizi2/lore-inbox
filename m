@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751429AbXAFQh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751427AbXAFQjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbXAFQh1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 11:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbXAFQh1
+	id S1751427AbXAFQjG (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 11:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbXAFQjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 11:37:27 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:22496 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751429AbXAFQh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 11:37:26 -0500
-Date: Sat, 6 Jan 2007 17:37:50 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: 2.6.20-rc3-mm1: umount reiser4 FS stuck in D state
-Message-ID: <20070106163750.GK11203@kernel.dk>
-References: <20070104220200.ae4e9a46.akpm@osdl.org> <459F80E2.7080903@free.fr>
+	Sat, 6 Jan 2007 11:39:05 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56694 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751427AbXAFQjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 11:39:03 -0500
+Date: Sat, 6 Jan 2007 22:08:51 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070106163851.GA13579@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061217223416.GA6872@tv-sign.ru> <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <459F80E2.7080903@free.fr>
+In-Reply-To: <20070106163035.GA2948@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06 2007, Laurent Riffard wrote:
-> Le 05.01.2007 07:02, Andrew Morton a écrit :
-> >Temporarily at
-> >
-> >	http://userweb.kernel.org/~akpm/2.6.20-rc3-mm1/
-> >
-> >will appear later at
-> >
-> >	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
+On Sat, Jan 06, 2007 at 07:30:35PM +0300, Oleg Nesterov wrote:
+> Stupid me. Thanks.
 > 
-> Hello,
-> 
-> got this with 2.6.20-rc3-mm1:
-> 
-> =======================
-> SysRq : Show Blocked State
-> 
->                         free                        sibling
->  task             PC    stack   pid father child younger older
-> umount        D C013135E  6044  1168   1150                     (NOTLB)
->       de591ae4 00000086 de591abc c013135e dff979c8 c012a6fe 00000046 
->       00000007 dfd94ac0 128d3000 00000026 00000000 dfd94bcc dff979c8 
->       de591ae4 dffda038 00000002 dff979c0 dff979bc dff979c8 de591b10 
->       c012d600 dff979f8 00000000 Call Trace:
-> [<c012d600>] synchronize_qrcu+0x70/0x8c
-> [<c01bede4>] __make_request+0x4c/0x29b
-> [<c01bd24b>] generic_make_request+0x1b0/0x1de
-> [<c01bf354>] submit_bio+0xda/0xe2
+> I'll try to do something else tomorrow. Do you see a simple soulution?
 
-That's certainly a barrier related hang. Since raid and XFS both hang as
-well, it might be the same problem. I'll get it fixed up, don't expect
-anything before monday though.
+Sigh ..I dont see a simple solution, unless we have something like
+lock_cpu_hotplug() ..
+
+Andrew,
+	This workqueue problem has exposed a classic example of how 
+tough/miserable it can be to write hotplug safe code w/o something like
+lock_cpu_hotplug() ..Are you still inclined towards banning it? :)
+
+FYI, the lock_cpu_hotplug() rewrite proposed by Gautham at
+http://lkml.org/lkml/2006/10/26/65 may still need refinement to avoid
+all the kind of deadlocks we have unearthed with workqueue example. I
+can review that design with Gautham if there is some interest to
+revive lock_cpu_hotplug() ..
+
+> The current usage of workqueue_mutex (I mean stable kernel) is broken
+> and deadlockable. We really need to change it.
+
+Yep ..
 
 -- 
-Jens Axboe
-
+Regards,
+vatsa

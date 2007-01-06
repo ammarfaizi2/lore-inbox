@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932270AbXAFXwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932271AbXAFXwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbXAFXwr (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 18:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAFXwr
+	id S932271AbXAFXwv (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 18:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbXAFXwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 18:52:47 -0500
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:46213 "HELO
+	Sat, 6 Jan 2007 18:52:51 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:46245 "HELO
 	smtp101.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932270AbXAFXwq (ORCPT
+	by vger.kernel.org with SMTP id S932271AbXAFXwt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 18:52:46 -0500
+	Sat, 6 Jan 2007 18:52:49 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=JY7nq7I8dOHOo5BW+aLrzwro25QjdSFrFhewlnLMpZmimQeGqR2pKdkG+PaOu+sS6xcMP/yYWQHDcPOFBrXoMP1hPeIqdj7RewEeIQu4ter1EHBFIs1fQpSL+3LbVE7tDa83G0ir+lVulMCSdXVjqeKxVfdrbZ+W0JtRXwCTMUs=  ;
-X-YMail-OSG: kcQhJ6cVM1mELKGha3hk0Zm3opIhbnEmdzDvNh4ka.f3kDx7C9Q9BaBrOWBBtaT7ZPNwTCsljYLk0e9eJ5_9Y2qJZlUQttXheObCXWTDzFsAhClswFknQZL3Dzkj7Gb3M6boUu_k0xVPRM5_K7XwZar_9ijFsNpTvBOy.wu9nNakPk6TZWYgPVz4ufsS
+  b=W3m3T9hJpoTbXxkbSlypLR9BiiJJ8gph6h3ns2it5XgePMcKGqOhEiFMGnFb5owUtVTlKLxMrvyRu2SOIkUD/bG9N8Yr77cUbCduYCTGXWh7TUunPRc9a5JXRykW7Ccjj0RaJh1S7I1SGYUy0cESmGigZbqvbNivkyDXZgq40T8=  ;
+X-YMail-OSG: HSAnl_oVM1klZ6EwyO4IUvxX2.42FHNADYRIRAjytQpb7QBmDm6JJ61vvey3XF_Zy9.fn_ohyYNBxL_LQZNDVLPoaIx3gWQWh3_zHCAKWfiSthwm2iy1cXso46rJ9EJuJWhXC3OnCyvvVWI-
 From: David Brownell <david-b@pacbell.net>
-To: Woody Suwalski <woodys@xandros.com>
-Subject: Re: [patch 2.6.20-rc3 1/3] rtc-cmos driver
-Date: Sat, 6 Jan 2007 13:17:25 -0800
+To: Philippe De Muyter <phdm@macqel.be>
+Subject: Re: RTC subsystem and fractions of seconds
+Date: Sat, 6 Jan 2007 15:52:43 -0800
 User-Agent: KMail/1.7.1
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       rtc-linux@googlegroups.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>
-References: <200701051001.58472.david-b@pacbell.net> <200701051933.26368.david-b@pacbell.net> <459FD993.3070909@xandros.com>
-In-Reply-To: <459FD993.3070909@xandros.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200701051949.00662.david-b@pacbell.net> <20070106232633.GA8535@ingate.macqel.be>
+In-Reply-To: <20070106232633.GA8535@ingate.macqel.be>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701061317.25567.david-b@pacbell.net>
+Message-Id: <200701061552.43654.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 06 January 2007 9:17 am, Woody Suwalski wrote:
-> >> There are PPC, M68K, SPARC, and other boards that could also
-> >> use this; ARMs tend to integrate some other RTC on-chip.  ...
+On Saturday 06 January 2007 3:26 pm, Philippe De Muyter wrote:
+> On Fri, Jan 05, 2007 at 07:49:00PM -0800, David Brownell wrote:
+> > >  	Those rtc's actually have a 1/100th of second
+> > > register.  Should the generic rtc interface not support that?
+> > 
+> > Are you implying a new userspace API, or just an in-kernel update?
 > 
-> > Let me put that differently.  That should be done as a separate
-> > patch, adding (a) that platform_device, and maybe platform_data
-> > if it's got additional alarm registers, and (b) Kconfig support
-> > to let that work.  I'd call it a "patch #4 of 3".  ;)
-> > ...
-> 
-> I will try to play with the new code on Monday on ARM...
+> My only concern at the moment is initializing linux's timeofday from the rtc
+> quickly and with a good precision. 
 
-Thanks.  Could you describe your ARM board?  None of mine have an
-RTC using this register API.  Does it support system sleep states
-(/sys/power/state) with a wakeup-capable (enable_irq_wake) RTC irq? 
+There will necessarily be a bit of fuzz there since it can take time to
+get that RTC's mutex, and the task setting that time can be preempted.
+Plus, there can also be delays at the I2C or SPI transaction level.
+
+
+> The way it is done currently 
+> in drivers/rtc/hctosys.c is 0.5 sec off.  We could obtain a much better
+> precision by looping there until the next change (next second for old clocks,
+> next 0.01 second for m41t81, maybe even better for other ones).
+
+Hmm ... "looping" fights against "quickly"; as would "wait for next
+update IRQ" (on RTCs that support that).  But it would improve precision,
+at least in the sense of having the system clock and that RTC spending
+less time with the lowest "seconds" digit disagreeing.
+
+This is something you could write a patch for, n'est-ce pas?
 
 - Dave
+
+
 

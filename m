@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751091AbXAFC0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751085AbXAFC1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbXAFC0S (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbXAFC0A
+	id S1751085AbXAFC1F (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbXAFC1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:26:00 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47753 "EHLO
+	Fri, 5 Jan 2007 21:27:04 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47843 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751091AbXAFCZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:25:57 -0500
-Message-Id: <20070106022909.248975000@sous-sol.org>
+	id S1751085AbXAFC06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:26:58 -0500
+Message-Id: <20070106023056.833000000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:27:55 -0800
+Date: Fri, 05 Jan 2007 18:28:04 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,39 +21,71 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [patch 02/50] sha512: Fix sha384 block size
-Content-Disposition: inline; filename=sha512-fix-sha384-block-size.patch
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       stefanr@s5r6.in-berlin.de
+Subject: [patch 11/50] ieee1394: ohci1394: add PPC_PMAC platform code to driver probe
+Content-Disposition: inline; filename=ieee1394-ohci1394-add-ppc_pmac-platform-code-to-driver-probe.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-The SHA384 block size should be 128 bytes, not 96 bytes.  This was
-spotted by Andrew Donofrio.
+Fixes http://bugzilla.kernel.org/show_bug.cgi?id=7431
+iBook G3 threw a machine check exception and put the display backlight
+to full brightness after ohci1394 was unloaded and reloaded.
 
-This breaks HMAC which uses the block size during setup and the final
-calculation.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+[dsd@gentoo.org: also added missing if condition, commit
+ 63cca59e89892497e95e1e9c7156d3345fb7e2e8]
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Acked-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- crypto/sha512.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It fixes a kernel oops which occurs when the ohci1394 driver is reloaded on PPC
+http://bugs.gentoo.org/154851
 
---- linux-2.6.19.1.orig/crypto/sha512.c
-+++ linux-2.6.19.1/crypto/sha512.c
-@@ -24,7 +24,7 @@
+ drivers/ieee1394/ohci1394.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+--- linux-2.6.19.1.orig/drivers/ieee1394/ohci1394.c
++++ linux-2.6.19.1/drivers/ieee1394/ohci1394.c
+@@ -3217,6 +3217,19 @@ static int __devinit ohci1394_pci_probe(
+ 	struct ti_ohci *ohci;	/* shortcut to currently handled device */
+ 	resource_size_t ohci_base;
  
- #define SHA384_DIGEST_SIZE 48
- #define SHA512_DIGEST_SIZE 64
--#define SHA384_HMAC_BLOCK_SIZE  96
-+#define SHA384_HMAC_BLOCK_SIZE 128
- #define SHA512_HMAC_BLOCK_SIZE 128
++#ifdef CONFIG_PPC_PMAC
++	/* Necessary on some machines if ohci1394 was loaded/ unloaded before */
++	if (machine_is(powermac)) {
++		struct device_node *of_node = pci_device_to_OF_node(dev);
++
++		if (of_node) {
++			pmac_call_feature(PMAC_FTR_1394_CABLE_POWER, of_node,
++					  0, 1);
++			pmac_call_feature(PMAC_FTR_1394_ENABLE, of_node, 0, 1);
++		}
++	}
++#endif /* CONFIG_PPC_PMAC */
++
+         if (pci_enable_device(dev))
+ 		FAIL(-ENXIO, "Failed to enable OHCI hardware");
+         pci_set_master(dev);
+@@ -3505,11 +3518,9 @@ static void ohci1394_pci_remove(struct p
+ #endif
  
- struct sha512_ctx {
+ #ifdef CONFIG_PPC_PMAC
+-	/* On UniNorth, power down the cable and turn off the chip
+-	 * clock when the module is removed to save power on
+-	 * laptops. Turning it back ON is done by the arch code when
+-	 * pci_enable_device() is called */
+-	{
++	/* On UniNorth, power down the cable and turn off the chip clock
++	 * to save power on laptops */
++	if (machine_is(powermac)) {
+ 		struct device_node* of_node;
+ 
+ 		of_node = pci_device_to_OF_node(ohci->dev);
 
 --

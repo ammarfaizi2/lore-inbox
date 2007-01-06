@@ -1,97 +1,80 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751436AbXAFQ7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751441AbXAFRAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbXAFQ7c (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 11:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbXAFQ7c
+	id S1751441AbXAFRAF (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 12:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbXAFRAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 11:59:32 -0500
-Received: from aa013msr.fastwebnet.it ([85.18.95.73]:41632 "EHLO
-	aa013msr.fastwebnet.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751436AbXAFQ7b (ORCPT
+	Sat, 6 Jan 2007 12:00:05 -0500
+Received: from smtpauth02.prod.mesa1.secureserver.net ([64.202.165.182]:34693
+	"HELO smtpauth02.prod.mesa1.secureserver.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751441AbXAFRAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 11:59:31 -0500
-Date: Sat, 6 Jan 2007 17:59:06 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc3-mm1 - rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues.patch
-Message-ID: <20070106165906.GK13533@inferi.kami.home>
-Mail-Followup-To: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-	linux-kernel@vger.kernel.org
-References: <20070104220200.ae4e9a46.akpm@osdl.org> <200701061344.l06DipYC003610@turing-police.cc.vt.edu>
+	Sat, 6 Jan 2007 12:00:00 -0500
+Message-ID: <459FD585.70400@seclark.us>
+Date: Sat, 06 Jan 2007 11:59:49 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701061344.l06DipYC003610@turing-police.cc.vt.edu>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.20-rc2-mm1-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Kay Sievers <kay.sievers@vrfy.org>
+CC: Greg KH <greg@kroah.com>, Yakov Lerner <iler.ml@gmail.com>,
+       Kernel Linux <linux-kernel@vger.kernel.org>
+Subject: Re: how to get serial_no from usb HD disk (HDIO_GET_IDENTITY ioctl,
+ hdparm -i)
+References: <f36b08ee0701041427u7aee90b7j46b06c3b7dd252bd@mail.gmail.com>	 <20070106045147.GA6081@kroah.com> <3ae72650701060715q4f036274xb6f8b664ab3233c@mail.gmail.com>
+In-Reply-To: <3ae72650701060715q4f036274xb6f8b664ab3233c@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 08:44:51AM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 04 Jan 2007 22:02:00 PST, Andrew Morton said:
-> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
-> 
-> One of these 3 patches:
-> 
-> rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues.patch
-> rewrite-lock-in-cpufreq-to-eliminate-cpufreq-hotplug-related-issues-fix.patch
-> ondemand-governor-restructure-the-work-callback.patch
-> 
-> causes an oops in kref_put during early boot ("unable to handle paging
-> request at 00078"). 
-> 
-> Dell Latitude D820 laptop, Core2 T7200 with a 64-bit kernel.
-> 
-> Hand-copied trace of the oops:
-> 
-> kobject_put+0x19/0x1b
-> cpufreq_cpu_put+0xd/0x1e
-> cpufreq_get+0x45/0x51
-> handle_cpufreq_delayed_get+0x1e/0x41
-> run_workqueue+0x9c/0x14e
-> worker_thread+0x0/0x145
-> worker_thread+0x10e/0x145
-> default_wake_function+0x0/0xf
-> worker_thread+0x0/0x145
-> kthread+0x8/0x10b
-> schedule_tail+0x38/0xa1
-> child_rip+0xa/0x12
-> kthread+0x0/0x10b
-> child_rip+0x0/0x12
+Kay Sievers wrote:
 
-Does the following help?
+>On 1/6/07, Greg KH <greg@kroah.com> wrote:
+>  
+>
+>>On Fri, Jan 05, 2007 at 12:27:34AM +0200, Yakov Lerner wrote:
+>>    
+>>
+>>>How can I get serial_no from usb-attached HD drive ?
+>>>      
+>>>
+>>use the *_id programs that come with udev, they show you how to properly
+>>do that.
+>>    
+>>
+>
+>Only "advanced" ATA-USB bridges will offer you the serial number the
+>adapter reads from the disk on power-up. The usual id-tools will just
+>work fine on theses bridges.
+>
+>There is no way to reach that information with most of the cheap USB
+>storage-adapters.
+>
+>Kay
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+HI Kay,
 
-Signed-off-by: Mattia Dongili <malattia@linux.it>
----
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index a7b17ab..1112f31 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1113,14 +1113,15 @@ unsigned int cpufreq_get(unsigned int cpu)
- 		goto out;
- 
- 	if (unlikely(lock_policy_rwsem_read(cpu)))
--		goto out;
-+		goto out_policy;
- 
- 	ret_freq = __cpufreq_get(cpu);
- 
- 	unlock_policy_rwsem_read(cpu);
- 
--out:
-+out_policy:
- 	cpufreq_cpu_put(policy);
-+out:
- 	return (ret_freq);
- }
- EXPORT_SYMBOL(cpufreq_get);
+I am looking to buy a usb to ata adapter can you name some of the 
+advanced adapters?
+
+Thanks,
+Steve
+
 -- 
-mattia
-:wq!
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

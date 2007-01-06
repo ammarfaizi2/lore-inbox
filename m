@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751323AbXAFJGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751329AbXAFJuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbXAFJGr (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 04:06:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbXAFJGq
+	id S1751329AbXAFJuf (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 04:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbXAFJuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 04:06:46 -0500
-Received: from wasp.net.au ([203.190.192.17]:43728 "EHLO wasp.net.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751207AbXAFJGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 04:06:45 -0500
-Message-ID: <459F668A.7050000@wasp.net.au>
-Date: Sat, 06 Jan 2007 13:06:18 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061117)
+	Sat, 6 Jan 2007 04:50:35 -0500
+Received: from postfix1-g20.free.fr ([212.27.60.42]:42117 "EHLO
+	postfix1-g20.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751329AbXAFJue (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 04:50:34 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Leonard Norrgard <leonard.norrgard@refactor.fi>
+Subject: Re: 2.6.20-rc3: bt878/bttv: Unknown symbols, despite being defined in module depended on
+Date: Sat, 6 Jan 2007 10:16:47 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <459A3DCD.4020701@refactor.fi>
+In-Reply-To: <459A3DCD.4020701@refactor.fi>
 MIME-Version: 1.0
-To: Brad Campbell <brad@wasp.net.au>
-CC: Alan <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: problem with pata_hpt37x ...
-References: <20070102070144.GA11270@MAIL.13thfloor.at> <20070102145855.170c03e2@localhost.localdomain> <459D26D4.3010601@wasp.net.au> <20070104173058.GA2160@MAIL.13thfloor.at> <459D42B1.20604@wasp.net.au>
-In-Reply-To: <459D42B1.20604@wasp.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701061016.48397.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Campbell wrote:
-> Herbert Poetzl wrote:
+On Tuesday 2 January 2007 12:11, Leonard Norrgard wrote:
+> This seems a bit odd. As the bt878 module loads, I get the following
+> error messages, despite definitions in the bttv module that bt878
+> depends on:
 > 
->> sounds great! where can I get that version?
->> should it be in 2.6.20-rc* or is there a separate
->> patch available somewhere?
-> 
-> The patch was contained in the message from Alan to you that I replied 
-> to. I just applied it to a vanilla 2.6.20-rc3 tree and fired it up.
-> 
+> # egrep '(bttv_read_gpio|bttv_write_gpio|bttv_gpio_enable)' /var/log/dmesg
+> bt878: Unknown symbol bttv_read_gpio
+> bt878: Unknown symbol bttv_write_gpio
+> bt878: Unknown symbol bttv_gpio_enable
 
-Just a warning. I'm seeing data corruption on this system. I need to try and narrow it down, but on 
-transferring 100 files totalling about 80GB from a USB drive to the drives on this controller I'm 
-seeing repeatable and apparently random corruption on the data reaching the disks. I don't recall 
-seeing this when I used SIL controllers in place of the HPT but I now have an easily repeatable test 
-case so I'll keep testing until I peg it.
+This may be related to MODULE_FORCE_UNLOAD=y.
 
+Best wishes,
 
-Brad
--- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+Duncan.

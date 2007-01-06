@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932131AbXAFWmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932188AbXAFWrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbXAFWmd (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 17:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbXAFWmd
+	id S932188AbXAFWrn (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 17:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbXAFWrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 17:42:33 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55334 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932131AbXAFWmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 17:42:32 -0500
-Subject: Re: revert PIE randomization?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Marcus Meissner <meissner@suse.de>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@codemonkey.org.uk>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0701062005001.22171@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0701062005001.22171@blonde.wat.veritas.com>
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 06:42:12 +0800
-Message-Id: <1168123332.24110.41.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
+	Sat, 6 Jan 2007 17:47:43 -0500
+Received: from adsl-64-172-73-26.dsl.lsan03.pacbell.net ([64.172.73.26]:1876
+	"EHLO myri.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932188AbXAFWrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 17:47:42 -0500
+X-Greylist: delayed 1911 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Jan 2007 17:47:42 EST
+Message-ID: <45A01D76.8080009@myri.com>
+Date: Sat, 06 Jan 2007 23:06:46 +0100
+From: Brice Goglin <brice@myri.com>
+User-Agent: Icedove 1.5.0.9 (X11/20061220)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.20-rc3: known unfixed regressions (v4)
+References: <Pine.LNX.4.64.0612311710430.4473@woody.osdl.org> <20070106210417.GA20714@stusta.de>
+In-Reply-To: <20070106210417.GA20714@stusta.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2007-01-06 at 20:11 +0000, Hugh Dickins wrote:
-> And I notice that Andi added a personality & ADDR_NO_RANDOMIZE check
-> into randomize_stack_top: I cannot see why that's necessary there,
-> but if it is, then should the ET_DYN case add it too?)
+Adrian Bunk wrote:
+> This email lists some known regressions in 2.6.20-rc3 compared to 2.6.19
+> that are not yet fixed in Linus' tree.
+>   
 
-While I think of it... it seems that ADDR_NO_RANDOMIZE isn't "inherited"
-across exec of 32-bit binaries on x86_64 or ppc64. The personality flags
-get wiped out when we detect a 32-bit ELF executable and set the
-personality to PER_LINUX32.
+I reported another one yesterday, about HT MSI capability lookup being
+broken (can only find the first one in the chain). See
+http://lkml.org/lkml/2007/1/5/215. The patch works well here, but I
+didn't get any comment so far.
 
-This causes suboptimal behaviour from userspace code which checks
-whether it can set ADDR_NO_RANDOMIZE with a sys_personality() call, and
-if so re-execs itself. Run on x86_64 or ppc64, these go into an endless
-loop because it always gets cleared in the exec.
+The regression has been confirmed by Robert Hancock.
 
-I've seen such code in two places recently (Macaulay2 and sbcl, iirc).
-
--- 
-dwmw2
+Brice
 

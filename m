@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932174AbXAFUhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932171AbXAFUmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbXAFUhS (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 15:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbXAFUhS
+	id S932171AbXAFUmD (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 15:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbXAFUmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 15:37:18 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:39550 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932174AbXAFUhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 15:37:16 -0500
-Date: Sat, 6 Jan 2007 12:36:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       "J.H." <warthog9@kernel.org>, Willy Tarreau <w@1wt.eu>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org
-Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
-Message-Id: <20070106123628.27c774f6.akpm@osdl.org>
-In-Reply-To: <45A0048B.8090503@zytor.com>
-References: <20061214223718.GA3816@elf.ucw.cz>
-	<20061216094421.416a271e.randy.dunlap@oracle.com>
-	<20061216095702.3e6f1d1f.akpm@osdl.org>
-	<458434B0.4090506@oracle.com>
-	<1166297434.26330.34.camel@localhost.localdomain>
-	<20061219063413.GI24090@1wt.eu>
-	<1166511171.26330.120.camel@localhost.localdomain>
-	<20070106103331.48150aed.randy.dunlap@oracle.com>
-	<459FF60D.7080901@zytor.com>
-	<45A002FE.8060700@garzik.org>
-	<20070106121728.1b2946dc.akpm@osdl.org>
-	<45A0048B.8090503@zytor.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 6 Jan 2007 15:42:02 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:10423 "EHLO
+	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932171AbXAFUmB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 15:42:01 -0500
+Subject: Re: + paravirt-vmi-timer-patches.patch added to -mm tree
+From: Daniel Walker <dwalker@mvista.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, chrisw@sous-sol.org,
+       jeremy@xensource.com, rusty@rustcorp.com.au
+In-Reply-To: <45A00878.1000705@vmware.com>
+References: <200612152227.kBFMRNuQ002977@shell0.pdx.osdl.net>
+	 <1168106760.26086.222.camel@imap.mvista.com>  <45A00878.1000705@vmware.com>
+Content-Type: text/plain
+Date: Sat, 06 Jan 2007 12:40:57 -0800
+Message-Id: <1168116057.26086.227.camel@imap.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Jan 2007 12:20:27 -0800
-"H. Peter Anvin" <hpa@zytor.com> wrote:
+On Sat, 2007-01-06 at 12:37 -0800, Zachary Amsden wrote:
 
-> Andrew Morton wrote:
-> >>
-> >> Unfortunately that affects all three of: dcache, icache, and mbcache. 
-> >> Maybe we could split that sysctl in two (Andrew?), so that one sysctl 
-> >> affects dcache/icache and another affects mbcache.
-> >>
-> > 
-> > That would be simple enough to do, if someone can demonstrate a
-> > need.
-> > 
+> >
+> > There is already a dynamic tick (NO_HZ) system in the -mm tree .. Given
+> > that this implementation seems unnecessary. Why do you need another
+> > different system to do this?
+> >   
 > 
-> Is there an easy way to find out how much memory is occupied by the 
-> various caches?  If so I should be able to tell you in a couple of days.
+> We don't.  This was written before the dynamic tick code, and now they 
+> need to be merged.  Until then, they can safely coexist.
 
-/proc/meminfo:SReclaimable is a lumped sum.  /proc/slabinfo has the most
-detail.
+So really this can't go upstream till that merge happens. What's
+preventing you from just directly using NO_HZ without changes?
+
+Daniel  
 

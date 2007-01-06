@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751371AbXAFMO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751375AbXAFMWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbXAFMO4 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 07:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbXAFMO4
+	id S1751375AbXAFMWp (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 07:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbXAFMWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 07:14:56 -0500
-Received: from ug-out-1314.google.com ([66.249.92.175]:46968 "EHLO
+	Sat, 6 Jan 2007 07:22:45 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:51326 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751371AbXAFMOz (ORCPT
+	with ESMTP id S1751375AbXAFMWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 07:14:55 -0500
+	Sat, 6 Jan 2007 07:22:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=N0SzilJyrmh1Qy3NuAdMexxr7G+Kos5Sa3aBwXW2naFxsdDIv3Nn60b7ECfdJzlK2ugTiOrCi5Jz3rt17/IXRdH35KAK1LoXLjvpeEpOt69LEbTIc38jKsW62wdQsUdKFYiyqg4ttO+XZJ82kgMmNUxlH3nX1fswPw6r1RNAkJU=
-Message-ID: <5767b9100701060414j2e2385a8xcbab477bedca34b3@mail.gmail.com>
-Date: Sat, 6 Jan 2007 20:14:54 +0800
+        b=q4SEcJsiy2VMQS65/cukTI5FbmaIRdGPMcSX2n5feXMMw8/M05E6iS6ovf42zdB71zWB3pfFVqtmSRVwRojseDso88j7MycwVwTNxfwmLarq9RNxgjjO4GsIg6vB8TBs51/0sFgJiWplywlgfUTBIAgW/kv2lJkdAaQ8cjVKk24=
+Message-ID: <5767b9100701060422p1abd1d21x606b758220815551@mail.gmail.com>
+Date: Sat, 6 Jan 2007 20:22:43 +0800
 From: "Conke Hu" <conke.hu@gmail.com>
 To: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
        "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>
-Subject: [PATCH 2/3] atiixp.c: sb600 ide only has one channel
+Subject: [PATCH 3/3] atiixp.c: add cable detection support for ATI IDE
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -27,41 +27,41 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AMD/ATI SB600 IDE/PATA controller only has one channel.
+IDE HDD does not work if it uses a 40-pin PATA cable on ATI chipset.
+This patch fixes the bug.
 
 Signed-off-by: Conke Hu <conke.hu@amd.com>
----------------
---- linux-2.6.20-rc3-git4/drivers/ide/pci/atiixp.c.1	2007-01-06
-19:13:55.000000000 +0800
-+++ linux-2.6.20-rc3-git4/drivers/ide/pci/atiixp.c.2	2007-01-06
+-----------------------
+--- linux-2.6.20-rc3-git4/drivers/ide/pci/atiixp.c.2	2007-01-06
 19:19:35.000000000 +0800
-@@ -327,7 +327,14 @@ static ide_pci_device_t atiixp_pci_info[
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x48,0x01,0x00}, {0x48,0x08,0x00}},
- 		.bootable	= ON_BOARD,
--	},
-+	},{	/* 1 */
-+		.name		= "SB600_PATA",
-+		.init_hwif	= init_hwif_atiixp,
-+		.channels	= 1,
-+		.autodma	= AUTODMA,
-+		.enablebits	= {{0x48,0x01,0x00}, {0x00,0x00,0x00}},
-+ 		.bootable	= ON_BOARD,
-+ 	},
- };
++++ linux-2.6.20-rc3-git4/drivers/ide/pci/atiixp.c	2007-01-06
+19:22:34.000000000 +0800
+@@ -289,8 +289,12 @@ fast_ata_pio:
 
- /**
-@@ -348,7 +355,7 @@ static struct pci_device_id atiixp_pci_t
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP200_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
--	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 1},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, atiixp_pci_tbl);
+ static void __devinit init_hwif_atiixp(ide_hwif_t *hwif)
+ {
++	u8 udma_mode = 0;
++	u8 ch = hwif->channel;
++	struct pci_dev *pdev = hwif->pci_dev;
++
+ 	if (!hwif->irq)
+-		hwif->irq = hwif->channel ? 15 : 14;
++		hwif->irq = ch ? 15 : 14;
+
+ 	hwif->autodma = 0;
+ 	hwif->tuneproc = &atiixp_tuneproc;
+@@ -306,8 +310,12 @@ static void __devinit init_hwif_atiixp(i
+ 	hwif->mwdma_mask = 0x06;
+ 	hwif->swdma_mask = 0x04;
+
+-	/* FIXME: proper cable detection needed */
+-	hwif->udma_four = 1;
++	pci_read_config_byte(pdev, ATIIXP_IDE_UDMA_MODE + ch, &udma_mode);
++	if ((udma_mode & 0x07) >= 0x04 || (udma_mode & 0x70) >= 0x40)
++		hwif->udma_four = 1;
++	else
++		hwif->udma_four = 0;
++
+ 	hwif->ide_dma_host_on = &atiixp_ide_dma_host_on;
+ 	hwif->ide_dma_host_off = &atiixp_ide_dma_host_off;
+ 	hwif->ide_dma_check = &atiixp_dma_check;

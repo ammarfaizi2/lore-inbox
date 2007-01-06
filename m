@@ -1,115 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932141AbXAFUKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932148AbXAFUNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbXAFUKt (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 15:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbXAFUKt
+	id S932148AbXAFUNo (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 15:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbXAFUNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 15:10:49 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:7616 "EHLO
-	extu-mxob-1.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932141AbXAFUKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 15:10:48 -0500
-X-AuditID: d80ac21c-9df38bb00000021a-93-45a002472609 
-Date: Sat, 6 Jan 2007 20:11:00 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Marcus Meissner <meissner@suse.de>,
-       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: revert PIE randomization?
-Message-ID: <Pine.LNX.4.64.0701062005001.22171@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Jan 2007 20:10:47.0474 (UTC) FILETIME=[C1059120:01C731CE]
-X-Brightmail-Tracker: AAAAAA==
+	Sat, 6 Jan 2007 15:13:44 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:38543 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932148AbXAFUNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 15:13:43 -0500
+Date: Sat, 6 Jan 2007 12:13:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Randy Dunlap <randy.dunlap@oracle.com>,
+       "J.H." <warthog9@kernel.org>, Willy Tarreau <w@1wt.eu>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+Message-Id: <20070106121301.d07de0c9.akpm@osdl.org>
+In-Reply-To: <1168112266.2821.2.camel@entropy>
+References: <20061214223718.GA3816@elf.ucw.cz>
+	<20061216094421.416a271e.randy.dunlap@oracle.com>
+	<20061216095702.3e6f1d1f.akpm@osdl.org>
+	<458434B0.4090506@oracle.com>
+	<1166297434.26330.34.camel@localhost.localdomain>
+	<20061219063413.GI24090@1wt.eu>
+	<1166511171.26330.120.camel@localhost.localdomain>
+	<20070106103331.48150aed.randy.dunlap@oracle.com>
+	<459FF60D.7080901@zytor.com>
+	<1168112266.2821.2.camel@entropy>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a lot of gaps in my understanding, but I think 2.6.20-rc's
-59287c0913cc9a6c75712a775f6c1c1ef418ef3b (randomize PIE binaries)
-needs to be reverted for now.
+On Sat, 06 Jan 2007 11:37:46 -0800
+Nicholas Miell <nmiell@comcast.net> wrote:
 
-Running any 2.6.20-rc kernel on i386 openSUSE 10.2, my kernel builds
-occasionally fail with an ld.so error when building some .o or .ko
-(then succeed when restarted in the same tree immediately after): e.g. 
+> On Sat, 2007-01-06 at 11:18 -0800, H. Peter Anvin wrote:
+> > Randy Dunlap wrote:
+> > >
+> > >>> BTW, yesterday my 2.4 patches were not published, but I noticed that
+> > >>> they were not even signed not bziped on hera. At first I simply thought
+> > >>> it was related, but right now I have a doubt. Maybe the automatic script
+> > >>> has been temporarily been disabled on hera too ?
+> > >> The script that deals with the uploads also deals with the packaging -
+> > >> so yes the problem is related.
+> > > 
+> > > and with the finger_banner and version info on www.kernel.org page?
+> > 
+> > Yes, they're all connected.
+> > 
+> > The load on *both* machines were up above the 300s yesterday, probably 
+> > due to the release of a new Knoppix DVD.
+> > 
+> > The most fundamental problem seems to be that I can't tell currnt Linux 
+> > kernels that the dcache/icache is precious, and that it's way too eager 
+> > to dump dcache and icache in favour of data blocks.  If I could do that, 
+> > this problem would be much, much smaller.
 
-  LD [M]  fs/vfat/vfat.o
-Inconsistency detected by ld.so: rtld.c: 1217: dl_main:
- Assertion `_rtld_local._dl_rtld_map.l_libname' failed!
-make[2]: *** [fs/vfat/vfat.o] Error 127
+Usually people complain about the exact opposite of this.
 
-I guessed a TLB problem, but no, bisection points to the random PIE
-patch.  I've no idea how it arrives at the particular failure seen,
-but the code does look wrong to me:
+> Isn't setting the vm.vfs_cache_pressure sysctl below 100 supposed to do
+> this?
 
-		vaddr = elf_ppnt->p_vaddr;
-		if (loc->elf_ex.e_type == ET_EXEC || load_addr_set) {
-			elf_flags |= MAP_FIXED;
-		} else if (loc->elf_ex.e_type == ET_DYN) {
-			/* Try and get dynamic programs out of the way of the
-			 * default mmap base, as well as whatever program they
-			 * might try to exec.  This is because the brk will
-			 * follow the loader, and is not movable.  */
-			if (current->flags & PF_RANDOMIZE)
-				load_bias = randomize_range(0x10000,
-							    ELF_ET_DYN_BASE,
-							    0);
-			else
-				load_bias = ELF_ET_DYN_BASE;
-			load_bias = ELF_PAGESTART(load_bias - vaddr);
-		}
-		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt,
-				elf_prot, elf_flags);
-
-Isn't that randomization, anywhere from 0x10000 to ELF_ET_DYN_BASE,
-sure to place the ET_DYN from time to time just where the comment says
-it's trying to avoid?  I assume that somehow results in the error reported.
-
-No problem yet seen on x86_64 or ppc64, I suppose because the address
-space is so much larger.  No problem seen before openSUSE 10.2, while
-running 2.6.19-rc-mm which contained the patch: hmm, the oS /bin/bash
-is a "shared object" rather than the familiar "executable", maybe that
-has something to do with it.  No problem seen if I revert that patch;
-nor if I add on the patch below, which does a much more limited
-randomization - but my guess is others will improve upon it.
-
-(I probably have my priorities wrong, going up from ELF_ET_DYN_BASE
-because I don't like calling the top of a range _BASE: with stack
-coming randomly down on most arches, maybe it'd better go below.
-
-And I notice that Andi added a personality & ADDR_NO_RANDOMIZE check
-into randomize_stack_top: I cannot see why that's necessary there,
-but if it is, then should the ET_DYN case add it too?)
-
-Hugh
-
---- 2.6.20-rc3/fs/binfmt_elf.c	2007-01-01 10:30:40.000000000 +0000
-+++ linux/fs/binfmt_elf.c	2007-01-05 17:01:31.000000000 +0000
-@@ -509,6 +509,12 @@ out:
- #define STACK_RND_MASK 0x7ff		/* with 4K pages 8MB of VA */
- #endif
- 
-+/*
-+ * Though STACK_RND_MASK was introduced to govern randomizing the stack,
-+ * it should also be appropriate to govern randomizing the ET_DYN base.
-+ */
-+#define ELF_ET_DYN_HIBASE (ELF_ET_DYN_BASE + ((STACK_RND_MASK+1)<<PAGE_SHIFT))
-+
- static unsigned long randomize_stack_top(unsigned long stack_top)
- {
- 	unsigned int random_variable = 0;
-@@ -855,9 +861,8 @@ static int load_elf_binary(struct linux_
- 			 * might try to exec.  This is because the brk will
- 			 * follow the loader, and is not movable.  */
- 			if (current->flags & PF_RANDOMIZE)
--				load_bias = randomize_range(0x10000,
--							    ELF_ET_DYN_BASE,
--							    0);
-+				load_bias = randomize_range(ELF_ET_DYN_BASE,
-+							ELF_ET_DYN_HIBASE, 0);
- 			else
- 				load_bias = ELF_ET_DYN_BASE;
- 			load_bias = ELF_PAGESTART(load_bias - vaddr);
+yup.

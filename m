@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751172AbXAFECK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751169AbXAFEfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbXAFECK (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 23:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXAFECK
+	id S1751169AbXAFEfD (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 23:35:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbXAFEfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 23:02:10 -0500
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:36142 "HELO
-	smtp106.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751169AbXAFECI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 23:02:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=6w3Ulz0vJgBjy9q+I6yO2KiGU0KAuK6Csj1ebsyiGymmMJTs+Q4UB2h2N6h2Wnn/j2xNBXeEfBNpaOcpKs/bg+G3p71F7uXazFasRHRscy45C5a+52Vu6Ew3sIqaIZ0UR6x33obTMdfZrq/Bb8YfydovOZYkfOl5r/+EnLqq1U4=  ;
-X-YMail-OSG: atExBdgVM1ndodQ_wBlXVGOD2EVb.pO4649k1MOp1ueSZFLPzt2ZdDm2fseclrhh6pbcHfzdEJeg3jQfS4WX8eYaAeGTlA.2LUD3UelrFMA4z0XS0AOuHbCg3y62tsVSGfpi0IO3KdR7pc3JIB5uxCAhp8OMZdUOheRGEkc5q2PdykdEEQQ4MhNK9d.l
-From: David Brownell <david-b@pacbell.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [patch 2.6.20-rc3 1/3] rtc-cmos driver
-Date: Fri, 5 Jan 2007 19:33:25 -0800
-User-Agent: KMail/1.7.1
-Cc: rtc-linux@googlegroups.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       Woody Suwalski <woodys@xandros.com>
-References: <200701051001.58472.david-b@pacbell.net> <20070105214509.12190340@inspiron> <200701051910.02975.david-b@pacbell.net>
-In-Reply-To: <200701051910.02975.david-b@pacbell.net>
+	Fri, 5 Jan 2007 23:35:03 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:55047 "EHLO atlrel6.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751169AbXAFEfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 23:35:00 -0500
+X-Greylist: delayed 1518 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Jan 2007 23:35:00 EST
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Len Brown <lenb@kernel.org>
+Subject: Re: Sony Vaio VGN-SZ340 (was Re: sonypc with Sony Vaio VGN-SZ1VP)
+Date: Fri, 5 Jan 2007 21:09:35 -0700
+User-Agent: KMail/1.9.5
+Cc: MoRpHeUz <morpheuz@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Stelian Pop" <stelian@popies.net>,
+       "Mattia Dongili" <malattia@linux.it>,
+       "Ismail Donmez" <ismail@pardus.org.tr>,
+       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, "Cacy Rodney" <cacy-rodney-cacy@tlen.pl>
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net> <7ce7bf330701050924h47546970w36ed189ed147ddb3@mail.gmail.com> <200701051310.41131.lenb@kernel.org>
+In-Reply-To: <200701051310.41131.lenb@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701051933.26368.david-b@pacbell.net>
+Message-Id: <200701052109.35707.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 January 2007 7:10 pm, David Brownell wrote:
-> On Friday 05 January 2007 12:45 pm, Alessandro Zummo wrote:
-
-> >  I'd appreciate if someone (Woody?) can test
-> >  this code on ARM.
+On Friday 05 January 2007 11:10, Len Brown wrote:
+> On Friday 05 January 2007 12:24, MoRpHeUz wrote:
+> > > What workaround are you using?
+> > 
+> >  This one: http://bugzilla.kernel.org/show_bug.cgi?id=7465
 > 
-> There are PPC, M68K, SPARC, and other boards that could also
-> use this; ARMs tend to integrate some other RTC on-chip.  But
-> on whatever non-PC platform is involved in such sanity testing,
-> that involves adding a platform_device to board setup code.
+> Ah yes, the duplicate MADT issue is clearly a BIOS bug.
+> It is possible that we can tweak our Linux workaround for it to be more
+> Microsoft Windows Bug Compatbile(TM).
 
-Let me put that differently.  That should be done as a separate
-patch, adding (a) that platform_device, and maybe platform_data
-if it's got additional alarm registers, and (b) Kconfig support
-to let that work.  I'd call it a "patch #4 of 3".  ;)
-
-The current Kconfig uses:
-
-> +config RTC_DRV_CMOS
-> +       tristate "CMOS real time clock"
-> +       depends on RTC_CLASS && (X86_PC || ACPI)
-
-Eventually maybe the PC-or-ACPI stuff should vanish, but IMO
-not until this code has been used on a few other platforms.
-
-- Dave
+Maybe Windows discovers processors using the namespace rather
+than the MADT.

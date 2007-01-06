@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932324AbXAGCGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932330AbXAGCJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbXAGCGV (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbXAGCGV
+	id S932330AbXAGCJL (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbXAGCJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:06:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:19158 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932324AbXAGCGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:06:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Sb27XaYko9aTZ1l9nxVViluM34UYq4JvWtJDxn/yKsVQkJwcmDaeazXiDy2HOled5ww76L0WYgjrSyZWnaOekL/2lb0KevAuZLLfNueFHVFZa7EfiDnzgxvY0zwLgUBsicGL3xiE9bsi2mno8KkGhwuTXS5NcoLd6LMTokDgOn0=
-Message-ID: <cd32a0620701061806y719fcf8bwd61daf05dac1bc3c@mail.gmail.com>
-Date: Sun, 7 Jan 2007 12:36:18 +1030
-From: "Tom Lanyon" <tomlanyon@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [PATCH] mm: fix page_mkclean_one (was: 2.6.19 file content corruption on ext3)
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Andrei Popa" <andrei.popa@i-neo.ro>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "David S. Miller" <davem@davemloft.net>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Gordon Farquharson" <gordonfarquharson@gmail.com>,
-       "Martin Michlmayr" <tbm@cyrius.com>, "Hugh Dickins" <hugh@veritas.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0612261007100.3671@woody.osdl.org>
+	Sat, 6 Jan 2007 21:09:11 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:47920 "EHLO scrub.xs4all.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932328AbXAGCJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 21:09:09 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [RFC] HZ free ntp
+Date: Sat, 6 Jan 2007 17:46:52 +0100
+User-Agent: KMail/1.9.5
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061204204024.2401148d.akpm@osdl.org> <200701011727.46944.zippel@linux-m68k.org> <1167766932.3141.10.camel@localhost>
+In-Reply-To: <1167766932.3141.10.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <97a0a9ac0612210117v6f8e7aefvcfb76de1db9120bb@mail.gmail.com>
-	 <20061224005752.937493c8.akpm@osdl.org>
-	 <1166962478.7442.0.camel@localhost>
-	 <20061224043102.d152e5b4.akpm@osdl.org>
-	 <1166978752.7022.1.camel@localhost>
-	 <Pine.LNX.4.64.0612240907180.3671@woody.osdl.org>
-	 <Pine.LNX.4.64.0612241029460.3671@woody.osdl.org>
-	 <Pine.LNX.4.64.0612241115130.3671@woody.osdl.org>
-	 <4590F9E5.4060300@yahoo.com.au>
-	 <Pine.LNX.4.64.0612261007100.3671@woody.osdl.org>
+Message-Id: <200701061746.52861.zippel@linux-m68k.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/27/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> What would also actually be interesting is whether somebody can reproduce
-> this on Reiserfs, for example. I _think_ all the reports I've seen are on
-> ext2 or ext3, and if this is somehow writeback-related, it could be some
-> bug that is just shared between the two by virtue of them still having a
-> lot of stuff in common.
+Hi,
+
+On Tuesday 02 January 2007 20:42, john stultz wrote:
+
+> > tick_nsec doesn't require special treatment, in the middle term it's
+> > obsolete anyway, it could be replaced with (current_tick_length() >>
+> > TICK_LENGTH_SHIFT) and current_tick_length() being inlined.
 >
->                         Linus
+> If NTP_INTERVAL_FREQ is different then HZ, then tick_nsec still has a
+> different meaning then (current_tick_length() >> TICK_LENGTH_SHIFT).
+> So since tick_nsec is still used in quite a few places, so I'm hesitant
+> to pull it.
 
-I've been following this thread for a while now as I started
-experiencing file corruption in rtorrent when I upgraded to 2.6.19. I
-am using reiserfs.
+The current usage under arch is pretty much bogus and they likely can't use 
+dyntick anyway, so it would be easier to disable tick_nsec completely if 
+dyntick is enabled.
 
--- 
-Tom Lanyon
+> > NTP_INTERVAL_FREQ could be a real variable (so it can be initialized at
+> > runtime), it's already gone from all important paths.
+>
+> Wait, so you're suggesting NTP_INTERVAL_FREQ be a dynamic variable
+> instead of a constant? Curious, could you give a bit more detail on why?
+
+We already have more than enough config options, where the user has barely any 
+idea what to do, so we should try to configure and initialize as much as 
+possible at runtime depending on what the hardware is capable of.
+
+That reminds me that the main problem left for a dynamic variable is 
+time_offset. It should become a 64 bit value, so SHIFT_UPDATE isn't needed 
+anymore. Right now it depends on HZ to maximize the value range.
+
+> > In the short term I'd prefered a clock would store its frequency instead
+> > of using NTP_INTERVAL_LENGTH in clocksource_calculate_interval(), so it
+> > doesn't has to be derived there.
+>
+> I don't follow this at all. clocksources do store their own frequency
+> (via mult/shift). Could you explain?
+
+mult is not a constant and calculating the frequency like this is not very 
+precise.
+
+bye, Roman

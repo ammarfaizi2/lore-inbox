@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751201AbXAFH1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751202AbXAFH1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbXAFH1K (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 02:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbXAFH1J
+	id S1751202AbXAFH1f (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 02:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbXAFH1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 02:27:09 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:59155 "HELO ustc.edu.cn"
+	Sat, 6 Jan 2007 02:27:35 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:59142 "HELO ustc.edu.cn"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1751201AbXAFH1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 02:27:07 -0500
-Message-ID: <368068421.28878@ustc.edu.cn>
+	id S1751202AbXAFH1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 02:27:16 -0500
+Message-ID: <368068420.92201@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20070106072730.019364791@mail.ustc.edu.cn>
+Message-Id: <20070106072729.598977589@mail.ustc.edu.cn>
 References: <20070106072626.911640026@mail.ustc.edu.cn>
 User-Agent: quilt/0.45-1
-Date: Sat, 06 Jan 2007 15:26:31 +0800
+Date: Sat, 06 Jan 2007 15:26:28 +0800
 From: Fengguang Wu <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/6] readahead: call scheme: remove get_readahead_bounds()
-Content-Disposition: inline; filename=readahead-call-scheme-remove-get_readahead_bounds.patch
+Subject: [PATCH 2/6] readahead: min/max sizes: remove get_readahead_bounds()
+Content-Disposition: inline; filename=readahead-min-max-sizes-remove-get_readahead_bounds.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the one and only get_readahead_bounds() call.
+Remove get_readahead_bounds():
+- ra_max: we already have get_max_readahead() for it
+- ra_min: is only used by context based readahead, and will be moved there
+          and set to a more reasonable value
 
 Signed-off-by: Fengguang Wu <wfg@mail.ustc.edu.cn>
 
 ---
- mm/readahead.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ mm/readahead.c |   24 ------------------------
+ 1 file changed, 24 deletions(-)
 
 --- linux-2.6.20-rc3-mm1.orig/mm/readahead.c
 +++ linux-2.6.20-rc3-mm1/mm/readahead.c
-@@ -1572,7 +1572,6 @@ page_cache_readahead_adaptive(struct add
- 				pgoff_t offset, unsigned long req_size)
- {
- 	unsigned long ra_size;
--	unsigned long ra_min;
- 	unsigned long ra_max;
- 	int ret;
+@@ -780,30 +780,6 @@ out:
+ 	return nr_pages;
+ }
  
-@@ -1593,7 +1592,7 @@ page_cache_readahead_adaptive(struct add
- 	else if (offset)
- 		ra_account(ra, RA_EVENT_CACHE_MISS, req_size);
+-/*
+- * ra_min is mainly determined by the size of cache memory. Reasonable?
+- *
+- * Table of concrete numbers for 4KB page size:
+- *   inactive + free (MB):    4   8   16   32   64  128  256  512 1024
+- *            ra_min (KB):   16  16   16   16   20   24   32   48   64
+- */
+-static inline void get_readahead_bounds(struct file_ra_state *ra,
+-					unsigned long *ra_min,
+-					unsigned long *ra_max)
+-{
+-	unsigned long active;
+-	unsigned long inactive;
+-	unsigned long free;
+-
+-	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
+-
+-	free += inactive;
+-	*ra_max = min(min(ra->ra_pages, 0xFFFFUL), free / 2);
+-	*ra_min = min(min(MIN_RA_PAGES + (free >> 14),
+-			  DIV_ROUND_UP(64*1024, PAGE_CACHE_SIZE)),
+-			  *ra_max / 8);
+-}
+-
+ #endif /* CONFIG_ADAPTIVE_READAHEAD */
  
--	get_readahead_bounds(ra, &ra_min, &ra_max);
-+	ra_max = get_max_readahead(ra);
- 
- 	/* read-ahead disabled? */
- 	if (unlikely(!ra_max || !readahead_ratio)) {
-@@ -1633,7 +1632,7 @@ page_cache_readahead_adaptive(struct add
- 	 * Context based sequential read-ahead.
- 	 */
- 	ret = try_context_based_readahead(mapping, ra, page,
--							offset, ra_min, ra_max);
-+						offset, req_size, ra_max);
- 	if (ret > 0)
- 		return ra_submit(ra, mapping, filp);
- 	if (ret < 0)
+ /*
 
 --

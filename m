@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751357AbXAFPPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751356AbXAFPUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbXAFPPg (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 10:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbXAFPPg
+	id S1751356AbXAFPUx (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 10:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbXAFPUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 10:15:36 -0500
-Received: from nz-out-0506.google.com ([64.233.162.228]:7422 "EHLO
-	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751357AbXAFPPf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 10:15:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ZCZYte12irBp1vi5Icr69wBiQGddS2SdI6P5WZSV7KkYT3IHEIppawKARuIk1yBQUpC4J/LphH8GNcdm292K8eO8hkdPaegUcaEz+Mtou8FRKUZV/3tW1AzlFc/ypvIHilqfcbNXy16jqRozXbLeiaf7+FK5gcSkhqgJYjIXc2o=
-Message-ID: <3ae72650701060715q4f036274xb6f8b664ab3233c@mail.gmail.com>
-Date: Sat, 6 Jan 2007 16:15:34 +0100
-From: "Kay Sievers" <kay.sievers@vrfy.org>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: how to get serial_no from usb HD disk (HDIO_GET_IDENTITY ioctl, hdparm -i)
-Cc: "Yakov Lerner" <iler.ml@gmail.com>,
-       "Kernel Linux" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20070106045147.GA6081@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sat, 6 Jan 2007 10:20:53 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49584 "EHLO
+	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751356AbXAFPUx (ORCPT
+	<RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 10:20:53 -0500
+Message-Id: <200701061520.l06FKntg003207@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.20-rc3-mm1 - reiser4-sb_sync_inodes.patch causes boot hang
+In-Reply-To: Your message of "Thu, 04 Jan 2007 22:02:00 PST."
+             <20070104220200.ae4e9a46.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20070104220200.ae4e9a46.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1168096849_3075P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <f36b08ee0701041427u7aee90b7j46b06c3b7dd252bd@mail.gmail.com>
-	 <20070106045147.GA6081@kroah.com>
-X-Google-Sender-Auth: 481237e07a3ec317
+Date: Sat, 06 Jan 2007 10:20:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/07, Greg KH <greg@kroah.com> wrote:
-> On Fri, Jan 05, 2007 at 12:27:34AM +0200, Yakov Lerner wrote:
-> > How can I get serial_no from usb-attached HD drive ?
->
-> use the *_id programs that come with udev, they show you how to properly
-> do that.
+--==_Exmh_1168096849_3075P
+Content-Type: text/plain; charset=us-ascii
 
-Only "advanced" ATA-USB bridges will offer you the serial number the
-adapter reads from the disk on power-up. The usual id-tools will just
-work fine on theses bridges.
+On Thu, 04 Jan 2007 22:02:00 PST, Andrew Morton said:
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20-rc3/2.6.20-rc3-mm1/
 
-There is no way to reach that information with most of the cheap USB
-storage-adapters.
+reiser4-sb_sync_inodes.patch causes my system to lock hard (no alt-sysrq,
+need to power cycle) *very* early in the boot - earlyprintk hasn't fired
+up yet, I don't get penguins, *nada*. I'm guessing it's something to do with
+the changed spinlocking from the -rc2-mm1 version.
 
-Kay
+Kernel boots OK with that one patch reverted.
+
+
+
+--==_Exmh_1168096849_3075P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFn75RcC3lWbTT17ARAgoKAKCDOVz/VJcxuxpvT7EopOCvJebQ/wCg9yRK
+oDh7zPi23NltX7N8QgqfRw4=
+=d9ij
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1168096849_3075P--

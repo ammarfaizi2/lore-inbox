@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932219AbXAFWFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932250AbXAFWF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbXAFWFj (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 17:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbXAFWFj
+	id S932250AbXAFWF6 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 17:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbXAFWF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 17:05:39 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:25321 "EHLO
+	Sat, 6 Jan 2007 17:05:58 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:25327 "EHLO
 	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932219AbXAFWFi (ORCPT
+	with ESMTP id S932251AbXAFWF5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 17:05:38 -0500
-Date: Sat, 6 Jan 2007 14:04:59 -0800
+	Sat, 6 Jan 2007 17:05:57 -0500
+Date: Sat, 6 Jan 2007 14:04:52 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Ken Moffat <zarniwhoop@ntlworld.com>
-Cc: Len Brown <lenb@kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: x86 instability with 2.6.1{8,9}
-Message-Id: <20070106140459.a6b72039.randy.dunlap@oracle.com>
-In-Reply-To: <20070102193459.GA19894@deepthought>
-References: <20070101160158.GA26547@deepthought>
-	<200701021225.57708.lenb@kernel.org>
-	<20070102180425.GA18680@deepthought>
-	<200701021342.32195.lenb@kernel.org>
-	<20070102193459.GA19894@deepthought>
+To: Torsten Kaiser <tk13@bardioc.dyndns.org>
+Cc: Olaf Hering <olaf@aepfle.de>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: [PATCH 2/2] sysrq: alphabetize command keys doc.
+Message-Id: <20070106140452.74941ef8.randy.dunlap@oracle.com>
+In-Reply-To: <200701062019.29974.tk13@bardioc.dyndns.org>
+References: <20070105110628.5f1e487d.rdunlap@xenotime.net>
+	<20070105193605.GA14592@aepfle.de>
+	<20070106102531.29ce662c.randy.dunlap@oracle.com>
+	<200701062019.29974.tk13@bardioc.dyndns.org>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -34,53 +34,90 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2007 19:34:59 +0000 Ken Moffat wrote:
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-> On Tue, Jan 02, 2007 at 01:42:32PM -0500, Len Brown wrote:
-> > 
-> > You might remove and re-insert the DIMMS.
-> > Sometimes there are poor contacts if the DIMMS are not fully seated and clicked in.
-> > 
-> > The real mystery is the 32 vs 64-bit thing.
-> > Are the devices configured the same way -- ie are they both in IOAPIC mode
-> > and /proc/interrupts looks the same for both modes?
-> > 
-> > -Len
-> 
->  Too late, I've started memtest-86+.  If it seems ok after an
-> overnight run, I'll take a look at /proc/interrupts.  How can I tell
-> it is in IOAPIC mode, please ?  Google was not helpful for this, but
-> if it's an override, the only things on my command lines are root=
-> and video= settings.
+Alphabetize the sysrq command keys list.
 
-(did anyone ever answer this?)
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ Documentation/sysrq.txt |   44 ++++++++++++++++++++++----------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-In IO-APIC mode, /proc/interrupts contains entries like these:
-
-           CPU0       CPU1       
-  0:  121218123          0    IO-APIC-edge  timer
-  1:     715259          0    IO-APIC-edge  i8042
-  6:          5          0    IO-APIC-edge  floppy
-  7:          0          0    IO-APIC-edge  parport0
-  9:          0          0   IO-APIC-level  acpi
- 12:   10011272          0    IO-APIC-edge  i8042
- 14:   11561548          0    IO-APIC-edge  ide0
- 66:    4525183          0         PCI-MSI  libata
- 74:       1711          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb6
- 82:          4          0   IO-APIC-level  ohci_hcd:usb2, ohci_hcd:usb3, ohci_hcd:usb4, ohci_hcd:usb5
- 98:     101326          0         PCI-MSI  HDA Intel
-106:   17747181          0         PCI-MSI  eth0
-169:          0          0   IO-APIC-level  uhci_hcd:usb9
-177:          3          0   IO-APIC-level  ohci1394
-185:         15          0   IO-APIC-level  uhci_hcd:usb8, aic79xx
-193:     427962          0   IO-APIC-level  uhci_hcd:usb7, aic79xx
-
-If not in IO-APIC mode, lots of those will say "XT-PIC" instead
-of IO-APIC.
-
->  Certainly, it seems likely that the configs could be fairly
-> different in their detail.
-
+--- linux-2620-rc3g4.orig/Documentation/sysrq.txt
++++ linux-2620-rc3g4/Documentation/sysrq.txt
+@@ -64,11 +64,6 @@ On all -  write a character to /proc/sys
+ 
+ *  What are the 'command' keys?
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-'r'     - Turns off keyboard raw mode and sets it to XLATE.
+-
+-'k'     - Secure Access Key (SAK) Kills all programs on the current virtual
+-          console. NOTE: See important comments below in SAK section.
+-
+ 'b'     - Will immediately reboot the system without syncing or unmounting
+           your disks.
+ 
+@@ -76,21 +71,37 @@ On all -  write a character to /proc/sys
+ 
+ 'd'	- Shows all locks that are held.
+ 
+-'o'     - Will shut your system off (if configured and supported).
++'e'     - Send a SIGTERM to all processes, except for init.
+ 
+-'s'     - Will attempt to sync all mounted filesystems.
++'f'	- Will call oom_kill to kill a memory hog process.
+ 
+-'u'     - Will attempt to remount all mounted filesystems read-only.
++'g'	- Used by kgdb on ppc platforms.
+ 
+-'p'     - Will dump the current registers and flags to your console.
++'h'     - Will display help (actually any other key than those listed
++          above will display help. but 'h' is easy to remember :-)
+ 
+-'t'     - Will dump a list of current tasks and their information to your
+-          console.
++'i'     - Send a SIGKILL to all processes, except for init.
++
++'k'     - Secure Access Key (SAK) Kills all programs on the current virtual
++          console. NOTE: See important comments below in SAK section.
+ 
+ 'm'     - Will dump current memory info to your console.
+ 
+ 'n'	- Used to make RT tasks nice-able
+ 
++'o'     - Will shut your system off (if configured and supported).
++
++'p'     - Will dump the current registers and flags to your console.
++
++'r'     - Turns off keyboard raw mode and sets it to XLATE.
++
++'s'     - Will attempt to sync all mounted filesystems.
++
++'t'     - Will dump a list of current tasks and their information to your
++          console.
++
++'u'     - Will attempt to remount all mounted filesystems read-only.
++
+ 'v'	- Dumps Voyager SMP processor info to your console.
+ 
+ 'w'	- Dumps tasks that are in uninterruptable (blocked) state.
+@@ -102,17 +113,6 @@ On all -  write a character to /proc/sys
+           it so that only emergency messages like PANICs or OOPSes would
+           make it to your console.)
+ 
+-'f'	- Will call oom_kill to kill a memory hog process.
+-
+-'e'     - Send a SIGTERM to all processes, except for init.
+-
+-'g'	- Used by kgdb on ppc platforms.
+-
+-'i'     - Send a SIGKILL to all processes, except for init.
+-
+-'h'     - Will display help (actually any other key than those listed
+-          above will display help. but 'h' is easy to remember :-)
+-
+ *  Okay, so what can I use them for?
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ Well, un'R'aw is very handy when your X server or a svgalib program crashes.
 
 ---
-~Randy

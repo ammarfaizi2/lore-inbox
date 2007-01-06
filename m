@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932221AbXAFX0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932268AbXAFXvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbXAFX0g (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 18:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbXAFX0g
+	id S932268AbXAFXvI (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 18:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbXAFXvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 18:26:36 -0500
-Received: from mail.macqel.be ([194.78.208.39]:18415 "EHLO mail.macqel.be"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932221AbXAFX0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 18:26:35 -0500
-Date: Sun, 7 Jan 2007 00:26:33 +0100
-From: Philippe De Muyter <phdm@macqel.be>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: RTC subsystem and fractions of seconds
-Message-ID: <20070106232633.GA8535@ingate.macqel.be>
-References: <200701051949.00662.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701051949.00662.david-b@pacbell.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 6 Jan 2007 18:51:08 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:56888 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932268AbXAFXvG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 18:51:06 -0500
+Message-ID: <45A035D1.6070701@zytor.com>
+Date: Sat, 06 Jan 2007 15:50:41 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Nicholas Miell <nmiell@comcast.net>,
+       Randy Dunlap <randy.dunlap@oracle.com>, "J.H." <warthog9@kernel.org>,
+       Willy Tarreau <w@1wt.eu>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+References: <20061214223718.GA3816@elf.ucw.cz>	<20061216094421.416a271e.randy.dunlap@oracle.com>	<20061216095702.3e6f1d1f.akpm@osdl.org>	<458434B0.4090506@oracle.com>	<1166297434.26330.34.camel@localhost.localdomain>	<20061219063413.GI24090@1wt.eu>	<1166511171.26330.120.camel@localhost.localdomain>	<20070106103331.48150aed.randy.dunlap@oracle.com>	<459FF60D.7080901@zytor.com>	<1168112266.2821.2.camel@entropy> <20070106121301.d07de0c9.akpm@osdl.org>
+In-Reply-To: <20070106121301.d07de0c9.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 07:49:00PM -0800, David Brownell wrote:
-> >  	Those rtc's actually have a 1/100th of second
-> > register.  Should the generic rtc interface not support that?
+Andrew Morton wrote:
+>>>
+>>> The most fundamental problem seems to be that I can't tell currnt Linux 
+>>> kernels that the dcache/icache is precious, and that it's way too eager 
+>>> to dump dcache and icache in favour of data blocks.  If I could do that, 
+>>> this problem would be much, much smaller.
 > 
-> Are you implying a new userspace API, or just an in-kernel update?
-
-My only concern at the moment is initializing linux's timeofday from the rtc
-quickly and with a good precision.  The way it is done currently
-in drivers/rtc/hctosys.c is 0.5 sec off.  We could obtain a much better
-precision by looping there until the next change (next second for old clocks,
-next 0.01 second for m41t81, maybe even better for other ones).
-
+> Usually people complain about the exact opposite of this.
 > 
-> Either way, that raises the question of what other features should
-> be included.  What sub-second precision?  Multiple alarms?  Ways
-> to manage output clocks?  Sub-HZ periodic alarms?
+>> Isn't setting the vm.vfs_cache_pressure sysctl below 100 supposed to do
+>> this?
+> 
+> yup.
 
-I cannot answer that, but others may have other needs.
+Well, it appears that even a setting of 1 is too aggressive for 
+kernel.org.  We're still ending up with each and every getdents() call 
+taking anywhere from 200 ms to over a second.
 
-Philippe
--- 
+	-hpa

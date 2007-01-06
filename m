@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751040AbXAFBG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751049AbXAFBHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbXAFBG7 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 20:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbXAFBG7
+	id S1751049AbXAFBHg (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 20:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbXAFBHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 20:06:59 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2524 "HELO
+	Fri, 5 Jan 2007 20:07:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2527 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751040AbXAFBG6 (ORCPT
+	with SMTP id S1751043AbXAFBHE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 20:06:58 -0500
-Date: Sat, 6 Jan 2007 02:07:01 +0100
+	Fri, 5 Jan 2007 20:07:04 -0500
+Date: Sat, 6 Jan 2007 02:07:07 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] make proc_dointvec_taint() static
-Message-ID: <20070106010701.GG20714@stusta.de>
-References: <20070104220200.ae4e9a46.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] cleanup include/linux/xattr.h
+Message-ID: <20070106010707.GH20714@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070104220200.ae4e9a46.akpm@osdl.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 10:02:00PM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.20-rc2-mm1:
->...
-> +add-taint_user-and-ability-to-set-taint-flags-from-userspace.patch
->...
->  Misc fixes and updates
->...
-
-This patch makes the needlessly global proc_dointvec_taint() static.
+- reduce the userspace visible part
+- fix the in-kernel compilation
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- include/linux/sysctl.h |    2 --
- kernel/sysctl.c        |    7 +++++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ include/linux/Kbuild  |    2 +-
+ include/linux/xattr.h |    8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- linux-2.6.20-rc3-mm1/include/linux/sysctl.h.old	2007-01-05 23:28:46.000000000 +0100
-+++ linux-2.6.20-rc3-mm1/include/linux/sysctl.h	2007-01-05 23:28:54.000000000 +0100
-@@ -929,8 +929,6 @@
- 			 void __user *, size_t *, loff_t *);
- extern int proc_dointvec_bset(ctl_table *, int, struct file *,
- 			      void __user *, size_t *, loff_t *);
--extern int proc_dointvec_taint(ctl_table *, int, struct file *,
--			       void __user *, size_t *, loff_t *);
- extern int proc_dointvec_minmax(ctl_table *, int, struct file *,
- 				void __user *, size_t *, loff_t *);
- extern int proc_dointvec_jiffies(ctl_table *, int, struct file *,
---- linux-2.6.20-rc3-mm1/kernel/sysctl.c.old	2007-01-05 23:29:05.000000000 +0100
-+++ linux-2.6.20-rc3-mm1/kernel/sysctl.c	2007-01-05 23:30:31.000000000 +0100
-@@ -181,6 +181,9 @@
- int sysctl_legacy_va_layout;
- #endif
+--- linux-2.6.20-rc3-mm1/include/linux/Kbuild.old	2007-01-05 23:42:02.000000000 +0100
++++ linux-2.6.20-rc3-mm1/include/linux/Kbuild	2007-01-05 23:42:47.000000000 +0100
+@@ -159,7 +159,6 @@
+ header-y += videotext.h
+ header-y += vt.h
+ header-y += wireless.h
+-header-y += xattr.h
+ header-y += x25.h
  
-+static int proc_dointvec_taint(ctl_table *table, int write, struct file *filp,
-+			       void __user *buffer, size_t *lenp, loff_t *ppos);
+ unifdef-y += acct.h
+@@ -337,6 +336,7 @@
+ unifdef-y += wanrouter.h
+ unifdef-y += watchdog.h
+ unifdef-y += wireless.h
++unifdef-y += xattr.h
+ unifdef-y += xfrm.h
+ 
+ objhdr-y += version.h
+--- linux-2.6.20-rc3-mm1/include/linux/xattr.h.old	2007-01-05 23:42:43.000000000 +0100
++++ linux-2.6.20-rc3-mm1/include/linux/xattr.h	2007-01-05 23:42:47.000000000 +0100
+@@ -13,6 +13,10 @@
+ #define XATTR_CREATE	0x1	/* set value, fail if attr already exists */
+ #define XATTR_REPLACE	0x2	/* set value, fail if attr does not exist */
+ 
++#ifdef  __KERNEL__
 +
- static void *get_uts(ctl_table *table, int write)
- {
- 	char *which = table->data;
-@@ -2022,8 +2025,8 @@
- /*
-  *	Taint values can only be increased
-  */
--int proc_dointvec_taint(ctl_table *table, int write, struct file *filp,
--			void __user *buffer, size_t *lenp, loff_t *ppos)
-+static int proc_dointvec_taint(ctl_table *table, int write, struct file *filp,
-+			       void __user *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int op;
++#include <linux/types.h>
++
+ /* Namespaces */
+ #define XATTR_OS2_PREFIX "os2."
+ #define XATTR_OS2_PREFIX_LEN (sizeof (XATTR_OS2_PREFIX) - 1)
+@@ -29,6 +33,8 @@
+ #define XATTR_USER_PREFIX "user."
+ #define XATTR_USER_PREFIX_LEN (sizeof (XATTR_USER_PREFIX) - 1)
  
++struct inode;
++struct dentry;
+ 
+ struct xattr_handler {
+ 	char *prefix;
+@@ -50,4 +56,6 @@
+ int generic_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
+ int generic_removexattr(struct dentry *dentry, const char *name);
+ 
++#endif  /*  __KERNEL__  */
++
+ #endif	/* _LINUX_XATTR_H */
 

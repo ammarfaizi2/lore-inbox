@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751151AbXAFChm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751116AbXAFCbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbXAFChm (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 5 Jan 2007 21:37:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbXAFChf
+	id S1751116AbXAFCbD (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 5 Jan 2007 21:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbXAFCbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Jan 2007 21:37:35 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:53940 "EHLO
+	Fri, 5 Jan 2007 21:31:01 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36680 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751131AbXAFChT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Jan 2007 21:37:19 -0500
-Message-Id: <20070106023638.586094000@sous-sol.org>
+	id S1751125AbXAFCaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Jan 2007 21:30:55 -0500
+Message-Id: <20070106023439.390678000@sous-sol.org>
 References: <20070106022753.334962000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 05 Jan 2007 18:28:38 -0800
+Date: Fri, 05 Jan 2007 18:28:24 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,75 +21,54 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
-       bunk@stusta.de, David L Stevens <dlstevens@us.ibm.com>
-Subject: [patch 45/50] IPV4/IPV6: Fix inet{,6} device initialization order.
-Content-Disposition: inline; filename=ipv4-ipv6-fix-inet-6-device-initialization-order.patch
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       phillip@lougher.org.uk
+Subject: [patch 31/50] corrupted cramfs filesystems cause kernel oops (CVE-2006-5823)
+Content-Disposition: inline; filename=corrupted-cramfs-filesystems-cause-kernel-oops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: David L Stevens <dlstevens@us.ibm.com>
+From: Phillip Lougher <phillip@lougher.org.uk>
 
-It is important that we only assign dev->ip{,6}_ptr
-only after all portions of the inet{,6} are setup.
+Steve Grubb's fzfuzzer tool (http://people.redhat.com/sgrubb/files/
+fsfuzzer-0.6.tar.gz) generates corrupt Cramfs filesystems which cause
+Cramfs to kernel oops in cramfs_uncompress_block().  The cause of the oops
+is an unchecked corrupted block length field read by cramfs_readpage().
 
-Otherwise we can receive packets before the multicast
-spinlocks et al. are initialized.
+This patch adds a sanity check to cramfs_readpage() which checks that the
+block length field is sensible.  The (PAGE_CACHE_SIZE << 1) size check is
+intentional, even though the uncompressed data is not going to be larger
+than PAGE_CACHE_SIZE, gzip sometimes generates compressed data larger than
+the original source data.  Mkcramfs checks that the compressed size is
+always less than or equal to PAGE_CACHE_SIZE << 1.  Of course Cramfs could
+use the original uncompressed data in this case, but it doesn't.
 
-Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Lougher <phillip@lougher.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
-commit 30c4cf577fb5b68c16e5750d6bdbd7072e42b279
+Date: Thu, 7 Dec 2006 04:37:20 +0000 (-0800)
+Subject: [patch 31/50] [PATCH] corrupted cramfs filesystems cause kernel oops
+X-Git-Tag: v2.6.20-rc1
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=8bb0269160df2a60764013994d0bc5165406cf4a
 
- net/ipv4/devinet.c  |    5 +++--
- net/ipv6/addrconf.c |    4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ fs/cramfs/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- linux-2.6.19.1.orig/net/ipv4/devinet.c
-+++ linux-2.6.19.1/net/ipv4/devinet.c
-@@ -165,9 +165,8 @@ struct in_device *inetdev_init(struct ne
- 			      NET_IPV4_NEIGH, "ipv4", NULL, NULL);
- #endif
- 
--	/* Account for reference dev->ip_ptr */
-+	/* Account for reference dev->ip_ptr (below) */
- 	in_dev_hold(in_dev);
--	rcu_assign_pointer(dev->ip_ptr, in_dev);
- 
- #ifdef CONFIG_SYSCTL
- 	devinet_sysctl_register(in_dev, &in_dev->cnf);
-@@ -176,6 +175,8 @@ struct in_device *inetdev_init(struct ne
- 	if (dev->flags & IFF_UP)
- 		ip_mc_up(in_dev);
- out:
-+	/* we can receive as soon as ip_ptr is set -- do this last */
-+	rcu_assign_pointer(dev->ip_ptr, in_dev);
- 	return in_dev;
- out_kfree:
- 	kfree(in_dev);
---- linux-2.6.19.1.orig/net/ipv6/addrconf.c
-+++ linux-2.6.19.1/net/ipv6/addrconf.c
-@@ -413,8 +413,6 @@ static struct inet6_dev * ipv6_add_dev(s
- 	if (netif_carrier_ok(dev))
- 		ndev->if_flags |= IF_READY;
- 
--	/* protected by rtnl_lock */
--	rcu_assign_pointer(dev->ip6_ptr, ndev);
- 
- 	ipv6_mc_init_dev(ndev);
- 	ndev->tstamp = jiffies;
-@@ -425,6 +423,8 @@ static struct inet6_dev * ipv6_add_dev(s
- 			      NULL);
- 	addrconf_sysctl_register(ndev, &ndev->cnf);
- #endif
-+	/* protected by rtnl_lock */
-+	rcu_assign_pointer(dev->ip6_ptr, ndev);
- 	return ndev;
- }
- 
+--- linux-2.6.19.1.orig/fs/cramfs/inode.c
++++ linux-2.6.19.1/fs/cramfs/inode.c
+@@ -481,6 +481,8 @@ static int cramfs_readpage(struct file *
+ 		pgdata = kmap(page);
+ 		if (compr_len == 0)
+ 			; /* hole */
++		else if (compr_len > (PAGE_CACHE_SIZE << 1))
++			printk(KERN_ERR "cramfs: bad compressed blocksize %u\n", compr_len);
+ 		else {
+ 			mutex_lock(&read_mutex);
+ 			bytes_filled = cramfs_uncompress_block(pgdata,
 
 --

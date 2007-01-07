@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932570AbXAGPM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932580AbXAGPN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbXAGPM7 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 10:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbXAGPM7
+	id S932580AbXAGPN0 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 10:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbXAGPN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 10:12:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46291 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932570AbXAGPM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 10:12:58 -0500
-In-Reply-To: <200701070525.45974.vda.linux@googlemail.com>
-References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com> <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com> <Pine.LNX.4.64.0701040921010.3661@woody.osdl.org> <200701070525.45974.vda.linux@googlemail.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <11fc5e81b224467e25caaefb66ba82e7@kernel.crashing.org>
-Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk,
-       Linus Torvalds <torvalds@osdl.org>, bunk@stusta.de, mikpe@it.uu.se
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-Date: Sun, 7 Jan 2007 16:10:53 +0100
-To: Denis Vlasenko <vda.linux@googlemail.com>
-X-Mailer: Apple Mail (2.623)
+	Sun, 7 Jan 2007 10:13:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58661 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932575AbXAGPNY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 10:13:24 -0500
+Date: Sun, 7 Jan 2007 15:13:19 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Kyle McMartin <kyle@parisc-linux.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [PATCH] Common compat_sys_sysinfo
+Message-ID: <20070107151319.GA23478@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kyle McMartin <kyle@parisc-linux.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+	parisc-linux@lists.parisc-linux.org
+References: <20070107144850.GB3207@athena.road.mcmartin.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070107144850.GB3207@athena.road.mcmartin.ca>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I want this:
->
-> char v[4];
-> ...
-> 	memcmp(v, "abcd", 4) == 0
->
-> compile to single cmpl on i386. This (gcc 4.1.1) is ridiculous:
+On Sun, Jan 07, 2007 at 09:48:50AM -0500, Kyle McMartin wrote:
+> While tracking a bug for Thibaut Varene, I noticed that almost all
+> architectures implemented exactly the same sys32_sysinfo... except
+> parisc, where a bug was to be found in handling of the uptime. So
+> let's remove a whole whack of code for fun and profit. Cribbed
+> compat_sys_sysinfo from x86_64's implementation, since I figured
+> it would be the best tested.
+> 
+> This patch incorporates Arnd's suggestion of not using set_fs/get_fs,
+> but instead extracting out the common code from sys_sysinfo.
+> 
+> Tested on a handful of architectures (ia64, parisc, x86_64.)
 
->         call    memcmp
+Looks generally good to me, but..
 
-i686-linux-gcc (GCC) 4.2.0 20060410 (experimental)
+> +asmlinkage long
+> +compat_sys_sysinfo(struct compat_sysinfo __user *info)
+> +{
+> +	extern int do_sysinfo(struct sysinfo *info);
 
-         movl    $4, %ecx        #, tmp65
-         cld
-         movl    $v, %esi        #, tmp63
-         movl    $.LC0, %edi     #, tmp64
-         repz
-         cmpsb
-         sete    %al     #, tmp68
+Please always put prototypes for functions with external linkage in
+header files.
 
-Still not perfect, but better already.  If you have any
-specific examples that you'd like to have compiled to
-better code, please report them in GCC bugzilla (with a
-self-contained testcase, please).
+> +int do_sysinfo(struct sysinfo *info)
+>  {
+> -	struct sysinfo val;
+>  	unsigned long mem_total, sav_total;
+>  	unsigned int mem_unit, bitcount;
+>  	unsigned long seq;
+>  
+> -	memset((char *)&val, 0, sizeof(struct sysinfo));
+> +	memset((char *)info, 0, sizeof(struct sysinfo));
+
+No need for the cast here.
 
 
-Segher
+Btw, in case you have some spare time there are some other syscalls
+that want similar treatment.  sendfile(64) come to mind as these
+could use a do_sendfile helper aswell, the various stat and readdir/getdents
+variants could do with some unification, the various timing calls
+like alarm and get/settimeofday are common across architectures,
+sysctl should be the same everywhere, the uid/git related syscalls
+should be consolidated, sched_rr_get_interval looks trivial,
+and last but not least we probably want a unified mechanisms to deal
+with the 64bit arguments that are broken up into two 32bit ones (not just
+for emulation but also for 32it BE architectures)
 
+Okay, okay - we should probably put this into a Wiki somewhere :)

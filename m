@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932607AbXAGQdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932600AbXAGQn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932607AbXAGQdv (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 11:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbXAGQdv
+	id S932600AbXAGQn7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 11:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbXAGQn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 11:33:51 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:3382 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932607AbXAGQdu (ORCPT
+	Sun, 7 Jan 2007 11:43:59 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:52081 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932600AbXAGQn6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 11:33:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ae+OURWyCX5J7nhO5A9n6NXr8ZBTiV4WyC0oRFScGcvpZNjcTmW/SbAP1FJO82U6a+YRe21AOnds3fpske4Aim++qs/aVXZXJoz8bkb4VSukvV2POG98nHLrWrcNG9AlliuPgMcoinhHgmQkI7AiU7ZH55vYiOhjVwugRuUUrsU=
-Message-ID: <84144f020701070833i19cbb179md5426ca4b4be371c@mail.gmail.com>
-Date: Sun, 7 Jan 2007 18:33:49 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.20-rc3-git4 oops on suspend: __drain_pages
-Cc: "Christoph Lameter" <clameter@sgi.com>,
-       "Robert Hancock" <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200701052036.10647.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Jan 2007 11:43:58 -0500
+Date: Sun, 7 Jan 2007 22:13:44 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107164344.GB6800@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru> <20070107104328.GC13579@in.ibm.com> <20070107125603.GA74@tv-sign.ru> <20070107142246.GA149@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <459DB116.9070805@shaw.ca>
-	 <Pine.LNX.4.64.0701051114200.28395@schroedinger.engr.sgi.com>
-	 <200701052036.10647.rjw@sisk.pl>
-X-Google-Sender-Auth: 50f6d42a38b6e90a
+In-Reply-To: <20070107142246.GA149@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2007, Robert Hancock wrote:
-> > > Saw this oops on 2.6.20-rc3-git4 when attempting to suspend. This only
-> > > happened in 1 of 3 attempts.
+On Sun, Jan 07, 2007 at 05:22:46PM +0300, Oleg Nesterov wrote:
+> On 01/07, Oleg Nesterov wrote:
+> >
+> > Thoughts?
+> 
+> How about:
+> 
+> 	CPU_DEAD does nothing. After __cpu_disable() cwq->thread runs on
+> 	all CPUs and becomes idle when it flushes cwq->worklist: nobody
+	^^^
 
-On Friday, 5 January 2007 20:15, Christoph Lameter wrote:
-> > See the fix that I posted yesterday to linux-mm. Its now in Andrew's tree.
+all except dead cpus that is.
 
-On 1/5/07, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> I can't find it in -mm.
->
-> Could you please post it here?
+> 	will add work_struct on that list.
 
-I think it's this:
+If CPU_DEAD does nothing, then the dead cpu's workqueue list may be
+non-empty. How will it be flushed, given that no thread can run on the
+dead cpu?
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=116793590117896&w=2
+We could consider CPU_DEAD moving over work atleast (and not killing
+worker threads also). In that case, cwq->thread can flush its work,
+however it now requires serialization among worker threads, since more
+than one worker thread can now be servicing the same CPU's workqueue
+list (this will beat the very purpose of maintaining per-cpu threads to
+avoid synchronization between them).
+
+Finally, I am concerned about the (un)friendliness of this programming
+model, where programmers are restricted in not having a stable access to
+cpu_online_map at all -and- also requiring them to code in non-obvious
+terms. Granted that writing hotplug-safe code is non-trivial, but the
+absence of "safe access to online_map" will make it more complicated.
+
+-- 
+Regards,
+vatsa

@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964778AbXAGQ4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932612AbXAGRCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbXAGQ4g (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 11:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbXAGQ4f
+	id S932612AbXAGRCK (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 12:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbXAGRCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 11:56:35 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:29648 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932614AbXAGQ4f (ORCPT
+	Sun, 7 Jan 2007 12:02:10 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56564 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932612AbXAGRCJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 11:56:35 -0500
-Subject: crash on CONFIG_CFAG12864B=y in 2.6.20-rc3-mm1
-From: Daniel Walker <dwalker@mvista.com>
-To: maxextreme@gmail.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 08:55:31 -0800
-Message-Id: <1168188931.26086.255.camel@imap.mvista.com>
+	Sun, 7 Jan 2007 12:02:09 -0500
+Date: Sun, 7 Jan 2007 22:31:58 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107170158.GC6800@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru> <20070107104328.GC13579@in.ibm.com> <20070107125603.GA74@tv-sign.ru> <20070107142246.GA149@tv-sign.ru> <20070107164344.GB6800@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070107164344.GB6800@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(forgot to CC LKML)
+On Sun, Jan 07, 2007 at 10:13:44PM +0530, Srivatsa Vaddagiri wrote:
+> If CPU_DEAD does nothing, then the dead cpu's workqueue list may be
+> non-empty. How will it be flushed, given that no thread can run on the
+> dead cpu?
+> 
+> We could consider CPU_DEAD moving over work atleast (and not killing
+> worker threads also). In that case, cwq->thread can flush its work,
+> however it now requires serialization among worker threads, since more
+> than one worker thread can now be servicing the same CPU's workqueue
+> list (this will beat the very purpose of maintaining per-cpu threads to
+> avoid synchronization between them).
 
-The options,
+I guess you could have cwq->thread flush only it's cpu's workqueue by
+running on another cpu, which will avoid the need to synchronize
+between worker threads. I am not 100% sure if that breaks workqueue
+model in any way (since we could have two worker threads running on the
+same CPU, but servicing different queues). Hopefully it doesnt.
 
-CONFIG_CFAG12864B=y
-CONFIG_CFAG12864B_RATE=20
+However the concern expressed below remains ..
 
-causes a crash at boot in 2.6.20-rc3-mm1. I don't have the hardware
-associated with the options. It looks like it just doesn't have guards
-to detect if the hardware doesn't exists.
+> Finally, I am concerned about the (un)friendliness of this programming
+> model, where programmers are restricted in not having a stable access to
+> cpu_online_map at all -and- also requiring them to code in non-obvious
+> terms. Granted that writing hotplug-safe code is non-trivial, but the
+> absence of "safe access to online_map" will make it more complicated.
 
-Here is the crash,
-
-ks0108: ERROR: parport didn't find 888 port
-BUG: unable to handle kernel NULL pointer dereference at virtual address 0000004 printing eip:
-c02dbff9
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP
-last sysfs file:
-Modules linked in:
-CPU:    3
-EIP:    0060:[<c02dbff9>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.20-rc3-mm1 #11)
-EIP is at ks0108_writecontrol+0x79/0xc0
-eax: 00001008   ebx: 0000000a   ecx: 673e2eb8   edx: 00000001
-esi: 0000000a   edi: 00000000   ebp: f7c3ff6c   esp: f7c3ff50
-ds: 007b   es: 007b   fs: 00d8  gs: 0000  ss: 0068
-Process swapper (pid: 1, ti=f7c3e000 task=f7c26a90 task.ti=f7c3e000)
-Stack: 00000001 f7552c40 f7c3ff60 c0120e3f 00000000 c049f450 00000000 f7c3ff74
-       c02dc159 f7c3ff80 c02dc177 00000000 f7c3ff98 c048feda 00000378 c02d74db
-       00000000 00000000 f7c3ffe0 c0478610 c03d9d35 00000004 f7c26a90 c0473fc4
-Call Trace:
- [<c01053da>] show_trace_log_lvl+0x1a/0x30
- [<c0105499>] show_stack_log_lvl+0xa9/0xd0
- [<c01056c7>] show_registers+0x207/0x370
- [<c0105949>] die+0x119/0x250
- [<c011d267>] do_page_fault+0x277/0x610
- [<c038e9d4>] error_code+0x7c/0x84
- [<c02dc159>] cfag12864b_e+0x19/0x20
- [<c02dc177>] cfag12864b_page+0x17/0x30
- [<c048feda>] cfag12864b_init+0x8a/0x130
- [<c0478610>] init+0x110/0x250
- [<c0104fd3>] kernel_thread_helper+0x7/0x14
- =======================
-Code: 8b 98 ec 00 00 00 0f b6 03 24 df 88 45 f3 80 75 f3 20 0f b6 43 01 20 45 f
-EIP: [<c02dbff9>] ks0108_writecontrol+0x79/0xc0 SS:ESP 0068:f7c3ff50
- <0>Kernel panic - not syncing: Attempted to kill init!
-
-
-
+-- 
+Regards,
+vatsa

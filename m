@@ -1,93 +1,97 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932447AbXAGJNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932436AbXAGJQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbXAGJNv (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbXAGJNv
+	id S932436AbXAGJQh (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbXAGJQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:13:51 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:39789 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932447AbXAGJNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:13:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DUBwJO6w6Jj8TATSQF5PpyxI8MF1DJYYsHicHj9FI5MXxohGgRRmGHY+RHo/Pm4i0JYoyhEZW0Z/r5si9Ffp/LpJcy4fpeuOUqPGUln5HKAIUVQ8HnAj83WlbI22IbVp2VPo5lS8PJ0Gfg6One80SGKsfI38DZjMvNonVt600Pc=
-Message-ID: <8355959a0701070113k659a3e57wedf52b9f18e0ac6a@mail.gmail.com>
-Date: Sun, 7 Jan 2007 14:43:48 +0530
-From: Akula2 <akula2.shark@gmail.com>
-To: "Auke Kok" <sofar@foo-projects.org>
-Subject: Re: Multi kernel tree support on the same distro?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <459E77D9.8080209@foo-projects.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 7 Jan 2007 04:16:36 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:43926 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932436AbXAGJQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 04:16:34 -0500
+Date: Sun, 7 Jan 2007 01:15:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       git@vger.kernel.org, nigel@nigel.suspend2.net,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+Message-Id: <20070107011542.3496bc76.akpm@osdl.org>
+In-Reply-To: <20070107085526.GR24090@1wt.eu>
+References: <20061216094421.416a271e.randy.dunlap@oracle.com>
+	<20061216095702.3e6f1d1f.akpm@osdl.org>
+	<458434B0.4090506@oracle.com>
+	<1166297434.26330.34.camel@localhost.localdomain>
+	<1166304080.13548.8.camel@nigel.suspend2.net>
+	<459152B1.9040106@zytor.com>
+	<1168140954.2153.1.camel@nigel.suspend2.net>
+	<45A08269.4050504@zytor.com>
+	<45A083F2.5000000@zytor.com>
+	<Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
+	<20070107085526.GR24090@1wt.eu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
-	 <459D9872.8090603@foo-projects.org>
-	 <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com>
-	 <459DFE9F.9050904@foo-projects.org>
-	 <8355959a0701050402g673f446em1c263dea826f3bcb@mail.gmail.com>
-	 <459E77D9.8080209@foo-projects.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/5/07, Auke Kok <sofar@foo-projects.org> wrote:
-> keeping 2 gcc's around usually is just a pain, but might also work.
->
-> gcc-4.1.1 might give some problems with some packages and just work fine otherwise too,
-> but 3.4.6 has just been known to work all around more.
+On Sun, 7 Jan 2007 09:55:26 +0100
+Willy Tarreau <w@1wt.eu> wrote:
 
-I am planning in this fashion:-
+> On Sat, Jan 06, 2007 at 09:39:42PM -0800, Linus Torvalds wrote:
+> > 
+> > 
+> > On Sat, 6 Jan 2007, H. Peter Anvin wrote:
+> > > 
+> > > During extremely high load, it appears that what slows kernel.org down more
+> > > than anything else is the time that each individual getdents() call takes.
+> > > When I've looked this I've observed times from 200 ms to almost 2 seconds!
+> > > Since an unpacked *OR* unpruned git tree adds 256 directories to a cleanly
+> > > packed tree, you can do the math yourself.
+> > 
+> > "getdents()" is totally serialized by the inode semaphore. It's one of the 
+> > most expensive system calls in Linux, partly because of that, and partly 
+> > because it has to call all the way down into the filesystem in a way that 
+> > almost no other common system call has to (99% of all filesystem calls can 
+> > be handled basically at the VFS layer with generic caches - but not 
+> > getdents()).
+> > 
+> > So if there are concurrent readdirs on the same directory, they get 
+> > serialized. If there is any file creation/deletion activity in the 
+> > directory, it serializes getdents(). 
+> > 
+> > To make matters worse, I don't think it has any read-ahead at all when you 
+> > use hashed directory entries. So if you have cold-cache case, you'll read 
+> > every single block totally individually, and serialized. One block at a 
+> > time (I think the non-hashed case is likely also suspect, but that's a 
+> > separate issue)
+> > 
+> > In other words, I'm not at all surprised it hits on filldir time. 
+> > Especially on ext3.
+> 
+> At work, we had the same problem on a file server with ext3. We use rsync
+> to make backups to a local IDE disk, and we noticed that getdents() took
+> about the same time as Peter reports (0.2 to 2 seconds), especially in
+> maildir directories. We tried many things to fix it with no result,
+> including enabling dirindexes. Finally, we made a full backup, and switched
+> over to XFS and the problem totally disappeared. So it seems that the
+> filesystem matters a lot here when there are lots of entries in a
+> directory, and that ext3 is not suitable for usages with thousands
+> of entries in directories with millions of files on disk. I'm not
+> certain it would be that easy to try other filesystems on kernel.org
+> though :-/
+> 
 
-gcc-3.4.x (latest in that tree) to build 2.4.34 kernel
-gcc-4.1.x (latest in that tree) to build 2.6.20 kernel (once released)
+Yeah, slowly-growing directories will get splattered all over the disk.
 
-And, all the required utils for these kernels.
+Possible short-term fixes would be to just allocate up to (say) eight
+blocks when we grow a directory by one block.  Or teach the
+directory-growth code to use ext3 reservations.
 
-There is no other option for me (this is fairly I can call as an
-Experimental work, but this effort would add a lots for my work in the
-Labs).
+Longer-term people are talking about things like on-disk rerservations. 
+But I expect directories are being forgotten about in all of that.
 
-> well, my own of course ;)
- > http://lunar-linux.org/
-
-This am not so sure (totally new for me), but I shall really try
-Lunar...thanks :-)
-
-This time am looking to work with the OpenSuSE10.2 to create my kind
-of environment. But, am not sure if there are any big issues. Else, I
-may stick to FC6.
-
-Only bottleneck would be the wrapping the utils as you have mentioned earlier.
-
-> but perhaps that's too much work for you, lunar definately is rather spartan for most
-> people, and maybe not what you prefer. OTOH it does give you almost all the freedom that
-> LFS gives you, and often very stable.
-
-Very true, but I shall have a look at that, thanks again.
-
-> that's all you'd need to get started. I suggest shopping distros a bit. Even debian
-> might already work a lot better. but the major distros like RH, SuSE are just not
-> focussed on multi-booting 2.4/2.6 side-by-side anymore.
-
-I have good exposure with Debain, especially with my Embedded domain
-(ARM Linux). But, somehow I felt like am more comfortable with Fedora
-or SuSE to do many other things (hmm, here I lack much of the Embedded
-support compared to Debian).
-
-This is my actual initiative; have to crack this problem.
-
-Lastly, one question I didn't understand:-
-
-Someone said in the reply to this thread that we shouldn't have 2
-kernels on the same distro? I didn't understand here clearly *Why
-Not*?
-
-> Cheers,
->
-> Auke
-
-~Akula2

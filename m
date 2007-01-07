@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932469AbXAGKUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932476AbXAGKY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbXAGKUl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 05:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbXAGKUl
+	id S932476AbXAGKY3 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 05:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbXAGKY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 05:20:41 -0500
-Received: from gw.goop.org ([64.81.55.164]:41112 "EHLO mail.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932469AbXAGKUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 05:20:40 -0500
-Message-ID: <45A0C977.4070800@goop.org>
-Date: Sun, 07 Jan 2007 02:20:39 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
-MIME-Version: 1.0
-To: Rene Herman <rene.herman@gmail.com>
-CC: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] romsignature/checksum cleanup
-References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain> <459310A3.4060706@vmware.com> <459ABA2F.6070907@gmail.com> <459EDDD1.6060208@goop.org> <459F1B82.6000808@gmail.com> <45A0B660.4060505@goop.org> <45A0B71F.1080704@gmail.com>
-In-Reply-To: <45A0B71F.1080704@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Jan 2007 05:24:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38652 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932477AbXAGKY3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 05:24:29 -0500
+Date: Sun, 7 Jan 2007 10:24:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+Message-ID: <20070107102427.GA26849@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Amit Choudhary <amit2030@yahoo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <585769.17683.qm@web55613.mail.re4.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <585769.17683.qm@web55613.mail.re4.yahoo.com>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
-> How is it for efficiency? I thought it was for correctness.
-> romsignature is using probe_kernel_adress() while all other accesses
-> to the ROMs there aren't.
->
-> If nothing else, anyone reading that code is likely to ask himself the
-> very same question -- why the one, and not the others.
+On Sun, Jan 07, 2007 at 12:46:50AM -0800, Amit Choudhary wrote:
+> Well, I am not proposing this as a debugging aid. The idea is about correct programming, atleast
+> from my view. Ideally, if you kfree(x), then you should set x to NULL. So, either programmers do
+> it themselves or a ready made macro do it for them.
 
-Well, I was wondering about all the uses of __get_user; why not
-probe_kernel_address() everywhere?
+No, you should not.  I suspect that's the basic point you're missing.
 
-I think its reasonable to assume that if the signature is mapped and
-correct, then everything else is mapped.  That's certainly the case for
-Xen, which is why I added it.  If you think this is unclear, then I
-think a comment to explain this rather than code changes is the
-appropriate fix.
-
-    J

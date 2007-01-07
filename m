@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932443AbXAGJEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932446AbXAGJHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbXAGJEW (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbXAGJEW
+	id S932446AbXAGJHn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbXAGJHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:04:22 -0500
-Received: from 1wt.eu ([62.212.114.60]:1810 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932443AbXAGJET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:04:19 -0500
-Date: Sun, 7 Jan 2007 10:03:36 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
-       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org
-Subject: Re: How git affects kernel.org performance
-Message-ID: <20070107090336.GA7741@1wt.eu>
-References: <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <45A0B63E.2020803@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45A0B63E.2020803@zytor.com>
-User-Agent: Mutt/1.5.11
+	Sun, 7 Jan 2007 04:07:43 -0500
+Received: from web55614.mail.re4.yahoo.com ([206.190.58.238]:45690 "HELO
+	web55614.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932446AbXAGJHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 04:07:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=a3/XIIlTHGaxIeOMbGpULn+s80Zb5TOXFbZXRc2iLN6qqu0CvdRegNTRWKP2Z1aeomLHxrnNTzjPDMeSw6EJEfw/E+Nba6MaLLHEq6FZCwJkTCdSbnlUzwS06+I8e+0SzswZRMThmO2uaevteueluP0CPVO3FJ5JYrBgwoIWQZY=;
+X-YMail-OSG: OcCXcHwVM1kgpEwq9ByGGFeM6TMiVsapsexBsm6S5QGvqe6exScY6m8Nrp8AzcTNSZC7FdAqJ7wrbKk33GPMpKPGuQBNBVxma4LcANk9A3tuiLC50FY_j9TuYKz82xgWBrxkgUQOKKRFucYqDE1Frz.I
+Date: Sun, 7 Jan 2007 01:07:41 -0800 (PST)
+From: Amit Choudhary <amit2030@yahoo.com>
+Subject: Re: [DISCUSS] Making system calls more portable.
+To: Rene Herman <rene.herman@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <45A0AE5C.6010801@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <647618.57006.qm@web55614.mail.re4.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 12:58:38AM -0800, H. Peter Anvin wrote:
-> Willy Tarreau wrote:
-> >
-> >At work, we had the same problem on a file server with ext3. We use rsync
-> >to make backups to a local IDE disk, and we noticed that getdents() took
-> >about the same time as Peter reports (0.2 to 2 seconds), especially in
-> >maildir directories. We tried many things to fix it with no result,
-> >including enabling dirindexes. Finally, we made a full backup, and switched
-> >over to XFS and the problem totally disappeared. So it seems that the
-> >filesystem matters a lot here when there are lots of entries in a
-> >directory, and that ext3 is not suitable for usages with thousands
-> >of entries in directories with millions of files on disk. I'm not
-> >certain it would be that easy to try other filesystems on kernel.org
-> >though :-/
-> >
+
+--- Rene Herman <rene.herman@gmail.com> wrote:
+>
+>If we're limited to Linux kernels, this seems to not be the case. Great care is taken in keeping
+>this userspace ABI stable -- new system calls are given new numbers. Old system calls may
+>disappear (after a long grace period) but even then I don't believe the number is ever recycled.
+>
+> If your discussion is not limited to Linux kernels, then sure, but being 
+> portable at that (sub-libc) level is asking too much.
 > 
-> Changing filesystems would mean about a week of downtime for a server. 
-> It's painful, but it's doable; however, if we get a traffic spike during 
-> that time it'll hurt like hell.
-> 
-> However, if there is credible reasons to believe XFS will help, I'd be 
-> inclined to try it out.
 
-The problem is that I have no sufficient FS knowledge to argument why
-it helps here. It was a desperate attempt to fix the problem for us
-and it definitely worked well.
+I will come to the main issue later but I just wanted to point out that we maintain information at
+two separate places - mapping between the name and the number in user space and kernel space.
+Shouldn't this duplication be removed.
 
-Hmmm I'm thinking about something very dirty : would it be possible
-to reduce the current FS size to get more space to create another
-FS ? Supposing you create a XX GB/TB XFS after the current ext3,
-you would be able to mount it in some directories with --bind and
-slowly switch some parts to it. The problem with this approach is
-that it will never be 100% converted, but as an experiment it might
-be worth it, no ?
+Now, let's say a vendor has linux_kernel_version_1 that has 300 system calls. The vendor needs to
+give some extra functionality to its customers and the way chosen is to implement new system call.
+ The new system call number is 301. The customer gets this custom kernel and uses number 301.
+Next, he downloads another kernel (newer linux kernel version) on his system that has already
+implemented the system call numbered 301. The customer now runs his program. Even if he compiles
+it again he has the old header files, so that does not make a difference.
 
-Willy
+Now his program uses number 301 that refers to some other system call and so, we can see system
+crash, or some very wrong behaviour. Making system calls more portable will ensure that atleast
+the program gets an indication that something is wrong (error returned from the kernel that this
+system call name is not matched). Or, if the vendor is actually successful in pushing its system
+call to the mainline kernel, no one needs to worry about it. Everything will run happily.
 
+However, people may say that, implementing custom system calls is not advocated by linux. And I
+think it is not advocated precisely because of this reason that they are not portable.
+
+Regards,
+Amit
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

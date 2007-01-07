@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932354AbXAGClh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932356AbXAGCsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbXAGClh (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbXAGClh
+	id S932356AbXAGCsz (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbXAGCsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:41:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36504 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932354AbXAGClg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:41:36 -0500
-Date: Sat, 6 Jan 2007 21:41:16 -0500
-From: Dave Jones <davej@redhat.com>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Torsten Kaiser <tk13@bardioc.dyndns.org>, Olaf Hering <olaf@aepfle.de>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH 1/2 v4] sysrq: showBlockedTasks is sysrq-W
-Message-ID: <20070107024116.GA1905@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Randy Dunlap <randy.dunlap@oracle.com>,
-	Torsten Kaiser <tk13@bardioc.dyndns.org>,
-	Olaf Hering <olaf@aepfle.de>, lkml <linux-kernel@vger.kernel.org>,
-	akpm <akpm@osdl.org>
-References: <20070105110628.5f1e487d.rdunlap@xenotime.net> <20070105193605.GA14592@aepfle.de> <20070106102531.29ce662c.randy.dunlap@oracle.com> <200701062019.29974.tk13@bardioc.dyndns.org> <20070106140424.2a4fa38b.randy.dunlap@oracle.com> <20070107000945.GA1533@redhat.com> <20070106183628.60670a1b.randy.dunlap@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Jan 2007 21:48:55 -0500
+Received: from wx-out-0506.google.com ([66.249.82.226]:37081 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932356AbXAGCsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 21:48:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q4PntYUPhkRhk/4J6MxhzryMhL0ZGB1NIRvkmuzRI+hwJ9KeqICCuyrTnjEI2gZZ/6PwrJXPHhv57ZXVtoXNwzJePRpmKgET2qs65SZt1TntMIfEnD/vvKzZQd2Q/Q/zI9G2YQCotgd6dbjJXOCOT/SemB8Ldf9bGtyUQAoNCx8=
+Message-ID: <9a8748490701061848j67d2ba1aie9557934e8e1359b@mail.gmail.com>
+Date: Sun, 7 Jan 2007 03:48:54 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Randy Dunlap" <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
+In-Reply-To: <20070107020010.GH19020@Ahmed>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20070106183628.60670a1b.randy.dunlap@oracle.com>
-User-Agent: Mutt/1.4.2.2i
+References: <20070106131725.GB19020@Ahmed>
+	 <20070106094630.51aa62e8.randy.dunlap@oracle.com>
+	 <20070107020010.GH19020@Ahmed>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 06:36:28PM -0800, Randy Dunlap wrote:
- > On Sat, 6 Jan 2007 19:09:45 -0500 Dave Jones wrote:
- > 
- > > On Sat, Jan 06, 2007 at 02:04:24PM -0800, Randy Dunlap wrote:
- > > 
- > >  > +	.help_msg	= "showBlockedTasks(W)",
- > > 
- > > Why not the same scheme as the existing help msgs..
- > 
- > Yes.  Thanks.
- > 
- > > shoWblockedtasks  ?
- > 
- > Would shoW-blocked-tasks be OK?
+On 07/01/07, Ahmed S. Darwish <darwish.07@gmail.com> wrote:
+> On Sat, Jan 06, 2007 at 09:46:30AM -0800, Randy Dunlap wrote:
+>
+> > On Sat, 6 Jan 2007 15:17:25 +0200 Ahmed S. Darwish wrote:
+> >
+> > > Hi all,
+> > > I'm not able to find the DAC960 block driver maintainer. If someones knows
+> > > please reply :).
+> >
+> > It's orphaned.  Andrew can decide to merge this, or one of the
+> > storage or block maintainers could possibly do that.
+> > or it could go thru KJ, but then Andrew may still end up
+> > merging it.
+>
+> Should Kernel janitors then care of cleaning orphaned files ?.
+> If so, I should forward it to Andrew Morton without CCing LKML again, right ?
+>
 
-Works for me.
-
-thanks,
-
-		Dave
+Sending the patch to LKML and Cc'ing Andrew and KJ would be my approach.
 
 -- 
-http://www.codemonkey.org.uk
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

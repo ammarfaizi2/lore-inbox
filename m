@@ -1,72 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932601AbXAGQJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932602AbXAGQXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbXAGQJi (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 11:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbXAGQJi
+	id S932602AbXAGQXG (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 11:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbXAGQXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 11:09:38 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:54696 "EHLO
-	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932599AbXAGQJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 11:09:37 -0500
-Subject: Re: fuse, get_user_pages, flush_anon_page, aliasing caches and all
-	that again
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Miller <davem@davemloft.net>, miklos@szeredi.hu, arjan@infradead.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20070103150912.GB25434@flint.arm.linux.org.uk>
-References: <1167778403.3687.1.camel@mulgrave.il.steeleye.com>
-	 <20070102.151906.21595863.davem@davemloft.net>
-	 <1167780858.3687.13.camel@mulgrave.il.steeleye.com>
-	 <20070102.162058.55482337.davem@davemloft.net>
-	 <20070103141655.GA25434@flint.arm.linux.org.uk>
-	 <1167836458.2789.6.camel@mulgrave.il.steeleye.com>
-	 <20070103150912.GB25434@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 10:09:13 -0600
-Message-Id: <1168186153.2792.80.camel@mulgrave.il.steeleye.com>
+	Sun, 7 Jan 2007 11:23:06 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:37076 "EHLO e1.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932602AbXAGQXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 11:23:03 -0500
+Date: Sun, 7 Jan 2007 21:51:40 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107162140.GA6800@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru> <20070107104328.GC13579@in.ibm.com> <20070107125603.GA74@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070107125603.GA74@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2007-01-03 at 15:09 +0000, Russell King wrote:
-> On Wed, Jan 03, 2007 at 09:00:58AM -0600, James Bottomley wrote:
-> > However, I was wondering if there might be a different way around this.
-> > We can't really walk all the user mappings because of the locks, but
-> > could we store the user flush hints in the page (or a related
-> > structure)?  On parisc we don't care about the process id (called space
-> > in our architecture) because we've turned off the pieces of the cache
-> > that match on space id.  Thus, all we care about is flushing with the
-> > physical address and virtual address (and only about 10 bits of this are
-> > significant for matching).  We go to great lengths to ensure that every
-> > mapping in user space all has the same 10 bits of virtual address, so if
-> > we just new what they were we could flush the whole of the user spaces
-> > for the page without having to walk any VMA lists.  Could arm do this as
-> > well?
+On Sun, Jan 07, 2007 at 03:56:03PM +0300, Oleg Nesterov wrote:
+> Srivatsa, I'm completely new to cpu-hotplug, so please correct me if I'm
+> wrong (in fact I _hope_ I am wrong) but as I see it, the hotplug/workqueue
+> interaction is broken by design, it can't be fixed by changing just locking.
 > 
-> I don't think so.  The organisation of the VIVT caches in terms of
-> how the set index and tag correspond with virtual addresses are hardly
-> ever documented.  When they are, they don't appear to lend themselves
-> to such an approach.  For example,  Xscale has:
-> 
->  tag:       virtual address b31-10
->  set index: b9-5
-> 
-> and there's 32 ways per set.  So there's nothing to be gained from
-> controlling the virtual address which individual mappings end up at
-> in this case.
+> Once again. CPU dies, CPU_DEAD calls kthread_stop() and sleeps until
+> cwq->thread exits. To do so, this thread must at least complete the
+> currently running work->func().
 
-OK, so the bottom line we seem to have reached is that we can't manage
-the user coherency in the DMA API.  Does this also mean you can't do it
-for non-DMA cases (kmap_atomic would seem to be a likely problem)? in
-which case the only coherency kmap would control would be kernel
-coherency?
-
-James
+If run_workqueue() takes a lock_cpu_hotplug() successfully, then we shouldnt 
+even reach till this point, as it will block writers (cpu_down/up) until it
+completes.
 
 
+	run_workqueue()
+	---------------
+	
+try_again:
+	rc = lock_cpu_hotplug_interruptible();
+	
+	if (rc && kthread_should_stop())
+		return;
+	
+	if (rc != 0)
+		goto try_again;
+	
+	/* cpu_down/up shouldnt happen now untill we call unlock_cpu_hotplug */
+	while (!list_empty(..))
+		work->func();
+	
+	unlock_cpu_hotplug();
+
+
+If work->func() calls something (say flush_workqueue()) which requires a
+lock_cpu_hotplug() again, there are two ways to support it:
+
+Method 1: Add a field, hotplug_lock_held, in task_struct
+
+	If current->hotplug_lock_held > 1, then lock_cpu_hotplug()
+	merely increments it and returns success. Its counterpart, 
+	unlock_cpu_hotplug() will decrement the count.
+
+	Easiest to implement. However additional field is required in
+	each task_struct, which may not be attractive for some.
+
+Method 2 : Bias readers over writers:
+
+	This method will support recursive calls to lock_cpu_hotplug()
+	by the same thread, w/o requiring a field in task_struct. To 
+	accomplish this, readers are biased over writers i.e 
+
+
+		reader1_lock(); <- success
+
+					writer1_lock(); <- blocks on reader1
+
+
+		reader2_lock(); <- success
+
+A fair lock would have blocked reader2_lock() until 
+writer1_lock()/writer1_unlock() is complete, but since we are required to 
+support recursion w/o maintaining a task_struct field, we let reader2_lock() 
+succeed, even though it could be from a different thread.
+	
+> Andrew, Ingo, this also means that freezer can't solve this particular
+> problem either (if i am right).
+
+freezer wont give stable access to cpu_online_map either, as could typically be
+required in functions like flush_workqueue.
+
+-- 
+Regards,
+vatsa

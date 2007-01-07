@@ -1,104 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932422AbXAGH1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932426AbXAGIPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbXAGH1Y (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 02:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbXAGH1Y
+	id S932426AbXAGIPk (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 03:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbXAGIPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 02:27:24 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:39339 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932381AbXAGH1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 02:27:22 -0500
-Date: Sat, 6 Jan 2007 23:26:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org,
-       kiran@scalex86.org, ak@suse.de, md@google.com, mingo@elte.hu,
-       pravin.shelar@calsoftinc.com, shai@scalex86.org
-Subject: Re: +
- spin_lock_irq-enable-interrupts-while-spinning-i386-implementation.patch
- added to -mm tree
-Message-Id: <20070106232641.68511f15.akpm@osdl.org>
-In-Reply-To: <1168122953.26086.230.camel@imap.mvista.com>
-References: <200701032112.l03LCnVb031386@shell0.pdx.osdl.net>
-	<1168122953.26086.230.camel@imap.mvista.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Sun, 7 Jan 2007 03:15:40 -0500
+Received: from web55601.mail.re4.yahoo.com ([206.190.58.225]:42741 "HELO
+	web55601.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932426AbXAGIPj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 03:15:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=ISWMORdja0YFXJExw0ymn/vJ4AO1w9ZoCGS1vPp9EFFjagZmtrKYD2aDPsn/C23Mo0PeYUbFdDfombQXK/NS3cYw2z+8giBK5cIWj9Wxbu9NjTeFYcoaASdl3E3orZL6y9bBKq02MDCFfTzeN8fsNl/hj4AaQ8Q4ZgtZ5Ntwnp4=;
+X-YMail-OSG: .zh62wAVM1mRgjYqZEkVTsTweppaDq2H3FkAVmmN1c4boA3To765jY2It_Vumae2684AQVSOSw8.pUofs6qGx5MHAYjVjn024iAboHJT5Ks9Oq1.Fxv3FkvaiCJivaofUH6nHwPIKw3_ppBioER6jBUZc0Nm1fW3Gr6fZOq..xHqmCrtBFJxyOanCexy
+Date: Sun, 7 Jan 2007 00:15:38 -0800 (PST)
+From: Amit Choudhary <amit2030@yahoo.com>
+Subject: [DISCUSS] Making system calls more portable.
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <722886.55398.qm@web55601.mail.re4.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Jan 2007 14:35:53 -0800
-Daniel Walker <dwalker@mvista.com> wrote:
+Hi,
 
-> On Wed, 2007-01-03 at 13:12 -0800, akpm@osdl.org wrote:
-> > -# define __raw_spin_lock_irq(lock) __raw_spin_lock(lock)
-> > +
-> > +static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
-> > +{
-> > +       asm volatile("\n1:\t"
-> > +                    LOCK_PREFIX " ; decb %0\n\t"
-> > +                    "jns 3f\n"
-> > +                    STI_STRING "\n"
-> > +                    "2:\t"
-> > +                    "rep;nop\n\t"
-> > +                    "cmpb $0,%0\n\t"
-> > +                    "jle 2b\n\t"
-> > +                    CLI_STRING "\n"
-> > +                    "jmp 1b\n"
-> > +                    "3:\n\t"
-> > +                    : "+m" (lock->slock) : : "memory");
-> > +}
-> >  #endif
-> >   
-> 
-> This doesn't compile when CONFIG_PARAVIRT is enabled. It changes the
-> CLI_STRING and STI_STRING values.
-> 
+I wanted to know if there is any inclination towards making system calls more portable. Please let
+me know if this discussion has happened before.
+
+Well, system calls today are not portable mainly because they are invoked using a number and it
+may happen that a number 'N' may refer to systemcall_1() on one system/kernel and to
+systemcall_2() on another system/kernel. This problem may surface if you compile your program
+using headers from version_1 of the kernel, and then install another version of the kernel or a
+custom kernel that has extended the system call table (on the same system). If we want to improve
+the portability then we can avoid this approach or improve this approach. It may or may not be
+complex to implement these.
+
+1. Invoke a system call using its name. Pass its name to the kernel as an argument of syscall() or
+some other function. Probably may make the invocation of the system call slower. If the name
+doesn't match in the kernel then an error can be returned.
+
+2. Create a /proc entry that will return the number of the system call given its name. This number
+can then be used to invoke the system call.
+
+These approaches will also remove the dependency from user space header file that contains the
+mapping from the system call name to its number. I hope that I made some sense.
+
+Regards,
+Amit
 
 
-diff -puN include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix include/asm-i386/spinlock.h
---- a/include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix
-+++ a/include/asm-i386/spinlock.h
-@@ -86,17 +86,19 @@ static inline void __raw_spin_lock_flags
- static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
- {
- 	asm volatile("\n1:\t"
--		     LOCK_PREFIX " ; decb %0\n\t"
-+		     LOCK_PREFIX " ; decb %[slock]\n\t"
- 		     "jns 3f\n"
- 		     STI_STRING "\n"
- 		     "2:\t"
- 		     "rep;nop\n\t"
--		     "cmpb $0,%0\n\t"
-+		     "cmpb $0,%[slock]\n\t"
- 		     "jle 2b\n\t"
- 		     CLI_STRING "\n"
- 		     "jmp 1b\n"
- 		     "3:\n\t"
--		     : "+m" (lock->slock) : : "memory");
-+		     : [slock] "+m" (lock->slock)
-+		     : __CLI_STI_INPUT_ARGS
-+		     : "memory" CLI_STI_CLOBBERS);
- }
- #endif
- 
-diff -puN include/asm-i386/paravirt.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix include/asm-i386/paravirt.h
---- a/include/asm-i386/paravirt.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix
-+++ a/include/asm-i386/paravirt.h
-@@ -509,10 +509,10 @@ static inline unsigned long __raw_local_
- 		     "popl %%edx; popl %%ecx",				\
- 		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
- #define CLI_STI_CLOBBERS , "%eax"
--#define CLI_STI_INPUT_ARGS \
--	,								\
-+#define __CLI_STI_INPUT_ARGS						\
- 	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
- 	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
-+#define CLI_STI_INPUT_ARGS , __CLI_STI_INPUT_ARGS
- 
- #else  /* __ASSEMBLY__ */
- 
-_
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

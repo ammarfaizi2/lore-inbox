@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932580AbXAGPN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932573AbXAGPNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbXAGPN0 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 10:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbXAGPN0
+	id S932573AbXAGPNm (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 10:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbXAGPNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 10:13:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58661 "EHLO
+	Sun, 7 Jan 2007 10:13:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58664 "EHLO
 	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932575AbXAGPNY (ORCPT
+	with ESMTP id S932573AbXAGPNk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 10:13:24 -0500
-Date: Sun, 7 Jan 2007 15:13:19 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Kyle McMartin <kyle@parisc-linux.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [PATCH] Common compat_sys_sysinfo
-Message-ID: <20070107151319.GA23478@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kyle McMartin <kyle@parisc-linux.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-	parisc-linux@lists.parisc-linux.org
-References: <20070107144850.GB3207@athena.road.mcmartin.ca>
+	Sun, 7 Jan 2007 10:13:40 -0500
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <45A0F060.9090207@imap.cc>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	 <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
+	 <20070107114439.GC21613@flint.arm.linux.org.uk>  <45A0F060.9090207@imap.cc>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 23:13:57 +0800
+Message-Id: <1168182838.14763.24.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107144850.GB3207@athena.road.mcmartin.ca>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 09:48:50AM -0500, Kyle McMartin wrote:
-> While tracking a bug for Thibaut Varene, I noticed that almost all
-> architectures implemented exactly the same sys32_sysinfo... except
-> parisc, where a bug was to be found in handling of the uptime. So
-> let's remove a whole whack of code for fun and profit. Cribbed
-> compat_sys_sysinfo from x86_64's implementation, since I figured
-> it would be the best tested.
-> 
-> This patch incorporates Arnd's suggestion of not using set_fs/get_fs,
-> but instead extracting out the common code from sys_sysinfo.
-> 
-> Tested on a handful of architectures (ia64, parisc, x86_64.)
+On Sun, 2007-01-07 at 14:06 +0100, Tilman Schmidt wrote:
+> Russell King schrieb:
+> > Welcome to the mess which the UTF-8 charset creates.
 
-Looks generally good to me, but..
+Utter bollocks.
 
-> +asmlinkage long
-> +compat_sys_sysinfo(struct compat_sysinfo __user *info)
-> +{
-> +	extern int do_sysinfo(struct sysinfo *info);
+> The problem of different character encodings coexisting on the same
+> platform, and the resulting occasional messing-up, far predates Unicode.
+> I distinctly remember one case of being bitten by this myself in 1977
+> when Unicode wasn't even on the horizon yet, and I don't think that was
+> the first time.
 
-Please always put prototypes for functions with external linkage in
-header files.
+Indeed. If you take arbitrary content and send it out to the world
+labelled as ISO8859-1, of _course_ you're likely to be corrupting it.
 
-> +int do_sysinfo(struct sysinfo *info)
->  {
-> -	struct sysinfo val;
->  	unsigned long mem_total, sav_total;
->  	unsigned int mem_unit, bitcount;
->  	unsigned long seq;
->  
-> -	memset((char *)&val, 0, sizeof(struct sysinfo));
-> +	memset((char *)info, 0, sizeof(struct sysinfo));
+Far from being the cause of the problem, UTF-8 actually offers the
+chance of a _solution_. Because once the Luddites catch up, it'll
+largely eliminate the need for using the multitude of legacy character
+sets and converting between them -- and the problem of mislabelling will
+fairly much go away.
 
-No need for the cast here.
+-- 
+dwmw2
 
-
-Btw, in case you have some spare time there are some other syscalls
-that want similar treatment.  sendfile(64) come to mind as these
-could use a do_sendfile helper aswell, the various stat and readdir/getdents
-variants could do with some unification, the various timing calls
-like alarm and get/settimeofday are common across architectures,
-sysctl should be the same everywhere, the uid/git related syscalls
-should be consolidated, sched_rr_get_interval looks trivial,
-and last but not least we probably want a unified mechanisms to deal
-with the 64bit arguments that are broken up into two 32bit ones (not just
-for emulation but also for 32it BE architectures)
-
-Okay, okay - we should probably put this into a Wiki somewhere :)

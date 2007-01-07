@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932431AbXAGIZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932433AbXAGI0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbXAGIZa (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 03:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbXAGIZa
+	id S932433AbXAGI0e (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 03:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbXAGI0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 03:25:30 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:47698 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932431AbXAGIZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 03:25:30 -0500
-Message-ID: <45A0AE76.40600@garzik.org>
-Date: Sun, 07 Jan 2007 03:25:26 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sun, 7 Jan 2007 03:26:34 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:40188 "EHLO
+	smtpq2.tilbu1.nb.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932433AbXAGI0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 03:26:33 -0500
+Message-ID: <45A0AE5C.6010801@gmail.com>
+Date: Sun, 07 Jan 2007 09:25:00 +0100
+From: Rene Herman <rene.herman@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
 MIME-Version: 1.0
-To: Manish Regmi <regmi.manish@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ATA streaming feature support
-References: <652016d30701062240w4756bc4m8fdb54070708fd81@mail.gmail.com>
-In-Reply-To: <652016d30701062240w4756bc4m8fdb54070708fd81@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Amit Choudhary <amit2030@yahoo.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [DISCUSS] Making system calls more portable.
+References: <722886.55398.qm@web55601.mail.re4.yahoo.com>
+In-Reply-To: <722886.55398.qm@web55601.mail.re4.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manish Regmi wrote:
-> Hi all,
->   First of all sorry for bringing this topic again.
-> As discussed in  --> http://lkml.org/lkml/2006/5/5/47
-> The ATA Streaming feature set is not necessary to be in Kernel Space
-> (IDE driver). There is a suggestion creating user space library.
-> 
-> But how is the user space apps going to use the commands like READ
-> STREAM DMA EXT (0x2A). Shouldn't there be some support in kernel which
-> setups up PRD tables  and all.
-> It doesn't seem to be possible.... is it?
+On 01/07/2007 09:15 AM, Amit Choudhary wrote:
 
-If you pass SG_IO addresses, they become DMA scatter/gather tables.
+> Well, system calls today are not portable mainly because they are
+> invoked using a number and it may happen that a number 'N' may refer
+> to systemcall_1() on one system/kernel and to systemcall_2() on
+> another system/kernel.
 
-	Jeff
+If we're limited to Linux kernels, this seems to not be the case. Great 
+care is taken in keeping this userspace ABI stable -- new system calls 
+are given new numbers. Old system calls may disappear (after a long 
+grace period) but even then I don't believe the number is ever recycled.
 
+If your discussion is not limited to Linux kernels, then sure, but being 
+portable at that (sub-libc) level is asking too much.
 
+> I hope that I made some sense.
 
+Some, but your supposition seems unclear.
+
+Rene

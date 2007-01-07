@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965176AbXAGV2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965214AbXAGVb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbXAGV2G (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 16:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbXAGV2F
+	id S965214AbXAGVb7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 16:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbXAGVb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 16:28:05 -0500
-Received: from server99.tchmachines.com ([72.9.230.178]:40040 "EHLO
-	server99.tchmachines.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965176AbXAGV2F (ORCPT
+	Sun, 7 Jan 2007 16:31:59 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:46897 "EHLO
+	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965196AbXAGVb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 16:28:05 -0500
-Date: Sun, 7 Jan 2007 13:27:52 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       ak@suse.de, md@google.com, mingo@elte.hu, pravin.shelar@calsoftinc.com,
-       shai@scalex86.org
-Subject: Re: + spin_lock_irq-enable-interrupts-while-spinning-i386-implementation.patch added to -mm tree
-Message-ID: <20070107212752.GB7436@localhost.localdomain>
-References: <200701032112.l03LCnVb031386@shell0.pdx.osdl.net> <1168122953.26086.230.camel@imap.mvista.com> <20070106232641.68511f15.akpm@osdl.org> <1168176285.26086.241.camel@imap.mvista.com> <20070107120503.ceadb6ed.akpm@osdl.org> <20070107210658.GA7436@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107210658.GA7436@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 7 Jan 2007 16:31:58 -0500
+Message-ID: <45A1668D.2010203@zytor.com>
+Date: Sun, 07 Jan 2007 13:30:53 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Jeff Garzik <jeff@garzik.org>, nigel@nigel.suspend2.net,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org, Git Mailing List <git@vger.kernel.org>
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+References: <20061214223718.GA3816@elf.ucw.cz> <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A07587.3080503@garzik.org> <20070107201146.GA21956@suse.de>
+In-Reply-To: <20070107201146.GA21956@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 01:06:58PM -0800, Ravikiran G Thirumalai wrote:
-> 
-> 
-> Question is, now we have 2 versions of spin_locks_irq implementation
-> with CONFIG_PARAVIRT -- one with regular cli sti and other with virtualized 
-> CLI/STI -- sounds odd!
+Greg KH wrote:
 
-Sunday morning hangovers !! spin_lock_irq is not inlined so there is just one
-version even with CONFIG_PARAVIRT.
+> 
+> Well, I create my repos by doing a:
+> 	git clone -l --bare
+> which makes a hardlink from Linus's tree.
+> 
+> But then it gets copied over to the public server, which probably severs
+> that hardlink :(
+> 
+> Any shortcut to clone or set up a repo using "alternatives" so that we
+> don't have this issue at all?
+> 
 
-Thanks,
-Kiran
+Use the -s option to git clone.
+
+	-hpa

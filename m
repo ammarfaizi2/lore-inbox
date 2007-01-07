@@ -1,35 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932345AbXAGC2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932261AbXAGCbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbXAGC2T (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbXAGC2T
+	id S932261AbXAGCbm (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbXAGCbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:28:19 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37340 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932345AbXAGC2S (ORCPT
+	Sat, 6 Jan 2007 21:31:42 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:43611 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932261AbXAGCbm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:28:18 -0500
-Date: Sun, 7 Jan 2007 02:38:51 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
+	Sat, 6 Jan 2007 21:31:42 -0500
+Date: Sat, 6 Jan 2007 18:31:30 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
 To: "Ahmed S. Darwish" <darwish.07@gmail.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
-Message-ID: <20070107023851.07858f50@localhost.localdomain>
+Message-Id: <20070106183130.09d08218.randy.dunlap@oracle.com>
 In-Reply-To: <20070107020010.GH19020@Ahmed>
 References: <20070106131725.GB19020@Ahmed>
 	<20070106094630.51aa62e8.randy.dunlap@oracle.com>
 	<20070107020010.GH19020@Ahmed>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Whitelist: TRUE
+X-Whitelist: TRUE
+X-Brightmail-Tracker: AAAAAQAAAAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 7 Jan 2007 04:00:10 +0200 Ahmed S. Darwish wrote:
+
+> On Sat, Jan 06, 2007 at 09:46:30AM -0800, Randy Dunlap wrote:
+> 
+> > On Sat, 6 Jan 2007 15:17:25 +0200 Ahmed S. Darwish wrote:
+> > 
+> > > Hi all,
+> > > I'm not able to find the DAC960 block driver maintainer. If someones knows
+> > > please reply :).
+> > 
+> > It's orphaned.  Andrew can decide to merge this, or one of the
+> > storage or block maintainers could possibly do that.
+> > or it could go thru KJ, but then Andrew may still end up
+> > merging it.
+> 
 > Should Kernel janitors then care of cleaning orphaned files ?.
 
-If you have the hardware to run tests then yes, if not then they are best
-handled with caution. Working is preferred to pretty.
+Kernel janitors could do that (IMO).  It's up to you where you want
+to send the patch.
 
-Alan
+> If so, I should forward it to Andrew Morton without CCing LKML again, right ?
+
+I would expect that Andrew has seen the patch.  Anyway, you should
+always send the patch to a mailing list and usually to a specific
+maintainer also (like Andrew or a subsystem maintainer or the KJ
+maintainer).  [except for some security-related patches]
+
+---
+~Randy

@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932437AbXAGI4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932435AbXAGI6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbXAGI4S (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 03:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbXAGI4S
+	id S932435AbXAGI6f (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 03:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbXAGI6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 03:56:18 -0500
-Received: from 1wt.eu ([62.212.114.60]:1803 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932409AbXAGI4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 03:56:17 -0500
-Date: Sun, 7 Jan 2007 09:55:26 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org
-Subject: Re: How git affects kernel.org performance
-Message-ID: <20070107085526.GR24090@1wt.eu>
-References: <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
-Mime-Version: 1.0
+	Sun, 7 Jan 2007 03:58:35 -0500
+Received: from lollipop.listbox.com ([208.210.124.78]:38568 "EHLO
+	lollipop.listbox.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932435AbXAGI6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 03:58:34 -0500
+X-Greylist: delayed 513 seconds by postgrey-1.27 at vger.kernel.org; Sun, 07 Jan 2007 03:58:34 EST
+Date: Sun, 7 Jan 2007 02:49:55 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@suse.de>,
+       Giuliano Pochini <pochini@shiny.it>
+Subject: [PATCH 2.6.20] tasks cannot run on cpus onlined after boot
+Message-ID: <20070107084955.GD7654@localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 09:39:42PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Sat, 6 Jan 2007, H. Peter Anvin wrote:
-> > 
-> > During extremely high load, it appears that what slows kernel.org down more
-> > than anything else is the time that each individual getdents() call takes.
-> > When I've looked this I've observed times from 200 ms to almost 2 seconds!
-> > Since an unpacked *OR* unpruned git tree adds 256 directories to a cleanly
-> > packed tree, you can do the math yourself.
-> 
-> "getdents()" is totally serialized by the inode semaphore. It's one of the 
-> most expensive system calls in Linux, partly because of that, and partly 
-> because it has to call all the way down into the filesystem in a way that 
-> almost no other common system call has to (99% of all filesystem calls can 
-> be handled basically at the VFS layer with generic caches - but not 
-> getdents()).
-> 
-> So if there are concurrent readdirs on the same directory, they get 
-> serialized. If there is any file creation/deletion activity in the 
-> directory, it serializes getdents(). 
-> 
-> To make matters worse, I don't think it has any read-ahead at all when you 
-> use hashed directory entries. So if you have cold-cache case, you'll read 
-> every single block totally individually, and serialized. One block at a 
-> time (I think the non-hashed case is likely also suspect, but that's a 
-> separate issue)
-> 
-> In other words, I'm not at all surprised it hits on filldir time. 
-> Especially on ext3.
+Commit 5c1e176781f43bc902a51e5832f789756bff911b ("sched: force
+/sbin/init off isolated cpus") sets init's cpus_allowed to a subset of
+cpu_online_map at boot time, which means that tasks won't be scheduled
+on cpus that are added to the system later.
 
-At work, we had the same problem on a file server with ext3. We use rsync
-to make backups to a local IDE disk, and we noticed that getdents() took
-about the same time as Peter reports (0.2 to 2 seconds), especially in
-maildir directories. We tried many things to fix it with no result,
-including enabling dirindexes. Finally, we made a full backup, and switched
-over to XFS and the problem totally disappeared. So it seems that the
-filesystem matters a lot here when there are lots of entries in a
-directory, and that ext3 is not suitable for usages with thousands
-of entries in directories with millions of files on disk. I'm not
-certain it would be that easy to try other filesystems on kernel.org
-though :-/
+Make init's cpus_allowed a subset of cpu_possible_map instead.  This
+should still preserve the behavior that Nick's change intended.
 
-Willy
+Thanks to Giuliano Pochini for reporting this and testing the fix:
 
+http://ozlabs.org/pipermail/linuxppc-dev/2006-December/029397.html
+
+
+Signed-off-by: Nathan Lynch <ntl@pobox.com>
+
+---
+
+This is a regression from 2.6.18.  Assuming this change is okay, this
+should go to -stable for 2.6.19.x.
+
+diff --git a/kernel/sched.c b/kernel/sched.c
+index b515e3c..3c8b1c5 100644
+--- a/kernel/sched.c
++++ b/kernel/sched.c
+@@ -6875,7 +6875,7 @@ void __init sched_init_smp(void)
+ 
+ 	lock_cpu_hotplug();
+ 	arch_init_sched_domains(&cpu_online_map);
+-	cpus_andnot(non_isolated_cpus, cpu_online_map, cpu_isolated_map);
++	cpus_andnot(non_isolated_cpus, cpu_possible_map, cpu_isolated_map);
+ 	if (cpus_empty(non_isolated_cpus))
+ 		cpu_set(smp_processor_id(), non_isolated_cpus);
+ 	unlock_cpu_hotplug();

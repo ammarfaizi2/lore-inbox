@@ -1,92 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965243AbXAGXFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965245AbXAGXOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbXAGXFA (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 18:05:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbXAGXE7
+	id S965245AbXAGXOQ (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 18:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbXAGXOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 18:04:59 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53446 "EHLO omx2.sgi.com"
+	Sun, 7 Jan 2007 18:14:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53604 "EHLO omx2.sgi.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965243AbXAGXE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 18:04:59 -0500
-Date: Mon, 8 Jan 2007 10:04:36 +1100
+	id S965245AbXAGXOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 18:14:16 -0500
+Date: Mon, 8 Jan 2007 10:14:02 +1100
 From: David Chinner <dgc@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, Hugh Dickins <hugh@veritas.com>,
-       Sami Farin <7atbggg02@sneakemail.com>, xfs@oss.sgi.com,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at mm/truncate.c:60/cancel_dirty_page()
-Message-ID: <20070107230436.GU33919298@melbourne.sgi.com>
-References: <20070106023907.GA7766@m.safari.iki.fi> <Pine.LNX.4.64.0701062051570.24997@blonde.wat.veritas.com> <20070107222341.GT33919298@melbourne.sgi.com> <20070107144812.96357ff9.akpm@osdl.org>
+To: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>
+Cc: David Chinner <dgc@sgi.com>, linux-xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: xfslogd-spinlock bug?
+Message-ID: <20070107231402.GU44411608@melbourne.sgi.com>
+References: <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs> <20061218223637.GP44411608@melbourne.sgi.com> <001a01c722fd$df5ca710$0400a8c0@dcccs> <20061219025229.GT33919298@melbourne.sgi.com> <20061219044700.GW33919298@melbourne.sgi.com> <041601c729b6$f81e4af0$0400a8c0@dcccs>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20070107144812.96357ff9.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <041601c729b6$f81e4af0$0400a8c0@dcccs>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 02:48:12PM -0800, Andrew Morton wrote:
-> On Mon, 8 Jan 2007 09:23:41 +1100
-> David Chinner <dgc@sgi.com> wrote:
+On Wed, Dec 27, 2006 at 01:58:06PM +0100, Haar János wrote:
+> Hello,
 > 
-> > How are you supposed to invalidate a range of pages in a mapping for
-> > this case, then? invalidate_mapping_pages() would appear to be the
-> > candidate (the generic code uses this), but it _skips_ pages that
-> > are already mapped.
+> ----- Original Message ----- 
+> From: "David Chinner" <dgc@sgi.com>
+> To: "David Chinner" <dgc@sgi.com>
+> Cc: "Haar János" <djani22@netcenter.hu>; <linux-xfs@oss.sgi.com>;
+> <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, December 19, 2006 5:47 AM
+> Subject: Re: xfslogd-spinlock bug?
 > 
-> unmap_mapping_range()?
-
-/me looks at how it's used in invalidate_inode_pages2_range() and
-decides it's easier not to call this directly.
-
-> > So, am I correct in assuming we should be calling invalidate_inode_pages2_range()
-> > instead of truncate_inode_pages()?
 > 
-> That would be conventional.
+> > On Tue, Dec 19, 2006 at 01:52:29PM +1100, David Chinner wrote:
+> >
+> > The filesystem was being shutdown so xfs_inode_item_destroy() just
+> > frees the inode log item without removing it from the AIL. I'll fix that,
+> > and see if i have any luck....
+> >
+> > So I'd still try that patch i sent in the previous email...
+> 
+> I still using the patch, but didnt shows any messages at this point.
+> 
+> I'v got 3 crash/reboot, but 2 causes nbd disconneted, and this one:
+> 
+> Dec 27 13:41:29 dy-base BUG: warning at
+> kernel/mutex.c:220/__mutex_unlock_common_slowpath()
+> Dec 27 13:41:29 dy-base Unable to handle kernel paging request at
+> 0000000066604480 RIP:
+> Dec 27 13:41:29 dy-base  [<ffffffff80222c64>] resched_task+0x12/0x64
+> Dec 27 13:41:29 dy-base PGD 115246067 PUD 0
+> Dec 27 13:41:29 dy-base Oops: 0000 [1] SMP
+> Dec 27 13:41:29 dy-base CPU 1
+> Dec 27 13:41:29 dy-base Modules linked in: nbd rd netconsole e1000 video
+> Dec 27 13:41:29 dy-base Pid: 4069, comm: httpd Not tainted 2.6.19 #3
+> Dec 27 13:41:29 dy-base RIP: 0010:[<ffffffff80222c64>]  [<ffffffff80222c64>]
+> resched_task+0x12/0x64
+> Dec 27 13:41:29 dy-base RSP: 0018:ffff810105c01b78  EFLAGS: 00010083
+> Dec 27 13:41:29 dy-base RAX: ffffffff807d5800 RBX: 00001749fd97c214 RCX:
 
-.... in that case the following patch should fix the warning:
+Different corruption in RBX here. Looks like semi-random garbage there.
+I wonder - what's the mac and ip address(es) of your machine and nbd
+servers?
 
----
- fs/xfs/linux-2.6/xfs_fs_subr.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+(i.e. I suspect this is a nbd problem, not an XFS problem)
 
-Index: 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_fs_subr.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/xfs/linux-2.6/xfs_fs_subr.c	2006-12-12 12:05:17.000000000 +1100
-+++ 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_fs_subr.c	2007-01-08 09:30:22.056571711 +1100
-@@ -21,6 +21,8 @@ int  fs_noerr(void) { return 0; }
- int  fs_nosys(void) { return ENOSYS; }
- void fs_noval(void) { return; }
- 
-+#define XFS_OFF_TO_PCSIZE(off)	\
-+	(((off) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
- void
- fs_tosspages(
- 	bhv_desc_t	*bdp,
-@@ -32,7 +34,9 @@ fs_tosspages(
- 	struct inode	*ip = vn_to_inode(vp);
- 
- 	if (VN_CACHED(vp))
--		truncate_inode_pages(ip->i_mapping, first);
-+		invalidate_inode_pages2_range(ip->i_mapping,
-+					XFS_OFF_TO_PCSIZE(first),
-+					XFS_OFF_TO_PCSIZE(last));
- }
- 
- void
-@@ -49,7 +53,9 @@ fs_flushinval_pages(
- 		if (VN_TRUNC(vp))
- 			VUNTRUNCATE(vp);
- 		filemap_write_and_wait(ip->i_mapping);
--		truncate_inode_pages(ip->i_mapping, first);
-+		invalidate_inode_pages2_range(ip->i_mapping,
-+					XFS_OFF_TO_PCSIZE(first),
-+					XFS_OFF_TO_PCSIZE(last));
- 	}
- }
- 
+Cheers,
 
+Dave.
 -- 
 Dave Chinner
 Principal Engineer

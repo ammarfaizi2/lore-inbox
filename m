@@ -1,108 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932552AbXAGOjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932553AbXAGOli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbXAGOjh (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 09:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbXAGOjg
+	id S932553AbXAGOli (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 09:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbXAGOli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 09:39:36 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:45909 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932552AbXAGOjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 09:39:35 -0500
-Message-ID: <45A10627.9080301@vmware.com>
-Date: Sun, 07 Jan 2007 06:39:35 -0800
-From: Zachary Amsden <zach@vmware.com>
-Reply-To: Andrew Morton <akpm@osdl.org>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org,
-       kiran@scalex86.org, ak@suse.de, md@google.com, mingo@elte.hu,
-       pravin.shelar@calsoftinc.com, shai@scalex86.org
-Subject: Re: +	spin_lock_irq-enable-interrupts-while-spinning-i386-implementation.patch
- added to -mm tree
-References: <200701032112.l03LCnVb031386@shell0.pdx.osdl.net>	 <1168122953.26086.230.camel@imap.mvista.com>	 <20070106232641.68511f15.akpm@osdl.org> <1168176285.26086.241.camel@imap.mvista.com>
-In-Reply-To: <1168176285.26086.241.camel@imap.mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------020006020607050906000806"
+	Sun, 7 Jan 2007 09:41:38 -0500
+Received: from mail.screens.ru ([213.234.233.54]:49975 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932557AbXAGOlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 09:41:37 -0500
+Date: Sun, 7 Jan 2007 17:42:36 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107144236.GB149@tv-sign.ru>
+References: <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru> <20070107104328.GC13579@in.ibm.com> <20070107125603.GA74@tv-sign.ru> <20070107142246.GA149@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070107142246.GA149@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020006020607050906000806
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On 01/07, Oleg Nesterov wrote:
+> 
+> How about:
+> 
+> 	CPU_DEAD does nothing. After __cpu_disable() cwq->thread runs on
+> 	all CPUs and becomes idle when it flushes cwq->worklist: nobody
+> 	will add work_struct on that list.
 
-Daniel Walker wrote:
-> On Sat, 2007-01-06 at 23:26 -0800, Andrew Morton wrote:
->
->   
->> diff -puN include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix include/asm-i386/spinlock.h
->> --- a/include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix
->> +++ a/include/asm-i386/spinlock.h
->> @@ -86,17 +86,19 @@ static inline void __raw_spin_lock_flags
->>  static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
->>  {
->>  	asm volatile("\n1:\t"
->> -		     LOCK_PREFIX " ; decb %0\n\t"
->> +		     LOCK_PREFIX " ; decb %[slock]\n\t"
->>  		     "jns 3f\n"
->>  		     STI_STRING "\n"
->>  		     "2:\t"
->>  		     "rep;nop\n\t"
->> -		     "cmpb $0,%0\n\t"
->> +		     "cmpb $0,%[slock]\n\t"
->>  		     "jle 2b\n\t"
->>  		     CLI_STRING "\n"
->>  		     "jmp 1b\n"
->>  		     "3:\n\t"
->> -		     : "+m" (lock->slock) : : "memory");
->> +		     : [slock] "+m" (lock->slock)
->> +		     : __CLI_STI_INPUT_ARGS
->> +		     : "memory" CLI_STI_CLOBBERS);
->>  }
->>  #endif
->>     
->
-> Now it fails with CONFIG_PARAVIRT off .
->   
+Also, we can add cpu_workqueue_struct->should_exit_after_flush flag, but
+we have to be careful to serialize with destroy_workqueue/CPU_UP.
 
-Now it compiles both ways.  Or at least asm-offsets.c does.  Testing 
-full build...
+> 	CPU_UP:
+> 		if (!cwq->thread)
+> 			create_workqueue_thread();
+> 		else
+> 			set_cpus_allowed(newcpu);
+> 
+> 	flush_workqueue:
+> 		for_each_possible_cpu()		// NOT online!
+> 			if (cwq->thread)
+> 				flush_cpu_workqueue()
 
-Zach
-
---------------020006020607050906000806
-Content-Type: text/plain;
- name="paravirt-assembler-fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="paravirt-assembler-fix"
-
-diff -r 94a7e766e5ea include/asm-i386/spinlock.h
---- a/include/asm-i386/spinlock.h	Sun Jan 07 06:17:42 2007 -0800
-+++ b/include/asm-i386/spinlock.h	Sun Jan 07 06:28:51 2007 -0800
-@@ -86,7 +86,7 @@ static inline void __raw_spin_lock_irq(r
- static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
- {
- 	asm volatile("\n1:\t"
--		     LOCK_PREFIX " ; decb %0\n\t"
-+		     LOCK_PREFIX " ; decb %[slock]\n\t"
- 		     "jns 3f\n"
- 		     STI_STRING "\n"
- 		     "2:\t"
-@@ -96,7 +96,10 @@ static inline void __raw_spin_lock_irq(r
- 		     CLI_STRING "\n"
- 		     "jmp 1b\n"
- 		     "3:\n\t"
--		     : "+m" (lock->slock) : : "memory");
-+		     : [slock] "+m" (lock->slock)
-+		     : [dummy] "i" (0xdeadbeaf)
-+		       CLI_STI_INPUT_ARGS
-+		     : "memory" CLI_STI_CLOBBERS);
- }
- #endif
- 
-
---------------020006020607050906000806--

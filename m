@@ -1,73 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932550AbXAGOcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932552AbXAGOjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbXAGOcL (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 09:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbXAGOcL
+	id S932552AbXAGOjh (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 09:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbXAGOjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 09:32:11 -0500
-Received: from 1wt.eu ([62.212.114.60]:1835 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932550AbXAGOcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 09:32:10 -0500
-Date: Sun, 7 Jan 2007 15:32:05 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Akula2 <akula2.shark@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multi kernel tree support on the same distro?
-Message-ID: <20070107143205.GB435@1wt.eu>
-References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com> <459D9872.8090603@foo-projects.org> <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com> <20070107093057.GS24090@1wt.eu> <8355959a0701070511v55c671dibc3bb7d4426129e0@mail.gmail.com> <20070107132054.GA435@1wt.eu> <8355959a0701070619w19dd79a5r5ccfdd1121e6a52b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8355959a0701070619w19dd79a5r5ccfdd1121e6a52b@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Sun, 7 Jan 2007 09:39:36 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:45909 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932552AbXAGOjf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 09:39:35 -0500
+Message-ID: <45A10627.9080301@vmware.com>
+Date: Sun, 07 Jan 2007 06:39:35 -0800
+From: Zachary Amsden <zach@vmware.com>
+Reply-To: Andrew Morton <akpm@osdl.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+CC: linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org,
+       kiran@scalex86.org, ak@suse.de, md@google.com, mingo@elte.hu,
+       pravin.shelar@calsoftinc.com, shai@scalex86.org
+Subject: Re: +	spin_lock_irq-enable-interrupts-while-spinning-i386-implementation.patch
+ added to -mm tree
+References: <200701032112.l03LCnVb031386@shell0.pdx.osdl.net>	 <1168122953.26086.230.camel@imap.mvista.com>	 <20070106232641.68511f15.akpm@osdl.org> <1168176285.26086.241.camel@imap.mvista.com>
+In-Reply-To: <1168176285.26086.241.camel@imap.mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------020006020607050906000806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ CC list trimmed since I'm repeating myself ]
+This is a multi-part message in MIME format.
+--------------020006020607050906000806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Jan 07, 2007 at 07:49:05PM +0530, Akula2 wrote:
-> >> On 1/7/07, Willy Tarreau <w@1wt.eu> wrote:
-> >I don't see which libs you are talking about. The compiler you build your
-> >kernel with is totally independant on the compiler you build your apps 
-> >with.
-> >A few years ago, some distros even shipped a compiler just for the kernel
-> >(they called the binary "kgcc").
-> >
-> >So you just have to build 2 different GCC, one for 2.4, one for 2.6 and
-> >you use them to build your kernels. If you want yet another compiler for
-> >your apps, simply do it, it's not a problem. For instance, look on my
-> >system when I type gcc- <Tab> :
-> 
-> Sorry for the typo & confusion caused. I meant in that example as:-
-> 
-> myArmWireless app. compiled with gcc-3.4.x, NOT gcc-4.1.x compiler on
-> say 2.4.34 kernel (assuming I can build 4.1.x on 2.4.34 kernel).
-> 
-> Now, I've got it about this app funda. Ok! Am coming closer now. I
-> have these 2 tasks:-
-> 
-> a) Since 2.6 kernel has no issues with gcc-3.4.x, gcc-4.1.x. So I will
-> build them. No probs here.
-> 
-> b) 2.4 kernel has no issues with gcc-3.4.x to my understanding, but am
-> not sure about compiling it with gcc-4.1.x? If this is true, how to
-> build this?
+Daniel Walker wrote:
+> On Sat, 2007-01-06 at 23:26 -0800, Andrew Morton wrote:
+>
+>   
+>> diff -puN include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix include/asm-i386/spinlock.h
+>> --- a/include/asm-i386/spinlock.h~spin_lock_irq-enable-interrupts-while-spinning-i386-implementation-fix
+>> +++ a/include/asm-i386/spinlock.h
+>> @@ -86,17 +86,19 @@ static inline void __raw_spin_lock_flags
+>>  static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
+>>  {
+>>  	asm volatile("\n1:\t"
+>> -		     LOCK_PREFIX " ; decb %0\n\t"
+>> +		     LOCK_PREFIX " ; decb %[slock]\n\t"
+>>  		     "jns 3f\n"
+>>  		     STI_STRING "\n"
+>>  		     "2:\t"
+>>  		     "rep;nop\n\t"
+>> -		     "cmpb $0,%0\n\t"
+>> +		     "cmpb $0,%[slock]\n\t"
+>>  		     "jle 2b\n\t"
+>>  		     CLI_STRING "\n"
+>>  		     "jmp 1b\n"
+>>  		     "3:\n\t"
+>> -		     : "+m" (lock->slock) : : "memory");
+>> +		     : [slock] "+m" (lock->slock)
+>> +		     : __CLI_STI_INPUT_ARGS
+>> +		     : "memory" CLI_STI_CLOBBERS);
+>>  }
+>>  #endif
+>>     
+>
+> Now it fails with CONFIG_PARAVIRT off .
+>   
 
-As I already explained in another mail, 2.4.34 builds with gcc-4.1 on x86
-and a few other archs. I also explained how to do this :
+Now it compiles both ways.  Or at least asm-offsets.c does.  Testing 
+full build...
 
-$ make CC=gcc-4.1
+Zach
 
-I don't know how I can explain it to you an easier way, but what I'm sure
-about is that if you are having such big trouble understanding simple
-commands like this, you will certainly encounter many more when building
-your own distro.
+--------------020006020607050906000806
+Content-Type: text/plain;
+ name="paravirt-assembler-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="paravirt-assembler-fix"
 
-> Whole idea is to have 2 compilers (gcc-3.4.x, gcc-4.1.x) on the both
-> the kernels.
+diff -r 94a7e766e5ea include/asm-i386/spinlock.h
+--- a/include/asm-i386/spinlock.h	Sun Jan 07 06:17:42 2007 -0800
++++ b/include/asm-i386/spinlock.h	Sun Jan 07 06:28:51 2007 -0800
+@@ -86,7 +86,7 @@ static inline void __raw_spin_lock_irq(r
+ static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)
+ {
+ 	asm volatile("\n1:\t"
+-		     LOCK_PREFIX " ; decb %0\n\t"
++		     LOCK_PREFIX " ; decb %[slock]\n\t"
+ 		     "jns 3f\n"
+ 		     STI_STRING "\n"
+ 		     "2:\t"
+@@ -96,7 +96,10 @@ static inline void __raw_spin_lock_irq(r
+ 		     CLI_STRING "\n"
+ 		     "jmp 1b\n"
+ 		     "3:\n\t"
+-		     : "+m" (lock->slock) : : "memory");
++		     : [slock] "+m" (lock->slock)
++		     : [dummy] "i" (0xdeadbeaf)
++		       CLI_STI_INPUT_ARGS
++		     : "memory" CLI_STI_CLOBBERS);
+ }
+ #endif
+ 
 
-That's what I understood and the need I replied too the first time.
-
-Willy
-
+--------------020006020607050906000806--

@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932534AbXAGNRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932532AbXAGNRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbXAGNRe (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 08:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbXAGNRe
+	id S932532AbXAGNRm (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 08:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbXAGNRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 08:17:34 -0500
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:14732 "EHLO
-	mis011-1.exch011.intermedia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932534AbXAGNRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 08:17:33 -0500
-Message-ID: <45A0F2E7.4020102@qumranet.com>
-Date: Sun, 07 Jan 2007 15:17:27 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+	Sun, 7 Jan 2007 08:17:42 -0500
+Received: from i9.amg.net.pl ([195.117.14.9]:2021 "EHLO smtp.amg.net.pl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932532AbXAGNRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 08:17:41 -0500
+X-Greylist: delayed 1416 seconds by postgrey-1.27 at vger.kernel.org; Sun, 07 Jan 2007 08:17:41 EST
+From: Arkadiusz Patyk <areq@areq.eu.org>
+To: linux-kernel@vger.kernel.org
+Cc: Phillip Lougher <phillip@lougher.demon.co.uk>
+Subject: Re: [announce] Squashfs 3.2 released
+Date: Sun, 07 Jan 2007 13:54:35 +0100
+Message-ID: <c7r1q29p7qq1sjrb0n3fe3kn84roe1j40j@4ax.com>
+References: <A1EA4789-E143-43C8-BBDC-0935EFA470A1@lougher.demon.co.uk>
+In-Reply-To: <A1EA4789-E143-43C8-BBDC-0935EFA470A1@lougher.demon.co.uk>
+X-Mailer: Forte Agent 4.1/32.1088
 MIME-Version: 1.0
-To: kvm-devel <kvm-devel@lists.sourceforge.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] kvm-10 release
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jan 2007 13:17:32.0960 (UTC) FILETIME=[30C0BA00:01C7325E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes from kvm-9:
+On Sun, 7 Jan 2007 05:33:53 +0000, you wrote:
 
-- more hypercall work
-- cleanup irq handling
-- shadow page table caching
-- migration fixes
-- stabilization fixes
+>Hi,
+>
+>I'm pleased to announce the release of Squashfs 3.2.
 
-This release is significantly faster than previous releases; upgrading 
-is recommended.
+What about lzma and squashfs ?
 
-http://kvm.sourceforge.net
-
+Cheers, 
 -- 
-error compiling committee.c: too many arguments to function
-
+Arkadiusz Patyk [areq<>pld-linux:org] [http://rescuecd.pld-linux.org/]
+[IRC:areq skype:arekpatyk  GG:1383 jid:arek<>patyk:net]

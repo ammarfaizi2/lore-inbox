@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932426AbXAGIPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932431AbXAGIZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbXAGIPk (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 03:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbXAGIPk
+	id S932431AbXAGIZa (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 03:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbXAGIZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 03:15:40 -0500
-Received: from web55601.mail.re4.yahoo.com ([206.190.58.225]:42741 "HELO
-	web55601.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932426AbXAGIPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 03:15:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=ISWMORdja0YFXJExw0ymn/vJ4AO1w9ZoCGS1vPp9EFFjagZmtrKYD2aDPsn/C23Mo0PeYUbFdDfombQXK/NS3cYw2z+8giBK5cIWj9Wxbu9NjTeFYcoaASdl3E3orZL6y9bBKq02MDCFfTzeN8fsNl/hj4AaQ8Q4ZgtZ5Ntwnp4=;
-X-YMail-OSG: .zh62wAVM1mRgjYqZEkVTsTweppaDq2H3FkAVmmN1c4boA3To765jY2It_Vumae2684AQVSOSw8.pUofs6qGx5MHAYjVjn024iAboHJT5Ks9Oq1.Fxv3FkvaiCJivaofUH6nHwPIKw3_ppBioER6jBUZc0Nm1fW3Gr6fZOq..xHqmCrtBFJxyOanCexy
-Date: Sun, 7 Jan 2007 00:15:38 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: [DISCUSS] Making system calls more portable.
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	Sun, 7 Jan 2007 03:25:30 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:47698 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932431AbXAGIZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 03:25:30 -0500
+Message-ID: <45A0AE76.40600@garzik.org>
+Date: Sun, 07 Jan 2007 03:25:26 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <722886.55398.qm@web55601.mail.re4.yahoo.com>
+To: Manish Regmi <regmi.manish@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ATA streaming feature support
+References: <652016d30701062240w4756bc4m8fdb54070708fd81@mail.gmail.com>
+In-Reply-To: <652016d30701062240w4756bc4m8fdb54070708fd81@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Manish Regmi wrote:
+> Hi all,
+>   First of all sorry for bringing this topic again.
+> As discussed in  --> http://lkml.org/lkml/2006/5/5/47
+> The ATA Streaming feature set is not necessary to be in Kernel Space
+> (IDE driver). There is a suggestion creating user space library.
+> 
+> But how is the user space apps going to use the commands like READ
+> STREAM DMA EXT (0x2A). Shouldn't there be some support in kernel which
+> setups up PRD tables  and all.
+> It doesn't seem to be possible.... is it?
 
-I wanted to know if there is any inclination towards making system calls more portable. Please let
-me know if this discussion has happened before.
+If you pass SG_IO addresses, they become DMA scatter/gather tables.
 
-Well, system calls today are not portable mainly because they are invoked using a number and it
-may happen that a number 'N' may refer to systemcall_1() on one system/kernel and to
-systemcall_2() on another system/kernel. This problem may surface if you compile your program
-using headers from version_1 of the kernel, and then install another version of the kernel or a
-custom kernel that has extended the system call table (on the same system). If we want to improve
-the portability then we can avoid this approach or improve this approach. It may or may not be
-complex to implement these.
-
-1. Invoke a system call using its name. Pass its name to the kernel as an argument of syscall() or
-some other function. Probably may make the invocation of the system call slower. If the name
-doesn't match in the kernel then an error can be returned.
-
-2. Create a /proc entry that will return the number of the system call given its name. This number
-can then be used to invoke the system call.
-
-These approaches will also remove the dependency from user space header file that contains the
-mapping from the system call name to its number. I hope that I made some sense.
-
-Regards,
-Amit
+	Jeff
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+

@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932356AbXAGCsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAGCt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbXAGCsz (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbXAGCsz
+	id S932359AbXAGCt4 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXAGCtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:48:55 -0500
-Received: from wx-out-0506.google.com ([66.249.82.226]:37081 "EHLO
+	Sat, 6 Jan 2007 21:49:55 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:37474 "EHLO
 	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932356AbXAGCsz (ORCPT
+	with ESMTP id S932359AbXAGCtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:48:55 -0500
+	Sat, 6 Jan 2007 21:49:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q4PntYUPhkRhk/4J6MxhzryMhL0ZGB1NIRvkmuzRI+hwJ9KeqICCuyrTnjEI2gZZ/6PwrJXPHhv57ZXVtoXNwzJePRpmKgET2qs65SZt1TntMIfEnD/vvKzZQd2Q/Q/zI9G2YQCotgd6dbjJXOCOT/SemB8Ldf9bGtyUQAoNCx8=
-Message-ID: <9a8748490701061848j67d2ba1aie9557934e8e1359b@mail.gmail.com>
-Date: Sun, 7 Jan 2007 03:48:54 +0100
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iaskNPmx3+aM7J7+KXwSuoBEkYBdd/IyGIj+WMT5iH/nU9Ba1thcTjp/+5YBoDAvT92srqzTIQOuprCdzht1DhFSYxaU7ymjHjrTa3j1134K8pU3Rfb1k2SdOWdzwA6PKQl/O6DMkoo/mjXj+4o+IxeDrBWEJqX4H3LTl05Fo9E=
+Message-ID: <9a8748490701061849m2c8d42fbn457f105b2e905bff@mail.gmail.com>
+Date: Sun, 7 Jan 2007 03:49:54 +0100
 From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Randy Dunlap" <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
+To: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
+Cc: "Randy Dunlap" <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <20070107020010.GH19020@Ahmed>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed

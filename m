@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965158AbXAGVB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965164AbXAGVEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbXAGVB5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 16:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbXAGVB5
+	id S965164AbXAGVEK (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 16:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbXAGVEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 16:01:57 -0500
-Received: from mail.screens.ru ([213.234.233.54]:60438 "EHLO mail.screens.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965158AbXAGVB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 16:01:56 -0500
-Date: Mon, 8 Jan 2007 00:01:39 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vatsa@in.ibm.com, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
-Message-ID: <20070107210139.GA2332@tv-sign.ru>
-References: <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org>
-Mime-Version: 1.0
+	Sun, 7 Jan 2007 16:04:09 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:50510 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965164AbXAGVEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 16:04:08 -0500
+To: dmitry.torokhov@gmail.com
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kaber@trash.net
+Subject: Re: Linux 2.6.20-rc4
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+	<m37ivyr1v6.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 07 Jan 2007 22:04:02 +0100
+In-Reply-To: <m37ivyr1v6.fsf@telia.com>
+Message-ID: <m33b6mr1kt.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107115957.6080aa08.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now when we have ->current_work we can avoid adding a barrier and waiting for
-its completition when cwq's queue is empty.
+Peter Osterlund <petero2@telia.com> writes:
 
-Note: this change is also useful if we change flush_workqueue() to also check
-the dead CPUs.
+> Linus Torvalds <torvalds@osdl.org> writes:
+> 
+> > Patrick McHardy (2):
+> >       [NETFILTER]: New connection tracking is not EXPERIMENTAL anymore
+> 
+> I get kernel panics when doing large ethernet transfers. A loop doing
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+I also see an annoying side effect of this bug. When the panic
+happens, the caps lock LED starts to blink, and the kernel prints this
+on the console once every second (or more often, don't know exactly):
 
---- mm-6.20-rc3/kernel/workqueue.c~1_opt	2007-01-07 23:15:50.000000000 +0300
-+++ mm-6.20-rc3/kernel/workqueue.c	2007-01-07 23:26:45.000000000 +0300
-@@ -405,12 +405,15 @@ static void wq_barrier_func(struct work_
- 	complete(&barr->done);
- }
- 
--static inline void init_wq_barrier(struct wq_barrier *barr)
-+static void insert_wq_barrier(struct cpu_workqueue_struct *cwq,
-+					struct wq_barrier *barr, int tail)
- {
- 	INIT_WORK(&barr->work, wq_barrier_func);
- 	__set_bit(WORK_STRUCT_PENDING, work_data_bits(&barr->work));
- 
- 	init_completion(&barr->done);
-+
-+	insert_work(cwq, &barr->work, tail);
- }
- 
- static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq)
-@@ -429,13 +432,20 @@ static void flush_cpu_workqueue(struct c
- 		preempt_disable();
- 	} else {
- 		struct wq_barrier barr;
-+		int active = 0;
- 
--		init_wq_barrier(&barr);
--		__queue_work(cwq, &barr.work);
-+		spin_lock_irq(&cwq->lock);
-+		if (!list_empty(&cwq->worklist) || cwq->current_work != NULL) {
-+			insert_wq_barrier(cwq, &barr, 1);
-+			active = 1;
-+		}
-+		spin_unlock_irq(&cwq->lock);
- 
--		preempt_enable();	/* Can no longer touch *cwq */
--		wait_for_completion(&barr.done);
--		preempt_disable();
-+		if (active) {
-+			preempt_enable();
-+			wait_for_completion(&barr.done);
-+			preempt_disable();
-+		}
- 	}
- }
- 
-@@ -482,8 +492,7 @@ static void wait_on_work(struct cpu_work
- 
- 	spin_lock_irq(&cwq->lock);
- 	if (unlikely(cwq->current_work == work)) {
--		init_wq_barrier(&barr);
--		insert_work(cwq, &barr.work, 0);
-+		insert_wq_barrier(cwq, &barr, 0);
- 		running = 1;
- 	}
- 	spin_unlock_irq(&cwq->lock);
+	printk(KERN_WARNING "atkbd.c: Spurious %s on %s. "
+	       "Some program might be trying access hardware directly.\n",
+	       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
 
+This makes the actual crash information disappear before you have a
+chance to read it.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932439AbXAGJEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932443AbXAGJEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbXAGJEH (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbXAGJEG
+	id S932443AbXAGJEW (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbXAGJEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:04:06 -0500
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:51235 "EHLO
-	smtpq3.tilbu1.nb.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932439AbXAGJED (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:04:03 -0500
-Message-ID: <45A0B71F.1080704@gmail.com>
-Date: Sun, 07 Jan 2007 10:02:23 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] romsignature/checksum cleanup
-References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain> <459310A3.4060706@vmware.com> <459ABA2F.6070907@gmail.com> <459EDDD1.6060208@goop.org> <459F1B82.6000808@gmail.com> <45A0B660.4060505@goop.org>
-In-Reply-To: <45A0B660.4060505@goop.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
+	Sun, 7 Jan 2007 04:04:22 -0500
+Received: from 1wt.eu ([62.212.114.60]:1810 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932443AbXAGJET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 04:04:19 -0500
+Date: Sun, 7 Jan 2007 10:03:36 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070107090336.GA7741@1wt.eu>
+References: <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org> <20070107085526.GR24090@1wt.eu> <45A0B63E.2020803@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45A0B63E.2020803@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/07/2007 09:59 AM, Jeremy Fitzhardinge wrote:
-
-> Rene Herman wrote:
-
->> In your opinion, is the attached (versus 2.6.20-rc3) better? This
->> uses probe_kernel_address() for all accesses. Or rather, an
->> expanded version thereof. The set_fs() and
->> pagefault_{disable,enable} calls are only done once in
->> probe_roms().
+On Sun, Jan 07, 2007 at 12:58:38AM -0800, H. Peter Anvin wrote:
+> Willy Tarreau wrote:
+> >
+> >At work, we had the same problem on a file server with ext3. We use rsync
+> >to make backups to a local IDE disk, and we noticed that getdents() took
+> >about the same time as Peter reports (0.2 to 2 seconds), especially in
+> >maildir directories. We tried many things to fix it with no result,
+> >including enabling dirindexes. Finally, we made a full backup, and switched
+> >over to XFS and the problem totally disappeared. So it seems that the
+> >filesystem matters a lot here when there are lots of entries in a
+> >directory, and that ext3 is not suitable for usages with thousands
+> >of entries in directories with millions of files on disk. I'm not
+> >certain it would be that easy to try other filesystems on kernel.org
+> >though :-/
+> >
 > 
-> I don't think this is worthwhile.  Its hardly a performance-critical 
-> piece of code, and I think its better to use the straightforward 
-> interface rather than complicating it for some nominal extra
-> efficiency.
+> Changing filesystems would mean about a week of downtime for a server. 
+> It's painful, but it's doable; however, if we get a traffic spike during 
+> that time it'll hurt like hell.
+> 
+> However, if there is credible reasons to believe XFS will help, I'd be 
+> inclined to try it out.
 
-How is it for efficiency? I thought it was for correctness. romsignature 
-is using probe_kernel_adress() while all other accesses to the ROMs 
-there aren't.
+The problem is that I have no sufficient FS knowledge to argument why
+it helps here. It was a desperate attempt to fix the problem for us
+and it definitely worked well.
 
-If nothing else, anyone reading that code is likely to ask himself the 
-very same question -- why the one, and not the others.
+Hmmm I'm thinking about something very dirty : would it be possible
+to reduce the current FS size to get more space to create another
+FS ? Supposing you create a XX GB/TB XFS after the current ext3,
+you would be able to mount it in some directories with --bind and
+slowly switch some parts to it. The problem with this approach is
+that it will never be 100% converted, but as an experiment it might
+be worth it, no ?
 
-Rene.
+Willy
 

@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932482AbXAGKnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932481AbXAGKns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbXAGKnt (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 05:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbXAGKnt
+	id S932481AbXAGKns (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 05:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbXAGKnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 05:43:49 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:49349 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932482AbXAGKnq (ORCPT
+	Sun, 7 Jan 2007 05:43:47 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:43894 "EHLO
+	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932481AbXAGKnq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 7 Jan 2007 05:43:46 -0500
-Date: Sun, 7 Jan 2007 16:13:28 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
-Message-ID: <20070107104328.GC13579@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru>
-Mime-Version: 1.0
+Date: Sun, 7 Jan 2007 11:43:43 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [S390] Fix cpu hotplug (missing 'online' attribute).
+Message-ID: <20070107104343.GC14724@skybase>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070106173416.GA3771@tv-sign.ru>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 08:34:16PM +0300, Oleg Nesterov wrote:
-> I suspect this can't help either.
-> 
-> The problem is that flush_workqueue() may be called while cpu hotplug event
-> in progress and CPU_DEAD waits for kthread_stop(), so we have the same dead
-> lock if work->func() does flush_workqueue(). This means that Andrew's change
-> to use preempt_disable() is good and anyway needed.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Well ..a lock_cpu_hotplug() in run_workqueue() and support for recursive
-calls to lock_cpu_hotplug() by the same thread will avoid the problem
-you mention. This will need changes to task_struct to track the
-recursion depth. Alternately this can be supported w/o changes to
-task_struct by 'biasing' readers over writers as I believe Gautham's 
-patches [1] do.
+[S390] Fix cpu hotplug (missing 'online' attribute).
 
-1. http://lkml.org/lkml/2006/10/26/65
+72486f1f8f0a2bc828b9d30cf4690cf2dd6807fc inverts the logic if an
+'online' attribute in /sys/devices/system/cpu/cpuX should appear.
+So we end up with no hotpluggable cpus at all...
+Set the hotpluggable value to one to make sure the online
+attribute appears again.
 
--- 
-Regards,
-vatsa
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
+ arch/s390/kernel/smp.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
-
+diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
+--- linux-2.6/arch/s390/kernel/smp.c	2007-01-06 15:20:00.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/smp.c	2007-01-06 15:20:32.000000000 +0100
+@@ -794,7 +794,10 @@ static int __init topology_init(void)
+ 	int ret;
+ 
+ 	for_each_possible_cpu(cpu) {
+-		ret = register_cpu(&per_cpu(cpu_devices, cpu), cpu);
++		struct cpu *c = &per_cpu(cpu_devices, cpu);
++
++		c->hotpluggable = 1;
++		ret = register_cpu(c, cpu);
+ 		if (ret)
+ 			printk(KERN_WARNING "topology_init: register_cpu %d "
+ 			       "failed (%d)\n", cpu, ret);

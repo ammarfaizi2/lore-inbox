@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964801AbXAGSZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964836AbXAGSaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbXAGSZl (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 13:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbXAGSZl
+	id S964836AbXAGSaA (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 13:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbXAGSaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 13:25:41 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:62152 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964801AbXAGSZk (ORCPT
+	Sun, 7 Jan 2007 13:30:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36426 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964836AbXAGS37 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 13:25:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=pFyOAdv1ZbGPyISkCeQ00fkq+0nmrRVgdunBoH9XOr5WSOmWc7929GUMWR9TVKpxTUF+bdApaH6on/czh2PzzwdMaCx6fVJ0mCyILTJee5qpbKb3+v4KqM1ZaJMfjqIGi979NAledZaN6ObTS1Fk+0ZrXjDtkrLxiV/aiPnmsHM=
-Message-ID: <d092c2300701071025i16f11c50p3908c1d8427ab3b4@mail.gmail.com>
-Date: Sun, 7 Jan 2007 13:25:38 -0500
-From: "Johnicholas Hines" <johnicholas.hines@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: a lttng success story
-Cc: ltt-dev@shafik.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Jan 2007 13:29:59 -0500
+Date: Sun, 7 Jan 2007 18:29:46 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ingo Molnar <mingo@elte.hu>, kvm-devel <kvm-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>
+Subject: Re: [announce] [patch] KVM paravirtualization for Linux
+Message-ID: <20070107182946.GA8158@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Machek <pavel@ucw.cz>, Ingo Molnar <mingo@elte.hu>,
+	kvm-devel <kvm-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>
+References: <20070105215223.GA5361@elte.hu> <20070106130817.GB5660@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20070106130817.GB5660@ucw.cz>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-I was really pleased to find an intermittent timing problem using
-lttng, and maybe an example of how it can be used would be helpful to
-people considering adopting it.
+On Sat, Jan 06, 2007 at 01:08:18PM +0000, Pavel Machek wrote:
+> Does this make Xen obsolete? I mean... we have xen patches in suse
+> kernels, should we keep updating them, or just drop them in favour of
+> KVM?
 
-The system is a veterinary testing machine running Linux on an ARM
-board (specifically the applied data systems sphere).
+After all the Novell Marketing Hype you'll probably have to keep Xen ;-)
+Except for that I suspect a paravirt kvm or lhype might be the better
+hypervisor choice in the long term.
 
-The symptom was that, under a certain workload, intermittently, a
-timing constraint was being violated. Setting the processes to debug
-mode (spitting out lots of messages) was too slow - many timing
-constraints were violated, and the workload was unrunnable.
-
-I ran the bug-revealing workload under lttng for 4 hours, and captured
-one abnormal event (and thousands of normal events). I waded through
-the lttng logs, and found that the reason for the pause was that the
-target of a message had, in the abnormal case, not blocked on that fd.
-
-Lttng reveals things about the state of the scheduler that are very
-helpful in debugging multi-process, userspace, systems. It is faster
-and reveals more information than anything special-purpose I could
-have built. To repeat myself, maybe an example of how it can be used
-would be helpful to people considering adopting it.
-
-
-Thanks for your attention,
-
-Johnicholas

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965231AbXAGW1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965232AbXAGWbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbXAGW1N (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 17:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbXAGW1N
+	id S965232AbXAGWbV (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 17:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbXAGWbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 17:27:13 -0500
-Received: from eazy.amigager.de ([213.239.192.238]:51451 "EHLO
-	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965231AbXAGW1N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 17:27:13 -0500
-Date: Sun, 7 Jan 2007 23:27:06 +0100
-From: Tino Keitel <tino.keitel@tikei.de>
-To: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
-Message-ID: <20070107222706.GA6092@thinkpad.home.local>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel@vger.kernel.org
-References: <20070107151744.GA9799@dose.home.local> <1168194194.18788.63.camel@mindpipe> <20070107200453.GA3227@thinkpad.home.local>
-MIME-Version: 1.0
+	Sun, 7 Jan 2007 17:31:21 -0500
+Received: from mail.macqel.be ([194.78.208.39]:21754 "EHLO mail.macqel.be"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965232AbXAGWbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 17:31:21 -0500
+Date: Sun, 7 Jan 2007 23:31:19 +0100
+From: Philippe De Muyter <phdm@macqel.be>
+To: hugh@veritas.com, david-b@pacbell.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RTC subsystem and fractions of seconds
+Message-ID: <20070107223119.GA1423@ingate.macqel.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070107200453.GA3227@thinkpad.home.local>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 21:04:53 +0100, Tino Keitel wrote:
-> On Sun, Jan 07, 2007 at 13:23:13 -0500, Lee Revell wrote:
-> > On Sun, 2007-01-07 at 16:17 +0100, Tino Keitel wrote:
-> > > No information about the device/driver that refuses to resume.
-> > 
-> > You should be able to identify the problematic driver by removing each
-> > driver manually before suspending.
+
+On Sun, 7 Jan 2007, Hugh Dickins wrote:
+> Author: Matt Mackall <mpm@selenic.com>
 > 
-> I can not reproduce it anymore, resume now works. I really hope that it
-> will stay so.
+>     [PATCH] RTC: Remove RTC UIP synchronization on x86
+>     
+>     Reading the CMOS clock on x86 and some other arches currently takes up to one
+>     second because it synchronizes with the CMOS second tick-over.  This delay
+>     shows up at boot time as well a resume time.
 
-It didn't. It looks like it is unusable, becuase it isn't reliable in
-2.6.20-rc3.
+That is true if kernel's idea of an RTC's precision is 1 second.  With better
+RTC's (e.g. m41t81) this delay can be reduced to 0.01 second, which is
+acceptable IMHO in the boot phase.  That needs however changes in the kernel
+interface to RTC's :
 
-Regards,
-Tino
+    - read_time should take a new parameter *nsec (or struct rtc_time should
+    contain a new nsec field, so that the RTC can report its complete time
+    information to the kernel.
+
+    - struct rtc_device (or rtc_class_ops with another name) should contain
+    a new field giving the RTC's resolution in nsecs, if we want to avoid the
+    loop, but do not want our 0.01 second precision be destructed by always
+    adding 0.5 second in rtc_hctosys
+    
+Philippe

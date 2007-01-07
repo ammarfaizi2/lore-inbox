@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932458AbXAGJd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932460AbXAGJkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbXAGJd5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbXAGJd5
+	id S932460AbXAGJkA (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbXAGJkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:33:57 -0500
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:43408 "EHLO
-	mail2.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932458AbXAGJd4 (ORCPT
+	Sun, 7 Jan 2007 04:40:00 -0500
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:52344 "EHLO
+	smtpq1.tilbu1.nb.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932460AbXAGJj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:33:56 -0500
-Subject: Re: [DISCUSS] Making system calls more portable.
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Amit Choudhary <amit2030@yahoo.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <722886.55398.qm@web55601.mail.re4.yahoo.com>
-References: <722886.55398.qm@web55601.mail.re4.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 07 Jan 2007 01:33:50 -0800
-Message-Id: <1168162430.26562.12.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Sun, 7 Jan 2007 04:39:59 -0500
+Message-ID: <45A0BF8C.4040508@gmail.com>
+Date: Sun, 07 Jan 2007 10:38:20 +0100
+From: Rene Herman <rene.herman@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Willy Tarreau <w@1wt.eu>, Linus Torvalds <torvalds@osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: How git affects kernel.org performance
+References: <20061216094421.416a271e.randy.dunlap@oracle.com>	<20061216095702.3e6f1d1f.akpm@osdl.org>	<458434B0.4090506@oracle.com>	<1166297434.26330.34.camel@localhost.localdomain>	<1166304080.13548.8.camel@nigel.suspend2.net>	<459152B1.9040106@zytor.com>	<1168140954.2153.1.camel@nigel.suspend2.net>	<45A08269.4050504@zytor.com>	<45A083F2.5000000@zytor.com>	<Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>	<20070107085526.GR24090@1wt.eu> <20070107011542.3496bc76.akpm@osdl.org>
+In-Reply-To: <20070107011542.3496bc76.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2007-01-07 at 00:15 -0800, Amit Choudhary wrote:
-> 1. Invoke a system call using its name. Pass its name to the kernel as an argument of syscall() or
-> some other function. Probably may make the invocation of the system call slower. If the name
-> doesn't match in the kernel then an error can be returned.
+On 01/07/2007 10:15 AM, Andrew Morton wrote:
+
+> Yeah, slowly-growing directories will get splattered all over the
+> disk.
 > 
-> 2. Create a /proc entry that will return the number of the system call given its name. This number
-> can then be used to invoke the system call.
+> Possible short-term fixes would be to just allocate up to (say) eight
+>  blocks when we grow a directory by one block.  Or teach the 
+> directory-growth code to use ext3 reservations.
+> 
+> Longer-term people are talking about things like on-disk
+> rerservations. But I expect directories are being forgotten about in
+> all of that.
 
-Your argument has a built-in assumption that, whereas syscall numbers do
-collide, syscall names will not. This assumption is not true; people
-will quite often pick the same name for something independent of each
-other.
+I wish people would just talk about de2fsrag... ;-\
 
-Additionally, the proposed solutions will require a dramatic increase in
-memory, to store a static string name for each syscall, and a marked
-increase in CPU usage, to do string hashing and matching for each
-syscall invocation (and these can occur very often). This overhead is
-hard to justify just to support custom vendor kernels, as Rene pointed
-out in a separate reply.
-
-> These approaches will also remove the dependency from user space header file that contains the
-> mapping from the system call name to its number. I hope that I made some sense.
-
-I thought that this file was "shipped upwards" by the kernel already, as
-a sanitized header?
-
--- Vadim Lobanov
-
+Rene
 

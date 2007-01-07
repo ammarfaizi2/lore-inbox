@@ -1,116 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932381AbXAGIqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932437AbXAGI4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbXAGIqw (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 03:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbXAGIqw
+	id S932437AbXAGI4S (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 03:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbXAGI4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 03:46:52 -0500
-Received: from web55613.mail.re4.yahoo.com ([206.190.58.237]:20113 "HELO
-	web55613.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932381AbXAGIqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 03:46:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=oBH8/TKE24cubIy0CbMNaowo8gSgPnxOcouv93WI1WfPzT3V+MitybtfgnlBRW1myA7O2P31Ti6M9DsI4lS9rddHPKZNPwdAYF5c6EOvcXfpKG8XQ86sG4x/YKyBJaDmjS5quhcyUiPx8zFccRcY4NoXFBnMyszHrs43oiRmc6k=;
-X-YMail-OSG: Eh60dnYVM1mbE.4lz.zuvp65x5KzEckn3_14XEqrJtc.iTMJKwnNHfR5Vl_Z8WjKyA--
-Date: Sun, 7 Jan 2007 00:46:50 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <585769.17683.qm@web55613.mail.re4.yahoo.com>
+	Sun, 7 Jan 2007 03:56:18 -0500
+Received: from 1wt.eu ([62.212.114.60]:1803 "EHLO 1wt.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932409AbXAGI4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 03:56:17 -0500
+Date: Sun, 7 Jan 2007 09:55:26 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070107085526.GR24090@1wt.eu>
+References: <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>On 1/1/07, Amit Choudhary <amit2030@xxxxxxxxx> wrote:
+On Sat, Jan 06, 2007 at 09:39:42PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 6 Jan 2007, H. Peter Anvin wrote:
+> > 
+> > During extremely high load, it appears that what slows kernel.org down more
+> > than anything else is the time that each individual getdents() call takes.
+> > When I've looked this I've observed times from 200 ms to almost 2 seconds!
+> > Since an unpacked *OR* unpruned git tree adds 256 directories to a cleanly
+> > packed tree, you can do the math yourself.
+> 
+> "getdents()" is totally serialized by the inode semaphore. It's one of the 
+> most expensive system calls in Linux, partly because of that, and partly 
+> because it has to call all the way down into the filesystem in a way that 
+> almost no other common system call has to (99% of all filesystem calls can 
+> be handled basically at the VFS layer with generic caches - but not 
+> getdents()).
+> 
+> So if there are concurrent readdirs on the same directory, they get 
+> serialized. If there is any file creation/deletion activity in the 
+> directory, it serializes getdents(). 
+> 
+> To make matters worse, I don't think it has any read-ahead at all when you 
+> use hashed directory entries. So if you have cold-cache case, you'll read 
+> every single block totally individually, and serialized. One block at a 
+> time (I think the non-hashed case is likely also suspect, but that's a 
+> separate issue)
+> 
+> In other words, I'm not at all surprised it hits on filldir time. 
+> Especially on ext3.
 
->>    +#define KFREE(x) \
->>    + do { \
->>    + kfree(x); \
->>    + x = NULL; \
->>    + } while(0)
+At work, we had the same problem on a file server with ext3. We use rsync
+to make backups to a local IDE disk, and we noticed that getdents() took
+about the same time as Peter reports (0.2 to 2 seconds), especially in
+maildir directories. We tried many things to fix it with no result,
+including enabling dirindexes. Finally, we made a full backup, and switched
+over to XFS and the problem totally disappeared. So it seems that the
+filesystem matters a lot here when there are lots of entries in a
+directory, and that ext3 is not suitable for usages with thousands
+of entries in directories with millions of files on disk. I'm not
+certain it would be that easy to try other filesystems on kernel.org
+though :-/
 
+Willy
 
->>NAK until you have actual callers for it. CONFIG_SLAB_DEBUG already
->>catches use after free and double-free so I don't see the point of
->>this.
-
-Well, I am not proposing this as a debugging aid. The idea is about correct programming, atleast
-from my view. Ideally, if you kfree(x), then you should set x to NULL. So, either programmers do
-it themselves or a ready made macro do it for them.
-
-In my opinion, the programmers may welcome the macro that does it for them.
-
-There is another good part about it that results in better programming and shorter code.
-
-Consider an array x[10]. I allocate memory for all of them and then kfree them - kfree(x[0]),
-kfree(x[1]), etc. But I do not set these elements to NULL. So,
-
-x[0] = _location_0_already_freed
-x[1] = _location_1_already_freed
-
-... and so on...
-
-Now, consider that when I try to allocate memory again, memory allocation fails at x[2]. So, we
-have now,
-
-x[0] = _valid_location_0
-x[1] = _valid_location_1
-x[2] = NULL
-x[3] = _location_3_already_freed
-
-So, now to avoid error path leak I have to free all the allocated memory. For this I have to
-remember where the allocation failed because I cannot do kfree(x[3]) because it will crash.
-
-You can easily visualize that how KFREE would have helped. Since, I have already KFREE'D them
-earlier, x[3] is guaranteed to be NULL and I can free the entire array 'x' wihtout worrying.
-
-So, the code becomes simpler.
-
-Now, consider that there are two more arrays like 'x' being used in the same function. So, now we
-have 'x', 'y', 'z' all allocating memory in the same function. Memory allocation can fail at
-anytime. So, not only do I have to remember the element location where the allocation failed but
-also the array that contains that element.
-
-So, to avoid error path leak, we will have something like this (assume same number of elements in
-all arrays):
-
-case z_nomem:
-              free_from_0_to_i
-              free_all_'y'
-              free_all_'x'
-              return;
-
-case y_nomem:
-              free_from_0_to_i
-              free_all_'x'
-              return;
-
-case x_nomem:
-              free_from_0_to_i
-              return;
-
-However, if the programmer would have used KFREE, then the error path leak code have been shorter
-and easier.
-
-case nomem:
-              free_all_'z'
-              free_all_'y'
-              free_all_'x'
-              return;
-
-I hope that I have made my point but please let me know if I have missed out something or made
-some assumption that is not correct.
-
-Regards,
-Amit
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

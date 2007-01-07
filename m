@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932491AbXAGK4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932496AbXAGLAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbXAGK4X (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 05:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbXAGK4X
+	id S932496AbXAGLAW (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 06:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbXAGLAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 05:56:23 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:59727 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932491AbXAGK4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 05:56:22 -0500
-Date: Sun, 7 Jan 2007 11:56:01 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.20-rc4
-In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-Message-ID: <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-272260627-1168167361=:4365"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sun, 7 Jan 2007 06:00:22 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:33129 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932496AbXAGLAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 06:00:21 -0500
+Date: Sun, 7 Jan 2007 16:30:13 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107110013.GD13579@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070106111117.54bb2307.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, Jan 06, 2007 at 11:11:17AM -0800, Andrew Morton wrote:
+> Has anyone thought seriously about using the process freezer in the
+> cpu-down/cpu-up paths?  That way we don't need to lock anything anywhere?
 
---1283855629-272260627-1168167361=:4365
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+How would this provide a stable access to cpu_online_map in functions
+that need to block while accessing it (as flush_workqueue requires)?
 
-
-
-On Jan 6 2007 22:19, Linus Torvalds wrote:
-
->Leonard NorrgÃ¥rd (1):
->      sound: hda: detect ALC883 on MSI K9A Platinum motherboards (MS-7280)
-
-Something seems to have mangled the name, that should have
-been an å not A¥. (Something reencoded it). A gitlog problem?
-
-
-	-`J'
 -- 
---1283855629-272260627-1168167361=:4365--
+Regards,
+vatsa

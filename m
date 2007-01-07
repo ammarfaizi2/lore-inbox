@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965074AbXAGUGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965051AbXAGUHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbXAGUGF (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 15:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbXAGUGE
+	id S965051AbXAGUHr (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 15:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbXAGUHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 15:06:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52554 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965074AbXAGUGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 15:06:03 -0500
-Date: Sun, 7 Jan 2007 15:05:53 -0500
-From: Dave Jones <davej@redhat.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-       Tilman Schmidt <tilman@imap.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-Message-ID: <20070107200553.GA15101@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tilman Schmidt <tilman@imap.cc>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr> <20070107114439.GC21613@flint.arm.linux.org.uk> <45A0F060.9090207@imap.cc> <1168182838.14763.24.camel@shinybook.infradead.org> <20070107153833.GA21133@flint.arm.linux.org.uk> <20070107182151.7cc544f3@localhost.localdomain> <20070107191730.GD21133@flint.arm.linux.org.uk>
+	Sun, 7 Jan 2007 15:07:47 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:52677 "EHLO
+	pfepc.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965073AbXAGUHq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 15:07:46 -0500
+Subject: Re: libata error handling
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <58cb370e0701061128t439b0a15w82063a8d23fe6c16@mail.gmail.com>
+References: <fa.pdj7pJD9C08bRZatFINV1hz1oyA@ifi.uio.no>
+	 <459FE8BE.7070208@shaw.ca> <1168109874.1512.11.camel@localhost>
+	 <459FF1F8.1050306@shaw.ca> <1168110512.1512.13.camel@localhost>
+	 <58cb370e0701061128t439b0a15w82063a8d23fe6c16@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 21:07:34 +0100
+Message-Id: <1168200454.23415.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20070107191730.GD21133@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 07:17:30PM +0000, Russell King wrote:
+On Sat, 2007-01-06 at 20:28 +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 1/6/07, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > On Sat, 2007-01-06 at 13:01 -0600, Robert Hancock wrote:
+> > > Kasper Sandberg wrote:
+> > > > On Sat, 2007-01-06 at 12:21 -0600, Robert Hancock wrote:
+> > > >> Kasper Sandberg wrote:
+> > > >>> i have heard that libata has much better error handling (this is what
+> > > >>> made me try it), and from initial observations, that appears to be very
+> > > >>> true, however, im wondering, is there something i can do to get
+> > > >>> extremely verbose information from libata? for example if it corrects
+> > > >>> errors? cause i'd really like to know if it still happens, and if i
+> > > >>> perhaps get corruption as before, even though not severe.
+> > > >> Any errors, timeouts or retries would be showing up in dmesg..
+> > > > how sure can i be of this? is it 100% sure that i have not encountered
+> > > > this error then?
+> > >
+> > > Pretty sure, I'm quite certain libata never does any silent error recovery..
+> 
+> AFAIR this is true
+> (at least it was last time that I've looked at libata eh code)
+> 
+> > okay, i suppose i face two possibilities then:
+> > 1: libata drivers are simply better, and the error does not occur
+> > because of driver bugs in the old ide drivers
+> 
+> very likely however pdc202xx_new bugs should be fixed in 2.6.20-rc3
+> (as it contains a lot of bugfixes for this driver from Sergei Shtylyov)
+these fixes are also in the libata driver?
+> 
+> > 2: it hasnt happened to me on libata yet (though this is also abit
+> > weird, as it has now ran far longer than were previously required to hit
+> > the errors)
+> 
 
- > commit 24ebead82bbf9785909d4cf205e2df5e9ff7da32
- > tree 921f686860e918a01c3d3fb6cd106ba82bf4ace6
- > parent 264166e604a7e14c278e31cadd1afb06a7d51a11
- > author Rafa³ Bilski <rafalbilski@interia.pl> 1167691774 +0100
- > committer Dave Jones <davej@redhat.com> 1167799119 -0500
- > 
- > and looking at that "author" closer with od:
- > 
- > 0000140 74 68 6f 72 20 52 61 66 61 b3 20 42 69 6c 73 6b
- >           t   h   o   r       R   a   f   a   ³       B   i   l   s   k
- > 
- > clearly not UTF-8.  I doubt whether any of the commits I do on my
- > en_GB ISO-8859-1 systems end up being UTF-8 encoded.
-
-This has been bugging me for a while.
-Viewing the mail I applied in mutt shows his name correctly as Rafał
-Applying it with git-applymbox and viewing the log on master.kernel.org
-with git log shows Rafa<B3>   And then later when put into email
-it turns into Rafa³
-
- > But the point is there is charset damage which has happened _long_ before
- > Linus' action.  There is no character set defined for the contents of git
- > repositories, and as such the output of the git tools can not be
- > interpreted as any one single character set.
-
-If there's something I should be doing when I commit that I'm not,
-I'll be happy to change my scripts.  My $LANG is set to en_US.UTF-8
-which should DTRT to the best of my knowledge, but clearly, that isn't
-the case.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

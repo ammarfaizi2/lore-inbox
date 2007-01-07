@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932341AbXAGCVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932340AbXAGCXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbXAGCVw (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbXAGCVw
+	id S932340AbXAGCXi (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbXAGCXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:21:52 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:54540 "EHLO tmailer.gwdg.de"
+	Sat, 6 Jan 2007 21:23:38 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:47934 "EHLO scrub.xs4all.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932341AbXAGCVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:21:51 -0500
-Date: Sun, 7 Jan 2007 03:21:00 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Stelian Pop <stelian@popies.net>, Mattia Dongili <malattia@linux.it>
-Subject: sonypi not for 64bit?
-Message-ID: <Pine.LNX.4.61.0701070313510.23016@yvahk01.tjqt.qr>
+	id S932340AbXAGCXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 21:23:37 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: gclion@mail.ru
+Subject: Re: qconf handling NULL pointers
+Date: Sun, 7 Jan 2007 03:23:04 +0100
+User-Agent: KMail/1.9.5
+Cc: kernel list <linux-kernel@vger.kernel.org>
+References: <200701061444.18384.gclion@mail.ru>
+In-Reply-To: <200701061444.18384.gclion@mail.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701070323.05804.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi sonypi (ex-)maintainers ;-)
+Hi,
 
+On Saturday 06 January 2007 12:44, Cyrill V. Gorcunov wrote:
 
-drivers/char/Kconfig lists SONYPI as being !64BIT, however, there seem 
-to be sony users with x86_64 [1] around. Is it just caution (it's also 
-marked EXPERIMENTAL) or is it definitely known to break on 64bit?
+> I found qconf have a few malloc(), strdup() without any check for NULL
+> returned code. May be it should be fixed? Am I wrong?
 
-	-`J'
+The code isn't really supposed to deal with it, at most they could be replaced 
+with a variant that prints an error message and exits.
 
-[1] (a german forum) http://www.linux-club.de/viewtopic.php?t=74400&highlight=sonypi
+bye, Roman

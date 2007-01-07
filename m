@@ -1,177 +1,188 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965171AbXAGVhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965221AbXAGVvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbXAGVhr (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 16:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbXAGVhr
+	id S965221AbXAGVvS (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 16:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbXAGVvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 16:37:47 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52074 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965171AbXAGVhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 16:37:46 -0500
-Date: Mon, 8 Jan 2007 08:37:34 +1100
-From: David Chinner <dgc@sgi.com>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: xfs@oss.sgi.com
-Subject: Re: xfs_file_ioctl / xfs_freeze: BUG: warning at kernel/mutex-debug.c:80/debug_mutex_unlock()
-Message-ID: <20070107213734.GS44411608@melbourne.sgi.com>
-References: <20070104001420.GA32440@m.safari.iki.fi>
+	Sun, 7 Jan 2007 16:51:18 -0500
+Received: from mail.screens.ru ([213.234.233.54]:44169 "EHLO mail.screens.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965221AbXAGVvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 16:51:17 -0500
+Date: Mon, 8 Jan 2007 00:51:03 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vatsa@in.ibm.com, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107215103.GA7960@tv-sign.ru>
+References: <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106111117.54bb2307.akpm@osdl.org> <20070107110013.GD13579@in.ibm.com> <20070107115957.6080aa08.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20070104001420.GA32440@m.safari.iki.fi>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20070107115957.6080aa08.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2007 at 02:14:21AM +0200, Sami Farin wrote:
-> just a simple test I did...
-> xfs_freeze -f /mnt/newtest
-> cp /etc/fstab /mnt/newtest
-> xfs_freeze -u /mnt/newtest
-> 
-> 2007-01-04 01:44:30.341979500 <4>BUG: warning at kernel/mutex-debug.c:80/debug_mutex_unlock()
-> 2007-01-04 01:44:30.385771500 <4> [<c0103cfb>] dump_trace+0x215/0x21a
-> 2007-01-04 01:44:30.385774500 <4> [<c0103da3>] show_trace_log_lvl+0x1a/0x30
-> 2007-01-04 01:44:30.385775500 <4> [<c0103dcb>] show_trace+0x12/0x14
-> 2007-01-04 01:44:30.385777500 <4> [<c0103ec8>] dump_stack+0x19/0x1b
-> 2007-01-04 01:44:30.385778500 <4> [<c013a3af>] debug_mutex_unlock+0x69/0x120
-> 2007-01-04 01:44:30.385779500 <4> [<c04b4aac>] __mutex_unlock_slowpath+0x44/0xf0
-> 2007-01-04 01:44:30.385780500 <4> [<c04b4887>] mutex_unlock+0x8/0xa
-> 2007-01-04 01:44:30.385782500 <4> [<c018d0ba>] thaw_bdev+0x57/0x6e
-> 2007-01-04 01:44:30.385791500 <4> [<c026a6cf>] xfs_ioctl+0x7ce/0x7d3
-> 2007-01-04 01:44:30.385793500 <4> [<c0269158>] xfs_file_ioctl+0x33/0x54
-> 2007-01-04 01:44:30.385794500 <4> [<c01793f2>] do_ioctl+0x76/0x85
-> 2007-01-04 01:44:30.385795500 <4> [<c0179570>] vfs_ioctl+0x59/0x1aa
-> 2007-01-04 01:44:30.385796500 <4> [<c0179728>] sys_ioctl+0x67/0x77
-> 2007-01-04 01:44:30.385797500 <4> [<c0102e73>] syscall_call+0x7/0xb
-> 2007-01-04 01:44:30.385799500 <4> [<001be410>] 0x1be410
-> 2007-01-04 01:44:30.385800500 <4> =======================
-> 
-> fstab was there just fine after -u.
+On 01/07, Andrew Morton wrote:
+>
+> Plus flush_workqueue() is on the way out.  We're slowly edging towards a
+> working cancel_work() which will only block if the work which you're trying
+> to cancel is presently running.  With that, pretty much all the
+> flush_workqueue() calls go away, and all these accidental rarely-occurring
+> deadlocks go away too.
 
-Oh, that still hasn't been fixed? Generic bug, not XFS - the global
-semaphore->mutex cleanup converted the bd_mount_sem to a mutex, and
-mutexes complain loudly when a the process unlocking the mutex is
-not the process that locked it.
+So. If we can forget about the race we have - fine. Otherwise, how about the
+patch below? It is untested and needs a review. I can't suggest any simpler
+now.
 
-Basically, the generic code is broken - the bd_mount_mutex needs to
-be reverted back to a semaphore because it is locked and unlocked
-by different processes. The following patch does this....
+Change flush_workqueue() to use for_each_possible_cpu(). This means that
+flush_cpu_workqueue() may hit CPU which is already dead. However in that
+case
 
-BTW, Sami, can you cc xfs@oss.sgi.com on XFS bug reports in future;
-you'll get more XFS savvy eyes there.....
+	if (!list_empty(&cwq->worklist) || cwq->current_work != NULL)
 
-Cheers,
+means that CPU_DEAD in progress, it will do kthread_stop() + take_over_work()
+so we can proceed and insert a barrier. We hold cwq->lock, so we are safe.
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+This patch replaces fix-flush_workqueue-vs-cpu_dead-race.patch which was
+broken by switching to preempt_disable (now we don't need locking at all).
+Note that migrate_sequence (was hotplug_sequence) is incremented under
+cwq->lock. Since flush_workqueue does lock/unlock of cwq->lock on all CPUs,
+it must see the new value if take_over_work() happened before we checked
+this cwq, and this is the case we should worry about: otherwise we added
+a barrier.
 
----
+Srivatsa?
 
-Revert bd_mount_mutex back to a semaphore so that xfs_freeze -f /mnt/newtest;
-xfs_freeze -u /mnt/newtest works safely and doesn't produce lockdep warnings.
-
-Signed-off-by: Dave Chinner <dgc@sgi.com>
-
-
----
- fs/block_dev.c       |    2 +-
- fs/buffer.c          |    6 +++---
- fs/gfs2/ops_fstype.c |    4 ++--
- fs/super.c           |    4 ++--
- include/linux/fs.h   |    2 +-
- 5 files changed, 9 insertions(+), 9 deletions(-)
-
-Index: 2.6.x-xfs-new/fs/block_dev.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/block_dev.c	2006-12-22 10:53:20.000000000 +1100
-+++ 2.6.x-xfs-new/fs/block_dev.c	2007-01-08 08:26:15.843378600 +1100
-@@ -263,7 +263,7 @@ static void init_once(void * foo, kmem_c
- 	{
- 		memset(bdev, 0, sizeof(*bdev));
- 		mutex_init(&bdev->bd_mutex);
--		mutex_init(&bdev->bd_mount_mutex);
-+		sema_init(&bdev->bd_mount_sem, 1);
- 		INIT_LIST_HEAD(&bdev->bd_inodes);
- 		INIT_LIST_HEAD(&bdev->bd_list);
- #ifdef CONFIG_SYSFS
-Index: 2.6.x-xfs-new/fs/buffer.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/buffer.c	2006-12-12 12:04:51.000000000 +1100
-+++ 2.6.x-xfs-new/fs/buffer.c	2007-01-08 08:28:40.832542651 +1100
-@@ -179,7 +179,7 @@ int fsync_bdev(struct block_device *bdev
-  * freeze_bdev  --  lock a filesystem and force it into a consistent state
-  * @bdev:	blockdevice to lock
-  *
-- * This takes the block device bd_mount_mutex to make sure no new mounts
-+ * This takes the block device bd_mount_sem to make sure no new mounts
-  * happen on bdev until thaw_bdev() is called.
-  * If a superblock is found on this device, we take the s_umount semaphore
-  * on it to make sure nobody unmounts until the snapshot creation is done.
-@@ -188,7 +188,7 @@ struct super_block *freeze_bdev(struct b
- {
- 	struct super_block *sb;
+--- mm-6.20-rc3/kernel/workqueue.c~2_race	2007-01-08 00:07:07.000000000 +0300
++++ mm-6.20-rc3/kernel/workqueue.c	2007-01-08 00:28:55.000000000 +0300
+@@ -65,6 +65,7 @@ struct workqueue_struct {
  
--	mutex_lock(&bdev->bd_mount_mutex);
-+	down(&bdev->bd_mount_sem);
- 	sb = get_super(bdev);
- 	if (sb && !(sb->s_flags & MS_RDONLY)) {
- 		sb->s_frozen = SB_FREEZE_WRITE;
-@@ -230,7 +230,7 @@ void thaw_bdev(struct block_device *bdev
- 		drop_super(sb);
+ /* All the per-cpu workqueues on the system, for hotplug cpu to add/remove
+    threads to each one as cpus come/go. */
++static long migrate_sequence __read_mostly;
+ static DEFINE_MUTEX(workqueue_mutex);
+ static LIST_HEAD(workqueues);
+ 
+@@ -422,13 +423,7 @@ static void flush_cpu_workqueue(struct c
+ 		 * Probably keventd trying to flush its own queue. So simply run
+ 		 * it by hand rather than deadlocking.
+ 		 */
+-		preempt_enable();
+-		/*
+-		 * We can still touch *cwq here because we are keventd, and
+-		 * hot-unplug will be waiting us to exit.
+-		 */
+ 		run_workqueue(cwq);
+-		preempt_disable();
+ 	} else {
+ 		struct wq_barrier barr;
+ 		int active = 0;
+@@ -441,9 +436,7 @@ static void flush_cpu_workqueue(struct c
+ 		spin_unlock_irq(&cwq->lock);
+ 
+ 		if (active) {
+-			preempt_enable();
+ 			wait_for_completion(&barr.done);
+-			preempt_disable();
+ 		}
  	}
- 
--	mutex_unlock(&bdev->bd_mount_mutex);
-+	up(&bdev->bd_mount_sem);
  }
- EXPORT_SYMBOL(thaw_bdev);
+@@ -463,17 +456,21 @@ static void flush_cpu_workqueue(struct c
+  */
+ void fastcall flush_workqueue(struct workqueue_struct *wq)
+ {
+-	preempt_disable();		/* CPU hotplug */
+ 	if (is_single_threaded(wq)) {
+ 		/* Always use first cpu's area. */
+ 		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
+ 	} else {
++		long sequence;
+ 		int cpu;
++again:
++		sequence = migrate_sequence;
  
-Index: 2.6.x-xfs-new/fs/gfs2/ops_fstype.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/gfs2/ops_fstype.c	2006-12-12 12:04:58.000000000 +1100
-+++ 2.6.x-xfs-new/fs/gfs2/ops_fstype.c	2007-01-08 08:27:12.847973663 +1100
-@@ -867,9 +867,9 @@ static int gfs2_get_sb_meta(struct file_
- 		error = -EBUSY;
- 		goto error;
+-		for_each_online_cpu(cpu)
++		for_each_possible_cpu(cpu)
+ 			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
++
++		if (unlikely(sequence != migrate_sequence))
++			goto again;
  	}
--	mutex_lock(&sb->s_bdev->bd_mount_mutex);
-+	down(&sb->s_bdev->bd_mount_sem);
- 	new = sget(fs_type, test_bdev_super, set_bdev_super, sb->s_bdev);
--	mutex_unlock(&sb->s_bdev->bd_mount_mutex);
-+	up(&sb->s_bdev->bd_mount_sem);
- 	if (IS_ERR(new)) {
- 		error = PTR_ERR(new);
- 		goto error;
-Index: 2.6.x-xfs-new/fs/super.c
-===================================================================
---- 2.6.x-xfs-new.orig/fs/super.c	2006-12-22 11:45:59.000000000 +1100
-+++ 2.6.x-xfs-new/fs/super.c	2007-01-08 08:24:20.718330640 +1100
-@@ -736,9 +736,9 @@ int get_sb_bdev(struct file_system_type 
- 	 * will protect the lockfs code from trying to start a snapshot
- 	 * while we are mounting
- 	 */
--	mutex_lock(&bdev->bd_mount_mutex);
-+	down(&bdev->bd_mount_sem);
- 	s = sget(fs_type, test_bdev_super, set_bdev_super, bdev);
--	mutex_unlock(&bdev->bd_mount_mutex);
-+	up(&bdev->bd_mount_sem);
- 	if (IS_ERR(s))
- 		goto error_s;
+-	preempt_enable();
+ }
+ EXPORT_SYMBOL_GPL(flush_workqueue);
  
-Index: 2.6.x-xfs-new/include/linux/fs.h
-===================================================================
---- 2.6.x-xfs-new.orig/include/linux/fs.h	2006-12-12 12:06:31.000000000 +1100
-+++ 2.6.x-xfs-new/include/linux/fs.h	2007-01-08 08:24:53.602060200 +1100
-@@ -456,7 +456,7 @@ struct block_device {
- 	struct inode *		bd_inode;	/* will die */
- 	int			bd_openers;
- 	struct mutex		bd_mutex;	/* open/close mutex */
--	struct mutex		bd_mount_mutex;	/* mount mutex */
-+	struct semaphore	bd_mount_sem;
- 	struct list_head	bd_inodes;
- 	void *			bd_holder;
- 	int			bd_holders;
+@@ -545,18 +542,22 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(flush_work);
+ 
+-static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
+-						   int cpu, int freezeable)
++static void init_cpu_workqueue(struct workqueue_struct *wq,
++			struct cpu_workqueue_struct *cwq, int freezeable)
+ {
+-	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
+-	struct task_struct *p;
+-
+ 	spin_lock_init(&cwq->lock);
+ 	cwq->wq = wq;
+ 	cwq->thread = NULL;
+ 	cwq->freezeable = freezeable;
+ 	INIT_LIST_HEAD(&cwq->worklist);
+ 	init_waitqueue_head(&cwq->more_work);
++}
++
++static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
++						   int cpu)
++{
++	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
++	struct task_struct *p;
+ 
+ 	if (is_single_threaded(wq))
+ 		p = kthread_create(worker_thread, cwq, "%s", wq->name);
+@@ -589,15 +590,20 @@ struct workqueue_struct *__create_workqu
+ 	mutex_lock(&workqueue_mutex);
+ 	if (singlethread) {
+ 		INIT_LIST_HEAD(&wq->list);
+-		p = create_workqueue_thread(wq, singlethread_cpu, freezeable);
++		init_cpu_workqueue(wq, per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
++					freezeable);
++		p = create_workqueue_thread(wq, singlethread_cpu);
+ 		if (!p)
+ 			destroy = 1;
+ 		else
+ 			wake_up_process(p);
+ 	} else {
+ 		list_add(&wq->list, &workqueues);
++		for_each_possible_cpu(cpu)
++			init_cpu_workqueue(wq, per_cpu_ptr(wq->cpu_wq, cpu),
++						freezeable);
+ 		for_each_online_cpu(cpu) {
+-			p = create_workqueue_thread(wq, cpu, freezeable);
++			p = create_workqueue_thread(wq, cpu);
+ 			if (p) {
+ 				kthread_bind(p, cpu);
+ 				wake_up_process(p);
+@@ -833,6 +839,7 @@ static void take_over_work(struct workqu
+ 
+ 	spin_lock_irq(&cwq->lock);
+ 	list_replace_init(&cwq->worklist, &list);
++	migrate_sequence++;
+ 
+ 	while (!list_empty(&list)) {
+ 		printk("Taking work for %s\n", wq->name);
+@@ -859,7 +866,7 @@ static int __devinit workqueue_cpu_callb
+ 	case CPU_UP_PREPARE:
+ 		/* Create a new workqueue thread for it. */
+ 		list_for_each_entry(wq, &workqueues, list) {
+-			if (!create_workqueue_thread(wq, hotcpu, 0)) {
++			if (!create_workqueue_thread(wq, hotcpu)) {
+ 				printk("workqueue for %i failed\n", hotcpu);
+ 				return NOTIFY_BAD;
+ 			}
+

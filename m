@@ -1,86 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965252AbXAGXhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965253AbXAGXnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965252AbXAGXhu (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 18:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965254AbXAGXht
+	id S965253AbXAGXnx (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 18:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbXAGXnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 18:37:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2808 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S965252AbXAGXht (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 18:37:49 -0500
-Date: Mon, 8 Jan 2007 00:37:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Woodhouse <dwmw2@infradead.org>, Tilman Schmidt <tilman@imap.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-Message-ID: <20070107233750.GL20714@stusta.de>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr> <20070107114439.GC21613@flint.arm.linux.org.uk> <45A0F060.9090207@imap.cc> <1168182838.14763.24.camel@shinybook.infradead.org> <20070107153833.GA21133@flint.arm.linux.org.uk> <1168187346.14763.70.camel@shinybook.infradead.org> <20070107170656.GC21133@flint.arm.linux.org.uk> <Pine.LNX.4.61.0701072009430.4365@yvahk01.tjqt.qr> <20070107204834.GU24090@1wt.eu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107204834.GU24090@1wt.eu>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 7 Jan 2007 18:43:52 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:51808 "EHLO smtps.tip.net.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965253AbXAGXnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 18:43:52 -0500
+Date: Mon, 8 Jan 2007 10:43:47 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Kyle McMartin <kyle@parisc-linux.org>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [PATCH] Common compat_sys_sysinfo (v2)
+Message-Id: <20070108104347.83a004aa.sfr@canb.auug.org.au>
+In-Reply-To: <20070107154045.GD3207@athena.road.mcmartin.ca>
+References: <20070107144850.GB3207@athena.road.mcmartin.ca>
+	<20070107151319.GA23478@infradead.org>
+	<20070107152213.GC3207@athena.road.mcmartin.ca>
+	<20070107154045.GD3207@athena.road.mcmartin.ca>
+X-Mailer: Sylpheed version 2.3.0beta5 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__8_Jan_2007_10_43_47_+1100_m6PjlmpmWyD=I.wq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 09:48:34PM +0100, Willy Tarreau wrote:
-> On Sun, Jan 07, 2007 at 08:11:38PM +0100, Jan Engelhardt wrote:
-> > 
-> > On Jan 7 2007 17:06, Russell King wrote:
-> > >On Mon, Jan 08, 2007 at 12:29:05AM +0800, David Woodhouse wrote:
-> > >
-> > >$ git log | head -n 1000 | tail -n 200 > o
-> > >$ file -i o
-> > >o: text/plain; charset=us-ascii
-> > >$ git log | head -n 1000 | tail -n 300 > o
-> > >$ file -i o
-> > >o: text/plain; charset=us-ascii
-> > >$ git log | head -n 1000 | tail -n 400 > o
-> > >$ file -i o
-> > >o: text/plain; charset=utf-8
-> > 
-> > I am inclined to say that "file" does not count, because it tries to guess an
-> > ambiguous mapping from bytes to character set. Even more, file should be
-> > _unable at all_ to distinguish an iso-8859-1 from an iso-8859-2 (or worse: 15)
-> > file. This program is soo... forget it, it's not an argument. It works well for
-> > headerful files, but text files don't really contain one. The next best thing
-> > would be html, with a proper <meta http-equiv=Content> tag.
-> 
-> The stupidity from the start up with those character sets is that they
-> consider that a whole file is written with a given set. In fact, the
-> charset should apply to characters themselves. At least, the
-> quoted-printable, non-human friendly, encoding was the least stupid.
+--Signature=_Mon__8_Jan_2007_10_43_47_+1100_m6PjlmpmWyD=I.wq
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-I doubt doing this would really be worth the effort.
+Hi Kyle,
 
-In the 21st century, people should simply use UTF-8.
+Looks good.  Just one nit and one comment.
 
-> Now that UTF8 comes everywhere, everyone receives tons of mangled mails,
-> and even mailers which correctly support UTF8 and use it by default manage
-> to shoot themselves in the foot when they reply to, or forward a mail. The
-> system is completely broken because limited by design, and we have to learn
-> to live with this brokenness.
+On Sun, 7 Jan 2007 10:40:45 -0500 Kyle McMartin <kyle@parisc-linux.org> wrote:
+>
+> diff --git a/kernel/compat.c b/kernel/compat.c
+> index 6952dd0..cebb4c2 100644
+> --- a/kernel/compat.c
+> +++ b/kernel/compat.c
+ .
+ .
+ .
+> +	    __put_user (s.uptime, &info->uptime) ||
+                      ^
+We don't put spaces in here ...
 
-Only if MUAs have broken charset support or don't set a correct 
-"charset" header in the mails they are sending.
+> +asmlinkage long sys_sysinfo(struct sysinfo __user *info)
+> +{
+> +	struct sysinfo val;
+> +
+> +	do_sysinfo(&val);
+>
+> - out:
+>  	if (copy_to_user(info, &val, sizeof(struct sysinfo)))
+>  		return -EFAULT;
 
-If some software still can't handle UTF-8 correctly more than 10 years 
-after it was introduced, that's not a brokenness you can blame on UTF-8.
+People have complined before that this adds a whole stack frame to the
+"normal" syscall path.  Personally I don't care, but it has been
+mentioned.
 
-> Willy
+--
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-cu
-Adrian
+--Signature=_Mon__8_Jan_2007_10_43_47_+1100_m6PjlmpmWyD=I.wq
+Content-Type: application/pgp-signature
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+iD8DBQFFoYXCFdBgD/zoJvwRAvt5AJ4vBigJICMLJanO+YBo1S+xZzJFEQCfbXi8
+TEwHcaCFk6+/ul3Z/RmGpE0=
+=fF8z
+-----END PGP SIGNATURE-----
 
+--Signature=_Mon__8_Jan_2007_10_43_47_+1100_m6PjlmpmWyD=I.wq--

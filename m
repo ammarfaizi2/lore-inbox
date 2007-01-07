@@ -1,46 +1,95 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932486AbXAGLJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932513AbXAGLaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbXAGLJ7 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 06:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbXAGLJ7
+	id S932513AbXAGLaO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 06:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbXAGLaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 06:09:59 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:1668 "EHLO sd291.sivit.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932486AbXAGLJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 06:09:58 -0500
-Subject: Re: sonypi not for 64bit?
-From: Stelian Pop <stelian@popies.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mattia Dongili <malattia@linux.it>
-In-Reply-To: <Pine.LNX.4.61.0701070313510.23016@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0701070313510.23016@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 07 Jan 2007 12:09:55 +0100
-Message-Id: <1168168195.30005.3.camel@voyager.dsnet>
+	Sun, 7 Jan 2007 06:30:14 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:4232 "EHLO
+	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932513AbXAGLaN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 06:30:13 -0500
+Date: Sun, 7 Jan 2007 12:30:13 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org,
+       "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
+Message-Id: <20070107123013.097c1f23.khali@linux-fr.org>
+In-Reply-To: <20070105232913.GU20714@stusta.de>
+References: <20061219041315.GE6993@stusta.de>
+	<20070105095233.4ce72e7e.khali@linux-fr.org>
+	<20070105232913.GU20714@stusta.de>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dimanche 07 janvier 2007 à 03:21 +0100, Jan Engelhardt a écrit :
-> Hi sonypi (ex-)maintainers ;-)
+Hi Adrian,
+
+On Sat, 6 Jan 2007 00:29:13 +0100, Adrian Bunk wrote:
+> While looking at the code, I also noted the following:
+> 
+> quirk_sis_96x_compatible() is pretty useless since all it does is to set 
+> a static variable that is only used in a printk().
+> 
+> quirk_sis_96x_compatible() was added with:
 > 
 > 
-> drivers/char/Kconfig lists SONYPI as being !64BIT, however, there seem 
-> to be sony users with x86_64 [1] around.
+>     2003/05/13 13:48:50-07:00 mhoffman
+>     [PATCH] i2c: Add SiS96x I2C/SMBus driver
+>     
+>     This patch adds support for the SMBus of SiS96x south
+>     bridges.  It is based on i2c-sis645.c from the lm sensors
+>     project, which never made it into an official kernel and
+>     was anyway mis-named.
+>     
+>     This driver works on my SiS 645/961 board vs w83781d.
+> 
+> 
+> It's usage in
+> 
+> 
+> static void __init quirk_sis_503_smbus(struct pci_dev *dev)
+> {
+>        if (sis_96x_compatible)
+>                quirk_sis_96x_smbus(dev);
+> }
+> 
+> 
+> Was removed in
+> 
+> 
+> Author: torvalds <torvalds>
+> Date:   Thu Oct 30 19:03:38 2003 +0000
+> 
+>     Stop SIS 96x chips from lying about themselves.
+>     
+>     Some machines with the SIS 96x southbridge have it set up
+>     to claim it is a SIS 503 chip. That breaks irq routing logic
+>     among other things. Fix it properly by making everybody aware
+>     of the duplicity.
+> 
+> 
+> Was this intentional (and quirk_sis_96x_compatible() should be removed), 
+> or is this a bug that should be fixed?
 
-Indeed, I have had (private) reports about it working on x86_64 too.
+I noticed this too in April 2006, see:
+http://lists.lm-sensors.org/pipermail/lm-sensors/2006-April/016016.html
 
->  Is it just caution (it's also 
-> marked EXPERIMENTAL) or is it definitely known to break on 64bit?
+Quoting myself back then:
+"The whole sis_96x_compatible stuff looks superfluous now. It was used
+before 2.6.0-test10, but we could certainly get rid of it now."
 
-Frankly I don't recall anymore. The 64 bit restriction wasn't there from
-the beginning, it was added by a patch from someone 2 or 3 years ago.
-git doesn't seem to have the history for that, maybe old bk does...
+I do not think there is a bug here, or someone would have complained by
+now. Note though that I do not have a SiS-based motherboard to test on.
+Mark may be able to help with testing.
 
+Thanks,
 -- 
-Stelian Pop <stelian@popies.net>
-
+Jean Delvare

@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932287AbXAGAfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932288AbXAGAg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbXAGAfY (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 19:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbXAGAfY
+	id S932288AbXAGAg6 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 19:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbXAGAg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 19:35:24 -0500
-Received: from smtp.ono.com ([62.42.230.12]:51802 "EHLO resmaa01.ono.com"
+	Sat, 6 Jan 2007 19:36:58 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3643 "EHLO spitz.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932287AbXAGAfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 19:35:23 -0500
-X-Greylist: delayed 355 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Jan 2007 19:35:23 EST
-Date: Sun, 7 Jan 2007 01:29:27 +0100
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Question on ALSA intel8x0
-Message-ID: <20070107012927.1fdcf8f3@werewolf-wl>
-X-Mailer: Claws Mail 2.6.1cvs112 (GTK+ 2.10.7; i686-pc-linux-gnu)
+	id S932288AbXAGAg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 19:36:57 -0500
+Date: Sun, 7 Jan 2007 00:36:44 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Mikael Pettersson <mikpe@it.uu.se>, 76306.1226@compuserve.com,
+       akpm@osdl.org, bunk@stusta.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, yanmin_zhang@linux.intel.com
+Subject: Re: kernel + gcc 4.1 = several problems
+Message-ID: <20070107003644.GA4240@ucw.cz>
+References: <200701030212.l032CDXe015365@harpo.it.uu.se> <200701051553.04673.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0701050757320.3661@woody.osdl.org> <200701051619.54977.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0701050827290.3661@woody.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0701050827290.3661@woody.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+Hi!
 
-I have a curious issue with snd_intel8x0 ALSA driver:
+> > (I realise with problems like these it's almost always some sort of obscure 
+> > hardware problem, but I find that very difficult to believe when I can toggle 
+> > from 3 years of stability to 6-18 hours crashing by switching compiler. I've 
+> > also ran extensive stability test programs on the hardware with absolutely no 
+> > negative results.)
+> 
+> The thing is, I agree with you - it does seem to be compiler-related. But 
+> at the same time, I'm almost positive that it's not in "pipe_poll()" 
+> itself, because that function is just too simple, and looking at the 
+> assembly code, I don't see how what you describe could happen in THAT 
+> function.
+> 
+> HOWEVER.
+> 
+> I can easily see an NMI coming in, or another interrupt, or something, and 
+> that one corrupting the stack under it because of a compiler bug (or a 
+> kernel bug that just needs a specific compiler to trigger). For example, 
+> we've had problems before with the compiler thinking it owns the stack 
+> frame for an "asmlinkage" function, and us having no way to tell the 
+> compiler to keep its hands off - so the compiler ended up touching 
+> registers that were actually in the "save area" of the interrupt or system 
+> call, and then returning with corrupted state.
+> 
+> Here's a stupid patch. It just adds more debugging to the oops message, 
+> and shows all the code pointers it can find on the WHOLE stack.
+> 
+> It also makes the raw stack dumping print out as much of the stack 
+> contents _under_ the stack pointer as it does above it too.
+> 
+> However, this patch is mostly useless if you have a separate stack for 
+> IRQ's (since if that happens, any interrupt will be taken on a different 
+> stack which we don't see any more), so you should NOT enable the 4KSTACKS 
+> config option if you try this out.
 
-Jan  7 01:14:27 werewolf-wl kernel: ACPI: PCI interrupt for device 0000:00:1f.5 disabled
-Jan  7 01:14:27 werewolf-wl kernel: ACPI: PCI Interrupt 0000:00:1f.5[B] -> GSI 17 (level, low) -> IRQ 21
-Jan  7 01:14:27 werewolf-wl kernel: PCI: Setting latency timer of device 0000:00:1f.5 to 64
-Jan  7 01:14:27 werewolf-wl kernel: AC'97 0 analog subsections not ready
-Jan  7 01:14:27 werewolf-wl kernel: intel8x0_measure_ac97_clock: measured 50136 usecs
-Jan  7 01:14:27 werewolf-wl kernel: intel8x0: measured clock 219 rejected
-Jan  7 01:14:27 werewolf-wl kernel: intel8x0: clocking to 48000
+stupid idea... perhaps gcc-4.1 generates bigger stackframe somewhere,
+and stack overflows?
 
-And this file is created:
-
-/dev/.udev/failed/class@sound@controlC0
-
-What does this 'failed' mean ? Why is my card 'not ready' ?
-Sound works, anyways.
-
-BTW, before alsa driver loads, I hear a strange whisper through the speakers,
-nothing since the sound subsystem is initialized. Bad connections ?
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.1 (Cooker) for i586
-Linux 2.6.19-jam03 (gcc 4.1.2 20061110 (prerelease) (4.1.2-0.20061110.1mdv2007.1)) #0 SMP PREEMPT
+that hw monitoring thingie... I'd turn it off. Its interactions with
+acpi are non-trivial and dangerous.
+						Pavel
+-- 
+Thanks for all the (sleeping) penguins.

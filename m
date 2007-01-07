@@ -1,55 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932547AbXAGOXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932548AbXAGO0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbXAGOXt (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 09:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbXAGOXt
+	id S932548AbXAGO0r (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 09:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbXAGO0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 09:23:49 -0500
-Received: from nf-out-0910.google.com ([64.233.182.187]:10943 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932548AbXAGOXs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 09:23:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZwHzz5bqHXJIcIJUPvm63kOnpx+jwHKeX89p2k0BoUsGrvenEKM1swCXXKJeq5GjHRowH0/ZhkwHa294rQ0IWiL0TRuBXfQeXPEskjWUe6PEasrhHnCqOIcpryFitSyC0Wp4WR4OVA/557BuUGnvGkCbOEb/mWIEgz/NVw87xdA=
-Message-ID: <8355959a0701070623v14121237s1cc2a03752153a7b@mail.gmail.com>
-Date: Sun, 7 Jan 2007 19:53:46 +0530
-From: Akula2 <akula2.shark@gmail.com>
-To: "Willy Tarreau" <w@1wt.eu>
-Subject: Re: Linux 2.6.20-rc4
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20070107135358.GT24090@1wt.eu>
+	Sun, 7 Jan 2007 09:26:47 -0500
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:29169 "EHLO
+	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932548AbXAGO0q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 09:26:46 -0500
+Date: Sun, 7 Jan 2007 14:26:41 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Len Brown <lenb@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86 instability with 2.6.1{8,9}
+Message-ID: <20070107142641.GA30379@deepthought>
+References: <20070101160158.GA26547@deepthought> <200701021225.57708.lenb@kernel.org> <20070102180425.GA18680@deepthought> <200701021342.32195.lenb@kernel.org> <20070102193459.GA19894@deepthought> <20070106140459.a6b72039.randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	 <8355959a0701070415q1fe8ebf7l40807b02de11db0c@mail.gmail.com>
-	 <20070107125512.GA14898@flint.arm.linux.org.uk>
-	 <8355959a0701070538o1406f5b7ma8e4b957201ca59e@mail.gmail.com>
-	 <20070107135358.GT24090@1wt.eu>
+In-Reply-To: <20070106140459.a6b72039.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/7/07, Willy Tarreau <w@1wt.eu> wrote:
->
-> There are distro mirrors on kernel.org, and the most famous ones
-> are downloaded by huge number of people on their release day. What
-> John explained is that the cumulated downloads during the 12 first
-> hours after FC6 releases totalized 13 TB of data sent to the net,
-> which is indeed 2 gig links at full load. Impressive !
+On Sat, Jan 06, 2007 at 02:04:59PM -0800, Randy Dunlap wrote:
+> On Tue, 2 Jan 2007 19:34:59 +0000 Ken Moffat wrote:
+> 
+> > On Tue, Jan 02, 2007 at 01:42:32PM -0500, Len Brown wrote:
+> > > 
+> > > You might remove and re-insert the DIMMS.
+> > > Sometimes there are poor contacts if the DIMMS are not fully seated and clicked in.
+> > > 
+> > > The real mystery is the 32 vs 64-bit thing.
+> > > Are the devices configured the same way -- ie are they both in IOAPIC mode
+> > > and /proc/interrupts looks the same for both modes?
+> > > 
+> > > -Len
+> > 
+> >  Too late, I've started memtest-86+.  If it seems ok after an
+> > overnight run, I'll take a look at /proc/interrupts.  How can I tell
+> > it is in IOAPIC mode, please ?  Google was not helpful for this, but
+> > if it's an override, the only things on my command lines are root=
+> > and video= settings.
+> 
+> (did anyone ever answer this?)
+> 
+> In IO-APIC mode, /proc/interrupts contains entries like these:
+> 
+>            CPU0       CPU1       
+>   0:  121218123          0    IO-APIC-edge  timer
+>   1:     715259          0    IO-APIC-edge  i8042
+>   6:          5          0    IO-APIC-edge  floppy
+>   7:          0          0    IO-APIC-edge  parport0
+>   9:          0          0   IO-APIC-level  acpi
+>  12:   10011272          0    IO-APIC-edge  i8042
+>  14:   11561548          0    IO-APIC-edge  ide0
+>  66:    4525183          0         PCI-MSI  libata
+>  74:       1711          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb6
+>  82:          4          0   IO-APIC-level  ohci_hcd:usb2, ohci_hcd:usb3, ohci_hcd:usb4, ohci_hcd:usb5
+>  98:     101326          0         PCI-MSI  HDA Intel
+> 106:   17747181          0         PCI-MSI  eth0
+> 169:          0          0   IO-APIC-level  uhci_hcd:usb9
+> 177:          3          0   IO-APIC-level  ohci1394
+> 185:         15          0   IO-APIC-level  uhci_hcd:usb8, aic79xx
+> 193:     427962          0   IO-APIC-level  uhci_hcd:usb7, aic79xx
+> 
+> If not in IO-APIC mode, lots of those will say "XT-PIC" instead
+> of IO-APIC.
+> 
+> >  Certainly, it seems likely that the configs could be fairly
+> > different in their detail.
+> 
+> 
+ I eventually found it ("Local APIC support on uniprocessors") in
+menuconfig.  In the meantime, I'd moved my 32-bit activity to a
+different box (also athlon64, but a bit faster) and I had one oops
+on that.  At least, I assume it was an oops - the caps and scroll
+LEDs flashed, but I couldn't do anything with MagicSysrq, not even
+force a reboot.  Ran diff on the various configs, changed to IO-APIC
+plus an unrelated change to use libata for the cdrom.  The faster box
+_seems_ stable (used for a couple of hours, and then for a whole day)
+so I'm back on the original problem machine.
 
-Hmm got you. If that's the case can't we do away with the distro
-mirrors since we have many mirrors & torrents? In this fashion we can
-reduce huge loads I guess.
+ Last night I reconfigured the kernel (select X86_UP_APIC, deselect
+ACPI_VIDEO [ had been a module ], select ACPI_DEBUG, select PCI_MSI
+(had been on in my 64-bit configs), removed some ATA/ATAPI drivers I
+didn't need).  I was running on the 'old' 2.6.19.1 while I built it,
+and again got the flashing LEDs after the build, but nothing logged
+although I was able to force a reboot with SysRq b.
 
-Or, is it sentimental to have a distro mirror on kernel.org because
-this is the core kernel developer site?
+ I guess that when it does have problems, it is mostly within 30
+minutes of booting - otherwise, it can be up all day.  So, for the
+moment I'm hopeful that changing the config will help, but it will
+be several days before I feel at all confident.
 
->
-> Willy
-
-~Akula2
+Ken
+-- 
+das eine Mal als Tragödie, das andere Mal als Farce

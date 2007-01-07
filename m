@@ -1,189 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964944AbXAGTPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964924AbXAGTRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbXAGTPD (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 14:15:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbXAGTPB
+	id S964924AbXAGTRn (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 14:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbXAGTRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 14:15:01 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:41869 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964924AbXAGTO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 14:14:58 -0500
-Date: Sun, 7 Jan 2007 11:13:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Willy Tarreau <w@1wt.eu>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, nigel@nigel.suspend2.net,
-       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
-Subject: Re: How git affects kernel.org performance
-In-Reply-To: <Pine.LNX.4.64.0701070957080.3661@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0701071028450.3661@woody.osdl.org>
-References: <1166297434.26330.34.camel@localhost.localdomain>
- <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
- <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
- <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
- <20070107085526.GR24090@1wt.eu> <45A0B63E.2020803@zytor.com>
- <20070107090336.GA7741@1wt.eu> <20070107102853.GB26849@infradead.org>
- <Pine.LNX.4.64.0701070957080.3661@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Jan 2007 14:17:43 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3066 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964924AbXAGTRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 14:17:42 -0500
+Date: Sun, 7 Jan 2007 19:17:30 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Tilman Schmidt <tilman@imap.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
+Message-ID: <20070107191730.GD21133@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan <alan@lxorguk.ukuu.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tilman Schmidt <tilman@imap.cc>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr> <20070107114439.GC21613@flint.arm.linux.org.uk> <45A0F060.9090207@imap.cc> <1168182838.14763.24.camel@shinybook.infradead.org> <20070107153833.GA21133@flint.arm.linux.org.uk> <20070107182151.7cc544f3@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20070107182151.7cc544f3@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 7 Jan 2007, Linus Torvalds wrote:
+On Sun, Jan 07, 2007 at 06:21:51PM +0000, Alan wrote:
+> > So, in short, UTF-8 is all fine and dandy if your _entire_ universe
+> > is UTF-8 enabled.  If you're operating in a mixed charset environment
+> > it's one bloody big pain in the butt.
 > 
-> A year or two ago I did a totally half-assed code for the non-hashed 
-> readdir that improved performance by an order of magnitude for ext3 for a 
-> test-case of mine, but it was subtly buggy and didn't do the hashed case 
-> AT ALL.
+> Net ASCII is 7bit and is 1:1 mapped with UTF-8 unicode.
 
-Btw, this isn't the test-case, but it's a half-way re-creation of 
-something like it. It's _really_ stupid, but here's what you can do:
+The same is true of ISO-8859-1.
 
- - compile and run this idiotic program. It creates a directory called 
-   "throwaway" that is ~44kB in size, and if I did things right, it should 
-   not be totally contiguous on disk with the current ext3 allocation 
-   logic.
+> It's just old broken 8bit encodings that are problematic.
+> 
+> The kernel maintainers/help/config pretty consistently use UTF8
 
- - as root, do "echo 3 > /proc/sys/vm/drop_caches" to get a cache-cold 
-   schenario.
+As I've tried to point out, that's not universally true.  For instance:
 
- - do "time ls throwaway > /dev/null".
+commit 24ebead82bbf9785909d4cf205e2df5e9ff7da32
+tree 921f686860e918a01c3d3fb6cd106ba82bf4ace6
+parent 264166e604a7e14c278e31cadd1afb06a7d51a11
+author Rafa³ Bilski <rafalbilski@interia.pl> 1167691774 +0100
+committer Dave Jones <davej@redhat.com> 1167799119 -0500
 
-I don't know what people consider to be reasonable performance, but for 
-me, it takes about half a second to do a simple "ls". NOTE! This is _not_ 
-reading inode stat information or anything like that. It literally takes 
-0.3-0.4 seconds to read ~44kB off the disk. That's a whopping 125kB/s 
-throughput on a reasonably fast modern disk.
+and looking at that "author" closer with od:
 
-That's what we in the industry call  "sad".
+0000140 74 68 6f 72 20 52 61 66 61 b3 20 42 69 6c 73 6b
+          t   h   o   r       R   a   f   a   ³       B   i   l   s   k
 
-And that's on a totally unloaded machine. There was _nothing_ else going 
-on. No IO congestion, no nothing. Just the cost of synchronously doing 
-ten or eleven disk reads.
+clearly not UTF-8.  I doubt whether any of the commits I do on my
+en_GB ISO-8859-1 systems end up being UTF-8 encoded.
 
-The fix?
+And _this_ is the problem when it comes to generating the logs,
+irrespective of whether or not Linus loads UTF-8 data into an
+ISO-8859-1 message.  For all we know, Linus' system could be using
+an ISO-8859 charset rather than UTF-8.
 
- - proper read-ahead. Right now, even if the directory is totally 
-   contiguous on disk (just remove the thing that writes data to the 
-   files, so that you'll have empty files instead of 8kB files), I think 
-   we do those reads totally synchronously if the filesystem was mounted 
-   with directory hashing enabled.
+But the point is there is charset damage which has happened _long_ before
+Linus' action.  There is no character set defined for the contents of git
+repositories, and as such the output of the git tools can not be
+interpreted as any one single character set.
 
-   Without hashing, the directory will be much smaller too, so readdir() 
-   will have less data to read. And it _should_ do some readahead, 
-   although in my testing, the best I could do was still 0.185s for a (now 
-   shrunken) 28kB directory. 
+All that UTF-8 has done is added to the "which charset is this data"
+problem rather than actually solving any proper real life problem.
 
- - better directory block allocation patterns would likely help a lot, 
-   rather than single blocks. That's true even without any read-ahead (at 
-   least the disk wouldn't need to seek, and any on-disk track buffers etc 
-   would work better), but with read-ahead and contiguous blocks it should 
-   be just a couple of IO's (the indirect stuff means that it's more than 
-   one), and so you should see much better IO patterns because the 
-   elevator can try to help too.
-
-Maybe I just have unrealistic expectations, but I really don't like how a 
-fairly small 50kB directory takes an appreciable fraction of a second to 
-read.
-
-Once it's cached, it still takes too long, but at least at that point the 
-individual getdents calls take just tens of microseconds.
-
-Here's cold-cache numbers (notice: 34 msec for the first one, and 17 msec 
-in the middle.. The 5-6ms range indicates a single IO for the intermediate 
-ones, which basically says that each call does roughly one IO, except the 
-first one that does ~5 (probably the indirect index blocks), and two in 
-the middle who are able to fill up the buffer from the IO done by the 
-previous one (4kB buffers, so if the previous getdents() happened to just 
-read the beginning of a block, the next one might be able to fill 
-everything from that block without having to do IO).
-
-	getdents(3, /* 103 entries */, 4096)    = 4088 <0.034830>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.006703>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.006719>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000354>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000017>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.005302>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.016957>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000017>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.003530>
-	getdents(3, /* 83 entries */, 4096)     = 3320 <0.000296>
-	getdents(3, /* 0 entries */, 4096)      = 0 <0.000006>
-
-Here's the pure CPU overhead: still pretty high (200 usec! For a single 
-system call! That's disgusting! In contrast, a 4kB read() call takes 7 
-usec on this machine, so the overhead of doing things one dentry at a 
-time, and calling down to several layers of filesystem is quite high):
-
-	getdents(3, /* 103 entries */, 4096)    = 4088 <0.000204>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000122>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000112>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000153>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000018>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000103>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000217>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000018>
-	getdents(3, /* 102 entries */, 4096)    = 4080 <0.000095>
-	getdents(3, /* 83 entries */, 4096)     = 3320 <0.000089>
-	getdents(3, /* 0 entries */, 4096)      = 0 <0.000006>
-
-but you can see the difference.. The real cost is obviously the IO.
-
-		Linus
-
-----
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-static char buffer[8192];
-
-static int create_file(const char *name)
-{
-	int fd = open(name, O_RDWR | O_CREAT | O_TRUNC, 0666);
-	if (fd < 0)
-		return fd;
-
-	write(fd, buffer, sizeof(buffer));
-	close(fd);
-	return 0;
-}
-
-int main(int argc, char **argv)
-{
-	int i;
-	char name[256];
-
-	/* Fill up the buffer with some random garbage */
-	for (i = 0; i < sizeof(buffer); i++)
-		buffer[i] = "abcdefghijklmnopqrstuvwxyz\n"[i % 27];
-
-	if (mkdir("throwaway", 0777) < 0 || chdir("throwaway") < 0) {
-		perror("throwaway");
-		exit(1);
-	}
-
-	/*
-	 * Create a reasonably big directory by having a number
-	 * of files with non-trivial filenames, and with some
-	 * real content to fragment the directory blocks..
-	 */
-	for (i = 0; i < 1000; i++) {
-		snprintf(name, sizeof(name),
-			"file-name-%d-%d-%d-%d",
-			i / 1000,
-			(i / 100) % 10,
-			(i / 10) % 10,
-			(i / 1) % 10);
-		create_file(name);
-	}
-	return 0;
-}
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

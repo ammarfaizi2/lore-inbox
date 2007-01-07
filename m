@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932464AbXAGJz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932465AbXAGKC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbXAGJz5 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbXAGJz4
+	id S932465AbXAGKC7 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 05:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbXAGKC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:55:56 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:60680 "EHLO cacti.profiwh.com"
+	Sun, 7 Jan 2007 05:02:59 -0500
+Received: from mail.macqel.be ([194.78.208.39]:19546 "EHLO mail.macqel.be"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932464AbXAGJzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:55:55 -0500
-Message-ID: <45A0C3A7.2040506@gmail.com>
-Date: Sun, 07 Jan 2007 10:55:28 +0059
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Sascha Sommer <saschasommer@freenet.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, rmk+mmc@arm.linux.org.uk
-Subject: Re: Experimental driver for Ricoh Bay1Controller SD Card readers
-References: <200701070032.27234.saschasommer@freenet.de>
-In-Reply-To: <200701070032.27234.saschasommer@freenet.de>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	id S932465AbXAGKC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 05:02:58 -0500
+Date: Sun, 7 Jan 2007 11:02:56 +0100
+From: Philippe De Muyter <phdm@macqel.be>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RTC subsystem and fractions of seconds
+Message-ID: <20070107100256.GA24013@ingate.macqel.be>
+References: <200701051949.00662.david-b@pacbell.net> <20070106232633.GA8535@ingate.macqel.be> <200701061552.43654.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200701061552.43654.david-b@pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sascha Sommer wrote:
-> Hi,
+On Sat, Jan 06, 2007 at 03:52:43PM -0800, David Brownell wrote:
+> On Saturday 06 January 2007 3:26 pm, Philippe De Muyter wrote:
+> > On Fri, Jan 05, 2007 at 07:49:00PM -0800, David Brownell wrote:
+> > > >  	Those rtc's actually have a 1/100th of second
+> > > > register.  Should the generic rtc interface not support that?
+> > > 
+> > > Are you implying a new userspace API, or just an in-kernel update?
+> > 
+> > My only concern at the moment is initializing linux's timeofday from the rtc
+> > quickly and with a good precision. 
 > 
-> Attached is a very experimental driver for a Ricoh SD Card reader that can be 
-> found in some notebooks like the Samsung P35.
+> There will necessarily be a bit of fuzz there since it can take time to
+> get that RTC's mutex, and the task setting that time can be preempted.
+> Plus, there can also be delays at the I2C or SPI transaction level.
 > 
-> Whenever a sd card is inserted into one of these notebooks, a virtual pcmcia 
-> card will show up:
 > 
-> Socket 0:
->   product info: "RICOH", "Bay1Controller", "", ""
->   manfid: 0x0000, 0x0000
+> > The way it is done currently 
+> > in drivers/rtc/hctosys.c is 0.5 sec off.  We could obtain a much better
+> > precision by looping there until the next change (next second for old clocks,
+> > next 0.01 second for m41t81, maybe even better for other ones).
 > 
-> In order to write this driver I hacked qemu to have access to the cardbus 
-> bridge containing this card. I then logged the register accesses of the 
-> windows xp driver and tryed to analyse them.
+> Hmm ... "looping" fights against "quickly"; as would "wait for next
+> update IRQ" (on RTCs that support that).  But it would improve precision,
+> at least in the sense of having the system clock and that RTC spending
+> less time with the lowest "seconds" digit disagreeing.
 > 
-> As the meanings of most of the register are still unknown to me, I consider 
-> this driver very experimental. It is possible that this driver might destroy 
-> your data or your hardware. Use at your own risk! 
-> 
-> Other problems:
-> - I only implemented reading support
-> - I only tested with a 128 MB SD card, no idea what would be needed to support
->   other card types
-> - irqs are not supported
-> - dma is not supported
-> - it is very slow
-> - the registers can be found on the cardbus bridge and not on the virtual 
->   pcmcia card. The cardbus bridge is already claimed by yenta_socket. 
->   Therefore the driver currently uses pci_find_device to find the cardbus
+> This is something you could write a patch for, n'est-ce pas?
 
-- pci_find_device is no go today. Use pci_get_device (+ pci_dev_get, _put).
-- ioremap->pci_iomap
-- iobase should be __iomem.
-- codingstyle (char* buffer, for(loop, if(data){, ...)
+That would require changing the interface provided by the rtc class, but
+I'll look at it.
 
-regards,
+> 
+> - Dave
+> 
+> 
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

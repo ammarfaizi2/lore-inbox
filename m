@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932564AbXAGPRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932578AbXAGPRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbXAGPRm (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 10:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbXAGPRm
+	id S932578AbXAGPRr (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 10:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbXAGPRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 10:17:42 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:44694 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932564AbXAGPRl (ORCPT
+	Sun, 7 Jan 2007 10:17:47 -0500
+Received: from eazy.amigager.de ([213.239.192.238]:51160 "EHLO
+	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932578AbXAGPRq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 10:17:41 -0500
-Message-ID: <45A10F13.7050003@vmware.com>
-Date: Sun, 07 Jan 2007 07:17:39 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Sun, 7 Jan 2007 10:17:46 -0500
+Date: Sun, 7 Jan 2007 16:17:44 +0100
+From: Tino Keitel <tino.keitel@tikei.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.20-rc3 regression: suspend to RAM broken on Mac mini Core Duo
+Message-ID: <20070107151744.GA9799@dose.home.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       mm-commits@vger.kernel.org, kiran@scalex86.org, ak@suse.de,
-       md@google.com, mingo@elte.hu, pravin.shelar@calsoftinc.com,
-       shai@scalex86.org
-Subject: Re: +	spin_lock_irq-enable-interrupts-while-spinning-i386-implementation.patch
- added to -mm tree
-References: <200701032112.l03LCnVb031386@shell0.pdx.osdl.net>	 <1168122953.26086.230.camel@imap.mvista.com>	 <20070106232641.68511f15.akpm@osdl.org> <1168176285.26086.241.camel@imap.mvista.com> <45A10627.9080301@vmware.com>
-In-Reply-To: <45A10627.9080301@vmware.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden wrote:
->
->>
->> Now it fails with CONFIG_PARAVIRT off .
->>   
->
-> Now it compiles both ways.  Or at least asm-offsets.c does.  Testing 
-> full build...
->
-> Zach
+Hi folks,
 
-Yep, that lipstick makes the cat shine.
+I tried 2.6.20-rc3 and suspend to RAM is now broken. The screen stays
+dark after resume, the same with the network link. It worked with
+2.6.18 (I skipped 2.6.19 because of a regression in the sky2 driver).
 
-Zach
+I enabled pm_trace and did a echo mem > /sys/power/state in single user
+mode.
+
+After the reboot, all I got from pm_trace is this:
+
+ACPI: (supports S0 S3 S4 S5)
+  Magic number: 0:798:636
+  hash matches drivers/base/power/resume.c:46
+Freeing unused kernel memory: 228k freed
+
+This is line 46 in resume.c:
+
+	TRACE_RESUME(error);
+
+No information about the device/driver that refuses to resume.
+
+I think that this is a regression, as it worked with 2.6.18 and the
+kernel config is the same. The hardare is a Mac mini Core Duo.
+
+Regards,
+Tino

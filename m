@@ -1,52 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965013AbXAGTjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964990AbXAGTmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbXAGTjO (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 14:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbXAGTjN
+	id S964990AbXAGTmT (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 14:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbXAGTmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 14:39:13 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:43112 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964982AbXAGTjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 14:39:12 -0500
-Date: Sun, 7 Jan 2007 11:37:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Willy Tarreau <w@1wt.eu>,
-       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, webmaster@kernel.org
-Subject: Re: How git affects kernel.org performance
-In-Reply-To: <20070107112834.a8746a98.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.64.0701071136110.3661@woody.osdl.org>
-References: <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain>
- <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com>
- <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com>
- <45A083F2.5000000@zytor.com> <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>
- <20070107085526.GR24090@1wt.eu> <45A0B63E.2020803@zytor.com>
- <20070107090336.GA7741@1wt.eu> <Pine.LNX.4.61.0701071141580.4365@yvahk01.tjqt.qr>
- <20070107104943.ee2c5e6f.randy.dunlap@oracle.com>
- <Pine.LNX.4.61.0701072004290.4365@yvahk01.tjqt.qr>
- <20070107112834.a8746a98.randy.dunlap@oracle.com>
+	Sun, 7 Jan 2007 14:42:19 -0500
+Received: from outbound-mail-42.bluehost.com ([69.89.18.11]:38192 "HELO
+	outbound-mail-42.bluehost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964990AbXAGTmS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 14:42:18 -0500
+X-Length: 958
+X-Flags: 1
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Reply-To: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: linux-kernel@vger.kernel.org, Olivier Galibert <galibert@pobox.com>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Subject: [PATCH] update MMConfig patches w/915 support
+Date: Sun, 7 Jan 2007 11:42:09 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200701071142.09428.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.161.73.10 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch updates Oliver's MMConfig bridge detection patches with support
+for 915G bridges.  It seems to work ok on my 915GM laptop.
 
+I also tried adding 965 support, but it doesn't work (at least not on my
+G965 box).  When I enable MMConfig support when the register value is
+0xf00000003 (should be a 256M enabled window at 0xf0000000) the box hangs
+at boot, so I'm not sure what I'm doing wrong...
 
-On Sun, 7 Jan 2007, Randy Dunlap wrote:
-> 
-> ISTM that Linus is trying to make 2.6.20-final before LCA.  We'll see.
+The routines could probably be consolidated into a single probe_intel_9xx
+routine or something, but I really looked at that yet (though there are
+many similarities between the 91[05], 945 and 965 families, they may not
+be enough that the code would actually be simpler if shared.
 
-No. Hopefully "final -rc" before LCA, but I'll do the actual 2.6.20 
-release afterwards. I don't want to have a merge window during LCA, as I 
-and many others will all be out anyway. So it's much better to have LCA 
-happen during the end of the stabilization phase when there's hopefully 
-not a lot going on.
+Thanks,
+Jesse
 
-(Of course, often at the end of the stabilization phase there is all the 
-"ok, what about regression XyZ?" panic)
+Signed-off-by:  Jesse Barnes <jbarnes@virtuousgeek.org>
 
-		Linus
+diff -Napur -X /home/jbarnes/dontdiff linux-2.6.19-mmconfig.orig/arch/i386/pci/mmconfig-shared.c linux-2.6.19-mmconfig/arch/i386/pci/mmconfig-shared.c
+--- linux-2.6.19-mmconfig.orig/arch/i386/pci/mmconfig-shared.c	2007-01-07 10:10:29.000000000 -0800
++++ linux-2.6.19-mmconfig/arch/i386/pci/mmconfig-shared.c	2007-01-07 11:36:24.000000000 -0800
+@@ -71,6 +71,25 @@ static __init const char *pci_mmcfg_e752
+ 	return "Intel Corporation E7520 Memory Controller Hub";
+ }
+ 
++static __init const char *pci_mmcfg_intel_915(void)
++{
++	u32 pciexbar, len = 0;
++
++	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
++
++	/* No enable bit or size field, so assume 256M range is enabled. */
++	len = 0x10000000U;
++	pci_mmcfg_config_num = 1;
++
++	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]), GFP_KERNEL);
++	pci_mmcfg_config[0].base_address = pciexbar;
++	pci_mmcfg_config[0].pci_segment_group_number = 0;
++	pci_mmcfg_config[0].start_bus_number = 0;
++	pci_mmcfg_config[0].end_bus_number = (len >> 20) - 1;
++
++	return "Intel Corporation 915PM/GM/GMS Express Memory Controller Hub";
++}
++
+ static __init const char *pci_mmcfg_intel_945(void)
+ {
+ 	u32 pciexbar, mask = 0, len = 0;
+@@ -126,6 +145,7 @@ struct pci_mmcfg_hostbridge_probe {
+ 
+ static __initdata struct pci_mmcfg_hostbridge_probe pci_mmcfg_probes[] = {
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_E7520_MCH, pci_mmcfg_e7520 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82915GM_HB, pci_mmcfg_intel_915 },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82945G_HB, pci_mmcfg_intel_945 },
+ };
+ 

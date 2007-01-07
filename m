@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932359AbXAGCt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932368AbXAGCy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbXAGCt4 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbXAGCtz
+	id S932368AbXAGCy2 (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbXAGCy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:49:55 -0500
-Received: from wx-out-0506.google.com ([66.249.82.238]:37474 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932359AbXAGCtz (ORCPT
+	Sat, 6 Jan 2007 21:54:28 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:28326 "HELO
+	smtp106.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932368AbXAGCy1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:49:55 -0500
+	Sat, 6 Jan 2007 21:54:27 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iaskNPmx3+aM7J7+KXwSuoBEkYBdd/IyGIj+WMT5iH/nU9Ba1thcTjp/+5YBoDAvT92srqzTIQOuprCdzht1DhFSYxaU7ymjHjrTa3j1134K8pU3Rfb1k2SdOWdzwA6PKQl/O6DMkoo/mjXj+4o+IxeDrBWEJqX4H3LTl05Fo9E=
-Message-ID: <9a8748490701061849m2c8d42fbn457f105b2e905bff@mail.gmail.com>
-Date: Sun, 7 Jan 2007 03:49:54 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Ahmed S. Darwish" <darwish.07@gmail.com>
-Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
-Cc: "Randy Dunlap" <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20070107020010.GH19020@Ahmed>
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=fbNlOtRlvjeMHBwCrcsHlet05BYKjPqZJN16iJaQRUlSH+NI6Y061LjQJFjHrU5icJVRyo17jszpCdPaneJ66+FVBhebro8zu/0Jq6tKznvNu8ix+CPf2Jv6zsx4OVJ3Aq79xmehWB7QYajS0Dt2wGz3ebYgsbI7LzPd8amM8uU=  ;
+X-YMail-OSG: 18jt6dwVM1kpoC9I8cF2.IiB1UUSvrtDYewYy79qV0KLHVCkH0c2QUnCbkA9dm5wqKmZfUPb3POj.ZcNheWvM6QFanjn39Jj7PhbFFtPbGkP9gG2SWLpkSsari8X3RWt94IdxR1HQtHd_WRsyBNSuyM5MxL03htNY_x.xDTlltzH4YEEIS8VpZ7bojHA
+Date: Sat, 06 Jan 2007 18:54:24 -0800
+From: David Brownell <david-b@pacbell.net>
+To: hugh@veritas.com
+Subject: Re: RTC subsystem and fractions of seconds
+Cc: phdm@macqel.be, mpm@selenic.com, linux-kernel@vger.kernel.org
+References: <200701051949.00662.david-b@pacbell.net>
+ <20070106232633.GA8535@ingate.macqel.be>
+ <200701061552.43654.david-b@pacbell.net>
+ <Pine.LNX.4.64.0701070108001.1428@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0701070108001.1428@blonde.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20070106131725.GB19020@Ahmed>
-	 <20070106094630.51aa62e8.randy.dunlap@oracle.com>
-	 <20070107020010.GH19020@Ahmed>
+Message-Id: <20070107025425.0A7C21FAC07@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/01/07, Ahmed S. Darwish <darwish.07@gmail.com> wrote:
-> On Sat, Jan 06, 2007 at 09:46:30AM -0800, Randy Dunlap wrote:
+> > Hmm ... "looping" fights against "quickly"; as would "wait for next
+> > update IRQ" (on RTCs that support that).  But it would improve precision,
+> > at least in the sense of having the system clock and that RTC spending
+> > less time with the lowest "seconds" digit disagreeing.
+> > 
+> > This is something you could write a patch for, n'est-ce pas?
 >
-> > On Sat, 6 Jan 2007 15:17:25 +0200 Ahmed S. Darwish wrote:
-> >
-> > > Hi all,
-> > > I'm not able to find the DAC960 block driver maintainer. If someones knows
-> > > please reply :).
-> >
-> > It's orphaned.  Andrew can decide to merge this, or one of the
-> > storage or block maintainers could possibly do that.
-> > or it could go thru KJ, but then Andrew may still end up
-> > merging it.
->
-> Should Kernel janitors then care of cleaning orphaned files ?.
-> If so, I should forward it to Andrew Morton without CCing LKML again, right ?
->
+> If you're thinking of going that way,
 
-Sending the patch to LKML and Cc'ing Andrew and KJ would be my approach.
+Philippe seemed to be ...
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+>	it'd be courteous to CC Matt,
+> who devoted some effort to removing just that loop in 2.6.17 ;)
+
+Hmm ... "git whatchanged drivers/rtc/hctosys.c" shows no such change.
+So I can't find any record of such a change or its rationale.
+
+
+- dave
+
+

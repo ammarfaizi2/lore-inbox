@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932470AbXAGKOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932469AbXAGKUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbXAGKOv (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 05:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbXAGKOv
+	id S932469AbXAGKUl (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 05:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbXAGKUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 05:14:51 -0500
-Received: from mail.macqel.be ([194.78.208.39]:19564 "EHLO mail.macqel.be"
+	Sun, 7 Jan 2007 05:20:41 -0500
+Received: from gw.goop.org ([64.81.55.164]:41112 "EHLO mail.goop.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932470AbXAGKOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 05:14:50 -0500
-Date: Sun, 7 Jan 2007 11:14:49 +0100
-From: Philippe De Muyter <phdm@macqel.be>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: RTC subsystem and fractions of seconds
-Message-ID: <20070107101449.GA24163@ingate.macqel.be>
-References: <200701051949.00662.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200701051949.00662.david-b@pacbell.net>
-User-Agent: Mutt/1.4.1i
+	id S932469AbXAGKUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 05:20:40 -0500
+Message-ID: <45A0C977.4070800@goop.org>
+Date: Sun, 07 Jan 2007 02:20:39 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: Rene Herman <rene.herman@gmail.com>
+CC: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] romsignature/checksum cleanup
+References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain> <459310A3.4060706@vmware.com> <459ABA2F.6070907@gmail.com> <459EDDD1.6060208@goop.org> <459F1B82.6000808@gmail.com> <45A0B660.4060505@goop.org> <45A0B71F.1080704@gmail.com>
+In-Reply-To: <45A0B71F.1080704@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2007 at 07:49:00PM -0800, David Brownell wrote:
-> >  	Those rtc's actually have a 1/100th of second
-> > register.  Should the generic rtc interface not support that?
-> 
-> Are you implying a new userspace API, or just an in-kernel update?
-> 
-> Either way, that raises the question of what other features should
-> be included.  What sub-second precision?  Multiple alarms?  Ways
-> to manage output clocks?  Sub-HZ periodic alarms?
+Rene Herman wrote:
+> How is it for efficiency? I thought it was for correctness.
+> romsignature is using probe_kernel_adress() while all other accesses
+> to the ROMs there aren't.
+>
+> If nothing else, anyone reading that code is likely to ask himself the
+> very same question -- why the one, and not the others.
 
-One usefull addition for my needs and with a m41t81 is the support of
-the calibration of the rtc.  However this can perhaps be hidden in the
-.set_mmss function.
+Well, I was wondering about all the uses of __get_user; why not
+probe_kernel_address() everywhere?
 
-Philippe
+I think its reasonable to assume that if the signature is mapped and
+correct, then everything else is mapped.  That's certainly the case for
+Xen, which is why I added it.  If you think this is unclear, then I
+think a comment to explain this rather than code changes is the
+appropriate fix.
 
--- 
+    J

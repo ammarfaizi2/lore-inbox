@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964976AbXAGTbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964994AbXAGTg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbXAGTbg (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 14:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbXAGTbg
+	id S964994AbXAGTg6 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 14:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbXAGTg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 14:31:36 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:49839 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964976AbXAGTbf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 14:31:35 -0500
-Date: Sun, 7 Jan 2007 11:30:57 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] math-emu/setcc: avoid gcc extension
-Message-Id: <20070107113057.504f52c2.randy.dunlap@oracle.com>
-In-Reply-To: <79c1e7a7bfa499fc896c00a1adb0edeb@kernel.crashing.org>
-References: <20070106221947.8e01d404.randy.dunlap@oracle.com>
-	<33e707f92df6b89a1c22f337f230cf32@kernel.crashing.org>
-	<20070107104555.015aa79f.randy.dunlap@oracle.com>
-	<974f8eb0d5984af6726a130082453916@kernel.crashing.org>
-	<20070107111900.9d434162.randy.dunlap@oracle.com>
-	<79c1e7a7bfa499fc896c00a1adb0edeb@kernel.crashing.org>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 7 Jan 2007 14:36:57 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:43043 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964984AbXAGTg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 14:36:56 -0500
+Date: Sun, 7 Jan 2007 11:35:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Christoph Hellwig <hch@infradead.org>, Willy Tarreau <w@1wt.eu>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: How git affects kernel.org performance
+In-Reply-To: <9e4733910701071126r7931042eldfb73060792f4f41@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0701071132450.3661@woody.osdl.org>
+References: <1166297434.26330.34.camel@localhost.localdomain> 
+ <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> 
+ <Pine.LNX.4.64.0701062130260.3661@woody.osdl.org>  <20070107085526.GR24090@1wt.eu>
+ <45A0B63E.2020803@zytor.com>  <20070107090336.GA7741@1wt.eu>
+ <20070107102853.GB26849@infradead.org>  <Pine.LNX.4.64.0701070957080.3661@woody.osdl.org>
+  <Pine.LNX.4.64.0701071028450.3661@woody.osdl.org>
+ <9e4733910701071126r7931042eldfb73060792f4f41@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2007 20:29:21 +0100 Segher Boessenkool wrote:
 
-> >> There's an extra tab in that last line.  Could you also
-> >> please fix the indenting (use a tab, not spaces) -- I know
-> >> it was there originally, but since there are only a few
-> >> lines in that file like that...  :-)
-> >
-> > how's this one?
+
+On Sun, 7 Jan 2007, Jon Smirl wrote:
+> > 
+> >  - proper read-ahead. Right now, even if the directory is totally
+> >    contiguous on disk (just remove the thing that writes data to the
+> >    files, so that you'll have empty files instead of 8kB files), I think
+> >    we do those reads totally synchronously if the filesystem was mounted
+> >    with directory hashing enabled.
 > 
-> I meant fix all the wrongly indented lines in that file (there
-> are only a few, and all around where you're patching anyway).
-> 
-> Care for one extra time?  :-)
+> What's the status on the Adaptive Read-ahead patch from Wu Fengguang
+> <wfg@mail.ustc.edu.cn> ? That patch really helped with read ahead
+> problems I was having with mmap. It was in mm forever and I've lost
+> track of it.
 
-Not really.  That should be a different patch IMO.
+Won't help. ext3 does NO readahead at all. It doesn't use the general VFS 
+helper routines to read data (because it doesn't use the page cache), it 
+just does the raw buffer-head IO directly.
 
----
-~Randy
+(In the non-indexed case, it does do some read-ahead, and it uses the 
+generic routines for it, but because it does everything by physical 
+address, even the generic routines will decide that it's just doing random 
+reading if the directory isn't physically contiguous - and stop reading 
+ahead).
+
+(I may have missed some case where it does do read-ahead in the index 
+routines, so don't take my word as being unquestionably true. I'm _fairly_ 
+sure, but..)
+
+			Linus

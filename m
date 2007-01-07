@@ -1,95 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932513AbXAGLaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932492AbXAGLos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbXAGLaO (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 06:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbXAGLaO
+	id S932492AbXAGLos (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 06:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbXAGLos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 06:30:14 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:4232 "EHLO
-	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932513AbXAGLaN (ORCPT
+	Sun, 7 Jan 2007 06:44:48 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2194 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932492AbXAGLor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 06:30:13 -0500
-Date: Sun, 7 Jan 2007 12:30:13 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org,
-       "Mark M. Hoffman" <mhoffman@lightlink.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [-mm patch] drivers/pci/quirks.c: cleanup
-Message-Id: <20070107123013.097c1f23.khali@linux-fr.org>
-In-Reply-To: <20070105232913.GU20714@stusta.de>
-References: <20061219041315.GE6993@stusta.de>
-	<20070105095233.4ce72e7e.khali@linux-fr.org>
-	<20070105232913.GU20714@stusta.de>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+	Sun, 7 Jan 2007 06:44:47 -0500
+Date: Sun, 7 Jan 2007 11:44:39 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.20-rc4
+Message-ID: <20070107114439.GC21613@flint.arm.linux.org.uk>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On Sun, Jan 07, 2007 at 11:56:01AM +0100, Jan Engelhardt wrote:
+> On Jan 6 2007 22:19, Linus Torvalds wrote:
+> 
+> >Leonard NorrgÃ¥rd (1):
+> >      sound: hda: detect ALC883 on MSI K9A Platinum motherboards (MS-7280)
+> 
+> Something seems to have mangled the name, that should have
+> been an å not A¥. (Something reencoded it). A gitlog problem?
 
-On Sat, 6 Jan 2007 00:29:13 +0100, Adrian Bunk wrote:
-> While looking at the code, I also noted the following:
-> 
-> quirk_sis_96x_compatible() is pretty useless since all it does is to set 
-> a static variable that is only used in a printk().
-> 
-> quirk_sis_96x_compatible() was added with:
-> 
-> 
->     2003/05/13 13:48:50-07:00 mhoffman
->     [PATCH] i2c: Add SiS96x I2C/SMBus driver
->     
->     This patch adds support for the SMBus of SiS96x south
->     bridges.  It is based on i2c-sis645.c from the lm sensors
->     project, which never made it into an official kernel and
->     was anyway mis-named.
->     
->     This driver works on my SiS 645/961 board vs w83781d.
-> 
-> 
-> It's usage in
-> 
-> 
-> static void __init quirk_sis_503_smbus(struct pci_dev *dev)
-> {
->        if (sis_96x_compatible)
->                quirk_sis_96x_smbus(dev);
-> }
-> 
-> 
-> Was removed in
-> 
-> 
-> Author: torvalds <torvalds>
-> Date:   Thu Oct 30 19:03:38 2003 +0000
-> 
->     Stop SIS 96x chips from lying about themselves.
->     
->     Some machines with the SIS 96x southbridge have it set up
->     to claim it is a SIS 503 chip. That breaks irq routing logic
->     among other things. Fix it properly by making everybody aware
->     of the duplicity.
-> 
-> 
-> Was this intentional (and quirk_sis_96x_compatible() should be removed), 
-> or is this a bug that should be fixed?
+That is an å if you look at the raw message in UTF-8.  However, Linus
+sends mail in with a charset of ISO-8859-1, and if you place UTF-8
+encoded text in such a message body, you will see A¥.
 
-I noticed this too in April 2006, see:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2006-April/016016.html
+Welcome to the mess which the UTF-8 charset creates.
 
-Quoting myself back then:
-"The whole sis_96x_compatible stuff looks superfluous now. It was used
-before 2.6.0-test10, but we could certainly get rid of it now."
-
-I do not think there is a bug here, or someone would have complained by
-now. Note though that I do not have a SiS-based motherboard to test on.
-Mark may be able to help with testing.
-
-Thanks,
 -- 
-Jean Delvare
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

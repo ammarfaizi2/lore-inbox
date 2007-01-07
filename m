@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932340AbXAGCXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932345AbXAGC2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbXAGCXi (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 21:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbXAGCXi
+	id S932345AbXAGC2T (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 21:28:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbXAGC2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 21:23:38 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:47934 "EHLO scrub.xs4all.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932340AbXAGCXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 21:23:37 -0500
-From: Roman Zippel <zippel@linux-m68k.org>
-To: gclion@mail.ru
-Subject: Re: qconf handling NULL pointers
-Date: Sun, 7 Jan 2007 03:23:04 +0100
-User-Agent: KMail/1.9.5
-Cc: kernel list <linux-kernel@vger.kernel.org>
-References: <200701061444.18384.gclion@mail.ru>
-In-Reply-To: <200701061444.18384.gclion@mail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 6 Jan 2007 21:28:19 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37340 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932345AbXAGC2S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 21:28:18 -0500
+Date: Sun, 7 Jan 2007 02:38:51 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Ahmed S. Darwish" <darwish.07@gmail.com>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.20-rc3] DAC960: kmalloc->kzalloc/Casting cleanups
+Message-ID: <20070107023851.07858f50@localhost.localdomain>
+In-Reply-To: <20070107020010.GH19020@Ahmed>
+References: <20070106131725.GB19020@Ahmed>
+	<20070106094630.51aa62e8.randy.dunlap@oracle.com>
+	<20070107020010.GH19020@Ahmed>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701070323.05804.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Should Kernel janitors then care of cleaning orphaned files ?.
 
-On Saturday 06 January 2007 12:44, Cyrill V. Gorcunov wrote:
+If you have the hardware to run tests then yes, if not then they are best
+handled with caution. Working is preferred to pretty.
 
-> I found qconf have a few malloc(), strdup() without any check for NULL
-> returned code. May be it should be fixed? Am I wrong?
-
-The code isn't really supposed to deal with it, at most they could be replaced 
-with a variant that prints an error message and exits.
-
-bye, Roman
+Alan

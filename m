@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932504AbXAGLpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932518AbXAGMPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbXAGLpI (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 06:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbXAGLpI
+	id S932518AbXAGMPb (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 07:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbXAGMPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 06:45:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47800 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932504AbXAGLpG (ORCPT
+	Sun, 7 Jan 2007 07:15:31 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:19866 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932518AbXAGMPb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 06:45:06 -0500
-Subject: Re: [PATCH] Fix __ucmpdi2 in v4l2_norm_to_name()
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, v4l-dvb-maintainer@linuxtv.org
-In-Reply-To: <20070104151837.1a878a20.akpm@osdl.org>
-References: <1167909014.20853.8.camel@localhost.localdomain>
-	 <20070104144825.68fec948.akpm@osdl.org> <1167951548.12012.55.camel@praia>
-	 <20070104151837.1a878a20.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 07 Jan 2007 09:44:40 -0200
-Message-Id: <1168170280.27419.69.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 7 Jan 2007 07:15:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T+8hykxk8QTTIExoLUgcbctlBBz8TR/j97XfHfIvfU/X6Z+R3zG8TCvXHakT2XJ0h5sx4FGhg8ryKtNqcQieOzoOEa/AXJ7tyzaayCaIJfzc87NrmhLjVVMySemfaQRQAaDzvn0XUuFW8B6GpoGJuPdC52Uncz65L3rbcoLrJY4=
+Message-ID: <8355959a0701070415q1fe8ebf7l40807b02de11db0c@mail.gmail.com>
+Date: Sun, 7 Jan 2007 17:45:28 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Linux 2.6.20-rc4
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2007-01-04 às 15:18 -0800, Andrew Morton escreveu:
-> On Thu, 04 Jan 2007 20:59:08 -0200
-> Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> 
-> > > The largest value we use here is 0x02000000.  Perhaps v4l2_std_id shouldn't
-> > > be 64-bit?
-> > Too late to change it to 32 bits. It is at V4L2 userspace API since
-> > kernel 2.6.0.
-> 
-> You could perhaps make it 32-bit internally, and still 64-bit on the
-> kernel<->userspace boundary.   64-bit quantities are expensive..
-Hmm... there are some discussions currently on v4l ML about the need to
-add some standards to support some digital streams, like those used on
-webcams. Depending on the result of those discussions, we can need to
-use more bits. So, I think it is not worth right now to replace video
-std on every place it occurs.
+On 1/7/07, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> There's absolutely nothing interesting here, unless you want to play with
+> KVM, or happened to be bitten by the bug with really old versions of the
+> linker that made parts of entry.S just go away.
+>
+> But check it out anyway, and the shortlog gives more details on the
+> various minor fixes that have accumulated this week. Mostly in random
+> device drivers.
 
-I'm to just do the fix at v4l2-common.c.
-> 
-> > We can, however use this approach as a workaround, with
-> > the proper documentation. I'll handle it after I return from vacations
-> > next week.
-Ok, I've wrote such patch. I should send today or tomorrow to Linus,
-together with other patches.
-> 
-> Thanks.
-Cheers, 
-Mauro.
+Linus,
 
+I can't find 2.6.20-rc4 on the kernel.org home page. Latest shows as:-
+
+The latest prepatch for the stable Linux kernel tree is:  	2.6.20-rc3
+	2007-01-01 01:15 UTC
+
+Is there any problem here?
+
+>                 Linus
+
+~Akula2

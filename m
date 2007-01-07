@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964827AbXAGSML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751452AbXAGSQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbXAGSML (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 13:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbXAGSML
+	id S1751452AbXAGSQO (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 13:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbXAGSQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 13:12:11 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43710 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964827AbXAGSMJ (ORCPT
+	Sun, 7 Jan 2007 13:16:14 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:53039 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751452AbXAGSQN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 13:12:09 -0500
-Date: Sun, 7 Jan 2007 18:21:51 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Tilman Schmidt <tilman@imap.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: character encodings (was: Linux 2.6.20-rc4)
-Message-ID: <20070107182151.7cc544f3@localhost.localdomain>
-In-Reply-To: <20070107153833.GA21133@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org>
-	<Pine.LNX.4.61.0701071152570.4365@yvahk01.tjqt.qr>
-	<20070107114439.GC21613@flint.arm.linux.org.uk>
-	<45A0F060.9090207@imap.cc>
-	<1168182838.14763.24.camel@shinybook.infradead.org>
-	<20070107153833.GA21133@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 7 Jan 2007 13:16:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rZHK7HPruY5s/7l3DugwLAs57ywFVlBp/p910c/Os6dq/qud5z8aMMQmIvVqWjE77CbBvyFTS4t6sHDiHWqQCvVh055XJFO2EdGlqoPmG1mUO4z4AuujNW3z3yakwbc1nYJPIcTdlP450uEetSxHhD+f8r9FRpQFmF9JjdDnQks=
+Message-ID: <c70ff3ad0701071016q274a0dfdt4d2cfd05b410c3db@mail.gmail.com>
+Date: Sun, 7 Jan 2007 20:16:11 +0200
+From: "saeed bishara" <saeed.bishara@gmail.com>
+To: linux-kernel@vger.kernel.org, "Jens Axboe" <jens.axboe@oracle.com>
+Subject: Re: using splice/vmsplice to improve file receive performance
+In-Reply-To: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <c70ff3ad0612211121g3c5aaa28s9b738e9c79f9c2be@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, in short, UTF-8 is all fine and dandy if your _entire_ universe
-> is UTF-8 enabled.  If you're operating in a mixed charset environment
-> it's one bloody big pain in the butt.
+On 12/21/06, saeed bishara <saeed.bishara@gmail.com> wrote:
+> Hi,
+> I'm trying to use the splice/vmsplice system calls to improve the
+> samba server write throughput, but before touching the smbd, I started
+> to improve the ttcp tool since it simple and has the same flow. I'm
+> expecting to avoid the "copy_from_user" path when using those
+> syscalls.
+> so far, I couldn't make any improvement, actually the throughput get
+> worst. the new receive flow looks like this (code also attached):
+> 1. read tcp packet (64 pages) to page aligned buffer.
+> 2. vmsplice the buffer to pipe with SPLICE_F_MOVE.
+> 3. splice the pipe to the file, also with SPLICE_F_MOVE.
+>
+> the strace shows that the splice takes a lot of time. also when
+> profiling the kernel, I found that the memcpy() called to often !!
 
-Net ASCII is 7bit and is 1:1 mapped with UTF-8 unicode. It's just old
-broken 8bit encodings that are problematic.
+I found that when doing free to the buffer after the vmsplice and
+befaore the splice syscall, the page is really moved without any
+memcpy, this means the flow of my application should be:
+- malloc aligned buffer
+- fill the buffer with the desired data
+- vmsplice
+- free the buffer
+- call splice.
 
-The kernel maintainers/help/config pretty consistently use UTF8
+but I still don't get I improvements, and when profing the kernel I
+see _clear_user_page() too often, I guess this function called to
+clean the new buffers allocated by the user, for securty and privacy
+reasons, but the overhead of this operation is expensive.
+
+is there any way to prevent the kernel from cleaning new allocated buffers?
+saeed

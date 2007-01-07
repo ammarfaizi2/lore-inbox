@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932585AbXAGPWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932586AbXAGP3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbXAGPWb (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 10:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbXAGPWb
+	id S932586AbXAGP3X (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 10:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbXAGP3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 10:22:31 -0500
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:50751 "EHLO
-	stout.engsoc.carleton.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932579AbXAGPWa (ORCPT
+	Sun, 7 Jan 2007 10:29:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35573 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932590AbXAGP3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 10:22:30 -0500
-Date: Sun, 7 Jan 2007 10:22:13 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Kyle McMartin <kyle@parisc-linux.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [PATCH] Common compat_sys_sysinfo
-Message-ID: <20070107152213.GC3207@athena.road.mcmartin.ca>
-References: <20070107144850.GB3207@athena.road.mcmartin.ca> <20070107151319.GA23478@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107151319.GA23478@infradead.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 7 Jan 2007 10:29:21 -0500
+Subject: Re: useless asm/page.h exported to userspace for some architectures
+From: David Woodhouse <dwmw2@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20070104174227.GA7593@infradead.org>
+References: <8bd0f97a0701032300u1b1b45c7jebd3dbddfb1df27d@mail.gmail.com>
+	 <20070104174227.GA7593@infradead.org>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 23:29:40 +0800
+Message-Id: <1168183781.14763.25.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 03:13:19PM +0000, Christoph Hellwig wrote:
-> > +compat_sys_sysinfo(struct compat_sysinfo __user *info)
-> > +{
-> > +	extern int do_sysinfo(struct sysinfo *info);
+On Thu, 2007-01-04 at 17:42 +0000, Christoph Hellwig wrote:
+> On Thu, Jan 04, 2007 at 02:00:20AM -0500, Mike Frysinger wrote:
+> > most architectures (pretty much everyone but like x86/x86_64/s390)
+> > export empty asm/page.h headers ... considering how useless these are,
+> > why bother exporting them at all ?  clearly userspace is unable to
+> > rely on it across architectures, so by making it available to the two
+> > most common (x86/x86_64), applications crop up that build "fine" on
+> > them but fail just about everywhere else
 > 
-> Please always put prototypes for functions with external linkage in
-> header files.
-> 
+> It should not be exported to userspace at all.  Care to submit a patch? 
 
-Ah, crud, I stuck that there to reduce the number of patched files when I let
-Thibaut test it, but forgot to remove it from the final patch.
+I think we can kill off <asm/elf.h> too -- the only interesting parts
+are in <asm/auxvec.h>, aren't they?
 
-> > +int do_sysinfo(struct sysinfo *info)
-> >  {
-> > -	struct sysinfo val;
-> >  	unsigned long mem_total, sav_total;
-> >  	unsigned int mem_unit, bitcount;
-> >  	unsigned long seq;
-> >  
-> > -	memset((char *)&val, 0, sizeof(struct sysinfo));
-> > +	memset((char *)info, 0, sizeof(struct sysinfo));
-> 
-> No need for the cast here.
->
+-- 
+dwmw2
 
-Ok.
-
-> 
-> 
-> Btw, in case you have some spare time there are some other syscalls
-> that want similar treatment.  sendfile(64) come to mind as these
-> could use a do_sendfile helper aswell, the various stat and readdir/getdents
-> variants could do with some unification, the various timing calls
-> like alarm and get/settimeofday are common across architectures,
-> sysctl should be the same everywhere, the uid/git related syscalls
-> should be consolidated, sched_rr_get_interval looks trivial,
-> and last but not least we probably want a unified mechanisms to deal
-> with the 64bit arguments that are broken up into two 32bit ones (not just
-> for emulation but also for 32it BE architectures)
-> 
-
-I can definitely look into this.
-
-> Okay, okay - we should probably put this into a Wiki somewhere :)
-> 
-
-Heh. :)
-
-Cheers,
-	Kyle

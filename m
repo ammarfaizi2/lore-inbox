@@ -1,108 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932382AbXAGEC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932385AbXAGELM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbXAGEC1 (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 23:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbXAGEC1
+	id S932385AbXAGELM (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 23:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbXAGELL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 23:02:27 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:48811 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932382AbXAGEC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 23:02:26 -0500
-Date: Sat, 6 Jan 2007 20:00:45 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>, akpm <akpm@osdl.org>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Discuss a couple common errors in kernel-doc usage.
-Message-Id: <20070106200045.43683769.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0701051000560.3949@localhost.localdomain>
-References: <Pine.LNX.4.64.0701051000560.3949@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed 2.3.0 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 6 Jan 2007 23:11:11 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:46882 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932385AbXAGELL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 23:11:11 -0500
+Message-ID: <45A072C5.1080400@garzik.org>
+Date: Sat, 06 Jan 2007 23:10:45 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061219)
+MIME-Version: 1.0
+To: nigel@nigel.suspend2.net
+CC: "H. Peter Anvin" <hpa@zytor.com>, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+References: <20061214223718.GA3816@elf.ucw.cz>	 <20061216094421.416a271e.randy.dunlap@oracle.com>	 <20061216095702.3e6f1d1f.akpm@osdl.org>  <458434B0.4090506@oracle.com>	 <1166297434.26330.34.camel@localhost.localdomain>	 <1166304080.13548.8.camel@nigel.suspend2.net>  <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net>
+In-Reply-To: <1168140954.2153.1.camel@nigel.suspend2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2007 10:03:53 -0500 (EST) Robert P. J. Day wrote:
+Nigel Cunningham wrote:
+> Hi.
+> 
+> On Tue, 2006-12-26 at 08:49 -0800, H. Peter Anvin wrote:
+>> Nigel Cunningham wrote:
+>>> Hi.
+>>>
+>>> I've have git trees against a few versions besides Linus', and have just
+>>> moved all but Linus' to staging to help until you can get your new
+>>> hardware. If others were encouraged to do the same, it might help a lot?
+>>>
+>> Not really.  In fact, it would hardly help at all.
+>>
+>> The two things git users can do to help is:
+>>
+>> 1. Make sure your alternatives file is set up correctly;
+>> 2. Keep your trees packed and pruned, to keep the file count down.
+>>
+>> If you do this, the load imposed by a single git tree is fairly negible.
+> 
+> Sorry for the slow reply, and the ignorance... what's an alternatives
+> file? I've never heard of them before.
 
-> 
->   Explain a couple of the most common errors in kernel-doc usage.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+It's highly useful but poorly documented method of referencing 
+repository B's objects from repository A.
 
-Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+When you clone locally
 
-It seems that you have been looking at my kdoc todo list....
+	git clone --reference linus-2.6 linus-2.6 nigel-2.6
+
+it will create nigel-2.6 with zero objects, and an alternatives file 
+pointing to 'linus-2.6' local repository.  When you commit, only the 
+objects not already in linus-2.6 will be found in nigel-2.6.
+
+It's far better "git clone -l ..." because you don't even have the 
+additional hardlinked inodes, and don't have to run "git relink" locally.
+
+	Jeff
 
 
-> ---
-> 
->   seems useful to emphasize these issues since they occur occasionally
-> in the source.
-> 
-> diff --git a/Documentation/kernel-doc-nano-HOWTO.txt b/Documentation/kernel-doc-nano-HOWTO.txt
-> index 284e7e1..ba50129 100644
-> --- a/Documentation/kernel-doc-nano-HOWTO.txt
-> +++ b/Documentation/kernel-doc-nano-HOWTO.txt
-> @@ -107,10 +107,14 @@ The format of the block comment is like this:
->   * (section header: (section description)? )*
->  (*)?*/
-> 
-> -The short function description cannot be multiline, but the other
-> -descriptions can be (and they can contain blank lines). Avoid putting a
-> -spurious blank line after the function name, or else the description will
-> -be repeated!
-> +The short function description ***cannot be multiline***, but the other
-> +descriptions can be (and they can contain blank lines).  If you continue
-> +that initial short description onto a second line, that second line will
-> +appear further down at the beginning of the description section, which is
-> +almost certainly not what you had in mind.
-> +
-> +Avoid putting a spurious blank line after the function name, or else the
-> +description will be repeated!
-> 
->  All descriptive text is further processed, scanning for the following special
->  patterns, which are highlighted appropriately.
-> @@ -121,6 +125,31 @@ patterns, which are highlighted appropriately.
->  '@parameter' - name of a parameter
->  '%CONST' - name of a constant.
-> 
-> +NOTE 1:  The multi-line descriptive text you provide does *not* recognize
-> +line breaks, so if you try to format some text nicely, as in:
-> +
-> +  Return codes
-> +    0 - cool
-> +    1 - invalid arg
-> +    2 - out of memory
-> +
-> +this will all run together and produce:
-> +
-> +  Return codes 0 - cool 1 - invalid arg 2 - out of memory
-> +
-> +NOTE 2:  If the descriptive text you provide has lines that begin with
-> +some phrase followed by a colon, each of those phrases will be taken as
-> +a new section heading, which means you should similarly try to avoid text
-> +like:
-> +
-> +  Return codes:
-> +    0: cool
-> +    1: invalid arg
-> +    2: out of memory
-> +
-> +every line of which would start a new section.  Again, probably not
-> +what you were after.
-> +
->  Take a look around the source tree for examples.
-> 
-> 
-> -
 
----
-~Randy

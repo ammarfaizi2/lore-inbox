@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932544AbXAGOHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932545AbXAGOTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbXAGOHz (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 09:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbXAGOHz
+	id S932545AbXAGOTI (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 09:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbXAGOTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 09:07:55 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:59185 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932544AbXAGOHy (ORCPT
+	Sun, 7 Jan 2007 09:19:08 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:6652 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932545AbXAGOTH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 09:07:54 -0500
-Message-ID: <45A0FEB9.50906@vmware.com>
-Date: Sun, 07 Jan 2007 06:07:53 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+	Sun, 7 Jan 2007 09:19:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PuBKgaBTyc3CEQX3zQvN/WOE5juJWEJukAfbhxpRGH1NfKafkTPewZftkTJr+Ty90XuTmA6ziIY6F0eEBtE+Ylkxzag3T2Nc3AcSUQkjCVUxzETagv9tPl7kG5HWIZd9R3sX+iQ+fj4h9gsPZb7qO964G7ReENOUxftelbkkMQc=
+Message-ID: <8355959a0701070619w19dd79a5r5ccfdd1121e6a52b@mail.gmail.com>
+Date: Sun, 7 Jan 2007 19:49:05 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: "Willy Tarreau" <w@1wt.eu>
+Subject: Re: Multi kernel tree support on the same distro?
+Cc: "Steve Brueggeman" <xioborg@mchsi.com>,
+       "Auke Kok" <sofar@foo-projects.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20070107132054.GA435@1wt.eu>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@xensource.com>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch] paravirt: isolate module ops
-References: <20070106000715.GA6688@elte.hu> <459EEDEB.8090800@vmware.com>	 <1168064710.20372.28.camel@localhost.localdomain>	 <20070106070807.GA11232@elte.hu>	 <1168105353.20372.39.camel@localhost.localdomain>	 <45A00CB0.2020509@vmware.com> <1168132196.20372.45.camel@localhost.localdomain>
-In-Reply-To: <1168132196.20372.45.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
+	 <459D9872.8090603@foo-projects.org>
+	 <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com>
+	 <20070107093057.GS24090@1wt.eu>
+	 <8355959a0701070511v55c671dibc3bb7d4426129e0@mail.gmail.com>
+	 <20070107132054.GA435@1wt.eu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> On Sat, 2007-01-06 at 12:55 -0800, Zachary Amsden wrote:
->   
->> Rusty Russell wrote:
->>     
->>> +int paravirt_write_msr(unsigned int msr, u64 val);
->>>       
->> If binary modules using debug registers makes us nervous, the 
->> reprogramming MSRs is also similarly bad.
->>     
+> > On 1/7/07, Willy Tarreau <w@1wt.eu> wrote:
+> I don't see which libs you are talking about. The compiler you build your
+> kernel with is totally independant on the compiler you build your apps with.
+> A few years ago, some distros even shipped a compiler just for the kernel
+> (they called the binary "kgcc").
 >
-> Yes, but this is simply from experience.  Several modules wrote msrs
-> (you can take out the EXPORT_SYMBOL and find them quite quickly).
->   
+> So you just have to build 2 different GCC, one for 2.4, one for 2.6 and
+> you use them to build your kernels. If you want yet another compiler for
+> your apps, simply do it, it's not a problem. For instance, look on my
+> system when I type gcc- <Tab> :
 
-Several in tree, GPL'd modules did so.  I'm not aware of out of tree 
-modules that do that, and if they do, they are misbehaving.  
-Reprogramming MTRR memory regions under the kernel's nose is not a 
-proper way to behave, and this is the most benign use I can think of for 
-write access to MSRs.  If this really breaks any code out there, then 
-there should be a proper, controlled API to do this so the kernel can 
-manage it.
+Sorry for the typo & confusion caused. I meant in that example as:-
 
->>> +void raw_safe_halt(void);
->>> +void halt(void);
->>>       
->> These shouldn't be done by modules, ever.  Only the scheduler should 
->> decide to halt.
->>     
+myArmWireless app. compiled with gcc-3.4.x, NOT gcc-4.1.x compiler on
+say 2.4.34 kernel (assuming I can build 4.1.x on 2.4.34 kernel).
+
+Now, I've got it about this app funda. Ok! Am coming closer now. I
+have these 2 tasks:-
+
+a) Since 2.6 kernel has no issues with gcc-3.4.x, gcc-4.1.x. So I will
+build them. No probs here.
+
+b) 2.4 kernel has no issues with gcc-3.4.x to my understanding, but am
+not sure about compiling it with gcc-4.1.x? If this is true, how to
+build this?
+
+Whole idea is to have 2 compilers (gcc-3.4.x, gcc-4.1.x) on the both
+the kernels.
+
+
+> > Hope you guys consider these (my) questions as Novice, because am
+> > trying to figure a design @ How-To build such multi kernel/gcc
+> > systems.
 >
-> Several modules implement alternate halt loops.  I guess being in a
-> module for specific CPUs makes sense...
->   
+> Well, I hope it will help you
+> Willy
 
-Yes, but halting is a behavior that can easily introduce critical, grind 
-to a halt problems because of race conditions.  I have no problems 
-having modules implement alternative halt loops.  I think there is a 
-serious debuggability issue with binary modules invoking halt directly.
-
-Zach
+Thanks,
+~Akula2

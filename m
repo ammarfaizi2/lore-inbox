@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932383AbXAGE1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932387AbXAGEaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbXAGE1X (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 6 Jan 2007 23:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbXAGE1X
+	id S932387AbXAGEaT (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 6 Jan 2007 23:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbXAGEaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Jan 2007 23:27:23 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:51202 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932383AbXAGE1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Jan 2007 23:27:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=R3CP/qm2pywgNfWAhiCxnOgQwPsSw4BoHM0NPtxKGG2mwDPmvUqCqIJcdC+RAxWejzjhr7LjUXdeYPjVDGvXwAcZVm/uWYwlFYCJg4KDMCjS5k3GXj/hMrJrxM5ZWH/2Wl4na0XPv9fA49P7lxqhPMKCuKxDVEFI5kN88dX/QV8=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: kernel + gcc 4.1 = several problems
-Date: Sun, 7 Jan 2007 05:25:45 +0100
-User-Agent: KMail/1.8.2
-Cc: Albert Cahalan <acahalan@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, bunk@stusta.de,
-       mikpe@it.uu.se
-References: <787b0d920701032311l2c37c248s3a97daf111fe88f3@mail.gmail.com> <787b0d920701040904i553e521fsb290acf5059f0b62@mail.gmail.com> <Pine.LNX.4.64.0701040921010.3661@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701040921010.3661@woody.osdl.org>
+	Sat, 6 Jan 2007 23:30:19 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:58673 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932387AbXAGEaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Jan 2007 23:30:17 -0500
+Date: Sat, 6 Jan 2007 20:29:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: nigel@nigel.suspend2.net, "H. Peter Anvin" <hpa@zytor.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       "J.H." <warthog9@kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org, Git Mailing List <git@vger.kernel.org>
+Subject: Re: [KORG] Re: kernel.org lies about latest -mm kernel
+In-Reply-To: <45A07587.3080503@garzik.org>
+Message-ID: <Pine.LNX.4.64.0701062029170.3661@woody.osdl.org>
+References: <20061214223718.GA3816@elf.ucw.cz>  <20061216094421.416a271e.randy.dunlap@oracle.com>
+  <20061216095702.3e6f1d1f.akpm@osdl.org>  <458434B0.4090506@oracle.com> 
+ <1166297434.26330.34.camel@localhost.localdomain>  <1166304080.13548.8.camel@nigel.suspend2.net>
+  <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net>
+ <45A07587.3080503@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200701070525.45974.vda.linux@googlemail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 January 2007 18:37, Linus Torvalds wrote:
-> With 7+ million lines of C code and headers, I'm not interested in 
-> compilers that read the letter of the law. We don't want some really 
-> clever code generation that gets us .5% on some unrealistic load. We want 
-> good _solid_ code generation that does the obvious thing.
+
+
+On Sat, 6 Jan 2007, Jeff Garzik wrote:
 > 
-> Compiler writers seem to seldom even realize this. A lot of commercial 
-> code gets shipped with basically no optimizations at all (or with specific 
-> optimizations turned off), because people want to ship what they debug and 
-> work with.
+> Also, I wonder if "git push" will push only the non-linux-2.6.git objects, if
+> both local and remote sides have the proper alternatives set up?
 
-I'd say "care about obvious, safe optimizations which we still not do".
-I want this:
+Yes.
 
-char v[4];
-...
-	memcmp(v, "abcd", 4) == 0
-
-compile to single cmpl on i386. This (gcc 4.1.1) is ridiculous:
-
-.LC0:
-        .string "abcd"
-        .text
-...
-        pushl   $4
-        pushl   $.LC0
-        pushl   $v
-        call    memcmp
-        addl    $12, %esp
-        testl   %eax, %eax
-
-There are tons of examples where you can improve code generation.
---
-vda
+		Linus

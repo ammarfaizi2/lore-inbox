@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965245AbXAGXOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965241AbXAGXWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965245AbXAGXOQ (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 18:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbXAGXOQ
+	id S965241AbXAGXWS (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 18:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbXAGXWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 18:14:16 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53604 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S965245AbXAGXOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 18:14:16 -0500
-Date: Mon, 8 Jan 2007 10:14:02 +1100
-From: David Chinner <dgc@sgi.com>
-To: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>
-Cc: David Chinner <dgc@sgi.com>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: xfslogd-spinlock bug?
-Message-ID: <20070107231402.GU44411608@melbourne.sgi.com>
-References: <000d01c72127$3d7509b0$0400a8c0@dcccs> <20061217224457.GN33919298@melbourne.sgi.com> <026501c72237$0464f7a0$0400a8c0@dcccs> <20061218062444.GH44411608@melbourne.sgi.com> <027b01c7227d$0e26d1f0$0400a8c0@dcccs> <20061218223637.GP44411608@melbourne.sgi.com> <001a01c722fd$df5ca710$0400a8c0@dcccs> <20061219025229.GT33919298@melbourne.sgi.com> <20061219044700.GW33919298@melbourne.sgi.com> <041601c729b6$f81e4af0$0400a8c0@dcccs>
+	Sun, 7 Jan 2007 18:22:18 -0500
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:56206 "EHLO
+	mail7.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965241AbXAGXWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 18:22:17 -0500
+Subject: Re: [PATCH] include/linux/slab.h: new KFREE() macro.
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <108973.65122.qm@web55613.mail.re4.yahoo.com>
+References: <108973.65122.qm@web55613.mail.re4.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 07 Jan 2007 15:22:13 -0800
+Message-Id: <1168212133.2744.17.camel@dsl081-166-245.sea1.dsl.speakeasy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <041601c729b6$f81e4af0$0400a8c0@dcccs>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2006 at 01:58:06PM +0100, Haar János wrote:
-> Hello,
-> 
-> ----- Original Message ----- 
-> From: "David Chinner" <dgc@sgi.com>
-> To: "David Chinner" <dgc@sgi.com>
-> Cc: "Haar János" <djani22@netcenter.hu>; <linux-xfs@oss.sgi.com>;
-> <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, December 19, 2006 5:47 AM
-> Subject: Re: xfslogd-spinlock bug?
-> 
-> 
-> > On Tue, Dec 19, 2006 at 01:52:29PM +1100, David Chinner wrote:
-> >
-> > The filesystem was being shutdown so xfs_inode_item_destroy() just
-> > frees the inode log item without removing it from the AIL. I'll fix that,
-> > and see if i have any luck....
-> >
-> > So I'd still try that patch i sent in the previous email...
-> 
-> I still using the patch, but didnt shows any messages at this point.
-> 
-> I'v got 3 crash/reboot, but 2 causes nbd disconneted, and this one:
-> 
-> Dec 27 13:41:29 dy-base BUG: warning at
-> kernel/mutex.c:220/__mutex_unlock_common_slowpath()
-> Dec 27 13:41:29 dy-base Unable to handle kernel paging request at
-> 0000000066604480 RIP:
-> Dec 27 13:41:29 dy-base  [<ffffffff80222c64>] resched_task+0x12/0x64
-> Dec 27 13:41:29 dy-base PGD 115246067 PUD 0
-> Dec 27 13:41:29 dy-base Oops: 0000 [1] SMP
-> Dec 27 13:41:29 dy-base CPU 1
-> Dec 27 13:41:29 dy-base Modules linked in: nbd rd netconsole e1000 video
-> Dec 27 13:41:29 dy-base Pid: 4069, comm: httpd Not tainted 2.6.19 #3
-> Dec 27 13:41:29 dy-base RIP: 0010:[<ffffffff80222c64>]  [<ffffffff80222c64>]
-> resched_task+0x12/0x64
-> Dec 27 13:41:29 dy-base RSP: 0018:ffff810105c01b78  EFLAGS: 00010083
-> Dec 27 13:41:29 dy-base RAX: ffffffff807d5800 RBX: 00001749fd97c214 RCX:
+On Sun, 2007-01-07 at 14:43 -0800, Amit Choudhary wrote:
+> Any strong reason why not? x has some value that does not make sense and can create only problems.
+> And as I explained, it can result in longer code too. So, why keep this value around. Why not
+> re-initialize it to NULL.
 
-Different corruption in RBX here. Looks like semi-random garbage there.
-I wonder - what's the mac and ip address(es) of your machine and nbd
-servers?
+Because it looks really STRANGE(tm). Consider the following function,
+which is essentially what you're proposing in macro-ized form:
+	void foobar(void)
+	{
+		void *ptr;
 
-(i.e. I suspect this is a nbd problem, not an XFS problem)
+		ptr = kmalloc(...);
+		// actual work here
+		kfree(ptr);
+		ptr = NULL;
+	}
+Reading code like that makes me say "wtf?", simply because 'ptr' is not
+used thereafter, so setting it to NULL is both pointless and confusing
+(it looks out-of-place, and therefore makes me wonder if there's
+something stupidly tricky going on).
 
-Cheers,
+Also, arguably, your demonstration of why the lack of the proposed
+KFREE() macro results in longer code is invalid. Whereas you wrote:
+	pointer *arr_x[size_x];
+	pointer *arr_y[size_y];
+	pointer *arr_z[size_z];
+That really should have been:
+	pointer *arr[size_x + size_y + size_z];
+or:
+	pointer **arr[3] = { arr_x, arr_y, arr_z };
+In which case, the you only need one path in the function to handle
+allocation failures, rather than the three that you were arguing for.
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+> If x should not be re-initialized to NULL, then by the same logic, we should not even initialize
+> local variables. And all of us know that local variables should be initialized.
+
+That's some strange and confused logic then. Here's my stab at the same
+logical premise: "Using uninitialized values is bad." Notice how that,
+in and of itself, makes no statements regarding freed pointers, since
+the intent is not to use them after they've been freed anyway.
+
+-- Vadim Lobanov
+
+

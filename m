@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932442AbXAGJC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932439AbXAGJEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbXAGJC4 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbXAGJC4
+	id S932439AbXAGJEH (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbXAGJEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:02:56 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3149 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932439AbXAGJCy (ORCPT
+	Sun, 7 Jan 2007 04:04:06 -0500
+Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:51235 "EHLO
+	smtpq3.tilbu1.nb.home.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932439AbXAGJED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:02:54 -0500
-Date: Sun, 7 Jan 2007 09:02:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Brownell <david-b@pacbell.net>
-Cc: Woody Suwalski <woodys@xandros.com>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>,
-       rtc-linux@googlegroups.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 2.6.20-rc3 1/3] rtc-cmos driver
-Message-ID: <20070107090235.GA21613@flint.arm.linux.org.uk>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	Woody Suwalski <woodys@xandros.com>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200701051001.58472.david-b@pacbell.net> <200701051933.26368.david-b@pacbell.net> <459FD993.3070909@xandros.com> <200701061317.25567.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200701061317.25567.david-b@pacbell.net>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 7 Jan 2007 04:04:03 -0500
+Message-ID: <45A0B71F.1080704@gmail.com>
+Date: Sun, 07 Jan 2007 10:02:23 +0100
+From: Rene Herman <rene.herman@gmail.com>
+User-Agent: Thunderbird 1.5.0.9 (X11/20061206)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] romsignature/checksum cleanup
+References: <458EEDF7.4000200@gmail.com>  <458F20FB.7040900@gmail.com> <1167179512.16175.4.camel@localhost.localdomain> <459310A3.4060706@vmware.com> <459ABA2F.6070907@gmail.com> <459EDDD1.6060208@goop.org> <459F1B82.6000808@gmail.com> <45A0B660.4060505@goop.org>
+In-Reply-To: <45A0B660.4060505@goop.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2007 at 01:17:25PM -0800, David Brownell wrote:
-> On Saturday 06 January 2007 9:17 am, Woody Suwalski wrote:
-> > >> There are PPC, M68K, SPARC, and other boards that could also
-> > >> use this; ARMs tend to integrate some other RTC on-chip.  ...
-> > 
-> > > Let me put that differently.  That should be done as a separate
-> > > patch, adding (a) that platform_device, and maybe platform_data
-> > > if it's got additional alarm registers, and (b) Kconfig support
-> > > to let that work.  I'd call it a "patch #4 of 3".  ;)
-> > > ...
-> > 
-> > I will try to play with the new code on Monday on ARM...
+On 01/07/2007 09:59 AM, Jeremy Fitzhardinge wrote:
+
+> Rene Herman wrote:
+
+>> In your opinion, is the attached (versus 2.6.20-rc3) better? This
+>> uses probe_kernel_address() for all accesses. Or rather, an
+>> expanded version thereof. The set_fs() and
+>> pagefault_{disable,enable} calls are only done once in
+>> probe_roms().
 > 
-> Thanks.  Could you describe your ARM board?  None of mine have an
-> RTC using this register API.  Does it support system sleep states
-> (/sys/power/state) with a wakeup-capable (enable_irq_wake) RTC irq? 
+> I don't think this is worthwhile.  Its hardly a performance-critical 
+> piece of code, and I think its better to use the straightforward 
+> interface rather than complicating it for some nominal extra
+> efficiency.
 
-Woody will be using a Netwinder (he's part of the original development
-team.)  So no sleep states and therefore no wakeup.
+How is it for efficiency? I thought it was for correctness. romsignature 
+is using probe_kernel_adress() while all other accesses to the ROMs 
+there aren't.
 
-There's various other ARM-based systems using the PC RTC, but none of
-them have sleep or wakeup abilities afaik.
+If nothing else, anyone reading that code is likely to ask himself the 
+very same question -- why the one, and not the others.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Rene.
+

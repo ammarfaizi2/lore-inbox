@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932125AbXAHImo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932130AbXAHIop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbXAHImo (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 03:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbXAHImo
+	id S932130AbXAHIop (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 03:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbXAHIop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 03:42:44 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40361 "EHLO mx2.mail.elte.hu"
+	Mon, 8 Jan 2007 03:44:45 -0500
+Received: from av2.karneval.cz ([81.27.192.122]:15903 "EHLO av2.karneval.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932125AbXAHImn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 03:42:43 -0500
-Date: Mon, 8 Jan 2007 09:39:35 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] KVM paravirtualization for Linux
-Message-ID: <20070108083935.GB18259@elte.hu>
-References: <20070105215223.GA5361@elte.hu> <45A0E586.50806@qumranet.com> <20070107174416.GA14607@elte.hu> <45A1FF4E.1020106@qumranet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S932130AbXAHIoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 03:44:44 -0500
+X-Greylist: delayed 6210 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jan 2007 03:44:44 EST
+From: Pavel Pisa <ppisa@pikron.com>
+Organization: PiKRON Ltd.
+To: Philip Langdale <philipl@overt.org>
+Subject: Re: [PATCH 2.6.19] mmc: Fix handling of response types in imxmmc and tifm drivers
+Date: Sun, 7 Jan 2007 18:34:22 +0100
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+       Alex Dubov <oakad@yahoo.com>, Sascha Hauer <s.hauer@pengutronix.de>
+References: <459D178F.8000607@overt.org>
+In-Reply-To: <459D178F.8000607@overt.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45A1FF4E.1020106@qumranet.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Message-Id: <200701071834.22893.ppisa@pikron.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Philip,
 
-* Avi Kivity <avi@qumranet.com> wrote:
+On Thursday 04 January 2007 16:04, Philip Langdale wrote:
+> This change depends on my SDHC patch and fixes a bug that was revealed
+> during the development of that patch. The R6 response type should be
+> identical to R1 (and R7) but was incorrectly defined differently. Fixing
+> the R6 definition breaks assumptions in these two drivers that response
+> type flags are unique. Pierre and Alex both believe that treating R6 and R7
+> as R1 will be sufficient. ie: The controllers do not care about the
+> differences between them. Due to lack of hardware, I have done no testing.
 
-> > the cache is zapped upon pagefaults anyway, so unpinning ought to be 
-> > possible. Which one would you prefer?
-> 
-> It's zapped by the equivalent of mmu_free_roots(), right?  That's 
-> effectively unpinning it (by zeroing ->root_count).
+I have tested your patch.
+Kernel builds. I have not found much time for testing.
+But I would not like to block changes and I am going
+for next week to project meeting in Spain, so there is
+my reply.
 
-no, right now only the guest-visible cache is zapped - the roots are 
-zapped by natural rotation. I guess they should be zapped in 
-kvm_cr3_cache_clear() - but i wanted to keep that function an invariant 
-to the other MMU state, to make it easier to call it from whatever mmu 
-codepath.
+I have 2.6.19 + realtime-patches rt14 on the hand.
+I have been able to mount and use some cards, but it
+I have observed some problems probably related to timing
+when I have tried to change CPU frequency.
 
-> However, kvm takes pagefaults even for silly things like setting (in 
-> hardware) or clearing (in software) the dirty bit.
+I need to find time to do more checking on vanilla and RT kernels
+when I return. I have some ideas what could be enhanced to ensure
+better MX1 SDHC cards recognition under RT kernels. I am not sure,
+what causes other seen problems, but I have observed these things
+on RT even without your patch.
 
-yeah. I think it also does some TLB flushes that are not needed. For 
-example in rmap_write_protect() we do this:
+Conclusion: I knowledge your patch and admit, that I need to
+find time for my homeworks.
 
-                rmap_remove(vcpu, spte);
-                kvm_arch_ops->tlb_flush(vcpu);
+Best wishes
 
-but AFAICS rmap_write_protect() is only ever called if we write a new 
-cr3 - hence a TLB flush will happen anyway, because we do a 
-vmcs_writel(GUEST_CR3, new_cr3). Am i missing something? I didnt want to 
-remove it as part of the cr3 patches (to keep things simpler), but that 
-flush looks quite unnecessary to me. The patch below seems to work in 
-light testing.
+               Pavel Pisa
 
-	Ingo
 
-Index: linux/drivers/kvm/mmu.c
-===================================================================
---- linux.orig/drivers/kvm/mmu.c
-+++ linux/drivers/kvm/mmu.c
-@@ -404,7 +404,11 @@ static void rmap_write_protect(struct kv
- 		BUG_ON(!(*spte & PT_WRITABLE_MASK));
- 		rmap_printk("rmap_write_protect: spte %p %llx\n", spte, *spte);
- 		rmap_remove(vcpu, spte);
--		kvm_arch_ops->tlb_flush(vcpu);
-+		/*
-+		 * While we removed a mapping there's no need to explicitly
-+		 * flush the TLB here, because this codepath only triggers
-+		 * if we write a new cr3 - which will flush the TLB anyway.
-+		 */
- 		*spte &= ~(u64)PT_WRITABLE_MASK;
- 	}
- }

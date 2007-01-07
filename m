@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932446AbXAGJHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932447AbXAGJNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbXAGJHn (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 04:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbXAGJHn
+	id S932447AbXAGJNv (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 04:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbXAGJNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 04:07:43 -0500
-Received: from web55614.mail.re4.yahoo.com ([206.190.58.238]:45690 "HELO
-	web55614.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S932446AbXAGJHm (ORCPT
+	Sun, 7 Jan 2007 04:13:51 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:39789 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932447AbXAGJNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 04:07:42 -0500
+	Sun, 7 Jan 2007 04:13:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=a3/XIIlTHGaxIeOMbGpULn+s80Zb5TOXFbZXRc2iLN6qqu0CvdRegNTRWKP2Z1aeomLHxrnNTzjPDMeSw6EJEfw/E+Nba6MaLLHEq6FZCwJkTCdSbnlUzwS06+I8e+0SzswZRMThmO2uaevteueluP0CPVO3FJ5JYrBgwoIWQZY=;
-X-YMail-OSG: OcCXcHwVM1kgpEwq9ByGGFeM6TMiVsapsexBsm6S5QGvqe6exScY6m8Nrp8AzcTNSZC7FdAqJ7wrbKk33GPMpKPGuQBNBVxma4LcANk9A3tuiLC50FY_j9TuYKz82xgWBrxkgUQOKKRFucYqDE1Frz.I
-Date: Sun, 7 Jan 2007 01:07:41 -0800 (PST)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: [DISCUSS] Making system calls more portable.
-To: Rene Herman <rene.herman@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <45A0AE5C.6010801@gmail.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DUBwJO6w6Jj8TATSQF5PpyxI8MF1DJYYsHicHj9FI5MXxohGgRRmGHY+RHo/Pm4i0JYoyhEZW0Z/r5si9Ffp/LpJcy4fpeuOUqPGUln5HKAIUVQ8HnAj83WlbI22IbVp2VPo5lS8PJ0Gfg6One80SGKsfI38DZjMvNonVt600Pc=
+Message-ID: <8355959a0701070113k659a3e57wedf52b9f18e0ac6a@mail.gmail.com>
+Date: Sun, 7 Jan 2007 14:43:48 +0530
+From: Akula2 <akula2.shark@gmail.com>
+To: "Auke Kok" <sofar@foo-projects.org>
+Subject: Re: Multi kernel tree support on the same distro?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <459E77D9.8080209@foo-projects.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <647618.57006.qm@web55614.mail.re4.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8355959a0701041146v40da5d86q55aaa8e5f72ef3c6@mail.gmail.com>
+	 <459D9872.8090603@foo-projects.org>
+	 <tekrp2tqo78uh6g2pjmrhe0vpup8aalpmg@4ax.com>
+	 <459DFE9F.9050904@foo-projects.org>
+	 <8355959a0701050402g673f446em1c263dea826f3bcb@mail.gmail.com>
+	 <459E77D9.8080209@foo-projects.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Rene Herman <rene.herman@gmail.com> wrote:
+On 1/5/07, Auke Kok <sofar@foo-projects.org> wrote:
+> keeping 2 gcc's around usually is just a pain, but might also work.
 >
->If we're limited to Linux kernels, this seems to not be the case. Great care is taken in keeping
->this userspace ABI stable -- new system calls are given new numbers. Old system calls may
->disappear (after a long grace period) but even then I don't believe the number is ever recycled.
+> gcc-4.1.1 might give some problems with some packages and just work fine otherwise too,
+> but 3.4.6 has just been known to work all around more.
+
+I am planning in this fashion:-
+
+gcc-3.4.x (latest in that tree) to build 2.4.34 kernel
+gcc-4.1.x (latest in that tree) to build 2.6.20 kernel (once released)
+
+And, all the required utils for these kernels.
+
+There is no other option for me (this is fairly I can call as an
+Experimental work, but this effort would add a lots for my work in the
+Labs).
+
+> well, my own of course ;)
+ > http://lunar-linux.org/
+
+This am not so sure (totally new for me), but I shall really try
+Lunar...thanks :-)
+
+This time am looking to work with the OpenSuSE10.2 to create my kind
+of environment. But, am not sure if there are any big issues. Else, I
+may stick to FC6.
+
+Only bottleneck would be the wrapping the utils as you have mentioned earlier.
+
+> but perhaps that's too much work for you, lunar definately is rather spartan for most
+> people, and maybe not what you prefer. OTOH it does give you almost all the freedom that
+> LFS gives you, and often very stable.
+
+Very true, but I shall have a look at that, thanks again.
+
+> that's all you'd need to get started. I suggest shopping distros a bit. Even debian
+> might already work a lot better. but the major distros like RH, SuSE are just not
+> focussed on multi-booting 2.4/2.6 side-by-side anymore.
+
+I have good exposure with Debain, especially with my Embedded domain
+(ARM Linux). But, somehow I felt like am more comfortable with Fedora
+or SuSE to do many other things (hmm, here I lack much of the Embedded
+support compared to Debian).
+
+This is my actual initiative; have to crack this problem.
+
+Lastly, one question I didn't understand:-
+
+Someone said in the reply to this thread that we shouldn't have 2
+kernels on the same distro? I didn't understand here clearly *Why
+Not*?
+
+> Cheers,
 >
-> If your discussion is not limited to Linux kernels, then sure, but being 
-> portable at that (sub-libc) level is asking too much.
-> 
+> Auke
 
-I will come to the main issue later but I just wanted to point out that we maintain information at
-two separate places - mapping between the name and the number in user space and kernel space.
-Shouldn't this duplication be removed.
-
-Now, let's say a vendor has linux_kernel_version_1 that has 300 system calls. The vendor needs to
-give some extra functionality to its customers and the way chosen is to implement new system call.
- The new system call number is 301. The customer gets this custom kernel and uses number 301.
-Next, he downloads another kernel (newer linux kernel version) on his system that has already
-implemented the system call numbered 301. The customer now runs his program. Even if he compiles
-it again he has the old header files, so that does not make a difference.
-
-Now his program uses number 301 that refers to some other system call and so, we can see system
-crash, or some very wrong behaviour. Making system calls more portable will ensure that atleast
-the program gets an indication that something is wrong (error returned from the kernel that this
-system call name is not matched). Or, if the vendor is actually successful in pushing its system
-call to the mainline kernel, no one needs to worry about it. Everything will run happily.
-
-However, people may say that, implementing custom system calls is not advocated by linux. And I
-think it is not advocated precisely because of this reason that they are not portable.
-
-Regards,
-Amit
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+~Akula2

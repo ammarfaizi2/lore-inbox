@@ -1,156 +1,202 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932617AbXAGRg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932619AbXAGRrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbXAGRg3 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 12:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbXAGRg3
+	id S932619AbXAGRrc (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 12:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbXAGRrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 12:36:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58706 "EHLO mx1.redhat.com"
+	Sun, 7 Jan 2007 12:47:32 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57303 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932617AbXAGRg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 12:36:28 -0500
-Date: Sun, 7 Jan 2007 12:36:12 -0500
-From: Dave Jones <davej@redhat.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: page_mapcount(page) went negative
-Message-ID: <20070107173612.GC6111@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Hugh Dickins <hugh@veritas.com>
-References: <20061204204024.2401148d.akpm@osdl.org> <20061205160250.GB9076@kernelslacker.org> <20061212174909.GD2140@redhat.com> <458776A5.3060007@yahoo.com.au>
+	id S932619AbXAGRrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 12:47:31 -0500
+Date: Sun, 7 Jan 2007 18:44:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] KVM paravirtualization for Linux
+Message-ID: <20070107174416.GA14607@elte.hu>
+References: <20070105215223.GA5361@elte.hu> <45A0E586.50806@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <458776A5.3060007@yahoo.com.au>
+In-Reply-To: <45A0E586.50806@qumranet.com>
 User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2006 at 04:20:37PM +1100, Nick Piggin wrote:
- > Dave Jones wrote:
- > 
- > > Eeek! page_mapcount(page) went negative! (-2)
- > 
- > Hmm, probably happened once before, too.
- > 
- > >   page->flags = 404
- > 
- > What's that? PG_referenced|PG_reserved? So I'd say it is likely
- > that some driver has got its refcounting wrong.
- > 
- > Unfortunately, this debugging output is almost useless when it
- > comes to trying to track down the problem any further.
- > 
- > And I see we've got another report for 2.6.19.1 from Chris, which
- > is equally vague.
- > 
- > IMO the pattern is much too consistent to be able to attribute
- > them all to hardware problems. And considering it takes so long
- > for these things to appear, can we get something like the attached
- > patch upstream at least until we manage to stamp them out? Any
- > other debugging info we can add?
 
-I finally got another trace out of a 2.6.19.1 with this debug patch..
-I'm starting to wonder if this is hardware related.
-That box makes me suspicious as its motherboard has a bunch
-of bulging capacitors on it. I had three of these, the previous
-two died like so: http://www.flickr.com/photos/kernelslacker/251807263/in/set-72157594298237090/
-This board hasn't started 'oozing' yet, but I think it may be on
-the cards.
+* Avi Kivity <avi@qumranet.com> wrote:
 
-iirc, the previous oopses were around the same time of morning,
-whilst cron.daily was hammering the hell out of the disk.
-Either there's a subtle bug, or this board just can't take the pressure.
+> >2-task context-switch performance (in microseconds, lower is better):
+> >
+> > native:                       1.11
+> > ----------------------------------
+> > Qemu:                        61.18
+> > KVM upstream:                53.01
+> > KVM trunk:                    6.36
+> > KVM trunk+paravirt/cr3:       1.60
+> >
+> >i.e. 2-task context-switch performance is faster by a factor of 4, and 
+> >is now quite close to native speed!
+> >  
+> 
+> Very impressive!  The gain probably comes not only from avoiding the 
+> vmentry/vmexit, but also from avoiding the flushing of the global page 
+> tlb entries.
 
-		Dave
+90% of the win comes from the avoidance of the VM exit. To quantify this 
+more precisely i have added an artificial __flush_tlb_global() call to 
+after switch_to(), just to see how much impact an extra global flush has 
+on the native kernel. Context-switch cost went from 1.11 usecs to 1.65 
+usecs. Then i added a __flush_tlb(), which made the cost go to 1.75, 
+which means that the global flush component is at around 0.5 usecs.
 
-Jan  7 04:24:35 firewall kernel: Eeek! page_mapcount(page) went negative! (-1)
-Jan  7 04:24:35 firewall kernel:   page->flags = 414
-Jan  7 04:24:35 firewall kernel:   page->count = 1
-Jan  7 04:24:35 firewall kernel:   page->mapping = 00000000
-Jan  7 04:24:35 firewall kernel:   vma->vm_ops->nopage = filemap_nopage+0x0/0x33e
-Jan  7 04:24:35 firewall kernel: ------------[ cut here ]------------
-Jan  7 04:24:35 firewall kernel: kernel BUG at mm/rmap.c:581!
-Jan  7 04:24:35 firewall kernel: invalid opcode: 0000 [#1]
-Jan  7 04:24:35 firewall kernel: SMP 
-Jan  7 04:24:35 firewall kernel: last sysfs file: /class/net/lo/type
-Jan  7 04:24:35 firewall kernel: Modules linked in: tun ipt_MASQUERADE iptable_nat ip_nat ipt_LOG xt_limit ipv6 ip_conntrack_netbios_ns ipt_REJECT xt_state i
-p_conntrack nfnetlink xt_tcpudp iptable_filter ip_tables x_tables video sbs i2c_ec button battery asus_acpi ac parport_pc lp parport sr_mod sg pcspkr i2c_via
-pro ide_cd i2c_core 3c59x via_rhine cdrom mii via_ircc irda crc_ccitt serio_raw dm_snapshot dm_zero dm_mirror dm_mod ext3 jbd ehci_hcd ohci_hcd uhci_hcd
-Jan  7 04:24:35 firewall kernel: CPU:    0
-Jan  7 04:24:35 firewall kernel: EIP:    0060:[<c046d995>]    Not tainted VLI
-Jan  7 04:24:35 firewall kernel: EFLAGS: 00010286   (2.6.19-1.2886.fc6debug #1)
-Jan  7 04:24:35 firewall kernel: EIP is at page_remove_rmap+0x8b/0xac
-Jan  7 04:24:35 firewall kernel: eax: 00000034   ebx: c1000000   ecx: c042818c   edx: da0b3550
-Jan  7 04:24:35 firewall kernel: esi: daecd0c0   edi: 00000020   ebp: cd386140   esp: ce2f4dc4
-Jan  7 04:24:35 firewall kernel: ds: 007b   es: 007b   ss: 0068
-Jan  7 04:24:35 firewall kernel: Process zcat (pid: 22721, ti=ce2f4000 task=da0b3550 task.ti=ce2f4000)
-Jan  7 04:24:35 firewall kernel: Stack: c066b7b6 00000000 c1000000 08050000 c0467c63 c06c7f10 00000046 00000000 
-Jan  7 04:24:35 firewall kernel:        daecd0c0 ce2f4e44 003f7ffd 00000000 00000001 08055000 cf354080 dde93520 
-Jan  7 04:24:35 firewall kernel:        c1401e80 00000000 fffffff9 dde9358c cf354080 08055000 00000000 ce2f4e44 
-Jan  7 04:24:35 firewall kernel: Call Trace:
-Jan  7 04:24:35 firewall kernel:  [<c0467c63>] unmap_vmas+0x2a6/0x536
-Jan  7 04:24:35 firewall kernel:  [<c046aaa8>] exit_mmap+0x77/0x105
-Jan  7 04:24:35 firewall kernel:  [<c0425471>] mmput+0x37/0x80
-Jan  7 04:24:35 firewall kernel:  [<c042a4b5>] do_exit+0x21c/0x7a3
-Jan  7 04:24:35 firewall kernel:  [<c042aac9>] sys_exit_group+0x0/0xd
-Jan  7 04:24:35 firewall kernel:  [<c043383d>] get_signal_to_deliver+0x38b/0x3b3
-Jan  7 04:24:35 firewall kernel:  [<c0403677>] do_notify_resume+0x83/0x6c6
-Jan  7 04:24:35 firewall kernel:  [<c0404159>] work_notifysig+0x13/0x1a
-Jan  7 04:24:35 firewall kernel:  [<0804a84e>] 0x804a84e
-Jan  7 04:24:35 firewall kernel:  =======================
-Jan  7 04:24:35 firewall kernel: Code: 4c a4 fb ff 8b 43 10 c7 04 24 b6 b7 66 c0 89 44 24 04 e8 39 a4 fb ff 8b 46 40 85 c0 74 0d 8b 50 08 b8 cf b7 66 c0 e8 d
-8 a9 fd ff <0f> 0b 45 02 4b b7 66 c0 8b 53 10 89 d8 59 5b 5b 5e 83 f2 01 83 
-Jan  7 04:24:35 firewall kernel: EIP: [<c046d995>] page_remove_rmap+0x8b/0xac SS:ESP 0068:ce2f4dc4
-Jan  7 04:24:35 firewall kernel:  <3>BUG: sleeping function called from invalid context at kernel/rwsem.c:20
-Jan  7 04:24:35 firewall kernel: in_atomic():1, irqs_disabled():0
-Jan  7 04:24:35 firewall kernel:  [<c0405108>] dump_trace+0x69/0x1b6
-Jan  7 04:24:35 firewall kernel:  [<c040526d>] show_trace_log_lvl+0x18/0x2c
-Jan  7 04:24:35 firewall kernel:  [<c0405868>] show_trace+0xf/0x11
-Jan  7 04:24:35 firewall kernel:  [<c0405965>] dump_stack+0x15/0x17
-Jan  7 04:24:35 firewall kernel:  [<c043ccca>] down_read+0x15/0x4e
-Jan  7 04:24:35 firewall kernel:  [<c04345b6>] blocking_notifier_call_chain+0xe/0x29
-Jan  7 04:24:35 firewall kernel:  [<c042a2b4>] do_exit+0x1b/0x7a3
-Jan  7 04:24:35 firewall kernel:  [<c0405809>] die+0x2c3/0x2e8
-Jan  7 04:24:35 firewall kernel:  [<c0405d4a>] do_invalid_op+0xa2/0xab
-Jan  7 04:24:35 firewall kernel:  [<c063f7a1>] error_code+0x39/0x40
-Jan  7 04:24:35 firewall kernel:  [<c046d995>] page_remove_rmap+0x8b/0xac
-Jan  7 04:24:35 firewall kernel:  [<c0467c63>] unmap_vmas+0x2a6/0x536
-Jan  7 04:24:35 firewall kernel:  [<c046aaa8>] exit_mmap+0x77/0x105
-Jan  7 04:24:35 firewall kernel:  [<c0425471>] mmput+0x37/0x80
-Jan  7 04:24:35 firewall kernel:  [<c042a4b5>] do_exit+0x21c/0x7a3
-Jan  7 04:24:35 firewall kernel:  [<c042aac9>] sys_exit_group+0x0/0xd
-Jan  7 04:24:35 firewall kernel:  [<c043383d>] get_signal_to_deliver+0x38b/0x3b3
-Jan  7 04:24:35 firewall kernel:  [<c0403677>] do_notify_resume+0x83/0x6c6
-Jan  7 04:24:35 firewall kernel:  [<c0404159>] work_notifysig+0x13/0x1a
-Jan  7 04:24:35 firewall kernel:  [<0804a84e>] 0x804a84e
-Jan  7 04:24:35 firewall kernel:  =======================
-Jan  7 04:24:35 firewall kernel: Fixing recursive fault but reboot is needed!
-Jan  7 04:24:35 firewall kernel: BUG: scheduling while atomic: zcat/0x00000001/22721
-Jan  7 04:24:35 firewall kernel:  [<c0405108>] dump_trace+0x69/0x1b6
-Jan  7 04:24:35 firewall kernel:  [<c040526d>] show_trace_log_lvl+0x18/0x2c
-Jan  7 04:24:35 firewall kernel:  [<c0405868>] show_trace+0xf/0x11
-Jan  7 04:24:35 firewall kernel:  [<c0405965>] dump_stack+0x15/0x17
-Jan  7 04:24:35 firewall kernel:  [<c063c72f>] __sched_text_start+0x4f/0xa58
-Jan  7 04:24:35 firewall kernel:  [<c042a397>] do_exit+0xfe/0x7a3
-Jan  7 04:24:35 firewall kernel:  [<c0405809>] die+0x2c3/0x2e8
-Jan  7 04:24:35 firewall kernel:  [<c0405d4a>] do_invalid_op+0xa2/0xab
-Jan  7 04:24:35 firewall kernel:  [<c063f7a1>] error_code+0x39/0x40
-Jan  7 04:24:35 firewall kernel:  [<c046d995>] page_remove_rmap+0x8b/0xac
-Jan  7 04:24:35 firewall kernel:  [<c0467c63>] unmap_vmas+0x2a6/0x536
-Jan  7 04:24:35 firewall kernel:  [<c046aaa8>] exit_mmap+0x77/0x105
-Jan  7 04:24:35 firewall kernel:  [<c0425471>] mmput+0x37/0x80
-Jan  7 04:24:35 firewall kernel:  [<c042a4b5>] do_exit+0x21c/0x7a3
-Jan  7 04:24:35 firewall kernel:  [<c042aac9>] sys_exit_group+0x0/0xd
-Jan  7 04:24:35 firewall kernel:  [<c043383d>] get_signal_to_deliver+0x38b/0x3b3
-Jan  7 04:24:35 firewall kernel:  [<c0403677>] do_notify_resume+0x83/0x6c6
-Jan  7 04:24:35 firewall kernel:  [<c0404159>] work_notifysig+0x13/0x1a
-Jan  7 04:24:35 firewall kernel:  [<0804a84e>] 0x804a84e
-Jan  7 04:24:35 firewall kernel:  =======================
+> >"hackbench 1" (utilizes 40 tasks, numbers in seconds, lower is better):
+> >
+> > native:                       0.25
+> > ----------------------------------
+> > Qemu:                         7.8
+> > KVM upstream:                 2.8
+> > KVM trunk:                    0.55
+> > KVM paravirt/cr3:             0.36
+> >
+> >almost twice as fast.
+> >
+> >"hackbench 5" (utilizes 200 tasks, numbers in seconds, lower is better):
+> >
+> > native:                       0.9
+> > ----------------------------------
+> > Qemu:                        35.2
+> > KVM upstream:                 9.4
+> > KVM trunk:                    2.8
+> > KVM paravirt/cr3:             2.2
+> >
+> >still a 30% improvement - which isnt too bad considering that 200 tasks 
+> >are context-switching in this workload and the cr3 cache in current CPUs 
+> >is only 4 entries.
+> >  
+> 
+> This is a little too good to be true.  Were both runs with the same 
+> KVM_NUM_MMU_PAGES?
 
+yes, both had the same elevated KVM_NUM_MMU_PAGES of 2048. The 'trunk' 
+run should have been labeled as: 'cr3 tree with paravirt turned off'. 
+That's not completely 'trunk' but close to it, and all other changes 
+(like elimination of unnecessary TLB flushes) are fairly applied to 
+both.
 
--- 
-http://www.codemonkey.org.uk
+i also did a run with much less MMU cache pages of 256, and hackbench 1 
+stayed the same, while hackbench 5 numbers started fluctuating badly (i 
+think that workload if trashing the MMU cache badly).
+
+> I'm also concerned that at this point in time the cr3 optimizations 
+> will only show an improvement in microbenchmarks.  In real life 
+> workloads a context switch is usually preceded by an I/O, and with the 
+> current sorry state of kvm I/O the context switch time would be 
+> dominated by the I/O time.
+
+oh, i agreed completely - but in my opinion accelerating virtual I/O is 
+really easy. Accelerating the context-switch path (and basic syscall 
+overhead like KVM does) is /hard/. So i wanted to see whether KVM runs 
+well in all the hard cases, before looking at the low hanging 
+performance fruits in the I/O area =B-)
+
+also note that there's lots of internal reasons why application 
+workloads can be heavily context-switching - it's not just I/O that 
+generates them. (pipes, critical sections / futexes, etc.) So having 
+near-native performance for context-switches is very important.
+
+> >+    if (irq & 8) {
+> >+        outb(cached_slave_mask, PIC_SLAVE_IMR);
+> >+        outb(0x60+(irq&7),PIC_SLAVE_CMD);/* 'Specific EOI' to slave */
+> >+        outb(0x60+PIC_CASCADE_IR,PIC_MASTER_CMD); /* 'Specific EOI' 
+> >to master-IRQ2 */
+> >+    } else {
+> >+        outb(cached_master_mask, PIC_MASTER_IMR);
+> >+        /* 'Specific EOI' to master: */
+> >+        outb(0x60+irq, PIC_MASTER_CMD);
+> >+    }
+> >+    spin_unlock_irqrestore(&i8259A_lock, flags);
+> >+}
+> 
+> Any reason this can't be applied to mainline?  There's probably no 
+> downside to native, and it would benefit all virtualization solutions 
+> equally.
+
+this is legacy stuff ...
+
+> >-    u64 *pae_root;
+> >+    u64 *pae_root[KVM_CR3_CACHE_SIZE];
+> 
+> hmm.  wouldn't it be simpler to have pae_root always point at the 
+> current root?
+
+does that guarantee that it's available? I wanted to 'pin' the root 
+itself this way, to make sure that if a guest switches to it via the 
+cache, that it's truly available and a valid root. cr3 addresses are 
+non-virtual so this is the only mechanism available to guarantee that 
+the host-side memory truly contains a root pagetable.
+
+> >+            vcpu->mmu.pae_root[j][i] = INVALID_PAGE;
+> >+        }
+> >     }
+> >     vcpu->mmu.root_hpa = INVALID_PAGE;
+> > }
+> 
+> You keep the page directories pinned here. [...]
+
+yes.
+
+> [...]  This can be a problem if a guest frees a page directory, and 
+> then starts using it as a regular page.  kvm sometimes chooses not to 
+> emulate a write to a guest page table, but instead to zap it, which is 
+> impossible when the page is freed.  You need to either unpin the page 
+> when that happens, or add a hypercall to let kvm know when a page 
+> directory is freed.
+
+the cache is zapped upon pagefaults anyway, so unpinning ought to be 
+possible. Which one would you prefer?
+
+> >-    for (i = 0; i < 4; ++i)
+> >-        vcpu->mmu.pae_root[i] = INVALID_PAGE;
+> >+    for (j = 0; j < KVM_CR3_CACHE_SIZE; j++) {
+> >+        /*
+> >+         * When emulating 32-bit mode, cr3 is only 32 bits even on
+> >+         * x86_64. Therefore we need to allocate shadow page tables
+> >+         * in the first 4GB of memory, which happens to fit the DMA32
+> >+         * zone:
+> >+         */
+> >+        page = alloc_page(GFP_KERNEL | __GFP_DMA32);
+> >+        if (!page)
+> >+            goto error_1;
+> >+
+> >+        ASSERT(!vcpu->mmu.pae_root[j]);
+> >+        vcpu->mmu.pae_root[j] = page_address(page);
+> >+        for (i = 0; i < 4; ++i)
+> >+            vcpu->mmu.pae_root[j][i] = INVALID_PAGE;
+> >+    }
+> 
+> Since a pae root uses just 32 bytes, you can store all cache entries 
+> in a single page.  Not that it matters much.
+
+yeah - i wanted to extend the current code in a safe way, before 
+optimizing it.
+
+> >+#define KVM_API_MAGIC 0x87654321
+> >+
+> 
+> <linux/kvm.h> is the vmm userspace interface.  The guest/host 
+> interface should probably go somewhere else.
+
+yeah. kvm_para.h?
+
+	Ingo

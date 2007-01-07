@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965239AbXAGWu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965242AbXAGW6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965239AbXAGWu1 (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 17:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbXAGWu1
+	id S965242AbXAGW6a (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 17:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbXAGW6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 17:50:27 -0500
-Received: from smtp.osdl.org ([65.172.181.24]:54414 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965239AbXAGWu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 17:50:27 -0500
-Date: Sun, 7 Jan 2007 14:50:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Osterlund <petero2@telia.com>,
-       "David S. Miller" <davem@davemloft.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kaber@trash.net
-Subject: Re: Linux 2.6.20-rc4
-In-Reply-To: <m37ivyr1v6.fsf@telia.com>
-Message-ID: <Pine.LNX.4.64.0701071442580.3661@woody.osdl.org>
-References: <Pine.LNX.4.64.0701062216210.3661@woody.osdl.org> <m37ivyr1v6.fsf@telia.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Jan 2007 17:58:30 -0500
+Received: from corvette.plexpod.net ([64.38.20.226]:48919 "EHLO
+	corvette.plexpod.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965242AbXAGW6a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 17:58:30 -0500
+X-Greylist: delayed 8782 seconds by postgrey-1.27 at vger.kernel.org; Sun, 07 Jan 2007 17:58:30 EST
+Date: Sun, 7 Jan 2007 15:31:20 -0500
+From: "Shawn O. Pearce" <spearce@spearce.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       nigel@nigel.suspend2.net, "J.H." <warthog9@kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       webmaster@kernel.org
+Subject: Re: How git affects kernel.org performance
+Message-ID: <20070107203120.GA4970@spearce.org>
+References: <20061216094421.416a271e.randy.dunlap@oracle.com> <20061216095702.3e6f1d1f.akpm@osdl.org> <458434B0.4090506@oracle.com> <1166297434.26330.34.camel@localhost.localdomain> <1166304080.13548.8.camel@nigel.suspend2.net> <459152B1.9040106@zytor.com> <1168140954.2153.1.camel@nigel.suspend2.net> <45A08269.4050504@zytor.com> <45A083F2.5000000@zytor.com> <m3odpazxit.fsf@defiant.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3odpazxit.fsf@defiant.localdomain>
+User-Agent: Mutt/1.5.11
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - corvette.plexpod.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - spearce.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Krzysztof Halasa <khc@pm.waw.pl> wrote:
+> Hmm... Perhaps it should be possible to push git updates as a pack
+> file only? I mean, the pack file would stay packed = never individual
+> files and never 256 directories?
 
+Latest Git does this.  If the server is later than 1.4.3.3 then
+the receive-pack process can actually store the pack file rather
+than unpacking it into loose objects.  The downside is that it will
+copy any missing base objects onto the end of a thin pack to make
+it not-thin.
 
-On Sun, 7 Jan 2007, Peter Osterlund wrote:
+There's actually a limit that controls when to keep the pack and when
+not to (receive.unpackLimit).  In 1.4.3.3 this defaulted to 5000
+objects, which meant all but the largest pushes will be exploded
+into loose objects.  In 1.5.0-rc0 that limit changed from 5000 to
+100, though Nico did a lot of study and discovered that the optimum
+is likely 3.  But that tends to create too many pack files so 100
+was arbitrarily chosen.
 
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > Patrick McHardy (2):
-> >       [NETFILTER]: New connection tracking is not EXPERIMENTAL anymore
-> 
-> I get kernel panics when doing large ethernet transfers. A loop doing
-> continuous scp transfers of some large (>100MB) files makes the kernel
-> crash after a few minutes. scp runs on a different machine and copies
-> data from the machine that crashes. (The first crash did not happen
-> when scp was used, but scp is an easy way to reproduce the problem.)
-> 
-> I've seen this crash also with 2.6.20-rc2-git-something. Previously I
-> ran these kernels quite a lot and used a ppp link without problems.
-> Today I started using eth0 and the crashes started to occur. I have
-> netfilter rules for ppp0, but no rules for eth0. Earlier kernels have
-> been working perfectly for large eth0 transfers on this machine.
-> 
-> Hand copied data from the console:
-> 
->   BUG: unable to handle kernel paging request at virtual address 9f5cea9f
->    printing eip:
->   c034c729
->   *pde = 00000000
->   Ooops: 0000 [#1]
->   PREEMPT
->   Modules linked in: ... 8139too ...
->   CPU: 0
->   EIP: 0060:[<c034c729>] Not tainted VLI
->   EFALLGS: 00010206 (2.6.20-rc4 #13)
->   EIP is at ipv4_conntrack_help+0x6b/0x83
->   eax: c0475e44 ebx: 9f5cea37 ecx: d1dcebb0 edx: 00000014
->   esi: d1dcebb0 edi: c0475e44 ebp: c0475dd8 esp: c0475dc4
-
-That's 
-
-	and    $0xf,%dl
-	movzbl %dl,%edx
-	lea    (%ecx,%edx,4),%edx
-	movzbl %bl,%eax
-	mov    %eax,(%esp)
-	mov    %esi,%ecx
-	mov    %edi,%eax
-	mov    0xfffffff0(%ebp),%ebx
-**	call   *0x68(%ebx)		**
-	add    $0x8,%esp
-	pop    %ebx
-	pop    %esi
-	pop    %edi
-	pop    %ebp
-	ret
-
-which is ipv4_conntrack_help():
-
-	return help->helper->help(pskb,
-		(*pskb)->nh.raw - (*pskb)->data
-				+ (*pskb)->nh.iph->ihl*4,
-		ct, ctinfo);
-
-and that call instruction is the one that oopses because "help->helper" is 
-corrupt (it's 0x9f5cea37 - not a valid kernel pointer).
-
-David, there really *is* something screwy in netfilter. 
-
-			Linus
+So if the user pushes <100 objects to a 1.5.0-rc0 server we unpack
+to loose; >= 100 we keep the pack file.  Perhaps this would help
+kernel.org.
+ 
+-- 
+Shawn.

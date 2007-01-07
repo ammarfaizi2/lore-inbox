@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965003AbXAGT7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965024AbXAGUB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbXAGT7O (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 14:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbXAGT7O
+	id S965024AbXAGUB1 (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 15:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbXAGUB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 14:59:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41772 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965003AbXAGT7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 14:59:13 -0500
-Date: Sun, 7 Jan 2007 19:58:45 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] math-emu/setcc: avoid gcc extension
-Message-ID: <20070107195845.GA21829@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Randy Dunlap <randy.dunlap@oracle.com>,
-	Segher Boessenkool <segher@kernel.crashing.org>,
-	akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <20070106221947.8e01d404.randy.dunlap@oracle.com> <33e707f92df6b89a1c22f337f230cf32@kernel.crashing.org> <20070107104555.015aa79f.randy.dunlap@oracle.com> <974f8eb0d5984af6726a130082453916@kernel.crashing.org> <20070107111900.9d434162.randy.dunlap@oracle.com>
+	Sun, 7 Jan 2007 15:01:27 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:44264 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965024AbXAGUB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Jan 2007 15:01:26 -0500
+Date: Sun, 7 Jan 2007 11:59:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-Id: <20070107115957.6080aa08.akpm@osdl.org>
+In-Reply-To: <20070107110013.GD13579@in.ibm.com>
+References: <20061218162701.a3b5bfda.akpm@osdl.org>
+	<20061219004319.GA821@tv-sign.ru>
+	<20070104113214.GA30377@in.ibm.com>
+	<20070104142936.GA179@tv-sign.ru>
+	<20070104091850.c1feee76.akpm@osdl.org>
+	<20070106151036.GA951@tv-sign.ru>
+	<20070106154506.GC24274@in.ibm.com>
+	<20070106163035.GA2948@tv-sign.ru>
+	<20070106163851.GA13579@in.ibm.com>
+	<20070106111117.54bb2307.akpm@osdl.org>
+	<20070107110013.GD13579@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070107111900.9d434162.randy.dunlap@oracle.com>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2007 at 11:19:00AM -0800, Randy Dunlap wrote:
-> On Sun, 7 Jan 2007 20:12:42 +0100 Segher Boessenkool wrote:
-> 
-> > There's an extra tab in that last line.  Could you also
-> > please fix the indenting (use a tab, not spaces) -- I know
-> > it was there originally, but since there are only a few
-> > lines in that file like that...  :-)
-> 
-> how's this one?
-> ---
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> setcc() in math-emu is written as a gcc extension statement expression
-> macro that returns a value.  However, it's not used that way and it's
-> not needed like that, so just make it a do-while non-extension macro
-> so that we don't use an extension when it's not needed.
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> ---
->  arch/i386/math-emu/status_w.h        |    5 +++--
-> 
-> ---
->  arch/i386/math-emu/status_w.h |    7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> --- linux-2620-rc2.orig/arch/i386/math-emu/status_w.h
-> +++ linux-2620-rc2/arch/i386/math-emu/status_w.h
-> @@ -48,9 +48,10 @@
->  
->  #define status_word() \
->    ((partial_status & ~SW_Top & 0xffff) | ((top << SW_Top_Shift) & SW_Top))
-> -#define setcc(cc) ({ \
-> -  partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
-> -  partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); })
-> +#define setcc(cc) do { \
-> +	partial_status &= ~(SW_C0|SW_C1|SW_C2|SW_C3); \
-> +	partial_status |= (cc) & (SW_C0|SW_C1|SW_C2|SW_C3); \
-> +} while (0)
+On Sun, 7 Jan 2007 16:30:13 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-Is there any reason you this shouldn't be an inline function?
+> On Sat, Jan 06, 2007 at 11:11:17AM -0800, Andrew Morton wrote:
+> > Has anyone thought seriously about using the process freezer in the
+> > cpu-down/cpu-up paths?  That way we don't need to lock anything anywhere?
+> 
+> How would this provide a stable access to cpu_online_map in functions
+> that need to block while accessing it (as flush_workqueue requires)?
+
+If a thread simply blocks, that will not permit a cpu plug/unplug to proceed.
+
+The thread had to explicitly call try_to_freeze().  CPU plug/unplug will
+not occur (and cpu_online_map will not change) until every process in the
+machine has called try_to_freeze()).
+
+So the problem which you're referring to will only occur if a workqueue
+callback function calls try_to_freeze(), which would be mad.
+
+
+
+Plus flush_workqueue() is on the way out.  We're slowly edging towards a
+working cancel_work() which will only block if the work which you're trying
+to cancel is presently running.  With that, pretty much all the
+flush_workqueue() calls go away, and all these accidental rarely-occurring
+deadlocks go away too.
 

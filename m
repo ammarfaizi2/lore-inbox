@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932478AbXAGKna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932482AbXAGKnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbXAGKna (ORCPT <rfc822;w@1wt.eu>);
-	Sun, 7 Jan 2007 05:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbXAGKna
+	id S932482AbXAGKnt (ORCPT <rfc822;w@1wt.eu>);
+	Sun, 7 Jan 2007 05:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbXAGKnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Jan 2007 05:43:30 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:35993 "EHLO
-	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932478AbXAGKn3 (ORCPT
+	Sun, 7 Jan 2007 05:43:49 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49349 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932482AbXAGKnq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Jan 2007 05:43:29 -0500
-Date: Sun, 7 Jan 2007 11:43:26 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] cio: use barrier() in stsch_reset.
-Message-ID: <20070107104326.GB14724@skybase>
-MIME-Version: 1.0
+	Sun, 7 Jan 2007 05:43:46 -0500
+Date: Sun, 7 Jan 2007 16:13:28 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] fix-flush_workqueue-vs-cpu_dead-race-update
+Message-ID: <20070107104328.GC13579@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20061218162701.a3b5bfda.akpm@osdl.org> <20061219004319.GA821@tv-sign.ru> <20070104113214.GA30377@in.ibm.com> <20070104142936.GA179@tv-sign.ru> <20070104091850.c1feee76.akpm@osdl.org> <20070106151036.GA951@tv-sign.ru> <20070106154506.GC24274@in.ibm.com> <20070106163035.GA2948@tv-sign.ru> <20070106163851.GA13579@in.ibm.com> <20070106173416.GA3771@tv-sign.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20070106173416.GA3771@tv-sign.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Sat, Jan 06, 2007 at 08:34:16PM +0300, Oleg Nesterov wrote:
+> I suspect this can't help either.
+> 
+> The problem is that flush_workqueue() may be called while cpu hotplug event
+> in progress and CPU_DEAD waits for kthread_stop(), so we have the same dead
+> lock if work->func() does flush_workqueue(). This means that Andrew's change
+> to use preempt_disable() is good and anyway needed.
 
-[S390] cio: use barrier() in stsch_reset.
+Well ..a lock_cpu_hotplug() in run_workqueue() and support for recursive
+calls to lock_cpu_hotplug() by the same thread will avoid the problem
+you mention. This will need changes to task_struct to track the
+recursion depth. Alternately this can be supported w/o changes to
+task_struct by 'biasing' readers over writers as I believe Gautham's 
+patches [1] do.
 
-Use barrier() in stsch_reset() instead of duplicating the stsch()
-inline assembly and adding "memory" to the clobberlist.
-Pointed out by Chuck Ebbert.
+1. http://lkml.org/lkml/2006/10/26/65
 
-Real fix would be to add a fixup section to the stsch() and extend the
-basic program check handler so it searches the exception tables in case
-of a program check.
+-- 
+Regards,
+vatsa
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
 
- drivers/s390/cio/cio.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/cio.c linux-2.6-patched/drivers/s390/cio/cio.c
---- linux-2.6/drivers/s390/cio/cio.c	2007-01-06 15:20:12.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/cio.c	2007-01-06 15:20:31.000000000 +0100
-@@ -880,19 +880,15 @@ static void cio_reset_pgm_check_handler(
- static int stsch_reset(struct subchannel_id schid, volatile struct schib *addr)
- {
- 	int rc;
--	register struct subchannel_id reg1 asm ("1") = schid;
- 
- 	pgm_check_occured = 0;
- 	s390_reset_pgm_handler = cio_reset_pgm_check_handler;
-+	rc = stsch(schid, addr);
-+	s390_reset_pgm_handler = NULL;
- 
--	asm volatile(
--		"       stsch   0(%2)\n"
--		"       ipm     %0\n"
--		"       srl     %0,28"
--		: "=d" (rc)
--		: "d" (reg1), "a" (addr), "m" (*addr) : "memory", "cc");
-+	/* The program check handler could have changed pgm_check_occured */
-+	barrier();
- 
--	s390_reset_pgm_handler = NULL;
- 	if (pgm_check_occured)
- 		return -EIO;
- 	else

@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750780AbXAHXzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1750818AbXAHXzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbXAHXzZ (ORCPT <rfc822;w@1wt.eu>);
-	Mon, 8 Jan 2007 18:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbXAHXzY
+	id S1750818AbXAHXzr (ORCPT <rfc822;w@1wt.eu>);
+	Mon, 8 Jan 2007 18:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbXAHXzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Jan 2007 18:55:24 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:55644 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780AbXAHXzY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Jan 2007 18:55:24 -0500
-Message-ID: <45A2D9C8.9020007@zytor.com>
-Date: Mon, 08 Jan 2007 15:54:48 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: dean gaudet <dean@arctic.org>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] All Transmeta CPUs have constant TSCs
-References: <200701050148.l051mHGM005275@terminus.zytor.com> <Pine.LNX.4.61.0701051524440.7813@yvahk01.tjqt.qr> <Pine.LNX.4.64.0701072358010.26307@twinlark.arctic.org> <Pine.LNX.4.61.0701082118370.23737@yvahk01.tjqt.qr> <45A2AEE0.4090707@zytor.com> <Pine.LNX.4.64.0701081506330.12282@twinlark.arctic.org>
-In-Reply-To: <Pine.LNX.4.64.0701081506330.12282@twinlark.arctic.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 8 Jan 2007 18:55:47 -0500
+Received: from smtp.osdl.org ([65.172.181.24]:55814 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750792AbXAHXzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Jan 2007 18:55:46 -0500
+Date: Mon, 8 Jan 2007 15:54:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: vatsa@in.ibm.com, David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: [PATCH] flush_cpu_workqueue: don't flush an empty ->worklist
+Message-Id: <20070108155428.d76f3b73.akpm@osdl.org>
+In-Reply-To: <20070107210139.GA2332@tv-sign.ru>
+References: <20070104113214.GA30377@in.ibm.com>
+	<20070104142936.GA179@tv-sign.ru>
+	<20070104091850.c1feee76.akpm@osdl.org>
+	<20070106151036.GA951@tv-sign.ru>
+	<20070106154506.GC24274@in.ibm.com>
+	<20070106163035.GA2948@tv-sign.ru>
+	<20070106163851.GA13579@in.ibm.com>
+	<20070106111117.54bb2307.akpm@osdl.org>
+	<20070107110013.GD13579@in.ibm.com>
+	<20070107115957.6080aa08.akpm@osdl.org>
+	<20070107210139.GA2332@tv-sign.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-> On Mon, 8 Jan 2007, H. Peter Anvin wrote:
-> 
->> I *definitely* support the concept that RDPMC 0 should could CPU cycles by
->> convention in Linux.
-> 
-> unfortunately that'd be very limiting and annoying on core2 processors 
-> which have dedicated perf counters for clocks unhalted (actual vs. 
-> nominal), but only 2 configurable perf counters.  i forget what ecx value 
-> gets you the dedicated counters... but a solution which might work would 
-> be a syscall to return the perf counter number...
-> 
-> or we could just merge perfmon ;)
-> 
 
-OK, if there are dedicated counters in hardware at a different number, 
-we probably should make it an ELF entry value (no need to make it a 
-syscall for a constant.)
+Just a sad little note that I've utterly lost the plot on the workqueue
+changes.
 
-	-hpa
+schedule_on_each_cpu-use-preempt_disable.patch
+reimplement-flush_workqueue.patch
+implement-flush_work.patch
+implement-flush_work-sanity.patch
+implement-flush_work_keventd.patch
+flush_workqueue-use-preempt_disable-to-hold-off-cpu-hotplug.patch
+flush_cpu_workqueue-dont-flush-an-empty-worklist.patch
+aio-use-flush_work.patch
+kblockd-use-flush_work.patch
+relayfs-use-flush_keventd_work.patch
+tg3-use-flush_keventd_work.patch
+e1000-use-flush_keventd_work.patch
+libata-use-flush_work.patch
+phy-use-flush_work.patch
+#bridge-avoid-using-noautorel-workqueues.patch
+#
+extend-notifier_call_chain-to-count-nr_calls-made.patch
+extend-notifier_call_chain-to-count-nr_calls-made-fixes.patch
+extend-notifier_call_chain-to-count-nr_calls-made-fixes-2.patch
+define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release.patch
+define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release-fix.patch
+eliminate-lock_cpu_hotplug-in-kernel-schedc.patch
+eliminate-lock_cpu_hotplug-in-kernel-schedc-fix.patch
+handle-cpu_lock_acquire-and-cpu_lock_release-in-workqueue_cpu_callback.patch
+fix-flush_workqueue-vs-cpu_dead-race.patch
+
+I don't know which of these are good, bad or indifferent.
+
+Furthermore I don't know which of these need to be tossed overboard if/when
+we get around to using the task freezer for CPU hotplug synchronisation. 
+Hopefully, a lot of them.  I don't really understand why we're continuing
+to struggle with the existing approach before that question is settled.
+
